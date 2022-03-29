@@ -101,7 +101,8 @@ const DrawerItemContainer = (props) => {
 
   const returnElasState = () => {
     // setup
-    if (projectInfo?.reviews[0].status === projectStatuses.SETUP) {
+    if (projectInfo?.reviews[0] === undefined ||
+        projectInfo?.reviews[0].status === projectStatuses.SETUP) {
       return SetUp;
     }
 

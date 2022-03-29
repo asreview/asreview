@@ -83,7 +83,8 @@ const ProjectPage = (props) => {
     {
       enabled: project_id !== undefined,
       onSuccess: (data) => {
-        if (data["reviews"][0]["status"] === projectStatuses.SETUP) {
+        if (data.reviews[0] === undefined ||
+            data["reviews"][0]["status"] === projectStatuses.SETUP) {
           // set project id
           props.setProjectId(project_id);
           // open project setup dialog
