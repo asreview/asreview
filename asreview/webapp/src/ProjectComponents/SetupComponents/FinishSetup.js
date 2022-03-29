@@ -38,7 +38,7 @@ const images = [
   {
     imgPath: Autosave,
     textTitle: "Autosave",
-    text: "Your screening decisions are automatically saved on your own device.",
+    text: "Your decisions are automatically saved on your own device.",
   },
   {
     imgPath: FinishReview,

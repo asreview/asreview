@@ -305,15 +305,15 @@ const SettingsDialog = (props) => {
                   <Box>
                     To help researchers conduct a systematic review or
                     meta-analysis as efficiently and transparently as possible,
-                    we designed a tool to accelerate the step of screening
+                    we designed a tool to accelerate the step of reviewing
                     titles and abstracts. For many tasks—including but not
                     limited to systematic reviews and meta-analyses—the
                     scientific literature needs to be checked systematically.
-                    Scholars and practitioners currently screen thousands of
+                    Scholars and practitioners currently review thousands of
                     studies by hand to determine which studies to include in
                     their review or meta-analysis. This is error prone and
                     inefficient because of extremely imbalanced data: only a
-                    fraction of the screened studies is relevant. The future of
+                    fraction of the reviewed studies is relevant. The future of
                     systematic reviewing will be an interaction with machine
                     learning algorithms to deal with the enormous increase of
                     available text. We therefore developed an open source
