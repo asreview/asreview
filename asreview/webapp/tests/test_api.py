@@ -228,16 +228,17 @@ def test_start(client):
     assert response.status_code == 200
 
 
-def test_ready(client):
+def test_first_model_ready(client):
     """Test check if trained model is available"""
 
     # wait the model ready
     time.sleep(8)
 
-    response = client.get("/api/projects/project-id/ready")
+    response = client.get("/api/projects/project-id/status")
     json_data = response.get_json()
 
-    assert json_data["status"] == 1
+    print(json_data)
+    assert json_data["status"] == "review"
 
 
 def test_export_result(client):
@@ -262,7 +263,16 @@ def test_export_project(client):
 def test_finish_project(client):
     """Test mark a project as finished or not"""
 
-    response = client.get("/api/projects/project-id/finish")
+    response = client.put("/api/projects/project-id/status",
+                          data={"status": "finished"})
+    assert response.status_code == 200
+
+    response = client.put("/api/projects/project-id/status",
+                          data={"status": "review"})
+    assert response.status_code == 200
+
+    response = client.put("/api/projects/project-id/status",
+                          data={"status": "finished"})
     assert response.status_code == 200
 
 

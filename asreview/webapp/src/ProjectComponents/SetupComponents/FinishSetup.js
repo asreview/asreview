@@ -112,8 +112,8 @@ const FinishSetup = (props) => {
     setActiveStep(step);
   };
 
-  const refetchProjectReady = () => {
-    queryClient.resetQueries("fetchProjectReady");
+  const refetchProjectStatus = () => {
+    queryClient.resetQueries("fetchProjectStatus");
   };
 
   const onClickProjectReview = () => {
@@ -146,7 +146,7 @@ const FinishSetup = (props) => {
       {!props.isPreparingProject && props.isProjectReadyError && (
         <InlineErrorHandler
           message={props.projectReadyError?.message}
-          refetch={refetchProjectReady}
+          refetch={refetchProjectStatus}
           button={true}
         />
       )}

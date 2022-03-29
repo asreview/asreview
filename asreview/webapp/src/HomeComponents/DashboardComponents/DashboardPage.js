@@ -44,6 +44,7 @@ const DashboardPage = (props) => {
               <ProjectTable
                 onNavDrawer={props.onNavDrawer}
                 projectCheck={props.projectCheck}
+                setFeedbackBar={setFeedbackBar}
                 setProjectCheck={props.setProjectCheck}
                 toggleProjectSetup={props.toggleProjectSetup}
               />

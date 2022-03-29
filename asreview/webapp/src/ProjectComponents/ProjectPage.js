@@ -30,6 +30,7 @@ import {
   drawerWidth,
   mapDispatchToProps,
   projectModes,
+  projectStatuses,
 } from "../globals.js";
 
 const PREFIX = "ProjectPage";
@@ -82,7 +83,7 @@ const ProjectPage = (props) => {
     {
       enabled: project_id !== undefined,
       onSuccess: (data) => {
-        if (!data["projectInitReady"]) {
+        if (data["reviews"][0]["status"] === projectStatuses.SETUP) {
           // set project id
           props.setProjectId(project_id);
           // open project setup dialog
@@ -94,7 +95,7 @@ const ProjectPage = (props) => {
           // if simulation is running
           if (
             data["mode"] === projectModes.SIMULATION &&
-            !data["reviewFinished"]
+            data["reviews"][0]["status"] === projectStatuses.REVIEW
           ) {
             setIsSimulating(true);
           }
@@ -123,12 +124,12 @@ const ProjectPage = (props) => {
 
   const { error: checkSimulationError, isError: isCheckSimulationError } =
     useQuery(
-      ["fetchSimulationFinished", { project_id }],
-      ProjectAPI.fetchSimulationFinished,
+      ["fetchProjectStatus", { project_id }],
+      ProjectAPI.fetchProjectStatus,
       {
         enabled: isSimulating,
         onSuccess: (data) => {
-          if (data["status"] === 1) {
+          if (data["status"] === "finished") {
             // refresh analytics
             refetchAnalytics();
             // simulation finished
@@ -137,7 +138,7 @@ const ProjectPage = (props) => {
           } else {
             // not finished yet
             setTimeout(
-              () => queryClient.invalidateQueries("fetchSimulationFinished"),
+              () => queryClient.invalidateQueries("fetchProjectStatus"),
               checkIfSimulationFinishedDuration
             );
           }
@@ -151,7 +152,7 @@ const ProjectPage = (props) => {
       return ["fetchInfo", error, isError];
     } else if (isCheckSimulationError) {
       return [
-        "fetchSimulationFinished",
+        "fetchProjectStatus",
         checkSimulationError,
         isCheckSimulationError,
       ];
@@ -186,28 +187,34 @@ const ProjectPage = (props) => {
           )}
 
           {/* Review */}
-          {isSuccess && !data?.projectNeedsUpgrade && !data?.reviewFinished && (
-            <Route
-              path="review"
-              element={
-                <ReviewPage
-                  mobileScreen={props.mobileScreen}
-                  projectMode={data?.mode}
-                  fontSize={props.fontSize}
-                  undoEnabled={props.undoEnabled}
-                  keyPressEnabled={props.keyPressEnabled}
-                />
-              }
-            />
-          )}
+          {isSuccess &&
+            !data?.projectNeedsUpgrade &&
+            data?.reviews[0].status === projectStatuses.REVIEW && (
+              <Route
+                path="review"
+                element={
+                  <ReviewPage
+                    mobileScreen={props.mobileScreen}
+                    projectMode={data?.mode}
+                    fontSize={props.fontSize}
+                    undoEnabled={props.undoEnabled}
+                    keyPressEnabled={props.keyPressEnabled}
+                  />
+                }
+              />
+            )}
 
           {/* Review finished */}
-          {isSuccess && !data?.projectNeedsUpgrade && data?.reviewFinished && (
-            <Route
-              path="review"
-              element={<ReviewPageFinished mobileScreen={props.mobileScreen} />}
-            />
-          )}
+          {isSuccess &&
+            !data?.projectNeedsUpgrade &&
+            data?.reviews[0].status === projectStatuses.FINISHED && (
+              <Route
+                path="review"
+                element={
+                  <ReviewPageFinished mobileScreen={props.mobileScreen} />
+                }
+              />
+            )}
 
           {/* History */}
           {isSuccess && !data?.projectNeedsUpgrade && (
@@ -233,7 +240,6 @@ const ProjectPage = (props) => {
               path="export"
               element={
                 <ExportPage
-                  enableExportDataset={data?.projectInitReady}
                   isSimulating={isSimulating}
                   mobileScreen={props.mobileScreen}
                 />

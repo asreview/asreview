@@ -1,10 +1,13 @@
 import React from "react";
-import { useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Fade, Link, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
+import { ActionsFeedbackBar } from "../../Components";
+
 import { ProjectAPI } from "../../api/index.js";
+import { projectStatuses } from "../../globals.js";
 import ElasFinished from "../../images/ElasFinished.svg";
 
 const PREFIX = "ReviewPageFinished";
@@ -47,6 +50,22 @@ const ReviewPageFinished = (props) => {
 
   const [recordEmpty, setRecordEmpty] = React.useState(false);
 
+  const { error, isError, mutate, reset } = useMutation(
+    ProjectAPI.mutateProjectStatus,
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries("fetchInfo");
+      },
+    }
+  );
+
+  const handleChangeStatus = () => {
+    mutate({
+      project_id,
+      status: projectStatuses.REVIEW,
+    });
+  };
+
   const handleClickExport = () => {
     navigate(`/projects/${project_id}/export`);
   };
@@ -81,9 +100,14 @@ const ReviewPageFinished = (props) => {
                 Congratulations! You have finished this project.
               </Typography>
               <Typography className={classes.text}>
-                You have stopped reviewing and marked this project as finished.
-                If you want to resume the review, please{" "}
-                <Link>update project status</Link>.
+                You have stopped reviewing and marked this project as finished.{" "}
+                <Link
+                  component="button"
+                  variant="body1"
+                  onClick={handleChangeStatus}
+                >
+                  Resume the review
+                </Link>
               </Typography>
             </Stack>
           )}
@@ -97,6 +121,13 @@ const ReviewPageFinished = (props) => {
           )}
         </Stack>
       </Fade>
+      {isError && (
+        <ActionsFeedbackBar
+          feedback={error?.message + " Please try again."}
+          open={isError}
+          onClose={reset}
+        />
+      )}
     </Root>
   );
 };
