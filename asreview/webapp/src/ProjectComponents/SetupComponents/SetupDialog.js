@@ -250,7 +250,6 @@ const SetupDialog = (props) => {
       queryClient.invalidateQueries("fetchInfo");
       queryClient.invalidateQueries("fetchLabeledStats");
       toggleAddDataset();
-      setDatasetSource("file");
     },
     onSettled: () => {
       setFile(null);
@@ -281,7 +280,6 @@ const SetupDialog = (props) => {
 
   const handleDiscardDataset = () => {
     toggleAddDataset();
-    setDatasetSource("file");
     setFile(null);
     setURL("");
     setExtension(null);
@@ -320,6 +318,12 @@ const SetupDialog = (props) => {
       labeledStats?.n_prior_inclusions > 4
     );
   };
+
+  React.useEffect(() => {
+    if (info.mode === projectModes.EXPLORATION) {
+      setDatasetSource("benchmark");
+    }
+  }, [info.mode]);
 
   /**
    * Step3: Model
@@ -421,6 +425,7 @@ const SetupDialog = (props) => {
       authors: "",
       description: "",
     });
+    setDatasetSource("file");
     setDatasetAdded(false);
     setModel({
       classifier: null,
