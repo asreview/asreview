@@ -55,7 +55,7 @@ def test_simulate_review_finished(tmpdir):
     Path(tmpdir, 'test').mkdir(parents=True)
     project = ASReviewProject.load(asreview_fp, Path(tmpdir, 'test'))
 
-    assert project.config['reviews'][0]['review_finished']
+    assert project.config['reviews'][0]['status'] == "finished"
 
 
 def test_prior_idx(tmpdir):

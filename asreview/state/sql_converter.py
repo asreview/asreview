@@ -41,6 +41,27 @@ def is_old_project(fp):
         return True
 
 
+def get_old_project_status(config):
+
+    # project is marked as finished
+    if config.get('reviewFinished', False):
+        return "finished"
+
+    # project init is not ready
+    if "projectInitReady" in config and not config["projectInitReady"]:
+        return "setup"
+
+    # project init flag is not available
+    if "projectInitReady" not in config:
+        if "projectHasPriorKnowledge" in config:
+            if config["projectHasPriorKnowledge"]:
+                return "review"
+            else:
+                return "setup"
+
+    return "review"
+
+
 def decode_feature_matrix(jsonstate, data_hash):
     """Get the feature matrix from a json state as a scipy csr_matrix."""
     my_data = jsonstate._state_dict["data_properties"][data_hash]
@@ -83,7 +104,6 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
 
     # Current paths.
     json_fp = Path(legacy_fp, 'result.json')
-    project_fp = Path(fp, 'project.json')
     pool_fp = Path(legacy_fp, 'pool.json')
     kwargs_fp = Path(legacy_fp, 'kwargs.json')
     review_id = str(uuid4().hex)
@@ -121,11 +141,24 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     feature_matrix_fp = convert_json_feature_matrix(fp, json_fp,
                                                     feature_extraction_method)
 
-    # Update the project.json file.
+    # --- Upgrade the project.json file.
+
+    # extract the start time from the state json
     with open(json_fp, 'r') as f:
         start_time = json.load(f)['time']['start_time']
-    convert_project_json(project_fp, review_id, start_time, feature_matrix_fp,
-                         feature_extraction_method)
+
+    # open the project json and upgrade
+    with open(Path(fp, 'project.json'), 'r') as f:
+        project_config_old = json.load(f)
+
+    project_config_new = upgrade_project_config(project_config_old, review_id,
+                                                start_time,
+                                                Path(feature_matrix_fp).name,
+                                                feature_extraction_method)
+
+    # dump the project json
+    with open(Path(fp, 'project.json'), 'w') as f:
+        json.dump(project_config_new, f)
 
 
 def move_old_files_to_legacy_folder(fp):
@@ -152,14 +185,17 @@ def move_old_files_to_legacy_folder(fp):
             file_path.unlink()
 
 
-def convert_project_json(project_fp, review_id, start_time, feature_matrix_fp,
-                         feature_extraction_method):
+def upgrade_project_config(config,
+                           review_id=None,
+                           start_time=None,
+                           feature_matrix_name=None,
+                           feature_extraction_method=None):
     """Update the project.json file to contain the review information , the
     feature matrix information and the new state version number.
 
     Arguments
     ---------
-    project_fp: str/path
+    config: str/path
         Path to the project json file.
     review_id: str
         Identifier of the review.
@@ -170,34 +206,36 @@ def convert_project_json(project_fp, review_id, start_time, feature_matrix_fp,
     feature_extraction_method: str
         Name of the feature extraction method.
     """
-    with open(project_fp, 'r') as f:
-        project_info = json.load(f)
+
+    # Add the review information.
+    config['reviews'] = [{
+        'id': review_id,
+        'start_time': start_time,
+        'status': get_old_project_status(config)
+    }]
 
     # Add the feature matrix information.
-    feature_matrix_name = Path(feature_matrix_fp).name
-    project_info['feature_matrices'] = [{
+    config['feature_matrices'] = [{
         'id': feature_extraction_method,
         'filename': feature_matrix_name
     }]
 
-    # Add the review information.
-    project_info['reviews'] = [{
-        'id':
-        review_id,
-        'start_time':
-        start_time,
-        'review_finished':
-        project_info.get('reviewFinished', False)
-    }]
-
     # Add the project mode.
-    project_info['mode'] = project_info.get('mode', 'oracle')
+    config['mode'] = config.get('mode', 'oracle')
 
     # Update the state version.
-    project_info['state_version'] = SQLSTATE_VERSION
+    config['state_version'] = SQLSTATE_VERSION
 
-    with open(project_fp, 'w') as f:
-        json.dump(project_info, f)
+    # set created_at_unix to start time (empty: None)
+    if "created_at_unix" not in config:
+        config["created_at_unix"] = start_time
+
+    # delete deprecated metadata
+    config.pop("projectInitReady", None)
+    config.pop("projectHasPriorKnowledge", None)
+    config.pop("projectHasDataset", None)
+
+    return config
 
 
 def convert_json_settings_metadata(fp, json_fp):
@@ -246,8 +284,10 @@ def create_last_ranking_table(sql_fp, pool_fp, kwargs_fp, json_fp):
     # Add the record_ids not found in the pool to the end of the ranking.
     with open_state_legacy(json_fp) as json_state:
         record_table = get_json_record_table(json_state)
-    records_not_in_pool = [record_id for record_id in record_table
-                           if record_id not in pool_ranking]
+    records_not_in_pool = [
+        record_id for record_id in record_table
+        if record_id not in pool_ranking
+    ]
     pool_ranking += records_not_in_pool
 
     # Set the training set to -1 (prior) for records from old pool.

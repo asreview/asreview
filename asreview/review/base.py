@@ -78,7 +78,7 @@ class BaseReview(ABC):
 
         # Set the settings.
         self.as_data = as_data
-        self.state_fp = Path(state_file)
+        self.state_fp = state_file
         self.n_papers = n_papers
         self.n_instances = n_instances
         self.n_queries = n_queries

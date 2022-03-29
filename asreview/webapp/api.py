@@ -73,6 +73,7 @@ from asreview.state.paths import get_data_path
 from asreview.state.paths import get_simulation_ready_path
 from asreview.state.sql_converter import is_old_project
 from asreview.state.sql_converter import upgrade_asreview_project_file
+from asreview.state.sql_converter import upgrade_project_config
 from asreview.utils import _get_executable
 from asreview.utils import asreview_path
 from asreview.webapp.io import read_data
@@ -115,19 +116,13 @@ def api_get_projects():  # noqa: F401
     for project in list_asreview_projects():
 
         try:
+
             project_config = project.config
 
-            # backwards support <0.10
-            if "projectInitReady" not in project_config:
-                project_config["projectInitReady"] = True
-
-            # if time is not available (<0.14)
-            if "created_at_unix" not in project_config:
-                project_config["created_at_unix"] = None
-
-            # check if project is old
-            project_config["projectNeedsUpgrade"] = is_old_project(
-                project.project_path)
+            # upgrade info of v0 projects
+            if project_config["version"].startswith("0"):
+                project_config = upgrade_project_config(project_config)
+                project_config["projectNeedsUpgrade"] = True
 
             logging.info("Project found: {}".format(project_config["id"]))
             project_info.append(project_config)
@@ -151,50 +146,47 @@ def api_get_projects():  # noqa: F401
 def api_get_projects_stats():  # noqa: F401
     """Get dashboard statistics of all projects"""
 
-    stats_counter = Counter()
+    stats_counter = {
+        "n_reviewed": 0,
+        "n_excluded": 0,
+        "n_included": 0,
+        "n_in_review": 0,
+        "n_finished": 0,
+        "n_setup": 0
+    }
 
     for project in list_asreview_projects():
 
         try:
-            res = project.config
+            project_config = project.config
 
-            # backwards support <0.10
-            if "projectInitReady" not in res:
-                res["projectInitReady"] = True
+            # upgrade info of v0 projects
+            if project_config["version"].startswith("0"):
+                project_config = upgrade_project_config(project_config)
+                project_config["projectNeedsUpgrade"] = True
 
             # get dashboard statistics
             statistics = _get_stats(project)
-            statistics["n_reviewed"] = statistics["n_included"] \
+
+            stats_counter["n_reviewed"] += statistics["n_included"] \
                 + statistics["n_excluded"]
+            stats_counter["n_included"] += statistics["n_included"]
 
-            if res["projectInitReady"] is not True:
-                statistics["n_setup"] = 1
-                statistics["n_in_review"] = 0
-                statistics["n_finished"] = 0
-            elif "reviewFinished" not in res or res[
-                    "reviewFinished"] is not True:
-                statistics["n_setup"] = 0
-                statistics["n_in_review"] = 1
-                statistics["n_finished"] = 0
-            else:
-                statistics["n_setup"] = 0
-                statistics["n_in_review"] = 0
-                statistics["n_finished"] = 1
-
-            statistics = {
-                x: statistics[x]
-                for x in ("n_reviewed", "n_included", "n_setup", "n_in_review",
-                          "n_finished")
-            }
-            stats_counter.update(statistics)
+            try:
+                if project_config["reviews"][0]["status"] == "review":
+                    stats_counter["n_in_review"] += 1
+                elif project_config["reviews"][0]["status"] == "finished":
+                    stats_counter["n_finished"] += 1
+                else:
+                    stats_counter["n_setup"] += 1
+            except Exception:
+                stats_counter["n_setup"] += 1
 
         except Exception as err:
             logging.error(err)
             return jsonify(message="Failed to load dashboard statistics."), 500
 
-    project_stats = dict(stats_counter)
-
-    response = jsonify({"result": project_stats})
+    response = jsonify({"result": stats_counter})
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     return response
@@ -251,32 +243,10 @@ def api_get_project_info(project):  # noqa: F401
 
     project_config = project.config
 
-    try:
-
-        # check if there is a dataset
-        try:
-            get_data_file_path(project.project_path)
-            project_config["projectHasDataset"] = True
-        except Exception:
-            project_config["projectHasDataset"] = False
-
-        # backwards support <0.10
-        if "projectInitReady" not in project_config:
-            if "projectHasPriorKnowledge" not in project_config:
-                pass
-            else:
-                if project_config["projectHasPriorKnowledge"]:
-                    project_config["projectInitReady"] = True
-                else:
-                    project_config["projectInitReady"] = False
-
-        # check if project is old
-        project_config["projectNeedsUpgrade"] = is_old_project(
-            project.project_path)
-
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message="Failed to retrieve project information."), 500
+    # upgrade info of v0 projects
+    if project_config["version"].startswith("0"):
+        project_config = upgrade_project_config(project_config)
+        project_config["projectNeedsUpgrade"] = True
 
     return jsonify(project_config)
 
@@ -971,7 +941,9 @@ def api_start(project):  # noqa: F401
                 # specify project id
                 project.project_path,
                 # output the error of the first model
-                "--output_error"
+                "--output_error",
+                # mark the first run for status update
+                "--first_run"
             ]
             subprocess.Popen(run_command)
 
@@ -984,76 +956,64 @@ def api_start(project):  # noqa: F401
     return response
 
 
-@bp.route('/projects/<project_id>/ready', methods=["GET"])
+@bp.route('/projects/<project_id>/status', methods=["GET"])
 @project_from_id
-def api_init_model_ready(project):  # noqa: F401
-    """Check if trained model is available
+def api_get_status(project):  # noqa: F401
+    """Check the status of the review
     """
 
-    project_config = project.config
+    try:
+        status = project.reviews[0]['status']
+    except Exception:
+        status = None
 
-    if project_config["mode"] == PROJECT_MODE_SIMULATE:
-        logging.info("Checking if simulation starts")
-
-        try:
-            with open_state(project.project_path) as state:
-                if state.model_has_trained:
-                    project.update_config(projectInitReady=True)
-
-                # if get_simulation_ready_path(project.project_path,
-                #                              simulation_id).exists():
-                #     logging.info("simulation ready")
-                #     project.update_review(simulation_id, status="ready")
-                    response = jsonify({'status': 1})
-                else:
-                    response = jsonify({'status': 0})
-
-        except Exception as err:
-            logging.error(err)
-            return jsonify(message="Failed to initiate the simulation project"), 500
-
-    else:
+    if status == "error":
         error_path = project.project_path / "error.json"
         if error_path.exists():
-            logging.error("error on training")
+            logging.error("Error on training")
             with open(error_path, "r") as f:
                 error_message = json.load(f)
-            return jsonify(message=error_message), 400
 
-        try:
-            with open_state(project.project_path) as state:
-                if state.model_has_trained:
-                    project.update_config(projectInitReady=True)
+            raise Exception(error_message)
 
-                    response = jsonify({'status': 1})
-                else:
-                    response = jsonify({'status': 0})
-
-        except Exception as err:
-            logging.error(err)
-            return jsonify(message="Failed to initiate the project"), 500
-
+    response = jsonify({'status': status})
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 
-@bp.route('/projects/<project_id>/simulation_finished', methods=["GET"])
+@bp.route('/projects/<project_id>/status', methods=["PUT"])
 @project_from_id
-def api_simulation_finished(project):  # noqa: F401
-    """Check if simulation has finished.
+def api_status_update(project):
+    """Update the status of the review.
+
+    The following status updates are allowed for
+    oracle and explore:
+    - `review` to `finished`
+    - `finished` to `review` if not pool empty
+
+    Status updates by the user are not allowed in simulation
+    mode.
+
     """
-    project_config = project.config
 
-    try:
-        if project_config["reviewFinished"]:
-            response = jsonify({"status": 1})
-        else:
-            response = jsonify({"status": 0})
+    status = request.form.get("status", type=str)
 
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message="Failed to check simulation project status"), 500
+    current_status = project.config["reviews"][0]["status"]
+    mode = project.config["mode"]
 
+    if mode == PROJECT_MODE_SIMULATE:
+        raise ValueError(
+            "Not possible to update status of simulation project.")
+
+    if current_status == "review" and status == "finished":
+        project.update_review(status=status)
+    elif current_status == "finished" and status == "review":
+        project.update_review(status=status)
+        # ideally, also check here for empty pool
+    else:
+        raise ValueError("Not possible to update for this status.")
+
+    response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
@@ -1160,28 +1120,6 @@ def export_project(project):
                      as_attachment=True,
                      download_name=f"{project.project_id}.asreview",
                      max_age=0)
-
-
-@bp.route('/projects/<project_id>/finish', methods=["GET"])
-@project_from_id
-def api_finish_project(project):
-    """Mark a project as finished or not"""
-
-    # read the file with project info
-    project_config = project.config
-
-    try:
-        project_config["reviewFinished"] = not project_config["reviewFinished"]
-    except KeyError:
-        # missing key in projects created in older versions
-        project_config["reviewFinished"] = True
-
-    # update the file with project info
-    project.config = project_config
-
-    response = jsonify({'success': True})
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    return response
 
 
 def _get_stats(project):
@@ -1467,7 +1405,7 @@ def api_get_document(project):  # noqa: F401
             pool_empty = False
         else:
             # end of pool
-            project.update_config(reviewFinished=True)
+            project.update_review(status="finished")
             item = None
             pool_empty = True
 

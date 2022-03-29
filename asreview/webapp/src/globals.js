@@ -93,6 +93,12 @@ export const projectModes = {
   EXPLORATION: "explore",
 };
 
+export const projectStatuses = {
+  SETUP: "setup",
+  REVIEW: "review",
+  FINISHED: "finished",
+};
+
 // project history filter options
 export const historyFilterOptions = [
   { value: "note", label: "Contains note" },
