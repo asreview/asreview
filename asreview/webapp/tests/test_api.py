@@ -263,10 +263,17 @@ def test_export_project(client):
 def test_finish_project(client):
     """Test mark a project as finished or not"""
 
-    response = client.put("/api/projects/project-id/status_update",
+    response = client.put("/api/projects/project-id/status",
                           data={"status": "finished"})
     assert response.status_code == 200
 
+    response = client.put("/api/projects/project-id/status",
+                          data={"status": "review"})
+    assert response.status_code == 200
+
+    response = client.put("/api/projects/project-id/status",
+                          data={"status": "finished"})
+    assert response.status_code == 200
 
 def test_get_progress_info(client):
     """Test get progress info on the article"""

@@ -981,17 +981,37 @@ def api_get_status(project):  # noqa: F401
     return response
 
 
-@bp.route('/projects/<project_id>/status_update', methods=["PUT"])
+@bp.route('/projects/<project_id>/status', methods=["PUT"])
 @project_from_id
 def api_status_update(project):
-    """Update the status of the review"""
+    """Update the status of the review.
+
+    The following status updates are allowed for
+    oracle and explore:
+    - `review` to `finished`
+    - `finished` to `review` if not pool empty
+
+    Status updates by the user are not allowed in simulation
+    mode.
+
+    """
 
     status = request.form.get("status", type=str)
 
-    if status == "finished":
+    current_status = project.config["reviews"][0]["status"]
+    mode = project.config["mode"]
+
+    if mode == PROJECT_MODE_SIMULATE:
+        raise ValueError(
+            "Not possible to update status of simulation project.")
+
+    if current_status == "review" and status == "finished":
         project.update_review(status=status)
+    elif current_status == "finished" and status == "review":
+        project.update_review(status=status)
+        # ideally, also check here for empty pool
     else:
-        raise ValueError("Can only update status to 'finished'")
+        raise ValueError("Not possible to update for this status.")
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
