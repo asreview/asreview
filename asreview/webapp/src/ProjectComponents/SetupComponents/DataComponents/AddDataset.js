@@ -74,8 +74,8 @@ const AddDataset = (props) => {
               ASReview LAB accepts RIS file format (<code>.ris</code>,{" "}
               <code>.txt</code>) and tabular datasets (<code>.csv</code>,{" "}
               <code>.tab</code>, <code>.tsv</code>, <code>.xlsx</code>). The
-              selected dataset should contain the title and abstract of each
-              record. To optimally benefit from the performance of the active
+              dataset should contain a title and abstract for each
+              record. {props.mode !== projectModes.ORACLE ? "The dataset should also contain labels for each record. " : ""}To optimally benefit from the performance of the active
               learning model, it is highly recommended to add a dataset without
               duplicate records.{" "}
               <Link
