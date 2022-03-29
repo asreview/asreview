@@ -37,6 +37,7 @@ import {
   mapStateToProps,
   mapDispatchToProps,
   projectModes,
+  projectStatuses,
 } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
 
@@ -94,6 +95,7 @@ const SetupDialog = (props) => {
   const [extension, setExtension] = React.useState(null);
   const [benchmark, setBenchmark] = React.useState(null);
   const [addPriorKnowledge, toggleAddPriorKnowledge] = useToggle();
+  const [datasetAdded, setDatasetAdded] = React.useState(false);
 
   // State Step 3: Model
   const [model, setModel] = React.useState({
@@ -152,7 +154,6 @@ const SetupDialog = (props) => {
   });
 
   const {
-    data: fetchedInfo,
     error: fetchInfoError,
     isError: isFetchInfoError,
     isFetching: isFetchingInfo,
@@ -171,6 +172,9 @@ const SetupDialog = (props) => {
         setExTitle(data["name"]);
         setDisableFetchInfo(true); // avoid getting all the time
         setDisableModeSelect(true);
+        if (data?.dataset_path) {
+          setDatasetAdded(true);
+        }
       },
       refetchOnWindowFocus: false,
     }
@@ -365,19 +369,19 @@ const SetupDialog = (props) => {
     isError: isProjectReadyError,
     isFetching: isPreparingProject,
   } = useQuery(
-    ["fetchProjectReady", { project_id: props.project_id }],
-    ProjectAPI.fetchProjectReady,
+    ["fetchProjectStatus", { project_id: props.project_id }],
+    ProjectAPI.fetchProjectStatus,
     {
       enabled: trainingStarted,
       onSuccess: (data) => {
-        if (data["status"] === 1) {
+        if (data["status"] === projectStatuses.REVIEW) {
           // model ready
           setTrainingStarted(false);
           setTrainingFinished(true);
         } else {
           // not ready yet
           setTimeout(
-            () => queryClient.invalidateQueries("fetchProjectReady"),
+            () => queryClient.invalidateQueries("fetchProjectStatus"),
             24000
           );
         }
@@ -417,6 +421,7 @@ const SetupDialog = (props) => {
       authors: "",
       description: "",
     });
+    setDatasetAdded(false);
     setModel({
       classifier: null,
       query_strategy: null,
@@ -634,7 +639,7 @@ const SetupDialog = (props) => {
               )}
               {activeStep === 1 && (
                 <DataForm
-                  info={fetchedInfo}
+                  datasetAdded={datasetAdded}
                   labeledStats={labeledStats}
                   toggleAddDataset={toggleAddDataset}
                   toggleAddPriorKnowledge={toggleAddPriorKnowledge}
@@ -676,7 +681,7 @@ const SetupDialog = (props) => {
         <AddDataset
           addDatasetError={addDatasetError}
           benchmark={benchmark}
-          datasetAdded={fetchedInfo?.projectHasDataset}
+          datasetAdded={datasetAdded}
           datasetSource={datasetSource}
           extension={extension}
           file={file}

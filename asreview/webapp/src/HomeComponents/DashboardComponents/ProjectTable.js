@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useQuery, useQueries, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueries, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -31,6 +31,7 @@ import {
   checkIfSimulationFinishedDuration,
   mapDispatchToProps,
   projectModes,
+  projectStatuses,
 } from "../../globals";
 
 const PREFIX = "ProjectTable";
@@ -108,7 +109,7 @@ const columns = [
   { id: "name", label: "Project", width: "55%" },
   { id: "created_at_unix", label: "Date", width: "15%" },
   { id: "mode", label: "Mode", width: "15%" },
-  { id: "reviewFinished", label: "Status", width: "15%" },
+  { id: "status", label: "Status", width: "15%" },
 ];
 
 const ProjectTable = (props) => {
@@ -154,11 +155,10 @@ const ProjectTable = (props) => {
         // reset query for fetching simulation project(s) status
         setQuerySimulationFinished([]);
         // get simulation project(s) running in the background
-        const simulationProjects = data.filter(
+        const simulationProjects = data.result.filter(
           (element) =>
             element.mode === projectModes.SIMULATION &&
-            element.projectInitReady &&
-            !element.reviewFinished
+            element.reviews[0].status === projectStatuses.REVIEW
         );
         if (!simulationProjects.length) {
           console.log("No simulation running");
@@ -169,9 +169,7 @@ const ProjectTable = (props) => {
           for (let key in project_id) {
             // reset query if error
             if (querySimulationError.isError) {
-              queryClient.resetQueries(
-                `fetchSimulationFinished-${project_id[key]}`
-              );
+              queryClient.resetQueries(`fetchProjectStatus-${project_id[key]}`);
               setQuerySimulationError({
                 isError: false,
                 message: null,
@@ -180,10 +178,10 @@ const ProjectTable = (props) => {
             // update query array
             simulationQueries.push({
               queryKey: [
-                `fetchSimulationFinished-${project_id[key]}`,
+                `fetchProjectStatus-${project_id[key]}`,
                 { project_id: project_id[key] },
               ],
-              queryFn: ProjectAPI.fetchSimulationFinished,
+              queryFn: ProjectAPI.fetchProjectStatus,
               enabled: project_id[key] !== null,
               onError: (error) => {
                 setQuerySimulationError({
@@ -192,7 +190,7 @@ const ProjectTable = (props) => {
                 });
               },
               onSuccess: (data) => {
-                if (data["status"] === 1) {
+                if (data["status"] === projectStatuses.FINISHED) {
                   // simulation finished
                   queryClient.invalidateQueries("fetchDashboardStats");
                   queryClient.invalidateQueries("fetchProjects");
@@ -201,7 +199,7 @@ const ProjectTable = (props) => {
                   setTimeout(
                     () =>
                       queryClient.invalidateQueries(
-                        `fetchSimulationFinished-${project_id[key]}`
+                        `fetchProjectStatus-${project_id[key]}`
                       ),
                     checkIfSimulationFinishedDuration
                   );
@@ -223,8 +221,51 @@ const ProjectTable = (props) => {
    */
   useQueries(querySimulationFinished);
 
+  const { mutate: mutateStatus } = useMutation(ProjectAPI.mutateProjectStatus, {
+    onError: (error) => {
+      props.setFeedbackBar({
+        open: true,
+        message: error.message,
+      });
+    },
+    onSuccess: (data, variables) => {
+      // update cached data
+      queryClient.setQueryData("fetchProjects", (prev) => {
+        return {
+          ...prev,
+          result: prev.result.map((project) => {
+            return {
+              ...project,
+              reviews: project.reviews.map((review) => {
+                return {
+                  ...review,
+                  status:
+                    project.id === variables.project_id
+                      ? review.status === projectStatuses.REVIEW
+                        ? projectStatuses.FINISHED
+                        : projectStatuses.REVIEW
+                      : review.status,
+                };
+              }),
+            };
+          }),
+        };
+      });
+    },
+  });
+
+  const handleChangeStatus = (project) => {
+    mutateStatus({
+      project_id: project["id"],
+      status:
+        project.reviews[0].status === projectStatuses.REVIEW
+          ? projectStatuses.FINISHED
+          : projectStatuses.REVIEW,
+    });
+  };
+
   const openProject = (project, path) => {
-    if (!project["projectInitReady"]) {
+    if (project["reviews"][0]["status"] === "setup") {
       // set project id
       props.setProjectId(project["id"]);
       // open project setup dialog
@@ -282,27 +323,33 @@ const ProjectTable = (props) => {
   /**
    * Return status label and style
    */
-  const statusLabel = (project) => {
-    if (project["projectInitReady"]) {
-      if (project["reviewFinished"]) {
-        return "Finished";
-      } else {
-        return "In Review";
-      }
-    } else {
-      return "Setup";
+  const status = (project) => {
+    if (
+      project.reviews[0] === undefined ||
+      project.reviews[0].status === projectStatuses.SETUP
+    ) {
+      return [projectStatuses.SETUP, "Setup"];
+    }
+    if (project.reviews[0].status === projectStatuses.REVIEW) {
+      return [projectStatuses.REVIEW, "In Review"];
+    }
+    if (project.reviews[0].status === projectStatuses.FINISHED) {
+      return [projectStatuses.FINISHED, "Finished"];
     }
   };
 
   const statusStyle = (project) => {
-    if (project["projectInitReady"]) {
-      if (project["reviewFinished"]) {
-        return "dashboard-page-table-chip finished";
-      } else {
-        return "dashboard-page-table-chip inreview";
-      }
-    } else {
+    if (
+      project.reviews[0] === undefined ||
+      project.reviews[0].status === projectStatuses.SETUP
+    ) {
       return "dashboard-page-table-chip setup";
+    }
+    if (project.reviews[0].status === projectStatuses.REVIEW) {
+      return "dashboard-page-table-chip inreview";
+    }
+    if (project.reviews[0].status === projectStatuses.FINISHED) {
+      return "dashboard-page-table-chip finished";
     }
   };
 
@@ -336,23 +383,36 @@ const ProjectTable = (props) => {
               !isFetching &&
               isFetched &&
               isSuccess &&
-              data
+              data.result
                 ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
                   const isSimulating = () => {
                     return (
                       row["mode"] === projectModes.SIMULATION &&
-                      row["projectInitReady"] &&
-                      !row["reviewFinished"]
+                      row["reviews"][0]["status"] === projectStatuses.REVIEW
                     );
                   };
 
                   const showAnalyticsButton = () => {
-                    return row["projectInitReady"];
+                    return (
+                      row["reviews"][0] === undefined ||
+                      row["reviews"][0]["status"] !== projectStatuses.SETUP
+                    );
                   };
 
                   const showReviewButton = () => {
-                    return row["projectInitReady"] && !row["reviewFinished"];
+                    return (
+                      row["reviews"][0] !== undefined &&
+                      row["reviews"][0]["status"] === projectStatuses.REVIEW
+                    );
+                  };
+
+                  const disableProjectStatusChange = () => {
+                    return (
+                      row["mode"] === projectModes.SIMULATION ||
+                      row["reviews"][0] === undefined ||
+                      row["reviews"][0]["status"] === projectStatuses.SETUP
+                    );
                   };
 
                   const onClickProjectAnalytics = () => {
@@ -365,7 +425,7 @@ const ProjectTable = (props) => {
 
                   const onClickProjectExport = () => {
                     if (
-                      !row["projectInitReady"] ||
+                      row["reviews"][0]["status"] === projectStatuses.SETUP ||
                       row["projectNeedsUpgrade"]
                     ) {
                       queryClient.prefetchQuery(
@@ -379,6 +439,10 @@ const ProjectTable = (props) => {
 
                   const onClickProjectDetails = () => {
                     openProject(row, "details");
+                  };
+
+                  const updateProjectStatus = () => {
+                    handleChangeStatus(row);
                   };
                   return (
                     <TableRow
@@ -403,6 +467,9 @@ const ProjectTable = (props) => {
                           <Box sx={{ flex: 1 }}></Box>
                           {hoverRowId === row.id && (
                             <TableRowButton
+                              disableProjectStatusChange={
+                                disableProjectStatusChange
+                              }
                               isSimulating={isSimulating}
                               showAnalyticsButton={showAnalyticsButton}
                               showReviewButton={showReviewButton}
@@ -410,7 +477,9 @@ const ProjectTable = (props) => {
                               onClickProjectReview={onClickProjectReview}
                               onClickProjectExport={onClickProjectExport}
                               onClickProjectDetails={onClickProjectDetails}
+                              projectStatus={status(row)[0]}
                               toggleDeleteDialog={toggleDeleteDialog}
+                              updateProjectStatus={updateProjectStatus}
                             />
                           )}
                         </Box>
@@ -437,7 +506,7 @@ const ProjectTable = (props) => {
                         <Chip
                           size="small"
                           className={statusStyle(row)}
-                          label={statusLabel(row)}
+                          label={status(row)[1]}
                         />
                       </TableCell>
                     </TableRow>
@@ -454,7 +523,7 @@ const ProjectTable = (props) => {
           !isFetching &&
           isFetched &&
           isSuccess &&
-          data?.length === 0 && (
+          data.result?.length === 0 && (
             <Box
               sx={{
                 alignItems: "center",
@@ -483,11 +552,11 @@ const ProjectTable = (props) => {
         !isFetching &&
         isFetched &&
         isSuccess &&
-        data?.length !== 0 && (
+        data.result?.length !== 0 && (
           <TablePagination
             rowsPerPageOptions={[5, 10, 15]}
             component="div"
-            count={data?.length}
+            count={data.result?.length}
             rowsPerPage={rowsPerPage}
             labelRowsPerPage="Projects per page:"
             page={page}

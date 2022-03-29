@@ -21,8 +21,8 @@ import { ActionsFeedbackBar } from "../../Components";
 import { DataForm, ModelForm } from "../DetailsComponents";
 import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
 import { ProjectAPI } from "../../api/index.js";
+import { projectModes, projectStatuses } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
-import "../../App.css";
 
 const Root = styled("div")(({ theme }) => ({}));
 
@@ -43,31 +43,46 @@ const DetailsPage = (props) => {
     description: props.info?.description,
   });
 
-  const { error, isError, isLoading, isSuccess, mutate, reset } = useMutation(
-    ProjectAPI.mutateInfo,
-    {
-      onSuccess: (data, variables) => {
-        setDisableButton(true);
-        if (variables.title !== props.info?.name) {
-          // mutate project id when typed title is different from existing title/empty string
-          navigate(`/projects/${data["id"]}/details`);
-        } else {
-          // update cached data
-          queryClient.setQueryData(
-            ["fetchInfo", { project_id: variables.project_id }],
-            (prev) => {
-              return {
-                ...prev,
-                name: variables.title,
-                authors: variables.authors,
-                description: variables.description,
-              };
-            }
-          );
-        }
-      },
-    }
-  );
+  const {
+    error: mutateInfoError,
+    isError: isMutateInfoError,
+    isLoading: isMutatingInfo,
+    isSuccess: isMutateInfoSuccess,
+    mutate: mutateInfo,
+    reset: resetMutateInfo,
+  } = useMutation(ProjectAPI.mutateInfo, {
+    onSuccess: (data, variables) => {
+      setDisableButton(true);
+      if (variables.title !== props.info?.name) {
+        // mutate project id when typed title is different from existing title/empty string
+        navigate(`/projects/${data["id"]}/details`);
+      } else {
+        // update cached data
+        queryClient.setQueryData(
+          ["fetchInfo", { project_id: variables.project_id }],
+          (prev) => {
+            return {
+              ...prev,
+              name: variables.title,
+              authors: variables.authors,
+              description: variables.description,
+            };
+          }
+        );
+      }
+    },
+  });
+
+  const {
+    error: mutateStatusError,
+    isError: isMutateStatusError,
+    mutate: mutateStatus,
+    reset: resetMutateStatus,
+  } = useMutation(ProjectAPI.mutateProjectStatus, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("fetchInfo");
+    },
+  });
 
   const handleClickUndoChanges = () => {
     setInfo({
@@ -80,7 +95,7 @@ const DetailsPage = (props) => {
   };
 
   const handleClickSave = () => {
-    mutate({
+    mutateInfo({
       project_id,
       mode: info.mode,
       title: info.title,
@@ -95,6 +110,17 @@ const DetailsPage = (props) => {
 
   const handleCloseOptions = () => {
     setAnchorEl(null);
+  };
+
+  const handleChangeStatus = () => {
+    handleCloseOptions();
+    mutateStatus({
+      project_id,
+      status:
+        props.info?.reviews[0].status === projectStatuses.REVIEW
+          ? projectStatuses.FINISHED
+          : projectStatuses.REVIEW,
+    });
   };
 
   const handleClickDelete = () => {
@@ -135,7 +161,7 @@ const DetailsPage = (props) => {
                   <span>
                     <LoadingButton
                       disabled={disableButton || props.isSimulating}
-                      loading={isLoading}
+                      loading={isMutatingInfo}
                       variant="contained"
                       onClick={handleClickSave}
                       size={!props.mobileScreen ? "medium" : "small"}
@@ -160,6 +186,14 @@ const DetailsPage = (props) => {
                     open={onOptions}
                     onClose={handleCloseOptions}
                   >
+                    {info.mode !== projectModes.SIMULATION && (
+                      <MenuItem onClick={handleChangeStatus}>
+                        {props.info?.reviews[0].status ===
+                        projectStatuses.REVIEW
+                          ? "Mark as finished"
+                          : "Mark as in review"}
+                      </MenuItem>
+                    )}
                     <MenuItem onClick={handleClickDelete}>Delete</MenuItem>
                   </Menu>
                 </Box>
@@ -199,14 +233,21 @@ const DetailsPage = (props) => {
       />
       <ActionsFeedbackBar
         feedback="Changes saved"
-        open={isSuccess}
-        onClose={reset}
+        open={isMutateInfoSuccess}
+        onClose={resetMutateInfo}
       />
-      {isError && (
+      {isMutateInfoError && (
         <ActionsFeedbackBar
-          feedback={error?.message + " Please try again."}
-          open={isError}
-          onClose={reset}
+          feedback={mutateInfoError?.message + " Please try again."}
+          open={isMutateInfoError}
+          onClose={resetMutateInfo}
+        />
+      )}
+      {isMutateStatusError && (
+        <ActionsFeedbackBar
+          feedback={mutateStatusError?.message + " Please try again."}
+          open={isMutateStatusError}
+          onClose={resetMutateStatus}
         />
       )}
     </Root>

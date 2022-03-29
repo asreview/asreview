@@ -145,13 +145,13 @@ def is_v0_project(project_path):
 
 
 @contextmanager
-def open_state(asreview_file_or_dir, review_id=None, read_only=True):
+def open_state(asreview_obj, review_id=None, read_only=True):
     """Initialize a state class instance from a project folder.
 
     Arguments
     ---------
-    asreview_file_or_dir: str/pathlike
-        Filepath to the (unzipped) project folder.
+    asreview_obj: str/pathlike
+        Filepath to the (unzipped) project folder or ASReviewProject object.
     review_id: str
         Identifier of the review from which the state will be instantiated.
         If none is given, the first review in the reviews folder will be taken.
@@ -164,8 +164,10 @@ def open_state(asreview_file_or_dir, review_id=None, read_only=True):
     """
 
     # Unzip the ASReview data if needed.
-    if zipfile.is_zipfile(asreview_file_or_dir) and Path(
-            asreview_file_or_dir).suffix == ".asreview":
+    if isinstance(asreview_obj, ASReviewProject):
+        project = asreview_obj
+    elif zipfile.is_zipfile(asreview_obj) and Path(
+            asreview_obj).suffix == ".asreview":
 
         if not read_only:
             raise ValueError(
@@ -173,9 +175,9 @@ def open_state(asreview_file_or_dir, review_id=None, read_only=True):
 
         # work from a temp dir
         tmpdir = tempfile.TemporaryDirectory()
-        project = ASReviewProject.load(asreview_file_or_dir, tmpdir.name)
+        project = ASReviewProject.load(asreview_obj, tmpdir.name)
     else:
-        project = ASReviewProject(asreview_file_or_dir)
+        project = ASReviewProject(asreview_obj)
 
     # init state class
     state = SQLiteState(read_only=read_only)
@@ -249,11 +251,7 @@ class ASReviewProject():
                 'description': project_description,
                 'authors': project_authors,
                 'created_at_unix': int(time.time()),
-
-                # project related variables
                 'datetimeCreated': str(datetime.now()),
-                'projectInitReady': False,
-                'reviewFinished': False,
                 'reviews': [],
                 'feature_matrices': []
             }
@@ -428,7 +426,7 @@ class ASReviewProject():
         # remove state file if present
         if get_reviews_path(self.project_path).is_dir() and \
                 any(get_reviews_path(self.project_path).iterdir()):
-            self.delete_state()
+            self.delete_review()
 
     def clean_tmp_files(self):
         """Clean temporary files in a project.
@@ -453,7 +451,7 @@ class ASReviewProject():
         except Exception:
             return []
 
-    def add_review(self, review_id, start_time=None, review_finished=False):
+    def add_review(self, review_id, start_time=None, status="setup"):
         """Add new review metadata.
 
         Arguments
@@ -476,9 +474,7 @@ class ASReviewProject():
         review_config = {
             "id": review_id,
             "start_time": str(start_time),
-            "review_finished": review_finished
-            # one of the following: ["setup", "running", "stopped"]
-            # "status": "stopped"
+            "status": status
             # "end_time": datetime.now()
         }
 
@@ -523,7 +519,7 @@ class ASReviewProject():
         # update the file with project info
         self.config = config
 
-    def delete_state(self, remove_folders=False):
+    def delete_review(self, remove_folders=False):
 
         try:
             # remove the folder tree
@@ -546,8 +542,6 @@ class ASReviewProject():
 
         # update the config
         self.update_config(**{
-            'projectInitReady': False,
-            'reviewFinished': False,
             'reviews': [],
             'feature_matrices': []
         })
@@ -564,7 +558,7 @@ class ASReviewProject():
         """
 
         self.update_review(review_id=review_id,
-                           review_finished=True,
+                           status="finished",
                            end_time=str(datetime.now()))
 
     def export(self, export_fp):

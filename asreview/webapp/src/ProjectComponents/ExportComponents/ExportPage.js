@@ -149,11 +149,7 @@ const ExportPage = (props) => {
                       value={file}
                       onChange={handleFile}
                     >
-                      <MenuItem
-                        value="dataset"
-                        disabled={!props.enableExportDataset}
-                        divider
-                      >
+                      <MenuItem value="dataset" divider>
                         <Box>
                           <Typography variant="subtitle1">Dataset</Typography>
                           <Typography

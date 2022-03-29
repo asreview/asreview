@@ -34,9 +34,7 @@ const DataForm = (props) => {
     ["fetchData", { project_id: props.project_id }],
     ProjectAPI.fetchData,
     {
-      enabled:
-        props.info?.projectHasDataset !== undefined &&
-        props.info?.projectHasDataset,
+      enabled: props.datasetAdded !== undefined && props.datasetAdded,
       refetchOnWindowFocus: false,
     }
   );
@@ -56,16 +54,6 @@ const DataForm = (props) => {
     queryClient.resetQueries("fetchLabeledStats");
   };
 
-  // fetch info in data step when init a new project
-  React.useEffect(() => {
-    if (!props.info && props.project_id !== null) {
-      queryClient.prefetchQuery(
-        ["fetchInfo", { project_id: props.project_id }],
-        ProjectAPI.fetchInfo
-      );
-    }
-  }, [props.info, props.project_id, queryClient]);
-
   return (
     <Root>
       <Box className={classes.title}>
@@ -76,12 +64,11 @@ const DataForm = (props) => {
           preferences
         </Typography>
       </Box>
-      {!props.isFetchInfoError &&
-        (!props.info || isFetching || props.isFetchingLabeledStats) && (
-          <Box className={classes.loading}>
-            <CircularProgress />
-          </Box>
-        )}
+      {!props.isFetchInfoError && (isFetching || props.isFetchingLabeledStats) && (
+        <Box className={classes.loading}>
+          <CircularProgress />
+        </Box>
+      )}
       {!isFetching && isError && (
         <InlineErrorHandler
           message={error?.message}
@@ -103,14 +90,13 @@ const DataForm = (props) => {
           button={true}
         />
       )}
-      {props.info &&
-        !isFetching &&
+      {!isFetching &&
         !props.isFetchingLabeledStats &&
         !isError &&
         !props.isFetchLabeledStatsError && (
           <Stack direction="column" spacing={3}>
             <DataFormCard
-              added={props.info?.projectHasDataset}
+              added={props.datasetAdded}
               primaryDefault="Add a dataset"
               primaryAdded={
                 <React.Fragment>
@@ -126,7 +112,7 @@ const DataForm = (props) => {
                 props.labeledStats?.n_inclusions !== 0 &&
                 props.labeledStats?.n_exclusions !== 0
               }
-              projectHasDataset={props.info?.projectHasDataset}
+              datasetAdded={props.datasetAdded}
               primaryDefault="Add prior knowledge"
               primaryAdded="Prior knowledge added"
               secondaryDefault="Indicate your preference with at least 1 relevant and 1 irrelevant record"
