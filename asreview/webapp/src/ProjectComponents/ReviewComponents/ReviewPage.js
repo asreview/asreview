@@ -232,14 +232,6 @@ const ReviewPage = (props) => {
   return (
     <Root aria-label="review page">
       <Fade in>
-        <Box>
-          <PageHeader
-            header="Project review"
-            mobileScreen={props.mobileScreen}
-          />
-        </Box>
-      </Fade>
-      <Fade in>
         <Box className="review-page-body-wrapper">
           <Box className="review-page-body">
             {/* Banner Exploration Mode */}
