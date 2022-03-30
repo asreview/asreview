@@ -266,7 +266,7 @@ const ProjectTable = (props) => {
 
   const openProject = (project, path) => {
     if (
-      project["reviews"][0] !== undefined &&
+      project["reviews"][0] === undefined ||
       project["reviews"][0]["status"] === projectStatuses.SETUP
     ) {
       // set project id
