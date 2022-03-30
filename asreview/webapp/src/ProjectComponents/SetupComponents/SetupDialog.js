@@ -593,7 +593,7 @@ const SetupDialog = (props) => {
               className="dialog-header-button right"
             >
               <Button disabled={isAddingDataset} onClick={handleDiscardDataset}>
-                Discard Changes
+                Close
               </Button>
               <LoadingButton
                 disabled={disableSaveDataset()}
