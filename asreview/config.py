@@ -356,7 +356,10 @@ SCHEMA = {
         },
         "dataset_path": {
             "$id": "#/properties/dataset_path",
-            "type": "string",
+            "type": [
+                "string",
+                "null"
+            ],
             "title": "The dataset_path schema",
             "description": "Name of the dataset file.",
             "default": "",
