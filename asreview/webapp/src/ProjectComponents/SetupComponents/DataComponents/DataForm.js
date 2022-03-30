@@ -40,7 +40,11 @@ const DataForm = (props) => {
   );
 
   const priorAdded = () => {
-    return props.labeledStats && props.labeledStats.n_inclusions !== 0 && props.labeledStats.n_exclusions !== 0
+    return (
+      props.labeledStats &&
+      props.labeledStats.n_inclusions !== 0 &&
+      props.labeledStats.n_exclusions !== 0
+    );
   };
 
   const refetchData = () => {
