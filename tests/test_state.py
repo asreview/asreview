@@ -1,8 +1,6 @@
-import json
 from pathlib import Path
 from sqlite3 import OperationalError
 
-import numpy as np
 import pandas as pd
 import pytest
 from scipy.sparse import csr_matrix

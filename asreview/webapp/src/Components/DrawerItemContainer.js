@@ -3,6 +3,11 @@ import { useIsFetching, useQueryClient } from "react-query";
 import { Route, Routes, useParams } from "react-router-dom";
 import {
   Divider,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Fade,
   List,
   ListItem,
@@ -12,10 +17,11 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+
 import { styled } from "@mui/material/styles";
 import { Help, Payment, Settings } from "@mui/icons-material";
 
-import { DrawerItem } from "../Components";
+import { DrawerItem, ElasGame } from "../Components";
 
 import { ProjectAPI } from "../api/index.js";
 import { donateURL, projectModes, projectStatuses } from "../globals.js";
@@ -156,6 +162,30 @@ const DrawerItemContainer = (props) => {
     },
   ];
 
+  const [openGame, setOpenGame] = React.useState(false);
+  const [attemps, setAttempts] = React.useState(0);
+
+  const toggleGame = () => {
+    if (!openGame) {
+      setAttempts(0);
+    }
+    setOpenGame(!openGame);
+  };
+
+  const addAttempt = () => {
+    setAttempts(attemps + 1);
+  };
+
+  const descriptionElementRef = React.useRef(null);
+  React.useEffect(() => {
+    if (openGame) {
+      const { current: descriptionElement } = descriptionElementRef;
+      if (descriptionElement !== null) {
+        descriptionElement.focus();
+      }
+    }
+  }, [openGame]);
+
   React.useEffect(() => {
     if (project_id && isFetchingInfo) {
       fetchProjectInfo();
@@ -201,12 +231,13 @@ const DrawerItemContainer = (props) => {
                   onNavDrawer={props.onNavDrawer}
                   toggleNavDrawer={props.toggleNavDrawer}
                 />
-                <ListItem className={classes.projectInfo}>
+                <ListItem className={classes.projectInfo} onClick={toggleGame}>
                   <img
                     src={returnElasState()}
                     alt="ElasState"
                     className={classes.stateElas}
                   />
+
                   <Fade in={props.onNavDrawer} unmountOnExit>
                     <div className={classes.yourProject}>
                       <Typography variant="subtitle2">Your project</Typography>
@@ -220,6 +251,27 @@ const DrawerItemContainer = (props) => {
                     </div>
                   </Fade>
                 </ListItem>
+
+                <Dialog
+                  open={openGame}
+                  onClose={toggleGame}
+                  scroll={"paper"}
+                  fullWidth={true}
+                  maxWidth={"lg"}
+                  aria-labelledby="game-dialog-title"
+                  aria-describedby="game-dialog-description"
+                >
+                  <DialogTitle id="game-dialog-title">
+                    Elas Adventures Game (Attempts: {attemps})
+                  </DialogTitle>
+                  <DialogContent>
+                    <ElasGame addAttempt={addAttempt} />
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={toggleGame}>Take me back</Button>
+                  </DialogActions>
+                </Dialog>
+
                 {drawerItemsProjectPage
                   .filter((element) => {
                     return projectInfo?.mode !== projectModes.SIMULATION

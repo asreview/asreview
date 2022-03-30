@@ -34,10 +34,18 @@ const DataForm = (props) => {
     ["fetchData", { project_id: props.project_id }],
     ProjectAPI.fetchData,
     {
-      enabled: props.datasetAdded !== undefined && props.datasetAdded,
+      enabled: props.project_id !== null && props.datasetAdded,
       refetchOnWindowFocus: false,
     }
   );
+
+  const priorAdded = () => {
+    return (
+      props.labeledStats &&
+      props.labeledStats.n_inclusions !== 0 &&
+      props.labeledStats.n_exclusions !== 0
+    );
+  };
 
   const refetchData = () => {
     queryClient.resetQueries("fetchData");
@@ -108,10 +116,7 @@ const DataForm = (props) => {
               toggleAddCard={props.toggleAddDataset}
             />
             <DataFormCard
-              added={
-                props.labeledStats?.n_inclusions !== 0 &&
-                props.labeledStats?.n_exclusions !== 0
-              }
+              added={priorAdded()}
               datasetAdded={props.datasetAdded}
               primaryDefault="Add prior knowledge"
               primaryAdded="Prior knowledge added"

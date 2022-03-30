@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useQueryClient } from "react-query";
+import { connect } from "react-redux";
 import { useParams } from "react-router-dom";
 import {
   Box,
@@ -12,15 +13,22 @@ import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../Components";
 import { ProjectModeSelect } from "../ProjectComponents";
+import { InfoCard } from "../ProjectComponents/SetupComponents";
 import { MouseOverPopover } from "../StyledComponents/StyledPopover.js";
 import { TypographySubtitle1Medium } from "../StyledComponents/StyledTypography.js";
-import "../App.css";
+import { mapStateToProps } from "../globals.js";
 
 const Root = styled("div")(({ theme }) => ({}));
 
 const ProjectInfoForm = (props) => {
   const { project_id } = useParams();
   const queryClient = useQueryClient();
+
+  const fetchInfoState = queryClient.getQueryState([
+    "fetchInfo",
+    { project_id: props.project_id },
+  ]);
+
   const isProjectSetup = () => {
     return !project_id;
   };
@@ -74,31 +82,36 @@ const ProjectInfoForm = (props) => {
             </TypographySubtitle1Medium>
           )}
         </Box>
-        {props.isFetchingInfo && (
+        {fetchInfoState.isFetching && (
           <Box className="main-page-body-wrapper">
             <CircularProgress />
           </Box>
         )}
-        {!props.isFetchingInfo && !props.isFetchInfoError && (
+        {props.datasetAdded && (
+          <InfoCard info="Editing the mode removes the added data and the specified model" />
+        )}
+        {fetchInfoState.status !== "error" && !fetchInfoState.isFetching && (
           <Box component="form" noValidate autoComplete="off">
             <Stack direction="column" spacing={3}>
-              <MouseOverPopover
-                title={
-                  !isProjectSetup()
-                    ? "Select mode when creating a new project"
-                    : "Select mode before proceeding to the next step"
-                }
-              >
+              {!isProjectSetup() && (
+                <MouseOverPopover title="Select mode when creating a new project">
+                  <ProjectModeSelect
+                    disableModeSelect
+                    mode={props.info?.mode}
+                    handleMode={handleInfoChange}
+                    onBlur={onBlur}
+                    onFocus={onFocus}
+                  />
+                </MouseOverPopover>
+              )}
+              {isProjectSetup() && (
                 <ProjectModeSelect
-                  disableModeSelect={
-                    !isProjectSetup() ? true : props.disableModeSelect
-                  }
                   mode={props.info?.mode}
                   handleMode={handleInfoChange}
                   onBlur={onBlur}
                   onFocus={onFocus}
                 />
-              </MouseOverPopover>
+              )}
               <TextField
                 autoFocus
                 error={props.isMutateInfoError}
@@ -147,16 +160,19 @@ const ProjectInfoForm = (props) => {
             </Stack>
           </Box>
         )}
-        {props.isFetchInfoError && (
+        {fetchInfoState.status === "error" && (
           <InlineErrorHandler
-            message={props.fetchInfoError?.message}
+            message={fetchInfoState.error?.message}
             refetch={refetchInfo}
             button
           />
+        )}
+        {props.isDeleteProjectError && (
+          <InlineErrorHandler message={props.deleteProjectError?.message} />
         )}
       </Stack>
     </Root>
   );
 };
 
-export default ProjectInfoForm;
+export default connect(mapStateToProps)(ProjectInfoForm);
