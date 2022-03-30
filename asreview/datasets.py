@@ -210,9 +210,9 @@ class BaseDataSet():
         }
 
 
-        raise DataSetNotFoundError(
-            f"Dataset {data_name} not found"
-        )
+class BaseDataGroup(ABC):
+    def __init__(self, *datasets):
+        """Group of datasets.
 
         Group containing one or more datasets.
 
