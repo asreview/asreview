@@ -28,6 +28,7 @@ from functools import wraps
 from pathlib import Path
 from uuid import uuid4
 
+import jsonschema
 import numpy as np
 import pandas as pd
 
@@ -35,6 +36,7 @@ from asreview._version import get_versions
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
 from asreview.config import PROJECT_MODE_SIMULATE
+from asreview.config import SCHEMA
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_path
@@ -61,11 +63,6 @@ class ProjectExistsError(Exception):
 
 class ProjectNotFoundError(Exception):
     pass
-
-
-# def project_from_id(project_id, *args, **kwargs):
-
-#     return ASReviewProject(project_id, *args, **kwargs)
 
 
 def get_project_path(project_id, asreview_dir=None):
@@ -245,9 +242,9 @@ class ASReviewProject():
             Path(project_path, PATH_FEATURE_MATRICES).mkdir(exist_ok=True)
             get_reviews_path(project_path).mkdir(exist_ok=True)
 
-            project_config = {
+            config = {
                 'version':
-                get_versions()['version'],  # todo: Fail without git?
+                get_versions()['version'],
                 'id': project_id,
                 'mode': project_mode,
                 'name': project_name,
@@ -259,9 +256,12 @@ class ASReviewProject():
                 'feature_matrices': []
             }
 
+            # validate new config before storing
+            jsonschema.validate(instance=config, schema=SCHEMA)
+
             # create a file with project info
             with open(Path(project_path, PATH_PROJECT_CONFIG), "w") as f:
-                json.dump(project_config, f)
+                json.dump(config, f)
 
         except Exception as err:
             # remove all generated folders and raise error
@@ -302,7 +302,7 @@ class ASReviewProject():
         self._config = config
 
     def update_config(self, **kwargs):
-        '''Update project info'''
+        """Update project info"""
 
         kwargs_copy = kwargs.copy()
 
@@ -324,6 +324,9 @@ class ASReviewProject():
             config = json.load(f)
 
         config.update(kwargs_copy)
+
+        # validate new config before storing
+        jsonschema.validate(instance=config, schema=SCHEMA)
 
         with open(project_fp, "w") as f:
             json.dump(config, f)
