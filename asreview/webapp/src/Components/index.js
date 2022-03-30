@@ -6,6 +6,7 @@ export { default as DialogTitleWithClose } from "./DialogTitleWithClose";
 export { default as DialogErrorHandler } from "./DialogErrorHandler";
 export { default as DrawerItem } from "./DrawerItem";
 export { default as DrawerItemContainer } from "./DrawerItemContainer";
+export { default as ElasGame } from "./ElasGame";
 export { default as Header } from "./Header";
 export { default as HelpDialog } from "./HelpDialog";
 export { default as InlineErrorHandler } from "./InlineErrorHandler";
