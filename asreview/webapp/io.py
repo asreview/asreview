@@ -12,17 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import logging
 import os
 import pickle
-from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 from asreview._version import get_versions
-from asreview.config import LABEL_NA
 from asreview.data import ASReviewData
 from asreview.state.paths import get_data_file_path
 

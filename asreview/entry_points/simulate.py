@@ -13,10 +13,8 @@
 # limitations under the License.
 """Simulation entry point and utils."""
 
-import json
 import logging
 import shutil
-from datetime import datetime
 from pathlib import Path
 
 from asreview.compat import convert_id_to_idx
@@ -43,10 +41,7 @@ from asreview.project import ProjectExistsError
 from asreview.project import open_state
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
-from asreview.state.errors import StateNotFoundError
-from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_data_path
-from asreview.state.paths import get_feature_matrix_path
 from asreview.types import type_n_queries
 from asreview.utils import get_random_state
 from asreview.webapp.io import read_data

@@ -12,20 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
-import shutil
-import sqlite3
-import time
-from datetime import datetime
 from pathlib import Path
-from uuid import uuid4
-
-import pandas as pd
 
 from asreview.state.errors import StateNotFoundError
-from asreview.state.paths import get_data_path
-from asreview.state.paths import get_feature_matrices_path
-from asreview.state.sqlstate import SQLiteState
 
 V3STATE_VERSION = "1.0"
 

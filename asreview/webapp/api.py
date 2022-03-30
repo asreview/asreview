@@ -14,19 +14,14 @@
 
 import json
 import logging
-import os
-import re
 import shutil
 import subprocess
 import tempfile
 import urllib.parse
-import uuid
-from collections import Counter
 from pathlib import Path
 from urllib.request import urlretrieve
 
 from flask import Blueprint
-from flask import Response
 from flask import abort
 from flask import jsonify
 from flask import request
@@ -70,14 +65,11 @@ from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_data_path
-from asreview.state.paths import get_simulation_ready_path
-from asreview.state.sql_converter import is_old_project
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.sql_converter import upgrade_project_config
 from asreview.utils import _get_executable
 from asreview.utils import asreview_path
 from asreview.webapp.io import read_data
-from asreview.webapp.sqlock import SQLiteLock
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 CORS(bp, resources={r"*": {"origins": "*"}})

@@ -15,10 +15,7 @@
 import json
 import logging
 import os
-import re
 import shutil
-import subprocess
-import sys
 import tempfile
 import time
 import zipfile
@@ -30,24 +27,18 @@ from uuid import uuid4
 
 import jsonschema
 import numpy as np
-import pandas as pd
 
 from asreview._version import get_versions
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.config import SCHEMA
-from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_path
-from asreview.state.paths import get_feature_matrices_path
 from asreview.state.paths import get_reviews_path
 from asreview.state.sqlstate import SQLiteState
-from asreview.state.utils import is_valid_project_folder
-from asreview.state.utils import is_zipped_project_file
 from asreview.utils import asreview_path
 from asreview.webapp.io import read_data
-from asreview.webapp.sqlock import SQLiteLock
 
 PATH_PROJECT_CONFIG = "project.json"
 PATH_FEATURE_MATRICES = 'feature_matrices'

@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.entry_points.base import _base_parser
 from asreview.webapp.run_model import main as main_run_model
