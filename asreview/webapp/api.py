@@ -212,16 +212,14 @@ def api_init_project():  # noqa: F401
 def api_upgrade_project_if_old(project):
     """Get upgrade project if it is v0.x"""
 
-    try:
-        upgrade_asreview_project_file(project.project_path)
+    if not project.config["version"].startswith("0"):
+        response = jsonify(
+            message="Can only convert v0.x projects.")
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response, 400
 
-    except ValueError:
-        pass
-
-    except Exception as err:
-        logging.error(err)
-        message = "Failed to open the project in this version of ASReview LAB."
-        return jsonify(message=message), 500
+    # errors are handled by the InternalServerError
+    upgrade_asreview_project_file(project.project_path)
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')

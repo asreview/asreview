@@ -49,7 +49,7 @@ def test_upgrade_project_if_old(client):
     """Test upgrade project if it is v0.x"""
 
     response = client.get("/api/projects/project-id/upgrade_if_old")
-    assert response.status_code == 200
+    assert response.status_code == 400
 
 
 def test_get_projects_stats(client):

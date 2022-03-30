@@ -28,6 +28,7 @@ from scipy.sparse import issparse
 from scipy.sparse import load_npz
 from scipy.sparse import save_npz
 
+from asreview._version import get_versions
 from asreview.state.errors import StateError
 from asreview.state.legacy.utils import open_state as open_state_legacy
 
@@ -92,7 +93,7 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
 
     if from_version != 0 and to_version != 1:
         raise ValueError(
-            f"Not possible to upgrade from {from_version} to {to_version}.")
+            f"Not possible to upgrade from v{from_version} to v{to_version}.")
 
     # Check if it is indeed an old format project.
     if not is_old_project(fp):
@@ -178,14 +179,23 @@ def move_old_files_to_legacy_folder(fp):
     this legacy folder, and keeps a copy of 'project.json' and the data folder
     at the original place.
     """
-    files_to_keep = ['project.json', 'data', 'lock.sqlite', '__MACOSX']
 
-    file_paths = list(fp.iterdir())
-    legacy_folder = Path(fp, 'legacy')
-    shutil.copytree(fp, legacy_folder)
-    for file_path in file_paths:
-        if file_path.name not in files_to_keep:
-            file_path.unlink()
+    project_content = list(fp.iterdir())
+
+    # copy to legacy folder
+    shutil.copytree(fp, Path(fp, 'legacy'))
+
+    # remove files and folders
+    files_to_keep = ['project.json', 'data', 'lock.sqlite']
+
+    for f in project_content:
+        if f.name not in files_to_keep:
+            if f.is_file():
+                f.unlink()
+            elif f.is_dir():
+                shutil.rmtree(f)
+            else:
+                pass
 
 
 def upgrade_project_config(config,
@@ -229,6 +239,7 @@ def upgrade_project_config(config,
     config['mode'] = config.get('mode', 'oracle')
 
     # Update the state version.
+    config['version'] = get_versions()['version']
     config['state_version'] = SQLSTATE_VERSION
 
     # set created_at_unix to start time (empty: None)
