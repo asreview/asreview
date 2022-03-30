@@ -28,6 +28,7 @@ from scipy.sparse import issparse
 from scipy.sparse import load_npz
 from scipy.sparse import save_npz
 
+from asreview._version import get_versions
 from asreview.state.errors import StateError
 from asreview.state.legacy.utils import open_state as open_state_legacy
 
@@ -238,6 +239,7 @@ def upgrade_project_config(config,
     config['mode'] = config.get('mode', 'oracle')
 
     # Update the state version.
+    config['version'] = get_versions()['version']
     config['state_version'] = SQLSTATE_VERSION
 
     # set created_at_unix to start time (empty: None)
