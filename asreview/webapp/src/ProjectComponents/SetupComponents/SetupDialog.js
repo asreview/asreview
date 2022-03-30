@@ -81,9 +81,9 @@ const SetupDialog = (props) => {
     title: "",
     authors: "",
     description: "",
+    dataset_path: undefined,
   });
   const [disableFetchInfo, setDisableFetchInfo] = React.useState(false); // disable fetch when init a project
-  const [disableModeSelect, setDisableModeSelect] = React.useState(false);
   const [exTitle, setExTitle] = React.useState(""); // for comparison to decide on mutate project id
   const [textFiledFocused, setTextFieldFocused] = React.useState(null); // for autosave on blur
 
@@ -95,7 +95,6 @@ const SetupDialog = (props) => {
   const [extension, setExtension] = React.useState(null);
   const [benchmark, setBenchmark] = React.useState(null);
   const [addPriorKnowledge, toggleAddPriorKnowledge] = useToggle();
-  const [datasetAdded, setDatasetAdded] = React.useState(false);
 
   // State Step 3: Model
   const [model, setModel] = React.useState({
@@ -111,12 +110,22 @@ const SetupDialog = (props) => {
   /**
    * Step 1: Basic information
    */
+  const projectHasDataset = () => {
+    return info.dataset_path !== undefined;
+  };
+
   const handleInfoChange = (event) => {
     if (isInitError && event.target.name === "title") {
       resetInit();
     }
     if (isMutateInfoError && event.target.name === "title") {
       resetMutateInfo();
+    }
+    if (isDeleteProjectError) {
+      resetDeleteProject();
+    }
+    if (event.target.name === "mode" && projectHasDataset()) {
+      deleteProject({ project_id: props.project_id });
     }
     setInfo({
       ...info,
@@ -127,10 +136,14 @@ const SetupDialog = (props) => {
   const {
     error: initError,
     isError: isInitError,
-    isLoading: isMutatingInitProject,
+    isLoading: isInitiatingProject,
+    isSuccess: isInitSuccess,
     mutate: initProject,
     reset: resetInit,
   } = useMutation(ProjectAPI.mutateInitProject, {
+    onMutate: () => {
+      setDisableFetchInfo(true);
+    },
     onSuccess: (data, variables) => {
       props.setProjectId(data["id"]);
       setTextFieldFocused(null);
@@ -153,11 +166,7 @@ const SetupDialog = (props) => {
     },
   });
 
-  const {
-    error: fetchInfoError,
-    isError: isFetchInfoError,
-    isFetching: isFetchingInfo,
-  } = useQuery(
+  const { error: fetchInfoError, isError: isFetchInfoError } = useQuery(
     ["fetchInfo", { project_id: props.project_id }],
     ProjectAPI.fetchInfo,
     {
@@ -168,33 +177,42 @@ const SetupDialog = (props) => {
           title: data["name"],
           authors: data["authors"],
           description: data["description"],
+          dataset_path: data["dataset_path"],
         });
         setExTitle(data["name"]);
         setDisableFetchInfo(true); // avoid getting all the time
-        setDisableModeSelect(true);
-        if (data?.dataset_path) {
-          setDatasetAdded(true);
-        }
       },
       refetchOnWindowFocus: false,
     }
   );
 
+  const {
+    error: deleteProjectError,
+    isError: isDeleteProjectError,
+    mutate: deleteProject,
+    reset: resetDeleteProject,
+  } = useMutation(ProjectAPI.mutateDeleteProject, {
+    onSuccess: () => {
+      props.setProjectId(null);
+      setTextFieldFocused(null);
+      setInfo((s) => {
+        return {
+          ...s,
+          dataset_path: undefined,
+        };
+      });
+    },
+  });
+
   const returnInfoError = () => {
-    if (!props.project_id) {
+    if (isInitError) {
       return [isInitError, initError];
-    }
-    if (props.project_id) {
+    } else if (isMutateInfoError) {
       return [isMutateInfoError, mutateInfoError];
+    } else {
+      return [false, null];
     }
   };
-
-  React.useEffect(() => {
-    if (props.open && !props.project_id && !disableFetchInfo) {
-      // disable fetch info query when initiate a new project
-      setDisableFetchInfo(true);
-    }
-  }, [props.open, props.project_id, disableFetchInfo]);
 
   // auto mutate info when text field is not focused
   React.useEffect(() => {
@@ -206,7 +224,7 @@ const SetupDialog = (props) => {
       !isInitError &&
       !isMutateInfoError
     ) {
-      if (!props.project_id) {
+      if (!props.project_id && !isInitiatingProject) {
         initProject({
           mode: info.mode,
           title: info.title,
@@ -214,7 +232,7 @@ const SetupDialog = (props) => {
           description: info.description,
         });
       }
-      if (props.project_id) {
+      if (props.project_id && isInitSuccess) {
         mutateInfo({
           project_id: props.project_id,
           mode: info.mode,
@@ -229,6 +247,8 @@ const SetupDialog = (props) => {
     info,
     initProject,
     isInitError,
+    isInitSuccess,
+    isInitiatingProject,
     isMutateInfoError,
     mutateInfo,
     props.project_id,
@@ -250,7 +270,6 @@ const SetupDialog = (props) => {
       queryClient.invalidateQueries("fetchInfo");
       queryClient.invalidateQueries("fetchLabeledStats");
       toggleAddDataset();
-      setDatasetSource("file");
     },
     onSettled: () => {
       setFile(null);
@@ -269,7 +288,8 @@ const SetupDialog = (props) => {
     ["fetchLabeledStats", { project_id: props.project_id }],
     ProjectAPI.fetchLabeledStats,
     {
-      enabled: props.project_id !== null && activeStep === 1,
+      enabled:
+        props.project_id !== null && activeStep === 1 && projectHasDataset(),
       refetchOnWindowFocus: false,
     }
   );
@@ -281,7 +301,6 @@ const SetupDialog = (props) => {
 
   const handleDiscardDataset = () => {
     toggleAddDataset();
-    setDatasetSource("file");
     setFile(null);
     setURL("");
     setExtension(null);
@@ -320,6 +339,12 @@ const SetupDialog = (props) => {
       labeledStats?.n_prior_inclusions > 4
     );
   };
+
+  React.useEffect(() => {
+    if (info.mode === projectModes.EXPLORATION) {
+      setDatasetSource("benchmark");
+    }
+  }, [info.mode]);
 
   /**
    * Step3: Model
@@ -420,15 +445,15 @@ const SetupDialog = (props) => {
       title: "",
       authors: "",
       description: "",
+      dataset_path: undefined,
     });
-    setDatasetAdded(false);
+    setDatasetSource("file");
     setModel({
       classifier: null,
       query_strategy: null,
       feature_extraction: null,
     });
     setDisableFetchInfo(false);
-    setDisableModeSelect(false);
     setTrainingStarted(false);
     setTrainingFinished(false);
     if (isInitError) {
@@ -485,7 +510,7 @@ const SetupDialog = (props) => {
 
   // saving state box in step 1 & 3
   const isSaving = () => {
-    return isMutatingInitProject || isMutatingInfo || isMutatingModelConfig;
+    return isInitiatingProject || isMutatingInfo || isMutatingModelConfig;
   };
 
   const isSavingPriorKnowledge = () => {
@@ -627,19 +652,18 @@ const SetupDialog = (props) => {
               {activeStep === 0 && (
                 <ProjectInfoForm
                   info={info}
-                  disableModeSelect={disableModeSelect}
+                  deleteProjectError={deleteProjectError}
                   mutateInfoError={returnInfoError()[1]}
-                  fetchInfoError={fetchInfoError}
+                  isDeleteProjectError={isDeleteProjectError}
                   isMutateInfoError={returnInfoError()[0]}
-                  isFetchInfoError={isFetchInfoError}
-                  isFetchingInfo={isFetchingInfo}
                   handleInfoChange={handleInfoChange}
+                  datasetAdded={projectHasDataset()}
                   setTextFieldFocused={setTextFieldFocused}
                 />
               )}
               {activeStep === 1 && (
                 <DataForm
-                  datasetAdded={datasetAdded}
+                  datasetAdded={projectHasDataset()}
                   labeledStats={labeledStats}
                   toggleAddDataset={toggleAddDataset}
                   toggleAddPriorKnowledge={toggleAddPriorKnowledge}
@@ -681,7 +705,7 @@ const SetupDialog = (props) => {
         <AddDataset
           addDatasetError={addDatasetError}
           benchmark={benchmark}
-          datasetAdded={datasetAdded}
+          datasetAdded={projectHasDataset()}
           datasetSource={datasetSource}
           extension={extension}
           file={file}

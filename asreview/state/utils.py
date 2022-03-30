@@ -12,31 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
-import shutil
-import sqlite3
-import time
-from datetime import datetime
 from pathlib import Path
-from uuid import uuid4
-
-import pandas as pd
 
 from asreview.state.errors import StateNotFoundError
-from asreview.state.paths import get_data_path
-from asreview.state.paths import get_feature_matrices_path
-from asreview.state.sqlstate import SQLiteState
 
 V3STATE_VERSION = "1.0"
 
 
-# TODO(State): Create an 'add_project_json' function.
 def is_zipped_project_file(fp):
     """Check if it is a zipped asreview project file."""
     if Path(fp).is_file():
         state_ext = Path(fp).suffix
 
-        # TODO(State): Make link.
         if state_ext in ['.h5', '.hdf5', '.he5', '.json']:
             raise ValueError(
                 f'State file with extension {state_ext} is no longer '

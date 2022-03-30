@@ -8,7 +8,7 @@ const ExplorationModeBanner = (props) => {
       <Banner
         open={props.explorationMode}
         onClose={() => props.setExplorationMode(false)}
-        label="You are screening through a completely labeled dataset."
+        label="You are reviewing a completely labeled dataset."
         icon={<InfoOutlinedIcon sx={{ color: "text.secondary" }} />}
         iconProps={{
           sx: { bgcolor: "transparent" },

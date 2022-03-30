@@ -15,7 +15,9 @@
 import json
 import shutil
 import sqlite3
+import time
 from base64 import b64decode
+from datetime import datetime
 from io import BytesIO
 from pathlib import Path
 from uuid import uuid4
@@ -146,6 +148,7 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     # extract the start time from the state json
     with open(json_fp, 'r') as f:
         start_time = json.load(f)['time']['start_time']
+        start_time = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S.%f")
 
     # open the project json and upgrade
     with open(Path(fp, 'project.json'), 'r') as f:
@@ -207,10 +210,12 @@ def upgrade_project_config(config,
         Name of the feature extraction method.
     """
 
+    start_time_s = str(start_time) if start_time else None
+
     # Add the review information.
     config['reviews'] = [{
         'id': review_id,
-        'start_time': start_time,
+        'start_time': start_time_s,
         'status': get_old_project_status(config)
     }]
 
@@ -228,7 +233,14 @@ def upgrade_project_config(config,
 
     # set created_at_unix to start time (empty: None)
     if "created_at_unix" not in config:
-        config["created_at_unix"] = start_time
+        try:
+            config["created_at_unix"] = time.mktime(
+                start_time.timetuple()
+            )
+        except Exception:
+            config["created_at_unix"] = None
+
+    config["datetimeCreated"] = start_time_s
 
     # delete deprecated metadata
     config.pop("projectInitReady", None)
@@ -255,8 +267,6 @@ def convert_json_settings_metadata(fp, json_fp):
         # The 'triple' balance strategy is no longer implemented.
         if data_dict['settings']['balance_strategy'] == 'triple':
             data_dict['settings']['balance_strategy'] = 'double'
-        data_dict['current_queries'] = json_state._state_dict[
-            'current_queries']
         data_dict['state_version'] = SQLSTATE_VERSION
         data_dict['software_version'] = json_state._state_dict[
             'software_version']
@@ -289,6 +299,11 @@ def create_last_ranking_table(sql_fp, pool_fp, kwargs_fp, json_fp):
         if record_id not in pool_ranking
     ]
     pool_ranking += records_not_in_pool
+
+    # Convert the records in the pool to the new record ids (starting from 0).
+    old_to_new_record_ids = {old_id: idx
+                             for idx, old_id in enumerate(record_table)}
+    pool_ranking = [old_to_new_record_ids[record] for record in pool_ranking]
 
     # Set the training set to -1 (prior) for records from old pool.
     training_set = -1

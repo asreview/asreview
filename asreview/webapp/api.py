@@ -14,19 +14,14 @@
 
 import json
 import logging
-import os
-import re
 import shutil
 import subprocess
 import tempfile
 import urllib.parse
-import uuid
-from collections import Counter
 from pathlib import Path
 from urllib.request import urlretrieve
 
 from flask import Blueprint
-from flask import Response
 from flask import abort
 from flask import jsonify
 from flask import request
@@ -70,14 +65,11 @@ from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_data_path
-from asreview.state.paths import get_simulation_ready_path
-from asreview.state.sql_converter import is_old_project
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.sql_converter import upgrade_project_config
 from asreview.utils import _get_executable
 from asreview.utils import asreview_path
 from asreview.webapp.io import read_data
-from asreview.webapp.sqlock import SQLiteLock
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 CORS(bp, resources={r"*": {"origins": "*"}})
@@ -697,8 +689,6 @@ def api_get_labeled_stats(project):  # noqa: F401
 
         with open_state(project.project_path) as s:
             data = s.get_dataset(["label", "query_strategy"])
-            # Drop pending records.
-            data = data[~data['label'].isna()]
             data_prior = data[data["query_strategy"] == "prior"]
 
         response = jsonify({
@@ -1056,18 +1046,14 @@ def api_export_dataset(project):
     try:
         # get labels and ranking from state file
         with open_state(project.project_path) as s:
-            proba = s.get_last_probabilities()
-            labeled_data = s.get_dataset(['record_id', 'label'])
-            record_table = s.get_record_table()
+            pool, labeled, pending = s.get_pool_labeled_pending()
 
-        prob_df = pd.concat([record_table, proba], axis=1)
-
-        ranking = pd. \
-            merge(prob_df, labeled_data, on='record_id', how='left'). \
-            fillna(0.5). \
-            sort_values(['label', 'proba'], ascending=False)['record_id']
-
-        labeled = labeled_data.values.tolist()
+        included = labeled[labeled['label'] == 1]
+        excluded = labeled[labeled['label'] != 1]
+        export_order = included['record_id'].to_list() + \
+            pending.to_list() + \
+            pool.to_list() + \
+            excluded['record_id'].to_list()
 
         # get writer corresponding to specified file format
         writers = list_writers()
@@ -1082,8 +1068,8 @@ def api_export_dataset(project):
 
         as_data.to_file(
             fp=tmp_path_dataset,
-            labels=labeled,
-            ranking=ranking,
+            labels=labeled.values.tolist(),
+            ranking=export_order,
             writer=writer)
 
         return send_file(

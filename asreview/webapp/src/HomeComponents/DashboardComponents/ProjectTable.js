@@ -158,6 +158,7 @@ const ProjectTable = (props) => {
         const simulationProjects = data.result.filter(
           (element) =>
             element.mode === projectModes.SIMULATION &&
+            element.reviews[0] !== undefined &&
             element.reviews[0].status === projectStatuses.REVIEW
         );
         if (!simulationProjects.length) {
@@ -265,7 +266,10 @@ const ProjectTable = (props) => {
   };
 
   const openProject = (project, path) => {
-    if (project["reviews"][0]["status"] === "setup") {
+    if (
+      project["reviews"][0] === undefined ||
+      project["reviews"][0]["status"] === projectStatuses.SETUP
+    ) {
       // set project id
       props.setProjectId(project["id"]);
       // open project setup dialog
@@ -389,13 +393,14 @@ const ProjectTable = (props) => {
                   const isSimulating = () => {
                     return (
                       row["mode"] === projectModes.SIMULATION &&
+                      row["reviews"][0] !== undefined &&
                       row["reviews"][0]["status"] === projectStatuses.REVIEW
                     );
                   };
 
                   const showAnalyticsButton = () => {
                     return (
-                      row["reviews"][0] === undefined ||
+                      row["reviews"][0] !== undefined &&
                       row["reviews"][0]["status"] !== projectStatuses.SETUP
                     );
                   };
@@ -425,6 +430,7 @@ const ProjectTable = (props) => {
 
                   const onClickProjectExport = () => {
                     if (
+                      row["reviews"][0] === undefined ||
                       row["reviews"][0]["status"] === projectStatuses.SETUP ||
                       row["projectNeedsUpgrade"]
                     ) {
