@@ -212,6 +212,7 @@ def api_init_project():  # noqa: F401
 def api_upgrade_project_if_old(project):
     """Get upgrade project if it is v0.x"""
 
+    print(project.config["version"])
     if not project.config["version"].startswith("0"):
         response = jsonify(
             message="Can only convert v0.x projects.")
@@ -581,96 +582,90 @@ def api_get_labeled(project):  # noqa: F401
     subset = request.args.getlist("subset")
     latest_first = request.args.get("latest_first", default=1, type=int)
 
-    try:
+    with open_state(project.project_path) as s:
+        data = s.get_dataset(
+            ["record_id", "label", "query_strategy", "notes"])
+        data["prior"] = (data["query_strategy"] == "prior").astype(int)
 
-        with open_state(project.project_path) as s:
-            data = s.get_dataset(
-                ["record_id", "label", "query_strategy", "notes"])
-            data["prior"] = (data["query_strategy"] == "prior").astype(int)
+    if any(s in subset for s in ["relevant", "included"]):
+        data = data[data["label"] == 1]
+    elif any(s in subset for s in ["irrelevant", "excluded"]):
+        data = data[data["label"] == 0]
+    else:
+        data = data[~data["label"].isnull()]
 
-        if any(s in subset for s in ["relevant", "included"]):
-            data = data[data["label"] == 1]
-        elif any(s in subset for s in ["irrelevant", "excluded"]):
-            data = data[data["label"] == 0]
-        else:
-            data = data[~data["label"].isnull()]
+    if "note" in subset:
+        data = data[~data["notes"].isnull()]
 
-        if "note" in subset:
-            data = data[~data["notes"].isnull()]
+    if "prior" in subset:
+        data = data[data["prior"] == 1]
 
-        if "prior" in subset:
-            data = data[data["prior"] == 1]
+    if latest_first == 1:
+        data = data.iloc[::-1]
 
-        if latest_first == 1:
-            data = data.iloc[::-1]
-
-        # count labeled records and max pages
-        count = len(data)
-        if count == 0:
-            payload = {
-                "count": 0,
-                "next_page": None,
-                "previous_page": None,
-                "result": [],
-            }
-            response = jsonify(payload)
-            response.headers.add('Access-Control-Allow-Origin', '*')
-            return response
-
-        max_page_calc = divmod(count, per_page)
-        if max_page_calc[1] == 0:
-            max_page = max_page_calc[0]
-        else:
-            max_page = max_page_calc[0] + 1
-
-        if page is not None:
-            # slice out records on specific page
-            if page <= max_page:
-                idx_start = page * per_page - per_page
-                idx_end = page * per_page
-                data = data.iloc[idx_start:idx_end, :].copy()
-            else:
-                return abort(404)
-
-            # set next & previous page
-            if page < max_page:
-                next_page = page + 1
-                if page > 1:
-                    previous_page = page - 1
-                else:
-                    previous_page = None
-            else:
-                next_page = None
-                previous_page = page - 1
-        else:
-            next_page = None
-            previous_page = None
-
-        records = read_data(project.project_path).record(data["record_id"],
-                                                         by_index=False)
-
+    # count labeled records and max pages
+    count = len(data)
+    if count == 0:
         payload = {
-            "count": count,
-            "next_page": next_page,
-            "previous_page": previous_page,
+            "count": 0,
+            "next_page": None,
+            "previous_page": None,
             "result": [],
         }
-        for i, record in zip(data.index.tolist(), records):
+        response = jsonify(payload)
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
 
-            payload["result"].append({
-                "id": int(record.record_id),
-                "title": record.title,
-                "abstract": record.abstract,
-                "authors": record.authors,
-                "keywords": record.keywords,
-                "included": int(data.loc[i, "label"]),
-                "note": data.loc[i, "notes"],
-                "prior": int(data.loc[i, "prior"])
-            })
+    max_page_calc = divmod(count, per_page)
+    if max_page_calc[1] == 0:
+        max_page = max_page_calc[0]
+    else:
+        max_page = max_page_calc[0] + 1
 
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message=f"{err}"), 500
+    if page is not None:
+        # slice out records on specific page
+        if page <= max_page:
+            idx_start = page * per_page - per_page
+            idx_end = page * per_page
+            data = data.iloc[idx_start:idx_end, :].copy()
+        else:
+            return abort(404)
+
+        # set next & previous page
+        if page < max_page:
+            next_page = page + 1
+            if page > 1:
+                previous_page = page - 1
+            else:
+                previous_page = None
+        else:
+            next_page = None
+            previous_page = page - 1
+    else:
+        next_page = None
+        previous_page = None
+
+    records = read_data(project.project_path).record(data["record_id"],
+                                                     by_index=False)
+
+    payload = {
+        "count": count,
+        "next_page": next_page,
+        "previous_page": previous_page,
+        "result": [],
+    }
+    for i, record in zip(data.index.tolist(), records):
+
+        payload["result"].append({
+            "id": int(record.record_id),
+            "title": record.title,
+            "abstract": record.abstract,
+            "authors": record.authors,
+            "keywords": record.keywords,
+            "included": int(data.loc[i, "label"]),
+            "note": data.loc[i, "notes"],
+            "prior": int(data.loc[i, "prior"])
+        })
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
