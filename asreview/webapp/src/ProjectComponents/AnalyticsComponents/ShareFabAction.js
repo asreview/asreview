@@ -21,7 +21,7 @@ export default function ShareFabAction(props) {
   const n_labeled =
     props.progressQueryData?.n_included + props.progressQueryData?.n_excluded;
 
-  const text_en = `I'm using ASReview LAB to do a systematic review of ${n_papers} publications. Found ${n_included} relevant after reviewing ${n_labeled}!`;
+  const text_en = `I'm using ASReview LAB to systematically review ${n_papers} records and found ${n_included} relevant ones after only reviewing ${n_labeled}!`;
   const text_cn = `我在用ASReview LAB对${n_papers}篇文献做系统综述(systematic review)。筛选${n_labeled}篇之后，发现了${n_included}篇相关！`;
 
   return (

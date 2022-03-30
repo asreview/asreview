@@ -1,9 +1,7 @@
 import React from "react";
 import Chart from "react-apexcharts";
-import { Card, CardContent, Stack, Typography } from "@mui/material";
+import { Card, CardContent } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
-
-import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
 
 const PREFIX = "ProgressChart";
 
@@ -88,7 +86,7 @@ export default function ProgressChart(props) {
             },
             total: {
               show: true,
-              label: "Total Records",
+              label: "Total records",
               fontSize: !props.mobileScreen
                 ? theme.typography.subtitle1.fontSize
                 : theme.typography.subtitle2.fontSize,
@@ -169,23 +167,13 @@ export default function ProgressChart(props) {
   return (
     <StyledCard elevation={2}>
       <CardContent className={classes.root}>
-        <Stack spacing={2}>
-          {!props.mobileScreen && (
-            <Typography variant="h6">Current Progress</Typography>
-          )}
-          {props.mobileScreen && (
-            <TypographySubtitle1Medium>
-              Current Progress
-            </TypographySubtitle1Medium>
-          )}
-          <Chart
-            options={options}
-            series={series}
-            type="radialBar"
-            height={350}
-            width="100%"
-          />
-        </Stack>
+        <Chart
+          options={options}
+          series={series}
+          type="radialBar"
+          height={350}
+          width="100%"
+        />
       </CardContent>
     </StyledCard>
   );
