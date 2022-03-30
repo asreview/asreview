@@ -215,7 +215,7 @@ def api_upgrade_project_if_old(project):
     if not project.config["version"].startswith("0"):
         response = jsonify(
             message="Can only convert v0.x projects.")
-
+        response.headers.add('Access-Control-Allow-Origin', '*')
         return response, 400
 
     # errors are handled by the InternalServerError
