@@ -415,6 +415,7 @@ const ProjectTable = (props) => {
 
                   const disableProjectStatusChange = () => {
                     return (
+                      row["projectNeedsUpgrade"] ||
                       row["mode"] === projectModes.SIMULATION ||
                       row["reviews"][0] === undefined ||
                       row["reviews"][0]["status"] === projectStatuses.SETUP

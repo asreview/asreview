@@ -1,6 +1,6 @@
 import React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../../Components";
@@ -83,6 +83,14 @@ const DatasetFromExtension = (props) => {
           ))}
         </Box>
       )}
+      {!isFetchingDatasets &&
+        isSuccess &&
+        isFetched &&
+        !data?.result.length && (
+          <Typography sx={{ color: "text.secondary" }}>
+            No extension available
+          </Typography>
+        )}
     </Root>
   );
 };
