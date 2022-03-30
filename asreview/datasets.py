@@ -14,7 +14,6 @@
 
 import json
 import socket
-import warnings
 from abc import ABC
 from abc import abstractmethod
 from pathlib import Path
@@ -23,8 +22,6 @@ from urllib.request import urlopen
 
 from asreview.utils import get_entry_points
 from asreview.utils import is_iterable
-from asreview.utils import is_url
-from asreview.utils import pretty_format
 
 
 class DatasetNotFoundError(Exception):
@@ -93,15 +90,8 @@ def get_dataset_metadata(exclude=None, include=None):
     result_datasets = []
     for group_id, data_list in all_datasets.items():
         for dataset in data_list:
-            if isinstance(dataset, BaseVersionedDataSet):
-                cur_data = []
-                for vdata in dataset.datasets:
-                    vdata.dataset_id = f"{group_id}:{vdata.dataset_id}"
-                    cur_data.append(vdata.to_dict())
-                result_datasets.append(cur_data)
-            else:
-                dataset.dataset_id = f"{group_id}:{dataset.dataset_id}"
-                result_datasets.append(dataset.to_dict())
+            dataset.dataset_id = f"{group_id}:{dataset.dataset_id}"
+            result_datasets.append(dataset.to_dict())
 
     return result_datasets
 
