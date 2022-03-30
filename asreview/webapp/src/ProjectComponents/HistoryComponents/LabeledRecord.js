@@ -61,7 +61,8 @@ const LabeledRecord = (props) => {
       ? true
       : !(
           (props.label === "relevant" && !props.n_prior_inclusions) ||
-          (props.label === "irrelevant" && !props.n_prior_exclusions)
+          (props.label === "irrelevant" && !props.n_prior_exclusions) ||
+          (props.label === "all" && !props.n_prior)
         );
   };
 

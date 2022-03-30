@@ -10,6 +10,10 @@ export default function LabelChip(props) {
     props.setLabel("irrelevant");
   };
 
+  const handleClickAll = () => {
+    props.setLabel("all");
+  };
+
   return (
     <Stack direction="row" spacing={2} sx={{ padding: "8px 24px" }}>
       <Chip
@@ -32,6 +36,13 @@ export default function LabelChip(props) {
         color="primary"
         variant={props.label === "irrelevant" ? "filled" : "outlined"}
         onClick={handleClickIrrelevant}
+        size={!props.mobileScreen ? "medium" : "small"}
+      />
+      <Chip
+        label={"All"}
+        color="primary"
+        variant={props.label === "all" ? "filled" : "outlined"}
+        onClick={handleClickAll}
         size={!props.mobileScreen ? "medium" : "small"}
       />
     </Stack>
