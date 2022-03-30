@@ -19,7 +19,7 @@ ASCII_LOGO = """
    / /\ \  \___ \|  _  // _ \ \ / / |/ _ \ \ /\ / /
   / ____ \ ____) | | \ \  __/\ V /| |  __/\ V  V /
  /_/    \_\_____/|_|  \_\___| \_/ |_|\___| \_/\_/
-"""
+"""  # noqa
 
 AVAILABLE_CLI_MODI = ["simulate"]
 AVAILABLE_REVIEW_CLASSES = ["simulate", "minimal"]

@@ -15,8 +15,6 @@
 import os
 import time
 
-import pytest
-
 
 def test_get_projects(client):
     """Test get projects."""

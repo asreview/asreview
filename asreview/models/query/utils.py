@@ -49,7 +49,6 @@ def get_query_class(name):
     class
         Class corresponding to the name name.
     """
-    from asreview.models.query.mixed import MixedQuery
 
     # Try to split the query strategy if the string wasn't found.
     try:
