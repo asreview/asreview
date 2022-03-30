@@ -122,10 +122,7 @@ const ExportPage = (props) => {
     <Root aria-label="export page">
       <Fade in>
         <Box>
-          <PageHeader
-            header="Project export"
-            mobileScreen={props.mobileScreen}
-          />
+          <PageHeader header="Export" mobileScreen={props.mobileScreen} />
           <Box className="main-page-body-wrapper">
             <Stack className="main-page-body" spacing={3}>
               <Box
