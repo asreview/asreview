@@ -51,51 +51,6 @@ def _download_from_metadata(url):
     return datasets
 
 
-def get_dataset_metadata(exclude=None, include=None):
-
-    manager = DatasetManager()
-    groups = manager.groups.copy()
-
-    if exclude is not None:
-
-        # make iterable if not the case
-        if not is_iterable(exclude):
-            exclude = [exclude]
-
-        # pop items
-        for group_id in exclude:
-            try:
-                groups.remove(group_id)
-            except ValueError:
-                pass
-
-    if include is not None:
-
-        # make iterable if not the case
-        if not is_iterable(include):
-            include = [include]
-
-        # pop items
-        for group_id in groups.copy():
-            if group_id not in include:
-                groups.remove(group_id)
-
-    # get datasets
-    all_datasets = manager.list(
-        group_name=groups,
-        latest_only=False,
-        raise_on_error=True
-    )
-
-    result_datasets = []
-    for group_id, data_list in all_datasets.items():
-        for dataset in data_list:
-            dataset.dataset_id = f"{group_id}:{dataset.dataset_id}"
-            result_datasets.append(dataset.to_dict())
-
-    return result_datasets
-
-
 class BaseDataSet():
 
     def __init__(self,
