@@ -63,7 +63,7 @@ def test_project_file(tmp_path, client, url):
     # a bug was found when there are files exported before
     # project upgrade
     response_export_result_excel = client.get(
-    f"{api_url}/export_dataset?file_format=csv")
+        f"{api_url}/export_dataset?file_format=csv")
 
     # Test upgrade project if old
     response_upgrade_if_old = client.get(f"{api_url}/upgrade_if_old")
