@@ -57,6 +57,13 @@ export default function PriorLabeled(props) {
             </Typography>
           </Box>
         )}
+        {label === "all" && props.n_prior === 0 && (
+          <Box className={classes.noPrior}>
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              {`You have not provided prior knowledge`}
+            </Typography>
+          </Box>
+        )}
       </Card>
     </Root>
   );
