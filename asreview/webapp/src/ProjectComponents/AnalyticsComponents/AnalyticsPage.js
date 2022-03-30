@@ -1,6 +1,6 @@
 import React from "react";
 import { useQuery } from "react-query";
-import { connect } from "react-redux";
+import { useParams } from "react-router-dom";
 import {
   EmailIcon,
   TwitterIcon,
@@ -10,15 +10,19 @@ import {
 } from "react-share";
 import {
   Box,
+  Button,
   CircularProgress,
   Fade,
   Grid,
   SpeedDial,
   SpeedDialAction,
+  Stack,
+  Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Share } from "@mui/icons-material";
 
+import { PageHeader } from "../../Components";
 import {
   NumberCard,
   ShareFabAction,
@@ -26,35 +30,12 @@ import {
   ProgressDensityChart,
   ProgressRecallChart,
 } from "../AnalyticsComponents";
+import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
 
 import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps } from "../../globals.js";
+import { projectModes } from "../../globals.js";
 
-const PREFIX = "AnalyticsPage";
-
-const classes = {
-  root: `${PREFIX}-root`,
-  loading: `${PREFIX}-loading`,
-};
-
-const Root = styled("div")(({ theme }) => ({
-  [`& .${classes.root}`]: {
-    alignItems: "center",
-    display: "flex",
-    flexDirection: "column",
-    height: "100%",
-    padding: 24,
-    "& > *": {
-      margin: theme.spacing(2),
-    },
-  },
-
-  [`& .${classes.loading}`]: {
-    display: "flex",
-    justifyContent: "center",
-    padding: 64,
-  },
-}));
+const Root = styled("div")(({ theme }) => ({}));
 
 const actions = [
   { icon: <TwitterIcon round />, name: "Twitter" },
@@ -65,18 +46,20 @@ const actions = [
 ];
 
 const AnalyticsPage = (props) => {
+  const { project_id } = useParams();
+
   const progressQuery = useQuery(
-    ["fetchProgress", { project_id: props.project_id }],
+    ["fetchProgress", { project_id }],
     ProjectAPI.fetchProgress,
     { refetchOnWindowFocus: false }
   );
   const progressDensityQuery = useQuery(
-    ["fetchProgressDensity", { project_id: props.project_id }],
+    ["fetchProgressDensity", { project_id }],
     ProjectAPI.fetchProgressDensity,
     { refetchOnWindowFocus: false }
   );
   const progressRecallQuery = useQuery(
-    ["fetchProgressRecall", { project_id: props.project_id }],
+    ["fetchProgressRecall", { project_id }],
     ProjectAPI.fetchProgressRecall,
     { refetchOnWindowFocus: false }
   );
@@ -114,34 +97,81 @@ const AnalyticsPage = (props) => {
   };
 
   return (
-    <Root>
-      {!allQueriesReady() && (
-        <Box className={classes.loading}>
-          <CircularProgress />
-        </Box>
-      )}
-      {allQueriesReady() && (
-        <Fade in={allQueriesReady()}>
-          <Box className={classes.root}>
-            <Box sx={{ width: "100%", maxWidth: 960 }}>
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={5}>
-                  <ProgressChart progressQuery={progressQuery} />
-                </Grid>
-                <Grid item xs={12} sm={7}>
-                  <NumberCard progressQuery={progressQuery} />
-                </Grid>
-              </Grid>
+    <Root aria-label="analytics page">
+      <Fade in>
+        <Box>
+          {props.mode !== projectModes.SIMULATION && (
+            <PageHeader
+              header="Project analytics"
+              mobileScreen={props.mobileScreen}
+            />
+          )}
+          {props.mode === projectModes.SIMULATION && (
+            <Box
+              className="main-page-sticky-header-wrapper"
+              sx={{ background: (theme) => theme.palette.background.paper }}
+            >
+              <Box className="main-page-sticky-header with-button">
+                {!props.mobileScreen && (
+                  <TypographyH5Medium>Project analytics</TypographyH5Medium>
+                )}
+                {props.mobileScreen && (
+                  <Typography variant="h6">Project analytics</Typography>
+                )}
+                <Stack direction="row" spacing={1}>
+                  <Button
+                    disabled={!allQueriesReady() || !props.isSimulating}
+                    variant="contained"
+                    onClick={props.refetchAnalytics}
+                    size={!props.mobileScreen ? "medium" : "small"}
+                  >
+                    Refresh
+                  </Button>
+                </Stack>
+              </Box>
             </Box>
-            <ProgressDensityChart progressDensityQuery={progressDensityQuery} />
-            <ProgressRecallChart progressRecallQuery={progressRecallQuery} />
-          </Box>
-        </Fade>
-      )}
+          )}
+          {!allQueriesReady() && (
+            <Box className="main-page-body-wrapper">
+              <CircularProgress />
+            </Box>
+          )}
+          {allQueriesReady() && (
+            <Box className="main-page-body-wrapper">
+              <Stack spacing={3} className="main-page-body">
+                <Box>
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} sm={5}>
+                      <ProgressChart
+                        mobileScreen={props.mobileScreen}
+                        progressQuery={progressQuery}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={7}>
+                      <NumberCard
+                        mobileScreen={props.mobileScreen}
+                        progressQuery={progressQuery}
+                      />
+                    </Grid>
+                  </Grid>
+                </Box>
+                <ProgressDensityChart
+                  mobileScreen={props.mobileScreen}
+                  progressDensityQuery={progressDensityQuery}
+                />
+                <ProgressRecallChart
+                  mobileScreen={props.mobileScreen}
+                  progressRecallQuery={progressRecallQuery}
+                />
+              </Stack>
+            </Box>
+          )}
+        </Box>
+      </Fade>
       {allQueriesReady() && (
         <SpeedDial
           ariaLabel="share project analytics"
-          sx={{ position: "absolute", bottom: 24, right: 24 }}
+          className="main-page-fab"
           icon={<Share />}
         >
           {actions.map((action) => (
@@ -168,4 +198,4 @@ const AnalyticsPage = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(AnalyticsPage);
+export default AnalyticsPage;

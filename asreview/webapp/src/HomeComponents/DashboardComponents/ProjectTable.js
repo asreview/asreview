@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { useQuery, useQueryClient } from "react-query";
+import * as React from "react";
+import { useMutation, useQuery, useQueries, useQueryClient } from "react-query";
 import { connect } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -18,23 +19,28 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { ProjectDeleteDialog, TableRowButton } from "../DashboardComponents";
+import { BoxErrorHandler, DialogErrorHandler } from "../../Components";
+import { ProjectDeleteDialog } from "../../ProjectComponents";
+import { ProjectCheckDialog, TableRowButton } from "../DashboardComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { useRowsPerPage } from "../../hooks/SettingsHooks";
 import { useToggle } from "../../hooks/useToggle";
 import ElasArrowRightAhead from "../../images/ElasArrowRightAhead.png";
 
-import { mapStateToProps, mapDispatchToProps } from "../../globals";
+import {
+  checkIfSimulationFinishedDuration,
+  mapDispatchToProps,
+  projectModes,
+  projectStatuses,
+} from "../../globals";
 
 const PREFIX = "ProjectTable";
 
 const classes = {
   root: `${PREFIX}-root`,
+  error: `${PREFIX}-error`,
   table: `${PREFIX}-table`,
   tableCell: `${PREFIX}-tableCell`,
-  chipSetup: `${PREFIX}-chipSetup`,
-  chipInReview: `${PREFIX}-chipInReview`,
-  chipFinished: `${PREFIX}-chipFinished`,
   converting: `${PREFIX}-converting`,
   img: `${PREFIX}-img`,
   title: `${PREFIX}-title`,
@@ -48,30 +54,19 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
     borderRadius: 16,
   },
 
+  [`& .${classes.error}`]: {
+    display: "flex",
+    justifyContent: "center",
+    paddingTop: 64,
+    paddingBottom: 132,
+  },
+
   [`& .${classes.table}`]: {
     minWidth: 700,
   },
 
   [`& .${classes.tableCell}`]: {
     letterSpacing: "0.25px",
-  },
-
-  [`& .${classes.chipSetup}`]: {
-    color: "#424242",
-    backgroundColor: "#bdbdbd",
-    fontWeight: 500,
-  },
-
-  [`& .${classes.chipInReview}`]: {
-    color: "#91620B",
-    backgroundColor: "#FFFBE7",
-    fontWeight: 500,
-  },
-
-  [`& .${classes.chipFinished}`]: {
-    color: "rgb(0, 123, 85)",
-    backgroundColor: "#E1FAE3",
-    fontWeight: 500,
   },
 
   [`& .${classes.converting}`]: {
@@ -112,52 +107,185 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
 
 const columns = [
   { id: "name", label: "Project", width: "55%" },
-  { id: "datetimeCreated", label: "Date", width: "15%" },
+  { id: "created_at_unix", label: "Date", width: "15%" },
   { id: "mode", label: "Mode", width: "15%" },
-  { id: "reviewFinished", label: "Status", width: "15%" },
+  { id: "status", label: "Status", width: "15%" },
 ];
 
 const ProjectTable = (props) => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const [page, setPage] = useState(0);
-  const [hoverRowId, setHoverRowId] = useState(null);
-  const [hoverRowIdPersistent, setHoverRowIdPersistent] = useState(null);
-  const [hoverRowTitle, setHoverRowTitle] = useState(null);
-  const [onProject, setOnProject] = useState(false);
+  /**
+   * Project table state
+   */
+  const [page, setPage] = React.useState(0);
+  const [hoverRowId, setHoverRowId] = React.useState(null);
+  const [hoverRowIdPersistent, setHoverRowIdPersistent] = React.useState(null);
+  const [hoverRowTitle, setHoverRowTitle] = React.useState(null);
   const [rowsPerPage, handleRowsPerPage] = useRowsPerPage();
+
+  /**
+   * Dialog state
+   */
   const [onDeleteDialog, toggleDeleteDialog] = useToggle();
 
   /**
-   * Fetch projects
+   * Simulation status query state
    */
-  const {
-    data,
-    isFetched,
-    isLoading: isLoadingProjects,
-    isSuccess,
-  } = useQuery("fetchProjects", ProjectAPI.fetchProjects, {
-    refetchOnWindowFocus: false,
+  const [querySimulationFinished, setQuerySimulationFinished] = React.useState(
+    []
+  );
+  const [querySimulationError, setQuerySimulationError] = React.useState({
+    isError: false,
+    message: null,
   });
 
   /**
-   * When open a project, convert if old
+   * Fetch projects and check if simulation running in the background
    */
-  const { isLoading: isConverting } = useQuery(
-    ["fetchConvertProjectIfOld", { project_id: props.project_id }],
-    ProjectAPI.fetchConvertProjectIfOld,
+  const { data, error, isError, isFetched, isFetching, isSuccess } = useQuery(
+    "fetchProjects",
+    ProjectAPI.fetchProjects,
     {
-      enabled: onProject && props.project_id !== null,
       onError: () => {
-        props.handleAppState("home");
+        setQuerySimulationFinished([]);
       },
-      onSuccess: () => {
-        props.handleAppState("project-page");
+      onSuccess: (data) => {
+        // reset query for fetching simulation project(s) status
+        setQuerySimulationFinished([]);
+        // get simulation project(s) running in the background
+        const simulationProjects = data.result.filter(
+          (element) =>
+            element.mode === projectModes.SIMULATION &&
+            element.reviews[0].status === projectStatuses.REVIEW
+        );
+        if (!simulationProjects.length) {
+          console.log("No simulation running");
+        } else {
+          const simulationQueries = [];
+          const project_id = simulationProjects.map((element) => element.id);
+          // prepare query array for fetching simulation project(s) status
+          for (let key in project_id) {
+            // reset query if error
+            if (querySimulationError.isError) {
+              queryClient.resetQueries(`fetchProjectStatus-${project_id[key]}`);
+              setQuerySimulationError({
+                isError: false,
+                message: null,
+              });
+            }
+            // update query array
+            simulationQueries.push({
+              queryKey: [
+                `fetchProjectStatus-${project_id[key]}`,
+                { project_id: project_id[key] },
+              ],
+              queryFn: ProjectAPI.fetchProjectStatus,
+              enabled: project_id[key] !== null,
+              onError: (error) => {
+                setQuerySimulationError({
+                  isError: true,
+                  message: error.message,
+                });
+              },
+              onSuccess: (data) => {
+                if (data["status"] === projectStatuses.FINISHED) {
+                  // simulation finished
+                  queryClient.invalidateQueries("fetchDashboardStats");
+                  queryClient.invalidateQueries("fetchProjects");
+                } else {
+                  // not finished yet
+                  setTimeout(
+                    () =>
+                      queryClient.invalidateQueries(
+                        `fetchProjectStatus-${project_id[key]}`
+                      ),
+                    checkIfSimulationFinishedDuration
+                  );
+                }
+              },
+              refetchOnWindowFocus: false,
+            });
+          }
+          // pass prepared query array
+          setQuerySimulationFinished(simulationQueries);
+        }
       },
-      onSettled: () => setOnProject(false),
       refetchOnWindowFocus: false,
     }
   );
+
+  /**
+   * Fetch if simulation project(s) finished
+   */
+  useQueries(querySimulationFinished);
+
+  const { mutate: mutateStatus } = useMutation(ProjectAPI.mutateProjectStatus, {
+    onError: (error) => {
+      props.setFeedbackBar({
+        open: true,
+        message: error.message,
+      });
+    },
+    onSuccess: (data, variables) => {
+      // update cached data
+      queryClient.setQueryData("fetchProjects", (prev) => {
+        return {
+          ...prev,
+          result: prev.result.map((project) => {
+            return {
+              ...project,
+              reviews: project.reviews.map((review) => {
+                return {
+                  ...review,
+                  status:
+                    project.id === variables.project_id
+                      ? review.status === projectStatuses.REVIEW
+                        ? projectStatuses.FINISHED
+                        : projectStatuses.REVIEW
+                      : review.status,
+                };
+              }),
+            };
+          }),
+        };
+      });
+    },
+  });
+
+  const handleChangeStatus = (project) => {
+    mutateStatus({
+      project_id: project["id"],
+      status:
+        project.reviews[0].status === projectStatuses.REVIEW
+          ? projectStatuses.FINISHED
+          : projectStatuses.REVIEW,
+    });
+  };
+
+  const openProject = (project, path) => {
+    if (
+      project["reviews"][0] !== undefined &&
+      project["reviews"][0]["status"] === projectStatuses.SETUP
+    ) {
+      // set project id
+      props.setProjectId(project["id"]);
+      // open project setup dialog
+      props.toggleProjectSetup();
+    } else if (!project["projectNeedsUpgrade"]) {
+      // open project page
+      navigate(`/projects/${project["id"]}/${path}`);
+    } else {
+      // open project check dialog
+      props.setProjectCheck({
+        open: true,
+        issue: "upgrade",
+        path: path,
+        project_id: project["id"],
+      });
+    }
+  };
 
   /**
    * Show buttons when hovering over project title
@@ -176,7 +304,7 @@ const ProjectTable = (props) => {
    * Format date and mode
    */
   const formatDate = (datetime) => {
-    let date = new Date(datetime);
+    let date = new Date(datetime * 1000);
     let dateString = date.toDateString().slice(4);
     let dateDisplay =
       dateString.replace(/\s+\S*$/, ",") + dateString.match(/\s+\S*$/);
@@ -184,7 +312,7 @@ const ProjectTable = (props) => {
   };
 
   const formatMode = (mode) => {
-    if (mode === "oracle") {
+    if (mode === "oracle" || !mode) {
       return "Oracle";
     }
     if (mode === "explore") {
@@ -198,27 +326,33 @@ const ProjectTable = (props) => {
   /**
    * Return status label and style
    */
-  const statusLabel = (row) => {
-    if (row["projectInitReady"]) {
-      if (row["reviewFinished"]) {
-        return "Finished";
-      } else {
-        return "In Review";
-      }
-    } else {
-      return "Setup";
+  const status = (project) => {
+    if (
+      project.reviews[0] === undefined ||
+      project.reviews[0].status === projectStatuses.SETUP
+    ) {
+      return [projectStatuses.SETUP, "Setup"];
+    }
+    if (project.reviews[0].status === projectStatuses.REVIEW) {
+      return [projectStatuses.REVIEW, "In Review"];
+    }
+    if (project.reviews[0].status === projectStatuses.FINISHED) {
+      return [projectStatuses.FINISHED, "Finished"];
     }
   };
 
-  const statusStyle = (row) => {
-    if (row["projectInitReady"]) {
-      if (row["reviewFinished"]) {
-        return classes.chipFinished;
-      } else {
-        return classes.chipInReview;
-      }
-    } else {
-      return classes.chipSetup;
+  const statusStyle = (project) => {
+    if (
+      project.reviews[0] === undefined ||
+      project.reviews[0].status === projectStatuses.SETUP
+    ) {
+      return "dashboard-page-table-chip setup";
+    }
+    if (project.reviews[0].status === projectStatuses.REVIEW) {
+      return "dashboard-page-table-chip inreview";
+    }
+    if (project.reviews[0].status === projectStatuses.FINISHED) {
+      return "dashboard-page-table-chip finished";
     }
   };
 
@@ -248,63 +382,70 @@ const ProjectTable = (props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {!isLoadingProjects &&
+            {!isError &&
+              !isFetching &&
               isFetched &&
               isSuccess &&
-              data
+              data.result
                 ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
+                  const isSimulating = () => {
+                    return (
+                      row["mode"] === projectModes.SIMULATION &&
+                      row["reviews"][0]["status"] === projectStatuses.REVIEW
+                    );
+                  };
+
                   const showAnalyticsButton = () => {
-                    return row["projectInitReady"];
+                    return (
+                      row["reviews"][0] === undefined ||
+                      row["reviews"][0]["status"] !== projectStatuses.SETUP
+                    );
                   };
 
                   const showReviewButton = () => {
-                    return row["projectInitReady"] && !row["reviewFinished"];
+                    return (
+                      row["reviews"][0] !== undefined &&
+                      row["reviews"][0]["status"] === projectStatuses.REVIEW
+                    );
+                  };
+
+                  const disableProjectStatusChange = () => {
+                    return (
+                      row["mode"] === projectModes.SIMULATION ||
+                      row["reviews"][0] === undefined ||
+                      row["reviews"][0]["status"] === projectStatuses.SETUP
+                    );
                   };
 
                   const onClickProjectAnalytics = () => {
-                    console.log("Opening existing project " + row.id);
-                    props.setProjectId(row.id);
-                    if (!row["projectInitReady"]) {
-                      // when project is in setup
-                      props.handleProjectSetup();
-                    } else {
-                      setOnProject(true);
-                      props.handleNavState("analytics");
-                    }
+                    openProject(row, "");
                   };
 
                   const onClickProjectReview = () => {
-                    console.log("Opening existing project " + row.id);
-                    setOnProject(true);
-                    props.setProjectId(row.id);
-                    props.handleNavState("review");
+                    openProject(row, "review");
                   };
 
                   const onClickProjectExport = () => {
-                    if (!row["projectInitReady"]) {
+                    if (
+                      row["reviews"][0]["status"] === projectStatuses.SETUP ||
+                      row["projectNeedsUpgrade"]
+                    ) {
                       queryClient.prefetchQuery(
                         ["fetchExportProject", { project_id: row.id }],
                         ProjectAPI.fetchExportProject
                       );
                     } else {
-                      console.log("Opening existing project " + row.id);
-                      setOnProject(true);
-                      props.setProjectId(row.id);
-                      props.handleNavState("export");
+                      openProject(row, "export");
                     }
                   };
 
                   const onClickProjectDetails = () => {
-                    console.log("Opening existing project " + row.id);
-                    props.setProjectId(row.id);
-                    if (!row["projectInitReady"]) {
-                      // when project is in setup
-                      props.handleProjectSetup();
-                    } else {
-                      setOnProject(true);
-                      props.handleNavState("details");
-                    }
+                    openProject(row, "details");
+                  };
+
+                  const updateProjectStatus = () => {
+                    handleChangeStatus(row);
                   };
                   return (
                     <TableRow
@@ -318,20 +459,9 @@ const ProjectTable = (props) => {
                       onMouseLeave={() => hoverOffProject()}
                     >
                       <TableCell sx={{ display: "flex" }}>
-                        <Box className={classes.converting}>
-                          {isConverting && row.id === props.project_id && (
-                            <CircularProgress
-                              size="1rem"
-                              thickness={5}
-                              sx={{ marginRight: "8px" }}
-                            />
-                          )}
-                        </Box>
                         <Box className={classes.titleWrapper}>
                           <Typography
-                            onClick={
-                              isConverting ? null : onClickProjectAnalytics
-                            }
+                            onClick={onClickProjectAnalytics}
                             className={classes.title}
                             variant="subtitle1"
                           >
@@ -340,14 +470,19 @@ const ProjectTable = (props) => {
                           <Box sx={{ flex: 1 }}></Box>
                           {hoverRowId === row.id && (
                             <TableRowButton
-                              isConverting={isConverting}
+                              disableProjectStatusChange={
+                                disableProjectStatusChange
+                              }
+                              isSimulating={isSimulating}
                               showAnalyticsButton={showAnalyticsButton}
                               showReviewButton={showReviewButton}
                               onClickProjectAnalytics={onClickProjectAnalytics}
                               onClickProjectReview={onClickProjectReview}
                               onClickProjectExport={onClickProjectExport}
                               onClickProjectDetails={onClickProjectDetails}
+                              projectStatus={status(row)[0]}
                               toggleDeleteDialog={toggleDeleteDialog}
+                              updateProjectStatus={updateProjectStatus}
                             />
                           )}
                         </Box>
@@ -358,9 +493,7 @@ const ProjectTable = (props) => {
                           variant="subtitle1"
                           noWrap
                         >
-                          {row["datetimeCreated"]
-                            ? formatDate(row["datetimeCreated"])
-                            : "N/A"}
+                          {formatDate(row["created_at_unix"])}
                         </Typography>
                       </TableCell>
                       <TableCell>
@@ -369,14 +502,14 @@ const ProjectTable = (props) => {
                           variant="subtitle1"
                           noWrap
                         >
-                          {row["mode"] ? formatMode(row["mode"]) : "N/A"}
+                          {formatMode(row["mode"])}
                         </Typography>
                       </TableCell>
                       <TableCell className={classes.tableCell}>
                         <Chip
                           size="small"
                           className={statusStyle(row)}
-                          label={statusLabel(row)}
+                          label={status(row)[1]}
                         />
                       </TableCell>
                     </TableRow>
@@ -384,57 +517,73 @@ const ProjectTable = (props) => {
                 })}
           </TableBody>
         </Table>
-        {isLoadingProjects && (
+        {!isError && isFetching && (
           <Box className={classes.loadingProjects}>
             <CircularProgress />
           </Box>
         )}
-        {!isLoadingProjects && isFetched && isSuccess && data?.length === 0 && (
-          <Box
-            sx={{
-              alignItems: "center",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <Typography sx={{ color: "text.secondary", marginTop: "64px" }}>
-              Your projects will show up here
-            </Typography>
-            <Button
-              onClick={(event) => {
-                props.handleClickAdd(event, "newProject");
+        {!isError &&
+          !isFetching &&
+          isFetched &&
+          isSuccess &&
+          data.result?.length === 0 && (
+            <Box
+              sx={{
+                alignItems: "center",
+                display: "flex",
+                flexDirection: "column",
               }}
             >
-              Get Started
-            </Button>
-            <img
-              src={ElasArrowRightAhead}
-              alt="ElasArrowRightAhead"
-              className={classes.img}
-            />
+              <Typography sx={{ color: "text.secondary", marginTop: "64px" }}>
+                Your projects will show up here
+              </Typography>
+              <Button onClick={props.toggleProjectSetup}>Get Started</Button>
+              <img
+                src={ElasArrowRightAhead}
+                alt="ElasArrowRightAhead"
+                className={classes.img}
+              />
+            </Box>
+          )}
+        {isError && !isFetching && (
+          <Box className={classes.error}>
+            <BoxErrorHandler error={error} queryKey="fetchProjects" />
           </Box>
         )}
       </TableContainer>
-      {!isLoadingProjects && isFetched && isSuccess && data?.length !== 0 && (
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 15]}
-          component="div"
-          count={data?.length}
-          rowsPerPage={rowsPerPage}
-          labelRowsPerPage="Projects per page:"
-          page={page}
-          onPageChange={handlePage}
-          onRowsPerPageChange={setRowsPerPage}
-        />
-      )}
+      {!isError &&
+        !isFetching &&
+        isFetched &&
+        isSuccess &&
+        data.result?.length !== 0 && (
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 15]}
+            component="div"
+            count={data.result?.length}
+            rowsPerPage={rowsPerPage}
+            labelRowsPerPage="Projects per page:"
+            page={page}
+            onPageChange={handlePage}
+            onRowsPerPageChange={setRowsPerPage}
+          />
+        )}
+      <ProjectCheckDialog
+        projectCheck={props.projectCheck}
+        setProjectCheck={props.setProjectCheck}
+      />
       <ProjectDeleteDialog
         onDeleteDialog={onDeleteDialog}
         toggleDeleteDialog={toggleDeleteDialog}
         projectTitle={hoverRowTitle}
         project_id={hoverRowIdPersistent}
       />
+      <DialogErrorHandler
+        error={querySimulationError}
+        isError={querySimulationError.isError}
+        queryKey="fetchProjects"
+      />
     </StyledPaper>
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProjectTable);
+export default connect(null, mapDispatchToProps)(ProjectTable);

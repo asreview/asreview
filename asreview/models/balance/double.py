@@ -1,4 +1,4 @@
-# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -157,7 +157,7 @@ def fill_training(src_idx, n_train, random_state):
     """Copy/sample until there are n_train indices sampled/copied.
     """
     # Number of copies needed.
-    n_copy = np.int(n_train / len(src_idx))
+    n_copy = int(n_train / len(src_idx))
     # For the remainder, use sampling.
     n_sample = n_train - n_copy * len(src_idx)
 

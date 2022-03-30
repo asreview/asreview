@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ def test_landing(client):
     response = client.get("/")
     html = response.data.decode()
 
-    assert "<title>ASReview - A tool for AI-assisted systematic reviews</title>" in html  # noqa
+    assert "<title>ASReview LAB - A tool for AI-assisted systematic reviews</title>" in html  # noqa
 
 
 def test_boot(client):

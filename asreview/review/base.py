@@ -4,13 +4,14 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from asreview.config import DEFAULT_N_INSTANCES, LABEL_NA
+from asreview.config import DEFAULT_N_INSTANCES
+from asreview.config import LABEL_NA
 from asreview.models.balance.simple import SimpleBalance
 from asreview.models.classifiers import NaiveBayesClassifier
 from asreview.models.feature_extraction.tfidf import Tfidf
 from asreview.models.query.max import MaxQuery
+from asreview.project import open_state
 from asreview.settings import ASReviewSettings
-from asreview.state.utils import open_state
 
 
 class BaseReview(ABC):
@@ -77,7 +78,7 @@ class BaseReview(ABC):
 
         # Set the settings.
         self.as_data = as_data
-        self.state_fp = Path(state_file)
+        self.state_fp = state_file
         self.n_papers = n_papers
         self.n_instances = n_instances
         self.n_queries = n_queries
@@ -120,10 +121,7 @@ class BaseReview(ABC):
                                  "file or dataset.")
 
             # Make sure the priors are labeled.
-            _, labeled, _ = state.get_pool_labeled_pending()
-            unlabeled_priors = [x for x in self.prior_indices
-                                if x not in labeled['record_id'].to_list()]
-            self._label(unlabeled_priors, prior=True)
+            self._label_priors()
 
     @property
     def settings(self):
@@ -145,14 +143,13 @@ class BaseReview(ABC):
                                 query_param=self.query_strategy.param,
                                 balance_param=self.balance_model.param,
                                 feature_param=self.feature_extraction.param,
-                                data_name=self.as_data.data_name,
                                 **extra_kwargs)
 
     def review(self):
         """Do a full review."""
         # Label any pending records.
         with open_state(self.state_fp, read_only=False) as state:
-            _, _, pending = state.get_pool_labeled_pending()
+            pending = state.get_pending()
             if not pending.empty:
                 self._label(pending)
 
@@ -166,6 +163,14 @@ class BaseReview(ABC):
 
             # Label the records.
             self._label(record_ids)
+
+    def _label_priors(self):
+        """Make sure the prior records are labeled."""
+        with open_state(self.state_fp, read_only=False) as state:
+            labeled = state.get_labeled()
+            unlabeled_priors = [x for x in self.prior_indices
+                                if x not in labeled['record_id'].to_list()]
+            self._label(unlabeled_priors, prior=True)
 
     def _stop_review(self):
         """Check if the review should be stopped according to stopping rule
@@ -242,7 +247,7 @@ class BaseReview(ABC):
         """Train a new model on the labeled data."""
         # Check if both labels are available.
         with open_state(self.state_fp) as state:
-            _, labeled, _ = state.get_pool_labeled_pending()
+            labeled = state.get_labeled()
             labels = labeled['label'].to_list()
             training_set = len(labeled)
             if not (0 in labels and 1 in labels):
@@ -268,11 +273,13 @@ class BaseReview(ABC):
         self.classifier.fit(X_train, y_train)
 
         # Use the query strategy to produce a ranking.
-        ranking = self.query_strategy.query(self.X, classifier=self.classifier)
+        ranked_record_ids = \
+            self.query_strategy.query(self.X, classifier=self.classifier)
 
-        # Log the probabilities and ranking in the state.
+        # TODO: Also log the probablities.
+        # Log the ranking in the state.
         with open_state(self.state_fp, read_only=False) as state:
-            state.add_last_ranking(ranking,
+            state.add_last_ranking(ranked_record_ids,
                                    self.classifier.name,
                                    self.query_strategy.name,
                                    self.balance_model.name,

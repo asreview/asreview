@@ -33,7 +33,7 @@ You can submit your changes to ASReview [by creating a pull request](https://git
 - Propose a fix to an existing issue. :warning:
   - See the [issue list here](https://github.com/asreview/asreview/issues).
 - Add a new dataset to [our open dataset repository](https://github.com/asreview/systematic-review-datasets/pull/11)
-  - See this [pull request](https://github.com/asreview/systematic-review-datasets/pull/11)) for an example.
+  - See this [pull request](https://github.com/asreview/systematic-review-datasets/pull/11) for an example.
 
 ## Discussions
 Got any questions for the ASReview community?

@@ -8,6 +8,8 @@ import {
   MoreVert,
 } from "@mui/icons-material";
 
+import { projectStatuses } from "../../globals.js";
+
 const PREFIX = "TableRowButton";
 
 const classes = {
@@ -42,6 +44,11 @@ export default function TableRowButton(props) {
     props.onClickProjectDetails();
   };
 
+  const handleClickUpdateStatus = () => {
+    handleCloseRowMenu();
+    props.updateProjectStatus();
+  };
+
   const handleClickDelete = () => {
     handleCloseRowMenu();
     props.toggleDeleteDialog();
@@ -54,32 +61,32 @@ export default function TableRowButton(props) {
           <Tooltip title="Analytics">
             <IconButton
               className={classes.button}
-              onClick={
-                props.isConverting ? null : props.onClickProjectAnalytics
-              }
+              onClick={props.onClickProjectAnalytics}
             >
               <Assessment />
             </IconButton>
           </Tooltip>
         )}
-        {props.showReviewButton() && (
+        {!props.isSimulating() && props.showReviewButton() && (
           <Tooltip title="Review">
             <IconButton
               className={classes.button}
-              onClick={props.isConverting ? null : props.onClickProjectReview}
+              onClick={props.onClickProjectReview}
             >
               <Assignment />
             </IconButton>
           </Tooltip>
         )}
-        <Tooltip title="Export">
-          <IconButton
-            className={classes.button}
-            onClick={props.isConverting ? null : props.onClickProjectExport}
-          >
-            <Download />
-          </IconButton>
-        </Tooltip>
+        {!props.isSimulating() && (
+          <Tooltip title="Export">
+            <IconButton
+              className={classes.button}
+              onClick={props.onClickProjectExport}
+            >
+              <Download />
+            </IconButton>
+          </Tooltip>
+        )}
         <div>
           <Tooltip title="Options">
             <IconButton className={classes.button} onClick={handleClickRowMenu}>
@@ -91,11 +98,16 @@ export default function TableRowButton(props) {
             open={onRowMenu}
             onClose={handleCloseRowMenu}
           >
-            <MenuItem
-              onClick={props.isConverting ? null : handleClickEditDetails}
-            >
-              Edit details
-            </MenuItem>
+            {!props.isSimulating() && (
+              <MenuItem onClick={handleClickEditDetails}>Edit details</MenuItem>
+            )}
+            {!props.disableProjectStatusChange() && (
+              <MenuItem onClick={handleClickUpdateStatus}>
+                {props.projectStatus === projectStatuses.REVIEW
+                  ? "Mark as finished"
+                  : "Mark as in review"}
+              </MenuItem>
+            )}
             <MenuItem onClick={handleClickDelete}>Delete forever</MenuItem>
           </Menu>
         </div>

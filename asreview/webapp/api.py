@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ from urllib.request import urlretrieve
 
 from flask import Blueprint
 from flask import Response
+from flask import abort
 from flask import jsonify
 from flask import request
 from flask import send_file
@@ -43,50 +44,40 @@ from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.data import ASReviewData
+from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
+from asreview.datasets import get_dataset_metadata
 from asreview.exceptions import BadFileFormatError
+from asreview.io import list_readers
+from asreview.io import list_writers
 from asreview.models.balance import list_balance_strategies
 from asreview.models.classifiers import list_classifiers
 from asreview.models.feature_extraction import list_feature_extraction
 from asreview.models.query import list_query_strategies
+from asreview.project import ASReviewProject
+from asreview.project import ProjectNotFoundError
+from asreview.project import _create_project_id
+from asreview.project import get_project_path
+from asreview.project import is_project
+from asreview.project import is_v0_project
+from asreview.project import list_asreview_projects
+from asreview.project import open_state
+from asreview.project import project_from_id
 from asreview.search import SearchError
 from asreview.search import fuzzy_find
 from asreview.settings import ASReviewSettings
+from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_data_path
-from asreview.state.paths import get_lock_path
-from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_simulation_ready_path
-from asreview.state.paths import get_state_path
-from asreview.state.paths import get_tmp_path
+from asreview.state.sql_converter import is_old_project
 from asreview.state.sql_converter import upgrade_asreview_project_file
-from asreview.state.utils import open_state
+from asreview.state.sql_converter import upgrade_project_config
+from asreview.utils import _get_executable
+from asreview.utils import asreview_path
+from asreview.webapp.io import read_data
 from asreview.webapp.sqlock import SQLiteLock
-from asreview.webapp.types import is_project
-from asreview.webapp.utils.datasets import get_data_statistics
-from asreview.webapp.utils.io import read_data
-from asreview.webapp.utils.project import ProjectNotFoundError
-from asreview.webapp.utils.project import _create_project_id
-from asreview.webapp.utils.project import _get_executable
-from asreview.webapp.utils.project import add_dataset_to_project
-from asreview.webapp.utils.project import add_review_to_project
-from asreview.webapp.utils.project import export_to_string
-from asreview.webapp.utils.project import get_instance
-from asreview.webapp.utils.project import get_paper_data
-from asreview.webapp.utils.project import get_project_config
-from asreview.webapp.utils.project import get_statistics
-from asreview.webapp.utils.project import import_project_file
-from asreview.webapp.utils.project import init_project
-from asreview.webapp.utils.project import label_instance
-from asreview.webapp.utils.project import remove_dataset_from_project
-from asreview.webapp.utils.project import rename_project
-from asreview.webapp.utils.project import update_instance
-from asreview.webapp.utils.project import update_project_info
-from asreview.webapp.utils.project import update_review_in_project
-from asreview.webapp.utils.project_path import get_project_path
-from asreview.webapp.utils.project_path import list_asreview_project_paths
-from asreview.webapp.utils.validation import check_dataset
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 CORS(bp, resources={r"*": {"origins": "*"}})
@@ -121,25 +112,20 @@ def error_500(e):
 def api_get_projects():  # noqa: F401
     """Get info on the article"""
 
-    projects = list_asreview_project_paths()
-
     project_info = []
-    for proj in projects:
+    for project in list_asreview_projects():
 
         try:
-            with open(proj / "project.json", "r") as f:
-                res = json.load(f)
 
-            # backwards support <0.10
-            if "projectInitReady" not in res:
-                res["projectInitReady"] = True
+            project_config = project.config
 
-            # if time is not available (<0.14)
-            if "created_at_unix" not in res:
-                res["created_at_unix"] = None
+            # upgrade info of v0 projects
+            if project_config["version"].startswith("0"):
+                project_config = upgrade_project_config(project_config)
+                project_config["projectNeedsUpgrade"] = True
 
-            logging.info("Project found: {}".format(res["id"]))
-            project_info.append(res)
+            logging.info("Project found: {}".format(project_config["id"]))
+            project_info.append(project_config)
 
         except Exception as err:
             logging.error(err)
@@ -160,59 +146,53 @@ def api_get_projects():  # noqa: F401
 def api_get_projects_stats():  # noqa: F401
     """Get dashboard statistics of all projects"""
 
-    projects = list_asreview_project_paths()
+    stats_counter = {
+        "n_reviewed": 0,
+        "n_excluded": 0,
+        "n_included": 0,
+        "n_in_review": 0,
+        "n_finished": 0,
+        "n_setup": 0
+    }
 
-    stats_counter = Counter()
-
-    for proj in projects:
+    for project in list_asreview_projects():
 
         try:
-            with open(proj / "project.json", "r") as f:
-                res = json.load(f)
+            project_config = project.config
 
-            # backwards support <0.10
-            if "projectInitReady" not in res:
-                res["projectInitReady"] = True
+            # upgrade info of v0 projects
+            if project_config["version"].startswith("0"):
+                project_config = upgrade_project_config(project_config)
+                project_config["projectNeedsUpgrade"] = True
 
             # get dashboard statistics
-            statistics = get_statistics(res["id"])
-            statistics["n_reviewed"] = statistics["n_included"] \
+            statistics = _get_stats(project)
+
+            stats_counter["n_reviewed"] += statistics["n_included"] \
                 + statistics["n_excluded"]
+            stats_counter["n_included"] += statistics["n_included"]
 
-            if res["projectInitReady"] is not True:
-                statistics["n_setup"] = 1
-                statistics["n_in_review"] = 0
-                statistics["n_finished"] = 0
-            elif "reviewFinished" not in res or res[
-                    "reviewFinished"] is not True:
-                statistics["n_setup"] = 0
-                statistics["n_in_review"] = 1
-                statistics["n_finished"] = 0
-            else:
-                statistics["n_setup"] = 0
-                statistics["n_in_review"] = 0
-                statistics["n_finished"] = 1
-
-            statistics = {
-                x: statistics[x]
-                for x in ("n_reviewed", "n_included", "n_setup", "n_in_review",
-                          "n_finished")
-            }
-            stats_counter.update(statistics)
+            try:
+                if project_config["reviews"][0]["status"] == "review":
+                    stats_counter["n_in_review"] += 1
+                elif project_config["reviews"][0]["status"] == "finished":
+                    stats_counter["n_finished"] += 1
+                else:
+                    stats_counter["n_setup"] += 1
+            except Exception:
+                stats_counter["n_setup"] += 1
 
         except Exception as err:
             logging.error(err)
             return jsonify(message="Failed to load dashboard statistics."), 500
 
-    project_stats = dict(stats_counter)
-
-    response = jsonify({"result": project_stats})
+    response = jsonify({"result": stats_counter})
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     return response
 
 
-@bp.route('/project/info', methods=["POST"])
+@bp.route('/projects/info', methods=["POST"])
 def api_init_project():  # noqa: F401
     """Get info on the article"""
 
@@ -223,25 +203,25 @@ def api_init_project():  # noqa: F401
 
     project_id = _create_project_id(project_name)
 
-    project_config = init_project(project_id,
-                                  project_mode=project_mode,
-                                  project_name=project_name,
-                                  project_description=project_description,
-                                  project_authors=project_authors)
+    project = ASReviewProject.create(get_project_path(project_id),
+                                     project_id=project_id,
+                                     project_mode=project_mode,
+                                     project_name=project_name,
+                                     project_description=project_description,
+                                     project_authors=project_authors)
 
-    response = jsonify(project_config)
+    response = jsonify(project.config)
 
     return response, 201
 
 
-@bp.route('/project/<project_id>/convert_if_old', methods=["GET"])
-def api_convert_project_if_old(project_id):
-    """Get if project is converted"""
-
-    project_path = get_project_path(project_id)
+@bp.route('/projects/<project_id>/upgrade_if_old', methods=["GET"])
+@project_from_id
+def api_upgrade_project_if_old(project):
+    """Get upgrade project if it is v0.x"""
 
     try:
-        upgrade_asreview_project_file(project_path)
+        upgrade_asreview_project_file(project.project_path)
 
     except ValueError:
         pass
@@ -256,54 +236,36 @@ def api_convert_project_if_old(project_id):
     return response
 
 
-@bp.route('/project/<project_id>/info', methods=["GET"])
-def api_get_project_info(project_id):  # noqa: F401
+@bp.route('/projects/<project_id>/info', methods=["GET"])
+@project_from_id
+def api_get_project_info(project):  # noqa: F401
     """Get info on the article"""
-    project_path = get_project_path(project_id)
-    project_info = get_project_config(project_id)
 
-    try:
+    project_config = project.config
 
-        # check if there is a dataset
-        try:
-            get_data_file_path(project_path)
-            project_info["projectHasDataset"] = True
-        except Exception:
-            project_info["projectHasDataset"] = False
+    # upgrade info of v0 projects
+    if project_config["version"].startswith("0"):
+        project_config = upgrade_project_config(project_config)
+        project_config["projectNeedsUpgrade"] = True
 
-        # backwards support <0.10
-        if "projectInitReady" not in project_info:
-            if "projectHasPriorKnowledge" not in project_info:
-                pass
-            else:
-                if project_info["projectHasPriorKnowledge"]:
-                    project_info["projectInitReady"] = True
-                else:
-                    project_info["projectInitReady"] = False
-
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message="Failed to retrieve project information."), 500
-
-    return jsonify(project_info)
+    return jsonify(project_config)
 
 
-@bp.route('/project/<project_id>/info', methods=["PUT"])
-def api_update_project_info(project_id):  # noqa: F401
+@bp.route('/projects/<project_id>/info', methods=["PUT"])
+@project_from_id
+def api_update_project_info(project):  # noqa: F401
     """Get info on the article"""
 
     # rename the project if project name is changed
     if request.form.get('name', None) is not None:
-        project_id_new = rename_project(project_id, request.form['name'])
+        project.rename(request.form['name'])
 
     # update the project info
-    update_project_info(
-        project_id_new,
-        mode=request.form['mode'],
-        description=request.form['description'],
-        authors=request.form['authors'])
+    project.update_config(mode=request.form['mode'],
+                          description=request.form['description'],
+                          authors=request.form['authors'])
 
-    return api_get_project_info(project_id_new)
+    return api_get_project_info(project.project_id)
 
 
 @bp.route('/datasets', methods=["GET"])
@@ -345,22 +307,22 @@ def api_demo_data_project():  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/data', methods=["POST", "PUT"])
-def api_upload_data_to_project(project_id):  # noqa: F401
+@bp.route('/projects/<project_id>/data', methods=["POST", "PUT"])
+@project_from_id
+def api_upload_data_to_project(project):  # noqa: F401
     """Get info on the article"""
-    project_path = get_project_path(project_id)
 
     # get the project config to modify behavior of dataset
-    project_config = get_project_config(project_id)
+    project_config = project.config
 
     # remove old dataset if present
     if "dataset_path" in project_config and \
             project_config["dataset_path"] is not None:
         logging.warning("Removing old dataset and adding new dataset.")
-        remove_dataset_from_project(project_id)
+        project.remove_dataset()
 
     # create dataset folder if not present
-    get_data_path(project_path).mkdir(exist_ok=True)
+    get_data_path(project.project_path).mkdir(exist_ok=True)
 
     if request.form.get('plugin', None):
         url = DatasetManager().find(request.form['plugin']).filepath
@@ -377,7 +339,7 @@ def api_upload_data_to_project(project_id):  # noqa: F401
             url_parts = urllib.parse.urlparse(url)
             filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
 
-            urlretrieve(url, get_data_path(project_path) / filename)
+            urlretrieve(url, get_data_path(project.project_path) / filename)
 
         except ValueError as err:
 
@@ -401,11 +363,11 @@ def api_upload_data_to_project(project_id):  # noqa: F401
         data_file = request.files['file']
 
         # check the file is file is in a correct format
-        check_dataset(data_file)
+        # check_dataset(data_file)
         try:
 
             filename = secure_filename(data_file.filename)
-            fp_data = get_data_path(project_path) / filename
+            fp_data = get_data_path(project.project_path) / filename
 
             # save the file
             data_file.save(str(fp_data))
@@ -424,20 +386,30 @@ def api_upload_data_to_project(project_id):  # noqa: F401
 
     if project_config["mode"] == PROJECT_MODE_EXPLORE:
 
-        data_path_raw = get_data_path(project_path) / filename
+        data_path_raw = get_data_path(project.project_path) / filename
         data_path = data_path_raw.with_suffix('.csv')
 
         data = ASReviewData.from_file(data_path_raw)
         data.df.rename({data.column_spec["included"]: "debug_label"},
                        axis=1,
                        inplace=True)
-        data.to_csv(data_path)
+        data.to_file(data_path)
+
+    elif project_config["mode"] == PROJECT_MODE_SIMULATE:
+
+        data_path_raw = get_data_path(project.project_path) / filename
+        data_path = data_path_raw.with_suffix('.csv')
+
+        data = ASReviewData.from_file(data_path_raw)
+        data.df["debug_label"] = data.df[data.column_spec["included"]]
+        data.to_file(data_path)
+
     else:
-        data_path = get_data_path(project_path) / filename
+        data_path = get_data_path(project.project_path) / filename
 
     try:
         # add the file to the project
-        add_dataset_to_project(project_id, data_path.name)
+        project.add_dataset(data_path.name)
 
     # Bad format. TODO{Jonathan} Return informative message with link.
     except BadFileFormatError as err:
@@ -450,22 +422,28 @@ def api_upload_data_to_project(project_id):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/data', methods=["GET"])
-def api_get_project_data(project_id):  # noqa: F401
+@bp.route('/projects/<project_id>/data', methods=["GET"])
+@project_from_id
+def api_get_project_data(project):  # noqa: F401
     """Get info on the article"""
-    project_path = get_project_path(project_id)
 
-    if not is_project(project_id):
+    if not is_project(project.project_path):
         response = jsonify(message="Project not found.")
         return response, 404
 
     try:
 
-        filename = get_data_file_path(project_path).stem
+        filename = get_data_file_path(project.project_path).stem
 
         # get statistics of the dataset
-        statistics = get_data_statistics(project_id)
-        statistics["filename"] = filename
+        as_data = read_data(project.project_path)
+
+        statistics = {
+            "n_rows": as_data.df.shape[0],
+            "n_cols": as_data.df.shape[1],
+            "n_duplicates": n_duplicates(as_data),
+            "filename": filename,
+        }
 
     except FileNotFoundError as err:
         logging.info(err)
@@ -481,35 +459,103 @@ def api_get_project_data(project_id):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/search', methods=["GET"])
-def api_search_data(project_id):  # noqa: F401
+@bp.route('/projects/<project_id>/dataset_writer', methods=["GET"])
+def api_list_dataset_writers(project_id):
+    """List the name and label of available dataset writer"""
+
+    project_path = get_project_path(project_id)
+    fp_data = get_data_file_path(project_path)
+
+    try:
+        readers = list_readers()
+        writers = list_writers()
+
+        # get write format for the data file
+        write_format = None
+        for c in readers:
+            if fp_data.suffix in c.read_format:
+                if write_format is None:
+                    write_format = c.write_format
+
+        # get available writers
+        payload = {"result": []}
+        for c in writers:
+            payload["result"].append({
+                "enabled": True if c.write_format in write_format else False,
+                "name": c.name,
+                "label": c.label,
+                "caution": c.caution if hasattr(c, "caution") else None
+            })
+
+        if not payload["result"]:
+            return jsonify(
+                message=f"No dataset writer available for {fp_data.suffix} file."
+            ), 500
+
+        # remove duplicate writers
+        payload["result"] = [
+            i for n, i in enumerate(payload["result"])
+            if i not in payload["result"][n + 1:]
+        ]
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message=f"Failed to retrieve dataset writers. {err}"), 500
+
+    response = jsonify(payload)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+@bp.route('/projects/<project_id>/search', methods=["GET"])
+@project_from_id
+def api_search_data(project):  # noqa: F401
     """Search for papers
     """
     q = request.args.get('q', default=None, type=str)
     max_results = request.args.get('n_max', default=10, type=int)
+
+    project_mode = project.config["mode"]
 
     try:
         payload = {"result": []}
         if q:
 
             # read the dataset
-            as_data = read_data(project_id)
+            as_data = read_data(project.project_path)
+
+            # read record_ids of labels from state
+            with open_state(project.project_path) as s:
+                labeled_record_ids = s.get_dataset(["record_id"
+                                                    ])["record_id"].to_list()
 
             # search for the keywords
             result_idx = fuzzy_find(as_data,
                                     q,
                                     max_return=max_results,
-                                    exclude=[],
+                                    exclude=labeled_record_ids,
                                     by_index=True)
 
-            for paper in as_data.record(result_idx, by_index=True):
+            for record in as_data.record(result_idx, by_index=True):
+
+                debug_label = record.extra_fields.get("debug_label", None)
+                debug_label = int(debug_label) if pd.notnull(
+                    debug_label) else None
+
+                if project_mode == PROJECT_MODE_SIMULATE:
+                    # ignore existing labels
+                    included = -1
+                else:
+                    included = int(record.included)
+
                 payload["result"].append({
-                    "id": int(paper.record_id),
-                    "title": paper.title,
-                    "abstract": paper.abstract,
-                    "authors": paper.authors,
-                    "keywords": paper.keywords,
-                    "included": int(paper.included)
+                    "id": int(record.record_id),
+                    "title": record.title,
+                    "abstract": record.abstract,
+                    "authors": record.authors,
+                    "keywords": record.keywords,
+                    "included": included,
+                    "_debug_label": debug_label
                 })
 
     except SearchError as search_err:
@@ -525,36 +571,53 @@ def api_search_data(project_id):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/labeled', methods=["GET"])
-def api_get_labeled(project_id):  # noqa: F401
+@bp.route('/projects/<project_id>/labeled', methods=["GET"])
+@project_from_id
+def api_get_labeled(project):  # noqa: F401
     """Get all papers classified as labeled documents
     """
 
     page = request.args.get("page", default=None, type=int)
     per_page = request.args.get("per_page", default=20, type=int)
-    subset = request.args.get("subset", default=None, type=str)
+    subset = request.args.getlist("subset")
     latest_first = request.args.get("latest_first", default=1, type=int)
-
-    project_path = get_project_path(project_id)
 
     try:
 
-        with open_state(project_path) as s:
-            data = s.get_dataset(["record_id", "label", "query_strategy"])
+        with open_state(project.project_path) as s:
+            data = s.get_dataset(
+                ["record_id", "label", "query_strategy", "notes"])
             data["prior"] = (data["query_strategy"] == "prior").astype(int)
 
-        if subset in ["relevant", "included"]:
-            data = data[data['label'] == 1]
-        elif subset in ["irrelevant", "excluded"]:
-            data = data[data['label'] == 0]
+        if any(s in subset for s in ["relevant", "included"]):
+            data = data[data["label"] == 1]
+        elif any(s in subset for s in ["irrelevant", "excluded"]):
+            data = data[data["label"] == 0]
         else:
-            data = data[~data['label'].isnull()]
+            data = data[~data["label"].isnull()]
+
+        if "note" in subset:
+            data = data[~data["notes"].isnull()]
+
+        if "prior" in subset:
+            data = data[data["prior"] == 1]
 
         if latest_first == 1:
             data = data.iloc[::-1]
 
         # count labeled records and max pages
         count = len(data)
+        if count == 0:
+            payload = {
+                "count": 0,
+                "next_page": None,
+                "previous_page": None,
+                "result": [],
+            }
+            response = jsonify(payload)
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response
+
         max_page_calc = divmod(count, per_page)
         if max_page_calc[1] == 0:
             max_page = max_page_calc[0]
@@ -568,7 +631,7 @@ def api_get_labeled(project_id):  # noqa: F401
                 idx_end = page * per_page
                 data = data.iloc[idx_start:idx_end, :].copy()
             else:
-                raise ValueError(f"Page {page - 1} is the last page.")
+                return abort(404)
 
             # set next & previous page
             if page < max_page:
@@ -584,7 +647,8 @@ def api_get_labeled(project_id):  # noqa: F401
             next_page = None
             previous_page = None
 
-        records = read_data(project_id).record(data["record_id"], by_index=False)
+        records = read_data(project.project_path).record(data["record_id"],
+                                                         by_index=False)
 
         payload = {
             "count": count,
@@ -601,26 +665,28 @@ def api_get_labeled(project_id):  # noqa: F401
                 "authors": record.authors,
                 "keywords": record.keywords,
                 "included": int(data.loc[i, "label"]),
+                "note": data.loc[i, "notes"],
                 "prior": int(data.loc[i, "prior"])
             })
 
     except Exception as err:
         logging.error(err)
-        return jsonify(message=f"Failed to load labeled documents. {err}"), 500
+        return jsonify(message=f"{err}"), 500
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 
-@bp.route('/project/<project_id>/labeled_stats', methods=["GET"])
-def api_get_labeled_stats(project_id):  # noqa: F401
+@bp.route('/projects/<project_id>/labeled_stats', methods=["GET"])
+@project_from_id
+def api_get_labeled_stats(project):  # noqa: F401
     """Get all papers classified as prior documents
     """
-    project_path = get_project_path(project_id)
+
     try:
 
-        with open_state(project_path) as s:
+        with open_state(project.project_path) as s:
             data = s.get_dataset(["label", "query_strategy"])
             data_prior = data[data["query_strategy"] == "prior"]
 
@@ -650,18 +716,17 @@ def api_get_labeled_stats(project_id):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/prior_random', methods=["GET"])
-def api_random_prior_papers(project_id):  # noqa: F401
+@bp.route('/projects/<project_id>/prior_random', methods=["GET"])
+@project_from_id
+def api_random_prior_papers(project):  # noqa: F401
     """Get a selection of random papers to find exclusions.
 
     This set of papers is extracted from the pool, but without
     the already labeled items.
     """
-    project_path = get_project_path(project_id)
-    state_file = get_state_path(project_path)
 
-    with open_state(state_file) as state:
-        pool, _, _ = state.get_pool_labeled_pending()
+    with open_state(project.project_path) as state:
+        pool = state.get_pool()
 
     try:
         pool_random = np.random.choice(pool, 1, replace=False)[0]
@@ -669,7 +734,11 @@ def api_random_prior_papers(project_id):  # noqa: F401
         raise ValueError("Not enough random indices to sample from.")
 
     try:
-        record = read_data(project_id).record(pool_random, by_index=False)
+        record = read_data(project.project_path).record(pool_random,
+                                                        by_index=False)
+
+        debug_label = record.extra_fields.get("debug_label", None)
+        debug_label = int(debug_label) if pd.notnull(debug_label) else None
 
         payload = {"result": []}
 
@@ -679,7 +748,8 @@ def api_random_prior_papers(project_id):  # noqa: F401
             "abstract": record.abstract,
             "authors": record.authors,
             "keywords": record.keywords,
-            "included": None
+            "included": None,
+            "_debug_label": debug_label
         })
 
     except Exception as err:
@@ -732,8 +802,9 @@ def api_list_algorithms():
     return response
 
 
-@bp.route('/project/<project_id>/algorithms', methods=["GET"])
-def api_get_algorithms(project_id):  # noqa: F401
+@bp.route('/projects/<project_id>/algorithms', methods=["GET"])
+@project_from_id
+def api_get_algorithms(project):  # noqa: F401
 
     default_payload = {
         "model": DEFAULT_MODEL,
@@ -744,10 +815,7 @@ def api_get_algorithms(project_id):  # noqa: F401
     # check if there were algorithms stored in the state file
     try:
 
-        project_path = get_project_path(project_id)
-        state_file = get_state_path(project_path)
-
-        with open_state(state_file) as state:
+        with open_state(project.project_path) as state:
             if state.settings is not None:
                 payload = {
                     "model": state.settings.model,
@@ -764,8 +832,9 @@ def api_get_algorithms(project_id):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/algorithms', methods=["POST"])
-def api_set_algorithms(project_id):  # noqa: F401
+@bp.route('/projects/<project_id>/algorithms', methods=["POST"])
+@project_from_id
+def api_set_algorithms(project):  # noqa: F401
 
     # TODO@{Jonathan} validate model choice on server side
     ml_model = request.form.get("model", None)
@@ -781,11 +850,8 @@ def api_set_algorithms(project_id):  # noqa: F401
         balance_strategy=DEFAULT_BALANCE_STRATEGY,
         feature_extraction=ml_feature_extraction)
 
-    project_path = get_project_path(project_id)
-    state_file = get_state_path(project_path)
-
     # save the new settings to the state file
-    with open_state(state_file, read_only=False) as state:
+    with open_state(project.project_path, read_only=False) as state:
         state.settings = asreview_settings
 
     response = jsonify({'success': True})
@@ -793,32 +859,51 @@ def api_set_algorithms(project_id):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/start', methods=["POST"])
-def api_start(project_id):  # noqa: F401
+@bp.route('/projects/<project_id>/start', methods=["POST"])
+@project_from_id
+def api_start(project):  # noqa: F401
     """Start training of first model or simulation.
     """
-    project_path = get_project_path(project_id)
-    project_config = get_project_config(project_id)
 
     # the project is a simulation project
-    if project_config["mode"] == PROJECT_MODE_SIMULATE:
+    if project.config["mode"] == PROJECT_MODE_SIMULATE:
 
-        logging.info("Starting simulation")
+        # get priors
+        with open_state(project.project_path) as s:
+            priors = s.get_priors().tolist()
+
+        logging.info("Start simulation")
 
         try:
-            simulation_id = uuid.uuid4().hex
-            datafile = get_data_file_path(project_path)
-            state_file = get_simulation_ready_path(project_path, simulation_id)
+            # review_id = uuid.uuid4().hex
+            datafile = get_data_file_path(project.project_path)
+            # state_file = get_simulation_ready_path(project.project_path,
+            #                                        review_id)
 
             logging.info("Project data file found: {}".format(datafile))
 
-            add_review_to_project(project_id, simulation_id)
+            # project.add_review(review_id)
 
             # start simulation
             py_exe = _get_executable()
             run_command = [
-                py_exe, "-m", "asreview", "simulate", datafile, "--state_file",
-                state_file
+                # get executable
+                py_exe,
+                # get module
+                "-m",
+                "asreview",
+                # run simulation via cli
+                "simulate",
+                # specify dataset
+                "",
+                # specify prior indices
+                "--prior_idx"
+            ] + list(map(str, priors)) + [
+                # specify state file
+                "--state_file",
+                project.project_path,
+                # specify write interval
+                "--write_interval", "100"
             ]
             subprocess.Popen(run_command)
 
@@ -838,13 +923,16 @@ def api_start(project_id):  # noqa: F401
                 # get executable
                 py_exe,
                 # get module
-                "-m", "asreview",
+                "-m",
+                "asreview",
                 # train the model via cli
                 "web_run_model",
                 # specify project id
-                project_id,
+                project.project_path,
                 # output the error of the first model
-                "--output_error"
+                "--output_error",
+                # mark the first run for status update
+                "--first_run"
             ]
             subprocess.Popen(run_command)
 
@@ -857,161 +945,147 @@ def api_start(project_id):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/ready', methods=["GET"])
-def api_init_model_ready(project_id):  # noqa: F401
-    """Check if trained model is available
+@bp.route('/projects/<project_id>/status', methods=["GET"])
+@project_from_id
+def api_get_status(project):  # noqa: F401
+    """Check the status of the review
     """
-    project_path = get_project_path(project_id)
 
-    project_config = get_project_config(project_id)
+    try:
+        status = project.reviews[0]['status']
+    except Exception:
+        status = None
 
-    if project_config["mode"] == PROJECT_MODE_SIMULATE:
-        logging.info("checking if simulation is ready")
-
-        simulation_id = project_config["reviews"][0]["id"]
-
-        if get_simulation_ready_path(project_path, simulation_id).exists():
-            logging.info("simulation ready")
-            update_review_in_project(project_id, simulation_id, "ready")
-
-            response = jsonify({'status': 1})
-        else:
-            logging.info("simulation not ready")
-            response = jsonify({'status': 0})
-
-    else:
-        error_path = get_project_path(project_id) / "error.json"
+    if status == "error":
+        error_path = project.project_path / "error.json"
         if error_path.exists():
-            logging.error("error on training")
+            logging.error("Error on training")
             with open(error_path, "r") as f:
                 error_message = json.load(f)
-            return jsonify(message=error_message), 400
 
-        try:
-            with open_state(project_path) as state:
-                if state.model_has_trained:
-                    update_project_info(project_id, projectInitReady=True)
+            raise Exception(error_message)
 
-                    response = jsonify({'status': 1})
-                else:
-                    response = jsonify({'status': 0})
-
-        except Exception as err:
-            logging.error(err)
-            return jsonify(message="Failed to initiate the project."), 500
-
+    response = jsonify({'status': status})
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 
-# TODO{Terry}: This may be deprecated when the new state file is in use.
-# @bp.route('/project/<project_id>/model/clear_error', methods=["DELETE"])
-# def api_clear_model_error(project_id):
-#     """Clear model training error"""
+@bp.route('/projects/<project_id>/status', methods=["PUT"])
+@project_from_id
+def api_status_update(project):
+    """Update the status of the review.
 
-#     error_path = get_project_path(project_id) / "error.json"
-#     project_path = get_project_path(project_id)
-#     state_path = get_state_path(project_path)
+    The following status updates are allowed for
+    oracle and explore:
+    - `review` to `finished`
+    - `finished` to `review` if not pool empty
 
-#     if error_path.exists() and state_path.exists():
-#         os.remove(error_path)
-#         os.remove(state_path)
+    Status updates by the user are not allowed in simulation
+    mode.
 
-#         response = jsonify({'success': True})
-#         response.headers.add('Access-Control-Allow-Origin', '*')
-#         return response
+    """
 
-#     response = jsonify(message="Failed to clear model training error.")
-#     return response, 500
+    status = request.form.get("status", type=str)
+
+    current_status = project.config["reviews"][0]["status"]
+    mode = project.config["mode"]
+
+    if mode == PROJECT_MODE_SIMULATE:
+        raise ValueError(
+            "Not possible to update status of simulation project.")
+
+    if current_status == "review" and status == "finished":
+        project.update_review(status=status)
+    elif current_status == "finished" and status == "review":
+        project.update_review(status=status)
+        # ideally, also check here for empty pool
+    else:
+        raise ValueError("Not possible to update for this status.")
+
+    response = jsonify({'success': True})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 
-@bp.route('/project/import_project', methods=["POST"])
+@bp.route('/projects/import_project', methods=["POST"])
 def api_import_project():
     """Import uploaded project"""
 
     # raise error if file not given
     if 'file' not in request.files:
-        response = jsonify(message="No file found to upload.")
+        response = jsonify(message="No ASReview file found to upload.")
         return response, 400
 
-    # set the project file
-    project_file = request.files['file']
-    # import the project
-    project_id = import_project_file(project_file)
-
-    # return the project info in the same format as project_info
-    return jsonify(id=project_id)
-
-
-@bp.route('/project/<project_id>/export', methods=["GET"])
-def export_results(project_id):
-    project_path = get_project_path(project_id)
-
-    # get the export args
-    file_type = request.args.get('file_type', None)
-
     try:
-        # CSV
-        if file_type == "csv":
-            dataset_str = export_to_string(project_id, export_type="csv")
+        project = ASReviewProject.load(
+            request.files['file'],
+            asreview_path(),
+            safe_import=True
+        )
 
-            return Response(
-                dataset_str,
-                mimetype="text/csv",
-                headers={
-                    "Content-disposition":
-                    f"attachment; filename=asreview_result_{project_id}.csv"
-                })
-        # TSV
-        elif file_type == "tsv":
-            dataset_str = export_to_string(project_id, export_type="tsv")
-
-            return Response(
-                dataset_str,
-                mimetype="text/tab-separated-values",
-                headers={
-                    "Content-disposition":
-                    f"attachment; filename=asreview_result_{project_id}.tsv"
-                })
-        # Excel
-        elif file_type == "xlsx":
-            dataset_str = export_to_string(project_id, export_type="excel")
-            fp_tmp_export = Path(get_tmp_path(project_path), "export_result.xlsx")
-
-            return send_file(
-                fp_tmp_export,
-                mimetype=   # noqa
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
-                as_attachment=True,
-                download_name=f"asreview_result_{project_id}.xlsx",
-                max_age=0)
-        # RIS
-        elif file_type == "ris":
-            if get_data_file_path(project_id).suffix not in [
-                    ".ris", ".RIS", ".txt", ".TXT"
-            ]:
-                raise ValueError(
-                    "RIS file can be exported only when RIS file was imported.")
-
-            dataset_str = export_to_string(project_id, export_type="ris")
-
-            return Response(
-                dataset_str,
-                mimetype="application/octet-stream",
-                headers={
-                    "Content-disposition":
-                    f"attachment; filename=asreview_result_{project_id}.ris"
-                })
-
-        else:
-            raise TypeError("File type should be: .ris/.csv/.tsv/.xlsx")
     except Exception as err:
         logging.error(err)
-        return jsonify(message=f"Failed to export the {file_type} dataset."), 500
+        raise ValueError("Failed to import project.")
+
+    return jsonify(project.config)
 
 
-@bp.route('/project/<project_id>/export_project', methods=["GET"])
-def export_project(project_id):
+@bp.route('/projects/<project_id>/export_dataset', methods=["GET"])
+@project_from_id
+def api_export_dataset(project):
+    """Export dataset with relevant/irrelevant labels"""
+
+    # get the export args
+    file_format = request.args.get("file_format", None)
+
+    # create temporary folder to store exported dataset
+    tmp_path = tempfile.TemporaryDirectory(dir=project.project_path)
+    tmp_path_dataset = Path(tmp_path.name, f"export_dataset.{file_format}")
+
+    try:
+        # get labels and ranking from state file
+        with open_state(project.project_path) as s:
+            pool, labeled, pending = s.get_pool_labeled_pending()
+
+        included = labeled[labeled['label'] == 1]
+        excluded = labeled[labeled['label'] != 1]
+        export_order = included['record_id'].to_list() + \
+            pending.to_list() + \
+            pool.to_list() + \
+            excluded['record_id'].to_list()
+
+        # get writer corresponding to specified file format
+        writers = list_writers()
+        writer = None
+        for c in writers:
+            if writer is None:
+                if c.name == file_format:
+                    writer = c
+
+        # read the dataset into a ASReview data object
+        as_data = read_data(project.project_path)
+
+        as_data.to_file(
+            fp=tmp_path_dataset,
+            labels=labeled.values.tolist(),
+            ranking=export_order,
+            writer=writer)
+
+        return send_file(
+            tmp_path_dataset,
+            as_attachment=True,
+            download_name=f"asreview_dataset_{project.project_id}.{file_format}",
+            max_age=0)
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(
+            message=f"Failed to export the {file_format} dataset. {err}"), 500
+
+
+@bp.route('/projects/<project_id>/export_project', methods=["GET"])
+@project_from_id
+def export_project(project):
     """Export the project file.
 
     The ASReview project file is a file with .asreview extension.
@@ -1022,101 +1096,106 @@ def export_project(project_id):
 
     # create a temp folder to zip
     tmpdir = tempfile.TemporaryDirectory()
+    tmpfile = Path(tmpdir.name, project.project_id).with_suffix(".asreview")
 
-    # copy the source tree, but ignore pickle files
-    shutil.copytree(get_project_path(project_id),
-                    Path(tmpdir.name, project_id),
-                    ignore=shutil.ignore_patterns('*.pickle'))
+    logging.info("Saving project (temporary) to", tmpfile)
+    project.export(tmpfile)
 
-    # create the archive
-    shutil.make_archive(Path(tmpdir.name, project_id),
-                        "zip",
-                        root_dir=Path(tmpdir.name, project_id))
-
-    try:
-        # return the project file to the user
-        return send_file(str(Path(tmpdir.name, f"{project_id}.zip")),
-                         as_attachment=True,
-                         download_name=f"{project_id}.asreview",
-                         max_age=0)
-
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message="Failed to export the project."), 500
+    return send_file(tmpfile,
+                     as_attachment=True,
+                     download_name=f"{project.project_id}.asreview",
+                     max_age=0)
 
 
-@bp.route('/project/<project_id>/finish', methods=["GET"])
-def api_finish_project(project_id):
-    """Mark a project as finished or not"""
-    project_path = get_project_path(project_id)
-
-    # read the file with project info
-    with open(get_project_file_path(project_path), "r") as fp:
-        project_info = json.load(fp)
+def _get_stats(project):
 
     try:
-        project_info["reviewFinished"] = not project_info["reviewFinished"]
-    except KeyError:
-        # missing key in projects created in older versions
-        project_info["reviewFinished"] = True
 
-    # update the file with project info
-    with open(get_project_file_path(project_path), "w") as fp:
-        json.dump(project_info, fp)
+        if is_v0_project(project.project_path):
+            json_fp = Path(project.project_path, 'result.json')
 
-    response = jsonify({'success': True})
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    return response
+            # Check if the v0 project is in review.
+            if json_fp.exists():
 
+                with open(json_fp, 'r') as f:
+                    s = json.load(f)
 
-# @bp.route('/project/<project_id>/document/<doc_id>/info', methods=["GET"])
-# def api_get_article_info(project_id, doc_id=None):  # noqa: F401
-#     """Get info on the article"""
+                # Get the labels.
+                labels = np.array([
+                    int(sample_data[1]) for query in range(len(s['results']))
+                    for sample_data in s['results'][query]['labelled']
+                ])
 
-#     data = get_paper_data(
-#         project_id,
-#         paper_id=doc_id,
-#         return_debug_label=True
-#     )
+                # Get the record table.
+                data_hash = list(s['data_properties'].keys())[0]
+                record_table = s['data_properties'][data_hash]['record_table']
 
-#     response = jsonify(data)
-#     response.headers.add('Access-Control-Allow-Origin', '*')
+                n_records = len(record_table)
 
-#     return response
+            # No result found.
+            else:
+                labels = np.array([])
+                n_records = 0
+        else:
+            # Check if there is a review started in the project.
+            try:
+                with open_state(project.project_path) as s:
+                    labels = s.get_labels()
+                    n_records = len(s.get_record_table())
+            # No state file found or not init.
+            except (StateNotFoundError, StateError):
+                labels = np.array([])
+                n_records = 0
 
+        n_included = int(sum(labels == 1))
+        n_excluded = int(sum(labels == 0))
 
-@bp.route('/project/<project_id>/progress', methods=["GET"])
-def api_get_progress_info(project_id):  # noqa: F401
-    """Get progress statistics of a project"""
-
-    try:
-        statistics = get_statistics(project_id)
+        if n_included > 0:
+            n_since_last_relevant = int(labels.tolist()[::-1].index(1))
+        else:
+            n_since_last_relevant = 0
 
     except Exception as err:
         logging.error(err)
         return jsonify(message="Failed to load progress statistics."), 500
 
-    response = jsonify(statistics)
+    return {
+        "n_included": n_included,
+        "n_excluded": n_excluded,
+        "n_since_last_inclusion": n_since_last_relevant,
+        "n_papers": n_records,
+        "n_pool": n_records - n_excluded - n_included
+    }
+
+
+@bp.route('/projects/<project_id>/progress', methods=["GET"])
+@project_from_id
+def api_get_progress_info(project):  # noqa: F401
+    """Get progress statistics of a project"""
+
+    response = jsonify(_get_stats(project))
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     # return a success response to the client.
     return response
 
 
-@bp.route('/project/<project_id>/progress_density', methods=["GET"])
-def api_get_progress_density(project_id):
+@bp.route('/projects/<project_id>/progress_density', methods=["GET"])
+@project_from_id
+def api_get_progress_density(project):
     """Get progress density of a project"""
+
+    include_priors = request.args.get('priors', False, type=bool)
 
     try:
         # get label history
-        project_path = get_project_path(project_id)
-
-        with open_state(project_path) as s:
-            data = s.get_labels()
+        with open_state(project.project_path) as s:
+            data = s.get_labels(priors=include_priors)
 
         # create a dataset with the rolling mean of every 10 papers
         df = data \
             .to_frame(name="Relevant") \
+            .reset_index(drop=True) \
             .rolling(10, min_periods=1) \
             .mean()
         df["Total"] = df.index + 1
@@ -1161,19 +1240,22 @@ def api_get_progress_density(project_id):
     return response
 
 
-@bp.route('/project/<project_id>/progress_recall', methods=["GET"])
-def api_get_progress_recall(project_id):
+@bp.route('/projects/<project_id>/progress_recall', methods=["GET"])
+@project_from_id
+def api_get_progress_recall(project):
     """Get cumulative number of inclusions by ASReview/at random"""
 
-    project_path = get_project_path(project_id)
+    include_priors = request.args.get('priors', False, type=bool)
+
     try:
-        with open_state(project_path) as s:
-            data = s.get_labels()
+        with open_state(project.project_path) as s:
+            data = s.get_labels(priors=include_priors)
             n_records = len(s.get_record_table())
 
         # create a dataset with the cumulative number of inclusions
         df = data \
             .to_frame(name="Relevant") \
+            .reset_index(drop=True) \
             .cumsum()
         df["Total"] = df.index + 1
         df["Random"] = (df["Total"] *
@@ -1205,8 +1287,9 @@ def api_get_progress_recall(project_id):
     return response
 
 
-@bp.route('/project/<project_id>/record/<doc_id>', methods=["POST", "PUT"])
-def api_classify_instance(project_id, doc_id):  # noqa: F401
+@bp.route('/projects/<project_id>/record/<doc_id>', methods=["POST", "PUT"])
+@project_from_id
+def api_classify_instance(project, doc_id):  # noqa: F401
     """Label item
 
     This request handles the document identifier and the corresponding label.
@@ -1216,24 +1299,47 @@ def api_classify_instance(project_id, doc_id):  # noqa: F401
     in the background.
     """
     # return the combination of document_id and label.
-    doc_id = request.form.get('doc_id')
-    label = request.form.get('label')
+    record_id = int(request.form.get('doc_id'))
+    label = int(request.form.get('label'))
+    note = request.form.get('note', type=str)
+    if not note:
+        note = None
+
     is_prior = request.form.get('is_prior', default=False)
 
     retrain_model = False if is_prior == "1" else True
     prior = True if is_prior == "1" else False
 
     if request.method == 'POST':
-        label_instance(project_id,
-                       doc_id,
-                       label,
-                       prior=prior,
-                       retrain_model=retrain_model)
+
+        with open_state(project.project_path, read_only=False) as state:
+
+            # get the index of the active iteration
+            if label in [0, 1]:
+
+                # add the labels as prior data
+                state.add_labeling_data(record_ids=[record_id],
+                                        labels=[label],
+                                        notes=[note],
+                                        prior=prior)
+
+            elif label == -1:
+                with open_state(project.project_path,
+                                read_only=False) as state:
+                    state.delete_record_labeling_data(record_id)
+
     elif request.method == 'PUT':
-        update_instance(project_id,
-                        doc_id,
-                        label,
-                        retrain_model=retrain_model)
+
+        with open_state(project.project_path, read_only=False) as state:
+            state.update_decision(record_id, label, note=note)
+
+    if retrain_model:
+
+        # retrain model
+        subprocess.Popen([
+            _get_executable(), "-m", "asreview", "web_run_model",
+            project.project_path
+        ])
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -1241,8 +1347,9 @@ def api_classify_instance(project_id, doc_id):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/get_document', methods=["GET"])
-def api_get_document(project_id):  # noqa: F401
+@bp.route('/projects/<project_id>/get_document', methods=["GET"])
+@project_from_id
+def api_get_document(project):  # noqa: F401
     """Retrieve documents in order of review.
 
     After these documents were retrieved, the queue on the client side is
@@ -1252,19 +1359,40 @@ def api_get_document(project_id):  # noqa: F401
     client side.
     """
     try:
-        new_instance = get_instance(project_id)
 
-        if new_instance is None:  # don't use 'if not new_instance:'
+        with open_state(project.project_path, read_only=False) as state:
+            # First check if there is a pending record.
+            _, _, pending = state.get_pool_labeled_pending()
+            if not pending.empty:
+                record_ids = pending.to_list()
+            # Else query for a new record.
+            else:
+                record_ids = state.query_top_ranked(1)
 
-            item = None
-            pool_empty = True
-        else:
+        if len(record_ids) > 0:
+            new_instance = record_ids[0]
 
-            item = get_paper_data(project_id,
-                                  new_instance,
-                                  return_debug_label=True)
+            as_data = read_data(project.project_path)
+            record = as_data.record(int(new_instance), by_index=False)
+
+            item = {}
+            item['title'] = record.title
+            item['authors'] = record.authors
+            item['abstract'] = record.abstract
+            item['doi'] = record.doi
+
+            # return the debug label
+            debug_label = record.extra_fields.get("debug_label", None)
+            item['_debug_label'] = \
+                int(debug_label) if pd.notnull(debug_label) else None
+
             item["doc_id"] = new_instance
             pool_empty = False
+        else:
+            # end of pool
+            project.update_review(status="finished")
+            item = None
+            pool_empty = True
 
     except Exception as err:
         logging.error(err)
@@ -1275,19 +1403,22 @@ def api_get_document(project_id):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/delete', methods=["DELETE"])
-def api_delete_project(project_id):  # noqa: F401
+@bp.route('/projects/<project_id>/delete', methods=["DELETE"])
+@project_from_id
+def api_delete_project(project):  # noqa: F401
     """Get info on the article"""
 
     # some checks to check if there is a project to delete
-    if project_id == "" or project_id is None:
+    if project.project_id == "" or project.project_id is None:
         response = jsonify(message="project-delete-failure")
         return response, 500
 
-    project_path = get_project_path(project_id)
-
-    if project_path.exists() and project_path.is_dir():
-        shutil.rmtree(project_path)
+    if project.project_path.exists() and project.project_path.is_dir():
+        try:
+            shutil.rmtree(project.project_path)
+        except Exception as err:
+            logging.error(err)
+            return jsonify(message="Failed to delete project."), 500
 
         response = jsonify({'success': True})
         response.headers.add('Access-Control-Allow-Origin', '*')

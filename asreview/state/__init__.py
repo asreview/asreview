@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,4 @@
 # limitations under the License.
 
 from asreview.state.base import BaseState
-from asreview.state.sqlstate import SqlStateV1
-from asreview.state.utils import init_project_folder_structure
-from asreview.state.utils import open_state
+from asreview.state.sqlstate import SQLiteState

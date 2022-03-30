@@ -2,9 +2,9 @@ from pathlib import Path
 from shutil import copyfile
 from zipfile import ZipFile
 
+from asreview.project import open_state
 from asreview.state.legacy.utils import open_state as open_state_legacy
 from asreview.state.sql_converter import upgrade_asreview_project_file
-from asreview.state.utils import open_state
 
 OLD_STATE_FP = Path('tests', 'asreview_files',
                     'test_converter_example_old.asreview')
@@ -73,4 +73,5 @@ def test_converter(tmpdir):
     upgrade_asreview_project_file(converted_fp, from_version=0, to_version=1)
 
     # Check that the contents are the same.
-    compare_state_to_converted(converted_fp / 'result.json', converted_fp)
+    compare_state_to_converted(Path(converted_fp, 'legacy', 'result.json'),
+                               converted_fp)

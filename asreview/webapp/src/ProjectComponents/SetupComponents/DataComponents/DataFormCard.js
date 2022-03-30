@@ -10,7 +10,7 @@ import {
 import { Check } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 
-const PREFIX = "DataForm";
+const PREFIX = "DataFormCard";
 
 const classes = {
   cardContent: `${PREFIX}-card-content`,
@@ -61,10 +61,7 @@ const DataFormCard = (props) => {
             className={classes.cardOverlay}
             sx={{
               bgcolor: (theme) => {
-                if (
-                  props.projectHasDataset !== undefined &&
-                  !props.projectHasDataset
-                ) {
+                if (props.datasetAdded !== undefined && !props.datasetAdded) {
                   if (theme.palette.mode === "dark") {
                     return "rgba(40, 40, 40, 0.7)";
                   } else {
@@ -119,10 +116,7 @@ const DataFormCard = (props) => {
           <Stack direction="row" sx={{ alignItems: "center" }}>
             {props.added && <Check color="success" sx={{ mr: 1 }} />}
             <Button
-              disabled={
-                props.projectHasDataset !== undefined &&
-                !props.projectHasDataset
-              }
+              disabled={props.datasetAdded !== undefined && !props.datasetAdded}
               onClick={props.toggleAddCard}
             >
               {!props.added ? "Add" : "Edit"}

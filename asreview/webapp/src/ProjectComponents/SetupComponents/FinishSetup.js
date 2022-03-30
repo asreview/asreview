@@ -2,6 +2,7 @@ import * as React from "react";
 import ReactLoading from "react-loading";
 import { useQueryClient } from "react-query";
 import { connect } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import SwipeableViews from "react-swipeable-views";
 import { autoPlay } from "react-swipeable-views-utils";
 
@@ -9,42 +10,49 @@ import { Box, Button, Fade, Slide, Stack, Typography } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../Components";
-import { mapStateToProps } from "../../globals.js";
+import { TypographyH5Medium } from "../../StyledComponents/StyledTypography";
+import {
+  mapStateToProps,
+  mapDispatchToProps,
+  projectModes,
+} from "../../globals.js";
 
 import ElasBalloons from "../../images/ElasBalloons.png";
-import Start from "../../images/QuickTour/3_StartReviewing.svg";
-import Benefit from "../../images/QuickTour/4_BenefitFromAIAssisted.svg";
-import DontStress from "../../images/QuickTour/5_DontStress.svg";
-import Done from "../../images/QuickTour/6_DoneItsYourChoice.svg";
-import Publish from "../../images/QuickTour/7_PublishYourWork.svg";
+import PreparingProject from "../../images/FinishSetup_1_PreparingProject.svg";
+import BenefitFromAI from "../../images/FinishSetup_2_BenefitFromAI.svg";
+import Autosave from "../../images/FinishSetup_3_Autosave.svg";
+import FinishReview from "../../images/FinishSetup_4_FinishReview.svg";
+import OpenScience from "../../images/FinishSetup_5_OpenScience.svg";
 
 const images = [
   {
-    imgPath: Start,
+    imgPath: PreparingProject,
     textTitle: "Preparing your project",
     text: "Soon you can start reviewing the displayed text and decide whether it is relevant or not.",
   },
   {
-    imgPath: Benefit,
+    imgPath: BenefitFromAI,
     textTitle: "Benefit from AI-assisted reviewing",
     text: "After each decision, the predicted ranking of records is updated and you will see the most relevant record next (default).",
   },
   {
-    imgPath: DontStress,
+    imgPath: Autosave,
     textTitle: "Autosave",
-    text: "Your screening decisions are automatically saved on your own device.",
+    text: "Your decisions are automatically saved on your own device.",
   },
   {
-    imgPath: Done,
+    imgPath: FinishReview,
     textTitle: "Done reviewing? It's your choice!",
     text: "You decide when to stop the reviewing process (but hopefully before you have reached the end of your dataset).",
   },
   {
-    imgPath: Publish,
+    imgPath: OpenScience,
     textTitle: "Love Open Science",
     text: "Share the ASReview project file to enhance transparency and reproducibility.",
   },
 ];
+
+const transitionTimeout = 1500;
 
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
@@ -93,6 +101,7 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const FinishSetup = (props) => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const theme = useTheme();
 
@@ -103,19 +112,25 @@ const FinishSetup = (props) => {
     setActiveStep(step);
   };
 
-  const refetchProjectReady = () => {
-    queryClient.resetQueries("fetchProjectReady");
+  const refetchProjectStatus = () => {
+    queryClient.resetQueries("fetchProjectStatus");
   };
 
   const onClickProjectReview = () => {
+    props.setProjectId(null);
+    props.toggleProjectSetup();
     console.log("Opening existing project " + props.project_id);
-    props.handleAppState("project-page");
-    props.handleNavState("review");
+    navigate(`/projects/${props.project_id}/review`);
+  };
+
+  const onClickFinishSetupSimulation = () => {
+    props.toggleProjectSetup();
+    queryClient.invalidateQueries("fetchProjects");
   };
 
   React.useEffect(() => {
     if (props.trainingFinished) {
-      setTimeout(() => setButtonIn(true), 2000);
+      setTimeout(() => setButtonIn(true), transitionTimeout);
     }
   }, [props.trainingFinished]);
 
@@ -131,7 +146,7 @@ const FinishSetup = (props) => {
       {!props.isPreparingProject && props.isProjectReadyError && (
         <InlineErrorHandler
           message={props.projectReadyError?.message}
-          refetch={refetchProjectReady}
+          refetch={refetchProjectStatus}
           button={true}
         />
       )}
@@ -203,23 +218,42 @@ const FinishSetup = (props) => {
         )}
       {props.trainingFinished && (
         <Stack spacing={3} className={classes.root} sx={{ overflow: "hidden" }}>
-          <Slide direction="up" in={props.trainingFinished} timeout={2000}>
+          <Slide
+            direction="up"
+            in={props.trainingFinished}
+            timeout={transitionTimeout}
+          >
             <img
               src={ElasBalloons}
               alt="ElasBalloons"
               className={classes.img}
             />
           </Slide>
-          <Fade in={buttonIn}>
-            <Stack spacing={3} className={classes.root}>
-              <Typography variant="h6">Your project is ready</Typography>
-              <Button onClick={onClickProjectReview}>Start Reviewing</Button>
-            </Stack>
-          </Fade>
+          {props.mode !== projectModes.SIMULATION && (
+            <Fade in={buttonIn}>
+              <Stack spacing={3} className={classes.root}>
+                <TypographyH5Medium>Your project is ready</TypographyH5Medium>
+                <Button onClick={onClickProjectReview}>Start Reviewing</Button>
+              </Stack>
+            </Fade>
+          )}
+          {props.mode === projectModes.SIMULATION && (
+            <Fade in={buttonIn}>
+              <Stack spacing={3} className={classes.root}>
+                <TypographyH5Medium>
+                  Your simulation project has been initiated
+                </TypographyH5Medium>
+                <Typography>
+                  It will take some time to complete the simulation
+                </Typography>
+                <Button onClick={onClickFinishSetupSimulation}>Got it</Button>
+              </Stack>
+            </Fade>
+          )}
         </Stack>
       )}
     </Root>
   );
 };
 
-export default connect(mapStateToProps)(FinishSetup);
+export default connect(mapStateToProps, mapDispatchToProps)(FinishSetup);

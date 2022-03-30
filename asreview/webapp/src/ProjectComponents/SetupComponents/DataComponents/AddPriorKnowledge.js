@@ -1,5 +1,4 @@
 import * as React from "react";
-import { connect } from "react-redux";
 import {
   Card,
   DialogContent,
@@ -17,7 +16,6 @@ import AddIcon from "@mui/icons-material/Add";
 
 import { InfoCard } from "../../SetupComponents";
 import { PriorLabeled, PriorRandom, PriorSearch } from "../DataComponents";
-import { mapStateToProps } from "../../../globals.js";
 import { useToggle } from "../../../hooks/useToggle";
 
 const AddPriorKnowledge = (props) => {
@@ -46,7 +44,7 @@ const AddPriorKnowledge = (props) => {
                   Learn more
                 </Link>
               </Typography>
-              <InfoCard info="Editing the prior knowledge does not train the model." />
+              <InfoCard info="Editing the prior knowledge does not train the model" />
               <Typography variant="subtitle1" sx={{ color: "text.secondary" }}>
                 Select a way to add prior knowledge:
               </Typography>
@@ -92,4 +90,4 @@ const AddPriorKnowledge = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(AddPriorKnowledge);
+export default AddPriorKnowledge;

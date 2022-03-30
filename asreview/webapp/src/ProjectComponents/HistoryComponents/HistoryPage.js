@@ -1,35 +1,66 @@
-import React, { useState } from "react";
-import { connect } from "react-redux";
+import * as React from "react";
 import { Box, Divider, Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
+import { PageHeader } from "../../Components";
 import { Filter, LabelChip, LabeledRecord } from "../HistoryComponents";
 
-import { mapStateToProps } from "../../globals.js";
+const PREFIX = "HistoryPage";
 
-const filterOptions = [{ label: "Contains note", value: 0 }];
+const classes = {
+  bodyMobile: `${PREFIX}-body-mobile`,
+};
 
 const Root = styled("div")(({ theme }) => ({
-  height: "100%",
-  overflowY: "hidden",
+  [`& .${classes.bodyMobile}`]: {
+    [theme.breakpoints.down("md")]: {
+      paddingLeft: 0,
+      paddingRight: 0,
+    },
+  },
 }));
 
 const HistoryPage = (props) => {
-  const [label, setLabel] = useState("relevant");
-
   return (
     <Root aria-label="history page">
       <Fade in>
         <Box>
-          <LabelChip label={label} setLabel={setLabel} />
-          <Divider />
-          <Filter filterOptions={filterOptions} />
-          <Divider />
+          <PageHeader
+            header="Project history"
+            mobileScreen={props.mobileScreen}
+          />
+          <Box
+            className="main-page-sticky-header-wrapper"
+            sx={{ background: (theme) => theme.palette.background.paper }}
+          >
+            <LabelChip
+              mobileScreen={props.mobileScreen}
+              label={props.label}
+              setLabel={props.setLabel}
+            />
+            <Divider />
+            <Filter
+              mobileScreen={props.mobileScreen}
+              filterQuery={props.filterQuery}
+              setFilterQuery={props.setFilterQuery}
+            />
+            <Divider />
+          </Box>
+          <Box className="main-page-body-wrapper">
+            <Box className={`${classes.bodyMobile} main-page-body`}>
+              <LabeledRecord
+                label={props.label}
+                filterQuery={props.filterQuery}
+                isSimulating={props.isSimulating}
+                mobileScreen={props.mobileScreen}
+                mode={props.mode}
+              />
+            </Box>
+          </Box>
         </Box>
       </Fade>
-      <LabeledRecord label={label} />
     </Root>
   );
 };
 
-export default connect(mapStateToProps)(HistoryPage);
+export default HistoryPage;

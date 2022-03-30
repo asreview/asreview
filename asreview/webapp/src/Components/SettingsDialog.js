@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+import * as React from "react";
+import { useQuery } from "react-query";
 import { connect } from "react-redux";
 import {
   Box,
@@ -7,6 +8,7 @@ import {
   Container,
   Dialog,
   DialogContent,
+  DialogTitle,
   Divider,
   Grid,
   List,
@@ -14,14 +16,22 @@ import {
   ListItemIcon,
   ListItemSecondaryAction,
   ListItemText,
+  Stack,
   Switch,
   Slider,
+  Tooltip,
   Typography,
 } from "@mui/material";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import { styled } from "@mui/material/styles";
+import { ArrowBack, Close, InfoOutlined } from "@mui/icons-material";
 
 import { AppBarWithinDialog, OpenInNewIconStyled } from "../Components";
+import { StyledIconButton } from "../StyledComponents/StyledButton.js";
+
+import { BaseAPI } from "../api/index.js";
+import { useToggle } from "../hooks/useToggle";
 import { fontSizeOptions, donateURL } from "../globals.js";
+import { setASReviewVersion } from "../redux/actions";
 
 const mapStateToProps = (state) => {
   return {
@@ -29,21 +39,42 @@ const mapStateToProps = (state) => {
   };
 };
 
+const mapDispatchToProps = (dispatch) => {
+  return {
+    setASReviewVersion: (asreview_version) => {
+      dispatch(setASReviewVersion(asreview_version));
+    },
+  };
+};
+
+const PREFIX = "SettingsDialog";
+
+const classes = {
+  content: `${PREFIX}-content`,
+};
+
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+  [`& .${classes.content}`]: {
+    height: 588,
+    padding: "0px 0px 10px 0px",
+  },
+}));
+
 const SettingsDialog = (props) => {
-  const descriptionElementRef = useRef(null);
+  const descriptionElementRef = React.useRef(null);
 
   // second layer state
-  const [fontSizeSetting, setFontSizeSetting] = useState(false);
-  const [shortcutSetting, setShortcutSetting] = useState(false);
+  const [fontSizeSetting, toggleFontSizeSetting] = useToggle();
+  const [shortcutSetting, toggleShortcutSetting] = useToggle();
 
-  // second layer toggle
-  const toggleFontSizeSetting = () => {
-    setFontSizeSetting((a) => !a);
-  };
-
-  const toggleShortcutSetting = () => {
-    setShortcutSetting((a) => !a);
-  };
+  const { isError } = useQuery("boot", BaseAPI.boot, {
+    enabled: props.asreview_version === undefined,
+    onSuccess: (data) => {
+      // set the version of asreview
+      props.setASReviewVersion(data.version);
+    },
+    refetchOnWindowFocus: false,
+  });
 
   // second layer font size setting
   const handleFontSize = (event, newValue) => {
@@ -55,13 +86,16 @@ const SettingsDialog = (props) => {
     }
   };
 
-  // second layer off when exiting dialog
-  const exitSettings = () => {
-    setFontSizeSetting(false);
-    setShortcutSetting(false);
+  const toggleBackMainSettings = () => {
+    if (fontSizeSetting) {
+      toggleFontSizeSetting();
+    }
+    if (shortcutSetting) {
+      toggleShortcutSetting();
+    }
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (props.onSettings) {
       const { current: descriptionElement } = descriptionElementRef;
       if (descriptionElement !== null) {
@@ -71,28 +105,54 @@ const SettingsDialog = (props) => {
   }, [props.onSettings]);
 
   return (
-    <Dialog
+    <StyledDialog
       fullScreen={props.mobileScreen}
       open={props.onSettings}
       onClose={props.toggleSettings}
       scroll="paper"
-      fullWidth={true}
-      maxWidth={"sm"}
+      fullWidth
+      maxWidth="sm"
       aria-labelledby="scroll-dialog-title"
       aria-describedby="scroll-dialog-description"
       TransitionProps={{
-        onExited: exitSettings,
+        onExited: toggleBackMainSettings,
       }}
     >
-      {/*Main settings*/}
-      {!fontSizeSetting && !shortcutSetting && (
+      {/* Main settings */}
+      {!props.mobileScreen && (
+        <Stack className="dialog-header" direction="row" spacing={1}>
+          {!fontSizeSetting && !shortcutSetting && (
+            <StyledIconButton className="dialog-header-button left-empty" />
+          )}
+          {(fontSizeSetting || shortcutSetting) && (
+            <Tooltip title="Back">
+              <StyledIconButton
+                className="dialog-header-button left"
+                onClick={toggleBackMainSettings}
+              >
+                <ArrowBack />
+              </StyledIconButton>
+            </Tooltip>
+          )}
+          <DialogTitle>Settings</DialogTitle>
+          <Tooltip title="Close">
+            <StyledIconButton
+              className="dialog-header-button right"
+              onClick={props.toggleSettings}
+            >
+              <Close />
+            </StyledIconButton>
+          </Tooltip>
+        </Stack>
+      )}
+      {props.mobileScreen && !fontSizeSetting && !shortcutSetting && (
         <AppBarWithinDialog
           onClickStartIcon={props.toggleSettings}
           title="Settings"
         />
       )}
       {!fontSizeSetting && !shortcutSetting && (
-        <DialogContent sx={{ padding: "0px 0px 10px 0px" }}>
+        <DialogContent className={classes.content} dividers>
           <List>
             <ListItem>
               <ListItemIcon></ListItemIcon>
@@ -184,7 +244,9 @@ const SettingsDialog = (props) => {
                     About ASReview LAB <OpenInNewIconStyled />
                   </React.Fragment>
                 }
-                secondary={"Version " + props.asreview_version}
+                secondary={`Version ${
+                  !isError ? props.asreview_version : `N/A`
+                }`}
               />
             </ListItem>
             {donateURL !== undefined && (
@@ -206,7 +268,7 @@ const SettingsDialog = (props) => {
       )}
 
       {/*Font size setting*/}
-      {fontSizeSetting && (
+      {props.mobileScreen && fontSizeSetting && (
         <AppBarWithinDialog
           startIconIsClose={false}
           onClickStartIcon={toggleFontSizeSetting}
@@ -214,12 +276,12 @@ const SettingsDialog = (props) => {
         />
       )}
       {fontSizeSetting && (
-        <DialogContent sx={{ padding: "0px 0px 10px 0px" }}>
+        <DialogContent className={classes.content} dividers>
           <Container
             maxWidth="md"
             sx={{ paddingTop: "10px", paddingBottom: "10px" }}
           >
-            <Card sx={{ height: 500, overflowY: "scroll" }}>
+            <Card sx={{ height: 400, overflowY: "scroll" }}>
               <CardContent>
                 <Typography
                   variant="h5"
@@ -243,15 +305,15 @@ const SettingsDialog = (props) => {
                   <Box>
                     To help researchers conduct a systematic review or
                     meta-analysis as efficiently and transparently as possible,
-                    we designed a tool to accelerate the step of screening
+                    we designed a tool to accelerate the step of reviewing
                     titles and abstracts. For many tasks—including but not
                     limited to systematic reviews and meta-analyses—the
                     scientific literature needs to be checked systematically.
-                    Scholars and practitioners currently screen thousands of
+                    Scholars and practitioners currently review thousands of
                     studies by hand to determine which studies to include in
                     their review or meta-analysis. This is error prone and
                     inefficient because of extremely imbalanced data: only a
-                    fraction of the screened studies is relevant. The future of
+                    fraction of the reviewed studies is relevant. The future of
                     systematic reviewing will be an interaction with machine
                     learning algorithms to deal with the enormous increase of
                     available text. We therefore developed an open source
@@ -313,7 +375,7 @@ const SettingsDialog = (props) => {
       )}
 
       {/*Keyboard shortcut setting*/}
-      {shortcutSetting && (
+      {props.mobileScreen && shortcutSetting && (
         <AppBarWithinDialog
           startIconIsClose={false}
           onClickStartIcon={toggleShortcutSetting}
@@ -321,7 +383,7 @@ const SettingsDialog = (props) => {
         />
       )}
       {shortcutSetting && (
-        <DialogContent sx={{ padding: "0px 0px 10px 0px" }}>
+        <DialogContent className={classes.content} dividers>
           <List>
             <ListItem button onClick={props.toggleKeyPressEnabled}>
               <ListItemIcon></ListItemIcon>
@@ -342,9 +404,9 @@ const SettingsDialog = (props) => {
             <Divider sx={{ marginTop: "8px", marginBottom: "8px" }} />
             <ListItem alignItems="flex-start">
               <ListItemIcon>
-                <InfoOutlinedIcon />
+                <InfoOutlined />
               </ListItemIcon>
-              <ListItemText secondary="While screening, you can press a key (or a combination of keys) to label a record as relevant or irrelevant, or to return to the previous decision." />
+              <ListItemText secondary="While reviewing, you can press a key (or a combination of keys) to label a record as relevant or irrelevant, to return to the previous decision, or to add a note." />
             </ListItem>
             <ListItem>
               <ListItemIcon></ListItemIcon>
@@ -409,13 +471,33 @@ const SettingsDialog = (props) => {
                     </Typography>
                   </Grid>
                 </Grid>
+                <Grid container>
+                  <Grid item style={{ width: 135 }}>
+                    <Typography
+                      color="textSecondary"
+                      display="block"
+                      variant="body2"
+                    >
+                      Press <b>N</b> or <b>Shift + N</b>:
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography
+                      color="textSecondary"
+                      display="block"
+                      variant="body2"
+                    >
+                      Add a note
+                    </Typography>
+                  </Grid>
+                </Grid>
               </div>
             </ListItem>
           </List>
         </DialogContent>
       )}
-    </Dialog>
+    </StyledDialog>
   );
 };
 
-export default connect(mapStateToProps)(SettingsDialog);
+export default connect(mapStateToProps, mapDispatchToProps)(SettingsDialog);

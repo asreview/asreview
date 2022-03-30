@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,18 +28,6 @@ def get_project_file_path(project_path):
     return Path(project_path, "project.json")
 
 
-def get_tmp_path(project_path):
-    """Get the tmp directory in the project.
-
-    Arguments
-    ---------
-    project_path: str
-        The path to the project.
-    """
-
-    return Path(project_path, "tmp")
-
-
 def get_data_path(project_path):
     """Get the path to the data folder.
 
@@ -64,44 +52,9 @@ def get_data_file_path(project_path):
             data_filename = project_dict["dataset_path"]
 
     except Exception:
-        raise Exception("Dataset location not found")
+        raise FileNotFoundError("Dataset location not found")
 
     return data_folder / data_filename
-
-
-def get_lock_path(project_path):
-    """Get the active file for the project.
-
-    Arguments
-    ---------
-    project_path: str
-        The path to the project.
-    """
-    return Path(project_path, "lock.sqlite")
-
-
-def get_pool_path(project_path):
-    """Get the pool file for the project and iteration.
-
-    Arguments
-    ---------
-    project_path: str
-        The path to the project.
-    """
-
-    return Path(project_path, "pool.json")
-
-
-def get_labeled_path(project_path):
-    """Get the labeled file for the project and iteration.
-
-    Arguments
-    ---------
-    project_path: str
-        The path to the project.
-    """
-
-    return Path(project_path, "labeled.json")
 
 
 def get_reviews_path(project_path):
@@ -124,25 +77,6 @@ def get_feature_matrices_path(project_path):
         The path to the project.
     """
     return Path(project_path, 'feature_matrices')
-
-
-def get_sql_path(project_path, review_id=None):
-    """Get the results sql file from the project.
-
-    Arguments
-    ---------
-    project_path: str
-        The path to the project.
-    review_id: str
-        Identifier for the review from which to get the results sql file.
-        If none is given, pick the first id available.
-    """
-    if review_id is None:
-        with open(get_project_file_path(project_path), 'r') as f:
-            project_config = json.load(f)
-        review_id = project_config['reviews'][0]['id']
-
-    return Path(get_reviews_path(project_path), review_id, 'results.sql')
 
 
 def get_settings_metadata_path(project_path, review_id=None):
@@ -188,19 +122,6 @@ def get_feature_matrix_path(project_path, feature_extraction=None):
                         if config['id'] == feature_extraction)
 
     return Path(get_feature_matrices_path(project_path), filename)
-
-
-# TODO(State): Merge with get_project_path.
-def get_state_path(project_path):
-    """Get the labeled file for the project and iteration.
-
-    Arguments
-    ---------
-    project_path: str
-        The path to the project.
-    """
-
-    return project_path
 
 
 def get_simulation_ready_path(project_path, simulation_id):

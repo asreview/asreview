@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -158,7 +158,7 @@ def fuzzy_find(as_data,
         if len(best_idx) > 0 and new_ranking[idx] < threshold:
             break
         best_idx.append(idx)
-    fuzz_idx = np.array(best_idx, dtype=np.int)
+    fuzz_idx = np.array(best_idx, dtype=int)
     if not by_index:
         fuzz_idx = as_data.df.index.values[fuzz_idx]
     return fuzz_idx.tolist()

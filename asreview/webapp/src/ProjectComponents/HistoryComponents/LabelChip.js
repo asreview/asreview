@@ -21,6 +21,7 @@ export default function LabelChip(props) {
         color="primary"
         variant={props.label === "relevant" ? "filled" : "outlined"}
         onClick={handleClickRelevant}
+        size={!props.mobileScreen ? "medium" : "small"}
       />
       <Chip
         label={
@@ -31,6 +32,7 @@ export default function LabelChip(props) {
         color="primary"
         variant={props.label === "irrelevant" ? "filled" : "outlined"}
         onClick={handleClickIrrelevant}
+        size={!props.mobileScreen ? "medium" : "small"}
       />
     </Stack>
   );

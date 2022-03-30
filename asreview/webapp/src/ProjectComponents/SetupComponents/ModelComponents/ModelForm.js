@@ -16,7 +16,8 @@ import {
 import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../../Components";
-import { InfoCard, SelectItem } from "../../SetupComponents";
+import { SelectItem } from "../../../ProjectComponents";
+import { InfoCard } from "../../SetupComponents";
 import { ProjectAPI } from "../../../api/index.js";
 import { defaultAlgorithms, mapStateToProps } from "../../../globals.js";
 
@@ -146,7 +147,7 @@ const ModelForm = (props) => {
     return (
       <React.Fragment>
         Some classifiers and feature extraction techniques require additional
-        dependencies.{" "}
+        dependencies{" "}
         {(props.model?.classifier === "nn-2-layer" ||
           props.model?.feature_extraction === "embedding-idf" ||
           props.model?.feature_extraction === "embedding-lstm") && (

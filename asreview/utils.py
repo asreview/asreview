@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 
 import logging
 import os
+import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -101,6 +102,23 @@ def _safe_dict_update(default_dict, override_dict):
     return new_dict
 
 
+def asreview_path():
+    """Get the location where projects are stored.
+
+    Overwrite this location by specifying the ASREVIEW_PATH enviroment
+    variable.
+    """
+
+    if os.environ.get("ASREVIEW_PATH", None):
+        asreview_path = Path(os.environ["ASREVIEW_PATH"])
+    else:
+        asreview_path = Path("~", ".asreview").expanduser()
+
+    asreview_path.mkdir(parents=True, exist_ok=True)
+
+    return asreview_path
+
+
 def get_data_home(data_home=None):
     """Return the path of the ASR data dir.
 
@@ -179,6 +197,14 @@ def list_model_names(entry_name="asreview.models"):
     return [*get_entry_points(entry_name)]
 
 
+def list_reader_names(entry_name="asreview.readers"):
+    return [*get_entry_points(entry_name)]
+
+
+def list_writer_names(entry_name="asreview.writers"):
+    return [*get_entry_points(entry_name)]
+
+
 def get_entry_points(entry_name="asreview.entry_points"):
     """Get the entry points for asreview.
 
@@ -213,6 +239,34 @@ def _model_class_from_entry_point(method, entry_name="asreview.models"):
             f"with the following error:\n{e}")
 
 
+def _reader_class_from_entry_point(suffix, entry_name="asreview.readers"):
+    entry_points = get_entry_points(entry_name)
+    try:
+        return entry_points[suffix].load()
+    except KeyError:
+        raise ValueError(
+            f"Error: suffix '{suffix}' is not implemented for entry point "
+            f"{entry_name}.")
+    except ImportError as e:
+        raise ValueError(
+            f"Failed to import '{suffix}' reader ({entry_name}) "
+            f"with the following error:\n{e}")
+
+
+def _writer_class_from_entry_point(suffix, entry_name="asreview.writers"):
+    entry_points = get_entry_points(entry_name)
+    try:
+        return entry_points[suffix].load()
+    except KeyError:
+        raise ValueError(
+            f"Error: suffix '{suffix}' is not implemented for entry point "
+            f"{entry_name}.")
+    except ImportError as e:
+        raise ValueError(
+            f"Failed to import '{suffix}' writer ({entry_name}) "
+            f"with the following error:\n{e}")
+
+
 def is_url(url):
     """Check if object is a valid url."""
     try:
@@ -241,3 +295,9 @@ def get_random_state(random_state):
         else:
             return np.random.RandomState(
                 random_state % (2**32))
+
+
+def _get_executable():
+    """Get the Python executable"""
+
+    return sys.executable if sys.executable else 'python'

@@ -34,9 +34,7 @@ const DataForm = (props) => {
     ["fetchData", { project_id: props.project_id }],
     ProjectAPI.fetchData,
     {
-      enabled:
-        props.details?.projectHasDataset !== undefined &&
-        props.details?.projectHasDataset,
+      enabled: props.datasetAdded !== undefined && props.datasetAdded,
       refetchOnWindowFocus: false,
     }
   );
@@ -45,7 +43,7 @@ const DataForm = (props) => {
     queryClient.resetQueries("fetchData");
   };
 
-  const refetchDetails = () => {
+  const refetchInfo = () => {
     queryClient.prefetchQuery(
       ["fetchInfo", { project_id: props.project_id }],
       ProjectAPI.fetchInfo
@@ -56,16 +54,6 @@ const DataForm = (props) => {
     queryClient.resetQueries("fetchLabeledStats");
   };
 
-  // fetch details in data step when init a new project
-  React.useEffect(() => {
-    if (!props.details && props.project_id !== null) {
-      queryClient.prefetchQuery(
-        ["fetchInfo", { project_id: props.project_id }],
-        ProjectAPI.fetchInfo
-      );
-    }
-  }, [props.details, props.project_id, queryClient]);
-
   return (
     <Root>
       <Box className={classes.title}>
@@ -73,15 +61,14 @@ const DataForm = (props) => {
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
           Active learning models help you accelerate the review of records in
           your dataset (e.g., abstracts of scientific papers) by learning your
-          preferences.
+          preferences
         </Typography>
       </Box>
-      {!props.isFetchDetailsError &&
-        (!props.details || isFetching || props.isFetchingLabeledStats) && (
-          <Box className={classes.loading}>
-            <CircularProgress />
-          </Box>
-        )}
+      {!props.isFetchInfoError && (isFetching || props.isFetchingLabeledStats) && (
+        <Box className={classes.loading}>
+          <CircularProgress />
+        </Box>
+      )}
       {!isFetching && isError && (
         <InlineErrorHandler
           message={error?.message}
@@ -89,10 +76,10 @@ const DataForm = (props) => {
           button={true}
         />
       )}
-      {props.isFetchDetailsError && (
+      {props.isFetchInfoError && (
         <InlineErrorHandler
-          message={props.fetchDetailsError?.message}
-          refetch={refetchDetails}
+          message={props.fetchInfoError?.message}
+          refetch={refetchInfo}
           button={true}
         />
       )}
@@ -103,22 +90,21 @@ const DataForm = (props) => {
           button={true}
         />
       )}
-      {props.details &&
-        !isFetching &&
+      {!isFetching &&
         !props.isFetchingLabeledStats &&
         !isError &&
         !props.isFetchLabeledStatsError && (
           <Stack direction="column" spacing={3}>
             <DataFormCard
-              added={props.details?.projectHasDataset}
+              added={props.datasetAdded}
               primaryDefault="Add a dataset"
               primaryAdded={
                 <React.Fragment>
                   Dataset <i>{data?.filename}</i> added
                 </React.Fragment>
               }
-              secondaryDefault="Contain all records related to a particular topic"
-              secondaryAdded={`Contain ${data?.n_rows} records`}
+              secondaryDefault="Contains all records related to a particular topic"
+              secondaryAdded={`Contains ${data?.n_rows} records with ~${data?.n_duplicates} duplicates`}
               toggleAddCard={props.toggleAddDataset}
             />
             <DataFormCard
@@ -126,10 +112,10 @@ const DataForm = (props) => {
                 props.labeledStats?.n_inclusions !== 0 &&
                 props.labeledStats?.n_exclusions !== 0
               }
-              projectHasDataset={props.details?.projectHasDataset}
+              datasetAdded={props.datasetAdded}
               primaryDefault="Add prior knowledge"
               primaryAdded="Prior knowledge added"
-              secondaryDefault="Indicate your preference with at least 1 relevant and 1 irrelevant records"
+              secondaryDefault="Indicate your preference with at least 1 relevant and 1 irrelevant record"
               secondaryAdded={`${props.labeledStats?.n_prior_inclusions} relevant and ${props.labeledStats?.n_prior_exclusions} irrelevant records`}
               toggleAddCard={props.toggleAddPriorKnowledge}
             />

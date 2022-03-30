@@ -51,7 +51,9 @@ export const drawerWidth = 250;
 
 // review screen configs
 export const decisionUndoBarDuration = 6000;
-export const decisionUndoBarMarginBottom = 100;
+export const decisionUndoBarMarginBottom = 80;
+
+export const checkIfSimulationFinishedDuration = 6000;
 
 export const fontSizeOptions = [
   {
@@ -90,3 +92,15 @@ export const projectModes = {
   SIMULATION: "simulate",
   EXPLORATION: "explore",
 };
+
+export const projectStatuses = {
+  SETUP: "setup",
+  REVIEW: "review",
+  FINISHED: "finished",
+};
+
+// project history filter options
+export const historyFilterOptions = [
+  { value: "note", label: "Contains note" },
+  { value: "prior", label: "Prior knowledge" },
+];
