@@ -181,7 +181,10 @@ SCHEMA = {
         },
         "created_at_unix": {
             "$id": "#/properties/created_at_unix",
-            "type": "integer",
+            "type": [
+                "integer",
+                "null"
+            ],
             "title": "The created_at_unix schema",
             "description": "An explanation about the purpose of this instance.",
             "default": 0,
@@ -191,7 +194,10 @@ SCHEMA = {
         },
         "datetimeCreated": {
             "$id": "#/properties/datetimeCreated",
-            "type": "string",
+            "type": [
+                "string",
+                "null"
+            ],
             "title": "The datetimeCreated schema",
             "description": "The date and time of the project creation.",
             "default": "",
@@ -251,7 +257,7 @@ SCHEMA = {
                                 "$id": "#/properties/reviews/items/anyOf/0/properties/start_time",
                                 "type": "string",
                                 "title": "The start_time of the review.",
-                                "description": "The start time of the review.",
+                                "description": "The start date and time of the review.",
                                 "default": "",
                                 "examples": [
                                     "2022-03-25 11:55:50.551360"
@@ -261,7 +267,7 @@ SCHEMA = {
                                 "$id": "#/properties/reviews/items/anyOf/0/properties/start_time",
                                 "type": "string",
                                 "title": "The end_time of the review.",
-                                "description": "The end time of the review.",
+                                "description": "The end date and time of the review.",
                                 "default": "",
                                 "examples": [
                                     "2022-03-26 10:31:52.441360"

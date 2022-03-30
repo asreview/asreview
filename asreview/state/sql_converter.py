@@ -15,7 +15,9 @@
 import json
 import shutil
 import sqlite3
+import time
 from base64 import b64decode
+from datetime import datetime
 from io import BytesIO
 from pathlib import Path
 from uuid import uuid4
@@ -146,6 +148,7 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     # extract the start time from the state json
     with open(json_fp, 'r') as f:
         start_time = json.load(f)['time']['start_time']
+        start_time = datetime.strptime(start_time, "%m/%d/%Y, %H:%M:%S")
 
     # open the project json and upgrade
     with open(Path(fp, 'project.json'), 'r') as f:
@@ -228,7 +231,14 @@ def upgrade_project_config(config,
 
     # set created_at_unix to start time (empty: None)
     if "created_at_unix" not in config:
-        config["created_at_unix"] = start_time
+        try:
+            config["created_at_unix"] = time.mktime(
+                start_time.timetuple()
+            )
+        except Exception:
+            config["created_at_unix"] = None
+
+    config["datetimeCreated"] = start_time
 
     # delete deprecated metadata
     config.pop("projectInitReady", None)
