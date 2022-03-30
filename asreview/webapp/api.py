@@ -212,6 +212,12 @@ def api_init_project():  # noqa: F401
 def api_upgrade_project_if_old(project):
     """Get upgrade project if it is v0.x"""
 
+    if not project.config["version"].startswith("0"):
+        response = jsonify(
+            message="Can only convert v0.x projects.")
+
+        return response, 400
+
     # errors are handled by the InternalServerError
     upgrade_asreview_project_file(project.project_path)
 
