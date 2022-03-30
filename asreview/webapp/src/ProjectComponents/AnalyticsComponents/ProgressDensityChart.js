@@ -259,7 +259,7 @@ export default function ProgressDensityChart(props) {
         size: 0,
       },
       noData: {
-        text: "No data available. Start reviewing first.",
+        text: "No data available",
       },
       stroke: {
         curve: "smooth",
@@ -313,12 +313,10 @@ export default function ProgressDensityChart(props) {
         <Stack spacing={2}>
           <Box className={classes.title}>
             {!props.mobileScreen && (
-              <Typography variant="h6">Progress Plot</Typography>
+              <Typography variant="h6">Progress</Typography>
             )}
             {props.mobileScreen && (
-              <TypographySubtitle1Medium>
-                Progress Plot
-              </TypographySubtitle1Medium>
+              <TypographySubtitle1Medium>Progress</TypographySubtitle1Medium>
             )}
             <StyledTooltip
               title={
