@@ -101,10 +101,7 @@ const AnalyticsPage = (props) => {
       <Fade in>
         <Box>
           {props.mode !== projectModes.SIMULATION && (
-            <PageHeader
-              header="Project analytics"
-              mobileScreen={props.mobileScreen}
-            />
+            <PageHeader header="Analytics" mobileScreen={props.mobileScreen} />
           )}
           {props.mode === projectModes.SIMULATION && (
             <Box
@@ -113,10 +110,10 @@ const AnalyticsPage = (props) => {
             >
               <Box className="main-page-sticky-header with-button">
                 {!props.mobileScreen && (
-                  <TypographyH5Medium>Project analytics</TypographyH5Medium>
+                  <TypographyH5Medium>Analytics</TypographyH5Medium>
                 )}
                 {props.mobileScreen && (
-                  <Typography variant="h6">Project analytics</Typography>
+                  <Typography variant="h6">Analytics</Typography>
                 )}
                 <Stack direction="row" spacing={1}>
                   <Button

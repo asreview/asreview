@@ -52,6 +52,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   [`&.${classes.root}`]: {
     width: "100%",
     borderRadius: 16,
+    marginBottom: 64,
   },
 
   [`& .${classes.error}`]: {
@@ -414,6 +415,7 @@ const ProjectTable = (props) => {
 
                   const disableProjectStatusChange = () => {
                     return (
+                      row["projectNeedsUpgrade"] ||
                       row["mode"] === projectModes.SIMULATION ||
                       row["reviews"][0] === undefined ||
                       row["reviews"][0]["status"] === projectStatuses.SETUP

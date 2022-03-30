@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { Box, Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { ActionsFeedbackBar, PageHeader } from "../../Components";
+import { ActionsFeedbackBar } from "../../Components";
 import {
   DecisionButton,
   DecisionUndoBar,
@@ -231,14 +231,6 @@ const ReviewPage = (props) => {
 
   return (
     <Root aria-label="review page">
-      <Fade in>
-        <Box>
-          <PageHeader
-            header="Project review"
-            mobileScreen={props.mobileScreen}
-          />
-        </Box>
-      </Fade>
       <Fade in>
         <Box className="review-page-body-wrapper">
           <Box className="review-page-body">

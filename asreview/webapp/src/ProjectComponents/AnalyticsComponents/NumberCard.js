@@ -36,7 +36,7 @@ export default function NumberCard(props) {
                   variant={!props.mobileScreen ? "subtitle1" : "subtitle2"}
                   sx={{ color: "text.secondary" }}
                 >
-                  Labeled Records
+                  Labeled records
                 </Typography>
                 <Typography
                   className="number-card-content-numeral"
@@ -66,7 +66,7 @@ export default function NumberCard(props) {
                   variant={!props.mobileScreen ? "subtitle1" : "subtitle2"}
                   sx={{ color: "text.secondary" }}
                 >
-                  Relevant Records
+                  Relevant records
                 </Typography>
                 <Typography
                   className="number-card-content-numeral"
@@ -93,7 +93,7 @@ export default function NumberCard(props) {
                   variant={!props.mobileScreen ? "subtitle1" : "subtitle2"}
                   sx={{ color: "text.secondary" }}
                 >
-                  Labeled Records Since Last Relevant
+                  Irrelevant records since last relevant
                 </Typography>
                 <Typography
                   className="number-card-content-numeral"

@@ -139,10 +139,10 @@ const DetailsPage = (props) => {
           >
             <Box className="main-page-sticky-header with-button">
               {!props.mobileScreen && (
-                <TypographyH5Medium>Project details</TypographyH5Medium>
+                <TypographyH5Medium>Details</TypographyH5Medium>
               )}
               {props.mobileScreen && (
-                <Typography variant="h6">Project details</Typography>
+                <Typography variant="h6">Details</Typography>
               )}
               <Stack direction="row" spacing={1}>
                 <Button
