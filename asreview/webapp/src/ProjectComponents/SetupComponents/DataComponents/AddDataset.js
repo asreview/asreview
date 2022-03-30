@@ -14,7 +14,7 @@ import {
 
 import {
   DatasetFromEntryPoint,
-  DatasetFromFile,
+  // DatasetFromFile,
   DatasetFromURL,
 } from "../DataComponents";
 import { InfoCard } from "../../SetupComponents";

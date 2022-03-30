@@ -80,7 +80,6 @@ const DatasetFromEntryPoint = (props) => {
         <Stack spacing={2}>
           {data?.result.map((group, index) => (
             <Stack spacing={2} key={index}>
-              {props.subset === "plugin" && (
                 <Typography
                   variant="subtitle1"
                   sx={{
@@ -89,7 +88,6 @@ const DatasetFromEntryPoint = (props) => {
                 >
                   {group.description}
                 </Typography>
-              )}
               <Box>
                 {group.datasets.map((dataset, index) => (
                   <EntryPointDataset
