@@ -333,14 +333,8 @@ class DatasetManager():
                 include = [include]
             groups = include
         elif exclude is not None:
-            if not is_iterable(exclude):
-                exclude = [exclude]
-            groups = self.groups.copy()
-            for group_id in exclude:
-                try:
-                    groups.remove(group_id)
-                except ValueError:
-                    pass
+            exclude = exclude if is_iterable(exclude) else [exclude]
+            groups = list(set(self.groups) - set(exclude))
         else:
             groups = self.groups.copy()
 
