@@ -49,6 +49,7 @@ const ProjectCheckDialog = (props) => {
     ProjectAPI.fetchUpgradeProjectIfOld,
     {
       enabled: upgrade,
+      retry: false,
       onSuccess: () => {
         navigate(
           `/projects/${props.projectCheck?.project_id}/${props.projectCheck?.path}`
