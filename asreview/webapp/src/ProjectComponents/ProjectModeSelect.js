@@ -54,9 +54,7 @@ export default function ProjectModeSelect(props) {
           </MenuItem>
         </Select>
         {props.datasetAdded && (
-          <FormHelperText>
-            Editing mode removes the added data and the specified model
-          </FormHelperText>
+          <FormHelperText>Editing mode removes the added data</FormHelperText>
         )}
       </FormControl>
     </Root>
