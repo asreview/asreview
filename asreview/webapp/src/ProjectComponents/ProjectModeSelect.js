@@ -1,5 +1,11 @@
 import React from "react";
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import {
+  FormControl,
+  FormHelperText,
+  InputLabel,
+  MenuItem,
+  Select,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { SelectItem } from "../ProjectComponents";
@@ -47,6 +53,11 @@ export default function ProjectModeSelect(props) {
             />
           </MenuItem>
         </Select>
+        {props.datasetAdded && (
+          <FormHelperText>
+            Editing mode removes the added data and the specified model
+          </FormHelperText>
+        )}
       </FormControl>
     </Root>
   );
