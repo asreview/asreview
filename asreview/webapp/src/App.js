@@ -1,52 +1,35 @@
 import React from "react";
-import { CssBaseline, createMuiTheme } from "@material-ui/core";
-import { ThemeProvider } from "@material-ui/core/styles";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { Routes, Route } from "react-router-dom";
+import "typeface-roboto";
+import { CssBaseline, createTheme, useMediaQuery } from "@mui/material";
+import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import "./App.css";
 
-import { Header, ReviewZone, ExportDialog, HistoryDialog } from "./Components";
-import { PreReviewZone, StartReview, ProjectPage } from "./PreReviewComponents";
-import ReviewZoneComplete from "./PostReviewComponents/ReviewZoneComplete";
-import Projects from "./Projects";
-import SettingsDialog from "./SettingsDialog";
-import HelpDialog from "./HelpDialog";
-import ExitDialog from "./ExitDialog";
-import WelcomeScreen from "./WelcomeScreen";
+import { HelpDialog, NavigationDrawer, SettingsDialog } from "./Components";
+import { HomePage } from "./HomeComponents";
+import { ProjectPage } from "./ProjectComponents";
+import BootPage from "./BootPage";
 import {
   useDarkMode,
   useFontSize,
-  useUndoEnabled,
   useKeyPressEnabled,
+  useUndoEnabled,
 } from "./hooks/SettingsHooks";
+import { useToggle } from "./hooks/useToggle";
 
-import "typeface-roboto";
-
-import { connect } from "react-redux";
-
-// redux config
-import { setAppState } from "./redux/actions";
-
-const mapStateToProps = (state) => {
-  return {
-    app_state: state.app_state,
-    project_id: state.project_id,
-  };
-};
-
-function mapDispatchToProps(dispatch) {
-  return {
-    setAppState: (app_state) => {
-      dispatch(setAppState(app_state));
-    },
-  };
-}
+const queryClient = new QueryClient();
 
 const App = (props) => {
   // Dialog state
-  const [settings, setSettings] = React.useState(false);
-  const [help, setHelp] = React.useState(false);
-  const [exit, setExit] = React.useState(false);
-  const [exportResult, setExportResult] = React.useState(false);
-  const [history, setHistory] = React.useState(false);
+  const [onSettings, toggleSettings] = useToggle();
+  const [onProjectSetup, toggleProjectSetup] = useToggle();
+  const [projectCheck, setProjectCheck] = React.useState({
+    open: false,
+    issue: null,
+    path: "/projects",
+    project_id: null,
+  });
 
   // Settings hook
   const [theme, toggleDarkMode] = useDarkMode();
@@ -54,103 +37,84 @@ const App = (props) => {
   const [undoEnabled, toggleUndoEnabled] = useUndoEnabled();
   const [keyPressEnabled, toggleKeyPressEnabled] = useKeyPressEnabled();
 
-  const muiTheme = createMuiTheme(theme);
+  const muiTheme = createTheme(theme);
+  const mobileScreen = useMediaQuery(muiTheme.breakpoints.down("md"), {
+    noSsr: true,
+  });
 
-  // Dialog toggle
-  const toggleSettings = () => {
-    setSettings((a) => !a);
-  };
-
-  const toggleHelp = () => {
-    setHelp((a) => !a);
-  };
-
-  const toggleExit = () => {
-    setExit((a) => !a);
-  };
-
-  const toggleExportResult = () => {
-    setExportResult((a) => !a);
-  };
-
-  const toggleHistory = () => {
-    setHistory((a) => !a);
-  };
+  // Navigation drawer state
+  const [onNavDrawer, toggleNavDrawer] = useToggle(mobileScreen ? false : true);
 
   return (
-    <ThemeProvider theme={muiTheme}>
-      <CssBaseline />
-      {props.app_state === "boot" && <WelcomeScreen />}
-      {props.app_state !== "boot" && (
-        <Header
-          /* Handle the app review drawer */
-          toggleSettings={toggleSettings}
-          toggleHelp={toggleHelp}
-          toggleExit={toggleExit}
-          toggleExportResult={toggleExportResult}
-          toggleHistory={toggleHistory}
-        />
-      )}
+    <QueryClientProvider client={queryClient}>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={muiTheme}>
+          <CssBaseline />
+          <div aria-label="nav and main content">
+            <Routes>
+              <Route index element={<BootPage />} />
+              <Route
+                path="*"
+                element={
+                  <NavigationDrawer
+                    mobileScreen={mobileScreen}
+                    onNavDrawer={onNavDrawer}
+                    toggleNavDrawer={toggleNavDrawer}
+                    toggleSettings={toggleSettings}
+                  />
+                }
+              >
+                <Route
+                  path="*"
+                  element={
+                    <HomePage
+                      mobileScreen={mobileScreen}
+                      onNavDrawer={onNavDrawer}
+                      onProjectSetup={onProjectSetup}
+                      projectCheck={projectCheck}
+                      setProjectCheck={setProjectCheck}
+                      toggleProjectSetup={toggleProjectSetup}
+                    />
+                  }
+                />
+                <Route
+                  path="projects/:project_id/*"
+                  element={
+                    <ProjectPage
+                      mobileScreen={mobileScreen}
+                      onNavDrawer={onNavDrawer}
+                      fontSize={fontSize}
+                      undoEnabled={undoEnabled}
+                      keyPressEnabled={keyPressEnabled}
+                      projectCheck={projectCheck}
+                      setProjectCheck={setProjectCheck}
+                      toggleProjectSetup={toggleProjectSetup}
+                    />
+                  }
+                />
+              </Route>
+            </Routes>
+          </div>
 
-      {props.app_state === "projects" && (
-        <Projects handleAppState={props.setAppState} />
-      )}
-
-      {props.app_state === "project-page" && (
-        <ProjectPage
-          handleAppState={props.setAppState}
-          toggleExportResult={toggleExportResult}
-        />
-      )}
-
-      {props.app_state === "review-init" && (
-        <PreReviewZone handleAppState={props.setAppState} />
-      )}
-
-      {props.app_state === "train-first-model" && (
-        <StartReview handleAppState={props.setAppState} />
-      )}
-
-      {props.app_state === "review" && (
-        <ReviewZone
-          handleAppState={props.setAppState}
-          fontSize={fontSize}
-          undoEnabled={undoEnabled}
-          keyPressEnabled={keyPressEnabled}
-        />
-      )}
-
-      {props.app_state === "review-complete" && (
-        <ReviewZoneComplete
-          handleAppState={props.setAppState}
-          toggleExportResult={toggleExportResult}
-        />
-      )}
-
-      {/* Dialogs */}
-      <SettingsDialog
-        onSettings={settings}
-        onDark={theme}
-        fontSize={fontSize}
-        keyPressEnabled={keyPressEnabled}
-        undoEnabled={undoEnabled}
-        toggleSettings={toggleSettings}
-        toggleDarkMode={toggleDarkMode}
-        handleFontSizeChange={handleFontSizeChange}
-        toggleKeyPressEnabled={toggleKeyPressEnabled}
-        toggleUndoEnabled={toggleUndoEnabled}
-      />
-      <HelpDialog onHelp={help} toggleHelp={toggleHelp} />
-      <ExitDialog toggleExit={toggleExit} exit={exit} />
-      <ExportDialog
-        toggleExportResult={toggleExportResult}
-        exportResult={exportResult}
-      />
-      {props.app_state === "review" && (
-        <HistoryDialog toggleHistory={toggleHistory} history={history} />
-      )}
-    </ThemeProvider>
+          {/* Dialogs */}
+          <SettingsDialog
+            mobileScreen={mobileScreen}
+            onSettings={onSettings}
+            onDark={theme}
+            fontSize={fontSize}
+            keyPressEnabled={keyPressEnabled}
+            undoEnabled={undoEnabled}
+            toggleSettings={toggleSettings}
+            toggleDarkMode={toggleDarkMode}
+            handleFontSizeChange={handleFontSizeChange}
+            toggleKeyPressEnabled={toggleKeyPressEnabled}
+            toggleUndoEnabled={toggleUndoEnabled}
+          />
+          <HelpDialog mobileScreen={mobileScreen} />
+        </ThemeProvider>
+      </StyledEngineProvider>
+    </QueryClientProvider>
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default App;

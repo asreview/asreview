@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.utils import list_model_names
 from asreview.utils import _model_class_from_entry_point
+from asreview.utils import list_model_names
 
 
 def list_query_strategies():
@@ -49,7 +49,6 @@ def get_query_class(name):
     class
         Class corresponding to the name name.
     """
-    from asreview.models.query.mixed import MixedQuery
 
     # Try to split the query strategy if the string wasn't found.
     try:

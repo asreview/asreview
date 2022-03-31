@@ -1,4 +1,4 @@
-# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ else:
         logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 
-from asreview.models.feature_extraction.embedding_lstm import load_embedding
 from asreview.models.feature_extraction.base import BaseFeatureExtraction
+from asreview.models.feature_extraction.embedding_lstm import load_embedding
 from asreview.utils import get_random_state
 
 

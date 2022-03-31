@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 This module is used to draw an initial sample. This sample is the
 so-called 'pre-knowledge' of the researcher.
 """
-from asreview.utils import get_random_state
-
 import numpy as np
+
+from asreview.utils import get_random_state
 
 
 def sample_prior_knowledge(

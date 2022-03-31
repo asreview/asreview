@@ -47,7 +47,6 @@ autodoc_mock_imports = [
     "sklearn.base",
     "sklearn.exceptions",
     "scipy",
-    "h5py",
     "fuzzywuzzy",
     "dill",
     "PyInquirer",

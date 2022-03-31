@@ -1,4 +1,4 @@
-# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,10 +13,11 @@
 # limitations under the License.
 
 import numpy as np
+
 try:
-    from gensim.utils import simple_preprocess
-    from gensim.models.doc2vec import TaggedDocument
     from gensim.models.doc2vec import Doc2Vec as GenSimDoc2Vec
+    from gensim.models.doc2vec import TaggedDocument
+    from gensim.utils import simple_preprocess
     GENSIM_AVAILABLE = True
 except ImportError:
     GENSIM_AVAILABLE = False

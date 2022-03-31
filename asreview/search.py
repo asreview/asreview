@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,10 @@ from difflib import SequenceMatcher
 import numpy as np
 
 from asreview.utils import format_to_str
+
+
+class SearchError(Exception):
+    pass
 
 
 def _create_inverted_index(match_strings):
@@ -84,13 +88,24 @@ def _match_string(as_data):
     all_titles = as_data.title
     all_authors = as_data.authors
     all_keywords = as_data.keywords
+
+    if all_titles is None:
+        raise SearchError("Cannot search dataset without titles.")
+
     for i in range(len(as_data)):
         match_list = []
+
+        # add titles
+        match_list.append(all_titles[i])
+
+        # add authors if present
         if all_authors is not None:
             match_list.append(format_to_str(all_authors[i]))
-        match_list.append(all_titles[i])
+
+        # add keywords if present
         if all_keywords is not None:
             match_list.append(format_to_str(all_keywords[i]))
+
         match_str[i, ] = " ".join(match_list)
     return match_str
 

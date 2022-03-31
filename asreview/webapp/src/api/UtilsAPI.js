@@ -1,11 +1,11 @@
-import { axiosErrorHandler } from "./index.js";
+import { axiosErrorHandler } from "./axiosErrorHandler";
 import axios from "axios";
 
 class UtilsAPI {
-  static faq = () => {
+  static fetchFAQ = ({ queryKey }) => {
     const url =
       "https://raw.githubusercontent.com/asreview/asreview/master/asreview/webapp/help.json";
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios
         .get(url)
         .then((result) => {

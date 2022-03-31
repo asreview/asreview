@@ -6,7 +6,7 @@ import {
   DialogContent,
   DialogTitle,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 
 export default function ExitDialog(props) {
   const descriptionElementRef = React.useRef(null);

@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import sys
 from asreview import __version__
 from asreview.utils import get_entry_points
 
-
 PROG_DESCRIPTION = "Automated Systematic Review (ASReview)."
 
 # Internal or deprecated entry points. These entry points
@@ -35,8 +34,7 @@ def _sort_entry_points(entry_points):
 
     entry_points_sorted = {
         "lab": entry_points_copy.pop("lab"),
-        "simulate": entry_points_copy.pop("simulate"),
-        "simulate-batch": entry_points_copy.pop("simulate-batch"),
+        "simulate": entry_points_copy.pop("simulate")
     }
 
     entry_points_sorted.update(entry_points_copy)
