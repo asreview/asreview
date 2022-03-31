@@ -20,23 +20,9 @@ const DOILink = (doi) => {
 };
 
 const EntryPointDataset = (props) => {
-  const handleAccordion = (index, featured) => (event, isExpanded) => {
+  const handleAccordion = (dataset_id) => (event, isExpanded) => {
     if (!props.isAddingDataset) {
-      if (featured) {
-        props.setExpanded((s) => {
-          return {
-            other: false,
-            featured: isExpanded ? index : false,
-          };
-        });
-      } else {
-        props.setExpanded((s) => {
-          return {
-            other: isExpanded ? index : false,
-            featured: false,
-          };
-        });
-      }
+      props.setExpanded(isExpanded ? dataset_id : false);
     }
   };
 
@@ -45,10 +31,7 @@ const EntryPointDataset = (props) => {
       props.reset();
     }
     if (!props.isAddingDataset) {
-      props.setExpanded({
-        other: false,
-        featured: false,
-      });
+      props.setExpanded(false);
       props.setSelectedDatasetId(props.dataset_id);
     }
   };
@@ -60,7 +43,7 @@ const EntryPointDataset = (props) => {
   const returnCheckedIcon = () => {
     if (
       props.selectedDatasetId === props.dataset_id &&
-      props.expanded !== props.index
+      props.expanded !== props.dataset_id
     ) {
       return <CheckCircleOutline color="primary" />;
     } else {
@@ -71,8 +54,8 @@ const EntryPointDataset = (props) => {
   return (
     <Accordion
       elevation={3}
-      expanded={props.expanded === props.index}
-      onChange={handleAccordion(props.index, props.featured)}
+      expanded={props.expanded === props.dataset_id}
+      onChange={handleAccordion(props.dataset_id)}
     >
       <AccordionSummary expandIcon={returnCheckedIcon()}>
         <Typography sx={{ width: "33%", flexShrink: 0 }}>
