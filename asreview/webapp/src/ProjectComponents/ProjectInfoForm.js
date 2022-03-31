@@ -81,12 +81,15 @@ const ProjectInfoForm = (props) => {
             </TypographySubtitle1Medium>
           )}
         </Box>
-        {fetchInfoState.isFetching && (
+        {isProjectSetup() && fetchInfoState?.isFetching && (
           <Box className="main-page-body-wrapper">
             <CircularProgress />
           </Box>
         )}
-        {fetchInfoState.status !== "error" && !fetchInfoState.isFetching && (
+        {((isProjectSetup() &&
+          fetchInfoState.status !== "error" &&
+          !fetchInfoState.isFetching) ||
+          !isProjectSetup()) && (
           <Box component="form" noValidate autoComplete="off">
             <Stack direction="column" spacing={3}>
               {!isProjectSetup() && (
@@ -157,7 +160,7 @@ const ProjectInfoForm = (props) => {
             </Stack>
           </Box>
         )}
-        {fetchInfoState.status === "error" && (
+        {isProjectSetup() && fetchInfoState.status === "error" && (
           <InlineErrorHandler
             message={fetchInfoState.error?.message}
             refetch={refetchInfo}
