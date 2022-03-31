@@ -41,7 +41,7 @@ def test_asreview_ris(test_file, tmpdir):
     asr_data = ASReviewData.from_file(fp_in)
 
     tmp_ris_fp_out = Path("tmp_ris.ris")
-    asr_data.to_ris(tmp_ris_fp_out)
+    asr_data.to_file(tmp_ris_fp_out)
 
     asr_data_diff = ASReviewData.from_file(tmp_ris_fp_out)
 
