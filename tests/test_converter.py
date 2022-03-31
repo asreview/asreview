@@ -22,7 +22,7 @@ def compare_state_to_converted(state_fp, converted_state_fp):
     converted_state_fp: path-like
         Filepath to the converted state file.
     """
-    with open(Path(state_fp, '..', 'labeled.json'), 'r') as file:
+    with open(Path(state_fp.parent, 'labeled.json'), 'r') as file:
         labeled_json = json.load(file)
     # old_record_ids = [x[0] for x in labeled_json]
     old_labels = [x[1] for x in labeled_json]
