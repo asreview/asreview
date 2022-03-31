@@ -107,6 +107,7 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
 
     # Current paths.
     json_fp = Path(legacy_fp, 'result.json')
+    labeled_json_fp = Path(legacy_fp, 'labeled.json')
     pool_fp = Path(legacy_fp, 'pool.json')
     kwargs_fp = Path(legacy_fp, 'kwargs.json')
     review_id = str(uuid4().hex)
@@ -120,7 +121,7 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     # Create the path for the feature matrix.
 
     # Create sqlite table with the results of the review.
-    convert_json_results_to_sql(sql_fp, json_fp)
+    convert_json_results_to_sql(sql_fp, json_fp, labeled_json_fp)
 
     # Create sqlite tables 'last_probabilities'.
     convert_json_last_probabilities(sql_fp, json_fp)
@@ -453,10 +454,13 @@ def convert_json_record_table(sql_fp, json_fp):
     con.close()
 
 
-def convert_json_results_to_sql(sql_fp, json_fp):
+def convert_json_results_to_sql(sql_fp, json_fp, labeled_json_fp):
     """Convert the result of a json state file to a sqlite database."""
     with open_state_legacy(json_fp, read_only=True) as sf:
         with sqlite3.connect(sql_fp) as con:
+            with open(labeled_json_fp, 'r') as file:
+                labeled_json = json.load(file)
+
             cur = con.cursor()
 
             # Create the results table.
@@ -471,34 +475,29 @@ def convert_json_results_to_sql(sql_fp, json_fp):
                             labeling_time INTEGER,
                             notes TEXT)''')
 
-            # Index (row number) of record being labeled.
-            sf_indices = [
-                int(sample_data[0])
-                for query in range(len(sf._state_dict['results']))
-                for sample_data in sf._state_dict['results'][query]['labelled']
-            ]
-
-            # Record ids of the labeled records.
             record_table = get_json_record_table(sf)
-            sf_record_ids = [int(record_table[idx]) for idx in sf_indices]
+            record_id_to_row_number = {record_table[i]: i
+                                       for i in range(len(record_table))}
+            old_record_ids = [x[0] for x in labeled_json]
+            sf_indices = [record_id_to_row_number[record_id]
+                          for record_id in old_record_ids]
 
-            # Label of record.
-            sf_labels = [
-                int(sample_data[1])
-                for query in range(len(sf._state_dict['results']))
-                for sample_data in sf._state_dict['results'][query]['labelled']
-            ]
+            sf_labels = [x[1] for x in labeled_json]
 
             # query strategy.
-            sf_query_strategy = [
+            old_query_strategy = [
                 sample_data[2]
                 for query in range(len(sf._state_dict['results']))
                 for sample_data in sf._state_dict['results'][query]['labelled']
             ]
 
-            n_priors = sf_query_strategy.count('prior')
+            n_priors = old_query_strategy.count('prior')
             n_records_labeled = len(sf_indices)
             n_non_prior_records = n_records_labeled - n_priors
+
+            query_strategy = sf.settings.to_dict()['query_strategy']
+            sf_query_strategy = ['prior'] * n_priors + \
+                                [query_strategy] * n_non_prior_records
 
             # classifier.
             classifier = sf.settings.to_dict()['model']
@@ -530,7 +529,7 @@ def convert_json_results_to_sql(sql_fp, json_fp):
 
             # Check that all datasets have the same number of entries.
             lengths = [
-                len(sf_record_ids),
+                len(sf_indices),
                 len(sf_labels),
                 len(sf_classifiers),
                 len(sf_training_sets),
@@ -545,7 +544,7 @@ def convert_json_results_to_sql(sql_fp, json_fp):
                     "All datasets should have the same number of entries.")
 
             # Create the database rows.
-            db_rows = [(sf_record_ids[i], sf_labels[i], sf_classifiers[i],
+            db_rows = [(sf_indices[i], sf_labels[i], sf_classifiers[i],
                         sf_query_strategy[i], sf_balance_strategy[i],
                         sf_feature_extraction[i], sf_training_sets[i],
                         sf_time[i], sf_notes[i])

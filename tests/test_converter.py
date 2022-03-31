@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from shutil import copyfile
 from zipfile import ZipFile
@@ -21,23 +22,15 @@ def compare_state_to_converted(state_fp, converted_state_fp):
     converted_state_fp: path-like
         Filepath to the converted state file.
     """
+    with open(Path(state_fp.parent, 'labeled.json'), 'r') as file:
+        labeled_json = json.load(file)
+    # old_record_ids = [x[0] for x in labeled_json]
+    old_labels = [x[1] for x in labeled_json]
+
     with open_state_legacy(state_fp) as old_state:
-        # Get data from the old state.
-        old_indices = []
-        old_labels = []
-        old_query_strategies = []
-        for query in range(old_state.n_queries()):
-            old_indices += old_state.get('label_idx', query_i=query).tolist()
-            old_labels += old_state.get('inclusions', query_i=query).tolist()
-            old_query_strategies += old_state.get('label_methods',
-                                                  query_i=query).tolist()
+        old_state_length = len(old_state._state_dict['labels'])
 
-        # Get the record ids corresponding to the indices.
         data_hash = list(old_state._state_dict['data_properties'].keys())[0]
-        old_record_table = old_state._state_dict['data_properties'][data_hash][
-            'record_table']
-        old_record_ids = [old_record_table[i] for i in old_indices]
-
         old_feature_matrix = old_state.get_feature_matrix(data_hash)
         old_settings = old_state.settings.to_dict()
 
@@ -45,15 +38,15 @@ def compare_state_to_converted(state_fp, converted_state_fp):
         # Get data from the new state.
         new_record_ids = new_state.get_order_of_labeling().tolist()
         new_labels = new_state.get_labels().tolist()
-        new_query_strategies = new_state.get_query_strategies().tolist()
 
         new_feature_matrix = new_state.get_feature_matrix()
         new_settings = new_state.settings.to_dict()
 
     # Compare data.
-    assert old_record_ids == new_record_ids
+    # assert old_indices == new_record_ids
+    assert max(new_record_ids) < old_state_length
     assert old_labels == new_labels
-    assert old_query_strategies == new_query_strategies
+    # assert old_query_strategies == new_query_strategies
     assert (old_feature_matrix != new_feature_matrix).nnz == 0
     assert old_settings == new_settings
 
