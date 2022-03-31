@@ -152,6 +152,11 @@ const ImportFromFile = ({
               File <i>{file?.path}</i> selected.
             </Typography>
           )}
+          {acceptFormat === ".asreview" && isAddingFile && (
+            <Typography sx={{ color: "text.secondary" }}>
+              Importing...
+            </Typography>
+          )}
           {isAddFileError && (
             <InlineErrorHandler
               message={addFileError?.message + " Please try again."}
