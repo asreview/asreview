@@ -94,7 +94,6 @@ const RecordCardNote = (props) => {
                 <FormControl sx={{ width: "100%" }} variant="outlined">
                   <OutlinedInput
                     autoComplete="off"
-                    autoFocus
                     disabled={props.isLoading}
                     multiline
                     placeholder="Write something..."
