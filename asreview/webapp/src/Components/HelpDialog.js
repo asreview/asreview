@@ -36,6 +36,7 @@ import {
 import { StyledIconButton } from "../StyledComponents/StyledButton.js";
 
 import { UtilsAPI } from "../api/index.js";
+import { feedbackURL } from "../globals.js";
 import { toggleHelpDialog } from "../redux/actions";
 
 const mapStateToProps = (state) => {
@@ -232,10 +233,7 @@ const HelpDialog = (props) => {
 
           <ListItem>
             <Card className={classes.contact}>
-              <CardActionArea
-                href="https://github.com/asreview/asreview/issues/new/choose"
-                target="_blank"
-              >
+              <CardActionArea href={feedbackURL} target="_blank">
                 <CardHeader
                   avatar={
                     <Avatar className={classes.contactAvatar}>

@@ -34,6 +34,7 @@ import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
 
 import { ProjectAPI } from "../../api/index.js";
 import {
+  feedbackURL,
   mapStateToProps,
   mapDispatchToProps,
   projectModes,
@@ -569,7 +570,7 @@ const SetupDialog = (props) => {
                 <Tooltip title="Send feedback">
                   <StyledIconButton
                     component={"a"}
-                    href={`https://github.com/asreview/asreview/discussions`}
+                    href={feedbackURL}
                     target="_blank"
                   >
                     <Feedback />
@@ -596,8 +597,17 @@ const SetupDialog = (props) => {
               spacing={1}
               className="dialog-header-button right"
             >
+              <Tooltip title="Send feedback">
+                <StyledIconButton
+                  component={"a"}
+                  href={feedbackURL}
+                  target="_blank"
+                >
+                  <Feedback />
+                </StyledIconButton>
+              </Tooltip>
               <Button disabled={isAddingDataset} onClick={handleDiscardDataset}>
-                Cancel
+                Discard Changes
               </Button>
               <LoadingButton
                 disabled={disableSaveDataset()}
@@ -625,6 +635,15 @@ const SetupDialog = (props) => {
               {labeledStats?.n_prior !== 0 && (
                 <SavingStateBox isSaving={isSavingPriorKnowledge()} />
               )}
+              <Tooltip title="Send feedback">
+                <StyledIconButton
+                  component={"a"}
+                  href={feedbackURL}
+                  target="_blank"
+                >
+                  <Feedback />
+                </StyledIconButton>
+              </Tooltip>
               <Box className="dialog-header-button right">
                 <Button
                   variant={!isEnoughPriorKnowledge() ? "text" : "contained"}
