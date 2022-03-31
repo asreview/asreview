@@ -52,7 +52,7 @@ def load_data(name, *args, **kwargs):
 
     # check if dataset is plugin dataset\
     try:
-        dataset_path = DatasetManager().find(name).get()
+        dataset_path = DatasetManager().find(name).filepath
         return ASReviewData.from_file(dataset_path, *args, **kwargs)
     except DatasetNotFoundError:
         pass
