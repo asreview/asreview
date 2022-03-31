@@ -31,10 +31,7 @@ const formatCitation = (authors, year) => {
 const DatasetFromEntryPoint = (props) => {
   const queryClient = useQueryClient();
 
-  const [expanded, setExpanded] = React.useState({
-    featured: false,
-    other: false,
-  });
+  const [expanded, setExpanded] = React.useState(false);
 
   const {
     data,
@@ -80,14 +77,14 @@ const DatasetFromEntryPoint = (props) => {
         <Stack spacing={2}>
           {data?.result.map((group, index) => (
             <Stack spacing={2} key={index}>
-                <Typography
-                  variant="subtitle1"
-                  sx={{
-                    fontWeight: (theme) => theme.typography.fontWeightMedium,
-                  }}
-                >
-                  {group.description}
-                </Typography>
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  fontWeight: (theme) => theme.typography.fontWeightMedium,
+                }}
+              >
+                {group.description}
+              </Typography>
               <Box>
                 {group.datasets.map((dataset, index) => (
                   <EntryPointDataset
@@ -102,8 +99,7 @@ const DatasetFromEntryPoint = (props) => {
                       dataset.reference &&
                       dataset.reference.replace(/^(https:\/\/doi\.org\/)/, "")
                     }
-                    expanded={expanded.other}
-                    index={index}
+                    expanded={expanded}
                     isAddingDataset={props.isAddingDataset}
                     isAddDatasetError={props.isAddDatasetError}
                     key={group.group_id + ":" + dataset.dataset_id}
