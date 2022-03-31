@@ -480,28 +480,9 @@ def convert_json_results_to_sql(sql_fp, json_fp, labeled_json_fp):
                                        for i in range(len(record_table))}
             old_record_ids = [x[0] for x in labeled_json]
             sf_indices = [record_id_to_row_number[record_id]
-                               for record_id in old_record_ids]
+                          for record_id in old_record_ids]
 
             sf_labels = [x[1] for x in labeled_json]
-
-
-            # # Index (row number) of record being labeled.
-            # sf_indices = [
-            #     int(sample_data[0])
-            #     for query in range(len(sf._state_dict['results']))
-            #     for sample_data in sf._state_dict['results'][query]['labelled']
-            # ]
-
-            # # Record ids of the labeled records.
-            # record_table = get_json_record_table(sf)
-            # sf_record_ids = [int(record_table[idx]) for idx in sf_indices]
-
-            # # Label of record.
-            # sf_labels = [
-            #     int(sample_data[1])
-            #     for query in range(len(sf._state_dict['results']))
-            #     for sample_data in sf._state_dict['results'][query]['labelled']
-            # ]
 
             # query strategy.
             old_query_strategy = [
@@ -515,8 +496,8 @@ def convert_json_results_to_sql(sql_fp, json_fp, labeled_json_fp):
             n_non_prior_records = n_records_labeled - n_priors
 
             query_strategy = sf.settings.to_dict()['query_strategy']
-            sf_query_strategy = ['prior']*n_priors + \
-                                [query_strategy]*n_non_prior_records
+            sf_query_strategy = ['prior'] * n_priors + \
+                                [query_strategy] * n_non_prior_records
 
             # classifier.
             classifier = sf.settings.to_dict()['model']
