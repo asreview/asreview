@@ -13,7 +13,6 @@ import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../Components";
 import { ProjectModeSelect } from "../ProjectComponents";
-import { InfoCard } from "../ProjectComponents/SetupComponents";
 import { MouseOverPopover } from "../StyledComponents/StyledPopover.js";
 import { TypographySubtitle1Medium } from "../StyledComponents/StyledTypography.js";
 import { mapStateToProps } from "../globals.js";
@@ -87,9 +86,6 @@ const ProjectInfoForm = (props) => {
             <CircularProgress />
           </Box>
         )}
-        {props.datasetAdded && (
-          <InfoCard info="Editing the mode removes the added data and the specified model" />
-        )}
         {fetchInfoState.status !== "error" && !fetchInfoState.isFetching && (
           <Box component="form" noValidate autoComplete="off">
             <Stack direction="column" spacing={3}>
@@ -106,6 +102,7 @@ const ProjectInfoForm = (props) => {
               )}
               {isProjectSetup() && (
                 <ProjectModeSelect
+                  datasetAdded={props.datasetAdded}
                   mode={props.info?.mode}
                   handleMode={handleInfoChange}
                   onBlur={onBlur}
