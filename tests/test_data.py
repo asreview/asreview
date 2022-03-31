@@ -33,14 +33,23 @@ def test_fuzzy_finder(keywords, paper_id):
 
 
 @mark.parametrize("data_name", [
+
+    # datasets from the datasets repo
     "benchmark:van_de_Schoot_2017",
     "benchmark:Hall_2012",
     "benchmark:Cohen_2006_ACEInhibitors",
     "benchmark:Bos_2018",
+
+    # datasets from the Van de Schoot et al paper
+    # https://github.com/asreview/paper-asreview/blob/master/index_v1.json
+    "benchmark-nature:van_de_Schoot_2017",
+    "benchmark-nature:Hall_2012",
+    "benchmark-nature:Cohen_2006_ACEInhibitors",
+    "benchmark-nature:Kwok_2020",
 ])
 def test_datasets(data_name):
     data = DatasetManager().find(data_name)
-    assert exists(data.get())
+    assert exists(data.filepath)
 
 
 def test_data_statistics():
