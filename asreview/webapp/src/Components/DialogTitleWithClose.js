@@ -1,12 +1,16 @@
 import React from "react";
-import { DialogTitle, IconButton } from "@material-ui/core";
+import { DialogTitle, IconButton } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import CloseIcon from "@mui/icons-material/Close";
 
-import { makeStyles } from "@material-ui/core/styles";
+const PREFIX = "DialogTitleWithClose";
 
-import CloseIcon from "@material-ui/icons/Close";
+const classes = {
+  closeButton: `${PREFIX}-closeButton`,
+};
 
-const useStyles = makeStyles((theme) => ({
-  closeButton: {
+const StyledDialogTitle = styled(DialogTitle)(({ theme }) => ({
+  [`& .${classes.closeButton}`]: {
     position: "absolute",
     right: theme.spacing(1),
     top: theme.spacing(1),
@@ -15,21 +19,20 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const DialogTitleWithClose = (props) => {
-  const classes = useStyles();
-
   return (
-    <DialogTitle>
+    <StyledDialogTitle>
       {props.title}
       {props.onClose ? (
         <IconButton
           aria-label="close"
           className={classes.closeButton}
           onClick={props.onClose}
+          size="large"
         >
           <CloseIcon />
         </IconButton>
       ) : null}
-    </DialogTitle>
+    </StyledDialogTitle>
   );
 };
 

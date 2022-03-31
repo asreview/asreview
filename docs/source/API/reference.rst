@@ -5,7 +5,7 @@ API Reference
 =============
 
 Welcome to the ASReview API. This API reference contains documentation on the
-modules, classes, and functions of the ASReview software. 
+modules, classes, and functions of the ASReview software.
 
 
 
@@ -23,11 +23,6 @@ Classes
    :toctree: generated/
    :template: custom-class-template.rst
 
-   asreview.datasets.BaseDataGroup
-   asreview.datasets.BaseDataSet
-   asreview.datasets.BaseVersionedDataSet
-   asreview.datasets.BenchmarkDataGroup
-   asreview.datasets.DatasetManager
    asreview.settings.ASReviewSettings
 
 
@@ -42,8 +37,6 @@ Functions
    asreview.batch.create_jobs
    asreview.compat.convert_id_to_idx
    asreview.compat.convert_idx_to_id
-   asreview.datasets.dataset_from_url
-   asreview.datasets.download_from_metadata
    asreview.init_sampling.sample_prior_knowledge
    asreview.search.fuzzy_find
 
@@ -151,7 +144,7 @@ Classes
 
 .. currentmodule:: asreview
 
-   
+
 Base Classes
 
 .. autosummary::
@@ -276,7 +269,7 @@ Base Classes
    :nosignatures:
    :toctree: generated/
    :template: custom-class-template.rst
-   
+
    feature_extraction.base.BaseFeatureExtraction
 
 Classes
@@ -320,7 +313,7 @@ Base Classes
    :nosignatures:
    :toctree: generated/
    :template: custom-class-template.rst
-   
+
    query.base.BaseQueryStrategy
    query.base.ProbaQueryStrategy
    query.base.NotProbaQueryStrategy
@@ -368,7 +361,7 @@ Base Classes
    :nosignatures:
    :toctree: generated/
    :template: custom-class-template.rst
-   
+
    review.BaseReview
 
 Classes
@@ -419,7 +412,7 @@ Classes
    :nosignatures:
    :toctree: generated/
    :template: custom-class-template.rst
-   
+
    state.DictState
    state.HDF5State
    state.JSONState
@@ -436,3 +429,25 @@ Functions
    state.states_from_dir
    state.state_from_file
    state.state_from_asreview_file
+
+
+
+:mod:`asreview.datasets`
+===============
+
+.. automodule:: asreview.datasets
+   :no-members:
+   :no-inherited-members:
+
+Classes
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   asreview.datasets.BaseDataGroup
+   asreview.datasets.BaseDataSet
+   asreview.datasets.BaseVersionedDataSet
+   asreview.datasets.BenchmarkDataGroup
+   asreview.datasets.DatasetManager

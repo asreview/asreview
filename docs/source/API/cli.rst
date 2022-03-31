@@ -67,7 +67,7 @@ Simulate
 :program:`asreview simulate` measures the performance of the software on
 existing systematic reviews. The software shows how many papers you could have
 potentially skipped during the systematic review. You can use  :doc:`your own
-labelled dataset <../intro/datasets>` 
+labelled dataset <../intro/datasets>`
 
 .. code:: bash
 
@@ -76,7 +76,7 @@ labelled dataset <../intro/datasets>`
 or one of the :ref:`benchmark-datasets
 <benchmark-datasets>` (see `index.csv
 <https://github.com/asreview/systematic-review-datasets/blob/master/index.csv>`_
-for dataset IDs). 
+for dataset IDs).
 
 .. code:: bash
 
@@ -151,18 +151,6 @@ Examples:
 
 .. versionadded:: 0.15
 
-.. option:: --included_dataset [INCLUDED_DATASET [INCLUDED_DATASET ...]]
-
-    A dataset with papers that should be included.
-
-.. option:: --excluded_dataset [EXCLUDED_DATASET [EXCLUDED_DATASET ...]]
-
-    A dataset with papers that should be excluded.
-
-.. option:: --prior_dataset [PRIOR_DATASET [PRIOR_DATASET ...]]
-
-    A dataset with papers from prior studies.
-
 .. option:: --state_file STATE_FILE, -s STATE_FILE
 
     Location to store the (active learning) state of the simulation. It is
@@ -183,7 +171,7 @@ Examples:
 
     The number of queries. Alternatively, entering :code:`min` will stop the simulation when all relevant
     records have been found. By default, the program stops after all records are reviewed
-    or is interrupted by the user. 
+    or is interrupted by the user.
 
 .. option:: -n N_PAPERS, --n_papers N_PAPERS
 
@@ -278,8 +266,6 @@ Balance Strategies
 | simple      | :class:`asreview.models.balance.SimpleBalance`          |          |
 +-------------+---------------------------------------------------------+----------+
 | double      | :class:`asreview.models.balance.DoubleBalance`          |          |
-+-------------+---------------------------------------------------------+----------+
-| triple      | :class:`asreview.models.balance.TripleBalance`          |          |
 +-------------+---------------------------------------------------------+----------+
 | undersample | :class:`asreview.models.balance.UndersampleBalance`     |          |
 +-------------+---------------------------------------------------------+----------+

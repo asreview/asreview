@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,8 +13,4 @@
 # limitations under the License.
 
 from asreview.review.base import BaseReview
-from asreview.review.factory import get_reviewer
-from asreview.review.factory import review
-from asreview.review.factory import review_simulate
-from asreview.review.minimal import MinimalReview
 from asreview.review.simulate import ReviewSimulate

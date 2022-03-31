@@ -1,4 +1,4 @@
-# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@ import logging
 try:
     import tensorflow as tf
     from tensorflow.keras.constraints import MaxNorm
+    from tensorflow.keras.layers import LSTM
     from tensorflow.keras.layers import Dense
     from tensorflow.keras.layers import Embedding
     from tensorflow.keras.layers import Flatten
-    from tensorflow.keras.layers import LSTM
     from tensorflow.keras.layers import MaxPooling1D
     from tensorflow.keras.models import Sequential
     from tensorflow.keras.wrappers.scikit_learn import KerasClassifier

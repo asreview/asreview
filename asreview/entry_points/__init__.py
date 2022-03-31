@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,9 +15,8 @@
 from asreview.entry_points.algorithms import AlgorithmsEntryPoint
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.entry_points.lab import LABEntryPoint
-from asreview.entry_points.lab import OracleEntryPoint
 from asreview.entry_points.lab import WebRunModelEntryPoint
-from asreview.entry_points.simulate import BatchEntryPoint
 from asreview.entry_points.simulate import SimulateEntryPoint
+from asreview.entry_points.state_inspect import StateInspectEntryPoint
 
 """Default entry points for asreview."""

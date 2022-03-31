@@ -46,4 +46,4 @@ jobs:
         pip install .
     - name: Run test on asreview-visualization
       run: |
-        pytest asreview-visualization/tests/
+        # pytest asreview-visualization/tests/

@@ -1,4 +1,4 @@
-# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,8 +27,7 @@ class MaxQuery(ProbaQueryStrategy):
     name = "max"
     label = "Maximum"
 
-    def _query(self, X, pool_idx, n_instances=1, proba=None):
-        proba = proba[pool_idx]
-        query_idx = np.argsort(proba[:, 0])[:n_instances]
+    def _query(self, predictions, n_instances, X=None):
+        query_indices = np.argsort(predictions[:, 0])[:n_instances]
 
-        return pool_idx[query_idx], X[pool_idx[query_idx]]
+        return query_indices

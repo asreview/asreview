@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,9 +14,6 @@
 
 from abc import abstractmethod
 
-import numpy as np
-from sklearn.exceptions import NotFittedError
-
 from asreview.models.base import BaseModel
 
 
@@ -29,9 +26,8 @@ class BaseQueryStrategy(BaseModel):
     def query(self,
               X,
               classifier=None,
-              pool_idx=None,
-              n_instances=1,
-              shared={}):
+              n_instances=None,
+              **kwargs):
         """Query new instances.
 
         Arguments
@@ -40,15 +36,16 @@ class BaseQueryStrategy(BaseModel):
             Feature matrix to choose samples from.
         classifier: SKLearnModel
             Trained classifier to compute probabilities if they are necessary.
-        pool_idx: numpy.ndarray
-            Indices of samples that are still in the pool.
         n_instances: int
             Number of instances to query.
-        shared: dict
-            Dictionary for exchange between query strategies and others.
-            It is mainly used to store the current class probabilities,
-            and the source of the queries; which query strategy has produced
-            which index.
+
+        Returns
+        -------
+        (numpy.ndarray, numpy.ndarray)
+            The first is an array of shape (n_instances,) containing the row
+            indices of the new instances in query order. The second is an array
+            of shape (n_instances, n_feature_matrix_columns), containing the
+            feature vectors of the new instances.
         """
         raise NotImplementedError
 
@@ -56,49 +53,18 @@ class BaseQueryStrategy(BaseModel):
 class ProbaQueryStrategy(BaseQueryStrategy):
     name = "proba"
 
-    def query(self, X, classifier, pool_idx=None, n_instances=1, shared={}):
+    def query(self, X, classifier, n_instances=None, **kwargs):
         """Query method for strategies which use class probabilities.
         """
-        n_samples = X.shape[0]
-        if pool_idx is None:
-            pool_idx = np.arange(n_samples)
+        if n_instances is None:
+            n_instances = X.shape[0]
 
-        proba = shared.get('pred_proba', [])
-        if len(proba) != n_samples:
-            try:
-                proba = classifier.predict_proba(X)
-            except NotFittedError:
-                proba = np.ones(shape=(n_samples, ))
-            shared['pred_proba'] = proba
-        query_idx, X_query = self._query(X, pool_idx, n_instances, proba)
+        predictions = classifier.predict_proba(X)
 
-        for idx in query_idx:
-            shared['current_queries'][idx] = self.name
+        query_idx = self._query(predictions, n_instances, X)
 
-        return query_idx, X_query
+        return query_idx
 
     @abstractmethod
-    def _query(self, X, pool_idx, n_instances, proba):
-        raise NotImplementedError
-
-
-class NotProbaQueryStrategy(BaseQueryStrategy):
-    name = "not_proba"
-
-    def query(self, X, classifier, pool_idx=None, n_instances=1, shared={}):
-        """Query method for strategies which do not use class probabilities
-        """
-        n_samples = X.shape[0]
-        if pool_idx is None:
-            pool_idx = np.arange(n_samples)
-
-        query_idx, X_query = self._query(X, pool_idx, n_instances)
-
-        for idx in query_idx:
-            shared['current_queries'][idx] = self.name
-
-        return query_idx, X_query
-
-    @abstractmethod
-    def _query(self, X, pool_idx, n_instances, proba):
+    def _query(self, predictions, n_instances, X=None):
         raise NotImplementedError

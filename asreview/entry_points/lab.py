@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,12 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.entry_points.base import _base_parser
 from asreview.webapp.run_model import main as main_run_model
-
 
 HOST_NAME = "localhost"
 PORT_NUMBER = 5000
@@ -92,17 +89,6 @@ class LABEntryPoint(BaseEntryPoint):
         from asreview.webapp.start_flask import main
 
         main(argv)
-
-
-# deprecated oracle class
-class OracleEntryPoint(LABEntryPoint):
-    description = "Graphical user interface for ASReview. (Deprecated)"
-
-    def execute(self, argv):
-
-        logging.warning("Warning: subcommmand 'oracle' is replaced by 'lab'.")
-
-        super(OracleEntryPoint, self).execute(argv)
 
 
 class WebRunModelEntryPoint(BaseEntryPoint):

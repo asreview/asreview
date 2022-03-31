@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.models.balance.simple import SimpleBalance
 from asreview.models.balance.double import DoubleBalance
+from asreview.models.balance.simple import SimpleBalance
 from asreview.models.balance.triple import TripleBalance
 from asreview.models.balance.undersample import UndersampleBalance
-from asreview.models.balance.utils import get_balance_model
 from asreview.models.balance.utils import get_balance_class
+from asreview.models.balance.utils import get_balance_model
 from asreview.models.balance.utils import list_balance_strategies
 
 """Balance strategies to rebalance and reorder the training data.

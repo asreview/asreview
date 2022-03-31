@@ -1,13 +1,15 @@
-import os
-from shutil import copyfile
+import json
 from pathlib import Path
 
-import numpy as np
 import pytest
 
-from asreview.models.classifiers import list_classifiers
-from asreview.state import open_state
-from asreview.review.factory import get_reviewer
+from asreview.entry_points.simulate import SimulateEntryPoint
+from asreview.entry_points.simulate import _get_dataset_path_from_args
+from asreview.entry_points.simulate import _simulate_parser
+from asreview.project import ASReviewProject
+from asreview.project import ProjectExistsError
+from asreview.project import open_state
+from asreview.state.paths import get_settings_metadata_path
 
 ADVANCED_DEPS = {"tensorflow": False}
 
@@ -17,7 +19,8 @@ try:
 except ImportError:
     pass
 
-DATA_FP = Path("tests", "demo_data", "generic_labels.csv")
+
+DATA_FP = Path('tests', 'demo_data', 'generic_labels.csv')
 DATA_FP_URL = "https://raw.githubusercontent.com/asreview/asreview/master/tests/demo_data/generic_labels.csv"  # noqa
 DATA_FP_NO_ABS = Path("tests", "demo_data", "generic_labels_no_abs.csv")
 DATA_FP_NO_TITLE = Path("tests", "demo_data", "generic_labels_no_title.csv")
@@ -28,283 +31,251 @@ H5_STATE_FILE = Path(STATE_DIR, "test.h5")
 JSON_STATE_FILE = Path(STATE_DIR, "test.json")
 
 
-def test_dataset_from_url():
-    reviewer = get_reviewer(DATA_FP_URL, mode="simulate")
-    reviewer.review()
+@pytest.mark.xfail(raises=FileNotFoundError,
+                   reason="File, URL, or dataset does not exist: "
+                   "'this_doesnt_exist.csv'")
+def test_dataset_not_found(tmpdir):
+    entry_point = SimulateEntryPoint()
+    asreview_fp = Path(tmpdir, 'project.asreview')
+    argv = f'does_not.exist -s {asreview_fp}'.split()
+    entry_point.execute(argv)
 
 
-def test_dataset_from_benchmark_group():
-    reviewer = get_reviewer(
-        "benchmark:Cohen_2006_ACEInhibitors",
-        mode="simulate"
+def test_simulate_review_finished(tmpdir):
+
+    # file path
+    asreview_fp = Path(tmpdir, 'test.asreview')
+
+    # simulate entry point
+    entry_point = SimulateEntryPoint()
+    entry_point.execute(
+        f'{DATA_FP} -s {asreview_fp}'.split()
     )
-    reviewer.review()
 
+    Path(tmpdir, 'test').mkdir(parents=True)
+    project = ASReviewProject.load(asreview_fp, Path(tmpdir, 'test'))
 
-@pytest.mark.xfail(
-    raises=FileNotFoundError,
-    reason="Dataset not found"
-)
-def test_dataset_not_found():
-    reviewer = get_reviewer("doesnt_exist.csv", mode="simulate")
-    reviewer.review()
+    assert project.config['reviews'][0]['status'] == "finished"
 
 
-def test_state_continue_json(tmpdir):
+def test_prior_idx(tmpdir):
+    asreview_fp = Path(tmpdir, 'test.asreview')
+    argv = f'{str(DATA_FP)} -s {asreview_fp} --prior_idx 1 4'.split()
+    entry_point = SimulateEntryPoint()
+    entry_point.execute(argv)
 
-    inter_file = Path(STATE_DIR, "test_1_inst.json")
+    with open_state(asreview_fp) as state:
+        labeling_order = state.get_order_of_labeling()
+        query_strategies = state.get_query_strategies()
 
-    if not inter_file.is_file():
-        reviewer = get_reviewer(DATA_FP,
-                                mode="simulate",
-                                model="nb",
-                                embedding_fp=EMBEDDING_FP,
-                                prior_idx=[1, 2, 3, 4],
-                                state_file=inter_file,
-                                n_instances=1,
-                                n_queries=1)
-        reviewer.review()
+    assert labeling_order[0] == 1
+    assert labeling_order[1] == 4
+    assert all(query_strategies[:1] == 'prior')
+    assert all(query_strategies[2:] != 'prior')
 
-    # copy state file to tmp dir for changes
-    tmp_json_state_fp = Path(tmpdir, "tmp_state.json")
-    copyfile(inter_file, tmp_json_state_fp)
 
-    check_model(model="nb",
-                state_file=tmp_json_state_fp,
-                continue_from_state=True,
-                n_instances=1,
-                n_queries=2)
+def test_n_prior_included(tmpdir):
+    asreview_fp = Path(tmpdir, 'test.asreview')
+    argv = f'{str(DATA_FP)} -s {asreview_fp} --n_prior_included 2'.split()
+    entry_point = SimulateEntryPoint()
+    entry_point.execute(argv)
 
+    with open_state(asreview_fp) as state:
+        result = state.get_dataset(['label', 'query_strategy'])
 
-def test_state_continue_h5(tmpdir):
+    prior_included = \
+        result['label'] & (result['query_strategy'] == 'prior')
+    assert sum(prior_included) == 2
 
-    inter_file = Path(STATE_DIR, "test_1_inst.h5")
+    Path(tmpdir, 'test').mkdir(parents=True)
+    project = ASReviewProject.load(asreview_fp, Path(tmpdir, 'test'))
 
-    if not inter_file.is_file():
-        reviewer = get_reviewer(DATA_FP,
-                                mode="simulate",
-                                model="nb",
-                                embedding_fp=EMBEDDING_FP,
-                                prior_idx=[1, 2, 3, 4],
-                                state_file=inter_file,
-                                n_instances=1,
-                                n_queries=1)
-        reviewer.review()
+    with open(get_settings_metadata_path(project.project_path), 'r') as f:
+        settings_metadata = json.load(f)
 
-    # copy state file to tmp dir for changes
-    tmp_h5_state_fp = Path(tmpdir, "tmp_state.h5")
-    copyfile(inter_file, tmp_h5_state_fp)
+    assert settings_metadata['settings']['n_prior_included'] == 2
 
-    check_model(model="nb",
-                state_file=tmp_h5_state_fp,
-                continue_from_state=True,
-                n_instances=1,
-                n_queries=2)
 
+def test_n_prior_excluded(tmpdir):
+    asreview_fp = Path(tmpdir, 'test.asreview')
+    argv = f'{str(DATA_FP)} -s {asreview_fp} --n_prior_excluded 2'.split()
+    entry_point = SimulateEntryPoint()
+    entry_point.execute(argv)
 
-def test_nb(tmpdir):
+    with open_state(asreview_fp) as state:
+        result = state.get_dataset(['label', 'query_strategy'])
 
-    check_model(model="nb",
-                state_file=None,
-                use_granular=True,
-                n_instances=1,
-                n_queries=1)
+    prior_excluded = \
+        ~result['label'] & (result['query_strategy'] == 'prior')
+    assert sum(prior_excluded) == 2
 
+    Path(tmpdir, 'test').mkdir(parents=True)
+    project = ASReviewProject.load(asreview_fp, Path(tmpdir, 'test'))
 
-def test_svm(tmpdir):
+    with open(get_settings_metadata_path(project.project_path), 'r') as f:
+        settings_metadata = json.load(f)
 
-    # copy state file to tmp dir for changes
-    tmp_json_state_fp = Path(tmpdir, "tmp_state.json")
-    copyfile(JSON_STATE_FILE, tmp_json_state_fp)
+    assert settings_metadata['settings']['n_prior_excluded'] == 2
 
-    check_model(model="svm",
-                state_file=tmp_json_state_fp,
-                n_instances=1,
-                n_queries=2,
-                data_fp=DATA_FP_NO_ABS)
 
+# TODO: Add random seed to settings.
+# def test_seed(tmpdir):
+#     asreview_fp = Path(tmpdir, 'test.asreview')
+#     argv = f'{str(DATA_FP)} -s {asreview_fp} --seed 42'.split()
+#     entry_point = SimulateEntryPoint()
+#     entry_point.execute(argv)
+#
+#     with open(get_settings_metadata_path(asreview_fp), 'r') as f:
+#         settings_metadata = json.load(f)
+#
+#     assert settings_metadata['random_seed'] == 42
 
-def test_rf(tmpdir):
 
-    # copy state file to tmp dir for changes
-    tmp_json_state_fp = Path(tmpdir, "tmp_state.json")
-    copyfile(JSON_STATE_FILE, tmp_json_state_fp)
+def test_non_tf_models(tmpdir):
+    models = [
+        'logistic',
+        'nb',
+        'rf',
+        'svm'
+    ]
+    for model in models:
+        print(model)
+        asreview_fp = Path(tmpdir, f'test_{model}.asreview')
+        argv = f'{str(DATA_FP)} -s {asreview_fp} -m {model}'.split()
+        entry_point = SimulateEntryPoint()
+        entry_point.execute(argv)
 
-    check_model(model="rf",
-                state_file=tmp_json_state_fp,
-                n_instances=1,
-                n_queries=2,
-                data_fp=DATA_FP_NO_TITLE)
+        with open_state(asreview_fp) as state:
+            classifiers = state.get_classifiers()
+        default_n_priors = 2
+        assert all(classifiers[default_n_priors:] == model)
+
+        Path(tmpdir, f'test_{model}').mkdir(parents=True)
+        project = ASReviewProject.load(asreview_fp, Path(tmpdir, f'test_{model}'))
+
+        with open(get_settings_metadata_path(project.project_path), 'r') as f:
+            settings_metadata = json.load(f)
+
+        assert settings_metadata['settings']['model'] == model
+
+
+def test_number_records_found(tmpdir):
+    dataset = 'benchmark:van_de_Schoot_2017'
+    asreview_fp = Path(tmpdir, 'test.asreview')
+    n_queries = 100
+    priors = [284, 285]
+    seed = 101
+
+    argv = f'{dataset} -s {asreview_fp} --n_queries {n_queries} ' \
+           f'--prior_idx {priors[0]} {priors[1]} --seed {seed}'.split()
+    entry_point = SimulateEntryPoint()
+    entry_point.execute(argv)
+
+    with open_state(asreview_fp) as s:
+        assert s.get_labels().sum() == 28
+
 
+def test_write_interval(tmpdir):
+    dataset = 'benchmark:van_de_Schoot_2017'
+    asreview_fp = Path(tmpdir, 'test.asreview')
+    n_queries = 100
+    priors = [284, 285]
+    seed = 101
+    write_interval = 20
 
-@pytest.mark.xfail(not ADVANCED_DEPS["tensorflow"],
-                   raises=ImportError,
-                   reason="requires tensorflow")
-def test_nn_2_layer(tmpdir):
+    argv = f'{dataset} -s {asreview_fp} --n_queries {n_queries} ' \
+           f'--prior_idx {priors[0]} {priors[1]} --seed {seed} ' \
+           f'--write_interval {write_interval}'.split()
+    entry_point = SimulateEntryPoint()
+    entry_point.execute(argv)
 
-    # copy state file to tmp dir for changes
-    tmp_json_state_fp = Path(tmpdir, "tmp_state.json")
-    copyfile(JSON_STATE_FILE, tmp_json_state_fp)
+    with open_state(asreview_fp) as s:
+        assert s.get_labels().sum() == 28
 
-    check_model(model="nn-2-layer",
-                state_file=tmp_json_state_fp,
-                n_instances=1,
-                n_queries=2)
 
+@pytest.mark.xfail(raises=ProjectExistsError,
+                   reason="Cannot continue simulation.")
+def test_project_already_exists_error(tmpdir):
+    asreview_fp1 = Path(tmpdir, 'test1.asreview')
 
-@pytest.mark.xfail(not ADVANCED_DEPS["tensorflow"],
-                   raises=ImportError,
-                   reason="requires tensorflow")
-def test_lstm_base(tmpdir):
+    argv = f'benchmark:van_de_Schoot_2017 -s {asreview_fp1} --n_papers 100' \
+           f' --seed 535'.split()
+    entry_point = SimulateEntryPoint()
+    entry_point.execute(argv)
 
-    # copy state file to tmp dir for changes
-    tmp_h5_state_fp = Path(tmpdir, "tmp_state.h5")
-    copyfile(H5_STATE_FILE, tmp_h5_state_fp)
+    # Simulate 100 queries in two steps of 50.
+    argv = f'benchmark:van_de_Schoot_2017 -s {asreview_fp1} --n_papers 50' \
+           f' --seed 535'.split()
+    entry_point = SimulateEntryPoint()
+    entry_point.execute(argv)
 
-    check_model(config_file=Path(CFG_DIR, "lstm_base.ini"),
-                state_file=tmp_h5_state_fp)
 
+@pytest.mark.skip(reason="Partial simulations are not available.")
+def test_partial_simulation(tmpdir):
+    dataset = 'benchmark:van_de_Schoot_2017'
+    asreview_fp1 = Path(tmpdir, 'test1.asreview')
+    asreview_fp2 = Path(tmpdir, 'test2.asreview')
 
-@pytest.mark.xfail(not ADVANCED_DEPS["tensorflow"],
-                   raises=ImportError,
-                   reason="requires tensorflow")
-def test_lstm_pool(tmpdir):
+    priors = [284, 285]
+    seed = 101
 
-    # copy state file to tmp dir for changes
-    tmp_json_state_fp = Path(tmpdir, "tmp_state.json")
-    copyfile(JSON_STATE_FILE, tmp_json_state_fp)
+    # Simulate 100 queries in one go.
+    argv = f'{dataset} -s {asreview_fp1} --n_papers 100 ' \
+           f'--prior_idx {priors[0]} {priors[1]} --seed {seed}'.split()
+    entry_point = SimulateEntryPoint()
+    entry_point.execute(argv)
 
-    check_model(config_file=Path(CFG_DIR, "lstm_pool.ini"),
-                state_file=tmp_json_state_fp)
+    # Simulate 100 queries in two steps of 50.
+    argv = f'{dataset} -s {asreview_fp2} --n_papers 50 ' \
+           f'--prior_idx {priors[0]} {priors[1]} --seed {seed}'.split()
+    entry_point = SimulateEntryPoint()
+    entry_point.execute(argv)
 
+    argv = f'{dataset} -s {asreview_fp2} --n_papers 100 ' \
+           f'--prior_idx {priors[0]} {priors[1]} --seed {seed}'.split()
+    entry_point = SimulateEntryPoint()
+    entry_point.execute(argv)
 
-def test_logistic(tmpdir):
+    with open_state(asreview_fp1) as state:
+        dataset1 = state.get_dataset()
 
-    # copy state file to tmp dir for changes
-    tmp_json_state_fp = Path(tmpdir, "tmp_state.json")
-    copyfile(JSON_STATE_FILE, tmp_json_state_fp)
+    with open_state(asreview_fp2) as state:
+        dataset2 = state.get_dataset()
 
-    check_model(model="logistic",
-                state_file=tmp_json_state_fp,
-                n_instances=1,
-                n_queries=2)
+    assert dataset1.shape == dataset2.shape
+    # All query strategies should match.
+    assert dataset1['query_strategy'].to_list() == \
+           dataset2['query_strategy'].to_list()
+    # The first 50 record ids and labels should match.
+    assert dataset1['record_id'].iloc[:50].to_list() == \
+           dataset2['record_id'].iloc[:50].to_list()
+    assert dataset1['label'].iloc[:50].to_list() == \
+           dataset2['label'].iloc[:50].to_list()
 
+    # You expect many of the same records in the second 50 records.
+    # With this initial seed there are 89 in the total.
+    assert len(dataset1['record_id'][dataset1['record_id'].
+               isin(dataset2['record_id'])]) == 89
 
-def test_classifiers():
-    assert len(list_classifiers()) >= 7
 
+@pytest.mark.skip(reason="Partial simulations are not available.")
+def test_is_partial_simulation(tmpdir):
+    dataset = 'benchmark:van_de_Schoot_2017'
+    asreview_fp = Path(tmpdir, 'test.asreview')
 
-def check_label_methods(label_methods, n_labels, methods):
-    assert len(label_methods) == n_labels
-    for method in label_methods:
-        assert method in methods
+    argv = f'{dataset} -s {asreview_fp} --n_papers 50'.split()
+    parser = _simulate_parser()
+    args = parser.parse_args(argv)
 
+    assert not _is_partial_simulation(args)  # noqa
 
-def check_state(state):
+    entry_point = SimulateEntryPoint()
+    entry_point.execute(argv)
 
-    check_label_methods(state.get("label_methods", 0), 4, ["initial"])
-    check_label_methods(state.get("label_methods", 1), 1, ["max", "random"])
-    check_label_methods(state.get("label_methods", 2), 1, ["max", "random"])
+    assert _is_partial_simulation(args)  # noqa
 
-    assert len(state.get("inclusions", 0)) == 4
-    assert len(state.get("inclusions", 1)) == 1
-    assert len(state.get("inclusions", 2)) == 1
 
-    assert len(state.get("train_idx", 1)) == 4
-    assert len(state.get("pool_idx", 1)) == 2
-
-    assert len(state.get("train_idx", 2)) == 5
-    assert len(state.get("pool_idx", 2)) == 1
-
-    assert len(state.get("labels")) == 6
-
-
-def check_partial_state(state):
-    check_label_methods(state.get("label_methods", 0), 2, ["initial"])
-    check_label_methods(state.get("label_methods", 1), 1, ["max", "random"])
-    check_label_methods(state.get("label_methods", 2), 1, ["max", "random"])
-
-    assert len(state.get("inclusions", 0)) == 2
-    assert len(state.get("inclusions", 1)) == 1
-    assert len(state.get("inclusions", 2)) == 1
-
-    assert len(state.get("train_idx", 1)) == 2
-    assert len(state.get("pool_idx", 1)) == 2
-
-    assert len(state.get("train_idx", 2)) == 3
-    assert len(state.get("pool_idx", 2)) == 1
-
-    assert len(state.get("labels")) == 4
-
-
-def check_model(monkeypatch=None,
-                use_granular=False,
-                state_file=None,
-                continue_from_state=False,
-                mode="simulate",
-                data_fp=DATA_FP,
-                state_checker=check_state,
-                prior_idx=[1, 2, 3, 4],
-                **kwargs):
-    if not continue_from_state:
-        try:
-            os.unlink(state_file)
-        except (OSError, TypeError) as err:
-            print(err)
-
-    if monkeypatch is not None:
-        monkeypatch.setattr('builtins.input', lambda _: "0")
-
-    # start the review process.
-    reviewer = get_reviewer(data_fp,
-                            mode=mode,
-                            embedding_fp=EMBEDDING_FP,
-                            prior_idx=prior_idx,
-                            state_file=state_file,
-                            **kwargs)
-
-    if use_granular:
-        with open_state(state_file) as state:
-            # Two loops of training and classification.
-            reviewer.train()
-            reviewer.log_probabilities(state)
-            query_idx = reviewer.query(1)
-            inclusions = reviewer._get_labels(query_idx)
-            reviewer.classify(query_idx, inclusions, state)
-
-            reviewer.train()
-            reviewer.log_probabilities(state)
-            query_idx = reviewer.query(1)
-            inclusions = reviewer._get_labels(query_idx)
-            reviewer.classify(query_idx, inclusions, state)
-    else:
-
-        with open_state(state_file) as state:
-            if state_file is None:
-                state.set_labels(reviewer.y)
-                init_idx, init_labels = reviewer._prior_knowledge()
-                reviewer.query_i = 0
-                reviewer.train_idx = np.array([], dtype=np.int)
-
-                reviewer.classify(init_idx,
-                                  init_labels,
-                                  state,
-                                  method="initial")
-
-            reviewer._do_review(state)
-            if state_file is None:
-                print(state._state_dict)
-                check_state(state)
-
-    if state_file is not None:
-        with open_state(state_file, read_only=True) as state:
-            state_checker(state)
-
-
-def test_n_queries_min(tmpdir):
-
-    check_model(model="nb",
-                state_file=None,
-                use_granular=True,
-                n_instances=1,
-                n_queries='min')
+def test_get_dataset_path_from_args():
+    assert _get_dataset_path_from_args('test') == 'test.csv'
+    assert _get_dataset_path_from_args('test.ris') == 'test.csv'
+    assert _get_dataset_path_from_args('benchmark:test') == 'test.csv'

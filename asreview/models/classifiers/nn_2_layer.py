@@ -1,4 +1,4 @@
-# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,13 +14,12 @@
 
 import logging
 
-
 try:
     import tensorflow as tf
+    from tensorflow.keras import regularizers
     from tensorflow.keras.layers import Dense
     from tensorflow.keras.models import Sequential
     from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
-    from tensorflow.keras import regularizers
 except ImportError:
     TF_AVAILABLE = False
 else:
@@ -31,7 +30,6 @@ else:
         logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 import scipy
-
 
 from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.models.classifiers.lstm_base import _get_optimizer
