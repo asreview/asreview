@@ -201,6 +201,7 @@ const SetupDialog = (props) => {
           dataset_path: undefined,
         };
       });
+      queryClient.resetQueries("fetchLabeledStats");
     },
   });
 
@@ -343,6 +344,9 @@ const SetupDialog = (props) => {
   React.useEffect(() => {
     if (info.mode === projectModes.EXPLORATION) {
       setDatasetSource("benchmark");
+    }
+    if (info.mode !== projectModes.EXPLORATION) {
+      setDatasetSource("file");
     }
   }, [info.mode]);
 
@@ -593,7 +597,7 @@ const SetupDialog = (props) => {
               className="dialog-header-button right"
             >
               <Button disabled={isAddingDataset} onClick={handleDiscardDataset}>
-                Close
+                Cancel
               </Button>
               <LoadingButton
                 disabled={disableSaveDataset()}
