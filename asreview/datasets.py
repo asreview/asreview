@@ -374,7 +374,7 @@ class DatasetManager():
 
 class BenchmarkDataGroup(BaseDataGroup):
     group_id = "benchmark"
-    description = "A collections of labeled datasets for benchmarking."
+    description = "Datasets available in the online benchmark platform"
 
     def __init__(self):
         meta_file = "https://raw.githubusercontent.com/asreview/systematic-review-datasets/master/index_v1.json"  # noqa
@@ -387,7 +387,7 @@ class BenchmarkDataGroup(BaseDataGroup):
 
 class NaturePublicationDataGroup(BaseDataGroup):
     group_id = "benchmark-nature"
-    description = "Featured benchmarking datasets from the Nature publication."
+    description = "Datasets used in the validation paper published in Nature Machine Intelligence (van de Schoot et al. 2021)"  # noqa
 
     def __init__(self):
         meta_file = "https://raw.githubusercontent.com/asreview/paper-asreview/master/index_v1.json"  # noqa
