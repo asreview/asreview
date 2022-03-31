@@ -1,0 +1,588 @@
+TY  - JOUR
+AN  - rayyan-264552525
+IS  - 11
+KW  - Health Facility Administration
+Joint Commission
+Standards
+Medication Errors
+Prevention and Control
+Medication Reconciliation
+Organizational Compliance
+Quality Improvement
+Electronic Health Records
+Consumer Participation
+Literacy
+Medication History
+Patient Education
+N1  - pictorial; standards. Journal Subset: Health Services Administration; USA. NLM UID: 101144770.
+PY  - 2011
+SN  - 1534-5181
+SP  - 1-5
+ST  - Overcoming Medication Reconciliation Challenges
+T2  - Joint Commission Perspectives on Patient Safety
+TI  - Overcoming Medication Reconciliation Challenges
+VL  - 11
+ID  - 1
+ER  -
+
+TY  - JOUR
+AN  - rayyan-264552526
+IS  - 8
+KW  - Accreditation
+Health Facility Administration
+Joint Commission
+Standards
+Patient Safety
+Professional Practice, Evidence-Based
+Quality Improvement
+Risk Management
+Catheter-Related Infections
+Prevention and Control
+Infection Control
+Medication Reconciliation
+Organizational Compliance
+N1  - tables/charts. Journal Subset: Health Services Administration; USA. NLM UID: 101144770.
+PY  - 2011
+SN  - 1534-5181
+SP  - 1-4
+ST  - Special Report! The Joint Commission's 2012 National Patient Safety Goals
+T2  - Joint Commission Perspectives on Patient Safety
+TI  - Special Report! The Joint Commission's 2012 National Patient Safety Goals
+VL  - 11
+ID  - 2
+ER  -
+
+TY  - JOUR
+AN  - rayyan-264553463
+KW  - Human
+Congresses and Conferences
+United Kingdom
+Pharmacy and Pharmacology
+Acute Care
+Quality Improvement
+Medication Errors
+Prevention and Control
+Patient Discharge
+Medication Reconciliation
+Aged
+Medication Compliance
+Antiinfective Agents
+N1  - abstract; proceedings; research. Supplement Title: Jun2011 Supplement. Journal Subset: Biomedical; Europe; Peer Reviewed; UK & Ireland.
+PY  - 2011
+SN  - 0961-7671
+SP  - 34-36
+ST  - Oral Session 10 - Improving Medicines Management in an Acute Care Setting - Chairs: Mary Tully and Brit Cadman
+T2  - International Journal of Pharmacy Practice
+TI  - Oral Session 10 - Improving Medicines Management in an Acute Care Setting - Chairs: Mary Tully and Brit Cadman
+VL  - 19
+ID  - 939
+ER  -
+
+TY  - JOUR
+AN  - rayyan-264552527
+IS  - 4
+KW  - Administrative Personnel
+Ambulatory Care Facilities
+Awards and Honors
+Canada
+Ethics, Nursing
+Excellence
+Foundations
+Health Facility Administrators
+Health Informatics
+Health Services Accessibility
+Medical Care
+Medication Reconciliation
+Mental Health Services
+New Graduate Nurses
+Nurse Administrators
+Nurse Practitioners
+Nursing Leaders
+Outpatient Service
+Physicians
+Prescriptive Authority
+Quality Improvement
+Referral and Consultation
+Research Personnel
+Waiting Lists
+N1  - pictorial. Journal Subset: Core Nursing; Double Blind Peer Reviewed; Nursing; Peer Reviewed. Special Interest: Nursing Administration.
+PY  - 2012
+SN  - 1910-622X
+SP  - 8-13
+ST  - Nursing news
+T2  - Nursing Leadership (1910-622X)
+TI  - Nursing news
+VL  - 25
+ID  - 3
+ER  -
+
+TY  - JOUR
+AD  - Soonchunhyang Univ, Div Allergy & Resp Med, Bucheon Hosp, Puchon 420767, South Korea
+AN  - rayyan-264552528
+AU  - Park, C. S.
+DA  - Jan
+DO  - 10.4168/aair.2012.4.1.1
+IS  - 4
+J2  - Allergy Asthma Immun
+KW  - Administrative Personnel
+Awards and Honors
+Canada
+Clinical Research
+Corporations
+Emergency Care
+Employment
+Financial Support
+Fund Raising
+Health Care Delivery
+Health Facility Administrators
+Health Informatics
+Health Services Accessibility
+Health Services Research
+Interns and Residents
+Medical Care
+Medication Reconciliation
+Mental Health Services
+Organizations, Nonprofit
+Pharmaceutical Companies
+Physician Executives
+Physicians
+Quality Improvement
+Referral and Consultation
+Research Personnel
+Research, Medical
+Telehealth
+Waiting Lists
+LA  - English
+N1  - pictorial. Journal Subset: Canada; Editorial Board Reviewed; Expert Peer Reviewed; Health Services Administration; Peer Reviewed. NLM UID: 101208192. PMID: NLM23803397.
+PY  - 2012
+SN  - 1710-2774
+SP  - 10-14
+ST  - Quarterly change
+T2  - Healthcare Quarterly
+TI  - Quarterly change
+UR  - <Go to ISI>://WOS:000298449100001
+VL  - 15
+ID  - 4
+ER  -
+
+TY  - JOUR
+AN  - rayyan-264552529
+IS  - 387
+KW  - Medication Reconciliation
+Trends
+Quality Improvement
+United States Agency for Healthcare Research and Quality
+N1  - USA. NLM UID: 9102229.
+PY  - 2012
+SN  - 1537-0224
+SP  - 22-22
+ST  - AHRQ offers free toolkit to strengthen medication reconciliation
+T2  - AHRQ Research Activities
+TI  - AHRQ offers free toolkit to strengthen medication reconciliation
+ID  - 5
+ER  -
+
+TY  - JOUR
+AN  - rayyan-264552530
+DA  - Nov
+ET  - 2012/11/20
+IS  - 9
+KW  - Medication Errors
+Prevention and Control
+Medication Compliance
+Professional-Patient Relations
+Medication Reconciliation
+Quality Improvement
+Pharmacists
+Consultants
+Drug Administration
+Methods
+N1  - USA. Special Interest: Patient Safety. NLM UID: 9889160.
+PY  - 2012
+SN  - 1081-6534
+SP  - 105-106
+ST  - Hospital reduces med errors to 0.1 per 1,000
+T2  - Healthcare Risk Management
+TI  - Hospital reduces med errors to 0.1 per 1,000
+UR  - https://www.ncbi.nlm.nih.gov/pubmed/23162881
+VL  - 34
+ID  - 6
+ER  -
+
+TY  - JOUR
+AN  - rayyan-264552531
+IS  - 1
+KW  - Health Facility Administration
+Joint Commission
+Standards
+Organizational Compliance
+Patient Safety
+Quality Improvement
+Risk Management
+Accidental Falls
+Prevention and Control
+Accreditation
+Goal Attainment
+Hospitals, Rural
+Infection Control
+Inpatients
+Medication Reconciliation
+Michigan
+Patient Admission
+Staff Nurses
+Suicide
+Unnecessary Procedures
+Urinary Catheterization
+Urinary Tract Infections, Catheter-Related
+N1  - case study. Journal Subset: Health Services Administration; USA. Special Interest: Patient Safety; Quality Assurance.
+PY  - 2013
+SN  - 2157-5630
+SP  - 1-6
+ST  - 2013 NPSGs bring no new goals, but difficult patient safety challenges remain
+T2  - Patient Safety Monitor Journal
+TI  - 2013 NPSGs bring no new goals, but difficult patient safety challenges remain
+VL  - 14
+ID  - 7
+ER  -
+
+TY  - JOUR
+AB  - The article discusses various topics including use of antiepileptics for seizure prophylaxis after traumatic brain injury, evaluation and treatment of accidental autoinjection of epinephrine, and quality improvement through implementation of discharge order reconciliation.
+AN  - rayyan-264552532
+IS  - 9
+KW  - Pharmacists
+Pharmacy Service
+Patient Education
+Brain Injuries
+Drug Therapy
+Terbutaline
+Administration and Dosage
+Readmission
+Medication Reconciliation
+Quality Improvement
+N1  - brief item; tables/charts. Journal Subset: Biomedical; Blind Peer Reviewed; Peer Reviewed; USA. NLM UID: 9503023.
+PY  - 2013
+SN  - 1079-2082
+SP  - 739-739
+ST  - OF SPECIAL INTEREST
+T2  - American Journal of Health-System Pharmacy
+TI  - OF SPECIAL INTEREST
+VL  - 70
+ID  - 8
+ER  -
+
+TY  - JOUR
+AB  - The article focuses on frameworks may not be the most appropriate measures by which to evaluate the quality of clinical pharmacy services in all practice settings and practice specifc indicators will need to be identfied. Topics include the clinical pharmacy service can be difficult to assess using specific outcomes in many circumstances, the pharmacy services cannot be isolated measured, and the pharmacy service should be assessed by providing evidence to support improved patient outcomes.
+AN  - rayyan-264552878
+KW  - Quality Improvement
+Pharmacy Service
+Quality Assessment
+Health Care Delivery
+Hospital Policies
+Clinical Indicators
+Workload
+Pharmacists
+Medication Management
+Drug Monitoring
+Medication Reconciliation
+Pharmaceutical Services
+Pharmacy Service, Hospital
+N1  - tables/charts. Supplement Title: Jun2013 Supplement S1. Journal Subset: Australia & New Zealand; Biomedical.
+PY  - 2013
+SN  - 1445-937X
+SP  - S47-S49
+ST  - Chapter 14: Improving the Quality of Clinical Pharmacy Services
+T2  - Journal of Pharmacy Practice & Research
+TI  - Chapter 14: Improving the Quality of Clinical Pharmacy Services
+VL  - 43
+ID  - 354
+ER  -
+
+TY  - JOUR
+AB  - The article presents abstracts of various research papers on improving patient safety including studies on clinical significance of medication discrepancies in children, inappropriate prescribing among older people, and potential causes of medication error in care homes.
+AN  - rayyan-264553451
+KW  - Patient Safety
+Evaluation
+Pharmacy and Pharmacology
+Child
+Patient Discharge
+Hospitals, Pediatric
+United Kingdom
+Human
+Drug Evaluation
+Prescribing Patterns
+N1  - research; tables/charts. Supplement Title: Sep2013 Supplement 2. Journal Subset: Biomedical; Europe; Peer Reviewed; UK & Ireland.
+PY  - 2013
+SN  - 0961-7671
+SP  - 10-16
+ST  - Research Session 2: Improving Patient Safety
+T2  - International Journal of Pharmacy Practice
+TI  - Research Session 2: Improving Patient Safety
+VL  - 21
+ID  - 927
+ER  -
+
+TY  - JOUR
+AN  - rayyan-264552533
+IS  - 3
+KW  - Medication Errors
+Prevention and Control
+Medication Reconciliation
+Quality Improvement
+Pharmacists
+N1  - abstract. Journal Subset: Health Services Administration; USA. Special Interest: Patient Safety; Public Health.
+PY  - 2014
+SN  - 2157-5630
+SP  - 9-10
+ST  - Pharmacist-led medication reconciliation initiatives can reduce errors, improve care
+T2  - Patient Safety Monitor Journal
+TI  - Pharmacist-led medication reconciliation initiatives can reduce errors, improve care
+VL  - 15
+ID  - 9
+ER  -
+
+TY  - JOUR
+AN  - rayyan-264553389
+IS  - 3
+KW  - Medication Reconciliation
+Information Literacy
+United States Agency for Healthcare Research and Quality
+Information Resources
+World Wide Web
+Quality Improvement
+N1  - brief item; pictorial. Journal Subset: Core Nursing; Double Blind Peer Reviewed; Editorial Board Reviewed; Expert Peer Reviewed; Nursing; Peer Reviewed; USA. Special Interest: Home Health Care. NLM UID: 8403379.
+PY  - 2014
+SN  - 0884-741X
+SP  - 145-145
+ST  - Health Literate Medication Reconciliation
+T2  - Home Healthcare Nurse
+TI  - Health Literate Medication Reconciliation
+UR  - https://www.ncbi.nlm.nih.gov/pubmed/24584310
+VL  - 32
+ID  - 865
+ER  -
+
+TY  - CASE
+A4  - Larson, Laurie
+A2  - Karash, Julius A.
+AB  - This article discusses case studies of U.S. hospitals and a physician network that explore different ways to enhance clinical integration in order to improve the quality of patient care and, in the process, reduce unnecessary costs. The hospitals mentioned in the case studies include Abington Memorial Hospital in Pennsylvania, the Michigan health care system Spectrum Health, and Coast Healthcare Management in California. Mentioned also are the lessons they learned on clinical integration.
+AN  - rayyan-264552534
+J2  - H&HN: Hospitals & Health Networks
+KW  - Hospitals
+Quality of Health Care
+Quality Improvement
+Methods
+Health Care Delivery, Integrated
+Interprofessional Relations
+Pharmacy Service
+Role
+Chronic Disease
+Prevention and Control
+Medication Reconciliation
+Community Health Workers
+Home Visits
+After Care
+Cloud Computing
+Utilization
+Data Analytics
+Leaders
+N1  - Accession Number: 116407289. Language: English. Entry Date: 20160720. Revision Date: 20160720. Publication Type: Case Study; case study; pictorial. Journal Subset: Health Services Administration; USA. NLM UID: 9312077.
+PB  - Health Forum
+PY  - 2016
+SP  - 26-31
+ST  - H&HN: Hospitals & Health Networks
+TI  - Clinical Integration
+VL  - 90
+ID  - 10
+ER  -
+
+TY  - JOUR
+AB  - Acute-onset, severe systolic hypertension; severe diastolic hypertension; or both can occur during the prenatal, intrapartum, or postpartum periods. Pregnant women or women in the postpartum period with acute-onset, severe systolic hypertension; severe diastolic hypertension; or both require urgent antihypertensive therapy. Introducing standardized, evidence-based clinical guidelines for the management of patients with preeclampsia and eclampsia has been demonstrated to reduce the incidence of adverse maternal outcomes. Individuals and institutions should have mechanisms in place to initiate the prompt administration of medication when a patient presents with a hypertensive emergency. Treatment with first-line agents should be expeditious and occur as soon as possible within 30-60 minutes of confirmed severe hypertension to reduce the risk of maternal stroke. Intravenous labetalol and hydralazine have long been considered first-line medications for the management of acute-onset, severe hypertension in pregnant women and women in the postpartum period. Although relatively less information currently exists for the use of calcium channel blockers for this clinical indication, the available evidence suggests that immediate release oral nifedipine also may be considered as a first-line therapy, particularly when intravenous access is not available. In the rare circumstance that intravenous bolus labetalol, hydralazine, or immediate release oral nifedipine fails to relieve acute-onset, severe hypertension and is given in successive appropriate doses, emergent consultation with an anesthesiologist, maternal-fetal medicine subspecialist, or critical care subspecialist to discuss second-line intervention is recommended.
+AN  - rayyan-264552535
+KW  - blood pressure
+blood pressure measurement
+drug administration route
+emergency
+female
+human
+hypertension/di [Diagnosis]
+hypertension/dt [Drug Therapy]
+medication therapy management
+pathophysiology
+patient referral
+practice guideline
+pregnancy
+procedures
+severity of illness index
+total quality management
+United States
+antihypertensive agent/ad [Drug Administration]
+labetalol/ad [Drug Administration]
+nifedipine/ad [Drug Administration]
+drug effects
+Pregnancy Complications, Cardiovascular/di [Diagnosis]
+Pregnancy Complications, Cardiovascular/dt [Drug Therapy]
+Puerperal Disorders/di [Diagnosis]
+Puerperal Disorders/dt [Drug Therapy]
+standards
+Postpartum Period
+PY  - 2017
+SP  - e90-e95
+ST  - Committee Opinion No. 692: Emergent Therapy for Acute-Onset, Severe Hypertension During Pregnancy and the Postpartum Period
+T2  - Obstetrics and gynecology
+TI  - Committee Opinion No. 692: Emergent Therapy for Acute-Onset, Severe Hypertension During Pregnancy and the Postpartum Period
+VL  - 129
+ID  - 11
+ER  -
+
+TY  - JOUR
+AN  - rayyan-264552536
+IS  - 3
+KW  - Outcomes (Health Care)
+Transfer, Discharge
+Readmission
+Trends
+Information Management
+Methods
+Communication
+Medication Reconciliation
+Hospitals
+Skilled Nursing Facilities
+Risk Assessment
+N1  - pictorial. Journal Subset: Health Services Administration; USA.
+PY  - 2017
+SN  - 1527-0246
+SP  - 1-4
+ST  - Eight ways to improve the transition process between hospitals and SNFs
+T2  - Billing Alert for Long-Term Care
+TI  - Eight ways to improve the transition process between hospitals and SNFs
+VL  - 19
+ID  - 12
+ER  -
+
+TY  - GEN
+AB  - A correction to the article "Implementation and Feasibility of the Re-Engineered Discharge for Surgery (RED-S) Intervention: A Pilot Study" in a 2021 issue is presented.
+AN  - rayyan-264553359
+CY  - Baltimore, Maryland
+J2  - Journal for Healthcare Quality: Promoting Excellence in Healthcare
+KW  - Quality Improvement
+Patient Discharge
+Colectomy
+Medication Reconciliation
+Pilot Projects
+N1  - Accession Number: 152342412. Language: English. Entry Date: 20210914. Revision Date: 20210920. Publication Type: Correction Notice; corrected article; tables/charts. Journal Subset: Blind Peer Reviewed; Editorial Board Reviewed; Expert Peer Reviewed; Health Services Administration; Peer Reviewed; USA. NLM UID: 9202994.
+PB  - Lippincott Williams & Wilkins
+PY  - 2021
+SN  - 1062-2551
+SP  - 321-321
+ST  - Implementation and Feasibility of the Re-Engineered Discharge for Surgery (RED-S) Intervention: A Pilot Study: Erratum
+T2  - Journal for Healthcare Quality: Promoting Excellence in Healthcare
+TI  - Implementation and Feasibility of the Re-Engineered Discharge for Surgery (RED-S) Intervention: A Pilot Study: Erratum
+VL  - 43
+ID  - 835
+ER  -
+
+TY  - JOUR
+AB  - Intensive statin therapy is a central component of secondary prevention after acute myocardial infarction (AMI), particularly among high-risk patients, such as those with diabetes mellitus (DM). However, the frequency and predictors of intensive statin therapy use after AMI among patients with DM have not been described. We examined patterns of intensive statin therapy use (defined as a statin with expected low-density lipoprotein cholesterol lowering of >50%) at discharge among patients with AMI with known DM enrolled in a 24-site US registry. Predictors of intensive statin therapy use were evaluated using multivariable hierarchical Poisson regression models. Among 1,300 patients with DM after AMI, 22% were prescribed intensive statin therapy at hospital discharge. In multivariable models, ST-elevation AMI (risk ratio [RR] 1.48, 95% confidence interval [CI] 1.29 to 1.70), insurance for medications (RR 1.28, 95% CI 1.00 to 1.63), and higher low-density lipoprotein cholesterol levels (RR 1.05 per 1 mg/dl, 95% CI 1.02 to 1.07) were independent predictors of intensive statin therapy, whereas higher Global Registry of Acute Coronary Events scores were associated with lower rates of intensive statin therapy (RR 0.94 per 10 points, 95% CI 0.91 to 0.98). In conclusion, only 1 in 5 patients with DM was prescribed intensive statin therapy at discharge after an AMI. Predictors of intensive statin therapy use suggest important opportunities to improve quality of care in this patient population.
+AD  - St Lukes Mid Amer Heart Inst, Kansas City, MO 64111 USA
+Univ Missouri, Kansas City, MO 64110 USA
+Univ Iowa Hosp & Clin, Iowa City, IA 52242 USA
+Univ Colorado, Sch Med, VA Eastern Colorado Hlth Care Syst, Div Cardiol, Denver, CO USA
+Univ Texas SW Med Ctr Dallas, Div Cardiol, Dallas, TX 75390 USA
+AN  - rayyan-264552996
+AU  - Abdallah, M. S.
+AU  - Kosiborod, M.
+AU  - Tang, F.
+AU  - Karrowni, W. Y.
+AU  - Maddox, T. M.
+AU  - McGuire, D. K.
+AU  - Spertus, J. A.
+AU  - Arnold, S. V.
+DA  - Apr 15
+DO  - 10.1016/j.amjcard.2013.12.040
+IS  - 8
+J2  - Am J Cardiol
+KW  - acute heart infarction
+adult
+article
+coronary risk
+diabetes mellitus/dt [Drug Therapy]
+disease association
+female
+health insurance
+hospital discharge
+human
+major clinical study
+male
+medication therapy management
+patient care
+predictive value
+prescription
+priority journal
+register
+ST segment elevation myocardial infarction
+atorvastatin/dt [Drug Therapy]
+hydroxymethylglutaryl coenzyme A reductase inhibitor/dt [Drug Therapy]
+low density lipoprotein cholesterol/ec [Endogenous Compound]
+rosuvastatin/dt [Drug Therapy]
+Myocardial Infarction
+LA  - English
+N1  - Af3yg Times Cited:11 Cited References Count:28
+PY  - 2014
+SN  - 0002-9149
+SP  - 1267-1272
+ST  - Patterns and predictors of intensive statin therapy among patients with diabetes mellitus after acute myocardial infarction
+T2  - American Journal of Cardiology
+TI  - Patterns and predictors of intensive statin therapy among patients with diabetes mellitus after acute myocardial infarction
+UR  - <Go to ISI>://WOS:000334648000001
+VL  - 113
+ID  - 472
+ER  -
+
+TY  - JOUR
+AB  - Objective: Using 2019 Centers for Medicare and Medicaid Services data, the authors analyzed performance on behavioral health care quality measures among 168 marketplace insurers offering 185 products and investigated whether performance differed by insurer attributes. Method(s): The authors considered four quality measures: antidepressant medication management, follow-up care for children prescribed attention-deficit hyperactivity disorder medication, follow-up care within 7 days after hospitalization for mental illness, and initiation and engagement of alcohol and other drug dependence treatment. Multivariate regression was used to determine whether performance varied by insurers' nonprofit ownership, Blue Cross-Blue Shield affiliation, Medicaid-managed care participation, and preferred provider organization status. Result(s): Performance levels were highest for management with antidepressant medication and lowest for initiation and engagement of drug dependence treatment. Systematic differences were observed by ownership status and Medicaid-managed care plan status. Conclusion(s): Increasing the transparency of health plan quality information is important for aiding enrollee decision making and encouraging quality improvement among providers and insurers. Copyright © 2021 American Psychiatric Association. All rights reserved.
+AD  - Univ Minnesota, Div Hlth Policy & Management, Minneapolis, MN 55455 USA
+Univ Pittsburgh, Dept Hlth Policy & Management, Pittsburgh, PA USA
+Duke Univ, Margolis Ctr Hlth Policy, Durham, NC USA
+AN  - rayyan-264553584
+AU  - Abraham, J. M.
+AU  - Cai, S. T.
+AU  - Anderson, D.
+AU  - Drake, C.
+DA  - Feb
+DO  - 10.1176/appi.ps.202000115
+IS  - 2
+J2  - Psychiat Serv
+KW  - alcoholism
+article
+attention deficit disorder
+blue cross blue shield
+drug dependence
+drug dependence treatment
+follow up
+health care quality
+health insurance
+hospitalization
+human
+medicaid
+medication therapy management
+multiple regression
+preferred provider organization
+total quality management
+antidepressant agent
+central nervous system agents
+unclassified drug
+anti attention deficit disorder agent
+Health Behavior
+Quality of Health Care
+LA  - English
+N1  - Qc1rc Times Cited:0 Cited References Count:14
+PY  - 2021
+SN  - 1075-2730
+SP  - 200-203
+ST  - Behavioral health care quality among marketplace insurers in 2019
+T2  - Psychiatric Services
+TI  - Behavioral health care quality among marketplace insurers in 2019
+UR  - <Go to ISI>://WOS:000614610400014
+VL  - 72
+ID  - 1060
+ER  -
