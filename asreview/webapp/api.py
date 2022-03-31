@@ -41,7 +41,6 @@ from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.data import ASReviewData
 from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
-from asreview.datasets import get_dataset_metadata
 from asreview.exceptions import BadFileFormatError
 from asreview.io import list_readers
 from asreview.io import list_writers
@@ -264,11 +263,13 @@ def api_demo_data_project():  # noqa: F401
 
     subset = request.args.get('subset', None)
 
+    manager = DatasetManager()
+
     if subset == "plugin":
 
         try:
-            result_datasets = get_dataset_metadata(
-                exclude=["builtin", "benchmark"])
+            result_datasets = manager.list(
+                exclude=["builtin", "benchmark", "benchmark-nature"])
 
         except Exception as err:
             logging.error(err)
@@ -278,18 +279,7 @@ def api_demo_data_project():  # noqa: F401
 
         try:
             # collect the datasets metadata
-            result_datasets = get_dataset_metadata(include="benchmark")
-
-            # mark the featured datasets
-            featured_dataset_ids = [
-                "van_de_Schoot_2017", "Hall_2012", "Cohen_2006_ACEInhibitors",
-                "Kwok_2020"
-            ]
-            for featured_id in featured_dataset_ids:
-                for i, dataset in enumerate(result_datasets):
-                    if result_datasets[i][
-                            "dataset_id"] == f"benchmark:{featured_id}":
-                        result_datasets[i]["featured"] = True
+            result_datasets = manager.list(include=["benchmark-nature", "benchmark"])
 
         except Exception as err:
             logging.error(err)
@@ -324,10 +314,10 @@ def api_upload_data_to_project(project):  # noqa: F401
     get_data_path(project.project_path).mkdir(exist_ok=True)
 
     if request.form.get('plugin', None):
-        url = DatasetManager().find(request.form['plugin']).url
+        url = DatasetManager().find(request.form['plugin']).filepath
 
     if request.form.get('benchmark', None):
-        url = DatasetManager().find(request.form['benchmark']).url
+        url = DatasetManager().find(request.form['benchmark']).filepath
 
     if request.form.get('url', None):
         url = request.form['url']

@@ -13,8 +13,8 @@ import {
 } from "@mui/material";
 
 import {
-  DatasetFromBenchmark,
-  DatasetFromExtension,
+  DatasetFromEntryPoint,
+  // DatasetFromFile,
   DatasetFromURL,
 } from "../DataComponents";
 import { InfoCard } from "../../SetupComponents";
@@ -138,7 +138,8 @@ const AddDataset = (props) => {
             />
           )}
           {props.datasetSource === "extension" && (
-            <DatasetFromExtension
+            <DatasetFromEntryPoint
+              subset="plugin"
               addDatasetError={props.addDatasetError}
               extension={props.extension}
               setExtension={props.setExtension}
@@ -148,7 +149,8 @@ const AddDataset = (props) => {
             />
           )}
           {props.datasetSource === "benchmark" && (
-            <DatasetFromBenchmark
+            <DatasetFromEntryPoint
+              subset="benchmark"
               addDatasetError={props.addDatasetError}
               benchmark={props.benchmark}
               setBenchmark={props.setBenchmark}

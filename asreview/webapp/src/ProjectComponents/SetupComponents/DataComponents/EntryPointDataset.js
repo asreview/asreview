@@ -19,7 +19,7 @@ const DOILink = (doi) => {
   }
 };
 
-const BenchmarkDataset = (props) => {
+const EntryPointDataset = (props) => {
   const handleAccordion = (index, featured) => (event, isExpanded) => {
     if (!props.isAddingDataset) {
       if (featured) {
@@ -49,17 +49,17 @@ const BenchmarkDataset = (props) => {
         other: false,
         featured: false,
       });
-      props.setBenchmark(props.dataset_id);
+      props.setSelectedDatasetId(props.dataset_id);
     }
   };
 
   const returnSelected = () => {
-    return props.benchmark === props.dataset_id;
+    return props.selectedDatasetId === props.dataset_id;
   };
 
   const returnCheckedIcon = () => {
     if (
-      props.benchmark === props.dataset_id &&
+      props.selectedDatasetId === props.dataset_id &&
       props.expanded !== props.index
     ) {
       return <CheckCircleOutline color="primary" />;
@@ -85,17 +85,19 @@ const BenchmarkDataset = (props) => {
       <AccordionDetails>
         <Stack spacing={1}>
           <Typography>{props.title}</Typography>
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            DOI:{" "}
-            <Link
-              href={DOILink(props.doi)}
-              underline="none"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {props.doi}
-            </Link>
-          </Typography>
+          {props.doi && (
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              DOI:{" "}
+              <Link
+                href={props.doi && DOILink(props.doi)}
+                underline="none"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {props.doi}
+              </Link>
+            </Typography>
+          )}
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
             License:{" "}
             <Link
@@ -132,4 +134,4 @@ const BenchmarkDataset = (props) => {
   );
 };
 
-export default BenchmarkDataset;
+export default EntryPointDataset;
