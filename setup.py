@@ -152,6 +152,7 @@ setup(
         ],
         'asreview.datasets': [
             'benchmark = asreview.datasets:BenchmarkDataGroup',
+            'benchmark-nature = asreview.datasets:NaturePublicationDataGroup',
         ],
         'asreview.models.classifiers': [
             'svm = asreview.models.classifiers:SVMClassifier',
