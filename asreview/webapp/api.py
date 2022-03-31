@@ -525,7 +525,7 @@ def api_search_data(project):  # noqa: F401
                                     exclude=labeled_record_ids,
                                     by_index=True)
 
-            for record in as_data.record(result_idx, by_index=True):
+            for record in as_data.record(result_idx):
 
                 debug_label = record.extra_fields.get("debug_label", None)
                 debug_label = int(debug_label) if pd.notnull(
@@ -636,8 +636,7 @@ def api_get_labeled(project):  # noqa: F401
             next_page = None
             previous_page = None
 
-        records = read_data(project.project_path).record(data["record_id"],
-                                                         by_index=False)
+        records = read_data(project.project_path).record(data["record_id"])
 
         payload = {
             "count": count,
@@ -723,8 +722,7 @@ def api_random_prior_papers(project):  # noqa: F401
         raise ValueError("Not enough random indices to sample from.")
 
     try:
-        record = read_data(project.project_path).record(pool_random,
-                                                        by_index=False)
+        record = read_data(project.project_path).record(pool_random)
 
         debug_label = record.extra_fields.get("debug_label", None)
         debug_label = int(debug_label) if pd.notnull(debug_label) else None
@@ -1362,7 +1360,7 @@ def api_get_document(project):  # noqa: F401
             new_instance = record_ids[0]
 
             as_data = read_data(project.project_path)
-            record = as_data.record(int(new_instance), by_index=False)
+            record = as_data.record(int(new_instance))
 
             item = {}
             item['title'] = record.title
