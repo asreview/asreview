@@ -29,6 +29,9 @@ import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
 import InReview from "../images/ElasHoldingSIGNS_InReview.svg";
 import SetUp from "../images/ElasHoldingSIGNS_SetUp.svg";
 
+import Lottie from "lottie-react";
+import ElasTrainingAnimation from "../images/ElasTrainingAnimation.json";
+
 const PREFIX = "DrawerItemContainer";
 
 const classes = {
@@ -232,11 +235,8 @@ const DrawerItemContainer = (props) => {
                   toggleNavDrawer={props.toggleNavDrawer}
                 />
                 <ListItem className={classes.projectInfo} onClick={toggleGame}>
-                  <img
-                    src={returnElasState()}
-                    alt="ElasState"
-                    className={classes.stateElas}
-                  />
+
+                  <Lottie animationData={ElasTrainingAnimation} loop={true} className={classes.stateElas}/>
 
                   <Fade in={props.onNavDrawer} unmountOnExit>
                     <div className={classes.yourProject}>
