@@ -316,6 +316,35 @@ Classes
    review.ReviewSimulate
 
 
+:mod:`asreview.project`
+=======================
+
+.. automodule:: asreview.project
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: asreview
+
+Base Classes
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   project.ASReviewProject
+
+
+Classes
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   project.open_state
+
+
 :mod:`asreview.state`
 =====================
 
@@ -343,16 +372,6 @@ Classes
    :template: custom-class-template.rst
 
    state.SQLiteState
-
-
-Functions
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-class-template.rst
-
-   project.open_state
 
 
 
