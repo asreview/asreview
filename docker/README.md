@@ -37,7 +37,7 @@ docker start asreview-lab
 
 To use a specific image of ASReview LAB, in this case `asreview:0.19`, you can
 use the following command. For a list of available versions, visit the
-[dockerhub page](https://hub.docker.com/r/asreview/asreview/tags/).
+[DockerHub page](https://hub.docker.com/r/asreview/asreview/tags/).
 
 ```
 docker create --name asreview-lab -p 5000:5000 asreview/asreview:0.19
@@ -72,7 +72,7 @@ docker create --name asreview-lab -p 5000:5000 -v path-to-your-folder:/project_f
 
 If you want to use a specific version of ASReview LAB, not available as
 DockerHub image, you can build your own. To build your own image, create a file
-called `Dockerfile` (so no file extension!) and fill it with the following code.
+called `Dockerfile` (no file extension) and fill it with the following code.
 In this example, ASReview version `1.0rc0` was used.
 
 ```
