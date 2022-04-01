@@ -33,30 +33,8 @@ Functions
    :toctree: generated/
    :template: custom-module-template.rst
 
-   asreview.datasets.dataset_from_url
-   asreview.datasets.download_from_metadata
    asreview.init_sampling.sample_prior_knowledge
    asreview.search.fuzzy_find
-
-
-:mod:`asreview.analysis`
-========================
-
-
-.. automodule:: asreview.analysis
-    :no-members:
-    :no-inherited-members:
-
-.. currentmodule:: asreview
-
-Classes
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-class-template.rst
-
-   analysis.Analysis
 
 
 :mod:`asreview.data`
@@ -97,38 +75,6 @@ Functions
    data.statistics.n_relevant
    data.statistics.n_unlabeled
    data.statistics.title_length
-
-
-:mod:`asreview.entry_points`
-============================
-
-
-.. automodule:: asreview.entry_points
-    :no-members:
-    :no-inherited-members:
-
-.. currentmodule:: asreview
-
-Base Classes
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-class-template.rst
-
-   entry_points.BaseEntryPoint
-
-
-Classes
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-class-template.rst
-
-   entry_points.AlgorithmsEntryPoint
-   entry_points.LABEntryPoint
-   entry_points.SimulateEntryPoint
 
 
 :mod:`asreview.models`
@@ -313,7 +259,6 @@ Base Classes
 
    query.base.BaseQueryStrategy
    query.base.ProbaQueryStrategy
-   query.base.NotProbaQueryStrategy
 
 Classes
 
@@ -371,17 +316,6 @@ Classes
    review.ReviewSimulate
 
 
-Functions
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-class-template.rst
-
-   review.review
-   review.review_simulate
-
-
 :mod:`asreview.state`
 =====================
 
@@ -407,9 +341,8 @@ Classes
    :nosignatures:
    :toctree: generated/
    :template: custom-class-template.rst
-   
-   state.HDF5State
-   state.JSONState
+
+   state.SQLiteState
 
 
 Functions
@@ -424,7 +357,7 @@ Functions
 
 
 :mod:`asreview.datasets`
-===============
+========================
 
 .. automodule:: asreview.datasets
    :no-members:
@@ -439,6 +372,38 @@ Classes
 
    asreview.datasets.BaseDataGroup
    asreview.datasets.BaseDataSet
-   asreview.datasets.BaseVersionedDataSet
-   asreview.datasets.BenchmarkDataGroup
    asreview.datasets.DatasetManager
+   asreview.datasets.BenchmarkDataGroup
+   asreview.datasets.NaturePublicationDataGroup
+
+
+:mod:`asreview.entry_points`
+============================
+
+
+.. automodule:: asreview.entry_points
+    :no-members:
+    :no-inherited-members:
+
+.. currentmodule:: asreview
+
+Base Classes
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   entry_points.BaseEntryPoint
+
+
+Classes
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   entry_points.AlgorithmsEntryPoint
+   entry_points.LABEntryPoint
+   entry_points.SimulateEntryPoint
