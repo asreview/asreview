@@ -61,6 +61,8 @@ To attach the container to your local project folder (or any other local
 folder), the -v flag can be used in the following way. Adjust
 `path-to-your-folder` to your local folder. When a project folder is specified,
 ASReview LAB will store and load all its projects from this folder.
+Note that multiple containers can access the same folder, making switching
+between versions even easier than before.
 
 ```
 docker create --name asreview-lab -p 5000:5000 -v path-to-your-folder:/project_folder asreview/asreview
