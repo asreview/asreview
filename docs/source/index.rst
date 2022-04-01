@@ -1,8 +1,8 @@
-************************************************
-ASReview: Active learning for Systematic Reviews
-************************************************
+****************************************************
+ASReview LAB: Active learning for Systematic Reviews
+****************************************************
 
-Welcome to the documentation of ASReview! It includes an :doc:`installation
+Welcome to the documentation of ASReview LAB! It includes an :doc:`installation
 </intro/installation>` guide, a :doc:`quick tour </lab/oracle>`, details how
 to prepare your :doc:`dataset </intro/datasets>` and much more - enjoy!
 
@@ -11,7 +11,7 @@ software developed by :ref:`researchers <intro/about:research team>` at Utrecht
 University and is published under the `Apache 2.0 licence
 <https://github.com/asreview/asreview/blob/master/LICENSE>`_.
 
-A (citable) PDF of the ASReview documentation can be found on `Zenodo <https://doi.org/10.5281/zenodo.4287119>`_. 
+A (citable) PDF of the ASReview documentation can be found on `Zenodo <https://doi.org/10.5281/zenodo.4287119>`_.
 
 .. toctree::
    :caption: Introduction
@@ -19,26 +19,22 @@ A (citable) PDF of the ASReview documentation can be found on `Zenodo <https://d
 
    intro/about
 
-   intro/zen
-
    intro/installation
 
-   intro/datasets
+   intro/vocabulary
 
    intro/contribute
 
-   intro/faq
-
-   intro/vocabulary
+   intro/cite
 
 
 .. toctree::
    :maxdepth: 1
-   :caption: ASReview LAB
-
-   lab/overview_lab
+   :caption: Getting Started
 
    lab/launch
+
+   lab/overview_lab
 
    lab/oracle
 
@@ -46,10 +42,7 @@ A (citable) PDF of the ASReview documentation can be found on `Zenodo <https://d
 
    lab/simulation
 
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Features
+   intro/datasets
 
    features/settings
 
@@ -62,15 +55,22 @@ A (citable) PDF of the ASReview documentation can be found on `Zenodo <https://d
 
 .. toctree::
    :maxdepth: 1
+   :caption: Guides
+
+   guides/activelearning
+
+   guides/simulation_study_results
+
+   guides/sim_overview
+
+   guides/api
+
+
+.. toctree::
+   :maxdepth: 1
    :caption: Extensions
 
    extensions/overview_extensions
-
-   extensions/extension_covid19
-
-   extensions/extension_visualization
-
-   extensions/extension_wordcloud
 
 .. toctree::
    :maxdepth: 1
@@ -81,24 +81,13 @@ A (citable) PDF of the ASReview documentation can be found on `Zenodo <https://d
    API/cli
 
    API/extensions_dev
-   
+
    API/asreview_file
 
    API/reference
 
    API/extension_dev
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Guides
-
-   guides/activelearning
-
-   guides/simulation_study_results
-
-   guides/sim_overview
-
-   guides/api
 
 
 Indices and tables
