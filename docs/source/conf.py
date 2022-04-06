@@ -89,6 +89,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
     'sphinx.ext.autosectionlabel',
+    'sphinx_reredirects',
 ]
 autosectionlabel_prefix_document = True
 
@@ -253,3 +254,10 @@ napoleon_use_admonition_for_references = True
 napoleon_use_ivar = True
 napoleon_use_param = True
 napoleon_use_rtype = False
+
+# -- Redirects ---------------------------------------------------------------
+
+redirects = {
+    "intro/zen": "https://asreview.ai/",
+    "intro/faq": "https://github.com/asreview/asreview/discussions",
+}
