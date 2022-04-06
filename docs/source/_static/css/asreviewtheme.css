@@ -1,26 +1,32 @@
-
 /* This line is theme specific - it includes the base theme CSS */
-@import 'theme.css';       /* for the Read the Docs theme */
+@import "theme.css"; /* for the Read the Docs theme */
 
 .wy-side-nav-search {
-    background-color: #FFcc00;
+  background-color: #ffcd00;
+}
+.wy-side-nav-search > a {
+  color: #121212;
+}
+.wy-side-nav-search > div.version {
+  color: #666;
 }
 
 .wy-nav-top {
-    background-color: #FFcc00;
+  background-color: #ffcd00;
 }
 
 .caption-text {
-    color: #FFcc00;
+  color: #ffcd00;
 }
 
 .rst-content dl:not(.docutils) dt {
-    background: #fffae6;
-    color: #666;
-    border-top: solid 3px #ffcc00;
+  background: #fffae6;
+  color: #666;
+  border-top: solid 3px #ffcd00;
 }
 
 /* override table no-wrap */
-.wy-table-responsive table td, .wy-table-responsive table th {
-    white-space: normal;
+.wy-table-responsive table td,
+.wy-table-responsive table th {
+  white-space: normal;
 }
