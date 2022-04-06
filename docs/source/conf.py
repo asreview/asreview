@@ -258,6 +258,6 @@ napoleon_use_rtype = False
 # -- Redirects ---------------------------------------------------------------
 
 redirects = {
-    "intro/zen": "https://asreview.ai/",
+    "intro/zen": "https://asreview.ai/blog/the-zen-of-elas/",
     "intro/faq": "https://github.com/asreview/asreview/discussions",
 }
