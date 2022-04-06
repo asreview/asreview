@@ -234,8 +234,6 @@ def test_first_model_ready(client):
 
     response = client.get("/api/projects/project-id/status")
     json_data = response.get_json()
-
-    print(json_data)
     assert json_data["status"] == "review"
 
 

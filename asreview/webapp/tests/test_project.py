@@ -60,10 +60,9 @@ def test_project_file(tmp_path, client, url):
     assert any(item["id"] == project_id
                for item in json_data_projects["result"])
 
-    # a bug was found when there are files exported before
-    # project upgrade
-    response_export_result_excel = client.get(
-        f"{api_url}/export_dataset?file_format=csv")
+    # Test export project before upgrade
+    response_export_old_project = client.get(f"{api_url}/export_project")
+    assert response_export_old_project.status_code == 200
 
     # Test upgrade project if old
     response_upgrade_if_old = client.get(f"{api_url}/upgrade_if_old")
@@ -155,7 +154,13 @@ def test_project_file(tmp_path, client, url):
     response_export_project = client.get(f"{api_url}/export_project")
     assert response_export_project.status_code == 200
 
-    # Test finish project
+    # Test get project status
+    response_status = client.get(f"{api_url}/status")
+    json_data_status = response_status.get_json()
+    assert "status" in json_data_status
+    assert isinstance(json_data_status, dict)
+
+    # Test mark project as finished
     response_finish = client.put(f"{api_url}/status",
                                  data={"status": "finished"})
     assert response_finish.status_code == 200
