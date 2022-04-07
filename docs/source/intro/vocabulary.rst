@@ -59,8 +59,8 @@ an overview of terms and usage in the following table.
 | **Import**       | Use to describe the proces of importing a dataset in      |
 |                  | the software (instead of uploading).                      |
 |                  |                                                           |
-| **Export**       | Use to describe the proces of exporting  data from        |
-|                  | the software (instead of downloading)                     |
+| **Export**       | Use to describe the action of exporting a dataset or a    |
+|                  | project from ASReview LAB.                                |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 | **Mode**         | Use to refer to one of the three modi available in the    |
