@@ -80,8 +80,8 @@ an overview of terms and usage in the following table.
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 | **Notes**        | Information added by the user in the note field and       |
-|                  | stored in the project file.                               |
-|                  | It can be changed in the history panel.                   |
+|                  | stored in the project file. It can be edited on the       |
+|                  | project page **History**.                                 |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 | **Project**      | Use to refer to a project created in ASReview LAB.        |
