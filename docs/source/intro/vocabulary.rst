@@ -63,8 +63,8 @@ an overview of terms and usage in the following table.
 |                  | project from ASReview LAB.                                |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
-| **Mode**         | Use to refer to one of the three modi available in the    |
-|                  | software: oracle, simulation and exploration mode.        |
+| **Mode**         | Use to refer to one of the three project modes in         |
+|                  | ASReview LAB: oracle, simulation, and exploration.        |
 |                  |                                                           |
 |                  | The **Oracle** mode is used when a user performs a        |
 |                  | systematic review in interaction with the AI, where the   |
