@@ -139,11 +139,11 @@ an overview of terms and usage in the following table.
 |                  | a Digital Object Identifier (DOI).                        |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
-| **Upgrade**      | When a user imports a project created before v 1.0        |
-|                  | the project files must be updated to meet the new 	       |
-|                  | requirements. This process is irreversible,               |
-|                  | and an upgraded project can no longer be imported into    |
-|                  | older versions.                                           |
+| **Upgrade**      | When the user opens a project created in a version of     |
+|                  | ASReview LAB earlier than 1.0, the project file must be   |
+|                  | upgraded to meet new requirements. The upgrade is         |
+|                  | irreversible, and an upgraded project can no longer be    |
+|                  | imported into earlier versions.                           |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 | **User**         | The human annotator who labels records.                   |
