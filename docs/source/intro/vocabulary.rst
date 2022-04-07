@@ -125,9 +125,9 @@ an overview of terms and usage in the following table.
 |                  | configures the model. It also includes the 1st            |
 |                  | iteration of model.                                       |
 |                  |                                                           |
-|                  | In the **In Review** (or running) part of the process the |
-|                  | user adds labels or notes (in Oracle Mode), or where the  |
-|                  | labels are determined by the software (in Simulation Mode)|
+|                  | **In Review** refers to the fact that in oracle or        |
+|                  | exploration mode, the user adds labels to records, or in  |
+|                  | simulation mode, the simulation is running.               |
 |                  |                                                           |
 | Finished/        | Whenever the user decides that the reviewing process      |
 | stopped          | has been completed or if all records are labeled by the   |
