@@ -13,8 +13,8 @@ an overview of terms and usage in the following table.
 | model**          | elements: a feature extraction technique, a classifier,   |
 |                  | a balance and a query strategy.                           |
 |                  |                                                           |
-| **Model          | Use for the action by the user in the front-end.          |
-| configuration**  |                                                           |
+| **Model          | Use to refer to the action of the user to configure the   |
+| configuration**  | active learning model.                                    |
 +------------------+-----------------------------------------------------------+
 | **ASReview**     | Means "Active learning for Systematic Reviews" or         |
 |                  | "AI-assisted Systematic Reviews", depending on context.   |
