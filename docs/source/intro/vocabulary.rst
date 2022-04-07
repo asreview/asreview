@@ -120,10 +120,9 @@ an overview of terms and usage in the following table.
 +------------------+-----------------------------------------------------------+
 | **Status**       | Use to describe the different stages in the software.     |
 |                  |                                                           |
-|                  | In the **Set-up** the user adds project information,      |
-|                  | imports the dataset, selects priors, knowledge,           |
-|                  | configures the model. It also includes the 1st            |
-|                  | iteration of model.                                       |
+|                  | **Setup** refers to the fact that the user adds project   |
+|                  | information, imports the dataset, selects the prior       |
+|                  | knowledge and configures the model.                       |
 |                  |                                                           |
 |                  | **In Review** refers to the fact that in oracle or        |
 |                  | exploration mode, the user adds labels to records, or in  |
