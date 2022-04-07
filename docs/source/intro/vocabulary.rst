@@ -119,7 +119,8 @@ an overview of terms and usage in the following table.
 | Classifying      |                                                           |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
-| **Status**       | Use to describe the different stages in the software.     |
+| **Status**       | Use to refer to the stage that a project is at in         |
+|                  | ASReview LAB.                                             |
 |                  |                                                           |
 |                  | **Setup** refers to the fact that the user adds project   |
 |                  | information, imports the dataset, selects the prior       |
