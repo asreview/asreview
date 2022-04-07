@@ -129,13 +129,14 @@ an overview of terms and usage in the following table.
 |                  | exploration mode, the user adds labels to records, or in  |
 |                  | simulation mode, the simulation is running.               |
 |                  |                                                           |
-| Finished/        | Whenever the user decides that the reviewing process      |
-| stopped          | has been completed or if all records are labeled by the   |
-|                  | human (in Oracle mode) or by the software (in Simulation  |
-|                  | mode.                                                     |
+| Finished         | Finished refers to the fact that in oracle or exploration |
+|                  | mode, the user decides to complete the reviewing          |
+|                  | process or has labeled all the records, or in simulation  |
+|                  | mode, the simulation has been completed.                  |
 |                  |                                                           |
-| Published        | Whenever the data and project file are pubished in a      |
-|                  | repository (preferably with a Digital Object Identifier). |
+| Published        | Published refers to the fact that the user publishes the  |
+|                  | dataset and project file in a repository preferably with  |
+|                  | a Digital Object Identifier (DOI).                        |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 | **Upgrade**      | When a user imports a project created before v 1.0        |
