@@ -8,8 +8,8 @@ terms and usage can be found in the table below.
 +------------------+-----------------------------------------------------------+
 | Term             | Usage                                                     |
 +==================+===========================================================+
-| **Active         | Use to indicate how the next record to be screened by     |
-| learning         | the user is selected. The model consists of several       |
+| **Active         | Use to indicate how to select the next record to be       |
+| learning         | reviewed by the user. The model consists of several       |
 | model**          | elements: a feature extraction technique, a classifier,   |
 |                  | a balance and a query strategy.                           |
 |                  |                                                           |
