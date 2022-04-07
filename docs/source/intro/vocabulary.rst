@@ -2,8 +2,8 @@ Vocabulary
 ----------
 
 The ASReview project makes use of standardized terminology for all
-communication regarding ASReview and its underlying technology. An overview of
-terms and usage can be found in the table below.  
+communication regarding ASReview and its underlying technology. You can find
+an overview of terms and usage in the following table.
 
 +------------------+-----------------------------------------------------------+
 | Term             | Usage                                                     |
