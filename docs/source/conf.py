@@ -63,7 +63,7 @@ autodoc_mock_imports = [
 # add current year
 year = datetime.datetime.now().year
 
-project = 'ASReview'
+project = 'ASReview LAB'
 copyright = '{}, ASReview Core Development Team'.format(year)
 author = 'ASReview Core Development Team, Utrecht University'
 
@@ -260,4 +260,5 @@ napoleon_use_rtype = False
 redirects = {
     "intro/zen": "https://asreview.ai/blog/the-zen-of-elas/",
     "intro/faq": "https://github.com/asreview/asreview/discussions",
+    "lab/overview_lab": "../index.html"
 }
