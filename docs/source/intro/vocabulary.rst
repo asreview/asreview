@@ -148,7 +148,8 @@ an overview of terms and usage in the following table.
 +------------------+-----------------------------------------------------------+
 | **User**         | The human annotator who labels records.                   |
 |                  |                                                           |
-| **Screener**     | Replacement term when context is PRISMA-based reviewing.  |
+| **Screener**     | Replacement term when the context is PRISMA-based         |
+|                  | reviewing.                                                |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 
