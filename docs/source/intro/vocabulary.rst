@@ -90,8 +90,8 @@ an overview of terms and usage in the following table.
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 | **Project file** | Use to refer to the `.asreview` file containing the data  |
-|                  | the project and model settings, the labels and all        |
-|                  | the information needed to reproduce the output.           |
+|                  | and model configuration. The file is exported from        |
+|                  | ASReview LAB and can be imported back.                    |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 | **Project page** | Use to refer to the displayed page after opening a        |
