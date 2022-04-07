@@ -35,8 +35,8 @@ an overview of terms and usage in the following table.
 |                  | simulations studies.                                      |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
-| **Contributors** | Everyone contributing to the ASReview project (through    |
-|                  | GitHub)                                                   |
+| **Contributors** | Everyone contributing to the ASReview project through     |
+|                  | GitHub.                                                   |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 | **Dashboard**    | The landing page containing an overview of all projects   |
