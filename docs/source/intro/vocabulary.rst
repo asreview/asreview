@@ -80,7 +80,7 @@ an overview of terms and usage in the following table.
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 | **Notes**        | Information added by the user in the note field and       |
-|                  | stored in a separate column in the output data.           |
+|                  | stored in the project file.                               |
 |                  | It can be changed in the history panel.                   |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
