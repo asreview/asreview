@@ -122,7 +122,8 @@ an overview of terms and usage in the following table.
 |                  |                                                           |
 |                  | **Setup** refers to the fact that the user adds project   |
 |                  | information, imports the dataset, selects the prior       |
-|                  | knowledge and configures the model.                       |
+|                  | knowledge, configures the model and initiates the first   |
+|                  | iteration of model training.                              |
 |                  |                                                           |
 |                  | **In Review** refers to the fact that in oracle or        |
 |                  | exploration mode, the user adds labels to records, or in  |
