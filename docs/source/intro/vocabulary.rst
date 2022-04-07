@@ -42,8 +42,8 @@ an overview of terms and usage in the following table.
 | **Dashboard**    | The landing page containing an overview of all projects   |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
-| **Data** versus  | Use dataset to refer to the collection of the records a   |
-| **Dataset**      | user imports and exports. Data also include the           |
+| **Data** versus  | Use dataset to refer to the collection of records that    |
+| **Dataset**      | the user imports and exports. Data also include the       |
 |                  | prior knowledge, labels, and notes.                       |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
