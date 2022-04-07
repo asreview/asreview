@@ -1,11 +1,21 @@
 Vocabulary
 ----------
 
-The ASReview project makes use of standardized terminology for all communication regarding ASReview and its underlying technology. An overview of terms and usage can be found in the table below.  
+The ASReview project makes use of standardized terminology for all
+communication regarding ASReview and its underlying technology. An overview of
+terms and usage can be found in the table below.  
 
 +------------------+-----------------------------------------------------------+
 | Term             | Usage                                                     |
 +==================+===========================================================+
+| **Active         | Use to indicate how the next record to be screened by     |
+| learning         | the user is selected.                                     |
+| model**          |                                                           |
+|                  | The model consists of several elements: a query strategy, |
+|                  | a feature extraction technique, a classifier, and a       |
+|                  | balance strategy.                                         |
++------------------+-----------------------------------------------------------+
+|                  |                                                           |
 | **ASReview**     | Means "Active learning for Systematic Reviews" or         |
 |                  | "AI-assisted Systematic Reviews", depending on context.   |
 |                  | Avoid this explanation, only use as tagline.              |
@@ -25,26 +35,17 @@ The ASReview project makes use of standardized terminology for all communication
 |                  | simulations studies.                                      |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
-| **team members** | UU employees and students and who have permission to      |
-|                  | devote hours to the ASReview project.                     |
-|                  |                                                           |
-+------------------+-----------------------------------------------------------+
-| **contributors** | Everyone contributing to the ASReview project (through    |
+| **Contributors** | Everyone contributing to the ASReview project (through    |
 |                  | GitHub)                                                   |
-|                  |                                                           |
-+------------------+-----------------------------------------------------------+
-| **Extension**    | Use to indicate additional elements to the ASReview       |
-|                  | software, such as the ASReview visualisation extension,   |
-|                  | or the ASReview CORD-19 extension.                        |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 | **ELAS**         | Our Electronic Learning ASsistent. Name of our mascot.    |
 |                  | Use for storytelling and to increase explainability.      |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
-| **User**         | The human annotator who labels records.                   |
-|                  |                                                           |
-| **Screener**     | Replacement term when context is PRISMA-based reviewing.  |
+| **Extension**    | Use to indicate additional elements to the ASReview       |
+|                  | software, such as the ASReview visualisation extension,   |
+|                  | or the ASReview CORD-19 extension.                        |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 | **Records**      | The data points that need to be labeled.                  |
@@ -62,28 +63,26 @@ The ASReview project makes use of standardized terminology for all communication
 |                  |                                                           |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
-| **Screening**    | All terms can be used to indicate the decision-making     |
+| **Reviewing**    | All terms can be used to indicate the decision-making     |
 |                  | process on the relevancy of records ("irrelevant" or      |
 | **Labeling**     | "relevant").                                              |
 |                  |                                                           |
-| **Reviewing**    |                                                           |
+| **Screening**    |                                                           |
 |                  |                                                           |
 | **Classifying**  |                                                           |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
-| **Active         | Use to indicate how the next record to be screened by     |
-| learning         | the user is selected.                                     |
-| model**          |                                                           |
-|                  | The model consists of several elements: a query strategy, |
-|                  | a feature extraction technique, a classifier, and a       |
-|                  | balance strategy.                                         |
+| **Status**	   |                                                           |
 |                  |                                                           |
-+------------------+-----------------------------------------------------------+
 | **Finished**     | Whenever **the user decides** that the reviewing process  |
 |                  | has been completed or if **all records are labeled**.     |
 |                  |                                                           |
-+------------------+-----------------------------------------------------------+
 | **Published**    | Whenever the data and **ASReview project file**           |
 |                  | are openly published on, for example, the OSF.            |
+|                  |                                                           |
++------------------+-----------------------------------------------------------+
+| **User**         | The human annotator who labels records.                   |
+|                  |                                                           |
+| **Screener**     | Replacement term when context is PRISMA-based reviewing.  |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
