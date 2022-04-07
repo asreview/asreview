@@ -47,7 +47,7 @@ an overview of terms and usage in the following table.
 |                  | prior knowledge, labels, and notes.                       |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
-| **ELAS**         | Our Electronic Learning ASsistent. Name of our mascot.    |
+| **ELAS**         | Electronic Learning Assistant. Name of ASReview mascot.   |
 |                  | Use for storytelling and to increase explainability.      |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
