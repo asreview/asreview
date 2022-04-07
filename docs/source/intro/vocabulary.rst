@@ -84,9 +84,7 @@ an overview of terms and usage in the following table.
 |                  | It can be changed in the history panel.                   |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
-| **Project**      | Use to refer to a project available in the front-end      |
-|                  | containing the data the project and model settings, prior |
-|                  | knowlede, the labels, notes and all historical decissions.|
+| **Project**      | Use to refer to a project created in ASReview LAB.        |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 | **Project file** | Use to refer to the `.asreview` file containing the data  |
