@@ -94,8 +94,9 @@ an overview of terms and usage in the following table.
 |                  | the information needed to reproduce the output.           |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
-| **Project page** | Within a project, there are multiple project pages        |
-|                  | available: Analytics, Review, History, Export, Details    |
+| **Project page** | Use to refer to the displayed page after opening a        |
+|                  | project in ASReview LAB. Five pages are available:        |
+|                  | Analytics, Review, History, Export, and Details.          | 
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 | **Records**      | The data points that need to be labeled.                  |
