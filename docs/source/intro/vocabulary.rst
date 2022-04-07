@@ -56,8 +56,8 @@ an overview of terms and usage in the following table.
 |                  | or the ASReview CORD-19 extension.                        |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
-| **Import**       | Use to describe the proces of importing a dataset in      |
-|                  | the software (instead of uploading).                      |
+| **Import**       | Use to describe the action of importing a dataset or a    |
+|                  | project into ASReview LAB.                                |
 |                  |                                                           |
 | **Export**       | Use to describe the action of exporting a dataset or a    |
 |                  | project from ASReview LAB.                                |
