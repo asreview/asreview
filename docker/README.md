@@ -88,6 +88,8 @@ directory as the dockerfile is in:
 docker build -t asreview:1.0rc0 .
 ```
 
+![instruction image](./img/dockerfile.png)
+
 After the image was build, it can be used for a container just like the
 DockerHub images.
 ```
@@ -109,6 +111,8 @@ ENV ASREVIEW_PATH=project_folder
 COPY ./extension /EXT
 RUN pip install /EXT/.
 ```
+
+![instruction image](./img/dockerfile_extension.png)
 
 This way, the image will automatically have the custom package installed. Useful
 for testing your own datasets!
