@@ -110,5 +110,6 @@ COPY ./extension /EXT
 RUN pip install /EXT/.
 ```
 
-This way, the image will automatically have the custom package installed. Useful
-for testing your own datasets!
+
+Then, when the image is build, it will have the package installed and ready for
+usage in your version of ASReview.
