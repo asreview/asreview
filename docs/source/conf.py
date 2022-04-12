@@ -90,6 +90,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.autosectionlabel',
     'sphinx_reredirects',
+    'sphinx_tabs.tabs',
 ]
 autosectionlabel_prefix_document = True
 
@@ -258,6 +259,7 @@ napoleon_use_rtype = False
 # -- Redirects ---------------------------------------------------------------
 
 redirects = {
+    "intro/installation": "../install/install",
     "intro/zen": "https://asreview.ai/blog/the-zen-of-elas/",
     "intro/faq": "https://github.com/asreview/asreview/discussions",
     "lab/overview_lab": "../index.html",

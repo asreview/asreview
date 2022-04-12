@@ -31,12 +31,22 @@ versions are available on `Python Package Index <https://pypi.org/project/asrevi
 and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
 
 .. toctree::
+    :caption: Install
+    :maxdepth: 1
+
+    install/install
+
+    pip <install/pip>
+
+    install/docker
+
+    install/ts
+
+.. toctree::
     :caption: Introduction
     :maxdepth: 1
 
     intro/about
-
-    intro/installation
 
     intro/vocabulary
 
