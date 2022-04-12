@@ -260,5 +260,6 @@ napoleon_use_rtype = False
 redirects = {
     "intro/zen": "https://asreview.ai/blog/the-zen-of-elas/",
     "intro/faq": "https://github.com/asreview/asreview/discussions",
-    "lab/overview_lab": "../index.html"
+    "lab/overview_lab": "../index.html",
+    "guides/activelearning": "https://asreview.nl/blog/active-learning-explained/"
 }
