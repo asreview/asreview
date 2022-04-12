@@ -262,5 +262,7 @@ redirects = {
     "intro/faq": "https://github.com/asreview/asreview/discussions",
     "intro/about.html#research-team": "https://asreview.nl/about/",
     "intro/about.html#the-case-of-systematic-reviewing": "https://asreview.nl/blog/asreview-class-101/",
-    "lab/overview_lab": "../index.html"
+    "lab/overview_lab": "../index.html",
+    "guides/activelearning": "https://asreview.nl/blog/active-learning-explained/"
+
 }
