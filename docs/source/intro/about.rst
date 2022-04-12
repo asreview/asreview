@@ -16,24 +16,31 @@ knowledge.
 Artificial Intelligence (AI) has allowed the development of AI-aided pipelines
 that assist in finding relevant texts for search tasks. A well-established
 approach to increase the efficiency of title and abstract screening is
-screening prioritization through active learning: a constant interaction between a
+screening prioritization through `active learning <https://asreview.nl/blog/active-learning-explained/>`_: a constant interaction between a
 human who labels records and a machine learning model which selects the
 most likely relevant record based on a minimum training dataset. It allows
 the screening of large amounts of text in an intelligent and time-efficient
-manner. Studies have shown the benefits of active learning, reducing up to 95%
+manner. Studies have shown the benefits of active learning, `reducing up to 95% <https://www.nature.com/articles/s42256-020-00287-7>`_ 
 of the required screening time.
 
 
-A multidisciplinary team has developed and validated open-source software—
-ASReview LAB—that uses active learning to screen large amounts of textual data to
-support literature research in quickly finding relevant articles. The goal of
-ASReview LAB is to help scholars and practitioners to get an overview of the most
-relevant records for their work as efficiently as possible while being
-transparent in the process. It allows multiple machine learning models
-and ships with exploration and simulation modes, which are especially useful for
-comparing and designing algorithms. Furthermore, it is intended to be easily
-extensible, allowing third parties to add modules that enhance the pipeline
-and can process any text.
+A `multidisciplinary team <https://asreview.nl/about/>`_ works on the
+ASReview-project. The scientifically oriented project contains a collection
+of `Github repositories <https://github.com/asreview>`_, `scientific research <https://asreview.nl/research/>`_
+projects and `teaching activities <https://asreview.nl/academy/>`_. 
+The team has developed and validated the open-source software
+ASReview LAB which is based on `five fundamental principles <https://asreview.nl/blog/the-zen-of-elas/>`_ : (1) Humans are the Oracle; (2) Code is
+open & results are transparent; (3) Decisions are unbiased; (4) The interface shows an
+AI is at work; and (5) Users are responsible for importing high quality data. 
+
+The goal of ASReview LAB is to help scholars and practitioners to get an
+overview of the most relevant records for their work as efficiently as
+possible while being transparent in the process. It allows multiple machine
+learning models, and ships with exploration and `simulation modes <https://asreview.nl/blog/simulation-mode-class-101/>`_, which are especially
+useful for comparing and designing algorithms. Furthermore, it is intended to
+be easily extensible, allowing third parties to add modules that enhance the
+pipeline with new models, data and other plug-ins.
+
 
 
 .. figure:: ../../images/FlowChartC.png
