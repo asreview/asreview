@@ -5,6 +5,7 @@ System requirements
 -------------------
 
 - Python 3.7 or later
+- Linux
 - macOS
 - Windows
 
@@ -21,7 +22,7 @@ Check if your Python environment is already configured:
 
 Open `Terminal
 <https://support.apple.com/guide/terminal/open-or-quit-terminal-apd5265185d-f365-44cb-8b09-71a064a42125/mac>`__
-(macOS) or `Command Prompt
+(Linux/macOS) or `Command Prompt
 <https://www.lifewire.com/how-to-open-command-prompt-2618089>`__ (Windows) and enter:
 
 .. code-block:: bash
@@ -33,6 +34,13 @@ If the Python environment is already installed, skip to the next step.
 Otherwise, install Python:
 
 .. tabs::
+
+  .. tab:: Linux
+
+    .. code-block::
+
+      sudo apt update
+      sudo apt install python3.7
 
   .. tab:: macOS
 
@@ -60,6 +68,13 @@ Otherwise, install Python:
 
     pip install --upgrade asreview
 
+.. note::
+
+    For users of Apple M1 computers, if you experience problems, follow the
+    `instructions
+    <https://github.com/asreview/asreview/issues/738#issuecomment-919685562>`__. Some
+    Python packages are not available through `pip`.
+
 3. Start ASReview LAB
 ---------------------
 
@@ -70,3 +85,5 @@ Otherwise, install Python:
 .. tip::
 
     ASReview LAB is now installed. Get started.
+
+If you experience some problems, try :doc:`troubleshooting </install/ts>`.
