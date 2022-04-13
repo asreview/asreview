@@ -1,9 +1,8 @@
 Glossary
 --------
 
-ASReview LAB makes use of standardized terminology for all
-communication regarding ASReview LAB and its underlying technology. You can find
-an overview of terms and usage in the following table.
+ASReview LAB makes use of standardized terminology for all communication
+regarding ASReview LAB and its underlying technology.
 
 .. glossary::
 
@@ -86,13 +85,12 @@ an overview of terms and usage in the following table.
     **Oracle** mode is used when a :term:`user` reviews a :term:`dataset`
     systematically with interactive artificial intelligence (AI).
 
-    **Exploration** mode is used when a :term:`user` explores or demonstrates
-    :term:`ASReview LAB` with a completely labeled :term:`dataset`.
-    This mode is suitable for teaching purposes.
+    **Exploration** mode is used when a user explores or demonstrates ASReview
+    LAB with a completely labeled dataset. This mode is suitable for teaching
+    purposes.
 
-    **Simulation** mode is used when a :term:`user` simulates a review on a
-    completely labeled :term:`dataset` to see the performance of
-    :term:`ASReview LAB`.
+    **Simulation** mode is used when a user simulates a review on a completely
+    labeled dataset to see the performance of ASReview LAB.
 
   Project page
     Project page is the displayed page after opening a :term:`project` in
