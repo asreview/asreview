@@ -39,7 +39,7 @@ possible while being transparent in the process. It allows multiple machine
 learning models, and ships with exploration and `simulation modes <https://asreview.nl/blog/simulation-mode-class-101/>`_, which are especially
 useful for comparing and designing algorithms. Furthermore, it is intended to
 be easily extensible, allowing third parties to add modules that enhance the
-pipeline with new models, data and other plug-ins.
+pipeline with new models, data, and other extensions.
 
 
 
