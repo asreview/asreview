@@ -13,9 +13,9 @@ regarding ASReview LAB and its underlying technology.
     and a query strategy.
 
   ASReview
-    ASReview stands for "Active learning for Systematic Reviews" or "AI-assisted
-    Systematic Reviews", depending on context. Avoid this explanation, only use
-    as tagline.
+    ASReview stands for *Active learning for Systematic Reviews* or
+    *AI-assisted Systematic Reviews*, depending on context. Avoid this
+    explanation, only use as tagline.
 
   ASReview CLI
     ASReview CLI is the command line interface that is developed for advanced
