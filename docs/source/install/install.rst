@@ -26,3 +26,22 @@ already configured to run ASReview LAB. A `Docker
     docker run -p 5000:5000 asreview/asreview  # Download and start Docker container
 
 Read the :doc:`Docker install guide <docker>`.
+
+Install and run on a server
+---------------------------
+
+To run ASReview LAB on a server or custom domain, follow the :doc:`pip install guide
+<pip>` and use the flags ``ip`` and ``port`` for configuration.
+
+.. important::
+
+    ASReview LAB must be used in closed networks.
+
+.. code-block:: bash
+
+    asreview lab --port 5555 --ip IP_ADDRESS
+
+.. warning::
+
+    Don't use the development server in production. Read more about `deploying a Flask
+    app to production <https://flask.palletsprojects.com/en/1.1.x/tutorial/deploy/>`__.
