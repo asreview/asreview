@@ -1,7 +1,7 @@
 Install ASReview LAB
 ====================
 
-ASReview LAB is supported on Windows and macOS.
+ASReview LAB is supported on Windows, macOS, and Linux.
 
 Download a package
 ------------------
@@ -23,7 +23,6 @@ already configured to run ASReview LAB. A `Docker
 
 .. code-block:: bash
 
-    docker pull asreview/asreview:latest       # Download latest stable image
-    docker run -p 5000:5000 asreview/asreview  # Start Docker container
+    docker run -p 5000:5000 asreview/asreview  # Download and start Docker container
 
 Read the :doc:`Docker install guide <docker>`.
