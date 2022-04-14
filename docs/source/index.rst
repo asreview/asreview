@@ -70,8 +70,6 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
     :maxdepth: 1
     :caption: Guides
 
-    guides/simulation_study_results
-
     guides/sim_overview
 
     guides/api
