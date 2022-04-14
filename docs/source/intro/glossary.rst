@@ -20,7 +20,8 @@ regarding ASReview LAB and its underlying technology.
     options or for running simulation studies.
 
   ASReview LAB
-    ASReview LAB is the graphical user interface.
+    ASReview LAB is the graphical user interface of the open-source research
+    software to explore the future of AI in systematic reviews.
 
   ASReview project
     ASReview project is an encompassing term for all work that is done by the
