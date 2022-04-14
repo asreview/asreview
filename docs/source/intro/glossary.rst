@@ -26,7 +26,8 @@ regarding ASReview LAB and its underlying technology.
 
   ASReview project
     ASReview project is an encompassing term for all work that is done by the
-    ASReview team members and ASReview :term:`contributors<contributor>`.
+    `ASReview team members <https://asreview.nl/about>`__ and ASReview
+    :term:`contributors<contributor>`.
 
   Contributor
     Contributor is anyone who contributes to the :term:`ASReview project`
@@ -51,7 +52,8 @@ regarding ASReview LAB and its underlying technology.
 
   Extension
     Extension is the additional element to the :term:`ASReview LAB`, such as
-    the ASReview visualisation extension, or the ASReview CORD-19 extension.
+    the `ASReview visualisation <https://github.com/asreview/asreview-visualization>`__
+    extension, or the ASReview CORD-19 extension.
 
   Import
     Import is the action of importing a :term:`dataset` or a :term:`project`
