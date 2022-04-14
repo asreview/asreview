@@ -7,10 +7,8 @@ regarding ASReview LAB and its underlying technology.
 .. glossary::
 
   Active learning model
-    Active learning model is used to indicate how to select the next
-    :term:`record` to be reviewed by the :term:`user`. The model consists of
-    several elements: a feature extraction technique, a classifier, a balance
-    and a query strategy.
+    Active learning model is the combination of four elements: a feature
+    extraction technique, a classifier, a balance, and a query strategy.
 
   ASReview
     ASReview stands for *Active learning for Systematic Reviews* or
