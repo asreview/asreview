@@ -64,8 +64,8 @@ autodoc_mock_imports = [
 year = datetime.datetime.now().year
 
 project = 'ASReview LAB'
-copyright = '{}, ASReview Core Development Team'.format(year)
-author = 'ASReview Core Development Team, Utrecht University'
+copyright = '{}, ASReview LAB developers'.format(year)
+author = 'ASReview LAB developers, Utrecht University'
 
 # The short X.Y version
 version = asreview_verion
