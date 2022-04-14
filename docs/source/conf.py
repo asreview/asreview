@@ -262,4 +262,5 @@ redirects = {
     "intro/faq": "https://github.com/asreview/asreview/discussions",
     "lab/overview_lab": "../index.html",
     "guides/activelearning": "https://asreview.nl/blog/active-learning-explained/",
+    "guides/simulation_study_results": "https://asreview.nl/research/",
 }
