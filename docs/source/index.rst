@@ -1,9 +1,6 @@
 ASReview LAB: Active learning for Systematic Reviews
 ====================================================
 
-.. figure:: ../../images/ASReviewLAB_explanation_Website_v3_wit.png
-    :alt: ASReview LAB overview
-
 Welcome to the ASReview LAB Documentation!
 
 ASReview LAB is a user-friendly software for exploring the future of AI in systematic
@@ -30,6 +27,11 @@ The source code of ASReview LAB is licensed under the `Apache 2.0 License
 versions are available on `Python Package Index <https://pypi.org/project/asreview>`_
 and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
 
+.. image:: ../images/ASReviewLAB_explanation_Website_v3_wit.png
+    :width: 500
+    :align: center
+    :alt: ASReview LAB overview
+
 .. toctree::
     :caption: Introduction
     :maxdepth: 1
@@ -41,8 +43,6 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
     intro/glossary
 
     intro/contribute
-
-    intro/cite
 
 .. toctree::
     :maxdepth: 1
@@ -87,8 +87,6 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
     API/overview_development
 
     API/cli
-
-    API/extensions_dev
 
     API/asreview_file
 

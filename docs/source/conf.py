@@ -258,6 +258,9 @@ napoleon_use_rtype = False
 # -- Redirects ---------------------------------------------------------------
 
 redirects = {
+    "extensions/extension_covid19": "overview_extensions.html",
+    "extensions/extension_visualization": "overview_extensions.html",
+    "extensions/extension_wordcloud": "overview_extensions.html",
     "intro/faq": "https://github.com/asreview/asreview/discussions",
     "intro/vocabulary": "glossary.html",
     "intro/zen": "https://asreview.ai/blog/the-zen-of-elas/",
