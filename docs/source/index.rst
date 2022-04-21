@@ -40,7 +40,7 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
 
     intro/installation
 
-    intro/vocabulary
+    intro/glossary
 
     intro/contribute
 
