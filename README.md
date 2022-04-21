@@ -85,12 +85,9 @@ For more scientific publications on the ASReview software, go to
 
 ## Contact
 
-ASReview is a research project coordinated by [Rens van de
-Schoot](www.rensvandeschoot.com) (full professor at the Department of
-Methodology & Statistics at [Utrecht University](https://www.uu.nl), The
-Netherlands), together with ASReview lead engineer
-[Jonathan de Bruin](https://github.com/J535D165). For an overview of the team working on
-ASReview, see [ASReview Research Team](https://asreview.readthedocs.io/en/latest/intro/about.html#research-team).
+For an overview of the team working on ASReview, see [ASReview Research Team](https://asreview.readthedocs.io/en/latest/intro/about.html#research-team).
+ASReview LAB, the graphical user interface of the software, is maintained by
+[Jonathan de Bruin](https://github.com/J535D165). 
 
 The best resources to find an answer to your question or ways to get in
 contact with the team are:
