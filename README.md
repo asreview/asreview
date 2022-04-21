@@ -85,7 +85,7 @@ For more scientific publications on the ASReview software, go to
 
 ## Contact
 
-For an overview of the team working on ASReview, see [ASReview Research Team](https://asreview.readthedocs.io/en/latest/intro/about.html#research-team).
+For an overview of the team working on ASReview, see [ASReview Research Team](https://asreview.nl/about).
 ASReview LAB, the graphical user interface of the software, is maintained by
 [Jonathan de Bruin](https://github.com/J535D165) and [Yongchao Terry Ma](https://github.com/terrymyc). 
 
