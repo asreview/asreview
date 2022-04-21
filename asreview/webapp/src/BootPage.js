@@ -67,7 +67,7 @@ const BootPage = ({ setASReviewVersion }) => {
   const { error, isError } = useQuery("boot", BaseAPI.boot, {
     onSettled: (data) => {
       // skip the loader when you are in development mode
-      if (data["status"] === "development") {
+      if (data?.status === "development") {
         navigate("projects");
       } else {
         toggleAnimation();
