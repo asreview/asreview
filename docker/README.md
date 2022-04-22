@@ -104,7 +104,7 @@ add the following code to the file;
 
 ```dockerfile
 FROM python:3.8
-RUN pip install asreview==1.0rc0
+RUN pip install asreview
 ENTRYPOINT ["asreview","lab","--ip","0.0.0.0"]
 ENV ASREVIEW_PATH=project_folder
 
