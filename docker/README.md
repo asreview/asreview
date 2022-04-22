@@ -96,7 +96,7 @@ DockerHub images.
 docker create --name asreview-lab -p 5000:5000 asreview:1.0rc0
 ```
 
-### Add you own extension to your image
+### Add your extension to your image
 
 It's possible to test your own packages by adding them to your image. Next to
 the `Dockerfile` file, create a folder with a functional package inside. Then,
