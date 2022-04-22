@@ -2,7 +2,11 @@
 // pointing to localhost:5000. In all other configurations, the api url point to
 // the host domain.
 
+import { useTheme } from "@mui/material/styles";
 import { setProject } from "./redux/actions";
+
+import ASReviewLAB_black from "./images/asreview_sub_logo_lab_black_transparent.svg";
+import ASReviewLAB_white from "./images/asreview_sub_logo_lab_white_transparent.svg";
 
 export const base_url =
   (window.location.hostname === "localhost" ||
@@ -41,6 +45,15 @@ export const getDesignTokens = (mode: PaletteMode) => ({
         }),
   },
 });
+
+export const WordmarkState = () => {
+  const theme = useTheme();
+  if (theme.palette.mode === "dark") {
+    return ASReviewLAB_white;
+  } else {
+    return ASReviewLAB_black;
+  }
+};
 
 // algorithm settings configs
 export const defaultAlgorithms = {

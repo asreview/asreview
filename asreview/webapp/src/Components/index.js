@@ -14,3 +14,4 @@ export { default as NavigationDrawer } from "./NavigationDrawer";
 export { default as OpenInNewIconStyled } from "./OpenInNewIconStyled";
 export { default as PageHeader } from "./PageHeader";
 export { default as SettingsDialog } from "./SettingsDialog";
+export { default as SignupForm } from "./SignupForm";
