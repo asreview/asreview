@@ -3,6 +3,7 @@ import { useMutation } from "react-query";
 import { useLocation, useNavigate } from "react-router-dom";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
+  Box,
   Button,
   Card,
   CardContent,
@@ -15,6 +16,8 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+
+import { HelpPrivacyTermsButton } from "../Components";
 
 import { InlineErrorHandler } from ".";
 
@@ -116,63 +119,68 @@ const SignInForm = () => {
   return (
     <Root>
       <Fade in>
-        <Card className={classes.card} variant="outlined">
-          <CardContent className={classes.cardContent}>
-            <Stack spacing={3}>
-              <Stack className={classes.header} spacing={2}>
-                <img
-                  className={classes.logo}
-                  src={WordmarkState()}
-                  alt="ASReview LAB"
-                />
-                <Typography variant="h5">Sign in</Typography>
-              </Stack>
+        <Box>
+          <Card className={classes.card} variant="outlined">
+            <CardContent className={classes.cardContent}>
               <Stack spacing={3}>
-                <TextField
-                  label="Username"
-                  value={username}
-                  onChange={handleUsernameChange}
-                  variant="outlined"
-                  fullWidth
-                  autoFocus
-                />
-                <FormControl>
+                <Stack className={classes.header} spacing={2}>
+                  <img
+                    className={classes.logo}
+                    src={WordmarkState()}
+                    alt="ASReview LAB"
+                  />
+                  <Typography variant="h5">Sign in</Typography>
+                </Stack>
+                <Stack spacing={3}>
                   <TextField
-                    label="Password"
-                    value={password}
-                    onChange={handlePasswordChange}
+                    label="Username"
+                    value={username}
+                    onChange={handleUsernameChange}
                     variant="outlined"
                     fullWidth
-                    type={returnType()}
+                    autoFocus
                   />
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={showPassword}
-                        onChange={toggleShowPassword}
-                        value="showPassword"
-                        color="primary"
-                      />
-                    }
-                    label="Show password"
-                  />
-                </FormControl>
+                  <FormControl>
+                    <TextField
+                      label="Password"
+                      value={password}
+                      onChange={handlePasswordChange}
+                      variant="outlined"
+                      fullWidth
+                      type={returnType()}
+                    />
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={showPassword}
+                          onChange={toggleShowPassword}
+                          value="showPassword"
+                          color="primary"
+                        />
+                      }
+                      label="Show password"
+                    />
+                  </FormControl>
+                </Stack>
+                {isError && <InlineErrorHandler message={error.message} />}
+                <Stack className={classes.button} direction="row">
+                  <Button onClick={handleSignUp} sx={{ textTransform: "none" }}>
+                    Create profile
+                  </Button>
+                  <LoadingButton
+                    loading={isLoading}
+                    variant="contained"
+                    color="primary"
+                    onClick={handleSubmit}
+                  >
+                    Sign in
+                  </LoadingButton>
+                </Stack>
               </Stack>
-              {isError && <InlineErrorHandler message={error.message} />}
-              <Stack className={classes.button} direction="row">
-                <Button onClick={handleSignUp}>Create profile</Button>
-                <LoadingButton
-                  loading={isLoading}
-                  variant="contained"
-                  color="primary"
-                  onClick={handleSubmit}
-                >
-                  Sign in
-                </LoadingButton>
-              </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+          <HelpPrivacyTermsButton />
+        </Box>
       </Fade>
     </Root>
   );

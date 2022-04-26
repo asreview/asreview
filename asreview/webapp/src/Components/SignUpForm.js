@@ -3,6 +3,7 @@ import { useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
+  Box,
   Button,
   Card,
   CardContent,
@@ -16,6 +17,8 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+
+import { HelpPrivacyTermsButton } from "../Components";
 
 import { InlineErrorHandler } from ".";
 
@@ -33,7 +36,6 @@ const classes = {
   button: `${PREFIX}-button`,
   card: `${PREFIX}-card`,
   cardContent: `${PREFIX}-card-content`,
-  checkbox: `${PREFIX}-checkbox`,
   logo: `${PREFIX}-logo`,
 };
 
@@ -171,97 +173,109 @@ const SignUpForm = (props) => {
   return (
     <Root>
       <Fade in>
-        <Card className={classes.card} variant="outlined">
-          <CardContent className={classes.cardContent}>
-            <Stack spacing={3}>
-              <img
-                className={classes.logo}
-                src={WordmarkState()}
-                alt="ASReview LAB"
-              />
-              <Typography variant="h5">Create your profile</Typography>
-              <Stack spacing={3} component="form" noValidate autoComplete="off">
-                <TextField
-                  id="username"
-                  label="Username"
-                  size="small"
-                  fullWidth
-                  autoFocus
-                  error={username !== "" && !validUsername && !usernameFocused}
-                  helperText={
-                    username && !validUsername && !usernameFocused
-                      ? "Sorry, your username must be between 3 and 20 characters long and only contain letters (a-z), numbers (0-9), and underscores (_)."
-                      : "You can use letters, numbers & underscores"
-                  }
-                  value={username}
-                  onChange={handleUsernameChange}
-                  onFocus={handleUsernameFocus}
-                  onBlur={handleUsernameBlur}
+        <Box>
+          <Card className={classes.card} variant="outlined">
+            <CardContent className={classes.cardContent}>
+              <Stack spacing={3}>
+                <img
+                  className={classes.logo}
+                  src={WordmarkState()}
+                  alt="ASReview LAB"
                 />
-                <FormControl>
-                  <Stack direction="row" spacing={2}>
-                    <TextField
-                      id="password"
-                      label="Password"
-                      size="small"
-                      fullWidth
-                      error={
-                        password !== "" && !passwordFocused && !validPassword
-                      }
-                      type={returnType()}
-                      value={password}
-                      onChange={handlePasswordChange}
-                      onFocus={handlePasswordFocus}
-                      onBlur={handlePasswordBlur}
-                    />
-                    <TextField
-                      id="confirm"
-                      label="Confirm"
-                      size="small"
-                      fullWidth
-                      error={
-                        confirmPassword !== "" &&
-                        !confirmPasswordFocused &&
-                        !validConfirmPassword
-                      }
-                      type={returnType()}
-                      value={confirmPassword}
-                      onChange={handleConfirmPasswordChange}
-                      onFocus={handleConfirmPasswordFocus}
-                      onBlur={handleConfirmPasswordBlur}
-                    />
-                  </Stack>
-                  <FormHelperText error={returnHelperText() !== null}>
-                    {!returnHelperText()
-                      ? "Use 8 or more characters with a mix of letters, numbers & symbols"
-                      : returnHelperText()}
-                  </FormHelperText>
-                  <FormControlLabel
-                    control={
-                      <Checkbox color="primary" onChange={toggleShowPassword} />
-                    }
-                    label="Show password"
-                  />
-                </FormControl>
-              </Stack>
-              {isError && <InlineErrorHandler message={error.message} />}
-              <Stack className={classes.button} direction="row">
-                <Button onClick={handleSignIn}>Sign in instead</Button>
-                <LoadingButton
-                  loading={isLoading}
-                  variant="contained"
-                  color="primary"
-                  onClick={handleSubmit}
-                  disabled={
-                    !(validUsername && validPassword && validConfirmPassword)
-                  }
+                <Typography variant="h5">Create your profile</Typography>
+                <Stack
+                  spacing={3}
+                  component="form"
+                  noValidate
+                  autoComplete="off"
                 >
-                  Create
-                </LoadingButton>
+                  <TextField
+                    id="username"
+                    label="Username"
+                    size="small"
+                    fullWidth
+                    autoFocus
+                    error={
+                      username !== "" && !validUsername && !usernameFocused
+                    }
+                    helperText={
+                      username && !validUsername && !usernameFocused
+                        ? "Sorry, your username must be between 3 and 20 characters long and only contain letters (a-z), numbers (0-9), and underscores (_)."
+                        : "You can use letters, numbers & underscores"
+                    }
+                    value={username}
+                    onChange={handleUsernameChange}
+                    onFocus={handleUsernameFocus}
+                    onBlur={handleUsernameBlur}
+                  />
+                  <FormControl>
+                    <Stack direction="row" spacing={2}>
+                      <TextField
+                        id="password"
+                        label="Password"
+                        size="small"
+                        fullWidth
+                        error={
+                          password !== "" && !passwordFocused && !validPassword
+                        }
+                        type={returnType()}
+                        value={password}
+                        onChange={handlePasswordChange}
+                        onFocus={handlePasswordFocus}
+                        onBlur={handlePasswordBlur}
+                      />
+                      <TextField
+                        id="confirm"
+                        label="Confirm"
+                        size="small"
+                        fullWidth
+                        error={
+                          confirmPassword !== "" &&
+                          !confirmPasswordFocused &&
+                          !validConfirmPassword
+                        }
+                        type={returnType()}
+                        value={confirmPassword}
+                        onChange={handleConfirmPasswordChange}
+                        onFocus={handleConfirmPasswordFocus}
+                        onBlur={handleConfirmPasswordBlur}
+                      />
+                    </Stack>
+                    <FormHelperText error={returnHelperText() !== null}>
+                      {!returnHelperText()
+                        ? "Use 8 or more characters with a mix of letters, numbers & symbols"
+                        : returnHelperText()}
+                    </FormHelperText>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          color="primary"
+                          onChange={toggleShowPassword}
+                        />
+                      }
+                      label="Show password"
+                    />
+                  </FormControl>
+                </Stack>
+                {isError && <InlineErrorHandler message={error.message} />}
+                <Stack className={classes.button} direction="row">
+                  <Button onClick={handleSignIn} sx={{ textTransform: "none" }}>
+                    Sign in instead
+                  </Button>
+                  <LoadingButton
+                    loading={isLoading}
+                    variant="contained"
+                    color="primary"
+                    onClick={handleSubmit}
+                  >
+                    Create
+                  </LoadingButton>
+                </Stack>
               </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+          <HelpPrivacyTermsButton />
+        </Box>
       </Fade>
     </Root>
   );
