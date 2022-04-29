@@ -22,7 +22,7 @@ import { HelpPrivacyTermsButton } from "../Components";
 
 import { InlineErrorHandler } from ".";
 
-import ProjectAPI from "../api/ProjectAPI";
+import BaseAPI from "../api/BaseAPI";
 import { useToggle } from "../hooks/useToggle";
 import { WordmarkState } from "../globals";
 
@@ -86,7 +86,7 @@ const SignUpForm = (props) => {
   const [showPassword, toggleShowPassword] = useToggle();
 
   const { error, isError, isLoading, mutate, reset } = useMutation(
-    ProjectAPI.mutateSignUp,
+    BaseAPI.signup,
     {
       onSuccess: () => {
         setUsername("");

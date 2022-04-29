@@ -99,19 +99,6 @@ def error_500(e):
 
 
 # routes
-@bp.route('/signin', methods=["POST"])
-def api_sign_in():  # noqa: F401
-    """Sign in to the ASReview LAB."""
-
-    username = request.form["username"]
-    password = request.form["password"]
-
-    if username == "admin" and password == "admin":
-        return jsonify(message="Sign in successful."), 200
-    else:
-        return jsonify(message="Sign in failed."), 401
-
-
 @bp.route('/projects', methods=["GET"])
 def api_get_projects():  # noqa: F401
     """Get info on the article"""

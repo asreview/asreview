@@ -21,7 +21,8 @@ export const donateURL = "https://asreview.nl/donate";
 export const feedbackURL =
   "https://github.com/asreview/asreview/issues/new/choose";
 
-export const discussionsURL = "https://github.com/asreview/asreview/discussions";
+export const discussionsURL =
+  "https://github.com/asreview/asreview/discussions";
 
 export const getDesignTokens = (mode: PaletteMode) => ({
   palette: {

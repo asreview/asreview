@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useMutation } from "react-query";
 import {
   Avatar,
   Box,
@@ -21,6 +22,7 @@ import { Logout } from "@mui/icons-material";
 import { StyledMenuItem } from "../StyledComponents/StyledMenuItem";
 import { TypographySubtitle1Medium } from "../StyledComponents/StyledTypography";
 
+import { BaseAPI } from "../api";
 import useAuth from "../hooks/useAuth";
 import ElasAvatar from "../images/ElasAvatar.svg";
 
@@ -32,6 +34,12 @@ const ProfilePopper = (props) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [open, setOpen] = React.useState(false);
 
+  const { mutate } = useMutation(BaseAPI.signout, {
+    onSuccess: () => {
+      setAuth({});
+    },
+  });
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
     setOpen((prev) => !prev);
@@ -42,7 +50,7 @@ const ProfilePopper = (props) => {
   };
 
   const handleSignOut = () => {
-    setAuth({});
+    mutate();
   };
 
   return (

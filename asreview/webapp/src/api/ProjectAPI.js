@@ -4,48 +4,6 @@ import axios from "axios";
 import qs from "qs";
 
 class ProjectAPI {
-  static mutateSignUp(variables) {
-    let body = new FormData();
-    body.set("username", variables.username);
-    body.set("password", variables.password);
-
-    const url = api_url + `signup`;
-    return new Promise((resolve, reject) => {
-      axios({
-        method: "post",
-        url: url,
-        data: body,
-      })
-        .then((result) => {
-          resolve(result["data"]);
-        })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
-  static mutateSignIn(variables) {
-    let body = new FormData();
-    body.set("username", variables.username);
-    body.set("password", variables.password);
-
-    const url = api_url + `signin`;
-    return new Promise((resolve, reject) => {
-      axios({
-        method: "post",
-        url: url,
-        data: body,
-      })
-        .then((result) => {
-          resolve(result["data"]);
-        })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
   static fetchProjects({ queryKey }) {
     const url = api_url + `projects`;
     return new Promise((resolve, reject) => {
