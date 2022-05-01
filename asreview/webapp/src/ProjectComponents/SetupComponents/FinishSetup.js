@@ -11,6 +11,7 @@ import { styled, useTheme } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../Components";
 import { TypographyH5Medium } from "../../StyledComponents/StyledTypography";
+import { ProjectAPI } from "../../api";
 import {
   mapStateToProps,
   mapDispatchToProps,
@@ -111,11 +112,15 @@ const FinishSetup = (props) => {
     queryClient.resetQueries("fetchProjectStatus");
   };
 
-  const onClickProjectReview = () => {
-    props.setProjectId(null);
+  const onClickProjectReview = async () => {
     props.toggleProjectSetup();
     console.log("Opening existing project " + props.project_id);
+    await queryClient.prefetchQuery(
+      ["fetchInfo", { project_id: props.project_id }],
+      ProjectAPI.fetchInfo
+    );
     navigate(`/projects/${props.project_id}/review`);
+    props.setProjectId(null);
   };
 
   const onClickFinishSetupSimulation = () => {
