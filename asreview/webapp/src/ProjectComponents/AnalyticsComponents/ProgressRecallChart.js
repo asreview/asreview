@@ -124,7 +124,7 @@ const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
     "</span>" +
     "</div>" +
     `<p class="tooltip-label-text-secondary ProgressRecallChart-tooltip-label-text-secondary-color">` +
-    "Relevant records you may find so far if you manually review all the records" +
+    "Relevant records you may have found so far if you manually review all the records" +
     "</p>" +
     "</div>" +
     `<h6 class="tooltip-label-number ProgressRecallChart-tooltip-label-random-number">` +
