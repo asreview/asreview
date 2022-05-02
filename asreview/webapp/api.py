@@ -1367,6 +1367,7 @@ def api_get_document(project):  # noqa: F401
             item['authors'] = record.authors
             item['abstract'] = record.abstract
             item['doi'] = record.doi
+            item['url'] = record.url
 
             # return the debug label
             debug_label = record.extra_fields.get("debug_label", None)
@@ -1383,7 +1384,7 @@ def api_get_document(project):  # noqa: F401
 
     except Exception as err:
         logging.error(err)
-        return jsonify(message="Failed to retrieve new documents."), 500
+        return jsonify(message=f"Failed to retrieve new records. {err}."), 500
 
     response = jsonify({"result": item, "pool_empty": pool_empty})
     response.headers.add('Access-Control-Allow-Origin', '*')
