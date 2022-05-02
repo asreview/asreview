@@ -75,7 +75,7 @@ DockerHub image, you can build your own. To build your own image, create a file
 called `Dockerfile` (no file extension) and fill it with the following code.
 In this example, ASReview version `1.0rc0` was used.
 
-```
+```dockerfile
 FROM python:3.8
 RUN pip install asreview==1.0rc0
 ENTRYPOINT ["asreview","lab","--ip","0.0.0.0"]
@@ -93,3 +93,22 @@ DockerHub images.
 ```
 docker create --name asreview-lab -p 5000:5000 asreview:1.0rc0
 ```
+
+### Add your extension to your image
+
+It's possible to test your own packages by adding them to your image. Next to
+the `Dockerfile` file, create a folder with a functional package inside. Then,
+add the following code to the file;
+
+```dockerfile
+FROM python:3.8
+RUN pip install asreview
+ENTRYPOINT ["asreview","lab","--ip","0.0.0.0"]
+ENV ASREVIEW_PATH=project_folder
+
+COPY ./extension /EXT
+RUN pip install /EXT/.
+```
+
+Then, when the image is build, it will have the package installed and ready for
+usage in your version of ASReview.
