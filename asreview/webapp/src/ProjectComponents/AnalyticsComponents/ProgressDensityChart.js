@@ -336,8 +336,8 @@ export default function ProgressDensityChart(props) {
                                 Presence of relevant records
                               </Typography>
                               <Typography variant="body2">
-                                More relevant records may appear. Continue
-                                reviewing to discover more.
+                                Relevant records appear. Continue reviewing to
+                                discover more.
                               </Typography>
                             </Box>
                           </Stack>
@@ -354,9 +354,9 @@ export default function ProgressDensityChart(props) {
                                 Persistent irrelevant records
                               </Typography>
                               <Typography variant="body2">
-                                More relevant records might not appear. Refer to
-                                your stopping rules to decide if you want to
-                                continue reviewing.
+                                Relevant records do not appear. Refer to your
+                                stopping rules to decide if you want to continue
+                                reviewing.
                               </Typography>
                             </Box>
                           </Stack>
