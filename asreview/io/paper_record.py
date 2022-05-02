@@ -133,7 +133,14 @@ class PaperRecord():
     def __init__(self, record_id, column_spec={}, **kwargs):
 
         for attr in [
-                "title", "abstract", "authors", "notes", "keywords", "doi", "url", "included"
+            "title",
+            "abstract",
+            "authors",
+            "notes",
+            "keywords",
+            "doi",
+            "url",
+            "included",
         ]:
             if attr in column_spec:
                 col = column_spec[attr]
