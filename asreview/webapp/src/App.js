@@ -6,7 +6,14 @@ import { CssBaseline, createTheme, useMediaQuery } from "@mui/material";
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import "./App.css";
 
-import { HelpDialog, NavigationDrawer, SettingsDialog } from "./Components";
+import {
+  HelpDialog,
+  NavigationDrawer,
+  RequireAuth,
+  SettingsDialog,
+  SignInForm,
+  SignUpForm,
+} from "./Components";
 import { HomePage } from "./HomeComponents";
 import { ProjectPage } from "./ProjectComponents";
 import BootPage from "./BootPage";
@@ -52,16 +59,28 @@ const App = (props) => {
           <CssBaseline />
           <div aria-label="nav and main content">
             <Routes>
+              {/* Public routes */}
               <Route index element={<BootPage />} />
+              <Route
+                path="signup"
+                element={<SignUpForm mobileScreen={mobileScreen} />}
+              />
+              <Route
+                path="signin"
+                element={<SignInForm mobileScreen={mobileScreen} />}
+              />
+              {/* Private routes */}
               <Route
                 path="*"
                 element={
-                  <NavigationDrawer
-                    mobileScreen={mobileScreen}
-                    onNavDrawer={onNavDrawer}
-                    toggleNavDrawer={toggleNavDrawer}
-                    toggleSettings={toggleSettings}
-                  />
+                  <RequireAuth>
+                    <NavigationDrawer
+                      mobileScreen={mobileScreen}
+                      onNavDrawer={onNavDrawer}
+                      toggleNavDrawer={toggleNavDrawer}
+                      toggleSettings={toggleSettings}
+                    />
+                  </RequireAuth>
                 }
               >
                 <Route
