@@ -796,7 +796,8 @@ def api_get_algorithms(project):  # noqa: F401
     default_payload = {
         "model": DEFAULT_MODEL,
         "feature_extraction": DEFAULT_FEATURE_EXTRACTION,
-        "query_strategy": DEFAULT_QUERY_STRATEGY
+        "query_strategy": DEFAULT_QUERY_STRATEGY,
+        "balance_strategy": DEFAULT_BALANCE_STRATEGY
     }
 
     # check if there were algorithms stored in the state file
@@ -807,7 +808,8 @@ def api_get_algorithms(project):  # noqa: F401
                 payload = {
                     "model": state.settings.model,
                     "feature_extraction": state.settings.feature_extraction,
-                    "query_strategy": state.settings.query_strategy
+                    "query_strategy": state.settings.query_strategy,
+                    "balance_strategy": state.settings.balance_strategy
                 }
             else:
                 payload = default_payload
@@ -826,6 +828,7 @@ def api_set_algorithms(project):  # noqa: F401
     # TODO@{Jonathan} validate model choice on server side
     ml_model = request.form.get("model", None)
     ml_query_strategy = request.form.get("query_strategy", None)
+    ml_balance_strategy = request.form.get("balance_strategy", None)
     ml_feature_extraction = request.form.get("feature_extraction", None)
 
     # create a new settings object from arguments
@@ -834,7 +837,7 @@ def api_set_algorithms(project):  # noqa: F401
         mode="minimal",
         model=ml_model,
         query_strategy=ml_query_strategy,
-        balance_strategy=DEFAULT_BALANCE_STRATEGY,
+        balance_strategy=ml_balance_strategy,
         feature_extraction=ml_feature_extraction)
 
     # save the new settings to the state file
