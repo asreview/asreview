@@ -1304,24 +1304,20 @@ def api_classify_instance(project, doc_id):  # noqa: F401
 
         with open_state(project.project_path, read_only=False) as state:
 
-            # get the index of the active iteration
-            if label in [0, 1]:
-
-                # add the labels as prior data
-                state.add_labeling_data(record_ids=[record_id],
-                                        labels=[label],
-                                        notes=[note],
-                                        prior=prior)
-
-            elif label == -1:
-                with open_state(project.project_path,
-                                read_only=False) as state:
-                    state.delete_record_labeling_data(record_id)
+            # add the labels as prior data
+            state.add_labeling_data(record_ids=[record_id],
+                                    labels=[label],
+                                    notes=[note],
+                                    prior=prior)
 
     elif request.method == 'PUT':
 
         with open_state(project.project_path, read_only=False) as state:
-            state.update_decision(record_id, label, note=note)
+
+            if label in [0, 1]:
+                state.update_decision(record_id, label, note=note)
+            elif label == -1:
+                state.delete_record_labeling_data(record_id)
 
     if retrain_model:
 
