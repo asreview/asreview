@@ -361,7 +361,7 @@ export default function ProgressDensityChart(props) {
                                 sx={{ color: "text.secondary" }}
                               >
                                 Relevant records do not appear. Refer to your
-                                stopping rules to decide if you want to continue
+                                stopping rule to decide if you want to continue
                                 reviewing.
                               </Typography>
                             </Box>
