@@ -796,7 +796,8 @@ def api_get_algorithms(project):  # noqa: F401
     default_payload = {
         "model": DEFAULT_MODEL,
         "feature_extraction": DEFAULT_FEATURE_EXTRACTION,
-        "query_strategy": DEFAULT_QUERY_STRATEGY
+        "query_strategy": DEFAULT_QUERY_STRATEGY,
+        "balance_strategy": DEFAULT_BALANCE_STRATEGY
     }
 
     # check if there were algorithms stored in the state file
@@ -807,7 +808,8 @@ def api_get_algorithms(project):  # noqa: F401
                 payload = {
                     "model": state.settings.model,
                     "feature_extraction": state.settings.feature_extraction,
-                    "query_strategy": state.settings.query_strategy
+                    "query_strategy": state.settings.query_strategy,
+                    "balance_strategy": state.settings.balance_strategy
                 }
             else:
                 payload = default_payload
@@ -826,6 +828,7 @@ def api_set_algorithms(project):  # noqa: F401
     # TODO@{Jonathan} validate model choice on server side
     ml_model = request.form.get("model", None)
     ml_query_strategy = request.form.get("query_strategy", None)
+    ml_balance_strategy = request.form.get("balance_strategy", None)
     ml_feature_extraction = request.form.get("feature_extraction", None)
 
     # create a new settings object from arguments
@@ -834,7 +837,7 @@ def api_set_algorithms(project):  # noqa: F401
         mode="minimal",
         model=ml_model,
         query_strategy=ml_query_strategy,
-        balance_strategy=DEFAULT_BALANCE_STRATEGY,
+        balance_strategy=ml_balance_strategy,
         feature_extraction=ml_feature_extraction)
 
     # save the new settings to the state file
@@ -1301,24 +1304,20 @@ def api_classify_instance(project, doc_id):  # noqa: F401
 
         with open_state(project.project_path, read_only=False) as state:
 
-            # get the index of the active iteration
-            if label in [0, 1]:
-
-                # add the labels as prior data
-                state.add_labeling_data(record_ids=[record_id],
-                                        labels=[label],
-                                        notes=[note],
-                                        prior=prior)
-
-            elif label == -1:
-                with open_state(project.project_path,
-                                read_only=False) as state:
-                    state.delete_record_labeling_data(record_id)
+            # add the labels as prior data
+            state.add_labeling_data(record_ids=[record_id],
+                                    labels=[label],
+                                    notes=[note],
+                                    prior=prior)
 
     elif request.method == 'PUT':
 
         with open_state(project.project_path, read_only=False) as state:
-            state.update_decision(record_id, label, note=note)
+
+            if label in [0, 1]:
+                state.update_decision(record_id, label, note=note)
+            elif label == -1:
+                state.delete_record_labeling_data(record_id)
 
     if retrain_model:
 
@@ -1367,6 +1366,7 @@ def api_get_document(project):  # noqa: F401
             item['authors'] = record.authors
             item['abstract'] = record.abstract
             item['doi'] = record.doi
+            item['url'] = record.url
 
             # return the debug label
             debug_label = record.extra_fields.get("debug_label", None)
@@ -1383,7 +1383,7 @@ def api_get_document(project):  # noqa: F401
 
     except Exception as err:
         logging.error(err)
-        return jsonify(message="Failed to retrieve new documents."), 500
+        return jsonify(message=f"Failed to retrieve new records. {err}."), 500
 
     response = jsonify({"result": item, "pool_empty": pool_empty})
     response.headers.add('Access-Control-Allow-Origin', '*')

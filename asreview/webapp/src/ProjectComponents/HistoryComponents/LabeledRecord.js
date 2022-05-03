@@ -135,7 +135,6 @@ const LabeledRecord = (props) => {
                 data.pages.map((page, index) => (
                   <LabeledRecordCard
                     page={page}
-                    label={props.label}
                     key={`result-page-${index}`}
                     is_prior={props.is_prior}
                     isSimulating={props.isSimulating}
