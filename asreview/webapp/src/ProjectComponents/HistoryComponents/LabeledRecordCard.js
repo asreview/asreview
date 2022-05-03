@@ -263,7 +263,11 @@ const LabeledRecordCard = (props) => {
                   </span>
                 </Tooltip>
                 {props.is_prior && (
-                  <Tooltip title="Remove">
+                  <Tooltip
+                    title={`Remove ${
+                      value.included !== 1 ? "irrelevant" : "relevant"
+                    } label`}
+                  >
                     <span>
                       <IconButton
                         disabled={isLoading}
