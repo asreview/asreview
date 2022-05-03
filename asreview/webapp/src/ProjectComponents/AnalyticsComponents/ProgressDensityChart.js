@@ -339,7 +339,7 @@ export default function ProgressDensityChart(props) {
                                 variant="body2"
                                 sx={{ color: "text.secondary" }}
                               >
-                                Relevant records appear. Continue reviewing to
+                                Relevant records still appear. Continue reviewing to
                                 discover more.
                               </Typography>
                             </Box>
