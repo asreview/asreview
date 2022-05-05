@@ -112,7 +112,7 @@ class BaseReview(ABC):
                 )
 
                 # check if the number of records after the transform equals
-                # the number of in the dataset
+                # the number of records in the dataset
                 if self.X.shape[0] != len(as_data):
                     raise ValueError(
                         "Dataset has {} records while feature "
