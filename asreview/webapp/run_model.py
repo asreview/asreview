@@ -126,8 +126,9 @@ def train_model(project_id, label_method=None):
                 "Project {project_id} - No new labels since last run.")
             return
 
-        query_record_ids = np.array([x[0] for x in diff_history], dtype=int)
-        inclusions = np.array([x[1] for x in diff_history], dtype=int)
+        query_record_ids = np.array([x[0] for x in diff_history],
+                                    dtype=np.int64)
+        inclusions = np.array([x[1] for x in diff_history], dtype=np.int64)
 
         query_idx = convert_id_to_idx(as_data, query_record_ids)
 
