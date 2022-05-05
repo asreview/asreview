@@ -110,6 +110,15 @@ class BaseReview(ABC):
                     as_data.bodies,
                     as_data.keywords
                 )
+
+                # check if the number of records after the transform equals
+                # the number of in the dataset
+                if self.X.shape[0] != len(as_data):
+                    raise ValueError(
+                        "Dataset has {} records while feature "
+                        "extractor returns {} records"
+                        .format(len(as_data), self.X.shape[0]))
+
                 state.add_feature_matrix(self.X)
 
             # Check if the number or records in the feature matrix matches the
