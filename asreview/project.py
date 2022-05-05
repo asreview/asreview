@@ -288,6 +288,7 @@ class ASReviewProject():
         project_fp = Path(self.project_path, PATH_PROJECT_CONFIG)
 
         with open(project_fp, "w") as f:
+            print("dump config")
             json.dump(config, f)
 
         self._config = config
@@ -309,20 +310,13 @@ class ASReviewProject():
                 kwargs_copy["mode"]))
 
         # update project file
-        project_fp = Path(self.project_path, PATH_PROJECT_CONFIG)
-
-        with open(project_fp, "r") as f:
-            config = json.load(f)
-
+        config = self.config
         config.update(kwargs_copy)
 
         # validate new config before storing
         jsonschema.validate(instance=config, schema=SCHEMA)
 
-        with open(project_fp, "w") as f:
-            json.dump(config, f)
-
-        self._config = config
+        self.config = config
         return config
 
     def rename(self, project_name_new):
