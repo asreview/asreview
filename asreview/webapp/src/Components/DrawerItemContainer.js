@@ -2,12 +2,12 @@ import React from "react";
 import { useIsFetching, useQueryClient } from "react-query";
 import { Route, Routes, useParams } from "react-router-dom";
 import {
-  Divider,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   Fade,
   List,
   ListItem,
@@ -189,6 +189,8 @@ const DrawerItemContainer = (props) => {
   React.useEffect(() => {
     if (project_id && isFetchingInfo) {
       fetchProjectInfo();
+    } else {
+      setProjectInfo(null);
     }
   }, [fetchProjectInfo, project_id, isFetchingInfo]);
 
@@ -222,7 +224,7 @@ const DrawerItemContainer = (props) => {
         <Route
           path="projects/:project_id/*"
           element={
-            <Fade in={projectInfo !== null}>
+            <Fade in>
               <div className={classes.topSection}>
                 <DrawerItem
                   mobileScreen={props.mobileScreen}
@@ -231,65 +233,53 @@ const DrawerItemContainer = (props) => {
                   onNavDrawer={props.onNavDrawer}
                   toggleNavDrawer={props.toggleNavDrawer}
                 />
-                <ListItem className={classes.projectInfo} onClick={toggleGame}>
-                  <img
-                    src={returnElasState()}
-                    alt="ElasState"
-                    className={classes.stateElas}
-                  />
+                {projectInfo && (
+                  <ListItem
+                    className={classes.projectInfo}
+                    onClick={toggleGame}
+                  >
+                    <img
+                      src={returnElasState()}
+                      alt="ElasState"
+                      className={classes.stateElas}
+                    />
 
-                  <Fade in={props.onNavDrawer} unmountOnExit>
-                    <div className={classes.yourProject}>
-                      <Typography variant="subtitle2">Your project</Typography>
-                      <Typography
-                        className={classes.projectTitle}
-                        variant="body2"
-                        color="textSecondary"
-                      >
-                        {projectInfo ? projectInfo.name : "Null"}
-                      </Typography>
-                    </div>
-                  </Fade>
-                </ListItem>
+                    <Fade in={props.onNavDrawer} unmountOnExit>
+                      <div className={classes.yourProject}>
+                        <Typography variant="subtitle2">
+                          Your project
+                        </Typography>
+                        <Typography
+                          className={classes.projectTitle}
+                          variant="body2"
+                          color="textSecondary"
+                        >
+                          {projectInfo ? projectInfo.name : "Null"}
+                        </Typography>
+                      </div>
+                    </Fade>
+                  </ListItem>
+                )}
 
-                <Dialog
-                  open={openGame}
-                  onClose={toggleGame}
-                  scroll={"paper"}
-                  fullWidth={true}
-                  maxWidth={"lg"}
-                  aria-labelledby="game-dialog-title"
-                  aria-describedby="game-dialog-description"
-                >
-                  <DialogTitle id="game-dialog-title">
-                    Elas Adventures Game (Attempts: {attemps})
-                  </DialogTitle>
-                  <DialogContent>
-                    <ElasGame addAttempt={addAttempt} />
-                  </DialogContent>
-                  <DialogActions>
-                    <Button onClick={toggleGame}>Take me back</Button>
-                  </DialogActions>
-                </Dialog>
-
-                {drawerItemsProjectPage
-                  .filter((element) => {
-                    return projectInfo?.mode !== projectModes.SIMULATION
-                      ? element
-                      : element.path !== "review";
-                  })
-                  .map((element, index) => {
-                    return (
-                      <DrawerItem
-                        key={index}
-                        path={element.path}
-                        label={element.label}
-                        mobileScreen={props.mobileScreen}
-                        onNavDrawer={props.onNavDrawer}
-                        toggleNavDrawer={props.toggleNavDrawer}
-                      />
-                    );
-                  })}
+                {projectInfo &&
+                  drawerItemsProjectPage
+                    .filter((element) => {
+                      return projectInfo?.mode !== projectModes.SIMULATION
+                        ? element
+                        : element.path !== "review";
+                    })
+                    .map((element, index) => {
+                      return (
+                        <DrawerItem
+                          key={index}
+                          path={element.path}
+                          label={element.label}
+                          mobileScreen={props.mobileScreen}
+                          onNavDrawer={props.onNavDrawer}
+                          toggleNavDrawer={props.toggleNavDrawer}
+                        />
+                      );
+                    })}
               </div>
             </Fade>
           }
@@ -345,6 +335,27 @@ const DrawerItemContainer = (props) => {
           </ListItemButton>
         </Tooltip>
       </div>
+
+      {/* Game */}
+      <Dialog
+        open={openGame}
+        onClose={toggleGame}
+        scroll={"paper"}
+        fullWidth={true}
+        maxWidth={"lg"}
+        aria-labelledby="game-dialog-title"
+        aria-describedby="game-dialog-description"
+      >
+        <DialogTitle id="game-dialog-title">
+          Elas Adventures Game (Attempts: {attemps})
+        </DialogTitle>
+        <DialogContent>
+          <ElasGame addAttempt={addAttempt} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={toggleGame}>Take me back</Button>
+        </DialogActions>
+      </Dialog>
     </StyledList>
   );
 };

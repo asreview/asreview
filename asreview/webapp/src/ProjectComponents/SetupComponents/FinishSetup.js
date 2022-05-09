@@ -11,6 +11,7 @@ import { styled, useTheme } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../Components";
 import { TypographyH5Medium } from "../../StyledComponents/StyledTypography";
+import { ProjectAPI } from "../../api";
 import {
   mapStateToProps,
   mapDispatchToProps,
@@ -67,10 +68,7 @@ const classes = {
 };
 
 const Root = styled("div")(({ theme }) => ({
-  height: "100%",
   display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
   [`& .${classes.root}`]: {
     alignItems: "center",
   },
@@ -80,16 +78,14 @@ const Root = styled("div")(({ theme }) => ({
   },
 
   [`& .${classes.img}`]: {
-    marginLeft: 48,
-    width: 250,
-    [theme.breakpoints.down("md")]: {
-      width: 150,
-    },
+    height: 255,
+    maxWidth: 400,
   },
 
   [`& .${classes.swipeableContent}`]: {
-    textAlign: "center",
+    alignItems: "center",
     padding: "0px 18px",
+    textAlign: "center",
   },
 
   [`& .${classes.text}`]: {
@@ -116,11 +112,15 @@ const FinishSetup = (props) => {
     queryClient.resetQueries("fetchProjectStatus");
   };
 
-  const onClickProjectReview = () => {
-    props.setProjectId(null);
+  const onClickProjectReview = async () => {
     props.toggleProjectSetup();
     console.log("Opening existing project " + props.project_id);
+    await queryClient.prefetchQuery(
+      ["fetchInfo", { project_id: props.project_id }],
+      ProjectAPI.fetchInfo
+    );
     navigate(`/projects/${props.project_id}/review`);
+    props.setProjectId(null);
   };
 
   const onClickFinishSetupSimulation = () => {
@@ -170,14 +170,12 @@ const FinishSetup = (props) => {
                 className={classes.swipeable}
               >
                 {images.map((step, index) => (
-                  <Box key={index} className={classes.swipeableContent}>
+                  <Stack key={index} className={classes.swipeableContent}>
                     {Math.abs(activeStep - index) <= 2 ? (
                       <Box
+                        className={classes.img}
                         component="img"
                         sx={{
-                          height: 255,
-                          maxWidth: 400,
-                          overflow: "hidden",
                           width: "100%",
                         }}
                         src={step.imgPath}
@@ -204,7 +202,7 @@ const FinishSetup = (props) => {
                         );
                       })}
                     </Stack>
-                  </Box>
+                  </Stack>
                 ))}
               </AutoPlaySwipeableViews>
               <ReactLoading
@@ -217,16 +215,20 @@ const FinishSetup = (props) => {
           </Fade>
         )}
       {props.trainingFinished && (
-        <Stack spacing={3} className={classes.root} sx={{ overflow: "hidden" }}>
+        <Stack spacing={3} className={classes.root}>
           <Slide
             direction="up"
             in={props.trainingFinished}
             timeout={transitionTimeout}
           >
-            <img
+            <Box
+              className={classes.img}
+              component="img"
+              sx={{
+                marginLeft: 6,
+              }}
               src={ElasBalloons}
               alt="ElasBalloons"
-              className={classes.img}
             />
           </Slide>
           {props.mode !== projectModes.SIMULATION && (

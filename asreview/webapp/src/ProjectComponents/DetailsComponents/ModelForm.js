@@ -161,6 +161,36 @@ const ModelForm = (props) => {
                     </Select>
                   </FormControl>
                 </MouseOverPopover>
+                <MouseOverPopover title="Select balance strategy when creating a new project">
+                  <FormControl disabled fullWidth variant="filled">
+                    <InputLabel id="balance-strategy-select-label">
+                      Balance strategy
+                    </InputLabel>
+                    <Select
+                      id="select-balance-strategy"
+                      name="balance_strategy"
+                      label="Balance strategy"
+                      value={modelConfig?.balance_strategy}
+                    >
+                      {modelOptions?.balance_strategy.map((value) => {
+                        return (
+                          <MenuItem
+                            key={`result-item-${value.name}`}
+                            checked={
+                              modelConfig?.balance_strategy === value.name
+                            }
+                            value={value.name}
+                          >
+                            <SelectItem
+                              primary={value.label}
+                              secondary={value.description}
+                            />
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
+                </MouseOverPopover>
                 <MouseOverPopover title="Select feature extraction technique when creating a new project">
                   <FormControl disabled fullWidth variant="filled">
                     <InputLabel id="feature-extraction-select-label">

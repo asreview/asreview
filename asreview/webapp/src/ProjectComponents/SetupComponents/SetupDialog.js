@@ -2,6 +2,7 @@ import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import clsx from "clsx";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Box,
@@ -50,13 +51,14 @@ const classes = {
   content: `${PREFIX}-content`,
   stepper: `${PREFIX}-stepper`,
   form: `${PREFIX}-form`,
+  formStepper: `${PREFIX}-form-stepper`,
 };
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
   [`& .${classes.content}`]: {
-    overflowY: "hidden",
     paddingLeft: 0,
     paddingRight: 0,
+    overflowY: "hidden",
   },
 
   [`& .${classes.stepper}`]: {
@@ -64,6 +66,14 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   },
 
   [`& .${classes.form}`]: {
+    alignItems: "center",
+    display: "flex",
+    height: "100%",
+    justifyContent: "center",
+    overflowY: "scroll",
+  },
+
+  [`& .${classes.formStepper}`]: {
     height: "calc(100% - 60px)",
     overflowY: "scroll",
     padding: "32px 48px 48px 48px",
@@ -101,6 +111,7 @@ const SetupDialog = (props) => {
   const [model, setModel] = React.useState({
     classifier: null,
     query_strategy: null,
+    balance_strategy: null,
     feature_extraction: null,
   });
 
@@ -369,12 +380,14 @@ const SetupDialog = (props) => {
       props.project_id &&
       model.classifier &&
       model.query_strategy &&
+      model.balance_strategy &&
       model.feature_extraction
     ) {
       mutateModelConfig({
         project_id: props.project_id,
         classifier: model["classifier"],
         query_strategy: model["query_strategy"],
+        balance_strategy: model["balance_strategy"],
         feature_extraction: model["feature_extraction"],
       });
     }
@@ -671,7 +684,12 @@ const SetupDialog = (props) => {
                 </Stepper>
               </Box>
             )}
-            <Box className={classes.form}>
+            <Box
+              className={clsx({
+                [classes.form]: activeStep === 3,
+                [classes.formStepper]: activeStep !== 3,
+              })}
+            >
               {activeStep === 0 && (
                 <ProjectInfoForm
                   info={info}

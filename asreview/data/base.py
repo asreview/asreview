@@ -294,6 +294,13 @@ class ASReviewData():
         except KeyError:
             return None
 
+    @property
+    def url(self):
+        try:
+            return self.df[self.column_spec["url"]].values
+        except KeyError:
+            return None
+
     def get(self, name):
         "Get column with name."
         try:
