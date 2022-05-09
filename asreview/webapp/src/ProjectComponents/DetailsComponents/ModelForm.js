@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { connect } from "react-redux";
+import { useParams } from "react-router-dom";
 import {
   Box,
   FormControl,
@@ -14,15 +14,15 @@ import {
 import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../Components";
-import { SelectItem } from "../SetupComponents";
+import { SelectItem } from "../../ProjectComponents";
 import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
 import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
 import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps } from "../../globals.js";
 
 const Root = styled("div")(({ theme }) => ({}));
 
 const ModelForm = (props) => {
+  const { project_id } = useParams();
   const queryClient = useQueryClient();
 
   const {
@@ -44,10 +44,10 @@ const ModelForm = (props) => {
     isFetching: isFetchingModelConfig,
     isSuccess: isSuccessModelConfig,
   } = useQuery(
-    ["fetchModelConfig", { project_id: props.project_id }],
+    ["fetchModelConfig", { project_id }],
     ProjectAPI.fetchModelConfig,
     {
-      enabled: props.project_id !== null,
+      enabled: project_id !== null,
       refetchOnWindowFocus: false,
     }
   );
@@ -161,6 +161,36 @@ const ModelForm = (props) => {
                     </Select>
                   </FormControl>
                 </MouseOverPopover>
+                <MouseOverPopover title="Select balance strategy when creating a new project">
+                  <FormControl disabled fullWidth variant="filled">
+                    <InputLabel id="balance-strategy-select-label">
+                      Balance strategy
+                    </InputLabel>
+                    <Select
+                      id="select-balance-strategy"
+                      name="balance_strategy"
+                      label="Balance strategy"
+                      value={modelConfig?.balance_strategy}
+                    >
+                      {modelOptions?.balance_strategy.map((value) => {
+                        return (
+                          <MenuItem
+                            key={`result-item-${value.name}`}
+                            checked={
+                              modelConfig?.balance_strategy === value.name
+                            }
+                            value={value.name}
+                          >
+                            <SelectItem
+                              primary={value.label}
+                              secondary={value.description}
+                            />
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
+                </MouseOverPopover>
                 <MouseOverPopover title="Select feature extraction technique when creating a new project">
                   <FormControl disabled fullWidth variant="filled">
                     <InputLabel id="feature-extraction-select-label">
@@ -206,4 +236,4 @@ const ModelForm = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(ModelForm);
+export default ModelForm;

@@ -1,12 +1,11 @@
 import * as React from "react";
-import { connect } from "react-redux";
+import { Routes, Route } from "react-router-dom";
 import clsx from "clsx";
-
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { NavigationDrawer } from "../Components";
 import { DashboardPage } from "../HomeComponents/DashboardComponents";
+import RouteNotFound from "../RouteNotFound";
 
 import { drawerWidth } from "../globals.js";
 
@@ -37,24 +36,9 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const mapStateToProps = (state) => {
-  return {
-    app_state: state.app_state,
-    nav_state: state.nav_state,
-  };
-};
-
 const HomePage = (props) => {
   return (
     <Root aria-label="home page">
-      <NavigationDrawer
-        handleAppState={props.handleAppState}
-        handleNavState={props.handleNavState}
-        mobileScreen={props.mobileScreen}
-        onNavDrawer={props.onNavDrawer}
-        toggleNavDrawer={props.toggleNavDrawer}
-        toggleSettings={props.toggleSettings}
-      />
       <Box
         component="main"
         className={clsx("main-page-content", classes.content, {
@@ -62,18 +46,26 @@ const HomePage = (props) => {
         })}
         aria-label="home page content"
       >
-        {/* Dashboard */}
-        <DashboardPage
-          handleAppState={props.handleAppState}
-          handleNavState={props.handleNavState}
-          mobileScreen={props.mobileScreen}
-          onNavDrawer={props.onNavDrawer}
-          toggleNavDrawer={props.toggleNavDrawer}
-          toggleSettings={props.toggleSettings}
-        />
+        <Routes>
+          {/* Projects dashboard */}
+          <Route
+            path="projects"
+            element={
+              <DashboardPage
+                mobileScreen={props.mobileScreen}
+                onNavDrawer={props.onNavDrawer}
+                onProjectSetup={props.onProjectSetup}
+                projectCheck={props.projectCheck}
+                setProjectCheck={props.setProjectCheck}
+                toggleProjectSetup={props.toggleProjectSetup}
+              />
+            }
+          />
+          <Route path="*" element={<RouteNotFound />} />
+        </Routes>
       </Box>
     </Root>
   );
 };
 
-export default connect(mapStateToProps)(HomePage);
+export default HomePage;

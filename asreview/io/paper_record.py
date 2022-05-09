@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -133,7 +133,14 @@ class PaperRecord():
     def __init__(self, record_id, column_spec={}, **kwargs):
 
         for attr in [
-                "title", "abstract", "authors", "notes", "keywords", "doi", "included"
+            "title",
+            "abstract",
+            "authors",
+            "notes",
+            "keywords",
+            "doi",
+            "url",
+            "included",
         ]:
             if attr in column_spec:
                 col = column_spec[attr]

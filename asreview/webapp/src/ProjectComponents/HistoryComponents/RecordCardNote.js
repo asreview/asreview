@@ -1,5 +1,5 @@
 import * as React from "react";
-import { connect } from "react-redux";
+import { useParams } from "react-router-dom";
 import {
   Avatar,
   Card,
@@ -15,12 +15,13 @@ import {
 import { styled } from "@mui/material/styles";
 
 import { Edit, Send } from "@mui/icons-material";
-import { mapStateToProps } from "../../globals.js";
 import ElasAvatar from "../../images/ElasAvatar.svg";
 
 const Root = styled("div")(({ theme }) => ({}));
 
 const RecordCardNote = (props) => {
+  const { project_id } = useParams();
+
   const handleClickEditNote = (prevNote, doc_id) => {
     props.setNote({
       data: prevNote,
@@ -31,7 +32,7 @@ const RecordCardNote = (props) => {
   const handleClickSaveNote = (prevNote) => {
     if (props.note?.data !== prevNote) {
       props.mutate({
-        project_id: props.project_id,
+        project_id: project_id,
         doc_id: props.record.id,
         label: props.record.included,
         note: props.note?.data,
@@ -93,7 +94,6 @@ const RecordCardNote = (props) => {
                 <FormControl sx={{ width: "100%" }} variant="outlined">
                   <OutlinedInput
                     autoComplete="off"
-                    autoFocus
                     disabled={props.isLoading}
                     multiline
                     placeholder="Write something..."
@@ -181,4 +181,4 @@ const RecordCardNote = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(RecordCardNote);
+export default RecordCardNote;

@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,14 +19,50 @@ from datetime import datetime
 from io import BytesIO
 
 import numpy as np
+from scipy.sparse import csr_matrix
 from scipy.sparse import load_npz
 from scipy.sparse import save_npz
-from scipy.sparse.csr import csr_matrix
 
-from asreview.analysis.statistics import _get_labeled_order
-from asreview.analysis.statistics import _get_last_proba_order
 from asreview.settings import ASReviewSettings
 from asreview.state.legacy.base import BaseState
+
+
+# from asreview.analysis.statistics DEPRECATED
+def _get_labeled_order(state):
+    """Get the order in which papers were labeled."""
+    label_order = []
+    n_initial = 0
+    n_predictor_models = state.n_predictor_models
+    for query_i in range(n_predictor_models):
+        try:
+            label_methods = state.get("label_methods", query_i)
+        except KeyError:
+            continue
+        label_idx = state.get("label_idx", query_i)
+        for i in range(len(label_idx)):
+            if label_methods[i] == "initial":
+                n_initial += 1
+        label_order.extend(label_idx)
+    return label_order, n_initial
+
+
+# from asreview.analysis.statistics DEPRECATED
+def _get_last_proba_order(state):
+    """Get the ranking of papers in the last query."""
+    n_predictor_models = state.n_predictor_models
+    pool_idx = None
+    for query_i in reversed(range(n_predictor_models)):
+        try:
+            pool_idx = state.get("pool_idx", query_i)
+        except KeyError:
+            continue
+        if pool_idx is not None:
+            proba = state.get("proba", query_i)
+            break
+
+    if pool_idx is None:
+        return []
+    return pool_idx[np.argsort(-proba[pool_idx])]
 
 
 def get_serial_list(array, dtype=None):
@@ -192,19 +228,19 @@ class DictState(BaseState):
             if variable == "label_methods":
                 dtype = str
             else:
-                dtype = np.int
+                dtype = int
             array = np.array([x[array_id] for x in res["labelled"]],
                              dtype=dtype)
         elif variable == "labels":
-            array = np.array(self._state_dict["labels"], dtype=np.int)
+            array = np.array(self._state_dict["labels"], dtype=int)
         elif variable == "final_labels":
-            array = np.array(self._state_dict["final_labels"], dtype=np.int)
+            array = np.array(self._state_dict["final_labels"], dtype=int)
         elif variable == "proba":
-            array = np.array(res["proba"], dtype=np.float)
+            array = np.array(res["proba"], dtype=float)
         elif variable == "train_idx":
-            array = np.array(res["train_idx"], dtype=np.int)
+            array = np.array(res["train_idx"], dtype=int)
         elif variable == "pool_idx":
-            array = np.array(res["pool_idx"], dtype=np.int)
+            array = np.array(res["pool_idx"], dtype=int)
         if array is None:
             return None
         if idx is not None:

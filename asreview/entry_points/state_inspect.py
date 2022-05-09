@@ -1,4 +1,4 @@
-# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ import argparse
 import pandas as pd
 
 from asreview.entry_points.base import BaseEntryPoint
-from asreview.state.utils import open_state
-from asreview.webapp.utils.project_path import get_project_path
+from asreview.project import get_project_path
+from asreview.project import open_state
 
 
 def _parse_state_inspect_args():

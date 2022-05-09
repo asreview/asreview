@@ -6,13 +6,8 @@
   height: calc(100% - 128px);
 }
 .review-page-body-wrapper {
-  height: calc(100% - 80px);
+  height: 100%;
   position: relative;
-}
-@media (max-width: 900px) {
-  .review-page-body-wrapper {
-    height: calc(100% - 64px);
-  }
 }
 .review-page-decision-button {
   align-items: center;

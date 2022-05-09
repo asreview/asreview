@@ -1,12 +1,10 @@
 from pathlib import Path
 
-import numpy as np
 from pandas.testing import assert_frame_equal
 import pytest
 
-from asreview.data import ASReviewData
 from asreview.entry_points.simulate import SimulateEntryPoint
-from asreview.state import open_state
+from asreview.project import open_state
 
 DATA_FP = Path('tests', "demo_data", "generic_labels.csv")
 

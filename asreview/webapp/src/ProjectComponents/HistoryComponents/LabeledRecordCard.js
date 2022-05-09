@@ -1,6 +1,7 @@
 import * as React from "react";
-import { connect } from "react-redux";
 import { useMutation, useQueryClient } from "react-query";
+import { connect } from "react-redux";
+import { useParams } from "react-router-dom";
 import TruncateMarkup from "react-truncate-markup";
 import {
   Box,
@@ -15,6 +16,7 @@ import {
 import { styled } from "@mui/material/styles";
 
 import {
+  Delete,
   Favorite,
   FavoriteBorder,
   KeyboardArrowUp,
@@ -24,7 +26,7 @@ import {
 import { InlineErrorHandler } from "../../Components";
 import { RecordCardNote } from "../HistoryComponents";
 import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps } from "../../globals.js";
+import { mapStateToProps, projectModes } from "../../globals.js";
 import "../../App.css";
 
 const PREFIX = "LabeledRecordCard";
@@ -50,12 +52,18 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const LabeledRecordCard = (props) => {
+  const { project_id } = useParams();
   const queryClient = useQueryClient();
+
   const [recordReadMore, setRecordReadMore] = React.useState(null);
   const [note, setNote] = React.useState({
     data: null,
     editing: null,
   });
+
+  const returnProjectId = () => {
+    return !project_id ? props.project_id : project_id;
+  };
 
   const { error, isError, isLoading, mutate, reset } = useMutation(
     ProjectAPI.mutateClassification,
@@ -67,7 +75,7 @@ const LabeledRecordCard = (props) => {
           [
             "fetchLabeledRecord",
             {
-              project_id: props.project_id,
+              project_id: returnProjectId(),
               subset: props.returnSubset(),
             },
           ],
@@ -115,12 +123,23 @@ const LabeledRecordCard = (props) => {
 
   const handleClickLabelConvert = (value) => {
     mutate({
-      project_id: props.project_id,
+      project_id: returnProjectId(),
       doc_id: value.id,
       label: value.included === 1 ? 0 : 1,
       note: !value.note ? "" : value.note,
       initial: false,
       is_prior: !props.is_prior ? 0 : 1,
+    });
+  };
+
+  const handleClickRemoveLabel = (value) => {
+    mutate({
+      project_id: returnProjectId(),
+      doc_id: value.id,
+      label: -1,
+      note: !value.note ? "" : value.note,
+      initial: false,
+      is_prior: 1,
     });
   };
 
@@ -141,7 +160,7 @@ const LabeledRecordCard = (props) => {
       });
     } else {
       mutate({
-        project_id: props.project_id,
+        project_id: project_id,
         doc_id: value.id,
         label: value.included,
         note: "",
@@ -160,6 +179,10 @@ const LabeledRecordCard = (props) => {
     return !props.is_prior && prior === 1;
   };
 
+  const isSimulationProject = () => {
+    return props.mode === projectModes.SIMULATION;
+  };
+
   return (
     <Root>
       {isError && (
@@ -172,114 +195,143 @@ const LabeledRecordCard = (props) => {
         </Box>
       )}
       {!isError &&
-        props.page.result.map((value) => (
-          <Card elevation={3} className={classes.root} key={value.id}>
-            <CardContent className="record-card-content">
-              <Typography gutterBottom variant="h6">
-                {value.title ? value.title : "No title available"}
-              </Typography>
-              <TruncateMarkup
-                lines={value.id === recordReadMore ? Infinity : 6}
-                ellipsis={
-                  <span>
-                    ...{" "}
-                    <Link
-                      component="button"
-                      underline="none"
-                      onClick={() => setRecordReadMore(value.id)}
-                    >
-                      read more
-                    </Link>
-                  </span>
-                }
-              >
-                <Typography color="textSecondary">
-                  {value.abstract ? value.abstract : "No abstract available"}
+        props.page.result
+          .filter((value) => value.included !== -1)
+          .map((value) => (
+            <Card elevation={3} className={classes.root} key={value.id}>
+              <CardContent className="record-card-content">
+                <Typography gutterBottom variant="h6">
+                  {value.title ? value.title : "No title available"}
                 </Typography>
-              </TruncateMarkup>
-            </CardContent>
-            <CardActions className={classes.cardActions}>
-              <Tooltip
-                title={
-                  disableConvertPrior(value.prior)
-                    ? "Prior knowledge cannot be converted"
-                    : note.editing !== value.id
-                    ? value.included === 1
-                      ? "Convert to irrelevant"
-                      : "Convert to relevant"
-                    : "Save note before converting"
-                }
-              >
-                <span>
-                  <IconButton
-                    disabled={
-                      disableConvertPrior(value.prior) ||
-                      isLoading ||
-                      note.editing === value.id
-                    }
-                    onClick={() => {
-                      handleClickLabelConvert(value);
-                    }}
-                  >
-                    {value.included === 1 ? (
-                      <Favorite
-                        color="error"
-                        fontSize={!props.mobileScreen ? "medium" : "small"}
-                      />
-                    ) : (
-                      <FavoriteBorder
-                        fontSize={!props.mobileScreen ? "medium" : "small"}
-                      />
-                    )}
-                  </IconButton>
-                </span>
-              </Tooltip>
-              {!props.is_prior && !value.note && value.id !== note.editing && (
+                <TruncateMarkup
+                  lines={value.id === recordReadMore ? Infinity : 6}
+                  ellipsis={
+                    <span>
+                      ...{" "}
+                      <Link
+                        component="button"
+                        underline="none"
+                        onClick={() => setRecordReadMore(value.id)}
+                      >
+                        read more
+                      </Link>
+                    </span>
+                  }
+                >
+                  <Typography color="textSecondary">
+                    {value.abstract ? value.abstract : "No abstract available"}
+                  </Typography>
+                </TruncateMarkup>
+              </CardContent>
+              <CardActions className={classes.cardActions}>
                 <Tooltip
                   title={
-                    !disableAddNoteButton(value.id)
-                      ? "Add note"
-                      : "Save another note before adding"
+                    !isSimulationProject()
+                      ? disableConvertPrior(value.prior)
+                        ? "Prior knowledge cannot be converted"
+                        : note.editing !== value.id
+                        ? value.included === 1
+                          ? "Convert to irrelevant"
+                          : "Convert to relevant"
+                        : "Save note before converting"
+                      : "Cannot be converted in simulation mode"
                   }
                 >
                   <span>
                     <IconButton
-                      disabled={disableAddNoteButton(value.id)}
-                      onClick={() => handleClickAddNote(value.id)}
+                      disabled={
+                        isSimulationProject() ||
+                        disableConvertPrior(value.prior) ||
+                        isLoading ||
+                        note.editing === value.id
+                      }
+                      onClick={() => {
+                        handleClickLabelConvert(value);
+                      }}
                     >
-                      <NoteAddOutlined
-                        fontSize={!props.mobileScreen ? "medium" : "small"}
-                      />
+                      {value.included === 1 ? (
+                        <Favorite
+                          color="error"
+                          fontSize={!props.mobileScreen ? "medium" : "small"}
+                        />
+                      ) : (
+                        <FavoriteBorder
+                          fontSize={!props.mobileScreen ? "medium" : "small"}
+                        />
+                      )}
                     </IconButton>
                   </span>
                 </Tooltip>
-              )}
-              {!props.is_prior && value.id === note.editing && (
-                <Tooltip title="Remove note">
-                  <span>
-                    <IconButton
-                      disabled={isLoading}
-                      onClick={() => handleClickRemoveNote(value)}
-                    >
-                      <KeyboardArrowUp
-                        fontSize={!props.mobileScreen ? "medium" : "small"}
-                      />
-                    </IconButton>
-                  </span>
-                </Tooltip>
-              )}
-            </CardActions>
-            <RecordCardNote
-              isLoading={isLoading}
-              record={value}
-              mobileScreen={props.mobileScreen}
-              mutate={mutate}
-              note={note}
-              setNote={setNote}
-              is_prior={props.is_prior}
-            />
-          </Card>
-        ))}
+                {props.is_prior && (
+                  <Tooltip
+                    title={`Remove ${
+                      value.included !== 1 ? "irrelevant" : "relevant"
+                    } label`}
+                  >
+                    <span>
+                      <IconButton
+                        disabled={isLoading}
+                        onClick={() => {
+                          handleClickRemoveLabel(value);
+                        }}
+                      >
+                        <Delete
+                          fontSize={!props.mobileScreen ? "medium" : "small"}
+                        />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                )}
+                {!props.is_prior && !value.note && value.id !== note.editing && (
+                  <Tooltip
+                    title={
+                      !props.isSimulating
+                        ? !disableAddNoteButton(value.id)
+                          ? "Add note"
+                          : "Save another note before adding"
+                        : "Add note after simulation is finished"
+                    }
+                  >
+                    <span>
+                      <IconButton
+                        disabled={
+                          props.isSimulating || disableAddNoteButton(value.id)
+                        }
+                        onClick={() => handleClickAddNote(value.id)}
+                      >
+                        <NoteAddOutlined
+                          fontSize={!props.mobileScreen ? "medium" : "small"}
+                        />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                )}
+                {!props.is_prior && value.id === note.editing && (
+                  <Tooltip title="Remove note">
+                    <span>
+                      <IconButton
+                        disabled={isLoading}
+                        onClick={() => handleClickRemoveNote(value)}
+                      >
+                        <KeyboardArrowUp
+                          fontSize={!props.mobileScreen ? "medium" : "small"}
+                        />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                )}
+              </CardActions>
+              <RecordCardNote
+                isLoading={isLoading}
+                record={value}
+                mobileScreen={props.mobileScreen}
+                mutate={mutate}
+                note={note}
+                setNote={setNote}
+                is_prior={props.is_prior}
+              />
+            </Card>
+          ))}
     </Root>
   );
 };

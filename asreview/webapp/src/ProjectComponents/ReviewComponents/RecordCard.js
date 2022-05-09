@@ -35,7 +35,7 @@ const Root = styled("div")(({ theme }) => ({
   flex: "1 0 auto",
   margin: "auto",
   maxWidth: 960,
-  padding: "24px 0px 32px 0px",
+  padding: "64px 0px 32px 0px",
   height: "100%",
   [theme.breakpoints.down("md")]: {
     padding: "4px 0px",
@@ -160,7 +160,7 @@ const RecordCard = (props) => {
                 </Box>
               )}
 
-              {/* No title, inplace text */}
+              {/* Show the title if available */}
               {!(
                 props.activeRecord.title === "" ||
                 props.activeRecord.title === null
@@ -171,13 +171,13 @@ const RecordCard = (props) => {
               )}
             </Typography>
 
-            {/* Show the publication date if available */}
+            {/* Show DOI if available */}
             {!(
               props.activeRecord.doi === undefined ||
               props.activeRecord.doi === null
             ) && (
               <Typography
-                className={classes.doi + " fontSize" + props.fontSize.label}
+                className={"fontSize" + props.fontSize.label}
                 color="textSecondary"
                 component="p"
                 fontStyle="italic"
@@ -190,6 +190,29 @@ const RecordCard = (props) => {
                   rel="noreferrer"
                 >
                   {props.activeRecord.doi}
+                </Link>
+              </Typography>
+            )}
+
+            {/* Show URL if available */}
+            {!(
+              props.activeRecord.url === undefined ||
+              props.activeRecord.url === null
+            ) && (
+              <Typography
+                className={"fontSize" + props.fontSize.label}
+                color="textSecondary"
+                component="p"
+                fontStyle="italic"
+                paragraph
+              >
+                URL:{" "}
+                <Link
+                  href={props.activeRecord.url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {props.activeRecord.url}
                 </Link>
               </Typography>
             )}
@@ -208,7 +231,7 @@ const RecordCard = (props) => {
                 <Box fontStyle="italic">No abstract available</Box>
               )}
 
-              {/* No abstract, inplace text */}
+              {/* Show the abstract if available */}
               {!(
                 props.activeRecord.abstract === "" ||
                 props.activeRecord.abstract === null

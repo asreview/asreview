@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,10 @@ import pandas as pd
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
 from asreview.exceptions import BadFileFormatError
+from asreview.utils import _reader_class_from_entry_point
+from asreview.utils import _writer_class_from_entry_point
+from asreview.utils import list_reader_names
+from asreview.utils import list_writer_names
 
 
 def type_from_column(col_name, col_definitions):
@@ -170,3 +174,71 @@ def _standardize_dataframe(df, column_spec={}):
     df.set_index('record_id', inplace=True)
 
     return df, all_column_spec
+
+
+def list_readers():
+    """List available dataset reader classes.
+
+    Returns
+    -------
+    list:
+        Classes of available dataset readers in alphabetical order.
+    """
+    reader_class = [
+        get_reader_class(name)
+        for name in list_reader_names(entry_name="asreview.readers")
+    ]
+
+    return reader_class
+
+
+def list_writers():
+    """List available dataset writer classes.
+
+    Returns
+    -------
+    list:
+        Classes of available dataset writers in alphabetical order.
+    """
+    writer_class = [
+        get_writer_class(name)
+        for name in list_writer_names(entry_name="asreview.writers")
+    ]
+
+    return writer_class
+
+
+def get_reader_class(name):
+    """Get class of dataset reader from string.
+
+    Arguments
+    ---------
+    name: str
+        Name of the dataset reader, e.g. '.csv', '.tsv' or '.xlsx'.
+
+    Returns
+    -------
+    class:
+        Class corresponding to the name.
+    """
+    return _reader_class_from_entry_point(
+        name,
+        entry_name="asreview.readers")
+
+
+def get_writer_class(name):
+    """Get class of dataset writer from string.
+
+    Arguments
+    ---------
+    name: str
+        Name of the dataset writer, e.g. '.csv', '.tsv' or '.xlsx'.
+
+    Returns
+    -------
+    class:
+        Class corresponding to the name.
+    """
+    return _writer_class_from_entry_point(
+        name,
+        entry_name="asreview.writers")

@@ -102,7 +102,7 @@ const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
     `<span class="apexcharts-legend-marker tooltip-label-marker ProgressRecallChart-tooltip-label-marker-asreview-color">` +
     "</span>" +
     `<span class="apexcharts-legend-text tooltip-label-text">` +
-    "Inclusions by ASReview LAB" +
+    "Relevant by ASReview LAB" +
     "</span>" +
     "</div>" +
     `<p class="tooltip-label-text-secondary ProgressRecallChart-tooltip-label-text-secondary-color">` +
@@ -120,7 +120,7 @@ const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
     `<span class="apexcharts-legend-marker tooltip-label-marker ProgressRecallChart-tooltip-label-marker-random-color">` +
     "</span>" +
     `<span class="apexcharts-legend-text tooltip-label-text">` +
-    "Random inclusions" +
+    "Random relevant" +
     "</span>" +
     "</div>" +
     `<p class="tooltip-label-text-secondary ProgressRecallChart-tooltip-label-text-secondary-color">` +
@@ -158,11 +158,11 @@ export default function ProgressRecallChart(props) {
     if (props.progressRecallQuery.data) {
       return [
         {
-          name: "Inclusions by ASReview LAB",
+          name: "Relevant by ASReview LAB",
           data: props.progressRecallQuery.data?.asreview,
         },
         {
-          name: "Random inclusions",
+          name: "Random relevant",
           data: props.progressRecallQuery.data?.random,
         },
       ];
@@ -229,7 +229,7 @@ export default function ProgressRecallChart(props) {
         size: 0,
       },
       noData: {
-        text: "No data available. Start reviewing first.",
+        text: "No data available",
       },
       stroke: {
         curve: "smooth",
@@ -292,13 +292,9 @@ export default function ProgressRecallChart(props) {
       />
       <CardContent className={classes.root}>
         <Stack spacing={2}>
-          {!props.mobileScreen && (
-            <Typography variant="h6">Progress Recall</Typography>
-          )}
+          {!props.mobileScreen && <Typography variant="h6">Recall</Typography>}
           {props.mobileScreen && (
-            <TypographySubtitle1Medium>
-              Progress Recall
-            </TypographySubtitle1Medium>
+            <TypographySubtitle1Medium>Recall</TypographySubtitle1Medium>
           )}
           <Chart
             options={options}

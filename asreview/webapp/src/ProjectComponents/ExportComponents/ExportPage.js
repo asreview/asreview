@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { connect } from "react-redux";
+import { useParams } from "react-router-dom";
 import {
   Box,
   Button,
@@ -8,18 +8,23 @@ import {
   FormControl,
   FormHelperText,
   InputLabel,
+  Link,
   MenuItem,
   Select,
   Stack,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { ActionsFeedbackBar, PageHeader } from "../../Components";
+import { SelectItem } from "../../ProjectComponents";
+
 import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
 import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps } from "../../globals.js";
 import "../../App.css";
+
+const selectWidth = 310;
 
 const PREFIX = "ExportPage";
 
@@ -30,7 +35,7 @@ const classes = {
 
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.select}`]: {
-    width: 310,
+    width: selectWidth,
   },
 
   [`& .${classes.selectHeight}`]: {
@@ -39,14 +44,24 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const ExportPage = (props) => {
+  const { project_id } = useParams();
+
   const queryClient = useQueryClient();
 
   const [file, setFile] = React.useState("");
   const [fileFormat, setFileFormat] = React.useState("");
   const [exporting, setExporting] = React.useState(false);
 
+  const { data, error, isError, isFetching } = useQuery(
+    ["fetchDatasetWriter", { project_id }],
+    ProjectAPI.fetchDatasetWriter,
+    {
+      refetchOnWindowFocus: false,
+    }
+  );
+
   const exportDatasetQuery = useQuery(
-    ["fetchExportDataset", { project_id: props.project_id, fileFormat }],
+    ["fetchExportDataset", { project_id, fileFormat }],
     ProjectAPI.fetchExportDataset,
     {
       enabled: file === "dataset" && exporting,
@@ -56,7 +71,7 @@ const ExportPage = (props) => {
   );
 
   const exportProjectQuery = useQuery(
-    ["fetchExportProject", { project_id: props.project_id }],
+    ["fetchExportProject", { project_id }],
     ProjectAPI.fetchExportProject,
     {
       enabled: file === "project" && exporting,
@@ -92,21 +107,22 @@ const ExportPage = (props) => {
   };
 
   const disableExportButton = () => {
-    return !file || !fileFormat || exporting;
+    return !file || !fileFormat || exporting || props.isSimulating;
   };
 
   const resetQueries = () => {
     queryClient.resetQueries(selectedQuery()[1]);
   };
 
+  const refetchDatasetWriter = () => {
+    queryClient.resetQueries("fetchDatasetWriter");
+  };
+
   return (
     <Root aria-label="export page">
       <Fade in>
         <Box>
-          <PageHeader
-            header="Project export"
-            mobileScreen={props.mobileScreen}
-          />
+          <PageHeader header="Export" mobileScreen={props.mobileScreen} />
           <Box className="main-page-body-wrapper">
             <Stack className="main-page-body" spacing={3}>
               <Box
@@ -130,11 +146,7 @@ const ExportPage = (props) => {
                       value={file}
                       onChange={handleFile}
                     >
-                      <MenuItem
-                        value="dataset"
-                        disabled={!props.enableExportDataset}
-                        divider
-                      >
+                      <MenuItem value="dataset" divider>
                         <Box>
                           <Typography variant="subtitle1">Dataset</Typography>
                           <Typography
@@ -184,6 +196,9 @@ const ExportPage = (props) => {
                   {file === "dataset" && (
                     <FormControl
                       className={`${classes.select} ${classes.selectHeight}`}
+                      disabled={isError || isFetching}
+                      error={isError}
+                      variant={isError || isFetching ? "filled" : "outlined"}
                     >
                       <InputLabel id="file-select-label">
                         File format
@@ -194,12 +209,39 @@ const ExportPage = (props) => {
                         label="File format"
                         value={fileFormat}
                         onChange={handleFileFormat}
+                        MenuProps={{
+                          sx: { width: selectWidth },
+                        }}
                       >
-                        <MenuItem value="csv">CSV (UTF-8)</MenuItem>
-                        <MenuItem value="tsv">TSV (UTF-8)</MenuItem>
-                        <MenuItem value="xlsx">Excel</MenuItem>
-                        <MenuItem value="ris">RIS</MenuItem>
+                        {data?.result.map((value, index) => {
+                          return (
+                            <MenuItem
+                              key={index}
+                              value={value.name}
+                              disabled={!value.enabled}
+                            >
+                              <SelectItem
+                                primary={value.label}
+                                secondary={
+                                  !value.enabled ? value.caution : null
+                                }
+                              />
+                            </MenuItem>
+                          );
+                        })}
                       </Select>
+                      {isError && (
+                        <FormHelperText>
+                          {error.message}
+                          <Link
+                            component="button"
+                            variant="body2"
+                            onClick={refetchDatasetWriter}
+                          >
+                            Please try again
+                          </Link>
+                        </FormHelperText>
+                      )}
                     </FormControl>
                   )}
                   {file === "project" && (
@@ -230,12 +272,21 @@ const ExportPage = (props) => {
                 </Stack>
               </Box>
               <Box className="main-page-body-wrapper">
-                <Button
-                  disabled={disableExportButton()}
-                  onClick={onClickExport}
+                <Tooltip
+                  disableFocusListener={!props.isSimulating}
+                  disableHoverListener={!props.isSimulating}
+                  disableTouchListener={!props.isSimulating}
+                  title="Export after simulation is finished"
                 >
-                  {!exporting ? "Export" : "Exporting..."}
-                </Button>
+                  <span>
+                    <Button
+                      disabled={disableExportButton()}
+                      onClick={onClickExport}
+                    >
+                      {!exporting ? "Export" : "Exporting..."}
+                    </Button>
+                  </span>
+                </Tooltip>
               </Box>
             </Stack>
           </Box>
@@ -259,4 +310,4 @@ const ExportPage = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(ExportPage);
+export default ExportPage;

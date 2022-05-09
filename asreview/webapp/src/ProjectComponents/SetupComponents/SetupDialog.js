@@ -1,6 +1,8 @@
 import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import clsx from "clsx";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Box,
@@ -33,9 +35,11 @@ import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
 
 import { ProjectAPI } from "../../api/index.js";
 import {
+  feedbackURL,
   mapStateToProps,
   mapDispatchToProps,
   projectModes,
+  projectStatuses,
 } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
 
@@ -44,28 +48,17 @@ const steps = ["Basic information", "Data", "Model"];
 const PREFIX = "SetupDialog";
 
 const classes = {
-  title: `${PREFIX}-title`,
-  closeButton: `${PREFIX}-close-button`,
   content: `${PREFIX}-content`,
   stepper: `${PREFIX}-stepper`,
   form: `${PREFIX}-form`,
+  formStepper: `${PREFIX}-form-stepper`,
 };
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
-  [`& .${classes.title}`]: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-
-  [`& .${classes.closeButton}`]: {
-    paddingRight: 24,
-  },
-
   [`& .${classes.content}`]: {
-    overflowY: "hidden",
     paddingLeft: 0,
     paddingRight: 0,
+    overflowY: "hidden",
   },
 
   [`& .${classes.stepper}`]: {
@@ -73,6 +66,14 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   },
 
   [`& .${classes.form}`]: {
+    alignItems: "center",
+    display: "flex",
+    height: "100%",
+    justifyContent: "center",
+    overflowY: "scroll",
+  },
+
+  [`& .${classes.formStepper}`]: {
     height: "calc(100% - 60px)",
     overflowY: "scroll",
     padding: "32px 48px 48px 48px",
@@ -80,6 +81,7 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 const SetupDialog = (props) => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const descriptionElementRef = React.useRef(null);
   const [activeStep, setActiveStep] = React.useState(0);
@@ -90,11 +92,10 @@ const SetupDialog = (props) => {
     title: "",
     authors: "",
     description: "",
+    dataset_path: undefined,
   });
   const [disableFetchInfo, setDisableFetchInfo] = React.useState(false); // disable fetch when init a project
-  const [disableModeSelect, setDisableModeSelect] = React.useState(false);
   const [exTitle, setExTitle] = React.useState(""); // for comparison to decide on mutate project id
-  const [showSimulate, setShowSimulate] = React.useState(false);
   const [textFiledFocused, setTextFieldFocused] = React.useState(null); // for autosave on blur
 
   // State Step 2: Data
@@ -110,6 +111,7 @@ const SetupDialog = (props) => {
   const [model, setModel] = React.useState({
     classifier: null,
     query_strategy: null,
+    balance_strategy: null,
     feature_extraction: null,
   });
 
@@ -120,12 +122,22 @@ const SetupDialog = (props) => {
   /**
    * Step 1: Basic information
    */
+  const projectHasDataset = () => {
+    return info.dataset_path !== undefined;
+  };
+
   const handleInfoChange = (event) => {
     if (isInitError && event.target.name === "title") {
       resetInit();
     }
     if (isMutateInfoError && event.target.name === "title") {
       resetMutateInfo();
+    }
+    if (isDeleteProjectError) {
+      resetDeleteProject();
+    }
+    if (event.target.name === "mode" && projectHasDataset()) {
+      deleteProject({ project_id: props.project_id });
     }
     setInfo({
       ...info,
@@ -136,10 +148,14 @@ const SetupDialog = (props) => {
   const {
     error: initError,
     isError: isInitError,
-    isLoading: isMutatingInitProject,
+    isLoading: isInitiatingProject,
+    isSuccess: isInitSuccess,
     mutate: initProject,
     reset: resetInit,
   } = useMutation(ProjectAPI.mutateInitProject, {
+    onMutate: () => {
+      setDisableFetchInfo(true);
+    },
     onSuccess: (data, variables) => {
       props.setProjectId(data["id"]);
       setTextFieldFocused(null);
@@ -162,12 +178,7 @@ const SetupDialog = (props) => {
     },
   });
 
-  const {
-    data: fetchedInfo,
-    error: fetchInfoError,
-    isError: isFetchInfoError,
-    isFetching: isFetchingInfo,
-  } = useQuery(
+  const { error: fetchInfoError, isError: isFetchInfoError } = useQuery(
     ["fetchInfo", { project_id: props.project_id }],
     ProjectAPI.fetchInfo,
     {
@@ -178,30 +189,43 @@ const SetupDialog = (props) => {
           title: data["name"],
           authors: data["authors"],
           description: data["description"],
+          dataset_path: data["dataset_path"],
         });
         setExTitle(data["name"]);
         setDisableFetchInfo(true); // avoid getting all the time
-        setDisableModeSelect(true);
       },
       refetchOnWindowFocus: false,
     }
   );
 
+  const {
+    error: deleteProjectError,
+    isError: isDeleteProjectError,
+    mutate: deleteProject,
+    reset: resetDeleteProject,
+  } = useMutation(ProjectAPI.mutateDeleteProject, {
+    onSuccess: () => {
+      props.setProjectId(null);
+      setTextFieldFocused(null);
+      setInfo((s) => {
+        return {
+          ...s,
+          dataset_path: undefined,
+        };
+      });
+      queryClient.resetQueries("fetchLabeledStats");
+    },
+  });
+
   const returnInfoError = () => {
-    if (!props.project_id) {
+    if (isInitError) {
       return [isInitError, initError];
-    }
-    if (props.project_id) {
+    } else if (isMutateInfoError) {
       return [isMutateInfoError, mutateInfoError];
+    } else {
+      return [false, null];
     }
   };
-
-  // disable fetch info query when initiate a new project
-  React.useEffect(() => {
-    if (props.open && props.project_id === null && !disableFetchInfo) {
-      setDisableFetchInfo(true);
-    }
-  }, [props.open, props.project_id, disableFetchInfo]);
 
   // auto mutate info when text field is not focused
   React.useEffect(() => {
@@ -213,7 +237,7 @@ const SetupDialog = (props) => {
       !isInitError &&
       !isMutateInfoError
     ) {
-      if (!props.project_id) {
+      if (!props.project_id && !isInitiatingProject) {
         initProject({
           mode: info.mode,
           title: info.title,
@@ -221,7 +245,7 @@ const SetupDialog = (props) => {
           description: info.description,
         });
       }
-      if (props.project_id) {
+      if (props.project_id && isInitSuccess) {
         mutateInfo({
           project_id: props.project_id,
           mode: info.mode,
@@ -236,6 +260,8 @@ const SetupDialog = (props) => {
     info,
     initProject,
     isInitError,
+    isInitSuccess,
+    isInitiatingProject,
     isMutateInfoError,
     mutateInfo,
     props.project_id,
@@ -257,7 +283,6 @@ const SetupDialog = (props) => {
       queryClient.invalidateQueries("fetchInfo");
       queryClient.invalidateQueries("fetchLabeledStats");
       toggleAddDataset();
-      setDatasetSource("file");
     },
     onSettled: () => {
       setFile(null);
@@ -276,7 +301,8 @@ const SetupDialog = (props) => {
     ["fetchLabeledStats", { project_id: props.project_id }],
     ProjectAPI.fetchLabeledStats,
     {
-      enabled: props.project_id !== null && activeStep === 1,
+      enabled:
+        props.project_id !== null && activeStep === 1 && projectHasDataset(),
       refetchOnWindowFocus: false,
     }
   );
@@ -288,7 +314,6 @@ const SetupDialog = (props) => {
 
   const handleDiscardDataset = () => {
     toggleAddDataset();
-    setDatasetSource("file");
     setFile(null);
     setURL("");
     setExtension(null);
@@ -328,6 +353,15 @@ const SetupDialog = (props) => {
     );
   };
 
+  React.useEffect(() => {
+    if (info.mode === projectModes.EXPLORATION) {
+      setDatasetSource("benchmark");
+    }
+    if (info.mode !== projectModes.EXPLORATION) {
+      setDatasetSource("file");
+    }
+  }, [info.mode]);
+
   /**
    * Step3: Model
    */
@@ -346,12 +380,14 @@ const SetupDialog = (props) => {
       props.project_id &&
       model.classifier &&
       model.query_strategy &&
+      model.balance_strategy &&
       model.feature_extraction
     ) {
       mutateModelConfig({
         project_id: props.project_id,
         classifier: model["classifier"],
         query_strategy: model["query_strategy"],
+        balance_strategy: model["balance_strategy"],
         feature_extraction: model["feature_extraction"],
       });
     }
@@ -376,19 +412,19 @@ const SetupDialog = (props) => {
     isError: isProjectReadyError,
     isFetching: isPreparingProject,
   } = useQuery(
-    ["fetchProjectReady", { project_id: props.project_id }],
-    ProjectAPI.fetchProjectReady,
+    ["fetchProjectStatus", { project_id: props.project_id }],
+    ProjectAPI.fetchProjectStatus,
     {
       enabled: trainingStarted,
       onSuccess: (data) => {
-        if (data["status"] === 1) {
+        if (data["status"] === projectStatuses.REVIEW) {
           // model ready
           setTrainingStarted(false);
           setTrainingFinished(true);
         } else {
           // not ready yet
           setTimeout(
-            () => queryClient.invalidateQueries("fetchProjectReady"),
+            () => queryClient.invalidateQueries("fetchProjectStatus"),
             24000
           );
         }
@@ -409,24 +445,33 @@ const SetupDialog = (props) => {
     setTextFieldFocused(null);
     setExTitle("");
     props.onClose();
+    if (props.project_id) {
+      props.setFeedbackBar({
+        open: true,
+        message: `Your project ${info.title} has been saved as draft`,
+      });
+      queryClient.invalidateQueries("fetchProjects");
+      navigate("/projects");
+    }
   };
 
   const exitedSetup = () => {
+    props.setProjectId(null);
     setActiveStep(0);
     setInfo({
       mode: projectModes.ORACLE,
       title: "",
       authors: "",
       description: "",
+      dataset_path: undefined,
     });
+    setDatasetSource("file");
     setModel({
       classifier: null,
       query_strategy: null,
       feature_extraction: null,
     });
     setDisableFetchInfo(false);
-    setDisableModeSelect(false);
-    setShowSimulate(false);
     setTrainingStarted(false);
     setTrainingFinished(false);
     if (isInitError) {
@@ -440,14 +485,6 @@ const SetupDialog = (props) => {
     }
     if (isMutateModelConfigError) {
       resetMutateModelConfig();
-    }
-    if (props.project_id) {
-      props.setFeedbackBar({
-        open: true,
-        message: `Your project ${info.title} has been saved as draft`,
-      });
-      queryClient.invalidateQueries("fetchProjects");
-      props.handleAppState("home");
     }
   };
 
@@ -491,7 +528,7 @@ const SetupDialog = (props) => {
 
   // saving state box in step 1 & 3
   const isSaving = () => {
-    return isMutatingInitProject || isMutatingInfo || isMutatingModelConfig;
+    return isInitiatingProject || isMutatingInfo || isMutatingModelConfig;
   };
 
   const isSavingPriorKnowledge = () => {
@@ -506,18 +543,6 @@ const SetupDialog = (props) => {
       handleBack();
     }
   }, [activeStep, isInitError, isMutateInfoError]);
-
-  React.useEffect(() => {
-    // unlock simulation mode
-    if (info.title === "elas" && !showSimulate) {
-      setInfo({
-        ...info,
-        title: "",
-        mode: projectModes.SIMULATION,
-      });
-      setShowSimulate(true);
-    }
-  }, [info, showSimulate]);
 
   React.useEffect(() => {
     if (props.open) {
@@ -544,18 +569,21 @@ const SetupDialog = (props) => {
     >
       {!addDataset && !addPriorKnowledge && (
         <Fade in={!addDataset}>
-          <Box className={classes.title}>
+          <Stack className="dialog-header" direction="row">
             <DialogTitle>Create a new project</DialogTitle>
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-              {props.project_id !== null &&
-                (activeStep === 0 || activeStep === 2) && (
-                  <SavingStateBox isSaving={isSaving()} />
-                )}
-              <Box className={classes.closeButton}>
+              {props.project_id && (activeStep === 0 || activeStep === 2) && (
+                <SavingStateBox isSaving={isSaving()} />
+              )}
+              <Stack
+                className="dialog-header-button right"
+                direction="row"
+                spacing={1}
+              >
                 <Tooltip title="Send feedback">
                   <StyledIconButton
                     component={"a"}
-                    href={`https://github.com/asreview/asreview/discussions`}
+                    href={feedbackURL}
                     target="_blank"
                   >
                     <Feedback />
@@ -568,16 +596,29 @@ const SetupDialog = (props) => {
                     </StyledIconButton>
                   </Tooltip>
                 )}
-              </Box>
+              </Stack>
             </Stack>
-          </Box>
+          </Stack>
         </Fade>
       )}
       {addDataset && (
         <Fade in={addDataset}>
-          <Box className={classes.title}>
+          <Stack className="dialog-header" direction="row">
             <DialogTitle>Dataset</DialogTitle>
-            <Stack direction="row" spacing={2} className={classes.closeButton}>
+            <Stack
+              direction="row"
+              spacing={1}
+              className="dialog-header-button right"
+            >
+              <Tooltip title="Send feedback">
+                <StyledIconButton
+                  component={"a"}
+                  href={feedbackURL}
+                  target="_blank"
+                >
+                  <Feedback />
+                </StyledIconButton>
+              </Tooltip>
               <Button disabled={isAddingDataset} onClick={handleDiscardDataset}>
                 Discard Changes
               </Button>
@@ -590,12 +631,12 @@ const SetupDialog = (props) => {
                 Save
               </LoadingButton>
             </Stack>
-          </Box>
+          </Stack>
         </Fade>
       )}
       {addPriorKnowledge && (
         <Fade in={addPriorKnowledge}>
-          <Box className={classes.title}>
+          <Stack className="dialog-header" direction="row">
             <DialogTitle>Prior knowledge</DialogTitle>
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               {isEnoughPriorKnowledge() && (
@@ -607,7 +648,16 @@ const SetupDialog = (props) => {
               {labeledStats?.n_prior !== 0 && (
                 <SavingStateBox isSaving={isSavingPriorKnowledge()} />
               )}
-              <Box className={classes.closeButton}>
+              <Tooltip title="Send feedback">
+                <StyledIconButton
+                  component={"a"}
+                  href={feedbackURL}
+                  target="_blank"
+                >
+                  <Feedback />
+                </StyledIconButton>
+              </Tooltip>
+              <Box className="dialog-header-button right">
                 <Button
                   variant={!isEnoughPriorKnowledge() ? "text" : "contained"}
                   onClick={toggleAddPriorKnowledge}
@@ -616,7 +666,7 @@ const SetupDialog = (props) => {
                 </Button>
               </Box>
             </Stack>
-          </Box>
+          </Stack>
         </Fade>
       )}
       <Divider />
@@ -634,24 +684,27 @@ const SetupDialog = (props) => {
                 </Stepper>
               </Box>
             )}
-            <Box className={classes.form}>
+            <Box
+              className={clsx({
+                [classes.form]: activeStep === 3,
+                [classes.formStepper]: activeStep !== 3,
+              })}
+            >
               {activeStep === 0 && (
                 <ProjectInfoForm
                   info={info}
-                  disableModeSelect={disableModeSelect}
+                  deleteProjectError={deleteProjectError}
                   mutateInfoError={returnInfoError()[1]}
-                  fetchInfoError={fetchInfoError}
+                  isDeleteProjectError={isDeleteProjectError}
                   isMutateInfoError={returnInfoError()[0]}
-                  isFetchInfoError={isFetchInfoError}
-                  isFetchingInfo={isFetchingInfo}
                   handleInfoChange={handleInfoChange}
-                  showSimulate={showSimulate}
+                  datasetAdded={projectHasDataset()}
                   setTextFieldFocused={setTextFieldFocused}
                 />
               )}
               {activeStep === 1 && (
                 <DataForm
-                  info={fetchedInfo}
+                  datasetAdded={projectHasDataset()}
                   labeledStats={labeledStats}
                   toggleAddDataset={toggleAddDataset}
                   toggleAddPriorKnowledge={toggleAddPriorKnowledge}
@@ -673,15 +726,15 @@ const SetupDialog = (props) => {
               )}
               {activeStep === 3 && (
                 <FinishSetup
-                  handleAppState={props.handleAppState}
-                  handleNavState={props.handleNavState}
                   isPreparingProject={isPreparingProject}
                   isProjectReadyError={isProjectReadyError}
                   isStartTrainingError={isStartTrainingError}
+                  mode={info.mode}
                   projectReadyError={projectReadyError}
                   restartTraining={restartTraining}
                   startTrainingError={startTrainingError}
                   trainingFinished={trainingFinished}
+                  toggleProjectSetup={props.onClose}
                 />
               )}
             </Box>
@@ -693,7 +746,7 @@ const SetupDialog = (props) => {
         <AddDataset
           addDatasetError={addDatasetError}
           benchmark={benchmark}
-          datasetAdded={fetchedInfo?.projectHasDataset}
+          datasetAdded={projectHasDataset()}
           datasetSource={datasetSource}
           extension={extension}
           file={file}

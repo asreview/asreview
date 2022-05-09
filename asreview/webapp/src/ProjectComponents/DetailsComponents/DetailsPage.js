@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useMutation, useQueryClient } from "react-query";
-import { connect } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Box,
   Button,
@@ -16,18 +16,19 @@ import { styled } from "@mui/material/styles";
 import { MoreVert } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
 
-import { ProjectInfoForm } from "../../ProjectComponents";
-import { ActionsFeedbackBar, ProjectDeleteDialog } from "../../Components";
+import { ProjectInfoForm, ProjectDeleteDialog } from "../../ProjectComponents";
+import { ActionsFeedbackBar } from "../../Components";
 import { DataForm, ModelForm } from "../DetailsComponents";
 import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
 import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps, mapDispatchToProps } from "../../globals.js";
+import { projectModes, projectStatuses } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
-import "../../App.css";
 
 const Root = styled("div")(({ theme }) => ({}));
 
 const DetailsPage = (props) => {
+  const navigate = useNavigate();
+  const { project_id } = useParams();
   const queryClient = useQueryClient();
 
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -42,31 +43,46 @@ const DetailsPage = (props) => {
     description: props.info?.description,
   });
 
-  const { error, isError, isLoading, isSuccess, mutate, reset } = useMutation(
-    ProjectAPI.mutateInfo,
-    {
-      onSuccess: (data, variables) => {
-        setDisableButton(true);
-        if (variables.title !== props.info?.name) {
-          // mutate project id when typed title is different from existing title/empty string
-          props.setProjectId(data["id"]);
-        } else {
-          // update cached data
-          queryClient.setQueryData(
-            ["fetchInfo", { project_id: variables.project_id }],
-            (prev) => {
-              return {
-                ...prev,
-                name: variables.title,
-                authors: variables.authors,
-                description: variables.description,
-              };
-            }
-          );
-        }
-      },
-    }
-  );
+  const {
+    error: mutateInfoError,
+    isError: isMutateInfoError,
+    isLoading: isMutatingInfo,
+    isSuccess: isMutateInfoSuccess,
+    mutate: mutateInfo,
+    reset: resetMutateInfo,
+  } = useMutation(ProjectAPI.mutateInfo, {
+    onSuccess: (data, variables) => {
+      setDisableButton(true);
+      if (variables.title !== props.info?.name) {
+        // mutate project id when typed title is different from existing title/empty string
+        navigate(`/projects/${data["id"]}/details`);
+      } else {
+        // update cached data
+        queryClient.setQueryData(
+          ["fetchInfo", { project_id: variables.project_id }],
+          (prev) => {
+            return {
+              ...prev,
+              name: variables.title,
+              authors: variables.authors,
+              description: variables.description,
+            };
+          }
+        );
+      }
+    },
+  });
+
+  const {
+    error: mutateStatusError,
+    isError: isMutateStatusError,
+    mutate: mutateStatus,
+    reset: resetMutateStatus,
+  } = useMutation(ProjectAPI.mutateProjectStatus, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("fetchInfo");
+    },
+  });
 
   const handleClickUndoChanges = () => {
     setInfo({
@@ -79,8 +95,8 @@ const DetailsPage = (props) => {
   };
 
   const handleClickSave = () => {
-    mutate({
-      project_id: props.project_id,
+    mutateInfo({
+      project_id,
       mode: info.mode,
       title: info.title,
       authors: info.authors,
@@ -94,6 +110,17 @@ const DetailsPage = (props) => {
 
   const handleCloseOptions = () => {
     setAnchorEl(null);
+  };
+
+  const handleChangeStatus = () => {
+    handleCloseOptions();
+    mutateStatus({
+      project_id,
+      status:
+        props.info?.reviews[0].status === projectStatuses.REVIEW
+          ? projectStatuses.FINISHED
+          : projectStatuses.REVIEW,
+    });
   };
 
   const handleClickDelete = () => {
@@ -112,10 +139,10 @@ const DetailsPage = (props) => {
           >
             <Box className="main-page-sticky-header with-button">
               {!props.mobileScreen && (
-                <TypographyH5Medium>Project details</TypographyH5Medium>
+                <TypographyH5Medium>Details</TypographyH5Medium>
               )}
               {props.mobileScreen && (
-                <Typography variant="h6">Project details</Typography>
+                <Typography variant="h6">Details</Typography>
               )}
               <Stack direction="row" spacing={1}>
                 <Button
@@ -125,15 +152,24 @@ const DetailsPage = (props) => {
                 >
                   Undo Changes
                 </Button>
-                <LoadingButton
-                  disabled={disableButton}
-                  loading={isLoading}
-                  variant="contained"
-                  onClick={handleClickSave}
-                  size={!props.mobileScreen ? "medium" : "small"}
+                <Tooltip
+                  disableFocusListener={!props.isSimulating}
+                  disableHoverListener={!props.isSimulating}
+                  disableTouchListener={!props.isSimulating}
+                  title="Save after simulation is finished"
                 >
-                  Save
-                </LoadingButton>
+                  <span>
+                    <LoadingButton
+                      disabled={disableButton || props.isSimulating}
+                      loading={isMutatingInfo}
+                      variant="contained"
+                      onClick={handleClickSave}
+                      size={!props.mobileScreen ? "medium" : "small"}
+                    >
+                      Save
+                    </LoadingButton>
+                  </span>
+                </Tooltip>
                 <Box>
                   <Tooltip title="Options">
                     <IconButton
@@ -150,6 +186,14 @@ const DetailsPage = (props) => {
                     open={onOptions}
                     onClose={handleCloseOptions}
                   >
+                    {info.mode !== projectModes.SIMULATION && (
+                      <MenuItem onClick={handleChangeStatus}>
+                        {props.info?.reviews[0].status ===
+                        projectStatuses.REVIEW
+                          ? "Mark as finished"
+                          : "Mark as in review"}
+                      </MenuItem>
+                    )}
                     <MenuItem onClick={handleClickDelete}>Delete</MenuItem>
                   </Menu>
                 </Box>
@@ -174,10 +218,7 @@ const DetailsPage = (props) => {
                 spacing={3}
                 sx={{ width: !props.mobileScreen ? "40%" : "100%" }}
               >
-                <DataForm
-                  handleNavState={props.handleNavState}
-                  setHistoryFilterQuery={props.setHistoryFilterQuery}
-                />
+                <DataForm setHistoryFilterQuery={props.setHistoryFilterQuery} />
                 <ModelForm />
               </Stack>
             </Stack>
@@ -188,22 +229,29 @@ const DetailsPage = (props) => {
         onDeleteDialog={onDeleteDialog}
         toggleDeleteDialog={toggleDeleteDialog}
         projectTitle={props.info?.name}
-        project_id={props.project_id}
+        project_id={project_id}
       />
       <ActionsFeedbackBar
         feedback="Changes saved"
-        open={isSuccess}
-        onClose={reset}
+        open={isMutateInfoSuccess}
+        onClose={resetMutateInfo}
       />
-      {isError && (
+      {isMutateInfoError && (
         <ActionsFeedbackBar
-          feedback={error?.message + " Please try again."}
-          open={isError}
-          onClose={reset}
+          feedback={mutateInfoError?.message + " Please try again."}
+          open={isMutateInfoError}
+          onClose={resetMutateInfo}
+        />
+      )}
+      {isMutateStatusError && (
+        <ActionsFeedbackBar
+          feedback={mutateStatusError?.message + " Please try again."}
+          open={isMutateStatusError}
+          onClose={resetMutateStatus}
         />
       )}
     </Root>
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(DetailsPage);
+export default DetailsPage;

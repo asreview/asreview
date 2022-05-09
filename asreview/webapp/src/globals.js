@@ -14,6 +14,9 @@ export const api_url = base_url + "api/";
 
 export const donateURL = "https://asreview.nl/donate";
 
+export const feedbackURL =
+  "https://github.com/asreview/asreview/issues/new/choose";
+
 export const getDesignTokens = (mode: PaletteMode) => ({
   palette: {
     mode,
@@ -53,6 +56,8 @@ export const drawerWidth = 250;
 export const decisionUndoBarDuration = 6000;
 export const decisionUndoBarMarginBottom = 80;
 
+export const checkIfSimulationFinishedDuration = 6000;
+
 export const fontSizeOptions = [
   {
     value: 1,
@@ -89,6 +94,12 @@ export const projectModes = {
   ORACLE: "oracle",
   SIMULATION: "simulate",
   EXPLORATION: "explore",
+};
+
+export const projectStatuses = {
+  SETUP: "setup",
+  REVIEW: "review",
+  FINISHED: "finished",
 };
 
 // project history filter options

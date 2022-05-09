@@ -1,10 +1,10 @@
 import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { connect } from "react-redux";
+import { useParams } from "react-router-dom";
 import { Box, Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { ActionsFeedbackBar, PageHeader } from "../../Components";
+import { ActionsFeedbackBar } from "../../Components";
 import {
   DecisionButton,
   DecisionUndoBar,
@@ -13,7 +13,6 @@ import {
 } from "../ReviewComponents";
 
 import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps } from "../../globals.js";
 import { useKeyPress } from "../../hooks/useKeyPress";
 
 import "./ReviewPage.css";
@@ -23,7 +22,9 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const ReviewPage = (props) => {
+  const { project_id } = useParams();
   const queryClient = useQueryClient();
+
   const [explorationMode, setExplorationMode] = React.useState(false);
   const [activeRecord, setActiveRecord] = React.useState(null);
   const [previousRecord, setPreviousRecord] = React.useState({
@@ -48,7 +49,7 @@ const ReviewPage = (props) => {
   const notePress = useKeyPress("n");
 
   const recordQuery = useQuery(
-    ["fetchRecord", { project_id: props.project_id }],
+    ["fetchRecord", { project_id }],
     ProjectAPI.fetchRecord,
     {
       refetchOnWindowFocus: false,
@@ -168,7 +169,7 @@ const ReviewPage = (props) => {
       skipClassification();
     } else {
       mutate({
-        project_id: props.project_id,
+        project_id: project_id,
         doc_id: activeRecord.doc_id,
         label: label,
         note: recordNote.data,
@@ -231,14 +232,6 @@ const ReviewPage = (props) => {
   return (
     <Root aria-label="review page">
       <Fade in>
-        <Box>
-          <PageHeader
-            header="Project review"
-            mobileScreen={props.mobileScreen}
-          />
-        </Box>
-      </Fade>
-      <Fade in>
         <Box className="review-page-body-wrapper">
           <Box className="review-page-body">
             {/* Banner Exploration Mode */}
@@ -288,4 +281,4 @@ const ReviewPage = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(ReviewPage);
+export default ReviewPage;

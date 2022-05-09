@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Box,
   Button,
@@ -40,8 +41,11 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const DataFormCard = (props) => {
+  const navigate = useNavigate();
+  const { project_id } = useParams();
+
   const handleClickViewPrior = () => {
-    props.handleNavState("history");
+    navigate(`/projects/${project_id}/history`);
     props.setHistoryFilterQuery([
       historyFilterOptions.find((e) => e.value === "prior"),
     ]);

@@ -16,7 +16,8 @@ import {
 import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../../Components";
-import { InfoCard, SelectItem } from "../../SetupComponents";
+import { SelectItem } from "../../../ProjectComponents";
+import { InfoCard } from "../../SetupComponents";
 import { ProjectAPI } from "../../../api/index.js";
 import { defaultAlgorithms, mapStateToProps } from "../../../globals.js";
 
@@ -95,6 +96,7 @@ const ModelForm = (props) => {
         props.setModel({
           classifier: data["model"],
           query_strategy: data["query_strategy"],
+          balance_strategy: data["balance_strategy"],
           feature_extraction: data["feature_extraction"],
         });
       },
@@ -132,6 +134,12 @@ const ModelForm = (props) => {
       props.setModel({
         ...props.model,
         query_strategy: event.target.value,
+      });
+    }
+    if (event.target.name === "balance_strategy") {
+      props.setModel({
+        ...props.model,
+        balance_strategy: event.target.value,
       });
     }
     if (event.target.name === "feature_extraction") {
@@ -331,6 +339,33 @@ const ModelForm = (props) => {
                   <FormHelperText>
                     {returnQueryStrategyHelperText()}
                   </FormHelperText>
+                </FormControl>
+                <FormControl fullWidth>
+                  <InputLabel id="balance-strategy-select-label">
+                    Balance strategy
+                  </InputLabel>
+                  <Select
+                    id="select-balance-strategy"
+                    name="balance_strategy"
+                    label="Balance strategy"
+                    value={props.model?.balance_strategy}
+                    onChange={handleModel}
+                  >
+                    {modelOptions?.balance_strategy.map((value) => {
+                      return (
+                        <MenuItem
+                          key={`result-item-${value.name}`}
+                          checked={props.model?.balance_strategy === value.name}
+                          value={value.name}
+                        >
+                          <SelectItem
+                            primary={value.label}
+                            secondary={value.description}
+                          />
+                        </MenuItem>
+                      );
+                    })}
+                  </Select>
                 </FormControl>
                 <FormControl fullWidth>
                   <InputLabel id="feature-extraction-select-label">

@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,13 @@
 # limitations under the License.
 
 
-from asreview.io.csv_reader import read_csv
-from asreview.io.excel_reader import read_excel
+from asreview.io.csv_reader import CSVReader
+from asreview.io.csv_writer import CSVWriter
+from asreview.io.excel_reader import ExcelReader
+from asreview.io.excel_writer import ExcelWriter
 from asreview.io.paper_record import PaperRecord
-from asreview.io.ris_reader import read_ris
+from asreview.io.ris_reader import RISReader
+from asreview.io.ris_writer import RISWriter
+from asreview.io.tsv_writer import TSVWriter
+from asreview.io.utils import list_readers
+from asreview.io.utils import list_writers

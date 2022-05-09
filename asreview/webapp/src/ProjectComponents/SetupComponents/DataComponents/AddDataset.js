@@ -1,5 +1,4 @@
 import * as React from "react";
-import { connect } from "react-redux";
 import {
   DialogContent,
   Fade,
@@ -14,13 +13,13 @@ import {
 } from "@mui/material";
 
 import {
-  DatasetFromBenchmark,
-  DatasetFromExtension,
+  DatasetFromEntryPoint,
+  // DatasetFromFile,
   DatasetFromURL,
 } from "../DataComponents";
 import { InfoCard } from "../../SetupComponents";
 import { ImportFromFile } from "../../../ProjectComponents";
-import { mapStateToProps, projectModes } from "../../../globals.js";
+import { projectModes } from "../../../globals.js";
 
 const AddDataset = (props) => {
   return (
@@ -28,7 +27,7 @@ const AddDataset = (props) => {
       <DialogContent sx={{ padding: "24px 48px 48px 48px" }}>
         <Stack spacing={3}>
           {!props.isAddingDataset && props.datasetAdded && (
-            <InfoCard info="Editing the dataset removes the added prior knowledge" />
+            <InfoCard info="Editing dataset removes the added prior knowledge" />
           )}
           <FormControl disabled={props.isAddingDataset} component="fieldset">
             <FormLabel component="legend">Add a dataset from</FormLabel>
@@ -58,7 +57,8 @@ const AddDataset = (props) => {
                   onChange={props.handleDatasetSource}
                 />
               )}
-              {props.mode === projectModes.EXPLORATION && (
+              {(props.mode === projectModes.EXPLORATION ||
+                props.mode === projectModes.SIMULATION) && (
                 <FormControlLabel
                   value="benchmark"
                   control={<Radio />}
@@ -74,10 +74,13 @@ const AddDataset = (props) => {
               ASReview LAB accepts RIS file format (<code>.ris</code>,{" "}
               <code>.txt</code>) and tabular datasets (<code>.csv</code>,{" "}
               <code>.tab</code>, <code>.tsv</code>, <code>.xlsx</code>). The
-              selected dataset should contain the title and abstract of each
-              record. To optimally benefit from the performance of the active
-              learning model, it is highly recommended to add a dataset without
-              duplicate records.{" "}
+              dataset should contain a title and abstract for each record.{" "}
+              {props.mode !== projectModes.ORACLE
+                ? "The dataset should also contain labels for each record. "
+                : ""}
+              To optimally benefit from the performance of the active learning
+              model, it is highly recommended to add a dataset without duplicate
+              records.{" "}
               <Link
                 underline="none"
                 href="https://asreview.readthedocs.io/en/latest/intro/datasets.html"
@@ -135,7 +138,8 @@ const AddDataset = (props) => {
             />
           )}
           {props.datasetSource === "extension" && (
-            <DatasetFromExtension
+            <DatasetFromEntryPoint
+              subset="plugin"
               addDatasetError={props.addDatasetError}
               extension={props.extension}
               setExtension={props.setExtension}
@@ -145,7 +149,8 @@ const AddDataset = (props) => {
             />
           )}
           {props.datasetSource === "benchmark" && (
-            <DatasetFromBenchmark
+            <DatasetFromEntryPoint
+              subset="benchmark"
               addDatasetError={props.addDatasetError}
               benchmark={props.benchmark}
               setBenchmark={props.setBenchmark}
@@ -160,4 +165,4 @@ const AddDataset = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(AddDataset);
+export default AddDataset;

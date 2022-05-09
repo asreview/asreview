@@ -1,15 +1,11 @@
 import {
   SET_ASREVIEW_VERSION,
   SET_PROJECT,
-  SET_APP_STATE,
-  SET_NAV_STATE,
   TOGGLE_HELP_DIALOG,
 } from "../../constants/action-types";
 
 const initialState = {
   asreview_version: undefined,
-  app_state: "boot",
-  nav_state: "dashboard",
   project_id: null,
   onHelpDialog: false,
 };
@@ -23,22 +19,6 @@ function rootReducer(state = initialState, action) {
     case SET_PROJECT:
       return Object.assign({}, state, {
         project_id: action.project_id,
-      });
-    case SET_APP_STATE:
-      if (action.app_state === "boot" || action.app_state === "home") {
-        return Object.assign({}, state, {
-          app_state: action.app_state,
-          nav_state: "dashboard",
-          project_id: null,
-        });
-      } else {
-        return Object.assign({}, state, {
-          app_state: action.app_state,
-        });
-      }
-    case SET_NAV_STATE:
-      return Object.assign({}, state, {
-        nav_state: action.nav_state,
       });
     case TOGGLE_HELP_DIALOG:
       return Object.assign({}, state, {

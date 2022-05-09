@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,17 +18,48 @@ from urllib.parse import urlparse
 
 import numpy as np
 import pandas as pd
-import pkg_resources
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
+from asreview.datasets import DatasetManager
+from asreview.datasets import DatasetNotFoundError
 from asreview.exceptions import BadFileFormatError
-from asreview.io.paper_record import PaperRecord
-from asreview.io.ris_writer import write_ris
+from asreview.io import PaperRecord
 from asreview.io.utils import convert_keywords
 from asreview.io.utils import type_from_column
+from asreview.utils import get_entry_points
 from asreview.utils import is_iterable
 from asreview.utils import is_url
+
+
+def load_data(name, *args, **kwargs):
+    """Load data from file, URL, or plugin.
+
+    Parameters
+    ----------
+    name: str, pathlib.Path
+        File path, URL, or alias of extension dataset.
+
+    Returns
+    -------
+    asreview.ASReviewData:
+        Inititalized ASReview data object.
+    """
+
+    # check is file or URL
+    if is_url(name) or Path(name).exists():
+        return ASReviewData.from_file(name, *args, **kwargs)
+
+    # check if dataset is plugin dataset\
+    try:
+        dataset_path = DatasetManager().find(name).filepath
+        return ASReviewData.from_file(dataset_path, *args, **kwargs)
+    except DatasetNotFoundError:
+        pass
+
+    # Could not find dataset, return None.
+    raise FileNotFoundError(
+        f"File, URL, or dataset does not exist: '{name}'")
 
 
 class ASReviewData():
@@ -117,7 +148,7 @@ class ASReviewData():
             encoding='UTF-8', errors='ignore')).hexdigest()
 
     @classmethod
-    def from_file(cls, fp, read_fn=None):
+    def from_file(cls, fp, reader=None):
         """Create instance from csv/ris/excel file.
 
         It works in two ways; either manual control where the conversion
@@ -128,34 +159,32 @@ class ASReviewData():
         ---------
         fp: str, pathlib.Path
             Read the data from this file.
-        read_fn: callable
-            Function to read the file. It should return a standardized
-            dataframe.
+        reader: class
+            Reader to import the file.
         """
         if is_url(fp):
             path = urlparse(fp).path
         else:
             path = str(Path(fp).resolve())
 
-        if read_fn is not None:
-            return cls(read_fn(fp))
+        if reader is not None:
+            return cls(reader.read_data(fp))
 
-        entry_points = {
-            entry.name: entry
-            for entry in pkg_resources.iter_entry_points('asreview.readers')
-        }
+        entry_points = get_entry_points(entry_name="asreview.readers")
+
         best_suffix = None
+
         for suffix, entry in entry_points.items():
             if path.endswith(suffix):
                 if best_suffix is None or len(suffix) > len(best_suffix):
                     best_suffix = suffix
 
         if best_suffix is None:
-            raise ValueError(f"Error reading file {fp}, no capabilities for "
-                             "reading such a file.")
+            raise BadFileFormatError(f"Error importing file {fp}, no capabilities "
+                                     "for importing such a file.")
 
-        read_fn = entry_points[best_suffix].load()
-        df, column_spec = read_fn(fp)
+        reader = entry_points[best_suffix].load()
+        df, column_spec = reader.read_data(fp)
         return cls(df, column_spec=column_spec)
 
     def record(self, i, by_index=True):
@@ -265,6 +294,13 @@ class ASReviewData():
         except KeyError:
             return None
 
+    @property
+    def url(self):
+        try:
+            return self.df[self.column_spec["url"]].values
+        except KeyError:
+            return None
+
     def get(self, name):
         "Get column with name."
         try:
@@ -337,18 +373,14 @@ class ASReviewData():
         numpy.ndarray
             Array of indices that have the 'prior' property.
         """
-        state_data = state.get_dataset(['record_id', 'query_strategy'])
+        prior_indices = state.get_priors().to_list()
 
-        if "prior" not in state_data['query_strategy'].values:
-            return np.array([], dtype=int)
-
-        initial_indices = state_data['record_id'][
-            state_data['query_strategy'] == 'prior'].to_list()
         if by_index:
-            return np.array(initial_indices, dtype=int)
-        return self.df.index.values[initial_indices]
+            return np.array(prior_indices, dtype=int)
+        else:
+            return self.df.index.values[prior_indices]
 
-    def to_file(self, fp, labels=None, ranking=None):
+    def to_file(self, fp, labels=None, ranking=None, writer=None):
         """Export data object to file.
 
         RIS, CSV, TSV and Excel are supported file formats at the moment.
@@ -361,19 +393,29 @@ class ASReviewData():
             Labels to be inserted into the dataframe before export.
         ranking: list, numpy.ndarray
             Optionally, dataframe rows can be reordered.
+        writer: class
+            Writer to export the file.
         """
-        if Path(fp).suffix in [".csv", ".CSV"]:
-            self.to_csv(fp, labels=labels, ranking=ranking)
-        elif Path(fp).suffix in [".tsv", ".TSV", ".tab", ".TAB"]:
-            self.to_csv(fp, sep="\t", labels=labels, ranking=ranking)
-        elif Path(fp).suffix in [".ris", ".RIS", ".txt", ".TXT"]:
-            self.to_ris(fp, labels=labels, ranking=ranking)
-        elif Path(fp).suffix in [".xlsx", ".XLSX"]:
-            self.to_excel(fp, labels=labels, ranking=ranking)
+        df = self.to_dataframe(labels=labels, ranking=ranking)
+
+        if writer is not None:
+            writer.write_data(df, fp, labels=labels, ranking=ranking)
         else:
-            raise BadFileFormatError(
-                f"Unknown file extension: {Path(fp).suffix}.\n"
-                f"from file {fp}")
+            entry_points = get_entry_points(entry_name="asreview.writers")
+
+            best_suffix = None
+
+            for suffix, entry in entry_points.items():
+                if Path(fp).suffix == suffix:
+                    if best_suffix is None or len(suffix) > len(best_suffix):
+                        best_suffix = suffix
+
+            if best_suffix is None:
+                raise BadFileFormatError(f"Error exporting file {fp}, no capabilities "
+                                         "for exporting such a file.")
+
+            writer = entry_points[best_suffix].load()
+            writer.write_data(df, fp, labels=labels, ranking=ranking)
 
     def to_dataframe(self, labels=None, ranking=None):
         """Create new dataframe with updated label (order).
@@ -419,71 +461,3 @@ class ASReviewData():
             result_df.loc[result_df[col_label] == LABEL_NA, col_label] = np.nan
 
         return result_df
-
-    def to_csv(self, fp, sep=",", labels=None, ranking=None):
-        """Export to csv.
-
-        Arguments
-        ---------
-        fp: str, NoneType
-            Filepath or None for buffer.
-        sep: str
-            Seperator of the file.
-        labels: list, numpy.ndarray
-            Current labels will be overwritten by these labels
-            (including unlabelled). No effect if labels is None.
-        ranking: list
-            Reorder the dataframe according to these (internal) indices.
-            Default ordering if ranking is None.
-
-        Returns
-        -------
-        pandas.DataFrame
-            Dataframe of all available record data.
-        """
-        df = self.to_dataframe(labels=labels, ranking=ranking)
-        return df.to_csv(fp, sep=sep, index=True)
-
-    def to_excel(self, fp, labels=None, ranking=None):
-        """Export to Excel xlsx file.
-
-        Arguments
-        ---------
-        fp: str, NoneType
-            Filepath or None for buffer.
-        labels: list, numpy.ndarray
-            Current labels will be overwritten by these labels
-            (including unlabelled). No effect if labels is None.
-        ranking: list
-            Reorder the dataframe according to these (internal) indices.
-            Default ordering if ranking is None.
-
-        Returns
-        -------
-        pandas.DataFrame
-            Dataframe of all available record data.
-        """
-        df = self.to_dataframe(labels=labels, ranking=ranking)
-        return df.to_excel(fp, index=True)
-
-    def to_ris(self, fp, labels=None, ranking=None):
-        """Export to RIS (.ris) file.
-
-        Arguments
-        ---------
-        fp: str, NoneType
-            Filepath or None for buffer.
-        labels: list, numpy.ndarray
-            Current labels will be overwritten by these labels
-            (including unlabelled). No effect if labels is None.
-        ranking: list
-            Reorder the dataframe according to these (internal) indices.
-            Default ordering if ranking is None.
-
-        Returns
-        -------
-        pandas.DataFrame
-            Dataframe of all available record data.
-        """
-        df = self.to_dataframe(labels=labels, ranking=ranking)
-        return write_ris(df, fp)

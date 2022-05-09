@@ -3,6 +3,7 @@ import clsx from "clsx";
 import { connect } from "react-redux";
 import { InView } from "react-intersection-observer";
 import { useInfiniteQuery } from "react-query";
+import { useParams } from "react-router-dom";
 import {
   Box,
   ButtonBase,
@@ -47,6 +48,8 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const LabeledRecord = (props) => {
+  const { project_id } = useParams();
+
   const [subset, setSubset] = React.useState(null);
 
   const returnSubset = () => {
@@ -58,7 +61,8 @@ const LabeledRecord = (props) => {
       ? true
       : !(
           (props.label === "relevant" && !props.n_prior_inclusions) ||
-          (props.label === "irrelevant" && !props.n_prior_exclusions)
+          (props.label === "irrelevant" && !props.n_prior_exclusions) ||
+          (props.label === "all" && !props.n_prior)
         );
   };
 
@@ -75,7 +79,7 @@ const LabeledRecord = (props) => {
     [
       "fetchLabeledRecord",
       {
-        project_id: props.project_id,
+        project_id: !project_id ? props.project_id : project_id,
         subset: returnSubset(),
       },
     ],
@@ -131,11 +135,12 @@ const LabeledRecord = (props) => {
                 data.pages.map((page, index) => (
                   <LabeledRecordCard
                     page={page}
-                    label={props.label}
                     key={`result-page-${index}`}
                     is_prior={props.is_prior}
+                    isSimulating={props.isSimulating}
                     returnSubset={returnSubset}
                     mobileScreen={props.mobileScreen}
+                    mode={props.mode}
                   />
                 ))}
               <InView

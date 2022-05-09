@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,12 +35,12 @@ class BaseState(ABC):
         return str(self.to_dict())
 
     @abstractmethod
-    def _create_new_state_file(self, fp, review_id):
+    def _create_new_state_file(self, working_dir, review_id):
         """Create empty internal structure for state.
 
         Arguments
         ---------
-        fp: str
+        working_dir: str, pathlib.Path
             Location of project file.
         review_id: str
             Identifier of the review.
@@ -48,25 +48,25 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def _restore(self, fp, review_id):
+    def _restore(self, working_dir, review_id):
         """Restore state from a state file.
 
         Arguments
         ---------
-        fp: str
-            Path to project file.
+        working_dir: str, pathlib.Path
+            Location of project file.
         review_id: str
             Identifier of the review.
         """
         raise NotImplementedError
 
     @abstractmethod
-    def add_record_table(self, record_table):
-        """Add properties from as_data to the state.
+    def add_record_table(self, record_ids):
+        """Add the record table to the state.
 
         Arguments
         ---------
-        record_table: list-like
+        record_ids: list-like
             List containing all record ids of the dataset.
         """
         raise NotImplementedError
@@ -134,42 +134,15 @@ class BaseState(ABC):
 
         Returns
         -------
-        pd.DataFrame:
-            Dataframe with column 'proba' containing the probabilities.
-        """
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
-    def current_queries(self):
-        """Get the current queries made by the model.
-
-        This is useful to get back exactly to the state it was in before
-        shutting down a review.
-
-        Returns
-        -------
-        dict:
-            The last known queries according to the state file.
-        """
-        raise NotImplementedError
-
-    @current_queries.setter
-    @abstractmethod
-    def current_queries(self, current_queries):
-        """Set the current queries made by the model.
-
-        Arguments
-        ---------
-        current_queries: dict
-            The last known queries, with {query_idx: query_method}.
+        pd.Series:
+            Series with name 'proba' containing the probabilities.
         """
         raise NotImplementedError
 
     @property
     @abstractmethod
     def settings(self):
-        """Get settings from state
+        """Get settings from the state.
         """
         raise NotImplementedError
 
@@ -187,7 +160,7 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def add_labeling_data(self, record_ids, labels, notes=None):
+    def add_labeling_data(self, record_ids, labels, notes=None, prior=False):
         """Add the data corresponding to a labeling action to the state file.
 
         Arguments
@@ -198,16 +171,22 @@ class BaseState(ABC):
             A list of labels of the labeled records as int.
         notes: list of str/None
             A list of text notes to save with the labeled records.
+        prior: bool
+            Whether the added record are prior knowledge.
         """
         raise NotImplementedError
 
-    def change_decision(self, record_id):
-        """Change the label of a record from 0 to 1 or vice versa.
+    def update_decision(self, record_id, label, note=None):
+        """Change the label of an already labeled record.
 
         Arguments
         ---------
         record_id: int
             Id of the record whose label should be changed.
+        label: 0 / 1
+            New label of the record.
+        note: str
+            Note to add to the record.
         """
         raise NotImplementedError
 
@@ -363,17 +342,10 @@ class BaseState(ABC):
         """
         raise NotImplementedError
 
-    # @abstractmethod
-    # def delete_last_query(self):
-    #     """Delete the last query from the state object."""
-    #     raise NotImplementedError
-    #
-
     @abstractmethod
     def close(self):
         """Close the files opened by the state.
 
-        Also sets the end time if not in read-only mode.
         """
         raise NotImplementedError
 
@@ -383,7 +355,7 @@ class BaseState(ABC):
         Returns
         -------
         dict:
-            Dictionary with all relevant variables.
+            Dictionary with all settings and results.
         """
         state_data = self.get_dataset()
         state_dict = {

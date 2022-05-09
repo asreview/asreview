@@ -1,11 +1,13 @@
 import React from "react";
-import { useQueryClient } from "react-query";
-import { connect } from "react-redux";
+import { useMutation, useQueryClient } from "react-query";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button, Fade, Link, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
+import { ActionsFeedbackBar } from "../../Components";
+
 import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps } from "../../globals.js";
+import { projectStatuses } from "../../globals.js";
 import ElasFinished from "../../images/ElasFinished.svg";
 
 const PREFIX = "ReviewPageFinished";
@@ -42,20 +44,39 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const ReviewPageFinished = (props) => {
+  const navigate = useNavigate();
+  const { project_id } = useParams();
   const queryClient = useQueryClient();
+
   const [recordEmpty, setRecordEmpty] = React.useState(false);
 
+  const { error, isError, mutate, reset } = useMutation(
+    ProjectAPI.mutateProjectStatus,
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries("fetchInfo");
+      },
+    }
+  );
+
+  const handleChangeStatus = () => {
+    mutate({
+      project_id,
+      status: projectStatuses.REVIEW,
+    });
+  };
+
   const handleClickExport = () => {
-    props.handleNavState("export");
+    navigate(`/projects/${project_id}/export`);
   };
 
   const ifRecordPoolEmpty = React.useCallback(async () => {
     const data = await queryClient.fetchQuery(
-      ["fetchRecord", { project_id: props.project_id }],
+      ["fetchRecord", { project_id }],
       ProjectAPI.fetchRecord
     );
     setRecordEmpty(data["pool_empty"]);
-  }, [props.project_id, queryClient]);
+  }, [project_id, queryClient]);
 
   React.useEffect(() => {
     ifRecordPoolEmpty();
@@ -79,9 +100,14 @@ const ReviewPageFinished = (props) => {
                 Congratulations! You have finished this project.
               </Typography>
               <Typography className={classes.text}>
-                You have stopped reviewing and marked this project as finished.
-                If you want to resume the review, please{" "}
-                <Link>update project status</Link>.
+                You have stopped reviewing and marked this project as finished.{" "}
+                <Link
+                  component="button"
+                  variant="body1"
+                  onClick={handleChangeStatus}
+                >
+                  Resume the review
+                </Link>
               </Typography>
             </Stack>
           )}
@@ -95,8 +121,15 @@ const ReviewPageFinished = (props) => {
           )}
         </Stack>
       </Fade>
+      {isError && (
+        <ActionsFeedbackBar
+          feedback={error?.message + " Please try again."}
+          open={isError}
+          onClose={reset}
+        />
+      )}
     </Root>
   );
 };
 
-export default connect(mapStateToProps)(ReviewPageFinished);
+export default ReviewPageFinished;

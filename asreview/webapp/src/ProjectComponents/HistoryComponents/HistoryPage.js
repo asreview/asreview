@@ -25,10 +25,7 @@ const HistoryPage = (props) => {
     <Root aria-label="history page">
       <Fade in>
         <Box>
-          <PageHeader
-            header="Project history"
-            mobileScreen={props.mobileScreen}
-          />
+          <PageHeader header="History" mobileScreen={props.mobileScreen} />
           <Box
             className="main-page-sticky-header-wrapper"
             sx={{ background: (theme) => theme.palette.background.paper }}
@@ -51,7 +48,9 @@ const HistoryPage = (props) => {
               <LabeledRecord
                 label={props.label}
                 filterQuery={props.filterQuery}
+                isSimulating={props.isSimulating}
                 mobileScreen={props.mobileScreen}
+                mode={props.mode}
               />
             </Box>
           </Box>

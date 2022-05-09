@@ -19,24 +19,10 @@ const DOILink = (doi) => {
   }
 };
 
-const BenchmarkDataset = (props) => {
-  const handleAccordion = (index, featured) => (event, isExpanded) => {
+const EntryPointDataset = (props) => {
+  const handleAccordion = (dataset_id) => (event, isExpanded) => {
     if (!props.isAddingDataset) {
-      if (featured) {
-        props.setExpanded((s) => {
-          return {
-            other: false,
-            featured: isExpanded ? index : false,
-          };
-        });
-      } else {
-        props.setExpanded((s) => {
-          return {
-            other: isExpanded ? index : false,
-            featured: false,
-          };
-        });
-      }
+      props.setExpanded(isExpanded ? dataset_id : false);
     }
   };
 
@@ -45,22 +31,19 @@ const BenchmarkDataset = (props) => {
       props.reset();
     }
     if (!props.isAddingDataset) {
-      props.setExpanded({
-        other: false,
-        featured: false,
-      });
-      props.setBenchmark(props.dataset_id);
+      props.setExpanded(false);
+      props.setSelectedDatasetId(props.dataset_id);
     }
   };
 
   const returnSelected = () => {
-    return props.benchmark === props.dataset_id;
+    return props.selectedDatasetId === props.dataset_id;
   };
 
   const returnCheckedIcon = () => {
     if (
-      props.benchmark === props.dataset_id &&
-      props.expanded !== props.index
+      props.selectedDatasetId === props.dataset_id &&
+      props.expanded !== props.dataset_id
     ) {
       return <CheckCircleOutline color="primary" />;
     } else {
@@ -71,8 +54,8 @@ const BenchmarkDataset = (props) => {
   return (
     <Accordion
       elevation={3}
-      expanded={props.expanded === props.index}
-      onChange={handleAccordion(props.index, props.featured)}
+      expanded={props.expanded === props.dataset_id}
+      onChange={handleAccordion(props.dataset_id)}
     >
       <AccordionSummary expandIcon={returnCheckedIcon()}>
         <Typography sx={{ width: "33%", flexShrink: 0 }}>
@@ -85,17 +68,19 @@ const BenchmarkDataset = (props) => {
       <AccordionDetails>
         <Stack spacing={1}>
           <Typography>{props.title}</Typography>
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            DOI:{" "}
-            <Link
-              href={DOILink(props.doi)}
-              underline="none"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {props.doi}
-            </Link>
-          </Typography>
+          {props.doi && (
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              DOI:{" "}
+              <Link
+                href={props.doi && DOILink(props.doi)}
+                underline="none"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {props.doi}
+              </Link>
+            </Typography>
+          )}
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
             License:{" "}
             <Link
@@ -132,4 +117,4 @@ const BenchmarkDataset = (props) => {
   );
 };
 
-export default BenchmarkDataset;
+export default EntryPointDataset;

@@ -1,12 +1,12 @@
 <p align="center">
   <a href="https://github.com/asreview/asreview">
-    <img width="60%" height="60%" src="https://raw.githubusercontent.com/asreview/asreview/master/images/RepoCardGithub-1280x640px.png">
+    <img width="60%" height="60%" src="https://raw.githubusercontent.com/asreview/asreview-artwork/master/LogoASReview/SVG/GitHub_Repo_Card_Transparent.svg">
   </a>
 </p>
 
 ## ASReview: Active learning for Systematic Reviews
 
-[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fasreview%2Fasreview%2Fbadge%3Fref%3Dmaster&style=flat)](https://actions-badge.atrox.dev/asreview/asreview/goto?ref=master) [![Documentation Status](https://readthedocs.org/projects/asreview/badge/?version=latest)](https://asreview.readthedocs.io/en/latest/?badge=latest) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3345592.svg)](https://doi.org/10.5281/zenodo.3345592) [![Downloads](https://pepy.tech/badge/asreview)](https://github.com/asreview/asreview#installation) [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4755/badge)](https://bestpractices.coreinfrastructure.org/projects/4755)
+[![PyPI version](https://badge.fury.io/py/asreview.svg)](https://badge.fury.io/py/asreview) [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fasreview%2Fasreview%2Fbadge%3Fref%3Dmaster&style=flat)](https://actions-badge.atrox.dev/asreview/asreview/goto?ref=master) [![Documentation Status](https://readthedocs.org/projects/asreview/badge/?version=latest)](https://asreview.readthedocs.io/en/latest/?badge=latest) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3345592.svg)](https://doi.org/10.5281/zenodo.3345592) [![Downloads](https://pepy.tech/badge/asreview)](https://github.com/asreview/asreview#installation) [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4755/badge)](https://bestpractices.coreinfrastructure.org/projects/4755)
 
 Systematic Reviews are “top of the bill” in research. The number of scientific
 studies are increasing exponentially in many scholarly fields. Performing a
@@ -85,12 +85,9 @@ For more scientific publications on the ASReview software, go to
 
 ## Contact
 
-ASReview is a research project coordinated by [Rens van de
-Schoot](www.rensvandeschoot.com) (full professor at the Department of
-Methodology & Statistics at [Utrecht University](https://www.uu.nl), The
-Netherlands), together with ASReview lead engineer
-[Jonathan de Bruin](https://github.com/J535D165). For an overview of the team working on
-ASReview, see [ASReview Research Team](https://asreview.readthedocs.io/en/latest/intro/about.html#research-team).
+For an overview of the team working on ASReview, see [ASReview Research Team](https://asreview.nl/about).
+ASReview LAB is maintained by
+[Jonathan de Bruin](https://github.com/J535D165) and [Yongchao Terry Ma](https://github.com/terrymyc). 
 
 The best resources to find an answer to your question or ways to get in
 contact with the team are:

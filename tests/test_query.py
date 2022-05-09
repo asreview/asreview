@@ -40,7 +40,7 @@ def test_query(query_strategy,
 
     for n_instances in n_instances_list:
         for n_train in n_train_idx:
-            shared = {"query_src": {}, "current_queries": {}}
+            shared = {"query_src": {}}
             train_idx = np.random.choice(np.arange(n_sample),
                                          n_train,
                                          replace=False)

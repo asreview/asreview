@@ -10,7 +10,7 @@ class ProjectAPI {
       axios
         .get(url)
         .then((result) => {
-          resolve(result.data["result"]);
+          resolve(result["data"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));
@@ -39,7 +39,7 @@ class ProjectAPI {
     body.set("authors", variables.authors);
     body.set("description", variables.description);
 
-    const url = api_url + `project/info`;
+    const url = api_url + `projects/info`;
     return new Promise((resolve, reject) => {
       axios({
         method: "post",
@@ -57,7 +57,7 @@ class ProjectAPI {
 
   static fetchUpgradeProjectIfOld({ queryKey }) {
     const { project_id } = queryKey[1];
-    const url = api_url + `project/${project_id}/upgrade_if_old`;
+    const url = api_url + `projects/${project_id}/upgrade_if_old`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
@@ -72,7 +72,7 @@ class ProjectAPI {
 
   static fetchInfo({ queryKey }) {
     const { project_id } = queryKey[1];
-    const url = api_url + `project/${project_id}/info`;
+    const url = api_url + `projects/${project_id}/info`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
@@ -92,7 +92,7 @@ class ProjectAPI {
     body.set("authors", variables.authors);
     body.set("description", variables.description);
 
-    const url = api_url + `project/${variables.project_id}/info`;
+    const url = api_url + `projects/${variables.project_id}/info`;
     return new Promise((resolve, reject) => {
       axios({
         method: "put",
@@ -140,7 +140,7 @@ class ProjectAPI {
       body.append("benchmark", variables.benchmark);
     }
 
-    const url = api_url + `project/${variables.project_id}/data`;
+    const url = api_url + `projects/${variables.project_id}/data`;
     return new Promise((resolve, reject) => {
       axios({
         method: "post",
@@ -158,7 +158,22 @@ class ProjectAPI {
 
   static fetchData({ queryKey }) {
     const { project_id } = queryKey[1];
-    const url = api_url + `project/${project_id}/data`;
+    const url = api_url + `projects/${project_id}/data`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url)
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static fetchDatasetWriter({ queryKey }) {
+    const { project_id } = queryKey[1];
+    const url = api_url + `projects/${project_id}/dataset_writer`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
@@ -173,7 +188,7 @@ class ProjectAPI {
 
   static fetchPriorSearch({ queryKey }) {
     const { project_id, keyword } = queryKey[1];
-    const url = api_url + `project/${project_id}/search`;
+    const url = api_url + `projects/${project_id}/search`;
     return new Promise((resolve, reject) => {
       axios
         .get(url, { params: { q: keyword, n_max: 10 } })
@@ -188,7 +203,7 @@ class ProjectAPI {
 
   static fetchPriorRandom({ queryKey }) {
     const { project_id } = queryKey[1];
-    const url = api_url + `project/${project_id}/prior_random`;
+    const url = api_url + `projects/${project_id}/prior_random`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
@@ -203,7 +218,7 @@ class ProjectAPI {
 
   static fetchLabeledRecord({ pageParam = 1, queryKey }) {
     const { project_id, subset, per_page } = queryKey[1];
-    const url = api_url + `project/${project_id}/labeled`;
+    const url = api_url + `projects/${project_id}/labeled`;
     return new Promise((resolve, reject) => {
       axios
         .get(url, {
@@ -223,7 +238,7 @@ class ProjectAPI {
 
   static fetchLabeledStats({ queryKey }) {
     const { project_id } = queryKey[1];
-    const url = api_url + `project/${project_id}/labeled_stats`;
+    const url = api_url + `projects/${project_id}/labeled_stats`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
@@ -252,7 +267,7 @@ class ProjectAPI {
 
   static fetchModelConfig({ queryKey }) {
     const { project_id } = queryKey[1];
-    const url = api_url + `project/${project_id}/algorithms`;
+    const url = api_url + `projects/${project_id}/algorithms`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
@@ -269,9 +284,10 @@ class ProjectAPI {
     let body = new FormData();
     body.set("model", variables.classifier);
     body.set("query_strategy", variables.query_strategy);
+    body.set("balance_strategy", variables.balance_strategy);
     body.set("feature_extraction", variables.feature_extraction);
 
-    const url = api_url + `project/${variables.project_id}/algorithms`;
+    const url = api_url + `projects/${variables.project_id}/algorithms`;
     return new Promise((resolve, reject) => {
       axios({
         method: "post",
@@ -288,7 +304,7 @@ class ProjectAPI {
   }
 
   static mutateStartTraining(variables) {
-    const url = api_url + `project/${variables.project_id}/start`;
+    const url = api_url + `projects/${variables.project_id}/start`;
     return new Promise((resolve, reject) => {
       axios({
         method: "post",
@@ -305,9 +321,9 @@ class ProjectAPI {
     });
   }
 
-  static fetchProjectReady({ queryKey }) {
+  static fetchProjectStatus({ queryKey }) {
     const { project_id } = queryKey[1];
-    const url = api_url + `project/${project_id}/ready`;
+    const url = api_url + `projects/${project_id}/status`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
@@ -320,11 +336,31 @@ class ProjectAPI {
     });
   }
 
+  static mutateProjectStatus(variables) {
+    let body = new FormData();
+    body.set("status", variables.status);
+
+    const url = api_url + `projects/${variables.project_id}/status`;
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "put",
+        url: url,
+        data: body,
+      })
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static mutateImportProject(variables) {
     let body = new FormData();
     body.append("file", variables.file);
 
-    const url = api_url + `project/import_project`;
+    const url = api_url + `projects/import_project`;
     return new Promise((resolve, reject) => {
       axios({
         method: "post",
@@ -343,7 +379,8 @@ class ProjectAPI {
   static fetchExportDataset({ queryKey }) {
     const { project_id, fileFormat } = queryKey[1];
     const url =
-      api_url + `project/${project_id}/export?file_type=${fileFormat}`;
+      api_url +
+      `projects/${project_id}/export_dataset?file_format=${fileFormat}`;
     return new Promise((resolve, reject) => {
       axios({
         url: url,
@@ -356,7 +393,7 @@ class ProjectAPI {
           link.href = url;
           link.setAttribute(
             "download",
-            `asreview_result_${project_id}.${fileFormat}`
+            `asreview_dataset_${project_id}.${fileFormat}`
           );
           document.body.appendChild(link);
           link.click();
@@ -385,7 +422,7 @@ class ProjectAPI {
 
   static fetchExportProject({ queryKey }) {
     const { project_id } = queryKey[1];
-    const url = api_url + `project/${project_id}/export_project`;
+    const url = api_url + `projects/${project_id}/export_project`;
     return new Promise((resolve, reject) => {
       axios({
         url: url,
@@ -422,23 +459,9 @@ class ProjectAPI {
     });
   }
 
-  static finish(project_id) {
-    const url = api_url + `project/${project_id}/finish`;
-    return new Promise((resolve, reject) => {
-      axios
-        .get(url)
-        .then((result) => {
-          resolve(result);
-        })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
   static fetchProgress({ queryKey }) {
     const { project_id } = queryKey[1];
-    const url = api_url + `project/${project_id}/progress`;
+    const url = api_url + `projects/${project_id}/progress`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
@@ -453,7 +476,7 @@ class ProjectAPI {
 
   static fetchProgressDensity({ queryKey }) {
     const { project_id } = queryKey[1];
-    const url = api_url + `project/${project_id}/progress_density`;
+    const url = api_url + `projects/${project_id}/progress_density`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
@@ -468,7 +491,7 @@ class ProjectAPI {
 
   static fetchProgressRecall({ queryKey }) {
     const { project_id } = queryKey[1];
-    const url = api_url + `project/${project_id}/progress_recall`;
+    const url = api_url + `projects/${project_id}/progress_recall`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
@@ -493,7 +516,7 @@ class ProjectAPI {
     }
 
     const url =
-      api_url + `project/${variables.project_id}/record/${variables.doc_id}`;
+      api_url + `projects/${variables.project_id}/record/${variables.doc_id}`;
     return new Promise((resolve, reject) => {
       axios({
         method: variables.initial ? "post" : "put",
@@ -517,7 +540,7 @@ class ProjectAPI {
 
   static fetchRecord({ queryKey }) {
     const { project_id } = queryKey[1];
-    const url = api_url + `project/${project_id}/get_document`;
+    const url = api_url + `projects/${project_id}/get_document`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
@@ -531,7 +554,7 @@ class ProjectAPI {
   }
 
   static mutateDeleteProject(variables) {
-    const url = api_url + `project/${variables.project_id}/delete`;
+    const url = api_url + `projects/${variables.project_id}/delete`;
     return new Promise((resolve, reject) => {
       axios
         .delete(url)

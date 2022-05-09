@@ -1,8 +1,14 @@
 import React from "react";
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import {
+  FormControl,
+  FormHelperText,
+  InputLabel,
+  MenuItem,
+  Select,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { SelectItem } from "../ProjectComponents/SetupComponents";
+import { SelectItem } from "../ProjectComponents";
 import { projectModes } from "../globals.js";
 
 const Root = styled("div")(({ theme }) => ({}));
@@ -31,24 +37,25 @@ export default function ProjectModeSelect(props) {
           <MenuItem value={projectModes.ORACLE} divider>
             <SelectItem
               primary="Oracle"
-              secondary="Start interactive AI-assisted screening with an unlabeled dataset"
+              secondary="Review your dataset with interactive artificial intelligence (AI)"
             />
           </MenuItem>
-          <MenuItem value={projectModes.EXPLORATION}>
+          <MenuItem value={projectModes.EXPLORATION} divider>
             <SelectItem
               primary="Exploration"
-              secondary="Explore the power of ASReview LAB with a completely labeled dataset"
+              secondary="Explore or demonstrate ASReview LAB with a completely labeled dataset"
             />
           </MenuItem>
-          {props.showSimulate && (
-            <MenuItem value={projectModes.SIMULATION}>
-              <SelectItem
-                primary="Simulation"
-                secondary="Simulate screening on a completely labeled dataset to understand the performance of an active learning model"
-              />
-            </MenuItem>
-          )}
+          <MenuItem value={projectModes.SIMULATION}>
+            <SelectItem
+              primary="Simulation"
+              secondary="Simulate a review on a completely labeled dataset to see the performance of ASReview LAB"
+            />
+          </MenuItem>
         </Select>
+        {props.datasetAdded && (
+          <FormHelperText>Editing mode removes the added data</FormHelperText>
+        )}
       </FormControl>
     </Root>
   );

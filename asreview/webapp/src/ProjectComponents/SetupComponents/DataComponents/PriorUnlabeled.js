@@ -50,6 +50,10 @@ const PriorUnlabeled = (props) => {
       mutationKey: "mutatePriorKnowledge",
       onSuccess: (data, variables) => {
         queryClient.invalidateQueries("fetchLabeledStats");
+        queryClient.invalidateQueries([
+          "fetchLabeledRecord",
+          { subset: ["all"] },
+        ]);
         if (!variables.label) {
           queryClient.invalidateQueries([
             "fetchLabeledRecord",
