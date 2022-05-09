@@ -25,9 +25,9 @@ from functools import wraps
 from pathlib import Path
 from uuid import uuid4
 
+from filelock import FileLock
 import jsonschema
 import numpy as np
-from filelock import FileLock
 
 from asreview._version import get_versions
 from asreview.config import LABEL_NA
@@ -293,7 +293,7 @@ class ASReviewProject():
     def config(self, config):
 
         project_fp = Path(self.project_path, PATH_PROJECT_CONFIG)
-        project_fp_lock = Path(project_path, PATH_PROJECT_CONFIG_LOCK)
+        project_fp_lock = Path(self.project_path, PATH_PROJECT_CONFIG_LOCK)
         lock = FileLock(project_fp_lock, timeout=3)
 
         with lock:
