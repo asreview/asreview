@@ -288,7 +288,6 @@ class ASReviewProject():
         project_fp = Path(self.project_path, PATH_PROJECT_CONFIG)
 
         with open(project_fp, "w") as f:
-            print("dump config")
             json.dump(config, f)
 
         self._config = config

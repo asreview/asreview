@@ -47,12 +47,7 @@ def get_data_file_path(project_path):
 
     # open the projects file
     with open(project_file_path, "r") as f_read:
-        # print(f_read.read())
-        # project_dict = json.load(f_read)
-
-        content = f_read.read()
-        print("project.json content:", content)
-        project_dict = json.loads(content)
+        project_dict = json.load(f_read)
 
     try:
         return data_folder / project_dict["dataset_path"]
