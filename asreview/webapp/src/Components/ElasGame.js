@@ -6,11 +6,11 @@ import { styled } from "@mui/material/styles";
 import ElasBalloons from "../images/ElasBalloons.png";
 import ElasPotter from "../images/ElasPotter.png";
 import ElasArrowRightAhead from "../images/ElasArrowRightAhead.png";
-import ElasConstructionWorkerOrange from "../images/ElasConstructionWorkerOrange.png";
+import ElasConstructionWorkerOrange from "../images/ElasConstructionWorkerOrange.svg";
 import ElasArrowLeft from "../images/ElasArrowLeft.png";
 import ElasGrad from "../images/ElasGrad.png";
-import ElasWithDuck from "../images/ElasWithDuck.png";
-import ElasFireMan from "../images/ElasFireMan.png";
+import ElasWithDuck from "../images/ElasWithDuck.svg";
+import ElasFireMan from "../images/ElasFireMan.svg";
 
 import ElasIcon from "../icons/ElasIcon";
 
