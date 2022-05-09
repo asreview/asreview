@@ -27,6 +27,7 @@ from uuid import uuid4
 
 import jsonschema
 import numpy as np
+from filelock import FileLock
 
 from asreview._version import get_versions
 from asreview.config import LABEL_NA
@@ -41,6 +42,7 @@ from asreview.utils import asreview_path
 from asreview.webapp.io import read_data
 
 PATH_PROJECT_CONFIG = "project.json"
+PATH_PROJECT_CONFIG_LOCK = "project.json.lock"
 PATH_FEATURE_MATRICES = 'feature_matrices'
 
 
@@ -124,7 +126,7 @@ def _create_project_id(name):
 
 def is_project(project_path):
 
-    project_path = Path(project_path) / "project.json"
+    project_path = Path(project_path) / PATH_PROJECT_CONFIG
 
     return project_path.exists()
 
@@ -250,9 +252,14 @@ class ASReviewProject():
             # validate new config before storing
             jsonschema.validate(instance=config, schema=SCHEMA)
 
+            project_fp = Path(project_path, PATH_PROJECT_CONFIG)
+            project_fp_lock = Path(project_path, PATH_PROJECT_CONFIG_LOCK)
+            lock = FileLock(project_fp_lock, timeout=3)
+
             # create a file with project info
-            with open(Path(project_path, PATH_PROJECT_CONFIG), "w") as f:
-                json.dump(config, f)
+            with lock:
+                with open(project_fp, "w") as f:
+                    json.dump(config, f)
 
         except Exception as err:
             # remove all generated folders and raise error
@@ -286,9 +293,12 @@ class ASReviewProject():
     def config(self, config):
 
         project_fp = Path(self.project_path, PATH_PROJECT_CONFIG)
+        project_fp_lock = Path(project_path, PATH_PROJECT_CONFIG_LOCK)
+        lock = FileLock(project_fp_lock, timeout=3)
 
-        with open(project_fp, "w") as f:
-            json.dump(config, f)
+        with lock:
+            with open(project_fp, "w") as f:
+                json.dump(config, f)
 
         self._config = config
 
