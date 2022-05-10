@@ -3,6 +3,8 @@ import Chart from "react-apexcharts";
 import { Card, CardContent } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
+import { projectModes } from "../../globals";
+
 const PREFIX = "ProgressChart";
 
 const classes = {
@@ -35,8 +37,14 @@ export default function ProgressChart(props) {
     : null;
 
   const formattedTotal = React.useCallback(() => {
-    return n_papers ? n_papers.toLocaleString("en-US") : 0;
-  }, [n_papers]);
+    if (props.mode !== projectModes.SIMULATION || !props.isSimulating) {
+      return n_papers ? n_papers.toLocaleString("en-US") : 0;
+    } else {
+      return (
+        Math.round(((n_included + n_excluded) / n_papers) * 10000) / 100 + "%"
+      );
+    }
+  }, [props.isSimulating, props.mode, n_included, n_excluded, n_papers]);
 
   /**
    * Chart data array
@@ -86,7 +94,10 @@ export default function ProgressChart(props) {
             },
             total: {
               show: true,
-              label: "Total records",
+              label:
+                props.mode !== projectModes.SIMULATION || !props.isSimulating
+                  ? "Total records"
+                  : "Simulation progress",
               fontSize: !props.mobileScreen
                 ? theme.typography.subtitle1.fontSize
                 : theme.typography.subtitle2.fontSize,
@@ -154,7 +165,13 @@ export default function ProgressChart(props) {
         mode: theme.palette.mode,
       },
     };
-  }, [theme, formattedTotal, props.mobileScreen]);
+  }, [
+    theme,
+    formattedTotal,
+    props.mobileScreen,
+    props.mode,
+    props.isSimulating,
+  ]);
 
   const [series, setSeries] = React.useState(seriesArray());
   const [options, setOptions] = React.useState({});

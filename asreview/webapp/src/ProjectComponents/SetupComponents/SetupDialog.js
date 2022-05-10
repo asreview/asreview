@@ -111,6 +111,7 @@ const SetupDialog = (props) => {
   const [model, setModel] = React.useState({
     classifier: null,
     query_strategy: null,
+    balance_strategy: null,
     feature_extraction: null,
   });
 
@@ -379,12 +380,14 @@ const SetupDialog = (props) => {
       props.project_id &&
       model.classifier &&
       model.query_strategy &&
+      model.balance_strategy &&
       model.feature_extraction
     ) {
       mutateModelConfig({
         project_id: props.project_id,
         classifier: model["classifier"],
         query_strategy: model["query_strategy"],
+        balance_strategy: model["balance_strategy"],
         feature_extraction: model["feature_extraction"],
       });
     }
@@ -414,7 +417,7 @@ const SetupDialog = (props) => {
     {
       enabled: trainingStarted,
       onSuccess: (data) => {
-        if (data["status"] === projectStatuses.REVIEW) {
+        if (data["status"] !== projectStatuses.SETUP) {
           // model ready
           setTrainingStarted(false);
           setTrainingFinished(true);
