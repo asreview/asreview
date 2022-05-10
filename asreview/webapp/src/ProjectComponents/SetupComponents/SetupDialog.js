@@ -43,7 +43,7 @@ import {
 } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
 
-const steps = ["Project Information", "Data", "Model"];
+const steps = ["Project information", "Data", "Model"];
 
 const PREFIX = "SetupDialog";
 
@@ -86,7 +86,7 @@ const SetupDialog = (props) => {
   const descriptionElementRef = React.useRef(null);
   const [activeStep, setActiveStep] = React.useState(0);
 
-  // State Step 1: Project Information
+  // State Step 1: Project information
   const [info, setInfo] = React.useState({
     mode: projectModes.ORACLE,
     title: "",
@@ -120,7 +120,7 @@ const SetupDialog = (props) => {
   const [trainingFinished, setTrainingFinished] = React.useState(false);
 
   /**
-   * Step 1: Project Information
+   * Step 1: Project information
    */
   const projectHasDataset = () => {
     return info.dataset_path !== undefined;

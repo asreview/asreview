@@ -73,11 +73,11 @@ const ProjectInfoForm = (props) => {
       <Stack spacing={3}>
         <Box>
           {isProjectSetup() && (
-            <Typography variant="h6">Project Information</Typography>
+            <Typography variant="h6">Project information</Typography>
           )}
           {!isProjectSetup() && (
             <TypographySubtitle1Medium>
-              Project Information
+              Project information
             </TypographySubtitle1Medium>
           )}
         </Box>
