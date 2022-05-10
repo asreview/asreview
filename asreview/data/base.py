@@ -347,18 +347,6 @@ class ASReviewData():
         except KeyError:
             self.df["included"] = labels
 
-    @property
-    def abstract_included(self):
-        return self.get("abstract_included")
-
-    @abstract_included.setter
-    def abstract_included(self, abstract_included):
-        try:
-            column = self.column_spec["abstract_included"]
-            self.df[column] = abstract_included
-        except KeyError:
-            self.df["abstract_included"] = abstract_included
-
     def prior_labels(self, state, by_index=True):
         """Get the labels that are marked as 'prior'.
 
