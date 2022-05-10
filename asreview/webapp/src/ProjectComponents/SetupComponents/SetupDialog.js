@@ -417,7 +417,7 @@ const SetupDialog = (props) => {
     {
       enabled: trainingStarted,
       onSuccess: (data) => {
-        if (data["status"] === projectStatuses.REVIEW) {
+        if (data["status"] !== projectStatuses.SETUP) {
           // model ready
           setTrainingStarted(false);
           setTrainingFinished(true);
