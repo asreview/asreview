@@ -45,16 +45,14 @@ def get_data_file_path(project_path):
     data_folder = get_data_path(project_path)
     project_file_path = get_project_file_path(project_path)
 
+    # open the projects file
+    with open(project_file_path, "r") as f_read:
+        project_dict = json.load(f_read)
+
     try:
-        # open the projects file
-        with open(project_file_path, "r") as f_read:
-            project_dict = json.load(f_read)
-            data_filename = project_dict["dataset_path"]
-
-    except Exception:
+        return data_folder / project_dict["dataset_path"]
+    except KeyError:
         raise FileNotFoundError("Dataset location not found")
-
-    return data_folder / data_filename
 
 
 def get_reviews_path(project_path):
