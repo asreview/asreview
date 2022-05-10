@@ -127,7 +127,10 @@ def create_app(**kwargs):
         return jsonify(message=str(e.original_exception)), 500
 
     @app.route('/', methods=['GET'])
-    def index():
+    @app.route('/projects', methods=['GET'])
+    @app.route('/projects/<project_id>', methods=['GET'])
+    @app.route('/projects/<project_id>/<tab>', methods=['GET'])
+    def index(**kwargs):
 
         return render_template("index.html")
 
