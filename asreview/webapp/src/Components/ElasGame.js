@@ -3,12 +3,12 @@ import { useEffect, useState } from "react";
 import { Grid, Paper, Stack, Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import ElasBalloons from "../images/ElasBalloons.png";
-import ElasPotter from "../images/ElasPotter.png";
-import ElasArrowRightAhead from "../images/ElasArrowRightAhead.png";
+import ElasBalloons from "../images/ElasBalloons.svg";
+import ElasPotter from "../images/ElasPotter.svg";
+import ElasArrowRightAhead from "../images/ElasArrowRightAhead.svg";
 import ElasConstructionWorkerOrange from "../images/ElasConstructionWorkerOrange.svg";
-import ElasArrowLeft from "../images/ElasArrowLeft.png";
-import ElasGrad from "../images/ElasGrad.png";
+import ElasArrowLeft from "../images/ElasArrowLeft.svg";
+import ElasGrad from "../images/ElasGrad.svg";
 import ElasWithDuck from "../images/ElasWithDuck.svg";
 import ElasFireMan from "../images/ElasFireMan.svg";
 

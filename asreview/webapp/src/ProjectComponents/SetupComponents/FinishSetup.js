@@ -18,7 +18,7 @@ import {
   projectModes,
 } from "../../globals.js";
 
-import ElasBalloons from "../../images/ElasBalloons.png";
+import ElasBalloons from "../../images/ElasBalloons.svg";
 import PreparingProject from "../../images/FinishSetup_1_PreparingProject.svg";
 import BenefitFromAI from "../../images/FinishSetup_2_BenefitFromAI.svg";
 import Autosave from "../../images/FinishSetup_3_Autosave.svg";
@@ -224,9 +224,6 @@ const FinishSetup = (props) => {
             <Box
               className={classes.img}
               component="img"
-              sx={{
-                marginLeft: 6,
-              }}
               src={ElasBalloons}
               alt="ElasBalloons"
             />
