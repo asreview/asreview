@@ -147,14 +147,6 @@ def create_app(**kwargs):
         else:
             status = "asreview"
 
-            try:
-                import asreviewcontrib.covid19  # noqa
-                status = "asreview-covid19"
-            except ImportError:
-                logging.debug("covid19 plugin not found")
-
-        # get the asreview version
-
         response = jsonify({
             "status": status,
             "version": asreview_version,
