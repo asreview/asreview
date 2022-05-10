@@ -21,7 +21,7 @@ import { ArrowBack } from "@mui/icons-material";
 import { InlineErrorHandler } from "../../../Components";
 import { PriorUnlabeled } from "../DataComponents";
 import { ProjectAPI } from "../../../api/index.js";
-import { mapStateToProps } from "../../../globals.js";
+import { mapStateToProps, projectModes } from "../../../globals.js";
 import { useToggle } from "../../../hooks/useToggle";
 
 const PREFIX = "PriorRandom";
@@ -76,9 +76,15 @@ const Root = styled("div")(({ theme }) => ({
 const PriorRandom = (props) => {
   const queryClient = useQueryClient();
   const [reminder, toggleReminder] = useToggle();
-
+  console.log(props.mode !== projectModes.ORACLE);
   const { data, error, isError, isFetched, isFetching, isSuccess } = useQuery(
-    ["fetchPriorRandom", { project_id: props.project_id }],
+    [
+      "fetchPriorRandom",
+      {
+        project_id: props.project_id,
+        subset: props.mode !== projectModes.ORACLE ? true : null,
+      },
+    ],
     ProjectAPI.fetchPriorRandom,
     {
       enabled: true,
