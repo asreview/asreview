@@ -148,19 +148,6 @@ def get_data_home(data_home=None):
     return data_home
 
 
-def _set_class_weight(weight1):
-    """Used in RNN's to have quicker learning"""
-    if weight1 is None:
-        return None
-    weight0 = 1.0
-    cw_class = {
-        0: weight0,
-        1: weight1,
-    }
-    logging.debug(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
-    return cw_class
-
-
 def format_to_str(obj):
     """Create string from object, concatenate if list."""
     if obj is None:

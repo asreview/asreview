@@ -33,7 +33,7 @@ import scipy
 
 from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.models.classifiers.lstm_base import _get_optimizer
-from asreview.utils import _set_class_weight
+from asreview.models.classifiers.utils import _set_class_weight
 
 
 def _check_tensorflow():

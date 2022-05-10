@@ -12,8 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
+
 from asreview.utils import _model_class_from_entry_point
 from asreview.utils import list_model_names
+
+
+def _set_class_weight(weight1):
+    """Used various classifiers to have quicker learning."""
+    if weight1 is None:
+        return None
+    weight0 = 1.0
+    cw_class = {
+        0: weight0,
+        1: weight1,
+    }
+    logging.debug(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
+    return cw_class
 
 
 def list_classifiers():
