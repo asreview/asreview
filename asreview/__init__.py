@@ -16,6 +16,7 @@ from asreview.data import ASReviewData
 from asreview.models.feature_extraction.embedding_lstm import load_embedding
 from asreview.models.feature_extraction.embedding_lstm import sample_embedding
 from asreview.models.feature_extraction.embedding_lstm import text_to_features
+from asreview.project import ASReviewProject
 from asreview.project import open_state
 
 from ._version import get_versions
