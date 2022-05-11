@@ -25,7 +25,7 @@ import { ProjectCheckDialog, TableRowButton } from "../DashboardComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { useRowsPerPage } from "../../hooks/SettingsHooks";
 import { useToggle } from "../../hooks/useToggle";
-import ElasArrowRightAhead from "../../images/ElasArrowRightAhead.png";
+import ElasArrowRightAhead from "../../images/ElasArrowRightAhead.svg";
 
 import {
   checkIfSimulationFinishedDuration,
