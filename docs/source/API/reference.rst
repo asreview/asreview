@@ -275,6 +275,7 @@ Classes
    :nosignatures:
    :toctree: generated/
    :template: custom-class-template.rst
+   
    feature_extraction.base.BaseFeatureExtraction
 	feature_extraction.Tfidf
 	feature_extraction.Doc2Vec
