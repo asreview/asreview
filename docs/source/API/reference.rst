@@ -154,7 +154,7 @@ Functions
    io.list_writers
    io.utils.type_from_column
    io.utils.convert_keywords
-   io.type_from_column_spec
+   io.utils.type_from_column_spec
    io.utils.get_reader_class
    io.utils.get_writer_class
 
@@ -186,7 +186,7 @@ Functions
 
    models.get_classifier
    models.get_classifier_class
-   models.list_classifiers
+   models.utils.list_classifiers
 
 
 :mod:`asreview.models.balance`
