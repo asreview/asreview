@@ -754,41 +754,59 @@ def api_random_prior_papers(project):  # noqa: F401
                 "record_id": int(record.record_id),
                 "debug_label": debug_label
             }, ignore_index=True)
-        
+
         try:
-            pool_relevant = np.random.choice(data[data["debug_label"] == 1]["record_id"].tolist(), 1, replace=False)
-            pool_irrelevant = np.random.choice(data[data["debug_label"] == 0]["record_id"].tolist(), 1, replace=False)
+            pool_relevant = np.random.choice(
+                data[data["debug_label"] == 1]["record_id"].tolist(), 1, replace=False
+            )
+            pool_irrelevant = np.random.choice(
+                data[data["debug_label"] == 0]["record_id"].tolist(), 1, replace=False
+            )
         except Exception:
             raise ValueError("Not enough random indices to sample from.")
-        
+
         try:
             # get relevant records
             relevant_record = read_data(project.project_path).record(pool_relevant)
-            relevant_debug_label = relevant_record[0].extra_fields.get("debug_label", None)
-            relevant_debug_label = int(relevant_debug_label) if pd.notnull(relevant_debug_label) else None
+            relevant_debug_label = relevant_record[0].extra_fields.get(
+                "debug_label", None
+            )
+            relevant_debug_label = (
+                int(relevant_debug_label) if pd.notnull(relevant_debug_label) else None
+            )
             # get irrelevant records
             irrelevant_record = read_data(project.project_path).record(pool_irrelevant)
-            irrelevant_debug_label = irrelevant_record[0].extra_fields.get("debug_label", None)
-            irrelevant_debug_label = int(irrelevant_debug_label) if pd.notnull(irrelevant_debug_label) else None
+            irrelevant_debug_label = irrelevant_record[0].extra_fields.get(
+                "debug_label", None
+            )
+            irrelevant_debug_label = (
+                int(irrelevant_debug_label)
+                if pd.notnull(irrelevant_debug_label)
+                else None
+            )
 
-            payload["result"].append({
-                "id": int(relevant_record[0].record_id),
-                "title": relevant_record[0].title,
-                "abstract": relevant_record[0].abstract,
-                "authors": relevant_record[0].authors,
-                "keywords": relevant_record[0].keywords,
-                "included": None,
-                "_debug_label": relevant_debug_label
-            })
-            payload["result"].append({
-                "id": int(irrelevant_record[0].record_id),
-                "title": irrelevant_record[0].title,
-                "abstract": irrelevant_record[0].abstract,
-                "authors": irrelevant_record[0].authors,
-                "keywords": irrelevant_record[0].keywords,
-                "included": None,
-                "_debug_label": irrelevant_debug_label
-            })
+            payload["result"].append(
+                {
+                    "id": int(relevant_record[0].record_id),
+                    "title": relevant_record[0].title,
+                    "abstract": relevant_record[0].abstract,
+                    "authors": relevant_record[0].authors,
+                    "keywords": relevant_record[0].keywords,
+                    "included": None,
+                    "_debug_label": relevant_debug_label,
+                }
+            )
+            payload["result"].append(
+                {
+                    "id": int(irrelevant_record[0].record_id),
+                    "title": irrelevant_record[0].title,
+                    "abstract": irrelevant_record[0].abstract,
+                    "authors": irrelevant_record[0].authors,
+                    "keywords": irrelevant_record[0].keywords,
+                    "included": None,
+                    "_debug_label": irrelevant_debug_label,
+                }
+            )
         except Exception as err:
             logging.error(err)
             return jsonify(message=f"Failed to load random records. {err}"), 500
