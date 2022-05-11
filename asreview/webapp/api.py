@@ -720,30 +720,7 @@ def api_random_prior_papers(project):  # noqa: F401
 
     payload = {"result": []}
 
-    if not subset:
-        try:
-            pool_random = np.random.choice(pool, 1, replace=False)
-        except Exception:
-            raise ValueError("Not enough random indices to sample from.")
-
-        try:
-            record = read_data(project.project_path).record(pool_random)[0]
-            debug_label = record.extra_fields.get("debug_label", None)
-            debug_label = int(debug_label) if pd.notnull(debug_label) else None
-
-            payload["result"].append({
-                "id": int(record.record_id),
-                "title": record.title,
-                "abstract": record.abstract,
-                "authors": record.authors,
-                "keywords": record.keywords,
-                "included": None,
-                "_debug_label": debug_label
-            })
-        except Exception as err:
-            logging.error(err)
-            return jsonify(message=f"Failed to load random records. {err}"), 500
-    else:
+    if subset:
         data = pd.DataFrame(columns=["record_id", "debug_label"])
 
         for record in read_data(project.project_path).record(pool):
@@ -807,6 +784,29 @@ def api_random_prior_papers(project):  # noqa: F401
                     "_debug_label": irrelevant_debug_label,
                 }
             )
+        except Exception as err:
+            logging.error(err)
+            return jsonify(message=f"Failed to load random records. {err}"), 500
+    else:
+        try:
+            pool_random = np.random.choice(pool, 1, replace=False)
+        except Exception:
+            raise ValueError("Not enough random indices to sample from.")
+
+        try:
+            record = read_data(project.project_path).record(pool_random)[0]
+            debug_label = record.extra_fields.get("debug_label", None)
+            debug_label = int(debug_label) if pd.notnull(debug_label) else None
+
+            payload["result"].append({
+                "id": int(record.record_id),
+                "title": record.title,
+                "abstract": record.abstract,
+                "authors": record.authors,
+                "keywords": record.keywords,
+                "included": None,
+                "_debug_label": debug_label
+            })
         except Exception as err:
             logging.error(err)
             return jsonify(message=f"Failed to load random records. {err}"), 500
