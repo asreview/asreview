@@ -9,7 +9,10 @@ strategy and use it with ASReview.
 Simulation Mode
 ---------------
 
-This example shows how to use the API in simulation mode:
+This example shows how to use the API in simulation mode. `PROJECT_PATH` is 
+the path to the project directory. `DATA_FILE` is the path to the data file.
+Used in the simulation. `EXPORT_PATH` is the path to the directory where
+the results will be exported as a `.asreview` file.	
 
 .. code-block:: python
 
