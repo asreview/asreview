@@ -34,6 +34,9 @@ This example shows how to use the API in simulation mode:
 		project_authors=None
 	)
 
+	# Load the data
+	project.add_dataset(DATA_FILE)
+
 	# Initialize the simulation reviewer
 	reviewer = ReviewSimulate(
 		as_data=            ASReviewData.from_file(project.config['dataset_path']),
