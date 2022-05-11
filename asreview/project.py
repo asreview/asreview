@@ -199,7 +199,7 @@ def open_state(asreview_obj, review_id=None, read_only=True):
 class ASReviewProject():
 
     def __init__(self, project_path, project_id=None):
-        self.project_path = project_path
+        self.project_path = Path(project_path)
         self.project_id = project_id
 
     @classmethod
@@ -211,6 +211,8 @@ class ASReviewProject():
                project_description=None,
                project_authors=None):
         """Initialize the necessary files specific to the web app."""
+
+        project_path = Path(project_path)
 
         if is_project(project_path):
             raise ProjectExistsError("Project already exists.")
