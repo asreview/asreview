@@ -13,31 +13,48 @@ This example shows how to use the API in simulation mode:
 
 .. code-block:: python
 
-	import asreview
-	from asreview.models import LSTMBaseModel
-	from asreview.query_strategies import MaxQueryModel
-	from asreview.balance_strategies import SimpleBalanceModel
-	from asreview.feature_extraction import EmbeddingLSTM
+	from pathlib import Path
 
-	# Load data
-	as_data = asreview.ASReviewData.from_file(DATA_FILE)
+	from asreview import ASReviewData
+	from asreview.review import ReviewSimulate
+	from asreview.project import ASReviewProject
 
-	train_model = LSTMBaseModel()
-	query_model = MaxQueryModel()
-	balance_model = SimpleBalanceModel()
-	feature_model = EmbeddingLSTM()
+	from asreview.models.classifiers import NaiveBayesClassifier
+	from asreview.models.query import MaxQuery
+	from asreview.models.balance import SimpleBalance
+	from asreview.models.feature_extraction import Tfidf
 
-	# Load the embedding matrix, only necessary for LSTM models
-	train_model.embedding_matrix = feature_model.get_embedding_matrix(
-		as_data.texts, EMBEDDING_FILE)
+	# Create a project object and folder
+	project = ASReviewProject.create(
+		project_path=Path(PROJECT_PATH),
+		project_id=None,
+		project_mode="simulate",
+		project_name=None,
+		project_description=None,
+		project_authors=None
+	)
+
+	# Initialize the simulation reviewer
+	reviewer = ReviewSimulate(
+		as_data=            ASReviewData.from_file(project.config['dataset_path']),
+		model=              NaiveBayesClassifier(),
+		query_model=        MaxQuery(),
+		balance_model=      SimpleBalance(),
+		feature_model=      Tfidf(),
+		n_instances=        10,
+		state_file=         project,
+		n_prior_included=   1,
+		n_prior_excluded=   1,
+	)
 
 	# Start the review process
-	reviewer = asreview.ReviewSimulate(
-	    as_data,
-	    model=train_model,
-	    query_model=query_model,
-	    balance_model=balance_model,
-	    feature_model=feature_model,
-	    n_instances=10,
-	)
-	reviewer.review()
+	project.update_review(status="review")
+	try:
+		reviewer.review()
+	except Exception as err:
+		project.update_review(status="error")
+		raise err
+
+	# Finish and export the project
+	project.export(EXPORT_PATH)
+	project.mark_review_finished()
