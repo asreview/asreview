@@ -32,7 +32,7 @@ else:
         logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 from asreview.models.classifiers.base import BaseTrainClassifier
-from asreview.utils import _set_class_weight
+from asreview.models.classifiers.utils import _set_class_weight
 
 
 def _check_tensorflow():
