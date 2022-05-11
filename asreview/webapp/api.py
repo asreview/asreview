@@ -713,6 +713,9 @@ def api_random_prior_papers(project):  # noqa: F401
     the already labeled items.
     """
 
+    # For Exploration and Simulation modes.
+    # If returned random record needs to show debug label
+    # from both relevant and irrelevant subsets.
     subset = request.args.get("subset", default=False, type=bool)
 
     with open_state(project.project_path) as state:
