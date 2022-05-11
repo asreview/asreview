@@ -155,8 +155,8 @@ Functions
    io.utils.type_from_column
    io.utils.convert_keywords
    io.type_from_column_spec
-   io.get_reader_class
-   io.get_writer_class
+   io.utils.get_reader_class
+   io.utils.get_writer_class
 
 
 :mod:`asreview.models`
