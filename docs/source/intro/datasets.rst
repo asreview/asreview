@@ -11,16 +11,14 @@ It is possible to use your own dataset with unlabeled, :ref:`partly labeled data
 (where the labeled records are used for training a model for the unlabeled records),
 or fully labeled records (used for the Simulation mode). For testing and
 demonstrating ASReview (used for the Exploration mode), the software offers
-`Benchmark Datasets`_. Also, an extension with :doc:`Covid19 related
-publications <../extensions/extension_covid19>` is available.
+`Benchmark Datasets`_.
 
 .. warning::
 
     If you upload your own data, make sure to remove duplicates and to
     retrieve  as many abstracts as possible (`don't know how?
     <https://asreview.nl/blog/the-importance-of-abstracts/>`_). With clean data you
-    benefit most from what :doc:`active learning <../guides/activelearning>`
-    has to offer.
+    benefit most from what active learning has to offer.
 
 
 .. _data-format:
@@ -45,7 +43,7 @@ For parsing RIS file format, the software uses a Python RIS files parser and rea
 .. figure:: ../../images/asreview_export_to_endnote_labeled.png
    :alt: Example record with a labeling decision imported to Endnote
 
- - **Tabular datasets** with extensions ``.csv``, ``.tab``, ``.tsv``, or ``.xlsx``.
+**Tabular datasets** with extensions ``.csv``, ``.tab``, ``.tsv``, or ``.xlsx``.
    CSV and TAB files are preferably comma, semicolon, or tab-delimited.
    The preferred file encoding is *UTF-8* or *latin1*.
 
