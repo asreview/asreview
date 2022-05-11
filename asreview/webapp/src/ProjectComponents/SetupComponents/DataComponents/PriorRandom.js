@@ -76,7 +76,8 @@ const Root = styled("div")(({ theme }) => ({
 const PriorRandom = (props) => {
   const queryClient = useQueryClient();
   const [reminder, toggleReminder] = useToggle();
-  console.log(props.mode !== projectModes.ORACLE);
+  const [refresh, setRefresh] = React.useState(true);
+
   const { data, error, isError, isFetched, isFetching, isSuccess } = useQuery(
     [
       "fetchPriorRandom",
@@ -87,7 +88,10 @@ const PriorRandom = (props) => {
     ],
     ProjectAPI.fetchPriorRandom,
     {
-      enabled: true,
+      enabled: refresh,
+      onSuccess: () => {
+        setRefresh(false);
+      },
       refetchOnWindowFocus: false,
     }
   );
@@ -106,6 +110,12 @@ const PriorRandom = (props) => {
       toggleReminder();
     }
   }, [props.n_prior_exclusions, toggleReminder]);
+
+  React.useEffect(() => {
+    if (!data?.result.filter((record) => record?.included === null).length) {
+      setRefresh(true);
+    }
+  }, [data?.result]);
 
   return (
     <Root>
@@ -143,13 +153,16 @@ const PriorRandom = (props) => {
               className={classes.recordCard}
               aria-label="unlabeled record card"
             >
-              {data?.result.map((record, index) => (
-                <PriorUnlabeled
-                  record={record}
-                  n_prior={props.n_prior}
-                  key={`result-page-${index}`}
-                />
-              ))}
+              {data?.result
+                .filter((record) => record?.included === null)
+                .map((record, index) => (
+                  <PriorUnlabeled
+                    mode={props.mode}
+                    record={record}
+                    n_prior={props.n_prior}
+                    key={`result-page-${index}`}
+                  />
+                ))}
             </Box>
           )}
           {reminder && (
