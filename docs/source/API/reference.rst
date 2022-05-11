@@ -186,7 +186,6 @@ Functions
 
    models.get_classifier
    models.get_classifier_class
-   models.utils.list_classifiers
 
 
 :mod:`asreview.models.balance`
