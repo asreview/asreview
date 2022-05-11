@@ -40,13 +40,19 @@ the results will be exported as a `.asreview` file.
 	# Load the data
 	project.add_dataset(DATA_FILE)
 
+	# Select models to use
+	train_model = NaiveBayesClassifier()
+	query_model = MaxQueryModel()
+	balance_model = SimpleBalanceModel()
+	feature_model = Tfidf()
+
 	# Initialize the simulation reviewer
 	reviewer = ReviewSimulate(
 		as_data=            ASReviewData.from_file(project.config['dataset_path']),
-		model=              NaiveBayesClassifier(),
-		query_model=        MaxQuery(),
-		balance_model=      SimpleBalance(),
-		feature_model=      Tfidf(),
+		model=              train_model,
+		query_model=        query_model,
+		balance_model=      balance_model,
+		feature_model=      feature_model,
 		n_instances=        10,
 		state_file=         project,
 		n_prior_included=   1,
