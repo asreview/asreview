@@ -16,6 +16,8 @@ modules, classes, and functions of the ASReview software.
    :no-members:
    :no-inherited-members:
 
+.. currentmodule:: asreview
+
 Classes
 
 .. autosummary::
@@ -24,7 +26,6 @@ Classes
    :template: custom-class-template.rst
 
    asreview.settings.ASReviewSettings
-
 
 Functions
 
@@ -35,6 +36,18 @@ Functions
 
    asreview.init_sampling.sample_prior_knowledge
    asreview.search.fuzzy_find
+   asreview.types.type_n_queries
+   asreview.utils.asreview_path
+   asreview.utils.get_data_home
+   asreview.utils.format_to_str
+   asreview.utils.pretty_format
+   asreview.utils.is_iterable
+   asreview.utils.list_model_names
+   asreview.utils.list_reader_names
+   asreview.utils.list_writer_names
+   asreview.utils.get_entry_points
+   asreview.utils.is_url
+   asreview.utils.get_random_state
 
 
 :mod:`asreview.data`
@@ -57,7 +70,6 @@ Classes
 
    data.ASReviewData
 
-
 Functions
 
 .. autosummary::
@@ -67,6 +79,7 @@ Functions
 
    data.load_data
    data.statistics.abstract_length
+   data.statistics.n_duplicates
    data.statistics.n_irrelevant
    data.statistics.n_keywords
    data.statistics.n_missing_abstract
@@ -77,9 +90,77 @@ Functions
    data.statistics.title_length
 
 
+:mod:`asreview.entry_points`
+====================
+
+This module contains all ASReview entry points.
+
+.. automodule:: asreview.entry_points
+    :no-members:
+    :no-inherited-members:
+
+.. currentmodule:: asreview
+
+Classes
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   entry_points.BaseEntryPoint
+   entry_points.AlgorithmsEntryPoint
+   entry_points.LABEntryPoint
+   entry_points.WebRunModelEntryPoint
+   entry_points.SimulateEntryPoint
+   entry_points.StateInspectEntryPoint
+
+
+:mod:`asreview.io`
+====================
+
+This module contains the input and output functionality.
+
+.. automodule:: asreview.io
+    :no-members:
+    :no-inherited-members:
+
+.. currentmodule:: asreview
+
+Classes
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   io.CSVReader
+   io.CSVWriter
+   io.ExcelReader
+   io.ExcelWriter
+   io.PaperRecord
+   io.RISReader
+   io.RISWriter
+   io.TSVWriter
+
+Functions
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   io.list_readers
+   io.list_writers
+   io.utils.type_from_column
+   io.utils.convert_keywords
+   io.type_from_column_spec
+   io.get_reader_class
+   io.get_writer_class
+
+
 :mod:`asreview.models`
 ======================
-
 
 .. automodule:: asreview.models
     :no-members:
@@ -87,8 +168,7 @@ Functions
 
 .. currentmodule:: asreview
 
-
-Base Classes
+Classes
 
 .. autosummary::
    :nosignatures:
@@ -97,13 +177,16 @@ Base Classes
 
    models.base.BaseModel
 
-
 Functions
 
 .. autosummary::
    :nosignatures:
    :toctree: generated/
    :template: custom-class-template.rst
+
+   models.get_classifier
+   models.get_classifier_class
+   models.list_classifiers
 
 
 :mod:`asreview.models.balance`
@@ -115,16 +198,6 @@ Functions
 
 .. currentmodule:: asreview.models
 
-Base Classes
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-class-template.rst
-
-   balance.base.BaseBalance
-
-
 Classes
 
 .. autosummary::
@@ -132,6 +205,7 @@ Classes
    :toctree: generated/
    :template: custom-class-template.rst
 
+   balance.base.BaseBalance
    balance.SimpleBalance
    balance.DoubleBalance
    balance.TripleBalance
@@ -150,7 +224,6 @@ Functions
    balance.list_balance_strategies
 
 
-
 :mod:`asreview.models.classifiers`
 ----------------------------------
 
@@ -160,15 +233,6 @@ Functions
 
 .. currentmodule:: asreview.models
 
-Base Classes
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-class-template.rst
-
-   classifiers.base.BaseTrainClassifier
-
 Classes
 
 .. autosummary::
@@ -176,6 +240,7 @@ Classes
    :toctree: generated/
    :template: custom-class-template.rst
 
+   classifiers.base.BaseTrainClassifier
    classifiers.NaiveBayesClassifier
    classifiers.RandomForestClassifier
    classifiers.SVMClassifier
@@ -196,7 +261,6 @@ Functions
    classifiers.list_classifiers
 
 
-
 :mod:`asreview.models.feature_extraction`
 -----------------------------------------
 
@@ -206,22 +270,13 @@ Functions
 
 .. currentmodule:: asreview.models
 
-Base Classes
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-class-template.rst
-
-   feature_extraction.base.BaseFeatureExtraction
-
 Classes
 
 .. autosummary::
    :nosignatures:
    :toctree: generated/
    :template: custom-class-template.rst
-
+   feature_extraction.base.BaseFeatureExtraction
 	feature_extraction.Tfidf
 	feature_extraction.Doc2Vec
 	feature_extraction.EmbeddingIdf
@@ -240,7 +295,6 @@ Functions
 	feature_extraction.list_feature_extraction
 
 
-
 :mod:`asreview.models.query`
 ----------------------------
 
@@ -250,7 +304,7 @@ Functions
 
 .. currentmodule:: asreview.models
 
-Base Classes
+Classes
 
 .. autosummary::
    :nosignatures:
@@ -259,14 +313,6 @@ Base Classes
 
    query.base.BaseQueryStrategy
    query.base.ProbaQueryStrategy
-
-Classes
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-class-template.rst
-
    query.MaxQuery
    query.MixedQuery
    query.MaxRandomQuery
@@ -287,7 +333,6 @@ Functions
    query.list_query_strategies
 
 
-
 :mod:`asreview.review`
 ======================
 
@@ -297,15 +342,6 @@ Functions
 
 .. currentmodule:: asreview
 
-Base Classes
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-class-template.rst
-
-   review.BaseReview
-
 Classes
 
 .. autosummary::
@@ -313,6 +349,7 @@ Classes
    :toctree: generated/
    :template: custom-class-template.rst
 
+   review.BaseReview
    review.ReviewSimulate
 
 
@@ -325,7 +362,7 @@ Classes
 
 .. currentmodule:: asreview
 
-Base Classes
+Classes
 
 .. autosummary::
    :nosignatures:
@@ -334,14 +371,18 @@ Base Classes
 
    project.ASReviewProject
 
-
-Classes
+Functions
 
 .. autosummary::
    :nosignatures:
    :toctree: generated/
    :template: custom-class-template.rst
 
+   project.get_project_path
+   project.project_from_id
+   project.list_asreview_projects
+   project.is_project
+   project.is_v0_project
    project.open_state
 
 
@@ -354,16 +395,6 @@ Classes
 
 .. currentmodule:: asreview
 
-Base Classes
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-class-template.rst
-
-   state.BaseState
-
-
 Classes
 
 .. autosummary::
@@ -371,6 +402,7 @@ Classes
    :toctree: generated/
    :template: custom-class-template.rst
 
+   state.BaseState
    state.SQLiteState
 
 
@@ -382,6 +414,8 @@ Classes
    :no-members:
    :no-inherited-members:
 
+.. currentmodule:: asreview
+
 Classes
 
 .. autosummary::
@@ -389,40 +423,8 @@ Classes
    :toctree: generated/
    :template: custom-class-template.rst
 
-   asreview.datasets.BaseDataGroup
    asreview.datasets.BaseDataSet
+   asreview.datasets.BaseDataGroup
    asreview.datasets.DatasetManager
    asreview.datasets.BenchmarkDataGroup
    asreview.datasets.NaturePublicationDataGroup
-
-
-:mod:`asreview.entry_points`
-============================
-
-
-.. automodule:: asreview.entry_points
-    :no-members:
-    :no-inherited-members:
-
-.. currentmodule:: asreview
-
-Base Classes
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-class-template.rst
-
-   entry_points.BaseEntryPoint
-
-
-Classes
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-class-template.rst
-
-   entry_points.AlgorithmsEntryPoint
-   entry_points.LABEntryPoint
-   entry_points.SimulateEntryPoint
