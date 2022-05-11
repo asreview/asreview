@@ -50,10 +50,10 @@ In the development documentation, the following sections are found:
       front-end communicate with the backend and algorithms. The REST API is not
       documented and should be considered 'internal use only'.
 
-* Layer 4: :doc:`ASReview LAB <../lab/overview_lab>`
+* Layer 4: :doc:`ASReview LAB <../lab/launch>`
 
     - ASReview is the user friendly front-end for ASReview. Documentation on LAB
-      can be found in the :doc:`ASReview LAB section <../lab/overview_lab>`.
+      can be found in the :doc:`ASReview LAB section <../lab/launch>`.
 
 * Layer 5: ASReview CLOUD
 
