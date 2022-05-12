@@ -16,7 +16,6 @@ the results will be exported as a `.asreview` file.
 
 .. code-block:: python
 
-	from pathlib import Path
 
 	from asreview import ASReviewData, ASReviewProject
 	from asreview.review import ReviewSimulate
