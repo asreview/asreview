@@ -27,7 +27,7 @@ the results will be exported as a `.asreview` file.
 
 	# Create a project object and folder
 	project = ASReviewProject.create(
-		project_path=Path(PROJECT_PATH),
+		project_path=PROJECT_PATH,
 		project_id=None,
 		project_mode="simulate",
 		project_name=None,
