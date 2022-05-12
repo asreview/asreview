@@ -62,10 +62,10 @@ the results will be exported as a `.asreview` file.
 	project.update_review(status="review")
 	try:
 		reviewer.review()
+		project.mark_review_finished()
 	except Exception as err:
 		project.update_review(status="error")
 		raise err
 
 	# Finish and export the project
 	project.export(EXPORT_PATH)
-	project.mark_review_finished()
