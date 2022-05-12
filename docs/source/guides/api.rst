@@ -18,9 +18,8 @@ the results will be exported as a `.asreview` file.
 
 	from pathlib import Path
 
-	from asreview import ASReviewData
+	from asreview import ASReviewData, ASReviewProject
 	from asreview.review import ReviewSimulate
-	from asreview.project import ASReviewProject
 
 	from asreview.models.classifiers import NaiveBayesClassifier
 	from asreview.models.query import MaxQuery
