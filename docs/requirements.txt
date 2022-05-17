@@ -1,3 +1,4 @@
+sphinx-reredirects
 sphinx
 sphinx_rtd_theme
-sphinx-reredirects
+nbsphinx

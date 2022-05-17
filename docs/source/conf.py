@@ -90,6 +90,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.autosectionlabel',
     'sphinx_reredirects',
+    'nbsphinx',
 ]
 autosectionlabel_prefix_document = True
 
@@ -118,7 +119,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = ['build', '**.ipynb_checkpoints']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
