@@ -354,7 +354,7 @@ export default function ProgressDensityChart(props) {
                             />
                             <Box>
                               <Typography variant="subtitle2">
-                                Persistent irrelevant records
+                                Irrelevant records only
                               </Typography>
                               <Typography
                                 variant="body2"
