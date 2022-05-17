@@ -1,5 +1,16 @@
 Get Started
------------
+===========
+
+What is ASReview LAB?
+---------------------
+
+ASReview LAB is an open source machine learning tool for screening and
+labeling large collection of data in a systematic way. It's sometimes refered
+as a tool for title and abstract screening in systematic reviews.
+
+ASReview LAB is one of the products of the ASReview research project.
+
+
 
 With the emergence of online publishing, the number of scientific papers and
 policy reports on any topic is skyrocketing. Simultaneously, the public press
