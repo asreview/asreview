@@ -717,79 +717,65 @@ def api_random_prior_papers(project):  # noqa: F401
     # If returned random record needs to show debug label
     # from both relevant and irrelevant subsets.
     subset = request.args.get("subset", default=False, type=bool)
+    n_relevant = request.args.get("n_relevant", default=5, type=int)
+    n_irrelevant = request.args.get("n_irrelevant", default=5, type=int)
 
     with open_state(project.project_path) as state:
-        pool = state.get_pool()
+        pool = state.get_pool().values
+
+    # load data (ASReviewData object)
+    as_data = read_data(project.project_path)
 
     payload = {"result": []}
 
     if subset:
-        data = pd.DataFrame(columns=["record_id", "debug_label"])
 
-        for record in read_data(project.project_path).record(pool):
-            debug_label = record.extra_fields.get("debug_label", None)
-            debug_label = int(debug_label) if pd.notnull(debug_label) else None
+        rel_indices = as_data.df[as_data.df["debug_label"] == 1].index.values
+        irrel_indices = as_data.df[as_data.df["debug_label"] == 0].index.values
 
-            data = data.append({
-                "record_id": int(record.record_id),
-                "debug_label": debug_label
-            }, ignore_index=True)
+        rel_indices_pool = np.intersect1d(pool, rel_indices)
+        irrel_indices_pool = np.intersect1d(pool, irrel_indices)
 
         try:
-            pool_relevant = np.random.choice(
-                data[data["debug_label"] == 1]["record_id"].tolist(), 1, replace=False
-            )
-            pool_irrelevant = np.random.choice(
-                data[data["debug_label"] == 0]["record_id"].tolist(), 1, replace=False
-            )
+            rand_pool_relevant = np.random.choice(
+                rel_indices_pool, n_relevant, replace=False)
+            rand_pool_irrelevant = np.random.choice(
+                irrel_indices_pool, n_irrelevant, replace=False)
         except Exception:
             raise ValueError("Not enough random indices to sample from.")
 
         try:
-            # get relevant records
-            relevant_record = read_data(project.project_path).record(pool_relevant)
-            relevant_debug_label = relevant_record[0].extra_fields.get(
-                "debug_label", None
-            )
-            relevant_debug_label = (
-                int(relevant_debug_label) if pd.notnull(relevant_debug_label) else None
-            )
-            # get irrelevant records
-            irrelevant_record = read_data(project.project_path).record(pool_irrelevant)
-            irrelevant_debug_label = irrelevant_record[0].extra_fields.get(
-                "debug_label", None
-            )
-            irrelevant_debug_label = (
-                int(irrelevant_debug_label)
-                if pd.notnull(irrelevant_debug_label)
-                else None
-            )
+            relevant_records = as_data.record(rand_pool_relevant)
+            irrelevant_records = as_data.record(rand_pool_irrelevant)
 
-            payload["result"].append(
-                {
-                    "id": int(relevant_record[0].record_id),
-                    "title": relevant_record[0].title,
-                    "abstract": relevant_record[0].abstract,
-                    "authors": relevant_record[0].authors,
-                    "keywords": relevant_record[0].keywords,
-                    "included": None,
-                    "_debug_label": relevant_debug_label,
-                }
-            )
-            payload["result"].append(
-                {
-                    "id": int(irrelevant_record[0].record_id),
-                    "title": irrelevant_record[0].title,
-                    "abstract": irrelevant_record[0].abstract,
-                    "authors": irrelevant_record[0].authors,
-                    "keywords": irrelevant_record[0].keywords,
-                    "included": None,
-                    "_debug_label": irrelevant_debug_label,
-                }
-            )
+            for rr in relevant_records:
+                payload["result"].append(
+                    {
+                        "id": int(rr.record_id),
+                        "title": rr.title,
+                        "abstract": rr.abstract,
+                        "authors": rr.authors,
+                        "keywords": rr.keywords,
+                        "included": None,
+                        "_debug_label": 1,
+                    }
+                )
+            for ir in relevant_records:
+                payload["result"].append(
+                    {
+                        "id": int(ir.record_id),
+                        "title": ir.title,
+                        "abstract": ir.abstract,
+                        "authors": ir.authors,
+                        "keywords": ir.keywords,
+                        "included": None,
+                        "_debug_label": 0,
+                    }
+                )
         except Exception as err:
             logging.error(err)
             return jsonify(message=f"Failed to load random records. {err}"), 500
+
     else:
         try:
             pool_random = np.random.choice(pool, 1, replace=False)
@@ -797,7 +783,7 @@ def api_random_prior_papers(project):  # noqa: F401
             raise ValueError("Not enough random indices to sample from.")
 
         try:
-            record = read_data(project.project_path).record(pool_random)[0]
+            record = as_data.record(pool_random)[0]
             debug_label = record.extra_fields.get("debug_label", None)
             debug_label = int(debug_label) if pd.notnull(debug_label) else None
 
