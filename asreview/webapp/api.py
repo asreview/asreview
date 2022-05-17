@@ -730,8 +730,10 @@ def api_random_prior_papers(project):  # noqa: F401
 
     if subset:
 
-        rel_indices = as_data.df[as_data.df["debug_label"] == 1].index.values
-        irrel_indices = as_data.df[as_data.df["debug_label"] == 0].index.values
+        rel_indices = as_data.df[
+            as_data.df["debug_label"] == 1].index.values
+        irrel_indices = as_data.df[
+            as_data.df["debug_label"] == 0].index.values
 
         rel_indices_pool = np.intersect1d(pool, rel_indices)
         irrel_indices_pool = np.intersect1d(pool, irrel_indices)
@@ -760,7 +762,7 @@ def api_random_prior_papers(project):  # noqa: F401
                         "_debug_label": 1,
                     }
                 )
-            for ir in relevant_records:
+            for ir in irrelevant_records:
                 payload["result"].append(
                     {
                         "id": int(ir.record_id),
@@ -774,7 +776,8 @@ def api_random_prior_papers(project):  # noqa: F401
                 )
         except Exception as err:
             logging.error(err)
-            return jsonify(message=f"Failed to load random records. {err}"), 500
+            return jsonify(
+                message=f"Failed to load random records. {err}"), 500
 
     else:
         try:
