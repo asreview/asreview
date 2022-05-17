@@ -39,15 +39,10 @@ Functions
    asreview.types.type_n_queries
    asreview.utils.asreview_path
    asreview.utils.get_data_home
-   asreview.utils.format_to_str
-   asreview.utils.pretty_format
-   asreview.utils.is_iterable
    asreview.utils.list_model_names
    asreview.utils.list_reader_names
    asreview.utils.list_writer_names
    asreview.utils.get_entry_points
-   asreview.utils.is_url
-   asreview.utils.get_random_state
 
 
 :mod:`asreview.data`
