@@ -717,6 +717,7 @@ def api_random_prior_papers(project):  # noqa: F401
     # If returned random record needs to show debug label
     # from both relevant and irrelevant subsets.
     subset = request.args.get("subset", default=False, type=bool)
+    n = request.args.get("n", default=5, type=int)
     n_relevant = request.args.get("n_relevant", default=5, type=int)
     n_irrelevant = request.args.get("n_irrelevant", default=5, type=int)
 
@@ -780,28 +781,32 @@ def api_random_prior_papers(project):  # noqa: F401
                 message=f"Failed to load random records. {err}"), 500
 
     else:
-        try:
-            pool_random = np.random.choice(pool, 1, replace=False)
-        except Exception:
-            raise ValueError("Not enough random indices to sample from.")
+        if len(pool) == 0:
+            return jsonify(payload)
+        elif n > len(pool):
+            rand_pool = np.random.choice(pool, len(pool), replace=False)
+        else:
+            rand_pool = np.random.choice(pool, n, replace=False)
 
         try:
-            record = as_data.record(pool_random)[0]
-            debug_label = record.extra_fields.get("debug_label", None)
-            debug_label = int(debug_label) if pd.notnull(debug_label) else None
-
-            payload["result"].append({
-                "id": int(record.record_id),
-                "title": record.title,
-                "abstract": record.abstract,
-                "authors": record.authors,
-                "keywords": record.keywords,
-                "included": None,
-                "_debug_label": debug_label
-            })
+            records = as_data.record(rand_pool)
         except Exception as err:
             logging.error(err)
-            return jsonify(message=f"Failed to load random records. {err}"), 500
+            return jsonify(
+                message=f"Failed to load random records. {err}"), 500
+
+        for r in records:
+            payload["result"].append(
+                {
+                    "id": int(r.record_id),
+                    "title": r.title,
+                    "abstract": r.abstract,
+                    "authors": r.authors,
+                    "keywords": r.keywords,
+                    "included": None,
+                    "_debug_label": None,
+                }
+            )
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')

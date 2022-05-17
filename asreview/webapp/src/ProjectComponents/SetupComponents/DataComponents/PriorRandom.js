@@ -10,7 +10,10 @@ import {
   CircularProgress,
   Divider,
   Fade,
+  FormControl,
   IconButton,
+  MenuItem,
+  Select,
   Stack,
   Tooltip,
   Typography,
@@ -32,6 +35,7 @@ const classes = {
   empty: `${PREFIX}-empty`,
   loading: `${PREFIX}-loading`,
   reminder: `${PREFIX}-reminder`,
+  select: `${PREFIX}-select`,
 };
 
 const Root = styled("div")(({ theme }) => ({
@@ -71,18 +75,26 @@ const Root = styled("div")(({ theme }) => ({
     margin: "32px 24px",
     maxWidth: 960,
   },
+
+  [`& .${classes.select}`]: {
+    alignItems: "center",
+    marginLeft: 8,
+    width: "100%",
+  },
 }));
 
 const PriorRandom = (props) => {
   const queryClient = useQueryClient();
   const [reminder, toggleReminder] = useToggle();
   const [refresh, setRefresh] = React.useState(true);
+  const [nRecords, setNRecords] = React.useState(5);
 
   const { data, error, isError, isFetched, isFetching, isSuccess } = useQuery(
     [
       "fetchPriorRandom",
       {
         project_id: props.project_id,
+        n: nRecords,
         subset: props.mode !== projectModes.ORACLE ? true : null,
       },
     ],
@@ -95,6 +107,11 @@ const PriorRandom = (props) => {
       refetchOnWindowFocus: false,
     }
   );
+
+  const handleNRecordsChange = (event) => {
+    setNRecords(event.target.value);
+    setRefresh(true);
+  };
 
   const refetchPriorRandom = () => {
     queryClient.resetQueries("fetchPriorRandom");
@@ -112,7 +129,10 @@ const PriorRandom = (props) => {
   }, [props.n_prior_exclusions, toggleReminder]);
 
   React.useEffect(() => {
-    if (!data?.result.filter((record) => record?.included === null).length) {
+    if (
+      data?.result.length &&
+      !data?.result.filter((record) => record?.included === null).length
+    ) {
       setRefresh(true);
     }
   }, [data?.result]);
@@ -132,6 +152,22 @@ const PriorRandom = (props) => {
                 <ArrowBack />
               </IconButton>
             </Tooltip>
+            <Stack className={classes.select} direction="row" spacing={1}>
+              <Typography sx={{ color: "text.secondary" }}>Show</Typography>
+              <FormControl variant="standard" sx={{ width: "48px" }}>
+                <Select value={nRecords} onChange={handleNRecordsChange}>
+                  <MenuItem value={5}>5</MenuItem>
+                  <MenuItem value={6}>6</MenuItem>
+                  <MenuItem value={7}>7</MenuItem>
+                  <MenuItem value={8}>8</MenuItem>
+                  <MenuItem value={9}>9</MenuItem>
+                  <MenuItem value={10}>10</MenuItem>
+                </Select>
+              </FormControl>
+              <Typography sx={{ color: "text.secondary" }}>
+                random records
+              </Typography>
+            </Stack>
           </Stack>
           <Divider />
           {isFetching && !isError && (
@@ -148,23 +184,39 @@ const PriorRandom = (props) => {
               />
             </Box>
           )}
-          {!reminder && !isError && isFetched && isSuccess && (
-            <Box
-              className={classes.recordCard}
-              aria-label="unlabeled record card"
-            >
-              {data?.result
-                .filter((record) => record?.included === null)
-                .map((record, index) => (
-                  <PriorUnlabeled
-                    mode={props.mode}
-                    record={record}
-                    n_prior={props.n_prior}
-                    key={`result-page-${index}`}
-                  />
-                ))}
-            </Box>
-          )}
+          {!reminder &&
+            !isError &&
+            isFetched &&
+            isSuccess &&
+            data?.result.length !== 0 && (
+              <Box
+                className={classes.recordCard}
+                aria-label="unlabeled record card"
+              >
+                {data?.result
+                  .filter((record) => record?.included === null)
+                  .map((record, index) => (
+                    <PriorUnlabeled
+                      mode={props.mode}
+                      record={record}
+                      n_prior={props.n_prior}
+                      nRecords={nRecords}
+                      key={`result-page-${index}`}
+                    />
+                  ))}
+              </Box>
+            )}
+          {!reminder &&
+            !isError &&
+            isFetched &&
+            isSuccess &&
+            data?.result.length === 0 && (
+              <Box className={classes.empty}>
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  No unlabeled records found
+                </Typography>
+              </Box>
+            )}
           {reminder && (
             <Card elevation={3} className={classes.reminder}>
               <CardContent>
