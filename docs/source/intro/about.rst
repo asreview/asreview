@@ -1,5 +1,5 @@
-About ASReview
---------------
+Get Started
+-----------
 
 With the emergence of online publishing, the number of scientific papers and
 policy reports on any topic is skyrocketing. Simultaneously, the public press
@@ -20,18 +20,18 @@ screening prioritization through `active learning <https://asreview.nl/blog/acti
 human who labels records and a machine learning model which selects the
 most likely relevant record based on a minimum training dataset. It allows
 the screening of large amounts of text in an intelligent and time-efficient
-manner. Studies have shown the benefits of active learning, `reducing up to 95% <https://www.nature.com/articles/s42256-020-00287-7>`_ 
+manner. Studies have shown the benefits of active learning, `reducing up to 95% <https://www.nature.com/articles/s42256-020-00287-7>`_
 of the required screening time.
 
 
 A `multidisciplinary team <https://asreview.nl/about/>`_ works on the
 ASReview-project. The scientifically oriented project contains a collection
 of `Github repositories <https://github.com/asreview>`_, `scientific research <https://asreview.nl/research/>`_
-projects and `teaching activities <https://asreview.nl/academy/>`_. 
+projects and `teaching activities <https://asreview.nl/academy/>`_.
 The team has developed and validated the open-source software
 ASReview LAB which is based on `five fundamental principles <https://asreview.nl/blog/the-zen-of-elas/>`_ : (1) Humans are the Oracle; (2) Code is
 open & results are transparent; (3) Decisions are unbiased; (4) The interface shows an
-AI is at work; and (5) Users are responsible for importing high quality data. 
+AI is at work; and (5) Users are responsible for importing high quality data.
 
 The goal of ASReview LAB is to help scholars and practitioners to get an
 overview of the most relevant records for their work as efficiently as

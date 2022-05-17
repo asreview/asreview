@@ -33,12 +33,11 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
     :alt: ASReview LAB overview
 
 .. toctree::
-    :caption: Introduction
     :maxdepth: 1
 
     intro/about
 
-    intro/installation
+    intro/research
 
     intro/glossary
 
@@ -46,7 +45,23 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
 
 .. toctree::
     :maxdepth: 1
+    :caption: Install & Upgrade
+
+    intro/installation
+
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Data
+
+    intro/datasets
+
+
+.. toctree::
+    :maxdepth: 1
     :caption: Getting Started
+
+    lab/start
 
     lab/launch
 
@@ -55,8 +70,6 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
     lab/exploration
 
     lab/simulation
-
-    intro/datasets
 
     features/settings
 
