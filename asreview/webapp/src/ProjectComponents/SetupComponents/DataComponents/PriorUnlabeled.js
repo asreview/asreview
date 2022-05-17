@@ -17,7 +17,7 @@ import { styled } from "@mui/material/styles";
 import { InlineErrorHandler } from "../../../Components";
 import { ExplorationModeRecordAlert } from "../../../StyledComponents/StyledAlert.js";
 import { ProjectAPI } from "../../../api/index.js";
-import { mapStateToProps } from "../../../globals.js";
+import { mapStateToProps, projectModes } from "../../../globals.js";
 import "../../../App.css";
 
 const PREFIX = "PriorUnlabeled";
@@ -91,7 +91,30 @@ const PriorUnlabeled = (props) => {
             }
           );
         } else {
-          queryClient.invalidateQueries("fetchPriorRandom");
+          // update cached data
+          queryClient.setQueryData(
+            [
+              "fetchPriorRandom",
+              {
+                project_id: props.project_id,
+                subset: props.mode !== projectModes.ORACLE ? true : null,
+              },
+            ],
+            (prev) => {
+              return {
+                ...prev,
+                result: prev.result.map((record) => {
+                  return {
+                    ...record,
+                    included:
+                      record.id === variables.doc_id
+                        ? variables.label
+                        : record.included,
+                  };
+                }),
+              };
+            }
+          );
         }
       },
     }

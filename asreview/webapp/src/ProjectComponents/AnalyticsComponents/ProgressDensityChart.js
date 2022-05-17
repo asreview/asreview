@@ -335,9 +335,12 @@ export default function ProgressDensityChart(props) {
                               <Typography variant="subtitle2">
                                 Presence of relevant records
                               </Typography>
-                              <Typography variant="body2">
-                                More relevant records may appear. Continue
-                                reviewing to discover more.
+                              <Typography
+                                variant="body2"
+                                sx={{ color: "text.secondary" }}
+                              >
+                                Relevant records still appear. Continue reviewing to
+                                discover more.
                               </Typography>
                             </Box>
                           </Stack>
@@ -351,12 +354,15 @@ export default function ProgressDensityChart(props) {
                             />
                             <Box>
                               <Typography variant="subtitle2">
-                                Persistent irrelevant records
+                                Irrelevant records only
                               </Typography>
-                              <Typography variant="body2">
-                                More relevant records might not appear. Refer to
-                                your stopping rules to decide if you want to
-                                continue reviewing.
+                              <Typography
+                                variant="body2"
+                                sx={{ color: "text.secondary" }}
+                              >
+                                Relevant records do not appear. Refer to your
+                                stopping rule to decide if you want to continue
+                                reviewing.
                               </Typography>
                             </Box>
                           </Stack>
