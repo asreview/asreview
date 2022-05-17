@@ -26,18 +26,3 @@ def convert_id_to_idx(data_obj, record_id):
             raise KeyError(f"record_id {i} not found in data.")
 
     return result
-
-
-def convert_idx_to_id(data_obj, indices):
-    """Convert row number to record_id."""
-
-    inv_idx = dict(zip(range(len(data_obj)), data_obj.df.index.tolist()))
-
-    result = []
-    for i in indices:
-        try:
-            result.append(inv_idx[i])
-        except KeyError:
-            raise KeyError(f"index {i} not found in data.")
-
-    return result
