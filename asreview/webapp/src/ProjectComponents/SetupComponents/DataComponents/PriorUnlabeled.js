@@ -28,11 +28,10 @@ const classes = {
 };
 
 const Root = styled("div")(({ theme }) => ({
+  maxWidth: 400,
+  width: "100%",
   [`& .${classes.root}`]: {
     borderRadius: 16,
-    marginTop: theme.spacing(3),
-    // marginBottom: theme.spacing(3),
-    maxWidth: 960,
   },
 
   [`& .${classes.icon}`]: {
