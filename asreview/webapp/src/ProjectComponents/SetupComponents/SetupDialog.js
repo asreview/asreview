@@ -766,6 +766,7 @@ const SetupDialog = (props) => {
 
       {addPriorKnowledge && (
         <AddPriorKnowledge
+          mode={info["mode"]}
           n_prior={labeledStats?.n_prior}
           n_prior_exclusions={labeledStats?.n_prior_exclusions}
           n_prior_inclusions={labeledStats?.n_prior_inclusions}
