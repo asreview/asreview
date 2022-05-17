@@ -86,6 +86,7 @@ const PriorRandom = (props) => {
   const [reminder, toggleReminder] = useToggle();
   const [refresh, setRefresh] = React.useState(true);
   const [nRecords, setNRecords] = React.useState(5);
+  const [subset, setSubset] = React.useState("relevant");
 
   const { data, error, isError, isFetched, isFetching, isSuccess } = useQuery(
     [
@@ -93,7 +94,7 @@ const PriorRandom = (props) => {
       {
         project_id: props.project_id,
         n: nRecords,
-        subset: props.mode !== projectModes.ORACLE ? true : null,
+        subset: props.mode !== projectModes.ORACLE ? subset : null,
       },
     ],
     ProjectAPI.fetchPriorRandom,
@@ -108,6 +109,11 @@ const PriorRandom = (props) => {
 
   const handleNRecordsChange = (event) => {
     setNRecords(event.target.value);
+    setRefresh(true);
+  };
+
+  const handleSubsetChange = (event) => {
+    setSubset(event.target.value);
     setRefresh(true);
   };
 
@@ -163,8 +169,27 @@ const PriorRandom = (props) => {
                 </Select>
               </FormControl>
               <Typography sx={{ color: "text.secondary" }}>
-                random records
+                {props.mode === projectModes.ORACLE
+                  ? "random records"
+                  : "random"}
               </Typography>
+              {props.mode !== projectModes.ORACLE && (
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ alignItems: "center" }}
+                >
+                  <FormControl variant="standard" sx={{ width: "96px" }}>
+                    <Select value={subset} onChange={handleSubsetChange}>
+                      <MenuItem value="relevant">relevant</MenuItem>
+                      <MenuItem value="irrelevant">irrelevant</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <Typography sx={{ color: "text.secondary" }}>
+                    records
+                  </Typography>
+                </Stack>
+              )}
             </Stack>
           </Stack>
           <Divider />
@@ -196,10 +221,9 @@ const PriorRandom = (props) => {
                   .filter((record) => record?.included === null)
                   .map((record, index) => (
                     <PriorUnlabeled
-                      mode={props.mode}
                       record={record}
-                      n_prior={props.n_prior}
                       nRecords={nRecords}
+                      subset={subset}
                       key={`result-page-${index}`}
                     />
                   ))}
