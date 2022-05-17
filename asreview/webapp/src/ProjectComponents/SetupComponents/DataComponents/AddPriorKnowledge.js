@@ -74,6 +74,7 @@ const AddPriorKnowledge = (props) => {
         )}
         {!search && random && (
           <PriorRandom
+            mode={props.mode}
             n_prior={props.n_prior}
             n_prior_exclusions={props.n_prior_exclusions}
             toggleRandom={toggleRandom}

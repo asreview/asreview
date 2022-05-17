@@ -713,35 +713,95 @@ def api_random_prior_papers(project):  # noqa: F401
     the already labeled items.
     """
 
+    # For Exploration and Simulation modes.
+    # If returned random record needs to show debug label
+    # from both relevant and irrelevant subsets.
+    subset = request.args.get("subset", default=False, type=bool)
+    n_relevant = request.args.get("n_relevant", default=5, type=int)
+    n_irrelevant = request.args.get("n_irrelevant", default=5, type=int)
+
     with open_state(project.project_path) as state:
-        pool = state.get_pool()
+        pool = state.get_pool().values
 
-    try:
-        pool_random = np.random.choice(pool, 1, replace=False)[0]
-    except Exception:
-        raise ValueError("Not enough random indices to sample from.")
+    # load data (ASReviewData object)
+    as_data = read_data(project.project_path)
 
-    try:
-        record = read_data(project.project_path).record(pool_random)
+    payload = {"result": []}
 
-        debug_label = record.extra_fields.get("debug_label", None)
-        debug_label = int(debug_label) if pd.notnull(debug_label) else None
+    if subset:
 
-        payload = {"result": []}
+        rel_indices = as_data.df[
+            as_data.df["debug_label"] == 1].index.values
+        irrel_indices = as_data.df[
+            as_data.df["debug_label"] == 0].index.values
 
-        payload["result"].append({
-            "id": int(record.record_id),
-            "title": record.title,
-            "abstract": record.abstract,
-            "authors": record.authors,
-            "keywords": record.keywords,
-            "included": None,
-            "_debug_label": debug_label
-        })
+        rel_indices_pool = np.intersect1d(pool, rel_indices)
+        irrel_indices_pool = np.intersect1d(pool, irrel_indices)
 
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message="Failed to load random documents."), 500
+        try:
+            rand_pool_relevant = np.random.choice(
+                rel_indices_pool, n_relevant, replace=False)
+            rand_pool_irrelevant = np.random.choice(
+                irrel_indices_pool, n_irrelevant, replace=False)
+        except Exception:
+            raise ValueError("Not enough random indices to sample from.")
+
+        try:
+            relevant_records = as_data.record(rand_pool_relevant)
+            irrelevant_records = as_data.record(rand_pool_irrelevant)
+
+            for rr in relevant_records:
+                payload["result"].append(
+                    {
+                        "id": int(rr.record_id),
+                        "title": rr.title,
+                        "abstract": rr.abstract,
+                        "authors": rr.authors,
+                        "keywords": rr.keywords,
+                        "included": None,
+                        "_debug_label": 1,
+                    }
+                )
+            for ir in irrelevant_records:
+                payload["result"].append(
+                    {
+                        "id": int(ir.record_id),
+                        "title": ir.title,
+                        "abstract": ir.abstract,
+                        "authors": ir.authors,
+                        "keywords": ir.keywords,
+                        "included": None,
+                        "_debug_label": 0,
+                    }
+                )
+        except Exception as err:
+            logging.error(err)
+            return jsonify(
+                message=f"Failed to load random records. {err}"), 500
+
+    else:
+        try:
+            pool_random = np.random.choice(pool, 1, replace=False)
+        except Exception:
+            raise ValueError("Not enough random indices to sample from.")
+
+        try:
+            record = as_data.record(pool_random)[0]
+            debug_label = record.extra_fields.get("debug_label", None)
+            debug_label = int(debug_label) if pd.notnull(debug_label) else None
+
+            payload["result"].append({
+                "id": int(record.record_id),
+                "title": record.title,
+                "abstract": record.abstract,
+                "authors": record.authors,
+                "keywords": record.keywords,
+                "included": None,
+                "_debug_label": debug_label
+            })
+        except Exception as err:
+            logging.error(err)
+            return jsonify(message=f"Failed to load random records. {err}"), 500
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
