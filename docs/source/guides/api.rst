@@ -9,35 +9,62 @@ strategy and use it with ASReview.
 Simulation Mode
 ---------------
 
-This example shows how to use the API in simulation mode:
+This example shows how to use the API in simulation mode. `PROJECT_PATH` is 
+the path to the project directory. `DATA_FILE` is the path to the data file.
+Used in the simulation. `EXPORT_PATH` is the path to the directory where
+the results will be exported as a `.asreview` file.	
 
 .. code-block:: python
 
-	import asreview
-	from asreview.models import LSTMBaseModel
-	from asreview.query_strategies import MaxQueryModel
-	from asreview.balance_strategies import SimpleBalanceModel
-	from asreview.feature_extraction import EmbeddingLSTM
 
-	# Load data
-	as_data = asreview.ASReviewData.from_file(DATA_FILE)
+	from asreview import ASReviewData, ASReviewProject
+	from asreview.review import ReviewSimulate
 
-	train_model = LSTMBaseModel()
+	from asreview.models.classifiers import NaiveBayesClassifier
+	from asreview.models.query import MaxQuery
+	from asreview.models.balance import SimpleBalance
+	from asreview.models.feature_extraction import Tfidf
+
+	# Create a project object and folder
+	project = ASReviewProject.create(
+		project_path=PROJECT_PATH,
+		project_id=None,
+		project_mode="simulate",
+		project_name=None,
+		project_description=None,
+		project_authors=None
+	)
+
+	# Load the data
+	project.add_dataset(DATA_FILE)
+
+	# Select models to use
+	train_model = NaiveBayesClassifier()
 	query_model = MaxQueryModel()
 	balance_model = SimpleBalanceModel()
-	feature_model = EmbeddingLSTM()
+	feature_model = Tfidf()
 
-	# Load the embedding matrix, only necessary for LSTM models
-	train_model.embedding_matrix = feature_model.get_embedding_matrix(
-		as_data.texts, EMBEDDING_FILE)
+	# Initialize the simulation reviewer
+	reviewer = ReviewSimulate(
+		as_data=            ASReviewData.from_file(project.config['dataset_path']),
+		model=              train_model,
+		query_model=        query_model,
+		balance_model=      balance_model,
+		feature_model=      feature_model,
+		n_instances=        10,
+		state_file=         project,
+		n_prior_included=   1,
+		n_prior_excluded=   1,
+	)
 
 	# Start the review process
-	reviewer = asreview.ReviewSimulate(
-	    as_data,
-	    model=train_model,
-	    query_model=query_model,
-	    balance_model=balance_model,
-	    feature_model=feature_model,
-	    n_instances=10,
-	)
-	reviewer.review()
+	project.update_review(status="review")
+	try:
+		reviewer.review()
+		project.mark_review_finished()
+	except Exception as err:
+		project.update_review(status="error")
+		raise err
+
+	# Finish and export the project
+	project.export(EXPORT_PATH)
