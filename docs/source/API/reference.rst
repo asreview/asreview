@@ -34,7 +34,6 @@ Functions
    :toctree: generated/
    :template: custom-module-template.rst
 
-   asreview.init_sampling.sample_prior_knowledge
    asreview.search.fuzzy_find
    asreview.types.type_n_queries
    asreview.utils.asreview_path
@@ -351,6 +350,15 @@ Classes
 
    review.BaseReview
    review.ReviewSimulate
+
+Functions
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   asreview.review.simulate.sample_prior_knowledge
 
 
 :mod:`asreview.project`

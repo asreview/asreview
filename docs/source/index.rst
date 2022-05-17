@@ -39,8 +39,6 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
 
     intro/research
 
-    intro/glossary
-
     intro/contribute
 
 .. toctree::
@@ -81,7 +79,7 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
 
 .. toctree::
     :maxdepth: 1
-    :caption: Guides
+    :caption: Simulation
 
     guides/sim_overview
 
@@ -104,6 +102,8 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
     API/asreview_file
 
     API/reference
+
+    API/example_api_simulation
 
     API/extension_dev
 
