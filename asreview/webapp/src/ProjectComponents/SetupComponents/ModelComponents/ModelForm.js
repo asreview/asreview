@@ -282,6 +282,36 @@ const ModelForm = (props) => {
             <Box component="form" noValidate autoComplete="off">
               <Stack direction="column" spacing={3}>
                 <FormControl fullWidth>
+                  <InputLabel id="feature-extraction-select-label">
+                    Feature extraction technique
+                  </InputLabel>
+                  <Select
+                    id="select-feature-extraction"
+                    name="feature_extraction"
+                    label="Feature extraction technique"
+                    value={props.model?.feature_extraction}
+                    onChange={handleModel}
+                  >
+                    {modelOptions?.feature_extraction.map((value) => {
+                      return (
+                        <MenuItem
+                          key={`result-item-${value.name}`}
+                          checked={
+                            props.model?.feature_extraction === value.name
+                          }
+                          value={value.name}
+                          disabled={disableFeatureExtractionItem(value.name)}
+                        >
+                          <SelectItem
+                            primary={value.label}
+                            secondary={value.description}
+                          />
+                        </MenuItem>
+                      );
+                    })}
+                  </Select>
+                </FormControl>
+                <FormControl fullWidth>
                   <InputLabel id="classifier-select-label">
                     Classifier
                   </InputLabel>
@@ -357,36 +387,6 @@ const ModelForm = (props) => {
                           key={`result-item-${value.name}`}
                           checked={props.model?.balance_strategy === value.name}
                           value={value.name}
-                        >
-                          <SelectItem
-                            primary={value.label}
-                            secondary={value.description}
-                          />
-                        </MenuItem>
-                      );
-                    })}
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth>
-                  <InputLabel id="feature-extraction-select-label">
-                    Feature extraction technique
-                  </InputLabel>
-                  <Select
-                    id="select-feature-extraction"
-                    name="feature_extraction"
-                    label="Feature extraction technique"
-                    value={props.model?.feature_extraction}
-                    onChange={handleModel}
-                  >
-                    {modelOptions?.feature_extraction.map((value) => {
-                      return (
-                        <MenuItem
-                          key={`result-item-${value.name}`}
-                          checked={
-                            props.model?.feature_extraction === value.name
-                          }
-                          value={value.name}
-                          disabled={disableFeatureExtractionItem(value.name)}
                         >
                           <SelectItem
                             primary={value.label}
