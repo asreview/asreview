@@ -208,6 +208,7 @@ def test_n_queries_all(tmpdir):
         assert s.get_labels().sum() == 43
         assert len(s.get_labels()) == 6189
 
+
 def test_write_interval(tmpdir):
     dataset = 'benchmark:van_de_Schoot_2017'
     asreview_fp = Path(tmpdir, 'test.asreview')
