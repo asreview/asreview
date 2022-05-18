@@ -127,10 +127,14 @@ const PriorRandom = (props) => {
   };
 
   React.useEffect(() => {
-    if (props.n_prior_exclusions !== 0 && props.n_prior_exclusions % 5 === 0) {
+    if (
+      props.mode === projectModes.ORACLE &&
+      props.n_prior_exclusions !== 0 &&
+      props.n_prior_exclusions % 5 === 0
+    ) {
       toggleReminder();
     }
-  }, [props.n_prior_exclusions, toggleReminder]);
+  }, [props.mode, props.n_prior_exclusions, toggleReminder]);
 
   React.useEffect(() => {
     if (
