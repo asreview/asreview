@@ -3,10 +3,7 @@ import { useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import {
   Box,
-  Button,
   Card,
-  CardActions,
-  CardContent,
   CircularProgress,
   Divider,
   Fade,
@@ -22,7 +19,7 @@ import { styled } from "@mui/material/styles";
 import { ArrowBack } from "@mui/icons-material";
 
 import { InlineErrorHandler } from "../../../Components";
-import { PriorUnlabeled } from "../DataComponents";
+import { EnoughPriorBanner, PriorUnlabeled } from "../DataComponents";
 import { ProjectAPI } from "../../../api/index.js";
 import { mapStateToProps, projectModes } from "../../../globals.js";
 import { useToggle } from "../../../hooks/useToggle";
@@ -34,7 +31,6 @@ const classes = {
   icon: `${PREFIX}-icon`,
   empty: `${PREFIX}-empty`,
   loading: `${PREFIX}-loading`,
-  reminder: `${PREFIX}-reminder`,
   select: `${PREFIX}-select`,
 };
 
@@ -66,12 +62,6 @@ const Root = styled("div")(({ theme }) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-  },
-
-  [`& .${classes.reminder}`]: {
-    borderRadius: 16,
-    margin: "32px 24px",
-    maxWidth: 960,
   },
 
   [`& .${classes.select}`]: {
@@ -211,6 +201,12 @@ const PriorRandom = (props) => {
               />
             </Box>
           )}
+          <EnoughPriorBanner
+            n_prior_exclusions={props.n_prior_exclusions}
+            onClickPriorSearch={onClickPriorSearch}
+            reminder={reminder}
+            toggleReminder={toggleReminder}
+          />
           {!reminder &&
             !isError &&
             isFetched &&
@@ -245,29 +241,6 @@ const PriorRandom = (props) => {
                 </Typography>
               </Box>
             )}
-          {reminder && (
-            <Card elevation={3} className={classes.reminder}>
-              <CardContent>
-                <Typography gutterBottom variant="h6">
-                  Enough irrelevant records found
-                </Typography>
-                <Typography sx={{ color: "text.secondary" }}>
-                  {props.n_prior_exclusions} records were labeled as irrelevant.
-                  You have found enough irrelevant records as prior knowledge.
-                  Try to search for relevant records?
-                </Typography>
-              </CardContent>
-              <Divider />
-              <CardActions sx={{ justifyContent: "flex-end" }}>
-                <Button size="small" onClick={toggleReminder}>
-                  Show More Random
-                </Button>
-                <Button size="small" onClick={onClickPriorSearch}>
-                  Search
-                </Button>
-              </CardActions>
-            </Card>
-          )}
         </Card>
       </Fade>
     </Root>
