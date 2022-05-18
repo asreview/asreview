@@ -222,6 +222,7 @@ const PriorRandom = (props) => {
                   .map((record, index) => (
                     <PriorUnlabeled
                       record={record}
+                      mode={props.mode}
                       nRecords={nRecords}
                       subset={subset}
                       key={`result-page-${index}`}

@@ -97,7 +97,8 @@ const PriorUnlabeled = (props) => {
               {
                 project_id: props.project_id,
                 n: props.nRecords,
-                subset: props.subset,
+                subset:
+                  props.mode !== projectModes.ORACLE ? props.subset : null,
               },
             ],
             (prev) => {
