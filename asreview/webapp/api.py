@@ -759,7 +759,7 @@ def api_random_prior_papers(project):  # noqa: F401
                     "_debug_label": 1,
                 }
             )
-        
+
     elif subset in ["irrelevant", "excluded"]:
         irrel_indices = as_data.df[
             as_data.df["debug_label"] == 0].index.values
@@ -773,7 +773,7 @@ def api_random_prior_papers(project):  # noqa: F401
         else:
             rand_pool_irrelevant = np.random.choice(
                 irrel_indices_pool, n, replace=False)
-        
+
         try:
             irrelevant_records = as_data.record(rand_pool_irrelevant)
         except Exception as err:
