@@ -131,6 +131,7 @@ def test_settings_state():
 
 def test_n_records_labeled():
     with open_state(TEST_STATE_FP) as state:
+        assert state.n_records == len(TEST_LABELS)
         assert state.n_records_labeled == len(TEST_LABELS)
 
 

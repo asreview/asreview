@@ -192,6 +192,22 @@ def test_n_queries_min(tmpdir):
         assert len(s.get_labels()) == 515
 
 
+def test_n_queries_all(tmpdir):
+    dataset = 'benchmark:van_de_Schoot_2017'
+    asreview_fp = Path(tmpdir, 'test.asreview')
+    n_queries = -1
+    priors = [284, 285]
+    seed = 101
+
+    argv = f'{dataset} -s {asreview_fp} --n_queries {n_queries} ' \
+           f'--prior_idx {priors[0]} {priors[1]} --seed {seed}'.split()
+    entry_point = SimulateEntryPoint()
+    entry_point.execute(argv)
+
+    with open_state(asreview_fp) as s:
+        assert s.get_labels().sum() == 43
+        assert len(s.get_labels()) == 6189
+
 def test_write_interval(tmpdir):
     dataset = 'benchmark:van_de_Schoot_2017'
     asreview_fp = Path(tmpdir, 'test.asreview')
