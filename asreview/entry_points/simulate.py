@@ -152,10 +152,10 @@ class SimulateEntryPoint(BaseEntryPoint):
 
             project = ASReviewProject.create(
                 fp_tmp_simulation,
-                project_id=fp_tmp_simulation.name,
+                project_id=Path(args.state_file).stem,
                 project_mode="simulate",
-                project_name=fp_tmp_simulation.name,
-                project_description="Simulation create via ASReview "
+                project_name=Path(args.state_file).stem,
+                project_description="Simulation created via ASReview via "
                                     "command line interface"
             )
 
