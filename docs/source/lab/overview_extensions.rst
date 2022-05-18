@@ -39,10 +39,12 @@ Subcommand extensions
 ~~~~~~~~~~~~~~~~~~~~~
 
 * Visualization
-    - `ASReview-insights <https://github.com/asreview/asreview-insights>`__: Plotting functionality for ASReview files.
+    - :doc:`extension_visualization`: Plotting functionality for state files
+      produced by ASReview.
 
 * Wordcloud
-    - `ASReview-wordcloud <https://github.com/asreview/asreview-wordcloud>`__: Creates a visual impression of the contents of datasets via a wordcloud.
+    - :doc:`extension_wordcloud`: Creates a visual impression of the contents of
+      datasets via a wordcloud.
 
 * Statistics
     - `ASReview-statistics <https://github.com/asreview/asreview-statistics>`__:
@@ -57,6 +59,11 @@ Subcommand extensions
 
 Dataset extensions
 ~~~~~~~~~~~~~~~~~~
+
+* COVID-19
+    - :doc:`extension_covid19`: Makes the literature on COVID-19 directly
+      available in ASReviews so reviewers can start reviewing the latest
+      scientific literature on COVID-19 as soon as possible.
 
 
 

@@ -1,6 +1,5 @@
-Start, Open and Import a Project
-================================
-
+Create a project
+================
 
 This is a quick tour on launching ASReview and basic project routines like
 starting, opening and importing a project. It assumes you have ASReview

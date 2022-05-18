@@ -47,12 +47,20 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
 
     intro/installation
 
+    intro/start
+
+    intro/troubleshooting
+
 
 .. toctree::
     :maxdepth: 1
     :caption: Data
 
     intro/datasets
+
+    intro/data_format
+
+    intro/data_labeled.rst
 
 
 .. toctree::
@@ -77,6 +85,8 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
 
     features/post_screening
 
+    extensions/overview_extensions
+
 .. toctree::
     :maxdepth: 1
     :caption: Simulation
@@ -84,12 +94,6 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
     guides/sim_overview
 
     guides/api
-
-.. toctree::
-    :maxdepth: 1
-    :caption: Extensions
-
-    extensions/overview_extensions
 
 .. toctree::
     :maxdepth: 1
@@ -101,11 +105,12 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
 
     API/asreview_file
 
-    API/reference
-
     API/example_api_simulation
 
     API/extension_dev
+
+    API/reference
+
 
 Indices and tables
 ------------------

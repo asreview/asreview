@@ -7,7 +7,7 @@ search. To create such a dataset for a systematic review, typically an `online
 library search <https://asreview.nl/blog/the-importance-of-abstracts/>`__ is
 performed for all studies related to a particular topic.
 
-It is possible to use your own dataset with unlabeled, :ref:`partly labeled data <partly-labeled-data>` 
+It is possible to use your own dataset with unlabeled, :ref:`partly labeled data <partly-labeled-data>`
 (where the labeled records are used for training a model for the unlabeled records),
 or fully labeled records (used for the Simulation mode). For testing and
 demonstrating ASReview (used for the Exploration mode), the software offers
@@ -20,108 +20,6 @@ demonstrating ASReview (used for the Exploration mode), the software offers
     <https://asreview.nl/blog/the-importance-of-abstracts/>`_). With clean data you
     benefit most from what active learning has to offer.
 
-
-.. _data-format:
-
-Data Format
------------
-
-To carry out a systematic review with ASReview on your own dataset, your data
-file needs to adhere to a certain format. ASReview accepts the following
-formats:
-
- - **RIS file format** `(wikipedia) <https://en.wikipedia.org/wiki/RIS_(file_format)>`__ with
-   extensions ``.ris`` or ``.txt``. RIS file formats are used by digital libraries, like
-   IEEE Xplore, Scopus and ScienceDirect. Citation managers Mendeley, RefWorks,
-   Zotero, and EndNote support the RIS file format as well.
-
-For parsing RIS file format, the software uses a Python RIS files parser and reader (`rispy <https://pypi.org/project/rispy/>`__). Successful import/export depends on a proper data set structure. To validate your data set, the complete default mapping can be found on the developer's `GitHub page <https://github.com/MrTango/rispy#complete-default-mapping>`_.
-
-.. figure:: ../../images/asreview_export_to_zotero_labeled.png
-   :alt: Example record with a labeling decision imported to Zotero
-
-.. figure:: ../../images/asreview_export_to_endnote_labeled.png
-   :alt: Example record with a labeling decision imported to Endnote
-
-**Tabular datasets** with extensions ``.csv``, ``.tab``, ``.tsv``, or ``.xlsx``.
-   CSV and TAB files are preferably comma, semicolon, or tab-delimited.
-   The preferred file encoding is *UTF-8* or *latin1*.
-
-For tabular data files, the software accepts a set of predetermined column names:
-
-.. _column-names:
-
-.. table:: Table with column name definitions
-    :widths: 20 60 20
-
-    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
-    | Name        | Column names                                                                                            | Mandatory |
-    +=============+=========================================================================================================+===========+
-    | ID          | record_id                                                                                               | no        |
-    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
-    | Title       | title, primary_title                                                                                    | yes\*     |
-    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
-    | Abstract    | abstract, abstract note                                                                                 | yes\*     |
-    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
-    | Keywords    | keywords                                                                                                | no        |
-    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
-    | Authors     | authors, author names, first_authors                                                                    | no        |
-    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
-    | DOI         | doi                                                                                                     | no        |
-    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
-    | Included    | final_included, label, label_included, included_label, included_final, included, included_flag, include | no        |
-    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
- 
-
-\* Only a title or an abstract is mandatory.
-
-**ID**
-If your data contains a column titled ``record_id`` it needs to
-consists only of integers, and it should contain no missing data and no
-duplicates, otherwise you will receive an error. If there is no ``record_id``
-it will be automtically generated by the software. This column can also be
-used for the Simulation Mode to select prior knowledge.
-
-**Title, Abstract** Each record (i.e., entry in the dataset) should hold
-metadata on a paper. Mandatory metadata are only ``title`` or ``abstract``. If
-both title and abstract are available, the text is combined and used for
-training the model. If the column ``title`` is empty, the software will search
-for the next column ``primary_title`` and the same holds for ``abstract`` and
-``abstract_note``.
-
-**Keywords, Authors** If ``keywords`` and/or ``author`` (or if the column is
-empty: ``author names`` or ``first_authors``) are available it can be used for
-searching prior knowledge. Note the information is not shown during the
-screening phase and is also not used for training the model, but the
-information is available via the API.
-
-**DOI**
-If a Digital Object Identifier ( ``DOI``) is available it will be displayed during the
-screening phase as a clickable hyperlink to the full text document. Note by
-using ASReview you do *not* automatically have access to full-text and if you do
-not have access you might want to read this `blog post
-<https://asreview.nl/blog/tools-that-work-well-with-asreview-google-scholar-button/>`__.
-
-**Included** A binary variable indicating the existing labeling decisions with
-``0`` = irrelevant/excluded, and ``1`` = relevant/included. Different column
-names are allowed, see the table. It can be used for:
-
-- **Screening**: In ASReview LAB, if labels are available for a part of the
-  dataset (see :ref:`partly labeled data <partly-labeled-data>`), the
-  labels will be automatically detected and used for prior knowledge. The first
-  iteration of the model will then be based on these decisions and used to
-  predict relevance scores for the unlabeled part of the data.
-- **Exploration**: You can explore a completely labeled dataset in the Exploration
-  Mode. The relevant/irrelevant label in the dataset will be displayed on each record.
-  This option is useful for training purposes, presentations, and workshops.
-- **Simulation**: In the :doc:`ASReview command line interface for simulations<../API/cli/>`,
-  the column containing the labels is used to simulate a systematic review run.
-  Only records containing labels are used for the simulation, unlabeled records are ignored.
-
-.. note::
-
-  Files exported with ASReview LAB contain the column ``included`` and can be used for
-  prior knowledge.
 
 
 Compatibility
@@ -155,8 +53,8 @@ RIS files used for screening in ASReview LAB can be imported back into the
 reference software and the decision labels can be found in the notes field.
 For more information see this `instruction video <https://youtu.be/-Rw291AE2OI>`_.
 
-Note: the RIS-pipeline is extensively tested for reference managers Zotero and EndNote. 
-However, it might also work for other reference managers but is currently not supported. 
+Note: the RIS-pipeline is extensively tested for reference managers Zotero and EndNote.
+However, it might also work for other reference managers but is currently not supported.
 
 
 .. note::
@@ -256,65 +154,3 @@ such as EndNote, Mendeley, Refworks and Zotero. All of these are compatible with
 set the ``sort references by`` to ``Authors``. Then the data can be imported in ASReview.
 
 
-.. _benchmark-datasets:
-
-Benchmark Datasets
-------------------
-
-The ASReview software contains a large amount of benchmark datasets that can
-be used in the :doc:`exploration <../lab/exploration>` or :doc:`simulation
-<../lab/simulation>` mode. The labelled datasets are PRISMA-based reviews on
-various research topics, are available under an open licence and are
-automatically harvested from the `dataset repository
-<https://github.com/asreview/systematic-review-datasets>`_. See `index.csv
-<https://github.com/asreview/systematic-review-datasets/blob/master/index.csv>`_
-for all available properties.
-
-Featured Datasets
-~~~~~~~~~~~~~~~~~
-
-Some featured datasets are:
-
--  The *PTSD Trajectories* data by Van de Schoot et al. (`2017 <https://doi.org/10.1080/10705511.2016.1247646>`_, `2018 <https://doi.org/10.1080/00273171.2017.1412293>`_) stems from a review  of longitudinal studies that applied unsupervised machine learning techniques on longitudinal data of self-reported symptoms of posttraumatic stress assessed after trauma exposure. In total, 5,782 studies were obtained by searching Pubmed, Embase, PsychInfo, and Scopus, and through a snowballing strategy in which both the references and the citation of the included papers were screened. Thirty-eight studies were included in the review (0.66%).
-
--  The *Virus Metagenomics* data by `Kwok et al. (2020) <https://doi.org/10.3390/v12010107>`_ which systematically described studies that performed viral Metagenomic Next-Generation Sequencing (mNGS) in common livestock such as cattle, small ruminants, poultry, and pigs.44 Studies were retrieved from Embase (n = 1,806), Medline (n = 1,384), Cochrane Central (n = 1), Web of Science (n = 977), and Google Scholar (n = 200, the top relevant references). After deduplication this led to 2,481 studies obtained in the initial search, of which 120 inclusions (4.84%).
-
--  The *Software Fault Prediction* by `Hall et al. (2012) <https://doi.org/10.1109/TSE.2011.103>`_ stems from a systematic review of studies on fault prediction in software engineering. Studies were obtained from ACM Digital Library, IEEExplore and the ISI Web of Science. Additionally, a snowballing strategy and a manual search were conducted, accumulating to 8,911 publications of which 104 were included in the systematic review (1.2%).
-
--  The *ACEinhibitors* by `Cohen et al. (2006) <https://doi.org/10.1197/jamia.M1929>`_ data stems from a systematic review on the efficacy of Angiotensin-converting enzyme (ACE) inhibitors. The data is a subset of 2,544 publications from the TREC 2004 Genomics Track document corpus48. This is a static subset from all MEDLINE records from 1994 through 2003, which allows for replicability of results. Forty-one publications were included in the review (1.6%).
-
-Results
-~~~~~~~
-
-For the featured datasets, the animated plots below show how fast you can find
-the relevant papers by using ASReview LAB compared to random screening papers
-one by one. These animated plots are all based on a single run per dataset
-in which only one paper was added as relevant and one as irrelevant.
-
-*PTSD Trajectories*:
-
-38 inclusions out of 5,782 papers
-
-.. figure:: ../../images/gifs/ptsd_recall_slow_1trial_fancy.gif
-   :alt: Recall curve for the ptsd dataset
-
-*Virus Metagenomics*:
-
-120 inclusions out of 2,481 papers
-
-.. figure:: ../../images/gifs/virusM_recall_slow_1trial_fancy.gif
-   :alt: Recall curve for the Virus Metagenomics dataset
-
-*Software Fault Prediction*:
-
-104 inclusions out of 8,911 papers
-
-.. figure:: ../../images/gifs/software_recall_slow_1trial_fancy.gif
-   :alt: Recall curve for the software dataset
-
-*ACEinhibitors*:
-
-41 inclusions out of 2,544 papers
-
-.. figure:: ../../images/gifs/ace_recall_slow_1trial_fancy.gif
-   :alt: Recall curve for the ACE dataset
