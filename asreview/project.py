@@ -221,11 +221,11 @@ class ASReviewProject():
             raise ValueError(f"Project mode '{project_mode}' is not in "
                              f"{PROJECT_MODES}.")
 
-        project_id = project_path.stem
+        if project_id is None:
+            project_id = project_path.stem
 
-        if not project_id and not isinstance(project_id, str) \
-                and len(project_id) >= 3:
-            raise ValueError("Project name should be at least 3 characters.")
+        if project_name is None:
+            project_name = project_path.stem
 
         if project_path.is_dir():
             raise IsADirectoryError(

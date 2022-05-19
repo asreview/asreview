@@ -194,6 +194,10 @@ def api_init_project():  # noqa: F401
 
     project_id = _create_project_id(project_name)
 
+    if not project_id and not isinstance(project_id, str) \
+            and len(project_id) >= 3:
+        raise ValueError("Project name should be at least 3 characters.")
+
     project = ASReviewProject.create(get_project_path(project_id),
                                      project_id=project_id,
                                      project_mode=project_mode,
