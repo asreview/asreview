@@ -58,7 +58,7 @@ const AddPriorKnowledge = (props) => {
                   </Tooltip>
                 </ListItem>
                 <ListItem disablePadding divider>
-                  <Tooltip title="Get a random record from added dataset">
+                  <Tooltip title="Get random records from added dataset">
                     <ListItemButton onClick={toggleRandom}>
                       <ListItemText primary="Random" />
                       <AddIcon color="primary" />

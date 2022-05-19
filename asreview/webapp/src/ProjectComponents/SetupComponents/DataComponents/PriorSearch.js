@@ -36,12 +36,10 @@ const Root = styled("div")(({ theme }) => ({
   width: "50%",
   [`& .${classes.recordCard}`]: {
     alignItems: "center",
-    display: "flex",
-    flexDirection: "column",
     height: "calc(100vh - 208px)",
     width: "100%",
     overflowY: "scroll",
-    padding: "16px 24px",
+    padding: "32px 24px",
   },
   [`& .${classes.icon}`]: {
     color: theme.palette.text.secondary,
@@ -149,9 +147,10 @@ const PriorSearch = (props) => {
               </Box>
             )}
           {!isError && isFetched && isSuccess && (
-            <Box
+            <Stack
               className={classes.recordCard}
               aria-label="unlabeled record card"
+              spacing={3}
             >
               {data?.result
                 .filter((record) => record?.included === -1)
@@ -163,7 +162,7 @@ const PriorSearch = (props) => {
                     key={`result-page-${index}`}
                   />
                 ))}
-            </Box>
+            </Stack>
           )}
         </Card>
       </Fade>
