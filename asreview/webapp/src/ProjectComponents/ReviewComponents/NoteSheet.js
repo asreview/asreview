@@ -54,7 +54,7 @@ const NoteSheet = (props) => {
     <Root>
       <Card
         variant="outlined"
-        sx={{ borderTopRightRadius: 16, borderTopLeftRadius: 16 }}
+        sx={{ borderTopRightRadius: 0, borderTopLeftRadius: 0 }}
       >
         <CardContent>
           <Stack spacing={1}>
