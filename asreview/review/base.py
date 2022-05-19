@@ -171,6 +171,9 @@ class BaseReview(ABC):
 
             # Label the records.
             self._label(record_ids)
+        else:
+            # write to state when stopped
+            self._write_to_state()
 
     def _label_priors(self):
         """Make sure the prior records are labeled."""

@@ -355,6 +355,23 @@ class SQLiteState(BaseState):
                 "'settings' should be an ASReviewSettings object.")
 
     @property
+    def n_records(self):
+        """Number of records in the loop.
+
+        Returns
+        -------
+        int
+            Number of records.
+        """
+        con = self._connect_to_sql()
+        cur = con.cursor()
+        cur.execute("SELECT COUNT (*) FROM record_table")
+        n = cur.fetchone()[0]
+        con.close()
+
+        return n
+
+    @property
     def n_records_labeled(self):
         """Number labeled records.
 
