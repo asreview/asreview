@@ -8,11 +8,12 @@ import { Filter, LabelChip, LabeledRecord } from "../HistoryComponents";
 const PREFIX = "HistoryPage";
 
 const classes = {
-  bodyMobile: `${PREFIX}-body-mobile`,
+  cardWrapper: `${PREFIX}-card-wrapper`,
 };
 
 const Root = styled("div")(({ theme }) => ({
-  [`& .${classes.bodyMobile}`]: {
+  [`& .${classes.cardWrapper}`]: {
+    paddingTop: 32,
     [theme.breakpoints.down("md")]: {
       paddingLeft: 0,
       paddingRight: 0,
@@ -44,7 +45,7 @@ const HistoryPage = (props) => {
             <Divider />
           </Box>
           <Box className="main-page-body-wrapper">
-            <Box className={`${classes.bodyMobile} main-page-body`}>
+            <Box className={`${classes.cardWrapper} main-page-body`}>
               <LabeledRecord
                 label={props.label}
                 filterQuery={props.filterQuery}

@@ -10,6 +10,7 @@ import {
   CardContent,
   IconButton,
   Link,
+  Stack,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -39,8 +40,6 @@ const classes = {
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.root}`]: {
     borderRadius: 16,
-    marginTop: theme.spacing(3),
-    marginBottom: theme.spacing(3),
     [theme.breakpoints.down("md")]: {
       borderRadius: 0,
     },
@@ -185,153 +184,157 @@ const LabeledRecordCard = (props) => {
 
   return (
     <Root>
-      {isError && (
-        <Box sx={{ pt: 8, pb: 16 }}>
-          <InlineErrorHandler
-            message={error["message"]}
-            refetch={reset}
-            button={true}
-          />
-        </Box>
-      )}
-      {!isError &&
-        props.page.result
-          .filter((value) => value.included !== -1)
-          .map((value) => (
-            <Card elevation={3} className={classes.root} key={value.id}>
-              <CardContent className="record-card-content">
-                <Typography gutterBottom variant="h6">
-                  {value.title ? value.title : "No title available"}
-                </Typography>
-                <TruncateMarkup
-                  lines={value.id === recordReadMore ? Infinity : 6}
-                  ellipsis={
-                    <span>
-                      ...{" "}
-                      <Link
-                        component="button"
-                        underline="none"
-                        onClick={() => setRecordReadMore(value.id)}
-                      >
-                        read more
-                      </Link>
-                    </span>
-                  }
-                >
-                  <Typography color="textSecondary">
-                    {value.abstract ? value.abstract : "No abstract available"}
+      <Stack spacing={3}>
+        {isError && (
+          <Box sx={{ pt: 8, pb: 16 }}>
+            <InlineErrorHandler
+              message={error["message"]}
+              refetch={reset}
+              button={true}
+            />
+          </Box>
+        )}
+        {!isError &&
+          props.page.result
+            .filter((value) => value.included !== -1)
+            .map((value) => (
+              <Card elevation={3} className={classes.root} key={value.id}>
+                <CardContent className="record-card-content">
+                  <Typography gutterBottom variant="h6">
+                    {value.title ? value.title : "No title available"}
                   </Typography>
-                </TruncateMarkup>
-              </CardContent>
-              <CardActions className={classes.cardActions}>
-                <Tooltip
-                  title={
-                    !isSimulationProject()
-                      ? disableConvertPrior(value.prior)
-                        ? "Prior knowledge cannot be converted"
-                        : note.editing !== value.id
-                        ? value.included === 1
-                          ? "Convert to irrelevant"
-                          : "Convert to relevant"
-                        : "Save note before converting"
-                      : "Cannot be converted in simulation mode"
-                  }
-                >
-                  <span>
-                    <IconButton
-                      disabled={
-                        isSimulationProject() ||
-                        disableConvertPrior(value.prior) ||
-                        isLoading ||
-                        note.editing === value.id
-                      }
-                      onClick={() => {
-                        handleClickLabelConvert(value);
-                      }}
-                    >
-                      {value.included === 1 ? (
-                        <Favorite
-                          color="error"
-                          fontSize={!props.mobileScreen ? "medium" : "small"}
-                        />
-                      ) : (
-                        <FavoriteBorder
-                          fontSize={!props.mobileScreen ? "medium" : "small"}
-                        />
-                      )}
-                    </IconButton>
-                  </span>
-                </Tooltip>
-                {props.is_prior && (
-                  <Tooltip
-                    title={`Remove ${
-                      value.included !== 1 ? "irrelevant" : "relevant"
-                    } label`}
+                  <TruncateMarkup
+                    lines={value.id === recordReadMore ? Infinity : 6}
+                    ellipsis={
+                      <span>
+                        ...{" "}
+                        <Link
+                          component="button"
+                          underline="none"
+                          onClick={() => setRecordReadMore(value.id)}
+                        >
+                          read more
+                        </Link>
+                      </span>
+                    }
                   >
-                    <span>
-                      <IconButton
-                        disabled={isLoading}
-                        onClick={() => {
-                          handleClickRemoveLabel(value);
-                        }}
-                      >
-                        <Delete
-                          fontSize={!props.mobileScreen ? "medium" : "small"}
-                        />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                )}
-                {!props.is_prior && !value.note && value.id !== note.editing && (
+                    <Typography color="textSecondary">
+                      {value.abstract
+                        ? value.abstract
+                        : "No abstract available"}
+                    </Typography>
+                  </TruncateMarkup>
+                </CardContent>
+                <CardActions className={classes.cardActions}>
                   <Tooltip
                     title={
-                      !props.isSimulating
-                        ? !disableAddNoteButton(value.id)
-                          ? "Add note"
-                          : "Save another note before adding"
-                        : "Add note after simulation is finished"
+                      !isSimulationProject()
+                        ? disableConvertPrior(value.prior)
+                          ? "Prior knowledge cannot be converted"
+                          : note.editing !== value.id
+                          ? value.included === 1
+                            ? "Convert to irrelevant"
+                            : "Convert to relevant"
+                          : "Save note before converting"
+                        : "Cannot be converted in simulation mode"
                     }
                   >
                     <span>
                       <IconButton
                         disabled={
-                          props.isSimulating || disableAddNoteButton(value.id)
+                          isSimulationProject() ||
+                          disableConvertPrior(value.prior) ||
+                          isLoading ||
+                          note.editing === value.id
                         }
-                        onClick={() => handleClickAddNote(value.id)}
+                        onClick={() => {
+                          handleClickLabelConvert(value);
+                        }}
                       >
-                        <NoteAddOutlined
-                          fontSize={!props.mobileScreen ? "medium" : "small"}
-                        />
+                        {value.included === 1 ? (
+                          <Favorite
+                            color="error"
+                            fontSize={!props.mobileScreen ? "medium" : "small"}
+                          />
+                        ) : (
+                          <FavoriteBorder
+                            fontSize={!props.mobileScreen ? "medium" : "small"}
+                          />
+                        )}
                       </IconButton>
                     </span>
                   </Tooltip>
-                )}
-                {!props.is_prior && value.id === note.editing && (
-                  <Tooltip title="Remove note">
-                    <span>
-                      <IconButton
-                        disabled={isLoading}
-                        onClick={() => handleClickRemoveNote(value)}
-                      >
-                        <KeyboardArrowUp
-                          fontSize={!props.mobileScreen ? "medium" : "small"}
-                        />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                )}
-              </CardActions>
-              <RecordCardNote
-                isLoading={isLoading}
-                record={value}
-                mobileScreen={props.mobileScreen}
-                mutate={mutate}
-                note={note}
-                setNote={setNote}
-                is_prior={props.is_prior}
-              />
-            </Card>
-          ))}
+                  {props.is_prior && (
+                    <Tooltip
+                      title={`Remove ${
+                        value.included !== 1 ? "irrelevant" : "relevant"
+                      } label`}
+                    >
+                      <span>
+                        <IconButton
+                          disabled={isLoading}
+                          onClick={() => {
+                            handleClickRemoveLabel(value);
+                          }}
+                        >
+                          <Delete
+                            fontSize={!props.mobileScreen ? "medium" : "small"}
+                          />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                  )}
+                  {!props.is_prior && !value.note && value.id !== note.editing && (
+                    <Tooltip
+                      title={
+                        !props.isSimulating
+                          ? !disableAddNoteButton(value.id)
+                            ? "Add note"
+                            : "Save another note before adding"
+                          : "Add note after simulation is finished"
+                      }
+                    >
+                      <span>
+                        <IconButton
+                          disabled={
+                            props.isSimulating || disableAddNoteButton(value.id)
+                          }
+                          onClick={() => handleClickAddNote(value.id)}
+                        >
+                          <NoteAddOutlined
+                            fontSize={!props.mobileScreen ? "medium" : "small"}
+                          />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                  )}
+                  {!props.is_prior && value.id === note.editing && (
+                    <Tooltip title="Remove note">
+                      <span>
+                        <IconButton
+                          disabled={isLoading}
+                          onClick={() => handleClickRemoveNote(value)}
+                        >
+                          <KeyboardArrowUp
+                            fontSize={!props.mobileScreen ? "medium" : "small"}
+                          />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                  )}
+                </CardActions>
+                <RecordCardNote
+                  isLoading={isLoading}
+                  record={value}
+                  mobileScreen={props.mobileScreen}
+                  mutate={mutate}
+                  note={note}
+                  setNote={setNote}
+                  is_prior={props.is_prior}
+                />
+              </Card>
+            ))}
+      </Stack>
     </Root>
   );
 };
