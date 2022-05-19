@@ -154,6 +154,10 @@ const PriorRandom = (props) => {
               <Typography sx={{ color: "text.secondary" }}>Show</Typography>
               <FormControl variant="standard" sx={{ width: "48px" }}>
                 <Select value={nRecords} onChange={handleNRecordsChange}>
+                  <MenuItem value={1}>1</MenuItem>
+                  <MenuItem value={2}>2</MenuItem>
+                  <MenuItem value={3}>3</MenuItem>
+                  <MenuItem value={4}>4</MenuItem>
                   <MenuItem value={5}>5</MenuItem>
                   <MenuItem value={6}>6</MenuItem>
                   <MenuItem value={7}>7</MenuItem>
