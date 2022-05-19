@@ -25,6 +25,7 @@ from asreview.models.query import get_query_model
 from asreview.project import ASReviewProject
 from asreview.project import open_state
 from asreview.review.base import BaseReview
+from asreview.project import ASReviewProject
 from asreview.webapp.io import read_data
 from asreview.webapp.sqlock import SQLiteLock
 
@@ -68,8 +69,10 @@ def get_lab_reviewer(as_data,
             "Not possible to provide both prior_idx and prior_record_id"
         )
 
+    project = ASReviewProject(state_file)
+
     reviewer = BaseReview(as_data,
-                          state_file,
+                          project,
                           model=classifier_model,
                           query_model=query_model,
                           balance_model=balance_model,

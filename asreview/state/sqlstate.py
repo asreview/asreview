@@ -17,18 +17,13 @@ import sqlite3
 from datetime import datetime
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
-from scipy.sparse import csr_matrix
-from scipy.sparse import load_npz
-from scipy.sparse import save_npz
 
 from asreview._version import get_versions
 from asreview.settings import ASReviewSettings
 from asreview.state.base import BaseState
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
-from asreview.state.paths import get_feature_matrix_path
 from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_settings_metadata_path
 
@@ -120,14 +115,6 @@ class SQLiteState(BaseState):
     def _settings_metadata_fp(self):
         """Get the path to the settings and metadata json file."""
         return get_settings_metadata_path(self.working_dir, self.review_id)
-
-    @property
-    def _feature_matrix_fp(self):
-        """Get the path to the .npz file of the feature matrix"""
-        with open(self._settings_metadata_fp, "r") as f:
-            feature_extraction = json.load(f)["settings"]["feature_extraction"]
-
-        return get_feature_matrix_path(self.working_dir, feature_extraction)
 
     def _create_new_state_file(self, working_dir, review_id):
         """Create the files for storing a new state given an review_id.
@@ -424,36 +411,11 @@ class SQLiteState(BaseState):
         """Return True if there is data of a trained model in the state."""
         return self.settings_metadata['model_has_trained']
 
-    def _update_project_with_feature_extraction(self, feature_extraction):
-        """Update the project.json if the feature extraction method is set."""
-        feature_matrix_filename = f'{feature_extraction}_feature_matrix.npz'
-
-        with open(get_project_file_path(self.working_dir), "r") as f:
-            project_config = json.load(f)
-
-        # Update the feature matrices section.
-        all_matrices = [x['id'] for x in project_config['feature_matrices']]
-        if feature_extraction not in all_matrices:
-            project_config['feature_matrices'].append({
-                'id':
-                feature_extraction,
-                'filename':
-                feature_matrix_filename
-            })
-
-        with open(get_project_file_path(self.working_dir), "w") as f:
-            json.dump(project_config, f)
-
     def _add_settings_metadata(self, key, value):
         """Add information to the settings_metadata dictionary."""
         if self.read_only:
             raise ValueError("Can't change settings in read only mode.")
         self.settings_metadata[key] = value
-
-        # If the feature extraction method is being set, update project.json
-        if key == 'settings':
-            self._update_project_with_feature_extraction(
-                value['feature_extraction'])
 
         with open(self._settings_metadata_fp, "w") as f:
             json.dump(self.settings_metadata, f)
@@ -557,38 +519,6 @@ class SQLiteState(BaseState):
         # If it's the first ranking table to be added, set model_has_trained.
         if not self.model_has_trained:
             self._add_settings_metadata('model_has_trained', True)
-
-    def add_feature_matrix(self, feature_matrix):
-        """Add feature matrix to project file.
-
-        Feature matrices are stored in the project file. See
-        asreview.state.SQLiteState._feature_matrix_fp for the file
-        location.
-
-        Arguments
-        ---------
-        feature_matrix: numpy.ndarray, scipy.sparse.csr.csr_matrix
-            The feature matrix to add to the project file.
-        """
-        # Make sure the feature matrix is in csr format.
-        if isinstance(feature_matrix, np.ndarray):
-            feature_matrix = csr_matrix(feature_matrix)
-        if not isinstance(feature_matrix, csr_matrix):
-            raise ValueError(
-                "The feature matrix should be convertible to type "
-                "scipy.sparse.csr.csr_matrix.")
-
-        save_npz(self._feature_matrix_fp, feature_matrix)
-
-    def get_feature_matrix(self):
-        """Get the feature matrix from the project file.
-
-        Returns
-        -------
-        numpy.ndarray:
-            Returns the feature matrix.
-        """
-        return load_npz(self._feature_matrix_fp)
 
     def add_note(self, note, record_id):
         """Add a text note to save with a labeled record.

@@ -164,7 +164,7 @@ class ReviewSimulate(BaseReview):
 
         # Setup the reviewer attributes that take over the role of state
         # functions.
-        with open_state(self.state_fp) as state:
+        with open_state(self.project) as state:
             # Check if there is already a ranking stored in the state.
             if state.model_has_trained:
                 self.last_ranking = state.get_last_ranking()
@@ -198,14 +198,14 @@ class ReviewSimulate(BaseReview):
     def _label_priors(self):
         """Make sure all the priors are labeled as well as the pending
         labels."""
-        with open_state(self.state_fp, read_only=False) as state:
+        with open_state(self.project, read_only=False) as state:
             # Make sure the prior records are labeled.
             labeled = state.get_labeled()
             unlabeled_priors = [x for x in self.prior_indices
                                 if x not in labeled['record_id'].to_list()]
             labels = self.data_labels[unlabeled_priors]
 
-            with open_state(self.state_fp, read_only=False) as s:
+            with open_state(self.project, read_only=False) as s:
                 s.add_labeling_data(unlabeled_priors, labels, prior=True)
 
             # Make sure the pending records are labeled.
@@ -312,7 +312,7 @@ class ReviewSimulate(BaseReview):
         if len(self.results) > 0:
             rows = [tuple(self.results.iloc[i])
                     for i in range(len(self.results))]
-            with open_state(self.state_fp, read_only=False) as state:
+            with open_state(self.project, read_only=False) as state:
                 state._add_labeling_data_simulation_mode(rows)
 
                 state.add_last_ranking(
