@@ -1,0 +1,156 @@
+TY  - JOUR
+SN  - 13361376
+AU  - Vaimann, T.
+AU  - Kudrjavtsev, O.
+AU  - Kilk, A.
+AU  - Kallaste, A.
+AU  - Rassolkin, A.
+T1  - Design and prototyping of directly driven outer rotor permanent magnet generator for small scale wind turbines
+JF  - Advances in Electrical and Electronic Engineering
+SP  - 271
+EP  - 278
+IS  - 3
+VL  - 16
+PY  - 2018
+U3  - Cited By :9
+
+Export Date: 12 May 2022
+
+Article
+PB  - VSB-Technical University of Ostrava
+UR  - https://www.scopus.com/inward/record.uri?eid=2-s2.0-85054091539&doi=10.15598%2faeee.v16i3.2698&partnerID=40&md5=3dfb99aad33708b24d05f0e305657330
+JA  - Adv. Electr. Electron. Eng.
+AB  - The paper is about the design and prototyping of directly driven outer rotor permanent magnet generator for small scale wind turbine. In the paper, the initial design of the generator is given. Main issues and phenomena affecting the generator design, such as cogging torque and its reduction possibilities, selection and demagnetization risk assessment of permanent magnets, machine losses and thermal analysis, are described. Test results of prototype generator construction and final parameters are also presented. The necessity of further study is pointed out. © 2018 ADVANCES IN ELECTRICAL AND ELECTRONIC ENGINEERING.
+LA  - English
+TS  - RIS
+DO  - 10.15598/aeee.v16i3.2698
+AD  - Department of Electrical Power Engineering and Mechatronics, School of Engineering, Tallinn University of Technology, Ehitajate tee 5, Tallinn, Estonia
+M4  - Citavi
+ER  -
+
+TY  - BOOK
+SN  - 18650929
+AU  - van Acker, B.
+AU  - Vanommeslaeghe, Y.
+AU  - Meulenaere, P.
+AU  - Denil, J.
+T1  - Validity Frame Driven Computational Design Synthesis for Complex Cyber-Physical Systems
+PY  - 2020
+PB  - Springer Science and Business Media Deutschland GmbH
+U3  - Cited By :2
+
+Export Date: 12 May 2022
+
+Conference Paper
+
+Correspondence Address: Van Acker, B.; 2020 Antwerp, Belgium; email: Bert.VanAcker@uantwerpen.be
+A2  - Babur O.
+A2  - Denil J.
+A2  - Vogel-Heuser B.
+UR  - https://www.scopus.com/inward/record.uri?eid=2-s2.0-85094123996&doi=10.1007%2f978-3-030-58167-1_7&partnerID=40&md5=e366bd68556a21c6a09a517369369b28
+VL  - 1262 CCIS
+SP  - 82
+AB  - The increasing complexity and performance demands of cyber-physical systems (CPS) force the engineers to switch from traditional, well understood single-core embedded platform to complex multi-core or even heterogeneous embedded platforms. The deployment of a control algorithm on such advanced embedded platforms can affect the control behavior even more than on a single-core embedded platform. It is therefore key to reason about this deployment early within the design process. We propose the use of the Validity Frame concept as enabling technique within the Computational Design Synthesis (CDS) process to automatically generate design alternatives and to prune nonsensical alternatives, narrowing the design space and thus increasing efficiency. For each valid control algorithm alternative, the control behavior under deployment is examined using a custom simulator enabled by modeling the embedded platform and the application deployment explicitly. We demonstrate our approach in the context of a complex cyber-physical system: an advanced safety-critical control system for brushless DC motors. © 2020, Springer Nature Switzerland AG.
+LA  - English
+TS  - RIS
+DO  - 10.1007/978-3-030-58167-1_7
+AD  - 2020 Antwerp, Belgium Flanders Make – AnSyMo/CoSys Core Lab, University of Antwerp, Antwerp, Belgium
+M4  - Citavi
+ER  -
+
+TY  - JOUR
+SN  - 1941014x
+AU  - van de Straete, H. J.
+AU  - Schutter, J.
+AU  - Belmans, R.
+T1  - An efficient procedure for checking performance limits in servo drive selection and optimization
+JF  - IEEE/ASME Transactions on Mechatronics
+SP  - 378
+EP  - 386
+IS  - 4
+VL  - 4
+PY  - 1999
+Y2  - DEC
+AB  - Many mechatronic systems involve complex motions resulting in highly dynamic motor loads. Motor characteristics, such as rotor inertia, affect this motor load, which makes the design and selection of the complete drive system-consisting of motor, mechanical reducer, and converter-a huge combinatorial problem. The new approach presented in this paper separates the problem into a feasibility and optimization phase, and normalizes it crith respect to the rotor inertia. This yields a fast and automated design procedure for servo drive systems, giving more insight through a set of conveniently arranged graphs.
+TS  - RIS
+DO  - 10.1109/3516.809516
+M4  - Citavi
+ER  -
+
+TY  - GEN
+AU  - Vargas, German
+AU  - Berrio, Margarita
+AU  - Arcos-Legarda, Jaime
+T1  - BLUE: A 3D Dynamic Bipedal Robot
+PY  - 2021
+UR  - https://lens.org/190-777-589-117-351
+L2  - https://arxiv.org/abs/2111.09920
+L2  - http://export.arxiv.org/abs/2111.09920
+L2  - https://dblp.uni-trier.de/db/journals/corr/corr2111.html#abs-2111-09920
+L2  - http://export.arxiv.org/pdf/2111.09920
+L2  - http://arxiv.org/pdf/2111.09920.pdf
+L2  - http://arxiv-export-lb.library.cornell.edu/abs/2111.09920
+JF  - arXiv: Robotics
+AB  - The objective of this work is to design a mechatronic bipedal robot with mobility in 3D environments. The designed robot has a total of six actuated degrees of freedom (DoF), each leg has two DoF located at the hip: one for abduction/adduction and another for thigh flexion/extension, and a third DoF at the knee for the shin flexion/extension. This robot is designed with point-feet legs to achieve a dynamic underactuated walking. Each actuator in the robot includes a DC gear motor, an encoder for position measurement, a flexible joint to form a series flexible actuator, and a feedback controller to ensure trajectory tracking. In order to reduce the total mass of the robot, the shin is designed using topology optimization. The resulting design is fabricated using 3D printed parts, which allows to get a robot's prototype to validate the selection of actuators. The preliminary experiments confirm the robot's ability to maintain a stand-up position and let us drawn future works in dynamic control and trajectory generation for periodic stable walking.
+TS  - RIS
+M4  - Citavi
+ER  -
+
+TY  - GEN
+AU  - Vatanparvar, Korosh
+T1  - Reliable and Energy Efficient Battery-Powered Cyber-Physical Systems
+PY  - 2018
+UR  - https://lens.org/122-820-586-961-893
+L2  - https://escholarship.org/uc/item/5cq0m92n
+AB  - Author(s): Vatanparvar, Korosh | Advisor(s): Al Faruque, Mohammad | Abstract: Cyber-Physical Systems (CPS) were presented as a solution to multidisciplinary integration and control in embedded systems. They provide seamless interactions between cyber and physical domains, enabling more intelligent and complicated control applications. However, CPS face the challenges of reliability and energy efficiency since they mainly rely on batteries for power supply. We investigate these issues with Electric Vehicles (EV) which are common battery-powered CPS. EV were introduced as a mean of transportation to address environmental problems like air and noise pollution. However, their stringent design constraints, especially on battery packs, create challenges of limited driving range and battery lifetime for daily drivers and manufacturers. Design automation community has been addressing these by developing more efficient and dependable devices and control methodologies. Our contributions in this thesis will embrace: 1) novel machine learning and physics-based modeling techniques to capture CPS dynamics more accurately; 2) unique optimization problem formulations to make optimal control decisions; and 3) intelligent control methodologies that leverage the modeling and interaction within CPS to achieve reliable and efficient operation. These contributions are applied to the systems in EV such as navigation system, climate control, and battery management system. Our objectives are to further extend the EV driving range and prolong the battery lifetime while maintaining similar driving experience and comfort for passengers.
+TS  - RIS
+M4  - Citavi
+ER  -
+
+TY  - JOUR
+SN  - 15480992
+AU  - Verucchi, Carlos
+AU  - Acosta, Gerardo G.
+AU  - Carusso, E. M.
+T1  - Influence of the motor load inertia and torque in the fault diagnosis of rotors in induction machines
+JF  - IEEE Latin America Transactions
+PY  - 2005
+UR  - https://lens.org/167-379-456-208-658
+L2  - http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=1642429
+Y2  - 2005/10/01
+AB  - During the last decades, non-invasive techniques have been proposed to carry out the fault diagnosis in electric machines. When these techniques are employed in the fault detection of the induction machine's rotors, they exhibit a strong dependence on factors such as the motor load inertia or the opposed torque. In order to develop automatic diagnostic systems or the diagnosis assistance over the rotor state, such as expert systems or knowledge based systems, it is necessary to have available further information to weigh up the influence of these factors. This work presents a study done, based on induction motor's mathematical models, about the incidence of the motor inertia and the opposed torque in some non-invasive fault detection technique employed more frequently. The model takes into account in an independent way each of the rotor bars and then allows to represent different faulty situations. These techniques with non-invasive features do not require sensors directly over the motor and thus allow a diagnosis even on-line when the machine is running. Particularly the study of the following techniques was approached: power spectral analysis, torque spectral analysis, stator current spectral analysis and Park's current vector behaviour. Therefore the diagnostic may be based in the measurement of motor's external variables such as applied voltages and stator currents.
+TS  - RIS
+M4  - Citavi
+ER  -
+
+TY  - JOUR
+SN  - 15480992
+AU  - Viola, J.
+AU  - Strefezza, M.
+AU  - Restrepo, J.
+T1  - Influence of the motor load inertia and torque in the fault diagnosis of rotors in induction machines
+JF  - IEEE Latin America Transactions
+SP  - 339
+EP  - 343
+IS  - 4
+VL  - 3
+PY  - 2005
+U3  - Cited By :8
+
+Export Date: 12 May 2022
+
+Conference Paper
+
+Correspondence Address: Viola, J.; Universidad Simón Bolívar, Caracas, Venezuela; email: jcviola@usb.ve
+UR  - https://www.scopus.com/inward/record.uri?eid=2-s2.0-77957803193&doi=10.1109%2fTLA.2005.1642429&partnerID=40&md5=ee52ca17e18360c439d3965165170388
+AB  - During the last decades, non-invasive techniques have been proposed to carry out the fault diagnosis in electric machines. When these techniques are employed in the fault detection of the induction machine's rotors, they exhibit a strong dependence on factors such as the motor load inertia or the opposed torque. In order to develop automatic diagnostic systems or the diagnosis assistance over the rotor state, such as expert systems or knowledge based systems, it is necessary to have available further information to weigh up the influence of these factors. This work presents a study done, based on induction motor's mathematical models, about the incidence of the motor inertia and the opposed torque in some non-invasive fault detection technique employed more frequently. The model takes into account in an independent way each of the rotor bars and then allows to represent different faulty situations. These techniques with non-invasive features do not require sensors directly over the motor and thus allow a diagnosis even on-line when the machine is running. Particularly the study of the following techniques was approached: power spectral analysis, torque spectral analysis, stator current spectral analysis and Park's current vector behaviour. Therefore the diagnostic may be based in the measurement of motor's external variables such as applied voltages and stator currents.
+LA  - Spanish
+TS  - RIS
+DO  - 10.1109/TLA.2005.1642429
+AD  - Universidad Simón Bolívar, Caracas, Venezuela
+
+Departamento de Electrónica Y Circuitos, Universidad Simón Bolívar, Caracas, Venezuela
+
+Departamento de Procesos Y Sistemas, Universidad Simón Bolívar, Caracas, Venezuela
+M4  - Citavi
+ER  -
