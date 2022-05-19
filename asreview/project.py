@@ -571,7 +571,7 @@ class ASReviewProject():
         # copy the source tree, but ignore pickle files
         shutil.copytree(self.project_path,
                         export_fp_tmp,
-                        ignore=shutil.ignore_patterns('*.pickle'))
+                        ignore=shutil.ignore_patterns('*.pickle', '*.lock'))
 
         # create the archive
         shutil.make_archive(export_fp_tmp, "zip", root_dir=export_fp_tmp)
