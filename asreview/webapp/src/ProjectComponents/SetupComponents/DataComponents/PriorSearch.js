@@ -90,6 +90,12 @@ const PriorSearch = (props) => {
     setKeyword(event.target.value);
   };
 
+  const onKeyDown = (event) => {
+    if (event.key === "Enter") {
+      onClickSearch();
+    }
+  };
+
   return (
     <Root>
       <Fade in>
@@ -109,6 +115,7 @@ const PriorSearch = (props) => {
               autoFocus
               fullWidth
               onChange={onChangeKeyword}
+              onKeyDown={onKeyDown}
               placeholder="Keyword in title, abstract, or author"
               sx={{ ml: 1 }}
             />
