@@ -216,29 +216,25 @@ class ReviewSimulate(BaseReview):
     def _stop_review(self):
         """In simulation mode, the stop review function should get the labeled
         records list from the reviewer attribute."""
-        stop = False
 
         # if the pool is empty, always stop
         if self.pool.empty:
-            stop = True
+            return True
 
         # If we are exceeding the number of papers, stop.
         if self.n_papers is not None and len(self.labeled) >= self.n_papers:
-            stop = True
+            return True
 
         # If n_queries is set to min, stop when all papers in the pool are
         # irrelevant.
         if self.n_queries == 'min' and (self.data_labels[self.pool] == 0).all():
-            stop = True
-        # Otherwise, stop when reaching n_queries (if provided)
-        elif self.n_queries is not None:
-            if self.total_queries >= self.n_queries:
-                stop = True
+            return True
 
-        if stop:
-            self._write_to_state()
+        # Stop when reaching n_queries (if provided)
+        if isinstance(self.n_queries, int) and self.total_queries >= self.n_queries:
+            return True
 
-        return stop
+        return False
 
     def train(self):
         """Train a new model on the labeled data."""

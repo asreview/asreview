@@ -350,11 +350,10 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     parser.add_argument(
         "--n_queries",
         type=type_n_queries,
-        default=None,
-        help="The number of queries. Alternatively, entering 'min' will stop "
-        "the simulation when all relevant records have been found. By "
-        "default, the program stops after all records are reviewed or is "
-        "interrupted by the user.")
+        default="min",
+        help="The number of label actions to simulate. Default, 'min' "
+        "will stop simulating when all relevant records are found. Use -1 "
+        "to simulate all labels actions.")
     parser.add_argument(
         "-n",
         "--n_papers",
