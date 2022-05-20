@@ -152,7 +152,7 @@ def main(argv):
 
     except Exception as err:
         err_type = type(err).__name__
-        logging.error(f"Project {args.project_id} - {err_type}: {err}")
+        logging.error(f"Project {project.project_id} - {err_type}: {err}")
         project.update_review(status="error")
 
         # write error to file if label method is prior (first iteration)
