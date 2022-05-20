@@ -13,7 +13,6 @@
 # limitations under the License.
 """Simulation entry point and utils."""
 
-import json
 import logging
 import shutil
 from pathlib import Path
