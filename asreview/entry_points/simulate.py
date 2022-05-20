@@ -246,15 +246,9 @@ class SimulateEntryPoint(BaseEntryPoint):
 
             reviewer.review()
         except Exception as err:
-            err_type = type(err).__name__
-            logging.error(f"Project {project.project_id} - {err_type}: {err}")
-            project.update_review(status="error")
 
-            # write error to file
-            message = {"message": f"{err_type}: {err}"}
-            fp = Path(project.project_path, "error.json")
-            with open(fp, 'w') as f:
-                json.dump(message, f)
+            # save the error to the project
+            project.set_error(err)
 
             raise err
 
