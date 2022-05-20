@@ -430,6 +430,7 @@ const SetupDialog = (props) => {
         }
       },
       refetchOnWindowFocus: false,
+      retry: false,
     }
   );
 
@@ -726,12 +727,14 @@ const SetupDialog = (props) => {
               )}
               {activeStep === 3 && (
                 <FinishSetup
+                  handleBack={handleBack}
                   isPreparingProject={isPreparingProject}
                   isProjectReadyError={isProjectReadyError}
                   isStartTrainingError={isStartTrainingError}
                   mode={info.mode}
                   projectReadyError={projectReadyError}
                   restartTraining={restartTraining}
+                  setTrainingStarted={setTrainingStarted}
                   startTrainingError={startTrainingError}
                   trainingFinished={trainingFinished}
                   toggleProjectSetup={props.onClose}
