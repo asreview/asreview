@@ -3,6 +3,7 @@ from pathlib import Path
 from shutil import copyfile
 from zipfile import ZipFile
 
+from asreview.project import ASReviewProject
 from asreview.project import open_state
 from asreview.state.legacy.utils import open_state as open_state_legacy
 from asreview.state.sql_converter import upgrade_asreview_project_file
@@ -38,9 +39,12 @@ def compare_state_to_converted(state_fp, converted_state_fp):
         # Get data from the new state.
         new_record_ids = new_state.get_order_of_labeling().tolist()
         new_labels = new_state.get_labels().tolist()
-
-        new_feature_matrix = new_state.get_feature_matrix()
         new_settings = new_state.settings.to_dict()
+
+    new_project = ASReviewProject(converted_state_fp)
+    feature_extraction_method = new_project.feature_matrices[0]['id']
+    new_feature_matrix = \
+        new_project.get_feature_matrix(feature_extraction_method)
 
     # Compare data.
     # assert old_indices == new_record_ids

@@ -52,10 +52,7 @@ const NoteSheet = (props) => {
 
   return (
     <Root>
-      <Card
-        variant="outlined"
-        sx={{ borderTopRightRadius: 16, borderTopLeftRadius: 16 }}
-      >
+      <Card variant="outlined">
         <CardContent>
           <Stack spacing={1}>
             <Box className={classes.button}>

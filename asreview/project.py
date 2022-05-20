@@ -28,6 +28,9 @@ from uuid import uuid4
 from filelock import FileLock
 import jsonschema
 import numpy as np
+from scipy.sparse import csr_matrix
+from scipy.sparse import load_npz
+from scipy.sparse import save_npz
 
 from asreview._version import get_versions
 from asreview.config import LABEL_NA
@@ -143,7 +146,7 @@ def open_state(asreview_obj, review_id=None, read_only=True):
 
     Arguments
     ---------
-    asreview_obj: str/pathlike
+    asreview_obj: str/pathlike/ASReviewProject
         Filepath to the (unzipped) project folder or ASReviewProject object.
     review_id: str
         Identifier of the review from which the state will be instantiated.
@@ -439,6 +442,68 @@ class ASReviewProject():
                 os.remove(f_pickle)
             except OSError as e:
                 print(f"Error: {f_pickle} : {e.strerror}")
+
+    @property
+    def feature_matrices(self):
+        try:
+            return self.config['feature_matrices']
+        except Exception:
+            return []
+
+    def add_feature_matrix(self, feature_matrix, feature_extraction_method):
+        """Add feature matrix to project file.
+
+        Arguments
+        ---------
+        feature_matrix: numpy.ndarray, scipy.sparse.csr.csr_matrix
+            The feature matrix to add to the project file.
+        feature_extraction_method: str
+            Name of the feature extraction method.
+        """
+        # Make sure the feature matrix is in csr format.
+        if isinstance(feature_matrix, np.ndarray):
+            feature_matrix = csr_matrix(feature_matrix)
+        if not isinstance(feature_matrix, csr_matrix):
+            raise ValueError(
+                "The feature matrix should be convertible to type "
+                "scipy.sparse.csr.csr_matrix.")
+
+        matrix_filename = f'{feature_extraction_method}_feature_matrix.npz'
+        save_npz(Path(self.project_path, PATH_FEATURE_MATRICES,
+                      matrix_filename), feature_matrix)
+
+        # Add the feature matrix to the project config.
+        config = self.config
+
+        feature_matrix_config = {
+            "id": feature_extraction_method,
+            "filename": matrix_filename
+        }
+
+        # Add container for feature matrices.
+        if "feature_matrices" not in config:
+            config["feature_matrices"] = []
+
+        config["feature_matrices"].append(feature_matrix_config)
+
+        self.config = config
+
+    def get_feature_matrix(self, feature_extraction_method):
+        """Get the feature matrix from the project file.
+
+        Arguments
+        ---------
+        feature_extraction_method: str
+            Name of the feature extraction method for which to get the matrix.
+
+        Returns
+        -------
+        scipy.sparse.csr_matrix:
+            Feature matrix in sparse format.
+        """
+        matrix_filename = f'{feature_extraction_method}_feature_matrix.npz'
+        return load_npz(Path(self.project_path, PATH_FEATURE_MATRICES,
+                             matrix_filename))
 
     @property
     def reviews(self):

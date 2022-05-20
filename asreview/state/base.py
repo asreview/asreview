@@ -72,28 +72,6 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def add_feature_matrix(self, feature_matrix):
-        """Add feature matrix to the state file.
-
-        Arguments
-        ---------
-        feature_matrix: np.ndarray, sklearn.sparse.csr_matrix
-            Feature matrix computed by the feature extraction model.
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_feature_matrix(self):
-        """Get feature matrix out of the state.
-
-        Returns
-        -------
-        sklearn.sparse.csr_matrix:
-            Feature matrix as computed by the feature extraction model.
-        """
-        raise NotImplementedError
-
-    @abstractmethod
     def add_last_probabilities(self, probabilities):
         """Save the probabilities produced by the last classifier.
 
