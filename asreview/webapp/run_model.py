@@ -68,8 +68,10 @@ def get_lab_reviewer(as_data,
             "Not possible to provide both prior_idx and prior_record_id"
         )
 
+    project = ASReviewProject(state_file)
+
     reviewer = BaseReview(as_data,
-                          state_file,
+                          project,
                           model=classifier_model,
                           query_model=query_model,
                           balance_model=balance_model,
