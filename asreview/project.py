@@ -629,3 +629,28 @@ class ASReviewProject():
         os.replace(tmpdir, Path(project_path, project_config["id"]))
 
         return cls(Path(project_path, project_config["id"]))
+
+    def set_error(self, err, save_error_message=True):
+
+        err_type = type(err).__name__
+        self.update_review(status="error")
+
+        # write error to file if label method is prior (first iteration)
+        if save_error_message:
+            message = {
+                "message": f"{err_type}: {err}",
+                "type": f"{err_type}",
+                "datetime": str(datetime.now())
+            }
+
+            with open(Path(self.project_path, "error.json"), 'w') as f:
+                json.dump(message, f)
+
+    def remove_error(self, status):
+        error_path = self.project_path / "error.json"
+        if error_path.exists():
+            try:
+                os.remove(error_path)
+            except Exception as err:
+                raise ValueError(f"Failed to clear the error. {err}")
+        self.update_review(status=status)

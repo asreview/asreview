@@ -14,7 +14,6 @@
 
 import json
 import logging
-import os
 import shutil
 import subprocess
 import tempfile
@@ -1069,15 +1068,7 @@ def api_status_update(project):
     mode = project.config["mode"]
 
     if current_status == "error" and status == "setup":
-        error_path = project.project_path / "error.json"
-        if error_path.exists():
-            try:
-                os.remove(error_path)
-            except Exception as err:
-                logging.error(err)
-                raise ValueError(
-                    f"Failed to clear the error. {err}")
-        project.update_review(status=status)
+        project.remove_error(status=status)
 
         response = jsonify({'success': True})
         response.headers.add('Access-Control-Allow-Origin', '*')
