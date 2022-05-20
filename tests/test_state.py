@@ -284,9 +284,15 @@ def test_create_empty_state(tmpdir):
 
 
 def test_get_feature_matrix():
-    with open_state(TEST_STATE_FP) as state:
-        feature_matrix = state.get_feature_matrix()
-        assert isinstance(feature_matrix, csr_matrix)
+
+    project = ASReviewProject(TEST_STATE_FP)
+
+    assert len(project.feature_matrices) == 1
+
+    feature_matrix = project.get_feature_matrix(
+        project.feature_matrices[0]["id"]
+    )
+    assert isinstance(feature_matrix, csr_matrix)
 
 
 def test_get_record_table():
