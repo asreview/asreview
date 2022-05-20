@@ -13,6 +13,7 @@
 # limitations under the License.
 """Simulation entry point and utils."""
 
+import json
 import logging
 import shutil
 from pathlib import Path
@@ -222,28 +223,38 @@ class SimulateEntryPoint(BaseEntryPoint):
                 preview = preview_record(as_data.record(prior_record_id))
                 print(f"{prior_record_id} - {preview}")
 
-        # Initialize the review class.
-        reviewer = ReviewSimulate(as_data,
-                                  state_file=project,
-                                  model=classifier_model,
-                                  query_model=query_model,
-                                  balance_model=balance_model,
-                                  feature_model=feature_model,
-                                  n_papers=args.n_papers,
-                                  n_instances=args.n_instances,
-                                  n_queries=args.n_queries,
-                                  prior_indices=prior_idx,
-                                  n_prior_included=args.n_prior_included,
-                                  n_prior_excluded=args.n_prior_excluded,
-                                  init_seed=args.init_seed,
-                                  write_interval=args.write_interval)
-
-        # Start the review process.
-        project.update_review(status="review")
         try:
+            # Initialize the review class.
+            reviewer = ReviewSimulate(as_data,
+                                    state_file=project,
+                                    model=classifier_model,
+                                    query_model=query_model,
+                                    balance_model=balance_model,
+                                    feature_model=feature_model,
+                                    n_papers=args.n_papers,
+                                    n_instances=args.n_instances,
+                                    n_queries=args.n_queries,
+                                    prior_indices=prior_idx,
+                                    n_prior_included=args.n_prior_included,
+                                    n_prior_excluded=args.n_prior_excluded,
+                                    init_seed=args.init_seed,
+                                    write_interval=args.write_interval)
+
+            # Start the review process.
+            project.update_review(status="review")
+
             reviewer.review()
         except Exception as err:
+            err_type = type(err).__name__
+            logging.error(f"Project {project.project_id} - {err_type}: {err}")
             project.update_review(status="error")
+
+            # write error to file
+            message = {"message": f"{err_type}: {err}"}
+            fp = Path(project.project_path, "error.json")
+            with open(fp, 'w') as f:
+                json.dump(message, f)
+
             raise err
 
         print("Simulation finished.")
