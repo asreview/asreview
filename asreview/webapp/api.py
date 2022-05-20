@@ -14,6 +14,7 @@
 
 import json
 import logging
+import os
 import shutil
 import subprocess
 import tempfile
@@ -1034,7 +1035,7 @@ def api_get_status(project):  # noqa: F401
         if error_path.exists():
             logging.error("Error on training")
             with open(error_path, "r") as f:
-                error_message = json.load(f)
+                error_message = json.load(f)["message"]
 
             raise Exception(error_message)
 
@@ -1052,6 +1053,10 @@ def api_status_update(project):
     oracle and explore:
     - `review` to `finished`
     - `finished` to `review` if not pool empty
+    - `error` to `setup`
+
+    The following status updates are allowed for simulate
+    - `error` to `setup`
 
     Status updates by the user are not allowed in simulation
     mode.
@@ -1063,21 +1068,36 @@ def api_status_update(project):
     current_status = project.config["reviews"][0]["status"]
     mode = project.config["mode"]
 
+    if current_status == "error" and status == "setup":
+        error_path = project.project_path / "error.json"
+        if error_path.exists():
+            try:
+                os.remove(error_path)
+            except Exception as err:
+                logging.error(err)
+                raise ValueError(
+                    f"Failed to clear the error. {err}")
+        project.update_review(status=status)
+
+        response = jsonify({'success': True})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+
     if mode == PROJECT_MODE_SIMULATE:
         raise ValueError(
             "Not possible to update status of simulation project.")
-
-    if current_status == "review" and status == "finished":
-        project.update_review(status=status)
-    elif current_status == "finished" and status == "review":
-        project.update_review(status=status)
-        # ideally, also check here for empty pool
     else:
-        raise ValueError("Not possible to update for this status.")
+        if current_status == "review" and status == "finished":
+            project.update_review(status=status)
+        elif current_status == "finished" and status == "review":
+            project.update_review(status=status)
+            # ideally, also check here for empty pool
+        else:
+            raise ValueError("Not possible to update for this status.")
 
-    response = jsonify({'success': True})
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    return response
+        response = jsonify({'success': True})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
 
 
 @bp.route('/projects/import_project', methods=["POST"])
