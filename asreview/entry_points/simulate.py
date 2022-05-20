@@ -224,7 +224,7 @@ class SimulateEntryPoint(BaseEntryPoint):
 
         # Initialize the review class.
         reviewer = ReviewSimulate(as_data,
-                                  state_file=project,
+                                  project=project,
                                   model=classifier_model,
                                   query_model=query_model,
                                   balance_model=balance_model,
