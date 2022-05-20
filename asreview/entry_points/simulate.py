@@ -225,20 +225,21 @@ class SimulateEntryPoint(BaseEntryPoint):
 
         try:
             # Initialize the review class.
-            reviewer = ReviewSimulate(as_data,
-                                    state_file=project,
-                                    model=classifier_model,
-                                    query_model=query_model,
-                                    balance_model=balance_model,
-                                    feature_model=feature_model,
-                                    n_papers=args.n_papers,
-                                    n_instances=args.n_instances,
-                                    n_queries=args.n_queries,
-                                    prior_indices=prior_idx,
-                                    n_prior_included=args.n_prior_included,
-                                    n_prior_excluded=args.n_prior_excluded,
-                                    init_seed=args.init_seed,
-                                    write_interval=args.write_interval)
+            reviewer = ReviewSimulate(
+                as_data,
+                state_file=project,
+                model=classifier_model,
+                query_model=query_model,
+                balance_model=balance_model,
+                feature_model=feature_model,
+                n_papers=args.n_papers,
+                n_instances=args.n_instances,
+                n_queries=args.n_queries,
+                prior_indices=prior_idx,
+                n_prior_included=args.n_prior_included,
+                n_prior_excluded=args.n_prior_excluded,
+                init_seed=args.init_seed,
+                write_interval=args.write_interval)
 
             # Start the review process.
             project.update_review(status="review")
