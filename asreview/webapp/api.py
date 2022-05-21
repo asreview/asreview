@@ -1141,9 +1141,7 @@ def api_export_dataset(project):
             max_age=0)
 
     except Exception as err:
-        logging.error(err)
-        return jsonify(
-            message=f"Failed to export the {file_format} dataset. {err}"), 500
+        raise Exception(f"Failed to export the {file_format} dataset. {err}")
 
 
 @bp.route('/projects/<project_id>/export_project', methods=["GET"])
