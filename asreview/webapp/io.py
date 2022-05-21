@@ -15,6 +15,7 @@
 import logging
 import os
 import pickle
+from pathlib import Path
 
 import pandas as pd
 
@@ -28,7 +29,7 @@ class CacheDataError(Exception):
 
 def _get_cache_data_path(fp_data):
 
-    return get_data_file_path(fp_data) \
+    return Path(fp_data) \
         .with_suffix(fp_data.suffix + ".pickle")
 
 
@@ -73,7 +74,7 @@ def _write_data_to_cache(fp_data, data_obj):
         pickle.dump((data_obj, get_versions()['version']), f_pickle)
 
 
-def read_data(project_path, use_cache=True, save_cache=True):
+def read_data(project, use_cache=True, save_cache=True):
     """Get ASReviewData object from file.
 
     Parameters
@@ -92,7 +93,10 @@ def read_data(project_path, use_cache=True, save_cache=True):
 
     """
 
-    fp_data = get_data_file_path(project_path)
+    try:
+        fp_data = Path("data", project.config["dataset_path"])
+    except Exception:
+        raise FileNotFoundError("Dataset not found")
 
     # use cache file
     if use_cache:
@@ -102,7 +106,6 @@ def read_data(project_path, use_cache=True, save_cache=True):
             pass
 
     # load from file
-    fp_data = get_data_file_path(fp_data)
     data_obj = ASReviewData.from_file(fp_data)
 
     # save a pickle version
