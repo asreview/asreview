@@ -280,15 +280,21 @@ class ASReviewProject():
             return self._config
         except AttributeError:
 
+            project_fp = Path(self.project_path, PATH_PROJECT_CONFIG)
+            project_fp_lock = Path(self.project_path, PATH_PROJECT_CONFIG_LOCK)
+            lock = FileLock(project_fp_lock, timeout=3)
+
             try:
 
-                # read the file with project info
-                with open(Path(self.project_path, PATH_PROJECT_CONFIG), "r") as fp:
+                with lock:
 
-                    config = json.load(fp)
-                    self._config = config
+                    # read the file with project info
+                    with open(project_fp, "r") as fp:
 
-                    return config
+                        config = json.load(fp)
+                        self._config = config
+
+                        return config
 
             except FileNotFoundError:
                 raise ProjectNotFoundError(
