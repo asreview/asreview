@@ -1,3 +1,4 @@
+import logging
 from abc import ABC
 
 import numpy as np
@@ -36,14 +37,10 @@ class BaseReview(ABC):
     feature_model: BaseFeatureExtraction
         Feature extraction model that converts texts and keywords to
         feature matrices.
-    n_papers: int
-        Number of papers to review during the active learning process,
-        excluding the number of initial priors. To review all papers, set
-        n_papers to None.
     n_instances: int
         Number of papers to query at each step in the active learning
         process.
-    n_queries: int
+    stop_if: int
         Number of steps/queries to perform. Set to None for no limit.
     start_idx: numpy.ndarray
         Start the simulation/review with these indices. They are assumed to
@@ -62,7 +59,7 @@ class BaseReview(ABC):
         feature_model=Tfidf(),
         n_papers=None,
         n_instances=DEFAULT_N_INSTANCES,
-        n_queries=None,
+        stop_if=None,
         start_idx=[],
     ):
         """Initialize the reviewer base class, so that everything is ready to
@@ -78,10 +75,12 @@ class BaseReview(ABC):
         # Set the settings.
         self.as_data = as_data
         self.project = project
-        self.n_papers = n_papers
         self.n_instances = n_instances
-        self.n_queries = n_queries
+        self.stop_if = stop_if
         self.prior_indices = start_idx
+
+        if n_papers is not None:
+            logging.warning("Argument n_papers is deprecated, ignoring n_papers.")
 
         # Get the known labels.
         self.data_labels = as_data.labels
@@ -147,8 +146,7 @@ class BaseReview(ABC):
                                 balance_strategy=self.balance_model.name,
                                 feature_extraction=self.feature_extraction.name,
                                 n_instances=self.n_instances,
-                                n_queries=self.n_queries,
-                                n_papers=self.n_papers,
+                                stop_if=self.stop_if,
                                 model_param=self.classifier.param,
                                 query_param=self.query_strategy.param,
                                 balance_param=self.balance_model.param,
@@ -204,22 +202,18 @@ class BaseReview(ABC):
         if pool.empty:
             stop = True
 
-        # If we are exceeding the number of papers, stop.
-        if self.n_papers is not None and len(labeled) >= self.n_papers:
-            stop = True
-
-        # If n_queries is set to min, stop when all papers in the pool are
+        # If stop_if is set to min, stop when all papers in the pool are
         # irrelevant.
-        if self.n_queries == 'min' and (self.data_labels[pool] == 0).all():
+        if self.stop_if == 'min' and (self.data_labels[pool] == 0).all():
             stop = True
-        # Otherwise, stop when reaching n_queries (if provided)
-        elif self.n_queries is not None:
+        # Otherwise, stop when reaching stop_if (if provided)
+        elif self.stop_if is not None:
             with open_state(self.project) as state:
                 training_sets = state.get_training_sets()
                 # There is one query per trained model. We subtract 1
                 # for the priors.
-                n_queries = len(set(training_sets)) - 1
-            if n_queries >= self.n_queries:
+                stop_if = len(set(training_sets)) - 1
+            if stop_if >= self.stop_if:
                 stop = True
 
         return stop

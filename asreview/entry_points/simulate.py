@@ -171,8 +171,7 @@ class SimulateEntryPoint(BaseEntryPoint):
             settings = ASReviewSettings(
                 model=args.model,
                 n_instances=args.n_instances,
-                n_queries=args.n_queries,
-                n_papers=args.n_papers,
+                stop_if=args.stop_if,
                 n_prior_included=args.n_prior_included,
                 n_prior_excluded=args.n_prior_excluded,
                 query_strategy=args.query_strategy,
@@ -232,7 +231,7 @@ class SimulateEntryPoint(BaseEntryPoint):
                 feature_model=feature_model,
                 n_papers=args.n_papers,
                 n_instances=args.n_instances,
-                n_queries=args.n_queries,
+                stop_if=args.stop_if,
                 prior_indices=prior_idx,
                 n_prior_included=args.n_prior_included,
                 n_prior_excluded=args.n_prior_excluded,
@@ -355,6 +354,11 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "--n_queries",
         type=type_n_queries,
         default="min",
+        help="Deprecated, use 'stop_if' instead.")
+    parser.add_argument(
+        "--stop_if",
+        type=type_n_queries,
+        default="min",
         help="The number of label actions to simulate. Default, 'min' "
         "will stop simulating when all relevant records are found. Use -1 "
         "to simulate all labels actions.")
@@ -363,9 +367,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "--n_papers",
         type=int,
         default=None,
-        help="The number of papers to be reviewed. By default, "
-        "the program stops after all documents are reviewed or is "
-        "interrupted by the user.")
+        help="Deprecated, use 'stop_if' instead.")
     parser.add_argument("--verbose",
                         "-v",
                         default=0,

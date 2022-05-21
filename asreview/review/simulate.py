@@ -102,14 +102,10 @@ class ReviewSimulate(BaseReview):
         Sample n prior excluded papers.
     prior_indices: int
         Prior indices by row number.
-    n_papers: int
-        Number of papers to review during the active learning process,
-        excluding the number of initial priors. To review all papers, set
-        n_papers to None.
     n_instances: int
         Number of papers to query at each step in the active learning
         process.
-    n_queries: int
+    stop_if: int
         Number of steps/queries to perform. Set to None for no limit.
     start_idx: numpy.ndarray
         Start the simulation/review with these indices. They are assumed to
@@ -221,17 +217,13 @@ class ReviewSimulate(BaseReview):
         if self.pool.empty:
             return True
 
-        # If we are exceeding the number of papers, stop.
-        if self.n_papers is not None and len(self.labeled) >= self.n_papers:
-            return True
-
-        # If n_queries is set to min, stop when all papers in the pool are
+        # If stop_if is set to min, stop when all papers in the pool are
         # irrelevant.
-        if self.n_queries == 'min' and (self.data_labels[self.pool] == 0).all():
+        if self.stop_if == 'min' and (self.data_labels[self.pool] == 0).all():
             return True
 
-        # Stop when reaching n_queries (if provided)
-        if isinstance(self.n_queries, int) and self.total_queries >= self.n_queries:
+        # Stop when reaching stop_if (if provided)
+        if isinstance(self.stop_if, int) and self.total_queries >= self.stop_if:
             return True
 
         return False
