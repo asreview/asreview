@@ -266,15 +266,27 @@ const ProjectTable = (props) => {
     });
   };
 
+  const clearSetupError = (project) => {
+    mutateStatus({
+      project_id: project["id"],
+      status: projectStatuses.SETUP,
+    });
+  };
+
   const openProject = (project, path) => {
     if (
       project["reviews"][0] === undefined ||
-      project["reviews"][0]["status"] === projectStatuses.SETUP
+      project["reviews"][0]["status"] === projectStatuses.SETUP ||
+      project["reviews"][0]["status"] === projectStatuses.ERROR
     ) {
       // set project id
       props.setProjectId(project["id"]);
       // open project setup dialog
       props.toggleProjectSetup();
+      // clear potential setup error
+      if (project["reviews"][0]["status"] === projectStatuses.ERROR) {
+        clearSetupError(project);
+      }
     } else if (!project["projectNeedsUpgrade"]) {
       // open project page
       navigate(`/projects/${project["id"]}/${path}`);
@@ -331,7 +343,8 @@ const ProjectTable = (props) => {
   const status = (project) => {
     if (
       project.reviews[0] === undefined ||
-      project.reviews[0].status === projectStatuses.SETUP
+      project.reviews[0].status === projectStatuses.SETUP ||
+      project.reviews[0].status === projectStatuses.ERROR
     ) {
       return [projectStatuses.SETUP, "Setup"];
     }
@@ -346,7 +359,8 @@ const ProjectTable = (props) => {
   const statusStyle = (project) => {
     if (
       project.reviews[0] === undefined ||
-      project.reviews[0].status === projectStatuses.SETUP
+      project.reviews[0].status === projectStatuses.SETUP ||
+      project.reviews[0].status === projectStatuses.ERROR
     ) {
       return "dashboard-page-table-chip setup";
     }
