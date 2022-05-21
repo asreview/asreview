@@ -304,7 +304,7 @@ class SQLiteState(BaseState):
             balance_strategy  : triple
             feature_extraction: tfidf
             n_instances       : 1
-            n_queries         : 1
+            stop_if           : min
             n_prior_included  : 10
             n_prior_excluded  : 10
             mode              : simulate
