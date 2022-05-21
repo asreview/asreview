@@ -37,4 +37,4 @@ def type_n_queries(value):
 
             return value_i
         except ValueError:
-            raise ValueError("Value for n_queries is not 'min' or a valid integer")
+            raise ValueError("Expected 'min' or a valid integer")
