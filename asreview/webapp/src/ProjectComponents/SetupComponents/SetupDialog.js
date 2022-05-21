@@ -416,6 +416,9 @@ const SetupDialog = (props) => {
     ProjectAPI.fetchProjectStatus,
     {
       enabled: trainingStarted,
+      onError: () => {
+        setTrainingStarted(false);
+      },
       onSuccess: (data) => {
         if (data["status"] !== projectStatuses.SETUP) {
           // model ready
@@ -734,7 +737,6 @@ const SetupDialog = (props) => {
                   mode={info.mode}
                   projectReadyError={projectReadyError}
                   restartTraining={restartTraining}
-                  setTrainingStarted={setTrainingStarted}
                   startTrainingError={startTrainingError}
                   trainingFinished={trainingFinished}
                   toggleProjectSetup={props.onClose}

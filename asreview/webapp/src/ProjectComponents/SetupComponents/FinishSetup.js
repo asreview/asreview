@@ -110,7 +110,6 @@ const FinishSetup = (props) => {
     {
       onSuccess: () => {
         props.handleBack();
-        props.setTrainingStarted(false);
         queryClient.resetQueries("fetchProjectStatus");
       },
     }
