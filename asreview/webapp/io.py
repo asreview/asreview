@@ -94,7 +94,8 @@ def read_data(project, use_cache=True, save_cache=True):
     """
 
     try:
-        fp_data = Path("data", project.config["dataset_path"])
+        fp_data = Path(
+            project.project_path, "data", project.config["dataset_path"])
     except Exception:
         raise FileNotFoundError("Dataset not found")
 

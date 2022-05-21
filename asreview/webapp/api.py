@@ -431,7 +431,7 @@ def api_get_project_data(project):  # noqa: F401
             "n_rows": as_data.df.shape[0],
             "n_cols": as_data.df.shape[1],
             "n_duplicates": n_duplicates(as_data),
-            "filename": project.config["dataset_path"],
+            "filename": Path(project.config["dataset_path"]).stem,
         }
 
     except FileNotFoundError as err:
@@ -453,7 +453,7 @@ def api_get_project_data(project):  # noqa: F401
 def api_list_dataset_writers(project):
     """List the name and label of available dataset writer"""
 
-    fp_data = project.config["dataset_path"]
+    fp_data = Path(project.config["dataset_path"])
 
     try:
         readers = list_readers()
