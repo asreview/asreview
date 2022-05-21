@@ -20,7 +20,6 @@ import pandas as pd
 
 from asreview._version import get_versions
 from asreview.data import ASReviewData
-from asreview.state.paths import get_data_file_path
 
 
 class CacheDataError(Exception):
