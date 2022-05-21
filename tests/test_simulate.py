@@ -9,7 +9,6 @@ from asreview.entry_points.simulate import _simulate_parser
 from asreview.project import ASReviewProject
 from asreview.project import ProjectExistsError
 from asreview.project import open_state
-from asreview.state.paths import get_settings_metadata_path
 
 ADVANCED_DEPS = {"tensorflow": False}
 
@@ -90,7 +89,13 @@ def test_n_prior_included(tmpdir):
     Path(tmpdir, 'test').mkdir(parents=True)
     project = ASReviewProject.load(asreview_fp, Path(tmpdir, 'test'))
 
-    with open(get_settings_metadata_path(project.project_path), 'r') as f:
+    settings_path = Path(
+        project.project_path,
+        'reviews',
+        project.config['reviews'][0]['id'],
+        'settings_metadata.json'
+    )
+    with open(settings_path, 'r') as f:
         settings_metadata = json.load(f)
 
     assert settings_metadata['settings']['n_prior_included'] == 2
@@ -112,7 +117,13 @@ def test_n_prior_excluded(tmpdir):
     Path(tmpdir, 'test').mkdir(parents=True)
     project = ASReviewProject.load(asreview_fp, Path(tmpdir, 'test'))
 
-    with open(get_settings_metadata_path(project.project_path), 'r') as f:
+    settings_path = Path(
+        project.project_path,
+        'reviews',
+        project.config['reviews'][0]['id'],
+        'settings_metadata.json'
+    )
+    with open(settings_path, 'r') as f:
         settings_metadata = json.load(f)
 
     assert settings_metadata['settings']['n_prior_excluded'] == 2
@@ -153,7 +164,13 @@ def test_non_tf_models(tmpdir):
         Path(tmpdir, f'test_{model}').mkdir(parents=True)
         project = ASReviewProject.load(asreview_fp, Path(tmpdir, f'test_{model}'))
 
-        with open(get_settings_metadata_path(project.project_path), 'r') as f:
+        settings_path = Path(
+            project.project_path,
+            'reviews',
+            project.config['reviews'][0]['id'],
+            'settings_metadata.json'
+        )
+        with open(settings_path, 'r') as f:
             settings_metadata = json.load(f)
 
         assert settings_metadata['settings']['model'] == model
