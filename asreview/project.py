@@ -178,7 +178,9 @@ def open_state(asreview_obj, review_id=None, read_only=True):
 
     try:
         if len(project.reviews) > 0:
-            logging.debug("Reviews found.")
+            if review_id is None:
+                review_id = project.config['reviews'][0]['id']
+            logging.debug(f"Opening review {review_id}.")
             state._restore(project.project_path, review_id)
         elif len(project.reviews) == 0 and not read_only:
             review_id = uuid4().hex
