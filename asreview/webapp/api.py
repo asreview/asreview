@@ -1084,7 +1084,8 @@ def api_status_update(project):
             project.update_review(status=status)
             # ideally, also check here for empty pool
         else:
-            raise ValueError("Not possible to update for this status.")
+            raise ValueError(
+                f"Not possible to update status from {current_status} to {status}")
 
         response = jsonify({'success': True})
         response.headers.add('Access-Control-Allow-Origin', '*')
