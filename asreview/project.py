@@ -38,8 +38,6 @@ from asreview.config import PROJECT_MODES
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.config import SCHEMA
 from asreview.state.errors import StateNotFoundError
-from asreview.state.paths import get_data_path
-from asreview.state.paths import get_reviews_path
 from asreview.state.sqlstate import SQLiteState
 from asreview.utils import asreview_path
 from asreview.webapp.io import read_data
@@ -137,7 +135,7 @@ def is_project(project_path):
 def is_v0_project(project_path):
     """Check if a project file is of a ASReview version 0 project."""
 
-    return not get_reviews_path(project_path).exists()
+    return not Path(project_path, "reviews").exists()
 
 
 @contextmanager
@@ -236,9 +234,9 @@ class ASReviewProject():
 
         try:
             project_path.mkdir(exist_ok=True)
-            get_data_path(project_path).mkdir(exist_ok=True)
+            Path(project_path, "data").mkdir(exist_ok=True)
             Path(project_path, PATH_FEATURE_MATRICES).mkdir(exist_ok=True)
-            get_reviews_path(project_path).mkdir(exist_ok=True)
+            Path(project_path, "reviews").mkdir(exist_ok=True)
 
             config = {
                 'version':
@@ -389,7 +387,7 @@ class ASReviewProject():
         self.update_config(dataset_path=file_name)
 
         # fill the pool of the first iteration
-        as_data = read_data(self.project_path)
+        as_data = read_data(self)
 
         with open_state(self.project_path, read_only=False) as state:
 
@@ -420,11 +418,11 @@ class ASReviewProject():
         self.update_config(dataset_path=None)
 
         # remove datasets from project
-        shutil.rmtree(get_data_path(self.project_path))
+        shutil.rmtree(Path(self.project_path, "data"))
 
         # remove state file if present
-        if get_reviews_path(self.project_path).is_dir() and \
-                any(get_reviews_path(self.project_path).iterdir()):
+        if Path(self.project_path, "reviews").is_dir() and \
+                any(Path(self.project_path, "reviews").iterdir()):
             self.delete_review()
 
     def clean_tmp_files(self):
@@ -594,10 +592,10 @@ class ASReviewProject():
             print("Failed to remove feature matrices.")
 
         try:
-            path_review = get_reviews_path(self.project_path)
+            path_review = Path(self.project_path, 'reviews')
             shutil.rmtree(path_review)
             if not remove_folders:
-                get_reviews_path(self.project_path).mkdir(exist_ok=True)
+                Path(self.project_path, 'reviews').mkdir(exist_ok=True)
         except Exception:
             print("Failed to remove sql database.")
 

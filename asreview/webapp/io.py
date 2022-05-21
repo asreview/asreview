@@ -27,16 +27,15 @@ class CacheDataError(Exception):
     pass
 
 
-def _get_cache_data_path(project_path):
-    fp_data = get_data_file_path(project_path)
+def _get_cache_data_path(fp_data):
 
-    return get_data_file_path(project_path) \
+    return get_data_file_path(fp_data) \
         .with_suffix(fp_data.suffix + ".pickle")
 
 
-def _read_data_from_cache(project_path, version_check=True):
+def _read_data_from_cache(fp_data, version_check=True):
 
-    fp_data_pickle = _get_cache_data_path(project_path)
+    fp_data_pickle = _get_cache_data_path(fp_data)
 
     try:
         # get the pickle data
@@ -66,9 +65,9 @@ def _read_data_from_cache(project_path, version_check=True):
     raise CacheDataError()
 
 
-def _write_data_to_cache(project_path, data_obj):
+def _write_data_to_cache(fp_data, data_obj):
 
-    fp_data_pickle = _get_cache_data_path(project_path)
+    fp_data_pickle = _get_cache_data_path(fp_data)
 
     logging.info("Store a copy of the data in a pickle file.")
     with open(fp_data_pickle, 'wb') as f_pickle:
@@ -94,19 +93,21 @@ def read_data(project_path, use_cache=True, save_cache=True):
 
     """
 
+    fp_data = get_data_file_path(project_path)
+
     # use cache file
     if use_cache:
         try:
-            return _read_data_from_cache(project_path)
+            return _read_data_from_cache(fp_data)
         except CacheDataError:
             pass
 
     # load from file
-    fp_data = get_data_file_path(project_path)
+    fp_data = get_data_file_path(fp_data)
     data_obj = ASReviewData.from_file(fp_data)
 
     # save a pickle version
     if save_cache:
-        _write_data_to_cache(project_path, data_obj)
+        _write_data_to_cache(fp_data, data_obj)
 
     return data_obj

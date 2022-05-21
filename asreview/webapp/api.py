@@ -62,8 +62,6 @@ from asreview.search import fuzzy_find
 from asreview.settings import ASReviewSettings
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
-from asreview.state.paths import get_data_file_path
-from asreview.state.paths import get_data_path
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.sql_converter import upgrade_project_config
 from asreview.utils import _get_executable
@@ -315,7 +313,7 @@ def api_upload_data_to_project(project):  # noqa: F401
         project.remove_dataset()
 
     # create dataset folder if not present
-    get_data_path(project.project_path).mkdir(exist_ok=True)
+    Path(project.project_path, "data").mkdir(exist_ok=True)
 
     if request.form.get('plugin', None):
         url = DatasetManager().find(request.form['plugin']).filepath
@@ -332,7 +330,7 @@ def api_upload_data_to_project(project):  # noqa: F401
             url_parts = urllib.parse.urlparse(url)
             filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
 
-            urlretrieve(url, get_data_path(project.project_path) / filename)
+            urlretrieve(url, Path(project.project_path, "data") / filename)
 
         except ValueError as err:
 
@@ -360,7 +358,7 @@ def api_upload_data_to_project(project):  # noqa: F401
         try:
 
             filename = secure_filename(data_file.filename)
-            fp_data = get_data_path(project.project_path) / filename
+            fp_data = Path(project.project_path, "data") / filename
 
             # save the file
             data_file.save(str(fp_data))
@@ -379,7 +377,7 @@ def api_upload_data_to_project(project):  # noqa: F401
 
     if project_config["mode"] == PROJECT_MODE_EXPLORE:
 
-        data_path_raw = get_data_path(project.project_path) / filename
+        data_path_raw = Path(project.project_path, "data") / filename
         data_path = data_path_raw.with_suffix('.csv')
 
         data = ASReviewData.from_file(data_path_raw)
@@ -390,7 +388,7 @@ def api_upload_data_to_project(project):  # noqa: F401
 
     elif project_config["mode"] == PROJECT_MODE_SIMULATE:
 
-        data_path_raw = get_data_path(project.project_path) / filename
+        data_path_raw = Path(project.project_path, "data") / filename
         data_path = data_path_raw.with_suffix('.csv')
 
         data = ASReviewData.from_file(data_path_raw)
@@ -398,7 +396,7 @@ def api_upload_data_to_project(project):  # noqa: F401
         data.to_file(data_path)
 
     else:
-        data_path = get_data_path(project.project_path) / filename
+        data_path = Path(project.project_path, "data") / filename
 
     try:
         # add the file to the project
@@ -426,16 +424,14 @@ def api_get_project_data(project):  # noqa: F401
 
     try:
 
-        filename = get_data_file_path(project.project_path).stem
-
         # get statistics of the dataset
-        as_data = read_data(project.project_path)
+        as_data = read_data(project)
 
         statistics = {
             "n_rows": as_data.df.shape[0],
             "n_cols": as_data.df.shape[1],
             "n_duplicates": n_duplicates(as_data),
-            "filename": filename,
+            "filename": project.config["dataset_path"],
         }
 
     except FileNotFoundError as err:
@@ -453,11 +449,11 @@ def api_get_project_data(project):  # noqa: F401
 
 
 @bp.route('/projects/<project_id>/dataset_writer', methods=["GET"])
-def api_list_dataset_writers(project_id):
+@project_from_id
+def api_list_dataset_writers(project):
     """List the name and label of available dataset writer"""
 
-    project_path = get_project_path(project_id)
-    fp_data = get_data_file_path(project_path)
+    fp_data = project.config["dataset_path"]
 
     try:
         readers = list_readers()
@@ -515,7 +511,7 @@ def api_search_data(project):  # noqa: F401
         if q:
 
             # read the dataset
-            as_data = read_data(project.project_path)
+            as_data = read_data(project)
 
             # read record_ids of labels from state
             with open_state(project.project_path) as s:
@@ -640,7 +636,7 @@ def api_get_labeled(project):  # noqa: F401
             next_page = None
             previous_page = None
 
-        records = read_data(project.project_path).record(data["record_id"])
+        records = read_data(project).record(data["record_id"])
 
         payload = {
             "count": count,
@@ -725,7 +721,7 @@ def api_random_prior_papers(project):  # noqa: F401
     with open_state(project.project_path) as state:
         pool = state.get_pool().values
 
-    as_data = read_data(project.project_path)
+    as_data = read_data(project)
 
     payload = {"result": []}
 
@@ -948,14 +944,8 @@ def api_start(project):  # noqa: F401
         logging.info("Start simulation")
 
         try:
-            # review_id = uuid.uuid4().hex
-            datafile = get_data_file_path(project.project_path)
-            # state_file = get_simulation_ready_path(project.project_path,
-            #                                        review_id)
-
+            datafile = project.config["dataset_path"]
             logging.info("Project data file found: {}".format(datafile))
-
-            # project.add_review(review_id)
 
             # start simulation
             py_exe = _get_executable()
@@ -1136,7 +1126,7 @@ def api_export_dataset(project):
                     writer = c
 
         # read the dataset into a ASReview data object
-        as_data = read_data(project.project_path)
+        as_data = read_data(project)
 
         as_data.to_file(
             fp=tmp_path_dataset,
@@ -1441,7 +1431,7 @@ def api_get_document(project):  # noqa: F401
         if len(record_ids) > 0:
             new_instance = record_ids[0]
 
-            as_data = read_data(project.project_path)
+            as_data = read_data(project)
             record = as_data.record(int(new_instance))
 
             item = {}

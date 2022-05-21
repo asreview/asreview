@@ -24,8 +24,6 @@ from asreview.settings import ASReviewSettings
 from asreview.state.base import BaseState
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
-from asreview.state.paths import get_project_file_path
-from asreview.state.paths import get_settings_metadata_path
 
 REQUIRED_TABLES = [
     # the table with the labeling decisions and models trained
@@ -103,7 +101,7 @@ class SQLiteState(BaseState):
 
         if self.review_id is None:
 
-            with open(get_project_file_path(self.working_dir), 'r') as f:
+            with open(Path(self.working_dir, "project.json"), 'r') as f:
                 project_config = json.load(f)
             review_id = project_config['reviews'][0]['id']
         else:
@@ -114,7 +112,14 @@ class SQLiteState(BaseState):
     @property
     def _settings_metadata_fp(self):
         """Get the path to the settings and metadata json file."""
-        return get_settings_metadata_path(self.working_dir, self.review_id)
+
+        if self.review_id is None:
+            with open(Path(self.working_dir, "project.json"), 'r') as f:
+                project_config = json.load(f)
+            self.review_id = project_config['reviews'][0]['id']
+
+        return Path(self.working_dir, 'reviews', self.review_id,
+                    'settings_metadata.json')
 
     def _create_new_state_file(self, working_dir, review_id):
         """Create the files for storing a new state given an review_id.
