@@ -1,3 +1,4 @@
+import logging
 from abc import ABC
 
 import numpy as np
@@ -36,10 +37,6 @@ class BaseReview(ABC):
     feature_model: BaseFeatureExtraction
         Feature extraction model that converts texts and keywords to
         feature matrices.
-    n_papers: int
-        Number of papers to review during the active learning process,
-        excluding the number of initial priors. To review all papers, set
-        n_papers to None.
     n_instances: int
         Number of papers to query at each step in the active learning
         process.
@@ -78,10 +75,12 @@ class BaseReview(ABC):
         # Set the settings.
         self.as_data = as_data
         self.project = project
-        self.n_papers = n_papers
         self.n_instances = n_instances
         self.n_queries = n_queries
         self.prior_indices = start_idx
+
+        if n_papers is not None:
+            logging.warning("Argument n_papers is deprecated, ignoring n_papers.")
 
         # Get the known labels.
         self.data_labels = as_data.labels
@@ -148,7 +147,6 @@ class BaseReview(ABC):
                                 feature_extraction=self.feature_extraction.name,
                                 n_instances=self.n_instances,
                                 n_queries=self.n_queries,
-                                n_papers=self.n_papers,
                                 model_param=self.classifier.param,
                                 query_param=self.query_strategy.param,
                                 balance_param=self.balance_model.param,
@@ -202,10 +200,6 @@ class BaseReview(ABC):
 
         # if the pool is empty, always stop
         if pool.empty:
-            stop = True
-
-        # If we are exceeding the number of papers, stop.
-        if self.n_papers is not None and len(labeled) >= self.n_papers:
             stop = True
 
         # If n_queries is set to min, stop when all papers in the pool are

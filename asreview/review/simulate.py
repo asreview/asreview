@@ -102,10 +102,6 @@ class ReviewSimulate(BaseReview):
         Sample n prior excluded papers.
     prior_indices: int
         Prior indices by row number.
-    n_papers: int
-        Number of papers to review during the active learning process,
-        excluding the number of initial priors. To review all papers, set
-        n_papers to None.
     n_instances: int
         Number of papers to query at each step in the active learning
         process.
@@ -219,10 +215,6 @@ class ReviewSimulate(BaseReview):
 
         # if the pool is empty, always stop
         if self.pool.empty:
-            return True
-
-        # If we are exceeding the number of papers, stop.
-        if self.n_papers is not None and len(self.labeled) >= self.n_papers:
             return True
 
         # If n_queries is set to min, stop when all papers in the pool are
