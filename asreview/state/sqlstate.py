@@ -99,27 +99,13 @@ class SQLiteState(BaseState):
     def _sql_fp(self):
         """Get the path to the sqlite database."""
 
-        if self.review_id is None:
-
-            with open(Path(self.working_dir, "project.json"), 'r') as f:
-                project_config = json.load(f)
-            review_id = project_config['reviews'][0]['id']
-        else:
-            review_id = self.review_id
-
-        return Path(self.working_dir, 'reviews', review_id, 'results.sql')
+        return Path(self.review_dir, 'results.sql')
 
     @property
     def _settings_metadata_fp(self):
         """Get the path to the settings and metadata json file."""
 
-        if self.review_id is None:
-            with open(Path(self.working_dir, "project.json"), 'r') as f:
-                project_config = json.load(f)
-            self.review_id = project_config['reviews'][0]['id']
-
-        return Path(self.working_dir, 'reviews', self.review_id,
-                    'settings_metadata.json')
+        return Path(self.review_dir, 'settings_metadata.json')
 
     def _create_new_state_file(self, working_dir, review_id):
         """Create the files for storing a new state given an review_id.
@@ -131,16 +117,15 @@ class SQLiteState(BaseState):
 
         Arguments
         ---------
-        working_dir: str, pathlib.Path
-            Project file location.
+        review_dir: str, pathlib.Path
+            Review folder location.
         review_id: str
             Identifier of the review.
         """
         if self.read_only:
             raise ValueError("Can't create new state file in read_only mode.")
 
-        self.working_dir = Path(working_dir)
-        self.review_id = review_id
+        self.review_dir = Path(working_dir, 'reviews', review_id)
 
         # create folder in the folder `results` with the name of result_id
         self._sql_fp.parent.mkdir(parents=True, exist_ok=True)
@@ -211,17 +196,16 @@ class SQLiteState(BaseState):
 
         Arguments
         ---------
-        working_dir: str, pathlib.Path
-            Location of the project file.
+        review_dir: str, pathlib.Path
+            Review folder location.
         review_id: str
             Identifier of the review.
         """
         # store filepath
-        self.working_dir = Path(working_dir)
-        self.review_id = review_id
+        self.review_dir = Path(working_dir, 'reviews', review_id)
 
         # If state already exist
-        if not self.working_dir.is_dir():
+        if not working_dir.is_dir():
             raise StateNotFoundError(f"Project {working_dir} doesn't exist.")
 
         if not self._sql_fp.parent.is_dir():
