@@ -41,7 +41,6 @@ from asreview.project import ProjectExistsError
 from asreview.project import open_state
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
-from asreview.state.paths import get_data_path
 from asreview.types import type_n_queries
 from asreview.utils import get_random_state
 from asreview.webapp.io import read_data
@@ -115,6 +114,8 @@ class SimulateEntryPoint(BaseEntryPoint):
         # for webapp
         if args.dataset == "":
 
+            project = ASReviewProject(args.state_file)
+
             with open_state(args.state_file) as state:
                 settings = state.settings
 
@@ -123,15 +124,13 @@ class SimulateEntryPoint(BaseEntryPoint):
 
             # collect command line arguments and pass them to the reviewer
             if exist_new_labeled_records:
-                as_data = read_data(args.state_file)
+                as_data = read_data(project)
                 prior_idx = args.prior_idx
 
             classifier_model = get_classifier(settings.model)
             query_model = get_query_model(settings.query_strategy)
             balance_model = get_balance_model(settings.balance_strategy)
             feature_model = get_feature_model(settings.feature_extraction)
-
-            project = ASReviewProject(args.state_file)
 
         # for simulation CLI
         else:
@@ -163,7 +162,7 @@ class SimulateEntryPoint(BaseEntryPoint):
             dataset_path = _get_dataset_path_from_args(args.dataset)
 
             as_data.to_file(
-                Path(get_data_path(fp_tmp_simulation), dataset_path)
+                Path(fp_tmp_simulation, 'data', dataset_path)
             )
             # Update the project.json.
             project.update_config(dataset_path=dataset_path)

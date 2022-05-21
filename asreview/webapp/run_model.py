@@ -111,7 +111,7 @@ def train_model(project):
 
         if exist_new_labeled_records:
             # collect command line arguments and pass them to the reviewer
-            as_data = read_data(project.project_path)
+            as_data = read_data(project)
 
             reviewer = get_lab_reviewer(
                 as_data=as_data,
