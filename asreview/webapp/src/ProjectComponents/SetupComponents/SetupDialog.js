@@ -416,6 +416,9 @@ const SetupDialog = (props) => {
     ProjectAPI.fetchProjectStatus,
     {
       enabled: trainingStarted,
+      onError: () => {
+        setTrainingStarted(false);
+      },
       onSuccess: (data) => {
         if (data["status"] !== projectStatuses.SETUP) {
           // model ready
@@ -430,6 +433,7 @@ const SetupDialog = (props) => {
         }
       },
       refetchOnWindowFocus: false,
+      retry: false,
     }
   );
 
@@ -726,6 +730,7 @@ const SetupDialog = (props) => {
               )}
               {activeStep === 3 && (
                 <FinishSetup
+                  handleBack={handleBack}
                   isPreparingProject={isPreparingProject}
                   isProjectReadyError={isProjectReadyError}
                   isStartTrainingError={isStartTrainingError}

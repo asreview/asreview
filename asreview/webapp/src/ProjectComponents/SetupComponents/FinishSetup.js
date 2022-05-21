@@ -1,6 +1,6 @@
 import * as React from "react";
 import ReactLoading from "react-loading";
-import { useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import SwipeableViews from "react-swipeable-views";
@@ -16,6 +16,7 @@ import {
   mapStateToProps,
   mapDispatchToProps,
   projectModes,
+  projectStatuses,
 } from "../../globals.js";
 
 import ElasBalloons from "../../images/ElasBalloons.svg";
@@ -104,12 +105,18 @@ const FinishSetup = (props) => {
   const [activeStep, setActiveStep] = React.useState(0);
   const [buttonIn, setButtonIn] = React.useState(false);
 
+  const { error, isError, mutate } = useMutation(
+    ProjectAPI.mutateProjectStatus,
+    {
+      onSuccess: () => {
+        props.handleBack();
+        queryClient.resetQueries("fetchProjectStatus");
+      },
+    }
+  );
+
   const handleStepChange = (step) => {
     setActiveStep(step);
-  };
-
-  const refetchProjectStatus = () => {
-    queryClient.resetQueries("fetchProjectStatus");
   };
 
   const onClickProjectReview = async () => {
@@ -128,6 +135,13 @@ const FinishSetup = (props) => {
     queryClient.invalidateQueries("fetchProjects");
   };
 
+  const onClickClearError = () => {
+    mutate({
+      project_id: props.project_id,
+      status: projectStatuses.SETUP,
+    });
+  };
+
   React.useEffect(() => {
     if (props.trainingFinished) {
       setTimeout(() => setButtonIn(true), transitionTimeout);
@@ -136,20 +150,28 @@ const FinishSetup = (props) => {
 
   return (
     <Root>
-      {props.isStartTrainingError && (
-        <InlineErrorHandler
-          message={props.startTrainingError?.message}
-          refetch={props.restartTraining}
-          button={true}
-        />
-      )}
-      {!props.isPreparingProject && props.isProjectReadyError && (
-        <InlineErrorHandler
-          message={props.projectReadyError?.message}
-          refetch={refetchProjectStatus}
-          button={true}
-        />
-      )}
+      <Stack spacing={3}>
+        {props.isStartTrainingError && (
+          <InlineErrorHandler
+            message={props.startTrainingError?.message}
+            refetch={props.restartTraining}
+            button={true}
+          />
+        )}
+        {!props.isPreparingProject && props.isProjectReadyError && (
+          <Stack className={classes.root} spacing={3}>
+            <InlineErrorHandler message={props.projectReadyError?.message} />
+            <Button onClick={onClickClearError}>Return to previous step</Button>
+          </Stack>
+        )}
+        {isError && (
+          <InlineErrorHandler
+            message={error?.message}
+            refetch={onClickClearError}
+            button={true}
+          />
+        )}
+      </Stack>
       {!props.isStartTrainingError &&
         !props.isProjectReadyError &&
         !props.trainingFinished && (
