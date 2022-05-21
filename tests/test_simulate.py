@@ -249,13 +249,13 @@ def test_write_interval(tmpdir):
 def test_project_already_exists_error(tmpdir):
     asreview_fp1 = Path(tmpdir, 'test1.asreview')
 
-    argv = f'benchmark:van_de_Schoot_2017 -s {asreview_fp1} --n_papers 100' \
+    argv = f'benchmark:van_de_Schoot_2017 -s {asreview_fp1} --n_queries 100' \
            f' --seed 535'.split()
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
 
     # Simulate 100 queries in two steps of 50.
-    argv = f'benchmark:van_de_Schoot_2017 -s {asreview_fp1} --n_papers 50' \
+    argv = f'benchmark:van_de_Schoot_2017 -s {asreview_fp1} --n_queries 50' \
            f' --seed 535'.split()
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
@@ -271,18 +271,18 @@ def test_partial_simulation(tmpdir):
     seed = 101
 
     # Simulate 100 queries in one go.
-    argv = f'{dataset} -s {asreview_fp1} --n_papers 100 ' \
+    argv = f'{dataset} -s {asreview_fp1} --n_queries 100 ' \
            f'--prior_idx {priors[0]} {priors[1]} --seed {seed}'.split()
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
 
     # Simulate 100 queries in two steps of 50.
-    argv = f'{dataset} -s {asreview_fp2} --n_papers 50 ' \
+    argv = f'{dataset} -s {asreview_fp2} --n_queries 50 ' \
            f'--prior_idx {priors[0]} {priors[1]} --seed {seed}'.split()
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
 
-    argv = f'{dataset} -s {asreview_fp2} --n_papers 100 ' \
+    argv = f'{dataset} -s {asreview_fp2} --n_queries 100 ' \
            f'--prior_idx {priors[0]} {priors[1]} --seed {seed}'.split()
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
@@ -314,7 +314,7 @@ def test_is_partial_simulation(tmpdir):
     dataset = 'benchmark:van_de_Schoot_2017'
     asreview_fp = Path(tmpdir, 'test.asreview')
 
-    argv = f'{dataset} -s {asreview_fp} --n_papers 50'.split()
+    argv = f'{dataset} -s {asreview_fp} --n_queries 50'.split()
     parser = _simulate_parser()
     args = parser.parse_args(argv)
 

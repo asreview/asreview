@@ -172,7 +172,6 @@ class SimulateEntryPoint(BaseEntryPoint):
                 model=args.model,
                 n_instances=args.n_instances,
                 n_queries=args.n_queries,
-                n_papers=args.n_papers,
                 n_prior_included=args.n_prior_included,
                 n_prior_excluded=args.n_prior_excluded,
                 query_strategy=args.query_strategy,
@@ -358,9 +357,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "--n_papers",
         type=int,
         default=None,
-        help="The number of papers to be reviewed. By default, "
-        "the program stops after all documents are reviewed or is "
-        "interrupted by the user.")
+        help="Deprecated, use 'n_queries' instead.")
     parser.add_argument("--verbose",
                         "-v",
                         default=0,

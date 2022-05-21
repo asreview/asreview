@@ -29,7 +29,6 @@ SETTINGS_TYPE_DICT = {
     "query_strategy": str,
     "balance_strategy": str,
     "feature_extraction": str,
-    "n_papers": int,
     "n_instances": int,
     "n_queries": type_n_queries,
     "n_prior_included": int,
@@ -87,7 +86,6 @@ class ASReviewSettings(object):
                  feature_extraction,
                  n_instances=DEFAULT_N_INSTANCES,
                  n_queries=None,
-                 n_papers=None,
                  n_prior_included=None,
                  n_prior_excluded=None,
                  abstract_only=False,
@@ -97,6 +95,7 @@ class ASReviewSettings(object):
                  balance_param={},
                  feature_param={},
                  data_fp=None,
+                 n_papers=None,  # deprecated
                  data_name=None  # deprecated
                  ):
 
@@ -107,7 +106,6 @@ class ASReviewSettings(object):
         self.feature_extraction = feature_extraction
         self.n_instances = n_instances
         self.n_queries = n_queries
-        self.n_papers = n_papers
         self.n_prior_included = n_prior_included
         self.n_prior_excluded = n_prior_excluded
         self.abstract_only = abstract_only
