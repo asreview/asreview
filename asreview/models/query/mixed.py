@@ -131,7 +131,8 @@ class MixedQuery(BaseQueryStrategy):
                 query_idx_mix.append(query_idx_2[j])
                 j = j + 1
 
-        return np.unique(query_idx_mix)[0:n_instances]
+        indexes = np.unique(query_idx_mix, return_index=True)[1]
+        return [query_idx_mix[i] for i in sorted(indexes)]
 
     def full_hyper_space(self):
         from hyperopt import hp
