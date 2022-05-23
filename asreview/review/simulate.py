@@ -274,24 +274,31 @@ class ReviewSimulate(BaseReview):
 
         labels = self.data_labels[record_ids]
         labeling_time = datetime.now()
+
+        results = []
         for record_id, label in zip(record_ids, labels):
-            self.results = self.results.append(
-                {
-                    'record_id': int(record_id),
-                    'label': int(label),
-                    'classifier': self.classifier.name,
-                    'query_strategy': self.query_strategy.name,
-                    'balance_strategy': self.balance_model.name,
-                    'feature_extraction': self.feature_extraction.name,
-                    'training_set': int(self.training_set),
-                    'labeling_time': str(labeling_time),
-                    'notes': None
-                }, ignore_index=True)
+            results.append({
+                'record_id': int(record_id),
+                'label': int(label),
+                'classifier': self.classifier.name,
+                'query_strategy': self.query_strategy.name,
+                'balance_strategy': self.balance_model.name,
+                'feature_extraction': self.feature_extraction.name,
+                'training_set': int(self.training_set),
+                'labeling_time': str(labeling_time),
+                'notes': None
+            })
+
+        self.results = pd.concat([
+            self.results,
+            pd.DataFrame(results)
+        ], ignore_index=True)
 
         # Add the record ids to the labeled and remove from the pool.
         new_labeled_data = pd.DataFrame(zip(record_ids, labels),
                                         columns=['record_id', 'label'])
-        self.labeled = self.labeled.append(new_labeled_data, ignore_index=True)
+        self.labeled = pd.concat(
+            [self.labeled, new_labeled_data], ignore_index=True)
         self.pool = self.pool[~self.pool.isin(record_ids)]
 
         if (self.write_interval is not None) and \
