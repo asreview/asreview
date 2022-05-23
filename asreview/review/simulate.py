@@ -290,11 +290,9 @@ class ReviewSimulate(BaseReview):
             })
 
         self.results = pd.concat([
-                self.results,
-                pd.DataFrame(results)
-            ],
-            ignore_index=True
-        )
+            self.results,
+            pd.DataFrame(results)
+        ], ignore_index=True)
 
         # Add the record ids to the labeled and remove from the pool.
         new_labeled_data = pd.DataFrame(zip(record_ids, labels),
