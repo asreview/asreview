@@ -209,18 +209,18 @@ class ASReviewData():
         else:
             index_list = i
 
-        if not by_index:
-            records = [
-                PaperRecord(**self.df.loc[j, :],
-                            record_id=j,
-                            column_spec=self.column_spec) for j in index_list
-            ]
-        else:
+        if by_index:
             records = [
                 PaperRecord(**self.df.iloc[j],
                             column_spec=self.column_spec,
                             record_id=self.df.index.values[j])
                 for j in index_list
+            ]
+        else:
+            records = [
+                PaperRecord(**self.df.loc[j, :],
+                            record_id=j,
+                            column_spec=self.column_spec) for j in index_list
             ]
 
         if is_iterable(i):
@@ -361,7 +361,7 @@ class ASReviewData():
         numpy.ndarray
             Array of indices that have the 'prior' property.
         """
-        prior_indices = state.get_priors().to_list()
+        prior_indices = state.get_priors()["record_id"].to_list()
 
         if by_index:
             return np.array(prior_indices, dtype=int)
