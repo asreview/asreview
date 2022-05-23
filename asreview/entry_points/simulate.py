@@ -31,7 +31,6 @@ from asreview.config import GITHUB_PAGE
 from asreview.data import load_data
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.entry_points.base import _base_parser
-from asreview.io.paper_record import preview_record
 from asreview.models.balance.utils import get_balance_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
