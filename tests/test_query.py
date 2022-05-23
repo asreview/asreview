@@ -18,8 +18,8 @@ from asreview.models.query import list_query_strategies
 @mark.parametrize("n_train", [0, 1, 5, 50])
 def test_query(query_strategy, n_instances, n_train):
 
-    n_features=50
-    n_sample=100
+    n_features = 50
+    n_sample = 100
     classifier = get_classifier("rf")
 
     query_model = get_query_model(query_strategy)
@@ -40,9 +40,7 @@ def test_query(query_strategy, n_instances, n_train):
     assert query_model.name == query_strategy
 
     shared = {"query_src": {}}
-    train_idx = np.random.choice(np.arange(n_sample),
-                                 n_train,
-                                 replace=False)
+    train_idx = np.random.choice(np.arange(n_sample), n_train, replace=False)
     pool_idx = np.delete(np.arange(n_sample), train_idx)
     query_idx = query_model.query(X, classifier, n_instances)
     assert len(query_idx) == n_instances
