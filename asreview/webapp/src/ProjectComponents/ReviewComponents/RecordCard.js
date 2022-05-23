@@ -26,7 +26,6 @@ const classes = {
   titleAbstract: `${PREFIX}-titleAbstract`,
   title: `${PREFIX}-title`,
   abstract: `${PREFIX}-abstract`,
-  authors: `${PREFIX}-authors`,
   note: `${PREFIX}-note`,
 };
 
@@ -66,10 +65,6 @@ const Root = styled("div")(({ theme }) => ({
 
   [`& .${classes.abstract}`]: {
     whiteSpace: "pre-line",
-  },
-
-  [`& .${classes.authors}`]: {
-    fontWeight: "bolder",
   },
 
   [`& .${classes.note}`]: {
@@ -205,6 +200,7 @@ const RecordCard = (props) => {
                 component="p"
                 fontStyle="italic"
                 paragraph
+                sx={{ wordBreak: "break-word" }}
               >
                 URL:{" "}
                 <Link
