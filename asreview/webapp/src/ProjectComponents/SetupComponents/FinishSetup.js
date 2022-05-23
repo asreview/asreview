@@ -119,20 +119,19 @@ const FinishSetup = (props) => {
     setActiveStep(step);
   };
 
-  const onClickProjectReview = async () => {
+  const onClickCloseSetup = async () => {
     props.toggleProjectSetup();
     console.log("Opening existing project " + props.project_id);
     await queryClient.prefetchQuery(
       ["fetchInfo", { project_id: props.project_id }],
       ProjectAPI.fetchInfo
     );
-    navigate(`/projects/${props.project_id}/review`);
+    if (props.mode !== projectModes.SIMULATION) {
+      navigate(`/projects/${props.project_id}/review`);
+    } else {
+      navigate(`/projects/${props.project_id}`);
+    }
     props.setProjectId(null);
-  };
-
-  const onClickFinishSetupSimulation = () => {
-    props.toggleProjectSetup();
-    queryClient.invalidateQueries("fetchProjects");
   };
 
   const onClickClearError = () => {
@@ -254,7 +253,7 @@ const FinishSetup = (props) => {
             <Fade in={buttonIn}>
               <Stack spacing={3} className={classes.root}>
                 <TypographyH5Medium>Your project is ready</TypographyH5Medium>
-                <Button onClick={onClickProjectReview}>Start Reviewing</Button>
+                <Button onClick={onClickCloseSetup}>Start Reviewing</Button>
               </Stack>
             </Fade>
           )}
@@ -267,7 +266,7 @@ const FinishSetup = (props) => {
                 <Typography>
                   It will take some time to complete the simulation
                 </Typography>
-                <Button onClick={onClickFinishSetupSimulation}>Got it</Button>
+                <Button onClick={onClickCloseSetup}>Got it</Button>
               </Stack>
             </Fade>
           )}
