@@ -27,21 +27,15 @@ def test_query(query_strategy, n_instances, n_train):
 
     y = np.concatenate((np.zeros(n_sample // 2), np.ones(n_sample // 2)),
                        axis=0)
-    print(X.shape, y.shape)
     order = np.random.permutation(n_sample)
-    print(order.shape)
     X = X[order]
     y = y[order]
-    sources = query_strategy.split('_')
 
     classifier.fit(X, y)
 
     assert isinstance(query_model.param, dict)
     assert query_model.name == query_strategy
 
-    shared = {"query_src": {}}
-    train_idx = np.random.choice(np.arange(n_sample), n_train, replace=False)
-    pool_idx = np.delete(np.arange(n_sample), train_idx)
     query_idx = query_model.query(X, classifier, n_instances)
     assert len(query_idx) == n_instances
     assert len(query_idx) == len(np.unique(query_idx))
