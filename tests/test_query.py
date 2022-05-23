@@ -14,11 +14,12 @@ from asreview.models.query import list_query_strategies
     "max_uncertainty",
     "cluster",
 ])
-def test_query(query_strategy,
-               n_features=50,
-               n_sample=100,
-               n_instances_list=[0, 1, 5, 50],
-               n_train_idx=[0, 1, 5, 50]):
+@mark.parametrize("n_instances", [0, 1, 5, 50])
+@mark.parametrize("n_train", [0, 1, 5, 50])
+def test_query(query_strategy, n_instances, n_train):
+
+    n_features=50
+    n_sample=100
     classifier = get_classifier("rf")
 
     query_model = get_query_model(query_strategy)
@@ -38,24 +39,14 @@ def test_query(query_strategy,
     assert isinstance(query_model.param, dict)
     assert query_model.name == query_strategy
 
-    for n_instances in n_instances_list:
-        for n_train in n_train_idx:
-            shared = {"query_src": {}}
-            train_idx = np.random.choice(np.arange(n_sample),
-                                         n_train,
-                                         replace=False)
-            pool_idx = np.delete(np.arange(n_sample), train_idx)
-            query_idx = query_model.query(X, classifier, n_instances)
-            check_integrity(query_idx, X, pool_idx, shared,
-                            n_instances, sources)
-
-
-def check_integrity(query_idx, X, pool_idx, shared, n_instances,
-                    sources):
-    # First check if the query_indices are valid
+    shared = {"query_src": {}}
+    train_idx = np.random.choice(np.arange(n_sample),
+                                 n_train,
+                                 replace=False)
+    pool_idx = np.delete(np.arange(n_sample), train_idx)
+    query_idx = query_model.query(X, classifier, n_instances)
     assert len(query_idx) == n_instances
     assert len(query_idx) == len(np.unique(query_idx))
-    # TODO: Write new tests.
 
 
 def test_query_general():
