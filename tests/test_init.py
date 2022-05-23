@@ -34,10 +34,10 @@ def test_init_seed(tmpdir, seed):
 
     # open the state file and extract the priors
     with open_state(project1_fp) as s1:
-        record_ids1 = s1.get_priors()
+        record_ids1 = s1.get_priors()["record_id"]
 
     with open_state(project2_fp) as s2:
-        record_ids2 = s2.get_priors()
+        record_ids2 = s2.get_priors()["record_id"]
 
     assert record_ids1.tolist() == record_ids2.tolist()
 
@@ -57,7 +57,7 @@ def test_no_seed(tmpdir):
 
         # open the state file and extract the priors
         with open_state(project_fp) as s:
-            priors.extend(s.get_priors().tolist())
+            priors.extend(s.get_priors()["record_id"].tolist())
 
     assert len(set(priors)) > 2
 

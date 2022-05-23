@@ -939,7 +939,7 @@ def api_start(project):  # noqa: F401
 
         # get priors
         with open_state(project.project_path) as s:
-            priors = s.get_priors().tolist()
+            priors = s.get_priors()["record_id"].tolist()
 
         logging.info("Start simulation")
 

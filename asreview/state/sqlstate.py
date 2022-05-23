@@ -908,7 +908,7 @@ class SQLiteState(BaseState):
         return self.get_dataset('record_id', priors=priors,
                                 pending=pending)['record_id']
 
-    def get_priors(self):
+    def get_priors(self, columns=["record_id"]):
         """Get the record ids of the priors.
 
         Returns
@@ -916,7 +916,16 @@ class SQLiteState(BaseState):
         pd.Series:
             The record_id's of the priors in the order they were added.
         """
-        return self.get_order_of_labeling()[:self.n_priors]
+
+        query_string = '*' if columns is None else ','.join(columns)
+
+        con = self._connect_to_sql()
+        data = pd.read_sql_query(
+            f"SELECT {query_string} FROM results"
+            " WHERE query_strategy is 'prior'", con)
+        con.close()
+
+        return data
 
     def get_labels(self, priors=True, pending=False):
         """Get the labels from the state.
