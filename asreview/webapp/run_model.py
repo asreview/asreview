@@ -58,7 +58,7 @@ def get_lab_reviewer(as_data,
     if classifier_model.name.startswith("lstm-"):
         texts = as_data.texts
         classifier_model.embedding_matrix = feature_model.get_embedding_matrix(
-            texts, embedding_fp)
+            as_data.texts, embedding_fp)
 
     # prior knowledge
     if prior_idx is not None and prior_record_id is not None and \
