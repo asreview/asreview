@@ -301,7 +301,10 @@ const ProjectTable = (props) => {
       // open project setup dialog
       props.toggleProjectSetup();
       // clear potential setup error
-      if (project["reviews"][0]["status"] === projectStatuses.ERROR) {
+      if (
+        project["reviews"][0] !== undefined &&
+        project["reviews"][0]["status"] === projectStatuses.ERROR
+      ) {
         clearSetupError(project);
       }
     } else if (!project["projectNeedsUpgrade"]) {
