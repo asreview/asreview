@@ -56,7 +56,6 @@ def get_lab_reviewer(as_data,
 
     # LSTM models need embedding matrices.
     if classifier_model.name.startswith("lstm-"):
-        print("download features")
         classifier_model.embedding_matrix = feature_model.get_embedding_matrix(
             as_data.texts, embedding_fp)
 
