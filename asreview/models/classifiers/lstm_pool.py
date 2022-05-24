@@ -33,6 +33,8 @@ else:
     except AttributeError:
         logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
+from scipy.sparse import isspmatrix
+
 from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.models.classifiers.lstm_base import _get_optimizer
 from asreview.models.classifiers.utils import _set_class_weight
@@ -127,6 +129,9 @@ class LSTMPoolClassifier(BaseTrainClassifier):
         # check is tensorflow is available
         _check_tensorflow()
 
+        if isspmatrix(X):
+            X = X.toarray()
+
         sequence_length = X.shape[1]
         if self._model is None or sequence_length != self.sequence_length:
             self.sequence_length = sequence_length
@@ -148,6 +153,26 @@ class LSTMPoolClassifier(BaseTrainClassifier):
             shuffle=self.shuffle,
             class_weight=self.class_weight,
             verbose=self.verbose)
+
+    def predict_proba(self, X):
+        """Get the inclusion probability for each sample.
+
+        Arguments
+        ---------
+        X: numpy.ndarray
+            Feature matrix to predict.
+
+        Returns
+        -------
+        numpy.ndarray
+            Array with the probabilities for each class, with two
+            columns (class 0, and class 1) and the number of samples rows.
+        """
+
+        if isspmatrix(X):
+            X = X.toarray()
+
+        return self._model.predict_proba(X)
 
     def full_hyper_space(self):
         from hyperopt import hp
