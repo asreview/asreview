@@ -195,13 +195,6 @@ class SimulateEntryPoint(BaseEntryPoint):
                                               random_state=random_state,
                                               **settings.feature_param)
 
-            # TODO{Deprecate and integrate with the model}
-            # LSTM models need embedding matrices.
-            if classifier_model.name.startswith("lstm-"):
-                texts = as_data.texts
-                classifier_model.embedding_matrix = feature_model.\
-                    get_embedding_matrix(texts, args.embedding_fp)
-
             # prior knowledge
             if args.prior_idx is not None and args.prior_record_id is not None and \
                     len(args.prior_idx) > 0 and len(args.prior_record_id) > 0:
@@ -213,6 +206,10 @@ class SimulateEntryPoint(BaseEntryPoint):
             if args.prior_record_id is not None and len(
                     args.prior_record_id) > 0:
                 prior_idx = convert_id_to_idx(as_data, args.prior_record_id)
+
+        if classifier_model.name.startswith("lstm-"):
+            classifier_model.embedding_matrix = feature_model.\
+                get_embedding_matrix(as_data.texts, args.embedding_fp)
 
         try:
             # Initialize the review class.

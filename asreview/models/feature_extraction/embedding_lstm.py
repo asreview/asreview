@@ -126,8 +126,7 @@ class EmbeddingLSTM(BaseFeatureExtraction):
                      "This can take several minutes.")
 
         embedding = load_embedding(embedding_fp, n_jobs=self.n_jobs)
-        embedding_matrix = sample_embedding(embedding, self.word_index)
-        return embedding_matrix
+        return sample_embedding(embedding, self.word_index)
 
     def full_hyper_space(self):
         from hyperopt import hp
