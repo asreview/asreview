@@ -31,7 +31,6 @@ from asreview.config import GITHUB_PAGE
 from asreview.data import load_data
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.entry_points.base import _base_parser
-from asreview.io.paper_record import preview_record
 from asreview.models.balance.utils import get_balance_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
@@ -233,6 +232,16 @@ class SimulateEntryPoint(BaseEntryPoint):
             # Start the review process.
             project.update_review(status="review")
 
+            with open_state(project, read_only=True) as s:
+
+                prior_df = s.get_priors()
+
+                print("The following records are prior knowledge:\n")
+                for i, row in prior_df.iterrows():
+                    preview = as_data.record(row['record_id'])
+                    print(preview)
+
+            print("Simulation started")
             reviewer.review()
         except Exception as err:
 
@@ -241,7 +250,7 @@ class SimulateEntryPoint(BaseEntryPoint):
 
             raise err
 
-        print("Simulation finished.")
+        print("Simulation finished")
         project.mark_review_finished()
 
         # create .ASReview file out of simulation folder
