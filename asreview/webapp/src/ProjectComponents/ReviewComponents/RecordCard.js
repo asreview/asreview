@@ -7,13 +7,17 @@ import {
   CardActions,
   CardContent,
   CircularProgress,
+  IconButton,
   Slide,
+  Tooltip,
   Typography,
   Link,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import LinkIcon from '@mui/icons-material/Link';
 
 import { BoxErrorHandler } from "../../Components";
+import { DOIIcon } from "../../icons";
 import { NoteSheet } from "../ReviewComponents";
 import { ExplorationModeRecordAlert } from "../../StyledComponents/StyledAlert.js";
 import "../../App.css";
@@ -62,7 +66,9 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.title}`]: {
     lineHeight: 1.2,
   },
-
+  [`& .${classes.button}`]: {
+    float: "left",
+  },
   [`& .${classes.abstract}`]: {
     whiteSpace: "pre-line",
   },
@@ -166,53 +172,45 @@ const RecordCard = (props) => {
               )}
             </Typography>
 
-            {/* Show DOI if available */}
-            {!(
-              props.activeRecord.doi === undefined ||
-              props.activeRecord.doi === null
-            ) && (
-              <Typography
-                className={"fontSize" + props.fontSize.label}
-                color="textSecondary"
-                component="p"
-                fontStyle="italic"
-                paragraph
-              >
-                DOI:{" "}
-                <Link
-                  href={"https://doi.org/" + props.activeRecord.doi}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {props.activeRecord.doi}
-                </Link>
-              </Typography>
-            )}
+            <Box>
+              {/* Show DOI if available */}
+              {!(
+                props.activeRecord.doi === undefined ||
+                props.activeRecord.doi === null
+              ) && (
+                <Box className={classes.button}>
+                  <Tooltip title="Open DOI link">
+                    <IconButton
+                      component={Link}
+                      href={"https://doi.org/" + props.activeRecord.doi}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <DOIIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              )}
 
-            {/* Show URL if available */}
-            {!(
-              props.activeRecord.url === undefined ||
-              props.activeRecord.url === null
-            ) && (
-              <Typography
-                className={"fontSize" + props.fontSize.label}
-                color="textSecondary"
-                component="p"
-                fontStyle="italic"
-                paragraph
-                sx={{ wordBreak: "break-word" }}
-              >
-                URL:{" "}
-                <Link
-                  href={props.activeRecord.url}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {props.activeRecord.url}
-                </Link>
-              </Typography>
-            )}
-
+              {/* Show URL if available */}
+              {!(
+                props.activeRecord.url === undefined ||
+                props.activeRecord.url === null
+              ) && (
+                <Box className={classes.button}>
+                  <Tooltip title="Open link">
+                    <IconButton
+                      component={Link}
+                      href={props.activeRecord.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <LinkIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              )}
+            </Box>
             {/* Show the abstract */}
             <Typography
               className={classes.abstract + " fontSize" + props.fontSize.label}
