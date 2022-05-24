@@ -195,7 +195,26 @@ const ProjectTable = (props) => {
                 if (data["status"] === projectStatuses.FINISHED) {
                   // simulation finished
                   queryClient.invalidateQueries("fetchDashboardStats");
-                  queryClient.invalidateQueries("fetchProjects");
+                  // update cached data
+                  queryClient.setQueryData("fetchProjects", (prev) => {
+                    return {
+                      ...prev,
+                      result: prev.result.map((project) => {
+                        return {
+                          ...project,
+                          reviews: project.reviews.map((review) => {
+                            return {
+                              ...review,
+                              status:
+                                project.id === project_id[key]
+                                  ? projectStatuses.FINISHED
+                                  : review.status,
+                            };
+                          }),
+                        };
+                      }),
+                    };
+                  });
                 } else {
                   // not finished yet
                   setTimeout(
@@ -243,9 +262,7 @@ const ProjectTable = (props) => {
                   ...review,
                   status:
                     project.id === variables.project_id
-                      ? review.status === projectStatuses.REVIEW
-                        ? projectStatuses.FINISHED
-                        : projectStatuses.REVIEW
+                      ? variables.status
                       : review.status,
                 };
               }),
