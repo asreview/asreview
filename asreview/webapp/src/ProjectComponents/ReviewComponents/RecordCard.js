@@ -7,20 +7,19 @@ import {
   CardActions,
   CardContent,
   CircularProgress,
-  IconButton,
   Slide,
+  Stack,
   Tooltip,
   Typography,
-  Link,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import LinkIcon from '@mui/icons-material/Link';
+import { Link } from "@mui/icons-material";
 
 import { BoxErrorHandler } from "../../Components";
 import { DOIIcon } from "../../icons";
 import { NoteSheet } from "../ReviewComponents";
 import { ExplorationModeRecordAlert } from "../../StyledComponents/StyledAlert.js";
-import "../../App.css";
+import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
 
 const PREFIX = "RecordCard";
 
@@ -66,9 +65,7 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.title}`]: {
     lineHeight: 1.2,
   },
-  [`& .${classes.button}`]: {
-    float: "left",
-  },
+
   [`& .${classes.abstract}`]: {
     whiteSpace: "pre-line",
   },
@@ -142,95 +139,93 @@ const RecordCard = (props) => {
             className={`${classes.titleAbstract} record-card-content`}
             aria-label="record title abstract"
           >
-            {/* Show the title */}
-            <Typography
-              className={classes.title}
-              variant={!props.mobileScreen ? "h5" : "h6"}
-              component="div"
-              paragraph
-              sx={{ fontWeight: (theme) => theme.typography.fontWeightRegular }}
-            >
-              {/* No title, inplace text */}
-              {(props.activeRecord.title === "" ||
-                props.activeRecord.title === null) && (
-                <Box
-                  className={"fontSize" + props.fontSize.label}
-                  fontStyle="italic"
-                >
-                  No title available
-                </Box>
-              )}
+            <Stack spacing={1}>
+              {/* Show the title */}
+              <Typography
+                component="div"
+                className={classes.title}
+                variant={!props.mobileScreen ? "h5" : "h6"}
+                sx={{
+                  fontWeight: (theme) => theme.typography.fontWeightRegular,
+                }}
+              >
+                {/* No title, inplace text */}
+                {(props.activeRecord.title === "" ||
+                  props.activeRecord.title === null) && (
+                  <Box
+                    className={"fontSize" + props.fontSize.label}
+                    fontStyle="italic"
+                  >
+                    No title available
+                  </Box>
+                )}
 
-              {/* Show the title if available */}
-              {!(
-                props.activeRecord.title === "" ||
-                props.activeRecord.title === null
-              ) && (
-                <Box className={"fontSize" + props.fontSize.label}>
-                  {props.activeRecord.title}
-                </Box>
-              )}
-            </Typography>
+                {/* Show the title if available */}
+                {!(
+                  props.activeRecord.title === "" ||
+                  props.activeRecord.title === null
+                ) && (
+                  <Box className={"fontSize" + props.fontSize.label}>
+                    {props.activeRecord.title}
+                  </Box>
+                )}
+              </Typography>
 
-            <Box>
-              {/* Show DOI if available */}
-              {!(
-                props.activeRecord.doi === undefined ||
-                props.activeRecord.doi === null
-              ) && (
-                <Box className={classes.button}>
-                  <Tooltip title="Open DOI link">
-                    <IconButton
-                      component={Link}
-                      href={"https://doi.org/" + props.activeRecord.doi}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <DOIIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-              )}
+              <Stack direction="row">
+                {/* Show DOI if available */}
+                {!(
+                  props.activeRecord.doi === undefined ||
+                  props.activeRecord.doi === null
+                ) && (
+                  <StyledIconButton
+                    href={"https://doi.org/" + props.activeRecord.doi}
+                    target="_blank"
+                    rel="noreferrer"
+                    sx={{ pl: 0 }}
+                  >
+                    <DOIIcon />
+                  </StyledIconButton>
+                )}
 
-              {/* Show URL if available */}
-              {!(
-                props.activeRecord.url === undefined ||
-                props.activeRecord.url === null
-              ) && (
-                <Box className={classes.button}>
-                  <Tooltip title="Open link">
-                    <IconButton
-                      component={Link}
+                {/* Show URL if available */}
+                {!(
+                  props.activeRecord.url === undefined ||
+                  props.activeRecord.url === null
+                ) && (
+                  <Tooltip title="Open URL">
+                    <StyledIconButton
                       href={props.activeRecord.url}
                       target="_blank"
                       rel="noreferrer"
                     >
-                      <LinkIcon />
-                    </IconButton>
+                      <Link />
+                    </StyledIconButton>
                   </Tooltip>
-                </Box>
-              )}
-            </Box>
-            {/* Show the abstract */}
-            <Typography
-              className={classes.abstract + " fontSize" + props.fontSize.label}
-              variant="body2"
-              color="textSecondary"
-              component="div"
-              paragraph
-            >
-              {/* No abstract, inplace text */}
-              {(props.activeRecord.abstract === "" ||
-                props.activeRecord.abstract === null) && (
-                <Box fontStyle="italic">No abstract available</Box>
-              )}
+                )}
+              </Stack>
+              {/* Show the abstract */}
+              <Typography
+                component="div"
+                className={
+                  classes.abstract + " fontSize" + props.fontSize.label
+                }
+                variant="body2"
+                paragraph
+                sx={{ color: "text.secondary" }}
+              >
+                {/* No abstract, inplace text */}
+                {(props.activeRecord.abstract === "" ||
+                  props.activeRecord.abstract === null) && (
+                  <Box fontStyle="italic">No abstract available</Box>
+                )}
 
-              {/* Show the abstract if available */}
-              {!(
-                props.activeRecord.abstract === "" ||
-                props.activeRecord.abstract === null
-              ) && <Box>{props.activeRecord.abstract}</Box>}
-            </Typography>
+                {/* Show the abstract if available */}
+                {!(
+                  props.activeRecord.abstract === "" ||
+                  props.activeRecord.abstract === null
+                ) && <Box>{props.activeRecord.abstract}</Box>}
+              </Typography>
+            </Stack>
           </CardContent>
 
           <Slide

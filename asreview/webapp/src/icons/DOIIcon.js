@@ -29,5 +29,3 @@ function DOIIcon(props) {
 }
 
 export default DOIIcon;
-
-
