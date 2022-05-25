@@ -136,9 +136,6 @@ def api_get_projects_stats():  # noqa: F401
     """Get dashboard statistics of all projects"""
 
     stats_counter = {
-        "n_reviewed": 0,
-        "n_excluded": 0,
-        "n_included": 0,
         "n_in_review": 0,
         "n_finished": 0,
         "n_setup": 0
@@ -155,12 +152,6 @@ def api_get_projects_stats():  # noqa: F401
                 project_config["projectNeedsUpgrade"] = True
 
             # get dashboard statistics
-            statistics = _get_stats(project)
-
-            stats_counter["n_reviewed"] += statistics["n_included"] \
-                + statistics["n_excluded"]
-            stats_counter["n_included"] += statistics["n_included"]
-
             try:
                 if project_config["reviews"][0]["status"] == "review":
                     stats_counter["n_in_review"] += 1
@@ -173,7 +164,7 @@ def api_get_projects_stats():  # noqa: F401
 
         except Exception as err:
             logging.error(err)
-            return jsonify(message="Failed to load dashboard statistics."), 500
+            return jsonify(message=f"Failed to load dashboard statistics. {err}"), 500
 
     response = jsonify({"result": stats_counter})
     response.headers.add('Access-Control-Allow-Origin', '*')

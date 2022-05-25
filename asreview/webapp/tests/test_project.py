@@ -49,8 +49,6 @@ def test_project_file(tmp_path, client, url):
     assert "result" in json_data_stats
     assert "n_in_review" in json_data_stats["result"]
     assert "n_finished" in json_data_stats["result"]
-    assert "n_reviewed" in json_data_stats["result"]
-    assert "n_included" in json_data_stats["result"]
     assert isinstance(json_data_stats["result"], dict)
 
     # Test get projects
