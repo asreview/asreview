@@ -465,7 +465,18 @@ const ProjectTable = (props) => {
                   };
 
                   const onClickProjectExport = () => {
-                    openProject(row, "export");
+                    if (
+                      row["reviews"][0] === undefined ||
+                      row["reviews"][0]["status"] === projectStatuses.SETUP ||
+                      row["reviews"][0]["status"] === projectStatuses.ERROR
+                    ) {
+                      queryClient.prefetchQuery(
+                        ["fetchExportProject", { project_id: row["id"] }],
+                        ProjectAPI.fetchExportProject
+                      );
+                    } else {
+                      openProject(row, "export");
+                    }
                   };
 
                   const onClickProjectDetails = () => {
