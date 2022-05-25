@@ -436,7 +436,10 @@ const ProjectTable = (props) => {
                   const showAnalyticsButton = () => {
                     return (
                       row["reviews"][0] !== undefined &&
-                      row["reviews"][0]["status"] !== projectStatuses.SETUP
+                      !(
+                        row["reviews"][0]["status"] === projectStatuses.SETUP ||
+                        row["reviews"][0]["status"] === projectStatuses.ERROR
+                      )
                     );
                   };
 
@@ -452,7 +455,8 @@ const ProjectTable = (props) => {
                       row["projectNeedsUpgrade"] ||
                       row["mode"] === projectModes.SIMULATION ||
                       row["reviews"][0] === undefined ||
-                      row["reviews"][0]["status"] === projectStatuses.SETUP
+                      row["reviews"][0]["status"] === projectStatuses.SETUP ||
+                      row["reviews"][0]["status"] === projectStatuses.ERROR
                     );
                   };
 
