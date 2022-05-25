@@ -192,7 +192,7 @@ const HelpDialog = (props) => {
           <ListItem
             button
             component={"a"}
-            href={`https://asreview.readthedocs.io/en/latest/`}
+            href={`/l/docs`}
             target="_blank"
           >
             <ListItemIcon></ListItemIcon>

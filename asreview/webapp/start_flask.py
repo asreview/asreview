@@ -111,7 +111,8 @@ def create_app(**kwargs):
 
     CORS(app, resources={r"*": {"origins": "*"}})
 
-    app.register_blueprint(api.bp)
+    app.register_blueprint(api.bp_api)
+    app.register_blueprint(api.bp_redirect)
 
     @app.errorhandler(InternalServerError)
     def error_500(e):
