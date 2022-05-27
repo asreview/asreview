@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import TruncateMarkup from "react-truncate-markup";
 import {
   Box,
+  Button,
   Card,
   CardActions,
   CardContent,
@@ -16,19 +17,12 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import {
-  Delete,
-  Favorite,
-  FavoriteBorder,
-  KeyboardArrowUp,
-  NoteAddOutlined,
-} from "@mui/icons-material";
+import { LabelOff, Favorite, FavoriteBorder } from "@mui/icons-material";
 
 import { InlineErrorHandler } from "../../Components";
 import { RecordCardNote } from "../HistoryComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps, projectModes } from "../../globals.js";
-import "../../App.css";
 
 const PREFIX = "LabeledRecordCard";
 
@@ -151,24 +145,6 @@ const LabeledRecordCard = (props) => {
     });
   };
 
-  const handleClickRemoveNote = (value) => {
-    if (!value.note) {
-      setNote({
-        data: null,
-        editing: null,
-      });
-    } else {
-      mutate({
-        project_id: project_id,
-        doc_id: value.id,
-        label: value.included,
-        note: "",
-        initial: false,
-        is_prior: 0,
-      });
-    }
-  };
-
   const disableAddNoteButton = (doc_id) => {
     return doc_id !== note.editing && note.editing !== null;
   };
@@ -277,7 +253,7 @@ const LabeledRecordCard = (props) => {
                             handleClickRemoveLabel(value);
                           }}
                         >
-                          <Delete
+                          <LabelOff
                             fontSize={!props.mobileScreen ? "medium" : "small"}
                           />
                         </IconButton>
@@ -289,36 +265,21 @@ const LabeledRecordCard = (props) => {
                       title={
                         !props.isSimulating
                           ? !disableAddNoteButton(value.id)
-                            ? "Add note"
+                            ? ""
                             : "Save another note before adding"
                           : "Add note after simulation is finished"
                       }
                     >
                       <span>
-                        <IconButton
+                        <Button
                           disabled={
                             props.isSimulating || disableAddNoteButton(value.id)
                           }
                           onClick={() => handleClickAddNote(value.id)}
+                          size={!props.mobileScreen ? "medium" : "small"}
                         >
-                          <NoteAddOutlined
-                            fontSize={!props.mobileScreen ? "medium" : "small"}
-                          />
-                        </IconButton>
-                      </span>
-                    </Tooltip>
-                  )}
-                  {!props.is_prior && value.id === note.editing && (
-                    <Tooltip title="Remove note">
-                      <span>
-                        <IconButton
-                          disabled={isLoading}
-                          onClick={() => handleClickRemoveNote(value)}
-                        >
-                          <KeyboardArrowUp
-                            fontSize={!props.mobileScreen ? "medium" : "small"}
-                          />
-                        </IconButton>
+                          Add note
+                        </Button>
                       </span>
                     </Tooltip>
                   )}
