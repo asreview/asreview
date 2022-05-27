@@ -251,10 +251,10 @@ const ModelForm = (props) => {
       <Box className={classes.title}>
         <Typography variant="h6">Model</Typography>
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          An active learning model consists of a classifier, a query strategy, a
-          feature extraction technique, and a balance strategy. The default
-          setup (Naive Bayes, Maximum, TF-IDF) overall has fast and excellent
-          performance.{" "}
+          An active learning model consists of a feature extraction technique, a
+          classifier, a query strategy, and a balance strategy. The default
+          setup (TF-IDF, Naive Bayes, Maximum, Dynamic resampling) overall has
+          fast and excellent performance.{" "}
           <Link
             underline="none"
             href={`https://asreview.readthedocs.io/en/latest/guides/activelearning.html#active-learning-for-systematic-reviews`}
