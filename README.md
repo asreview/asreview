@@ -8,33 +8,37 @@
 
 [![PyPI version](https://badge.fury.io/py/asreview.svg)](https://badge.fury.io/py/asreview) [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fasreview%2Fasreview%2Fbadge%3Fref%3Dmaster&style=flat)](https://actions-badge.atrox.dev/asreview/asreview/goto?ref=master) [![Documentation Status](https://readthedocs.org/projects/asreview/badge/?version=latest)](https://asreview.readthedocs.io/en/latest/?badge=latest) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3345592.svg)](https://doi.org/10.5281/zenodo.3345592) [![Downloads](https://pepy.tech/badge/asreview)](https://github.com/asreview/asreview#installation) [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4755/badge)](https://bestpractices.coreinfrastructure.org/projects/4755)
 
-Systematic Reviews are “top of the bill” in research. The number of scientific
-studies are increasing exponentially in many scholarly fields. Performing a
-sound systematic review is a time-consuming and sometimes boring task. The ASReview
-software is designed to accelerate the step of screening abstracts and titles
-with a minimum of papers to be read by a human with no or very few false
-negatives.
+Systematically screening large amounts of textual data is time-consuming and
+often tiresome. The rapidly evolving field of Artificial Intelligence (AI) has
+allowed the development of AI-aided pipelines that assist in finding relevant
+texts for search tasks. A well-established approach to increasing efficiency
+is screening prioritization via [Active
+Learning](https://asreview.readthedocs.io/en/latest/guides/activelearning.html). 
+
 
 The Active learning for Systematic Reviews (ASReview) project, publised in
 [*Nature Machine Intelligence*](https://doi.org/10.1038/s42256-020-00287-7),
-implements machine learning algorithms that interactively query the
-researcher. This way of interactive machine learning is known as [Active
-Learning](https://asreview.readthedocs.io/en/latest/guides/activelearning.html).
-ASReview offers support for classical learning algorithms and state-of-the-art
-learning algorithms like neural networks.
+implements different machine learning algorithms that interactively query the
+researcher. ASReview LAB  is designed to accelerate the step of screening
+textual data with a minimum of records to be read by a human with no or very
+few false negatives. ASReview LAB will save time, increase the quality of
+output and strengthen the transparency of work when screening large amounts of
+textual data to retrieve relevant information. This will support decision
+making in any discipline or industry.
 
-ASReview software implements two different modes:
+ASReview software implements three different modes:
 
-- **ASReview LAB** :crystal_ball: This modus is used to perform a systematic review with
-  interaction by the reviewer (the 'oracle' in literature on active learning).
-  The software presents papers to the reviewer, whereafter the reviewer classifies them. See [ASReview LAB](https://github.com/asreview/asreview#asreview-lab).
-- **Simulate** :chart_with_upwards_trend: The simulation modus is used to measure
-  the performance of the active learning software on the results of fully labeled systematic
-  reviews. To use the simulation mode, knowledge on programming and bash/Command Prompt
-  is highly recommended.
+- **Oracle** :crystal_ball: This modus is used to screen textual data in
+  interaction with the active learning model. The reviewer is the 'oracle', 
+  making the labeling decissions.
+- **Exploration** :triangular_ruler: This modus is usefull to explore or 
+  demonstrate ASReview LAB with a completely labeled dataset. This mode is 
+  suitable for teaching purposes.
+- **Simulate** :chart_with_upwards_trend: This modus is used to evaluate
+  the performance of active learning models on fully labeled data. Simulations 
+  can be run in ASReview LAB or via the command line interface with more 
+  advanced options. 
   
-Want to keep up-to-date with the latest ASReview updates?
-[Sign up for the newsletter 📰](https://asreview.ai/newsletter)
 
 ## Installation
 
@@ -59,7 +63,7 @@ Instructions for usage with Docker are [here](docker/README.md).
 
 ## ASReview LAB
 
-ASReview LAB is a user-friendly interface for screening documents and
+ASReview LAB is a user-friendly interface for screening records and
 experimentation with AI-aided systematic reviews. Read more about using the
 software in the [Quick
 Tour](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html).
@@ -93,7 +97,7 @@ The best resources to find an answer to your question or ways to get in
 contact with the team are:
 
 - Documentation - [asreview.readthedocs.io](https://asreview.readthedocs.io/)
-- Newsletter - [asreview.ai/newsletter](https://asreview.ai/newsletter)
+- Newsletter - [asreview.ai/newsletter/subscribe](https://asreview.ai/newsletter/subscribe)
 - Quick tour - [ASReview LAB quick tour](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html)
 - Issues or feature requests - [ASReview issue tracker](https://github.com/asreview/asreview/issues)
 - FAQ - [ASReview Discussions](https://github.com/asreview/asreview/discussions?discussions_q=sort%3Atop)
