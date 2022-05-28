@@ -2,11 +2,11 @@ import * as React from "react";
 import { useParams } from "react-router-dom";
 import {
   Avatar,
+  Button,
   Card,
   CardContent,
   Collapse,
   FormControl,
-  IconButton,
   OutlinedInput,
   Stack,
   Tooltip,
@@ -14,7 +14,6 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { Edit, Send } from "@mui/icons-material";
 import ElasAvatar from "../../images/ElasAvatar.svg";
 
 const Root = styled("div")(({ theme }) => ({}));
@@ -89,7 +88,7 @@ const RecordCardNote = (props) => {
               <Stack
                 direction="row"
                 spacing={!props.mobileScreen ? 2 : 1}
-                sx={{ alignItems: "center", width: "100%" }}
+                sx={{ alignItems: "baseline", width: "100%" }}
               >
                 <FormControl sx={{ width: "100%" }} variant="outlined">
                   <OutlinedInput
@@ -108,29 +107,20 @@ const RecordCardNote = (props) => {
                     sx={{ p: 2 }}
                   />
                 </FormControl>
-                <Tooltip title="Save note">
-                  <span>
-                    <IconButton
-                      disabled={
-                        props.isLoading ||
-                        props.note?.data === null ||
-                        props.note?.data === ""
-                      }
-                      onClick={() => handleClickSaveNote(props.record?.note)}
-                    >
-                      <Send
-                        fontSize={!props.mobileScreen ? "medium" : "small"}
-                      />
-                    </IconButton>
-                  </span>
-                </Tooltip>
+                <Button
+                  disabled={props.isLoading}
+                  onClick={() => handleClickSaveNote(props.record?.note)}
+                  size={!props.mobileScreen ? "medium" : "small"}
+                >
+                  Save
+                </Button>
               </Stack>
             )}
             {props.record?.note && props.note?.editing !== props.record?.id && (
               <Stack
                 direction="row"
                 spacing={!props.mobileScreen ? 2 : 1}
-                sx={{ alignItems: "center", width: "100%" }}
+                sx={{ alignItems: "baseline", width: "100%" }}
               >
                 <Card
                   elevation={0}
@@ -152,12 +142,12 @@ const RecordCardNote = (props) => {
                 <Tooltip
                   title={
                     !disableEditNoteButton()
-                      ? "Edit note"
+                      ? ""
                       : "Save another note before editing"
                   }
                 >
                   <span>
-                    <IconButton
+                    <Button
                       disabled={disableEditNoteButton()}
                       onClick={() =>
                         handleClickEditNote(
@@ -165,11 +155,10 @@ const RecordCardNote = (props) => {
                           props.record?.id
                         )
                       }
+                      size={!props.mobileScreen ? "medium" : "small"}
                     >
-                      <Edit
-                        fontSize={!props.mobileScreen ? "medium" : "small"}
-                      />
-                    </IconButton>
+                      Edit
+                    </Button>
                   </span>
                 </Tooltip>
               </Stack>

@@ -40,12 +40,11 @@ const NoteSheet = (props) => {
     });
   };
 
-  const handleClickRemoveNote = () => {
+  const handleClickCollapseNote = () => {
     props.setRecordNote((s) => {
       return {
         ...s,
         expand: false,
-        data: "",
       };
     });
   };
@@ -56,8 +55,8 @@ const NoteSheet = (props) => {
         <CardContent>
           <Stack spacing={1}>
             <Box className={classes.button}>
-              <Tooltip title="Remove note">
-                <IconButton onClick={handleClickRemoveNote}>
+              <Tooltip title="Collapse">
+                <IconButton onClick={handleClickCollapseNote}>
                   <KeyboardArrowDown />
                 </IconButton>
               </Tooltip>
@@ -69,7 +68,7 @@ const NoteSheet = (props) => {
                 label="Note"
                 autoFocus={props.noteFieldAutoFocus()}
                 fullWidth
-                helperText="Save the note by labeling the record as relevant or irrelevant."
+                helperText="Save the note by labeling the record as relevant or irrelevant"
                 multiline
                 onChange={handleNote}
                 placeholder="Write something..."

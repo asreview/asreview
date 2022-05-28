@@ -253,8 +253,7 @@ const RecordCard = (props) => {
                 onClick={expandNoteSheet}
                 aria-label="add note"
               >
-                {props.previousRecord.show &&
-                props.previousRecord.note &&
+                {(props.previousRecord.show && props.previousRecord.note) ||
                 props.recordNote.data
                   ? "Edit Note"
                   : "Add Note"}
