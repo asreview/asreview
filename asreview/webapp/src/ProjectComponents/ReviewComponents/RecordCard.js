@@ -29,6 +29,7 @@ const classes = {
   titleAbstract: `${PREFIX}-titleAbstract`,
   title: `${PREFIX}-title`,
   abstract: `${PREFIX}-abstract`,
+  icon: `${PREFIX}-icon`,
   note: `${PREFIX}-note`,
 };
 
@@ -68,6 +69,10 @@ const Root = styled("div")(({ theme }) => ({
 
   [`& .${classes.abstract}`]: {
     whiteSpace: "pre-line",
+  },
+
+  [`& .${classes.icon}`]: {
+    paddingLeft: 0,
   },
 
   [`& .${classes.note}`]: {
@@ -171,17 +176,17 @@ const RecordCard = (props) => {
                 )}
               </Typography>
 
-              <Stack direction="row">
+              <Stack direction="row" spacing={1}>
                 {/* Show DOI if available */}
                 {!(
                   props.activeRecord.doi === undefined ||
                   props.activeRecord.doi === null
                 ) && (
                   <StyledIconButton
+                    className={classes.icon}
                     href={"https://doi.org/" + props.activeRecord.doi}
                     target="_blank"
                     rel="noreferrer"
-                    sx={{ pl: 0 }}
                   >
                     <DOIIcon />
                   </StyledIconButton>
@@ -194,6 +199,7 @@ const RecordCard = (props) => {
                 ) && (
                   <Tooltip title="Open URL">
                     <StyledIconButton
+                      className={classes.icon}
                       href={props.activeRecord.url}
                       target="_blank"
                       rel="noreferrer"
