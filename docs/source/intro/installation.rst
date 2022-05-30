@@ -74,21 +74,33 @@ closed networks.
 Install with Docker
 -------------------
 
-For a quickstart of ASReview LAB using Docker and without the need to
-install anything else, the latest version of the ASReview LAB can be
-started as well via Docker like this:
+ASReview LAB is also available as a Docker container. Make sure you have Docker installed on your machine.
+
+To install and start ASReview LAB at http://localhost:5000, run the following:
 
 .. code:: bash
 
-   docker run -p 5000:5000 asreview/asreview
+   docker run -p 5000:5000 asreview/asreview:latest
 
-This will start the ASReview LAB server on port 5000 with default
-command line options and make it accessible to the host at
-http://localhost:5000 More advanced command line options can be given
+
+More advanced command line options can be given
 afterwards, like this:
 
 .. code:: bash
 
    docker run -p 9000:9000 asreview/asreview  --port 9000
 
-For more information, see `the GitHub page <https://github.com/asreview/asreview/tree/master/docker>`__.
+
+Mount local volume
+~~~~~~~~~~~~~~~~~~
+
+To mount the container to your local project folder (or any other local folder), the `-v` flag can be used in the following way. Adjust path-to-your-folder to your local folder. When a project folder is specified, ASReview LAB will store and load all its projects from this folder. Note that multiple containers can access the same folder.
+
+.. code:: bash
+
+    docker create --name asreview-lab -p 5000:5000 -v path-to-your-folder:/project_folder asreview/asreview
+
+Build a local image
+~~~~~~~~~~~~~~~~~~~
+
+For more information, see `ASReview LAB GitHub<https://github.com/asreview/asreview/tree/master/docker>`__.
