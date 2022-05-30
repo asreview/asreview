@@ -2,7 +2,7 @@ Extensions
 ==========
 
 ASReview LAB has support for extensions, which are a nice way to extend the
-functionality of the :doc:`ASReview LAB <../lab/overview_lab>` software or the
+functionality of the software and the
 :doc:`command line interface <../API/cli>`. There are :ref:`officially
 supported extensions<extensions-official>` and
 :ref:`community<extensions-community>` contributions.

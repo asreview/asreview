@@ -67,7 +67,7 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
     :maxdepth: 1
     :caption: Getting Started
 
-    lab/start
+    intro/start
 
     lab/launch
 

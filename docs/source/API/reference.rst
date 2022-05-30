@@ -176,16 +176,6 @@ Classes
 
    models.base.BaseModel
 
-Functions
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-class-template.rst
-
-   models.get_classifier
-   models.get_classifier_class
-
 
 :mod:`asreview.models.balance`
 ------------------------------
