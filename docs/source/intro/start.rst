@@ -25,7 +25,7 @@ available commands in ASReview LAB, type :code:`asreview lab --help`.
 
 .. code:: bash
 
-	asreview lab [options]
+   asreview lab [options]
 
 
 
@@ -94,7 +94,8 @@ In MacOS or Linux operating systems, you can set environment variables from the 
 line. For example:
 
 .. code:: bash
-	export ASREVIEW_PATH=~/.asreview
+
+    export ASREVIEW_PATH=~/.asreview
 
 On Windows, you can use the following syntax:
 
@@ -102,7 +103,7 @@ On Windows, you can use the following syntax:
 
 	set ASREVIEW_PATH=~/.asreview
 
-To check if you set an environment variable successfully, run the following on *nix operating systems:
+To check if you set an environment variable successfully, run the following on \*nix operating systems:
 
 .. code:: bash
 

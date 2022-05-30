@@ -24,7 +24,7 @@ Start the application with the following command (in CMD.exe or Terminal):
 
 You are now ready to start your first Automated Systematic Review!
 
-See `Troubleshooting`_ for common problems.
+See :doc:`../intro/troubleshooting` for common problems during installation.
 
 
 
@@ -89,6 +89,11 @@ afterwards, like this:
 .. code:: bash
 
    docker run -p 9000:9000 asreview/asreview  --port 9000
+
+.. tip::
+
+    ASReview LAB is now installed. Open the URL in your host web browser:
+    ``http://localhost:5000`` and get started.
 
 
 Mount local volume
