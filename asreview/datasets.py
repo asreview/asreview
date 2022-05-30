@@ -169,16 +169,14 @@ class BaseDataGroup(ABC):
         self.datasets = list(datasets)
 
     @property
-    @classmethod
     @abstractmethod
     def group_id(cls):
-        return NotImplementedError
+        pass
 
     @property
-    @classmethod
     @abstractmethod
     def description(cls):
-        return NotImplementedError
+        pass
 
     def __str__(self):
         return f"<BaseDataGroup group_id='{self.group_id}'>"
