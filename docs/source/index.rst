@@ -69,6 +69,8 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
 
     lab/launch
 
+    features/screening
+
     lab/oracle
 
     lab/exploration
@@ -77,9 +79,6 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
 
     features/settings
 
-    features/pre_screening
-
-    features/screening
 
     features/post_screening
 
