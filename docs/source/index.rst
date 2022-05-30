@@ -69,16 +69,11 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
 
     lab/launch
 
-    features/screening
-
     lab/oracle
 
     lab/exploration
 
     lab/simulation
-
-    features/settings
-
 
     features/post_screening
 

@@ -240,3 +240,92 @@ project dashboard are described in the :doc:`features section
 
 .. figure:: ../../images/v0.18_03_project_dashboard_empty.png
    :alt: Project dashboard in setup stage
+
+
+
+
+This is a quick tour in using the ASReview LAB software in Oracle Mode, which
+is the user-friendly frontend for active learning in systematic reviews for
+unlabeled data with interaction by the user. A more elaborate instruction can
+be found in this `blogpost <https://asreview.nl/blog/asreview-class-101/>`_ on the
+ASReview website.
+
+This tutorial assumes you have already installed Python and ASReview. If this
+is not the case, check out the :doc:`../intro/installation` page.
+Also, you should have created a :doc:`project<launch>`.
+
+
+Select Dataset
+--------------
+
+Select the dataset you want to use, which should contain at least the
+titles and/or abstracts of all documents (records) you want to screen.
+
+There are four ways to select a dataset:
+
+- Upload your own dataset. Read more about the format on :doc:`../intro/datasets`.
+- Import a dataset with an URL. Read more about the format on :doc:`../intro/datasets`.
+- Select a dataset from an :doc:`extension <../extensions/overview_extensions>` (for example to use the :doc:`COVID-19 extension <../extensions/extension_covid19>`).
+- Choose one of the :doc:`benchmark data sets <exploration>`.
+
+.. figure:: ../../images/asreview_prescreening_datasets.png
+   :alt: ASReview dataset selector
+
+After a successfull upload of the data, move to the next step.
+
+.. figure:: ../../images/asreview_prescreening_datasets_uploaded.png
+   :alt: ASReview dataset uploaded
+
+.. warning::
+
+    If you upload your own data, make sure to remove duplicates and to retrieve
+    as many abstracts as possible (`don't know how?
+    <https://asreview.nl/blog/the-importance-of-abstracts/>`_). With clean data you
+    benefit most from what :doc:`active learning <../guides/activelearning>`
+    has to offer.
+
+
+Select Prior Knowledge
+----------------------
+
+The first iteration of the :doc:`active learning cycle
+<../guides/activelearning>` requires some prior knowledge to work. This
+knowledge is used to train the first model. In this step you need to provide
+at least one relevant and one irrelevant document. To facilitate this, it is
+possible to :ref:`search for specific records <features/pre_screening:Search>` within
+your dataset (for finding prior relevant papers), ask the software to present
+a couple of :ref:`random documents <features/pre_screening:Random>` (for prior
+irrelevant papers), or to upload :ref:`partly labeled data
+<partly-labeled-data>`. When searching for specific records be sure to be precise
+with the search terms (use the full title of an article for example),
+as only the first 10 results are shown to you.
+
+
+.. figure:: ../../images/asreview_prescreening_prior_next.png
+   :alt: ASReview prior knowledge selector next
+
+
+Select Active Learning Model
+----------------------------
+
+In the next step of the setup, you can :ref:`select a model <select-model>`.
+The default setup (Naïve Bayes, tf-idf, Max) overall has fast and
+:doc:`excellent performance <../guides/simulation_study_results>`, but many
+more options are :ref:`available <feature-extraction-table>` . After choosing
+your model, click on `Finish`. You will return to the project page and the
+model is trained for the first time.
+
+
+.. figure:: ../../images/asreview_prescreening_model.png
+   :alt: ASReview model
+
+During the screening phase, it is not possible to change the model. However,
+it is possible to select a first model, screen part of the data, and export
+the dataset with the labeling decisions of the first model. This
+partly-labeled dataset can be imported into a new project and the labels based
+on the first model will be recognized as prior knowledge. Then, a second model
+can be trained on the partly-labeled data, and the new predictions will be
+based on the second model. In the simulation mode, this process can be
+simulated using the third party `ASReview Model Switcher extension
+<https://github.com/JTeijema/asreview-plugin-model-switcher>`_ .
+

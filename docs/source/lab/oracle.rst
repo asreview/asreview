@@ -1,94 +1,5 @@
-Oracle Mode
-===========
-
-This is a quick tour in using the ASReview LAB software in Oracle Mode, which
-is the user-friendly frontend for active learning in systematic reviews for
-unlabeled data with interaction by the user. A more elaborate instruction can
-be found in this `blogpost <https://asreview.nl/blog/asreview-class-101/>`_ on the
-ASReview website.
-
-This tutorial assumes you have already installed Python and ASReview. If this
-is not the case, check out the :doc:`../intro/installation` page.
-Also, you should have created a :doc:`project<launch>`.
-
-
-Select Dataset
---------------
-
-Select the dataset you want to use, which should contain at least the
-titles and/or abstracts of all documents (records) you want to screen.
-
-There are four ways to select a dataset:
-
-- Upload your own dataset. Read more about the format on :doc:`../intro/datasets`.
-- Import a dataset with an URL. Read more about the format on :doc:`../intro/datasets`.
-- Select a dataset from an :doc:`extension <../extensions/overview_extensions>` (for example to use the :doc:`COVID-19 extension <../extensions/extension_covid19>`).
-- Choose one of the :doc:`benchmark data sets <exploration>`.
-
-.. figure:: ../../images/asreview_prescreening_datasets.png
-   :alt: ASReview dataset selector
-
-After a successfull upload of the data, move to the next step.
-
-.. figure:: ../../images/asreview_prescreening_datasets_uploaded.png
-   :alt: ASReview dataset uploaded
-
-.. warning::
-
-    If you upload your own data, make sure to remove duplicates and to retrieve
-    as many abstracts as possible (`don't know how?
-    <https://asreview.nl/blog/the-importance-of-abstracts/>`_). With clean data you
-    benefit most from what :doc:`active learning <../guides/activelearning>`
-    has to offer.
-
-
-Select Prior Knowledge
-----------------------
-
-The first iteration of the :doc:`active learning cycle
-<../guides/activelearning>` requires some prior knowledge to work. This
-knowledge is used to train the first model. In this step you need to provide
-at least one relevant and one irrelevant document. To facilitate this, it is
-possible to :ref:`search for specific records <features/pre_screening:Search>` within
-your dataset (for finding prior relevant papers), ask the software to present
-a couple of :ref:`random documents <features/pre_screening:Random>` (for prior
-irrelevant papers), or to upload :ref:`partly labeled data
-<partly-labeled-data>`. When searching for specific records be sure to be precise
-with the search terms (use the full title of an article for example),
-as only the first 10 results are shown to you.
-
-
-.. figure:: ../../images/asreview_prescreening_prior_next.png
-   :alt: ASReview prior knowledge selector next
-
-
-Select Active Learning Model
-----------------------------
-
-In the next step of the setup, you can :ref:`select a model <select-model>`.
-The default setup (Naïve Bayes, tf-idf, Max) overall has fast and
-:doc:`excellent performance <../guides/simulation_study_results>`, but many
-more options are :ref:`available <feature-extraction-table>` . After choosing
-your model, click on `Finish`. You will return to the project page and the
-model is trained for the first time.
-
-
-.. figure:: ../../images/asreview_prescreening_model.png
-   :alt: ASReview model
-
-During the screening phase, it is not possible to change the model. However,
-it is possible to select a first model, screen part of the data, and export
-the dataset with the labeling decisions of the first model. This
-partly-labeled dataset can be imported into a new project and the labels based
-on the first model will be recognized as prior knowledge. Then, a second model
-can be trained on the partly-labeled data, and the new predictions will be
-based on the second model. In the simulation mode, this process can be
-simulated using the third party `ASReview Model Switcher extension 
-<https://github.com/JTeijema/asreview-plugin-model-switcher>`_ . 
-
-
-Start Reviewing
----------------
+Screening
+---------
 
 As soon as the model is ready, a button appears with **Start Review**. Click
 the button to start screening. ASReview LAB presents you a document to screen
@@ -103,7 +14,7 @@ You are asked to make a decision: relevant or irrelevant?
 While you review the documents, the software continuously improves its
 understanding of your decisions, constantly updating the underlying model.
 
-More specifically, each labeling decision of the user starts the training 
+More specifically, each labeling decision of the user starts the training
 of a new model given there is no model being trained at that time.
 When this new model is trained, the unseen records' rank order is
 updated. Training and labeling occur asynchronous. With fast models, a new
@@ -112,13 +23,277 @@ slower models, training continues until a new model is trained, and the user can
 continue screening the next record in line (2nd, 3rd, etc.). Therefore, the
 record shown to the user can be the one with the highest relevance score of
 the second last model or the highest-ranked as resulted from the latest model until a new
-model is trained. 
+model is trained.
 
 As you keep reviewing documents and providing more labels, the number of
 unlabeled documents left in the dataset will decline. When to stop is left to
 the user. The `blogpost *ASReview Class 101* <https://asreview.nl/blog/asreview-class-101/>`_
-and the `discussion board <https://github.com/asreview/asreview/discussions/557>`_ 
+and the `discussion board <https://github.com/asreview/asreview/discussions/557>`_
 provide some tips on when to stop with screening.
+
+Screening
+=========
+
+The user interface in which you provide labels for records shown to you by the
+software is kept as simple as possible. This is because ASReview wants you to
+focus on the content of the text so that you can make your decision as a true
+Oracle. You can access the following features during screening.
+
+
+Autosave
+--------
+
+Your work is saved automatically. There is no need to press any buttons to
+save your work anywhere in ASReview LAB.
+
+.. figure:: ../../images/asreview_screening_auto_save.png
+   :alt: Auto Save
+
+
+Label options
+-------------
+
+Below the text, ASReview provides two labeling options: *Relevant* or *Irrelevant*.
+
+To make a decision:
+
+1. Open ASReview LAB.
+2. Open a project.
+3. Click on either the *Relevant* or *Irrelevant* button.
+4. The next record is presented. Repeat the process of labeling.
+
+.. figure:: ../../images/asreview_screening_asreview_label.png
+   :alt: ASReview Screening
+
+.. warning::
+
+  If you are in doubt, take your time to think on the decision, you
+  are the oracle. Based on your input, a new model will be trained in the
+  background. If you make decisions faster than the model needs for computing
+  new relevance scores, you will simply be presented with the record next in
+  line (etcetera) until the model is done training.
+
+
+.. _undo-last:
+
+Undo Last Decision
+------------------
+
+In some cases, you might want to change your previous decision. The screening
+interface of ASReview LAB can be used to return to the previous decision.
+
+1. Open ASReview LAB.
+2. Open or create a project.
+3. Label the record displayed in the screen as relevant or irrelevant.
+4. Click on **Undo** (See picture below).
+
+.. figure:: ../../images/undo_button.png
+   :alt: Undo previous decision
+
+5. Click on **Keep (ir)relevant** or **Convert to (ir)relevant**
+6. Continue labeling.
+
+
+Review History
+--------------
+
+An overview of your decisions made during screening can be found in the
+**Review History** dialog.
+
+Open history
+~~~~~~~~~~~~
+
+1. Open ASReview LAB.
+2. Open or create a project.
+3. Start/continue screening.
+4. Click on **Review History** in the *menu bar* on top. A dialog will open with the labeled records.
+5. With the drop-down list, you can select records to display (all, relevant only, or irrelevant only).
+6. By clicking on a title, the full information opens.
+
+.. figure:: ../../images/asreview_screening_history_overview.png
+   :alt: Undo previous decision
+
+Changing decisions
+~~~~~~~~~~~~~~~~~~
+
+7. To change a label of a record, click **convert to ...**. The next iteration of the model will take the new label into account.
+8. To go back to the overview, click **←**.
+9. To close the Review History, click **Close**.
+
+
+.. figure:: ../../images/asreview_screening_history_metadata.png
+   :alt: Undo previous decision
+
+Statistics Panel
+----------------
+
+For unlabeled data, ASReview LAB offers some insightful graphs to keep track
+of your screening process so far. To open the statistics panel:
+
+1. Open ASReview LAB.
+2. Open a project.
+3. Start screening.
+4. Click the **statistics** icon in the upper-right corner.
+5. To close the panel click on the '>' icon.
+
+In the top of the statistics panel the project name, authors and total number
+of records in the dataset are displayed.
+
+The pie chart presents an overview of how many relevant (green) and
+irrelevant (orange) records have been screened so far. Also, the total number
+of records screened is displayed, as well as the percentage screened relative
+to the total number of records in the dataset.
+
+The second plot is a progress plot. On the x-axis the number of records
+screened is tracked. The y-axis shows a moving average. It displays the ratio
+between relevant and irrelevant records for a batch of 10 labeled records. If
+you hoover over the plot you can see the moving average for any batch of 10
+labeled records.
+
+Underneath the progress plot, the number of irrelevant records after the last
+relevant is shown. This statistic might help in deciding when to stop
+reviewing, see `blogpost *ASReview Class 101*
+<https://asreview.nl/blog/asreview-class-101/>`_ for more instructions how to
+use this graph.
+
+
+DOI
+---
+
+If a column with Digital Object Identifiers (DOI) is available in the metadata
+of your dataset, ASReview Lab will display the DOI with hyperlink during
+screening. Most of the time, DOIs point to the full-text of a publication. See
+:doc:`datasets <../intro/datasets>` for more information on including DOI values to your
+datasets. To access the full text:
+
+1. Open ASReview LAB.
+2. Open a project
+3. Start screening.
+4. As soon as a record contains a DOI number, it will be presented below the title.
+
+
+.. figure:: ../../images/doi.png
+   :alt: Digital Object Identifier (DOI)
+
+
+Download Results
+----------------
+
+
+A file containing all metadata including your decisions can be downloaded
+any time during the screening process. To download your results:
+
+1. Open ASReview LAB.
+2. Open a project.
+3. Start screening.
+4. Click the **download** icon in the upper-right corner.
+5. You will be asked whether you want to save an Excel or a CSV file.
+6. You will be asked where to save the file.
+
+
+.. figure:: ../../images/asreview_screening_result.png
+   :alt: ASReview download results
+
+
+Hamburger menu
+--------------
+
+Via the hamburger menu in the left-upper corner you can:
+
+1. Navigate back to the :doc:`overview <pre_screening>` page containing all your projects (or to start a new project).
+2. You can access the :doc:`Project Dashboard <post_screening>`.
+3. Navigate to the documention via the `HELP <https://asreview.readthedocs.io/en/latest/>`_ button.
+4. Provide feedback or `contribute <https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md>`_ to the code.
+5. Donate to the ASReview project via the `ASReview crowdfunding platform <https://asreview.nl/donate>`_.
+6. Quit the software (your progress is saved automatically).
+
+
+.. _keybord-shortcuts:
+
+Keyboard shortcuts
+------------------
+
+ASReview LAB supports the use of keyboard shortcuts during screening. The
+table below lists the available keyboard shortcuts.
+
++-----------------------------+------------------------+
+| Action                      | Shortcut               |
++=============================+========================+
+| Label record as relevant    | **r** or **Shift + r** |
++-----------------------------+------------------------+
+| Label record as irrelevant  | **i** or **Shift + i** |
++-----------------------------+------------------------+
+| Return to previous decision | **u** or **Shift + u** |
++-----------------------------+------------------------+
+
+.. note:
+
+  Keyboard shortcuts are only available when the **Undo** feature has been
+  enabled in the :ref:`settings panel<toggle-shortcuts>.
+
+
+
+Display
+-------
+
+Dark mode
+~~~~~~~~~
+
+ASReview LAB offers the option to customize the screening appearance and functionality.
+
+1. Open ASReview LAB.
+2. Click on Menu (top left).
+3. Click on Settings.
+
+.. figure:: ../../images/asreview_settings.png
+   :alt: ASReview settings
+
+.. note::
+  Your preference is saved in the browser.
+
+By default, the dark mode is disabled.
+
+.. figure:: ../../images/asreview_settings_dark_mode.png
+   :alt: Dark mode
+
+
+Font size
+~~~~~~~~~
+
+You can make the text on the review screen smaller or larger.
+
+.. figure:: ../../images/asreview_settings_font_size.png
+   :alt: Font size
+
+
+Review Preferences
+------------------
+
+Keyboard shortcuts
+~~~~~~~~~~~~~~~~~~
+
+You can press a key (or a combination of keys) to label a record as relevant
+or irrelevant, or to return to the previous decision during screening.
+By default, keyboard shortcuts are disabled.
+
+.. figure:: ../../images/asreview_settings_keyboard_shortcuts.png
+   :alt: Keyboard shortcuts
+
+
+Undo
+~~~~
+
+You can allow returning to the previous decision during screening.
+By default, the undo option is enabled.
+
+
+
+
+
+
+
+
+
 
 
 Download Results
