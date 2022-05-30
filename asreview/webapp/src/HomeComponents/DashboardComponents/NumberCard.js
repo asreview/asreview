@@ -75,7 +75,9 @@ export default function NumberCard(props) {
                   className={`${classes.text} number-card-content-text`}
                   variant={!props.mobileScreen ? "subtitle1" : "subtitle2"}
                 >
-                  Projects in Review
+                  {data?.n_in_review < 2
+                    ? "Project in Review"
+                    : "Projects in Review"}
                 </Typography>
               </Stack>
             </CardContent>
@@ -110,7 +112,9 @@ export default function NumberCard(props) {
                   className={`${classes.text} number-card-content-text`}
                   variant={!props.mobileScreen ? "subtitle1" : "subtitle2"}
                 >
-                  Projects Finished
+                  {data?.n_finished < 2
+                    ? "Project Finished"
+                    : "Projects Finished"}
                 </Typography>
               </Stack>
             </CardContent>
