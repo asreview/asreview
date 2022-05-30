@@ -271,37 +271,8 @@ Balance Strategies
 +-------------+---------------------------------------------------------+----------+
 
 
-Simulate-batch
---------------
-
-:program:`asreview simulate-batch` provides the same interface as the
-:program:`asreview simulate`, but adds an extra option (:code:`--n_run`) to run a
-batch of simulation runs with the same configuration.
-
-.. code:: bash
-
-	asreview simulate-batch [options] [dataset [dataset ...]]
-
-.. warning::
-
-	The behavior of some arguments of :program:`asreview simulate-batch` will differ
-	slightly from :program:`asreview simulate`.
-
-.. program:: asreview simulate-batch
-
-.. option:: dataset
-
-    A dataset to simulate
-
-.. option:: --n_run
-
-    Number of simulation runs.
-
-
 Algorithms
 ----------
-
-.. versionadded:: 0.14
 
 :program:`asreview algorithms` provides an overview of all available active
 learning model elements (classifiers, query strategies, balance
