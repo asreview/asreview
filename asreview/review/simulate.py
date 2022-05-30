@@ -102,14 +102,10 @@ class ReviewSimulate(BaseReview):
         Sample n prior excluded papers.
     prior_indices: int
         Prior indices by row number.
-    n_papers: int
-        Number of papers to review during the active learning process,
-        excluding the number of initial priors. To review all papers, set
-        n_papers to None.
     n_instances: int
         Number of papers to query at each step in the active learning
         process.
-    n_queries: int
+    stop_if: int
         Number of steps/queries to perform. Set to None for no limit.
     start_idx: numpy.ndarray
         Start the simulation/review with these indices. They are assumed to
@@ -164,7 +160,7 @@ class ReviewSimulate(BaseReview):
 
         # Setup the reviewer attributes that take over the role of state
         # functions.
-        with open_state(self.state_fp) as state:
+        with open_state(self.project) as state:
             # Check if there is already a ranking stored in the state.
             if state.model_has_trained:
                 self.last_ranking = state.get_last_ranking()
@@ -198,14 +194,14 @@ class ReviewSimulate(BaseReview):
     def _label_priors(self):
         """Make sure all the priors are labeled as well as the pending
         labels."""
-        with open_state(self.state_fp, read_only=False) as state:
+        with open_state(self.project, read_only=False) as state:
             # Make sure the prior records are labeled.
             labeled = state.get_labeled()
             unlabeled_priors = [x for x in self.prior_indices
                                 if x not in labeled['record_id'].to_list()]
             labels = self.data_labels[unlabeled_priors]
 
-            with open_state(self.state_fp, read_only=False) as s:
+            with open_state(self.project, read_only=False) as s:
                 s.add_labeling_data(unlabeled_priors, labels, prior=True)
 
             # Make sure the pending records are labeled.
@@ -216,29 +212,21 @@ class ReviewSimulate(BaseReview):
     def _stop_review(self):
         """In simulation mode, the stop review function should get the labeled
         records list from the reviewer attribute."""
-        stop = False
 
         # if the pool is empty, always stop
         if self.pool.empty:
-            stop = True
+            return True
 
-        # If we are exceeding the number of papers, stop.
-        if self.n_papers is not None and len(self.labeled) >= self.n_papers:
-            stop = True
-
-        # If n_queries is set to min, stop when all papers in the pool are
+        # If stop_if is set to min, stop when all papers in the pool are
         # irrelevant.
-        if self.n_queries == 'min' and (self.data_labels[self.pool] == 0).all():
-            stop = True
-        # Otherwise, stop when reaching n_queries (if provided)
-        elif self.n_queries is not None:
-            if self.total_queries >= self.n_queries:
-                stop = True
+        if self.stop_if == 'min' and (self.data_labels[self.pool] == 0).all():
+            return True
 
-        if stop:
-            self._write_to_state()
+        # Stop when reaching stop_if (if provided)
+        if isinstance(self.stop_if, int) and self.total_queries >= self.stop_if:
+            return True
 
-        return stop
+        return False
 
     def train(self):
         """Train a new model on the labeled data."""
@@ -286,24 +274,31 @@ class ReviewSimulate(BaseReview):
 
         labels = self.data_labels[record_ids]
         labeling_time = datetime.now()
+
+        results = []
         for record_id, label in zip(record_ids, labels):
-            self.results = self.results.append(
-                {
-                    'record_id': int(record_id),
-                    'label': int(label),
-                    'classifier': self.classifier.name,
-                    'query_strategy': self.query_strategy.name,
-                    'balance_strategy': self.balance_model.name,
-                    'feature_extraction': self.feature_extraction.name,
-                    'training_set': int(self.training_set),
-                    'labeling_time': str(labeling_time),
-                    'notes': None
-                }, ignore_index=True)
+            results.append({
+                'record_id': int(record_id),
+                'label': int(label),
+                'classifier': self.classifier.name,
+                'query_strategy': self.query_strategy.name,
+                'balance_strategy': self.balance_model.name,
+                'feature_extraction': self.feature_extraction.name,
+                'training_set': int(self.training_set),
+                'labeling_time': str(labeling_time),
+                'notes': None
+            })
+
+        self.results = pd.concat([
+            self.results,
+            pd.DataFrame(results)
+        ], ignore_index=True)
 
         # Add the record ids to the labeled and remove from the pool.
         new_labeled_data = pd.DataFrame(zip(record_ids, labels),
                                         columns=['record_id', 'label'])
-        self.labeled = self.labeled.append(new_labeled_data, ignore_index=True)
+        self.labeled = pd.concat(
+            [self.labeled, new_labeled_data], ignore_index=True)
         self.pool = self.pool[~self.pool.isin(record_ids)]
 
         if (self.write_interval is not None) and \
@@ -316,7 +311,7 @@ class ReviewSimulate(BaseReview):
         if len(self.results) > 0:
             rows = [tuple(self.results.iloc[i])
                     for i in range(len(self.results))]
-            with open_state(self.state_fp, read_only=False) as state:
+            with open_state(self.project, read_only=False) as state:
                 state._add_labeling_data_simulation_mode(rows)
 
                 state.add_last_ranking(

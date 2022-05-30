@@ -15,28 +15,27 @@
 import logging
 import os
 import pickle
+from pathlib import Path
 
 import pandas as pd
 
 from asreview._version import get_versions
 from asreview.data import ASReviewData
-from asreview.state.paths import get_data_file_path
 
 
 class CacheDataError(Exception):
     pass
 
 
-def _get_cache_data_path(project_path):
-    fp_data = get_data_file_path(project_path)
+def _get_cache_data_path(fp_data):
 
-    return get_data_file_path(project_path) \
+    return Path(fp_data) \
         .with_suffix(fp_data.suffix + ".pickle")
 
 
-def _read_data_from_cache(project_path, version_check=True):
+def _read_data_from_cache(fp_data, version_check=True):
 
-    fp_data_pickle = _get_cache_data_path(project_path)
+    fp_data_pickle = _get_cache_data_path(fp_data)
 
     try:
         # get the pickle data
@@ -66,16 +65,16 @@ def _read_data_from_cache(project_path, version_check=True):
     raise CacheDataError()
 
 
-def _write_data_to_cache(project_path, data_obj):
+def _write_data_to_cache(fp_data, data_obj):
 
-    fp_data_pickle = _get_cache_data_path(project_path)
+    fp_data_pickle = _get_cache_data_path(fp_data)
 
     logging.info("Store a copy of the data in a pickle file.")
     with open(fp_data_pickle, 'wb') as f_pickle:
         pickle.dump((data_obj, get_versions()['version']), f_pickle)
 
 
-def read_data(project_path, use_cache=True, save_cache=True):
+def read_data(project, use_cache=True, save_cache=True):
     """Get ASReviewData object from file.
 
     Parameters
@@ -94,19 +93,24 @@ def read_data(project_path, use_cache=True, save_cache=True):
 
     """
 
+    try:
+        fp_data = Path(
+            project.project_path, "data", project.config["dataset_path"])
+    except Exception:
+        raise FileNotFoundError("Dataset not found")
+
     # use cache file
     if use_cache:
         try:
-            return _read_data_from_cache(project_path)
+            return _read_data_from_cache(fp_data)
         except CacheDataError:
             pass
 
     # load from file
-    fp_data = get_data_file_path(project_path)
     data_obj = ASReviewData.from_file(fp_data)
 
     # save a pickle version
     if save_cache:
-        _write_data_to_cache(project_path, data_obj)
+        _write_data_to_cache(fp_data, data_obj)
 
     return data_obj

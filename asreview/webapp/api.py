@@ -62,8 +62,6 @@ from asreview.search import fuzzy_find
 from asreview.settings import ASReviewSettings
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
-from asreview.state.paths import get_data_file_path
-from asreview.state.paths import get_data_path
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.sql_converter import upgrade_project_config
 from asreview.utils import _get_executable
@@ -138,9 +136,6 @@ def api_get_projects_stats():  # noqa: F401
     """Get dashboard statistics of all projects"""
 
     stats_counter = {
-        "n_reviewed": 0,
-        "n_excluded": 0,
-        "n_included": 0,
         "n_in_review": 0,
         "n_finished": 0,
         "n_setup": 0
@@ -157,12 +152,6 @@ def api_get_projects_stats():  # noqa: F401
                 project_config["projectNeedsUpgrade"] = True
 
             # get dashboard statistics
-            statistics = _get_stats(project)
-
-            stats_counter["n_reviewed"] += statistics["n_included"] \
-                + statistics["n_excluded"]
-            stats_counter["n_included"] += statistics["n_included"]
-
             try:
                 if project_config["reviews"][0]["status"] == "review":
                     stats_counter["n_in_review"] += 1
@@ -175,7 +164,7 @@ def api_get_projects_stats():  # noqa: F401
 
         except Exception as err:
             logging.error(err)
-            return jsonify(message="Failed to load dashboard statistics."), 500
+            return jsonify(message=f"Failed to load dashboard statistics. {err}"), 500
 
     response = jsonify({"result": stats_counter})
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -193,6 +182,10 @@ def api_init_project():  # noqa: F401
     project_authors = request.form['authors']
 
     project_id = _create_project_id(project_name)
+
+    if not project_id and not isinstance(project_id, str) \
+            and len(project_id) >= 3:
+        raise ValueError("Project name should be at least 3 characters.")
 
     project = ASReviewProject.create(get_project_path(project_id),
                                      project_id=project_id,
@@ -311,7 +304,7 @@ def api_upload_data_to_project(project):  # noqa: F401
         project.remove_dataset()
 
     # create dataset folder if not present
-    get_data_path(project.project_path).mkdir(exist_ok=True)
+    Path(project.project_path, "data").mkdir(exist_ok=True)
 
     if request.form.get('plugin', None):
         url = DatasetManager().find(request.form['plugin']).filepath
@@ -328,7 +321,7 @@ def api_upload_data_to_project(project):  # noqa: F401
             url_parts = urllib.parse.urlparse(url)
             filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
 
-            urlretrieve(url, get_data_path(project.project_path) / filename)
+            urlretrieve(url, Path(project.project_path, "data") / filename)
 
         except ValueError as err:
 
@@ -356,7 +349,7 @@ def api_upload_data_to_project(project):  # noqa: F401
         try:
 
             filename = secure_filename(data_file.filename)
-            fp_data = get_data_path(project.project_path) / filename
+            fp_data = Path(project.project_path, "data") / filename
 
             # save the file
             data_file.save(str(fp_data))
@@ -375,7 +368,7 @@ def api_upload_data_to_project(project):  # noqa: F401
 
     if project_config["mode"] == PROJECT_MODE_EXPLORE:
 
-        data_path_raw = get_data_path(project.project_path) / filename
+        data_path_raw = Path(project.project_path, "data") / filename
         data_path = data_path_raw.with_suffix('.csv')
 
         data = ASReviewData.from_file(data_path_raw)
@@ -386,7 +379,7 @@ def api_upload_data_to_project(project):  # noqa: F401
 
     elif project_config["mode"] == PROJECT_MODE_SIMULATE:
 
-        data_path_raw = get_data_path(project.project_path) / filename
+        data_path_raw = Path(project.project_path, "data") / filename
         data_path = data_path_raw.with_suffix('.csv')
 
         data = ASReviewData.from_file(data_path_raw)
@@ -394,7 +387,7 @@ def api_upload_data_to_project(project):  # noqa: F401
         data.to_file(data_path)
 
     else:
-        data_path = get_data_path(project.project_path) / filename
+        data_path = Path(project.project_path, "data") / filename
 
     try:
         # add the file to the project
@@ -422,16 +415,14 @@ def api_get_project_data(project):  # noqa: F401
 
     try:
 
-        filename = get_data_file_path(project.project_path).stem
-
         # get statistics of the dataset
-        as_data = read_data(project.project_path)
+        as_data = read_data(project)
 
         statistics = {
             "n_rows": as_data.df.shape[0],
             "n_cols": as_data.df.shape[1],
             "n_duplicates": n_duplicates(as_data),
-            "filename": filename,
+            "filename": Path(project.config["dataset_path"]).stem,
         }
 
     except FileNotFoundError as err:
@@ -449,11 +440,11 @@ def api_get_project_data(project):  # noqa: F401
 
 
 @bp.route('/projects/<project_id>/dataset_writer', methods=["GET"])
-def api_list_dataset_writers(project_id):
+@project_from_id
+def api_list_dataset_writers(project):
     """List the name and label of available dataset writer"""
 
-    project_path = get_project_path(project_id)
-    fp_data = get_data_file_path(project_path)
+    fp_data = Path(project.config["dataset_path"])
 
     try:
         readers = list_readers()
@@ -511,7 +502,7 @@ def api_search_data(project):  # noqa: F401
         if q:
 
             # read the dataset
-            as_data = read_data(project.project_path)
+            as_data = read_data(project)
 
             # read record_ids of labels from state
             with open_state(project.project_path) as s:
@@ -636,7 +627,7 @@ def api_get_labeled(project):  # noqa: F401
             next_page = None
             previous_page = None
 
-        records = read_data(project.project_path).record(data["record_id"])
+        records = read_data(project).record(data["record_id"])
 
         payload = {
             "count": count,
@@ -707,101 +698,120 @@ def api_get_labeled_stats(project):  # noqa: F401
 @bp.route('/projects/<project_id>/prior_random', methods=["GET"])
 @project_from_id
 def api_random_prior_papers(project):  # noqa: F401
-    """Get a selection of random papers to find exclusions.
+    """Get a selection of random records.
 
-    This set of papers is extracted from the pool, but without
+    This set of records is extracted from the pool, but without
     the already labeled items.
     """
 
-    # For Exploration and Simulation modes.
-    # If returned random record needs to show debug label
-    # from both relevant and irrelevant subsets.
-    subset = request.args.get("subset", default=False, type=bool)
-    n_relevant = request.args.get("n_relevant", default=5, type=int)
-    n_irrelevant = request.args.get("n_irrelevant", default=5, type=int)
+    # get the number of records to return
+    n = request.args.get("n", default=5, type=int)
+    # get the subset of records to return (for exploration and simulation mode)
+    subset = request.args.get("subset", default=None, type=str)
 
     with open_state(project.project_path) as state:
         pool = state.get_pool().values
 
-    # load data (ASReviewData object)
-    as_data = read_data(project.project_path)
+    as_data = read_data(project)
 
     payload = {"result": []}
 
-    if subset:
-
+    if subset in ["relevant", "included"]:
         rel_indices = as_data.df[
             as_data.df["debug_label"] == 1].index.values
-        irrel_indices = as_data.df[
-            as_data.df["debug_label"] == 0].index.values
-
         rel_indices_pool = np.intersect1d(pool, rel_indices)
-        irrel_indices_pool = np.intersect1d(pool, irrel_indices)
 
-        try:
+        if len(rel_indices_pool) == 0:
+            return jsonify(payload)
+        elif n > len(rel_indices_pool):
             rand_pool_relevant = np.random.choice(
-                rel_indices_pool, n_relevant, replace=False)
-            rand_pool_irrelevant = np.random.choice(
-                irrel_indices_pool, n_irrelevant, replace=False)
-        except Exception:
-            raise ValueError("Not enough random indices to sample from.")
+                rel_indices_pool, len(rel_indices_pool), replace=False)
+        else:
+            rand_pool = np.random.choice(pool, n, replace=False)
+            rand_pool_relevant = np.random.choice(
+                rel_indices_pool, n, replace=False)
 
         try:
             relevant_records = as_data.record(rand_pool_relevant)
-            irrelevant_records = as_data.record(rand_pool_irrelevant)
-
-            for rr in relevant_records:
-                payload["result"].append(
-                    {
-                        "id": int(rr.record_id),
-                        "title": rr.title,
-                        "abstract": rr.abstract,
-                        "authors": rr.authors,
-                        "keywords": rr.keywords,
-                        "included": None,
-                        "_debug_label": 1,
-                    }
-                )
-            for ir in irrelevant_records:
-                payload["result"].append(
-                    {
-                        "id": int(ir.record_id),
-                        "title": ir.title,
-                        "abstract": ir.abstract,
-                        "authors": ir.authors,
-                        "keywords": ir.keywords,
-                        "included": None,
-                        "_debug_label": 0,
-                    }
-                )
         except Exception as err:
             logging.error(err)
             return jsonify(
                 message=f"Failed to load random records. {err}"), 500
 
-    else:
-        try:
-            pool_random = np.random.choice(pool, 1, replace=False)
-        except Exception:
-            raise ValueError("Not enough random indices to sample from.")
+        for rr in relevant_records:
+            payload["result"].append(
+                {
+                    "id": int(rr.record_id),
+                    "title": rr.title,
+                    "abstract": rr.abstract,
+                    "authors": rr.authors,
+                    "keywords": rr.keywords,
+                    "included": None,
+                    "_debug_label": 1,
+                }
+            )
+
+    elif subset in ["irrelevant", "excluded"]:
+        irrel_indices = as_data.df[
+            as_data.df["debug_label"] == 0].index.values
+        irrel_indices_pool = np.intersect1d(pool, irrel_indices)
+
+        if len(irrel_indices_pool) == 0:
+            return jsonify(payload)
+        elif n > len(irrel_indices_pool):
+            rand_pool_irrelevant = np.random.choice(
+                irrel_indices_pool, len(irrel_indices_pool), replace=False)
+        else:
+            rand_pool_irrelevant = np.random.choice(
+                irrel_indices_pool, n, replace=False)
 
         try:
-            record = as_data.record(pool_random)[0]
-            debug_label = record.extra_fields.get("debug_label", None)
-            debug_label = int(debug_label) if pd.notnull(debug_label) else None
-
-            payload["result"].append({
-                "id": int(record.record_id),
-                "title": record.title,
-                "abstract": record.abstract,
-                "authors": record.authors,
-                "keywords": record.keywords,
-                "included": None,
-                "_debug_label": debug_label
-            })
+            irrelevant_records = as_data.record(rand_pool_irrelevant)
         except Exception as err:
             logging.error(err)
-            return jsonify(message=f"Failed to load random records. {err}"), 500
+            return jsonify(
+                message=f"Failed to load random records. {err}"), 500
+
+        for ir in irrelevant_records:
+            payload["result"].append(
+                {
+                    "id": int(ir.record_id),
+                    "title": ir.title,
+                    "abstract": ir.abstract,
+                    "authors": ir.authors,
+                    "keywords": ir.keywords,
+                    "included": None,
+                    "_debug_label": 0,
+                }
+            )
+
+    else:
+        if len(pool) == 0:
+            return jsonify(payload)
+        elif n > len(pool):
+            rand_pool = np.random.choice(pool, len(pool), replace=False)
+        else:
+            rand_pool = np.random.choice(pool, n, replace=False)
+
+        try:
+            records = as_data.record(rand_pool)
+        except Exception as err:
+            logging.error(err)
+            return jsonify(
+                message=f"Failed to load random records. {err}"), 500
+
+        for r in records:
+            payload["result"].append(
+                {
+                    "id": int(r.record_id),
+                    "title": r.title,
+                    "abstract": r.abstract,
+                    "authors": r.authors,
+                    "keywords": r.keywords,
+                    "included": None,
+                    "_debug_label": None,
+                }
+            )
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -920,19 +930,13 @@ def api_start(project):  # noqa: F401
 
         # get priors
         with open_state(project.project_path) as s:
-            priors = s.get_priors().tolist()
+            priors = s.get_priors()["record_id"].tolist()
 
         logging.info("Start simulation")
 
         try:
-            # review_id = uuid.uuid4().hex
-            datafile = get_data_file_path(project.project_path)
-            # state_file = get_simulation_ready_path(project.project_path,
-            #                                        review_id)
-
+            datafile = project.config["dataset_path"]
             logging.info("Project data file found: {}".format(datafile))
-
-            # project.add_review(review_id)
 
             # start simulation
             py_exe = _get_executable()
@@ -1011,7 +1015,7 @@ def api_get_status(project):  # noqa: F401
         if error_path.exists():
             logging.error("Error on training")
             with open(error_path, "r") as f:
-                error_message = json.load(f)
+                error_message = json.load(f)["message"]
 
             raise Exception(error_message)
 
@@ -1029,6 +1033,10 @@ def api_status_update(project):
     oracle and explore:
     - `review` to `finished`
     - `finished` to `review` if not pool empty
+    - `error` to `setup`
+
+    The following status updates are allowed for simulate
+    - `error` to `setup`
 
     Status updates by the user are not allowed in simulation
     mode.
@@ -1040,21 +1048,29 @@ def api_status_update(project):
     current_status = project.config["reviews"][0]["status"]
     mode = project.config["mode"]
 
+    if current_status == "error" and status == "setup":
+        project.remove_error(status=status)
+
+        response = jsonify({'success': True})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+
     if mode == PROJECT_MODE_SIMULATE:
         raise ValueError(
             "Not possible to update status of simulation project.")
-
-    if current_status == "review" and status == "finished":
-        project.update_review(status=status)
-    elif current_status == "finished" and status == "review":
-        project.update_review(status=status)
-        # ideally, also check here for empty pool
     else:
-        raise ValueError("Not possible to update for this status.")
+        if current_status == "review" and status == "finished":
+            project.update_review(status=status)
+        elif current_status == "finished" and status == "review":
+            project.update_review(status=status)
+            # ideally, also check here for empty pool
+        else:
+            raise ValueError(
+                f"Not possible to update status from {current_status} to {status}")
 
-    response = jsonify({'success': True})
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    return response
+        response = jsonify({'success': True})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
 
 
 @bp.route('/projects/import_project', methods=["POST"])
@@ -1113,7 +1129,7 @@ def api_export_dataset(project):
                     writer = c
 
         # read the dataset into a ASReview data object
-        as_data = read_data(project.project_path)
+        as_data = read_data(project)
 
         as_data.to_file(
             fp=tmp_path_dataset,
@@ -1128,9 +1144,7 @@ def api_export_dataset(project):
             max_age=0)
 
     except Exception as err:
-        logging.error(err)
-        return jsonify(
-            message=f"Failed to export the {file_format} dataset. {err}"), 500
+        raise Exception(f"Failed to export the {file_format} dataset. {err}")
 
 
 @bp.route('/projects/<project_id>/export_project', methods=["GET"])
@@ -1418,7 +1432,7 @@ def api_get_document(project):  # noqa: F401
         if len(record_ids) > 0:
             new_instance = record_ids[0]
 
-            as_data = read_data(project.project_path)
+            as_data = read_data(project)
             record = as_data.record(int(new_instance))
 
             item = {}

@@ -101,9 +101,16 @@ def format_record(record, use_cli_colors=True):
     else:
         abstract = ""
 
-    return ("\n\n----------------------------------"
-            f"\n{title}{authors}{abstract}"
-            "----------------------------------\n\n")
+    if record.included == 0:
+        label = "IRRELEVANT"
+    elif record.included == 1:
+        label = "RELEVANT"
+    else:
+        label = ""
+
+    header = f"---{record.record_id}---{label}---"
+
+    return (f"\n{header:-<60}\n{title}{authors}{abstract}")
 
 
 class PaperRecord():

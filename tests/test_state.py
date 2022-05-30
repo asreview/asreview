@@ -12,9 +12,6 @@ from asreview.project import open_state
 from asreview.settings import ASReviewSettings
 from asreview.state import SQLiteState
 from asreview.state.errors import StateNotFoundError
-from asreview.state.paths import get_data_path
-from asreview.state.paths import get_feature_matrices_path
-from asreview.state.paths import get_reviews_path
 from asreview.state.sqlstate import RESULTS_TABLE_COLUMNS
 
 TEST_LABELS = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
@@ -71,9 +68,9 @@ def test_init_project_folder(tmpdir):
     project = ASReviewProject.create(project_path)
 
     assert Path(project_path, "project.json").is_file()
-    assert get_data_path(project_path).is_dir()
-    assert get_feature_matrices_path(project_path).is_dir()
-    assert get_reviews_path(project_path).is_dir()
+    assert Path(project_path, "data").is_dir()
+    assert Path(project_path, "feature_matrices").is_dir()
+    assert Path(project_path, "reviews").is_dir()
 
     assert project.config['id'] == 'test'
 
@@ -284,9 +281,15 @@ def test_create_empty_state(tmpdir):
 
 
 def test_get_feature_matrix():
-    with open_state(TEST_STATE_FP) as state:
-        feature_matrix = state.get_feature_matrix()
-        assert isinstance(feature_matrix, csr_matrix)
+
+    project = ASReviewProject(TEST_STATE_FP)
+
+    assert len(project.feature_matrices) == 1
+
+    feature_matrix = project.get_feature_matrix(
+        project.feature_matrices[0]["id"]
+    )
+    assert isinstance(feature_matrix, csr_matrix)
 
 
 def test_get_record_table():

@@ -43,7 +43,7 @@ import {
 } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
 
-const steps = ["Project information", "Data", "Model"];
+const steps = ["Project information", "Data", "Model", "Warm up"];
 
 const PREFIX = "SetupDialog";
 
@@ -51,7 +51,7 @@ const classes = {
   content: `${PREFIX}-content`,
   stepper: `${PREFIX}-stepper`,
   form: `${PREFIX}-form`,
-  formStepper: `${PREFIX}-form-stepper`,
+  formWarmup: `${PREFIX}-form-warmup`,
 };
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
@@ -66,17 +66,15 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   },
 
   [`& .${classes.form}`]: {
-    alignItems: "center",
-    display: "flex",
-    height: "100%",
-    justifyContent: "center",
-    overflowY: "scroll",
-  },
-
-  [`& .${classes.formStepper}`]: {
     height: "calc(100% - 60px)",
     overflowY: "scroll",
     padding: "32px 48px 48px 48px",
+  },
+
+  [`& .${classes.formWarmup}`]: {
+    alignItems: "center",
+    display: "flex",
+    justifyContent: "center",
   },
 }));
 
@@ -416,6 +414,9 @@ const SetupDialog = (props) => {
     ProjectAPI.fetchProjectStatus,
     {
       enabled: trainingStarted,
+      onError: () => {
+        setTrainingStarted(false);
+      },
       onSuccess: (data) => {
         if (data["status"] !== projectStatuses.SETUP) {
           // model ready
@@ -425,11 +426,12 @@ const SetupDialog = (props) => {
           // not ready yet
           setTimeout(
             () => queryClient.invalidateQueries("fetchProjectStatus"),
-            24000
+            12000
           );
         }
       },
       refetchOnWindowFocus: false,
+      retry: false,
     }
   );
 
@@ -673,21 +675,19 @@ const SetupDialog = (props) => {
       {!addDataset && !addPriorKnowledge && (
         <Fade in={!addDataset}>
           <DialogContent className={classes.content}>
-            {(activeStep === 0 || activeStep === 1 || activeStep === 2) && (
-              <Box className={classes.stepper}>
-                <Stepper alternativeLabel activeStep={activeStep}>
-                  {steps.map((label, index) => (
-                    <Step key={label}>
-                      <StepLabel>{label}</StepLabel>
-                    </Step>
-                  ))}
-                </Stepper>
-              </Box>
-            )}
+            <Box className={classes.stepper}>
+              <Stepper alternativeLabel activeStep={activeStep}>
+                {steps.map((label, index) => (
+                  <Step key={label}>
+                    <StepLabel>{label}</StepLabel>
+                  </Step>
+                ))}
+              </Stepper>
+            </Box>
             <Box
               className={clsx({
-                [classes.form]: activeStep === 3,
-                [classes.formStepper]: activeStep !== 3,
+                [classes.form]: true,
+                [classes.formWarmup]: activeStep === 3,
               })}
             >
               {activeStep === 0 && (
@@ -726,6 +726,7 @@ const SetupDialog = (props) => {
               )}
               {activeStep === 3 && (
                 <FinishSetup
+                  handleBack={handleBack}
                   isPreparingProject={isPreparingProject}
                   isProjectReadyError={isProjectReadyError}
                   isStartTrainingError={isStartTrainingError}

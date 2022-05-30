@@ -46,6 +46,13 @@ class AlgorithmsEntryPoint(BaseEntryPoint):
 
         s = "Available active learning algorithms for ASReview. \n\n"
 
+        # feature_extraction
+        s += _format_algorithm(
+            values=list_feature_extraction(),
+            name="feature_extraction",
+            description="feature extraction algorithms"
+        )
+
         # classifiers
         s += _format_algorithm(
             values=list_classifiers(),
@@ -65,13 +72,6 @@ class AlgorithmsEntryPoint(BaseEntryPoint):
             values=list_balance_strategies(),
             name="balance_strategies",
             description="balance strategies"
-        )
-
-        # feature_extraction
-        s += _format_algorithm(
-            values=list_feature_extraction(),
-            name="feature_extraction",
-            description="feature extraction algorithms"
         )
 
         print(s)

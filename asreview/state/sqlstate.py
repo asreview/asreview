@@ -17,20 +17,13 @@ import sqlite3
 from datetime import datetime
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
-from scipy.sparse import csr_matrix
-from scipy.sparse import load_npz
-from scipy.sparse import save_npz
 
 from asreview._version import get_versions
 from asreview.settings import ASReviewSettings
 from asreview.state.base import BaseState
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
-from asreview.state.paths import get_feature_matrix_path
-from asreview.state.paths import get_project_file_path
-from asreview.state.paths import get_settings_metadata_path
 
 REQUIRED_TABLES = [
     # the table with the labeling decisions and models trained
@@ -106,28 +99,13 @@ class SQLiteState(BaseState):
     def _sql_fp(self):
         """Get the path to the sqlite database."""
 
-        if self.review_id is None:
-
-            with open(get_project_file_path(self.working_dir), 'r') as f:
-                project_config = json.load(f)
-            review_id = project_config['reviews'][0]['id']
-        else:
-            review_id = self.review_id
-
-        return Path(self.working_dir, 'reviews', review_id, 'results.sql')
+        return Path(self.review_dir, 'results.sql')
 
     @property
     def _settings_metadata_fp(self):
         """Get the path to the settings and metadata json file."""
-        return get_settings_metadata_path(self.working_dir, self.review_id)
 
-    @property
-    def _feature_matrix_fp(self):
-        """Get the path to the .npz file of the feature matrix"""
-        with open(self._settings_metadata_fp, "r") as f:
-            feature_extraction = json.load(f)["settings"]["feature_extraction"]
-
-        return get_feature_matrix_path(self.working_dir, feature_extraction)
+        return Path(self.review_dir, 'settings_metadata.json')
 
     def _create_new_state_file(self, working_dir, review_id):
         """Create the files for storing a new state given an review_id.
@@ -139,16 +117,15 @@ class SQLiteState(BaseState):
 
         Arguments
         ---------
-        working_dir: str, pathlib.Path
-            Project file location.
+        review_dir: str, pathlib.Path
+            Review folder location.
         review_id: str
             Identifier of the review.
         """
         if self.read_only:
             raise ValueError("Can't create new state file in read_only mode.")
 
-        self.working_dir = Path(working_dir)
-        self.review_id = review_id
+        self.review_dir = Path(working_dir, 'reviews', review_id)
 
         # create folder in the folder `results` with the name of result_id
         self._sql_fp.parent.mkdir(parents=True, exist_ok=True)
@@ -219,17 +196,16 @@ class SQLiteState(BaseState):
 
         Arguments
         ---------
-        working_dir: str, pathlib.Path
-            Location of the project file.
+        review_dir: str, pathlib.Path
+            Review folder location.
         review_id: str
             Identifier of the review.
         """
         # store filepath
-        self.working_dir = Path(working_dir)
-        self.review_id = review_id
+        self.review_dir = Path(working_dir, 'reviews', review_id)
 
         # If state already exist
-        if not self.working_dir.is_dir():
+        if not working_dir.is_dir():
             raise StateNotFoundError(f"Project {working_dir} doesn't exist.")
 
         if not self._sql_fp.parent.is_dir():
@@ -328,7 +304,7 @@ class SQLiteState(BaseState):
             balance_strategy  : triple
             feature_extraction: tfidf
             n_instances       : 1
-            n_queries         : 1
+            stop_if           : min
             n_prior_included  : 10
             n_prior_excluded  : 10
             mode              : simulate
@@ -353,6 +329,23 @@ class SQLiteState(BaseState):
         else:
             raise ValueError(
                 "'settings' should be an ASReviewSettings object.")
+
+    @property
+    def n_records(self):
+        """Number of records in the loop.
+
+        Returns
+        -------
+        int
+            Number of records.
+        """
+        con = self._connect_to_sql()
+        cur = con.cursor()
+        cur.execute("SELECT COUNT (*) FROM record_table")
+        n = cur.fetchone()[0]
+        con.close()
+
+        return n
 
     @property
     def n_records_labeled(self):
@@ -407,36 +400,11 @@ class SQLiteState(BaseState):
         """Return True if there is data of a trained model in the state."""
         return self.settings_metadata['model_has_trained']
 
-    def _update_project_with_feature_extraction(self, feature_extraction):
-        """Update the project.json if the feature extraction method is set."""
-        feature_matrix_filename = f'{feature_extraction}_feature_matrix.npz'
-
-        with open(get_project_file_path(self.working_dir), "r") as f:
-            project_config = json.load(f)
-
-        # Update the feature matrices section.
-        all_matrices = [x['id'] for x in project_config['feature_matrices']]
-        if feature_extraction not in all_matrices:
-            project_config['feature_matrices'].append({
-                'id':
-                feature_extraction,
-                'filename':
-                feature_matrix_filename
-            })
-
-        with open(get_project_file_path(self.working_dir), "w") as f:
-            json.dump(project_config, f)
-
     def _add_settings_metadata(self, key, value):
         """Add information to the settings_metadata dictionary."""
         if self.read_only:
             raise ValueError("Can't change settings in read only mode.")
         self.settings_metadata[key] = value
-
-        # If the feature extraction method is being set, update project.json
-        if key == 'settings':
-            self._update_project_with_feature_extraction(
-                value['feature_extraction'])
 
         with open(self._settings_metadata_fp, "w") as f:
             json.dump(self.settings_metadata, f)
@@ -540,38 +508,6 @@ class SQLiteState(BaseState):
         # If it's the first ranking table to be added, set model_has_trained.
         if not self.model_has_trained:
             self._add_settings_metadata('model_has_trained', True)
-
-    def add_feature_matrix(self, feature_matrix):
-        """Add feature matrix to project file.
-
-        Feature matrices are stored in the project file. See
-        asreview.state.SQLiteState._feature_matrix_fp for the file
-        location.
-
-        Arguments
-        ---------
-        feature_matrix: numpy.ndarray, scipy.sparse.csr.csr_matrix
-            The feature matrix to add to the project file.
-        """
-        # Make sure the feature matrix is in csr format.
-        if isinstance(feature_matrix, np.ndarray):
-            feature_matrix = csr_matrix(feature_matrix)
-        if not isinstance(feature_matrix, csr_matrix):
-            raise ValueError(
-                "The feature matrix should be convertible to type "
-                "scipy.sparse.csr.csr_matrix.")
-
-        save_npz(self._feature_matrix_fp, feature_matrix)
-
-    def get_feature_matrix(self):
-        """Get the feature matrix from the project file.
-
-        Returns
-        -------
-        numpy.ndarray:
-            Returns the feature matrix.
-        """
-        return load_npz(self._feature_matrix_fp)
 
     def add_note(self, note, record_id):
         """Add a text note to save with a labeled record.
@@ -972,7 +908,7 @@ class SQLiteState(BaseState):
         return self.get_dataset('record_id', priors=priors,
                                 pending=pending)['record_id']
 
-    def get_priors(self):
+    def get_priors(self, columns=["record_id"]):
         """Get the record ids of the priors.
 
         Returns
@@ -980,7 +916,16 @@ class SQLiteState(BaseState):
         pd.Series:
             The record_id's of the priors in the order they were added.
         """
-        return self.get_order_of_labeling()[:self.n_priors]
+
+        query_string = '*' if columns is None else ','.join(columns)
+
+        con = self._connect_to_sql()
+        data = pd.read_sql_query(
+            f"SELECT {query_string} FROM results"
+            " WHERE query_strategy is 'prior'", con)
+        con.close()
+
+        return data
 
     def get_labels(self, priors=True, pending=False):
         """Get the labels from the state.
