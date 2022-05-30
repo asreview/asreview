@@ -250,6 +250,7 @@ const ProjectTable = (props) => {
       });
     },
     onSuccess: (data, variables) => {
+      queryClient.invalidateQueries("fetchDashboardStats");
       // update cached data
       queryClient.setQueryData("fetchProjects", (prev) => {
         return {
