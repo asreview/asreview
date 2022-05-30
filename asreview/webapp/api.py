@@ -1491,6 +1491,7 @@ def api_delete_project(project):  # noqa: F401
     response = jsonify(message="project-delete-failure")
     return response, 500
 
+
 @bp_redirect.route('/<shortcode>/', methods=["GET"])
 def redirect_id(shortcode):  # noqa: F401
     """Redirect a shortcode to its url.
