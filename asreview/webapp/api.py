@@ -1268,8 +1268,6 @@ def api_get_progress_density(project):
     include_priors = request.args.get('priors', False, type=bool)
 
     try:
-        project_config = project.config
-
         # get label history
         with open_state(project.project_path) as s:
 
@@ -1335,8 +1333,6 @@ def api_get_progress_recall(project):
     include_priors = request.args.get('priors', False, type=bool)
 
     try:
-        project_config = project.config
-
         with open_state(project.project_path) as s:
 
             if project_config["reviews"][0]["status"] == "finished" \
