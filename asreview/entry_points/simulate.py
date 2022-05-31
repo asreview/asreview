@@ -176,7 +176,6 @@ class SimulateEntryPoint(BaseEntryPoint):
                 query_strategy=args.query_strategy,
                 balance_strategy=args.balance_strategy,
                 feature_extraction=args.feature_extraction,
-                mode="simulate",
                 data_fp=None)
             settings.from_file(args.config_file)
 

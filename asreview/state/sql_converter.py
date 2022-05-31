@@ -283,6 +283,10 @@ def convert_json_settings_metadata(fp, json_fp):
         data_dict['software_version'] = json_state._state_dict[
             'software_version']
         data_dict['model_has_trained'] = True
+
+        # remove the outdated mode
+        data_dict.pop("mode", None)
+
     with open(fp, 'w') as f:
         json.dump(data_dict, f)
 
