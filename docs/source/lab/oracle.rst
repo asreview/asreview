@@ -1,4 +1,13 @@
 Screening
+=========
+
+The user interface in which you provide labels for records shown to you by the
+software is kept as simple as possible. This is because ASReview wants you to
+focus on the content of the text so that you can make your decision as a true
+Oracle. You can access the following features during screening.
+
+
+Screening
 ---------
 
 As soon as the model is ready, a button appears with **Start Review**. Click
@@ -31,40 +40,6 @@ the user. The `blogpost *ASReview Class 101* <https://asreview.nl/blog/asreview-
 and the `discussion board <https://github.com/asreview/asreview/discussions/557>`_
 provide some tips on when to stop with screening.
 
-Screening
-=========
-
-The user interface in which you provide labels for records shown to you by the
-software is kept as simple as possible. This is because ASReview wants you to
-focus on the content of the text so that you can make your decision as a true
-Oracle. You can access the following features during screening.
-
-
-Autosave
---------
-
-Your work is saved automatically. There is no need to press any buttons to
-save your work anywhere in ASReview LAB.
-
-.. figure:: ../../images/asreview_screening_auto_save.png
-   :alt: Auto Save
-
-
-Label options
--------------
-
-Below the text, ASReview provides two labeling options: *Relevant* or *Irrelevant*.
-
-To make a decision:
-
-1. Open ASReview LAB.
-2. Open a project.
-3. Click on either the *Relevant* or *Irrelevant* button.
-4. The next record is presented. Repeat the process of labeling.
-
-.. figure:: ../../images/asreview_screening_asreview_label.png
-   :alt: ASReview Screening
-
 .. warning::
 
   If you are in doubt, take your time to think on the decision, you
@@ -73,14 +48,28 @@ To make a decision:
   new relevance scores, you will simply be presented with the record next in
   line (etcetera) until the model is done training.
 
+Autosave
+--------
+
+Your labeling decision is saved automatically. There is no need to press any buttons to
+save your work anywhere in ASReview LAB.
+
 
 .. _undo-last:
 
-Undo Last Decision
-------------------
+Undo decisions
+--------------
 
 In some cases, you might want to change your previous decision. The screening
-interface of ASReview LAB can be used to return to the previous decision.
+interface of ASReview LAB offers two options to change your decision.
+
+Undo last decision
+~~~~~~~~~~~~~~~~~~
+
+
+You can allow returning to the previous decision during screening.
+By default, the undo option is enabled.
+
 
 1. Open ASReview LAB.
 2. Open or create a project.
@@ -95,7 +84,7 @@ interface of ASReview LAB can be used to return to the previous decision.
 
 
 Review History
---------------
+~~~~~~~~~~~~~~
 
 An overview of your decisions made during screening can be found in the
 **Review History** dialog.
@@ -123,6 +112,20 @@ Changing decisions
 
 .. figure:: ../../images/asreview_screening_history_metadata.png
    :alt: Undo previous decision
+
+
+Full Text
+---------
+
+If a column with Digital Object Identifiers (DOI) is available in the metadata
+of your dataset, ASReview LAB will display the DOI with hyperlink during
+screening. Most of the time, DOIs point to the full-text of a publication. See
+:doc:`datasets <../intro/datasets>` for more information on including DOI values to your
+datasets. To access the full text:
+
+.. figure:: ../../images/doi.png
+   :alt: Digital Object Identifier (DOI)
+
 
 Statistics Panel
 ----------------
@@ -156,24 +159,6 @@ reviewing, see `blogpost *ASReview Class 101*
 <https://asreview.nl/blog/asreview-class-101/>`_ for more instructions how to
 use this graph.
 
-
-DOI
----
-
-If a column with Digital Object Identifiers (DOI) is available in the metadata
-of your dataset, ASReview Lab will display the DOI with hyperlink during
-screening. Most of the time, DOIs point to the full-text of a publication. See
-:doc:`datasets <../intro/datasets>` for more information on including DOI values to your
-datasets. To access the full text:
-
-1. Open ASReview LAB.
-2. Open a project
-3. Start screening.
-4. As soon as a record contains a DOI number, it will be presented below the title.
-
-
-.. figure:: ../../images/doi.png
-   :alt: Digital Object Identifier (DOI)
 
 
 Download Results
@@ -279,35 +264,6 @@ By default, keyboard shortcuts are disabled.
 .. figure:: ../../images/asreview_settings_keyboard_shortcuts.png
    :alt: Keyboard shortcuts
 
-
-Undo
-~~~~
-
-You can allow returning to the previous decision during screening.
-By default, the undo option is enabled.
-
-
-
-
-
-
-
-
-
-
-
-Download Results
-----------------
-
-During the screening or via the :doc:`dashboard <../features/post_screening>`
-you can download the results with your decisions by clicking the download
-icon. A dialog will show the download options. Choose from the menu whether
-you would like to export your results as a RIS, CSV, TSV or an Excel file and click
-`Download`.
-
-
-.. figure:: ../../images/asreview_project_page_download.png
-   :alt: ASReview project download
 
 
 Return to Project Dashboard

@@ -1,10 +1,26 @@
 Post-Screening
 ==============
 
-After you decide to `stop screening <https://github.com/asreview/asreview/discussions/557>`_ 
+After you decide to `stop screening <https://github.com/asreview/asreview/discussions/557>`_
 or anytime you want to take a break, you can
 return to the project dashboard by clicking the hamburger menu on the
 top-left. Below, you will find the options in the project dashboard.
+
+
+
+
+Download Results
+----------------
+
+During the screening or via the :doc:`dashboard <../features/post_screening>`
+you can download the results with your decisions by clicking the download
+icon. A dialog will show the download options. Choose from the menu whether
+you would like to export your results as a RIS, CSV, TSV or an Excel file and click
+`Download`.
+
+
+.. figure:: ../../images/asreview_project_page_download.png
+   :alt: ASReview project download
 
 
 Download Results
@@ -46,24 +62,6 @@ new record_id, based on the row number and starting at 0.
    :alt: ASReview project download
 
 
-.. _export-project:
-
-Export Project
---------------
-
-The ASReview project file (.asreview) can be exported from ASReview LAB. 
-The file contains the dataset, review history, notes, and model configuration. 
-It can be imported into ASReview LAB on a different device, which allows other
-users to replicate the project, or continue the systematic review.
-
-To export your project:
-
-1. Open ASReview LAB.
-2. Start a new project, upload a dataset and select prior knowledge.
-3. Navigate to the Project Dashboard.
-4. Click on *Export this project*.
-5. You will be asked where to save the ASReview file (extension `.asreview`).
-
 Finished
 --------
 
@@ -76,15 +74,3 @@ mark your project as finished:
 
 The button to continue screening is now disabled. This can be undone by
 clicking again on *Mark Screening as finished (undo)*.
-
-
-Delete a Project
-----------------
-
-To permanently delete a project, including ALL files:
-
-1. Open ASReview LAB.
-2. Start a new project, upload a dataset and select prior knowledge.
-3. Navigate to the Project Dashboard.
-4. Click on *Delete this project*.
-5. This action cannot be made undone, ASReview LAB will ask you to confirm by typing in the project title.

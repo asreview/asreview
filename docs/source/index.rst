@@ -73,15 +73,17 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
 
     lab/exploration
 
-    lab/simulation
+    lab/finish
 
-    features/post_screening
+    lab/manage
 
     extensions/overview_extensions
 
 .. toctree::
     :maxdepth: 1
     :caption: Simulation
+
+    lab/simulation
 
     guides/sim_overview
 
