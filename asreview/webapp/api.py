@@ -904,7 +904,6 @@ def api_set_algorithms(project):  # noqa: F401
     # create a new settings object from arguments
     # only used if state file is not present
     asreview_settings = ASReviewSettings(
-        mode="minimal",
         model=ml_model,
         query_strategy=ml_query_strategy,
         balance_strategy=ml_balance_strategy,
