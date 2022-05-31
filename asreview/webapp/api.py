@@ -1274,7 +1274,7 @@ def api_get_progress_density(project):
         with open_state(project.project_path) as s:
 
             if project_config['reviews'][0]['status'] == 'finished' \
-                and project_config['mode'] == PROJECT_MODE_SIMULATE:
+                    and project_config['mode'] == PROJECT_MODE_SIMULATE:
                 data = _get_labels(s, priors=include_priors)
             else:
                 data = s.get_labels(priors=include_priors)
@@ -1340,7 +1340,7 @@ def api_get_progress_recall(project):
         with open_state(project.project_path) as s:
 
             if project_config["reviews"][0]["status"] == "finished" \
-                and project_config["mode"] == PROJECT_MODE_SIMULATE:
+                    and project_config["mode"] == PROJECT_MODE_SIMULATE:
                 data = _get_labels(s, priors=include_priors)
             else:
                 data = s.get_labels(priors=include_priors)
