@@ -916,8 +916,8 @@ def api_set_algorithms(project):  # noqa: F401
         model_param=get_classifier(ml_model).param,
         query_param=get_query_model(ml_query_strategy).param,
         balance_param=get_balance_model(ml_balance_strategy).param,
-        feature_param=get_feature_model(ml_feature_extraction).param,
-        )
+        feature_param=get_feature_model(ml_feature_extraction).param
+    )
 
     # save the new settings to the state file
     with open_state(project.project_path, read_only=False) as state:
