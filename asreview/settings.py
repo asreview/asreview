@@ -79,7 +79,6 @@ class ASReviewSettings(object):
     of its contents.
     """
     def __init__(self,
-                 mode,
                  model,
                  query_strategy,
                  balance_strategy,
@@ -101,7 +100,6 @@ class ASReviewSettings(object):
                  data_name=None  # deprecated
                  ):
 
-        self.mode = mode
         self.model = model
         self.query_strategy = query_strategy
         self.balance_strategy = balance_strategy
