@@ -214,20 +214,6 @@ If you want to continue with an existing project, simply click on the title.
    :alt: Project overview
 
 
-
-
-Import a Project
-----------------
-
-Another option is to import an ASReview project file (``.asreview``
-extension). Usually, this is a project exported from ASReview LAB via the
-:ref:`export-project` panel. Importing can be done by
-clicking the red button in the bottom right corner of the home page. In the
-pop-up screen choose the project file from your computer and click `Import`.
-After a successful project initialization, a project dashboard will be shown.
-
-
-
 Project Dashboard
 -----------------
 
