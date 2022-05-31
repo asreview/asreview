@@ -372,6 +372,10 @@ def api_upload_data_to_project(project):  # noqa: F401
         data_path = data_path_raw.with_suffix('.csv')
 
         data = ASReviewData.from_file(data_path_raw)
+
+        if data.labels is None:
+            raise ValueError("Upload fully labeled dataset.")
+
         data.df.rename({data.column_spec["included"]: "debug_label"},
                        axis=1,
                        inplace=True)
@@ -383,6 +387,10 @@ def api_upload_data_to_project(project):  # noqa: F401
         data_path = data_path_raw.with_suffix('.csv')
 
         data = ASReviewData.from_file(data_path_raw)
+
+        if data.labels is None:
+            raise ValueError("Upload fully labeled dataset.")
+
         data.df["debug_label"] = data.df[data.column_spec["included"]]
         data.to_file(data_path)
 
