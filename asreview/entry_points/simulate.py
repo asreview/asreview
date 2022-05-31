@@ -175,9 +175,7 @@ class SimulateEntryPoint(BaseEntryPoint):
                 n_prior_excluded=args.n_prior_excluded,
                 query_strategy=args.query_strategy,
                 balance_strategy=args.balance_strategy,
-                feature_extraction=args.feature_extraction,
-                mode="simulate",
-                data_fp=None)
+                feature_extraction=args.feature_extraction)
             settings.from_file(args.config_file)
 
             # Initialize models.
