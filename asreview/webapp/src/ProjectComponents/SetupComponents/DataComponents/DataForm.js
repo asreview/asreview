@@ -67,9 +67,9 @@ const DataForm = (props) => {
       <Box className={classes.title}>
         <Typography variant="h6">Data</Typography>
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          Active learning models help you accelerate the review of records in
-          your dataset (e.g., abstracts of scientific papers) by learning your
-          preferences
+          Import a dataset containing textual records (e.g., abstracts of
+          scientific papers, newspaper articles) and select prior knowledge to
+          warm up the AI
         </Typography>
       </Box>
       {!props.isFetchInfoError && (isFetching || props.isFetchingLabeledStats) && (
@@ -105,14 +105,14 @@ const DataForm = (props) => {
           <Stack direction="column" spacing={3}>
             <DataFormCard
               added={props.datasetAdded}
-              primaryDefault="Add a dataset"
+              primaryDefault="Add dataset"
               primaryAdded={
                 <React.Fragment>
                   Dataset <i>{data?.filename}</i> added
                 </React.Fragment>
               }
-              secondaryDefault="Contains all records related to a particular topic"
-              secondaryAdded={`Contains ${data?.n_rows} records with ~${data?.n_duplicates} duplicates`}
+              secondaryDefault="Import a dataset or select a dataset available via an extension"
+              secondaryAdded={`Contains ${data?.n_rows} records with approximate ${data?.n_duplicates} duplicates`}
               toggleAddCard={props.toggleAddDataset}
             />
             <DataFormCard
@@ -120,7 +120,7 @@ const DataForm = (props) => {
               datasetAdded={props.datasetAdded}
               primaryDefault="Add prior knowledge"
               primaryAdded="Prior knowledge added"
-              secondaryDefault="Indicate your preference with at least 1 relevant and 1 irrelevant record"
+              secondaryDefault="Select at least 1 relevant and 1 irrelevant record to warm up the AI"
               secondaryAdded={`${props.labeledStats?.n_prior_inclusions} relevant and ${props.labeledStats?.n_prior_exclusions} irrelevant records`}
               toggleAddCard={props.toggleAddPriorKnowledge}
             />
