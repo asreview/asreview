@@ -53,14 +53,14 @@ export default function PriorLabeled(props) {
           (label === "irrelevant" && props.n_prior_exclusions === 0)) && (
           <Box className={classes.noPrior}>
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              {`You have not provided ${label} prior knowledge`}
+              {`You have not labeled ${label} prior knowledge`}
             </Typography>
           </Box>
         )}
         {label === "all" && props.n_prior === 0 && (
           <Box className={classes.noPrior}>
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              {`You have not provided prior knowledge`}
+              {`You have not labeled prior knowledge`}
             </Typography>
           </Box>
         )}

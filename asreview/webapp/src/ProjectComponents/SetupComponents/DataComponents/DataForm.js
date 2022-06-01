@@ -67,9 +67,9 @@ const DataForm = (props) => {
       <Box className={classes.title}>
         <Typography variant="h6">Data</Typography>
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          Import a dataset containing textual records (e.g., abstracts of
-          scientific papers, newspaper articles) and select prior knowledge to
-          warm up the AI
+          A dataset contains textual records (e.g., abstracts of scientific
+          papers, newspaper articles) that you want to label in interaction with
+          the AI. Prior knowledge is required to warm up the AI.
         </Typography>
       </Box>
       {!props.isFetchInfoError && (isFetching || props.isFetchingLabeledStats) && (
@@ -111,7 +111,7 @@ const DataForm = (props) => {
                   Dataset <i>{data?.filename}</i> added
                 </React.Fragment>
               }
-              secondaryDefault="Import a dataset or select a dataset available via an extension"
+              secondaryDefault="Import a dataset or select a built-in dataset"
               secondaryAdded={`Contains ${data?.n_rows} records with approximate ${data?.n_duplicates} duplicates`}
               toggleAddCard={props.toggleAddDataset}
             />
@@ -120,7 +120,7 @@ const DataForm = (props) => {
               datasetAdded={props.datasetAdded}
               primaryDefault="Add prior knowledge"
               primaryAdded="Prior knowledge added"
-              secondaryDefault="Select at least 1 relevant and 1 irrelevant record to warm up the AI"
+              secondaryDefault="Label at least 1 relevant and 1 irrelevant record to warm up the AI"
               secondaryAdded={`${props.labeledStats?.n_prior_inclusions} relevant and ${props.labeledStats?.n_prior_exclusions} irrelevant records`}
               toggleAddCard={props.toggleAddPriorKnowledge}
             />
