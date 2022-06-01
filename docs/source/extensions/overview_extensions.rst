@@ -1,134 +1,12 @@
 Extensions
 ==========
 
-ASReview LAB has support for extensions, which are a nice way to extend the
-functionality of the software and the
-:doc:`command line interface <../API/cli>`. There are :ref:`officially
+ASReview has extensive support for extensions. They can extend the
+functionality of :doc:`ASReview LAB <../lab/overview_lab>` and the
+:doc:`Command Line Interface <../API/cli>`. There are :ref:`officially
 supported extensions<extensions-official>` and
-:ref:`community<extensions-community>` contributions.
+:ref:`community<extensions-community>` maintained extensions.
 
-
-.. _extensions-official:
-
-Officially Supported Extensions
--------------------------------
-
-
-The following extensions are officially supported and were developed as part
-of the core project:
-
-
-Model extensions
-~~~~~~~~~~~~~~~~
-
-* Feature Extraction Vocab Extractor
-    - `ASReview-vocab-extractor <https://github.com/asreview/asreview-extension-vocab-extractor>`__:
-      This extension adds two feature extractors that extract vocabulary and
-      vector matrices during simulation phases for research purposes.
-* Feature Extraction Multilingual
-    - `ASReview-multilingual-feature-extractor <https://github.com/asreview/asreview-multilingual-feature-extractor>`__:
-      This extension implements a multilingual feature extractor
-      algorithm to ASReview. This algorithm allows for the usage of records in multiple
-      languages. These languages are:
-
-      Arabic, Chinese, Dutch, English, French, German, Italian, Korean, Polish,
-      Portuguese, Russian, Spanish, Turkish.
-
-
-Subcommand extensions
-~~~~~~~~~~~~~~~~~~~~~
-
-* Visualization
-    - `ASReview-insights <https://github.com/asreview/asreview-insights>`__: Plotting functionality for ASReview files.
-
-* Wordcloud
-    - `ASReview-wordcloud <https://github.com/asreview/asreview-wordcloud>`__: Creates a visual impression of the contents of datasets via a wordcloud.
-
-* Statistics
-    - `ASReview-statistics <https://github.com/asreview/asreview-statistics>`__:
-      Tool to give some basic properties of a dataset, such as number of papers,
-      number of inclusions.
-
-
-* Hyperparameter Optimization
-    - `ASReview-hyperopt <https://github.com/asreview/asreview-hyperopt>`__:
-      Optimize the hyperparameters of the models in ASReview.
-
-
-Dataset extensions
-~~~~~~~~~~~~~~~~~~
-
-
-
-.. _extensions-community:
-
-Community-Maintained Extensions
--------------------------------
-
-ASReview has support for community-maintained extensions, that
-enable you to seamlessly integrate your code with the ASReview framework.
-These extensions can extend the software with new models, subcommands, and
-datasets.
-
-The following extensions are developed and maintained by the
-ASReview community:
-
-
-* ASReview 17 layer CNN classifier
-    - This ASReview extension adds a 17 layer deep convolutional neural network
-      (CNN) model for use in ASReview.
-    - `Github <https://github.com/JTeijema/asreview-plugin-model-cnn-17-layer>`__
-    - `DOI 10.5281/zenodo.5084887 <https://doi.org/10.5281/zenodo.5084887>`__
-
-* ASReview Model Switcher
-    - This extension adds a model that switches between two models during
-      simulation runtime. It can be useful for when later stages of data
-      classification require different models.
-    - `Github <https://github.com/JTeijema/asreview-plugin-model-switcher>`__
-    - `DOI 10.5281/zenodo.5084863 <https://doi.org/10.5281/zenodo.5084863>`__
-
-* ASReview NB + CNN classifier with HPO
-    - This extension adds a model consisting out of two separate classifiers
-      for use during simulation mode. The first *X* amount of iterations
-      (default = 500) are run with a Naïve Bayes model. After the switching,
-      a switch to a CNN is made. Immediately at this switching point, and
-      then after each 150 iterations, hyperparameter optimization is conducted
-      to find the most suitable CNN architecture for current iteration.
-    - `Github <https://github.com/BartJanBoverhof/asreview-cnn-hpo>`__
-    - `DOI 10.5281/zenodo.5482149 <https://doi.org/10.5281/zenodo.5482149>`__
-
-* ASReview Wide Doc2Vec
-    - This small plugin adds a new feature extractor based on doc2vec with a
-      wider vector. In combination with a convolutional neural network model,
-      that has been shown to outperform classical algorithms in some situations.
-    - `Github <https://github.com/JTeijema/asreview-plugin-wide-doc2vec>`__
-    - `DOI 10.5281/zenodo.5084877 <https://doi.org/10.5281/zenodo.5084877>`__
-
-* ASReview matrix and vocabulary extractor for TF-IDF and Doc2Vec
-    - An extension for ASReview that adds a tf-idf extractor that saves the
-      matrix and the vocabulary to pickle and JSON respectively, and a doc2vec
-      extractor that grabs the entire doc2vec model.
-    - `Github <https://github.com/asreview/asreview-extension-vocab-extractor>`__
-
-
-If an extension is not on this list, or you made one and you would like it to
-be added to this list, please initiate an issue on `Github
-<https://github.com/asreview/asreview/issues/new/choose>`__.
-
-
-Misc
-----
-
-Other helpful tools developed by the community not necessarily written in Python.
-
-* xref2csv tool to convert XREF XML files to CSV files required for ASreview
-    - The
-      [XREF2CSV-tool](https://github.com/erikvullings/xref2csv) written in NodeJS
-      converts XREF-XML files to CSV files that can be imported to ASreview.
-
-
-Tools can be suggested to be added to this list via an issue on `Github
-<https://github.com/asreview/asreview/issues/new/choose>`__.
 
 Installation
 ------------
@@ -154,5 +32,35 @@ be done with:
 
 See :ref:`develop-extensions` for information about developing your own
 extension.
+
+
+.. _extensions-official:
+
+Officially Supported Extensions
+-------------------------------
+
+The following extensions are officially supported and maintained. They are developed as part of the core project:
+
+* ASReview Datatools
+    - `ASReview-datatools <https://github.com/asreview/asreview-datatools>`__:
+      Tool for describing, cleaning (input) data, and converting file formats via the command line.
+
+* ASReview Insights
+    - `ASReview-insights <https://github.com/asreview/asreview-insights>`__:
+      Advanced insights to ASReview simulations like performance plots and metrics.
+
+* ASReview Wordcloud
+    - :doc:`extension_wordcloud`: Create wordclouds to visualize the contents of datasets.
+
+
+
+.. _extensions-community:
+
+List of extensions for ASReview LAB
+-----------------------------------
+
+ASReview has extensive support for (community-maintained) extensions. These
+extensions can extend the software with new models, subcommands, and datasets.
+
 
 
