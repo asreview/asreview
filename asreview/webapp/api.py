@@ -44,9 +44,13 @@ from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
 from asreview.io import list_readers
 from asreview.io import list_writers
+from asreview.models.balance import get_balance_model
 from asreview.models.balance import list_balance_strategies
+from asreview.models.classifiers import get_classifier
 from asreview.models.classifiers import list_classifiers
+from asreview.models.feature_extraction import get_feature_model
 from asreview.models.feature_extraction import list_feature_extraction
+from asreview.models.query import get_query_model
 from asreview.models.query import list_query_strategies
 from asreview.project import ASReviewProject
 from asreview.project import ProjectNotFoundError
@@ -915,7 +919,12 @@ def api_set_algorithms(project):  # noqa: F401
         model=ml_model,
         query_strategy=ml_query_strategy,
         balance_strategy=ml_balance_strategy,
-        feature_extraction=ml_feature_extraction)
+        feature_extraction=ml_feature_extraction,
+        model_param=get_classifier(ml_model).param,
+        query_param=get_query_model(ml_query_strategy).param,
+        balance_param=get_balance_model(ml_balance_strategy).param,
+        feature_param=get_feature_model(ml_feature_extraction).param
+    )
 
     # save the new settings to the state file
     with open_state(project.project_path, read_only=False) as state:
