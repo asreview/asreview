@@ -87,7 +87,7 @@ const ModelForm = (props) => {
             fast and excellent performance.{" "}
             <Link
               underline="none"
-              href={`https://asreview.readthedocs.io/en/latest/guides/activelearning.html#active-learning-for-systematic-reviews`}
+              href={`https://asreview.nl/blog/active-learning-explained/`}
               target="_blank"
             >
               Learn more
