@@ -8,7 +8,6 @@ import {
   Divider,
   Fade,
   FormControl,
-  IconButton,
   MenuItem,
   Select,
   Stack,
@@ -18,8 +17,10 @@ import {
 import { styled } from "@mui/material/styles";
 import { ArrowBack } from "@mui/icons-material";
 
+import { InfoCard } from "../../SetupComponents";
 import { InlineErrorHandler } from "../../../Components";
 import { EnoughPriorBanner, PriorUnlabeled } from "../DataComponents";
+import { StyledIconButton } from "../../../StyledComponents/StyledButton";
 import { ProjectAPI } from "../../../api/index.js";
 import { mapStateToProps, projectModes } from "../../../globals.js";
 import { useToggle } from "../../../hooks/useToggle";
@@ -28,7 +29,7 @@ const PREFIX = "PriorRandom";
 
 const classes = {
   recordCard: `${PREFIX}-record-card`,
-  icon: `${PREFIX}-icon`,
+  infoCard: `${PREFIX}-info-card`,
   empty: `${PREFIX}-empty`,
   loading: `${PREFIX}-loading`,
   select: `${PREFIX}-select`,
@@ -43,11 +44,10 @@ const Root = styled("div")(({ theme }) => ({
     overflowY: "scroll",
     padding: "32px 24px",
   },
-  [`& .${classes.icon}`]: {
-    color: theme.palette.text.secondary,
-    [`:hover`]: {
-      backgroundColor: "transparent",
-    },
+
+  [`& .${classes.infoCard}`]: {
+    width: "100%",
+    maxWidth: "400px",
   },
 
   [`& .${classes.empty}`]: {
@@ -146,9 +146,9 @@ const PriorRandom = (props) => {
         >
           <Stack direction="row" sx={{ p: "4px 16px" }}>
             <Tooltip title="Select another way">
-              <IconButton className={classes.icon} onClick={props.toggleRandom}>
+              <StyledIconButton onClick={props.toggleRandom}>
                 <ArrowBack />
-              </IconButton>
+              </StyledIconButton>
             </Tooltip>
             <Stack className={classes.select} direction="row" spacing={1}>
               <Typography sx={{ color: "text.secondary" }}>Show</Typography>
@@ -221,6 +221,9 @@ const PriorRandom = (props) => {
                 aria-label="unlabeled record card"
                 spacing={3}
               >
+                <Box className={classes.infoCard}>
+                  <InfoCard info="Label the record you want to use as prior knowledge" />
+                </Box>
                 {data?.result
                   .filter((record) => record?.included === null)
                   .map((record, index) => (

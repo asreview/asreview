@@ -21,7 +21,7 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Close, Feedback } from "@mui/icons-material";
+import { Close } from "@mui/icons-material";
 
 import { FinishSetup, SavingStateBox } from "../SetupComponents";
 import {
@@ -35,7 +35,6 @@ import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
 
 import { ProjectAPI } from "../../api/index.js";
 import {
-  feedbackURL,
   mapStateToProps,
   mapDispatchToProps,
   projectModes,
@@ -582,15 +581,6 @@ const SetupDialog = (props) => {
                 direction="row"
                 spacing={1}
               >
-                <Tooltip title="Send feedback">
-                  <StyledIconButton
-                    component={"a"}
-                    href={feedbackURL}
-                    target="_blank"
-                  >
-                    <Feedback />
-                  </StyledIconButton>
-                </Tooltip>
                 {activeStep !== 3 && (
                   <Tooltip title="Save and close">
                     <StyledIconButton onClick={handleClose}>
@@ -612,15 +602,6 @@ const SetupDialog = (props) => {
               spacing={1}
               className="dialog-header-button right"
             >
-              <Tooltip title="Send feedback">
-                <StyledIconButton
-                  component={"a"}
-                  href={feedbackURL}
-                  target="_blank"
-                >
-                  <Feedback />
-                </StyledIconButton>
-              </Tooltip>
               <Button disabled={isAddingDataset} onClick={handleDiscardDataset}>
                 Discard Changes
               </Button>
@@ -650,15 +631,6 @@ const SetupDialog = (props) => {
               {labeledStats?.n_prior !== 0 && (
                 <SavingStateBox isSaving={isSavingPriorKnowledge()} />
               )}
-              <Tooltip title="Send feedback">
-                <StyledIconButton
-                  component={"a"}
-                  href={feedbackURL}
-                  target="_blank"
-                >
-                  <Feedback />
-                </StyledIconButton>
-              </Tooltip>
               <Box className="dialog-header-button right">
                 <Button
                   variant={!isEnoughPriorKnowledge() ? "text" : "contained"}
