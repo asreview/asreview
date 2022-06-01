@@ -1239,6 +1239,22 @@ def _get_stats(project):
     }
 
 
+def _get_labels(state_obj, priors=False):
+
+    # get the number of records
+    n_records = state_obj.n_records
+
+    # get the labels
+    labels = state_obj.get_labels(priors=priors).to_list()
+
+    # if less labels than records, fill with 0
+    if len(labels) < n_records:
+        labels += [0] * (n_records - len(labels))
+        labels = pd.Series(labels)
+
+    return labels
+
+
 @bp.route('/projects/<project_id>/progress', methods=["GET"])
 @project_from_id
 def api_get_progress_info(project):  # noqa: F401
@@ -1261,7 +1277,12 @@ def api_get_progress_density(project):
     try:
         # get label history
         with open_state(project.project_path) as s:
-            data = s.get_labels(priors=include_priors)
+
+            if project.config["reviews"][0]["status"] == "finished" \
+                    and project.config["mode"] == PROJECT_MODE_SIMULATE:
+                data = _get_labels(s, priors=include_priors)
+            else:
+                data = s.get_labels(priors=include_priors)
 
         # create a dataset with the rolling mean of every 10 papers
         df = data \
@@ -1320,7 +1341,13 @@ def api_get_progress_recall(project):
 
     try:
         with open_state(project.project_path) as s:
-            data = s.get_labels(priors=include_priors)
+
+            if project.config["reviews"][0]["status"] == "finished" \
+                    and project.config["mode"] == PROJECT_MODE_SIMULATE:
+                data = _get_labels(s, priors=include_priors)
+            else:
+                data = s.get_labels(priors=include_priors)
+
             n_records = len(s.get_record_table())
 
         # create a dataset with the cumulative number of inclusions
