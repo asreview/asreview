@@ -108,4 +108,4 @@ To mount the container to your local project folder (or any other local folder),
 Build a local image
 ~~~~~~~~~~~~~~~~~~~
 
-For more information, see `ASReview LAB GitHub<https://github.com/asreview/asreview/tree/master/docker>`__.
+For more information, see `ASReview LAB GitHub <https://github.com/asreview/asreview/tree/master/docker>`__.

@@ -10,8 +10,8 @@ performed for all studies related to a particular topic.
 It is possible to use your own dataset with unlabeled, :ref:`partly labeled data <partly-labeled-data>`
 (where the labeled records are used for training a model for the unlabeled records),
 or fully labeled records (used for the Simulation mode). For testing and
-demonstrating ASReview (used for the Exploration mode), the software offers
-`Benchmark Datasets`_.
+demonstrating ASReview (used for the Exploration mode), the software offers :ref:`benchmark-datasets
+<benchmark-datasets>`.
 
 .. warning::
 
