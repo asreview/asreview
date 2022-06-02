@@ -2,44 +2,47 @@ Extensions
 ==========
 
 ASReview has extensive support for extensions. They can extend the
-functionality of :doc:`ASReview LAB <../lab/overview_lab>` and the
+functionality of :doc:`ASReview LAB <../lab/overview_lab>`, and the
 :doc:`Command Line Interface <../API/cli>`. There are :ref:`officially
 supported extensions<extensions-official>` and
 :ref:`community<extensions-community>` maintained extensions.
+
+Looking to develop your own extension? See :ref:`develop-extensions` for
+detailed instructions.
 
 
 Installation
 ------------
 
-If an extension is uploaded to PyPI, it can be installed via command line. In
-this example, the `asreview-visualization
-<https://github.com/asreview/ASReview-visualization>`__ extension is used. The
-extension extends ASReview with functionality for creating plots from the
-ASReview file.
+Most extensions are installable from PyPI (the same way ASReview LAB is
+installed) or GitHub. It is preferred to follow the installation instructions
+provided by the extension.
 
-Install the extension with:
+The following example shows the installation of `ASReview Insights
+<https://github.com/asreview/ASReview-insights>`__, an extension for plotting
+and computing metrics for simulations in ASReview.
 
 .. code:: bash
 
     pip install asreview-visualization
 
-If the extension is published on Github, installing directly from the repo can
-be done with:
+Extension (only) published on Github can be installed directly from the
+repository. Replace `{USER_NAME}` and `{REPO_NAME}` by the corresponding
+values of the extension.
 
 .. code:: bash
 
-    pip install git@github.com:{USER_NAME}/{REPO_NAME}.github
-
-See :ref:`develop-extensions` for information about developing your own
-extension.
+    pip install git@github.com:{USER_NAME}/{REPO_NAME}.git
 
 
 .. _extensions-official:
 
-Officially Supported Extensions
--------------------------------
+Supported Extensions
+--------------------
 
-The following extensions are officially supported and maintained. They are developed as part of the core project:
+The following extensions are officially supported and maintained by the
+maintainers of ASReview LAB. They are extensively tested and integrate well
+with ASReview LAB.
 
 * ASReview Datatools
     - `ASReview-datatools <https://github.com/asreview/asreview-datatools>`__:
@@ -50,7 +53,7 @@ The following extensions are officially supported and maintained. They are devel
       Advanced insights to ASReview simulations like performance plots and metrics.
 
 * ASReview Wordcloud
-    - :doc:`extension_wordcloud`: Create wordclouds to visualize the contents of datasets.
+    - `ASReview-wordcloud <https://github.com/asreview/asreview-wordcloud>`__: Create wordclouds to visualize the contents of datasets.
 
 
 
@@ -59,8 +62,7 @@ The following extensions are officially supported and maintained. They are devel
 List of extensions for ASReview LAB
 -----------------------------------
 
-ASReview has extensive support for (community-maintained) extensions. These
-extensions can extend the software with new models, subcommands, and datasets.
-
-
-
+The `List of extensions for ASReview LAB <>`__ on the Discussion platform
+gives an overview of known extensions to ASReview LAB and other useful tools
+in the AI-aided systematic review pipeline. These extensions can extend the
+software with new models, subcommands, and datasets.
