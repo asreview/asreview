@@ -70,10 +70,6 @@ const FinishSetup = (props) => {
     });
   };
 
-  const videoOnReady = (event) => {
-    event.target.pauseVideo();
-  };
-
   return (
     <Root>
       <Stack spacing={3}>
@@ -106,10 +102,9 @@ const FinishSetup = (props) => {
               height: "315",
               width: "560",
               playerVars: {
-                autoplay: 1,
+                rel: 0,
               },
             }}
-            onReady={videoOnReady}
           />
         )}
         {!props.isStartTrainingError &&
