@@ -125,7 +125,7 @@ const ReviewPage = (props) => {
   const showUndoBarIfNeeded = (label, initial) => {
     if (props.undoEnabled) {
       const mark = label === 0 ? "irrelevant" : "relevant";
-      const message = initial ? `Labeled as ${mark}` : "Changes saved";
+      const message = initial ? `Label saved as ${mark}` : "Changes saved";
       showUndoBar(message);
     }
   };
