@@ -97,9 +97,9 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
 
     API/cli
 
-    API/asreview_file
-
     API/example_api_simulation
+
+    API/example_api_asreview_file
 
     API/extension_dev
 
