@@ -62,7 +62,7 @@ with ASReview LAB.
 List of extensions for ASReview LAB
 -----------------------------------
 
-The `List of extensions for ASReview LAB <>`__ on the Discussion platform
+The `List of extensions for ASReview LAB <https://github.com/asreview/asreview/discussions/1140>`__ on the Discussion platform
 gives an overview of known extensions to ASReview LAB and other useful tools
 in the AI-aided systematic review pipeline. These extensions can extend the
 software with new models, subcommands, and datasets.
