@@ -18,7 +18,7 @@ import {
   projectStatuses,
 } from "../../globals.js";
 
-const YouTubeVideoID = "gBmDJ1pdPR0";
+const YouTubeVideoID = "k-a2SCq-LtA";
 
 const PREFIX = "FinishSetup";
 
