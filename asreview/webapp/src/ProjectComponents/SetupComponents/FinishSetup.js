@@ -112,8 +112,18 @@ const FinishSetup = (props) => {
           !props.trainingFinished && (
             <Stack className={classes.root} spacing={1}>
               <TypographySubtitle1Medium>
-                Preparing your project
+                Warming up the AI
               </TypographySubtitle1Medium>
+              <Typography
+                 variant="body2"
+                 sx={{ color: "text.secondary" }}
+               >
+                      While we warm up the AI, you can learn more about 
+                      the workings of ASReview LAB by watching the video. 
+                      Meanwhile, we initialize the project file, 
+                      extract the features, and run the classifier 
+                      with the selected prior knowledge.
+               </Typography>
               <ReactLoading
                 type="bubbles"
                 color={theme.palette.primary.main}
@@ -128,7 +138,7 @@ const FinishSetup = (props) => {
               <Fade in>
                 <Stack spacing={3} className={classes.root}>
                   <TypographySubtitle1Medium>
-                    Your project is ready
+                    Your project has been initiated
                   </TypographySubtitle1Medium>
                   <Button onClick={onClickCloseSetup}>Start Reviewing</Button>
                 </Stack>
