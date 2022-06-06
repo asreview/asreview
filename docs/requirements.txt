@@ -1,3 +1,4 @@
+ipython
 sphinx-reredirects
 sphinx
 sphinx_rtd_theme
