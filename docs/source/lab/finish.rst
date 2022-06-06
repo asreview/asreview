@@ -1,5 +1,5 @@
-Post-Screening
-==============
+Progress and finish screening
+=============================
 
 After you decide to `stop screening <https://github.com/asreview/asreview/discussions/557>`_
 or anytime you want to take a break, you can

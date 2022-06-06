@@ -6,55 +6,80 @@ What is ASReview LAB?
 
 ASReview LAB is an open source machine learning tool for screening and
 labeling large collection of data in a systematic way. It's sometimes refered
-as a tool for title and abstract screening in systematic reviews.
+as a tool for title and abstract screening in systematic reviews. ASReview LAB
+is one of the products of the ASReview research project.
 
-ASReview LAB is one of the products of the ASReview research project.
+Artificial Intelligence (AI) and machine learning has allowed the development
+of AI-aided pipelines that assist in finding relevant texts for search tasks.
+A well-established approach to increase the efficiency of title and abstract
+screening is screening prioritization through `Active Learning
+<https://asreview.nl/blog/active-learning-explained/>`_: a constant
+interaction between a human who labels records and a machine learning model
+which selects the most likely relevant record based on a minimum training
+dataset. It allows the screening of large amounts of text in an intelligent
+and time-efficient manner. ASReview LAB, published in Nature Machine
+Intelligence, has shown the benefits of active learning, `reducing up to 95%
+<https://www.nature.com/articles/s42256-020-00287-7>`_ of the required
+screening time.
 
+Labeling workflow with ASReview
+-------------------------------
 
-
-With the emergence of online publishing, the number of scientific papers and
-policy reports on any topic is skyrocketing. Simultaneously, the public press
-and social media also produce data by the second. Suppose you are writing a
-systematic review or meta-analysis, updating a medical guideline, developing
-evidence-based policy, or scouting for new technologies. In that case, you
-need to systematically search for potentially relevant documents to provide a
-comprehensive overview. To achieve this, you have to search and screen
-thousands of studies by hand for inclusion. This process is an extremely
-imbalanced data problem because truly relevant papers are very sparse.
-Moreover, there isn't enough time to read everything in the tsunami of new
-knowledge.
-
-Artificial Intelligence (AI) has allowed the development of AI-aided pipelines
-that assist in finding relevant texts for search tasks. A well-established
-approach to increase the efficiency of title and abstract screening is
-screening prioritization through `active learning <https://asreview.nl/blog/active-learning-explained/>`_: a constant interaction between a
-human who labels records and a machine learning model which selects the
-most likely relevant record based on a minimum training dataset. It allows
-the screening of large amounts of text in an intelligent and time-efficient
-manner. Studies have shown the benefits of active learning, `reducing up to 95% <https://www.nature.com/articles/s42256-020-00287-7>`_
-of the required screening time.
+Start and finish a systematic labeling process with ASReview LAB by following these steps:
 
 
-A `multidisciplinary team <https://asreview.nl/about/>`_ works on the
-ASReview-project. The scientifically oriented project contains a collection
-of `Github repositories <https://github.com/asreview>`_, `scientific research <https://asreview.nl/research/>`_
-projects and `teaching activities <https://asreview.nl/academy/>`_.
-The team has developed and validated the open-source software
-ASReview LAB which is based on `five fundamental principles <https://asreview.nl/blog/the-zen-of-elas/>`_ : (1) Humans are the Oracle; (2) Code is
-open & results are transparent; (3) Decisions are unbiased; (4) The interface shows an
-AI is at work; and (5) Users are responsible for importing high quality data.
-
-The goal of ASReview LAB is to help scholars and practitioners to get an
-overview of the most relevant records for their work as efficiently as
-possible while being transparent in the process. It allows multiple machine
-learning models, and ships with exploration and `simulation modes <https://asreview.nl/blog/simulation-mode-class-101/>`_, which are especially
-useful for comparing and designing algorithms. Furthermore, it is intended to
-be easily extensible, allowing third parties to add modules that enhance the
-pipeline with new models, data, and other extensions.
+1. Create a dataset with potentially relevant records you want to systematically screen. Improve the quality of the data and specify clear reviewing (inclusion/exclusion) criteria)
+2. Specify a stopping rule
+3. Open ASReview LAB
+4. Create a new project
+5. Upload your data
+6. Specify prior knowledge
+7. Select the four components of the active learning model
+8. Wait for the warming up of the AI (the software is extracting the features and runs the classifier with the prior knowledge)
+9. Start labeling until you reach your stopping criteria
+10. Export your data and the project file
 
 
-.. figure:: ../../images/FlowChartC.png
-   :alt: AI-aided Pipeline
+Quick start
+-----------
+
+1. Check if Python 3.7 or later is installed (if not, install Python)
+
+.. code:: bash
+
+  python --version
+
+2. Install ASReview LAB
+
+.. code:: bash
+
+  pip install asreview
+
+3. Open ASReview LAB
+
+.. code:: bash
+
+  asreview lab
+
+4. Click Create to create a project.
+
+5. Select a mode (Oracle, Exploration, Simulation)
+
+6. Name the project, and if you want, add an author name(s) and type a description.
+
+7. **Import a dataset** you want to review, or select a benchmark dataset (only available for **Exploration** and **Simulation**).
+
+8. **Add prior knowledge**. Select at least 1 relevant and 1 irrelevant record to warm up the AI. You can search for a specific record or request random records.
+
+9. Select the four components of the active learning model, or rely on the default settings that have shown fast and excellent performance in many simulation studies.
+
+10. ASReview LAB starts extracting the features and runs the classifier with the prior knowledge.
+
+You’re ready to start labeling your data! All your labeling actions are
+automatically saved, so there is no need to click the save button (we don’t
+even have one).
+
+
 
 ASReview LAB terminology
 ------------------------
@@ -78,15 +103,6 @@ encounter as you use ASReview LAB.
   ASReview CLI
     ASReview CLI is the command line interface that is developed for advanced
     options or for running simulation studies.
-
-  ASReview LAB
-    ASReview LAB is the open-source research software to explore the future
-    of AI in systematic reviews.
-
-  ASReview research
-    ASReview research is the fundamental and applied research work to
-    explore the future of AI in systematic reviewing. The research is
-    conducted by the research team, partners, and contributors.
 
   Data
     Data includes :term:`dataset`, prior knowledge, labels, and

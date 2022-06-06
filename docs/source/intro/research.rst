@@ -6,6 +6,10 @@ research project. The ASReview research project is a fundamental research
 project studying the application of AI in the field of systematic reviews. In
 short, ASReview LAB is written by researchers for researchers.
 
+ASReview research is the fundamental and applied research work to
+explore the future of AI in systematic reviewing. The research is
+conducted by the research team, partners, and contributors.
+
 Every decision made by the team aligns with the `five fundamental principles
 of ASReview <https://asreview.nl/blog/the-zen-of-elas/>`_: (1) Humans are the
 Oracle; (2) Code is open & results are transparent; (3) Decisions are

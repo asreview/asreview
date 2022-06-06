@@ -8,7 +8,7 @@ reviews. Three modes are implemented as follows:
 
 - In :doc:`../lab/oracle`, you can review your dataset with interactive artificial
   intelligence (AI).
-- In :doc:`../lab/exploration`, you can explore or demonstrate ASReview LAB with a
+- In Exploration mode, you can explore or demonstrate ASReview LAB with a
   completely labeled dataset. This mode is suitable for teaching purposes.
 - In :doc:`simulation_overview`, you can simulate a review on a completely labeled dataset
   to see the performance of ASReview LAB.
@@ -67,11 +67,9 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
     :maxdepth: 1
     :caption: Labeling and Projects
 
-    lab/launch
+    lab/project_create
 
     lab/oracle
-
-    lab/exploration
 
     lab/finish
 

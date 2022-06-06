@@ -26,11 +26,11 @@ available interfaces for interacting with the ASReview software:
     - ASReview is currently in development. For information on ASReview CLOUD,
       be sure visit our communication channels.
 
-* Layer 4: :doc:`ASReview LAB <../lab/launch>`
+* Layer 4: :doc:`ASReview LAB <../lab/project_create>`
 
     - ASReview LAB is the user friendly webapp and all underlying
       interfaces. Documentation on LAB
-      can be found in the :doc:`ASReview LAB section <../lab/launch>`.
+      can be found in the :doc:`ASReview LAB section <../lab/project_create>`.
 
 * Layer 3: REST API
 
@@ -51,7 +51,7 @@ available interfaces for interacting with the ASReview software:
       This reference contains extensive documentation on all functions, classes,
       and modules found in ASReview.
 
-    - An outline for usage can be found in :doc:`../guides/api`.
+    - An outline for usage can be found in :doc:`../simulation_api_example` and :doc:`../API/example_api_asreview_file`.
 
 Extensions
 ----------
