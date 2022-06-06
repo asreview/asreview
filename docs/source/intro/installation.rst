@@ -4,10 +4,10 @@ Installation
 Install ASReview
 ----------------
 
-ASReview software requires having Python 3.7 or higher installed. Detailed
+ASReview software requires an installation of Python 3.7 or later. Detailed
 step-by-step instructions to install Python (and ASReview) are available for
 `Windows <https://asreview.nl/download>`__ and
-`MacOS <https://asreview.nl/download/>`__ users.
+`macOS/Linux <https://asreview.nl/download/>`__ users.
 
 Install the ASReview software with Pip by running the following command in the
 `CMD.exe` (Windows) or `Terminal` (MacOS/Linux):

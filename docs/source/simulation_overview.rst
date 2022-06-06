@@ -16,7 +16,7 @@ datasets to see how much time is saved by using ASReview.
 Datasets for simulation
 -----------------------
 
-Simulations require :ref:`fully labeled datasets <intro/data_labeled:fully labeled data>`. Such a dataset can be the result of an earlier study. ASReview offers also fully labeled datasets via the `benchmark platform <https://github.com/asreview/systematic-review-datasets>`_. These datasets are available in the webapp in the Data step and in the command line with the prefix `benchmark:` (e.g. `benchmark:van_de_schoot_2017`).
+Simulations require :ref:`fully labeled datasets <intro/data_labeled:fully labeled data>` (labels: ``0`` = irrelevant, ``1`` = relevant). Such a dataset can be the result of an earlier study. ASReview offers also fully labeled datasets via the `benchmark platform <https://github.com/asreview/systematic-review-datasets>`_. These datasets are available in the webapp in the Data step and in the command line with the prefix `benchmark:` (e.g. `benchmark:van_de_schoot_2017`).
 
 
 Simulating with ASReview LAB
