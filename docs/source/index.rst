@@ -6,7 +6,7 @@ Welcome to the ASReview LAB Documentation!
 ASReview LAB is a user-friendly software for exploring the future of AI in systematic
 reviews. Three modes are implemented as follows:
 
-- In :doc:`../lab/oracle`, you can review your dataset with interactive artificial
+- In :doc:`oracle`, you can review your dataset with interactive artificial
   intelligence (AI).
 - In Exploration mode, you can explore or demonstrate ASReview LAB with a
   completely labeled dataset. This mode is suitable for teaching purposes.
@@ -35,47 +35,47 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
 .. toctree::
     :maxdepth: 1
 
-    intro/about
+    about
 
-    intro/research
+    research
 
-    intro/contribute
+    contribute
 
 .. toctree::
     :maxdepth: 1
     :caption: Install & Upgrade
 
-    intro/installation
+    installation
 
-    intro/start
+    start
 
-    intro/troubleshooting
+    troubleshooting
 
 
 .. toctree::
     :maxdepth: 1
     :caption: Data
 
-    intro/datasets
+    data
 
-    intro/data_format
+    data_format
 
-    intro/data_labeled.rst
+    data_labeled
 
 
 .. toctree::
     :maxdepth: 1
     :caption: Labeling and Projects
 
-    lab/project_create
+    project_create
 
-    lab/oracle
+    oracle
 
-    lab/finish
+    finish
 
-    lab/manage
+    manage
 
-    extensions/overview_extensions
+    extensions_overview
 
 .. toctree::
     :maxdepth: 1
@@ -91,15 +91,15 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
     :maxdepth: 1
     :caption: Development
 
-    API/overview_development
+    overview_development
 
-    API/cli
+    cli
 
-    API/example_api_asreview_file
+    example_api_asreview_file
 
-    API/extension_dev
+    extensions_dev
 
-    API/reference
+    reference
 
 
 Indices and tables

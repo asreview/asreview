@@ -34,14 +34,14 @@ inspection
 Datasets for simulation
 -----------------------
 
-Simulations require :ref:`fully labeled datasets <intro/data_labeled:fully labeled data>` (labels: ``0`` = irrelevant, ``1`` = relevant). Such a dataset can be the result of an earlier study. ASReview offers also fully labeled datasets via the `benchmark platform <https://github.com/asreview/systematic-review-datasets>`_. These datasets are available via the user interface in the *Data* step of the setup and in the command line with the prefix `benchmark:` (e.g. `benchmark:van_de_schoot_2017`).
+Simulations require :ref:`fully labeled datasets <data_labeled:fully labeled data>` (labels: ``0`` = irrelevant, ``1`` = relevant). Such a dataset can be the result of an earlier study. ASReview offers also fully labeled datasets via the `benchmark platform <https://github.com/asreview/systematic-review-datasets>`_. These datasets are available via the user interface in the *Data* step of the setup and in the command line with the prefix `benchmark:` (e.g. `benchmark:van_de_schoot_2017`).
 
 .. warning::
 
     When you import your data, make sure to remove duplicates and to retrieve
     as many abstracts as possible (`See Importance-of-abstracts blog for help
     <https://asreview.nl/blog/the-importance-of-abstracts/>`_). With clean data you
-    benefit most from what :doc:`active learning <intro/about>`
+    benefit most from what :doc:`active learning <about>`
     has to offer.
 
 Simulating with ASReview LAB
@@ -57,7 +57,7 @@ Simulate with webapp
 --------------------
 
 To run a simulation in the ASReview webapp, create a project as described in
-:doc:`lab/project_create`. Most of the steps of the setup are identical or
+:doc:`project_create`. Most of the steps of the setup are identical or
 straightworward. In this section, some of the differences are highlighted.
 
 In the step on *Project Information*, select the "Simulation"
@@ -66,7 +66,7 @@ mode (see figure below).
 .. figure:: ../images/setup_project_info_simulate.png
    :alt: ASReview LAB simulate option
 
-In the step *Data*, import a :ref:`fully labeled dataset <intro/data_labeled:fully labeled data>`
+In the step *Data*, import a :ref:`fully labeled dataset <data_labeled:fully labeled data>`
 or use one of the benchmark datasets.
 
 .. figure:: ../images/setup_datasets_simulate_benchmark.png
@@ -100,7 +100,7 @@ Analyzing results
 
 After a simulation, the results are stored in the ASReview project file
 (extension `.asreview`). This file contains a large number of variables and
-logs on the simulation. The data can be extracted from the project file via the API or with one of the available extensions. See :doc:`these examples on the Project API <API/example_api_asreview_file>` for more information about opening the project file. An easier solution would be to use one of the extensions. ASReview Insights is a useful example.
+logs on the simulation. The data can be extracted from the project file via the API or with one of the available extensions. See :doc:`these examples on the Project API <example_api_asreview_file>` for more information about opening the project file. An easier solution would be to use one of the extensions. ASReview Insights is a useful example.
 
 The extension `ASReview Insights <https://github.com/asreview/asreview-insights>`_ offers useful tools, like plotting functions and metrics, to analyze results of a simulation.
 

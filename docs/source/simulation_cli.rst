@@ -23,14 +23,14 @@ filename you prefer.
 
 .. note::
 
-	For instructions on preparing your fully labeled data, see :doc:`intro/datasets`.
+	For instructions on preparing your fully labeled data, see :doc:`data`.
 
 Simulation options
 ------------------
 
 ASReview LAB provides an extensive simulation interface via the command line.
 An overview of the options are found on the :ref:`ASReview command line
-interface for simulation <API/cli:Simulate>` page. This section highlights
+interface for simulation <cli:Simulate>` page. This section highlights
 some of the most used options. When no additional arguments are specified in
 the ``asreview simulate`` command, default settings are used.
 
