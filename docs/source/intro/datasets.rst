@@ -15,10 +15,11 @@ demonstrating ASReview (used for the Exploration mode), the software offers :ref
 
 .. warning::
 
-    If you upload your own data, make sure to remove duplicates and to
-    retrieve  as many abstracts as possible (`don't know how?
+    When you import your data, make sure to remove duplicates and to retrieve
+    as many abstracts as possible (`See Importance-of-abstracts blog for help
     <https://asreview.nl/blog/the-importance-of-abstracts/>`_). With clean data you
-    benefit most from what active learning has to offer.
+    benefit most from what :doc:`active learning <intro/about>`
+    has to offer.
 
 
 

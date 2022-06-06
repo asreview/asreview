@@ -22,10 +22,17 @@ Start the application with the following command (in CMD.exe or Terminal):
 
     asreview lab
 
-You are now ready to start your first Automated Systematic Review!
+The ASReview LAB software starts in the browser. For more options on starting ASReview LAB, see :doc:`start`.
 
-See :doc:`../intro/troubleshooting` for common problems during installation.
+.. note::
 
+    See :doc:`../intro/troubleshooting` for common problems during installation.
+
+.. note::
+
+    For users with Apple M1 computers, if you experience problems, follow the
+    `instructions
+    <https://github.com/asreview/asreview/issues/738#issuecomment-919685562>`__.
 
 
 Upgrade ASReview

@@ -16,8 +16,15 @@ datasets to see how much time is saved by using ASReview.
 Datasets for simulation
 -----------------------
 
-Simulations require :ref:`fully labeled datasets <intro/data_labeled:fully labeled data>` (labels: ``0`` = irrelevant, ``1`` = relevant). Such a dataset can be the result of an earlier study. ASReview offers also fully labeled datasets via the `benchmark platform <https://github.com/asreview/systematic-review-datasets>`_. These datasets are available in the webapp in the Data step and in the command line with the prefix `benchmark:` (e.g. `benchmark:van_de_schoot_2017`).
+Simulations require :ref:`fully labeled datasets <intro/data_labeled:fully labeled data>` (labels: ``0`` = irrelevant, ``1`` = relevant). Such a dataset can be the result of an earlier study. ASReview offers also fully labeled datasets via the `benchmark platform <https://github.com/asreview/systematic-review-datasets>`_. These datasets are available via the user interface in the *Data* step of the setup and in the command line with the prefix `benchmark:` (e.g. `benchmark:van_de_schoot_2017`).
 
+.. warning::
+
+    When you import your data, make sure to remove duplicates and to retrieve
+    as many abstracts as possible (`See Importance-of-abstracts blog for help
+    <https://asreview.nl/blog/the-importance-of-abstracts/>`_). With clean data you
+    benefit most from what :doc:`active learning <intro/about>`
+    has to offer.
 
 Simulating with ASReview LAB
 ----------------------------
@@ -63,11 +70,11 @@ the Analytics page.
 .. figure:: ../images/setup_warmup_simulate_background.png
    :alt: ASReview LAB simulation runs in background
 
-This page now has a refresh button on the top right. If
-the simulation is not finished yet, you can refresh the page or use the
-refresh button to follow the progress. After a while, the Elas mascotte on the
-left will hold a sign finished. Your simulation is now finished and you can
-study the results in the analytics page.
+This page now has a refresh button on the top right. If the simulation is not
+finished yet, you can refresh the page or use the refresh button to follow the
+progress. After a while, the Elas mascotte on the left will hold a sign with
+"finished". Your simulation is now finished and you can study the results in
+the analytics page.
 
 
 Analyzing results
