@@ -66,8 +66,8 @@ Available datasets
    asreview.datasets.BenchmarkDataGroup
    asreview.datasets.NaturePublicationDataGroup
 
-Utils
-~~~~~
+Dataset managers
+~~~~~~~~~~~~~~~~
 
 .. autosummary::
    :nosignatures:
@@ -363,10 +363,6 @@ This module contains the input and output functionality. You can install them as
 
 Misc
 ====
-
-.. automodule:: asreview
-   :no-members:
-   :no-inherited-members:
 
 .. currentmodule:: asreview
 
