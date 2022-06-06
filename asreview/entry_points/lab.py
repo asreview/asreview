@@ -82,7 +82,9 @@ def _lab_parser(prog="lab"):
 
 
 class LABEntryPoint(BaseEntryPoint):
-    description = "Graphical user interface for ASReview."
+    """Entry point to start the ASReview LAB webapp."""
+
+    description = "The ASReview LAB webapp."
 
     def execute(self, argv):
 
