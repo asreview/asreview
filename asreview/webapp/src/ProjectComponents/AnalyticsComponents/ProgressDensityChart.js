@@ -15,10 +15,10 @@ import { HelpOutline } from "@mui/icons-material";
 import { CardErrorHandler } from "../../Components";
 import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
 
-import tooltipRelevantLight from "../../images/progress_density_relevant_light.png";
-import tooltipRelevantDark from "../../images/progress_density_relevant_dark.png";
-import tooltipIrrelevantLight from "../../images/progress_density_irrelevant_light.png";
-import tooltipIrrelevantDark from "../../images/progress_density_irrelevant_dark.png";
+import tooltipRelevantLight from "../../images/progress_relevant_light.png";
+import tooltipRelevantDark from "../../images/progress_relevant_dark.png";
+import tooltipIrrelevantLight from "../../images/progress_irrelevant_light.png";
+import tooltipIrrelevantDark from "../../images/progress_irrelevant_dark.png";
 
 import "./AnalyticsPage.css";
 
@@ -30,9 +30,8 @@ const classes = {
   tooltipCardColor: `${PREFIX}-tooltip-card-color`,
   tooltipLabelContainer: `${PREFIX}-tooltip-label-container`,
   tooltipLabelMarkerRelevantColor: `${PREFIX}-tooltip-label-marker-relevant-color`,
-  tooltipLabelMarkerIrrelevantColor: `${PREFIX}-tooltip-label-marker-irrelevant-color`,
   tooltipLabelRelevantNumber: `${PREFIX}-tooltip-label-relevant-number`,
-  tooltipLabelIrrelevantNumber: `${PREFIX}-tooltip-label-irrelevant-number`,
+  tooltipLabelTextSecondaryColor: `${PREFIX}-tooltip-label-text-secondary-color`,
 };
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -74,11 +73,6 @@ const StyledCard = styled(Card)(({ theme }) => ({
     }),
   },
 
-  [`& .${classes.tooltipLabelMarkerIrrelevantColor}`]: {
-    color: "#CED4DC",
-    background: "#CED4DC",
-  },
-
   [`& .${classes.tooltipLabelRelevantNumber}`]: {
     marginLeft: 20,
     ...(theme.palette.mode === "dark" && {
@@ -86,28 +80,10 @@ const StyledCard = styled(Card)(({ theme }) => ({
     }),
   },
 
-  [`& .${classes.tooltipLabelIrrelevantNumber}`]: {
-    marginLeft: 20,
-    ...(theme.palette.mode === "dark" && {
-      color: "#CED4DC",
-    }),
+  [`& .${classes.tooltipLabelTextSecondaryColor}`]: {
+    color: theme.palette.text.secondary,
   },
 }));
-
-function ordinal_suffix_of(i) {
-  var j = i % 10,
-    k = i % 100;
-  if (j === 1 && k !== 11) {
-    return i + "st";
-  }
-  if (j === 2 && k !== 12) {
-    return i + "nd";
-  }
-  if (j === 3 && k !== 13) {
-    return i + "rd";
-  }
-  return i + "th";
-}
 
 const StyledTooltip = styled(({ className, ...props }) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -122,39 +98,29 @@ const StyledTooltip = styled(({ className, ...props }) => (
 }));
 
 const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
-  let from = ordinal_suffix_of(Math.max(dataPointIndex - 8, 1));
-  let to = ordinal_suffix_of(dataPointIndex + 1);
+  let total = dataPointIndex + 1;
   return (
     `<div class="tooltip-card ProgressDensityChart-tooltip-card-color">` +
     '<div class="tooltip-card-content">' +
-    '<h6 class="tooltip-title" style="margin-bottom: 8px;">' +
-    from +
-    ` to ` +
-    to +
+    '<h6 class="tooltip-title">' +
+    total +
     ` reviewed records` +
     "</h6>" +
     `<div class="ProgressDensityChart-tooltip-label-container">` +
     "<div>" +
+    "<div>" +
     `<span class="apexcharts-legend-marker tooltip-label-marker ProgressDensityChart-tooltip-label-marker-relevant-color">` +
     "</span>" +
     `<span class="apexcharts-legend-text tooltip-label-text">` +
-    "Relevant records" +
+    "Relevant in last 10 reviewed" +
     "</span>" +
+    "</div>" +
+    `<p class="tooltip-label-text-secondary ProgressDensityChart-tooltip-label-text-secondary-color">` +
+    "Relevant records that you labeled in the last 10 reviewed" +
+    "</p>" +
     "</div>" +
     `<h6 class="tooltip-label-number ProgressDensityChart-tooltip-label-relevant-number">` +
     series[0][dataPointIndex] +
-    "</h6>" +
-    "</div>" +
-    `<div class="ProgressDensityChart-tooltip-label-container">` +
-    "<div>" +
-    `<span class="apexcharts-legend-marker tooltip-label-marker ProgressDensityChart-tooltip-label-marker-irrelevant-color">` +
-    "</span>" +
-    `<span class="apexcharts-legend-text tooltip-label-text">` +
-    "Irrelevant records" +
-    "</span>" +
-    "</div>" +
-    `<h6 class="tooltip-label-number ProgressDensityChart-tooltip-label-irrelevant-number">` +
-    series[1][dataPointIndex] +
     "</h6>" +
     "</div>" +
     "</div>" +
@@ -192,10 +158,6 @@ export default function ProgressDensityChart(props) {
         {
           name: "Relevant records",
           data: props.progressDensityQuery.data?.relevant,
-        },
-        {
-          name: "Irrelevant records",
-          data: props.progressDensityQuery.data?.irrelevant,
         },
       ];
     } else {
@@ -273,9 +235,13 @@ export default function ProgressDensityChart(props) {
         custom: customTooltip,
       },
       xaxis: {
+        decimalsInFloat: 0,
+        title: {
+          text: "Number of reviewed records",
+        },
         type: "numeric",
         labels: {
-          show: false,
+          show: true,
         },
         axisTicks: {
           show: false,
@@ -286,10 +252,12 @@ export default function ProgressDensityChart(props) {
       },
       yaxis: {
         showAlways: false,
-        opposite: true,
         max: 10,
         min: 0,
         tickAmount: 3,
+        title: {
+          text: "Number of relevant records",
+        },
       },
     };
   }, [theme, props.mobileScreen]);
@@ -339,8 +307,8 @@ export default function ProgressDensityChart(props) {
                                 variant="body2"
                                 sx={{ color: "text.secondary" }}
                               >
-                                Relevant records still appear. Continue reviewing to
-                                discover more.
+                                Relevant records still appear. Continue
+                                reviewing to discover more.
                               </Typography>
                             </Box>
                           </Stack>
@@ -383,7 +351,7 @@ export default function ProgressDensityChart(props) {
             options={options}
             series={series}
             type="area"
-            height={200}
+            height={230}
             width="100%"
           />
         </Stack>

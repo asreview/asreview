@@ -232,6 +232,8 @@ class ReviewSimulate(BaseReview):
         """Train a new model on the labeled data."""
         # Check if both labels are available is done in init for simulation.
         # Use the balance model to sample the trainings data.
+        new_training_set = len(self.labeled)
+
         y_sample_input = pd.DataFrame(self.record_table). \
             merge(self.labeled, how='left', on='record_id'). \
             loc[:, 'label']. \
@@ -256,6 +258,8 @@ class ReviewSimulate(BaseReview):
             pd.concat([pd.Series(ranked_record_ids),
                       pd.Series(range(len(ranked_record_ids)))], axis=1)
         self.last_ranking.columns = ['record_id', 'label']
+
+        self.training_set = new_training_set
 
     def _query(self, n):
         """In simulation mode, the query function should get the n highest

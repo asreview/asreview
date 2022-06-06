@@ -80,7 +80,7 @@ const AddDataset = (props) => {
                 : ""}
               To optimally benefit from the performance of the active learning
               model, it is highly recommended to add a dataset without duplicate
-              records.{" "}
+              records and complete records.{" "}
               <Link
                 underline="none"
                 href="https://asreview.readthedocs.io/en/latest/intro/datasets.html"
@@ -92,11 +92,10 @@ const AddDataset = (props) => {
           )}
           {props.datasetSource === "extension" && (
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              ASReview dataset extensions provide collections of latest
-              scientific datasets on a specific topic.{" "}
+              Select a dataset from an extension.{" "}
               <Link
                 underline="none"
-                href="https://asreview.readthedocs.io/en/latest/extensions/extension_covid19.html"
+                href="https://asreview.readthedocs.io/en/latest/extensions/overview_extensions.html"
                 target="_blank"
               >
                 Learn more
@@ -105,11 +104,12 @@ const AddDataset = (props) => {
           )}
           {props.datasetSource === "benchmark" && (
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              The benchmark datasets were manually labeled and used to explore
-              the performance of active learning models.{" "}
+              The benchmark datasets were manually labeled and can be used to
+              explore or demonstrate ASReview LAB. You can donate your dataset
+              to the benchmark platform.{" "}
               <Link
                 underline="none"
-                href="https://asreview.readthedocs.io/en/latest/lab/exploration.html"
+                href="https://github.com/asreview/systematic-review-datasets"
                 target="_blank"
               >
                 Learn more

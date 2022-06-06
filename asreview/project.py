@@ -200,6 +200,7 @@ def open_state(asreview_obj, review_id=None, read_only=True):
 
 
 class ASReviewProject():
+    """Project class for ASReview project files."""
 
     def __init__(self, project_path, project_id=None):
         self.project_path = Path(project_path)

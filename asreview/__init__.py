@@ -12,14 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.data import ASReviewData
+from asreview.data.base import ASReviewData
+from asreview.data.base import load_data
+from asreview.io.utils import list_readers
+from asreview.io.utils import list_writers
 from asreview.models.feature_extraction.embedding_lstm import load_embedding
 from asreview.models.feature_extraction.embedding_lstm import sample_embedding
 from asreview.models.feature_extraction.embedding_lstm import text_to_features
 from asreview.project import ASReviewProject
 from asreview.project import open_state
+from asreview.utils import asreview_path
+from asreview.utils import get_data_home
 
 from ._version import get_versions
 
 __version__ = get_versions()['version']
 del get_versions
+
+__all__ = [
+    'asreview_path',
+    'ASReviewData',
+    'ASReviewProject',
+    'get_data_home',
+    'list_readers',
+    'list_writers',
+    'open_state'
+]

@@ -47,8 +47,6 @@ class BaseReview(ABC):
         be already labeled. Failing to do so might result bad behaviour.
     """
 
-    name = "base"
-
     def __init__(
         self,
         as_data,
@@ -140,8 +138,7 @@ class BaseReview(ABC):
             extra_kwargs['n_prior_included'] = self.n_prior_included
         if hasattr(self, 'n_prior_excluded'):
             extra_kwargs['n_prior_excluded'] = self.n_prior_excluded
-        return ASReviewSettings(mode=self.name,
-                                model=self.classifier.name,
+        return ASReviewSettings(model=self.classifier.name,
                                 query_strategy=self.query_strategy.name,
                                 balance_strategy=self.balance_model.name,
                                 feature_extraction=self.feature_extraction.name,

@@ -79,7 +79,6 @@ class ASReviewSettings(object):
     of its contents.
     """
     def __init__(self,
-                 mode,
                  model,
                  query_strategy,
                  balance_strategy,
@@ -88,7 +87,6 @@ class ASReviewSettings(object):
                  stop_if=None,
                  n_prior_included=None,
                  n_prior_excluded=None,
-                 abstract_only=False,
                  as_data=None,
                  model_param={},
                  query_param={},
@@ -96,11 +94,12 @@ class ASReviewSettings(object):
                  feature_param={},
                  data_fp=None,
                  n_queries=None,
+                 abstract_only=False,  # deprecated
+                 mode=None,  # deprecated
                  n_papers=None,  # deprecated
                  data_name=None  # deprecated
                  ):
 
-        self.mode = mode
         self.model = model
         self.query_strategy = query_strategy
         self.balance_strategy = balance_strategy
@@ -109,7 +108,6 @@ class ASReviewSettings(object):
         self.stop_if = stop_if
         self.n_prior_included = n_prior_included
         self.n_prior_excluded = n_prior_excluded
-        self.abstract_only = abstract_only
         self.as_data = as_data
         self.model_param = model_param
         if query_strategy == "max_random":

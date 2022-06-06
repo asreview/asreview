@@ -153,8 +153,8 @@ const ModelForm = (props) => {
   const returnRequirement = () => {
     return (
       <React.Fragment>
-        Some classifiers and feature extraction techniques require additional
-        dependencies{" "}
+        Some combinations take a long time to warm up. Some classifiers and
+        feature extraction techniques require additional dependencies.{" "}
         {(props.model?.classifier === "nn-2-layer" ||
           props.model?.feature_extraction === "embedding-idf" ||
           props.model?.feature_extraction === "embedding-lstm") && (
@@ -257,7 +257,7 @@ const ModelForm = (props) => {
           fast and excellent performance.{" "}
           <Link
             underline="none"
-            href={`https://asreview.readthedocs.io/en/latest/guides/activelearning.html#active-learning-for-systematic-reviews`}
+            href={`https://asreview.nl/blog/active-learning-explained/`}
             target="_blank"
           >
             Learn more
