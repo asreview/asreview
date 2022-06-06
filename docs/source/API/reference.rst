@@ -4,55 +4,8 @@
 API Reference
 =============
 
-Welcome to the ASReview API. This API reference contains documentation on the
-modules, classes, and functions of the ASReview software.
-
-
-
-:mod:`asreview`
-===============
-
-.. automodule:: asreview
-   :no-members:
-   :no-inherited-members:
-
-.. currentmodule:: asreview
-
-Classes
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-class-template.rst
-
-   asreview.settings.ASReviewSettings
-
-Functions
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-module-template.rst
-
-   asreview.search.fuzzy_find
-   asreview.types.type_n_queries
-   asreview.utils.asreview_path
-   asreview.utils.get_data_home
-   asreview.utils.format_to_str
-   asreview.utils.pretty_format
-   asreview.utils.is_iterable
-   asreview.utils.list_model_names
-   asreview.utils.list_reader_names
-   asreview.utils.list_writer_names
-   asreview.utils.get_entry_points
-   asreview.utils.is_url
-   asreview.utils.get_random_state
-
-
-:mod:`asreview.data`
-====================
-
-This module contains the data handling.
+Data and datasets
+=================
 
 .. automodule:: asreview.data
     :no-members:
@@ -60,23 +13,26 @@ This module contains the data handling.
 
 .. currentmodule:: asreview
 
-Classes
+Read data
+---------
 
 .. autosummary::
    :nosignatures:
    :toctree: generated/
    :template: custom-class-template.rst
 
-   data.ASReviewData
+   ASReviewData
+   load_data
 
-Functions
+
+Statistics
+----------
 
 .. autosummary::
    :nosignatures:
    :toctree: generated/
    :template: custom-class-template.rst
 
-   data.load_data
    data.statistics.abstract_length
    data.statistics.n_duplicates
    data.statistics.n_irrelevant
@@ -89,77 +45,60 @@ Functions
    data.statistics.title_length
 
 
-:mod:`asreview.entry_points`
-============================
+Datasets
+--------
 
-This module contains all ASReview entry points.
+Available datasets
+~~~~~~~~~~~~~~~~~~
 
-.. automodule:: asreview.entry_points
-    :no-members:
-    :no-inherited-members:
-
-.. currentmodule:: asreview
-
-Classes
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-class-template.rst
-
-   entry_points.BaseEntryPoint
-   entry_points.AlgorithmsEntryPoint
-   entry_points.LABEntryPoint
-   entry_points.WebRunModelEntryPoint
-   entry_points.SimulateEntryPoint
-   entry_points.StateInspectEntryPoint
-
-
-:mod:`asreview.io`
-====================
-
-This module contains the input and output functionality.
-
-.. automodule:: asreview.io
-    :no-members:
-    :no-inherited-members:
+.. automodule:: asreview.datasets
+   :no-members:
+   :no-inherited-members:
 
 .. currentmodule:: asreview
 
-Classes
 
 .. autosummary::
    :nosignatures:
    :toctree: generated/
    :template: custom-class-template.rst
 
-   io.CSVReader
-   io.CSVWriter
-   io.ExcelReader
-   io.ExcelWriter
-   io.PaperRecord
-   io.RISReader
-   io.RISWriter
-   io.TSVWriter
+   asreview.datasets.BenchmarkDataGroup
+   asreview.datasets.NaturePublicationDataGroup
 
-Functions
+Utils
+~~~~~
 
 .. autosummary::
    :nosignatures:
    :toctree: generated/
    :template: custom-class-template.rst
 
-   io.list_readers
-   io.list_writers
-   io.utils.type_from_column
-   io.utils.convert_keywords
-   io.utils.type_from_column_spec
-   io.utils.get_reader_class
-   io.utils.get_writer_class
+   asreview.datasets.BaseDataSet
+   asreview.datasets.BaseDataGroup
+   asreview.datasets.DatasetManager
 
 
-:mod:`asreview.models`
-======================
+Reviewer
+========
+
+.. automodule:: asreview.review
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: asreview
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   review.BaseReview
+   review.ReviewSimulate
+
+
+Models
+======
 
 .. automodule:: asreview.models
     :no-members:
@@ -167,7 +106,7 @@ Functions
 
 .. currentmodule:: asreview
 
-Classes
+Base class
 
 .. autosummary::
    :nosignatures:
@@ -322,37 +261,11 @@ Functions
    query.list_query_strategies
 
 
-:mod:`asreview.review`
-======================
+Projects and States
+===================
 
-.. automodule:: asreview.review
-   :no-members:
-   :no-inherited-members:
-
-.. currentmodule:: asreview
-
-Classes
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-class-template.rst
-
-   review.BaseReview
-   review.ReviewSimulate
-
-Functions
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-class-template.rst
-
-   asreview.review.simulate.sample_prior_knowledge
-
-
-:mod:`asreview.project`
-=======================
+Load, interact, and extract information from project files and states (the
+"diary" of the review).
 
 .. automodule:: asreview.project
    :no-members:
@@ -360,16 +273,41 @@ Functions
 
 .. currentmodule:: asreview
 
-Classes
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+ASReviewProject
+---------------
 
 .. autosummary::
    :nosignatures:
    :toctree: generated/
    :template: custom-class-template.rst
 
-   project.ASReviewProject
+   ASReviewProject
 
-Functions
+State
+-----
+
+.. automodule:: asreview.state
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: asreview
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   open_state
+   state.SQLiteState
+
+
+Utils
+-----
 
 .. autosummary::
    :nosignatures:
@@ -381,13 +319,52 @@ Functions
    project.list_asreview_projects
    project.is_project
    project.is_v0_project
-   project.open_state
 
 
-:mod:`asreview.state`
-=====================
+Readers and writers
+===================
 
-.. automodule:: asreview.state
+This module contains the input and output functionality. You can install them as extensions.
+
+
+.. automodule:: asreview
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: asreview
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-module-template.rst
+
+   asreview.list_readers
+   asreview.list_writers
+
+.. automodule:: asreview.io
+    :no-members:
+    :no-inherited-members:
+
+.. currentmodule:: asreview
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   io.CSVReader
+   io.CSVWriter
+   io.ExcelReader
+   io.ExcelWriter
+   io.PaperRecord
+   io.RISReader
+   io.RISWriter
+   io.TSVWriter
+
+Misc
+====
+
+.. automodule:: asreview
    :no-members:
    :no-inherited-members:
 
@@ -400,29 +377,40 @@ Classes
    :toctree: generated/
    :template: custom-class-template.rst
 
-   state.BaseState
-   state.SQLiteState
+   asreview.settings.ASReviewSettings
+
+Functions
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-module-template.rst
+
+   asreview.search.fuzzy_find
+   asreview.asreview_path
+   asreview.get_data_home
 
 
+Entry points
+============
 
-:mod:`asreview.datasets`
-========================
+Entry points for ASReview LAB.
 
-.. automodule:: asreview.datasets
-   :no-members:
-   :no-inherited-members:
+
+.. automodule:: asreview.entry_points
+    :no-members:
+    :no-inherited-members:
 
 .. currentmodule:: asreview
-
-Classes
 
 .. autosummary::
    :nosignatures:
    :toctree: generated/
    :template: custom-class-template.rst
 
-   asreview.datasets.BaseDataSet
-   asreview.datasets.BaseDataGroup
-   asreview.datasets.DatasetManager
-   asreview.datasets.BenchmarkDataGroup
-   asreview.datasets.NaturePublicationDataGroup
+   entry_points.BaseEntryPoint
+   entry_points.AlgorithmsEntryPoint
+   entry_points.LABEntryPoint
+   entry_points.SimulateEntryPoint
+   entry_points.StateInspectEntryPoint
+
