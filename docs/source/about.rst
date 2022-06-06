@@ -30,13 +30,13 @@ Start and finish a systematic labeling process with ASReview LAB by following th
 
 1. Create a dataset with potentially relevant records you want to systematically screen. Improve the quality of the data and specify clear reviewing (inclusion/exclusion) criteria)
 2. Specify a stopping rule
-3. Open ASReview LAB
-4. Create a new project
+3. :doc:`start`
+4. :doc:`project_create`
 5. Upload your data
 6. Specify prior knowledge
 7. Select the four components of the active learning model
 8. Wait for the warming up of the AI (the software is extracting the features and runs the classifier with the prior knowledge)
-9. Start labeling until you reach your stopping criteria
+9. Start :doc:`oracle` until you reach your stopping criteria
 10. Export your data and the project file
 
 

@@ -43,7 +43,7 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
 
 .. toctree::
     :maxdepth: 1
-    :caption: Install & Upgrade
+    :caption: Install and Upgrade
 
     installation
 
