@@ -89,7 +89,7 @@ def _set_log_verbosity(verbose):
 
 
 class SimulateEntryPoint(BaseEntryPoint):
-    """Entrypoint for simulation."""
+    """Entry point for simulation with ASReview LAB."""
 
     description = "Simulate the performance of ASReview."
 

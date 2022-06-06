@@ -40,6 +40,7 @@ def _format_algorithm(values, name, description):
 
 
 class AlgorithmsEntryPoint(BaseEntryPoint):
+    """Entry point to list available algorithms in ASReview LAB."""
     description = "Available active learning algorithms for ASReview."
 
     def execute(self, argv):
