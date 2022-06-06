@@ -7,7 +7,7 @@ simulations. For a list of available commands, type :code:`asreview --help`.
 LAB
 ---
 
-:program:`asreview lab` launches the ASReview LAB software (the frontend).
+:program:`asreview lab` launches the ASReview LAB software (the webapp).
 
 .. code:: bash
 
@@ -66,15 +66,15 @@ Simulate
 
 :program:`asreview simulate` measures the performance of the software on
 existing systematic reviews. The software shows how many papers you could have
-potentially skipped during the systematic review. You can use  :doc:`your own
-labelled dataset <../intro/datasets>`
+potentially skipped during the systematic review. You can use  :doc:`your
+labeled dataset <../intro/datasets>`
 
 .. code:: bash
 
     asreview simulate [options] [dataset [dataset ...]]
 
 or one of the :ref:`benchmark-datasets
-<benchmark-datasets>` (see `index.csv
+<fully-labeled-data>` (see `index.csv
 <https://github.com/asreview/systematic-review-datasets/blob/master/index.csv>`_
 for dataset IDs).
 
@@ -86,11 +86,11 @@ Examples:
 
 .. code:: bash
 
-	asreview simulate YOUR_DATA.csv --state_file myreview.h5
+	asreview simulate YOUR_DATA.csv --state_file myreview.asreview
 
 .. code:: bash
 
-    asreview simulate benchmark:van_de_Schoot_2017 --state_file myreview.h5
+    asreview simulate benchmark:van_de_Schoot_2017 --state_file myreview.asreview
 
 .. program:: asreview simulate
 
@@ -149,14 +149,9 @@ Examples:
 
     Prior indices by record_id.
 
-.. versionadded:: 0.15
-
 .. option:: --state_file STATE_FILE, -s STATE_FILE
 
-    Location to store the (active learning) state of the simulation. It is
-    possible to output the state to a JSON file (extension :code:`.json`) or
-    `HDF5 file <https://en.wikipedia.org/wiki/Hierarchical_Data_Format>`__
-    (extension :code:`.h5`).
+    Location to ASReview project file of simulation.
 
 .. option:: --init_seed INIT_SEED
 
@@ -167,16 +162,17 @@ Examples:
 
     Number of papers queried each query.Default 1.
 
-.. option:: --n_queries N_QUERIES
+.. option:: --stop_if STOP_IF
 
-    The number of queries. Alternatively, entering :code:`min` will stop the simulation when all relevant
-    records have been found. By default, the program stops after all records are reviewed
-    or is interrupted by the user.
+    The number of label actions to simulate. Default, 'min' will stop
+    simulating when all relevant records are found. Use -1 to simulate all
+    labels actions.
 
-.. option:: -n N_PAPERS, --n_papers N_PAPERS
+.. option:: -w WRITE_INTERVAL, --write_interval WRITE_INTERVAL
 
-    The number of papers to be reviewed. By default, the program stops after
-    all documents  are reviewed or is interrupted by the user.
+    The simulation data will be written away after each set of thismany
+    labeled records. By default only writes away data at the endof the
+    simulation to make it as fast as possible.
 
 .. option:: --verbose VERBOSE, -v VERBOSE
 

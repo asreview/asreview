@@ -10,7 +10,7 @@ reviews. Three modes are implemented as follows:
   intelligence (AI).
 - In :doc:`../lab/exploration`, you can explore or demonstrate ASReview LAB with a
   completely labeled dataset. This mode is suitable for teaching purposes.
-- In :doc:`../lab/simulation`, you can simulate a review on a completely labeled dataset
+- In :doc:`simulation_overview`, you can simulate a review on a completely labeled dataset
   to see the performance of ASReview LAB.
 
 This documentation contains a complete guide to using ASReview LAB. If you need more
@@ -83,11 +83,11 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
     :maxdepth: 1
     :caption: Simulation
 
-    lab/simulation
+    simulation_overview
 
-    guides/sim_overview
+    simulation_cli
 
-    guides/api
+    simulation_api_example
 
 .. toctree::
     :maxdepth: 1
@@ -96,8 +96,6 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
     API/overview_development
 
     API/cli
-
-    API/example_api_simulation
 
     API/example_api_asreview_file
 

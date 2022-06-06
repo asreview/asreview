@@ -1,14 +1,26 @@
-Simulation
-==========
+﻿Simulation via command line
+===========================
 
-.. role:: strike
+At the moment, the ASReview simulation mode is only available in the command
+line interface. When using the :ref:`ASReview command line interface for
+simulation <API/cli:Simulate>`, a fully labeled dataset is required (labeling
+decisions: ``0`` = irrelevant, ``1`` = relevant).
 
-Why run a simulation?
----------------------
+See the following resources for  information on running a simulation:
 
-Doing simulations can be a great way to assess how well ASReview performs for
-your particular purposes. The user can run simulations on previously fully labeled
-datasets to see how much time is saved by using ASReview.
+- :ref:`ASReview command line interface for simulation <API/cli:Simulate>`
+- :doc:`../guides/simulation_study_results`
+- :doc:`../guides/sim_overview`
+
+
+.. warning::
+
+    If you upload your own data, make sure to remove duplicates and to retrieve
+    as many abstracts as possible (`don't know how?
+    <https://asreview.nl/blog/the-importance-of-abstracts/>`_). With clean data you
+    benefit most from what :doc:`active learning <../guides/activelearning>`
+    has to offer.
+
 
 Doing the simulation
 --------------------
@@ -23,46 +35,17 @@ can be accessed directly from the command line, for example like:
 
 .. code-block:: bash
 
-	asreview simulate MY_DATASET.csv --state_file myreview.h5
+	asreview simulate MY_DATASET.csv --state_file myreview.asreview
 
 This performs a simulation of a default active learning model, where
 ``MY_DATASET.csv`` is the path to the fully labeled dataset you wish to simulate on
-and where ``myreview.h5`` is the file wherein the results will be stored.
+and where ``myreview.asreview`` is the file wherein the results will be stored.
 
 
 More details on specific model and simulation settings can be found in the
 Simulation options section below. For how to prepare your data, see
 :doc:`../intro/datasets`.
 
-
-
-Analyzing your results
-----------------------
-
-The extensions `asreview-statistics <https://github.com/asreview/asreview-
-statistics>`_ and `asreview-visualization <https://github.com/asreview
-/asreview-visualization>`_ are useful tools to analyze results. Install them
-directly from PyPi:
-
-.. code-block:: bash
-
-	pip install asreview-statistics asreview-visualization
-
-Detailed information can be found on their respective GitHub pages. The
-following commands should give you at least a basic exploratory idea of the
-performance of your review:
-
-.. code-block:: bash
-
-	asreview stat YOUR_DATASET.csv
-	asreview stat myreview.h5
-	asreview stat DIR_WITH_MULTIPLE_SIMULATIONS
-
-	asreview plot myreview.h5
-	asreview plot DIR_WITH_MULTIPLE_SIMULATIONS
-
-For an example of the results of a simulation study, see
-:doc:`simulation_study_results`.
 
 
 Simulation options

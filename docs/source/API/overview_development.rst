@@ -1,16 +1,16 @@
 Overview
 ========
 
-The development section is meant for the more advanced user of ASReview. It
-contains information on the technical aspects of usage, instructions for developing
-extensions, and an extensive API reference.
+The development section is meant for users that need advanced functions of
+ASReview LAB and for developers. It contains technical information on the
+usage, instructions for developing extensions, and an extensive API reference.
 
-ASReview structure
-------------------
+ASReview architecture
+---------------------
 
 ASReview provides users an API to interact directly with the underlying ASReview
 machinery. This provides researchers an interface to study the behavior of
-algorithms and develop custom workflows. The following figure shows the
+algorithms and develop custom workflows. The following overview shows the
 available interfaces for interacting with the ASReview software:
 
 ..
@@ -21,9 +21,28 @@ available interfaces for interacting with the ASReview software:
    :alt: ASReview API
 
 
-Development documentation
--------------------------
-In the development documentation, the following sections are found:
+* Layer 5: ASReview CLOUD
+
+    - ASReview is currently in development. For information on ASReview CLOUD,
+      be sure visit our communication channels.
+
+* Layer 4: :doc:`ASReview LAB <../lab/launch>`
+
+    - ASReview LAB is the user friendly webapp and all underlying
+      interfaces. Documentation on LAB
+      can be found in the :doc:`ASReview LAB section <../lab/launch>`.
+
+* Layer 3: REST API
+
+    - The REST API uses a Flask REST API to provide a method to let the React
+      webapp communicate with the backend and algorithms. The REST API is not
+      documented and should be considered 'internal use only'.
+
+* Layer 2: :doc:`cli`
+
+    - The Command Line is an interface used to open ASReview LAB, run
+      simulations, and run :doc:`Subcommand extensions <extension_dev>` for ASReview. This development section documents all available
+      command line options for both ASReview LAB and simulation mode.
 
 * Layer 1: :doc:`reference`
 
@@ -31,41 +50,13 @@ In the development documentation, the following sections are found:
       interface requires detailed knowledge about the workings of the software.
       This reference contains extensive documentation on all functions, classes,
       and modules found in ASReview.
-    
+
     - An outline for usage can be found in :doc:`../guides/api`.
 
-* Layer 2: :doc:`cli`
+Extensions
+----------
 
-    - The Command Line is an interface used to open ASReview LAB, run
-      simulations, and run :ref:`extensions/overview_extensions:Subcommand
-      Extensions` for ASReview. This development section documents all available
-      command line options for both ASReview LAB and simulation mode.
-    
-    - For more information on using the simulation mode, see
-      :doc:`../guides/sim_overview`.
-
-* Layer 3: REST API
-
-    - The REST API uses a Flask REST API to provide a method to let the React
-      front-end communicate with the backend and algorithms. The REST API is not
-      documented and should be considered 'internal use only'.
-
-* Layer 4: :doc:`ASReview LAB <../lab/launch>`
-
-    - ASReview is the user friendly front-end for ASReview. Documentation on LAB
-      can be found in the :doc:`ASReview LAB section <../lab/launch>`.
-
-* Layer 5: ASReview CLOUD
-
-    - ASReview is currently in development. For information on ASReview CLOUD,
-      be sure visit our communication channels.
-
-
-
-* Section: :doc:`extension_dev`
-
-    - The Create an extension section documents the creation of model, subcommand,
-      and dataset extensions for ASReview. 
-      
-    - More information on extensions can be found in the extension
-      :doc:`../extensions/overview_extensions`.
+:doc:`The Create an extension <extension_dev>` section documents the creation
+of model, subcommand, and dataset extensions for ASReview. More information on
+extensions can be found in the extension
+:doc:`../extensions/overview_extensions`.
