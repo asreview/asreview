@@ -145,7 +145,7 @@ const ProjectCheckDialog = (props) => {
           <List sx={{ listStyle: "disc outside", pl: "20px" }}>
             <ListItem sx={{ display: "list-item", pt: 0, pb: 0 }}>
               <ListItemText sx={{ color: "text.secondary" }}>
-                Upgrade this project and enjoy new features.
+                Upgrade this project and enjoy new features
               </ListItemText>
             </ListItem>
             <ListItem sx={{ display: "list-item", pt: 0, pb: 0 }}>
