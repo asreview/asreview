@@ -259,13 +259,30 @@ napoleon_use_rtype = False
 # -- Redirects ---------------------------------------------------------------
 
 redirects = {
-    "extensions/extension_covid19": "overview_extensions.html",
-    "extensions/extension_visualization": "overview_extensions.html",
-    "extensions/extension_wordcloud": "overview_extensions.html",
-    "intro/faq": "https://github.com/asreview/asreview/discussions",
-    "intro/vocabulary": "glossary.html",
     "intro/zen": "https://asreview.ai/blog/the-zen-of-elas/",
-    "lab/overview_lab": "../index.html",
+    "intro/datasets": "../data.html",
+    "intro/faq": "https://github.com/asreview/asreview/discussions",
+    "intro/vocabulary": "../about.html",
+
+    "lab/overview_lab": "../about.html",
+    "lab/launch": "../start.html",
+    "lab/oracle": "../about.html",
+    "lab/exploration": "../about.html",
+    "lab/simulation": "../simulation_overview.html",
+
+    "features/settings": "../oracle.html",
+    "features/pre_screening": "../project_create.html",
+    "features/screening": "../oracle.html",
+    "features/post_screening": "../progress.html",
+
+    "extensions/overview_extensions": "../extensions_overview.html",
+    "extensions/extension_covid19": "../extensions_overview.html",
+    "extensions/extension_visualization": "../extensions_overview.html",
+    "extensions/extension_wordcloud": "../extensions_overview.html",
+
+    "API/extension_dev": "../extensions_dev.html",
+
     "guides/activelearning": "https://asreview.nl/blog/active-learning-explained/",
     "guides/simulation_study_results": "https://asreview.nl/research/",
+    "guides/sim_overview": "../simulation_overview.html",
 }
