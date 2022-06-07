@@ -118,11 +118,9 @@ const FinishSetup = (props) => {
                  variant="body2"
                  sx={{ color: "text.secondary" }}
                >
-                      While we warm up the AI, you can learn more about 
-                      the workings of ASReview LAB by watching the video. 
-                      Meanwhile, we initialize the project file, 
-                      extract the features, and run the classifier 
-                      with the selected prior knowledge.
+                      While ASReview LAB warms up the AI, you can learn more by watching the video. 
+                      Meanwhile, your features are extracted, and the classifier 
+                      is trained with the selected prior knowledge.
                </Typography>
               <ReactLoading
                 type="bubbles"
