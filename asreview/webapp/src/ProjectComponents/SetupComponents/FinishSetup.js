@@ -111,17 +111,19 @@ const FinishSetup = (props) => {
           !props.isProjectReadyError &&
           !props.trainingFinished && (
             <Stack className={classes.root} spacing={1}>
-              <TypographySubtitle1Medium>
-                Warming up the AI
-              </TypographySubtitle1Medium>
-              <Typography
-                 variant="body2"
-                 sx={{ color: "text.secondary" }}
-               >
-                      While ASReview LAB warms up the AI, you can learn more by watching the video. 
-                      Meanwhile, your features are extracted, and the classifier 
-                      is trained with the selected prior knowledge.
-               </Typography>
+              <Stack className={classes.root}>
+                <TypographySubtitle1Medium>
+                  Warming up the AI
+                </TypographySubtitle1Medium>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "text.secondary", width: "65%" }}
+                >
+                  ASReview LAB is extracting features from the text and training
+                  the classifier with selected prior knowledge. Learn more by
+                  watching the video.
+                </Typography>
+              </Stack>
               <ReactLoading
                 type="bubbles"
                 color={theme.palette.primary.main}
@@ -136,7 +138,7 @@ const FinishSetup = (props) => {
               <Fade in>
                 <Stack spacing={3} className={classes.root}>
                   <TypographySubtitle1Medium>
-                    You can start screening!
+                    AI is ready to assist you
                   </TypographySubtitle1Medium>
                   <Button onClick={onClickCloseSetup}>Start Reviewing</Button>
                 </Stack>
