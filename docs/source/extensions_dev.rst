@@ -1,7 +1,7 @@
 .. _develop-extensions:
 
-Create an Extension
-===================
+Create extensions
+=================
 
 ASReview extensions enable you to integrate your programs with the ASReview
 framework seamlessly, by using the Python API. These extensions fall into three
@@ -90,7 +90,7 @@ This code registers the model with name ``example``.
     <a href="https://github.com/asreview/template-extension-new-model"
     target="_blank"> template for extending ASReview</a>
 
-Subcommand Extensions 
+Subcommand Extensions
 ---------------------
 An extension of the :class:`asreview.entry_points.base.BaseEntryPoint` class.
 
@@ -195,4 +195,4 @@ ASReview with a new dataset
 
 
 Further functionality can be
-extensions of any other class in :mod:`asreview.datasets`. 
+extensions of any other class in :mod:`asreview.datasets`.
