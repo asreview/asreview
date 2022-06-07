@@ -222,7 +222,7 @@ const PriorRandom = (props) => {
                 spacing={3}
               >
                 <Box className={classes.infoCard}>
-                  <InfoCard info="Label the record you want to use as prior knowledge" />
+                  <InfoCard info="Label records that you want to use as prior knowledge" />
                 </Box>
                 {data?.result
                   .filter((record) => record?.included === null)
