@@ -138,7 +138,7 @@ const FinishSetup = (props) => {
               <Fade in>
                 <Stack spacing={3} className={classes.root}>
                   <TypographySubtitle1Medium>
-                    Your project has been initiated
+                    You can start screening!
                   </TypographySubtitle1Medium>
                   <Button onClick={onClickCloseSetup}>Start Reviewing</Button>
                 </Stack>
