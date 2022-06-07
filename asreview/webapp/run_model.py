@@ -29,7 +29,7 @@ from asreview.webapp.sqlock import SQLiteLock
 
 
 def get_lab_reviewer(as_data,
-                     state_file=None,
+                     project,
                      embedding_fp=None,
                      verbose=0,
                      prior_idx=None,
@@ -43,7 +43,7 @@ def get_lab_reviewer(as_data,
         raise ValueError("Supply at least one dataset"
                          " with at least one record.")
 
-    with open_state(state_file) as state:
+    with open_state(project) as state:
         settings = state.settings
 
     # TODO: Set random seed.
@@ -65,8 +65,6 @@ def get_lab_reviewer(as_data,
         raise ValueError(
             "Not possible to provide both prior_idx and prior_record_id"
         )
-
-    project = ASReviewProject(state_file)
 
     reviewer = BaseReview(as_data,
                           project,
@@ -112,10 +110,7 @@ def train_model(project):
             # collect command line arguments and pass them to the reviewer
             as_data = read_data(project)
 
-            reviewer = get_lab_reviewer(
-                as_data=as_data,
-                state_file=project.project_path
-            )
+            reviewer = get_lab_reviewer(as_data, project)
 
             # Train the model.
             reviewer.train()
