@@ -1187,7 +1187,7 @@ def export_project(project):
                      max_age=0)
 
 
-def _get_stats(project):
+def _get_stats(project, include_priors=False):
 
     try:
 
@@ -1219,9 +1219,17 @@ def _get_stats(project):
         else:
             # Check if there is a review started in the project.
             try:
+                # get label history
                 with open_state(project.project_path) as s:
-                    labels = s.get_labels()
+
+                    if project.config["reviews"][0]["status"] == "finished" \
+                            and project.config["mode"] == PROJECT_MODE_SIMULATE:
+                        labels = _get_labels(s, priors=include_priors)
+                    else:
+                        labels = s.get_labels(priors=include_priors)
+
                     n_records = len(s.get_record_table())
+
             # No state file found or not init.
             except (StateNotFoundError, StateError):
                 labels = np.array([])
@@ -1269,7 +1277,9 @@ def _get_labels(state_obj, priors=False):
 def api_get_progress_info(project):  # noqa: F401
     """Get progress statistics of a project"""
 
-    response = jsonify(_get_stats(project))
+    include_priors = request.args.get('priors', True, type=bool)
+
+    response = jsonify(_get_stats(project, include_priors=include_priors))
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     # return a success response to the client.
