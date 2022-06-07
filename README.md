@@ -13,7 +13,7 @@ often tiresome. The rapidly evolving field of Artificial Intelligence (AI) has
 allowed the development of AI-aided pipelines that assist in finding relevant
 texts for search tasks. A well-established approach to increasing efficiency
 is screening prioritization via [Active
-Learning](https://asreview.readthedocs.io/en/latest/guides/activelearning.html). 
+Learning](https://asreview.readthedocs.io/en/latest/guides/activelearning.html).
 
 
 The Active learning for Systematic Reviews (ASReview) project, publised in
@@ -29,16 +29,16 @@ making in any discipline or industry.
 ASReview software implements three different modes:
 
 - **Oracle** :crystal_ball: This modus is used to screen textual data in
-  interaction with the active learning model. The reviewer is the 'oracle', 
+  interaction with the active learning model. The reviewer is the 'oracle',
   making the labeling decissions.
-- **Exploration** :triangular_ruler: This modus is usefull to explore or 
-  demonstrate ASReview LAB with a completely labeled dataset. This mode is 
+- **Exploration** :triangular_ruler: This modus is usefull to explore or
+  demonstrate ASReview LAB with a completely labeled dataset. This mode is
   suitable for teaching purposes.
 - **Simulate** :chart_with_upwards_trend: This modus is used to evaluate
-  the performance of active learning models on fully labeled data. Simulations 
-  can be run in ASReview LAB or via the command line interface with more 
-  advanced options. 
-  
+  the performance of active learning models on fully labeled data. Simulations
+  can be run in ASReview LAB or via the command line interface with more
+  advanced options.
+
 
 ## Installation
 
@@ -60,6 +60,11 @@ pip install --upgrade asreview
 ```
 
 Instructions for usage with Docker are [here](docker/README.md).
+
+## How it works
+
+[![ASReview LAB explained - animation](https://img.youtube.com/vi/k-a2SCq-LtA/0.jpg)](https://www.youtube.com/watch?v=k-a2SCq-LtA)
+
 
 ## ASReview LAB
 
@@ -91,7 +96,7 @@ For more scientific publications on the ASReview software, go to
 
 For an overview of the team working on ASReview, see [ASReview Research Team](https://asreview.nl/about).
 ASReview LAB is maintained by
-[Jonathan de Bruin](https://github.com/J535D165) and [Yongchao Terry Ma](https://github.com/terrymyc). 
+[Jonathan de Bruin](https://github.com/J535D165) and [Yongchao Terry Ma](https://github.com/terrymyc).
 
 The best resources to find an answer to your question or ways to get in
 contact with the team are:
