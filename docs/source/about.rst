@@ -4,23 +4,33 @@ Get Started
 What is ASReview LAB?
 ---------------------
 
-ASReview LAB is an open source machine learning tool for screening and
-labeling large collection of data in a systematic way. It's sometimes refered
-as a tool for title and abstract screening in systematic reviews. ASReview LAB
-is one of the products of the ASReview research project.
+ASReview LAB is a free (Libre) open-source machine learning tool for screening
+and systematically labeling a large collection of textual data. It's sometimes
+referred to as a tool for title and abstract screening in systematic reviews
+or meta-analyses,  but it can handle any type of textual data that must be
+screened systematically.
+
+ASReview LAB is one of the products of the `ASReview research project
+<https://asreview.ai/about/>`_  initiated at Utrecht University, which has
+grown into a vivid community of researchers,  users, and developers from
+around the world.
+
+What is active learning?
+------------------------
 
 Artificial Intelligence (AI) and machine learning has allowed the development
 of AI-aided pipelines that assist in finding relevant texts for search tasks.
-A well-established approach to increase the efficiency of title and abstract
-screening is screening prioritization through `Active Learning
-<https://asreview.nl/blog/active-learning-explained/>`_: a constant
+A well-established approach to increase the efficiency
+screening large amounts of textual data is screening prioritization through
+`Active Learning <https://asreview.nl/blog/active-learning-explained/>`_: a constant
 interaction between a human who labels records and a machine learning model
 which selects the most likely relevant record based on a minimum training
 dataset. It allows the screening of large amounts of text in an intelligent
 and time-efficient manner. ASReview LAB, published in Nature Machine
-Intelligence, has shown the benefits of active learning, `reducing up to 95%
+Intelligence has shown the benefits of active learning, `reducing up to 95%
 <https://www.nature.com/articles/s42256-020-00287-7>`_ of the required
 screening time.
+
 
 Labeling workflow with ASReview
 -------------------------------

@@ -1,7 +1,6 @@
 Support
 -------
 
-
 Donate
 ~~~~~~
 
@@ -15,8 +14,8 @@ everyone>`_. Even small donations are highly appreciated!
 Collaborate
 ~~~~~~~~~~~
 
-Another option is to include budget for ASReview in your grant proposal. If
-you are interested in this option, `contact <https://www.rensvandeschoot.com/contact/>`_ Prof. Dr. Rens van de Schoot.
+If you are interested in (scientific) collaboration, `contact
+Prof. Dr. Rens van de Schoot <https://www.rensvandeschoot.com/contact/>`_ or send an email to asreview@uu.nl.
 
 
 Contribute
