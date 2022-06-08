@@ -7,7 +7,7 @@ import {
   Stack,
   Tooltip,
 } from "@mui/material";
-import { Close, Feedback } from "@mui/icons-material";
+import { Close } from "@mui/icons-material";
 
 import { ImportFromFile } from "../ProjectComponents";
 import { StyledIconButton } from "../StyledComponents/StyledButton.js";
@@ -71,15 +71,6 @@ const ProjectImportDialog = (props) => {
           direction="row"
           spacing={1}
         >
-          <Tooltip title="Send feedback">
-            <StyledIconButton
-              component={"a"}
-              href={`https://github.com/asreview/asreview/discussions`}
-              target="_blank"
-            >
-              <Feedback />
-            </StyledIconButton>
-          </Tooltip>
           <Tooltip title="Close">
             <StyledIconButton onClick={props.onClose}>
               <Close />
