@@ -1,6 +1,9 @@
 Screening
 =========
 
+Introduction
+------------
+
 The user interface in which you provide labels for records shown to you by the
 software is kept as simple as possible. This is because ASReview wants you to
 focus on the content of the text so that you can make your decision as a true
@@ -32,18 +35,26 @@ the second last model or the highest-ranked as resulted from the latest model un
 model is trained.
 
 As you keep reviewing documents and providing more labels, the number of
-unlabeled documents left in the dataset will decline. When to stop is left to
-the user. The `blogpost *ASReview Class 101* <https://asreview.ai/blog/asreview-class-101/>`_
-and the `discussion board <https://github.com/asreview/asreview/discussions/557>`_
-provide some tips on when to stop with screening.
+unlabeled documents left in the dataset will decline and you will probably see
+fewer relevant records. When to stop screening is left to you. See
+:doc:`progress` for more information on progress monitoring and information on
+when to stop.
 
-.. warning::
 
-  If you are in doubt, take your time to think on the decision, you
-  are the oracle. Based on your input, a new model will be trained in the
-  background. If you make decisions faster than the model needs for computing
-  new relevance scores, you will simply be presented with the record next in
-  line (etcetera) until the model is done training.
+.. note::
+
+  If you are in doubt about your decision, take your time as you are the
+  oracle. Based on your input, a new model will be trained in the background.
+
+Screening in Exploration mode
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+In Exploration mode, a blue bar is displayed on top of the record. The blue
+bar indicates whether the record is relevant or irrelevant.
+
+.. figure:: ../images/project_screening_exploration.png
+   :alt: ASReview Screening
 
 Autosave
 --------
