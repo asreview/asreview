@@ -32,14 +32,14 @@ What is active learning?
 
 Artificial Intelligence (AI) and machine learning has allowed the development
 of AI-aided pipelines that assist in finding relevant texts for search tasks.
-A well-established approach to increase the efficiency
-screening large amounts of textual data is screening prioritization through
+A well-established approach to increasing the efficiency
+of screening large amounts of textual data is screening prioritization through
 `Active Learning <https://asreview.ai/blog/active-learning-explained/>`_: a constant
 interaction between a human who labels records and a machine learning model
 which selects the most likely relevant record based on a minimum training
 dataset. It allows the screening of large amounts of text in an intelligent
 and time-efficient manner. ASReview LAB, published in Nature Machine
-Intelligence has shown the benefits of active learning, `reducing up to 95%
+Intelligence, has shown the benefits of active learning, `reducing up to 95%
 <https://www.nature.com/articles/s42256-020-00287-7>`_ of the required
 screening time.
 
@@ -50,14 +50,14 @@ Labeling workflow with ASReview
 Start and finish a systematic labeling process with ASReview LAB by following
 these steps:
 
-1. Create a dataset with potentially relevant records you want to systematically screen. Improve the quality of the data and specify clear reviewing (inclusion/exclusion) criteria)
+1. Create a dataset with potentially relevant records you want to screen systematically. Improve the quality of the data and specify clear reviewing (inclusion/exclusion) criteria
 2. Specify a stopping criterium
 3. :doc:`start`
 4. :doc:`project_create`
 5. :ref:`Import your dataset <project_create:Add dataset>`
 6. :ref:`project_create:Select Prior Knowledge`
-7. Select the four components of the active learning model
-8. Wait untill the warm up of the AI is ready (the software is extracting the features and trains the classifier on the prior knowledge)
+7. Select the four components of the active learning model (feature extractor, classifier, balancing method, query strategy)
+8. Wait until the warm up of the AI is ready (the software is extracting the features and trains the classifier on the prior knowledge)
 9. Start :doc:`screening` until you reach your stopping criterium
 10. :ref:`progress:Export results` and :ref:`manage:Export project`
 
@@ -114,7 +114,7 @@ encounter as you use ASReview LAB.
 .. glossary::
 
   Active learning model
-    Active learning model is the combination of four elements: a feature
+    An active learning model is the combination of four elements: a feature
     extraction technique, a classifier, a balance, and a query strategy.
 
   ASReview
@@ -131,7 +131,7 @@ encounter as you use ASReview LAB.
     :term:`notes<note>`.
 
   Dataset
-    Dataset is the collection of :term:`records<record>` that the :term:`user`
+    A d ataset is the collection of :term:`records<record>` that the :term:`user`
     :term:`imports<import>` and :term:`exports<export>`.
 
   ELAS
@@ -144,7 +144,7 @@ encounter as you use ASReview LAB.
     from ASReview LAB.
 
   Extension
-    Extension is the additional element to the ASReview LAB, such as
+    An extension is the additional element to the ASReview LAB, such as
     the `ASReview visualisation <https://github.com/asreview/asreview-visualization>`__
     extension, or the ASReview CORD-19 extension.
 
@@ -157,23 +157,23 @@ encounter as you use ASReview LAB.
     :term:`active learning model`.
 
   Note
-    Note is the information added by the :term:`user` in the note field and
+    A note is the information added by the :term:`user` in the note field and
     stored in the :term:`project file`. It can be edited on the History page.
 
   Project
-    Project is a project created in ASReview LAB.
+    A project is a project created in ASReview LAB.
 
   Projects dashboard
-    Projects dashboard is the landing page containing an overview of all
+    The project dashboard is the landing page containing an overview of all
     :term:`projects<project>` in ASReview LAB.
 
   Project file
-    Project file is the ``.asreview`` file containing the :term:`data` and
+    The project file is the ``.asreview`` file containing the :term:`data` and
     :term:`model configuration`. The file is :term:`exported<export>` from
     ASReview LAB and can be :term:`imported<import>` back.
 
   Project mode
-    Project mode includes oracle, simulation, and exploration in
+    the project mode includes oracle, simulation, and exploration in
     ASReview LAB:
 
     **Oracle** mode is used when a :term:`user` reviews a :term:`dataset`
@@ -187,7 +187,7 @@ encounter as you use ASReview LAB.
     labeled dataset to see the performance of ASReview LAB.
 
   Status
-    Project status is the stage that a :term:`project` is at in
+    The project status is the stage that a :term:`project` is at in
     ASReview LAB.
 
     **Setup** refers to the fact that the :term:`user` adds project information,
@@ -204,11 +204,11 @@ encounter as you use ASReview LAB.
     records, or in simulation mode, the simulation has been completed.
 
     **Published** refers to the fact that the user publishes the dataset and
-    :term:`project file` in a repository preferably with a Digital Object
+    :term:`project file` in a repository, preferably with a Digital Object
     Identifier (DOI).
 
   Record
-    Record is the data point that needs to be labeled. A record can contain
+    A record is the data point that needs to be labeled. A record can contain
     both information that is used for training the
     :term:`active learning model`, and information that is not used for this
     purpose.
@@ -225,7 +225,7 @@ encounter as you use ASReview LAB.
     with Labeling, Screening, and Classifying.
 
   User
-    The human annotator who labels :term:`records<record>`.
+    The human annotator is the person who labels :term:`records<record>`.
 
   Screener
     Replacement term when the context is PRISMA-based reviewing.
@@ -234,4 +234,4 @@ Privacy
 -------
 
 The ASReview LAB software doesn't collect any information about the usage or
-user. Great, isn't it?
+user. Great, isn't it!
