@@ -15,27 +15,27 @@ texts for search tasks. A well-established approach to increasing efficiency
 is screening prioritization via [Active
 Learning](https://asreview.readthedocs.io/en/latest/guides/activelearning.html).
 
-The Active learning for Systematic Reviews (ASReview) project, publised in
-[*Nature Machine Intelligence*](https://doi.org/10.1038/s42256-020-00287-7),
+The Active learning for Systematic Reviews (ASReview) project, published in
+[*Nature Machine Intelligence*](https://doi.org/10.1038/s42256-020-00287-7)
 implements different machine learning algorithms that interactively query the
 researcher. ASReview LAB  is designed to accelerate the step of screening
 textual data with a minimum of records to be read by a human with no or very
 few false negatives. ASReview LAB will save time, increase the quality of
 output and strengthen the transparency of work when screening large amounts of
-textual data to retrieve relevant information. This will support decision
-making in any discipline or industry.
+textual data to retrieve relevant information. Active Learning will support 
+decision-making in any discipline or industry.
 
 ASReview software implements three different modes:
 
 - **Oracle** :crystal_ball: Screen textual data in
   interaction with the active learning model. The reviewer is the 'oracle',
-  making the labeling decissions.
+  making the labeling decisions.
 - **Exploration** :triangular_ruler: Explore or
   demonstrate ASReview LAB with a completely labeled dataset. This mode is
   suitable for teaching purposes.
 - **Simulation** :chart_with_upwards_trend: Evaluate
   the performance of active learning models on fully labeled data. Simulations
-  can be run in ASReview LAB or via the command line interface with more
+  can be run in ASReview LAB or via the command-line interface with more
   advanced options.
 
 
