@@ -7,25 +7,15 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
+  Link,
+  List,
+  ListItem,
+  ListItemText,
   Stack,
 } from "@mui/material";
 
 import { InlineErrorHandler } from "../../Components";
 import { ProjectAPI } from "../../api/index.js";
-
-const checkText = [
-  {
-    label: "upgrade",
-    text: (
-      <DialogContentText>
-        You are attempting to open a project that was created in an earlier
-        version of ASReview LAB. You can open it after upgrading this project.
-        Your data will remain intact. Note that after upgrading, your project
-        will <b>no longer</b> work properly in earlier versions.
-      </DialogContentText>
-    ),
-  },
-];
 
 const ProjectCheckDialog = (props) => {
   const navigate = useNavigate();
@@ -137,6 +127,55 @@ const ProjectCheckDialog = (props) => {
     }
   };
 
+  const onClickExport = () => {
+    if (!disableButton()) {
+      setExporting(true);
+    }
+  };
+
+  const checkText = [
+    {
+      label: "upgrade",
+      text: (
+        <div>
+          <DialogContentText>
+            You are opening a project created in an earlier version of ASReview
+            LAB:
+          </DialogContentText>
+          <List sx={{ listStyle: "disc outside", pl: "20px" }}>
+            <ListItem sx={{ display: "list-item", pt: 0, pb: 0 }}>
+              <ListItemText sx={{ color: "text.secondary" }}>
+                Upgrade this project and enjoy new features
+              </ListItemText>
+            </ListItem>
+            <ListItem sx={{ display: "list-item", pt: 0, pb: 0 }}>
+              <ListItemText sx={{ color: "text.secondary" }}>
+                All data and relevant/irrelevant labels are preserved
+              </ListItemText>
+            </ListItem>
+            <ListItem sx={{ display: "list-item", pt: 0, pb: 0 }}>
+              <ListItemText sx={{ color: "text.secondary" }}>
+                Recommend{" "}
+                <Link
+                  component="button"
+                  onClick={onClickExport}
+                  variant="body1"
+                >
+                  exporting a copy
+                </Link>{" "}
+                of your project as a backup
+              </ListItemText>
+            </ListItem>
+          </List>
+          <DialogContentText>
+            Note that after upgrading, your project will no longer work properly
+            in earlier versions.
+          </DialogContentText>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <Dialog
       open={props.projectCheck?.open}
@@ -166,10 +205,7 @@ const ProjectCheckDialog = (props) => {
           )}
         </Stack>
       </DialogContent>
-      <DialogActions sx={{ justifyContent: "space-between", pl: 2, pr: 2 }}>
-        <Button disabled={disableButton()} onClick={() => setExporting(true)}>
-          {!isExportingProject ? "Export Project" : "Exporting..."}
-        </Button>
+      <DialogActions sx={{ pl: 2, pr: 2 }}>
         <Stack direction="row" spacing={1}>
           <Button
             onClick={handleClose}

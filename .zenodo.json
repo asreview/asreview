@@ -1,28 +1,27 @@
 {
-	"description": "The Automated Systematic Review (ASReview) project implements learning algorithms that interactively query the researcher. This way of interactive training is known as Active Learning. ASReview offers support for classical learning algorithms and state-of-the-art learning algorithms like neural networks. ASReview LAB is the graphical user interface of the open-source research software and ships with an Oracle, Exploration and Simulation Mode.",
-	"title": "ASReview LAB - A tool for AI-assisted systematic reviews",
-	"creators": [{
-			"name": "ASReview LAB developers",
-			"affiliation": "",
-			"orcid": ""
-		}
-	],
-	"keywords": [
-		"systematic review",
-		"prisma",
-		"active learning",
-		"statistics",
-		"machine learning",
-		"text data",
-		"natural language processing",
-		"human-in-the-loop"
-	],
-	"related_identifiers": [
-		{
-			"relation": "isSupplementTo",
-		 	"identifier": "https://doi.org/10.1038/s42256-020-00287-7"
-		}
-	],
-	"license": "Apache-2.0",
-	"upload_type": "software"
+   "description":"The Automated Systematic Review (ASReview) project implements learning algorithms that interactively query the researcher. This way of interactive training is known as Active Learning. ASReview offers support for classical learning algorithms and state-of-the-art learning algorithms like neural networks. ASReview LAB is the graphical user interface of the open-source research software and ships with an Oracle, Exploration and Simulation Mode.",
+   "title":"ASReview LAB - A tool for AI-assisted systematic reviews",
+   "creators":[
+      {
+         "name":"ASReview LAB developers"
+      }
+   ],
+   "keywords":[
+      "systematic review",
+      "prisma",
+      "active learning",
+      "statistics",
+      "machine learning",
+      "text data",
+      "natural language processing",
+      "human-in-the-loop"
+   ],
+   "related_identifiers":[
+      {
+         "relation":"isSupplementTo",
+         "identifier":"https://doi.org/10.1038/s42256-020-00287-7"
+      }
+   ],
+   "license":"Apache-2.0",
+   "upload_type":"software"
 }
