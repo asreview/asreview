@@ -1,2 +1,5 @@
-sphinx==4.2.0
-sphinx_rtd_theme==0.4.3
+ipython
+sphinx-reredirects
+sphinx
+sphinx_rtd_theme
+nbsphinx
