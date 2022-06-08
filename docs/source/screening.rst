@@ -1,45 +1,31 @@
 Screening
 =========
 
+.. note::
+
+  Only for Oracle and Exploration projects. Read more about :ref:`project_create:Project modes`.
+
+
 Introduction
 ------------
 
-The user interface in which you provide labels for records shown to you by the
-software is kept as simple as possible. This is because ASReview wants you to
-focus on the content of the text so that you can make your decision as a true
-Oracle. You can access the following features during screening.
-
-
-As soon as the model is ready, a button appears with **Start Review**. Click
-the button to start screening. ASReview LAB presents you a document to screen
-and label. If you have selected certainty-based sampling it will be the
-document with the highest relevance score.
+As soon as your project is initiated, you can start reviewing. Click on
+*Review* in the left menu if your project is not on the review page yet.
+ASReview LAB presents you a title and abstract to screen and label.
 
 You are asked to make a decision: relevant or irrelevant?
 
 .. figure:: ../images/project_screening.png
    :alt: ASReview Screening
 
-While you review the documents, the software continuously improves its
-understanding of your decisions, constantly updating the underlying model.
+Click on the decision of choice. A new record is presented to you. While you
+review the records, ASReview LAB continuously improves its understanding of
+your decisions, constantly updating the underlying ordering of the records.
 
-More specifically, each labeling decision of the user starts the training
-of a new model given there is no model being trained at that time.
-When this new model is trained, the unseen records' rank order is
-updated. Training and labeling occur asynchronous. With fast models, a new
-ranking will probably be available before the user finished reading the text. With
-slower models, training continues until a new model is trained, and the user can
-continue screening the next record in line (2nd, 3rd, etc.). Therefore, the
-record shown to the user can be the one with the highest relevance score of
-the second last model or the highest-ranked as resulted from the latest model until a new
-model is trained.
-
-As you keep reviewing documents and providing more labels, the number of
-unlabeled documents left in the dataset will decline and you will probably see
+As you keep reviewing documents and providing labels, you will probably see
 fewer relevant records. When to stop screening is left to you. See
 :doc:`progress` for more information on progress monitoring and information on
 when to stop.
-
 
 .. note::
 

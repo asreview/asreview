@@ -1,4 +1,4 @@
-Prepare your Data
+Prepare your data
 =================
 
 ASReview LAB requires a dataset containing a set of textual records (e.g.,

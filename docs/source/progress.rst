@@ -1,13 +1,16 @@
 Progress and results
 ====================
 
-
+During screening, you might want to keep track of your progress and know when
+to stop. This section provides documentation on useful tools for these
+purposes.
 
 Analytics
 ---------
 
-ASReview LAB offers some insightful statistics and graphs to keep track of
-your screening process and help you to decide when to stop screening.
+ASReview LAB offers some insightful statistics, a progress chart, and recall
+chart to keep track of your screening process and help you to decide when to
+stop screening.
 
 To open
 the statistics panel:
@@ -17,27 +20,49 @@ the statistics panel:
 3. Click on Analytics on in the left menu.
 
 
+.. figure:: ../images/project_analytics.png
+   :alt: ASReview LAB progress analytics for fully labeled
+
+   This figure shows the Analytics page of a fully labeled dataset. All
+   relevant records are found in the first part of the screening.
 
 
+Summary statistics
+~~~~~~~~~~~~~~~~~~
+
+The summary statistics are counts of the records in your dataset.
+
+- Total records: the total number of records in your dataset.
+- Labeled records: the number of records that you labeled as relevant or irrelevant, including those you added as prior knowledge.
+- Relevant records: the number of records that you labeled as relevant, including those you added as prior knowledge.
+- Irrelevant records: the number of records that you labeled as irrelevant, including those you added as prior knowledge.
+- Irrelevant since last relevant: the number of irrelevant records you have seen since the last relevant record. The larger this number (relatively), the more likely you have seen the relevant records.
+
+Charts
+~~~~~~
+
+The charts on the analytics page can be useful to monitor your progress. There
+is a *Progress* and a *Recall* chart. You will probably see a decline in the
+number of relevant items you find. This helps to decide when to stop. The
+charts do not include prior knowledge and are most relevant after you have
+screened a couple of hundreds of records.
+
+**Progress chart**
 
 
+The progress chart plots the number of relevant records in the last 10 records
+that you reviewed in ASReview LAB. For example, when you reviewed 100 records,
+you labeled 3 relevant records between the 91st and 100th reviewed records.
 
-The pie chart presents an overview of how many relevant (green) and
-irrelevant (orange) records have been screened so far. Also, the total number
-of records screened is displayed, as well as the percentage screened relative
-to the total number of records in the dataset.
+**Recall chart**
 
-The second plot is a progress plot. On the x-axis the number of records
-screened is tracked. The y-axis shows a moving average. It displays the ratio
-between relevant and irrelevant records for a batch of 10 labeled records. If
-you hoover over the plot you can see the moving average for any batch of 10
-labeled records.
+The recall chart plots the number of relevant records against the number of
+records that you reviewed in ASReview LAB. Relevant by ASReview LAB refers to
+the relevant records that you labeled with the assistance of the active
+learning model. Random relevant refers to the relevant records that you might
+find if you manually reviewed all the records without the assistance of the
+active learning model.
 
-Underneath the progress plot, the number of irrelevant records after the last
-relevant is shown. This statistic might help in deciding when to stop
-reviewing, see `blogpost *ASReview Class 101*
-<https://asreview.ai/blog/asreview-class-101/>`_ for more instructions how to
-use this graph.
 
 Stop screening
 --------------

@@ -10,10 +10,22 @@ referred to as a tool for title and abstract screening in systematic reviews
 or meta-analyses,  but it can handle any type of textual data that must be
 screened systematically.
 
+ASReview LAB implements three different options:
+
+- **Oracle:** Screen textual data in interaction with the active learning model. The reviewer is the 'oracle', making the labeling decisions.
+- **Simulation:** Evaluate the performance of active learning models on fully labeled data.
+- **Exploration:** Explore or demonstrate ASReview LAB with a completely labeled dataset. This mode is suitable for teaching purposes.
+
 ASReview LAB is one of the products of the `ASReview research project
 <https://asreview.ai/about/>`_  initiated at Utrecht University, which has
 grown into a vivid community of researchers,  users, and developers from
 around the world.
+
+
+.. image:: ../images/ASReviewLAB_explanation_Website_v3_wit.png
+    :width: 320
+    :align: center
+    :alt: ASReview LAB overview
 
 What is active learning?
 ------------------------
@@ -35,19 +47,19 @@ screening time.
 Labeling workflow with ASReview
 -------------------------------
 
-Start and finish a systematic labeling process with ASReview LAB by following these steps:
-
+Start and finish a systematic labeling process with ASReview LAB by following
+these steps:
 
 1. Create a dataset with potentially relevant records you want to systematically screen. Improve the quality of the data and specify clear reviewing (inclusion/exclusion) criteria)
-2. Specify a stopping rule
+2. Specify a stopping criterium
 3. :doc:`start`
 4. :doc:`project_create`
 5. :ref:`Import your dataset <project_create:Add dataset>`
 6. :ref:`project_create:Select Prior Knowledge`
 7. Select the four components of the active learning model
-8. Wait for the warming up of the AI (the software is extracting the features and runs the classifier with the prior knowledge)
-9. Start :doc:`screening` until you reach your stopping criteria
-10. Export your data and the project file
+8. Wait untill the warm up of the AI is ready (the software is extracting the features and trains the classifier on the prior knowledge)
+9. Start :doc:`screening` until you reach your stopping criterium
+10. :ref:`progress:Export results` and :ref:`manage:Export project`
 
 
 Quick start
