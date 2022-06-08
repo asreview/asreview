@@ -1,85 +1,98 @@
+****************
 Create a project
-================
+****************
 
-To start reviewing a dataset with ASReview LAB, you first need project to
-create a project. The project will contain your dataset, settings, labeling decisions, and machine learning models.
+To start reviewing a dataset with ASReview LAB, you first need to create a
+project. The project will contain your dataset, settings, labeling decisions,
+and machine learning models. You can choose from three different project
+types: Oracle, Exploration, and Simulation. The setup of a project consist of
+4 steps: Project information, Data, Model, and Warm up. The sections below
+explain each of the steps of the setup.
 
-Click on the Create on the bottom left to start the creation of a project. The setup of a project consist of 4 steps: Project information, Data, Model, and Warm up. The sections below explain each of the steps of the setup.
+To create a project:
+
+1. :doc:`start`.
+2. Go to the *Projects dashboard* if you are not already there (http://localhost:5000/projects)
+3. Click on the Create on the bottom left
 
 Project information
--------------------
+===================
 
-
+In this step of the project setup, step 1, you provide all relevant
+information about your project as well as the type of project you want (the
+mode). The sections below provide more information on the input fields. After
+you complete this step, click next.
 
 Project modes
-~~~~~~~~~~~~~
+-------------
+
 
 
 .. figure:: ../images/setup_project_modes.png
    :alt: Project modes
 
 
-Next, provide a project name (obligatory), your name and a short description
-on your systematic review project.
+Project details
+---------------
+
+Provide project details like name of the project, authors (for example the
+name of the screener), and a description. You can edit these values later in
+the *Details* page.
 
 
 Data
-----
+====
 
+In this step of the project setup, step 1, you import a dataset and select
+prior knowledge. Read :doc:`data` for information about dataset formats. Prior
+knowledge is used to come up with a first sorting of the dataset.
 
 Add Dataset
-~~~~~~~~~~~
+-----------
 
-To select a dataset:
+Click on *Add* to select a dataset. The data needs to adhere to a
+:doc:`specific format<data>`. You will benefit most from what active learning
+has to offer with :ref:`data:High quality data`.
 
-1. :doc:`start`.
-2. Start a new project.
-3. Click the *Start Setup* button.
-4. Choose one of the four options to select a dataset and click upload:
+Depending on the :ref:`Project mode <project_create:Project modes>`, you are
+offered the following options for adding a dataset. Keep in mind the in Oracle
+mode, your dataset is unlabeled or :ref:`data_labeled:Partially labeled data`. For Exploration and Simulation mode, you need :ref:`data_labeled:Fully labeled
+data`.
 
-.. figure:: ../images/asreview_prescreening_datasets.png
-   :alt: ASReview dataset selector
+.. note::
 
-.. warning::
-
-    If you upload your own data, make sure to remove duplicates and to retrieve
-    as many abstracts as possible (`don't know how?
-    <https://asreview.ai/blog/the-importance-of-abstracts/>`_). With clean data you
-    benefit most from what Active Learning
-    has to offer.
+    You will benefit most from what active learning has to offer with :ref:`data:High quality data`.
 
 
 From File
 ~~~~~~~~~
 
-Upload your file by *Drag 'n' Drop*, or select your file via the browser.
-The data needs to adhere to a :doc:`specific format<data>`. If a
-file is uploaded and recognized as one of the available formats, it will
-display the message *Successful upload* and state the number of records in
-the dataset.
+Drag and drop your file or select your file. Click on Save on the top right.
 
 From URL
 ~~~~~~~~
 
-Fill in a link to a file on the Internet. For example, a link from this
-`dataset repository <https://github.com/asreview/systematic-review-datasets>`__.
+Use a link to a dataset on the Internet. For example, a link from this
+`dataset repository
+<https://github.com/asreview/systematic-review-datasets>`__. Click on Save on
+the top right.
 
 From Extension
 ~~~~~~~~~~~~~~
 
-Select a file available via an extension.
+Oracle and Exploration only. Select a file available via an extension. Click
+on Save on the top right.
 
 Benchmark Datasets
 ~~~~~~~~~~~~~~~~~~
 
-Select one of the :ref:`data_labeled:benchmark datasets`.
+Simulation and Exploration only. Select one of the
+:ref:`data_labeled:benchmark datasets`. Click
+on Save on the top right.
 
-
-
-.. _select-prior-knowledge:
 
 Select Prior Knowledge
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 The first iteration of the active learning cycle requires prior knowledge to
 work. This knowledge is used to train the first model. In this step you need
@@ -163,28 +176,18 @@ documents. Indicate for each document whether it is relevant or irrelevant.
 After labeling a couple of randomly selected documents, ASReview LAB will
 ask you whether you want to stop. Click on **STOP** and click **Next**.
 
+Select model
+============
 
-.. _select-model:
+In the next step of the setup, you can select a model. The default settings
+(Naïve Bayes, TF-IDF, Max) has fast and excellent performance. Most users can skip this step and click *Next*.
 
-Select Model
-------------
+Select model (advanced)
+-----------------------
 
 It is possible to change the settings of the Active learning model. There are
-three ingredients that can be changed in the software: the type of classifier,
-the query strategy and the feature extraction technique.
-
-To change the default setting:
-
-1. :doc:`start`.
-2. Start a new project, upload a dataset and select prior knowledge.
-3. Click on the **edit** icon (top right).
-4. Using the drop-down menu select a different classifier, query strategy or feature extraction technique.
-5. Click Finish.
-
-
-.. figure:: ../images/asreview_prescreening_model.png
-   :alt: ASReview model
-
+four ingredients that can be changed in the software: the type of classifier,
+the query strategy, balance strategy, and the feature extraction technique.
 
 The classifier is the machine learning model used to compute the relevance
 scores. The available classifiers are Naive Bayes, Support Vector
@@ -219,133 +222,14 @@ this only has to be done once per simulation/review. The upside of this method
 is the dimension-reduction that generally takes place, which makes the
 modelling quicker.
 
-
-
-
-
-If you want to continue with an existing project, simply click on the title.
-
-.. figure:: ../images/v0.14_04_overview_projects.png
-   :alt: Project overview
-
-
-Project Dashboard
------------------
-
-After a successful project initialization, a project dashboard will be shown
-and you are ready to continue with setting-up the project, like uploading data
-for the Oracle and Exploration.
-
-
-.. figure:: ../images/v0.18_03_project_dashboard_empty.png
-   :alt: Project dashboard in setup stage
-
-
-
-
-This is a quick tour in using the ASReview LAB software in Oracle Mode, which
-is the user-friendly frontend for active learning in systematic reviews for
-unlabeled data with interaction by the user. A more elaborate instruction can
-be found in this `blogpost <https://asreview.ai/blog/asreview-class-101/>`_ on the
-ASReview website.
-
-
-Select Dataset
---------------
-
-Select the dataset you want to use, which should contain at least the
-titles and/or abstracts of all documents (records) you want to screen.
-
-There are four ways to select a dataset:
-
-- Upload your own dataset. Read more about the format on :doc:`data`.
-- Import a dataset with an URL. Read more about the format on :doc:`data`.
-- Select a dataset from an :doc:`extensions_overview`).
-- Choose one of the benchmark datasets.
-
-.. figure:: ../images/asreview_prescreening_datasets.png
-   :alt: ASReview dataset selector
-
-After a successfull upload of the data, move to the next step.
-
-.. figure:: ../images/asreview_prescreening_datasets_uploaded.png
-   :alt: ASReview dataset uploaded
-
-.. warning::
-
-    If you upload your own data, make sure to remove duplicates and to retrieve
-    as many abstracts as possible (`don't know how?
-    <https://asreview.ai/blog/the-importance-of-abstracts/>`_). With clean data you
-    benefit most from what Active Learning
-    has to offer.
-
-
-Select Active Learning Model
-----------------------------
-
-In the next step of the setup, you can :ref:`select a model <select-model>`.
-The default setup (Naïve Bayes, tf-idf, Max) overall has fast and
-excellent performance, but many
-more options are :ref:`available <feature-extraction-table>` . After choosing
-your model, click on `Finish`. You will return to the project page and the
-model is trained for the first time.
-
-
-.. figure:: ../images/asreview_prescreening_model.png
-   :alt: ASReview model
-
 During the screening phase, it is not possible to change the model. However,
 it is possible to select a first model, screen part of the data, and export
 the dataset with the labeling decisions of the first model. This
 partly-labeled dataset can be imported into a new project and the labels based
 on the first model will be recognized as prior knowledge. Then, a second model
 can be trained on the partly-labeled data, and the new predictions will be
-based on the second model. In the simulation mode, this process can be
-simulated using the third party `ASReview Model Switcher extension
-<https://github.com/JTeijema/asreview-plugin-model-switcher>`_ .
+based on the second model.
 
 
-Exploration Mode
-----------------
-
-The exploration mode can be used to explore to performance of the active
-learning software and the performance of :ref:`different algorithms
-<feature-extraction-table>` on already labeled data. In this mode relevant
-records are displayed in green and a recall curve can be obtained.
-
-Upload a Benchmark Dataset
---------------------------
-
-Select one of the available :ref:`benchmark datasets <data_labeled:benchmark datasets>`.
-
-.. figure:: ../images/asreview_prescreening_demo_datasets.png
-   :alt: Demo datasets
-
-
-Prior Inclusions
-~~~~~~~~~~~~~~~~
-
-In the next step, you are asked to add prior inclusions. Select 1-5 papers of
-your choice. For the featured datasets you can use the following titles of
-papers:
-
-Prior Exclusions
-~~~~~~~~~~~~~~~~
-
-Mark five random papers as irrelevant.
-
-
-START reviewing
-~~~~~~~~~~~~~~~
-
-Start reviewing the first 50, 100 or even 200 papers. Abstracts in green are
-relevenant papers and abstracts in black are irrelevant.
-
-- For the *PTSD Trajectories* dataset you expect to find about 7 out of 38 relevant papers after screening 50 papers, 19 after screening 100 papers and 36 after 200 papers.
-- For the *Virus Metagenomics* dataset you expect to find 20 out of 120 relevant papers after screening 50 papers, 40 after screening 100 papers and 70 after 200 papers
-- For the *Software Fault Prediction* dataset you expect to find 25 out of 104 relevant papers after screening 50 papers, 48 after screening 100 papers and 88 after 200 papers.
-- For the *ACEinhibitors* dataset you expect to find 16 out of 41 relevant papers after screening 50 papers, 27 after screening 100 papers and 32 after 200 papers.
-
-
-
-
+Warm up
+=======

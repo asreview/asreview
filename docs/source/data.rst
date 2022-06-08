@@ -18,7 +18,7 @@ a reference manager. See :ref:`data:Compatibility` for reference managers
 export formats supported by ASReview. For more information about the format of
 the dataset, see :doc:`data_format`.
 
-High Quality Data
+High quality data
 -----------------
 
 When you import your dataset, remove duplicates and retrieve the text in as
