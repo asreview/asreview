@@ -48,14 +48,11 @@ provide some tips on when to stop with screening.
 Autosave
 --------
 
-Your labeling decision is saved automatically. There is no need to press any buttons to
-save your work anywhere in ASReview LAB.
+Your decisions are saved automatically into your ASReview project file. There
+is no need to press any buttons to save your work anywhere in ASReview LAB.
 
-
-.. _undo-last:
-
-Undo decisions
---------------
+Change decisions
+----------------
 
 In some cases, you might want to change your previous decision. The screening
 interface of ASReview LAB offers two options to change your decision.
@@ -63,140 +60,64 @@ interface of ASReview LAB offers two options to change your decision.
 Undo last decision
 ~~~~~~~~~~~~~~~~~~
 
+You can return to your previous decision during screening. You can disable
+this option in the Settings menu.
 
-You can allow returning to the previous decision during screening.
-By default, the undo option is enabled.
 
-
-1. Open ASReview LAB.
-2. Open or create a project.
+1. :doc:`start`.
+2. Open or :doc:`project_create`.
 3. Label the record displayed in the screen as relevant or irrelevant.
-4. Click on **Undo** (See picture below).
-
-.. figure:: ../images/undo_button.png
-   :alt: Undo previous decision
-
+4. Click on **Undo** (At the bottom right)
 5. Click on **Keep (ir)relevant** or **Convert to (ir)relevant**
-6. Continue labeling.
+6. Continue screening.
 
 
-Review History
-~~~~~~~~~~~~~~
+Screening history
+~~~~~~~~~~~~~~~~~
 
-An overview of your decisions made during screening can be found in the
-**Review History** dialog.
-
-Open history
-~~~~~~~~~~~~
-
-1. Open ASReview LAB.
-2. Open or create a project.
-3. Start/continue screening.
-4. Click on **Review History** in the *menu bar* on top. A dialog will open with the labeled records.
-5. With the drop-down list, you can select records to display (all, relevant only, or irrelevant only).
-6. By clicking on a title, the full information opens.
-
-.. figure:: ../images/asreview_screening_history_overview.png
-   :alt: Undo previous decision
-
-Changing decisions
-~~~~~~~~~~~~~~~~~~
-
-7. To change a label of a record, click **convert to ...**. The next iteration of the model will take the new label into account.
-8. To go back to the overview, click **←**.
-9. To close the Review History, click **Close**.
+An overview of your decisions made during screening can be found on the
+**History** page. You can change decisions on this page.
 
 
-.. figure:: ../images/asreview_screening_history_metadata.png
-   :alt: Undo previous decision
+1. :doc:`start`.
+2. Open or :doc:`project_create`.
+3. Click on History in the menu on the left.
+
+.. figure:: ../images/project_history.png
+   :alt: Show project history
+
+Changing decisions on the history page
+
+4. To change a label of a record, click the heart icon. The next iteration of the model will take the new label into account.
 
 
 Full Text
 ---------
 
-If a column with Digital Object Identifiers (DOI) is available in the metadata
-of your dataset, ASReview LAB will display the DOI with hyperlink during
+If a column with Digital Object Identifiers (DOI) or URLs is available in the
+metadata of your dataset, ASReview LAB will display the DOI and URL during
 screening. Most of the time, DOIs point to the full-text of a publication. See
-:doc:`datasets <data>` for more information on including DOI values to your
-datasets. To access the full text:
+:doc:`datasets <data>` for more information on including DOI and URL values to
+your datasets.
 
-.. figure:: ../images/doi.png
+.. figure:: ../images/screening_full_text.png
    :alt: Digital Object Identifier (DOI)
 
-
-Statistics Panel
-----------------
-
-For unlabeled data, ASReview LAB offers some insightful graphs to keep track
-of your screening process so far. To open the statistics panel:
-
-1. Open ASReview LAB.
-2. Open a project.
-3. Start screening.
-4. Click the **statistics** icon in the upper-right corner.
-5. To close the panel click on the '>' icon.
-
-In the top of the statistics panel the project name, authors and total number
-of records in the dataset are displayed.
-
-The pie chart presents an overview of how many relevant (green) and
-irrelevant (orange) records have been screened so far. Also, the total number
-of records screened is displayed, as well as the percentage screened relative
-to the total number of records in the dataset.
-
-The second plot is a progress plot. On the x-axis the number of records
-screened is tracked. The y-axis shows a moving average. It displays the ratio
-between relevant and irrelevant records for a batch of 10 labeled records. If
-you hoover over the plot you can see the moving average for any batch of 10
-labeled records.
-
-Underneath the progress plot, the number of irrelevant records after the last
-relevant is shown. This statistic might help in deciding when to stop
-reviewing, see `blogpost *ASReview Class 101*
-<https://asreview.ai/blog/asreview-class-101/>`_ for more instructions how to
-use this graph.
-
-
-
-Download Results
-----------------
-
-
-A file containing all metadata including your decisions can be downloaded
-any time during the screening process. To download your results:
-
-1. Open ASReview LAB.
-2. Open a project.
-3. Start screening.
-4. Click the **download** icon in the upper-right corner.
-5. You will be asked whether you want to save an Excel or a CSV file.
-6. You will be asked where to save the file.
-
-
-.. figure:: ../images/asreview_screening_result.png
-   :alt: ASReview download results
-
-
-Hamburger menu
---------------
-
-Via the hamburger menu in the left-upper corner you can:
-
-1. Navigate back to the Project Dashboard containing all your projects (or to start a new project).
-2. You can access the Project Dashboard.
-3. Navigate to the documention via the `HELP <https://asreview.readthedocs.io/en/latest/>`_ button.
-4. Provide feedback or `contribute <https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md>`_ to the code.
-5. Donate to the ASReview project via the `ASReview crowdfunding platform <https://asreview.ai/donate>`_.
-6. Quit the software (your progress is saved automatically).
-
-
-.. _keybord-shortcuts:
 
 Keyboard shortcuts
 ------------------
 
 ASReview LAB supports the use of keyboard shortcuts during screening. The
 table below lists the available keyboard shortcuts.
+
+.. note::
+
+  Keyboard shortcuts are only available when the **Undo** feature has been
+  enabled in the Settings (bottom left).
+
+You can press a key (or a combination of keys) to label a record as relevant
+or irrelevant, or to return to the previous decision during screening.
+By default, keyboard shortcuts are disabled.
 
 +-----------------------------+------------------------+
 | Action                      | Shortcut               |
@@ -208,19 +129,6 @@ table below lists the available keyboard shortcuts.
 | Return to previous decision | **u** or **Shift + u** |
 +-----------------------------+------------------------+
 
-.. note:
-
-  Keyboard shortcuts are only available when the **Undo** feature has been
-  enabled in the :ref:`settings panel<toggle-shortcuts>.
-
-
-You can press a key (or a combination of keys) to label a record as relevant
-or irrelevant, or to return to the previous decision during screening.
-By default, keyboard shortcuts are disabled.
-
-.. figure:: ../images/asreview_settings_keyboard_shortcuts.png
-   :alt: Keyboard shortcuts
-
 
 Display
 -------
@@ -230,20 +138,12 @@ Dark mode
 
 ASReview LAB offers the option to customize the screening appearance and functionality.
 
-1. Open ASReview LAB.
-2. Click on Menu (top left).
-3. Click on Settings.
-
-.. figure:: ../images/asreview_settings.png
-   :alt: ASReview settings
+1. :doc:`start`.
+2. Click on *Settings* (bottom left).
+3. Go to *Display* and toggle the dark mode
 
 .. note::
   Your preference is saved in the browser.
-
-By default, the dark mode is disabled.
-
-.. figure:: ../images/asreview_settings_dark_mode.png
-   :alt: Dark mode
 
 
 Font size
@@ -251,17 +151,7 @@ Font size
 
 You can make the text on the review screen smaller or larger.
 
-.. figure:: ../images/asreview_settings_font_size.png
-   :alt: Font size
-
-
-Review Preferences
-------------------
-
-
-
-Return to Project Dashboard
----------------------------
-
-If you want to return to the project dashboard, click the hamburger menu (top
-left) and click **Project Dashboard**.
+1. :doc:`start`.
+2. Click on *Settings* (bottom left).
+3. Go to *Display* and click on *Font size*.
+4. Slide the slider to the desired font size.

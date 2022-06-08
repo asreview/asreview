@@ -15,7 +15,6 @@ texts for search tasks. A well-established approach to increasing efficiency
 is screening prioritization via [Active
 Learning](https://asreview.readthedocs.io/en/latest/guides/activelearning.html).
 
-
 The Active learning for Systematic Reviews (ASReview) project, publised in
 [*Nature Machine Intelligence*](https://doi.org/10.1038/s42256-020-00287-7),
 implements different machine learning algorithms that interactively query the
@@ -45,9 +44,7 @@ ASReview software implements three different modes:
 The ASReview software requires Python 3.7+. Detailed step-by-step instructions
 to install Python and ASReview are available for
 [Windows](https://asreview.nl/installation-guide-windows/) and
-[macOS](https://asreview.nl/installation-guide-macos/) users. The project is
-available on [Pypi](https://pypi.org/project/asreview/). Install the project
-with (Windows users might have to use the prefix `python -m`):
+[macOS](https://asreview.nl/installation-guide-macos/) users.
 
 ```bash
 pip install asreview
@@ -59,19 +56,17 @@ Upgrade ASReview with the following command:
 pip install --upgrade asreview
 ```
 
-Instructions for usage with Docker are [here](docker/README.md).
+To install ASReview LAB with Docker, see [Install with Docker](https://asreview.readthedocs.io/en/latest/installation.html).
 
 ## How it works
 
 [![ASReview LAB explained - animation](https://img.youtube.com/vi/k-a2SCq-LtA/0.jpg)](https://www.youtube.com/watch?v=k-a2SCq-LtA)
 
 
-## ASReview LAB
+## Getting started
 
-ASReview LAB is a user-friendly interface for screening records and
-experimentation with AI-aided systematic reviews. Read more about using the
-software in the [Quick
-Tour](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html).
+[Getting Started with ASReview
+LAB](https://asreview.readthedocs.io/en/latest/about.html).
 
 [![ASReview LAB](https://github.com/asreview/asreview/blob/master/images/ASReviewWebApp.png?raw=true)](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html "ASReview LAB Quick Tour")
 

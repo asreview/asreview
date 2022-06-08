@@ -71,7 +71,7 @@ and `Docker Hub <https://hub.docker.com/r/asreview/asreview>`_.
 
     screening
 
-    finish
+    progress
 
     manage
 

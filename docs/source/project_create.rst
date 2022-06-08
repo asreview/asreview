@@ -32,7 +32,7 @@ Add Dataset
 
 To select a dataset:
 
-1. Open ASReview LAB.
+1. :doc:`start`.
 2. Start a new project.
 3. Click the *Start Setup* button.
 4. Choose one of the four options to select a dataset and click upload:
@@ -88,7 +88,7 @@ this, it is possible to search within your dataset (for finding prior relevant
 papers) or ask the software to present a couple of random documents (for prior
 irrelevant papers).
 
-1. Open ASReview LAB.
+1. :doc:`start`.
 2. Start a new project.
 3. Click the *Start Setup* button.
 4. Select a dataset.
@@ -175,7 +175,7 @@ the query strategy and the feature extraction technique.
 
 To change the default setting:
 
-1. Open ASReview LAB.
+1. :doc:`start`.
 2. Start a new project, upload a dataset and select prior knowledge.
 3. Click on the **edit** icon (top right).
 4. Using the drop-down menu select a different classifier, query strategy or feature extraction technique.

@@ -13,7 +13,7 @@ Import Project
 
 To import a project:
 
-1. Open ASReview LAB.
+1. :doc:`start`.
 2. Go to the *Projects dashboard* (http://localhost:5000/projects)
 3. Click on the *Import project* icon on the top right.
 4. Click on *Select file* and select a project from your device (with ``.asreview`` extension.
@@ -30,7 +30,7 @@ review.
 
 To export your project:
 
-1. Open ASReview LAB.
+1. :doc:`start`.
 2. Go to the *Projects dashboard* (http://localhost:5000/projects)
 3. Hover the project you want to export and click on the *Export* icon.
 4. Click on *Select file* and click on *Project*.
@@ -44,7 +44,7 @@ Delete Project
 
 To permanently delete a project, including ALL files:
 
-1. Open ASReview LAB.
+1. :doc:`start`.
 2. Go to the *Projects dashboard* (http://localhost:5000/projects)
 3. Hover the project you want to export and click on *Options*.
 4. Click on *Delete forever*.
