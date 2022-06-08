@@ -33,7 +33,7 @@ model is trained.
 
 As you keep reviewing documents and providing more labels, the number of
 unlabeled documents left in the dataset will decline. When to stop is left to
-the user. The `blogpost *ASReview Class 101* <https://asreview.nl/blog/asreview-class-101/>`_
+the user. The `blogpost *ASReview Class 101* <https://asreview.ai/blog/asreview-class-101/>`_
 and the `discussion board <https://github.com/asreview/asreview/discussions/557>`_
 provide some tips on when to stop with screening.
 
@@ -153,7 +153,7 @@ labeled records.
 Underneath the progress plot, the number of irrelevant records after the last
 relevant is shown. This statistic might help in deciding when to stop
 reviewing, see `blogpost *ASReview Class 101*
-<https://asreview.nl/blog/asreview-class-101/>`_ for more instructions how to
+<https://asreview.ai/blog/asreview-class-101/>`_ for more instructions how to
 use this graph.
 
 
@@ -186,7 +186,7 @@ Via the hamburger menu in the left-upper corner you can:
 2. You can access the Project Dashboard.
 3. Navigate to the documention via the `HELP <https://asreview.readthedocs.io/en/latest/>`_ button.
 4. Provide feedback or `contribute <https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md>`_ to the code.
-5. Donate to the ASReview project via the `ASReview crowdfunding platform <https://asreview.nl/donate>`_.
+5. Donate to the ASReview project via the `ASReview crowdfunding platform <https://asreview.ai/donate>`_.
 6. Quit the software (your progress is saved automatically).
 
 

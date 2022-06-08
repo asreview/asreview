@@ -40,7 +40,7 @@ Simulations require :ref:`fully labeled datasets <data_labeled:fully labeled dat
 
     When you import your data, make sure to remove duplicates and to retrieve
     as many abstracts as possible (`See Importance-of-abstracts blog for help
-    <https://asreview.nl/blog/the-importance-of-abstracts/>`_). With clean data you
+    <https://asreview.ai/blog/the-importance-of-abstracts/>`_). With clean data you
     benefit most from what :doc:`active learning <about>`
     has to offer.
 

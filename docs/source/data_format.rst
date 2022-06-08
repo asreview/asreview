@@ -75,7 +75,7 @@ If a Digital Object Identifier ( ``DOI``) is available it will be displayed duri
 screening phase as a clickable hyperlink to the full text document. Note by
 using ASReview you do *not* automatically have access to full-text and if you do
 not have access you might want to read this `blog post
-<https://asreview.nl/blog/tools-that-work-well-with-asreview-google-scholar-button/>`__.
+<https://asreview.ai/blog/tools-that-work-well-with-asreview-google-scholar-button/>`__.
 
 **Included** A binary variable indicating the existing labeling decisions with
 ``0`` = irrelevant/excluded, and ``1`` = relevant/included. Different column

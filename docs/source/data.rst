@@ -4,7 +4,7 @@ Prepare your Data
 To perform a systematic review, ASReview requires a dataset representing
 all records (e.g., abstracts of scientific papers) obtained in a systematic
 search. To create such a dataset for a systematic review, typically an `online
-library search <https://asreview.nl/blog/the-importance-of-abstracts/>`__ is
+library search <https://asreview.ai/blog/the-importance-of-abstracts/>`__ is
 performed for all studies related to a particular topic.
 
 It is possible to use your own dataset with unlabeled, :doc:`data_labeled`
@@ -16,7 +16,7 @@ demonstrating ASReview (used for the Exploration mode), the software offers :ref
 
     When you import your data, make sure to remove duplicates and to retrieve
     as many abstracts as possible (`See Importance-of-abstracts blog for help
-    <https://asreview.nl/blog/the-importance-of-abstracts/>`_). With clean data you
+    <https://asreview.ai/blog/the-importance-of-abstracts/>`_). With clean data you
     benefit most from what :doc:`active learning <about>`
     has to offer.
 

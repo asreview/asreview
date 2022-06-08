@@ -22,7 +22,7 @@ Artificial Intelligence (AI) and machine learning has allowed the development
 of AI-aided pipelines that assist in finding relevant texts for search tasks.
 A well-established approach to increase the efficiency
 screening large amounts of textual data is screening prioritization through
-`Active Learning <https://asreview.nl/blog/active-learning-explained/>`_: a constant
+`Active Learning <https://asreview.ai/blog/active-learning-explained/>`_: a constant
 interaction between a human who labels records and a machine learning model
 which selects the most likely relevant record based on a minimum training
 dataset. It allows the screening of large amounts of text in an intelligent

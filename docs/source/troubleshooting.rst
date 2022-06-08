@@ -29,8 +29,8 @@ If this doesn't return 3.7 or higher, then Python isn't or not correctly
 installed.
 
 Most likely, the enviroment variables aren't configured correctly. Follow
-the step-by-step installation instruction on the ASReview website (`Windows <https://asreview.nl/download/>`__
-and `MacOS <https://asreview.nl/download/>`__).
+the step-by-step installation instruction on the ASReview website (`Windows <https://asreview.ai/download/>`__
+and `MacOS <https://asreview.ai/download/>`__).
 
 However, there is a simple way to deal with correct environment variables
 by ading `python -m` in front of the command. For example:
@@ -67,8 +67,8 @@ released very recently. Because of this, the dependencies of ASReview are not
 compatible with your Python installation yet. It is advised to install
 the second most recent version of Python instead. Detailed step-by-step instructions
 to install Python (and ASReview) are available for
-`Windows <https://asreview.nl/download/>`__ and
-`MacOS <https://asreview.nl/download/>`__ users.
+`Windows <https://asreview.ai/download/>`__ and
+`MacOS <https://asreview.ai/download/>`__ users.
 
 Remove temporary files
 ----------------------

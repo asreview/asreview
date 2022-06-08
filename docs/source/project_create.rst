@@ -44,7 +44,7 @@ To select a dataset:
 
     If you upload your own data, make sure to remove duplicates and to retrieve
     as many abstracts as possible (`don't know how?
-    <https://asreview.nl/blog/the-importance-of-abstracts/>`_). With clean data you
+    <https://asreview.ai/blog/the-importance-of-abstracts/>`_). With clean data you
     benefit most from what Active Learning
     has to offer.
 
@@ -246,7 +246,7 @@ for the Oracle and Exploration.
 This is a quick tour in using the ASReview LAB software in Oracle Mode, which
 is the user-friendly frontend for active learning in systematic reviews for
 unlabeled data with interaction by the user. A more elaborate instruction can
-be found in this `blogpost <https://asreview.nl/blog/asreview-class-101/>`_ on the
+be found in this `blogpost <https://asreview.ai/blog/asreview-class-101/>`_ on the
 ASReview website.
 
 
@@ -275,7 +275,7 @@ After a successfull upload of the data, move to the next step.
 
     If you upload your own data, make sure to remove duplicates and to retrieve
     as many abstracts as possible (`don't know how?
-    <https://asreview.nl/blog/the-importance-of-abstracts/>`_). With clean data you
+    <https://asreview.ai/blog/the-importance-of-abstracts/>`_). With clean data you
     benefit most from what Active Learning
     has to offer.
 

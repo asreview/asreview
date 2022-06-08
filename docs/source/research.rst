@@ -2,7 +2,7 @@ Research
 ========
 
 The open source ASReview LAB software is one of the products of the `ASReview
-research project <https://asreview.nl/about/>`_. The ASReview research project
+research project <https://asreview.ai/about/>`_. The ASReview research project
 is a fundamental and applied research project studying the application of AI
 in the field of systematic reviews. The research is conducted by the research
 team, partners, and contributors. ASReview LAB is stable and validated by the
@@ -11,7 +11,7 @@ scientific community `(Van de Schoot et al., 2020)
 is written by researchers for researchers.
 
 The team defined and implements the `five fundamental principles of ASReview
-<https://asreview.nl/blog/the-zen-of-elas/>`_:
+<https://asreview.ai/blog/the-zen-of-elas/>`_:
 
 1. Humans are the oracle;
 2. Code is open & results are transparent;
@@ -34,4 +34,4 @@ project.
 - For citing the documentation (or to download the pdf) go to `Zenodo <https://doi.org/10.5281/zenodo.4287119>`_.
 
 - More studies related to the project can be found on the
-  `asreview.ai/research <https://asreview.nl/research/>`_.
+  `asreview.ai/research <https://asreview.ai/research/>`_.
