@@ -43,8 +43,8 @@ ASReview software implements three different modes:
 
 The ASReview software requires Python 3.7+. Detailed step-by-step instructions
 to install Python and ASReview are available for
-[Windows](https://asreview.nl/installation-guide-windows/) and
-[macOS](https://asreview.nl/installation-guide-macos/) users.
+[Windows](https://asreview.ai/installation-guide-windows/) and
+[macOS](https://asreview.ai/installation-guide-macos/) users.
 
 ```bash
 pip install asreview
@@ -85,11 +85,11 @@ the ASReview software on Zenodo https://doi.org/10.5281/zenodo.3345592. The menu
 right can be used to find the citation format of prevalence.
 
 For more scientific publications on the ASReview software, go to
-[asreview.nl/papers](https://asreview.nl/papers/).
+[asreview.ai/papers](https://asreview.ai/papers/).
 
 ## Contact
 
-For an overview of the team working on ASReview, see [ASReview Research Team](https://asreview.nl/about).
+For an overview of the team working on ASReview, see [ASReview Research Team](https://asreview.ai/about).
 ASReview LAB is maintained by
 [Jonathan de Bruin](https://github.com/J535D165) and [Yongchao Terry Ma](https://github.com/terrymyc).
 
@@ -101,7 +101,7 @@ contact with the team are:
 - Quick tour - [ASReview LAB quick tour](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html)
 - Issues or feature requests - [ASReview issue tracker](https://github.com/asreview/asreview/issues)
 - FAQ - [ASReview Discussions](https://github.com/asreview/asreview/discussions?discussions_q=sort%3Atop)
-- Donation - [asreview.nl/donate](https://asreview.nl/donate)
+- Donation - [asreview.ai/donate](https://asreview.ai/donate)
 - Contact - [asreview@uu.nl](mailto:asreview@uu.nl)
 
 ## License
