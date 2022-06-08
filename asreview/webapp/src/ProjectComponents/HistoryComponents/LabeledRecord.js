@@ -9,6 +9,7 @@ import {
   ButtonBase,
   CircularProgress,
   Fade,
+  Stack,
   Typography,
 } from "@mui/material";
 import { grey } from "@mui/material/colors";
@@ -37,7 +38,7 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.priorRecordCard}`]: {
     height: "calc(100vh - 208px)",
     overflowY: "scroll",
-    padding: "16px 24px",
+    padding: "32px 24px",
   },
 
   [`& .${classes.loadMoreInView}`]: {
@@ -125,11 +126,12 @@ const LabeledRecord = (props) => {
         !(isLoading || !mounted.current) &&
         isFetched && (
           <Fade in={!isError && !(isLoading || !mounted.current) && isFetched}>
-            <Box
+            <Stack
               className={clsx({
                 [classes.priorRecordCard]: props.is_prior,
               })}
               aria-label="labeled record card"
+              spacing={3}
             >
               {isFetched &&
                 data.pages.map((page, index) => (
@@ -162,7 +164,7 @@ const LabeledRecord = (props) => {
                   </Typography>
                 </ButtonBase>
               </InView>
-            </Box>
+            </Stack>
           </Fade>
         )}
     </Root>

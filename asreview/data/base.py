@@ -209,18 +209,18 @@ class ASReviewData():
         else:
             index_list = i
 
-        if not by_index:
-            records = [
-                PaperRecord(**self.df.loc[j, :],
-                            record_id=j,
-                            column_spec=self.column_spec) for j in index_list
-            ]
-        else:
+        if by_index:
             records = [
                 PaperRecord(**self.df.iloc[j],
                             column_spec=self.column_spec,
                             record_id=self.df.index.values[j])
                 for j in index_list
+            ]
+        else:
+            records = [
+                PaperRecord(**self.df.loc[j, :],
+                            record_id=j,
+                            column_spec=self.column_spec) for j in index_list
             ]
 
         if is_iterable(i):
@@ -347,18 +347,6 @@ class ASReviewData():
         except KeyError:
             self.df["included"] = labels
 
-    @property
-    def abstract_included(self):
-        return self.get("abstract_included")
-
-    @abstract_included.setter
-    def abstract_included(self, abstract_included):
-        try:
-            column = self.column_spec["abstract_included"]
-            self.df[column] = abstract_included
-        except KeyError:
-            self.df["abstract_included"] = abstract_included
-
     def prior_labels(self, state, by_index=True):
         """Get the labels that are marked as 'prior'.
 
@@ -373,7 +361,7 @@ class ASReviewData():
         numpy.ndarray
             Array of indices that have the 'prior' property.
         """
-        prior_indices = state.get_priors().to_list()
+        prior_indices = state.get_priors()["record_id"].to_list()
 
         if by_index:
             return np.array(prior_indices, dtype=int)

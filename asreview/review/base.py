@@ -1,3 +1,4 @@
+import logging
 from abc import ABC
 
 import numpy as np
@@ -20,8 +21,8 @@ class BaseReview(ABC):
     ---------
     as_data: asreview.ASReviewData
         The data object which contains the text, labels, etc.
-    state_file: path-like
-        Path to state file.
+    project: path-like
+        Path to the project file.
     model: BaseTrainClassifier
         Initialized model to fit the data during active learning.
         See asreview.models.utils.py for possible models.
@@ -36,33 +37,27 @@ class BaseReview(ABC):
     feature_model: BaseFeatureExtraction
         Feature extraction model that converts texts and keywords to
         feature matrices.
-    n_papers: int
-        Number of papers to review during the active learning process,
-        excluding the number of initial priors. To review all papers, set
-        n_papers to None.
     n_instances: int
         Number of papers to query at each step in the active learning
         process.
-    n_queries: int
+    stop_if: int
         Number of steps/queries to perform. Set to None for no limit.
     start_idx: numpy.ndarray
         Start the simulation/review with these indices. They are assumed to
         be already labeled. Failing to do so might result bad behaviour.
     """
 
-    name = "base"
-
     def __init__(
         self,
         as_data,
-        state_file,
+        project,
         model=NaiveBayesClassifier(),
         query_model=MaxQuery(),
         balance_model=SimpleBalance(),
         feature_model=Tfidf(),
         n_papers=None,
         n_instances=DEFAULT_N_INSTANCES,
-        n_queries=None,
+        stop_if=None,
         start_idx=[],
     ):
         """Initialize the reviewer base class, so that everything is ready to
@@ -77,18 +72,20 @@ class BaseReview(ABC):
 
         # Set the settings.
         self.as_data = as_data
-        self.state_fp = state_file
-        self.n_papers = n_papers
+        self.project = project
         self.n_instances = n_instances
-        self.n_queries = n_queries
+        self.stop_if = stop_if
         self.prior_indices = start_idx
+
+        if n_papers is not None:
+            logging.warning("Argument n_papers is deprecated, ignoring n_papers.")
 
         # Get the known labels.
         self.data_labels = as_data.labels
         if self.data_labels is None:
             self.data_labels = np.full(len(as_data), LABEL_NA)
 
-        with open_state(self.state_fp, read_only=False) as state:
+        with open_state(self.project, read_only=False) as state:
             # If the state is empty, add the settings.
             if state.is_empty():
                 state.settings = self.settings
@@ -99,10 +96,11 @@ class BaseReview(ABC):
                 state.add_record_table(as_data.record_ids)
                 self.record_table = state.get_record_table()
 
-            # Retrieve feature matrix from the state file or create
+            # Retrieve feature matrix from the project file or create
             # one from scratch.
             try:
-                self.X = state.get_feature_matrix()
+                self.X = self.project.get_feature_matrix(
+                    self.feature_extraction.name)
             except FileNotFoundError:
                 self.X = self.feature_extraction.fit_transform(
                     as_data.texts,
@@ -110,7 +108,17 @@ class BaseReview(ABC):
                     as_data.bodies,
                     as_data.keywords
                 )
-                state.add_feature_matrix(self.X)
+
+                # check if the number of records after the transform equals
+                # the number of records in the dataset
+                if self.X.shape[0] != len(as_data):
+                    raise ValueError(
+                        "Dataset has {} records while feature "
+                        "extractor returns {} records"
+                        .format(len(as_data), self.X.shape[0]))
+
+                self.project.add_feature_matrix(self.X,
+                                                self.feature_extraction.name)
 
             # Check if the number or records in the feature matrix matches the
             # length of the dataset.
@@ -130,14 +138,12 @@ class BaseReview(ABC):
             extra_kwargs['n_prior_included'] = self.n_prior_included
         if hasattr(self, 'n_prior_excluded'):
             extra_kwargs['n_prior_excluded'] = self.n_prior_excluded
-        return ASReviewSettings(mode=self.name,
-                                model=self.classifier.name,
+        return ASReviewSettings(model=self.classifier.name,
                                 query_strategy=self.query_strategy.name,
                                 balance_strategy=self.balance_model.name,
                                 feature_extraction=self.feature_extraction.name,
                                 n_instances=self.n_instances,
-                                n_queries=self.n_queries,
-                                n_papers=self.n_papers,
+                                stop_if=self.stop_if,
                                 model_param=self.classifier.param,
                                 query_param=self.query_strategy.param,
                                 balance_param=self.balance_model.param,
@@ -147,7 +153,7 @@ class BaseReview(ABC):
     def review(self):
         """Do a full review."""
         # Label any pending records.
-        with open_state(self.state_fp, read_only=False) as state:
+        with open_state(self.project, read_only=False) as state:
             pending = state.get_pending()
             if not pending.empty:
                 self._label(pending)
@@ -162,10 +168,13 @@ class BaseReview(ABC):
 
             # Label the records.
             self._label(record_ids)
+        else:
+            # write to state when stopped
+            self._write_to_state()
 
     def _label_priors(self):
         """Make sure the prior records are labeled."""
-        with open_state(self.state_fp, read_only=False) as state:
+        with open_state(self.project, read_only=False) as state:
             labeled = state.get_labeled()
             unlabeled_priors = [x for x in self.prior_indices
                                 if x not in labeled['record_id'].to_list()]
@@ -183,29 +192,25 @@ class BaseReview(ABC):
         stop = False
 
         # Get the pool and labeled. There never should be pending papers here.
-        with open_state(self.state_fp) as state:
+        with open_state(self.project) as state:
             pool, labeled, _ = state.get_pool_labeled_pending()
 
         # if the pool is empty, always stop
         if pool.empty:
             stop = True
 
-        # If we are exceeding the number of papers, stop.
-        if self.n_papers is not None and len(labeled) >= self.n_papers:
-            stop = True
-
-        # If n_queries is set to min, stop when all papers in the pool are
+        # If stop_if is set to min, stop when all papers in the pool are
         # irrelevant.
-        if self.n_queries == 'min' and (self.data_labels[pool] == 0).all():
+        if self.stop_if == 'min' and (self.data_labels[pool] == 0).all():
             stop = True
-        # Otherwise, stop when reaching n_queries (if provided)
-        elif self.n_queries is not None:
-            with open_state(self.state_fp) as state:
+        # Otherwise, stop when reaching stop_if (if provided)
+        elif self.stop_if is not None:
+            with open_state(self.project) as state:
                 training_sets = state.get_training_sets()
                 # There is one query per trained model. We subtract 1
                 # for the priors.
-                n_queries = len(set(training_sets)) - 1
-            if n_queries >= self.n_queries:
+                stop_if = len(set(training_sets)) - 1
+            if stop_if >= self.stop_if:
                 stop = True
 
         return stop
@@ -224,7 +229,7 @@ class BaseReview(ABC):
             List of record_ids of the n top ranked records according to the last
             ranking saved in the state.
         """
-        with open_state(self.state_fp, read_only=False) as s:
+        with open_state(self.project, read_only=False) as s:
             top_n_records = s.query_top_ranked(n)
         return top_n_records
 
@@ -239,13 +244,13 @@ class BaseReview(ABC):
             Whether the records priors or not.
         """
         labels = self.data_labels[record_ids]
-        with open_state(self.state_fp, read_only=False) as s:
+        with open_state(self.project, read_only=False) as s:
             s.add_labeling_data(record_ids, labels, prior=prior)
 
     def train(self):
         """Train a new model on the labeled data."""
         # Check if both labels are available.
-        with open_state(self.state_fp) as state:
+        with open_state(self.project) as state:
             labeled = state.get_labeled()
             labels = labeled['label'].to_list()
             training_set = len(labeled)
@@ -277,7 +282,7 @@ class BaseReview(ABC):
 
         # TODO: Also log the probablities.
         # Log the ranking in the state.
-        with open_state(self.state_fp, read_only=False) as state:
+        with open_state(self.project, read_only=False) as state:
             state.add_last_ranking(ranked_record_ids,
                                    self.classifier.name,
                                    self.query_strategy.name,

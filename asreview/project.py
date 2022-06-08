@@ -25,8 +25,12 @@ from functools import wraps
 from pathlib import Path
 from uuid import uuid4
 
+from filelock import FileLock
 import jsonschema
 import numpy as np
+from scipy.sparse import csr_matrix
+from scipy.sparse import load_npz
+from scipy.sparse import save_npz
 
 from asreview._version import get_versions
 from asreview.config import LABEL_NA
@@ -34,13 +38,12 @@ from asreview.config import PROJECT_MODES
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.config import SCHEMA
 from asreview.state.errors import StateNotFoundError
-from asreview.state.paths import get_data_path
-from asreview.state.paths import get_reviews_path
 from asreview.state.sqlstate import SQLiteState
 from asreview.utils import asreview_path
 from asreview.webapp.io import read_data
 
 PATH_PROJECT_CONFIG = "project.json"
+PATH_PROJECT_CONFIG_LOCK = "project.json.lock"
 PATH_FEATURE_MATRICES = 'feature_matrices'
 
 
@@ -124,7 +127,7 @@ def _create_project_id(name):
 
 def is_project(project_path):
 
-    project_path = Path(project_path) / "project.json"
+    project_path = Path(project_path) / PATH_PROJECT_CONFIG
 
     return project_path.exists()
 
@@ -132,7 +135,7 @@ def is_project(project_path):
 def is_v0_project(project_path):
     """Check if a project file is of a ASReview version 0 project."""
 
-    return not get_reviews_path(project_path).exists()
+    return not Path(project_path, "reviews").exists()
 
 
 @contextmanager
@@ -141,7 +144,7 @@ def open_state(asreview_obj, review_id=None, read_only=True):
 
     Arguments
     ---------
-    asreview_obj: str/pathlike
+    asreview_obj: str/pathlike/ASReviewProject
         Filepath to the (unzipped) project folder or ASReviewProject object.
     review_id: str
         Identifier of the review from which the state will be instantiated.
@@ -175,7 +178,9 @@ def open_state(asreview_obj, review_id=None, read_only=True):
 
     try:
         if len(project.reviews) > 0:
-            logging.debug("Reviews found.")
+            if review_id is None:
+                review_id = project.config['reviews'][0]['id']
+            logging.debug(f"Opening review {review_id}.")
             state._restore(project.project_path, review_id)
         elif len(project.reviews) == 0 and not read_only:
             review_id = uuid4().hex
@@ -195,9 +200,10 @@ def open_state(asreview_obj, review_id=None, read_only=True):
 
 
 class ASReviewProject():
+    """Project class for ASReview project files."""
 
     def __init__(self, project_path, project_id=None):
-        self.project_path = project_path
+        self.project_path = Path(project_path)
         self.project_id = project_id
 
     @classmethod
@@ -210,6 +216,8 @@ class ASReviewProject():
                project_authors=None):
         """Initialize the necessary files specific to the web app."""
 
+        project_path = Path(project_path)
+
         if is_project(project_path):
             raise ProjectExistsError("Project already exists.")
 
@@ -217,11 +225,11 @@ class ASReviewProject():
             raise ValueError(f"Project mode '{project_mode}' is not in "
                              f"{PROJECT_MODES}.")
 
-        project_id = project_path.stem
+        if project_id is None:
+            project_id = project_path.stem
 
-        if not project_id and not isinstance(project_id, str) \
-                and len(project_id) >= 3:
-            raise ValueError("Project name should be at least 3 characters.")
+        if project_name is None:
+            project_name = project_path.stem
 
         if project_path.is_dir():
             raise IsADirectoryError(
@@ -229,9 +237,9 @@ class ASReviewProject():
 
         try:
             project_path.mkdir(exist_ok=True)
-            get_data_path(project_path).mkdir(exist_ok=True)
+            Path(project_path, "data").mkdir(exist_ok=True)
             Path(project_path, PATH_FEATURE_MATRICES).mkdir(exist_ok=True)
-            get_reviews_path(project_path).mkdir(exist_ok=True)
+            Path(project_path, "reviews").mkdir(exist_ok=True)
 
             config = {
                 'version':
@@ -250,9 +258,14 @@ class ASReviewProject():
             # validate new config before storing
             jsonschema.validate(instance=config, schema=SCHEMA)
 
+            project_fp = Path(project_path, PATH_PROJECT_CONFIG)
+            project_fp_lock = Path(project_path, PATH_PROJECT_CONFIG_LOCK)
+            lock = FileLock(project_fp_lock, timeout=3)
+
             # create a file with project info
-            with open(Path(project_path, PATH_PROJECT_CONFIG), "w") as f:
-                json.dump(config, f)
+            with lock:
+                with open(project_fp, "w") as f:
+                    json.dump(config, f)
 
         except Exception as err:
             # remove all generated folders and raise error
@@ -268,15 +281,21 @@ class ASReviewProject():
             return self._config
         except AttributeError:
 
+            project_fp = Path(self.project_path, PATH_PROJECT_CONFIG)
+            project_fp_lock = Path(self.project_path, PATH_PROJECT_CONFIG_LOCK)
+            lock = FileLock(project_fp_lock, timeout=3)
+
             try:
 
-                # read the file with project info
-                with open(Path(self.project_path, PATH_PROJECT_CONFIG), "r") as fp:
+                with lock:
 
-                    config = json.load(fp)
-                    self._config = config
+                    # read the file with project info
+                    with open(project_fp, "r") as fp:
 
-                    return config
+                        config = json.load(fp)
+                        self._config = config
+
+                        return config
 
             except FileNotFoundError:
                 raise ProjectNotFoundError(
@@ -286,9 +305,12 @@ class ASReviewProject():
     def config(self, config):
 
         project_fp = Path(self.project_path, PATH_PROJECT_CONFIG)
+        project_fp_lock = Path(self.project_path, PATH_PROJECT_CONFIG_LOCK)
+        lock = FileLock(project_fp_lock, timeout=3)
 
-        with open(project_fp, "w") as f:
-            json.dump(config, f)
+        with lock:
+            with open(project_fp, "w") as f:
+                json.dump(config, f)
 
         self._config = config
 
@@ -309,20 +331,13 @@ class ASReviewProject():
                 kwargs_copy["mode"]))
 
         # update project file
-        project_fp = Path(self.project_path, PATH_PROJECT_CONFIG)
-
-        with open(project_fp, "r") as f:
-            config = json.load(f)
-
+        config = self.config
         config.update(kwargs_copy)
 
         # validate new config before storing
         jsonschema.validate(instance=config, schema=SCHEMA)
 
-        with open(project_fp, "w") as f:
-            json.dump(config, f)
-
-        self._config = config
+        self.config = config
         return config
 
     def rename(self, project_name_new):
@@ -381,7 +396,7 @@ class ASReviewProject():
         self.update_config(dataset_path=file_name)
 
         # fill the pool of the first iteration
-        as_data = read_data(self.project_path)
+        as_data = read_data(self)
 
         with open_state(self.project_path, read_only=False) as state:
 
@@ -412,11 +427,11 @@ class ASReviewProject():
         self.update_config(dataset_path=None)
 
         # remove datasets from project
-        shutil.rmtree(get_data_path(self.project_path))
+        shutil.rmtree(Path(self.project_path, "data"))
 
         # remove state file if present
-        if get_reviews_path(self.project_path).is_dir() and \
-                any(get_reviews_path(self.project_path).iterdir()):
+        if Path(self.project_path, "reviews").is_dir() and \
+                any(Path(self.project_path, "reviews").iterdir()):
             self.delete_review()
 
     def clean_tmp_files(self):
@@ -434,6 +449,68 @@ class ASReviewProject():
                 os.remove(f_pickle)
             except OSError as e:
                 print(f"Error: {f_pickle} : {e.strerror}")
+
+    @property
+    def feature_matrices(self):
+        try:
+            return self.config['feature_matrices']
+        except Exception:
+            return []
+
+    def add_feature_matrix(self, feature_matrix, feature_extraction_method):
+        """Add feature matrix to project file.
+
+        Arguments
+        ---------
+        feature_matrix: numpy.ndarray, scipy.sparse.csr.csr_matrix
+            The feature matrix to add to the project file.
+        feature_extraction_method: str
+            Name of the feature extraction method.
+        """
+        # Make sure the feature matrix is in csr format.
+        if isinstance(feature_matrix, np.ndarray):
+            feature_matrix = csr_matrix(feature_matrix)
+        if not isinstance(feature_matrix, csr_matrix):
+            raise ValueError(
+                "The feature matrix should be convertible to type "
+                "scipy.sparse.csr.csr_matrix.")
+
+        matrix_filename = f'{feature_extraction_method}_feature_matrix.npz'
+        save_npz(Path(self.project_path, PATH_FEATURE_MATRICES,
+                      matrix_filename), feature_matrix)
+
+        # Add the feature matrix to the project config.
+        config = self.config
+
+        feature_matrix_config = {
+            "id": feature_extraction_method,
+            "filename": matrix_filename
+        }
+
+        # Add container for feature matrices.
+        if "feature_matrices" not in config:
+            config["feature_matrices"] = []
+
+        config["feature_matrices"].append(feature_matrix_config)
+
+        self.config = config
+
+    def get_feature_matrix(self, feature_extraction_method):
+        """Get the feature matrix from the project file.
+
+        Arguments
+        ---------
+        feature_extraction_method: str
+            Name of the feature extraction method for which to get the matrix.
+
+        Returns
+        -------
+        scipy.sparse.csr_matrix:
+            Feature matrix in sparse format.
+        """
+        matrix_filename = f'{feature_extraction_method}_feature_matrix.npz'
+        return load_npz(Path(self.project_path, PATH_FEATURE_MATRICES,
+                             matrix_filename))
 
     @property
     def reviews(self):
@@ -524,10 +601,10 @@ class ASReviewProject():
             print("Failed to remove feature matrices.")
 
         try:
-            path_review = get_reviews_path(self.project_path)
+            path_review = Path(self.project_path, 'reviews')
             shutil.rmtree(path_review)
             if not remove_folders:
-                get_reviews_path(self.project_path).mkdir(exist_ok=True)
+                Path(self.project_path, 'reviews').mkdir(exist_ok=True)
         except Exception:
             print("Failed to remove sql database.")
 
@@ -566,7 +643,7 @@ class ASReviewProject():
         # copy the source tree, but ignore pickle files
         shutil.copytree(self.project_path,
                         export_fp_tmp,
-                        ignore=shutil.ignore_patterns('*.pickle'))
+                        ignore=shutil.ignore_patterns('*.pickle', '*.lock'))
 
         # create the archive
         shutil.make_archive(export_fp_tmp, "zip", root_dir=export_fp_tmp)
@@ -624,3 +701,28 @@ class ASReviewProject():
         os.replace(tmpdir, Path(project_path, project_config["id"]))
 
         return cls(Path(project_path, project_config["id"]))
+
+    def set_error(self, err, save_error_message=True):
+
+        err_type = type(err).__name__
+        self.update_review(status="error")
+
+        # write error to file if label method is prior (first iteration)
+        if save_error_message:
+            message = {
+                "message": f"{err_type}: {err}",
+                "type": f"{err_type}",
+                "datetime": str(datetime.now())
+            }
+
+            with open(Path(self.project_path, "error.json"), 'w') as f:
+                json.dump(message, f)
+
+    def remove_error(self, status):
+        error_path = self.project_path / "error.json"
+        if error_path.exists():
+            try:
+                os.remove(error_path)
+            except Exception as err:
+                raise ValueError(f"Failed to clear the error. {err}")
+        self.update_review(status=status)

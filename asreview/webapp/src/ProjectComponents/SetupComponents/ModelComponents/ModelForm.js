@@ -153,8 +153,8 @@ const ModelForm = (props) => {
   const returnRequirement = () => {
     return (
       <React.Fragment>
-        Some classifiers and feature extraction techniques require additional
-        dependencies{" "}
+        Some combinations take a long time to warm up. Some classifiers and
+        feature extraction techniques require additional dependencies.{" "}
         {(props.model?.classifier === "nn-2-layer" ||
           props.model?.feature_extraction === "embedding-idf" ||
           props.model?.feature_extraction === "embedding-lstm") && (
@@ -251,13 +251,13 @@ const ModelForm = (props) => {
       <Box className={classes.title}>
         <Typography variant="h6">Model</Typography>
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          An active learning model consists of a classifier, a query strategy, a
-          feature extraction technique, and a balance strategy. The default
-          setup (Naive Bayes, Maximum, TF-IDF) overall has fast and excellent
-          performance.{" "}
+          An active learning model consists of a feature extraction technique, a
+          classifier, a query strategy, and a balance strategy. The default
+          setup (TF-IDF, Naive Bayes, Maximum, Dynamic resampling) overall has
+          fast and excellent performance.{" "}
           <Link
             underline="none"
-            href={`https://asreview.readthedocs.io/en/latest/guides/activelearning.html#active-learning-for-systematic-reviews`}
+            href={`https://asreview.nl/blog/active-learning-explained/`}
             target="_blank"
           >
             Learn more
@@ -281,6 +281,36 @@ const ModelForm = (props) => {
           isSuccessModelConfig && (
             <Box component="form" noValidate autoComplete="off">
               <Stack direction="column" spacing={3}>
+                <FormControl fullWidth>
+                  <InputLabel id="feature-extraction-select-label">
+                    Feature extraction technique
+                  </InputLabel>
+                  <Select
+                    id="select-feature-extraction"
+                    name="feature_extraction"
+                    label="Feature extraction technique"
+                    value={props.model?.feature_extraction}
+                    onChange={handleModel}
+                  >
+                    {modelOptions?.feature_extraction.map((value) => {
+                      return (
+                        <MenuItem
+                          key={`result-item-${value.name}`}
+                          checked={
+                            props.model?.feature_extraction === value.name
+                          }
+                          value={value.name}
+                          disabled={disableFeatureExtractionItem(value.name)}
+                        >
+                          <SelectItem
+                            primary={value.label}
+                            secondary={value.description}
+                          />
+                        </MenuItem>
+                      );
+                    })}
+                  </Select>
+                </FormControl>
                 <FormControl fullWidth>
                   <InputLabel id="classifier-select-label">
                     Classifier
@@ -357,36 +387,6 @@ const ModelForm = (props) => {
                           key={`result-item-${value.name}`}
                           checked={props.model?.balance_strategy === value.name}
                           value={value.name}
-                        >
-                          <SelectItem
-                            primary={value.label}
-                            secondary={value.description}
-                          />
-                        </MenuItem>
-                      );
-                    })}
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth>
-                  <InputLabel id="feature-extraction-select-label">
-                    Feature extraction technique
-                  </InputLabel>
-                  <Select
-                    id="select-feature-extraction"
-                    name="feature_extraction"
-                    label="Feature extraction technique"
-                    value={props.model?.feature_extraction}
-                    onChange={handleModel}
-                  >
-                    {modelOptions?.feature_extraction.map((value) => {
-                      return (
-                        <MenuItem
-                          key={`result-item-${value.name}`}
-                          checked={
-                            props.model?.feature_extraction === value.name
-                          }
-                          value={value.name}
-                          disabled={disableFeatureExtractionItem(value.name)}
                         >
                           <SelectItem
                             primary={value.label}

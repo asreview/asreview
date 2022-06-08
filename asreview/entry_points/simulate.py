@@ -31,7 +31,6 @@ from asreview.config import GITHUB_PAGE
 from asreview.data import load_data
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.entry_points.base import _base_parser
-from asreview.io.paper_record import preview_record
 from asreview.models.balance.utils import get_balance_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
@@ -41,7 +40,6 @@ from asreview.project import ProjectExistsError
 from asreview.project import open_state
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
-from asreview.state.paths import get_data_path
 from asreview.types import type_n_queries
 from asreview.utils import get_random_state
 from asreview.webapp.io import read_data
@@ -91,7 +89,7 @@ def _set_log_verbosity(verbose):
 
 
 class SimulateEntryPoint(BaseEntryPoint):
-    """Entrypoint for simulation."""
+    """Entry point for simulation with ASReview LAB."""
 
     description = "Simulate the performance of ASReview."
 
@@ -115,6 +113,8 @@ class SimulateEntryPoint(BaseEntryPoint):
         # for webapp
         if args.dataset == "":
 
+            project = ASReviewProject(args.state_file)
+
             with open_state(args.state_file) as state:
                 settings = state.settings
 
@@ -123,15 +123,13 @@ class SimulateEntryPoint(BaseEntryPoint):
 
             # collect command line arguments and pass them to the reviewer
             if exist_new_labeled_records:
-                as_data = read_data(args.state_file)
+                as_data = read_data(project)
                 prior_idx = args.prior_idx
 
             classifier_model = get_classifier(settings.model)
             query_model = get_query_model(settings.query_strategy)
             balance_model = get_balance_model(settings.balance_strategy)
             feature_model = get_feature_model(settings.feature_extraction)
-
-            project = ASReviewProject(args.state_file)
 
         # for simulation CLI
         else:
@@ -152,10 +150,10 @@ class SimulateEntryPoint(BaseEntryPoint):
 
             project = ASReviewProject.create(
                 fp_tmp_simulation,
-                project_id=fp_tmp_simulation.name,
+                project_id=Path(args.state_file).stem,
                 project_mode="simulate",
-                project_name=fp_tmp_simulation.name,
-                project_description="Simulation create via ASReview "
+                project_name=Path(args.state_file).stem,
+                project_description="Simulation created via ASReview via "
                                     "command line interface"
             )
 
@@ -163,7 +161,7 @@ class SimulateEntryPoint(BaseEntryPoint):
             dataset_path = _get_dataset_path_from_args(args.dataset)
 
             as_data.to_file(
-                Path(get_data_path(fp_tmp_simulation), dataset_path)
+                Path(fp_tmp_simulation, 'data', dataset_path)
             )
             # Update the project.json.
             project.update_config(dataset_path=dataset_path)
@@ -172,15 +170,12 @@ class SimulateEntryPoint(BaseEntryPoint):
             settings = ASReviewSettings(
                 model=args.model,
                 n_instances=args.n_instances,
-                n_queries=args.n_queries,
-                n_papers=args.n_papers,
+                stop_if=args.stop_if,
                 n_prior_included=args.n_prior_included,
                 n_prior_excluded=args.n_prior_excluded,
                 query_strategy=args.query_strategy,
                 balance_strategy=args.balance_strategy,
-                feature_extraction=args.feature_extraction,
-                mode="simulate",
-                data_fp=None)
+                feature_extraction=args.feature_extraction)
             settings.from_file(args.config_file)
 
             # Initialize models.
@@ -198,13 +193,6 @@ class SimulateEntryPoint(BaseEntryPoint):
                                               random_state=random_state,
                                               **settings.feature_param)
 
-            # TODO{Deprecate and integrate with the model}
-            # LSTM models need embedding matrices.
-            if classifier_model.name.startswith("lstm-"):
-                texts = as_data.texts
-                classifier_model.embedding_matrix = feature_model.\
-                    get_embedding_matrix(texts, args.embedding_fp)
-
             # prior knowledge
             if args.prior_idx is not None and args.prior_record_id is not None and \
                     len(args.prior_idx) > 0 and len(args.prior_record_id) > 0:
@@ -217,36 +205,50 @@ class SimulateEntryPoint(BaseEntryPoint):
                     args.prior_record_id) > 0:
                 prior_idx = convert_id_to_idx(as_data, args.prior_record_id)
 
-            print("The following records are prior knowledge:\n")
-            for prior_record_id in args.prior_record_id:
-                preview = preview_record(as_data.record(prior_record_id))
-                print(f"{prior_record_id} - {preview}")
+        if classifier_model.name.startswith("lstm-"):
+            classifier_model.embedding_matrix = feature_model.\
+                get_embedding_matrix(as_data.texts, args.embedding_fp)
 
-        # Initialize the review class.
-        reviewer = ReviewSimulate(as_data,
-                                  state_file=project,
-                                  model=classifier_model,
-                                  query_model=query_model,
-                                  balance_model=balance_model,
-                                  feature_model=feature_model,
-                                  n_papers=args.n_papers,
-                                  n_instances=args.n_instances,
-                                  n_queries=args.n_queries,
-                                  prior_indices=prior_idx,
-                                  n_prior_included=args.n_prior_included,
-                                  n_prior_excluded=args.n_prior_excluded,
-                                  init_seed=args.init_seed,
-                                  write_interval=args.write_interval)
-
-        # Start the review process.
-        project.update_review(status="review")
         try:
+            # Initialize the review class.
+            reviewer = ReviewSimulate(
+                as_data,
+                project=project,
+                model=classifier_model,
+                query_model=query_model,
+                balance_model=balance_model,
+                feature_model=feature_model,
+                n_papers=args.n_papers,
+                n_instances=args.n_instances,
+                stop_if=args.stop_if,
+                prior_indices=prior_idx,
+                n_prior_included=args.n_prior_included,
+                n_prior_excluded=args.n_prior_excluded,
+                init_seed=args.init_seed,
+                write_interval=args.write_interval)
+
+            # Start the review process.
+            project.update_review(status="review")
+
+            with open_state(project, read_only=True) as s:
+
+                prior_df = s.get_priors()
+
+                print("The following records are prior knowledge:\n")
+                for i, row in prior_df.iterrows():
+                    preview = as_data.record(row['record_id'])
+                    print(preview)
+
+            print("Simulation started")
             reviewer.review()
         except Exception as err:
-            project.update_review(status="error")
+
+            # save the error to the project
+            project.set_error(err)
+
             raise err
 
-        print("Simulation finished.")
+        print("Simulation finished")
         project.mark_review_finished()
 
         # create .ASReview file out of simulation folder
@@ -350,19 +352,21 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     parser.add_argument(
         "--n_queries",
         type=type_n_queries,
-        default=None,
-        help="The number of queries. Alternatively, entering 'min' will stop "
-        "the simulation when all relevant records have been found. By "
-        "default, the program stops after all records are reviewed or is "
-        "interrupted by the user.")
+        default="min",
+        help="Deprecated, use 'stop_if' instead.")
+    parser.add_argument(
+        "--stop_if",
+        type=type_n_queries,
+        default="min",
+        help="The number of label actions to simulate. Default, 'min' "
+        "will stop simulating when all relevant records are found. Use -1 "
+        "to simulate all labels actions.")
     parser.add_argument(
         "-n",
         "--n_papers",
         type=int,
         default=None,
-        help="The number of papers to be reviewed. By default, "
-        "the program stops after all documents are reviewed or is "
-        "interrupted by the user.")
+        help="Deprecated, use 'stop_if' instead.")
     parser.add_argument("--verbose",
                         "-v",
                         default=0,

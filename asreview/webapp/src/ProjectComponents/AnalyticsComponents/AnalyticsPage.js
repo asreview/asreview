@@ -140,7 +140,9 @@ const AnalyticsPage = (props) => {
                   <Grid container spacing={3}>
                     <Grid item xs={12} sm={5}>
                       <ProgressChart
+                        isSimulating={props.isSimulating}
                         mobileScreen={props.mobileScreen}
+                        mode={props.mode}
                         progressQuery={progressQuery}
                       />
                     </Grid>

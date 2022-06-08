@@ -56,8 +56,13 @@ class RISWriter():
         # Iterate over all available records
         for rec in records:
 
+            def _notnull(v):
+                if isinstance(v, list):
+                    return False
+                return pd.notnull(v)
+
             # Remove all nan values
-            rec_copy = {k: v for k, v in rec.items() if pd.notnull(v)}
+            rec_copy = {k: v for k, v in rec.items() if _notnull(v)}
 
             for m in ["authors", "keywords", "notes"]:  # AU, KW, N1
                 # Check the "authors" - AU

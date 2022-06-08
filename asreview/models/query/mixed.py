@@ -73,7 +73,7 @@ class MixedQuery(BaseQueryStrategy):
         self.strategy_2 = strategy_2
 
         self.mix_ratio = mix_ratio
-        self.random_state = get_random_state(random_state)
+        self._random_state = get_random_state(random_state)
 
         self.kwargs_1 = _parse_mixed_kwargs(kwargs, strategy_1)
         self.kwargs_2 = _parse_mixed_kwargs(kwargs, strategy_2)
@@ -81,12 +81,12 @@ class MixedQuery(BaseQueryStrategy):
         self.query_model1 = get_query_model(strategy_1, **self.kwargs_1)
         if "random_state" in self.query_model1.default_param:
             self.query_model1 = get_query_model(
-                strategy_1, random_state=self.random_state, **self.kwargs_1)
+                strategy_1, random_state=self._random_state, **self.kwargs_1)
 
         self.query_model2 = get_query_model(strategy_2, **self.kwargs_2)
         if "random_state" in self.query_model2.default_param:
             self.query_model2 = get_query_model(
-                strategy_2, random_state=self.random_state, **self.kwargs_2)
+                strategy_2, random_state=self._random_state, **self.kwargs_2)
 
     def query(self, X, classifier, n_instances=None, **kwargs):
 
@@ -124,14 +124,15 @@ class MixedQuery(BaseQueryStrategy):
 
         while i < len(query_idx_1) and j < len(query_idx_2):
 
-            if self.random_state.rand() < self.mix_ratio:
+            if self._random_state.rand() < self.mix_ratio:
                 query_idx_mix.append(query_idx_1[i])
                 i = i + 1
             else:
                 query_idx_mix.append(query_idx_2[j])
                 j = j + 1
 
-        return np.unique(query_idx_mix)[0:n_instances]
+        indexes = np.unique(query_idx_mix, return_index=True)[1]
+        return [query_idx_mix[i] for i in sorted(indexes)][0:n_instances]
 
     def full_hyper_space(self):
         from hyperopt import hp

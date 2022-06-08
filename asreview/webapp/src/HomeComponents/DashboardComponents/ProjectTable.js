@@ -25,7 +25,7 @@ import { ProjectCheckDialog, TableRowButton } from "../DashboardComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { useRowsPerPage } from "../../hooks/SettingsHooks";
 import { useToggle } from "../../hooks/useToggle";
-import ElasArrowRightAhead from "../../images/ElasArrowRightAhead.png";
+import ElasArrowRightAhead from "../../images/ElasArrowRightAhead.svg";
 
 import {
   checkIfSimulationFinishedDuration,
@@ -195,7 +195,26 @@ const ProjectTable = (props) => {
                 if (data["status"] === projectStatuses.FINISHED) {
                   // simulation finished
                   queryClient.invalidateQueries("fetchDashboardStats");
-                  queryClient.invalidateQueries("fetchProjects");
+                  // update cached data
+                  queryClient.setQueryData("fetchProjects", (prev) => {
+                    return {
+                      ...prev,
+                      result: prev.result.map((project) => {
+                        return {
+                          ...project,
+                          reviews: project.reviews.map((review) => {
+                            return {
+                              ...review,
+                              status:
+                                project.id === project_id[key]
+                                  ? projectStatuses.FINISHED
+                                  : review.status,
+                            };
+                          }),
+                        };
+                      }),
+                    };
+                  });
                 } else {
                   // not finished yet
                   setTimeout(
@@ -231,6 +250,7 @@ const ProjectTable = (props) => {
       });
     },
     onSuccess: (data, variables) => {
+      queryClient.invalidateQueries("fetchDashboardStats");
       // update cached data
       queryClient.setQueryData("fetchProjects", (prev) => {
         return {
@@ -243,9 +263,7 @@ const ProjectTable = (props) => {
                   ...review,
                   status:
                     project.id === variables.project_id
-                      ? review.status === projectStatuses.REVIEW
-                        ? projectStatuses.FINISHED
-                        : projectStatuses.REVIEW
+                      ? variables.status
                       : review.status,
                 };
               }),
@@ -266,15 +284,30 @@ const ProjectTable = (props) => {
     });
   };
 
+  const clearSetupError = (project) => {
+    mutateStatus({
+      project_id: project["id"],
+      status: projectStatuses.SETUP,
+    });
+  };
+
   const openProject = (project, path) => {
     if (
       project["reviews"][0] === undefined ||
-      project["reviews"][0]["status"] === projectStatuses.SETUP
+      project["reviews"][0]["status"] === projectStatuses.SETUP ||
+      project["reviews"][0]["status"] === projectStatuses.ERROR
     ) {
       // set project id
       props.setProjectId(project["id"]);
       // open project setup dialog
       props.toggleProjectSetup();
+      // clear potential setup error
+      if (
+        project["reviews"][0] !== undefined &&
+        project["reviews"][0]["status"] === projectStatuses.ERROR
+      ) {
+        clearSetupError(project);
+      }
     } else if (!project["projectNeedsUpgrade"]) {
       // open project page
       navigate(`/projects/${project["id"]}/${path}`);
@@ -331,7 +364,8 @@ const ProjectTable = (props) => {
   const status = (project) => {
     if (
       project.reviews[0] === undefined ||
-      project.reviews[0].status === projectStatuses.SETUP
+      project.reviews[0].status === projectStatuses.SETUP ||
+      project.reviews[0].status === projectStatuses.ERROR
     ) {
       return [projectStatuses.SETUP, "Setup"];
     }
@@ -346,7 +380,8 @@ const ProjectTable = (props) => {
   const statusStyle = (project) => {
     if (
       project.reviews[0] === undefined ||
-      project.reviews[0].status === projectStatuses.SETUP
+      project.reviews[0].status === projectStatuses.SETUP ||
+      project.reviews[0].status === projectStatuses.ERROR
     ) {
       return "dashboard-page-table-chip setup";
     }
@@ -402,7 +437,10 @@ const ProjectTable = (props) => {
                   const showAnalyticsButton = () => {
                     return (
                       row["reviews"][0] !== undefined &&
-                      row["reviews"][0]["status"] !== projectStatuses.SETUP
+                      !(
+                        row["reviews"][0]["status"] === projectStatuses.SETUP ||
+                        row["reviews"][0]["status"] === projectStatuses.ERROR
+                      )
                     );
                   };
 
@@ -418,7 +456,8 @@ const ProjectTable = (props) => {
                       row["projectNeedsUpgrade"] ||
                       row["mode"] === projectModes.SIMULATION ||
                       row["reviews"][0] === undefined ||
-                      row["reviews"][0]["status"] === projectStatuses.SETUP
+                      row["reviews"][0]["status"] === projectStatuses.SETUP ||
+                      row["reviews"][0]["status"] === projectStatuses.ERROR
                     );
                   };
 
@@ -431,7 +470,18 @@ const ProjectTable = (props) => {
                   };
 
                   const onClickProjectExport = () => {
-                    openProject(row, "export");
+                    if (
+                      row["reviews"][0] === undefined ||
+                      row["reviews"][0]["status"] === projectStatuses.SETUP ||
+                      row["reviews"][0]["status"] === projectStatuses.ERROR
+                    ) {
+                      queryClient.prefetchQuery(
+                        ["fetchExportProject", { project_id: row["id"] }],
+                        ProjectAPI.fetchExportProject
+                      );
+                    } else {
+                      openProject(row, "export");
+                    }
                   };
 
                   const onClickProjectDetails = () => {

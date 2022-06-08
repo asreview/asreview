@@ -110,7 +110,7 @@ setup(
     python_requires='~=3.7',
     install_requires=[
         'numpy',
-        'sklearn',
+        'scikit-learn',
         'pandas',
         'rispy~=0.7.0',
         'dill',
@@ -120,7 +120,8 @@ setup(
         'flask_cors',
         'openpyxl',
         'gevent',
-        'jsonschema'
+        'jsonschema',
+        'filelock'
     ],
     extras_require=DEPS,
     entry_points={

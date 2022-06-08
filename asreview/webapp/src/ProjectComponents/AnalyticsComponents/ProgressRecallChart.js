@@ -106,7 +106,7 @@ const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
     "</span>" +
     "</div>" +
     `<p class="tooltip-label-text-secondary ProgressRecallChart-tooltip-label-text-secondary-color">` +
-    "Relevant records you labeled assisted by the active learning model" +
+    "Relevant records that you labeled assisted by the active learning model" +
     "</p>" +
     "</div>" +
     `<h6 class="tooltip-label-number ProgressRecallChart-tooltip-label-asreview-number">` +
@@ -124,7 +124,7 @@ const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
     "</span>" +
     "</div>" +
     `<p class="tooltip-label-text-secondary ProgressRecallChart-tooltip-label-text-secondary-color">` +
-    "Relevant records you may find so far if you manually review all the records" +
+    "Relevant records that you might find if you manually reviewed all the records" +
     "</p>" +
     "</div>" +
     `<h6 class="tooltip-label-number ProgressRecallChart-tooltip-label-random-number">` +
@@ -243,8 +243,12 @@ export default function ProgressRecallChart(props) {
         custom: customTooltip,
       },
       xaxis: {
+        decimalsInFloat: 0,
         labels: {
-          show: false,
+          show: true,
+        },
+        title: {
+          text: "Number of reviewed records",
         },
         type: "numeric",
         axisTicks: {
@@ -263,8 +267,10 @@ export default function ProgressRecallChart(props) {
         showAlways: false,
         max: maxY(),
         forceNiceScale: false,
-        opposite: true,
         tickAmount: maxY() < 6 ? maxY() : 6,
+        title: {
+          text: "Number of relevant records",
+        },
       },
     };
   }, [

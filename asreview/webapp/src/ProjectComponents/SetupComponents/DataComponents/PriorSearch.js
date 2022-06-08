@@ -3,22 +3,22 @@ import { useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import {
   Box,
-  Button,
   Card,
   CircularProgress,
   Divider,
   Fade,
-  IconButton,
   InputBase,
   Stack,
   Tooltip,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { ArrowBack } from "@mui/icons-material";
+import { ArrowBack, Search } from "@mui/icons-material";
 
+import { InfoCard } from "../../SetupComponents";
 import { InlineErrorHandler } from "../../../Components";
 import { PriorUnlabeled } from "../DataComponents";
+import { StyledIconButton } from "../../../StyledComponents/StyledButton";
 import { ProjectAPI } from "../../../api/index.js";
 import { mapStateToProps } from "../../../globals.js";
 import { useToggle } from "../../../hooks/useToggle";
@@ -27,7 +27,7 @@ const PREFIX = "PriorSearch";
 
 const classes = {
   recordCard: `${PREFIX}-record-card`,
-  icon: `${PREFIX}-icon`,
+  infoCard: `${PREFIX}-info-card`,
   empty: `${PREFIX}-empty`,
   loading: `${PREFIX}-loading`,
 };
@@ -36,18 +36,15 @@ const Root = styled("div")(({ theme }) => ({
   width: "50%",
   [`& .${classes.recordCard}`]: {
     alignItems: "center",
-    display: "flex",
-    flexDirection: "column",
     height: "calc(100vh - 208px)",
     width: "100%",
     overflowY: "scroll",
-    padding: "16px 24px",
+    padding: "32px 24px",
   },
-  [`& .${classes.icon}`]: {
-    color: theme.palette.text.secondary,
-    [`:hover`]: {
-      backgroundColor: "transparent",
-    },
+
+  [`& .${classes.infoCard}`]: {
+    width: "100%",
+    maxWidth: "400px",
   },
 
   [`& .${classes.empty}`]: {
@@ -92,6 +89,12 @@ const PriorSearch = (props) => {
     setKeyword(event.target.value);
   };
 
+  const onKeyDown = (event) => {
+    if (event.key === "Enter") {
+      onClickSearch();
+    }
+  };
+
   return (
     <Root>
       <Fade in>
@@ -103,18 +106,21 @@ const PriorSearch = (props) => {
         >
           <Stack direction="row" sx={{ p: "4px 16px" }}>
             <Tooltip title="Select another way">
-              <IconButton className={classes.icon} onClick={props.toggleSearch}>
+              <StyledIconButton onClick={props.toggleSearch}>
                 <ArrowBack />
-              </IconButton>
+              </StyledIconButton>
             </Tooltip>
             <InputBase
               autoFocus
               fullWidth
               onChange={onChangeKeyword}
-              placeholder="Keyword in title, abstract, or author"
+              onKeyDown={onKeyDown}
+              placeholder="Search"
               sx={{ ml: 1 }}
             />
-            <Button onClick={onClickSearch}>Search</Button>
+            <StyledIconButton onClick={onClickSearch}>
+              <Search />
+            </StyledIconButton>
           </Stack>
           <Divider />
           {isFetching && !isError && (
@@ -149,10 +155,14 @@ const PriorSearch = (props) => {
               </Box>
             )}
           {!isError && isFetched && isSuccess && (
-            <Box
+            <Stack
               className={classes.recordCard}
               aria-label="unlabeled record card"
+              spacing={3}
             >
+              <Box className={classes.infoCard}>
+                <InfoCard info="Label records that you want to use as prior knowledge" />
+              </Box>
               {data?.result
                 .filter((record) => record?.included === -1)
                 .map((record, index) => (
@@ -163,7 +173,7 @@ const PriorSearch = (props) => {
                     key={`result-page-${index}`}
                   />
                 ))}
-            </Box>
+            </Stack>
           )}
         </Card>
       </Fade>

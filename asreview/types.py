@@ -29,6 +29,12 @@ def type_n_queries(value):
         return value
     else:
         try:
-            return int(value)
+            value_i = int(value)
+
+            # convert -1 to None
+            if value_i == -1:
+                return None
+
+            return value_i
         except ValueError:
-            raise ValueError("Value for n_queries is not 'min' or a valid integer")
+            raise ValueError("Expected 'min' or a valid integer")

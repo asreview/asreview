@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import argparse
-import json
 import logging
 import sys
 from pathlib import Path
@@ -30,7 +29,7 @@ from asreview.webapp.sqlock import SQLiteLock
 
 
 def get_lab_reviewer(as_data,
-                     state_file=None,
+                     project,
                      embedding_fp=None,
                      verbose=0,
                      prior_idx=None,
@@ -44,7 +43,7 @@ def get_lab_reviewer(as_data,
         raise ValueError("Supply at least one dataset"
                          " with at least one record.")
 
-    with open_state(state_file) as state:
+    with open_state(project) as state:
         settings = state.settings
 
     # TODO: Set random seed.
@@ -57,9 +56,8 @@ def get_lab_reviewer(as_data,
 
     # LSTM models need embedding matrices.
     if classifier_model.name.startswith("lstm-"):
-        texts = as_data.texts
         classifier_model.embedding_matrix = feature_model.get_embedding_matrix(
-            texts, embedding_fp)
+            as_data.texts, embedding_fp)
 
     # prior knowledge
     if prior_idx is not None and prior_record_id is not None and \
@@ -69,7 +67,7 @@ def get_lab_reviewer(as_data,
         )
 
     reviewer = BaseReview(as_data,
-                          state_file,
+                          project,
                           model=classifier_model,
                           query_model=query_model,
                           balance_model=balance_model,
@@ -110,12 +108,9 @@ def train_model(project):
 
         if exist_new_labeled_records:
             # collect command line arguments and pass them to the reviewer
-            as_data = read_data(project.project_path)
+            as_data = read_data(project)
 
-            reviewer = get_lab_reviewer(
-                as_data=as_data,
-                state_file=project.project_path
-            )
+            reviewer = get_lab_reviewer(as_data, project)
 
             # Train the model.
             reviewer.train()
@@ -151,17 +146,9 @@ def main(argv):
         project.update_review(status="review")
 
     except Exception as err:
-        err_type = type(err).__name__
-        logging.error(f"Project {args.project_id} - {err_type}: {err}")
-        project.update_review(status="error")
 
-        # write error to file if label method is prior (first iteration)
-        if args.output_error:
-            message = {"message": f"{err_type}: {err}"}
-
-            fp = Path(project.project_path, "error.json")
-            with open(fp, 'w') as f:
-                json.dump(message, f)
+        # save the error to the project
+        project.set_error(err, save_error_message=args.output_error)
 
         # raise the error for full traceback
         raise err

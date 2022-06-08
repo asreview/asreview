@@ -21,9 +21,6 @@ ASCII_LOGO = """
  /_/    \_\_____/|_|  \_\___| \_/ |_|\___| \_/\_/
 """  # noqa
 
-AVAILABLE_CLI_MODI = ["simulate"]
-AVAILABLE_REVIEW_CLASSES = ["simulate", "minimal"]
-
 LABEL_NA = -1
 
 KERAS_MODELS = ["lstm_base", "lstm_pool"]

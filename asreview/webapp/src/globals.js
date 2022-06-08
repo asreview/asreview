@@ -116,6 +116,7 @@ export const projectStatuses = {
   SETUP: "setup",
   REVIEW: "review",
   FINISHED: "finished",
+  ERROR: "error",
 };
 
 // project history filter options

@@ -127,7 +127,10 @@ def create_app(**kwargs):
         return jsonify(message=str(e.original_exception)), 500
 
     @app.route('/', methods=['GET'])
-    def index():
+    @app.route('/projects/', methods=['GET'])
+    @app.route('/projects/<project_id>/', methods=['GET'])
+    @app.route('/projects/<project_id>/<tab>/', methods=['GET'])
+    def index(**kwargs):
 
         return render_template("index.html")
 
@@ -146,14 +149,6 @@ def create_app(**kwargs):
             status = "development"
         else:
             status = "asreview"
-
-            try:
-                import asreviewcontrib.covid19  # noqa
-                status = "asreview-covid19"
-            except ImportError:
-                logging.debug("covid19 plugin not found")
-
-        # get the asreview version
 
         response = jsonify({
             "status": status,

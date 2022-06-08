@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button, Fade, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import ElasPotter from "./images/ElasPotter.png";
+import ElasPotter from "./images/ElasPotter.svg";
 
 const PREFIX = "RouteNotFound";
 

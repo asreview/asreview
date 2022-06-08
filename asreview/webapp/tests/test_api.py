@@ -60,8 +60,6 @@ def test_get_projects_stats(client):
 
     assert "n_in_review" in json_data["result"]
     assert "n_finished" in json_data["result"]
-    assert "n_reviewed" in json_data["result"]
-    assert "n_included" in json_data["result"]
     assert isinstance(json_data["result"], dict)
 
 
