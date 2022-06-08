@@ -8,46 +8,23 @@ systematically using predetermined inclusion and exclusion criteria. Also, it
 should be expected that only a fraction of the records in the dataset are
 relevant.
 
-It is possible to use a fully unlabeled dataset for the Oracle Mode, a partly
-labeled dataset where the labeled records are used to train a model for the
-unlabeled records (also for the Oracle Mode), or a fully labeled one dataset
-used for the Exploration and Simulation mode. The software also offers a set
-of benchmark datasets for testing and demonstrating ASReview LAB. You can
-donate your dataset to the `benchmark
-platform <https://github.com/asreview/systematic-review-datasets >`_.
+Datasets can be unlabeled as well as :ref:`data_labeled:Partially labeled
+data` and :ref:`data_labeled:Fully labeled data`. The latter ones are useful
+in the Simulation and Exploration mode. See :ref:`project_create:Project
+modes` for more information.
+
+The easiest way to obtain a dataset is via a search engine or with the help of
+a reference manager. See :ref:`data:Compatibility` for reference managers
+export formats supported by ASReview. For more information about the format of
+the dataset, see :doc:`data_format`.
 
 High Quality Data
 -----------------
 
 When you import your dataset, remove duplicates and retrieve the text in as
-many empty fields as possible (See Importance-of-abstracts blog for help).
-With clean data, you benefit most from what active learning has to offer.
-
-
-
-
-
-
-
-To perform a systematic review, ASReview requires a dataset representing
-all records (e.g., abstracts of scientific papers) obtained in a systematic
-search. To create such a dataset for a systematic review, typically an `online
-library search <https://asreview.ai/blog/the-importance-of-abstracts/>`__ is
-performed for all studies related to a particular topic.
-
-It is possible to use your own dataset with unlabeled, :doc:`data_labeled`
-(where the labeled records are used for training a model for the unlabeled records),
-or fully labeled records (used for the Simulation mode). For testing and
-demonstrating ASReview (used for the Exploration mode), the software offers :ref:`data_labeled:Benchmark datasets`.
-
-.. warning::
-
-    When you import your data, make sure to remove duplicates and to retrieve
-    as many abstracts as possible (`See Importance-of-abstracts blog for help
-    <https://asreview.ai/blog/the-importance-of-abstracts/>`_). With clean data you
-    benefit most from what :doc:`active learning <about>`
-    has to offer.
-
+many empty fields as possible (`See Importance-of-abstracts blog for help
+<https://asreview.ai/blog/the-importance-of-abstracts/>`_). With clean data,
+you benefit most from what active learning has to offer.
 
 
 Compatibility

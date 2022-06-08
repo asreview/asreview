@@ -1,27 +1,36 @@
 Fully and partially labeled data
 ================================
 
-ASReview LAB contains a large amount of benchmark datasets that can
-be used for Exploration and Simulation. The labelled datasets are PRISMA-based reviews on
-various research topics, are available under an open licence and are
-automatically harvested from the `dataset repository
-<https://github.com/asreview/systematic-review-datasets>`_. See `index.csv
-<https://github.com/asreview/systematic-review-datasets/blob/master/index.csv>`_
-for all available properties.
+Fully and partially labeled datasets serve a special role in the ASReview
+context. These datasets have review decisions for a subset of the records or
+for each record in the dataset. The labels are dichotomous: relevant or
+irrelevant. :ref:`data_labeled:Partially labeled data` is useful in the Oracle
+mode, whereas :ref:`data_labeled:Fully labeled data` is useful in the Simulation
+and Exploration mode. See :ref:`project_create:Project modes` for more
+information.
 
-For tabular datasets (:doc:`e.g., CSV, XLSX <data_format>`), the dataset should
-contain a column, called :ref:`label_included <column-names>` which is
-filled with 1's or 0's for the records that are already screened
-and is empty for the records that you still need to screen using ASReview.
+All datasets exported from ASReview LAB can be imported into ASReview LAB
+again. All labels are recognized by the software. In Oracle mode, all labels
+are directly added as :ref:`Prior Knowledge <project_create:Select Prior
+Knowledge>`.
 
-For the RIS file format, the dataset is handled automatically. The label
-(`ASReview_relevant`, `ASReview_irrelevant`, `ASReview_not_seen`) is stored under the
-N1 (Notes) tag. If the N1 tag is missing, it will be created for each record
-after importing the dataset. An example of a RIS file with N1 tag in the `ASReview
-GitHub repository <https://github.com/asreview/asreview/blob/master/tests/demo_data/baseline_tag-notes_labels.ris>`_
-where all records are valid. You can also find a record without a
-N1 (Notes) tag defined - the tag will be created after importing to
-ASReview and populated with a label.
+Labeled data format
+-------------------
+
+For tabular datasets (:doc:`e.g., CSV, XLSX <data_format>`), the dataset
+should contain a column, called "included" or "label" (See :ref:`Data format
+<column-names>` for all naming conventions), which is filled with ``1``'s or
+``0``'s for the records that are already screened. The value is left empty for
+the records that you haven't screened yet.
+
+For the RIS file format, the labels ``ASReview_relevant``,
+``ASReview_irrelevant``, and ``ASReview_not_seen``) can be stored with the N1
+(Notes) tag. An example of a RIS file with labels in the N1 tag can be found
+in the `ASReview GitHub repository
+<https://github.com/asreview/asreview/blob/master/tests/demo_data/baseline_tag-notes_labels.ris>`_.
+All labels in this example are valid ways to label the data. Exported RIS file
+from ASReview LAB can be imported into ASReview LAB again whereafter all
+labels are recoginized.
 
 Partially labeled data
 ----------------------
@@ -63,10 +72,10 @@ Benchmark Datasets
 ~~~~~~~~~~~~~~~~~~
 
 The `ASReview research project <https://asreview.ai/about/>`_ collects fully
-labeled datasets from various domain and published open access. They can be
-useful for benchmark projects such as testing the performance of new active
-learning models. The datasets and their metadata are available via the
-`Systematic Review Datasets
+labeled datasets published open access. The labeled datasets are PRISMA-based
+reviews on various research topics. They can be useful for benchmark projects
+such as testing the performance of new active learning models. The datasets
+and their metadata are available via the `Systematic Review Datasets
 <https://github.com/asreview/systematic-review-datasets>`_ repository. In
 ASReview LAB, these datasets are refered as "Benchmark Datasets".
 
@@ -78,3 +87,7 @@ Benchmark datasets are also available via the :doc:`cli`. Use the prefix
 Review Datasets <https://github.com/asreview/systematic-review-datasets>`_
 repository). For example, to use the Van de Schoot et al. (2017) dataset, use
 ``benchmark:van_de_schoot_2017``.
+
+You can donate your dataset to the `Systematic Review Datasets
+<https://github.com/asreview/systematic-review-datasets>`_ collection.
+
