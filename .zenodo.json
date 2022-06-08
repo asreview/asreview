@@ -1,9 +1,9 @@
 {
-   "description":"The Automated Systematic Review (ASReview) project implements learning algorithms that interactively query the researcher. This way of interactive training is known as Active Learning. ASReview offers support for classical learning algorithms and state-of-the-art learning algorithms like neural networks. ASReview LAB is the graphical user interface of the open-source research software and ships with an Oracle, Exploration and Simulation Mode.",
+   "description":"The Active learning for Systematic Reviews (ASReview) project implements learning algorithms that interactively query the researcher. This way of interactive training is known as Active Learning. ASReview offers support for classical learning algorithms and state-of-the-art learning algorithms like neural networks. ASReview LAB is the graphical user interface of the open-source research software and ships with an Oracle, Exploration and Simulation Mode.",
    "title":"ASReview LAB - A tool for AI-assisted systematic reviews",
    "creators":[
       {
-         "name":"ASReview LAB developers"
+         "name":"ASReview LAB developers, Utrecht University"
       }
    ],
    "keywords":[
