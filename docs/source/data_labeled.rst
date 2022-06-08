@@ -9,27 +9,6 @@ automatically harvested from the `dataset repository
 <https://github.com/asreview/systematic-review-datasets/blob/master/index.csv>`_
 for all available properties.
 
-Partially labeled data
-----------------------
-
-Partially labeled datasets are datasets with a review decision for a subset of
-the records in the dataset.
-
-
-A partly labeled dataset contains labeling decisions for part of the records,
-and part of the data does not have labels. The goal is to use the labels as
-prior knowledge to screen the unseen records. The labeled records will be
-recognized by ASReview LAB and are used to train the first iteration of the
-active learning model. This might be helpful if you switch from screening in
-another tool to screening with ASReview, or when updating an existing
-systematic review with more recent publications. For more options, see `How to collaborate with ASReview? <https://github.com/asreview/asreview/discussions/975>`_ on the ASReview discussion board.
-
-.. note::
-
-  Merging labeled with unlabeled data should be done outside ASReview LAB, for
-  example in reference manager software.
-
-
 For tabular datasets (:doc:`e.g., CSV, XLSX <data_format>`), the dataset should
 contain a column, called :ref:`label_included <column-names>` which is
 filled with 1's or 0's for the records that are already screened
@@ -44,62 +23,58 @@ where all records are valid. You can also find a record without a
 N1 (Notes) tag defined - the tag will be created after importing to
 ASReview and populated with a label.
 
+Partially labeled data
+----------------------
 
-ASReview will recognize the column with the labels and show you the number of
-prior relevant/irrelevant records in the section *Prior Knowledge*.
+.. note::
+
+	Useful for Oracle projects. Read more about :ref:`project_create:Project modes`.
+
+Partially labeled datasets are datasets with a review decision for a subset of
+the records in the dataset. A partially labeled dataset can be obtained by
+exporting results from ASReview LAB or other software. It can also be
+constructed given the format described above.
+
+Partially labeled datasets are useful as the labels will be recognized by
+ASReview LAB as :ref:`Prior Knowledge <project_create:Select Prior Knowledge>` and labels are used to
+train the first iteration of the active learning model.
+
+.. note::
+
+  Merging labeled with unlabeled data should be done outside ASReview LAB, for
+  example with :ref:`data:Citation Managers`.
 
 
 Fully labeled data
 ------------------
 
-Fully labeled datasets are datasets with a review decision for each record.
+.. note::
+
+	Useful for Simulation and Exploration projects. Read more about :ref:`project_create:Project modes`.
+
+Fully labeled datasets are datasets with a review decision for each record in
+the dataset. Fully labeled datasets are useful for exploration or simulation
+purposes (see also :ref:`simulation_overview:What is a simulation?` and
+:ref:`project_create:Project modes`). See :ref:`data_labeled:Benchmark
+Datasets` for built-in, fully labeled datasets in ASReview LAB.
 
 
 Benchmark Datasets
 ~~~~~~~~~~~~~~~~~~
 
-Some featured datasets are:
+The `ASReview research project <https://asreview.ai/about/>`_ collects fully
+labeled datasets from various domain and published open access. They can be
+useful for benchmark projects such as testing the performance of new active
+learning models. The datasets and their metadata are available via the
+`Systematic Review Datasets
+<https://github.com/asreview/systematic-review-datasets>`_ repository. In
+ASReview LAB, these datasets are refered as "Benchmark Datasets".
 
--  The *PTSD Trajectories* data by Van de Schoot et al. (`2017 <https://doi.org/10.1080/10705511.2016.1247646>`_, `2018 <https://doi.org/10.1080/00273171.2017.1412293>`_) stems from a review  of longitudinal studies that applied unsupervised machine learning techniques on longitudinal data of self-reported symptoms of posttraumatic stress assessed after trauma exposure. In total, 5,782 studies were obtained by searching Pubmed, Embase, PsychInfo, and Scopus, and through a snowballing strategy in which both the references and the citation of the included papers were screened. Thirty-eight studies were included in the review (0.66%).
-
--  The *Virus Metagenomics* data by `Kwok et al. (2020) <https://doi.org/10.3390/v12010107>`_ which systematically described studies that performed viral Metagenomic Next-Generation Sequencing (mNGS) in common livestock such as cattle, small ruminants, poultry, and pigs.44 Studies were retrieved from Embase (n = 1,806), Medline (n = 1,384), Cochrane Central (n = 1), Web of Science (n = 977), and Google Scholar (n = 200, the top relevant references). After deduplication this led to 2,481 studies obtained in the initial search, of which 120 inclusions (4.84%).
-
--  The *Software Fault Prediction* by `Hall et al. (2012) <https://doi.org/10.1109/TSE.2011.103>`_ stems from a systematic review of studies on fault prediction in software engineering. Studies were obtained from ACM Digital Library, IEEExplore and the ISI Web of Science. Additionally, a snowballing strategy and a manual search were conducted, accumulating to 8,911 publications of which 104 were included in the systematic review (1.2%).
-
--  The *ACEinhibitors* by `Cohen et al. (2006) <https://doi.org/10.1197/jamia.M1929>`_ data stems from a systematic review on the efficacy of Angiotensin-converting enzyme (ACE) inhibitors. The data is a subset of 2,544 publications from the TREC 2004 Genomics Track document corpus48. This is a static subset from all MEDLINE records from 1994 through 2003, which allows for replicability of results. Forty-one publications were included in the review (1.6%).
-
-Results
-~~~~~~~
-
-For the featured datasets, the animated plots below show how fast you can find
-the relevant papers by using ASReview LAB compared to random screening papers
-one by one. These animated plots are all based on a single run per dataset
-in which only one paper was added as relevant and one as irrelevant.
-
-*PTSD Trajectories*:
-
-38 inclusions out of 5,782 papers
-
-.. figure:: ../images/gifs/ptsd_recall_slow_1trial_fancy.gif
-   :alt: Recall curve for the ptsd dataset
-
-*Virus Metagenomics*:
-
-120 inclusions out of 2,481 papers
-
-.. figure:: ../images/gifs/virusM_recall_slow_1trial_fancy.gif
-   :alt: Recall curve for the Virus Metagenomics dataset
-
-*Software Fault Prediction*:
-
-104 inclusions out of 8,911 papers
-
-.. figure:: ../images/gifs/software_recall_slow_1trial_fancy.gif
-   :alt: Recall curve for the software dataset
-
-*ACEinhibitors*:
-
-41 inclusions out of 2,544 papers
-
-.. figure:: ../images/gifs/ace_recall_slow_1trial_fancy.gif
-   :alt: Recall curve for the ACE dataset
+These Benchmark Datasets are directly available in the software. During the
+:ref:`project_create:Add Dataset` step of the project setup, there is a panel
+with all the datasets. The datasets can be selected and used directly.
+Benchmark datasets are also available via the :doc:`cli`. Use the prefix
+``benchmark:`` followed by the identifier of the dataset (see `Systematic
+Review Datasets <https://github.com/asreview/systematic-review-datasets>`_
+repository). For example, to use the Van de Schoot et al. (2017) dataset, use
+``benchmark:van_de_schoot_2017``.

@@ -1,6 +1,34 @@
 Prepare your Data
 =================
 
+ASReview LAB requires a dataset containing a set of textual records (e.g.,
+titles and abstracts of scientific papers, newspaper articles, or policy
+reports) obtained via a systematic search. The goal is to review all records
+systematically using predetermined inclusion and exclusion criteria. Also, it
+should be expected that only a fraction of the records in the dataset are
+relevant.
+
+It is possible to use a fully unlabeled dataset for the Oracle Mode, a partly
+labeled dataset where the labeled records are used to train a model for the
+unlabeled records (also for the Oracle Mode), or a fully labeled one dataset
+used for the Exploration and Simulation mode. The software also offers a set
+of benchmark datasets for testing and demonstrating ASReview LAB. You can
+donate your dataset to the `benchmark
+platform <https://github.com/asreview/systematic-review-datasets >`_.
+
+High Quality Data
+-----------------
+
+When you import your dataset, remove duplicates and retrieve the text in as
+many empty fields as possible (See Importance-of-abstracts blog for help).
+With clean data, you benefit most from what active learning has to offer.
+
+
+
+
+
+
+
 To perform a systematic review, ASReview requires a dataset representing
 all records (e.g., abstracts of scientific papers) obtained in a systematic
 search. To create such a dataset for a systematic review, typically an `online
