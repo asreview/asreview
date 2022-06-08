@@ -5,7 +5,7 @@ Create a project
 To start reviewing a dataset with ASReview LAB, you first need to create a
 project. The project will contain your dataset, settings, labeling decisions,
 and machine learning models. You can choose from three different project
-types: Oracle, Exploration, and Simulation. The setup of a project consist of
+types: Oracle, Exploration, and Simulation. The project setup consists of
 4 steps: Project information, Data, Model, and Warm up. The sections below
 explain each of the steps of the setup.
 
@@ -26,7 +26,17 @@ you complete this step, click next.
 Project modes
 -------------
 
+In this step, you have to select a mode. The default is "Oracle". Most users
+are looking for this one. Oracle mode is used to screen an unlabeled dataset
+(it's fine if you already have some labels) with the help of AI. The other two
+modes, Simulation, and Exploration require fully labeled datasets. They are
+useful for experts studying the performance of active learning or
+demonstrating the workings of active learning and ASReview.
 
+In short:
+
+- You have an unlabeled dataset (a few labels is fine) -> Oracle
+- You have a :ref:`data_labeled:Fully labeled data` -> Simulation or Exploration.
 
 .. figure:: ../images/setup_project_modes.png
    :alt: Project modes
@@ -35,7 +45,7 @@ Project modes
 Project details
 ---------------
 
-Provide project details like name of the project, authors (for example the
+Provide project details like name of the project, authors (for example, the
 name of the screener), and a description. You can edit these values later in
 the *Details* page.
 
@@ -55,7 +65,7 @@ Click on *Add* to select a dataset. The data needs to adhere to a
 has to offer with :ref:`data:High quality data`.
 
 Depending on the :ref:`Project mode <project_create:Project modes>`, you are
-offered the following options for adding a dataset. Keep in mind the in Oracle
+offered the following options for adding a dataset. Keep in mind that in Oracle
 mode, your dataset is unlabeled or :ref:`data_labeled:Partially labeled data`. For Exploration and Simulation mode, you need :ref:`data_labeled:Fully labeled
 data`.
 
@@ -95,92 +105,76 @@ Select Prior Knowledge
 ----------------------
 
 The first iteration of the active learning cycle requires prior knowledge to
-work. This knowledge is used to train the first model. In this step you need
-to provide at least one relevant and one irrelevant document. To facilitate
-this, it is possible to search within your dataset (for finding prior relevant
-papers) or ask the software to present a couple of random documents (for prior
-irrelevant papers).
+work. This knowledge is used to train the first model. In this step, you need
+to provide **at least** one relevant and one irrelevant record in your
+dataset. To facilitate this, it is possible to search within your dataset.
+This is especially useful for finding records that are relevant based on your
+prior knowledge or expertise. You can also let ASReview LAB present you a
+couple of random documents. This can be useful for finding irrelevant records.
 
-1. :doc:`start`.
-2. Start a new project.
-3. Click the *Start Setup* button.
-4. Select a dataset.
-5. Click **Search** or **Random** to select your prior knowledge.
+The interface works as follows; on the left, you will see methods to find
+records to use as prior knowledge, on the right, you will see your selected
+prior knowledge. If you have **at least** one relevant and one irrelevant
+record, you can click *Close* and go to the next step.
 
-
-.. figure:: ../images/asreview_prescreening_prior.png
+.. figure:: ../images/setup_prior.png
    :alt: ASReview prior knowledge selector
-
-After selecting some prior information, you can click **Next**.
-
-.. figure:: ../images/asreview_prescreening_prior_next.png
-   :alt: ASReview prior knowledge selector next
-
-
-The first iteration of the active learning cycle requires some prior knowledge
-to work. This knowledge is used to train the first model. In this step you
-need to provide at least one relevant and one irrelevant document. To
-facilitate this, it is possible to :ref:`Search` within your dataset (for
-finding prior relevant papers), ask the software to present a couple of
-Random (for prior irrelevant papers), or to upload :ref:`data_labeled:Partially labeled data`. When searching for specific records
-be sure to be precise with the search terms (use the full title of an article
-for example), as only the first 10 results are shown to you.
-
-
-.. figure:: ../images/asreview_prescreening_prior_next.png
-   :alt: ASReview prior knowledge selector next
-
-
 
 
 Search
 ~~~~~~
 
 Let's start with finding a prior relevant document. The most efficient way
-to do this is by searching for a specific document which you already know is
-relevant. Click the search button and search your dataset by authors,
+to do this is by searching for a specific document that you already know is
+relevant. Click on Search and search your dataset by authors,
 keywords or title, or a combination thereof. Make sure to be precise
 with the search terms, as only the first 10 results are shown to you.
-After entering your search terms, press 'enter' to start searching.
+After entering your search terms, press enter to start searching.
 
 
-
-.. figure:: ../images/asreview_prescreening_prior_search.png
+.. figure:: ../images/setup_prior_search_empty.png
    :alt: ASReview prior knowledge search
 
 
-Click the document you had in mind and click Relevant (Clicking Irrevant
-results in an irrelevant document).
+Click the document you had in mind and answer, "Is this record relevant?".
+Note, don't label all items here. Only the one you are looking for.
 
-The Prior Knowledge step will now show 1 relevant document. This is already
-enough to  proceed to the next step. Note that there are no restrictions on
-the number of publications you need to provide, but preferably provide 1-5
-relevant documents.
+The prior knowledge will now show up on the right. There are no restrictions
+on the number of publications you provide but preferably provide 1-5
+relevant records. If you are done, click *Close*.
 
-If you are done click **Next**.
-
+.. figure:: ../images/setup_prior_search_1rel.png
+   :alt: ASReview prior knowledge search 1 relevant
 
 Random
 ~~~~~~
 
-You also need to provide at least one prior irrelevant document. One way to
-find an irrelevant document is by labeling a set of random records from the
-dataset. Given that the majority of documents in the dataset are irrelevant
-(extremely imbalanced data problem), the documents presented here are likely
-to be irrelevant for your study. Click on random to show a few random
-documents. Indicate for each document whether it is relevant or irrelevant.
+You also need to provide at least one prior irrelevant document. You can do
+this by searching it, but this can be challenging as you don't know what you
+are looking for. One way to find an irrelevant document is by labeling a set
+of random records from the dataset. Given that the majority of records in the
+dataset are irrelevant (extremely imbalanced data problem), the records
+presented here are likely to be irrelevant for your study. Click on random to
+show a few random records. Indicate for each document whether it is relevant
+or irrelevant.
 
-.. figure:: ../images/asreview_prescreening_prior_random.png
+.. figure:: ../images/setup_prior_random_1rel.png
    :alt: ASReview prior knowledge random
 
-After labeling a couple of randomly selected documents, ASReview LAB will
-ask you whether you want to stop. Click on **STOP** and click **Next**.
+The prior knowledge will now show up on the right. Use the buttons to see all
+prior knowledge or irrelevant items. There are no restrictions on the
+number of publications you provide but preferably provide 1-5 relevant
+records. If you are done, click *Close*.
 
-Select model
-============
+After labeling a couple of randomly selected records, ASReview LAB will ask
+you whether you want to stop. Click on **STOP** and click **Next**.
+
+Model
+=====
 
 In the next step of the setup, you can select a model. The default settings
-(Naïve Bayes, TF-IDF, Max) has fast and excellent performance. Most users can skip this step and click *Next*.
+(Naïve Bayes, TF-IDF, Max) have fast and excellent performance. Most users can
+skip this step and click *Next*.
 
 Select model (advanced)
 -----------------------
@@ -220,7 +214,7 @@ To use it, install the gensim package manually:
 It takes relatively long to create a feature matrix with this method. However,
 this only has to be done once per simulation/review. The upside of this method
 is the dimension-reduction that generally takes place, which makes the
-modelling quicker.
+modeling quicker.
 
 During the screening phase, it is not possible to change the model. However,
 it is possible to select a first model, screen part of the data, and export
@@ -233,3 +227,19 @@ based on the second model.
 
 Warm up
 =======
+
+In the last step of the setup, step 4, ASReview LAB trains a model and ranks
+the records in your dataset. Depending on the model and the size of your
+dataset, this can take a couple of minutes (or even longer). After the project
+is successfully initialized, you can start reviewing.
+
+.. note::
+
+  In Simulation mode, this step starts the simulation. As simulations usually
+  take longer to complete, the simulation will run in the background. After a
+  couple of seconds, you will see a message and a button "Got it". You will
+  navigate to the :ref:`progress:Analytics` page, where you can follow the
+  progress (see *Refresh* button on the top right)
+
+.. figure:: ../images/setup_warmup.png
+   :alt: ASReview LAB warmup
