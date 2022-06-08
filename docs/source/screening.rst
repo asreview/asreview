@@ -14,7 +14,7 @@ document with the highest relevance score.
 
 You are asked to make a decision: relevant or irrelevant?
 
-.. figure:: ../images/asreview_screening_asreview_label.png
+.. figure:: ../images/project_screening.png
    :alt: ASReview Screening
 
 While you review the documents, the software continuously improves its
