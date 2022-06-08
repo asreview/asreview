@@ -17,12 +17,13 @@ Install the ASReview software with Pip by running the following command in the
     pip install asreview
 
 Start the application with the following command (in CMD.exe or Terminal):
-
+ 
 .. code:: bash
 
     asreview lab
 
-The ASReview LAB software starts in the browser. For more options on starting ASReview LAB, see :doc:`start`.
+The ASReview LAB software starts in the browser. For more options on starting
+ASReview LAB, see :doc:`start`.
 
 .. note::
 
@@ -81,7 +82,8 @@ closed networks.
 Install with Docker
 -------------------
 
-ASReview LAB is also available as a Docker container. Make sure you have Docker installed on your machine.
+ASReview LAB is also available as a Docker container. Make sure you have
+Docker installed on your machine.
 
 To install and start ASReview LAB at http://localhost:5000, run the following:
 
@@ -91,7 +93,7 @@ To install and start ASReview LAB at http://localhost:5000, run the following:
 
 
 More advanced command line options can be given
-afterwards, like this:
+afterward, like this:
 
 .. code:: bash
 
@@ -106,7 +108,11 @@ afterwards, like this:
 Mount local volume
 ~~~~~~~~~~~~~~~~~~
 
-To mount the container to your local project folder (or any other local folder), the `-v` flag can be used in the following way. Adjust path-to-your-folder to your local folder. When a project folder is specified, ASReview LAB will store and load all its projects from this folder. Note that multiple containers can access the same folder.
+To mount the container to your local project folder (or any other local
+folder), the `-v` flag can be used. To do so, adjust path-to-your-folder to
+your local folder. When a project folder is specified, ASReview LAB will store
+and load all its projects from this folder. Note that multiple containers can
+access the same folder.
 
 .. code:: bash
 
