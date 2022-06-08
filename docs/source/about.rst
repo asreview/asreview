@@ -46,7 +46,7 @@ Start and finish a systematic labeling process with ASReview LAB by following th
 6. :ref:`project_create:Select Prior Knowledge`
 7. Select the four components of the active learning model
 8. Wait for the warming up of the AI (the software is extracting the features and runs the classifier with the prior knowledge)
-9. Start :doc:`oracle` until you reach your stopping criteria
+9. Start :doc:`screening` until you reach your stopping criteria
 10. Export your data and the project file
 
 

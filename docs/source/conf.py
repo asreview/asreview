@@ -270,9 +270,9 @@ redirects = {
     "lab/exploration": "../about.html",
     "lab/simulation": "../simulation_overview.html",
 
-    "features/settings": "../oracle.html",
+    "features/settings": "../screening.html",
     "features/pre_screening": "../project_create.html",
-    "features/screening": "../oracle.html",
+    "features/screening": "../screening.html",
     "features/post_screening": "../progress.html",
 
     "extensions/overview_extensions": "../extensions_overview.html",
