@@ -5,7 +5,7 @@ ASReview LAB requires a dataset containing a set of textual records (e.g.,
 titles and abstracts of scientific papers, newspaper articles, or policy
 reports) obtained via a systematic search. The goal is to review all records
 systematically using predetermined inclusion and exclusion criteria. Also, it
-should be expected that only a fraction of the records in the dataset are
+should be expected that only a fraction of the records in the dataset is
 relevant.
 
 Datasets can be unlabeled as well as :ref:`data_labeled:Partially labeled

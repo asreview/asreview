@@ -6,7 +6,7 @@ What is a simulation?
 
 A simulation involves mimicking the screening process with a certain model. As
 it is already known which records are labeled relevant, the software can
-automatically reenact the screening process as if a human was labelling the
+automatically reenact the screening process as if a human was labeling the
 records.
 
 Why run a simulation?

@@ -18,7 +18,7 @@ Labeled data format
 -------------------
 
 For tabular datasets (:doc:`e.g., CSV, XLSX <data_format>`), the dataset
-should contain a column, called "included" or "label" (See :ref:`Data format
+should contain a column called "included" or "label" (See :ref:`Data format
 <column-names>` for all naming conventions), which is filled with ``1``'s or
 ``0``'s for the records that are already screened. The value is left empty for
 the records that you haven't screened yet.
@@ -29,8 +29,8 @@ For the RIS file format, the labels ``ASReview_relevant``,
 in the `ASReview GitHub repository
 <https://github.com/asreview/asreview/blob/master/tests/demo_data/baseline_tag-notes_labels.ris>`_.
 All labels in this example are valid ways to label the data. Exported RIS file
-from ASReview LAB can be imported into ASReview LAB again whereafter all
-labels are recoginized.
+from ASReview LAB can be imported into ASReview LAB again, and whereafter all
+labels are recognized.
 
 Partially labeled data
 ----------------------
@@ -45,13 +45,13 @@ exporting results from ASReview LAB or other software. It can also be
 constructed given the format described above.
 
 Partially labeled datasets are useful as the labels will be recognized by
-ASReview LAB as :ref:`Prior Knowledge <project_create:Select Prior Knowledge>` and labels are used to
+ASReview LAB as :ref:`Prior Knowledge <project_create:Select Prior Knowledge>`, and labels are used to
 train the first iteration of the active learning model.
 
 .. note::
 
   Merging labeled with unlabeled data should be done outside ASReview LAB, for
-  example with :ref:`data:Citation Managers`.
+  example, with :ref:`data:Citation Managers`.
 
 
 Fully labeled data
@@ -77,7 +77,7 @@ reviews on various research topics. They can be useful for benchmark projects
 such as testing the performance of new active learning models. The datasets
 and their metadata are available via the `Systematic Review Datasets
 <https://github.com/asreview/systematic-review-datasets>`_ repository. In
-ASReview LAB, these datasets are refered as "Benchmark Datasets".
+ASReview LAB, these datasets are referred to as "Benchmark Datasets".
 
 These Benchmark Datasets are directly available in the software. During the
 :ref:`project_create:Add Dataset` step of the project setup, there is a panel
