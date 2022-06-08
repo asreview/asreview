@@ -3,7 +3,8 @@
    "title":"ASReview LAB - A tool for AI-assisted systematic reviews",
    "creators":[
       {
-         "name":"ASReview LAB developers, Utrecht University"
+         "name":"ASReview LAB developers",
+         "affiliation":"Utrecht University"
       }
    ],
    "keywords":[
