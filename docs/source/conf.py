@@ -55,6 +55,8 @@ autodoc_mock_imports = [
     "gensim.models.doc2vec",
     "sentence_transformers",
     "sentence_transformers.SentenceTransformer",
+    "jsonschema",
+    "filelock"
 ]
 
 
