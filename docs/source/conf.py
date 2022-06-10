@@ -283,6 +283,7 @@ redirects = {
     "extensions/extension_wordcloud": "../extensions_overview.html",
 
     "API/extension_dev": "../extensions_dev.html",
+    "API/reference": "../reference.html",
 
     "guides/activelearning": "https://asreview.nl/blog/active-learning-explained/",
     "guides/simulation_study_results": "https://asreview.nl/research/",
