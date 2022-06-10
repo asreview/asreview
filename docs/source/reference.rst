@@ -336,7 +336,7 @@ This module contains the input and output functionality. You can install them as
 .. autosummary::
    :nosignatures:
    :toctree: generated/
-   :template: custom-module-template.rst
+   :template: custom-class-template.rst
 
    asreview.list_readers
    asreview.list_writers
@@ -380,7 +380,7 @@ Functions
 .. autosummary::
    :nosignatures:
    :toctree: generated/
-   :template: custom-module-template.rst
+   :template: custom-class-template.rst
 
    asreview.search.fuzzy_find
    asreview.asreview_path
