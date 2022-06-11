@@ -4,11 +4,9 @@ Support
 Donate
 ~~~~~~
 
-The ASReview software is Free and Open Source Software (FOSS). To support
-the development, you can donate via the
-`ASReview crowdfunding platform
-<https://steun.uu.nl/project/help-us-to-make-covid-19-research-accessible-to-
-everyone>`_. Even small donations are highly appreciated!
+The ASReview software is Free and Open Source Software (FOSS). To support the
+development, you can donate on the `ASReview donation page
+<https://asreview.ai/donate/>`_. Even small donations are highly appreciated!
 
 
 Collaborate
