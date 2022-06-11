@@ -73,11 +73,11 @@ docker create --name asreview-lab -p 5000:5000 -v path-to-your-folder:/project_f
 If you want to use a specific version of ASReview LAB, not available as
 DockerHub image, you can build your own. To build your own image, create a file
 called `Dockerfile` (no file extension) and fill it with the following code.
-In this example, ASReview version `1.0rc0` was used.
+In this example, ASReview version `1.0` was used.
 
 ```dockerfile
 FROM python:3.8
-RUN pip install asreview==1.0rc0
+RUN pip install asreview==1.0
 ENTRYPOINT ["asreview","lab","--ip","0.0.0.0"]
 ENV ASREVIEW_PATH=project_folder
 ```
@@ -85,13 +85,13 @@ To build an image from this file, use the following command from the same
 directory as the dockerfile is in:
 
 ```
-docker build -t asreview:1.0rc0 .
+docker build -t asreview:1.0 .
 ```
 
 After the image was build, it can be used for a container just like the
 DockerHub images.
 ```
-docker create --name asreview-lab -p 5000:5000 asreview:1.0rc0
+docker create --name asreview-lab -p 5000:5000 asreview:1.0
 ```
 
 ### Add your extension to your image
