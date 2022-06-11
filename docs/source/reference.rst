@@ -4,6 +4,11 @@
 API Reference
 =============
 
+
+.. automodule:: asreview
+   :no-members:
+   :no-inherited-members:
+
 Data and datasets
 =================
 
@@ -327,10 +332,6 @@ Readers and writers
 This module contains the input and output functionality. You can install them as extensions.
 
 
-.. automodule:: asreview
-   :no-members:
-   :no-inherited-members:
-
 .. currentmodule:: asreview
 
 .. autosummary::
@@ -382,9 +383,9 @@ Functions
    :toctree: generated/
    :template: custom-class-template.rst
 
-   asreview.search.fuzzy_find
-   asreview.asreview_path
-   asreview.get_data_home
+   search.fuzzy_find
+   asreview_path
+   get_data_home
 
 
 Entry points
