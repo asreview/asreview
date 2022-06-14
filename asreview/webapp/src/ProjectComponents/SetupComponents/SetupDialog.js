@@ -447,16 +447,20 @@ const SetupDialog = (props) => {
    * Dialog actions
    */
   const handleClose = () => {
-    setTextFieldFocused(null);
-    setExTitle("");
-    props.onClose();
-    if (props.project_id) {
-      props.setFeedbackBar({
-        open: true,
-        message: `Your project ${info.title} has been saved as draft`,
-      });
-      queryClient.invalidateQueries("fetchProjects");
-      navigate("/projects");
+    if (activeStep !== 3) {
+      setTextFieldFocused(null);
+      setExTitle("");
+      props.onClose();
+      if (props.project_id) {
+        props.setFeedbackBar({
+          open: true,
+          message: `Your project ${info.title} has been saved as draft`,
+        });
+        queryClient.invalidateQueries("fetchProjects");
+        navigate("/projects");
+      }
+    } else {
+      console.log("Cannot close when training is in progress");
     }
   };
 
