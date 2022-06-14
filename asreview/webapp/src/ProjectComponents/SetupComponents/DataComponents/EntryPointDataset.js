@@ -58,12 +58,19 @@ const EntryPointDataset = (props) => {
       onChange={handleAccordion(props.dataset_id)}
     >
       <AccordionSummary expandIcon={returnCheckedIcon()}>
-        <Typography sx={{ width: "33%", flexShrink: 0 }}>
-          {props.authors}
-        </Typography>
-        <Typography sx={{ color: "text.secondary" }}>
-          {props.description}
-        </Typography>
+        <Stack
+          direction={!props.mobileScreen ? "row" : "column"}
+          sx={{ width: "100%" }}
+        >
+          <Typography
+            sx={{ width: !props.mobileScreen ? "33%" : "100%", flexShrink: 0 }}
+          >
+            {props.authors}
+          </Typography>
+          <Typography sx={{ color: "text.secondary" }}>
+            {props.description}
+          </Typography>
+        </Stack>
       </AccordionSummary>
       <AccordionDetails>
         <Stack spacing={1}>
