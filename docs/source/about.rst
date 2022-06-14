@@ -145,8 +145,8 @@ encounter as you use ASReview LAB.
 
   Extension
     An extension is the additional element to the ASReview LAB, such as
-    the `ASReview visualisation <https://github.com/asreview/asreview-visualization>`__
-    extension, or the ASReview CORD-19 extension.
+    the `ASReview Datatools <https://github.com/asreview/asreview-datatools>`__
+    extension.
 
   Import
     Import is the action of importing a :term:`dataset` or a :term:`project`
