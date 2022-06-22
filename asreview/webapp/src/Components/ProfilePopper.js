@@ -22,7 +22,7 @@ import { Logout } from "@mui/icons-material";
 import { StyledMenuItem } from "../StyledComponents/StyledMenuItem";
 import { TypographySubtitle1Medium } from "../StyledComponents/StyledTypography";
 
-import { BaseAPI } from "../api";
+import { AuthAPI } from "../api";
 import useAuth from "../hooks/useAuth";
 import ElasAvatar from "../images/ElasAvatar.svg";
 
@@ -34,7 +34,7 @@ const ProfilePopper = (props) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [open, setOpen] = React.useState(false);
 
-  const { mutate } = useMutation(BaseAPI.signout, {
+  const { mutate } = useMutation(AuthAPI.signout, {
     onSuccess: () => {
       setAuth({});
     },

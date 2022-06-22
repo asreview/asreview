@@ -32,6 +32,7 @@ import pandas as pd
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
+from asreview.auth.login_required import asreview_login_required
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_MODEL
@@ -73,11 +74,13 @@ from asreview.utils import asreview_path
 from asreview.webapp.io import read_data
 
 bp = Blueprint('api', __name__, url_prefix='/api')
-CORS(bp, resources={r"*": {"origins": "*"}})
+CORS(
+    bp, 
+    resources={r"*": {"origins": "http://localhost:3000"}},
+    supports_credentials=True
+)
 
 # error handlers
-
-
 @bp.errorhandler(ProjectNotFoundError)
 def project_not_found(e):
 
@@ -102,9 +105,9 @@ def error_500(e):
 
 # routes
 @bp.route('/projects', methods=["GET"])
+@asreview_login_required
 def api_get_projects():  # noqa: F401
     """Get info on the article"""
-
     project_info = []
     for project in list_asreview_projects():
 
@@ -130,12 +133,12 @@ def api_get_projects():  # noqa: F401
         reverse=True)
 
     response = jsonify({"result": project_info})
-    response.headers.add('Access-Control-Allow-Origin', '*')
 
     return response
 
 
 @bp.route('/projects/stats', methods=["GET"])
+@asreview_login_required
 def api_get_projects_stats():  # noqa: F401
     """Get dashboard statistics of all projects"""
 
@@ -171,12 +174,12 @@ def api_get_projects_stats():  # noqa: F401
             return jsonify(message=f"Failed to load dashboard statistics. {err}"), 500
 
     response = jsonify({"result": stats_counter})
-    response.headers.add('Access-Control-Allow-Origin', '*')
 
     return response
 
 
 @bp.route('/projects/info', methods=["POST"])
+@asreview_login_required
 def api_init_project():  # noqa: F401
     """Get info on the article"""
 
@@ -204,6 +207,7 @@ def api_init_project():  # noqa: F401
 
 
 @bp.route('/projects/<project_id>/upgrade_if_old', methods=["GET"])
+@asreview_login_required
 @project_from_id
 def api_upgrade_project_if_old(project):
     """Get upgrade project if it is v0.x"""
@@ -211,18 +215,17 @@ def api_upgrade_project_if_old(project):
     if not project.config["version"].startswith("0"):
         response = jsonify(
             message="Can only convert v0.x projects.")
-        response.headers.add('Access-Control-Allow-Origin', '*')
         return response, 400
 
     # errors are handled by the InternalServerError
     upgrade_asreview_project_file(project.project_path)
 
     response = jsonify({'success': True})
-    response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 
 @bp.route('/projects/<project_id>/info', methods=["GET"])
+@asreview_login_required
 @project_from_id
 def api_get_project_info(project):  # noqa: F401
     """Get info on the article"""
@@ -238,6 +241,7 @@ def api_get_project_info(project):  # noqa: F401
 
 
 @bp.route('/projects/<project_id>/info', methods=["PUT"])
+@asreview_login_required
 @project_from_id
 def api_update_project_info(project):  # noqa: F401
     """Get info on the article"""
@@ -255,6 +259,7 @@ def api_update_project_info(project):  # noqa: F401
 
 
 @bp.route('/datasets', methods=["GET"])
+@asreview_login_required
 def api_demo_data_project():  # noqa: F401
     """Get info on the article"""
 
@@ -289,11 +294,11 @@ def api_demo_data_project():  # noqa: F401
 
     payload = {"result": result_datasets}
     response = jsonify(payload)
-    response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 
 @bp.route('/projects/<project_id>/data', methods=["POST", "PUT"])
+@asreview_login_required
 @project_from_id
 def api_upload_data_to_project(project):  # noqa: F401
     """Get info on the article"""
@@ -411,12 +416,12 @@ def api_upload_data_to_project(project):  # noqa: F401
         return jsonify(message=message), 400
 
     response = jsonify({'success': True})
-    response.headers.add('Access-Control-Allow-Origin', '*')
 
     return response
 
 
 @bp.route('/projects/<project_id>/data', methods=["GET"])
+@asreview_login_required
 @project_from_id
 def api_get_project_data(project):  # noqa: F401
     """Get info on the article"""
@@ -447,11 +452,12 @@ def api_get_project_data(project):  # noqa: F401
         return jsonify(message=message), 400
 
     response = jsonify(statistics)
-    response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 
 @bp.route('/projects/<project_id>/dataset_writer', methods=["GET"])
+@asreview_login_required
 @project_from_id
 def api_list_dataset_writers(project):
     """List the name and label of available dataset writer"""
@@ -495,11 +501,12 @@ def api_list_dataset_writers(project):
         return jsonify(message=f"Failed to retrieve dataset writers. {err}"), 500
 
     response = jsonify(payload)
-    response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 
 @bp.route('/projects/<project_id>/search', methods=["GET"])
+@asreview_login_required
 @project_from_id
 def api_search_data(project):  # noqa: F401
     """Search for papers
@@ -559,11 +566,12 @@ def api_search_data(project):  # noqa: F401
         return jsonify(message="Failed to load search results."), 500
 
     response = jsonify(payload)
-    response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 
 @bp.route('/projects/<project_id>/labeled', methods=["GET"])
+@asreview_login_required
 @project_from_id
 def api_get_labeled(project):  # noqa: F401
     """Get all papers classified as labeled documents
@@ -607,7 +615,7 @@ def api_get_labeled(project):  # noqa: F401
                 "result": [],
             }
             response = jsonify(payload)
-            response.headers.add('Access-Control-Allow-Origin', '*')
+
             return response
 
         max_page_calc = divmod(count, per_page)
@@ -665,11 +673,12 @@ def api_get_labeled(project):  # noqa: F401
         return jsonify(message=f"{err}"), 500
 
     response = jsonify(payload)
-    response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 
 @bp.route('/projects/<project_id>/labeled_stats', methods=["GET"])
+@asreview_login_required
 @project_from_id
 def api_get_labeled_stats(project):  # noqa: F401
     """Get all papers classified as prior documents
@@ -703,11 +712,11 @@ def api_get_labeled_stats(project):  # noqa: F401
         logging.error(err)
         return jsonify(message="Failed to load prior information."), 500
 
-    response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 
 @bp.route('/projects/<project_id>/prior_random', methods=["GET"])
+@asreview_login_required
 @project_from_id
 def api_random_prior_papers(project):  # noqa: F401
     """Get a selection of random records.
@@ -826,11 +835,12 @@ def api_random_prior_papers(project):  # noqa: F401
             )
 
     response = jsonify(payload)
-    response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 
 @bp.route('/algorithms', methods=["GET"])
+@asreview_login_required
 def api_list_algorithms():
     """List the names and labels of available algorithms"""
 
@@ -867,11 +877,12 @@ def api_list_algorithms():
         return jsonify(message="Failed to retrieve algorithms."), 500
 
     response = jsonify(payload)
-    response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 
 @bp.route('/projects/<project_id>/algorithms', methods=["GET"])
+@asreview_login_required
 @project_from_id
 def api_get_algorithms(project):  # noqa: F401
 
@@ -899,11 +910,12 @@ def api_get_algorithms(project):  # noqa: F401
         payload = default_payload
 
     response = jsonify(payload)
-    response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 
 @bp.route('/projects/<project_id>/algorithms', methods=["POST"])
+@asreview_login_required
 @project_from_id
 def api_set_algorithms(project):  # noqa: F401
 
@@ -931,11 +943,12 @@ def api_set_algorithms(project):  # noqa: F401
         state.settings = asreview_settings
 
     response = jsonify({'success': True})
-    response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 
 @bp.route('/projects/<project_id>/start', methods=["POST"])
+@asreview_login_required
 @project_from_id
 def api_start(project):  # noqa: F401
     """Start training of first model or simulation.
@@ -1011,11 +1024,12 @@ def api_start(project):  # noqa: F401
             return jsonify(message="Failed to train the model."), 500
 
     response = jsonify({'success': True})
-    response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 
 @bp.route('/projects/<project_id>/status', methods=["GET"])
+@asreview_login_required
 @project_from_id
 def api_get_status(project):  # noqa: F401
     """Check the status of the review
@@ -1036,11 +1050,12 @@ def api_get_status(project):  # noqa: F401
             raise Exception(error_message)
 
     response = jsonify({'status': status})
-    response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 
 @bp.route('/projects/<project_id>/status', methods=["PUT"])
+@asreview_login_required
 @project_from_id
 def api_status_update(project):
     """Update the status of the review.
@@ -1068,7 +1083,7 @@ def api_status_update(project):
         project.remove_error(status=status)
 
         response = jsonify({'success': True})
-        response.headers.add('Access-Control-Allow-Origin', '*')
+
         return response
 
     if mode == PROJECT_MODE_SIMULATE:
@@ -1085,11 +1100,12 @@ def api_status_update(project):
                 f"Not possible to update status from {current_status} to {status}")
 
         response = jsonify({'success': True})
-        response.headers.add('Access-Control-Allow-Origin', '*')
+
         return response
 
 
 @bp.route('/projects/import_project', methods=["POST"])
+@asreview_login_required
 def api_import_project():
     """Import uploaded project"""
 
@@ -1113,6 +1129,7 @@ def api_import_project():
 
 
 @bp.route('/projects/<project_id>/export_dataset', methods=["GET"])
+@asreview_login_required
 @project_from_id
 def api_export_dataset(project):
     """Export dataset with relevant/irrelevant labels"""
@@ -1164,6 +1181,7 @@ def api_export_dataset(project):
 
 
 @bp.route('/projects/<project_id>/export_project', methods=["GET"])
+@asreview_login_required
 @project_from_id
 def export_project(project):
     """Export the project file.
@@ -1273,6 +1291,7 @@ def _get_labels(state_obj, priors=False):
 
 
 @bp.route('/projects/<project_id>/progress', methods=["GET"])
+@asreview_login_required
 @project_from_id
 def api_get_progress_info(project):  # noqa: F401
     """Get progress statistics of a project"""
@@ -1280,13 +1299,13 @@ def api_get_progress_info(project):  # noqa: F401
     include_priors = request.args.get('priors', True, type=bool)
 
     response = jsonify(_get_stats(project, include_priors=include_priors))
-    response.headers.add('Access-Control-Allow-Origin', '*')
 
     # return a success response to the client.
     return response
 
 
 @bp.route('/projects/<project_id>/progress_density', methods=["GET"])
+@asreview_login_required
 @project_from_id
 def api_get_progress_density(project):
     """Get progress density of a project"""
@@ -1346,12 +1365,12 @@ def api_get_progress_density(project):
         return jsonify(message="Failed to load progress density."), 500
 
     response = jsonify(payload)
-    response.headers.add('Access-Control-Allow-Origin', '*')
 
     return response
 
 
 @bp.route('/projects/<project_id>/progress_recall', methods=["GET"])
+@asreview_login_required
 @project_from_id
 def api_get_progress_recall(project):
     """Get cumulative number of inclusions by ASReview/at random"""
@@ -1399,12 +1418,12 @@ def api_get_progress_recall(project):
         return jsonify(message="Failed to load progress recall."), 500
 
     response = jsonify(payload)
-    response.headers.add('Access-Control-Allow-Origin', '*')
 
     return response
 
 
 @bp.route('/projects/<project_id>/record/<doc_id>', methods=["POST", "PUT"])
+@asreview_login_required
 @project_from_id
 def api_classify_instance(project, doc_id):  # noqa: F401
     """Label item
@@ -1455,12 +1474,12 @@ def api_classify_instance(project, doc_id):  # noqa: F401
         ])
 
     response = jsonify({'success': True})
-    response.headers.add('Access-Control-Allow-Origin', '*')
 
     return response
 
 
 @bp.route('/projects/<project_id>/get_document', methods=["GET"])
+@asreview_login_required
 @project_from_id
 def api_get_document(project):  # noqa: F401
     """Retrieve documents in order of review.
@@ -1513,11 +1532,12 @@ def api_get_document(project):  # noqa: F401
         return jsonify(message=f"Failed to retrieve new records. {err}."), 500
 
     response = jsonify({"result": item, "pool_empty": pool_empty})
-    response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 
 @bp.route('/projects/<project_id>/delete', methods=["DELETE"])
+@asreview_login_required
 @project_from_id
 def api_delete_project(project):  # noqa: F401
     """Get info on the article"""
@@ -1535,7 +1555,7 @@ def api_delete_project(project):  # noqa: F401
             return jsonify(message="Failed to delete project."), 500
 
         response = jsonify({'success': True})
-        response.headers.add('Access-Control-Allow-Origin', '*')
+
         return response
 
     response = jsonify(message="project-delete-failure")

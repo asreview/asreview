@@ -118,10 +118,12 @@ setup(
         'setuptools',
         'flask>=2.0',
         'flask_cors',
+        'flask_login',
         'openpyxl',
         'gevent',
         'jsonschema',
-        'filelock'
+        'filelock',
+        'SQLAlchemy',
     ],
     extras_require=DEPS,
     entry_points={

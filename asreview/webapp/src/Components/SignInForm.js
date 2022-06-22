@@ -21,7 +21,7 @@ import { HelpPrivacyTermsButton } from "../Components";
 
 import { InlineErrorHandler } from ".";
 
-import BaseAPI from "../api/BaseAPI";
+import BaseAPI from "../api/AuthAPI";
 import useAuth from "../hooks/useAuth";
 import { useToggle } from "../hooks/useToggle";
 import { WordmarkState } from "../globals";

@@ -23,15 +23,21 @@ from flask import send_from_directory
 from flask.json import jsonify
 from flask.templating import render_template
 from flask_cors import CORS
+from flask_login import LoginManager
 from gevent.pywsgi import WSGIServer
 from werkzeug.exceptions import InternalServerError
 
+import asreview.auth.database as db
 from asreview import __version__ as asreview_version
+from asreview.auth.models import User
 from asreview.entry_points.lab import _lab_parser
 from asreview.project import ASReviewProject
 from asreview.project import get_project_path
 from asreview.project import list_asreview_projects
+from asreview.utils import asreview_path
 from asreview.webapp import api
+from asreview.webapp import auth
+
 
 # set logging level
 if os.environ.get('FLASK_ENV', "") == "development":
@@ -109,9 +115,16 @@ def create_app(**kwargs):
     except OSError:
         pass
 
-    CORS(app, resources={r"*": {"origins": "*"}})
+    # !! Not sure about this, but since the front-end and back-end
+    # !! are coupled I think origins should be set to the URL and
+    # !! not to '*'
+    CORS(
+        app, 
+        resources={r"*": {"origins": "http://localhost:3000"}},
+    )
 
     app.register_blueprint(api.bp)
+    app.register_blueprint(auth.bp)
 
     @app.errorhandler(InternalServerError)
     def error_500(e):
@@ -131,7 +144,6 @@ def create_app(**kwargs):
     @app.route('/projects/<project_id>/', methods=['GET'])
     @app.route('/projects/<project_id>/<tab>/', methods=['GET'])
     def index(**kwargs):
-
         return render_template("index.html")
 
     @app.route('/favicon.ico')
@@ -154,7 +166,6 @@ def create_app(**kwargs):
             "status": status,
             "version": asreview_version,
         })
-        response.headers.add('Access-Control-Allow-Origin', '*')
 
         return response
 
@@ -168,6 +179,24 @@ def main(argv):
 
     app = create_app(embedding_fp=args.embedding_fp)
     app.config['PROPAGATE_EXCEPTIONS'] = False
+    # !! This needs to be an environment variable
+    app.config['SECRET_KEY'] = 'JeMoederHeetHenk1!'
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    app.config['SESSION_COOKIE_SECURE'] = True
+    app.config['REMEMBER_COOKIE_SECURE'] = True
+
+    # create the database plus table(s)
+    db.init_db()
+
+    # config JSON Web Tokens
+    login_manager = LoginManager(app)
+    login_manager.init_app(app)
+    login_manager.session_protection = 'strong'
+
+    # Register a callback function for current_user.
+    @login_manager.user_loader
+    def load_user(id):
+        return User.query.get(int(id))
 
     # ssl certificate, key and protocol
     certfile = args.certfile

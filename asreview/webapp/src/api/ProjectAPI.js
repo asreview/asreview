@@ -8,7 +8,7 @@ class ProjectAPI {
     const url = api_url + `projects`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url)
+        .get(url, { withCredentials: true })
         .then((result) => {
           resolve(result["data"]);
         })
@@ -22,7 +22,7 @@ class ProjectAPI {
     const url = api_url + `projects/stats`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url)
+        .get(url, { withCredentials: true })
         .then((result) => {
           resolve(result.data["result"]);
         })
@@ -45,6 +45,7 @@ class ProjectAPI {
         method: "post",
         url: url,
         data: body,
+        withCredentials: true,
       })
         .then((result) => {
           resolve(result["data"]);
@@ -60,7 +61,7 @@ class ProjectAPI {
     const url = api_url + `projects/${project_id}/upgrade_if_old`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url)
+        .get(url, { withCredentials: true })
         .then((result) => {
           resolve(result["data"]);
         })
@@ -75,7 +76,7 @@ class ProjectAPI {
     const url = api_url + `projects/${project_id}/info`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url)
+        .get(url, { withCredentials: true })
         .then((result) => {
           resolve(result["data"]);
         })
@@ -98,6 +99,7 @@ class ProjectAPI {
         method: "put",
         url: url,
         data: body,
+        withCredentials: true,
       })
         .then((result) => {
           resolve(result["data"]);
@@ -115,6 +117,7 @@ class ProjectAPI {
       axios
         .get(url, {
           params: { subset: subset },
+          withCredentials: true,
         })
         .then((result) => {
           resolve(result["data"]);
@@ -146,6 +149,7 @@ class ProjectAPI {
         method: "post",
         url: url,
         data: body,
+        withCredentials: true,
       })
         .then((result) => {
           resolve(result["data"]);
@@ -161,7 +165,7 @@ class ProjectAPI {
     const url = api_url + `projects/${project_id}/data`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url)
+        .get(url, { withCredentials: true })
         .then((result) => {
           resolve(result["data"]);
         })
@@ -176,7 +180,7 @@ class ProjectAPI {
     const url = api_url + `projects/${project_id}/dataset_writer`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url)
+        .get(url, { withCredentials: true })
         .then((result) => {
           resolve(result["data"]);
         })
@@ -191,7 +195,10 @@ class ProjectAPI {
     const url = api_url + `projects/${project_id}/search`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url, { params: { q: keyword, n_max: 10 } })
+        .get(url, { 
+            params: { q: keyword, n_max: 10 },
+            withCredentials: true,
+        })
         .then((result) => {
           resolve(result["data"]);
         })
@@ -206,7 +213,10 @@ class ProjectAPI {
     const url = api_url + `projects/${project_id}/prior_random`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url, { params: { n: n, subset: subset } })
+        .get(url, { 
+            params: { n: n, subset: subset },
+            withCredentials: true,
+        })
         .then((result) => {
           resolve(result["data"]);
         })
@@ -226,6 +236,7 @@ class ProjectAPI {
           paramsSerializer: (params) => {
             return qs.stringify(params, { arrayFormat: "repeat" });
           },
+          withCredentials: true,
         })
         .then((result) => {
           resolve(result.data);
@@ -241,7 +252,7 @@ class ProjectAPI {
     const url = api_url + `projects/${project_id}/labeled_stats`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url)
+        .get(url, { withCredentials: true })
         .then((result) => {
           resolve(result["data"]);
         })
@@ -255,7 +266,7 @@ class ProjectAPI {
     const url = api_url + `algorithms`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url)
+        .get(url, { withCredentials: true })
         .then((result) => {
           resolve(result["data"]);
         })
@@ -270,7 +281,7 @@ class ProjectAPI {
     const url = api_url + `projects/${project_id}/algorithms`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url)
+        .get(url, { withCredentials: true })
         .then((result) => {
           resolve(result["data"]);
         })
@@ -293,6 +304,7 @@ class ProjectAPI {
         method: "post",
         url: url,
         data: body,
+        withCredentials: true,
       })
         .then((result) => {
           resolve(result["data"]);
@@ -310,6 +322,7 @@ class ProjectAPI {
         method: "post",
         url: url,
         data: {},
+        withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
       })
         .then((result) => {
@@ -326,7 +339,7 @@ class ProjectAPI {
     const url = api_url + `projects/${project_id}/status`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url)
+        .get(url, { withCredentials: true })
         .then((result) => {
           resolve(result["data"]);
         })
@@ -346,6 +359,7 @@ class ProjectAPI {
         method: "put",
         url: url,
         data: body,
+        withCredentials: true,
       })
         .then((result) => {
           resolve(result);
@@ -366,6 +380,7 @@ class ProjectAPI {
         method: "post",
         url: url,
         data: body,
+        withCredentials: true,
       })
         .then((result) => {
           resolve(result["data"]);
@@ -386,6 +401,7 @@ class ProjectAPI {
         url: url,
         method: "get",
         responseType: "blob",
+        withCredentials: true,
       })
         .then((result) => {
           const url = window.URL.createObjectURL(new Blob([result.data]));
@@ -428,6 +444,7 @@ class ProjectAPI {
         url: url,
         method: "get",
         responseType: "blob",
+        withCredentials: true,
       })
         .then((result) => {
           const url = window.URL.createObjectURL(new Blob([result.data]));
@@ -464,7 +481,7 @@ class ProjectAPI {
     const url = api_url + `projects/${project_id}/progress`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url)
+        .get(url, { withCredentials: true })
         .then((result) => {
           resolve(result["data"]);
         })
@@ -479,7 +496,7 @@ class ProjectAPI {
     const url = api_url + `projects/${project_id}/progress_density`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url)
+        .get(url, { withCredentials: true })
         .then((result) => {
           resolve(result["data"]);
         })
@@ -494,7 +511,7 @@ class ProjectAPI {
     const url = api_url + `projects/${project_id}/progress_recall`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url)
+        .get(url, { withCredentials: true })
         .then((result) => {
           resolve(result["data"]);
         })
@@ -523,6 +540,7 @@ class ProjectAPI {
         url: url,
         data: body,
         headers: { "Content-Type": "application/json" },
+        withCredentials: true,
       })
         .then((result) => {
           resolve(result);
@@ -543,7 +561,7 @@ class ProjectAPI {
     const url = api_url + `projects/${project_id}/get_document`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url)
+        .get(url, { withCredentials: true })
         .then((result) => {
           resolve(result["data"]);
         })
@@ -557,7 +575,7 @@ class ProjectAPI {
     const url = api_url + `projects/${variables.project_id}/delete`;
     return new Promise((resolve, reject) => {
       axios
-        .delete(url)
+        .delete(url, { withCredentials: true })
         .then((result) => {
           resolve(result);
         })
