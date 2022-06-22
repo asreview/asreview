@@ -118,7 +118,7 @@ setup(
         'setuptools',
         'flask>=2.0',
         'flask_cors',
-        'flask_login',
+        'flask-login',
         'openpyxl',
         'gevent',
         'jsonschema',
