@@ -21,9 +21,26 @@ simulate. The result of the simulation is stored, after a succesful
 simulation, at ``MY_SIMULATION.asreview`` where ``MY_SIMULATION`` is the
 filename you prefer.
 
+You can also use one of the :ref:`benchmark-datasets
+<data_labeled:fully labeled data>` (see `index.csv
+<https://github.com/asreview/systematic-review-datasets/blob/master/index.csv>`_
+for dataset IDs).
+
+.. code:: bash
+
+    asreview simulate benchmark: [dataset_id]
+
+For example:
+
+.. code:: bash
+
+    asreview simulate benchmark:van_de_Schoot_2017 --state_file myreview.asreview
+
+
 .. note::
 
 	For instructions on preparing your fully labeled data, see :doc:`data`.
+
 
 Simulation options
 ------------------
@@ -33,6 +50,8 @@ An overview of the options are found on the :ref:`ASReview command line
 interface for simulation <cli:Simulate>` page. This section highlights
 some of the most used options. When no additional arguments are specified in
 the ``asreview simulate`` command, default settings are used.
+
+The most important options are:
 
 - To make your simulations reproducible you can use the ``--seed`` and
   ``--init_seed`` options. 'init_seed' controls the starting set of papers to
@@ -51,9 +70,9 @@ the ``asreview simulate`` command, default settings are used.
   size of your state file and the time to simulate, you can increase
   ``--n_instances``.
 
-- You can select a classifier with the ``-m`` flag, which is set to be Naive
-  Bayes by default. Names for implemented classifiers are listed on the
-  :ref:`classifiers-table` table.
+- You can select a machien learning model as classifier with the ``-m`` flag,
+  which is set to be Naive Bayes by default. Names for implemented classifiers
+  are listed on the :ref:`classifiers-table` table.
 
 - Implemented query strategies are listed on the :ref:`query-strategies-table`
   table and can be set with the ``-q`` option.
@@ -63,3 +82,6 @@ the ``asreview simulate`` command, default settings are used.
 
 - The last element that can be changed is the :ref:`balance-strategies-table`,
   and is changed with the ``-b`` flag. Default is double balance.
+
+
+A full list of options can be found in the Development section under :ref:`cli:simulate`.  

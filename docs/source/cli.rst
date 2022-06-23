@@ -7,7 +7,8 @@ simulations. For a list of available commands, type :code:`asreview --help`.
 LAB
 ---
 
-:program:`asreview lab` launches the ASReview LAB software (the webapp).
+:program:`asreview lab` launches the ASReview LAB software (the webapp) and
+the following options are available:
 
 .. code:: bash
 
@@ -65,32 +66,12 @@ Simulate
 --------
 
 :program:`asreview simulate` measures the performance of the software on
-existing systematic reviews. The software shows how many papers you could have
-potentially skipped during the systematic review. You can use  :doc:`your
-labeled dataset <data>`
+existing systematic reviews. The following options are available:
 
 .. code:: bash
 
     asreview simulate [options] [dataset [dataset ...]]
 
-or one of the :ref:`benchmark-datasets
-<data_labeled:fully labeled data>` (see `index.csv
-<https://github.com/asreview/systematic-review-datasets/blob/master/index.csv>`_
-for dataset IDs).
-
-.. code:: bash
-
-    asreview simulate [options] benchmark: [dataset_id]
-
-Examples:
-
-.. code:: bash
-
-	asreview simulate YOUR_DATA.csv --state_file myreview.asreview
-
-.. code:: bash
-
-    asreview simulate benchmark:van_de_Schoot_2017 --state_file myreview.asreview
 
 .. program:: asreview simulate
 
@@ -182,6 +163,10 @@ Examples:
 
 	Show help message and exit.
 
+Algorithms
+----------
+
+The following components of the active learning model are available:
 
 .. note::
 
@@ -267,19 +252,5 @@ Balance Strategies
 +-------------+---------------------------------------------------------+----------+
 
 
-Algorithms
-----------
 
-:program:`asreview algorithms` provides an overview of all available active
-learning model elements (classifiers, query strategies, balance
-strategies, and feature extraction algorithms) in ASReview.
 
-.. code:: bash
-
-    asreview algorithms
-
-.. note::
-
-    :program:`asreview algorithms` included models added via extensions.
-    See :ref:`develop-extensions` for more information on extending ASReview with new
-    models via extensions.
