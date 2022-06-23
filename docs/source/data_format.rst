@@ -5,26 +5,14 @@ To carry out a systematic review with ASReview on your own dataset, your data
 file needs to adhere to a certain format. ASReview accepts the following
 formats:
 
- - **RIS file format** `(wikipedia) <https://en.wikipedia.org/wiki/RIS_(file_format)>`__ with
-   extensions ``.ris`` or ``.txt``. RIS file formats are used by digital libraries, like
-   IEEE Xplore, Scopus and ScienceDirect. Citation managers Mendeley, RefWorks,
-   Zotero, and EndNote support the RIS file format as well.
 
-For parsing RIS file format, the software uses a Python RIS files parser and
-reader (`rispy <https://pypi.org/project/rispy/>`__). Successful import/export
-depends on a proper data set structure. To validate your data set, the
-complete default mapping can be found on the `rispy GitHub page
-<https://github.com/MrTango/rispy>`_.
+Tabular file format
+-------------------
 
-.. figure:: ../images/asreview_export_to_zotero_labeled.png
-   :alt: Example record with a labeling decision imported to Zotero
-
-.. figure:: ../images/asreview_export_to_endnote_labeled.png
-   :alt: Example record with a labeling decision imported to Endnote
-
-**Tabular datasets** with extensions ``.csv``, ``.tab``, ``.tsv``, or ``.xlsx``.
-   CSV and TAB files are preferably comma, semicolon, or tab-delimited.
-   The preferred file encoding is *UTF-8* or *latin1*.
+Tabular datasets with extensions ``.csv``, ``.tab``, ``.tsv``, or ``.xlsx``
+can be used in ASReview LAB. CSV and TAB files are preferably comma,
+semicolon, or tab-delimited.    The preferred file encoding is *UTF-8* or
+*latin1*.
 
 For tabular data files, the software accepts a set of predetermined column names:
 
@@ -78,8 +66,7 @@ information is available via the API.
 If a Digital Object Identifier ( ``DOI``) is available it will be displayed during the
 screening phase as a clickable hyperlink to the full text document. Note by
 using ASReview you do *not* automatically have access to full-text and if you do
-not have access you might want to read this `blog post
-<https://asreview.ai/blog/tools-that-work-well-with-asreview-google-scholar-button/>`__.
+not have access you might want to read this `blog post <https://asreview.ai/blog/tools-that-work-well-with-asreview-google-scholar-button/>`__.
 
 **Included** A binary variable indicating the existing labeling decisions with
 ``0`` = irrelevant/excluded, and ``1`` = relevant/included. Different column
@@ -99,5 +86,51 @@ names are allowed, see the table. It can be used for:
 
 .. note::
 
-  Files exported with ASReview LAB contain the column ``included`` and can be used for
-  prior knowledge.
+  Files exported with ASReview LAB contain the column ``included``. When
+  re-importing a partly labeled dataset in the the RIS file format, the labels
+  stored in the N1 field are used as prior knowledge. When a completely
+  labeled dataset is re-imported it can be used in the Exploration and
+  Simualtion mode. 
+
+
+RIS file format
+---------------
+
+RIS file formats (with extensions ``.ris`` or ``.txt``) are used by digital
+libraries, like IEEE Xplore, Scopus and ScienceDirect. Citation managers
+Mendeley, RefWorks, Zotero, and EndNote support the RIS file format as well.
+See `(wikipedia) <https://en.wikipedia.org/wiki/RIS_(file_format)>`__  for 
+detailed information about the format. 
+
+For parsing RIS file format, ASReview LAB uses a Python RIS files parser and
+reader (`rispy <https://pypi.org/project/rispy/>`__). Successful import/export
+depends on a proper data set structure. The complete list of accepted fields and 
+default mapping can be found on the `rispy GitHub page <https://github.com/MrTango/rispy>`_.
+
+
+.. tip:: 
+
+  Labeling decissions ``ASReview_relevant``, ``ASReview_irrelevant``, and
+  ``ASReview_not_seen`` are stored with the N1 (Notes) tag. In citation managers
+  Zotero and Endnote the labels can be used for making selections; see the
+  screenshots or watch the `instruction video  <https://www.youtube.be/-Rw291AE20I>`_. 
+
+.. note:: 
+
+  When re-importing a partly labeled dataset in the the RIS file format, the
+  labels stored in the N1 field are used as prior knowledge. When a completely
+  labeled dataset is re-imported it can be used in the Exploration and
+  Simualtion mode.  
+
+
+
+.. figure:: ../images/asreview_export_to_zotero_labeled.png
+   :alt: Example record with a labeling decision imported to Zotero
+
+   Example record with a labeling decision imported to Zotero
+
+
+.. figure:: ../images/asreview_export_to_endnote_labeled.png
+   :alt: Example record with a labeling decision imported to Endnote
+   
+   Example record with a labeling decision imported to Endnote
