@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { useLocation, useNavigate } from "react-router-dom";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
@@ -70,6 +70,7 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const SignInForm = () => {
+  const queryClient = useQueryClient();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
 
@@ -84,6 +85,10 @@ const SignInForm = () => {
   const { error, isError, isLoading, mutate, reset } = useMutation(
     BaseAPI.signin,
     {
+      onMutate: () => {
+        // clear potential error
+        queryClient.resetQueries("refresh");
+      },
       onSuccess: (data) => {
         setAuth({
           logged_in: data.logged_in,

@@ -1,17 +1,18 @@
 import * as React from "react";
 import { useQuery } from "react-query";
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 
 import { AuthAPI } from "../api";
 
 const PersistSignIn = () => {
+  const location = useLocation();
   const { auth, setAuth } = useAuth();
   const [isLoading, setIsLoading] = React.useState(
     !auth?.logged_in ? true : false
   );
 
-  const { error } = useQuery("refresh", AuthAPI.refresh, {
+  const { isError } = useQuery("refresh", AuthAPI.refresh, {
     enabled: isLoading,
     onSettled: () => {
       setIsLoading(false);
@@ -29,7 +30,14 @@ const PersistSignIn = () => {
     retry: false,
   });
 
-  return <>{isLoading ? null : <Outlet />}</>;
+  return (
+    <>
+      {!isError && (isLoading ? null : <Outlet />)}
+      {isError && (
+        <Navigate to={"/signin"} state={{ from: location }} replace />
+      )}
+    </>
+  );
 };
 
 export default PersistSignIn;
