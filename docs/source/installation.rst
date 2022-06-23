@@ -29,7 +29,7 @@ ASReview LAB, see :doc:`start`.
 
     See :doc:`troubleshooting` for common problems during installation.
 
-.. note::
+.. tip::
 
     For users with Apple M1 computers, if you experience problems, follow the
     `instructions
@@ -121,4 +121,7 @@ access the same folder.
 Build a local image
 ~~~~~~~~~~~~~~~~~~~
 
-For more information, see `ASReview LAB GitHub <https://github.com/asreview/asreview/tree/master/docker>`__.
+If you want to use a specific version of ASReview LAB, not available as
+DockerHub image, you can build your own. To build your own image, create a
+file called Dockerfile (no file extension) and fill it with the following
+code.  For more information, see `ASReview LAB GitHub <https://github.com/asreview/asreview/tree/master/docker/#build-your-own-image>`__.
