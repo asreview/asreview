@@ -116,7 +116,7 @@ acceptance in ASReview:
 -  N/A = This format does not exist.
 -  X = Not supported.
 
-.. warning::
+.. tip::
 
     If the export of your search engine is not accepted in ASReview, you can
     also try the following: import the search engine file first into one of
@@ -127,7 +127,7 @@ Systematic Review Software
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are several software packages available for systematic reviewing, see
-for an `overview <https://arxiv.org/abs/2006.12166>`_. Some of them use machine
+for an `overview <https://www.nature.com/articles/s42256-020-00287-7>`_. Some of them use machine
 learning, while other focus on screening and management. The overview below
 shows an overview of alternative software programs and the compatibility with
 ASReview.
