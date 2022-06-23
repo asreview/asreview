@@ -85,11 +85,18 @@ const SignInForm = () => {
     BaseAPI.signin,
     {
       onSuccess: (data) => {
-        const accessToken = data?.accessToken;
-        setAuth({ username, password, accessToken });
+        setAuth({
+          logged_in: data.logged_in,
+          username: data.username,
+          id: data.id,
+        });
         setUsername("");
         setPassword("");
-        navigate(from, { replace: true });
+        if (from === "/") {
+          navigate("/projects");
+        } else {
+          navigate(from, { replace: true });
+        }
       },
     }
   );
