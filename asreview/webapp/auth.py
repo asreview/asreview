@@ -101,6 +101,23 @@ def signup():
     return response, status
 
 
+@bp.route('/refresh', methods=["GET"])
+@asreview_login_required
+def refresh():
+    if current_user:
+        result = (200, {
+            'logged_in': current_user.is_authenticated,
+            'username': current_user.username,
+            'id': current_user.id
+        })
+    else:
+        result = (404, 'No user found')
+
+    status, message = result
+    response = jsonify(message)
+    return response, status
+
+
 @bp.route('/signout', methods=["DELETE"])
 @asreview_login_required
 def signout():
@@ -114,5 +131,3 @@ def signout():
     status, message = result
     response = jsonify({ 'message': message })
     return response, status
-
-
