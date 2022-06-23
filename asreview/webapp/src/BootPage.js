@@ -68,7 +68,7 @@ const BootPage = ({ setASReviewVersion }) => {
     onSettled: (data) => {
       // skip the loader when you are in development mode
       if (data?.status === "development") {
-        navigate("projects");
+        navigate("/signin");
       } else {
         toggleAnimation();
       }
@@ -104,7 +104,7 @@ const BootPage = ({ setASReviewVersion }) => {
           }
         }}
         onExited={() => {
-          navigate("projects");
+          navigate("/signin");
         }}
       >
         <Box className={classes.background}>
