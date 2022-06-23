@@ -1,6 +1,9 @@
 Start ASReview LAB
 ==================
 
+Start via CLI
+-------------
+
 After you install ASReview LAB, start the program via the command line to
 start using it.
 
@@ -14,8 +17,8 @@ MacOS or Linux, you can open `Terminal` and run the command.
 The information in the sections below is more advanced and not needed for the
 majority of the ASReview LAB users.
 
-Command line arguments for starting ASReview LAB
-------------------------------------------------
+Command line arguments
+----------------------
 
 ASReview LAB provides a powerful command line interface for running ASReview
 LAB with other options or even run tasks like simulations. For a list of
@@ -78,14 +81,25 @@ available commands in ASReview LAB, type :code:`asreview lab --help`.
 	techniques, and query strategies). Use an integer between 0 and 2^32 - 1.
 
 
+Set environment variables
+-------------------------
+
 The following evironment variables are available.
 
 .. option:: ASREVIEW_PATH
 
-	The path to the folder with project. Default `~/.asreview`.
+	The path to the folder with project. Default `~/.asreview`, or search the location in Windows with 
 
-Set environment variables
-~~~~~~~~~~~~~~~~~~~~~~~~~
+  .. code:: bash
+
+  dir "\.asreview"/ s
+
+  In MacOS or Linux operating systems use
+
+  .. code:: bash
+
+  find / -type d -name ".asreview"
+
 
 How you set environment variables depends on the operating system and the
 environment in which you deploy ASReview LAB.
@@ -116,8 +130,8 @@ Or the following on Windows operating systems:
 	echo %ASREVIEW_PATH%
 
 
-Run ASReview LAB on localhost with a different port
----------------------------------------------------
+Run on a different port
+-----------------------
 
 By default, ASReview LAB runs on port 5000. If that port is already in use or
 if you want to specify a different port, start ASReview LAB with the following
