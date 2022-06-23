@@ -60,9 +60,13 @@ feature requests, please submit an issue on `GitHub
 
     simulation_overview
 
+    simulation_webapp
+
     simulation_cli
 
     simulation_api_example
+
+    simulation_results
 
 .. toctree::
     :maxdepth: 1
