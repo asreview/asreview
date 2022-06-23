@@ -29,7 +29,7 @@ inclusive community contributing to the project. In short, research is
 conducted according to the following fundamental principles:
 
 - Research output should be `FAIR <https://www.uu.nl/en/research/open-science>`_ (Finable Accessible Interoperable and Reusable).
-- Research should be conducted with integrity, and we commit ourselves to the `Netherlands Code of Conduct for Research Integrity <https://www.nwo.nl/sites/nwo/files/documents Netherlands%2BCode%2Bof%2BConduct%2Bfor%2BResearch%2BIntegrity_2018_UK.pdf>`_ .
+- Research should be conducted with integrity, and we commit ourselves to the `Netherlands Code of Conduct for Research Integrity <https://www.nwo.nl/en/netherlands-code-conduct-research-integrity>`_ .
 - Output should be rewarded according to the Declaration on Research Assessment (`DORA <https://sfdora.org/read/>`_).
 
 
