@@ -8,7 +8,7 @@ ASReview LAB is a free (Libre) open-source machine learning tool for screening
 and systematically labeling a large collection of textual data. It's sometimes
 referred to as a tool for title and abstract screening in systematic reviews
 or meta-analyses,  but it can handle any type of textual data that must be
-screened systematically.
+screened systematically, see the paper published in `Nature Machine Intelligence <https://www.nature.com/articles/s42256-020-00287-7>`_. 
 
 ASReview LAB implements three different options:
 
@@ -26,6 +26,7 @@ around the world.
     :width: 320
     :align: center
     :alt: ASReview LAB overview
+
 
 What is active learning?
 ------------------------
@@ -50,22 +51,22 @@ Labeling workflow with ASReview
 Start and finish a systematic labeling process with ASReview LAB by following
 these steps:
 
-1. Create a dataset with potentially relevant records you want to screen systematically. Improve the quality of the data and specify clear reviewing (inclusion/exclusion) criteria
-2. Specify a stopping criterium
+1. Create a dataset with potentially relevant records you want to screen systematically. Improve the `quality of the data <https://www.asreview.ai/blog/the-importance-of-abstracts>`__ and specify clear reviewing (inclusion/exclusion) criteria
+2. Specify a `stopping criterium <https://www.github.com/asreview/asreview/discussions/557>`__
 3. :doc:`start`
 4. :doc:`project_create`
 5. :ref:`Import your dataset <project_create:Add dataset>`
 6. :ref:`project_create:Select Prior Knowledge`
-7. Select the four components of the active learning model (feature extractor, classifier, balancing method, query strategy)
+7. Select the four components of the :ref:`Active learning model <project_create:Model>` (feature extractor, classifier, balancing method, query strategy)
 8. Wait until the warm up of the AI is ready (the software is extracting the features and trains the classifier on the prior knowledge)
-9. Start :doc:`screening` until you reach your stopping criterium
-10. :ref:`progress:Export results` and :ref:`manage:Export project`
+9. Start :doc:`screening` until you reach your `stopping criterium <https://www.github.com/asreview/asreview/discussions/557>`__
+10. At any time you can export the :term:`dataset` the labelling decissions or the entire :term:`project`.
 
 
 Quick start
 -----------
 
-1. Check if Python 3.7 or later is installed (if not, install Python)
+1. Check if Python 3.7 or later is installed (if not, `install Python <https://www.python.org/downloads>`__)
 
 .. code:: bash
 
@@ -83,19 +84,19 @@ Quick start
 
   asreview lab
 
-4. Click Create to create a project.
+4. Click *Create* to create a project
 
 5. Select a mode (Oracle, Exploration, Simulation)
 
-6. Name the project, and if you want, add an author name(s) and type a description.
+6. Name the project, and if you want, add an author name(s) and type a description
 
-7. **Import a dataset** you want to review, or select a benchmark dataset (only available for **Exploration** and **Simulation**).
+7. Import a dataset you want to review, or select a benchmark dataset (only available for the Exploration and Simulation mode)
 
-8. **Add prior knowledge**. Select at least 1 relevant and 1 irrelevant record to warm up the AI. You can search for a specific record or request random records.
+8. Add prior knowledge. Select at least 1 relevant and 1 irrelevant record to warm up the AI. You can search for a specific record or request random records
 
-9. Select the four components of the active learning model, or rely on the default settings that have shown fast and excellent performance in many simulation studies.
+9. Select the four components of the active learning model, or rely on the default settings that have shown fast and excellent performance in many simulation studies
 
-10. ASReview LAB starts extracting the features and runs the classifier with the prior knowledge.
+10. ASReview LAB starts extracting the features and runs the classifier with the prior knowledge
 
 You’re ready to start labeling your data! All your labeling actions are
 automatically saved, so there is no need to click the save button (we don’t
@@ -230,8 +231,23 @@ encounter as you use ASReview LAB.
   Screener
     Replacement term when the context is PRISMA-based reviewing.
 
+
+
+Key principles
+--------------
+
+The use of ASReview LAB comes with `five fundamental principles
+<https://asreview.ai/blog/the-zen-of-elas/>`_:
+
+1. Humans are the oracle;
+2. Code is open & results are transparent;
+3. Decisions are unbiased;
+4. The interface shows an AI is at work;
+5. Users are responsible for importing high quality data.
+
+
 Privacy
 -------
 
 The ASReview LAB software doesn't collect any information about the usage or
-user. Great, isn't it!
+its user. Great, isn't it!
