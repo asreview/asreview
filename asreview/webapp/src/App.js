@@ -10,6 +10,7 @@ import {
   HelpDialog,
   NavigationDrawer,
   RequireAuth,
+  PersistSignIn,
   SettingsDialog,
   SignInForm,
   SignUpForm,
@@ -70,47 +71,49 @@ const App = (props) => {
                 element={<SignInForm mobileScreen={mobileScreen} />}
               />
               {/* Private routes */}
-              <Route
-                path="*"
-                element={
-                  <RequireAuth>
-                    <NavigationDrawer
-                      mobileScreen={mobileScreen}
-                      onNavDrawer={onNavDrawer}
-                      toggleNavDrawer={toggleNavDrawer}
-                      toggleSettings={toggleSettings}
-                    />
-                  </RequireAuth>
-                }
-              >
+              <Route element={<PersistSignIn />}>
                 <Route
                   path="*"
                   element={
-                    <HomePage
-                      mobileScreen={mobileScreen}
-                      onNavDrawer={onNavDrawer}
-                      onProjectSetup={onProjectSetup}
-                      projectCheck={projectCheck}
-                      setProjectCheck={setProjectCheck}
-                      toggleProjectSetup={toggleProjectSetup}
-                    />
+                    <RequireAuth>
+                      <NavigationDrawer
+                        mobileScreen={mobileScreen}
+                        onNavDrawer={onNavDrawer}
+                        toggleNavDrawer={toggleNavDrawer}
+                        toggleSettings={toggleSettings}
+                      />
+                    </RequireAuth>
                   }
-                />
-                <Route
-                  path="projects/:project_id/*"
-                  element={
-                    <ProjectPage
-                      mobileScreen={mobileScreen}
-                      onNavDrawer={onNavDrawer}
-                      fontSize={fontSize}
-                      undoEnabled={undoEnabled}
-                      keyPressEnabled={keyPressEnabled}
-                      projectCheck={projectCheck}
-                      setProjectCheck={setProjectCheck}
-                      toggleProjectSetup={toggleProjectSetup}
-                    />
-                  }
-                />
+                >
+                  <Route
+                    path="*"
+                    element={
+                      <HomePage
+                        mobileScreen={mobileScreen}
+                        onNavDrawer={onNavDrawer}
+                        onProjectSetup={onProjectSetup}
+                        projectCheck={projectCheck}
+                        setProjectCheck={setProjectCheck}
+                        toggleProjectSetup={toggleProjectSetup}
+                      />
+                    }
+                  />
+                  <Route
+                    path="projects/:project_id/*"
+                    element={
+                      <ProjectPage
+                        mobileScreen={mobileScreen}
+                        onNavDrawer={onNavDrawer}
+                        fontSize={fontSize}
+                        undoEnabled={undoEnabled}
+                        keyPressEnabled={keyPressEnabled}
+                        projectCheck={projectCheck}
+                        setProjectCheck={setProjectCheck}
+                        toggleProjectSetup={toggleProjectSetup}
+                      />
+                    }
+                  />
+                </Route>
               </Route>
             </Routes>
           </div>
