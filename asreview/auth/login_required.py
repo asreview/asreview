@@ -59,6 +59,7 @@ def asreview_login_required(func):
         # current_app.ensure_sync is only available in Flask >= 2.0
         if callable(getattr(current_app, "ensure_sync", None)):
             return current_app.ensure_sync(func)(*args, **kwargs)
+            
         return func(*args, **kwargs)
 
     return decorated_view

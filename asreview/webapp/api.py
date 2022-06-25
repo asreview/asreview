@@ -27,6 +27,7 @@ from flask import jsonify
 from flask import request
 from flask import send_file
 from flask_cors import CORS
+from flask_login import current_user
 import numpy as np
 import pandas as pd
 from werkzeug.exceptions import InternalServerError
@@ -69,7 +70,7 @@ from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.sql_converter import upgrade_project_config
-from asreview.utils import _get_executable
+from asreview.utils import _get_executable, asreview_working_dir
 from asreview.utils import asreview_path
 from asreview.webapp.io import read_data
 
@@ -109,7 +110,7 @@ def error_500(e):
 def api_get_projects():  # noqa: F401
     """Get info on the article"""
     project_info = []
-    for project in list_asreview_projects():
+    for project in list_asreview_projects(current_user):
 
         try:
 
@@ -148,7 +149,7 @@ def api_get_projects_stats():  # noqa: F401
         "n_setup": 0
     }
 
-    for project in list_asreview_projects():
+    for project in list_asreview_projects(current_user):
 
         try:
             project_config = project.config
@@ -194,12 +195,14 @@ def api_init_project():  # noqa: F401
             and len(project_id) >= 3:
         raise ValueError("Project name should be at least 3 characters.")
 
-    project = ASReviewProject.create(get_project_path(project_id),
-                                     project_id=project_id,
-                                     project_mode=project_mode,
-                                     project_name=project_name,
-                                     project_description=project_description,
-                                     project_authors=project_authors)
+    project = ASReviewProject.create(
+        get_project_path(project_id, current_user),
+        project_id=project_id,
+        project_mode=project_mode,
+        project_name=project_name,
+        project_description=project_description,
+        project_authors=project_authors
+    )
 
     response = jsonify(project.config)
 
@@ -208,7 +211,7 @@ def api_init_project():  # noqa: F401
 
 @bp.route('/projects/<project_id>/upgrade_if_old', methods=["GET"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_upgrade_project_if_old(project):
     """Get upgrade project if it is v0.x"""
 
@@ -226,7 +229,7 @@ def api_upgrade_project_if_old(project):
 
 @bp.route('/projects/<project_id>/info', methods=["GET"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_get_project_info(project):  # noqa: F401
     """Get info on the article"""
 
@@ -242,7 +245,7 @@ def api_get_project_info(project):  # noqa: F401
 
 @bp.route('/projects/<project_id>/info', methods=["PUT"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_update_project_info(project):  # noqa: F401
     """Get info on the article"""
 
@@ -299,7 +302,7 @@ def api_demo_data_project():  # noqa: F401
 
 @bp.route('/projects/<project_id>/data', methods=["POST", "PUT"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_upload_data_to_project(project):  # noqa: F401
     """Get info on the article"""
 
@@ -422,7 +425,7 @@ def api_upload_data_to_project(project):  # noqa: F401
 
 @bp.route('/projects/<project_id>/data', methods=["GET"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_get_project_data(project):  # noqa: F401
     """Get info on the article"""
 
@@ -458,7 +461,7 @@ def api_get_project_data(project):  # noqa: F401
 
 @bp.route('/projects/<project_id>/dataset_writer', methods=["GET"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_list_dataset_writers(project):
     """List the name and label of available dataset writer"""
 
@@ -507,7 +510,7 @@ def api_list_dataset_writers(project):
 
 @bp.route('/projects/<project_id>/search', methods=["GET"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_search_data(project):  # noqa: F401
     """Search for papers
     """
@@ -572,7 +575,7 @@ def api_search_data(project):  # noqa: F401
 
 @bp.route('/projects/<project_id>/labeled', methods=["GET"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_get_labeled(project):  # noqa: F401
     """Get all papers classified as labeled documents
     """
@@ -679,7 +682,7 @@ def api_get_labeled(project):  # noqa: F401
 
 @bp.route('/projects/<project_id>/labeled_stats', methods=["GET"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_get_labeled_stats(project):  # noqa: F401
     """Get all papers classified as prior documents
     """
@@ -717,7 +720,7 @@ def api_get_labeled_stats(project):  # noqa: F401
 
 @bp.route('/projects/<project_id>/prior_random', methods=["GET"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_random_prior_papers(project):  # noqa: F401
     """Get a selection of random records.
 
@@ -883,7 +886,7 @@ def api_list_algorithms():
 
 @bp.route('/projects/<project_id>/algorithms', methods=["GET"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_get_algorithms(project):  # noqa: F401
 
     default_payload = {
@@ -916,7 +919,7 @@ def api_get_algorithms(project):  # noqa: F401
 
 @bp.route('/projects/<project_id>/algorithms', methods=["POST"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_set_algorithms(project):  # noqa: F401
 
     # TODO@{Jonathan} validate model choice on server side
@@ -949,7 +952,7 @@ def api_set_algorithms(project):  # noqa: F401
 
 @bp.route('/projects/<project_id>/start', methods=["POST"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_start(project):  # noqa: F401
     """Start training of first model or simulation.
     """
@@ -1030,7 +1033,7 @@ def api_start(project):  # noqa: F401
 
 @bp.route('/projects/<project_id>/status', methods=["GET"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_get_status(project):  # noqa: F401
     """Check the status of the review
     """
@@ -1056,7 +1059,7 @@ def api_get_status(project):  # noqa: F401
 
 @bp.route('/projects/<project_id>/status', methods=["PUT"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_status_update(project):
     """Update the status of the review.
 
@@ -1117,7 +1120,7 @@ def api_import_project():
     try:
         project = ASReviewProject.load(
             request.files['file'],
-            asreview_path(),
+            asreview_working_dir(current_user),
             safe_import=True
         )
 
@@ -1130,7 +1133,7 @@ def api_import_project():
 
 @bp.route('/projects/<project_id>/export_dataset', methods=["GET"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_export_dataset(project):
     """Export dataset with relevant/irrelevant labels"""
 
@@ -1182,14 +1185,14 @@ def api_export_dataset(project):
 
 @bp.route('/projects/<project_id>/export_project', methods=["GET"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def export_project(project):
     """Export the project file.
 
     The ASReview project file is a file with .asreview extension.
     The ASReview project file is a zipped file and contains
     all information to continue working on the project as well
-    as the orginal dataset.
+    as the original dataset.
     """
 
     # create a temp folder to zip
@@ -1292,7 +1295,7 @@ def _get_labels(state_obj, priors=False):
 
 @bp.route('/projects/<project_id>/progress', methods=["GET"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_get_progress_info(project):  # noqa: F401
     """Get progress statistics of a project"""
 
@@ -1306,7 +1309,7 @@ def api_get_progress_info(project):  # noqa: F401
 
 @bp.route('/projects/<project_id>/progress_density', methods=["GET"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_get_progress_density(project):
     """Get progress density of a project"""
 
@@ -1371,7 +1374,7 @@ def api_get_progress_density(project):
 
 @bp.route('/projects/<project_id>/progress_recall', methods=["GET"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_get_progress_recall(project):
     """Get cumulative number of inclusions by ASReview/at random"""
 
@@ -1424,7 +1427,7 @@ def api_get_progress_recall(project):
 
 @bp.route('/projects/<project_id>/record/<doc_id>', methods=["POST", "PUT"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_classify_instance(project, doc_id):  # noqa: F401
     """Label item
 
@@ -1480,7 +1483,7 @@ def api_classify_instance(project, doc_id):  # noqa: F401
 
 @bp.route('/projects/<project_id>/get_document', methods=["GET"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_get_document(project):  # noqa: F401
     """Retrieve documents in order of review.
 
@@ -1538,7 +1541,7 @@ def api_get_document(project):  # noqa: F401
 
 @bp.route('/projects/<project_id>/delete', methods=["DELETE"])
 @asreview_login_required
-@project_from_id
+@project_from_id(current_user)
 def api_delete_project(project):  # noqa: F401
     """Get info on the article"""
 

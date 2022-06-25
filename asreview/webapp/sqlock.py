@@ -27,7 +27,11 @@ def _log_msg(msg, project_id=None):
 
 
 def get_db(db_file):
-    db = sqlite3.connect(str(db_file), detect_types=sqlite3.PARSE_DECLTYPES)
+    db = sqlite3.connect(
+        str(db_file), 
+        check_same_thread=False,
+        detect_types=sqlite3.PARSE_DECLTYPES
+    )
     db.row_factory = sqlite3.Row
     return db
 

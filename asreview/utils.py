@@ -118,6 +118,12 @@ def asreview_path():
     return asreview_path
 
 
+def asreview_working_dir(user):
+    """Get the location where the personal projects are stored"""
+
+    return Path(asreview_path(), str(user.id))
+
+
 def get_data_home(data_home=None):
     """Return the path of the ASR data dir.
 

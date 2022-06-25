@@ -26,6 +26,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from filelock import FileLock
+from flask_login import current_user
 import jsonschema
 import numpy as np
 from scipy.sparse import csr_matrix
@@ -33,14 +34,16 @@ from scipy.sparse import load_npz
 from scipy.sparse import save_npz
 
 from asreview._version import get_versions
+from asreview.auth.models import User
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.config import SCHEMA
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
-from asreview.utils import asreview_path
+from asreview.utils import asreview_path, asreview_working_dir
 from asreview.webapp.io import read_data
+
 
 PATH_PROJECT_CONFIG = "project.json"
 PATH_PROJECT_CONFIG_LOCK = "project.json.lock"
@@ -59,38 +62,46 @@ class ProjectNotFoundError(Exception):
     pass
 
 
-def get_project_path(project_id, asreview_dir=None):
+def get_project_path(project_id, user, asreview_dir=None):
     """Get the project directory.
 
     Arguments
     ---------
     project_id: str
         The id of the current project.
+    user: User
+        User account object.
     """
 
     if asreview_dir is None:
         asreview_dir = asreview_path()
 
+    if isinstance(user, User) and isinstance(user.id, int):
+        asreview_dir = Path(asreview_dir, str(user.id))
+
     return Path(asreview_dir, project_id)
 
 
-def project_from_id(f):
+def project_from_id(user):
+    """Decorator function that takes a user account as parameter,
+    the user account is used to get the correct sub folder in which 
+    the projects is 
+    """
+    def decorate(f):
+        @wraps(f)
+        def decorated_function(project_id, *args, **kwargs):
+            project_path = get_project_path(project_id, user)
+            project = ASReviewProject(project_path, project_id=project_id)
+            return f(project, *args, **kwargs)
+        return decorated_function
+    return decorate
 
-    @wraps(f)
-    def decorated_function(project_id, *args, **kwargs):
 
-        project_path = get_project_path(project_id)
-        project = ASReviewProject(project_path, project_id=project_id)
-        return f(project, *args, **kwargs)
-
-    return decorated_function
-
-
-def list_asreview_projects():
-    """List the projects in the asreview path"""
+def list_asreview_projects(user):
+    """List the projects in the asreview path from user"""
 
     file_list = []
-    for x in asreview_path().iterdir():
+    for x in asreview_working_dir(user).iterdir():
         if x.is_dir():
             try:
                 project = ASReviewProject(x)
@@ -236,7 +247,7 @@ class ASReviewProject():
                 f'Project folder {project_path} already exists.')
 
         try:
-            project_path.mkdir(exist_ok=True)
+            project_path.mkdir(parents=True, exist_ok=True)
             Path(project_path, "data").mkdir(exist_ok=True)
             Path(project_path, PATH_FEATURE_MATRICES).mkdir(exist_ok=True)
             Path(project_path, "reviews").mkdir(exist_ok=True)
@@ -360,10 +371,11 @@ class ASReviewProject():
         str:
             The new project_id.
         """
-
         # create a new project_id from project name
         project_id_new = _create_project_id(project_name_new)
-        project_path_new = Path(asreview_path(), project_id_new)
+        
+        # project_path_new = Path(asreview_path(), project_id_new)
+        project_path_new = Path(self.project_path.parent, project_id_new)
 
         if (self.project_path == project_path_new):
             # nothing to do

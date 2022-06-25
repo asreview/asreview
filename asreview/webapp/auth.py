@@ -14,6 +14,7 @@
 
 import logging
 import datetime
+from pathlib import Path
 
 from flask import Blueprint
 from flask import jsonify
@@ -27,6 +28,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from asreview.auth.database import db_session
 from asreview.auth.login_required import asreview_login_required
 from asreview.auth.models import User
+from asreview.utils import asreview_path
 
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -91,6 +93,12 @@ def signup():
             user = User(username, password)
             db_session.add(user)
             db_session.commit()
+
+            # at this stage we know the user account is stored,
+            # let's add a working directory for this user
+            Path(asreview_path(), str(user.id)).mkdir(exist_ok=True)
+
+
             result = (201, f'User "#{username}" created.')
         except SQLAlchemyError as e:
             db_session.rollback()
