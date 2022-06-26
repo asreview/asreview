@@ -209,6 +209,8 @@ def main(argv):
         protocol = "http://"
 
     # clean all projects
+    # TODO@{Casper}: this needs a little bit
+    # of work, we need to access all sub-folders
     if args.clean_all_projects:
         print("Cleaning all project files.")
         for project in list_asreview_projects():
@@ -217,6 +219,9 @@ def main(argv):
         return
 
     # clean project by project_id
+    # TODO@{Casper}: cleaning without a user context 
+    # is meaningless -> I think we should remove this
+    # option
     if args.clean_project is not None:
         print(f"Cleaning project file '{args.clean_project}'.")
         ASReviewProject(
