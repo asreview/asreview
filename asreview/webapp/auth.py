@@ -25,11 +25,10 @@ from flask_cors import CORS, cross_origin
 from flask_login import current_user, login_user, logout_user
 from sqlalchemy.exc import SQLAlchemyError
 
-from asreview.auth.database import db_session
-from asreview.auth.login_required import asreview_login_required
-from asreview.auth.models import User
+from . import db
 from asreview.utils import asreview_path
-
+from asreview.webapp.authentication.login_required import asreview_login_required
+from asreview.webapp.authentication.models import User
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 CORS(
@@ -91,17 +90,15 @@ def signup():
         # hashed in the User model)
         try:
             user = User(username, password)
-            db_session.add(user)
-            db_session.commit()
-
+            db.session.add(user)
+            db.session.commit()
             # at this stage we know the user account is stored,
             # let's add a working directory for this user
             Path(asreview_path(), str(user.id)).mkdir(exist_ok=True)
-
-
+            # result is a 201 with message
             result = (201, f'User "#{username}" created.')
         except SQLAlchemyError as e:
-            db_session.rollback()
+            db.session.rollback()
             result = (500, f'Creating account unsuccessful!')
 
     (status, message) = result

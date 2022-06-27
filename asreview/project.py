@@ -34,7 +34,6 @@ from scipy.sparse import load_npz
 from scipy.sparse import save_npz
 
 from asreview._version import get_versions
-from asreview.auth.models import User
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
 from asreview.config import PROJECT_MODE_SIMULATE
@@ -43,6 +42,7 @@ from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
 from asreview.utils import asreview_path, asreview_working_dir
 from asreview.webapp.io import read_data
+from asreview.webapp.authentication.models import User
 
 
 PATH_PROJECT_CONFIG = "project.json"

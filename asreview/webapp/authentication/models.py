@@ -13,16 +13,15 @@
 # limitations under the License.
 
 from flask_login import UserMixin
-from sqlalchemy import Column, Integer, String
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from asreview.auth.database import Base
+from .. import db
 
-class User(UserMixin, Base):
+class User(UserMixin, db.Model):
     __tablename__ = 'users'
-    id = Column(Integer, primary_key=True)
-    username = Column(String(50), unique=True)
-    hashed_password = Column(String(100), unique=True)
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True)
+    hashed_password = db.Column(db.String(100), unique=True)
 
     def __init__(self, username=None, password=None):
         self.username = username

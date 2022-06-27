@@ -27,9 +27,8 @@ from flask_login import LoginManager
 from gevent.pywsgi import WSGIServer
 from werkzeug.exceptions import InternalServerError
 
-import asreview.auth.database as db
+from . import db
 from asreview import __version__ as asreview_version
-from asreview.auth.models import User
 from asreview.entry_points.lab import _lab_parser
 from asreview.project import ASReviewProject
 from asreview.project import get_project_path
@@ -37,6 +36,7 @@ from asreview.project import list_asreview_projects
 from asreview.utils import asreview_path
 from asreview.webapp import api
 from asreview.webapp import auth
+from asreview.webapp.authentication.models import User
 
 
 # set logging level
@@ -98,6 +98,8 @@ def _open_browser(host, port, protocol, no_browser):
 
 
 def create_app(**kwargs):
+    # get flask environment
+    env = os.environ.get('FLASK_ENV', '')
 
     app = Flask(
         __name__,
@@ -105,9 +107,37 @@ def create_app(**kwargs):
         static_folder="build/static",
         template_folder="build"
     )
+    # default config
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    app.config['SESSION_COOKIE_SECURE'] = True
+    app.config['REMEMBER_COOKIE_SECURE'] = True
+    app.config['SECRET_KEY'] = os.environ.get(
+        'SECRET_KEY', 
+        'JeMoederHeetHenk1!'
+    )
 
     # Get the ASReview arguments.
     app.config['asr_kwargs'] = kwargs
+
+    # setup the database
+    uri = os.path.join(asreview_path(), f'auth.{env}.sqlite')
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{uri}'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    # create the database plus table(s)
+    db.init_app(app)
+    with app.app_context():
+        db.create_all()
+
+    # config JSON Web Tokens
+    login_manager = LoginManager(app)
+    login_manager.init_app(app)
+    login_manager.session_protection = 'strong'
+
+    # Register a callback function for current_user.
+    @login_manager.user_loader
+    def load_user(id):
+        return User.query.get(int(id))
 
     # Ensure the instance folder exists.
     try:
@@ -115,6 +145,7 @@ def create_app(**kwargs):
     except OSError:
         pass
 
+    # TODO@{Casper}:
     # !! Not sure about this, but since the front-end and back-end
     # !! are coupled I think origins should be set to the URL and
     # !! not to '*'
@@ -176,27 +207,10 @@ def main(argv):
 
     parser = _lab_parser(prog="lab")
     args = parser.parse_args(argv)
+    env = os.environ.get('FLASK_ENV', '')
 
     app = create_app(embedding_fp=args.embedding_fp)
     app.config['PROPAGATE_EXCEPTIONS'] = False
-    # !! This needs to be an environment variable
-    app.config['SECRET_KEY'] = 'JeMoederHeetHenk1!'
-    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-    app.config['SESSION_COOKIE_SECURE'] = True
-    app.config['REMEMBER_COOKIE_SECURE'] = True
-
-    # create the database plus table(s)
-    db.init_db()
-
-    # config JSON Web Tokens
-    login_manager = LoginManager(app)
-    login_manager.init_app(app)
-    login_manager.session_protection = 'strong'
-
-    # Register a callback function for current_user.
-    @login_manager.user_loader
-    def load_user(id):
-        return User.query.get(int(id))
 
     # ssl certificate, key and protocol
     certfile = args.certfile
@@ -230,12 +244,12 @@ def main(argv):
         print("Done")
         return
 
-    flask_dev = os.environ.get('FLASK_ENV', "") == "development"
+    flask_dev = (env == 'development')
     host = args.ip
     port = args.port
     port_retries = args.port_retries
     # if port is already taken find another one
-    if not os.environ.get('FLASK_ENV', "") == "development":
+    if not flask_dev:
         original_port = port
         while _check_port_in_use(host, port) is True:
             old_port = port

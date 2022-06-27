@@ -33,7 +33,6 @@ import pandas as pd
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
-from asreview.auth.login_required import asreview_login_required
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_MODEL
@@ -72,7 +71,11 @@ from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.sql_converter import upgrade_project_config
 from asreview.utils import _get_executable, asreview_working_dir
 from asreview.utils import asreview_path
+from asreview.webapp.authentication.login_required import (
+    asreview_login_required
+)
 from asreview.webapp.io import read_data
+
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 CORS(

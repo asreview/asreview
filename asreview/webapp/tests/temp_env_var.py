@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from flask_sqlalchemy import SQLAlchemy
+from pathlib import Path
 
-db = SQLAlchemy()
+TMP_ENV_VARS = {
+    'ASREVIEW_PATH': str(Path("~", ".asreview-test").expanduser()),
+    'FLASK_ENV': 'test',
+    'SECRET_KEY': '99ProblemsBut'
+}
