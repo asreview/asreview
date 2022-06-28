@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
   AppBar,
   FormControl,
@@ -118,10 +119,13 @@ const AppBarWithinDialog = React.forwardRef(
   (
     {
       color,
+      disableSave,
+      isSaving,
       onChangeSearch,
       onChangeSelect,
       onClickHelp,
       onClickHistory,
+      onClickSave,
       onClickShowChart,
       onClickStartIcon,
       selectOptions,
@@ -219,6 +223,18 @@ const AppBarWithinDialog = React.forwardRef(
             >
               <Help />
             </IconButton>
+          )}
+
+          {/* Save icon */}
+          {onClickSave && (
+            <LoadingButton
+              color="inherit"
+              disabled={disableSave}
+              loading={isSaving}
+              onClick={onClickSave}
+            >
+              Save
+            </LoadingButton>
           )}
         </Toolbar>
       </StyledAppBar>

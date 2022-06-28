@@ -18,7 +18,6 @@ import { InlineErrorHandler } from "../../../Components";
 import { ExplorationModeRecordAlert } from "../../../StyledComponents/StyledAlert.js";
 import { ProjectAPI } from "../../../api/index.js";
 import { mapStateToProps, projectModes } from "../../../globals.js";
-import "../../../App.css";
 
 const PREFIX = "PriorUnlabeled";
 
@@ -28,7 +27,6 @@ const classes = {
 };
 
 const Root = styled("div")(({ theme }) => ({
-  maxWidth: 400,
   width: "100%",
   [`& .${classes.root}`]: {
     borderRadius: 16,

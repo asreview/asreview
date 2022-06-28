@@ -23,6 +23,7 @@ import {
 import { styled } from "@mui/material/styles";
 import { Close } from "@mui/icons-material";
 
+import { AppBarWithinDialog } from "../../Components";
 import { FinishSetup, SavingStateBox } from "../SetupComponents";
 import {
   AddDataset,
@@ -68,6 +69,9 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
     height: "calc(100% - 60px)",
     overflowY: "scroll",
     padding: "32px 48px 48px 48px",
+    [theme.breakpoints.down("md")]: {
+      padding: "32px 24px 48px 24px",
+    },
   },
 
   [`& .${classes.formWarmup}`]: {
@@ -443,16 +447,20 @@ const SetupDialog = (props) => {
    * Dialog actions
    */
   const handleClose = () => {
-    setTextFieldFocused(null);
-    setExTitle("");
-    props.onClose();
-    if (props.project_id) {
-      props.setFeedbackBar({
-        open: true,
-        message: `Your project ${info.title} has been saved as draft`,
-      });
-      queryClient.invalidateQueries("fetchProjects");
-      navigate("/projects");
+    if (activeStep !== 3) {
+      setTextFieldFocused(null);
+      setExTitle("");
+      props.onClose();
+      if (props.project_id) {
+        props.setFeedbackBar({
+          open: true,
+          message: `Your project ${info.title} has been saved as draft`,
+        });
+        queryClient.invalidateQueries("fetchProjects");
+        navigate("/projects");
+      }
+    } else {
+      console.log("Cannot close when training is in progress");
     }
   };
 
@@ -568,7 +576,13 @@ const SetupDialog = (props) => {
         onExited: () => exitedSetup(),
       }}
     >
-      {!addDataset && !addPriorKnowledge && (
+      {props.mobileScreen && !addDataset && !addPriorKnowledge && (
+        <AppBarWithinDialog
+          onClickStartIcon={handleClose}
+          title="Create a new project"
+        />
+      )}
+      {!props.mobileScreen && !addDataset && !addPriorKnowledge && (
         <Fade in={!addDataset}>
           <Stack className="dialog-header" direction="row">
             <DialogTitle>Create a new project</DialogTitle>
@@ -593,7 +607,17 @@ const SetupDialog = (props) => {
           </Stack>
         </Fade>
       )}
-      {addDataset && (
+      {props.mobileScreen && addDataset && (
+        <AppBarWithinDialog
+          disableSave={disableSaveDataset()}
+          isSaving={isAddingDataset}
+          onClickSave={handleSaveDataset}
+          onClickStartIcon={handleDiscardDataset}
+          startIconIsClose={false}
+          title="Dataset"
+        />
+      )}
+      {!props.mobileScreen && addDataset && (
         <Fade in={addDataset}>
           <Stack className="dialog-header" direction="row">
             <DialogTitle>Dataset</DialogTitle>
@@ -617,7 +641,14 @@ const SetupDialog = (props) => {
           </Stack>
         </Fade>
       )}
-      {addPriorKnowledge && (
+      {props.mobileScreen && addPriorKnowledge && (
+        <AppBarWithinDialog
+          onClickStartIcon={toggleAddPriorKnowledge}
+          startIconIsClose={false}
+          title="Prior knowledge"
+        />
+      )}
+      {!props.mobileScreen && addPriorKnowledge && (
         <Fade in={addPriorKnowledge}>
           <Stack className="dialog-header" direction="row">
             <DialogTitle>Prior knowledge</DialogTitle>
@@ -726,6 +757,7 @@ const SetupDialog = (props) => {
           handleDatasetSource={handleDatasetSource}
           isAddDatasetError={isAddDatasetError}
           isAddingDataset={isAddingDataset}
+          mobileScreen={props.mobileScreen}
           mode={info["mode"]}
           reset={resetMutateDataset}
           setFile={setFile}
@@ -739,6 +771,7 @@ const SetupDialog = (props) => {
 
       {addPriorKnowledge && (
         <AddPriorKnowledge
+          mobileScreen={props.mobileScreen}
           mode={info["mode"]}
           n_prior={labeledStats?.n_prior}
           n_prior_exclusions={labeledStats?.n_prior_exclusions}
