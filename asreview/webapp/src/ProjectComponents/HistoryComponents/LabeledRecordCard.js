@@ -34,9 +34,6 @@ const classes = {
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.root}`]: {
     borderRadius: 16,
-    [theme.breakpoints.down("md")]: {
-      borderRadius: 0,
-    },
   },
 
   [`& .${classes.cardActions}`]: {

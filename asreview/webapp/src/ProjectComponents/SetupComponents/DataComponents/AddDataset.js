@@ -11,6 +11,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 import {
   DatasetFromEntryPoint,
@@ -21,147 +22,170 @@ import { InfoCard } from "../../SetupComponents";
 import { ImportFromFile } from "../../../ProjectComponents";
 import { projectModes } from "../../../globals.js";
 
+const PREFIX = "AddDataset";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  form: `${PREFIX}-form`,
+};
+
+const Root = styled("div")(({ theme }) => ({
+  overflowY: "hidden",
+  [`& .${classes.form}`]: {
+    height: "100%",
+    overflowY: "scroll",
+    padding: "24px 48px 48px 48px",
+    [theme.breakpoints.down("md")]: {
+      padding: "32px 24px 48px 24px",
+    },
+  },
+}));
+
 const AddDataset = (props) => {
   return (
-    <Fade in>
-      <DialogContent sx={{ padding: "24px 48px 48px 48px" }}>
-        <Stack spacing={3}>
-          {!props.isAddingDataset && props.datasetAdded && (
-            <InfoCard info="Editing dataset removes the added prior knowledge" />
-          )}
-          <FormControl disabled={props.isAddingDataset} component="fieldset">
-            <FormLabel component="legend">Add a dataset from</FormLabel>
-            <RadioGroup
-              row
-              aria-label="dataset source"
-              name="row-radio-buttons-group"
-              value={props.datasetSource}
-            >
-              <FormControlLabel
-                value="file"
-                control={<Radio />}
-                label="File"
-                onChange={props.handleDatasetSource}
-              />
-              <FormControlLabel
-                value="url"
-                control={<Radio />}
-                label="URL"
-                onChange={props.handleDatasetSource}
-              />
-              {props.mode === projectModes.ORACLE && (
+    <Root>
+      <Fade in>
+        <DialogContent className={classes.form}>
+          <Stack spacing={3}>
+            {!props.isAddingDataset && props.datasetAdded && (
+              <InfoCard info="Editing dataset removes the added prior knowledge" />
+            )}
+            <FormControl disabled={props.isAddingDataset} component="fieldset">
+              <FormLabel component="legend">Add a dataset from</FormLabel>
+              <RadioGroup
+                row
+                aria-label="dataset source"
+                name="row-radio-buttons-group"
+                value={props.datasetSource}
+              >
                 <FormControlLabel
-                  value="extension"
+                  value="file"
                   control={<Radio />}
-                  label="Extension"
+                  label="File"
                   onChange={props.handleDatasetSource}
                 />
-              )}
-              {(props.mode === projectModes.EXPLORATION ||
-                props.mode === projectModes.SIMULATION) && (
                 <FormControlLabel
-                  value="benchmark"
+                  value="url"
                   control={<Radio />}
-                  label="Benchmark datasets"
+                  label="URL"
                   onChange={props.handleDatasetSource}
                 />
-              )}
-            </RadioGroup>
-          </FormControl>
-          {(props.datasetSource === "file" ||
-            props.datasetSource === "url") && (
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              ASReview LAB accepts RIS file format (<code>.ris</code>,{" "}
-              <code>.txt</code>) and tabular datasets (<code>.csv</code>,{" "}
-              <code>.tab</code>, <code>.tsv</code>, <code>.xlsx</code>). The
-              dataset should contain a title and abstract for each record.{" "}
-              {props.mode !== projectModes.ORACLE
-                ? "The dataset should also contain labels for each record. "
-                : ""}
-              To optimally benefit from the performance of the active learning
-              model, it is highly recommended to add a dataset without duplicate
-              records and complete records.{" "}
-              <Link
-                underline="none"
-                href="https://asreview.readthedocs.io/en/latest/intro/datasets.html"
-                target="_blank"
-              >
-                Learn more
-              </Link>
-            </Typography>
-          )}
-          {props.datasetSource === "extension" && (
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              Select a dataset from an extension.{" "}
-              <Link
-                underline="none"
-                href="https://asreview.readthedocs.io/en/latest/extensions/overview_extensions.html"
-                target="_blank"
-              >
-                Learn more
-              </Link>
-            </Typography>
-          )}
-          {props.datasetSource === "benchmark" && (
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              The benchmark datasets were manually labeled and can be used to
-              explore or demonstrate ASReview LAB. You can donate your dataset
-              to the benchmark platform.{" "}
-              <Link
-                underline="none"
-                href="https://github.com/asreview/systematic-review-datasets"
-                target="_blank"
-              >
-                Learn more
-              </Link>
-            </Typography>
-          )}
-          {props.datasetSource === "file" && (
-            <ImportFromFile
-              acceptFormat=".txt,.tsv,.tab,.csv,.ris,.xlsx"
-              addFileError={props.addDatasetError}
-              file={props.file}
-              setFile={props.setFile}
-              isAddFileError={props.isAddDatasetError}
-              isAddingFile={props.isAddingDataset}
-              reset={props.reset}
-            />
-          )}
-          {props.datasetSource === "url" && (
-            <DatasetFromURL
-              addDatasetError={props.addDatasetError}
-              url={props.url}
-              setURL={props.setURL}
-              isAddDatasetError={props.isAddDatasetError}
-              isAddingDataset={props.isAddingDataset}
-              reset={props.reset}
-            />
-          )}
-          {props.datasetSource === "extension" && (
-            <DatasetFromEntryPoint
-              subset="plugin"
-              addDatasetError={props.addDatasetError}
-              extension={props.extension}
-              setExtension={props.setExtension}
-              isAddDatasetError={props.isAddDatasetError}
-              isAddingDataset={props.isAddingDataset}
-              reset={props.reset}
-            />
-          )}
-          {props.datasetSource === "benchmark" && (
-            <DatasetFromEntryPoint
-              subset="benchmark"
-              addDatasetError={props.addDatasetError}
-              benchmark={props.benchmark}
-              setBenchmark={props.setBenchmark}
-              isAddDatasetError={props.isAddDatasetError}
-              isAddingDataset={props.isAddingDataset}
-              reset={props.reset}
-            />
-          )}
-        </Stack>
-      </DialogContent>
-    </Fade>
+                {props.mode === projectModes.ORACLE && (
+                  <FormControlLabel
+                    value="extension"
+                    control={<Radio />}
+                    label="Extension"
+                    onChange={props.handleDatasetSource}
+                  />
+                )}
+                {(props.mode === projectModes.EXPLORATION ||
+                  props.mode === projectModes.SIMULATION) && (
+                  <FormControlLabel
+                    value="benchmark"
+                    control={<Radio />}
+                    label="Benchmark datasets"
+                    onChange={props.handleDatasetSource}
+                  />
+                )}
+              </RadioGroup>
+            </FormControl>
+            {(props.datasetSource === "file" ||
+              props.datasetSource === "url") && (
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                ASReview LAB accepts RIS file format (<code>.ris</code>,{" "}
+                <code>.txt</code>) and tabular datasets (<code>.csv</code>,{" "}
+                <code>.tab</code>, <code>.tsv</code>, <code>.xlsx</code>). The
+                dataset should contain a title and abstract for each record.{" "}
+                {props.mode !== projectModes.ORACLE
+                  ? "The dataset should also contain labels for each record. "
+                  : ""}
+                To optimally benefit from the performance of the active learning
+                model, it is highly recommended to add a dataset without
+                duplicate records and complete records.{" "}
+                <Link
+                  underline="none"
+                  href="https://asreview.readthedocs.io/en/latest/intro/datasets.html"
+                  target="_blank"
+                >
+                  Learn more
+                </Link>
+              </Typography>
+            )}
+            {props.datasetSource === "extension" && (
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                Select a dataset from an extension.{" "}
+                <Link
+                  underline="none"
+                  href="https://asreview.readthedocs.io/en/latest/extensions/overview_extensions.html"
+                  target="_blank"
+                >
+                  Learn more
+                </Link>
+              </Typography>
+            )}
+            {props.datasetSource === "benchmark" && (
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                The benchmark datasets were manually labeled and can be used to
+                explore or demonstrate ASReview LAB. You can donate your dataset
+                to the benchmark platform.{" "}
+                <Link
+                  underline="none"
+                  href="https://github.com/asreview/systematic-review-datasets"
+                  target="_blank"
+                >
+                  Learn more
+                </Link>
+              </Typography>
+            )}
+            {props.datasetSource === "file" && (
+              <ImportFromFile
+                acceptFormat=".txt,.tsv,.tab,.csv,.ris,.xlsx"
+                addFileError={props.addDatasetError}
+                file={props.file}
+                setFile={props.setFile}
+                isAddFileError={props.isAddDatasetError}
+                isAddingFile={props.isAddingDataset}
+                reset={props.reset}
+              />
+            )}
+            {props.datasetSource === "url" && (
+              <DatasetFromURL
+                addDatasetError={props.addDatasetError}
+                url={props.url}
+                setURL={props.setURL}
+                isAddDatasetError={props.isAddDatasetError}
+                isAddingDataset={props.isAddingDataset}
+                reset={props.reset}
+              />
+            )}
+            {props.datasetSource === "extension" && (
+              <DatasetFromEntryPoint
+                subset="plugin"
+                addDatasetError={props.addDatasetError}
+                extension={props.extension}
+                setExtension={props.setExtension}
+                isAddDatasetError={props.isAddDatasetError}
+                isAddingDataset={props.isAddingDataset}
+                mobileScreen={props.mobileScreen}
+                reset={props.reset}
+              />
+            )}
+            {props.datasetSource === "benchmark" && (
+              <DatasetFromEntryPoint
+                subset="benchmark"
+                addDatasetError={props.addDatasetError}
+                benchmark={props.benchmark}
+                setBenchmark={props.setBenchmark}
+                isAddDatasetError={props.isAddDatasetError}
+                isAddingDataset={props.isAddingDataset}
+                mobileScreen={props.mobileScreen}
+                reset={props.reset}
+              />
+            )}
+          </Stack>
+        </DialogContent>
+      </Fade>
+    </Root>
   );
 };
 

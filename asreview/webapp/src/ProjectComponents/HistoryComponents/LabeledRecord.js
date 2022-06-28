@@ -20,6 +20,8 @@ import { LabeledRecordCard } from "../HistoryComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps } from "../../globals.js";
 
+let height = window.screen.height;
+
 const PREFIX = "LabeledRecord";
 
 const classes = {
@@ -39,6 +41,12 @@ const Root = styled("div")(({ theme }) => ({
     height: "calc(100vh - 208px)",
     overflowY: "scroll",
     padding: "32px 24px",
+    [`${theme.breakpoints.down("md")} and (orientation: portrait)`]: {
+      height: `calc(100vh - ${height / 2 + 80}px)`,
+    },
+    [`${theme.breakpoints.down("md")} and (orientation: landscape)`]: {
+      height: `calc(100vh - 116px)`,
+    },
   },
 
   [`& .${classes.loadMoreInView}`]: {
