@@ -63,11 +63,16 @@ def setup_teardown_standard():
 
     with app.app_context():
         yield app, client
-        # cleanup the database
-        db.session.query(User).delete()
-        db.session.commit()
-        # remove the entire .asreview-test folder
-        shutil.rmtree(asreview_path())
+        try:
+            # cleanup the database
+            db.session.query(User).delete()
+            db.session.commit()
+            # remove the entire .asreview-test folder
+            shutil.rmtree(asreview_path())
+        except Exception as _:
+            # don't care atm
+            pass
+
 
 # TODO@{Casper}:
 # Something nasty happens when execute multiple test
@@ -92,11 +97,15 @@ def setup_teardown_signed_in():
         signin_user(client, username, password)
 
         yield app, client
-        # cleanup the database
-        User.query.delete()
-        db.session.commit()
-        # remove the entire .asreview-test folder
-        shutil.rmtree(asreview_path())
+        try:
+            # cleanup the database
+            User.query.delete()
+            db.session.commit()
+            # remove the entire .asreview-test folder
+            shutil.rmtree(asreview_path())
+        except Exception as _:
+            # don't care
+            pass
 
 
 @pytest.fixture
