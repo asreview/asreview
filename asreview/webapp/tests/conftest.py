@@ -13,13 +13,15 @@
 # limitations under the License.
 
 import os
-import pytest
 import shutil
 
-from .. import db
+import pytest
+
 from asreview.utils import asreview_path
-from asreview.webapp.start_flask import create_app
+from asreview.webapp import db
 from asreview.webapp.authentication.models import User
+from asreview.webapp.start_flask import create_app
+
 
 try:
     from.temp_env_var import TMP_ENV_VARS
@@ -31,10 +33,7 @@ def signup_user(client, username, password='!biuCrgfsiOOO6987'):
     """Signs up a user through the api"""
     response = client.post(
         '/auth/signup',
-        data = {
-            'username': username,
-            'password': password
-        }
+        data = {'username': username, 'password': password}
     )
     return response, User(username, password)
 
@@ -43,16 +42,13 @@ def signin_user(client, username, password):
     """Signs in a user through the api"""
     return client.post(
         '/auth/signin',
-        data = {
-            'username': username,
-            'password': password
-        }
+        data = {'username': username, 'password': password}
     )
 
 
 @pytest.fixture()
 def setup_teardown_standard():
-    """Standard setup and teardown, create the app and 
+    """Standard setup and teardown, create the app and
     testclient, make sure the database is cleaned up
     after running the last test"""
     # setup environment variables
@@ -69,7 +65,7 @@ def setup_teardown_standard():
             db.session.commit()
             # remove the entire .asreview-test folder
             shutil.rmtree(asreview_path())
-        except Exception as _:
+        except Exception:
             # don't care atm
             pass
 
@@ -103,7 +99,7 @@ def setup_teardown_signed_in():
             db.session.commit()
             # remove the entire .asreview-test folder
             shutil.rmtree(asreview_path())
-        except Exception as _:
+        except Exception:
             # don't care
             pass
 

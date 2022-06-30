@@ -70,7 +70,6 @@ from asreview.state.errors import StateNotFoundError
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.sql_converter import upgrade_project_config
 from asreview.utils import _get_executable, asreview_working_dir
-from asreview.utils import asreview_path
 from asreview.webapp.authentication.login_required import (
     asreview_login_required
 )
@@ -79,15 +78,15 @@ from asreview.webapp.io import read_data
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 CORS(
-    bp, 
+    bp,
     resources={r"*": {"origins": "http://localhost:3000"}},
     supports_credentials=True
 )
 
+
 # error handlers
 @bp.errorhandler(ProjectNotFoundError)
 def project_not_found(e):
-
     message = str(e) if str(e) else "Project not found."
     logging.error(message)
     return jsonify(message=message), 400
@@ -1202,7 +1201,7 @@ def export_project(project):
     tmpdir = tempfile.TemporaryDirectory()
     tmpfile = Path(tmpdir.name, project.project_id).with_suffix(".asreview")
 
-    logging.info("Saving project (temporary) to", tmpfile)
+    logging.info('Saving project (temporary) to %s', tmpfile)
     project.export(tmpfile)
 
     return send_file(tmpfile,

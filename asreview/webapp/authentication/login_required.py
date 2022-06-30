@@ -19,7 +19,6 @@ from flask import jsonify
 from flask import request
 from flask_login.config import EXEMPT_METHODS
 from flask_login.utils import _get_user
-from werkzeug.local import LocalProxy
 
 
 def asreview_login_required(func):
@@ -67,7 +66,7 @@ def asreview_login_required(func):
         if request.method in EXEMPT_METHODS or current_app.config.get("LOGIN_DISABLED"):
             pass
         elif not current_user.is_authenticated:
-            return jsonify({ 'message': 'login required' }), 401
+            return jsonify({'message': 'login required'}), 401
 
         # flask 1.x compatibility
         # current_app.ensure_sync is only available in Flask >= 2.0
@@ -77,3 +76,4 @@ def asreview_login_required(func):
         return func(*args, **kwargs)
 
     return decorated_view
+    

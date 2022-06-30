@@ -26,7 +26,6 @@ from pathlib import Path
 from uuid import uuid4
 
 from filelock import FileLock
-from flask_login import current_user
 import jsonschema
 import numpy as np
 from scipy.sparse import csr_matrix
@@ -41,8 +40,9 @@ from asreview.config import SCHEMA
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
 from asreview.utils import asreview_path, asreview_working_dir
-from asreview.webapp.io import read_data
 from asreview.webapp.authentication.models import User
+from asreview.webapp.io import read_data
+
 
 
 PATH_PROJECT_CONFIG = "project.json"
@@ -84,8 +84,8 @@ def get_project_path(project_id, user, asreview_dir=None):
 
 def project_from_id(user):
     """Decorator function that takes a user account as parameter,
-    the user account is used to get the correct sub folder in which 
-    the projects is 
+    the user account is used to get the correct sub folder in which
+    the projects is
     """
     def decorate(f):
         @wraps(f)
@@ -373,7 +373,7 @@ class ASReviewProject():
         """
         # create a new project_id from project name
         project_id_new = _create_project_id(project_name_new)
-        
+
         # project_path_new = Path(asreview_path(), project_id_new)
         project_path_new = Path(self.project_path.parent, project_id_new)
 

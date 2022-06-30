@@ -12,27 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
+
 import datetime
 from pathlib import Path
 
 from flask import Blueprint
 from flask import jsonify
 from flask import request
-from flask import current_app
-from flask import session
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 from flask_login import current_user, login_user, logout_user
 from sqlalchemy.exc import SQLAlchemyError
 
-from . import db
 from asreview.utils import asreview_path
+from asreview.webapp import db
 from asreview.webapp.authentication.login_required import asreview_login_required
 from asreview.webapp.authentication.models import User
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 CORS(
-    bp, 
+    bp,
     resources={r"*": {"origins": "http://localhost:3000"}},
     supports_credentials=True,
 )
@@ -47,25 +45,25 @@ def signin():
     user = User.query.filter(User.username == username).one_or_none()
     # if the user exist proceed and verify
     if not user:
-        result = (404, { 'message': f'User account {username} does not exist.' })
+        result = (404, {'message': f'User account {username} does not exist.'})
     else:
         # verify password
         if user.verify_password(password):
             logged_in = login_user(
-                user, 
+                user,
                 remember=True,
                 duration=datetime.timedelta(days=31)
             )
-            result = (200, { 
-                'logged_in': logged_in, 
-                'username': username, 
-                'id': user.id }
-            )
+            result = (200, {
+                'logged_in': logged_in,
+                'username': username,
+                'id': user.id 
+            })
         else:
             # password is wrong
             result = (
-                404, 
-                { 'message': f'Incorrect password for user {username}' }
+                404,
+                {'message': f'Incorrect password for user {username}'}
             )
 
     status, message = result
@@ -97,12 +95,12 @@ def signup():
             Path(asreview_path(), str(user.id)).mkdir(exist_ok=True)
             # result is a 201 with message
             result = (201, f'User "#{username}" created.')
-        except SQLAlchemyError as e:
+        except SQLAlchemyError as _:
             db.session.rollback()
-            result = (500, f'Creating account unsuccessful!')
+            result = (500, 'Creating account unsuccessful!')
 
     (status, message) = result
-    response = jsonify({ 'message': message })
+    response = jsonify({'message': message})
     return response, status
 
 
@@ -134,5 +132,5 @@ def signout():
         result = (404, 'No user found, no one can be signed out')
 
     status, message = result
-    response = jsonify({ 'message': message })
+    response = jsonify({'message': message})
     return response, status

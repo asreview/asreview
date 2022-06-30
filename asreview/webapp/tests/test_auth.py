@@ -12,18 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import json
 from pathlib import Path
 
-import pytest
-from werkzeug.security import generate_password_hash
-
-from .. import db
 from asreview.utils import asreview_path
+from asreview.webapp import db
 from asreview.webapp.authentication.models import User
 from asreview.webapp.tests.conftest import signin_user, signup_user
-
 
 
 def get_user(username):
@@ -73,7 +68,7 @@ def test_user_path_creation(setup_teardown_standard):
 
 
 def test_unique_usernames_api(setup_teardown_standard):
-    """Adding an existing username must return a 404 status and 
+    """Adding an existing username must return a 404 status and
     appropriate message"""
     app, client = setup_teardown_standard
     with app.app_context():
@@ -129,7 +124,7 @@ def test_unsuccessful_signin_wrong_password_api(setup_teardown_standard):
         db.session.commit()
         response = signin_user(client, username, 'wrong_password')
         assert response.status_code == 404
-        assert f'Incorrect password' in \
+        assert 'Incorrect password' in \
             json.loads(response.data)['message']
 
 
@@ -145,12 +140,12 @@ def test_unsuccessful_signin_wrong_username_api(setup_teardown_standard):
         db.session.commit()
         response = signin_user(client, 'TedjevanEs', password)
         assert response.status_code == 404
-        assert f'does not exist' in \
+        assert 'does not exist' in \
             json.loads(response.data)['message']
 
 
 def test_must_be_signed_in_to_signout(setup_teardown_standard):
-    """User must be logged in, in order to signout, 
+    """User must be logged in, in order to signout,
     we expect an error if we sign out if not signed in"""
     app, client = setup_teardown_standard
     with app.app_context():
@@ -162,7 +157,7 @@ def test_must_be_signed_in_to_signout(setup_teardown_standard):
 
 
 def test_singout(setup_teardown_standard):
-    """Signing out must return a 200 status and an 
+    """Signing out must return a 200 status and an
     appropriate message"""
     app, client = setup_teardown_standard
     with app.app_context():
@@ -177,6 +172,5 @@ def test_singout(setup_teardown_standard):
         response = client.delete('/auth/signout')
         # expect a 200
         assert response.status_code == 200
-        assert f'signed out' in \
+        assert 'signed out' in \
             json.loads(response.data)['message']
-

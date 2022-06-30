@@ -27,13 +27,13 @@ from flask_login import LoginManager
 from gevent.pywsgi import WSGIServer
 from werkzeug.exceptions import InternalServerError
 
-from . import db
 from asreview import __version__ as asreview_version
 from asreview.entry_points.lab import _lab_parser
 from asreview.project import ASReviewProject
 from asreview.project import get_project_path
 from asreview.project import list_asreview_projects
 from asreview.utils import asreview_path
+from asreview.webapp import db
 from asreview.webapp import api
 from asreview.webapp import auth
 from asreview.webapp.authentication.models import User
@@ -112,7 +112,7 @@ def create_app(**kwargs):
     app.config['SESSION_COOKIE_SECURE'] = True
     app.config['REMEMBER_COOKIE_SECURE'] = True
     app.config['SECRET_KEY'] = os.environ.get(
-        'SECRET_KEY', 
+        'SECRET_KEY',
         'JeMoederHeetHenk1!'
     )
 
@@ -150,7 +150,7 @@ def create_app(**kwargs):
     # !! are coupled I think origins should be set to the URL and
     # !! not to '*'
     CORS(
-        app, 
+        app,
         resources={r"*": {"origins": "http://localhost:3000"}},
     )
 
@@ -233,7 +233,7 @@ def main(argv):
         return
 
     # clean project by project_id
-    # TODO@{Casper}: cleaning without a user context 
+    # TODO@{Casper}: cleaning without a user context
     # is meaningless -> I think we should remove this
     # option
     if args.clean_project is not None:
