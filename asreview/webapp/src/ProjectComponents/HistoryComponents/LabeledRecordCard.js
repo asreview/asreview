@@ -17,12 +17,19 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { LabelOff, Favorite, FavoriteBorder } from "@mui/icons-material";
+import {
+  LabelOff,
+  Link as LinkIcon,
+  Favorite,
+  FavoriteBorder,
+} from "@mui/icons-material";
 
 import { InlineErrorHandler } from "../../Components";
 import { RecordCardNote } from "../HistoryComponents";
+import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps, projectModes } from "../../globals.js";
+import { DOIIcon } from "../../icons";
 
 const PREFIX = "LabeledRecordCard";
 
@@ -173,30 +180,61 @@ const LabeledRecordCard = (props) => {
             .map((value) => (
               <Card elevation={3} className={classes.root} key={value.id}>
                 <CardContent className="record-card-content">
-                  <Typography gutterBottom variant="h6">
-                    {value.title ? value.title : "No title available"}
-                  </Typography>
-                  <TruncateMarkup
-                    lines={value.id === recordReadMore ? Infinity : 6}
-                    ellipsis={
-                      <span>
-                        ...{" "}
-                        <Link
-                          component="button"
-                          underline="none"
-                          onClick={() => setRecordReadMore(value.id)}
-                        >
-                          read more
-                        </Link>
-                      </span>
-                    }
-                  >
-                    <Typography color="textSecondary">
-                      {value.abstract
-                        ? value.abstract
-                        : "No abstract available"}
+                  <Stack spacing={1}>
+                    <Typography variant="h6">
+                      {value.title ? value.title : "No title available"}
                     </Typography>
-                  </TruncateMarkup>
+                    {(value.doi || value.url) && (
+                      <Stack direction="row" spacing={1}>
+                        {/* Show DOI if available */}
+                        {value.doi && (
+                          <StyledIconButton
+                            className="record-card-icon"
+                            href={"https://doi.org/" + value.doi}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <DOIIcon />
+                          </StyledIconButton>
+                        )}
+
+                        {/* Show URL if available */}
+                        {value.url && (
+                          <Tooltip title="Open URL">
+                            <StyledIconButton
+                              className="record-card-icon"
+                              href={value.url}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              <LinkIcon />
+                            </StyledIconButton>
+                          </Tooltip>
+                        )}
+                      </Stack>
+                    )}
+                    <TruncateMarkup
+                      lines={value.id === recordReadMore ? Infinity : 6}
+                      ellipsis={
+                        <span>
+                          ...{" "}
+                          <Link
+                            component="button"
+                            underline="none"
+                            onClick={() => setRecordReadMore(value.id)}
+                          >
+                            read more
+                          </Link>
+                        </span>
+                      }
+                    >
+                      <Typography color="textSecondary">
+                        {value.abstract
+                          ? value.abstract
+                          : "No abstract available"}
+                      </Typography>
+                    </TruncateMarkup>
+                  </Stack>
                 </CardContent>
                 <CardActions className={classes.cardActions}>
                   <Tooltip
