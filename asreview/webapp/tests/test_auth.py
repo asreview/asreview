@@ -30,9 +30,9 @@ def get_user(username):
 
 def test_successful_signup(setup_teardown_standard):
     """Successful signup returns a 201"""
-    app, client = setup_teardown_standard
+    _, client = setup_teardown_standard
     # post form data
-    response, user = signup_user(client, 'test1')
+    response, _ = signup_user(client, 'test1')
     # check if we get a 201 status
     assert response.status_code == 201
 
@@ -45,7 +45,7 @@ def test_user_record_creation(setup_teardown_standard):
         count = db.session.query(User).count()
         # signup user
         username = 'test2'
-        response, user = signup_user(client, username)
+        _, user = signup_user(client, username)
         # recount
         new_count = db.session.query(User).count()
         assert new_count == (count + 1)
@@ -59,7 +59,7 @@ def test_user_path_creation(setup_teardown_standard):
     """Successful signup creates a user subfolder in asreview path"""
     app, client = setup_teardown_standard
     username = 'test3'
-    response, _ = signup_user(client, username)
+    signup_user(client, username)
     with app.app_context():
         # get this user
         user = get_user(username)
@@ -93,7 +93,7 @@ def test_unique_usernames_db(setup_teardown_standard):
         # count initial amount of records
         count = db.session.query(User).count()
         # try to create the same user again with the api
-        response, _ = signup_user(client, username)
+        signup_user(client, username)
         # recount
         new_count = db.session.query(User).count()
         assert new_count == count

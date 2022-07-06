@@ -70,7 +70,8 @@ SCHEMA = {
     "$id": "http://example.com/example.json",
     "type": "object",
     "title": "The ASReview project file root schema",
-    "description": "The root schema comprises the entire project.json file in the ASReview project file.",
+    "description": "The root schema comprises the entire project.json " +
+                   "file in the ASReview project file.",
     "default": {},
     "examples": [
         {
