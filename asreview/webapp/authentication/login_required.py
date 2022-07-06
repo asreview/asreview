@@ -76,4 +76,3 @@ def asreview_login_required(func):
         return func(*args, **kwargs)
 
     return decorated_view
-    
