@@ -33,7 +33,7 @@ def signup_user(client, username, password='!biuCrgfsiOOO6987'):
     """Signs up a user through the api"""
     response = client.post(
         '/auth/signup',
-        data = {'username': username, 'password': password}
+        data={'username': username, 'password': password}
     )
     return response, User(username, password)
 
@@ -42,7 +42,7 @@ def signin_user(client, username, password):
     """Signs in a user through the api"""
     return client.post(
         '/auth/signin',
-        data = {'username': username, 'password': password}
+        data={'username': username, 'password': password}
     )
 
 
