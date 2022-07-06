@@ -655,6 +655,8 @@ def api_get_labeled(project):  # noqa: F401
                 "abstract": record.abstract,
                 "authors": record.authors,
                 "keywords": record.keywords,
+                "doi": record.doi,
+                "url": record.url,
                 "included": int(data.loc[i, "label"]),
                 "note": data.loc[i, "notes"],
                 "prior": int(data.loc[i, "prior"])
