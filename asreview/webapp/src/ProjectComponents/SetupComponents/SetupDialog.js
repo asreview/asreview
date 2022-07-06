@@ -3,7 +3,6 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
-import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Box,
   Button,
@@ -11,7 +10,6 @@ import {
   DialogContent,
   DialogActions,
   Dialog,
-  Divider,
   Fade,
   Stack,
   Step,
@@ -101,11 +99,6 @@ const SetupDialog = (props) => {
 
   // State Step 2: Data
   const [addDataset, toggleAddDataset] = useToggle();
-  const [datasetSource, setDatasetSource] = React.useState("file");
-  const [file, setFile] = React.useState(null);
-  const [url, setURL] = React.useState("");
-  const [extension, setExtension] = React.useState(null);
-  const [benchmark, setBenchmark] = React.useState(null);
   const [addPriorKnowledge, toggleAddPriorKnowledge] = useToggle();
 
   // State Step 3: Model
@@ -124,7 +117,7 @@ const SetupDialog = (props) => {
    * Step 1: Project information
    */
   const projectHasDataset = () => {
-    return info.dataset_path !== undefined;
+    return info.dataset_path !== undefined && info.dataset_path !== null;
   };
 
   const handleInfoChange = (event) => {
@@ -273,27 +266,6 @@ const SetupDialog = (props) => {
    * Step 2: Data
    */
   const {
-    error: addDatasetError,
-    isError: isAddDatasetError,
-    isLoading: isAddingDataset,
-    mutate: mutateDataset,
-    reset: resetMutateDataset,
-  } = useMutation(ProjectAPI.mutateData, {
-    onSuccess: () => {
-      setDisableFetchInfo(false); // refetch after adding a dataset
-      queryClient.invalidateQueries("fetchInfo");
-      queryClient.invalidateQueries("fetchLabeledStats");
-      toggleAddDataset();
-    },
-    onSettled: () => {
-      setFile(null);
-      setURL("");
-      setExtension(null);
-      setBenchmark(null);
-    },
-  });
-
-  const {
     data: labeledStats,
     error: fetchLabeledStatsError,
     isError: isFetchLabeledStatsError,
@@ -308,60 +280,12 @@ const SetupDialog = (props) => {
     }
   );
 
-  const handleDatasetSource = (event) => {
-    setDatasetSource(event.target.value);
-    resetMutateDataset();
-  };
-
-  const handleDiscardDataset = () => {
-    toggleAddDataset();
-    setFile(null);
-    setURL("");
-    setExtension(null);
-    setBenchmark(null);
-    resetMutateDataset();
-  };
-
-  const handleSaveDataset = () => {
-    mutateDataset({
-      project_id: props.project_id,
-      file: file,
-      url: url,
-      extension: extension,
-      benchmark: benchmark,
-    });
-  };
-
-  const disableSaveDataset = () => {
-    if (datasetSource === "file") {
-      return !file;
-    }
-    if (datasetSource === "url") {
-      return !url;
-    }
-    if (datasetSource === "extension") {
-      return !extension;
-    }
-    if (datasetSource === "benchmark") {
-      return !benchmark;
-    }
-  };
-
   const isEnoughPriorKnowledge = () => {
     return (
       labeledStats?.n_prior_exclusions > 4 &&
       labeledStats?.n_prior_inclusions > 4
     );
   };
-
-  React.useEffect(() => {
-    if (info.mode === projectModes.EXPLORATION) {
-      setDatasetSource("benchmark");
-    }
-    if (info.mode !== projectModes.EXPLORATION) {
-      setDatasetSource("file");
-    }
-  }, [info.mode]);
 
   /**
    * Step3: Model
@@ -474,7 +398,6 @@ const SetupDialog = (props) => {
       description: "",
       dataset_path: undefined,
     });
-    setDatasetSource("file");
     setModel({
       classifier: null,
       query_strategy: null,
@@ -489,9 +412,6 @@ const SetupDialog = (props) => {
     if (isMutateInfoError) {
       resetMutateInfo();
     }
-    if (isAddDatasetError) {
-      resetMutateDataset();
-    }
     if (isMutateModelConfigError) {
       resetMutateModelConfig();
     }
@@ -503,7 +423,6 @@ const SetupDialog = (props) => {
     }
     if (activeStep === 1) {
       return (
-        isAddDatasetError ||
         isFetchLabeledStatsError ||
         !labeledStats?.n_prior_inclusions ||
         !labeledStats?.n_prior_exclusions
@@ -607,40 +526,6 @@ const SetupDialog = (props) => {
           </Stack>
         </Fade>
       )}
-      {props.mobileScreen && addDataset && (
-        <AppBarWithinDialog
-          disableSave={disableSaveDataset()}
-          isSaving={isAddingDataset}
-          onClickSave={handleSaveDataset}
-          onClickStartIcon={handleDiscardDataset}
-          startIconIsClose={false}
-          title="Dataset"
-        />
-      )}
-      {!props.mobileScreen && addDataset && (
-        <Fade in={addDataset}>
-          <Stack className="dialog-header" direction="row">
-            <DialogTitle>Dataset</DialogTitle>
-            <Stack
-              direction="row"
-              spacing={1}
-              className="dialog-header-button right"
-            >
-              <Button disabled={isAddingDataset} onClick={handleDiscardDataset}>
-                Discard Changes
-              </Button>
-              <LoadingButton
-                disabled={disableSaveDataset()}
-                loading={isAddingDataset}
-                variant="contained"
-                onClick={handleSaveDataset}
-              >
-                Save
-              </LoadingButton>
-            </Stack>
-          </Stack>
-        </Fade>
-      )}
       {props.mobileScreen && addPriorKnowledge && (
         <AppBarWithinDialog
           onClickStartIcon={toggleAddPriorKnowledge}
@@ -674,10 +559,9 @@ const SetupDialog = (props) => {
           </Stack>
         </Fade>
       )}
-      <Divider />
       {!addDataset && !addPriorKnowledge && (
         <Fade in={!addDataset}>
-          <DialogContent className={classes.content}>
+          <DialogContent className={classes.content} dividers>
             <Box className={classes.stepper}>
               <Stepper alternativeLabel activeStep={activeStep}>
                 {steps.map((label, index) => (
@@ -748,24 +632,11 @@ const SetupDialog = (props) => {
 
       {addDataset && (
         <AddDataset
-          addDatasetError={addDatasetError}
-          benchmark={benchmark}
           datasetAdded={projectHasDataset()}
-          datasetSource={datasetSource}
-          extension={extension}
-          file={file}
-          handleDatasetSource={handleDatasetSource}
-          isAddDatasetError={isAddDatasetError}
-          isAddingDataset={isAddingDataset}
           mobileScreen={props.mobileScreen}
           mode={info["mode"]}
-          reset={resetMutateDataset}
-          setFile={setFile}
-          setURL={setURL}
-          setExtension={setExtension}
-          setBenchmark={setBenchmark}
+          setDisableFetchInfo={setDisableFetchInfo}
           toggleAddDataset={toggleAddDataset}
-          url={url}
         />
       )}
 
@@ -778,7 +649,6 @@ const SetupDialog = (props) => {
           n_prior_inclusions={labeledStats?.n_prior_inclusions}
         />
       )}
-      {!addDataset && !addPriorKnowledge && <Divider />}
       {!addDataset && !addPriorKnowledge && activeStep !== 3 && (
         <Fade in={!addDataset}>
           <DialogActions>

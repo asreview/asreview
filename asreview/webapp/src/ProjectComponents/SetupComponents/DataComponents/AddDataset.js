@@ -1,6 +1,12 @@
 import * as React from "react";
+import { useMutation, useQueryClient } from "react-query";
+import { connect } from "react-redux";
 import {
+  Box,
+  Button,
   DialogContent,
+  DialogTitle,
+  Divider,
   Fade,
   FormControl,
   FormControlLabel,
@@ -13,14 +19,12 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import {
-  DatasetFromEntryPoint,
-  // DatasetFromFile,
-  DatasetFromURL,
-} from "../DataComponents";
+import { AppBarWithinDialog } from "../../../Components";
+import { DatasetFromEntryPoint, DatasetFromURL } from "../DataComponents";
 import { InfoCard } from "../../SetupComponents";
 import { ImportFromFile } from "../../../ProjectComponents";
-import { projectModes } from "../../../globals.js";
+import { ProjectAPI } from "../../../api/index.js";
+import { mapStateToProps, projectModes } from "../../../globals.js";
 
 const PREFIX = "AddDataset";
 
@@ -32,50 +36,132 @@ const classes = {
 const Root = styled("div")(({ theme }) => ({
   overflowY: "hidden",
   [`& .${classes.form}`]: {
-    height: "100%",
+    height: "calc(100% - 64px)",
     overflowY: "scroll",
     padding: "24px 48px 48px 48px",
     [theme.breakpoints.down("md")]: {
+      height: "calc(100% - 56px)",
       padding: "32px 24px 48px 24px",
     },
   },
 }));
 
 const AddDataset = (props) => {
+  const queryClient = useQueryClient();
+
+  const [datasetSource, setDatasetSource] = React.useState("file");
+  const [file, setFile] = React.useState(null);
+  const [url, setURL] = React.useState("");
+  const [extension, setExtension] = React.useState(null);
+  const [benchmark, setBenchmark] = React.useState(null);
+
+  const { error, isError, isLoading, mutate, reset } = useMutation(
+    ProjectAPI.mutateData,
+    {
+      onSettled: () => {
+        props.setDisableFetchInfo(false);
+        queryClient.invalidateQueries("fetchInfo");
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries("fetchLabeledStats");
+        props.toggleAddDataset();
+      },
+    }
+  );
+
+  const handleDatasetSource = (event) => {
+    setDatasetSource(event.target.value);
+    // clear potential error
+    reset();
+  };
+
+  const handleSaveDataset = React.useCallback(() => {
+    mutate({
+      project_id: props.project_id,
+      file: file,
+      url: url,
+      extension: extension,
+      benchmark: benchmark,
+    });
+  }, [benchmark, extension, file, mutate, props.project_id, url]);
+
+  const handleClose = () => {
+    props.toggleAddDataset();
+    // clear potential error
+    reset();
+  };
+
+  React.useEffect(() => {
+    if (props.mode === projectModes.EXPLORATION) {
+      setDatasetSource("benchmark");
+    }
+    if (props.mode !== projectModes.EXPLORATION) {
+      setDatasetSource("file");
+    }
+  }, [props.mode]);
+
+  // auto import once dataset is selected
+  React.useEffect(() => {
+    if (file || extension || benchmark) {
+      handleSaveDataset();
+    }
+  }, [handleSaveDataset, file, benchmark, extension]);
+
   return (
     <Root>
+      {props.mobileScreen && (
+        <AppBarWithinDialog
+          disableStartIcon={isLoading}
+          onClickStartIcon={handleClose}
+          startIconIsClose={false}
+          title="Dataset"
+        />
+      )}
+      {!props.mobileScreen && (
+        <Fade in>
+          <Stack className="dialog-header" direction="row">
+            <DialogTitle>Dataset</DialogTitle>
+            <Box className="dialog-header-button right">
+              <Button disabled={isLoading} onClick={handleClose}>
+                Close
+              </Button>
+            </Box>
+          </Stack>
+        </Fade>
+      )}
+      <Divider />
       <Fade in>
         <DialogContent className={classes.form}>
           <Stack spacing={3}>
-            {!props.isAddingDataset && props.datasetAdded && (
+            {props.datasetAdded && (
               <InfoCard info="Editing dataset removes the added prior knowledge" />
             )}
-            <FormControl disabled={props.isAddingDataset} component="fieldset">
+            <FormControl disabled={isLoading} component="fieldset">
               <FormLabel component="legend">Add a dataset from</FormLabel>
               <RadioGroup
                 row
                 aria-label="dataset source"
                 name="row-radio-buttons-group"
-                value={props.datasetSource}
+                value={datasetSource}
               >
                 <FormControlLabel
                   value="file"
                   control={<Radio />}
                   label="File"
-                  onChange={props.handleDatasetSource}
+                  onChange={handleDatasetSource}
                 />
                 <FormControlLabel
                   value="url"
                   control={<Radio />}
                   label="URL"
-                  onChange={props.handleDatasetSource}
+                  onChange={handleDatasetSource}
                 />
                 {props.mode === projectModes.ORACLE && (
                   <FormControlLabel
                     value="extension"
                     control={<Radio />}
                     label="Extension"
-                    onChange={props.handleDatasetSource}
+                    onChange={handleDatasetSource}
                   />
                 )}
                 {(props.mode === projectModes.EXPLORATION ||
@@ -84,13 +170,12 @@ const AddDataset = (props) => {
                     value="benchmark"
                     control={<Radio />}
                     label="Benchmark datasets"
-                    onChange={props.handleDatasetSource}
+                    onChange={handleDatasetSource}
                   />
                 )}
               </RadioGroup>
             </FormControl>
-            {(props.datasetSource === "file" ||
-              props.datasetSource === "url") && (
+            {(datasetSource === "file" || datasetSource === "url") && (
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
                 ASReview LAB accepts RIS file format (<code>.ris</code>,{" "}
                 <code>.txt</code>) and tabular datasets (<code>.csv</code>,{" "}
@@ -111,7 +196,7 @@ const AddDataset = (props) => {
                 </Link>
               </Typography>
             )}
-            {props.datasetSource === "extension" && (
+            {datasetSource === "extension" && (
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
                 Select a dataset from an extension.{" "}
                 <Link
@@ -123,7 +208,7 @@ const AddDataset = (props) => {
                 </Link>
               </Typography>
             )}
-            {props.datasetSource === "benchmark" && (
+            {datasetSource === "benchmark" && (
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
                 The benchmark datasets were manually labeled and can be used to
                 explore or demonstrate ASReview LAB. You can donate your dataset
@@ -137,49 +222,50 @@ const AddDataset = (props) => {
                 </Link>
               </Typography>
             )}
-            {props.datasetSource === "file" && (
+            {datasetSource === "file" && (
               <ImportFromFile
                 acceptFormat=".txt,.tsv,.tab,.csv,.ris,.xlsx"
-                addFileError={props.addDatasetError}
-                file={props.file}
-                setFile={props.setFile}
-                isAddFileError={props.isAddDatasetError}
-                isAddingFile={props.isAddingDataset}
-                reset={props.reset}
+                addFileError={error}
+                file={file}
+                setFile={setFile}
+                isAddFileError={isError}
+                isAddingFile={isLoading}
+                reset={reset}
               />
             )}
-            {props.datasetSource === "url" && (
+            {datasetSource === "url" && (
               <DatasetFromURL
-                addDatasetError={props.addDatasetError}
-                url={props.url}
-                setURL={props.setURL}
-                isAddDatasetError={props.isAddDatasetError}
-                isAddingDataset={props.isAddingDataset}
-                reset={props.reset}
+                addDatasetError={error}
+                handleSaveDataset={handleSaveDataset}
+                url={url}
+                setURL={setURL}
+                isAddDatasetError={isError}
+                isAddingDataset={isLoading}
+                reset={reset}
               />
             )}
-            {props.datasetSource === "extension" && (
+            {datasetSource === "extension" && (
               <DatasetFromEntryPoint
                 subset="plugin"
-                addDatasetError={props.addDatasetError}
-                extension={props.extension}
-                setExtension={props.setExtension}
-                isAddDatasetError={props.isAddDatasetError}
-                isAddingDataset={props.isAddingDataset}
+                addDatasetError={error}
+                extension={extension}
+                setExtension={setExtension}
+                isAddDatasetError={isError}
+                isAddingDataset={isLoading}
                 mobileScreen={props.mobileScreen}
-                reset={props.reset}
+                reset={reset}
               />
             )}
-            {props.datasetSource === "benchmark" && (
+            {datasetSource === "benchmark" && (
               <DatasetFromEntryPoint
                 subset="benchmark"
-                addDatasetError={props.addDatasetError}
-                benchmark={props.benchmark}
-                setBenchmark={props.setBenchmark}
-                isAddDatasetError={props.isAddDatasetError}
-                isAddingDataset={props.isAddingDataset}
+                addDatasetError={error}
+                benchmark={benchmark}
+                setBenchmark={setBenchmark}
+                isAddDatasetError={isError}
+                isAddingDataset={isLoading}
                 mobileScreen={props.mobileScreen}
-                reset={props.reset}
+                reset={reset}
               />
             )}
           </Stack>
@@ -189,4 +275,4 @@ const AddDataset = (props) => {
   );
 };
 
-export default AddDataset;
+export default connect(mapStateToProps)(AddDataset);

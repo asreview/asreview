@@ -120,6 +120,7 @@ const AppBarWithinDialog = React.forwardRef(
     {
       color,
       disableSave,
+      disableStartIcon,
       isSaving,
       onChangeSearch,
       onChangeSelect,
@@ -140,6 +141,7 @@ const AppBarWithinDialog = React.forwardRef(
         <Toolbar className={classes.toolBar}>
           {/* Start icon */}
           <IconButton
+            disabled={disableStartIcon}
             edge="start"
             color="inherit"
             onClick={onClickStartIcon}
