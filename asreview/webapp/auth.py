@@ -57,7 +57,7 @@ def signin():
             result = (200, {
                 'logged_in': logged_in,
                 'username': username,
-                'id': user.id 
+                'id': user.id
             })
         else:
             # password is wrong
@@ -95,7 +95,7 @@ def signup():
             Path(asreview_path(), str(user.id)).mkdir(exist_ok=True)
             # result is a 201 with message
             result = (201, f'User "#{username}" created.')
-        except SQLAlchemyError as _:
+        except SQLAlchemyError:
             db.session.rollback()
             result = (500, 'Creating account unsuccessful!')
 

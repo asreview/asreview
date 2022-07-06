@@ -44,7 +44,6 @@ from asreview.webapp.authentication.models import User
 from asreview.webapp.io import read_data
 
 
-
 PATH_PROJECT_CONFIG = "project.json"
 PATH_PROJECT_CONFIG_LOCK = "project.json.lock"
 PATH_FEATURE_MATRICES = 'feature_matrices'

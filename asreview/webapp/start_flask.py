@@ -33,9 +33,9 @@ from asreview.project import ASReviewProject
 from asreview.project import get_project_path
 from asreview.project import list_asreview_projects
 from asreview.utils import asreview_path
-from asreview.webapp import db
 from asreview.webapp import api
 from asreview.webapp import auth
+from asreview.webapp import db
 from asreview.webapp.authentication.models import User
 
 
