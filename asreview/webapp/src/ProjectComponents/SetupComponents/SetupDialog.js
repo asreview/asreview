@@ -16,7 +16,6 @@ import {
   StepLabel,
   Stepper,
   Tooltip,
-  Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Close } from "@mui/icons-material";
