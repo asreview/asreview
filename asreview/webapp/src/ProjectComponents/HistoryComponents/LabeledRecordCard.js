@@ -184,7 +184,7 @@ const LabeledRecordCard = (props) => {
                     <Typography variant="h6">
                       {value.title ? value.title : "No title available"}
                     </Typography>
-                    {(value.doi || value.url) && (
+                    {!props.is_prior && (value.doi || value.url) && (
                       <Stack direction="row" spacing={1}>
                         {/* Show DOI if available */}
                         {value.doi && (

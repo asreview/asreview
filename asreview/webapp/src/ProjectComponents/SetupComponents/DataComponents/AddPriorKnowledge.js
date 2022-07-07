@@ -1,7 +1,11 @@
 import * as React from "react";
+import { useQueryClient } from "react-query";
 import {
+  Box,
+  Button,
   Card,
   DialogContent,
+  DialogTitle,
   Fade,
   Link,
   List,
@@ -15,7 +19,8 @@ import {
 import { styled } from "@mui/material/styles";
 import AddIcon from "@mui/icons-material/Add";
 
-import { InfoCard } from "../../SetupComponents";
+import { AppBarWithinDialog } from "../../../Components";
+import { InfoCard, SavingStateBox } from "../../SetupComponents";
 import { PriorLabeled, PriorRandom, PriorSearch } from "../DataComponents";
 import { useToggle } from "../../../hooks/useToggle";
 
@@ -65,11 +70,57 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const AddPriorKnowledge = (props) => {
+  const queryClient = useQueryClient();
+
   const [search, toggleSearch] = useToggle();
   const [random, toggleRandom] = useToggle();
 
+  const isEnoughPriorKnowledge = () => {
+    return props.n_prior_exclusions > 4 && props.n_prior_inclusions > 4;
+  };
+
+  const isSavingPriorKnowledge = () => {
+    return (
+      queryClient.isMutating({ mutationKey: "mutatePriorKnowledge" }) ||
+      queryClient.isMutating({ mutationKey: "mutateLabeledPriorKnowledge" })
+    );
+  };
+
   return (
     <Root>
+      {props.mobileScreen && (
+        <AppBarWithinDialog
+          onClickStartIcon={props.toggleAddPriorKnowledge}
+          startIconIsClose={false}
+          title="Prior knowledge"
+        />
+      )}
+      {!props.mobileScreen && (
+        <Fade in>
+          <Stack className="dialog-header" direction="row">
+            <DialogTitle>Prior knowledge</DialogTitle>
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+              {isEnoughPriorKnowledge() && (
+                <Typography variant="body2" sx={{ color: "secondary.main" }}>
+                  Enough prior knowledge. Click CLOSE to move on to the next
+                  step.
+                </Typography>
+              )}
+              {props.n_prior !== 0 && (
+                <SavingStateBox isSaving={isSavingPriorKnowledge()} />
+              )}
+              <Box className="dialog-header-button right">
+                <Button
+                  variant={!isEnoughPriorKnowledge() ? "text" : "contained"}
+                  onClick={props.toggleAddPriorKnowledge}
+                >
+                  Close
+                </Button>
+              </Box>
+            </Stack>
+          </Stack>
+        </Fade>
+      )}
       <Fade in>
         <DialogContent className={classes.form}>
           <Stack className={classes.layout}>
