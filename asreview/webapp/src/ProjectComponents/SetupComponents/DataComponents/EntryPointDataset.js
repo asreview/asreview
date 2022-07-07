@@ -97,10 +97,7 @@ const EntryPointDataset = (props) => {
         </Stack>
       </AccordionDetails>
       <AccordionActions>
-        <LoadingButton
-          loading={props.isAddingDataset}
-          onClick={handleAdd}
-        >
+        <LoadingButton loading={props.isAddingDataset} onClick={handleAdd}>
           Add
         </LoadingButton>
       </AccordionActions>
