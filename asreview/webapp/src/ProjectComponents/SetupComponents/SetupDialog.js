@@ -280,13 +280,6 @@ const SetupDialog = (props) => {
     }
   );
 
-  const isEnoughPriorKnowledge = () => {
-    return (
-      labeledStats?.n_prior_exclusions > 4 &&
-      labeledStats?.n_prior_inclusions > 4
-    );
-  };
-
   /**
    * Step3: Model
    */
@@ -459,13 +452,6 @@ const SetupDialog = (props) => {
     return isInitiatingProject || isMutatingInfo || isMutatingModelConfig;
   };
 
-  const isSavingPriorKnowledge = () => {
-    return (
-      queryClient.isMutating({ mutationKey: "mutatePriorKnowledge" }) ||
-      queryClient.isMutating({ mutationKey: "mutateLabeledPriorKnowledge" })
-    );
-  };
-
   React.useEffect(() => {
     if (activeStep === 1 && (isInitError || isMutateInfoError)) {
       handleBack();
@@ -522,39 +508,6 @@ const SetupDialog = (props) => {
                   </Tooltip>
                 )}
               </Stack>
-            </Stack>
-          </Stack>
-        </Fade>
-      )}
-      {props.mobileScreen && addPriorKnowledge && (
-        <AppBarWithinDialog
-          onClickStartIcon={toggleAddPriorKnowledge}
-          startIconIsClose={false}
-          title="Prior knowledge"
-        />
-      )}
-      {!props.mobileScreen && addPriorKnowledge && (
-        <Fade in={addPriorKnowledge}>
-          <Stack className="dialog-header" direction="row">
-            <DialogTitle>Prior knowledge</DialogTitle>
-            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-              {isEnoughPriorKnowledge() && (
-                <Typography variant="body2" sx={{ color: "secondary.main" }}>
-                  Enough prior knowledge. Click CLOSE to move on to the next
-                  step.
-                </Typography>
-              )}
-              {labeledStats?.n_prior !== 0 && (
-                <SavingStateBox isSaving={isSavingPriorKnowledge()} />
-              )}
-              <Box className="dialog-header-button right">
-                <Button
-                  variant={!isEnoughPriorKnowledge() ? "text" : "contained"}
-                  onClick={toggleAddPriorKnowledge}
-                >
-                  Close
-                </Button>
-              </Box>
             </Stack>
           </Stack>
         </Fade>
@@ -647,6 +600,7 @@ const SetupDialog = (props) => {
           n_prior={labeledStats?.n_prior}
           n_prior_exclusions={labeledStats?.n_prior_exclusions}
           n_prior_inclusions={labeledStats?.n_prior_inclusions}
+          toggleAddPriorKnowledge={toggleAddPriorKnowledge}
         />
       )}
       {!addDataset && !addPriorKnowledge && activeStep !== 3 && (
