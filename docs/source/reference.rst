@@ -6,15 +6,11 @@ API Reference
 
 
 .. automodule:: asreview
-   :no-members:
-   :no-inherited-members:
 
 Data and datasets
 =================
 
 .. automodule:: asreview.data
-    :no-members:
-    :no-inherited-members:
 
 .. currentmodule:: asreview
 
@@ -22,21 +18,17 @@ Read data
 ---------
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
-   ASReviewData
    load_data
+   ASReviewData
 
 
 Statistics
 ----------
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
    data.statistics.abstract_length
    data.statistics.n_duplicates
@@ -64,9 +56,7 @@ Available datasets
 
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
    asreview.datasets.BenchmarkDataGroup
    asreview.datasets.NaturePublicationDataGroup
@@ -75,9 +65,7 @@ Dataset managers
 ~~~~~~~~~~~~~~~~
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
    asreview.datasets.BaseDataSet
    asreview.datasets.BaseDataGroup
@@ -94,9 +82,7 @@ Reviewer
 .. currentmodule:: asreview
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
    review.BaseReview
    review.ReviewSimulate
@@ -114,9 +100,7 @@ Models
 Base class
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
    models.base.BaseModel
 
@@ -133,9 +117,7 @@ Base class
 Classes
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
    balance.base.BaseBalance
    balance.SimpleBalance
@@ -147,9 +129,7 @@ Classes
 Functions
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
    balance.get_balance_model
    balance.get_balance_class
@@ -168,9 +148,7 @@ Functions
 Classes
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
    classifiers.base.BaseTrainClassifier
    classifiers.NaiveBayesClassifier
@@ -184,9 +162,7 @@ Classes
 Functions
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
    classifiers.get_classifier
    classifiers.get_classifier_class
@@ -205,9 +181,7 @@ Functions
 Classes
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
    feature_extraction.base.BaseFeatureExtraction
 	feature_extraction.Tfidf
@@ -219,9 +193,7 @@ Classes
 Functions
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
 	feature_extraction.get_feature_model
 	feature_extraction.get_feature_class
@@ -240,9 +212,7 @@ Functions
 Classes
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
    query.base.BaseQueryStrategy
    query.base.ProbaQueryStrategy
@@ -257,9 +227,7 @@ Classes
 Functions
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
    query.get_query_model
    query.get_query_class
@@ -279,17 +247,13 @@ Load, interact, and extract information from project files and states (the
 .. currentmodule:: asreview
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
 ASReviewProject
 ---------------
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
    ASReviewProject
 
@@ -303,9 +267,7 @@ State
 .. currentmodule:: asreview
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
    open_state
    state.SQLiteState
@@ -315,9 +277,7 @@ Utils
 -----
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
    project.get_project_path
    project.project_from_id
@@ -335,9 +295,7 @@ This module contains the input and output functionality. You can install them as
 .. currentmodule:: asreview
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
    asreview.list_readers
    asreview.list_writers
@@ -349,9 +307,7 @@ This module contains the input and output functionality. You can install them as
 .. currentmodule:: asreview
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
    io.CSVReader
    io.CSVWriter
@@ -370,18 +326,14 @@ Misc
 Classes
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
    asreview.settings.ASReviewSettings
 
 Functions
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
    search.fuzzy_find
    asreview_path
@@ -401,9 +353,7 @@ Entry points for ASReview LAB.
 .. currentmodule:: asreview
 
 .. autosummary::
-   :nosignatures:
    :toctree: generated/
-   :template: custom-class-template.rst
 
    entry_points.BaseEntryPoint
    entry_points.AlgorithmsEntryPoint
