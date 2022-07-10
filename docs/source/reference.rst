@@ -5,22 +5,26 @@ API Reference
 =============
 
 
-.. automodule:: asreview
-   :no-members:
-   :no-inherited-members:
+Entry points
+============
 
-Data and datasets
-=================
+Entry points for ASReview LAB.
+
+
+.. automodule:: asreview.entry_points
+    :no-members:
+    :no-inherited-members:
 
 .. currentmodule:: asreview
-
-Read data
----------
 
 .. autosummary::
    :nosignatures:
    :toctree: generated/
    :template: custom-class-template.rst
 
-   ASReviewData
-   load_data
+   entry_points.BaseEntryPoint
+   entry_points.AlgorithmsEntryPoint
+   entry_points.LABEntryPoint
+   entry_points.SimulateEntryPoint
+   entry_points.StateInspectEntryPoint
+
