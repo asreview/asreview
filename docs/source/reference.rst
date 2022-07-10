@@ -12,10 +12,6 @@ API Reference
 Data and datasets
 =================
 
-.. automodule:: asreview.data
-    :no-members:
-    :no-inherited-members:
-
 .. currentmodule:: asreview
 
 Read data
