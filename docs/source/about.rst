@@ -60,7 +60,7 @@ these steps:
 7. Select the four components of the :ref:`Active learning model <project_create:Model>` (feature extractor, classifier, balancing method, query strategy)
 8. Wait until the warm up of the AI is ready (the software is extracting the features and trains the classifier on the prior knowledge)
 9. Start :doc:`screening` until you reach your `stopping criterium <https://www.github.com/asreview/asreview/discussions/557>`__
-10. At any time you can export the :term:`dataset` the labelling decissions or the entire :term:`project`.
+10. At any time, you can export the :term:`dataset` the labeling decisions or the entire :term:`project`.
 
 
 Quick start
