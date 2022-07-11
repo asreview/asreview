@@ -4,7 +4,7 @@ Extensions
 ASReview has extensive support for extensions. They can extend the
 functionality of ASReview LAB, and the
 :doc:`Command Line Interface <cli>`. There are :ref:`officially
-supported extensions<extensions-official>` and `community maintained extensions <https://github.com/asreview/asreview/discussions/1140>`_.
+supported extensions <extensions-official>` and `community maintained extensions <https://github.com/asreview/asreview/discussions/1140>`_.
 
 Looking to develop your own extension? See :ref:`develop-extensions` for
 detailed instructions.
