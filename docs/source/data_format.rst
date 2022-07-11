@@ -11,7 +11,7 @@ Tabular file format
 
 Tabular datasets with extensions ``.csv``, ``.tab``, ``.tsv``, or ``.xlsx``
 can be used in ASReview LAB. CSV and TAB files are preferably comma,
-semicolon, or tab-delimited.    The preferred file encoding is *UTF-8* or
+semicolon, or tab-delimited. The preferred file encoding is *UTF-8* or
 *latin1*.
 
 For tabular data files, the software accepts a set of predetermined column names:
@@ -87,10 +87,10 @@ names are allowed, see the table. It can be used for:
 .. note::
 
   Files exported with ASReview LAB contain the column ``included``. When
-  re-importing a partly labeled dataset in the the RIS file format, the labels
+  re-importing a partly labeled dataset in RIS file format, the labels
   stored in the N1 field are used as prior knowledge. When a completely
   labeled dataset is re-imported it can be used in the Exploration and
-  Simualtion mode. 
+  Simulation mode. 
 
 
 RIS file format

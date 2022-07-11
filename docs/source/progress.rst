@@ -84,11 +84,11 @@ tips on when to stop with screening.
 
 .. tip::
 
-  The number of irrelevant records since last relevant will increase the longer you screen.
+  The number of *irrelevant records since last relevant* will increase the longer you screen.
 
 .. tip:: 
 
-  If you selected *Maximum* as the :ref:`project_create:Query Strategy`, you will 
+  With *Maximum* as :ref:`project_create:Query Strategy`, you will 
   see a decline in the number of relevant items in the plots the longer you screen. This may
   help to decide when to 'stop screening <https://github.com/asreview/asreview/discussions/557>`_. 
 

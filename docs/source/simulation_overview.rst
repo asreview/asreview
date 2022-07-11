@@ -7,7 +7,7 @@ What is a simulation?
 A simulation involves mimicking the screening process with a certain model. As
 it is already known which records are labeled as relevant, the software can
 automatically reenact the screening process as if a human was labeling the
-records in interaction with the Aclive Learning model.
+records in interaction with the Active Learning model.
 
 Why run a simulation?
 ---------------------
@@ -50,7 +50,7 @@ Simulating with ASReview LAB
 ASReview LAB offers three different solutions to run simulations with the:
 
 - :ref:`Webapp (the frontend) <simulation_overview:simulate with webapp>`
-- :doc:`Command line interface <simulation_cli>`
+- :doc:`Command line <simulation_cli>`
 - :doc:`Python API <simulation_api_example>`
 
 Simulate with webapp

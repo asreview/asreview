@@ -29,13 +29,14 @@ haven't screened yet, or which are added to the dataset.
 For the RIS file format, the labels ``ASReview_relevant``,
 ``ASReview_irrelevant``, and ``ASReview_not_seen``) can be stored with the N1
 (Notes) tag. An example of a RIS file with labels in the N1 tag can be found
-in the `ASReview GitHub repository <https://github.com/asreview/asreview/blob/master/tests/demo_data/baseline_tag-notes_labels.ris>`_.
+in the `ASReview GitHub repository
+<https://github.com/asreview/asreview/blob/master/tests/demo_data/baseline_tag-notes_labels.ris>`_.
 All labels in this example are valid ways to label the data. 
 
 
 .. note::
 
-  Exported files containing labeling decission can be imported into ASReview LAB again,
+  Exported files containing labeling decisions can be imported into ASReview LAB again,
   and whereafter all labels are recognized.
 
 

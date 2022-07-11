@@ -24,7 +24,7 @@ performance metrics, and so on!
 Scientific principles
 ---------------------
 
-The scientific team works according to the Open Science principles and invests in an
+The research team works according to the Open Science principles and invests in an
 inclusive community contributing to the project. In short, research is
 conducted according to the following fundamental principles:
 
