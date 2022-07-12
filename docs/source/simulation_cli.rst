@@ -147,7 +147,7 @@ Simulation Set-up
 
 .. option:: --n_instances N_INSTANCES
 
-    The ``--n_instances`` argument controls the number of records that have to be
+  The ``--n_instances`` argument controls the number of records that have to be
   labeled before the model is retrained, and is set at 1 by default. If
   you want to reduce the number of training iterations, for example to limit the
   size of your state file and the time to simulate, you can increase
