@@ -38,11 +38,11 @@ available interfaces for interacting with the ASReview software:
       webapp communicate with the backend and algorithms. The REST API is not
       documented and should be considered 'internal use only'.
 
-* Layer 2: :doc:`cli`
+* Layer 2: Command Line Interface
 
     - The Command Line is an interface used to open ASReview LAB, run
       simulations, and run :doc:`Subcommand extensions <extensions_dev>` for ASReview. This development section documents all available
-      command line options for both ASReview LAB and simulation mode.
+      command line options for both :doc:`ASReview LAB <start>` and :doc:`simulation mode <simulation_cli>`.
 
 * Layer 1: :doc:`reference`
 

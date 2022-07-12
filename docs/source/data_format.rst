@@ -93,7 +93,7 @@ names are allowed, see the table. It can be used for:
 - **Exploration**: You can explore a completely labeled dataset in the Exploration
   Mode. The relevant/irrelevant label in the dataset will be displayed on each record.
   This option is useful for training purposes, presentations, and workshops.
-- **Simulation**: In the :doc:`ASReview command line interface for simulations<cli/>`,
+- **Simulation**: In the :doc:`ASReview command line interface for simulations<simulation_cli/>`,
   the column containing the labels is used to simulate a systematic review run.
   Only records containing labels are used for the simulation, unlabeled records are ignored.
 

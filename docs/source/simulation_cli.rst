@@ -183,7 +183,7 @@ The most important options are:
   and is changed with the ``-b`` flag. Default is double balance.
 
 
-A full list of options can be found in the Development section under :ref:`cli:simulate`.  
+
 
 
 Algorithms
