@@ -94,7 +94,7 @@ Benchmark Datasets
 ~~~~~~~~~~~~~~~~~~
 
 For Simulation and Exploration only. Select one of the
-:ref:`data_labeled:benchmark data`. Click
+:ref:`data_labeled:benchmark datasets`. Click
 on *Save* on the top right.
 
 
