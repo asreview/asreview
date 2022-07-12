@@ -1,9 +1,6 @@
 Start ASReview LAB
 ==================
 
-Start via CLI
--------------
-
 After you install ASReview LAB, start the program via the command line to
 start using it.
 
@@ -17,8 +14,8 @@ MacOS or Linux, you can open `Terminal` and run the command.
 The information in the sections below is more advanced and not needed for the
 majority of the ASReview LAB users.
 
-Command line arguments
-----------------------
+Command line arguments for starting ASReview LAB
+------------------------------------------------
 
 ASReview LAB provides a powerful command line interface for running ASReview
 LAB with other options or even run tasks like simulations. For a list of
