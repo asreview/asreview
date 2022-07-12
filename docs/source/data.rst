@@ -127,7 +127,7 @@ Systematic Review Software
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are several software packages available for systematic reviewing, see
-for an `overview <https://www.nature.com/articles/s42256-020-00287-7>`_. Some of them use machine
+https://www.nature.com/articles/s42256-020-00287-7. Some of them use machine
 learning, while other focus on screening and management. The overview below
 shows an overview of alternative software programs and the compatibility with
 ASReview.
