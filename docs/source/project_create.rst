@@ -18,7 +18,7 @@ To create a project:
 Project information
 ===================
 
-In Step 1 you need to provide all relevant information about your project as
+In Step 1, you provide all relevant information about your project as
 well as the type of project you want (the mode). The sections below provide
 more information on the input fields. After you complete this step, click
 *next*.
@@ -59,7 +59,7 @@ Add Dataset
 -----------
 
 Click on *Add* to select a dataset. The data needs to adhere to a
-:doc:`specific format<data>`.
+:doc:`specific format <data>`.
 
 Depending on the :ref:`Project mode <project_create:Project modes>`, you are
 offered the following options for adding a dataset. Keep in mind that in Oracle
@@ -189,7 +189,7 @@ Model
 In the next step of the setup, you can select the active learning model. The
 default settings (Naïve Bayes, TF-IDF, Max) have fast and excellent
 performance. Most users can skip this step and click *Next*. More information
-about the active learning proces can be found in the blog post `Active learning explained <https://asreview.nl/blog/active-learning-explained/>`_, 
+about the active learning process can be found in the blog post `Active learning explained <https://asreview.nl/blog/active-learning-explained/>`_, 
 
 Select model
 ------------
@@ -215,7 +215,7 @@ package. Before starting ASReview LAB first intall gensim:
 
 .. note::
 
-  It takes relatively long to create a feature matrix with Doc2Vec, but  this
+  It takes relatively long to create a feature matrix with Doc2Vec, but this
   only has to be done once. The upside of this method is that it takes context
   into accound. Also, a benifit is the dimension-reduction that generally
   takes place, which makes the modeling quicker.
@@ -281,7 +281,7 @@ extensions`.
 .. warning::
   Selecting random means your review is not going to be accelerated by using ASReview.
 
-Model Swithcing 
+Model switching 
 ~~~~~~~~~~~~~~~
 
 During the screening phase, it is not possible to change the model. However,
