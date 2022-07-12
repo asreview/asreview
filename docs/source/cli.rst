@@ -4,63 +4,6 @@ Command Line
 ASReview provides a powerful command line interface for running tasks like
 simulations. For a list of available commands, type :code:`asreview --help`.
 
-LAB
----
-
-:program:`asreview lab` launches the ASReview LAB software (the webapp) and
-the following options are available:
-
-.. code:: bash
-
-	asreview lab [options]
-
-.. program:: asreview lab
-
-.. option:: --ip IP
-
-    The IP address the server will listen on.
-
-.. option:: --port PORT
-
-	The port the server will listen on.
-
-.. option:: --port-retries NUMBER_RETRIES
-
-	The number of additional ports to try if the specified port is not
-        available.
-
-.. option:: --no-browser NO_BROWSER
-
-	Do not open ASReview LAB in a browser after startup.
-
-.. option:: --certfile CERTFILE_FULL_PATH
-
-    The full path to an SSL/TLS certificate file.
-
-.. option:: --keyfile KEYFILE_FULL_PATH
-
-    The full path to a private key file for usage with SSL/TLS.
-
-.. option:: --embedding EMBEDDING_FP
-
-    File path of embedding matrix. Required for LSTM models.
-
-.. option:: --clean-project CLEAN_PROJECT
-
-    Safe cleanup of temporary files in project.
-
-.. option:: --clean-all-projects CLEAN_ALL_PROJECTS
-
-    Safe cleanup of temporary files in all projects.
-
-.. option:: --seed SEED
-
-	Seed for the model (classifiers, balance strategies, feature extraction
-	techniques, and query strategies). Use an integer between 0 and 2^32 - 1.
-
-.. option:: -h, --help
-
-	Show help message and exit.
 
 Simulate
 --------
@@ -162,7 +105,4 @@ existing systematic reviews. The following options are available:
 .. option:: -h, --help
 
 	Show help message and exit.
-
-Algorithms
-----------
 
