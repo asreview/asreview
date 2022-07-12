@@ -51,6 +51,7 @@ interface for simulation <cli:Simulate>` page. This section highlights
 some of the most used options. When no additional arguments are specified in
 the ``asreview simulate`` command, default settings are used.
 
+
 The most important options are:
 
 - To make your simulations reproducible you can use the ``--seed`` and
@@ -85,3 +86,111 @@ The most important options are:
 
 
 A full list of options can be found in the Development section under :ref:`cli:simulate`.  
+
+
+Algorithms
+----------
+
+:program:`asreview algorithms` provides an overview of all available active
+learning model elements (classifiers, query strategies, balance
+strategies, and feature extraction algorithms) in ASReview.
+
+.. code:: bash
+
+    asreview algorithms
+
+.. note::
+
+    :program:`asreview algorithms` included models added via extensions.
+    See :ref:`develop-extensions` for more information on extending ASReview with new
+    models via extensions.
+
+
+The following components of the active learning model are available:
+
+.. note::
+
+  Some classifiers (models) and feature extraction algorithms require additional dependecies. Use :code:`pip install asreview[all]` to install all additional dependencies at once.
+
+
+.. _feature-extraction-table:
+
+Feature Extraction
+~~~~~~~~~~~~~~~~~~
+
++----------------+-----------------------------------------------------------+-----------------------------------------------------------------------------+
+| Name           | Reference                                                 | Requires                                                                    |
++================+===========================================================+=============================================================================+
+| tfidf          | :class:`asreview.models.feature_extraction.Tfidf`         |                                                                             |
++----------------+-----------------------------------------------------------+-----------------------------------------------------------------------------+
+| doc2vec        | :class:`asreview.models.feature_extraction.Doc2Vec`       | `gensim <https://radimrehurek.com/gensim/>`__                               |
++----------------+-----------------------------------------------------------+-----------------------------------------------------------------------------+
+| embedding-idf  | :class:`asreview.models.feature_extraction.EmbeddingIdf`  |                                                                             |
++----------------+-----------------------------------------------------------+-----------------------------------------------------------------------------+
+| embedding-lstm | :class:`asreview.models.feature_extraction.EmbeddingLSTM` |                                                                             |
++----------------+-----------------------------------------------------------+-----------------------------------------------------------------------------+
+| sbert          | :class:`asreview.models.feature_extraction.SBERT`         | `sentence_transformers <https://github.com/UKPLab/sentence-transformers>`__ |
++----------------+-----------------------------------------------------------+-----------------------------------------------------------------------------+
+
+.. _classifiers-table:
+
+Classifiers
+~~~~~~~~~~~
+
++-------------+--------------------------------------------------------------+-----------------------------------------------+
+| Name        | Reference                                                    | Requires                                      |
++=============+==============================================================+===============================================+
+| nb          | :class:`asreview.models.classifiers.NaiveBayesClassifier`    |                                               |
++-------------+--------------------------------------------------------------+-----------------------------------------------+
+| svm         | :class:`asreview.models.classifiers.SVMClassifier`           |                                               |
++-------------+--------------------------------------------------------------+-----------------------------------------------+
+| logistic    | :class:`asreview.models.classifiers.LogisticClassifier`      |                                               |
++-------------+--------------------------------------------------------------+-----------------------------------------------+
+| rf          | :class:`asreview.models.classifiers.RandomForestClassifier`  |                                               |
++-------------+--------------------------------------------------------------+-----------------------------------------------+
+| nn-2-layer  | :class:`asreview.models.classifiers.NN2LayerClassifier`      |  `tensorflow <https://www.tensorflow.org/>`__ |
++-------------+--------------------------------------------------------------+-----------------------------------------------+
+| lstm-base   | :class:`asreview.models.classifiers.LSTMBaseClassifier`      |  `tensorflow <https://www.tensorflow.org/>`__ |
++-------------+--------------------------------------------------------------+-----------------------------------------------+
+| lstm-pool   | :class:`asreview.models.classifiers.LSTMPoolClassifier`      |  `tensorflow <https://www.tensorflow.org/>`__ |
++-------------+--------------------------------------------------------------+-----------------------------------------------+
+
+.. _query-strategies-table:
+
+Query Strategies
+~~~~~~~~~~~~~~~~
+
++-----------------+---------------------------------------------------------+--------------+
+| Name            | Reference                                               | Requires     |
++=================+=========================================================+==============+
+| max             | :class:`asreview.models.query.MaxQuery`                 |              |
++-----------------+---------------------------------------------------------+--------------+
+| random          | :class:`asreview.models.query.RandomQuery`              |              |
++-----------------+---------------------------------------------------------+--------------+
+| uncertainty     | :class:`asreview.models.query.UncertaintyQuery`         |              |
++-----------------+---------------------------------------------------------+--------------+
+| cluster         | :class:`asreview.models.query.ClusterQuery`             |              |
++-----------------+---------------------------------------------------------+--------------+
+| max_random      | :class:`asreview.models.query.MaxRandomQuery`           |              |
++-----------------+---------------------------------------------------------+--------------+
+| max_uncertainty | :class:`asreview.models.query.MaxUncertaintyQuery`      |              |
++-----------------+---------------------------------------------------------+--------------+
+
+.. _balance-strategies-table:
+
+Balance Strategies
+~~~~~~~~~~~~~~~~~~
+
++-------------+---------------------------------------------------------+----------+
+| Name        | Reference                                               | Requires |
++=============+=========================================================+==========+
+| simple      | :class:`asreview.models.balance.SimpleBalance`          |          |
++-------------+---------------------------------------------------------+----------+
+| double      | :class:`asreview.models.balance.DoubleBalance`          |          |
++-------------+---------------------------------------------------------+----------+
+| undersample | :class:`asreview.models.balance.UndersampleBalance`     |          |
++-------------+---------------------------------------------------------+----------+
+
+
+
+

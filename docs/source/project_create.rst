@@ -183,19 +183,6 @@ It is possible to change the settings of the Active learning model. There are
 four ingredients that can be changed in the software: the type of classifier,
 the query strategy, balance strategy, and the feature extraction technique.
 
-:program:`asreview algorithms` provides an overview of all available active
-learning model elements (classifiers, query strategies, balance
-strategies, and feature extraction algorithms) in ASReview.
-
-.. code:: bash
-
-    asreview algorithms
-
-.. note::
-
-    :program:`asreview algorithms` included models added via extensions.
-    See :ref:`develop-extensions` for more information on extending ASReview with new
-    models via extensions.
 
 The classifier is the machine learning model used to compute the relevance
 scores. The available classifiers are Naive Bayes, Support Vector
