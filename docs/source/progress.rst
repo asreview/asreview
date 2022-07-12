@@ -44,7 +44,7 @@ Charts
 
 The charts on the analytics page can be useful to monitor your progress. There
 is a *Progress* and a *Recall* chart. The charts do not include prior
-knowledge and are most relevant after you have screened a couple of records.
+knowledge and are most relevant after you have screened at least 10 records.
 
 
 **Progress chart**
