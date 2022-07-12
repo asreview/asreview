@@ -78,8 +78,8 @@ purposes (see also :ref:`simulation_overview:What is a simulation?` and
 :ref:`project_create:Project modes`). 
 
 
-Benchmark data
---------------
+Benchmark datasets
+~~~~~~~~~~~~~~~~~~
 
 The `ASReview research project <https://asreview.ai/about/>`_ collects fully
 labeled datasets published open access. The labeled datasets are PRISMA-based
