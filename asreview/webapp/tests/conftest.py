@@ -18,7 +18,7 @@ import shutil
 import pytest
 
 from asreview.utils import asreview_path
-from asreview.webapp import db
+from asreview.webapp import DB
 from asreview.webapp.authentication.models import User
 from asreview.webapp.start_flask import create_app
 
@@ -45,7 +45,6 @@ def signin_user(client, username, password):
         data={'username': username, 'password': password}
     )
 
-
 @pytest.fixture()
 def setup_teardown_standard():
     """Standard setup and teardown, create the app and
@@ -54,15 +53,15 @@ def setup_teardown_standard():
     # setup environment variables
     os.environ.update(TMP_ENV_VARS)
     # create app and client
-    app = create_app()
+    app = create_app(enable_auth=True)
     client = app.test_client()
 
     with app.app_context():
         yield app, client
         try:
             # cleanup the database
-            db.session.query(User).delete()
-            db.session.commit()
+            DB.session.query(User).delete()
+            DB.session.commit()
             # remove the entire .asreview-test folder
             shutil.rmtree(asreview_path())
         except Exception:
@@ -82,7 +81,7 @@ def setup_teardown_signed_in():
     # setup environment variables
     os.environ.update(TMP_ENV_VARS)
     # create app and client
-    app = create_app()
+    app = create_app(enable_auth=True)
     client = app.test_client()
     username, password = 'cskaandorp', '123456!AbC'
     signup_user(client, username, password)
@@ -96,12 +95,27 @@ def setup_teardown_signed_in():
         try:
             # cleanup the database
             User.query.delete()
-            db.session.commit()
+            DB.session.commit()
             # remove the entire .asreview-test folder
             shutil.rmtree(asreview_path())
         except Exception:
             # don't care
             pass
+
+
+@pytest.fixture(scope='module')
+def setup_teardown_unauthorized():
+    """Standard setup and teardown, create the app without
+    a database and create testclient"""
+    # setup environment variables
+    os.environ.update(TMP_ENV_VARS)
+    # create app and client
+    app = create_app(enable_auth=False)
+    client = app.test_client()
+
+    yield app, client
+    # remove the entire .asreview-test folder
+    shutil.rmtree(asreview_path())
 
 
 @pytest.fixture

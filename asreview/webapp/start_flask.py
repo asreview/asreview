@@ -35,8 +35,11 @@ from asreview.project import list_asreview_projects
 from asreview.utils import asreview_path
 from asreview.webapp import api
 from asreview.webapp import auth
-from asreview.webapp import db
-from asreview.webapp.authentication.models import User
+from asreview.webapp import DB
+from asreview.webapp.authentication.models import (
+    UnauthenticatedUser,
+    User
+)
 
 
 # set logging level
@@ -107,37 +110,46 @@ def create_app(**kwargs):
         static_folder="build/static",
         template_folder="build"
     )
-    # default config
-    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-    app.config['SESSION_COOKIE_SECURE'] = True
-    app.config['REMEMBER_COOKIE_SECURE'] = True
-    app.config['SECRET_KEY'] = os.environ.get(
-        'SECRET_KEY',
-        'JeMoederHeetHenk1!'
-    )
 
     # Get the ASReview arguments.
     app.config['asr_kwargs'] = kwargs
-
-    # setup the database
-    uri = os.path.join(asreview_path(), f'auth.{env}.sqlite')
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{uri}'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-    # create the database plus table(s)
-    db.init_app(app)
-    with app.app_context():
-        db.create_all()
+    app.config['LOGIN_DISABLED'] = not(kwargs['enable_auth'])
 
     # config JSON Web Tokens
     login_manager = LoginManager(app)
     login_manager.init_app(app)
     login_manager.session_protection = 'strong'
 
+    # setup all database/authentication related resources
+    if app.config['LOGIN_DISABLED'] == False:
+
+        # default config
+        app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+        app.config['SESSION_COOKIE_SECURE'] = True
+        app.config['REMEMBER_COOKIE_SECURE'] = True
+        app.config['SECRET_KEY'] = os.environ.get(
+            'SECRET_KEY',
+            'JeMoederHeetHenk1!'
+        )
+
+        # setup the database
+        uri = os.path.join(asreview_path(), f'auth.{env}.sqlite')
+        app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{uri}'
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+        # create the database plus table(s)
+        DB.init_app(app)
+        with app.app_context():
+            DB.create_all()
+    else:
+        # Don't want to use the standard Anonymous User
+        login_manager.anonymous_user = UnauthenticatedUser
+
+
     # Register a callback function for current_user.
     @login_manager.user_loader
-    def load_user(id):
-        return User.query.get(int(id))
+    def load_user(user_id):
+        return User.query.get(int(user_id))
 
     # Ensure the instance folder exists.
     try:
@@ -209,7 +221,10 @@ def main(argv):
     args = parser.parse_args(argv)
     env = os.environ.get('FLASK_ENV', '')
 
-    app = create_app(embedding_fp=args.embedding_fp)
+    app = create_app(
+        embedding_fp=args.embedding_fp,
+        enable_auth=args.enable_authentication
+    )
     app.config['PROPAGATE_EXCEPTIONS'] = False
 
     # ssl certificate, key and protocol

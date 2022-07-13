@@ -16,14 +16,14 @@ import json
 from pathlib import Path
 
 from asreview.utils import asreview_path
-from asreview.webapp import db
+from asreview.webapp import DB
 from asreview.webapp.authentication.models import User
 from asreview.webapp.tests.conftest import signin_user, signup_user
 
 
 def get_user(username):
     """Gets a user by username, only works in app context"""
-    return db.session.query(User). \
+    return DB.session.query(User). \
         filter(User.username == username). \
         one_or_none()
 
@@ -42,12 +42,12 @@ def test_user_record_creation(setup_teardown_standard):
     app, client = setup_teardown_standard
     with app.app_context():
         # count initial amount of records
-        count = db.session.query(User).count()
+        count = DB.session.query(User).count()
         # signup user
         username = 'test2'
         _, user = signup_user(client, username)
         # recount
-        new_count = db.session.query(User).count()
+        new_count = DB.session.query(User).count()
         assert new_count == (count + 1)
         # find it
         user = get_user(username)
@@ -73,8 +73,8 @@ def test_unique_usernames_api(setup_teardown_standard):
     app, client = setup_teardown_standard
     with app.app_context():
         username = 'test4'
-        db.session.add(User(username, '123456!AbC'))
-        db.session.commit()
+        DB.session.add(User(username, '123456!AbC'))
+        DB.session.commit()
         # try to create the same user again with the api
         response, _ = signup_user(client, username)
         assert response.status_code == 404
@@ -88,14 +88,14 @@ def test_unique_usernames_db(setup_teardown_standard):
     with app.app_context():
         # create user
         username = 'test5'
-        db.session.add(User(username, '123456!AbC'))
-        db.session.commit()
+        DB.session.add(User(username, '123456!AbC'))
+        DB.session.commit()
         # count initial amount of records
-        count = db.session.query(User).count()
+        count = DB.session.query(User).count()
         # try to create the same user again with the api
         signup_user(client, username)
         # recount
-        new_count = db.session.query(User).count()
+        new_count = DB.session.query(User).count()
         assert new_count == count
 
 
@@ -106,8 +106,8 @@ def test_successful_signin_api(setup_teardown_standard):
         # create user
         username = 'test6'
         password = '123456Ab@'
-        db.session.add(User(username, password))
-        db.session.commit()
+        DB.session.add(User(username, password))
+        DB.session.commit()
         response = signin_user(client, username, password)
         assert response.status_code == 200
 
@@ -120,8 +120,8 @@ def test_unsuccessful_signin_wrong_password_api(setup_teardown_standard):
         # create user
         username = 'test7'
         password = '123456Ab@'
-        db.session.add(User(username, password))
-        db.session.commit()
+        DB.session.add(User(username, password))
+        DB.session.commit()
         response = signin_user(client, username, 'wrong_password')
         assert response.status_code == 404
         assert 'Incorrect password' in \
@@ -136,8 +136,8 @@ def test_unsuccessful_signin_wrong_username_api(setup_teardown_standard):
         # create user
         username = 'test8'
         password = '123456Ab@'
-        db.session.add(User(username, password))
-        db.session.commit()
+        DB.session.add(User(username, password))
+        DB.session.commit()
         response = signin_user(client, 'TedjevanEs', password)
         assert response.status_code == 404
         assert 'does not exist' in \
@@ -164,8 +164,8 @@ def test_singout(setup_teardown_standard):
         # create user
         username = 'test9'
         password = '123456Ab@'
-        db.session.add(User(username, password))
-        db.session.commit()
+        DB.session.add(User(username, password))
+        DB.session.commit()
         # signin
         signin_user(client, username, password)
         # make sure any signed-in user is signed out

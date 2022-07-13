@@ -24,7 +24,7 @@ from flask_login import current_user, login_user, logout_user
 from sqlalchemy.exc import SQLAlchemyError
 
 from asreview.utils import asreview_path
-from asreview.webapp import db
+from asreview.webapp import DB
 from asreview.webapp.authentication.login_required import asreview_login_required
 from asreview.webapp.authentication.models import User
 
@@ -88,15 +88,15 @@ def signup():
         # hashed in the User model)
         try:
             user = User(username, password)
-            db.session.add(user)
-            db.session.commit()
+            DB.session.add(user)
+            DB.session.commit()
             # at this stage we know the user account is stored,
             # let's add a working directory for this user
             Path(asreview_path(), str(user.id)).mkdir(exist_ok=True)
             # result is a 201 with message
             result = (201, f'User "#{username}" created.')
         except SQLAlchemyError:
-            db.session.rollback()
+            DB.session.rollback()
             result = (500, 'Creating account unsuccessful!')
 
     (status, message) = result

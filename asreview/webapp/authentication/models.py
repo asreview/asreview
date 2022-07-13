@@ -15,14 +15,14 @@
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from asreview.webapp import db
+from asreview.webapp import DB
 
 
-class User(UserMixin, db.Model):
+class User(UserMixin, DB.Model):
     __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True)
-    hashed_password = db.Column(db.String(100), unique=True)
+    id = DB.Column(DB.Integer, primary_key=True)
+    username = DB.Column(DB.String(50), unique=True)
+    hashed_password = DB.Column(DB.String(100), unique=True)
 
     def __init__(self, username=None, password=None):
         self.username = username
@@ -33,3 +33,20 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return f'<User {self.username!r}>'
+
+
+class UnauthenticatedUser:
+
+    def __init__(self):
+        self.id = None
+        self.is_authenticated = False
+        self.is_active = False
+        self.is_anonymous = True
+
+    def get_id(self):
+        """This class needs to have this method implemented
+        for the LoginManager"""
+        return 'unauthenticated'
+
+    def __repr__(self):
+        return f'<UnauthenticatedUser>'

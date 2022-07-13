@@ -23,7 +23,7 @@ from contextlib import contextmanager
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
-from uuid import uuid4
+from uuid import uuid4, uuid5, NAMESPACE_URL
 
 from filelock import FileLock
 import jsonschema
@@ -61,7 +61,7 @@ class ProjectNotFoundError(Exception):
     pass
 
 
-def get_project_path(project_id, user, asreview_dir=None):
+def get_project_path(project_id, user=None, asreview_dir=None):
     """Get the project directory.
 
     Arguments
@@ -76,9 +76,13 @@ def get_project_path(project_id, user, asreview_dir=None):
         asreview_dir = asreview_path()
 
     if isinstance(user, User) and isinstance(user.id, int):
-        asreview_dir = Path(asreview_dir, str(user.id))
+        folder_id = f'{user.id}_{project_id}'
+    else:
+        folder_id = project_id
 
-    return Path(asreview_dir, project_id)
+    project_folder = uuid5(NAMESPACE_URL, folder_id).hex
+
+    return Path(asreview_dir, project_folder)
 
 
 def project_from_id(user):
@@ -350,7 +354,7 @@ class ASReviewProject():
         self.config = config
         return config
 
-    def rename(self, project_name_new):
+    def rename(self, new_project_data={}):
         """Rename a project id.
 
         This function only works for projects in ASReview LAB  web interface.
@@ -359,40 +363,36 @@ class ASReviewProject():
 
         Arguments
         ---------
-        project_id: str
-            The current project_id.
-        project_name_new: str
-            The new project name to be converted into a new
-            project_id.
+        new_project_data: dict
+            Dictionary that contains a new name, id and project path
 
         Returns
         -------
-        str:
-            The new project_id.
+        ASReviewProject:
+            The updated project
         """
-        # create a new project_id from project name
-        project_id_new = _create_project_id(project_name_new)
+        # get all data
+        new_project_name = new_project_data.get('name', None)
+        new_project_id = new_project_data.get('project_id', None)
+        new_project_path = new_project_data.get('project_path', None)
 
-        # project_path_new = Path(asreview_path(), project_id_new)
-        project_path_new = Path(self.project_path.parent, project_id_new)
-
-        if (self.project_path == project_path_new):
+        if self.project_id == new_project_id:
             # nothing to do
             return self
 
-        if (self.project_path !=
-                project_path_new) & is_project(project_path_new):
-            raise ValueError(f"Project '{project_path_new}' already exists.")
+        if (self.project_path != new_project_path) and \
+            is_project(new_project_path):
+            raise ValueError(f"Project '{new_project_path}' already exists.")
 
-        self.project_path.rename(project_path_new)
-        self.project_path = project_path_new
-        self.project_id = project_id_new
+        self.project_path.rename(new_project_path)
+        self.project_path = new_project_path
+        self.project_id = new_project_id
 
         # update the project file
         config = self.config
 
-        config["id"] = project_id_new
-        config["name"] = project_name_new
+        config["id"] = new_project_id
+        config["name"] = new_project_name
 
         self.config = config
         self._config = config

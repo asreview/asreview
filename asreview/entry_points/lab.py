@@ -53,6 +53,12 @@ def _lab_parser(prog="lab"):
         help="The port the server will listen on.")
 
     parser.add_argument(
+        "--enable-auth",
+        dest="enable_authentication",
+        action='store_true',
+        help="Use authentication")
+
+    parser.add_argument(
         "--no-browser",
         dest="no_browser",
         action='store_true',

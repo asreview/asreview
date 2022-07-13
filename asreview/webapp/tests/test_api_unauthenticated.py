@@ -12,12 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import time
+from pathlib import Path
+from uuid import NAMESPACE_URL, uuid5
+
+import pytest
+
+from asreview.project import _create_project_id
+from asreview.project import PATH_FEATURE_MATRICES
+from asreview.utils import asreview_path
 
 
-def test_get_projects(setup_teardown_signed_in):
+@pytest.mark.usefixtures('setup_teardown_unauthorized')
+def test_get_projects(setup_teardown_unauthorized):
     """Test get projects."""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response = client.get("/api/projects")
     json_data = response.get_json()
@@ -26,9 +36,9 @@ def test_get_projects(setup_teardown_signed_in):
     assert isinstance(json_data["result"], list)
 
 
-def test_init_project(setup_teardown_signed_in):
-    """Test create project."""
-    _, client = setup_teardown_signed_in
+def test_init_project(setup_teardown_unauthorized):
+    """Test create project. Check name of created subfolder"""
+    _, client = setup_teardown_unauthorized
 
     response = client.post("/api/projects/info", data={
         "mode": "explore",
@@ -38,22 +48,31 @@ def test_init_project(setup_teardown_signed_in):
     })
     json_data = response.get_json()
 
+    # make sure a folder is created
+    project_id = json_data['id']
+    foldername = uuid5(NAMESPACE_URL, project_id).hex
+    assert Path(asreview_path(), foldername).exists()
+    assert Path(asreview_path(), foldername, 'data').exists()
+    assert Path(asreview_path(), foldername, 'reviews').exists()
+    assert Path(asreview_path(), foldername, PATH_FEATURE_MATRICES).exists()
+
+    # test the response
     assert response.status_code == 201
     assert "name" in json_data
     assert isinstance(json_data, dict)
 
 
-def test_upgrade_project_if_old(setup_teardown_signed_in):
+def test_upgrade_project_if_old(setup_teardown_unauthorized):
     """Test upgrade project if it is v0.x"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response = client.get("/api/projects/project-id/upgrade_if_old")
     assert response.status_code == 400
 
 
-def test_get_projects_stats(setup_teardown_signed_in):
+def test_get_projects_stats(setup_teardown_unauthorized):
     """Test get dashboard statistics of all projects"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response = client.get("/api/projects/stats")
     json_data = response.get_json()
@@ -63,9 +82,9 @@ def test_get_projects_stats(setup_teardown_signed_in):
     assert isinstance(json_data["result"], dict)
 
 
-def test_demo_data_project(setup_teardown_signed_in):
+def test_demo_data_project(setup_teardown_unauthorized):
     """Test retrieve plugin and benchmark datasets"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response_plugin = client.get("/api/datasets?subset=plugin")
     response_benchmark = client.get("/api/datasets?subset=benchmark")
@@ -78,9 +97,9 @@ def test_demo_data_project(setup_teardown_signed_in):
     assert isinstance(json_benchmark_data["result"], list)
 
 
-def test_upload_data_to_project(setup_teardown_signed_in):
+def test_upload_data_to_project(setup_teardown_unauthorized):
     """Test add data to project."""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response = client.post("/api/projects/project-id/data", data={
         "benchmark": "benchmark:Hall_2012"
@@ -88,27 +107,27 @@ def test_upload_data_to_project(setup_teardown_signed_in):
     assert response.status_code == 200
 
 
-def test_get_project_data(setup_teardown_signed_in):
+def test_get_project_data(setup_teardown_unauthorized):
     """Test get info on the data"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response = client.get("/api/projects/project-id/data")
     json_data = response.get_json()
     assert json_data["filename"] == "Hall_2012"
 
 
-def test_get_dataset_writer(setup_teardown_signed_in):
+def test_get_dataset_writer(setup_teardown_unauthorized):
     """Test get dataset writer"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response = client.get("/api/projects/project-id/dataset_writer")
     json_data = response.get_json()
     assert isinstance(json_data["result"], list)
 
 
-def test_update_project_info(setup_teardown_signed_in):
-    """Test update project info"""
-    _, client = setup_teardown_signed_in
+def test_update_project_info_no_name_change(setup_teardown_unauthorized):
+    """Test update project info without changing the project name"""
+    _, client = setup_teardown_unauthorized
 
     response = client.put("/api/projects/project-id/info", data={
         "mode": "explore",
@@ -119,19 +138,60 @@ def test_update_project_info(setup_teardown_signed_in):
     assert response.status_code == 200
 
 
-def test_get_project_info(setup_teardown_signed_in):
-    """Test get info on the project"""
-    _, client = setup_teardown_signed_in
+def test_update_project_info_with_name_change(setup_teardown_unauthorized):
+    """Test update project info -with- changing the project name"""
+    _, client = setup_teardown_unauthorized
 
+    new_project_name = "another_project"
+    old_project_id = "project-id"
+
+    response = client.put(f"/api/projects/{old_project_id}/info", data={
+        "mode": "explore",
+        "name": new_project_name,
+        "authors": "asreview team",
+        "description": "hello world"
+    })
+    assert response.status_code == 200
+
+    # check if folder has been renamed
+    new_project_id = _create_project_id(new_project_name)
+    foldername = uuid5(NAMESPACE_URL, new_project_id).hex
+    assert Path(asreview_path(), foldername).exists()
+    assert Path(asreview_path(), foldername, 'data').exists()
+    assert Path(asreview_path(), foldername, 'reviews').exists()
+    assert Path(asreview_path(), foldername, PATH_FEATURE_MATRICES).exists()
+
+    # check if old folder is removed
+    old_foldername = uuid5(NAMESPACE_URL, old_project_id).hex
+    assert Path(asreview_path(), old_foldername).exists() is False
+
+
+def test_get_project_info(setup_teardown_unauthorized):
+    """Test get info on the project, start with a new project"""
+    _, client = setup_teardown_unauthorized
+
+    # since we have renamed the previous project we have to
+    # add the old project again
+    client.post("/api/projects/info", data={
+        "mode": "explore",
+        "name": "project_id",
+        "authors": "asreview team",
+        "description": "hello world"
+    })
+    client.post("/api/projects/project-id/data", data={
+        "benchmark": "benchmark:Hall_2012"
+    })
+
+    # call the info method
     response = client.get("/api/projects/project-id/info")
     json_data = response.get_json()
     assert json_data["authors"] == "asreview team"
     assert json_data["dataset_path"] == "Hall_2012.csv"
 
 
-def test_search_data(setup_teardown_signed_in):
+def test_search_data(setup_teardown_unauthorized):
     """Test search for papers"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response = client.get("/api/projects/project-id/search?q=Software&n_max=10")
     json_data = response.get_json()
@@ -140,9 +200,9 @@ def test_search_data(setup_teardown_signed_in):
     assert isinstance(json_data["result"], list)
 
 
-def test_random_prior_papers(setup_teardown_signed_in):
+def test_random_prior_papers(setup_teardown_unauthorized):
     """Test get a selection of random papers to find exclusions"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response = client.get("/api/projects/project-id/prior_random")
     json_data = response.get_json()
@@ -151,9 +211,9 @@ def test_random_prior_papers(setup_teardown_signed_in):
     assert isinstance(json_data["result"], list)
 
 
-def test_label_item(setup_teardown_signed_in):
+def test_label_item(setup_teardown_unauthorized):
     """Test label item"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response_irrelevant = client.post("/api/projects/project-id/record/5509", data={
         "doc_id": 5509,
@@ -170,9 +230,9 @@ def test_label_item(setup_teardown_signed_in):
     assert response_relevant.status_code == 200
 
 
-def test_get_labeled(setup_teardown_signed_in):
+def test_get_labeled(setup_teardown_unauthorized):
     """Test get all papers classified as labeled documents"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response = client.get("/api/projects/project-id/labeled")
     json_data = response.get_json()
@@ -181,9 +241,9 @@ def test_get_labeled(setup_teardown_signed_in):
     assert isinstance(json_data["result"], list)
 
 
-def test_get_labeled_stats(setup_teardown_signed_in):
+def test_get_labeled_stats(setup_teardown_unauthorized):
     """Test get all papers classified as prior documents"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response = client.get("/api/projects/project-id/labeled_stats")
     json_data = response.get_json()
@@ -193,9 +253,9 @@ def test_get_labeled_stats(setup_teardown_signed_in):
     assert json_data["n_prior"] == 2
 
 
-def test_list_algorithms(setup_teardown_signed_in):
+def test_list_algorithms(setup_teardown_unauthorized):
     """Test get list of active learning models"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response = client.get("/api/algorithms")
     json_data = response.get_json()
@@ -205,9 +265,9 @@ def test_list_algorithms(setup_teardown_signed_in):
     assert isinstance(json_data, dict)
 
 
-def test_set_algorithms(setup_teardown_signed_in):
+def test_set_algorithms(setup_teardown_unauthorized):
     """Test set active learning model"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response = client.post("/api/projects/project-id/algorithms", data={
         "model": "svm",
@@ -218,9 +278,9 @@ def test_set_algorithms(setup_teardown_signed_in):
     assert response.status_code == 200
 
 
-def test_get_algorithms(setup_teardown_signed_in):
+def test_get_algorithms(setup_teardown_unauthorized):
     """Test active learning model selection"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response = client.get("/api/projects/project-id/algorithms")
     json_data = response.get_json()
@@ -232,17 +292,17 @@ def test_get_algorithms(setup_teardown_signed_in):
     assert isinstance(json_data, dict)
 
 
-def test_start(setup_teardown_signed_in):
+def test_start(setup_teardown_unauthorized):
     """Test start training the model"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response = client.post("/api/projects/project-id/start")
     assert response.status_code == 200
 
 
-def test_first_model_ready(setup_teardown_signed_in):
+def test_first_model_ready(setup_teardown_unauthorized):
     """Test check if trained model is available"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     # wait the model ready
     time.sleep(8)
@@ -252,9 +312,9 @@ def test_first_model_ready(setup_teardown_signed_in):
     assert json_data["status"] == "review"
 
 
-def test_export_result(setup_teardown_signed_in):
+def test_export_result(setup_teardown_unauthorized):
     """Test export result"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response_csv = client.get("/api/projects/project-id/export_dataset?file_format=csv")
     response_tsv = client.get("/api/projects/project-id/export_dataset?file_format=tsv")
@@ -265,17 +325,17 @@ def test_export_result(setup_teardown_signed_in):
     assert response_excel.status_code == 200
 
 
-def test_export_project(setup_teardown_signed_in):
+def test_export_project(setup_teardown_unauthorized):
     """Test export the project file"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response = client.get("/api/projects/project-id/export_project")
     assert response.status_code == 200
 
 
-def test_finish_project(setup_teardown_signed_in):
+def test_finish_project(setup_teardown_unauthorized):
     """Test mark a project as finished or not"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response = client.put("/api/projects/project-id/status",
                           data={"status": "finished"})
@@ -290,18 +350,18 @@ def test_finish_project(setup_teardown_signed_in):
     assert response.status_code == 200
 
 
-def test_get_progress_info(setup_teardown_signed_in):
+def test_get_progress_info(setup_teardown_unauthorized):
     """Test get progress info on the article"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response = client.get("/api/projects/project-id/progress")
     json_data = response.get_json()
     assert isinstance(json_data, dict)
 
 
-def test_get_progress_density(setup_teardown_signed_in):
+def test_get_progress_density(setup_teardown_unauthorized):
     """Test get progress density on the article"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response = client.get("/api/projects/project-id/progress_density")
     json_data = response.get_json()
@@ -310,9 +370,9 @@ def test_get_progress_density(setup_teardown_signed_in):
     assert isinstance(json_data, dict)
 
 
-def test_get_progress_recall(setup_teardown_signed_in):
+def test_get_progress_recall(setup_teardown_unauthorized):
     """Test get cumulative number of inclusions by ASReview/at random"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response = client.get("/api/projects/project-id/progress_recall")
     json_data = response.get_json()
@@ -321,9 +381,9 @@ def test_get_progress_recall(setup_teardown_signed_in):
     assert isinstance(json_data, dict)
 
 
-def test_get_document(setup_teardown_signed_in):
+def test_get_document(setup_teardown_unauthorized):
     """Test retrieve documents in order of review"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response = client.get("/api/projects/project-id/get_document")
     json_data = response.get_json()
@@ -354,9 +414,9 @@ def test_get_document(setup_teardown_signed_in):
     assert response.status_code == 200
 
 
-def test_delete_project(setup_teardown_signed_in):
+def test_delete_project(setup_teardown_unauthorized):
     """Test get info on the article"""
-    _, client = setup_teardown_signed_in
+    _, client = setup_teardown_unauthorized
 
     response = client.delete("/api/projects/project-id/delete")
     assert response.status_code == 200

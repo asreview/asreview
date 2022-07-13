@@ -57,16 +57,18 @@ def asreview_login_required(func):
     :param func: The view function to decorate.
     :type func: function
     """
-
     @wraps(func)
     def decorated_view(*args, **kwargs):
-        # get current user
-        current_user = _get_user()
 
-        if request.method in EXEMPT_METHODS or current_app.config.get("LOGIN_DISABLED"):
+        if (request.method in EXEMPT_METHODS or
+            current_app.config.get("LOGIN_DISABLED")):
             pass
-        elif not current_user.is_authenticated:
-            return jsonify({'message': 'login required'}), 401
+        else:
+            # get current user
+            current_user = _get_user()
+
+            if not current_user.is_authenticated:
+                return jsonify({'message': 'login required'}), 401
 
         # flask 1.x compatibility
         # current_app.ensure_sync is only available in Flask >= 2.0

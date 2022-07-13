@@ -75,14 +75,12 @@ from asreview.webapp.authentication.login_required import (
 )
 from asreview.webapp.io import read_data
 
-
 bp = Blueprint('api', __name__, url_prefix='/api')
 CORS(
     bp,
     resources={r"*": {"origins": "http://localhost:3000"}},
     supports_credentials=True
 )
-
 
 # error handlers
 @bp.errorhandler(ProjectNotFoundError)
@@ -253,7 +251,17 @@ def api_update_project_info(project):  # noqa: F401
 
     # rename the project if project name is changed
     if request.form.get('name', None) is not None:
-        project.rename(request.form['name'])
+        # get new name
+        new_project_name = request.form.get('name')
+        # if the name has been changed, process changes
+        if project.config['name'] != new_project_name:
+            new_project_id = _create_project_id(new_project_name)
+            new_project_path = get_project_path(new_project_id, current_user)
+            project.rename({
+                'name': new_project_name,
+                'project_id': new_project_id,
+                'project_path': new_project_path
+            })
 
     # update the project info
     project.update_config(mode=request.form['mode'],

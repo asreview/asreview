@@ -20,6 +20,8 @@ from urllib.parse import urlparse
 import numpy as np
 import pkg_resources
 
+from asreview.webapp.authentication.models import UnauthenticatedUser
+
 
 def _unsafe_dict_update(default_dict, override_dict):
     """
@@ -119,9 +121,15 @@ def asreview_path():
 
 
 def asreview_working_dir(user):
-    """Get the location where the personal projects are stored"""
+    """Get the location where the personal projects are stored,
+    might be the root path if we don't use authentication"""
 
-    return Path(asreview_path(), str(user.id))
+    if isinstance(user, UnauthenticatedUser):
+        path = asreview_path()
+    else:
+        path = Path(asreview_path(), str(user.id))
+
+    return path
 
 
 def get_data_home(data_home=None):
