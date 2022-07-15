@@ -32,7 +32,7 @@ class User(UserMixin, DB.Model):
         return check_password_hash(self.hashed_password, password)
 
     def __repr__(self):
-        return f'<User {self.username!r}>'
+        return f'<User {self.username!r}, id: {self.id}>'
 
 
 class UnauthenticatedUser:

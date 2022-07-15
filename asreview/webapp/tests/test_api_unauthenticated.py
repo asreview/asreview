@@ -12,19 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import time
 from pathlib import Path
 from uuid import NAMESPACE_URL, uuid5
-
-import pytest
 
 from asreview.project import _create_project_id
 from asreview.project import PATH_FEATURE_MATRICES
 from asreview.utils import asreview_path
 
 
-@pytest.mark.usefixtures('setup_teardown_unauthorized')
 def test_get_projects(setup_teardown_unauthorized):
     """Test get projects."""
     _, client = setup_teardown_unauthorized
@@ -304,8 +300,8 @@ def test_first_model_ready(setup_teardown_unauthorized):
     """Test check if trained model is available"""
     _, client = setup_teardown_unauthorized
 
-    # wait the model ready
-    time.sleep(8)
+    # wait until the model is ready
+    time.sleep(15)
 
     response = client.get("/api/projects/project-id/status")
     json_data = response.get_json()

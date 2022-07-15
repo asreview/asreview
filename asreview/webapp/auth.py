@@ -100,7 +100,7 @@ def signup():
             result = (500, 'Creating account unsuccessful!')
 
     (status, message) = result
-    response = jsonify({'message': message})
+    response = jsonify({'message': message, 'user_id': user.id})
     return response, status
 
 

@@ -35,7 +35,7 @@ def signup_user(client, username, password='!biuCrgfsiOOO6987'):
         '/auth/signup',
         data={'username': username, 'password': password}
     )
-    return response, User(username, password)
+    return response
 
 
 def signin_user(client, username, password):
@@ -45,7 +45,7 @@ def signin_user(client, username, password):
         data={'username': username, 'password': password}
     )
 
-@pytest.fixture()
+@pytest.fixture(scope='module')
 def setup_teardown_standard():
     """Standard setup and teardown, create the app and
     testclient, make sure the database is cleaned up
@@ -75,7 +75,7 @@ def setup_teardown_standard():
 # the teardown is actually processed: that will cause
 # a problem for the still running file (emptying the
 # database, removing the asreview folder...)
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='module')
 def setup_teardown_signed_in():
     """Setup and teardown with a signed in user."""
     # setup environment variables
@@ -90,8 +90,9 @@ def setup_teardown_signed_in():
     with app.app_context():
         # signin this user
         signin_user(client, username, password)
+        user = DB.session.query(User).filter(User.username==username).one_or_none()
 
-        yield app, client
+        yield app, client, user
         try:
             # cleanup the database
             User.query.delete()
