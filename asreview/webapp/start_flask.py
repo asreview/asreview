@@ -36,11 +36,10 @@ from asreview.utils import asreview_path
 from asreview.webapp import api
 from asreview.webapp import auth
 from asreview.webapp import DB
-from asreview.webapp.authentication.models.unauthenticated_user import (
-    UnauthenticatedUser
+from asreview.webapp.authentication.models import (
+    UnauthenticatedUser,
+    User
 )
-from asreview.webapp.authentication.models.user import User
-
 
 # set logging level
 if os.environ.get('FLASK_ENV', "") == "development":
@@ -133,7 +132,7 @@ def create_app(**kwargs):
         )
 
         # setup the database
-        uri = os.path.join(asreview_path(), f'auth.{env}.sqlite')
+        uri = os.path.join(asreview_path(), f'asreview.{env}.sqlite')
         app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{uri}'
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

@@ -40,7 +40,7 @@ from asreview.config import SCHEMA
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
 from asreview.utils import asreview_path, asreview_working_dir
-from asreview.webapp.authentication.models.user import User
+from asreview.webapp.authentication.models import User
 from asreview.webapp.io import read_data
 
 

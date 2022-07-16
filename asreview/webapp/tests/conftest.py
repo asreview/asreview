@@ -19,7 +19,7 @@ import pytest
 
 from asreview.utils import asreview_path
 from asreview.webapp import DB
-from asreview.webapp.authentication.models.user import User
+from asreview.webapp.authentication.models import User
 from asreview.webapp.start_flask import create_app
 
 
@@ -44,30 +44,6 @@ def signin_user(client, username, password):
         '/auth/signin',
         data={'username': username, 'password': password}
     )
-
-@pytest.fixture(scope='module')
-def setup_teardown_standard():
-    """Standard setup and teardown, create the app and
-    testclient, make sure the database is cleaned up
-    after running the last test"""
-    # setup environment variables
-    os.environ.update(TMP_ENV_VARS)
-    # create app and client
-    app = create_app(enable_auth=True)
-    client = app.test_client()
-
-    with app.app_context():
-        yield app, client
-        try:
-            # cleanup the database
-            DB.session.query(User).delete()
-            DB.session.commit()
-            # remove the entire .asreview-test folder
-            shutil.rmtree(asreview_path())
-        except Exception:
-            # don't care atm
-            pass
-
 
 # TODO@{Casper}:
 # Something nasty happens when execute multiple test

@@ -26,7 +26,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.login_required import asreview_login_required
-from asreview.webapp.authentication.models.user import User
+from asreview.webapp.authentication.models import User
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 CORS(

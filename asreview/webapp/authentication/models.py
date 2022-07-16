@@ -13,6 +13,8 @@
 # limitations under the License.
 
 from flask_login import UserMixin
+from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from asreview.webapp import DB
@@ -20,9 +22,14 @@ from asreview.webapp import DB
 
 class User(UserMixin, DB.Model):
     __tablename__ = 'users'
-    id = DB.Column(DB.Integer, primary_key=True)
-    username = DB.Column(DB.String(50), unique=True)
-    hashed_password = DB.Column(DB.String(100), unique=True)
+    id = Column(Integer, primary_key=True)
+    username = Column(String(50), unique=True)
+    hashed_password = Column(DB.String(100), unique=True)
+    projects = relationship(
+        'Project',
+        back_populates='owner',
+        lazy=True
+    )
 
     def __init__(self, username=None, password=None):
         self.username = username
@@ -36,7 +43,8 @@ class User(UserMixin, DB.Model):
 
 
 class UnauthenticatedUser:
-
+    """This class serves an unauthenticated app, we use a pseudo user
+    to bypass authentication."""
     def __init__(self):
         self.id = None
         self.is_authenticated = False
@@ -50,3 +58,19 @@ class UnauthenticatedUser:
 
     def __repr__(self):
         return f'<UnauthenticatedUser>'
+
+
+class Project(DB.Model):
+    """Project table"""
+    __tablename__ = 'projects'
+    id = Column(Integer, primary_key=True)
+    project_id = Column(String(250), nullable=False)
+    user_id = Column(
+        Integer,
+        ForeignKey(User.id),
+        nullable=False
+    )
+    owner = relationship('User', back_populates='projects')
+
+    def __repr__(self):
+        return f'<Project id: {self.project_id}, owner_id: {self.owner_id}>'
