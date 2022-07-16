@@ -17,7 +17,7 @@ from pathlib import Path
 
 from asreview.utils import asreview_path
 from asreview.webapp import DB
-from asreview.webapp.authentication.models import User
+from asreview.webapp.authentication.models.user import User
 from asreview.webapp.tests.conftest import signin_user, signup_user
 
 

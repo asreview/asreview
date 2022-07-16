@@ -36,10 +36,10 @@ from asreview.utils import asreview_path
 from asreview.webapp import api
 from asreview.webapp import auth
 from asreview.webapp import DB
-from asreview.webapp.authentication.models import (
-    UnauthenticatedUser,
-    User
+from asreview.webapp.authentication.models.unauthenticated_user import (
+    UnauthenticatedUser
 )
+from asreview.webapp.authentication.models.user import User
 
 
 # set logging level

@@ -19,7 +19,7 @@ import pytest
 
 from asreview.utils import asreview_path
 from asreview.webapp import DB
-from asreview.webapp.authentication.models import User
+from asreview.webapp.authentication.models.user import User
 from asreview.webapp.start_flask import create_app
 
 
