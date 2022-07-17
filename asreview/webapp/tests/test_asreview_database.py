@@ -67,7 +67,7 @@ def test_add_user_record():
     # verify we have 1 record
     assert len(User.query.all()) == 1
     # verify we have added a record
-    user = User.query.filter(User.username == 'cskaandorp').one_or_none()
+    user = User.query.filter(User.username == 'cskaandorp').one()
 
 def test_username_is_unique():
     """Verify we can not add two users with the same username"""
@@ -77,7 +77,7 @@ def test_username_is_unique():
 
     # verify we have 1 record
     assert len(User.query.all()) == 1
-    user = User.query.filter(User.username == 'cskaandorp').one_or_none()
+    user = User.query.filter(User.username == 'cskaandorp').one()
 
     new_user = User('cskaandorp', 'Onyx')
     DB.session.add(new_user)
@@ -93,7 +93,7 @@ def test_if_user_has_projects_property():
     user = User('cskaandorp', 'Onyx')
     DB.session.add(user)
     DB.session.commit()
-    user = User.query.filter(User.username == 'cskaandorp').one_or_none()
+    user = User.query.filter(User.username == 'cskaandorp').one()
     # check if user points to empty list
     assert user.projects == []
 
@@ -104,10 +104,12 @@ def test_creating_a_project_without_user():
     assert len(User.query.all()) == 0
 
     # create project with a non-existent user
-    user = User('cskaandorp', 'Onyx')
-    user.projects.append(Project(project_id='my-project'))
-    DB.session.commit()
+    project = Project(project_id='my-project')
+    DB.session.add(project)
+    with pytest.raises(IntegrityError):
+        DB.session.commit()
 
+    DB.session.rollback()
     assert len(Project.query.all()) == 0
     assert len(User.query.all()) == 0
 
@@ -126,9 +128,73 @@ def test_creating_a_project_with_user():
     assert len(Project.query.all()) == 1
     assert len(User.query.all()) == 1
 
-def test_that_integrity_shit_is_raised_if_user_doesnotexistfor_project():
-    # check before save in model class raise Integrity if user id is none
-    pass
+def test_updating_a_project():
+    """Update a project, just see if it works and how it
+    should be done. This is not a very valuable test."""
+    user = User('cskaandorp', 'Onyx')
+    user.projects.append(Project(project_id='my-project'))
+    DB.session.add(user)
+    DB.session.commit()
+    assert len(Project.query.all()) == 1
+    assert len(User.query.all()) == 1
+
+    new_project_id = 'my-other-project'
+    Project. \
+        query. \
+        filter(Project.owner_id==user.id). \
+        update({'project_id': new_project_id})
+    DB.session.commit()
+
+    # check if project_id has been changed
+    project = Project.query.filter(Project.owner_id==user.id).one()
+    assert project.project_id == new_project_id
+
+def test_deleting_a_project_no_collaboration():
+    """Delete a single project from a user. Again, not a valuable
+    test, just seeing if it works and how it is done."""
+    user = User('cskaandorp', 'Onyx')
+    user.projects.append(Project(project_id='my-project'))
+    user.projects.append(Project(project_id='my-other-project'))
+    user.projects.append(Project(project_id='my-other-other-project'))
+    DB.session.add(user)
+    DB.session.commit()
+    assert len(Project.query.all()) == 3
+    assert len(User.query.all()) == 1
+
+    Project.query.filter(Project.project_id=='my-project').delete()
+    DB.session.commit()
+    assert len(Project.query.all()) == 2
+    assert len(User.query.all()) == 1
+
+    names = set([p.project_id for p in Project.query.all()])
+    assert names == set(['my-other-project', 'my-other-other-project'])
+
+def test_deleting_a_user_with_projections_no_collaboration():
+    """When I destroy a user, all projects have to be destroyed"""
+    user = User('cskaandorp', 'Onyx')
+    user.projects.append(Project(project_id='my-project'))
+    user.projects.append(Project(project_id='my-other-project'))
+    user.projects.append(Project(project_id='my-other-other-project'))
+    DB.session.add(user)
+    DB.session.commit()
+    assert len(Project.query.all()) == 3
+    assert len(User.query.all()) == 1
+
+    User.query.filter(User.id==1).delete()
+    DB.session.commit()
+    assert len(User.query.all()) == 0
+
+    print(Project.query.all())
+
+    assert len(Project.query.all()) == 0
+
+
+
+
+
+
+
+
 
 def test_deleting_a_user():
     pass

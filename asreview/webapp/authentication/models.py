@@ -13,22 +13,22 @@
 # limitations under the License.
 
 from flask_login import UserMixin
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, event, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from asreview.webapp import DB
 
-
 class User(UserMixin, DB.Model):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     username = Column(String(50), unique=True)
-    hashed_password = Column(DB.String(100), unique=True)
+    hashed_password = Column(String(100), unique=True)
     projects = relationship(
         'Project',
         back_populates='owner',
-        lazy=True
+        cascade='all, delete',
+        passive_deletes=True
     )
 
     def __init__(self, username=None, password=None):
@@ -40,6 +40,10 @@ class User(UserMixin, DB.Model):
 
     def __repr__(self):
         return f'<User {self.username!r}, id: {self.id}>'
+
+@event.listens_for(User, 'before_delete')
+def before_delete_user(mapper, connection, target):
+    print('>>>>>>>>>>>>>>> JA <<<<<<<<<<<<<<<<<')
 
 
 class UnauthenticatedUser:
@@ -65,12 +69,15 @@ class Project(DB.Model):
     __tablename__ = 'projects'
     id = Column(Integer, primary_key=True)
     project_id = Column(String(250), nullable=False)
-    user_id = Column(
+    owner_id = Column(
         Integer,
-        ForeignKey(User.id),
+        ForeignKey(User.id, ondelete='CASCADE'),
         nullable=False
     )
-    owner = relationship('User', back_populates='projects')
+    owner = relationship(
+        'User',
+        back_populates='projects'
+    )
 
     def __repr__(self):
         return f'<Project id: {self.project_id}, owner_id: {self.owner_id}>'
