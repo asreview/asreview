@@ -14,7 +14,7 @@
 
 import shutil
 import os
-from unittest.case import _AssertRaisesContext
+from pathlib import Path
 
 import pytest
 from sqlalchemy.exc import IntegrityError
@@ -122,17 +122,85 @@ def test_creating_a_project_with_user():
     assert len(Project.query.all()) == 0
     assert len(User.query.all()) == 1
 
-    user.projects.append(Project(project_id='my-project'))
+    user.projects.append(Project(project_id='my-project', folder='a'))
     DB.session.commit()
 
     assert len(Project.query.all()) == 1
     assert len(User.query.all()) == 1
 
+def test_creating_a_project_without_a_path():
+    """Create a project with a valid user"""
+    user = User('cskaandorp', 'Onyx')
+    DB.session.add(user)
+    DB.session.commit()
+    assert len(Project.query.all()) == 0
+    assert len(User.query.all()) == 1
+
+    user.projects.append(Project(project_id='my-project'))
+    with pytest.raises(IntegrityError):
+        DB.session.commit()
+
+    DB.session.rollback()
+    assert len(Project.query.all()) == 0
+    assert len(User.query.all()) == 1
+
+def test_uniqueness_of_project_id():
+    """Create a project with a valid user"""
+    user = User('cskaandorp', 'Onyx')
+    DB.session.add(user)
+    DB.session.commit()
+    assert len(Project.query.all()) == 0
+    assert len(User.query.all()) == 1
+
+    user.projects.append(Project(project_id='my-project', folder='a'))
+    DB.session.commit()
+    assert len(Project.query.all()) == 1
+
+    # add project with same id
+    user.projects.append(Project(project_id='my-project', folder='b'))
+    with pytest.raises(IntegrityError):
+        DB.session.commit()
+
+    DB.session.rollback()
+    assert len(Project.query.all()) == 1
+    assert len(User.query.all()) == 1
+
+def test_uniqueness_of_project_path():
+    """Create a project with a valid user"""
+    user = User('cskaandorp', 'Onyx')
+    DB.session.add(user)
+    DB.session.commit()
+
+    user.projects.append(Project(project_id='my-project', folder='a'))
+    DB.session.commit()
+    assert len(Project.query.all()) == 1
+    
+    # add project with same id
+    user.projects.append(Project(project_id='my-other-project', folder='a'))
+    with pytest.raises(IntegrityError):
+        DB.session.commit()
+
+    DB.session.rollback()
+    assert len(Project.query.all()) == 1
+    assert len(User.query.all()) == 1
+
+def test_project_path():
+    """Test full path of project"""
+    user = User('cskaandorp', 'Onyx')
+    DB.session.add(user)
+    DB.session.commit()
+
+    user.projects.append(Project(project_id='my-project', folder='a'))
+    DB.session.commit()
+    assert len(Project.query.all()) == 1
+    assert user.projects[0].project_path == Path(asreview_path(), 'a')
+
+
 def test_updating_a_project():
     """Update a project, just see if it works and how it
     should be done. This is not a very valuable test."""
     user = User('cskaandorp', 'Onyx')
-    user.projects.append(Project(project_id='my-project'))
+    user.projects.append(Project(project_id='my-project', folder='a'))
     DB.session.add(user)
     DB.session.commit()
     assert len(Project.query.all()) == 1
@@ -153,9 +221,9 @@ def test_deleting_a_project_no_collaboration():
     """Delete a single project from a user. Again, not a valuable
     test, just seeing if it works and how it is done."""
     user = User('cskaandorp', 'Onyx')
-    user.projects.append(Project(project_id='my-project'))
-    user.projects.append(Project(project_id='my-other-project'))
-    user.projects.append(Project(project_id='my-other-other-project'))
+    user.projects.append(Project(project_id='my-project', folder='a'))
+    user.projects.append(Project(project_id='my-other-project', folder='b'))
+    user.projects.append(Project(project_id='my-other-other-project', folder='c'))
     DB.session.add(user)
     DB.session.commit()
     assert len(Project.query.all()) == 3
@@ -172,42 +240,32 @@ def test_deleting_a_project_no_collaboration():
 def test_deleting_a_user_with_projections_no_collaboration():
     """When I destroy a user, all projects have to be destroyed"""
     user = User('cskaandorp', 'Onyx')
-    user.projects.append(Project(project_id='my-project'))
-    user.projects.append(Project(project_id='my-other-project'))
-    user.projects.append(Project(project_id='my-other-other-project'))
+    user.projects.append(Project(project_id='my-project', folder='a'))
+    user.projects.append(Project(project_id='my-other-project', folder='b'))
+    user.projects.append(Project(project_id='my-other-other-project', folder='c'))
     DB.session.add(user)
     DB.session.commit()
     assert len(Project.query.all()) == 3
     assert len(User.query.all()) == 1
 
-    User.query.filter(User.id==1).delete()
+    DB.session.delete(user)
     DB.session.commit()
     assert len(User.query.all()) == 0
-
-    print(Project.query.all())
-
     assert len(Project.query.all()) == 0
 
-
-
-
-
-
-
-
-
-def test_deleting_a_user():
-    pass
-
 def test_deleting_a_project():
-    pass
+    """Destroy a project of a user, no rocket science here"""
+    user = User('cskaandorp', 'Onyx')
+    user.projects.append(Project(project_id='my-project', folder='a'))
+    user.projects.append(Project(project_id='my-other-project', folder='b'))
+    user.projects.append(Project(project_id='my-other-other-project', folder='c'))
+    DB.session.add(user)
+    DB.session.commit()
+    assert len(Project.query.all()) == 3
+    assert len(User.query.all()) == 1
 
-
-
-
-
-
-
-
-
-
+    project = Project.query.filter(Project.project_id=='my-project').one()
+    DB.session.delete(project)
+    DB.session.commit()
+    assert len(Project.query.all()) == 2
+    assert len(User.query.all()) == 1

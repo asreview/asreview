@@ -12,14 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pathlib import Path
+
 from flask_login import UserMixin
-from sqlalchemy import Column, event, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 
+import asreview.utils as utils
 from asreview.webapp import DB
 
+
 class User(UserMixin, DB.Model):
+    """The User model for user accounts."""
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     username = Column(String(50), unique=True)
@@ -27,8 +33,7 @@ class User(UserMixin, DB.Model):
     projects = relationship(
         'Project',
         back_populates='owner',
-        cascade='all, delete',
-        passive_deletes=True
+        cascade='all'
     )
 
     def __init__(self, username=None, password=None):
@@ -36,14 +41,23 @@ class User(UserMixin, DB.Model):
         self.hashed_password = generate_password_hash(password)
 
     def verify_password(self, password):
+        """Verify password"""
         return check_password_hash(self.hashed_password, password)
 
     def __repr__(self):
         return f'<User {self.username!r}, id: {self.id}>'
 
-@event.listens_for(User, 'before_delete')
-def before_delete_user(mapper, connection, target):
-    print('>>>>>>>>>>>>>>> JA <<<<<<<<<<<<<<<<<')
+@DB.event.listens_for(User, 'before_delete')
+def receive_before_delete(_mapper, connection, target):
+    """Deleting a user also means deleting his/her registered
+    projects. This is done 'manually' since cascading doesn't
+    work without configuration in SQLite. An additional argument
+    is that we probably want to avoid deleting users in a
+    collaboration context."""
+    @DB.event.listens_for(Session, 'after_flush', once=True)
+    def receive_after_flush(session, context):
+        for project in target.projects:
+            session.delete(project)
 
 
 class UnauthenticatedUser:
@@ -68,16 +82,22 @@ class Project(DB.Model):
     """Project table"""
     __tablename__ = 'projects'
     id = Column(Integer, primary_key=True)
-    project_id = Column(String(250), nullable=False)
+    project_id = Column(String(250), nullable=False, unique=True)
+    folder = Column(String(100), nullable=False, unique=True)
     owner_id = Column(
         Integer,
-        ForeignKey(User.id, ondelete='CASCADE'),
+        ForeignKey(User.id), #, ondelete='CASCADE'),
         nullable=False
     )
     owner = relationship(
         'User',
         back_populates='projects'
     )
+
+    @property
+    def project_path(self):
+        """Returns full project path"""
+        return Path(utils.asreview_path(), self.folder)
 
     def __repr__(self):
         return f'<Project id: {self.project_id}, owner_id: {self.owner_id}>'
