@@ -1589,6 +1589,14 @@ def api_delete_project(project):  # noqa: F401
     if project.project_path.exists() and project.project_path.is_dir():
         try:
             shutil.rmtree(project.project_path)
+
+            # remove from database as well
+            Project.query.filter(
+                Project.project_id == project.project_id and
+                Project.owner_id == current_user.id
+            ).delete()
+            DB.session.commit()
+
         except Exception as err:
             logging.error(err)
             return jsonify(message="Failed to delete project."), 500
