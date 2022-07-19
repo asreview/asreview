@@ -86,7 +86,7 @@ class Project(DB.Model):
     folder = Column(String(100), nullable=False, unique=True)
     owner_id = Column(
         Integer,
-        ForeignKey(User.id), #, ondelete='CASCADE'),
+        ForeignKey(User.id),
         nullable=False
     )
     owner = relationship(

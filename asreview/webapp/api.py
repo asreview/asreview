@@ -70,9 +70,11 @@ from asreview.state.errors import StateNotFoundError
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.sql_converter import upgrade_project_config
 from asreview.utils import _get_executable, asreview_working_dir
+from asreview.webapp import DB
 from asreview.webapp.authentication.login_required import (
     asreview_login_required
 )
+from asreview.webapp.authentication.models import Project
 from asreview.webapp.io import read_data
 
 bp = Blueprint('api', __name__, url_prefix='/api')
@@ -195,14 +197,26 @@ def api_init_project():  # noqa: F401
             and len(project_id) >= 3:
         raise ValueError("Project name should be at least 3 characters.")
 
+    # generate a project path
+    project_path = get_project_path(project_id, current_user)
+
     project = ASReviewProject.create(
-        get_project_path(project_id, current_user),
+        project_path,
         project_id=project_id,
         project_mode=project_mode,
         project_name=project_name,
         project_description=project_description,
         project_authors=project_authors
     )
+
+    # create a database entry for this project
+    current_user.projects.append(
+        Project(
+            project_id=project_id,
+            folder=project_path.stem
+        )
+    )
+    DB.session.commit()
 
     response = jsonify(project.config)
 
@@ -255,6 +269,7 @@ def api_update_project_info(project):  # noqa: F401
         new_project_name = request.form.get('name')
         # if the name has been changed, process changes
         if project.config['name'] != new_project_name:
+            old_project_id = project.config['id']
             new_project_id = _create_project_id(new_project_name)
             new_project_path = get_project_path(new_project_id, current_user)
             project.rename({
@@ -262,6 +277,17 @@ def api_update_project_info(project):  # noqa: F401
                 'project_id': new_project_id,
                 'project_path': new_project_path
             })
+
+            # update project in the database
+            # ==============================
+            db_project = Project.query.filter(
+                Project.owner_id == current_user.id and
+                Project.project_id == old_project_id
+            ).update({
+                'project_id': new_project_id,
+                'folder': new_project_path.stem
+            })
+            DB.session.commit()
 
     # update the project info
     project.update_config(mode=request.form['mode'],
