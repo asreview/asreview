@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from email.headerregistry import UniqueAddressHeader
 from pathlib import Path
 
 from flask_login import UserMixin
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, Table, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -35,6 +36,11 @@ class User(UserMixin, DB.Model):
         back_populates='owner',
         cascade='all'
     )
+    collaborators = relationship(
+        'Project',
+        secondary='collaborations'
+    )
+
 
     def __init__(self, username=None, password=None):
         self.username = username
@@ -93,6 +99,10 @@ class Project(DB.Model):
         'User',
         back_populates='projects'
     )
+    collaborators = relationship(
+        'User',
+        secondary='collaborations'
+    )
 
     @property
     def project_path(self):
@@ -101,3 +111,13 @@ class Project(DB.Model):
 
     def __repr__(self):
         return f'<Project id: {self.project_id}, owner_id: {self.owner_id}>'
+
+
+class Collaboration(DB.Model):
+    __tablename__ = 'collaborations'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    project_id = Column(Integer, ForeignKey('projects.id'))
+
+    user = relationship(User, back_populates='collaborators', cascade='all')
+    project = relationship(Project, back_populates='collaborators', cascade='all')

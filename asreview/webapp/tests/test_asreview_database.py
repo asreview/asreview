@@ -269,3 +269,22 @@ def test_deleting_a_project():
     DB.session.commit()
     assert len(Project.query.all()) == 2
     assert len(User.query.all()) == 1
+
+def test_add_collaboration():
+    """Verify if I can add a user account"""
+    # verify we start with a clean database
+    assert len(User.query.all()) == 0
+    owner = User('cskaandorp', 'Onyx')
+    coll = User('collabo', 'Collabo')
+    owner.projects.append(Project(project_id='my-project', folder='a'))
+    DB.session.add(owner)
+    DB.session.add(coll)
+    DB.session.commit()
+
+    # verify we have 1 record
+    assert len(User.query.all()) == 2
+    assert len(Project.query.all()) == 1
+    
+    # Now I want to add coll as a collaborator
+    project = Project.query.one()
+    print(project)

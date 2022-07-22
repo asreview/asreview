@@ -463,4 +463,3 @@ def test_delete_project(setup_teardown_signed_in):
     foldername = uuid5(NAMESPACE_URL, f'{user.id}_{project.project_id}').hex
     assert project.folder == foldername
     assert Path(asreview_path(), foldername).exists() == True
-
