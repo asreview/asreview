@@ -113,7 +113,7 @@ RUN pip install /EXT/.
 Then, when the image is build, it will have the package installed and ready for
 usage in your version of ASReview.
 
-Note: Alternatively, point the `COPY`line a local folder containing the
+Note: Alternatively, point the `COPY` line a local folder containing the
 extension. This way, the image folder won't need a copy of the extension. This is
 useful if you rapidly want to test your extension in a Docker container.
 
