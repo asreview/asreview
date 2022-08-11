@@ -613,13 +613,13 @@ def is_converted_project(fp):
 
     if project_config_old['version'][0] != '0':
         return False
-    
+
     # Check if the current project.json has 'state_version' == 1.
     with open(Path(fp, 'project.json'), 'r') as f:
         project_config_current = json.load(f)
 
     try:
-        current_state_version  = project_config_current['state_version']
+        current_state_version = project_config_current['state_version']
     except KeyError:
         return False
 

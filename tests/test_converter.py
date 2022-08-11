@@ -11,8 +11,8 @@ from asreview.state.legacy.utils import open_state as open_state_legacy
 from asreview.state.legacy.utils import state_from_file
 from asreview.state.sql_converter import (
     is_converted_project,
-    upgrade_asreview_project_file,
-    rollback_conversion
+    rollback_conversion,
+    upgrade_asreview_project_file
 )
 
 OLD_STATE_FP = Path('tests', 'asreview_files',
