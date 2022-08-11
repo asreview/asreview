@@ -572,3 +572,58 @@ def create_decision_changes_table(sql_fp):
                                     time INTEGER)''')
 
         con.commit()
+
+
+def rollback_conversion(fp, from_version=1, to_version=0):
+    if from_version != 1 and to_version != 0:
+        raise ValueError(
+            f"Not possible to roll back conversion from v{from_version} "
+            f"to v{to_version}."
+        )
+
+    if not is_converted_project(fp):
+        raise ValueError(f"Project file at {fp} is not a converted "
+                         f"project file.")
+
+    fp = Path(fp)
+    legacy_fp = Path(fp, 'legacy')
+
+    # Delete everything other than the legacy folder.
+    for item in fp.iterdir():
+        if item.is_file():
+            item.unlink()
+        elif item.is_dir() and (item.name != 'legacy'):
+            shutil.rmtree(item)
+        else:
+            pass
+
+    # Copy from legacy folder and delete it after.
+    shutil.copytree(legacy_fp, fp, dirs_exist_ok=True)
+    shutil.rmtree(legacy_fp)
+
+
+def is_converted_project(fp):
+    """Check if asreview file has been converter from v0 to v1."""
+    # Check if there is a legacy project.json and it has v0.
+    try:
+        with open(Path(fp, 'legacy', 'project.json'), 'r') as f:
+            project_config_old = json.load(f)
+    except FileNotFoundError:
+        return False
+
+    if project_config_old['version'][0] != '0':
+        return False
+    
+    # Check if the current project.json has 'state_version' == 1.
+    with open(Path(fp, 'project.json'), 'r') as f:
+        project_config_current = json.load(f)
+
+    try:
+        current_state_version  = project_config_current['state_version']
+    except KeyError:
+        return False
+
+    if current_state_version[0] == "1":
+        return True
+    else:
+        return False

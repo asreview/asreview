@@ -1,12 +1,19 @@
 import json
 from pathlib import Path
 from shutil import copyfile
+from shutil import make_archive
 from zipfile import ZipFile
 
 from asreview.project import ASReviewProject
 from asreview.project import open_state
+from asreview.state.legacy.json import JSONState
 from asreview.state.legacy.utils import open_state as open_state_legacy
-from asreview.state.sql_converter import upgrade_asreview_project_file
+from asreview.state.legacy.utils import state_from_file
+from asreview.state.sql_converter import (
+    is_converted_project,
+    upgrade_asreview_project_file,
+    rollback_conversion
+)
 
 OLD_STATE_FP = Path('tests', 'asreview_files',
                     'test_converter_example_old.asreview')
@@ -72,3 +79,14 @@ def test_converter(tmpdir):
     # Check that the contents are the same.
     compare_state_to_converted(Path(converted_fp, 'legacy', 'result.json'),
                                converted_fp)
+
+    # Check if the rollback works.
+    assert is_converted_project(converted_fp)
+    rollback_conversion(converted_fp)
+
+    # Zip the converted file to allow for reading it.
+    zipped_fp = make_archive(Path(tmpdir, 'zipped'), 'zip', converted_fp)
+    zipped_fp = Path(zipped_fp).rename(Path(tmpdir, 'zipped.asreview'))
+
+    state = state_from_file(zipped_fp)[zipped_fp.name]
+    assert isinstance(state, JSONState)
