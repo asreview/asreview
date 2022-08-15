@@ -228,7 +228,7 @@ Classifier
 ~~~~~~~~~~
 
 The classifier is the machine learning model used to compute the relevance
-scores. The default is Naive Bayes, though relatively simplistic, it seems to
+scores. The default is Naive Bayes. Though relatively simplistic, it seems to
 work quite well on a wide range of datasets. Several other classifiers are
 available in the software (logistic regression, random forest, SVM, LSTM,
 neural net) and more classifiers can be selected via the :doc:`API
