@@ -217,7 +217,7 @@ package. Before starting ASReview LAB first intall gensim:
 
   It takes relatively long to create a feature matrix with Doc2Vec, but this
   only has to be done once. The upside of this method is that it takes context
-  into accound. Also, a benifit is the dimension-reduction that generally
+  into account. Also, a benefit is the dimension-reduction that generally
   takes place, which makes the modeling quicker.
 
 Several other feature extractors are available in the software (sentence Bert,
