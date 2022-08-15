@@ -88,33 +88,24 @@ will provide the most information.
 The export files of the following search engines have been tested for their
 acceptance in ASReview:
 
-+-----------------+----------+----------+----------+-----------+
-|                 | **.ris** | **.tsv** | **.csv** |  **.xlsx**|
-|                 |          |          |          |           |
-+-----------------+----------+----------+----------+-----------+
-|**CINHAL**       | X        | N/A      | X        | N/A       |
-|**(EBSCO)**      |          |          |          |           |
-+-----------------+----------+----------+----------+-----------+
-|**Cochrane**     | ✅       | N/A      | ✅       | N/A       |
-+-----------------+----------+----------+----------+-----------+
-| **Embase**      | ✅       | N/A      | ✅       | ✅        |
-+-----------------+----------+----------+----------+-----------+
-|**Eric (Ovid)**  | X        | N/A      | N/A      | X         |
-+-----------------+----------+----------+----------+-----------+
-|**Psychinfo**    | X        | N/A      | N/A      | X         |
-|**(Ovid)**       |          |          |          |           |
-+-----------------+----------+----------+----------+-----------+
-| **Pubmed**      | X        | N/A      | X        | N/A       |
-+-----------------+----------+----------+----------+-----------+
-| **Scopus**      | ✅       | N/A      | ✅       | N/A       |
-+-----------------+----------+----------+----------+-----------+
-|**Web of**       | X        | X        | N/A      | N/A       |
-|**Science**      |          |          |          |           |
-+-----------------+----------+----------+----------+-----------+
+==================== ======== ======== ======== =========
+\                    **.ris** **.tsv** **.csv** **.xlsx**
+==================== ======== ======== ======== =========
+**CINAHL (EBSCO)**   ✅       N/A      X        N/A
+**Cochrane**         ✅       N/A      ✅       N/A
+**Embase**           ✅       N/A      ✅       ✅
+**Eric (Ovid)**      ✅*      N/A      N/A      N/A
+**Psychinfo (Ovid)** ✅*      N/A      N/A      N/A
+**Pubmed**           X        N/A      X        N/A
+**Scopus**           ✅       N/A      ✅       N/A
+**Web of Science**   ✅       N/A      N/A      N/A
+==================== ======== ======== ======== =========
 
 -  ✅ = The data can be exported from the search engine and imported in ASReview.
 -  N/A = This format does not exist.
--  X = Not supported.
+-  X = Not supported, (see :ref:`data_format:Data format` for other options).
+
+\* Make sure to uncheck all inclusion options (e.g., "URL") when exporting from Ovid.
 
 .. warning::
 
