@@ -91,7 +91,7 @@ acceptance in ASReview:
 ==================== ======== ======== ======== =========
 \                    **.ris** **.tsv** **.csv** **.xlsx**
 ==================== ======== ======== ======== =========
-**CINAHL (EBSCO**)   ✅       N/A      ☑️       N/A
+**CINAHL (EBSCO**)   ✅       N/A      N/A      N/A
 **Cochrane**         ✅       N/A      ✅       N/A
 **Embase**           ✅       N/A      ✅       ✅
 **Eric (Ovid)**      ✅*      N/A      N/A      N/A
@@ -102,10 +102,8 @@ acceptance in ASReview:
 ==================== ======== ======== ======== =========
 
 -  ✅ = The data can be exported from the search engine and imported in ASReview.
--  ☑️ = The data can be exported from the search engine and imported in ASReview after
-   adjusting column names (see :ref:`data_format:Data format`).
 -  N/A = This format does not exist.
--  X = Not supported.
+-  X = Not supported, (see :ref:`data_format:Data format` for other options).
 
 \* Make sure to uncheck all inclusion options (e.g., "URL") when exporting from Ovid.
 
