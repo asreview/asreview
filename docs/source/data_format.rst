@@ -110,7 +110,7 @@ default mapping can be found on the `rispy GitHub page <https://github.com/MrTan
 
 .. tip:: 
 
-  Labeling decissions ``ASReview_relevant``, ``ASReview_irrelevant``, and
+  The labels ``ASReview_relevant``, ``ASReview_irrelevant``, and
   ``ASReview_not_seen`` are stored with the N1 (Notes) tag. In citation managers
   Zotero and Endnote the labels can be used for making selections; see the
   screenshots or watch the `instruction video  <https://www.youtube.be/-Rw291AE20I>`_. 
