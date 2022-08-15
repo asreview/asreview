@@ -127,8 +127,8 @@ Or the following on Windows operating systems:
 	echo %ASREVIEW_PATH%
 
 
-Run on a different port
------------------------
+Run ASReview LAB on localhost with a different port
+---------------------------------------------------
 
 By default, ASReview LAB runs on port 5000. If that port is already in use or
 if you want to specify a different port, start ASReview LAB with the following
