@@ -51,17 +51,17 @@ when to stop.
 
   If you are in doubt about your decision, take your time as you are the
   oracle. Based on your input, a new model will be trained, and you do not
-  want to confuse the prediction mode. For the model it may be better to
-  consult others, read the full-text (in case of reviewing abstracts of
+  want to confuse the prediction mode. For the model, it may be better to
+  consult others, and read the full text (in case of reviewing abstracts of
   scientific papers)
 
 Screening in Exploration mode
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The Exploration mode is usefull for teaching purposes, because a blue bar is
+The Exploration mode is useful for teaching purposes because a blue bar is
 displayed on top of the record indicating whether the record has been labeled
 relevant or irrelevant in the dataset. You can make the same labeling
-decission without the need of being the oracle. 
+decision without the need to be the oracle. 
 
 .. figure:: ../images/project_screening_exploration.png
    :alt: ASReview Screening
