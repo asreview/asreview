@@ -12,7 +12,7 @@ from asreview import ASReviewData
 def test_bad_record_id():
     data_fp = Path("tests", "demo_data", "generic_bad_record_id.csv")
     as_data = ASReviewData.from_file(data_fp)
-    assert(len(np.unique(as_data.df.index.values)) == len(as_data))
+    assert len(np.unique(as_data.df.index.values)) == len(as_data)
 
 
 def test_record_id():
