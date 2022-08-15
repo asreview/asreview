@@ -15,9 +15,9 @@ in the field of systematically reviewing large amounts of text data.
 There are still 1001 scientific papers that can be published using the
 ASReview products. We welcome researchers worldwide to work on papers like
 applying the existing models to new types of datasets (different scientific
-fields, other languages, multilanguage data, text data outside acadmia, ulta
+fields, other languages, multilanguage data, text data outside academia,
 large datasets, etcetera), adding new models and testing the performance on
-the available benchmark datasets, adding and testing new stopping ruls or
+the available benchmark datasets, adding and testing new stopping rules or
 performance metrics, and so on! 
 
 

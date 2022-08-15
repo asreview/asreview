@@ -115,7 +115,7 @@ clicking again on *Mark as in review*.
 Export results
 --------------
 
-You can export the results of your labeling decissions to a RIS, CSV, TSV or Excel file.
+You can export the results of your labeling to a RIS, CSV, TSV, or Excel file.
 A file contains all imported data including your decisions. 
 
 The following variables will be added to your dataset:
