@@ -55,7 +55,7 @@ class RISReader():
             return note_list
 
     def _label_parser(note_list):
-        """Converter function for manipulating the internal "included" and "notes" columns.
+        """Parse "included" and "notes" columns.
 
         Arguments
         ---------
