@@ -98,7 +98,7 @@ acceptance in ASReview:
 **Psychinfo (Ovid)** ✅*      N/A      N/A      N/A
 **Pubmed**           X        N/A      X        N/A
 **Scopus**           ✅       N/A      ✅       N/A
-**Web of Science**   X        N/A      N/A      N/A
+**Web of Science**   ✅       N/A      N/A      N/A
 ==================== ======== ======== ======== =========
 
 -  ✅ = The data can be exported from the search engine and imported in ASReview.
@@ -107,7 +107,7 @@ acceptance in ASReview:
 -  N/A = This format does not exist.
 -  X = Not supported.
 
-* Make sure to uncheck all inclusion options (e.g., "Include abstracts") when exporting
+* Make sure to uncheck all inclusion options (e.g., "URL") when exporting
   from Ovid.
 
 .. warning::
