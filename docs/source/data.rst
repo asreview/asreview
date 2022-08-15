@@ -107,8 +107,7 @@ acceptance in ASReview:
 -  N/A = This format does not exist.
 -  X = Not supported.
 
-* Make sure to uncheck all inclusion options (e.g., "URL") when exporting
-  from Ovid.
+\* Make sure to uncheck all inclusion options (e.g., "URL") when exporting from Ovid.
 
 .. warning::
 
