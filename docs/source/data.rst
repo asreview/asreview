@@ -91,7 +91,7 @@ acceptance in ASReview:
 ==================== ======== ======== ======== =========
 \                    **.ris** **.tsv** **.csv** **.xlsx**
 ==================== ======== ======== ======== =========
-**CINAHL (EBSCO**)   ✅       N/A      X        N/A
+**CINAHL (EBSCO)**   ✅       N/A      X        N/A
 **Cochrane**         ✅       N/A      ✅       N/A
 **Embase**           ✅       N/A      ✅       ✅
 **Eric (Ovid)**      ✅*      N/A      N/A      N/A
