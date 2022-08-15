@@ -252,7 +252,7 @@ Balancing Strategy
 
 To decrease the class imbalance in the training data, the default is to
 rebalance the training set by a technique called dynamic resampling (DR)
-(`Ferdinands et al., 2020 <https://doi.org/10.31219/osf.io/w6qbg>`_).  DR
+(`Ferdinands et al., 2020 <https://doi.org/10.31219/osf.io/w6qbg>`_). DR
 undersamples the number of irrelevant records in the training data, whereas
 the number of relevant records are oversampled such that the size of the
 training data remains the same. The ratio between relevant and irrelevant
