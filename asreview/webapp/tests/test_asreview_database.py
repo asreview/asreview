@@ -52,7 +52,7 @@ def setup_teardown_standard():
         yield app
         DB.session.query(Project).delete()
         DB.session.query(User).delete()
-        # DB.session.query(Collaboration).delete()
+        DB.session.query(Collaboration).delete()
         DB.session.commit()
 
 
@@ -309,26 +309,56 @@ def test_add_collaboration():
     assert coll1 in owner.projects[0].collaborators
     assert coll2 in owner.projects[0].collaborators
 
+def test_list_projects_in_which_i_am_collaborating():
+    """Verify I can list projects in which a user is collaborating"""
+    # verify we start with a clean database
+    assert len(User.query.all()) == 0
+    assert len(Project.query.all()) == 0
+    assert len(Collaboration.query.all()) == 0
+
+    owner = User('cskaandorp', 'Onyx')
+    coll1 = User('coll_1', 'Collabo')
+    owner.projects.append(Project(project_id='my-project', folder='a'))
+    coll1.projects.append(Project(project_id='other-project', folder='b'))
+    DB.session.add_all([owner, coll1])
+    DB.session.commit()
+
+    # verify we have 2 users and 2 projects
+    assert len(User.query.all()) == 2
+    assert len(Project.query.all()) == 2
+
+    # add coll1 to my-project
+    project = owner.projects[-1]
+    project.collaborators.append(coll1)
+    DB.session.commit()
+
+    # check if coll1 can reach this project
+    assert coll1.involved_in == [project]
+    assert coll1.involved_in[0].project_id == 'my-project'
+    assert coll1.projects[0].project_id == 'other-project'
+
 def test_removing_a_collaborator():
     """Verify if I can remove a collaborator from a project"""
     # verify we start with a clean database
     assert len(User.query.all()) == 0
+    assert len(Project.query.all()) == 0
+    assert len(Collaboration.query.all()) == 0
+
     owner = User('cskaandorp', 'Onyx')
-    coll1 = User('collabo1', 'Collabo')
-    coll2 = User('collabo2', 'Collabo')
+    coll1 = User('coll_1', 'Collabo')
+    coll2 = User('coll_2', 'Collabo')
     owner.projects.append(Project(project_id='my-project', folder='a'))
-    DB.session.add(owner)
-    DB.session.add(coll1, coll2)
+    DB.session.add_all([owner, coll1, coll2])
     DB.session.commit()
 
     # verify we have 1 record
-    assert len(User.query.all()) == 2
+    assert len(User.query.all()) == 3
     assert len(Project.query.all()) == 1
-    
-    # Now I want to add coll as a collaborator
-    project = owner.projects[0]
+
     # assert there are no collaborators
+    project = owner.projects[-1]
     assert len(project.collaborators) == 0
+    # add collaborators
     project.collaborators.append(coll1)
     project.collaborators.append(coll2)
     DB.session.commit()
@@ -342,9 +372,32 @@ def test_removing_a_collaborator():
 
     # assert one collaborator is gone
     assert len(project.collaborators) == 1
+    # and the remaining collaborators is still there
+    assert project.collaborators == [coll1]
 
+def test_removing_project_removes_collaborations():
+    """If a project is destroyed, all collaborator links should be removed"""
+    # verify we start with a clean database
+    assert len(User.query.all()) == 0
+    assert len(Project.query.all()) == 0
+    assert len(Collaboration.query.all()) == 0
 
+    # create project and add collaborators
+    owner = User('cskaandorp', 'Onyx')
+    coll1 = User('coll_1', 'Collabo')
+    coll2 = User('coll_2', 'Collabo')
+    owner.projects.append(Project(project_id='my-project', folder='a'))
+    DB.session.add_all([owner, coll1, coll2])
+    owner.projects[-1].collaborators = [coll1, coll2]
+    DB.session.commit()
 
+    # assert we have to 2 collaborations
+    assert len(owner.projects[-1].collaborators) == 2
 
+    # now remove the project
+    DB.session.delete(owner.projects[-1])
 
-
+    # assert we still have 3 users
+    assert len(User.query.all()) == 3
+    # and no collaborations
+    assert len(Collaboration.query.all()) == 0

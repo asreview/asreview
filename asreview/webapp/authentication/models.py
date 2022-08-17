@@ -34,7 +34,7 @@ class User(UserMixin, DB.Model):
     projects = relationship(
         'Project',
         back_populates='owner',
-        cascade='all, delete-orphan'
+        cascade='all, delete'
     )
     involved_in = relationship(
         'Project',
@@ -52,18 +52,6 @@ class User(UserMixin, DB.Model):
 
     def __repr__(self):
         return f'<User {self.username!r}, id: {self.id}>'
-
-@DB.event.listens_for(User, 'before_delete')
-def receive_before_delete(_mapper, connection, target):
-    """Deleting a user also means deleting his/her registered
-    projects. This is done 'manually' since cascading doesn't
-    work without configuration in SQLite. An additional argument
-    is that we probably want to avoid deleting users in a
-    collaboration context."""
-    @DB.event.listens_for(Session, 'after_flush', once=True)
-    def receive_after_flush(session, context):
-        for project in target.projects:
-            session.delete(project)
 
 
 class UnauthenticatedUser:
@@ -84,6 +72,19 @@ class UnauthenticatedUser:
         return f'<UnauthenticatedUser>'
 
 
+class Collaboration(DB.Model):
+    __tablename__ = 'collaborations'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(
+        Integer,
+        ForeignKey('users.id', ondelete='cascade')
+    )
+    project_id = Column(
+        Integer,
+        ForeignKey('projects.id', ondelete='cascade')
+    )
+
+
 class Project(DB.Model):
     """Project table"""
     __tablename__ = 'projects'
@@ -99,11 +100,12 @@ class Project(DB.Model):
         'User',
         back_populates='projects'
     )
+    # do not delete cascade: we don't want to 
+    # lose users, only collaborations
     collaborators = relationship(
         'User',
         secondary='collaborations',
         back_populates='involved_in'
-        # cascade='all, delete-orphan'
     )
 
     @property
@@ -113,16 +115,3 @@ class Project(DB.Model):
 
     def __repr__(self):
         return f'<Project id: {self.project_id}, owner_id: {self.owner_id}>'
-
-
-class Collaboration(DB.Model):
-    __tablename__ = 'collaborations'
-    id = Column(Integer, primary_key=True)
-    user_id = Column(
-        Integer,
-        ForeignKey('users.id', ondelete='cascade')
-    )
-    project_id = Column(
-        Integer,
-        ForeignKey('projects.id', ondelete='cascade')
-    )
