@@ -22,7 +22,7 @@ from sqlalchemy.exc import IntegrityError
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import (
-    User, Project
+    Collaboration, User, Project
 )
 from asreview.webapp.start_flask import create_app
 
@@ -52,6 +52,7 @@ def setup_teardown_standard():
         yield app
         DB.session.query(Project).delete()
         DB.session.query(User).delete()
+        # DB.session.query(Collaboration).delete()
         DB.session.commit()
 
 
@@ -223,7 +224,10 @@ def test_deleting_a_project_no_collaboration():
     user = User('cskaandorp', 'Onyx')
     user.projects.append(Project(project_id='my-project', folder='a'))
     user.projects.append(Project(project_id='my-other-project', folder='b'))
-    user.projects.append(Project(project_id='my-other-other-project', folder='c'))
+    user.projects.append(Project(
+        project_id='my-other-other-project',
+        folder='c')
+    )
     DB.session.add(user)
     DB.session.commit()
     assert len(Project.query.all()) == 3
@@ -242,7 +246,10 @@ def test_deleting_a_user_with_projections_no_collaboration():
     user = User('cskaandorp', 'Onyx')
     user.projects.append(Project(project_id='my-project', folder='a'))
     user.projects.append(Project(project_id='my-other-project', folder='b'))
-    user.projects.append(Project(project_id='my-other-other-project', folder='c'))
+    user.projects.append(Project(
+        project_id='my-other-other-project',
+        folder='c')
+    )
     DB.session.add(user)
     DB.session.commit()
     assert len(Project.query.all()) == 3
@@ -258,7 +265,10 @@ def test_deleting_a_project():
     user = User('cskaandorp', 'Onyx')
     user.projects.append(Project(project_id='my-project', folder='a'))
     user.projects.append(Project(project_id='my-other-project', folder='b'))
-    user.projects.append(Project(project_id='my-other-other-project', folder='c'))
+    user.projects.append(Project(
+        project_id='my-other-other-project',
+        folder='c')
+    )
     DB.session.add(user)
     DB.session.commit()
     assert len(Project.query.all()) == 3
@@ -271,14 +281,15 @@ def test_deleting_a_project():
     assert len(User.query.all()) == 1
 
 def test_add_collaboration():
-    """Verify if I can add a user account"""
+    """Verify if I can add a collaborator's user account to a project"""
     # verify we start with a clean database
     assert len(User.query.all()) == 0
     owner = User('cskaandorp', 'Onyx')
-    coll = User('collabo', 'Collabo')
+    coll1 = User('collabo1', 'Collabo')
+    coll2 = User('collabo2', 'Collabo')
     owner.projects.append(Project(project_id='my-project', folder='a'))
     DB.session.add(owner)
-    DB.session.add(coll)
+    DB.session.add(coll1, coll2)
     DB.session.commit()
 
     # verify we have 1 record
@@ -286,5 +297,54 @@ def test_add_collaboration():
     assert len(Project.query.all()) == 1
     
     # Now I want to add coll as a collaborator
-    project = Project.query.one()
-    print(project)
+    project = owner.projects[0]
+    # assert there are no collaborators
+    assert len(project.collaborators) == 0
+    project.collaborators.append(coll1)
+    project.collaborators.append(coll2)
+    DB.session.commit()
+
+    # assert there are collaborators
+    assert len(project.collaborators) == 2
+    assert coll1 in owner.projects[0].collaborators
+    assert coll2 in owner.projects[0].collaborators
+
+def test_removing_a_collaborator():
+    """Verify if I can remove a collaborator from a project"""
+    # verify we start with a clean database
+    assert len(User.query.all()) == 0
+    owner = User('cskaandorp', 'Onyx')
+    coll1 = User('collabo1', 'Collabo')
+    coll2 = User('collabo2', 'Collabo')
+    owner.projects.append(Project(project_id='my-project', folder='a'))
+    DB.session.add(owner)
+    DB.session.add(coll1, coll2)
+    DB.session.commit()
+
+    # verify we have 1 record
+    assert len(User.query.all()) == 2
+    assert len(Project.query.all()) == 1
+    
+    # Now I want to add coll as a collaborator
+    project = owner.projects[0]
+    # assert there are no collaborators
+    assert len(project.collaborators) == 0
+    project.collaborators.append(coll1)
+    project.collaborators.append(coll2)
+    DB.session.commit()
+
+    # assert there are 2 collaborators
+    assert len(project.collaborators) == 2
+
+    # remove collaborator 2
+    owner.projects[0].collaborators.remove(coll2)
+    DB.session.commit()
+
+    # assert one collaborator is gone
+    assert len(project.collaborators) == 1
+
+
+
+
+
+

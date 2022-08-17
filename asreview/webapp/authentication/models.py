@@ -34,13 +34,13 @@ class User(UserMixin, DB.Model):
     projects = relationship(
         'Project',
         back_populates='owner',
-        cascade='all'
+        cascade='all, delete-orphan'
     )
-    collaborators = relationship(
+    involved_in = relationship(
         'Project',
-        secondary='collaborations'
+        secondary='collaborations',
+        back_populates='collaborators'
     )
-
 
     def __init__(self, username=None, password=None):
         self.username = username
@@ -101,7 +101,9 @@ class Project(DB.Model):
     )
     collaborators = relationship(
         'User',
-        secondary='collaborations'
+        secondary='collaborations',
+        back_populates='involved_in'
+        # cascade='all, delete-orphan'
     )
 
     @property
@@ -116,8 +118,11 @@ class Project(DB.Model):
 class Collaboration(DB.Model):
     __tablename__ = 'collaborations'
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    project_id = Column(Integer, ForeignKey('projects.id'))
-
-    user = relationship(User, back_populates='collaborators', cascade='all')
-    project = relationship(Project, back_populates='collaborators', cascade='all')
+    user_id = Column(
+        Integer,
+        ForeignKey('users.id', ondelete='cascade')
+    )
+    project_id = Column(
+        Integer,
+        ForeignKey('projects.id', ondelete='cascade')
+    )
