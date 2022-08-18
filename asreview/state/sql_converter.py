@@ -584,10 +584,11 @@ def create_decision_changes_table(sql_fp):
 
         con.commit()
 
+
 # Disable is_converted_check.
 def rollback_conversion(fp,
-                        from_version=1, 
-                        to_version=0, 
+                        from_version=1,
+                        to_version=0,
                         check_is_converted=True):
     if from_version != 1 and to_version != 0:
         raise ValueError(
