@@ -183,7 +183,6 @@ It is possible to change the settings of the Active learning model. There are
 four ingredients that can be changed in the software: the type of classifier,
 the query strategy, balance strategy, and the feature extraction technique.
 
-
 The classifier is the machine learning model used to compute the relevance
 scores. The available classifiers are Naive Bayes, Support Vector
 Machine, Logistic Regression, and Random Forest. More classifiers can be
