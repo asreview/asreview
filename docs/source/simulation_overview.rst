@@ -5,9 +5,9 @@ What is a simulation?
 ---------------------
 
 A simulation involves mimicking the screening process with a certain model. As
-it is already known which records are labeled relevant, the software can
+it is already known which records are labeled as relevant, the software can
 automatically reenact the screening process as if a human was labeling the
-records.
+records in interaction with the Active Learning model.
 
 Why run a simulation?
 ---------------------
@@ -36,7 +36,7 @@ Datasets for simulation
 
 Simulations require :ref:`fully labeled datasets <data_labeled:fully labeled data>` (labels: ``0`` = irrelevant, ``1`` = relevant). Such a dataset can be the result of an earlier study. ASReview offers also fully labeled datasets via the `benchmark platform <https://github.com/asreview/systematic-review-datasets>`_. These datasets are available via the user interface in the *Data* step of the setup and in the command line with the prefix `benchmark:` (e.g. `benchmark:van_de_schoot_2017`).
 
-.. warning::
+.. tip::
 
     When you import your data, make sure to remove duplicates and to retrieve
     as many abstracts as possible (`See Importance-of-abstracts blog for help
@@ -47,11 +47,11 @@ Simulations require :ref:`fully labeled datasets <data_labeled:fully labeled dat
 Simulating with ASReview LAB
 ----------------------------
 
-ASReview LAB offers three different solutions to run simulations:
+ASReview LAB offers three different solutions to run simulations with the:
 
-- With the :ref:`webapp (the frontend) <simulation_overview:simulate with webapp>`
-- With the :doc:`command line interface <simulation_cli>`
-- With the :doc:`Python API <simulation_api_example>`
+- :ref:`Webapp (the frontend) <simulation_overview:simulate with webapp>`
+- :doc:`Command line <simulation_cli>`
+- :doc:`Python API <simulation_api_example>`
 
 Simulate with webapp
 --------------------
@@ -69,19 +69,16 @@ mode (see figure below).
 In the step *Data*, import a :ref:`fully labeled dataset <data_labeled:fully labeled data>`
 or use one of the benchmark datasets.
 
-.. figure:: ../images/setup_datasets_simulate_benchmark.png
-   :alt: ASReview LAB benchmark datasets
-
 Selecting prior knowledge is relatively easy. In case you know relevant
 records to start with, use the search function. In case you don't, use the
 *Random* option. Toggle the button "Relevant" on top to see some random
 irrelevant records. Label some relevant and some irrelevant records.
 
-.. figure:: ../images/setup_datasets_simulate_benchmark.png
-   :alt: ASReview LAB benchmark datasets
+.. figure:: ../images/setup_prior_knowledge_random_simulate.png
+   :alt: ASReview LAB Prior selection for simulation study
 
 The step *Warm up* is differs slightly from the Oracle and Exploration mode.
-This step start the simulation, after some seconds, it will return "Got it".
+This step starts the simulation, after some seconds, it will return "Got it".
 This means, the simulation runs further in the background. You are returned to
 the Analytics page.
 
@@ -100,9 +97,10 @@ Analyzing results
 
 After a simulation, the results are stored in the ASReview project file
 (extension `.asreview`). This file contains a large number of variables and
-logs on the simulation. The data can be extracted from the project file via the API or with one of the available extensions. See :doc:`these examples on the Project API <example_api_asreview_file>` for more information about opening the project file. An easier solution would be to use one of the extensions. ASReview Insights is a useful example.
+logs on the simulation. The data can be extracted from the project file via the API or with one of the available extensions. See :doc:`these examples on the Project API <example_api_asreview_file>` for more information about opening the project file. 
 
-The extension `ASReview Insights <https://github.com/asreview/asreview-insights>`_ offers useful tools, like plotting functions and metrics, to analyze results of a simulation.
+An easier solution would be to use the extension `ASReview Insights <https://github.com/asreview/asreview-insights>`_, which offers useful tools,
+like plotting functions and metrics, to analyze results of a simulation.
 
 Install ASReview Insights directly from PyPi:
 
@@ -111,10 +109,4 @@ Install ASReview Insights directly from PyPi:
 	pip install asreview-insights
 
 Detailed documention can found on the `ASReview Insights GitHub <https://github.com/asreview/asreview-insights>`_ page.
-
-The following command returns the recall at any moment during the simulation:
-
-.. code-block:: bash
-
-	asreview plot recall MY_SIMULATION.asreview
 
