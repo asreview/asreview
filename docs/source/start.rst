@@ -85,17 +85,7 @@ The following evironment variables are available.
 
 .. option:: ASREVIEW_PATH
 
-	The path to the folder with project. Default `~/.asreview`, or search the location in Windows with 
-
-  .. code:: bash
-
-  dir "\.asreview"/ s
-
-  In MacOS or Linux operating systems use
-
-  .. code:: bash
-
-  find / -type d -name ".asreview"
+	The path to the folder with project. Default `~/.asreview`.
 
 
 How you set environment variables depends on the operating system and the
