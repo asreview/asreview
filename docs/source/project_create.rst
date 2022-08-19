@@ -104,7 +104,7 @@ Select Prior Knowledge
 .. note::
   If you use :ref:`data_labeled:Partially labeled data` you can skip this step. 
 
-The first iteration of the active learning cycle requires traning data,
+The first iteration of the active learning cycle requires training data,
 referred to as prior knowledge. This knowledge is used by the classifier to
 create an initial ranking of the unseen records. In this step, you need to
 provide a minimum training data set of size two, with **at least** one
@@ -207,7 +207,7 @@ Frequency-Inverse Document Frequency) from `SKLearn <https://scikit-learn.org/st
 It works well in combination with Naive Bayes and other fast training models.
 
 Another recommended option is Doc2Vec provided by the `gensim <https://radimrehurek.com/gensim/>`_
-package. Before starting ASReview LAB first intall gensim:
+package. Before starting ASReview LAB, first, install *gensim*:
 
 .. code:: bash
 
@@ -269,7 +269,7 @@ Query Strategy
 
 The query strategy determines which document is shown after the model has
 computed the relevance scores. The options are: maximum (certainty-based),
-uncertainty, random and clustering. When certainty-based is selected, the
+uncertainty, random, and clustering. When certainty-based is selected, the
 documents are shown in the order of relevance score. The document most likely
 to be relevant is shown first. When mixed is selected, the next document will
 be selected certainty-based 95% of the time, and uncertainty based or randomly
@@ -279,7 +279,7 @@ via the :doc:`API <reference>` or added via an :ref:`extensions_dev:model
 extensions`.
 
 .. warning::
-  Selecting random means your review is not going to be accelerated by using ASReview.
+  Selecting *random* means your review will not be accelerated by using ASReview.
 
 Model switching 
 ~~~~~~~~~~~~~~~
@@ -294,16 +294,16 @@ based on the second model.
 
 .. tip::
 
-  It is suggested to first screen with a simple active learning model (e.g.,
-  the defaults) untill you reach your stopping criteria, then switch to a
-  different model (e.g., doc2vec plus a neural net) and screen again untill
+  It is suggested to screen with a simple active learning model (e.g.,
+  the defaults) first until you reach your stopping criteria, then switch to a
+  different model (e.g., doc2vec plus a neural net) and screen again until
   you reach your stopping criteria.
 
 Warm up
 =======
 
-In the last step of the setup, step 4, ASReview LAB runs the feature extracter
-and trains a model and ranks the records in your dataset. Depending on the
+In the last step of the setup, step 4, ASReview LAB runs the feature extractor
+and trains a model, and ranks the records in your dataset. Depending on the
 model and the size of your dataset, this can take a couple of minutes (or even
 longer; you can enjoy the `animation video <https://www.youtube.com/watch?v=k-a2SCq-LtA>`_). After the project is successfully
 initialized, you can start reviewing.

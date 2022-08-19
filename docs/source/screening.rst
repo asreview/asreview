@@ -24,22 +24,22 @@ Screening in Oracle mode
 
 In the Oracle mode, unlabeled records are presented to you. Depending on the
 selected strategy it is the most likely relevant record (default
-setting) or based on anothter :ref:project_create:Query Strategy.  
+setting) or based on another:ref:project_create:Query Strategy.  
 
-Click on the decision of your choice, and new record is presented to you. While
+Click on the decision of your choice, and a new record is presented to you. While
 you review the next record, a new model is being trained. ASReview LAB
 continuously improves its understanding of your decisions, constantly updating
 the underlying ordering of the records.
 
-Each labeling decision of the user starts the training  of a new model given
-there is no model being trained at that time. When this new model is trained,
+Each labeling decision of the user starts the training of a new model given
+no model is being trained at that time. When this new model is trained,
 the unseen records' rank order is updated. Training and labeling occur
-asynchronous. With fast models, a new ranking will probably be available
-before the user finished reading the text. With slower models, training
+asynchronously. With fast models, a new ranking will probably be available
+before the user finishes reading the text. With slower models, training
 continues until a new model is trained, and the user can continue screening
 the next record in line (2nd, 3rd, etc.). Therefore, the record shown to the
 user can be the one with the highest relevance score of the second last model
-or the highest-ranked as resulted from the latest model until a new model is
+or the highest-ranked as a result of the latest model until a new model is
 trained. 
 
 As you keep reviewing documents and providing labels, you will probably see
