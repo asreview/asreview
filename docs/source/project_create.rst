@@ -241,12 +241,6 @@ The neural nets require `tensorflow <https://www.tensorflow.org/>`_, use
     pip install tensorflow
 
 
-.. note::
-
-  Neural nets (and LSTM) require a much larger training set (i.e., more prior knowledge) compared to the other classifiers.
-
-
-
 Balancing Strategy
 ~~~~~~~~~~~~~~~~~~
 
