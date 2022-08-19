@@ -78,14 +78,15 @@ available commands in ASReview LAB, type :code:`asreview lab --help`.
 	techniques, and query strategies). Use an integer between 0 and 2^32 - 1.
 
 
+Set environment variables
+-------------------------
+
 The following evironment variables are available.
 
 .. option:: ASREVIEW_PATH
 
 	The path to the folder with project. Default `~/.asreview`.
 
-Set environment variables
-~~~~~~~~~~~~~~~~~~~~~~~~~
 
 How you set environment variables depends on the operating system and the
 environment in which you deploy ASReview LAB.
