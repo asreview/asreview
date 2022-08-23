@@ -49,7 +49,7 @@ def _transform_text(model, corpus):
 
 
 class Doc2Vec(BaseFeatureExtraction):
-    """Doc2Vec feature extraction technique.
+    """Doc2Vec feature extraction technique (``doc2vec``).
 
     Feature extraction technique provided by the `gensim
     <https://radimrehurek.com/gensim/>`__ package. It takes relatively long to

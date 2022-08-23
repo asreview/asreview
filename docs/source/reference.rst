@@ -91,6 +91,12 @@ Reviewer
 Models
 ======
 
+This section provides an overview of the available models for active learning
+in ASReview. For command line usage, use the name (``example``) given behind
+the model description (or see the name property of the model). Some models
+require additional dependencies, see the model class for more information and
+instructions.
+
 .. automodule:: asreview.models
     :no-members:
     :no-inherited-members:
@@ -103,7 +109,6 @@ Base class
    :toctree: generated/
 
    models.base.BaseModel
-
 
 :mod:`asreview.models.balance`
 ------------------------------
