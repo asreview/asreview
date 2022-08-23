@@ -142,8 +142,8 @@ By default, the model initializes with one relevant and one irrelevant record.
 
 
 
-Simulation Set-up
-~~~~~~~~~~~~~~~~~
+Simulation Setup
+~~~~~~~~~~~~~~~~
 
 .. option:: --n_instances N_INSTANCES
 
