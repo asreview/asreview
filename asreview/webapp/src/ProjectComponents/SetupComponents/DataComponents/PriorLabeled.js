@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Box, Card, Divider, Typography } from "@mui/material";
+import { Box, Divider, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { LabelChip, LabeledRecord } from "../../HistoryComponents";
@@ -7,16 +7,24 @@ import { LabelChip, LabeledRecord } from "../../HistoryComponents";
 const PREFIX = "PriorLabeled";
 
 const classes = {
+  root: `${PREFIX}-root`,
   noPrior: `${PREFIX}-no-prior`,
 };
 
 const Root = styled("div")(({ theme }) => ({
-  width: "50%",
+  height: "100%",
+  [`& .${classes.root}`]: {
+    height: "100%",
+  },
+
   [`& .${classes.noPrior}`]: {
     height: "calc(100% - 56px)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    [`${theme.breakpoints.down("md")} and (orientation: landscape)`]: {
+      height: "calc(100% - 64px)",
+    },
   },
 }));
 
@@ -25,12 +33,9 @@ export default function PriorLabeled(props) {
 
   return (
     <Root>
-      <Card
-        elevation={0}
-        square
-        variant="outlined"
+      <Box
+        className={classes.root}
         sx={{
-          height: "100%",
           bgcolor: (theme) =>
             theme.palette.mode === "dark" ? "background.paper" : "grey.100",
         }}
@@ -38,6 +43,7 @@ export default function PriorLabeled(props) {
         <LabelChip
           label={label}
           setLabel={setLabel}
+          mobileScreen={props.mobileScreen}
           n_prior_exclusions={props.n_prior_exclusions}
           n_prior_inclusions={props.n_prior_inclusions}
         />
@@ -64,7 +70,7 @@ export default function PriorLabeled(props) {
             </Typography>
           </Box>
         )}
-      </Card>
+      </Box>
     </Root>
   );
 }

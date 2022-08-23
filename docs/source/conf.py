@@ -9,9 +9,10 @@
 import datetime
 
 try:
-    from asreview import __version__ as asreview_verion
+    from asreview import __version__ as asreview_version
+    print(asreview_version)
 except Exception:
-    asreview_verion = ""
+    asreview_version = ""
 
 # -- Path setup --------------------------------------------------------------
 
@@ -70,9 +71,9 @@ copyright = '{}, ASReview LAB developers'.format(year)
 author = 'ASReview LAB developers, Utrecht University'
 
 # The short X.Y version
-version = asreview_verion
+version = asreview_version
 # The full version, including alpha/beta/rc tags
-release = asreview_verion
+release = asreview_version
 
 
 # -- General configuration ---------------------------------------------------

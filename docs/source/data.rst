@@ -88,35 +88,26 @@ will provide the most information.
 The export files of the following search engines have been tested for their
 acceptance in ASReview:
 
-+-----------------+----------+----------+----------+-----------+
-|                 | **.ris** | **.tsv** | **.csv** |  **.xlsx**|
-|                 |          |          |          |           |
-+-----------------+----------+----------+----------+-----------+
-|**CINHAL**       | X        | N/A      | X        | N/A       |
-|**(EBSCO)**      |          |          |          |           |
-+-----------------+----------+----------+----------+-----------+
-|**Cochrane**     | ✅       | N/A      | ✅       | N/A       |
-+-----------------+----------+----------+----------+-----------+
-| **Embase**      | ✅       | N/A      | ✅       | ✅        |
-+-----------------+----------+----------+----------+-----------+
-|**Eric (Ovid)**  | X        | N/A      | N/A      | X         |
-+-----------------+----------+----------+----------+-----------+
-|**Psychinfo**    | X        | N/A      | N/A      | X         |
-|**(Ovid)**       |          |          |          |           |
-+-----------------+----------+----------+----------+-----------+
-| **Pubmed**      | X        | N/A      | X        | N/A       |
-+-----------------+----------+----------+----------+-----------+
-| **Scopus**      | ✅       | N/A      | ✅       | N/A       |
-+-----------------+----------+----------+----------+-----------+
-|**Web of**       | X        | X        | N/A      | N/A       |
-|**Science**      |          |          |          |           |
-+-----------------+----------+----------+----------+-----------+
+==================== ======== ======== ======== =========
+\                    **.ris** **.tsv** **.csv** **.xlsx**
+==================== ======== ======== ======== =========
+**CINAHL (EBSCO)**   ✅       N/A      X        N/A
+**Cochrane**         ✅       N/A      ✅       N/A
+**Embase**           ✅       N/A      ✅       ✅
+**Eric (Ovid)**      ✅*      N/A      N/A      N/A
+**Psychinfo (Ovid)** ✅*      N/A      N/A      N/A
+**Pubmed**           X        N/A      X        N/A
+**Scopus**           ✅       N/A      ✅       N/A
+**Web of Science**   ✅       N/A      N/A      N/A
+==================== ======== ======== ======== =========
 
 -  ✅ = The data can be exported from the search engine and imported in ASReview.
 -  N/A = This format does not exist.
--  X = Not supported.
+-  X = Not supported, (see :ref:`data_format:Data format` for other options).
 
-.. warning::
+\* Make sure to uncheck all inclusion options (e.g., "URL") when exporting from Ovid.
+
+.. tip::
 
     If the export of your search engine is not accepted in ASReview, you can
     also try the following: import the search engine file first into one of
@@ -127,7 +118,7 @@ Systematic Review Software
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are several software packages available for systematic reviewing, see
-for an `overview <https://arxiv.org/abs/2006.12166>`_. Some of them use machine
+https://www.nature.com/articles/s42256-020-00287-7. Some of them use machine
 learning, while other focus on screening and management. The overview below
 shows an overview of alternative software programs and the compatibility with
 ASReview.

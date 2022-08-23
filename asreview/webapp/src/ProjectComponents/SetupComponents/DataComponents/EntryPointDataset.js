@@ -4,12 +4,12 @@ import {
   AccordionDetails,
   AccordionSummary,
   AccordionActions,
-  Button,
   Link,
   Stack,
   Typography,
 } from "@mui/material";
-import { CheckCircleOutline, ExpandMore } from "@mui/icons-material";
+import { ExpandMore } from "@mui/icons-material";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 const DOILink = (doi) => {
   if (doi !== undefined && doi.startsWith("http")) {
@@ -26,28 +26,12 @@ const EntryPointDataset = (props) => {
     }
   };
 
-  const handleBenchmark = () => {
+  const handleAdd = () => {
     if (props.isAddDatasetError) {
       props.reset();
     }
     if (!props.isAddingDataset) {
-      props.setExpanded(false);
       props.setSelectedDatasetId(props.dataset_id);
-    }
-  };
-
-  const returnSelected = () => {
-    return props.selectedDatasetId === props.dataset_id;
-  };
-
-  const returnCheckedIcon = () => {
-    if (
-      props.selectedDatasetId === props.dataset_id &&
-      props.expanded !== props.dataset_id
-    ) {
-      return <CheckCircleOutline color="primary" />;
-    } else {
-      return <ExpandMore />;
     }
   };
 
@@ -57,13 +41,20 @@ const EntryPointDataset = (props) => {
       expanded={props.expanded === props.dataset_id}
       onChange={handleAccordion(props.dataset_id)}
     >
-      <AccordionSummary expandIcon={returnCheckedIcon()}>
-        <Typography sx={{ width: "33%", flexShrink: 0 }}>
-          {props.authors}
-        </Typography>
-        <Typography sx={{ color: "text.secondary" }}>
-          {props.description}
-        </Typography>
+      <AccordionSummary expandIcon={<ExpandMore />}>
+        <Stack
+          direction={!props.mobileScreen ? "row" : "column"}
+          sx={{ width: "100%" }}
+        >
+          <Typography
+            sx={{ width: !props.mobileScreen ? "33%" : "100%", flexShrink: 0 }}
+          >
+            {props.authors}
+          </Typography>
+          <Typography sx={{ color: "text.secondary" }}>
+            {props.description}
+          </Typography>
+        </Stack>
       </AccordionSummary>
       <AccordionDetails>
         <Stack spacing={1}>
@@ -106,12 +97,9 @@ const EntryPointDataset = (props) => {
         </Stack>
       </AccordionDetails>
       <AccordionActions>
-        <Button
-          disabled={props.isAddingDataset || returnSelected()}
-          onClick={handleBenchmark}
-        >
-          {returnSelected() ? "Selected" : "Select"}
-        </Button>
+        <LoadingButton loading={props.isAddingDataset} onClick={handleAdd}>
+          Add
+        </LoadingButton>
       </AccordionActions>
     </Accordion>
   );

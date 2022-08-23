@@ -54,7 +54,7 @@ def _unsafe_dict_update(default_dict, override_dict):
                 try:
                     new_dict[key] = type(new_dict[key])(str_val)
                 except TypeError:
-                    raise(TypeError(f"Error at {key}"))
+                    raise TypeError(f"Error at {key}")
     return new_dict
 
 
@@ -97,7 +97,7 @@ def _safe_dict_update(default_dict, override_dict):
                 try:
                     new_dict[key] = type_val(str_val)
                 except TypeError:
-                    raise(TypeError(f"Error at {key}"))
+                    raise TypeError(f"Error at {key}")
     return new_dict
 
 
