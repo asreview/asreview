@@ -16,7 +16,9 @@ from email.headerregistry import UniqueAddressHeader
 from pathlib import Path
 
 from flask_login import UserMixin
-from sqlalchemy import Column, ForeignKey, Integer, String, Table, UniqueConstraint
+from sqlalchemy import (
+    Boolean, Column, ForeignKey, Integer, String, Table, UniqueConstraint
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -31,6 +33,11 @@ class User(UserMixin, DB.Model):
     id = Column(Integer, primary_key=True)
     username = Column(String(50), unique=True)
     hashed_password = Column(String(100), unique=True)
+    surname = Column(String(50))
+    first_name = Column(String(50))
+    affiliation = Column(String(100))
+    public = Column(Boolean)
+
     projects = relationship(
         'Project',
         back_populates='owner',
@@ -54,22 +61,23 @@ class User(UserMixin, DB.Model):
         return f'<User {self.username!r}, id: {self.id}>'
 
 
-class UnauthenticatedUser:
+class SingleUser:
     """This class serves an unauthenticated app, we use a pseudo user
     to bypass authentication."""
     def __init__(self):
         self.id = None
-        self.is_authenticated = False
+        self.username = None
+        self.is_authenticated = True
         self.is_active = False
         self.is_anonymous = True
 
     def get_id(self):
         """This class needs to have this method implemented
         for the LoginManager"""
-        return 'unauthenticated'
+        return 'single_user'
 
     def __repr__(self):
-        return f'<UnauthenticatedUser>'
+        return f'<SingleUser>'
 
 
 class Collaboration(DB.Model):

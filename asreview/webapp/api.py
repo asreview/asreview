@@ -69,7 +69,7 @@ from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.sql_converter import upgrade_project_config
-from asreview.utils import _get_executable, asreview_working_dir
+from asreview.utils import _get_executable, asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.login_required import (
     asreview_login_required
@@ -152,6 +152,8 @@ def api_get_projects_stats():  # noqa: F401
     }
 
     for project in list_asreview_projects(current_user):
+        print('\n\n', '----->')
+        print(project)
 
         try:
             project_config = project.config
@@ -1156,7 +1158,7 @@ def api_import_project():
     try:
         project = ASReviewProject.load(
             request.files['file'],
-            asreview_working_dir(current_user),
+            asreview_path(),
             safe_import=True
         )
 
@@ -1484,6 +1486,8 @@ def api_classify_instance(project, doc_id):  # noqa: F401
 
     retrain_model = False if is_prior == "1" else True
     prior = True if is_prior == "1" else False
+
+    print(current_user)
 
     if request.method == 'POST':
 

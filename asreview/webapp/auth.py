@@ -134,3 +134,15 @@ def signout():
     status, message = result
     response = jsonify({'message': message})
     return response, status
+
+
+@bp.route('/users', methods=["GET"])
+@asreview_login_required
+def users():
+    """returns all user, expect current user"""
+    all_users = [
+        {'id': u.id, 'name': u.username}
+        for u in User.query.all() if u != current_user
+    ]
+    response = jsonify({'users': all_users})
+    return response, 200

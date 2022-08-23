@@ -37,7 +37,7 @@ from asreview.webapp import api
 from asreview.webapp import auth
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import (
-    UnauthenticatedUser,
+    SingleUser,
     User
 )
 
@@ -112,7 +112,7 @@ def create_app(**kwargs):
 
     # Get the ASReview arguments.
     app.config['asr_kwargs'] = kwargs
-    app.config['LOGIN_DISABLED'] = not(kwargs['enable_auth'])
+    app.config['LOGIN_DISABLED'] = not kwargs['enable_auth']
 
     # config JSON Web Tokens
     login_manager = LoginManager(app)
@@ -121,6 +121,7 @@ def create_app(**kwargs):
 
     # setup all database/authentication related resources
     if app.config['LOGIN_DISABLED'] == False:
+        print('AUTHENTICATED')
 
         # default config
         app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
@@ -134,15 +135,16 @@ def create_app(**kwargs):
         # setup the database
         uri = os.path.join(asreview_path(), f'asreview.{env}.sqlite')
         app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{uri}'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
         # create the database plus table(s)
         DB.init_app(app)
         with app.app_context():
             DB.create_all()
     else:
+        print('NOT AUTH')
         # Don't want to use the standard Anonymous User
-        login_manager.anonymous_user = UnauthenticatedUser
+        login_manager.anonymous_user = SingleUser
 
 
     # Register a callback function for current_user.
@@ -206,6 +208,7 @@ def create_app(**kwargs):
 
         response = jsonify({
             "status": status,
+            "authenticated": bool(not app.config['LOGIN_DISABLED']),
             "version": asreview_version,
         })
 

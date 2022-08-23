@@ -74,6 +74,10 @@ const SignUpForm = (props) => {
   const [validUsername, setValidUsername] = React.useState(false);
   const [usernameFocused, setUsernameFocused] = React.useState(false);
 
+  const [firstName, setFirstName] = React.useState("")
+  const [surname, setSurname] = React.useState("")
+  const [affiliation, setAffiliation] = React.useState("")
+
   const [password, setPassword] = React.useState("");
   const [validPassword, setValidPassword] = React.useState(false);
   const [passwordFocused, setPasswordFocused] = React.useState(false);
@@ -212,6 +216,31 @@ const SignUpForm = (props) => {
                   <FormControl>
                     <Stack direction="row" spacing={2}>
                       <TextField
+                        id="first_name"
+                        label="First name"
+                        size="small"
+                        fullWidth
+                        value={firstName}
+                      />
+                      <TextField
+                        id="surname"
+                        label="Surname"
+                        size="small"
+                        fullWidth
+                        value={surname}
+                      />
+                    </Stack>
+                  </FormControl>
+                  <TextField
+                    id="affiliation"
+                    label="Affiliation"
+                    size="small"
+                    fullWidth
+                    value={affiliation}
+                  />
+                  <FormControl>
+                    <Stack direction="row" spacing={2}>
+                      <TextField
                         id="password"
                         label="Password"
                         size="small"
@@ -250,12 +279,25 @@ const SignUpForm = (props) => {
                     <FormControlLabel
                       control={
                         <Checkbox
+                          id="public"
                           color="primary"
                           onChange={toggleShowPassword}
                         />
                       }
                       label="Show password"
                     />
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          color="primary"
+                          defaultChecked={"checked"}
+                        />
+                      }
+                      label="Make this account public"
+                    />
+                    <FormHelperText>
+                      Making this account public allows you to collaborate.
+                    </FormHelperText>
                   </FormControl>
                 </Stack>
                 {isError && <InlineErrorHandler message={error.message} />}

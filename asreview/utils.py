@@ -20,7 +20,7 @@ from urllib.parse import urlparse
 import numpy as np
 import pkg_resources
 
-from asreview.webapp.authentication.models import UnauthenticatedUser
+from asreview.webapp.authentication.models import SingleUser
 
 
 def _unsafe_dict_update(default_dict, override_dict):
@@ -99,7 +99,7 @@ def _safe_dict_update(default_dict, override_dict):
                 try:
                     new_dict[key] = type_val(str_val)
                 except TypeError:
-                    raise(TypeError(f"Error at {key}"))
+                    raise TypeError(f"Error at {key}")
     return new_dict
 
 
@@ -118,18 +118,6 @@ def asreview_path():
     asreview_path.mkdir(parents=True, exist_ok=True)
 
     return asreview_path
-
-
-def asreview_working_dir(user):
-    """Get the location where the personal projects are stored,
-    might be the root path if we don't use authentication"""
-
-    if isinstance(user, UnauthenticatedUser):
-        path = asreview_path()
-    else:
-        path = Path(asreview_path(), str(user.id))
-
-    return path
 
 
 def get_data_home(data_home=None):

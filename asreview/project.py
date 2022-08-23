@@ -39,7 +39,7 @@ from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.config import SCHEMA
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
-from asreview.utils import asreview_path, asreview_working_dir
+from asreview.utils import asreview_path
 from asreview.webapp.authentication.models import User
 from asreview.webapp.io import read_data
 
@@ -104,7 +104,7 @@ def list_asreview_projects(user):
     """List the projects in the asreview path from user"""
 
     file_list = []
-    for x in asreview_working_dir(user).iterdir():
+    for x in asreview_path().iterdir():
         if x.is_dir():
             try:
                 project = ASReviewProject(x)

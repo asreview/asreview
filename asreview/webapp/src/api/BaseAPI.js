@@ -9,6 +9,7 @@ class BaseAPI {
       axios
         .get(url)
         .then((result) => {
+            console.log(result["data"])
           resolve(result["data"]);
         })
         .catch((error) => {
