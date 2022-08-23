@@ -61,7 +61,7 @@ for dataset IDs).
 
 .. code:: bash
 
-    asreview simulate benchmark: [dataset_id]
+    asreview simulate benchmark:[dataset_id]
 
 For example:
 
