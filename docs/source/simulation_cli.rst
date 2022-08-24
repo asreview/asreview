@@ -1,4 +1,4 @@
-Simulation via command line
+﻿Simulation via command line
 ===========================
 
 ASReview LAB comes with a command line inferface for simulating the
@@ -75,14 +75,13 @@ Active Learning
 
 .. option:: -m, --model MODEL
 
-  A machien learning model (classifier) can be chosen with the ``-m`` flag,
   The default is set to be Naive Bayes (:code:`nb`). Names for implemented classifiers
   are listed on the :ref:`ref-classifiers` table.
 
 .. option:: -q, --query_strategy QUERY_STRATEGY
 
   Implemented query strategies are listed on the :ref:`ref-query-strategies`
-  table and can be set with the ``-q`` option. The default is :code:`max`. 
+  table. The default is :code:`max`.
 
 .. option:: -b, --balance_strategy BALANCE_STRATEGY
 
@@ -187,4 +186,7 @@ the available models:
 See :ref:`develop-extensions` for more information on developing new models
 and install them via extensions.
 
-Some models require additional dependecies to be installed. Use :code:`pip install asreview[all]` to install all additional dependencies at once or check the installation instruction in section :ref:`ref-models` of the :doc:`reference`.
+Some models require additional dependecies to be installed. Use
+:code:`pip install asreview[all]` to install all additional dependencies
+at once or check the installation instruction in section :ref:`ref-models`
+of the :doc:`reference`.
