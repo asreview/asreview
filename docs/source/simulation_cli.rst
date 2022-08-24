@@ -148,16 +148,6 @@ Simulation Setup
     simulating when all relevant records are found. Use -1 to simulate all
     labels actions.
 
-.. option:: -w WRITE_INTERVAL, --write_interval WRITE_INTERVAL
-
-    The simulation data will be written away after each set of thismany
-    labeled records. By default only writes away data at the endof the
-    simulation to make it as fast as possible.
-
-.. option:: --config_file CONFIG_FILE
-
-    Configuration file with model settings and parameter values.
-
 
 Save
 ~~~~
