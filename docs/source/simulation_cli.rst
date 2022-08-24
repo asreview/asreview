@@ -159,13 +159,13 @@ Simulation Setup
     labeled records. By default only writes away data at the endof the
     simulation to make it as fast as possible.
 
-
-Save
-~~~~
-
 .. option:: --config_file CONFIG_FILE
 
     Configuration file with model settings and parameter values.
+
+
+Save
+~~~~
 
 
 .. option:: --state_file STATE_FILE, -s STATE_FILE
