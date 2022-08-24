@@ -70,6 +70,8 @@ feature requests, please submit an issue on `GitHub
 
     overview_development
 
+    cli
+
     example_api_asreview_file
 
     extensions_dev
