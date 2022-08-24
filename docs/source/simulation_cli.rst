@@ -1,4 +1,4 @@
-﻿Simulation via command line
+Simulation via command line
 ===========================
 
 ASReview LAB comes with a command line inferface for simulating the
@@ -99,10 +99,6 @@ Active Learning
 .. option:: --embedding EMBEDDING_FP
 
     File path of embedding matrix. Required for LSTM models.
-
-.. option:: --verbose VERBOSE, -v VERBOSE
-
-    Verbosity 
 
 
 Prior Knowledge
