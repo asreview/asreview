@@ -22,7 +22,7 @@ from asreview.models.classifiers.utils import _set_class_weight
 
 class LogisticClassifier(BaseTrainClassifier):
     """
-    Logistic regression classifier.
+    Logistic regression classifier (``logistic``).
 
     The Logistic regressions classifier is an implementation based
     on the sklearn Logistic regressions classifier.

@@ -26,7 +26,7 @@ from asreview.utils import get_random_state
 
 
 class TripleBalance(BaseBalance):
-    """Triple balance strategy.
+    """Triple balance strategy (``triple``).
 
     Broken. Only for internal and experimental use.
 

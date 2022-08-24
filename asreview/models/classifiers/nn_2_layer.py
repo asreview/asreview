@@ -44,7 +44,7 @@ def _check_tensorflow():
 
 
 class NN2LayerClassifier(BaseTrainClassifier):
-    """Fully connected neural network (2 hidden layers) classifier.
+    """Fully connected neural network (2 hidden layers) classifier (``nn-2-layer``).
 
     Neural network with two hidden, dense layers of the same size.
 

@@ -20,7 +20,7 @@ from asreview.models.classifiers.utils import _set_class_weight
 
 class RandomForestClassifier(BaseTrainClassifier):
     """
-    Random forest classifier.
+    Random forest classifier (``rf``).
 
     The Random Forest classifier is an implementation based
     on the sklearn Random Forest classifier.
