@@ -1,8 +1,8 @@
 ﻿Simulation via command line
 ===========================
 
-ASReview LAB comes with an extensive simulation interface via the command
-line.
+ASReview LAB comes with a command line inferface for simulating the
+performance of ASReview algorithm.
 
 .. _simulation-cli-getting-started:
 
@@ -13,71 +13,65 @@ The simulation command line tool can be accessed directly like:
 
 .. code-block:: bash
 
-	asreview simulate MY_DATASET.csv --state_file MY_SIMULATION.asreview
+	asreview simulate MY_DATASET.csv -s MY_SIMULATION.asreview
 
 This performs a simulation with the default active learning model, where
-``MY_DATASET.csv`` is the path to the fully labeled dataset you want to
-simulate. The result of the simulation is stored, after a succesful
-simulation, at ``MY_SIMULATION.asreview`` where ``MY_SIMULATION`` is the
-filename you prefer.
+``MY_DATASET.csv`` is the path to the :ref:`data_labeled:Fully labeled data`
+you want to simulate. The result of the simulation is stored, after a
+succesful simulation, at ``MY_SIMULATION.asreview`` where ``MY_SIMULATION``
+is the filename you prefer and the extension is ``.asreview``
+(ASReview project file extension).
 
 
+Command line arguments for simulating
+-------------------------------------
 
-.. note::
+The command ``asreview simulate --help`` provides an overview of available
+arguments for the simulation.
 
-	For instructions on preparing your fully labeled data, see :doc:`data`.
+Each of the sections below describe the available arguments. The example below
+shows how you can set the command line arguments. This can be helpful if you
+are new to the using the command line. For example, you want to change the
+query strategy being used. The command line and this documentation show
+``-q, --query_strategy QUERY_STRATEGY``. The default is ``max``. If you want
+to change it to ``max_random``, you use:
 
+.. code-block:: bash
 
-Simulation options
-------------------
+    asreview simulate MY_DATASET.csv -s MY_SIMULATION.asreview -q max_random
 
-ASReview LAB provides an extensive simulation interface via the command line.
-
-.. code:: bash
-
-    asreview simulate [options] [dataset [dataset ...]]
-
-
-When no additional arguments are specified in the ``asreview simulate``
-command, default settings are used. For a list of available commands in
-ASReview LAB, type :code:`asreview simulate --help`.
-
-
-.. program:: asreview simulate
 
 Dataset
 ~~~~~~~
 
-
 .. option:: dataset
 
-    A dataset to simulate
+    Required. File path or URL to the dataset or one of the benchmark datasets.
 
-
-You can also use one of the :ref:`benchmark-datasets
-<data_labeled:fully labeled data>` (see `index.csv
+You can also use one of the :ref:`benchmark-datasets <data_labeled:fully
+labeled data>` (see `index.csv
 <https://github.com/asreview/systematic-review-datasets/blob/master/index.csv>`_
-for dataset IDs).
+for dataset IDs). Use the following command and replace ``DATASET_ID`` by the
+dataset ID.
 
 .. code:: bash
 
-    asreview simulate benchmark:[dataset_id]
+    asreview simulate benchmark:DATASET_ID
 
 For example:
 
 .. code:: bash
 
-    asreview simulate benchmark:van_de_Schoot_2017 --state_file myreview.asreview
+    asreview simulate benchmark:van_de_Schoot_2017 -s myreview.asreview
 
 
-Active Learning Components
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Active Learning
+~~~~~~~~~~~~~~~
 
 .. option:: -e, --feature_extraction FEATURE_EXTRACTION
 
-  You can select a feature extraction method for the Active Learning model 
-  with the ``-e`` flag. The default is TF-IDF (:code:`tfidf`), more 
-  options and details are listed in the table for :ref:`ref-feature-extraction`.
+  The default is TF-IDF (:code:`tfidf`), more options and details are listed
+  in the table for :ref:`ref-feature-extraction`.
 
 .. option:: -m, --model MODEL
 
