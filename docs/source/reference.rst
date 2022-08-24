@@ -88,6 +88,8 @@ Reviewer
    review.ReviewSimulate
 
 
+.. _ref-models:
+
 Models
 ======
 
@@ -109,6 +111,8 @@ Base class
    :toctree: generated/
 
    models.base.BaseModel
+
+.. _ref-balance-strategies:
 
 :mod:`asreview.models.balance`
 ------------------------------
@@ -140,6 +144,8 @@ Functions
    balance.get_balance_class
    balance.list_balance_strategies
 
+
+.. _ref-classifiers:
 
 :mod:`asreview.models.classifiers`
 ----------------------------------
@@ -173,6 +179,7 @@ Functions
    classifiers.get_classifier_class
    classifiers.list_classifiers
 
+.. _ref-feature-extraction:
 
 :mod:`asreview.models.feature_extraction`
 -----------------------------------------
@@ -204,6 +211,8 @@ Functions
 	feature_extraction.get_feature_class
 	feature_extraction.list_feature_extraction
 
+
+.. _ref-query-strategies:
 
 :mod:`asreview.models.query`
 ----------------------------
