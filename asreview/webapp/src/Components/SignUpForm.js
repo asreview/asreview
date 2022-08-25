@@ -207,8 +207,11 @@ const SignUpForm = (props) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (validUsername && validPassword && validConfirmPassword) {
+    if (validUsername && validPassword && validConfirmPassword && validEmail) {
       mutate({ username, firstName, lastName, affiliation, publicAccount, password });
+    } else {
+      // trigger errors on mandatory fields
+      
     }
   };
 
@@ -295,8 +298,8 @@ const SignUpForm = (props) => {
                     }
                     helperText={
                       email && !validEmail && !emailFocused
-                      ? "Sorry, the provided email address doesn't comply with our check."
-                      : ""
+                      ? "Sorry, the provided email address doesn't comply with our format checks."
+                      : null
                     }
                     onFocus={handleEmailFocus}
                     onBlur={handleEmailBlur}
@@ -310,7 +313,9 @@ const SignUpForm = (props) => {
                         size="small"
                         fullWidth
                         error={
-                          password !== "" && !passwordFocused && !validPassword
+                          password !== "" &&
+                          !passwordFocused &&
+                          !validPassword
                         }
                         type={returnType()}
                         value={password}
