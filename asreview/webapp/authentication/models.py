@@ -33,9 +33,10 @@ class User(UserMixin, DB.Model):
     id = Column(Integer, primary_key=True)
     username = Column(String(50), unique=True)
     hashed_password = Column(String(100), unique=True)
-    surname = Column(String(50))
     first_name = Column(String(50))
+    last_name = Column(String(50))
     affiliation = Column(String(100))
+    email = Column(String(100))
     public = Column(Boolean)
 
     projects = relationship(
@@ -49,8 +50,14 @@ class User(UserMixin, DB.Model):
         back_populates='collaborators'
     )
 
-    def __init__(self, username=None, password=None):
+    def __init__(self, username, password, first_name=None,
+        last_name=None, affiliation=None, email=None, public=True):
         self.username = username
+        self.first_name = first_name
+        self.last_name = last_name
+        self.affiliation = affiliation
+        self.email = email
+        self.public = public
         self.hashed_password = generate_password_hash(password)
 
     def verify_password(self, password):

@@ -29,6 +29,7 @@ import { WordmarkState } from "../globals";
 const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
 const PWD_REGEX =
   /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+const EMAIL_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;;
 
 const PREFIX = "SignUpForm";
 
@@ -75,8 +76,12 @@ const SignUpForm = (props) => {
   const [usernameFocused, setUsernameFocused] = React.useState(false);
 
   const [firstName, setFirstName] = React.useState("")
-  const [surname, setSurname] = React.useState("")
+  const [lastName, setLastName] = React.useState("")
   const [affiliation, setAffiliation] = React.useState("")
+  
+  const [email, setEmail] = React.useState("")
+  const [validEmail, setValidEmail] = React.useState(false)
+  const [emailFocused, setEmailFocused] = React.useState(false)
 
   const [password, setPassword] = React.useState("");
   const [validPassword, setValidPassword] = React.useState(false);
@@ -88,14 +93,20 @@ const SignUpForm = (props) => {
     React.useState(false);
 
   const [showPassword, toggleShowPassword] = useToggle();
+  const [publicAccount, setPublicAccount] = React.useState(1)
 
   const { error, isError, isLoading, mutate, reset } = useMutation(
     BaseAPI.signup,
     {
       onSuccess: () => {
         setUsername("");
+        setFirstName("");
+        setLastName("");
+        setAffiliation("");
+        setEmail("");
         setPassword("");
         setConfirmPassword("");
+        setPublicAccount("");
         navigate("/signin");
       },
     }
@@ -105,6 +116,24 @@ const SignUpForm = (props) => {
     reset();
     setUsername(e.target.value);
     setValidUsername(USERNAME_REGEX.test(e.target.value));
+  };
+
+  const handleFirstNameChange = (e) => {
+    setFirstName(e.target.value);
+  };
+
+  const handleLastNameChange = (e) => {
+    setLastName(e.target.value);
+  };
+
+  const handleAffiliationChange = (e) => {
+    setAffiliation(e.target.value);
+  };
+
+  const handleEmailChange = (e) => {
+    reset()
+    setEmail(e.target.value);
+    setValidEmail(EMAIL_REGEX.test(e.target.value))
   };
 
   const handlePasswordChange = (e) => {
@@ -117,6 +146,10 @@ const SignUpForm = (props) => {
     setConfirmPassword(e.target.value);
   };
 
+  const handlePublicAccountChange = (e) => {
+    setPublicAccount(+(!Boolean(publicAccount)));
+  }
+
   React.useEffect(() => {
     setValidPassword(PWD_REGEX.test(password));
     setValidConfirmPassword(confirmPassword === password);
@@ -128,6 +161,14 @@ const SignUpForm = (props) => {
 
   const handleUsernameBlur = () => {
     setUsernameFocused(false);
+  };
+
+  const handleEmailFocus = () => {
+    setEmailFocused(true);
+  };
+
+  const handleEmailBlur = () => {
+    setEmailFocused(false);
   };
 
   const handlePasswordFocus = () => {
@@ -167,7 +208,7 @@ const SignUpForm = (props) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validUsername && validPassword && validConfirmPassword) {
-      mutate({ username, password });
+      mutate({ username, firstName, lastName, affiliation, publicAccount, password });
     }
   };
 
@@ -221,13 +262,15 @@ const SignUpForm = (props) => {
                         size="small"
                         fullWidth
                         value={firstName}
+                        onChange={handleFirstNameChange}
                       />
                       <TextField
-                        id="surname"
-                        label="Surname"
+                        id="last_name"
+                        label="Last name"
                         size="small"
                         fullWidth
-                        value={surname}
+                        value={lastName}
+                        onChange={handleLastNameChange}
                       />
                     </Stack>
                   </FormControl>
@@ -237,6 +280,27 @@ const SignUpForm = (props) => {
                     size="small"
                     fullWidth
                     value={affiliation}
+                    onChange={handleAffiliationChange}
+                    onFocus={handlePasswordFocus}
+                    onBlur={handlePasswordBlur}
+                  />
+                <TextField
+                    id="email"
+                    label="Email"
+                    size="small"
+                    fullWidth
+                    value={email}
+                    error={
+                      email !== "" && !validEmail && !emailFocused
+                    }
+                    helperText={
+                      email && !validEmail && !emailFocused
+                      ? "Sorry, the provided email address doesn't comply with our check."
+                      : ""
+                    }
+                    onFocus={handleEmailFocus}
+                    onBlur={handleEmailBlur}
+                    onChange={handleEmailChange}
                   />
                   <FormControl>
                     <Stack direction="row" spacing={2}>
@@ -290,7 +354,9 @@ const SignUpForm = (props) => {
                       control={
                         <Checkbox
                           color="primary"
-                          defaultChecked={"checked"}
+                          defaultChecked={true}
+                          value={publicAccount}
+                          onChange={handlePublicAccountChange}
                         />
                       }
                       label="Make this account public"

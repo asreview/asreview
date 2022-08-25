@@ -74,8 +74,15 @@ def signin():
 
 @bp.route('/signup', methods=["POST"])
 def signup():
-    username = request.form.get('username').strip()
+    print('-------->')
+    print(request.form)
+    username = request.form.get('username').strip().lower()
     password = request.form.get('password')
+    first_name = request.form.get('first_name', '').strip()
+    last_name = request.form.get('last_name', '').strip()
+    affiliation = request.form.get('affiliation', '').strip()
+    email = request.form.get('email', '').strip()
+    public = bool(int(request.form.get('public', '0')))
 
     # check if username already exists
     user = User.query.filter(User.username == username).one_or_none()
@@ -87,7 +94,8 @@ def signup():
         # thing that remains is to add the user (password will be
         # hashed in the User model)
         try:
-            user = User(username, password)
+            user = User(username, password, first_name, last_name,
+                affiliation, email, public)
             DB.session.add(user)
             DB.session.commit()
             # at this stage we know the user account is stored,

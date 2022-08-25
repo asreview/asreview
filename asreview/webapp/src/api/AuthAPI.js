@@ -1,12 +1,18 @@
 import { axiosErrorHandler } from "./axiosErrorHandler";
 import { auth_url } from "../globals.js";
 import axios from "axios";
+import { getBackdropUtilityClass } from "@mui/material";
 
 class AuthAPI {
   static signup(variables) {
     let body = new FormData();
     body.set("username", variables.username);
     body.set("password", variables.password);
+    body.set("first_name", variables.firstName);
+    body.set("last_name", variables.lastName);
+    body.set("affiliation", variables.affiliation);
+    body.set("email", variables.email);
+    body.set("public", variables.publicAccount);
 
     const url = auth_url + `signup`;
     return new Promise((resolve, reject) => {
