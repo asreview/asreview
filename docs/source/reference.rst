@@ -112,14 +112,14 @@ Base class
 
    models.base.BaseModel
 
-.. _ref-balance-strategies:
+.. _ref-feature-extraction:
 
-:mod:`asreview.models.balance`
-------------------------------
+:mod:`asreview.models.feature_extraction`
+-----------------------------------------
 
-.. automodule:: asreview.models.balance
-    :no-members:
-    :no-inherited-members:
+.. automodule:: asreview.models.feature_extraction
+   :no-members:
+   :no-inherited-members:
 
 .. currentmodule:: asreview.models
 
@@ -128,22 +128,21 @@ Classes
 .. autosummary::
    :toctree: generated/
 
-   balance.base.BaseBalance
-   balance.SimpleBalance
-   balance.DoubleBalance
-   balance.TripleBalance
-   balance.UndersampleBalance
-
+   feature_extraction.base.BaseFeatureExtraction
+   feature_extraction.Tfidf
+   feature_extraction.Doc2Vec
+   feature_extraction.EmbeddingIdf
+   feature_extraction.EmbeddingLSTM
+   feature_extraction.SBERT
 
 Functions
 
 .. autosummary::
    :toctree: generated/
 
-   balance.get_balance_model
-   balance.get_balance_class
-   balance.list_balance_strategies
-
+   feature_extraction.get_feature_model
+   feature_extraction.get_feature_class
+   feature_extraction.list_feature_extraction
 
 .. _ref-classifiers:
 
@@ -179,37 +178,6 @@ Functions
    classifiers.get_classifier_class
    classifiers.list_classifiers
 
-.. _ref-feature-extraction:
-
-:mod:`asreview.models.feature_extraction`
------------------------------------------
-
-.. automodule:: asreview.models.feature_extraction
-   :no-members:
-   :no-inherited-members:
-
-.. currentmodule:: asreview.models
-
-Classes
-
-.. autosummary::
-   :toctree: generated/
-
-   feature_extraction.base.BaseFeatureExtraction
-	feature_extraction.Tfidf
-	feature_extraction.Doc2Vec
-	feature_extraction.EmbeddingIdf
-	feature_extraction.EmbeddingLSTM
-	feature_extraction.SBERT
-
-Functions
-
-.. autosummary::
-   :toctree: generated/
-
-	feature_extraction.get_feature_model
-	feature_extraction.get_feature_class
-	feature_extraction.list_feature_extraction
 
 
 .. _ref-query-strategies:
@@ -238,6 +206,7 @@ Classes
    query.RandomQuery
    query.ClusterQuery
 
+
 Functions
 
 .. autosummary::
@@ -246,6 +215,42 @@ Functions
    query.get_query_model
    query.get_query_class
    query.list_query_strategies
+
+   
+.. _ref-balance-strategies:
+
+:mod:`asreview.models.balance`
+------------------------------
+
+.. automodule:: asreview.models.balance
+    :no-members:
+    :no-inherited-members:
+
+.. currentmodule:: asreview.models
+
+Classes
+
+.. autosummary::
+   :toctree: generated/
+
+   balance.base.BaseBalance
+   balance.SimpleBalance
+   balance.DoubleBalance
+   balance.TripleBalance
+   balance.UndersampleBalance
+
+
+Functions
+
+.. autosummary::
+   :toctree: generated/
+
+   balance.get_balance_model
+   balance.get_balance_class
+   balance.list_balance_strategies
+
+
+
 
 
 Projects and States
