@@ -170,8 +170,8 @@ Examples:
 
 .. option:: -w WRITE_INTERVAL, --write_interval WRITE_INTERVAL
 
-    The simulation data will be written away after each set of thismany
-    labeled records. By default only writes away data at the endof the
+    The simulation data will be written away after each set of this many
+    labeled records. By default only writes away data at the end of the
     simulation to make it as fast as possible.
 
 .. option:: --verbose VERBOSE, -v VERBOSE
@@ -185,7 +185,7 @@ Examples:
 
 .. note::
 
-	Some classifiers (models) and feature extraction algorithms require additional dependecies. Use :code:`pip install asreview[all]` to install all additional dependencies at once.
+	Some classifiers (models) and feature extraction algorithms require additional dependencies. Use :code:`pip install asreview[all]` to install all additional dependencies at once.
 
 
 .. _feature-extraction-table:

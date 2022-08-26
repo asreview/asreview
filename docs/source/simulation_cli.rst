@@ -17,7 +17,7 @@ The simulation command line tool can be accessed directly like:
 
 This performs a simulation with the default active learning model, where
 ``MY_DATASET.csv`` is the path to the fully labeled dataset you want to
-simulate. The result of the simulation is stored, after a succesful
+simulate. The result of the simulation is stored, after a successful
 simulation, at ``MY_SIMULATION.asreview`` where ``MY_SIMULATION`` is the
 filename you prefer.
 

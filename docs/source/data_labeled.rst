@@ -49,7 +49,7 @@ Partially labeled data
 	Useful for Oracle projects. Read more about :ref:`project_create:Project modes`.
 
 Partially labeled datasets are datasets with a labeling decision for a subset
-of the records in the dataset and no decission for another subset.  
+of the records in the dataset and no decision for another subset.  
 
 A partially labeled dataset can be obtained by exporting results from ASReview
 LAB or other software. It can also be constructed given the format described

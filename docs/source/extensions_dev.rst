@@ -123,7 +123,7 @@ class method ``execute``.
 It is strongly recommended to define the attributes ``description``,
 ``extension_name``, and ``version``.
 
-The class method ``execute`` accepts a positional arugument (``argv`` in this
+The class method ``execute`` accepts a positional argument (``argv`` in this
 example).  First create the functionality you would like to be able to use in
 any directory. The argument ``argv`` are the command line arguments left after
 removing asreview and the entry point.

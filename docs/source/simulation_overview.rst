@@ -58,7 +58,7 @@ Simulate with webapp
 
 To run a simulation in the ASReview webapp, create a project as described in
 :doc:`project_create`. Most of the steps of the setup are identical or
-straightworward. In this section, some of the differences are highlighted.
+straightforward. In this section, some of the differences are highlighted.
 
 In the step on *Project Information*, select the "Simulation"
 mode (see figure below).
@@ -108,5 +108,5 @@ Install ASReview Insights directly from PyPi:
 
 	pip install asreview-insights
 
-Detailed documention can found on the `ASReview Insights GitHub <https://github.com/asreview/asreview-insights>`_ page.
+Detailed documentation can found on the `ASReview Insights GitHub <https://github.com/asreview/asreview-insights>`_ page.
 
