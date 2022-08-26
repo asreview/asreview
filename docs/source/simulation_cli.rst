@@ -65,7 +65,7 @@ For example:
     asreview simulate benchmark:van_de_Schoot_2017 -s myreview.asreview
 
 
-Active Learning
+Active learning
 ~~~~~~~~~~~~~~~
 
 .. option:: -e, --feature_extraction FEATURE_EXTRACTION
@@ -100,9 +100,8 @@ Active Learning
     File path of embedding matrix. Required for LSTM models.
 
 
-Prior Knowledge
+Prior knowledge
 ~~~~~~~~~~~~~~~
-
 
 By default, the model initializes with one relevant and one irrelevant record.
 You can set the number of priors by ``--n_prior_included`` and
@@ -116,7 +115,8 @@ indices of the papers you want to start the simulation with.
 
 .. option:: --n_prior_excluded N_PRIOR_EXCLUDED
 
-    The number of prior excluded papers. Only used when :code:`prior_idx` is not given. Default 1.
+    The number of prior excluded papers. Only used when :code:`prior_idx` is
+    not given. Default 1.
 
 
 .. option:: --prior_idx [PRIOR_IDX [PRIOR_IDX ...]]
@@ -126,21 +126,20 @@ indices of the papers you want to start the simulation with.
 
 .. option:: --init_seed INIT_SEED
 
-    Seed for setting the prior indices if the prior_idx option is not used. If the option
-    prior_idx is used with one or more index, this option is ignored.
+    Seed for setting the prior indices if the prior_idx option is not used. If
+    the option prior_idx is used with one or more index, this option is
+    ignored.
 
 
 
-Simulation Setup
+Simulation setup
 ~~~~~~~~~~~~~~~~
 
 .. option:: --n_instances N_INSTANCES
 
-  The ``--n_instances`` argument controls the number of records that have to be
-  labeled before the model is retrained, and is set at 1 by default. If
-  you want to reduce the number of training iterations, for example to limit the
-  size of your state file and the time to simulate, you can increase
-  ``--n_instances``. Default 1.
+    Controls the number of records to be labeled before the model is
+    retrained. Increase ``n_instances``, for example, to reduce the time it
+    takes to simulate. Default 1.
 
 .. option:: --stop_if STOP_IF
 
