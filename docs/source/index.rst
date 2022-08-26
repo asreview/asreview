@@ -60,7 +60,11 @@ feature requests, please submit an issue on `GitHub
 
     simulation_overview
 
+    simulation_webapp
+
     simulation_cli
+
+    simulation_results
 
     simulation_api_example
 
