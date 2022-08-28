@@ -70,30 +70,31 @@ Active learning
 
 .. option:: -e, --feature_extraction FEATURE_EXTRACTION
 
-  The default is TF-IDF (:code:`tfidf`), more options and details are listed
-  in the table for :ref:`ref-feature-extraction`.
+    The default is TF-IDF (:code:`tfidf`). More options and details are listed
+    in :ref:`ref-feature-extraction`.
 
 .. option:: -m, --model MODEL
 
-  The default is set to be Naive Bayes (:code:`nb`). Names for implemented classifiers
-  are listed on the :ref:`ref-classifiers` table.
+    The default is Naive Bayes (:code:`nb`). More options and details are listed
+    in :ref:`ref-classifiers`.
 
 .. option:: -q, --query_strategy QUERY_STRATEGY
 
-  Implemented query strategies are listed on the :ref:`ref-query-strategies`
-  table. The default is :code:`max`.
+    The default is Maximum (:code:`max`). More options and details are listed
+    in :ref:`ref-query-strategies`.
 
 .. option:: -b, --balance_strategy BALANCE_STRATEGY
 
-    The data rebalancing strategy is used to deal with the sparse number of relevant records. 
-    The default is :code:`double`, other options are described in the :ref:`ref-balance-strategies`
+    The default is :code:`double`. The balancing strategy is used to deal with
+    the sparsity of relevant records. More options and details are listed
+    in :ref:`ref-balance-strategies`
 
 .. option:: --seed SEED
 
-  To make your simulations reproducible you can use the ``--seed`` and
-  ``--init_seed`` options. 'init_seed' controls the starting set of papers to
-  train the model on, while the 'seed' controls the seed of the random number
-  generation that is used after initialization. Use an integer between 0 and 2^32 - 1.
+    To make your simulations reproducible you can use the ``--seed`` and
+    ``--init_seed`` options. 'init_seed' controls the starting set of papers
+    to train the model on, while the 'seed' controls the seed of the random
+    number generation that is used after initialization.
 
 .. option:: --embedding EMBEDDING_FP
 
@@ -111,7 +112,8 @@ indices of the papers you want to start the simulation with.
 
 .. option:: --n_prior_included N_PRIOR_INCLUDED
 
-    The number of prior included papers. Only used when :code:`prior_idx` is not given. Default 1.
+    The number of prior included papers. Only used when :code:`prior_idx` is
+    not given. Default 1.
 
 .. option:: --n_prior_excluded N_PRIOR_EXCLUDED
 
@@ -121,7 +123,7 @@ indices of the papers you want to start the simulation with.
 
 .. option:: --prior_idx [PRIOR_IDX [PRIOR_IDX ...]]
 
-    Prior indices by rownumber (0 is first rownumber).
+    Prior indices by rownumber (rownumbers start at 0).
 
 
 .. option:: --init_seed INIT_SEED
@@ -155,7 +157,6 @@ Save
 .. option:: --state_file STATE_FILE, -s STATE_FILE
 
     Location to ASReview project file of simulation.
-
 
 
 Algorithms
