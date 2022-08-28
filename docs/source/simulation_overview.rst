@@ -50,4 +50,3 @@ Simulations require :ref:`fully labeled datasets <data_labeled:fully labeled dat
     <https://asreview.ai/blog/the-importance-of-abstracts/>`_). With clean data you
     benefit most from what :doc:`active learning <about>`
     has to offer.
-
