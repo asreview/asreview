@@ -130,7 +130,7 @@ The file is ordered as follows:
 
 1. All relevant records you have seen in the order they were shown during the screening process.
 2. All records not seen during the screening and ordered from most to least relevant according to the last iteration of the model.
-3. All non-relevant records are presented in the order these are shown during the screening proces.
+3. All non-relevant records are presented in the order these are shown during the screening process.
 
 
 To download your results follow these steps:

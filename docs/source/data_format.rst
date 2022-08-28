@@ -111,7 +111,7 @@ default mapping can be found on the `rispy GitHub page <https://github.com/MrTan
   When re-importing a partly labeled dataset in the the RIS file format, the
   labels stored in the N1 field are used as prior knowledge. When a completely
   labeled dataset is re-imported it can be used in the Exploration and
-  Simualtion mode.  
+  Simulation mode.  
 
 
 
