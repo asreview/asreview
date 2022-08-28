@@ -42,7 +42,7 @@ available interfaces for interacting with the ASReview software:
 
     - The Command Line is an interface used to open ASReview LAB, run
       simulations, and run :doc:`Subcommand extensions <extensions_dev>` for ASReview. This development section documents all available
-      command line options for both ASReview LAB and simulation mode.
+      command line options for both :doc:`ASReview LAB <start>` and :doc:`simulation mode <simulation_cli>`.
 
 * Layer 1: :doc:`reference`
 
