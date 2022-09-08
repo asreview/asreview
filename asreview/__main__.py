@@ -99,18 +99,14 @@ def main():
             f"{description_subcommands}"
         )
 
-        # version
         parser.add_argument(
-            "-V", "--version",
-            action='store_true',
-            help="print the ASR version number and exit")
+            "-V",
+            "--version",
+            action="version",
+            version='%(prog)s {version}'.format(version=__version__)
+        )
 
         args, _ = parser.parse_known_args()
-
-        # output the version
-        if args.version:
-            print(__version__)
-            return
 
         parser.print_help()
 
