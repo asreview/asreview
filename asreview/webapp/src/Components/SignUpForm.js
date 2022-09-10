@@ -1,7 +1,7 @@
-import * as React from "react";
-import { useMutation } from "react-query";
-import { useNavigate } from "react-router-dom";
-import LoadingButton from "@mui/lab/LoadingButton";
+import * as React from 'react';
+import { useMutation } from 'react-query';
+import { useNavigate } from 'react-router-dom';
+import LoadingButton from '@mui/lab/LoadingButton';
 import {
   Box,
   Button,
@@ -15,23 +15,23 @@ import {
   Stack,
   TextField,
   Typography,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
 
-import { HelpPrivacyTermsButton } from "../Components";
+import { HelpPrivacyTermsButton } from '../Components';
 
-import { InlineErrorHandler } from ".";
+import { InlineErrorHandler } from '.';
 
-import BaseAPI from "../api/AuthAPI";
-import { useToggle } from "../hooks/useToggle";
-import { WordmarkState } from "../globals";
+import BaseAPI from '../api/AuthAPI';
+import { useToggle } from '../hooks/useToggle';
+import { WordmarkState } from '../globals';
 
 const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
 const PWD_REGEX =
   /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-const EMAIL_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;;
+const EMAIL_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
 
-const PREFIX = "SignUpForm";
+const PREFIX = 'SignUpForm';
 
 const classes = {
   button: `${PREFIX}-button`,
@@ -40,54 +40,91 @@ const classes = {
   logo: `${PREFIX}-logo`,
 };
 
-const Root = styled("div")(({ theme }) => ({
-  display: "flex",
-  height: "100%",
-  width: "100%",
-  alignItems: "center",
-  justifyContent: "center",
-  position: "absolute",
+const Root = styled('div')(({ theme }) => ({
+  display: 'flex',
+  height: '100%',
+  width: '100%',
+  alignItems: 'center',
+  justifyContent: 'center',
+  position: 'absolute',
   [`& .${classes.button}`]: {
     paddingTop: theme.spacing(3),
     paddingBottom: theme.spacing(3),
-    justifyContent: "space-between",
+    justifyContent: 'space-between',
   },
 
   [`& .${classes.card}`]: {
     borderRadius: theme.spacing(2),
-    width: "500px",
+    width: '500px',
   },
 
   [`& .${classes.cardContent}`]: {
-    padding: "48px 40px !important",
+    padding: '48px 40px !important',
   },
 
   [`& .${classes.logo}`]: {
-    width: "100%",
-    maxWidth: "130px",
+    width: '100%',
+    maxWidth: '130px',
   },
 }));
+
+// helper function that generates initial state object
+const initState = (value='', validity=null, focus=null) => {
+    return { value: value, isValid: validity, hasFocus: focus};
+}
+
+// Reducer Functions
+const usernameReducer = (state, action) => {
+    const checkValidity = (input) => USERNAME_REGEX.test(input);
+    
+    switch(action.type) {
+        case 'INPUT':
+            return { value: action.value, isValid: checkValidity(action.value), hasFocus: true };
+        case 'BLUR':
+            return { value: state.value, isValid: checkValidity(state.value), hasFocus: false };
+        case 'FOCUS':
+            return { value: state.value, isValid: checkValidity(state.value), hasFocus: true };
+        case 'RESET':
+            return initState();
+        default:
+            return state;
+    }
+}
+
+const emailReducer = (state, action) => {
+    const checkValidity = (input) => EMAIL_REGEX.test(input);
+    
+    switch(action.type) {
+        case 'INPUT':
+            return { value: action.value, isValid: checkValidity(action.value), hasFocus: true };
+        case 'BLUR':
+            return { value: state.value, isValid: checkValidity(state.value), hasFocus: false };
+        case 'FOCUS':
+            return { value: state.value, isValid: checkValidity(state.value), hasFocus: true };
+        case 'RESET':
+            return initState();
+        default:
+            return state;
+    }
+}
+
+const passwordReducer = (state, action) => {
+
+}
 
 const SignUpForm = (props) => {
   const navigate = useNavigate();
 
-  const [username, setUsername] = React.useState("");
-  const [validUsername, setValidUsername] = React.useState(false);
-  const [usernameFocused, setUsernameFocused] = React.useState(false);
+  const [usernameState, dispatchUsername] = React.useReducer(usernameReducer, initState());
+  const [emailState, dispatchEmail] = React.useReducer(emailReducer, initState());
+  const [passwordState, dispatchPassword] = React.useReducer(passwordReducer, initState());
 
-  const [firstName, setFirstName] = React.useState("")
-  const [lastName, setLastName] = React.useState("")
-  const [affiliation, setAffiliation] = React.useState("")
-  
-  const [email, setEmail] = React.useState("")
-  const [validEmail, setValidEmail] = React.useState(false)
-  const [emailFocused, setEmailFocused] = React.useState(false)
 
-  const [password, setPassword] = React.useState("");
+  const [password, setPassword] = React.useState('');
   const [validPassword, setValidPassword] = React.useState(false);
   const [passwordFocused, setPasswordFocused] = React.useState(false);
 
-  const [confirmPassword, setConfirmPassword] = React.useState("");
+  const [confirmPassword, setConfirmPassword] = React.useState('');
   const [validConfirmPassword, setValidConfirmPassword] = React.useState(false);
   const [confirmPasswordFocused, setConfirmPasswordFocused] =
     React.useState(false);
@@ -99,41 +136,25 @@ const SignUpForm = (props) => {
     BaseAPI.signup,
     {
       onSuccess: () => {
-        setUsername("");
-        setFirstName("");
-        setLastName("");
-        setAffiliation("");
-        setEmail("");
-        setPassword("");
-        setConfirmPassword("");
-        setPublicAccount("");
-        navigate("/signin");
+        dispatchUsername({ type: 'RESET' });
+        dispatchEmail({ type: 'RESET' });
+
+        setPassword('');
+        setConfirmPassword('');
+        setPublicAccount('');
+        navigate('/signin');
       },
     }
   );
 
-  const handleUsernameChange = (e) => {
+  const handleUsernameChange = (event) => {
     reset();
-    setUsername(e.target.value);
-    setValidUsername(USERNAME_REGEX.test(e.target.value));
+    dispatchUsername({ type: 'INPUT', value: event.target.value });
   };
 
-  const handleFirstNameChange = (e) => {
-    setFirstName(e.target.value);
-  };
-
-  const handleLastNameChange = (e) => {
-    setLastName(e.target.value);
-  };
-
-  const handleAffiliationChange = (e) => {
-    setAffiliation(e.target.value);
-  };
-
-  const handleEmailChange = (e) => {
+  const handleEmailChange = (event) => {
     reset()
-    setEmail(e.target.value);
-    setValidEmail(EMAIL_REGEX.test(e.target.value))
+    dispatchEmail({ type: 'INPUT', value: event.target.value });
   };
 
   const handlePasswordChange = (e) => {
@@ -150,26 +171,36 @@ const SignUpForm = (props) => {
     setPublicAccount(+(!Boolean(publicAccount)));
   }
 
+
+
+
   React.useEffect(() => {
     setValidPassword(PWD_REGEX.test(password));
     setValidConfirmPassword(confirmPassword === password);
   }, [password, confirmPassword]);
 
-  const handleUsernameFocus = () => {
-    setUsernameFocused(true);
-  };
 
-  const handleUsernameBlur = () => {
-    setUsernameFocused(false);
+  // FOCUS HANDLERS
+  const handleUsernameFocus = () => {
+    dispatchUsername({ type: 'FOCUS' });
   };
 
   const handleEmailFocus = () => {
-    setEmailFocused(true);
+    dispatchEmail({ type: 'FOCUS' });
+  };
+
+
+  // BLUR HANDLERS
+  const handleUsernameBlur = () => {
+    dispatchUsername({ type: 'BLUR' });
   };
 
   const handleEmailBlur = () => {
-    setEmailFocused(false);
+    dispatchUsername({ type: 'FOCUS' });
   };
+
+
+
 
   const handlePasswordFocus = () => {
     setPasswordFocused(true);
@@ -187,117 +218,121 @@ const SignUpForm = (props) => {
     setConfirmPasswordFocused(false);
   };
 
+
+
+  
+
   const returnType = () => {
-    return !showPassword ? "password" : "text";
+    return !showPassword ? 'password' : 'text';
   };
 
   const returnHelperText = () => {
     if (password && !passwordFocused && !validPassword) {
-      return "Sorry, your password must be at least 8 characters long and contain a mix of letters, numbers, and symbols.";
+      return 'Sorry, your password must be at least 8 characters long and contain a mix of letters, numbers, and symbols.';
     } else if (
       confirmPassword &&
       !confirmPasswordFocused &&
       !validConfirmPassword
     ) {
-      return "Passwords do not match. Try again.";
+      return 'Passwords do not match. Try again.';
     } else {
       return null;
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (validUsername && validPassword && validConfirmPassword && validEmail) {
-      mutate({ username, firstName, lastName, affiliation, publicAccount, password });
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    if (true) {
+      //mutate({ username, firstName, lastName, affiliation, publicAccount, password });
     } else {
-      // trigger errors on mandatory fields
-      
+
     }
   };
 
   const handleSignIn = () => {
-    navigate("/signin");
+    navigate('/signin');
   };
 
   return (
     <Root>
       <Fade in>
         <Box>
-          <Card className={classes.card} variant="outlined">
+          <Card className={classes.card} variant='outlined'>
             <CardContent className={classes.cardContent}>
               <Stack spacing={3}>
                 <img
                   className={classes.logo}
                   src={WordmarkState()}
-                  alt="ASReview LAB"
+                  alt='ASReview LAB'
                 />
-                <Typography variant="h5">Create your profile</Typography>
+                <Typography variant='h5'>Create your profile</Typography>
                 <Stack
                   spacing={3}
-                  component="form"
+                  component='form'
                   noValidate
-                  autoComplete="off"
+                  autoComplete='off'
                 >
                   <TextField
-                    id="username"
-                    label="Username"
-                    size="small"
+                    id='username'
+                    label='Username'
+                    size='small'
                     fullWidth
                     autoFocus
                     error={
-                      username !== "" && !validUsername && !usernameFocused
+                      (usernameState.isValid === false)
                     }
                     helperText={
-                      username && !validUsername && !usernameFocused
-                        ? "Sorry, your username must be between 3 and 20 characters long and only contain letters (a-z), numbers (0-9), and underscores (_)."
-                        : "You can use letters, numbers & underscores"
+                      (usernameState.isValid === false)
+                        ? 'Sorry, your username must be between 3 and 20 characters long and only contain letters (a-z), numbers (0-9), and underscores (_).'
+                        : 'You can use letters, numbers & underscores'
                     }
-                    value={username}
+                    value={usernameState.value}
                     onChange={handleUsernameChange}
                     onFocus={handleUsernameFocus}
                     onBlur={handleUsernameBlur}
                   />
                   <FormControl>
-                    <Stack direction="row" spacing={2}>
+                    <Stack direction='row' spacing={2}>
                       <TextField
-                        id="first_name"
-                        label="First name"
-                        size="small"
+                        id='first_name'
+                        label='First name'
+                        size='small'
                         fullWidth
-                        value={firstName}
-                        onChange={handleFirstNameChange}
+                        //value={firstName}
+                        //onChange={handleFirstNameChange}
                       />
                       <TextField
-                        id="last_name"
-                        label="Last name"
-                        size="small"
+                        id='last_name'
+                        label='Last name'
+                        size='small'
                         fullWidth
-                        value={lastName}
-                        onChange={handleLastNameChange}
+                        //value={lastName}
+                        //onChange={handleLastNameChange}
                       />
                     </Stack>
                   </FormControl>
                   <TextField
-                    id="affiliation"
-                    label="Affiliation"
-                    size="small"
+                    id='affiliation'
+                    label='Affiliation'
+                    size='small'
                     fullWidth
-                    value={affiliation}
-                    onChange={handleAffiliationChange}
-                    onFocus={handlePasswordFocus}
-                    onBlur={handlePasswordBlur}
+                    //value={affiliation}
+                    //onChange={handleAffiliationChange}
+                    //onFocus={handlePasswordFocus}
+                    //onBlur={handlePasswordBlur}
                   />
                 <TextField
-                    id="email"
-                    label="Email"
-                    size="small"
+                    id='email'
+                    label='Email'
+                    size='small'
                     fullWidth
-                    value={email}
+                    value={emailState.value}
                     error={
-                      email !== "" && !validEmail && !emailFocused
+                      (emailState.isValid === false)
                     }
                     helperText={
-                      email && !validEmail && !emailFocused
+                      (emailState.isValid === false)
                       ? "Sorry, the provided email address doesn't comply with our format checks."
                       : null
                     }
@@ -306,14 +341,14 @@ const SignUpForm = (props) => {
                     onChange={handleEmailChange}
                   />
                   <FormControl>
-                    <Stack direction="row" spacing={2}>
+                    <Stack direction='row' spacing={2}>
                       <TextField
-                        id="password"
-                        label="Password"
-                        size="small"
+                        id='password'
+                        label='Password'
+                        size='small'
                         fullWidth
                         error={
-                          password !== "" &&
+                          password !== '' &&
                           !passwordFocused &&
                           !validPassword
                         }
@@ -324,12 +359,12 @@ const SignUpForm = (props) => {
                         onBlur={handlePasswordBlur}
                       />
                       <TextField
-                        id="confirm"
-                        label="Confirm"
-                        size="small"
+                        id='confirm'
+                        label='Confirm'
+                        size='small'
                         fullWidth
                         error={
-                          confirmPassword !== "" &&
+                          confirmPassword !== '' &&
                           !confirmPasswordFocused &&
                           !validConfirmPassword
                         }
@@ -342,29 +377,29 @@ const SignUpForm = (props) => {
                     </Stack>
                     <FormHelperText error={returnHelperText() !== null}>
                       {!returnHelperText()
-                        ? "Use 8 or more characters with a mix of letters, numbers & symbols"
+                        ? 'Use 8 or more characters with a mix of letters, numbers & symbols'
                         : returnHelperText()}
                     </FormHelperText>
                     <FormControlLabel
                       control={
                         <Checkbox
-                          id="public"
-                          color="primary"
+                          id='public'
+                          color='primary'
                           onChange={toggleShowPassword}
                         />
                       }
-                      label="Show password"
+                      label='Show password'
                     />
                     <FormControlLabel
                       control={
                         <Checkbox
-                          color="primary"
+                          color='primary'
                           defaultChecked={true}
                           value={publicAccount}
                           onChange={handlePublicAccountChange}
                         />
                       }
-                      label="Make this account public"
+                      label='Make this account public'
                     />
                     <FormHelperText>
                       Making this account public allows you to collaborate.
@@ -372,14 +407,14 @@ const SignUpForm = (props) => {
                   </FormControl>
                 </Stack>
                 {isError && <InlineErrorHandler message={error.message} />}
-                <Stack className={classes.button} direction="row">
-                  <Button onClick={handleSignIn} sx={{ textTransform: "none" }}>
+                <Stack className={classes.button} direction='row'>
+                  <Button onClick={handleSignIn} sx={{ textTransform: 'none' }}>
                     Sign in instead
                   </Button>
                   <LoadingButton
                     loading={isLoading}
-                    variant="contained"
-                    color="primary"
+                    variant='contained'
+                    color='primary'
                     onClick={handleSubmit}
                   >
                     Create
