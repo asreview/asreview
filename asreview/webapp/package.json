@@ -59,7 +59,7 @@
     ]
   },
   "devDependencies": {
-    "node-fetch": ">=2.6.7",
+    "node-fetch": ">=3.2.10",
     "react-redux": "^7.2.2",
     "redux": "^4.0.5"
   }
