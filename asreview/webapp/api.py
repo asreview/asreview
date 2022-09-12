@@ -973,7 +973,7 @@ def api_start(project):  # noqa: F401
             ] + list(map(str, priors)) + [
                 # specify state file
                 "--state_file",
-                project.project_path,
+                str(project.project_path),
                 # specify write interval
                 "--write_interval", "100"
             ]
@@ -1000,7 +1000,7 @@ def api_start(project):  # noqa: F401
                 # train the model via cli
                 "web_run_model",
                 # specify project id
-                project.project_path,
+                str(project.project_path),
                 # output the error of the first model
                 "--output_error",
                 # mark the first run for status update
@@ -1453,7 +1453,7 @@ def api_classify_instance(project, doc_id):  # noqa: F401
         # retrain model
         subprocess.Popen([
             _get_executable(), "-m", "asreview", "web_run_model",
-            project.project_path
+            str(project.project_path)
         ])
 
     response = jsonify({'success': True})
