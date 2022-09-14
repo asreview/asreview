@@ -68,69 +68,91 @@ const Root = styled('div')(({ theme }) => ({
   },
 }));
 
-// helper function that generates initial state object
+// helper functions for generating initial state object
 const initState = (value='', validity=null, focus=null) => {
     return { value: value, isValid: validity, hasFocus: focus};
+};
+
+const initPasswordState = () => {
+    return {
+        password: '',
+        confirmation: '',
+        passwordValid: null,
+        confirmationIsValid: null,
+        passwordHasFocus: null,
+        confirmationHasFocus: null
+    };
 }
 
 // Reducer Functions
 const usernameReducer = (state, action) => {
-    const checkValidity = (input) => USERNAME_REGEX.test(input);
+    const checkValidity = (input) => input === null ? true : USERNAME_REGEX.test(input);
     
     switch(action.type) {
         case 'INPUT':
             return { value: action.value, isValid: checkValidity(action.value), hasFocus: true };
-        case 'BLUR':
-            return { value: state.value, isValid: checkValidity(state.value), hasFocus: false };
         case 'FOCUS':
-            return { value: state.value, isValid: checkValidity(state.value), hasFocus: true };
+            return { ...state, isValid: checkValidity(state.value), hasFocus: true };
+        case 'BLUR':
+            return { ...state, isValid: checkValidity(state.value), hasFocus: false };
         case 'RESET':
             return initState();
         default:
             return state;
     }
-}
+};
 
 const emailReducer = (state, action) => {
-    const checkValidity = (input) => EMAIL_REGEX.test(input);
+    const checkValidity = (input) => input === null ? true : EMAIL_REGEX.test(input);
     
     switch(action.type) {
         case 'INPUT':
             return { value: action.value, isValid: checkValidity(action.value), hasFocus: true };
-        case 'BLUR':
-            return { value: state.value, isValid: checkValidity(state.value), hasFocus: false };
         case 'FOCUS':
             return { value: state.value, isValid: checkValidity(state.value), hasFocus: true };
+        case 'BLUR':
+            return { value: state.value, isValid: checkValidity(state.value), hasFocus: false };
         case 'RESET':
             return initState();
         default:
             return state;
     }
-}
+};
 
 const passwordReducer = (state, action) => {
+    const checkValidity = (input) => input === null ? true : PWD_REGEX.test(input);
+    const checkConfirmation = (password, confirmation) => password === confirmation;
+    
+    switch(action.type) {
+        case 'INPUT_PASSWORD':
+            return { ...state, password: action.value, passwordHasFocus: true };
+        case 'INPUT_CONFIRMATION':
+            return { ...state, confirmation: action.value, confirmPasswordHasFocus: true };
+        case 'FOCUS_PASSWORD':
+            return { ...state, passwordHasFocus: true };
+        case 'FOCUS_CONFIRMATION':
+            console.log(state.password, checkValidity(state.password));
+            return { ...state, confirmationHasFocus: true, passwordValid: checkValidity(state.password) };
+        case 'BLUR_PASSWORD':
+            return { ...state, passwordHasFocus: false };
+        case 'BLUR_CONFIRMATION':
+            return { ...state, confirmationHasFocus: false };
+        case 'RESET':
+            return initPasswordState();
+        default:
+            return state;
+    }
+};
 
-}
 
 const SignUpForm = (props) => {
   const navigate = useNavigate();
 
   const [usernameState, dispatchUsername] = React.useReducer(usernameReducer, initState());
   const [emailState, dispatchEmail] = React.useReducer(emailReducer, initState());
-  const [passwordState, dispatchPassword] = React.useReducer(passwordReducer, initState());
-
-
-  const [password, setPassword] = React.useState('');
-  const [validPassword, setValidPassword] = React.useState(false);
-  const [passwordFocused, setPasswordFocused] = React.useState(false);
-
-  const [confirmPassword, setConfirmPassword] = React.useState('');
-  const [validConfirmPassword, setValidConfirmPassword] = React.useState(false);
-  const [confirmPasswordFocused, setConfirmPasswordFocused] =
-    React.useState(false);
+  const [passwordState, dispatchPassword] = React.useReducer(passwordReducer, initPasswordState());
 
   const [showPassword, toggleShowPassword] = useToggle();
-  const [publicAccount, setPublicAccount] = React.useState(1)
 
   const { error, isError, isLoading, mutate, reset } = useMutation(
     BaseAPI.signup,
@@ -138,46 +160,29 @@ const SignUpForm = (props) => {
       onSuccess: () => {
         dispatchUsername({ type: 'RESET' });
         dispatchEmail({ type: 'RESET' });
-
-        setPassword('');
-        setConfirmPassword('');
-        setPublicAccount('');
+        dispatchPassword({ type: 'RESET' });
         navigate('/signin');
       },
     }
   );
 
+
+  // CHANGE HANDLERS
   const handleUsernameChange = (event) => {
-    reset();
     dispatchUsername({ type: 'INPUT', value: event.target.value });
   };
 
   const handleEmailChange = (event) => {
-    reset()
     dispatchEmail({ type: 'INPUT', value: event.target.value });
   };
 
-  const handlePasswordChange = (e) => {
-    reset();
-    setPassword(e.target.value);
+  const handlePasswordChange = (event) => {
+    dispatchPassword({ type: 'INPUT_PASSWORD', value: event.target.value });
   };
 
-  const handleConfirmPasswordChange = (e) => {
-    reset();
-    setConfirmPassword(e.target.value);
+  const handleConfirmPasswordChange = (event) => {
+    dispatchPassword({ type: 'INPUT_CONFIRMATION', value: event.target.value });
   };
-
-  const handlePublicAccountChange = (e) => {
-    setPublicAccount(+(!Boolean(publicAccount)));
-  }
-
-
-
-
-  React.useEffect(() => {
-    setValidPassword(PWD_REGEX.test(password));
-    setValidConfirmPassword(confirmPassword === password);
-  }, [password, confirmPassword]);
 
 
   // FOCUS HANDLERS
@@ -189,6 +194,14 @@ const SignUpForm = (props) => {
     dispatchEmail({ type: 'FOCUS' });
   };
 
+  const handlePasswordFocus = () => {
+    dispatchPassword({ type: 'FOCUS_PASSWORD' });
+  };
+
+  const handleConfirmPasswordFocus = () => {
+    dispatchPassword({ type: 'FOCUS_CONFIRMATION' })
+  };
+
 
   // BLUR HANDLERS
   const handleUsernameBlur = () => {
@@ -196,48 +209,44 @@ const SignUpForm = (props) => {
   };
 
   const handleEmailBlur = () => {
-    dispatchUsername({ type: 'FOCUS' });
-  };
-
-
-
-
-  const handlePasswordFocus = () => {
-    setPasswordFocused(true);
+    dispatchUsername({ type: 'BLUR' });
   };
 
   const handlePasswordBlur = () => {
-    setPasswordFocused(false);
-  };
-
-  const handleConfirmPasswordFocus = () => {
-    setConfirmPasswordFocused(true);
+    dispatchPassword({ type: 'BLUR_PASSWORD'})
   };
 
   const handleConfirmPasswordBlur = () => {
-    setConfirmPasswordFocused(false);
+    dispatchPassword({ type: 'BLUR_CONFIRMATION'})
   };
 
 
+  React.useEffect(() => {
+    // setValidPassword(PWD_REGEX.test(password));
+    // setValidConfirmPassword(confirmPassword === password);
+  }, [passwordState]);
 
-  
 
-  const returnType = () => {
+
+
+
+  const passwordInputType = () => {
     return !showPassword ? 'password' : 'text';
   };
 
   const returnHelperText = () => {
-    if (password && !passwordFocused && !validPassword) {
-      return 'Sorry, your password must be at least 8 characters long and contain a mix of letters, numbers, and symbols.';
-    } else if (
-      confirmPassword &&
-      !confirmPasswordFocused &&
-      !validConfirmPassword
-    ) {
-      return 'Passwords do not match. Try again.';
-    } else {
-      return null;
-    }
+    // if (password && !passwordFocused && !validPassword) {
+    //   return 'Sorry, your password must be at least 8 characters long and contain a mix of letters, numbers, and symbols.';
+    // } else if (
+    //   confirmPassword &&
+    //   !confirmPasswordFocused &&
+    //   !validConfirmPassword
+    // ) {
+    //   return 'Passwords do not match. Try again.';
+    // } else {
+    //   return null;
+    // }
+    return null;
   };
 
   const handleSubmit = (event) => {
@@ -279,9 +288,7 @@ const SignUpForm = (props) => {
                     size='small'
                     fullWidth
                     autoFocus
-                    error={
-                      (usernameState.isValid === false)
-                    }
+                    error={usernameState.isValid === false}
                     helperText={
                       (usernameState.isValid === false)
                         ? 'Sorry, your username must be between 3 and 20 characters long and only contain letters (a-z), numbers (0-9), and underscores (_).'
@@ -299,16 +306,12 @@ const SignUpForm = (props) => {
                         label='First name'
                         size='small'
                         fullWidth
-                        //value={firstName}
-                        //onChange={handleFirstNameChange}
                       />
                       <TextField
                         id='last_name'
                         label='Last name'
                         size='small'
                         fullWidth
-                        //value={lastName}
-                        //onChange={handleLastNameChange}
                       />
                     </Stack>
                   </FormControl>
@@ -317,10 +320,6 @@ const SignUpForm = (props) => {
                     label='Affiliation'
                     size='small'
                     fullWidth
-                    //value={affiliation}
-                    //onChange={handleAffiliationChange}
-                    //onFocus={handlePasswordFocus}
-                    //onBlur={handlePasswordBlur}
                   />
                 <TextField
                     id='email'
@@ -328,9 +327,7 @@ const SignUpForm = (props) => {
                     size='small'
                     fullWidth
                     value={emailState.value}
-                    error={
-                      (emailState.isValid === false)
-                    }
+                    error={emailState.isValid === false}
                     helperText={
                       (emailState.isValid === false)
                       ? "Sorry, the provided email address doesn't comply with our format checks."
@@ -347,29 +344,26 @@ const SignUpForm = (props) => {
                         label='Password'
                         size='small'
                         fullWidth
-                        error={
-                          password !== '' &&
-                          !passwordFocused &&
-                          !validPassword
-                        }
-                        type={returnType()}
-                        value={password}
+                        error={passwordState.passwordValid===false}
+                        type={passwordInputType()}
+                        value={passwordState.password}
                         onChange={handlePasswordChange}
                         onFocus={handlePasswordFocus}
                         onBlur={handlePasswordBlur}
                       />
                       <TextField
                         id='confirm'
-                        label='Confirm'
+                        label='Confirm Password'
                         size='small'
                         fullWidth
                         error={
-                          confirmPassword !== '' &&
-                          !confirmPasswordFocused &&
-                          !validConfirmPassword
+                        //   confirmPassword !== '' &&
+                        //   !confirmPasswordFocused &&
+                        //   !validConfirmPassword
+                            false
                         }
-                        type={returnType()}
-                        value={confirmPassword}
+                        type={passwordInputType()}
+                        value={passwordState.confirmation}
                         onChange={handleConfirmPasswordChange}
                         onFocus={handleConfirmPasswordFocus}
                         onBlur={handleConfirmPasswordBlur}
@@ -395,8 +389,6 @@ const SignUpForm = (props) => {
                         <Checkbox
                           color='primary'
                           defaultChecked={true}
-                          value={publicAccount}
-                          onChange={handlePublicAccountChange}
                         />
                       }
                       label='Make this account public'

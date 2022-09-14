@@ -10,7 +10,7 @@ import { InlineErrorHandler } from "./Components";
 
 import { BaseAPI } from "./api/index.js";
 import { useToggle } from "./hooks/useToggle";
-import { setASReviewVersion } from "./redux/actions";
+import { setASReviewVersion, setAuthenticated } from "./redux/actions";
 
 import ASReviewLAB_black from "./images/asreview_sub_logo_lab_black_transparent.svg";
 import ASReviewLAB_white from "./images/asreview_sub_logo_lab_white_transparent.svg";
@@ -45,9 +45,13 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const mapDispatchToProps = (dispatch) => {
+  console.log('Hello2');
   return {
     setASReviewVersion: (asreview_version) => {
       dispatch(setASReviewVersion(asreview_version));
+    },
+    setAuthenticated: (authenticated) => {
+      dispatch(setAuthenticated(authenticated));
     },
   };
 };
@@ -57,25 +61,30 @@ const BootPage = ({ setASReviewVersion }) => {
   const navigate = useNavigate();
   const [onAnimation, toggleAnimation] = useToggle(false);
 
-  const setVersion = React.useCallback(
-    (v) => {
-      setASReviewVersion(v);
+  const setGlobals = React.useCallback(
+    (data) => {
+      setASReviewVersion(data.Version);
+      setAuthenticated(data.authenticated);
     },
-    [setASReviewVersion]
+    [setASReviewVersion, setAuthenticated]
   );
 
   const { error, isError } = useQuery("boot", BaseAPI.boot, {
     onSettled: (data) => {
       // skip the loader when you are in development mode
       if (data?.status === "development") {
-        navigate("/signin");
+        if (data?.authenticated) {
+          navigate("/signin");
+        } else {
+          navigate("/projects");
+        }
       } else {
         toggleAnimation();
       }
     },
     onSuccess: (data) => {
       // set the version of asreview
-      setVersion(data.version);
+      setGlobals(data);
     },
     refetchOnWindowFocus: false,
     retry: false,
