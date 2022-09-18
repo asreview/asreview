@@ -18,6 +18,7 @@ import {
   SettingsDialog,
   SignInForm,
   SignUpForm,
+  ConditionalWrapper,
 } from "./Components";
 import { HomePage } from "./HomeComponents";
 import { ProjectPage } from "./ProjectComponents";
@@ -93,18 +94,21 @@ const App = (props) => {
                 path="signin"
                 element={<SignInForm mobileScreen={mobileScreen} />}
               />
-              {/* Private routes */}
+              {/* Public or Private routes, depending on authentication */}
               <Route
                 path="*"
                 element={
-                  <RequireAuth>
+                  <ConditionalWrapper
+                    condition={authentication}
+                    wrapper={children => <RequireAuth>{children}</RequireAuth>}
+                  >
                     <NavigationDrawer
                       mobileScreen={mobileScreen}
                       onNavDrawer={onNavDrawer}
                       toggleNavDrawer={toggleNavDrawer}
                       toggleSettings={toggleSettings}
                     />
-                  </RequireAuth>
+                  </ConditionalWrapper>
                 }
               >
                 <Route

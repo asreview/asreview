@@ -8,8 +8,6 @@ import App from "./App";
 
 // render(<App />, document.getElementById("root"))
 
-console.log(store.getState());
-
 render(
   <React.StrictMode>
     <Provider store={store}>

@@ -15,17 +15,10 @@ const initialState = {
 function rootReducer(state = initialState, action) {
   switch (action.type) {
     case SET_ASREVIEW_VERSION:
-      console.log("set asreview version", action)
       return Object.assign(state, {
         asreview_version: action.asreview_version,
       });
     case AUTHENTICATION:
-      console.log("set authenticated reducer", action)
-      console.log('---------');
-      console.log(state);
-      console.log(action);
-      console.log(Object.assign({}, state, {authentication: action.authentication}));
-      console.log('---------');
       return Object.assign(state, {
         authentication: action.authentication,
       });
