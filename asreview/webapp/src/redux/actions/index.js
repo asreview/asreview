@@ -1,20 +1,26 @@
 import {
   SET_ASREVIEW_VERSION,
-  AUTHENTICATED,
+  AUTHENTICATION,
   SET_PROJECT,
   TOGGLE_HELP_DIALOG,
 } from "../../constants/action-types";
 
-export function setASReviewVersion(asreview_version) {
-  return { type: SET_ASREVIEW_VERSION, asreview_version };
+// note: I am not too sure about these functions, they
+// shield the dispatch type from the developer, but
+// it complicates the API by adding yet another layer
+// of functions. As far as I am concerned these can go. 
+export function setASReviewVersion(data) {
+  console.log('ASREVIEWVERSIONDATA: ', data);
+  return { type: SET_ASREVIEW_VERSION, asreview_version: data };
 }
 
-export function setAuthenticated(authenticated) {
-  return { type: AUTHENTICATED, authenticated };
+export function setAuthentication(data) {
+  console.log('AUTHENTICATIONIST: ', data);
+  return { type: AUTHENTICATION, authentication: data };
 }
 
-export function setProject(project_id) {
-  return { type: SET_PROJECT, project_id };
+export function setProject(data) {
+  return { type: SET_PROJECT, project_id: data };
 }
 
 export function toggleHelpDialog() {

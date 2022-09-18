@@ -26,6 +26,7 @@ import useAuth from "../hooks/useAuth";
 import { useToggle } from "../hooks/useToggle";
 import { WordmarkState } from "../globals";
 
+
 const PREFIX = "SignInForm";
 
 const classes = {
@@ -68,6 +69,8 @@ const Root = styled("div")(({ theme }) => ({
     maxWidth: "130px",
   },
 }));
+
+
 
 const SignInForm = () => {
   const queryClient = useQueryClient();

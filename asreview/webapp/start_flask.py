@@ -208,7 +208,7 @@ def create_app(**kwargs):
 
         response = jsonify({
             "status": status,
-            "authenticated": bool(not app.config['LOGIN_DISABLED']),
+            "authentication": bool(not app.config['LOGIN_DISABLED']),
             "version": asreview_version,
         })
 

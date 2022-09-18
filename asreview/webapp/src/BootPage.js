@@ -1,16 +1,12 @@
 import * as React from "react";
 import ReactLoading from "react-loading";
-import { useQuery } from "react-query";
-import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Box, Fade, Stack } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "./Components";
 
-import { BaseAPI } from "./api/index.js";
 import { useToggle } from "./hooks/useToggle";
-import { setASReviewVersion, setAuthenticated } from "./redux/actions";
 
 import ASReviewLAB_black from "./images/asreview_sub_logo_lab_black_transparent.svg";
 import ASReviewLAB_white from "./images/asreview_sub_logo_lab_white_transparent.svg";
@@ -44,51 +40,15 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const mapDispatchToProps = (dispatch) => {
-  console.log('Hello2');
-  return {
-    setASReviewVersion: (asreview_version) => {
-      dispatch(setASReviewVersion(asreview_version));
-    },
-    setAuthenticated: (authenticated) => {
-      dispatch(setAuthenticated(authenticated));
-    },
-  };
-};
 
-const BootPage = ({ setASReviewVersion }) => {
+const BootPage = (props) => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const [onAnimation, toggleAnimation] = useToggle(false);
+  const [onAnimation, toggleAnimation] = useToggle(true);
 
-  const setGlobals = React.useCallback(
-    (data) => {
-      setASReviewVersion(data.Version);
-      setAuthenticated(data.authenticated);
-    },
-    [setASReviewVersion, setAuthenticated]
-  );
-
-  const { error, isError } = useQuery("boot", BaseAPI.boot, {
-    onSettled: (data) => {
-      // skip the loader when you are in development mode
-      if (data?.status === "development") {
-        if (data?.authenticated) {
-          navigate("/signin");
-        } else {
-          navigate("/projects");
-        }
-      } else {
-        toggleAnimation();
-      }
-    },
-    onSuccess: (data) => {
-      // set the version of asreview
-      setGlobals(data);
-    },
-    refetchOnWindowFocus: false,
-    retry: false,
-  });
+  // THIS NEEDS ATTENTION
+  const error = { message: "This is a message" };
+  const isError = false;
 
   const wordmarkState = () => {
     if (theme.palette.mode === "dark") {
@@ -113,7 +73,7 @@ const BootPage = ({ setASReviewVersion }) => {
           }
         }}
         onExited={() => {
-          navigate("/signin");
+          navigate("projects");
         }}
       >
         <Box className={classes.background}>
@@ -143,4 +103,5 @@ const BootPage = ({ setASReviewVersion }) => {
   );
 };
 
-export default connect(null, mapDispatchToProps)(BootPage);
+// export default connect(null, mapDispatchToProps)(BootPage);
+export default BootPage;

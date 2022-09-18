@@ -41,9 +41,9 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setASReviewVersion: (asreview_version) => {
-      dispatch(setASReviewVersion(asreview_version));
-    },
+    // setASReviewVersion: (asreview_version) => {
+    //   dispatch(setASReviewVersion(asreview_version));
+    // },
   };
 };
 
@@ -71,7 +71,8 @@ const SettingsDialog = (props) => {
     enabled: props.asreview_version === undefined,
     onSuccess: (data) => {
       // set the version of asreview
-      props.setASReviewVersion(data.version);
+      // console.log("EARLY ON");
+      //props.setASReviewVersion(data.version);
     },
     refetchOnWindowFocus: false,
   });
