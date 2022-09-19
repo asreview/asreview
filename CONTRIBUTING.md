@@ -14,10 +14,10 @@ There are multiple ways to contribute:
 - [Contribute code](#contribute-code)
 - [Contribute in discussions](#discussions)
 
-##  Reporting Bugs
+##  Reporting bugs
 Is something not working as expected 🤔?
 
-Create an [issue](https://github.com/asreview/asreview/issues/new/choose) and select `Bug report 🐛`. 
+Create an [issue](https://github.com/asreview/asreview/issues/new/choose) and select `Bug report 🐛`.
 
 ## Feature request
 Do you have a suggestion (and may want to implement it 🙂)?
@@ -36,6 +36,9 @@ You can submit your changes to ASReview [by creating a pull request](https://git
   - See the [issue list here](https://github.com/asreview/asreview/issues).
 - Add a new dataset to [our open dataset repository](https://github.com/asreview/systematic-review-datasets/)
   - See this [pull request](https://github.com/asreview/systematic-review-datasets/pull/11) for an example.
+- Looking to develop your own extension? :electric_plug:
+  - See [create extensions](https://asreview.readthedocs.io/en/latest/extensions_dev.html) for detailed instructions.
+  - See the current [list of extensions](https://github.com/asreview/asreview/discussions/1140)
 
 ## Discussions
 Got any questions for the ASReview community?
@@ -57,5 +60,6 @@ They will get back at you as soon as possible and possibly start integrating you
 
 ## Need more information?
 If you have any more questions, do not hesitate to send an e-mail to asreview@uu.nl.
+You can also [sign up for the newsletter](https://asreview.ai/newsletter/subscribe) for the latest updates on ASReview straight to your inbox! :email:
 
 Thanks again for your contribution, the ASReview team. :yellow_heart:
