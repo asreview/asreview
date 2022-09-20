@@ -15,12 +15,14 @@ There are multiple ways to contribute:
 - [Contribute in discussions](#discussions)
 
 ##  Reporting Bugs
-Found a glitch in the matrix?
-Create [an issue](https://github.com/asreview/asreview/issues/new/choose)! Make sure to choose the Bug issue template.
+Is something not working as expected 🤔?
+
+Create an [issue](https://github.com/asreview/asreview/issues/new/choose) and select `Bug report 🐛`. 
 
 ## Feature request
-Got a suggestion for enhancement of ASReview?
-[File an issue](https://github.com/asreview/asreview/issues/new/choose) and use the Feature request template.
+Do you have a suggestion (and may want to implement it 🙂)?
+
+Create an [issue](https://github.com/asreview/asreview/issues/new/choose) and use the `🚀 Feature request` template.
 
 ## Contribute code
 Want to try to fix the bug you found?
@@ -32,7 +34,7 @@ You can submit your changes to ASReview [by creating a pull request](https://git
 - Improve the [documentation](https://asreview.readthedocs.io/en/latest/). :memo:
 - Propose a fix to an existing issue. :warning:
   - See the [issue list here](https://github.com/asreview/asreview/issues).
-- Add a new dataset to [our open dataset repository](https://github.com/asreview/systematic-review-datasets/pull/11)
+- Add a new dataset to [our open dataset repository](https://github.com/asreview/systematic-review-datasets/)
   - See this [pull request](https://github.com/asreview/systematic-review-datasets/pull/11) for an example.
 
 ## Discussions
