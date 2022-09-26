@@ -486,7 +486,7 @@ class ASReviewData():
         s_dups_text = s.duplicated()
 
         # final boolean series for all duplicates
-        if s_dups_pid:
+        if s_dups_pid is not None:
             s_dups = np.logical_or(s_dups_pid, s_dups_text)
         else:
             s_dups = s_dups_pid
