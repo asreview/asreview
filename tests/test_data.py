@@ -5,8 +5,8 @@ import pandas as pd
 from pytest import mark
 
 import asreview
-from asreview.data.statistics import n_duplicates
 from asreview.data.base import ASReviewData
+from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
 from asreview.search import fuzzy_find
 
