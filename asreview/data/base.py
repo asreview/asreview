@@ -462,54 +462,56 @@ class ASReviewData():
 
         Returns
         -------
-        pandas.DataFrame
-            Dataframe of all identified duplicates.
-        """
-        asdata = copy.deepcopy(self)
-        df_dups = pd.DataFrame()
-
-        if pid in asdata.df.columns:
-            # in case of strings, strip whitespaces and replace empty strings with None
-            if is_string_dtype(asdata.df[pid]):
-                s_pid = asdata.df[pid].str.strip().replace("", None)
-
-            # save duplicates to separate DataFrame
-            df_dups = asdata.df[s_pid.duplicated() & s_pid.notnull()]
-
-            # remove records based on duplicate PIDs
-            asdata.df = asdata.df[(~s_pid.duplicated()) | (s_pid.isnull())].reset_index(drop=True)
-
-        # get the texts and clean them
-        s = pd.Series(asdata.texts) \
-            .str.replace("[^A-Za-z0-9]", "", regex=True) \
-            .str.lower()
-
-        # save new duplicates to DataFrame
-        df_dups = pd.concat([df_dups, asdata.df[s.duplicated()]]).reset_index(drop=True)
-
-        return df_dups
-
-    def drop_duplicates(self, pid='doi'):
-        """Drop duplicates based on a custom persistent identifier (PID) and titles/abstracts.
-
-        Arguments
-        ---------
-        pid: string
-            Which persistent identifier to use for deduplication.
-            Default is 'doi'.
+        pandas.Series
+            Boolean series for each duplicated rows.
         """
         if pid in self.df.columns:
             # in case of strings, strip whitespaces and replace empty strings with None
             if is_string_dtype(self.df[pid]):
                 s_pid = self.df[pid].str.strip().replace("", None)
+            else:
+                s_pid = self.df[pid]
 
-            # remove records based on duplicate PIDs
-            self.df = self.df[(~s_pid.duplicated()) | (s_pid.isnull())].reset_index(drop=True)
+            # save boolean series for duplicates based on persistent identifiers
+            s_dups_pid = ((s_pid.duplicated()) & (s_pid.notnull()))
+
 
         # get the texts and clean them
         s = pd.Series(self.texts) \
             .str.replace("[^A-Za-z0-9]", "", regex=True) \
             .str.lower()
 
-        # remove records based on duplicate texts
-        self.df = self.df[~s.duplicated()].reset_index(drop=True)
+        # save boolean series for duplicates based on titles/abstracts
+        s_dups_text = s.duplicated()
+
+        # final boolean series for all duplicates
+        s_dups = np.logical_or(s_dups_pid, s_dups_text)
+
+        return s_dups
+
+    def drop_duplicates(self, pid='doi', inplace=False, reset_ix=True):
+        """Drop duplicates based on a custom persistent identifier (PID) and titles/abstracts.
+
+        Arguments
+        ---------
+        pid: string, default 'doi'
+            Which persistent identifier to use for deduplication.
+        inplace: boolean, default False
+            Whether to modify the DataFrame rather than creating a new one.
+        reset_ix: boolean, default True
+            If True, the index is reset to the default integer index without creating a new DataFrame column.
+
+        Returns
+        -------
+        pandas.DataFrame or None
+            DataFrame with duplicates removed or None if inplace=True
+        """
+        if inplace:
+            if reset_ix:
+                self.df = self.df[~self.duplicated()].reset_index(drop=True)
+            else:
+                self.df = self.df[~self.duplicated()]
+        elif reset_ix:
+            return self.df[~self.duplicated()].reset_index(drop=True)
+        else:
+            return self.df[~self.duplicated()]
