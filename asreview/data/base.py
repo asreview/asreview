@@ -497,8 +497,7 @@ class ASReviewData():
         inplace: boolean, default False
             Whether to modify the DataFrame rather than creating a new one.
         reset_ix: boolean, default True
-            If True, the index is reset to the default integer index
-            without creating a new DataFrame column.
+            If True, the existing index column is reset to the default integer index.
 
         Returns
         -------
