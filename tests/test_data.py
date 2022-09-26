@@ -84,12 +84,13 @@ def test_data_base():
 
     d_removed_dups = ASReviewData(
         pd.DataFrame({
-            "title": ["a", "c"],
+            "title": ["c", "a"],
             "abstract": ["lorem", "lorem"],
-            "doi": ["10.2", "10.3"]
+            "doi": ["10.3", ""]
         })
     )
 
-    pd.testing.assert_frame_equal(d_dups.drop_duplicates().df, d_nodups.df)
-
     pd.testing.assert_frame_equal(d_dups.duplicated(), d_removed_dups.df)
+
+    d_dups.drop_duplicates()
+    pd.testing.assert_frame_equal(d_dups.df, d_nodups.df)
