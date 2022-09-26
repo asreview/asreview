@@ -223,4 +223,4 @@ def n_duplicates(data, pid='doi'):
     int:
         Number of duplicates
     """
-    return len(data.duplicated(pid))
+    return int(data.duplicated(pid).sum())
