@@ -74,16 +74,10 @@ def test_data_base():
         })
     )
 
-    d_removed_dups = ASReviewData(
-        pd.DataFrame({
-            "title": ["c", "a"],
-            "abstract": ["lorem", "lorem"],
-            "doi": ["10.3", ""]
-        })
-    )
+    s_dups_bool = pd.Series([False, True, False, True, False, False, False, False, False, False])
 
-    # test whether .duplicated() returns a DataFrame with the duplicated records
-    pd.testing.assert_frame_equal(d_dups.duplicated(), d_removed_dups.df)
+    # test whether .duplicated() provides the correct boolean series for duplicates
+    pd.testing.assert_series_equal(d_dups.duplicated(), s_dups_bool)
 
     d_nodups = ASReviewData(
         pd.DataFrame({
@@ -94,5 +88,4 @@ def test_data_base():
     )
 
     # test whether .drop_duplicates() drops the duplicated records correctly
-    d_dups.drop_duplicates()
-    pd.testing.assert_frame_equal(d_dups.df, d_nodups.df)
+    pd.testing.assert_frame_equal(d_dups.drop_duplicates(), d_nodups.df)
