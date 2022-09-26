@@ -42,16 +42,28 @@ const App = (props) => {
   const authentication = useSelector(state => state.authentication);
 
   React.useEffect(() => {
+    if ((authentication === true) && (!appReady)) {
+      toggleAppReadyState();
+    }
+    console.log('SET');
+  }, [authentication])
+
+  React.useEffect(() => {
     console.log("RUNS FIRST");
-    BaseAPI.boot({})
+    let result = BaseAPI.boot({})
       .then(response => {
+        console.log('dispatch the following data', response);
         dispatch(setASReviewVersion(response.version));
         dispatch(setAuthentication(response.authentication));
       })
       .catch(err => { console.log(err); });
 
-    const myTimeout = setTimeout(toggleAppReadyState, 5000);
+
+    // const myTimeout = setTimeout(toggleAppReadyState, 5000);
   }, [])
+
+
+
 
   // Dialog state
   const [onSettings, toggleSettings] = useToggle();
@@ -77,70 +89,77 @@ const App = (props) => {
   // Navigation drawer state
   const [onNavDrawer, toggleNavDrawer] = useToggle(mobileScreen ? false : true);
 
+  const render_rountes = () => {
+    return (
+      <Routes>
+      {/* Public routes */}
+      <Route index element={<BootPage />} />
+      <Route
+          path="signup"
+          element={<SignUpForm mobileScreen={mobileScreen} />}
+      />
+      <Route
+          path="signin"
+          element={<SignInForm mobileScreen={mobileScreen} />}
+      />
+      {/* Public or Private routes, depending on authentication */}
+      <Route
+        path="*"
+        element={
+          <ConditionalWrapper
+            condition={authentication}
+            wrapper={children => <RequireAuth>{children}</RequireAuth>}
+          >
+            <NavigationDrawer
+              mobileScreen={mobileScreen}
+              onNavDrawer={onNavDrawer}
+              toggleNavDrawer={toggleNavDrawer}
+              toggleSettings={toggleSettings}
+            />
+          </ConditionalWrapper>
+        }
+      >
+        <Route
+          path="*"
+          element={
+            <HomePage
+              mobileScreen={mobileScreen}
+              onNavDrawer={onNavDrawer}
+              onProjectSetup={onProjectSetup}
+              projectCheck={projectCheck}
+              setProjectCheck={setProjectCheck}
+              toggleProjectSetup={toggleProjectSetup}
+            />
+          }
+        />
+        <Route
+          path="projects/:project_id/*"
+          element={
+            <ProjectPage
+              mobileScreen={mobileScreen}
+              onNavDrawer={onNavDrawer}
+              fontSize={fontSize}
+              undoEnabled={undoEnabled}
+              keyPressEnabled={keyPressEnabled}
+              projectCheck={projectCheck}
+              setProjectCheck={setProjectCheck}
+              toggleProjectSetup={toggleProjectSetup}
+            />
+          }
+        />
+      </Route>
+    </Routes>
+    )
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={muiTheme}>
           <CssBaseline />
           <div aria-label="nav and main content">
-            <Routes>
-              {/* Public routes */}
-              <Route index element={<BootPage />} />
-              <Route
-                path="signup"
-                element={<SignUpForm mobileScreen={mobileScreen} />}
-              />
-              <Route
-                path="signin"
-                element={<SignInForm mobileScreen={mobileScreen} />}
-              />
-              {/* Public or Private routes, depending on authentication */}
-              <Route
-                path="*"
-                element={
-                  <ConditionalWrapper
-                    condition={authentication}
-                    wrapper={children => <RequireAuth>{children}</RequireAuth>}
-                  >
-                    <NavigationDrawer
-                      mobileScreen={mobileScreen}
-                      onNavDrawer={onNavDrawer}
-                      toggleNavDrawer={toggleNavDrawer}
-                      toggleSettings={toggleSettings}
-                    />
-                  </ConditionalWrapper>
-                }
-              >
-                <Route
-                  path="*"
-                  element={
-                    <HomePage
-                      mobileScreen={mobileScreen}
-                      onNavDrawer={onNavDrawer}
-                      onProjectSetup={onProjectSetup}
-                      projectCheck={projectCheck}
-                      setProjectCheck={setProjectCheck}
-                      toggleProjectSetup={toggleProjectSetup}
-                    />
-                  }
-                />
-                <Route
-                  path="projects/:project_id/*"
-                  element={
-                    <ProjectPage
-                      mobileScreen={mobileScreen}
-                      onNavDrawer={onNavDrawer}
-                      fontSize={fontSize}
-                      undoEnabled={undoEnabled}
-                      keyPressEnabled={keyPressEnabled}
-                      projectCheck={projectCheck}
-                      setProjectCheck={setProjectCheck}
-                      toggleProjectSetup={toggleProjectSetup}
-                    />
-                  }
-                />
-              </Route>
-            </Routes>
+            { (authentication === undefined) && <BootPage /> }
+            { authentication && <p>Hello there</p> }
           </div>
 
           {/* Dialogs */}
