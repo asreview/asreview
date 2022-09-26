@@ -489,7 +489,7 @@ class ASReviewData():
         if s_dups_pid is not None:
             s_dups = np.logical_or(s_dups_pid, s_dups_text)
         else:
-            s_dups = s_dups_pid
+            s_dups = s_dups_text
 
         return s_dups
 
