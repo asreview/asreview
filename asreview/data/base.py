@@ -474,6 +474,8 @@ class ASReviewData():
 
             # save boolean series for duplicates based on persistent identifiers
             s_dups_pid = ((s_pid.duplicated()) & (s_pid.notnull()))
+        else:
+            s_dups_pid = None
 
         # get the texts and clean them
         s = pd.Series(self.texts) \
@@ -484,7 +486,10 @@ class ASReviewData():
         s_dups_text = s.duplicated()
 
         # final boolean series for all duplicates
-        s_dups = np.logical_or(s_dups_pid, s_dups_text)
+        if s_dups_pid:
+            s_dups = np.logical_or(s_dups_pid, s_dups_text)
+        else:
+            s_dups = s_dups_pid
 
         return s_dups
 
