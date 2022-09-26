@@ -74,14 +74,6 @@ def test_data_base():
         })
     )
 
-    d_nodups = ASReviewData(
-        pd.DataFrame({
-            "title": ["a", "b", "d", "e", "f", "g", "h", "i"],
-            "abstract": ["lorem", "lorem", "lorem", "lorem", "lorem", "lorem", "lorem", "lorem"],
-            "doi": ["10.1", "10.3", "", "", "   ", "   ", None, None]
-        })
-    )
-
     d_removed_dups = ASReviewData(
         pd.DataFrame({
             "title": ["c", "a"],
@@ -90,7 +82,17 @@ def test_data_base():
         })
     )
 
+    # test whether .duplicated() returns a DataFrame with the duplicated records
     pd.testing.assert_frame_equal(d_dups.duplicated(), d_removed_dups.df)
 
+    d_nodups = ASReviewData(
+        pd.DataFrame({
+            "title": ["a", "b", "d", "e", "f", "g", "h", "i"],
+            "abstract": ["lorem", "lorem", "lorem", "lorem", "lorem", "lorem", "lorem", "lorem"],
+            "doi": ["10.1", "10.3", "", "", "   ", "   ", None, None]
+        })
+    )
+
+    # test whether .drop_duplicates() drops the duplicated records correctly
     d_dups.drop_duplicates()
     pd.testing.assert_frame_equal(d_dups.df, d_nodups.df)
