@@ -41,7 +41,7 @@ def test_fuzzy_finder(keywords, paper_id):
     "benchmark:Cohen_2006_ACEInhibitors",
     "benchmark:Bos_2018",
 
-    # datasets from the Van de Schoot et al paper
+    # datasets from the Van de Schoot et al. paper
     # https://github.com/asreview/paper-asreview/blob/master/index_v1.json
     "benchmark-nature:van_de_Schoot_2017",
     "benchmark-nature:Hall_2012",
@@ -90,6 +90,6 @@ def test_data_base():
         })
     )
 
-    pd.testing.assert_frame_equal(d_dups.drop_duplicates(), d_nodups)
+    pd.testing.assert_frame_equal(d_dups.drop_duplicates().df, d_nodups.df)
 
-    pd.testing.assert_frame_equal(d_dups.duplicated(), d_removed_dups)
+    pd.testing.assert_frame_equal(d_dups.duplicated(), d_removed_dups.df)
