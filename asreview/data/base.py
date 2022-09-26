@@ -474,7 +474,6 @@ class ASReviewData():
             # save boolean series for duplicates based on persistent identifiers
             s_dups_pid = ((s_pid.duplicated()) & (s_pid.notnull()))
 
-
         # get the texts and clean them
         s = pd.Series(self.texts) \
             .str.replace("[^A-Za-z0-9]", "", regex=True) \
@@ -498,7 +497,8 @@ class ASReviewData():
         inplace: boolean, default False
             Whether to modify the DataFrame rather than creating a new one.
         reset_ix: boolean, default True
-            If True, the index is reset to the default integer index without creating a new DataFrame column.
+            If True, the index is reset to the default integer index
+            without creating a new DataFrame column.
 
         Returns
         -------
@@ -507,10 +507,10 @@ class ASReviewData():
         """
         if inplace:
             if reset_ix:
-                self.df = self.df[~self.duplicated()].reset_index(drop=True)
+                self.df = self.df[~self.duplicated(pid)].reset_index(drop=True)
             else:
-                self.df = self.df[~self.duplicated()]
+                self.df = self.df[~self.duplicated(pid)]
         elif reset_ix:
-            return self.df[~self.duplicated()].reset_index(drop=True)
+            return self.df[~self.duplicated(pid)].reset_index(drop=True)
         else:
-            return self.df[~self.duplicated()]
+            return self.df[~self.duplicated(pid)]

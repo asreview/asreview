@@ -30,6 +30,7 @@ def n_records(data):
     """
     return len(data)
 
+
 def n_relevant(data):
     """Return the number of relevant records.
 
@@ -46,6 +47,7 @@ def n_relevant(data):
     if data.labels is not None:
         return len(np.where(data.labels == 1)[0])
     return None
+
 
 def n_irrelevant(data):
     """Return the number of irrelevant records.
@@ -64,6 +66,7 @@ def n_irrelevant(data):
         return None
     return len(np.where(data.labels == 0)[0])
 
+
 def n_unlabeled(data):
     """Return the number of unlabeled records.
 
@@ -80,6 +83,7 @@ def n_unlabeled(data):
     if data.labels is None:
         return None
     return len(data.labels) - n_relevant(data) - n_irrelevant(data)
+
 
 def n_missing_title(data):
     """Return the number of records with missing titles.
@@ -107,6 +111,7 @@ def n_missing_title(data):
             if (data.labels is not None and data.labels[i] == 1):
                 n_missing_included += 1
     return n_missing, n_missing_included
+
 
 def n_missing_abstract(data):
     """Return the number of records with missing abstracts.
@@ -137,6 +142,7 @@ def n_missing_abstract(data):
 
     return n_missing, n_missing_included
 
+
 def title_length(data):
     """Return the average length of the titles.
 
@@ -156,6 +162,7 @@ def title_length(data):
     for i in range(len(data.title)):
         avg_len += len(data.title[i])
     return avg_len / len(data.title)
+
 
 def abstract_length(data):
     """Return the average length of the abstracts.
@@ -177,6 +184,7 @@ def abstract_length(data):
         avg_len += len(data.abstract[i])
     return avg_len / len(data.abstract)
 
+
 def n_keywords(data):
     """Return the number of keywords.
 
@@ -193,6 +201,7 @@ def n_keywords(data):
     if data.keywords is None:
         return None
     return np.average([len(keywords) for keywords in data.keywords])
+
 
 def n_duplicates(data, pid='doi'):
     """Number of duplicates.
