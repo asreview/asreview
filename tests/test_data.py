@@ -57,7 +57,8 @@ def test_data_statistics():
     d = asreview.ASReviewData(
         pd.DataFrame({
             "title": ["a", "a", "b", "c", "d", "e", "f", "g", "h", "i"],
-            "abstract": ["lorem", "lorem", "lorem", "lorem", "lorem", "lorem", "lorem", "lorem", "lorem", "lorem"],
+            "abstract": ["lorem", "lorem", "lorem", "lorem", "lorem",
+                         "lorem", "lorem", "lorem", "lorem", "lorem"],
             "doi": ["10.1", "", "10.3", "10.3", "", "", "   ", "   ", None, None]
         })
     )
@@ -68,21 +69,25 @@ def test_data_statistics():
 def test_data_base():
     d_dups = ASReviewData(
         pd.DataFrame({
-            "title": ["a", "a", "b", "c", "d", "e", "f", "g", "h", "i"],
-            "abstract": ["lorem", "lorem", "lorem", "lorem", "lorem", "lorem", "lorem", "lorem", "lorem", "lorem"],
+            "title": ["a", "a", "b", "c", "d", "e", "f", "g",
+                      "h", "i"],
+            "abstract": ["lorem", "lorem", "lorem", "lorem", "lorem",
+                         "lorem", "lorem", "lorem", "lorem", "lorem"],
             "doi": ["10.1", "", "10.3", "10.3", "", "", "   ", "   ", None, None]
         })
     )
 
-    s_dups_bool = pd.Series([False, True, False, True, False, False, False, False, False, False])
+    s_dups_bool = pd.Series([False, True, False, True, False,
+                             False, False, False, False, False])
 
-    # test whether .duplicated() provides the correct boolean series for duplicates
+    # test whether .duplicated() provides correct boolean series for duplicates
     pd.testing.assert_series_equal(d_dups.duplicated(), s_dups_bool)
 
     d_nodups = ASReviewData(
         pd.DataFrame({
             "title": ["a", "b", "d", "e", "f", "g", "h", "i"],
-            "abstract": ["lorem", "lorem", "lorem", "lorem", "lorem", "lorem", "lorem", "lorem"],
+            "abstract": ["lorem", "lorem", "lorem", "lorem",
+                         "lorem", "lorem", "lorem", "lorem"],
             "doi": ["10.1", "10.3", "", "", "   ", "   ", None, None]
         })
     )

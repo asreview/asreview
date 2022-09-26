@@ -451,7 +451,8 @@ class ASReviewData():
         return result_df
 
     def duplicated(self, pid='doi'):
-        """Create a dataframe with all duplicates based on a custom persistent identifier (PID) and titles/abstracts.
+        """Create a dataframe with all duplicates based on a custom
+        persistent identifier (PID) and titles/abstracts.
 
         Arguments
         ---------
@@ -488,7 +489,8 @@ class ASReviewData():
         return s_dups
 
     def drop_duplicates(self, pid='doi', inplace=False, reset_ix=True):
-        """Drop duplicates based on a custom persistent identifier (PID) and titles/abstracts.
+        """Drop duplicates based on a custom persistent
+        identifier (PID) and titles/abstracts.
 
         Arguments
         ---------
