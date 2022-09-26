@@ -443,9 +443,6 @@ class ASReviewData():
         # save new duplicates to DataFrame
         df_dups = pd.concat([df_dups, asdata[s.duplicated()]])
 
-        # remove records based on duplicate texts
-        asdata.df = asdata.df[~s.duplicated()].reset_index(drop=True)
-
         return df_dups
 
     def drop_duplicates(self, pid='doi'):
