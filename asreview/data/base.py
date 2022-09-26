@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import copy
 import hashlib
 from pathlib import Path
 from urllib.parse import urlparse
@@ -430,7 +431,7 @@ class ASReviewData():
                 s_pid = asdata.df[pid].str.strip().replace("", None)
 
             # save duplicates to separate DataFrame
-            df_dups = asdata[s_pid.duplicated() & s_pid.notnull()]
+            df_dups = asdata.df[s_pid.duplicated() & s_pid.notnull()]
 
             # remove records based on duplicate PIDs
             asdata.df = asdata.df[(~s_pid.duplicated()) | (s_pid.isnull())].reset_index(drop=True)
@@ -441,7 +442,7 @@ class ASReviewData():
             .str.lower()
 
         # save new duplicates to DataFrame
-        df_dups = pd.concat([df_dups, asdata[s.duplicated()]])
+        df_dups = pd.concat([df_dups, asdata.df[s.duplicated()]]).reset_index(drop=True)
 
         return df_dups
 
