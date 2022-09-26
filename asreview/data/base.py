@@ -18,6 +18,7 @@ from urllib.parse import urlparse
 
 import numpy as np
 import pandas as pd
+from pandas.api.types import is_string_dtype
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
@@ -405,6 +406,73 @@ class ASReviewData():
             writer = entry_points[best_suffix].load()
             writer.write_data(df, fp, labels=labels, ranking=ranking)
 
+    # returns a dataframe containing only duplicated
+    def duplicated(self, pid='doi'):
+        """Create a dataframe with all duplicates based on a custom persistent identifier (PID) and titles/abstracts.
+
+        Arguments
+        ---------
+        pid: string
+            Which persistent identifier to use for deduplication.
+            Default is 'doi'.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Dataframe of all identified duplicates.
+        """
+        asdata = copy.deepcopy(self)
+        df_dups = pd.DataFrame()
+
+        if pid in asdata.df.columns:
+            # in case of strings, strip whitespaces and replace empty strings with None
+            if is_string_dtype(asdata.df[pid]):
+                s_pid = asdata.df[pid].str.strip().replace("", None)
+
+            # save duplicates to separate DataFrame
+            df_dups = asdata[s_pid.duplicated() & s_pid.notnull()]
+
+            # remove records based on duplicate PIDs
+            asdata.df = asdata.df[(~s_pid.duplicated()) | (s_pid.isnull())].reset_index(drop=True)
+
+        # get the texts and clean them
+        s = pd.Series(asdata.texts) \
+            .str.replace("[^A-Za-z0-9]", "", regex=True) \
+            .str.lower()
+
+        # save new duplicates to DataFrame
+        df_dups = pd.concat([df_dups, asdata[s.duplicated()]])
+
+        # remove records based on duplicate texts
+        asdata.df = asdata.df[~s.duplicated()].reset_index(drop=True)
+
+        return df_dups
+
+    def drop_duplicates(self, pid='doi'):
+        """Drop duplicates based on a custom persistent identifier (PID) and titles/abstracts.
+
+        Arguments
+        ---------
+        pid: string
+            Which persistent identifier to use for deduplication.
+            Default is 'doi'.
+        """
+        if pid in self.df.columns:
+            # in case of strings, strip whitespaces and replace empty strings with None
+            if is_string_dtype(self.df[pid]):
+                s_pid = self.df[pid].str.strip().replace("", None)
+
+            # remove records based on duplicate PIDs
+            self.df = self.df[(~s_pid.duplicated()) | (s_pid.isnull())].reset_index(drop=True)
+
+        # get the texts and clean them
+        s = pd.Series(self.texts) \
+            .str.replace("[^A-Za-z0-9]", "", regex=True) \
+            .str.lower()
+
+        # remove records based on duplicate texts
+        self.df = self.df[~s.duplicated()].reset_index(drop=True)
+
     def to_dataframe(self, labels=None, ranking=None):
         """Create new dataframe with updated label (order).
 
@@ -427,7 +495,6 @@ class ASReviewData():
 
         # if there are labels, add them to the frame
         if labels is not None:
-
             # unnest the nested (record_id, label) tuples
             labeled_record_ids = [x[0] for x in labels]
             labeled_values = [x[1] for x in labels]
