@@ -98,10 +98,11 @@ For Simulation and Exploration only. Select one of the
 on *Save* on the top right.
 
 .. note::
-    After adding your dataset, ASReview LAB prints the approximate number of duplicates.
+    After adding your dataset, ASReview LAB shows the approximate number of duplicates.
     This number is based on duplicate titles and abstracts and if available, on DOIs.
-    Removing duplicates can be done via the :doc:`API <reference>`, which also allows using a custom
-    persistent identifier (PID) other than DOI for identifying and removing duplicates.
+    Removing duplicates can be done via the `ASReview Datatools <https://github.com/asreview/asreview-datatools>`_,
+    which also allows using a persistent identifier (PID) other than DOI for
+    identifying and removing duplicates.
 
 
 Select Prior Knowledge
