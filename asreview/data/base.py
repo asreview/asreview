@@ -499,7 +499,7 @@ class ASReviewData():
         """Drop duplicate records.
 
         Drop duplicates based on titles and abstracts and if available,
-        on a persistent identifier (PID) such as DOI.
+        on a persistent identifier (PID) such the Digital Object Identifier (`DOI <https://www.doi.org/>`_).
 
         Arguments
         ---------
