@@ -5,6 +5,7 @@ import pandas as pd
 from pytest import mark
 
 import asreview
+from asreview.data.base import ASReviewData
 from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
 from asreview.search import fuzzy_find
@@ -40,7 +41,7 @@ def test_fuzzy_finder(keywords, paper_id):
     "benchmark:Cohen_2006_ACEInhibitors",
     "benchmark:Bos_2018",
 
-    # datasets from the Van de Schoot et al paper
+    # datasets from the Van de Schoot et al. paper
     # https://github.com/asreview/paper-asreview/blob/master/index_v1.json
     "benchmark-nature:van_de_Schoot_2017",
     "benchmark-nature:Hall_2012",
@@ -53,12 +54,43 @@ def test_datasets(data_name):
 
 
 def test_data_statistics():
-
     d = asreview.ASReviewData(
         pd.DataFrame({
-            "title": ["a", "b", "b", "c"],
-            "abstract": ["lorem", "lorem", "lorem", "lorem"]
+            "title": ["a", "a", "b", "c", "d", "e", "f", "g", "h", "i"],
+            "abstract": ["lorem", "lorem", "lorem", "lorem", "lorem",
+                         "lorem", "lorem", "lorem", "lorem", "lorem"],
+            "doi": ["10.1", "", "10.3", "10.3", "", "", "   ", "   ", None, None]
         })
     )
 
-    assert n_duplicates(d) == 1
+    assert n_duplicates(d) == 2
+
+
+def test_data_base():
+    d_dups = ASReviewData(
+        pd.DataFrame({
+            "title": ["a", "a", "b", "c", "d", "e", "f", "g",
+                      "h", "i"],
+            "abstract": ["lorem", "lorem", "lorem", "lorem", "lorem",
+                         "lorem", "lorem", "lorem", "lorem", "lorem"],
+            "doi": ["10.1", "", "10.3", "10.3", "", "", "   ", "   ", None, None]
+        })
+    )
+
+    s_dups_bool = pd.Series([False, True, False, True, False,
+                             False, False, False, False, False])
+
+    # test whether .duplicated() provides correct boolean series for duplicates
+    pd.testing.assert_series_equal(d_dups.duplicated(), s_dups_bool)
+
+    d_nodups = ASReviewData(
+        pd.DataFrame({
+            "title": ["a", "b", "d", "e", "f", "g", "h", "i"],
+            "abstract": ["lorem", "lorem", "lorem", "lorem",
+                         "lorem", "lorem", "lorem", "lorem"],
+            "doi": ["10.1", "10.3", "", "", "   ", "   ", None, None]
+        })
+    )
+
+    # test whether .drop_duplicates() drops the duplicated records correctly
+    pd.testing.assert_frame_equal(d_dups.drop_duplicates(), d_nodups.df)
