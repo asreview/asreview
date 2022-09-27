@@ -451,8 +451,9 @@ class ASReviewData():
         return result_df
 
     def duplicated(self, pid='doi'):
-        """Create a dataframe with all duplicates based on a custom
-        persistent identifier (PID) and titles/abstracts.
+        """Return boolean Series denoting duplicate rows.
+
+        Based on persistent identifier (PID) and titles/abstracts.
 
         Arguments
         ---------
@@ -487,14 +488,16 @@ class ASReviewData():
 
         # final boolean series for all duplicates
         if s_dups_pid is not None:
-            s_dups = np.logical_or(s_dups_pid, s_dups_text)
+            s_dups = s_dups_pid | s_dups_text
         else:
             s_dups = s_dups_text
 
         return s_dups
 
-    def drop_duplicates(self, pid='doi', inplace=False, reset_ix=True):
-        """Drop duplicates based on a custom persistent
+    def drop_duplicates(self, pid='doi', inplace=False, reset_index=True):
+        """Drop duplicate records.
+
+        Drop duplicates based on persistent
         identifier (PID) and titles/abstracts.
 
         Arguments
@@ -503,7 +506,7 @@ class ASReviewData():
             Which persistent identifier to use for deduplication.
         inplace: boolean, default False
             Whether to modify the DataFrame rather than creating a new one.
-        reset_ix: boolean, default True
+        reset_index: boolean, default True
             If True, the existing index column is reset to the default integer index.
 
         Returns
@@ -511,12 +514,11 @@ class ASReviewData():
         pandas.DataFrame or None
             DataFrame with duplicates removed or None if inplace=True
         """
+        df = self.df[~self.duplicated(pid)]
+
+        if reset_index:
+            df = df.reset_index(drop=True)
         if inplace:
-            if reset_ix:
-                self.df = self.df[~self.duplicated(pid)].reset_index(drop=True)
-            else:
-                self.df = self.df[~self.duplicated(pid)]
-        elif reset_ix:
-            return self.df[~self.duplicated(pid)].reset_index(drop=True)
-        else:
-            return self.df[~self.duplicated(pid)]
+            self.df = df
+            return
+        return df
