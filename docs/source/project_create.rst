@@ -97,6 +97,12 @@ For Simulation and Exploration only. Select one of the
 :ref:`data_labeled:benchmark datasets`. Click
 on *Save* on the top right.
 
+.. note::
+    After adding your dataset, ASReview LAB prints the approximate number of duplicates.
+    This number is based on duplicate titles and abstracts and if available, on DOIs.
+    Removing duplicates can be done via the :doc:`API <reference>`, which also allows using a custom
+    persistent identifier (PID) other than DOI for identifying duplicates.
+
 
 Select Prior Knowledge
 ----------------------
