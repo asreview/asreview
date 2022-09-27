@@ -453,7 +453,7 @@ class ASReviewData():
     def duplicated(self, pid='doi'):
         """Return boolean Series denoting duplicate rows.
 
-        Drop duplicates based on titles and abstracts and if available,
+        Identify duplicates based on titles and abstracts and if available,
         on a persistent identifier (PID) such as DOI.
 
         Arguments
