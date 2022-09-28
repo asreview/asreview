@@ -15,19 +15,19 @@ const initialState = {
 function rootReducer(state = initialState, action) {
   switch (action.type) {
     case SET_ASREVIEW_VERSION:
-      return Object.assign(state, {
+      return Object.assign({}, state, {
         asreview_version: action.asreview_version,
       });
     case AUTHENTICATION:
-      return Object.assign(state, {
+      return Object.assign({}, state, {
         authentication: action.authentication,
       });
     case SET_PROJECT:
-      return Object.assign(state, {
+      return Object.assign({}, state, {
         project_id: action.project_id,
       });
     case TOGGLE_HELP_DIALOG:
-      return Object.assign(state, { 
+      return Object.assign({}, state, { 
         onHelpDialog: !state.onHelpDialog,
       });
 

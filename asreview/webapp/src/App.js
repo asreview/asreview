@@ -40,23 +40,28 @@ const App = (props) => {
 
   const dispatch = useDispatch();
   const authentication = useSelector(state => state.authentication);
+  const [dummy, setDummy] = React.useState("");
+
+
 
   React.useEffect(() => {
-    if ((authentication === true) && (!appReady)) {
-      toggleAppReadyState();
+    console.log('CHANGE AUTHENTICATION', authentication);
+    return () => {
     }
-    console.log('SET');
   }, [authentication])
 
+
   React.useEffect(() => {
-    console.log("RUNS FIRST");
+    console.log("BOOT CALL");
     let result = BaseAPI.boot({})
       .then(response => {
-        console.log('dispatch the following data', response);
-        dispatch(setASReviewVersion(response.version));
         dispatch(setAuthentication(response.authentication));
+        dispatch(setASReviewVersion(response.version));
       })
       .catch(err => { console.log(err); });
+      return () => {
+
+      }
 
 
     // const myTimeout = setTimeout(toggleAppReadyState, 5000);
@@ -158,7 +163,6 @@ const App = (props) => {
         <ThemeProvider theme={muiTheme}>
           <CssBaseline />
           <div aria-label="nav and main content">
-            { (authentication === undefined) && <BootPage /> }
             { authentication && <p>Hello there</p> }
           </div>
 
