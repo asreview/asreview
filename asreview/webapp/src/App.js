@@ -30,13 +30,14 @@ import {
   useUndoEnabled,
 } from "./hooks/SettingsHooks";
 import { useToggle } from "./hooks/useToggle";
+import { SettingsEthernet } from "@mui/icons-material";
 
 const queryClient = new QueryClient();
 
 
 const App = (props) => {
   // =======
-  const [appReady, toggleAppReadyState] = useToggle(false)
+  const [appReady, setAppReadyState] = React.useState(false)
 
   const dispatch = useDispatch();
   const authentication = useSelector(state => state.authentication);
@@ -45,9 +46,12 @@ const App = (props) => {
 
 
   React.useEffect(() => {
-    console.log('CHANGE AUTHENTICATION', authentication);
-    return () => {
+    if (authentication !== undefined) {
+        setTimeout(() => setAppReadyState(true), 2000)
+    } else {
+        setAppReadyState(false);
     }
+    return () => {}
   }, [authentication])
 
 
@@ -59,11 +63,9 @@ const App = (props) => {
         dispatch(setASReviewVersion(response.version));
       })
       .catch(err => { console.log(err); });
-      return () => {
+    return () => {
 
-      }
-
-
+    }
     // const myTimeout = setTimeout(toggleAppReadyState, 5000);
   }, [])
 
@@ -111,17 +113,12 @@ const App = (props) => {
       <Route
         path="*"
         element={
-          <ConditionalWrapper
-            condition={authentication}
-            wrapper={children => <RequireAuth>{children}</RequireAuth>}
-          >
             <NavigationDrawer
               mobileScreen={mobileScreen}
               onNavDrawer={onNavDrawer}
               toggleNavDrawer={toggleNavDrawer}
               toggleSettings={toggleSettings}
             />
-          </ConditionalWrapper>
         }
       >
         <Route
@@ -163,7 +160,30 @@ const App = (props) => {
         <ThemeProvider theme={muiTheme}>
           <CssBaseline />
           <div aria-label="nav and main content">
-            { authentication && <p>Hello there</p> }
+            <Routes>
+              {/* Public routes */}
+              <Route index element={<BootPage />} />
+
+
+
+              <Route
+          path="projects/:project_id/*"
+          element={
+            <ProjectPage
+              mobileScreen={mobileScreen}
+              onNavDrawer={onNavDrawer}
+              fontSize={fontSize}
+              undoEnabled={undoEnabled}
+              keyPressEnabled={keyPressEnabled}
+              projectCheck={projectCheck}
+              setProjectCheck={setProjectCheck}
+              toggleProjectSetup={toggleProjectSetup}
+            />
+          }
+        />
+
+
+            </Routes>
           </div>
 
           {/* Dialogs */}

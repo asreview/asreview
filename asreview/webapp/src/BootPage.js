@@ -73,7 +73,7 @@ const BootPage = (props) => {
           }
         }}
         onExited={() => {
-          navigate("projects");
+          setTimeout(() => navigate("projects", 2000))
         }}
       >
         <Box className={classes.background}>
