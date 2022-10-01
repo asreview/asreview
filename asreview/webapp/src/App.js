@@ -8,13 +8,14 @@ import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import "./App.css";
 
 import { BaseAPI } from "./api/index.js";
-import { setASReviewVersion, setAuthentication } from "./redux/actions";
+import { setBootData } from "./redux/actions";
 
 
 import {
   HelpDialog,
   NavigationDrawer,
   RequireAuth,
+  PersistSignIn,
   SettingsDialog,
   SignInForm,
   SignUpForm,
@@ -36,41 +37,11 @@ const queryClient = new QueryClient();
 
 
 const App = (props) => {
-  // =======
+  // state related stuff for booting the app
   const [appReady, setAppReadyState] = React.useState(false)
-
   const dispatch = useDispatch();
   const authentication = useSelector(state => state.authentication);
-  const [dummy, setDummy] = React.useState("");
-
-
-
-  React.useEffect(() => {
-    if (authentication !== undefined) {
-        setTimeout(() => setAppReadyState(true), 2000)
-    } else {
-        setAppReadyState(false);
-    }
-    return () => {}
-  }, [authentication])
-
-
-  React.useEffect(() => {
-    console.log("BOOT CALL");
-    let result = BaseAPI.boot({})
-      .then(response => {
-        dispatch(setAuthentication(response.authentication));
-        dispatch(setASReviewVersion(response.version));
-      })
-      .catch(err => { console.log(err); });
-    return () => {
-
-    }
-    // const myTimeout = setTimeout(toggleAppReadyState, 5000);
-  }, [])
-
-
-
+  const status = useSelector(state => state.status);
 
   // Dialog state
   const [onSettings, toggleSettings] = useToggle();
@@ -96,60 +67,99 @@ const App = (props) => {
   // Navigation drawer state
   const [onNavDrawer, toggleNavDrawer] = useToggle(mobileScreen ? false : true);
 
-  const render_rountes = () => {
+  // This effect does a boot request to gather information 
+  // about the backend
+  React.useEffect(() => {
+    let result = BaseAPI.boot({})
+      .then(response => {
+        const delay = (response.status === 'development')? 3000 : 3000;
+        // in production we set a 3 secs delay to show the logo,
+        // in development we immediately set the boot-data
+        setTimeout(() => {
+            dispatch(setBootData(response));
+        }, delay);
+      })
+      .catch(err => { console.log(err); });
+  }, [])
+
+  // This effect makes sure we handle routing at the 
+  // moment we know for sure if there is, or isn't authentication.
+  React.useEffect(() => {
+    if (authentication !== undefined) {
+        setAppReadyState(true);
+    } else {
+        setAppReadyState(false);
+    }
+  }, [authentication])
+
+
+
+  const render_sign_routes = () => {
+    return (
+      <>
+        <Route
+            path="/signup"
+            element={<SignUpForm mobileScreen={mobileScreen} />}
+        />
+        <Route
+            path="/signin"
+            element={<SignInForm mobileScreen={mobileScreen} />}
+        />
+      </>
+    );
+  }
+
+  const render_routes = () => {
     return (
       <Routes>
-      {/* Public routes */}
-      <Route index element={<BootPage />} />
-      <Route
-          path="signup"
-          element={<SignUpForm mobileScreen={mobileScreen} />}
-      />
-      <Route
-          path="signin"
-          element={<SignInForm mobileScreen={mobileScreen} />}
-      />
-      {/* Public or Private routes, depending on authentication */}
-      <Route
-        path="*"
-        element={
-            <NavigationDrawer
-              mobileScreen={mobileScreen}
-              onNavDrawer={onNavDrawer}
-              toggleNavDrawer={toggleNavDrawer}
-              toggleSettings={toggleSettings}
+        {/* authentication-related routes */}
+        { (authentication === true) && render_sign_routes() }
+
+        {/* Public or Private routes, depending on authentication */}
+        <Route element={<PersistSignIn />}>
+          <Route
+            path="*"
+            element={
+              <RequireAuth enforce_authentication={authentication}>
+                <NavigationDrawer
+                  mobileScreen={mobileScreen}
+                  onNavDrawer={onNavDrawer}
+                  toggleNavDrawer={toggleNavDrawer}
+                  toggleSettings={toggleSettings}
+                />
+              </RequireAuth>
+            }
+          >
+            <Route
+              path="*"
+              element={
+                <HomePage
+                  mobileScreen={mobileScreen}
+                  onNavDrawer={onNavDrawer}
+                  onProjectSetup={onProjectSetup}
+                  projectCheck={projectCheck}
+                  setProjectCheck={setProjectCheck}
+                  toggleProjectSetup={toggleProjectSetup}
+                />
+              }
             />
-        }
-      >
-        <Route
-          path="*"
-          element={
-            <HomePage
-              mobileScreen={mobileScreen}
-              onNavDrawer={onNavDrawer}
-              onProjectSetup={onProjectSetup}
-              projectCheck={projectCheck}
-              setProjectCheck={setProjectCheck}
-              toggleProjectSetup={toggleProjectSetup}
+            <Route
+              path="projects/:project_id/*"
+              element={
+                <ProjectPage
+                  mobileScreen={mobileScreen}
+                  onNavDrawer={onNavDrawer}
+                  fontSize={fontSize}
+                  undoEnabled={undoEnabled}
+                  keyPressEnabled={keyPressEnabled}
+                  projectCheck={projectCheck}
+                  setProjectCheck={setProjectCheck}
+                  toggleProjectSetup={toggleProjectSetup}
+                />
+              }
             />
-          }
-        />
-        <Route
-          path="projects/:project_id/*"
-          element={
-            <ProjectPage
-              mobileScreen={mobileScreen}
-              onNavDrawer={onNavDrawer}
-              fontSize={fontSize}
-              undoEnabled={undoEnabled}
-              keyPressEnabled={keyPressEnabled}
-              projectCheck={projectCheck}
-              setProjectCheck={setProjectCheck}
-              toggleProjectSetup={toggleProjectSetup}
-            />
-          }
-        />
-      </Route>
+          </Route>
+        </Route>
     </Routes>
     )
   };
@@ -159,31 +169,10 @@ const App = (props) => {
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={muiTheme}>
           <CssBaseline />
+
           <div aria-label="nav and main content">
-            <Routes>
-              {/* Public routes */}
-              <Route index element={<BootPage />} />
-
-
-
-              <Route
-          path="projects/:project_id/*"
-          element={
-            <ProjectPage
-              mobileScreen={mobileScreen}
-              onNavDrawer={onNavDrawer}
-              fontSize={fontSize}
-              undoEnabled={undoEnabled}
-              keyPressEnabled={keyPressEnabled}
-              projectCheck={projectCheck}
-              setProjectCheck={setProjectCheck}
-              toggleProjectSetup={toggleProjectSetup}
-            />
-          }
-        />
-
-
-            </Routes>
+            { (appReady === false) && <BootPage /> }
+            { (appReady === true) && render_routes() }
           </div>
 
           {/* Dialogs */}
@@ -201,6 +190,7 @@ const App = (props) => {
             toggleUndoEnabled={toggleUndoEnabled}
           />
           <HelpDialog mobileScreen={mobileScreen} />
+
         </ThemeProvider>
       </StyledEngineProvider>
     </QueryClientProvider>
