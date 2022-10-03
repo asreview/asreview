@@ -97,6 +97,13 @@ For Simulation and Exploration only. Select one of the
 :ref:`data_labeled:benchmark datasets`. Click
 on *Save* on the top right.
 
+.. note::
+    After adding your dataset, ASReview LAB shows the approximate number of duplicates.
+    This number is based on duplicate titles and abstracts and if available, on the Digital Object Identifier (`DOI <https://www.doi.org/>`_).
+    Removing duplicates can be done via `ASReview Datatools <https://github.com/asreview/asreview-datatools>`_,
+    which also allows using a persistent identifier (PID) other than DOI for
+    identifying and removing duplicates.
+
 
 Select Prior Knowledge
 ----------------------

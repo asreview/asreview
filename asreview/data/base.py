@@ -453,7 +453,9 @@ class ASReviewData():
     def duplicated(self, pid='doi'):
         """Return boolean Series denoting duplicate rows.
 
-        Based on persistent identifier (PID) and titles/abstracts.
+        Identify duplicates based on titles and abstracts and if available,
+        on a persistent identifier (PID) such as the Digital Object Identifier
+        (`DOI <https://www.doi.org/>`_).
 
         Arguments
         ---------
@@ -497,8 +499,9 @@ class ASReviewData():
     def drop_duplicates(self, pid='doi', inplace=False, reset_index=True):
         """Drop duplicate records.
 
-        Drop duplicates based on persistent
-        identifier (PID) and titles/abstracts.
+        Drop duplicates based on titles and abstracts and if available,
+        on a persistent identifier (PID) such the Digital Object Identifier
+        (`DOI <https://www.doi.org/>`_).
 
         Arguments
         ---------
