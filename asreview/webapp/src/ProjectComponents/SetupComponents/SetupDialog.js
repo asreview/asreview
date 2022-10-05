@@ -22,11 +22,7 @@ import { Close } from "@mui/icons-material";
 
 import { AppBarWithinDialog } from "../../Components";
 import { FinishSetup, SavingStateBox } from "../SetupComponents";
-import {
-  AddDataset,
-  AddPriorKnowledge,
-  DataForm,
-} from "../SetupComponents/DataComponents";
+import { DataForm } from "../SetupComponents/DataComponents";
 import { ModelForm } from "../SetupComponents/ModelComponents";
 import { ProjectInfoForm } from "../../ProjectComponents";
 import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
@@ -120,9 +116,6 @@ const SetupDialog = (props) => {
   };
 
   const handleInfoChange = (event) => {
-    if (isInitError && event.target.name === "title") {
-      resetInit();
-    }
     if (isMutateInfoError && event.target.name === "title") {
       resetMutateInfo();
     }
@@ -137,23 +130,6 @@ const SetupDialog = (props) => {
       [event.target.name]: event.target.value,
     });
   };
-
-  const {
-    error: initError,
-    isError: isInitError,
-    isLoading: isInitiatingProject,
-    isSuccess: isInitSuccess,
-    mutate: initProject,
-    reset: resetInit,
-  } = useMutation(ProjectAPI.mutateInitProject, {
-    onMutate: () => {
-      setDisableFetchInfo(true);
-    },
-    onSuccess: (data, variables) => {
-      props.setProjectId(data["id"]);
-      setTextFieldFocused(null);
-    },
-  });
 
   const {
     error: mutateInfoError,
@@ -180,8 +156,8 @@ const SetupDialog = (props) => {
         setInfo({
           mode: data["mode"],
           title: data["name"],
-          authors: data["authors"],
-          description: data["description"],
+          authors: data["authors"] ? data["authors"] : "",
+          description: data["description"] ? data["description"] : "",
           dataset_path: data["dataset_path"],
         });
         setExTitle(data["name"]);
@@ -211,9 +187,7 @@ const SetupDialog = (props) => {
   });
 
   const returnInfoError = () => {
-    if (isInitError) {
-      return [isInitError, initError];
-    } else if (isMutateInfoError) {
+    if (isMutateInfoError) {
       return [isMutateInfoError, mutateInfoError];
     } else {
       return [false, null];
@@ -227,18 +201,9 @@ const SetupDialog = (props) => {
       textFiledFocused !== null &&
       !textFiledFocused &&
       !(info.title.length < 3) &&
-      !isInitError &&
       !isMutateInfoError
     ) {
-      if (!props.project_id && !isInitiatingProject) {
-        initProject({
-          mode: info.mode,
-          title: info.title,
-          authors: info.authors,
-          description: info.description,
-        });
-      }
-      if (props.project_id && isInitSuccess) {
+      if (props.project_id) {
         mutateInfo({
           project_id: props.project_id,
           mode: info.mode,
@@ -251,10 +216,6 @@ const SetupDialog = (props) => {
   }, [
     props.open,
     info,
-    initProject,
-    isInitError,
-    isInitSuccess,
-    isInitiatingProject,
     isMutateInfoError,
     mutateInfo,
     props.project_id,
@@ -398,9 +359,6 @@ const SetupDialog = (props) => {
     setDisableFetchInfo(false);
     setTrainingStarted(false);
     setTrainingFinished(false);
-    if (isInitError) {
-      resetInit();
-    }
     if (isMutateInfoError) {
       resetMutateInfo();
     }
@@ -411,7 +369,7 @@ const SetupDialog = (props) => {
 
   const disableNextButton = () => {
     if (activeStep === 0) {
-      return isInitError || isMutateInfoError || info.title.length < 3;
+      return isMutateInfoError || info.title.length < 3;
     }
     if (activeStep === 1) {
       return (
@@ -430,7 +388,7 @@ const SetupDialog = (props) => {
   };
 
   const handleNext = () => {
-    if (activeStep === 0 && !isInitError && !isMutateInfoError) {
+    if (activeStep === 0 && !isMutateInfoError) {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
     if (activeStep === 1) {
@@ -448,14 +406,14 @@ const SetupDialog = (props) => {
 
   // saving state box in step 1 & 3
   const isSaving = () => {
-    return isInitiatingProject || isMutatingInfo || isMutatingModelConfig;
+    return isMutatingInfo || isMutatingModelConfig;
   };
 
   React.useEffect(() => {
-    if (activeStep === 1 && (isInitError || isMutateInfoError)) {
+    if (activeStep === 1 && isMutateInfoError) {
       handleBack();
     }
-  }, [activeStep, isInitError, isMutateInfoError]);
+  }, [activeStep, isMutateInfoError]);
 
   React.useEffect(() => {
     if (props.open) {
@@ -580,27 +538,6 @@ const SetupDialog = (props) => {
             </Box>
           </DialogContent>
         </Fade>
-      )}
-
-      {addDataset && (
-        <AddDataset
-          datasetAdded={projectHasDataset()}
-          mobileScreen={props.mobileScreen}
-          mode={info["mode"]}
-          setDisableFetchInfo={setDisableFetchInfo}
-          toggleAddDataset={toggleAddDataset}
-        />
-      )}
-
-      {addPriorKnowledge && (
-        <AddPriorKnowledge
-          mobileScreen={props.mobileScreen}
-          mode={info["mode"]}
-          n_prior={labeledStats?.n_prior}
-          n_prior_exclusions={labeledStats?.n_prior_exclusions}
-          n_prior_inclusions={labeledStats?.n_prior_inclusions}
-          toggleAddPriorKnowledge={toggleAddPriorKnowledge}
-        />
       )}
       {!addDataset && !addPriorKnowledge && activeStep !== 3 && (
         <Fade in={!addDataset}>

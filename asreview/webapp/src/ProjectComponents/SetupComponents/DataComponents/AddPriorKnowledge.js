@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   Card,
+  Dialog,
   DialogContent,
   DialogTitle,
   Fade,
@@ -33,7 +34,7 @@ const classes = {
   unlabeled: `${PREFIX}-unlabeled`,
 };
 
-const Root = styled("div")(({ theme }) => ({
+const StyledDialog = styled(Dialog)(({ theme }) => ({
   height: "100%",
   overflowY: "hidden",
   [`& .${classes.form}`]: {
@@ -87,7 +88,15 @@ const AddPriorKnowledge = (props) => {
   };
 
   return (
-    <Root>
+    <StyledDialog
+      open={props.open}
+      fullScreen={props.mobileScreen}
+      fullWidth
+      maxWidth="md"
+      PaperProps={{
+        sx: { height: !props.mobileScreen ? "calc(100% - 96px)" : "100%" },
+      }}
+    >
       {props.mobileScreen && (
         <AppBarWithinDialog
           onClickStartIcon={props.toggleAddPriorKnowledge}
@@ -202,7 +211,7 @@ const AddPriorKnowledge = (props) => {
           </Stack>
         </DialogContent>
       </Fade>
-    </Root>
+    </StyledDialog>
   );
 };
 
