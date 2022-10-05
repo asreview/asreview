@@ -1,10 +1,12 @@
 import React from "react";
+import { useMutation } from "react-query";
+import { connect } from "react-redux";
 import { Box, Fab, Fade, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Add } from "@mui/icons-material";
 
 import { ActionsFeedbackBar } from "../../Components";
-import { ProjectImportDialog } from "../../ProjectComponents";
+import { ImportProject } from "../../ProjectComponents";
 import {
   DashboardPageHeader,
   ModePickDialog,
@@ -12,33 +14,62 @@ import {
   ProjectTable,
 } from "../DashboardComponents";
 import { SetupDialog } from "../../ProjectComponents/SetupComponents";
+import {
+  AddPriorKnowledge,
+  ImportDataset,
+} from "../../ProjectComponents/SetupComponents/DataComponents";
 
+import { ProjectAPI } from "../../api/index.js";
 import { useToggle } from "../../hooks/useToggle";
-import { projectModes } from "../../globals";
+import { mapDispatchToProps, projectModes } from "../../globals";
 
 const Root = styled("div")(({ theme }) => ({}));
 
 const DashboardPage = (props) => {
   const [onModePick, setOnModePick] = React.useState(false);
   const [selectedMode, setSelectedMode] = React.useState(projectModes.ORACLE);
-  const [onImportDialog, toggleImportDialog] = useToggle();
+
+  const [onImportDataset, toggleImportDataset] = useToggle();
+  const [onImportProject, toggleImportProject] = useToggle();
+  const [onAddPrior, toggleAddPrior] = useToggle();
+
   const [feedbackBar, setFeedbackBar] = React.useState({
     open: false,
     message: null,
   });
+
+  /**
+   * Initiate a new project.
+   */
+  const { error, isError, isLoading, mutate, reset } = useMutation(
+    ProjectAPI.mutateInitProject,
+    {
+      onSuccess: (data, variables) => {
+        setOnModePick(false);
+        props.setProjectId(data["id"]);
+        toggleImportDataset();
+      },
+    }
+  );
 
   const handleClickCreate = () => {
     setOnModePick(true);
   };
 
   const handleCloseModePick = (value) => {
-    setOnModePick(false);
     if (value) {
       if (value !== "import") {
         setSelectedMode(value);
-        props.toggleProjectSetup();
+        mutate({
+          mode: value,
+        });
       } else {
-        toggleImportDialog();
+        setOnModePick(false);
+        toggleImportProject();
+      }
+    } else {
+      if (!isLoading) {
+        setOnModePick(false);
       }
     }
   };
@@ -56,7 +87,7 @@ const DashboardPage = (props) => {
         <Box>
           <DashboardPageHeader
             mobileScreen={props.mobileScreen}
-            toggleImportDialog={toggleImportDialog}
+            toggleImportProject={toggleImportProject}
           />
           <Box className="main-page-body-wrapper">
             <Stack className="main-page-body" spacing={6}>
@@ -81,11 +112,34 @@ const DashboardPage = (props) => {
         <Add sx={{ mr: 1 }} />
         Create
       </Fab>
-      <ModePickDialog open={onModePick} onClose={handleCloseModePick} />
-      <ProjectImportDialog
+      <ModePickDialog
+        error={error}
+        isError={isError}
+        open={onModePick}
+        onClose={handleCloseModePick}
+        reset={reset}
+      />
+      <AddPriorKnowledge
+        open={onAddPrior}
         mobileScreen={props.mobileScreen}
-        open={onImportDialog}
-        onClose={toggleImportDialog}
+        mode={selectedMode}
+        n_prior={props.n_prior}
+        n_prior_exclusions={props.n_prior_exclusions}
+        n_prior_inclusions={props.n_prior_inclusions}
+        toggleAddPrior={toggleAddPrior}
+      />
+      <ImportDataset
+        open={onImportDataset}
+        datasetAdded={false}
+        mobileScreen={props.mobileScreen}
+        mode={selectedMode}
+        toggleImportDataset={toggleImportDataset}
+        toggleProjectSetup={props.toggleProjectSetup}
+      />
+      <ImportProject
+        mobileScreen={props.mobileScreen}
+        open={onImportProject}
+        onClose={toggleImportProject}
         setFeedbackBar={setFeedbackBar}
       />
       <SetupDialog
@@ -105,4 +159,4 @@ const DashboardPage = (props) => {
   );
 };
 
-export default DashboardPage;
+export default connect(null, mapDispatchToProps)(DashboardPage);

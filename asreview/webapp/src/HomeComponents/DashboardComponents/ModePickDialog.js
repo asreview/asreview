@@ -11,7 +11,8 @@ import {
 import { styled } from "@mui/material/styles";
 import { Add, Upload } from "@mui/icons-material";
 
-import SelectItem from "../../ProjectComponents/SelectItem";
+import { InlineErrorHandler } from "../../Components";
+import { SelectItem } from "../../ProjectComponents";
 import { projectModes } from "../../globals";
 
 const PREFIX = "ModePickDialog";
@@ -68,8 +69,18 @@ export default function ModePickDialog(props) {
   };
 
   return (
-    <StyledDialog maxWidth="md" onClose={handleClose} open={open}>
+    <StyledDialog
+      maxWidth="md"
+      onClose={handleClose}
+      open={open}
+      TransitionProps={{
+        onExited: () => {
+          props.reset(); // reset the error of init project
+        },
+      }}
+    >
       <DialogTitle>Create project</DialogTitle>
+      {props.isError && <InlineErrorHandler message={props.error?.message} />}
       <List sx={{ pt: 0 }}>
         {modes.map((mode) => (
           <ListItem
