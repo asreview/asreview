@@ -486,7 +486,7 @@ class ASReviewData():
             .str.lower().str.strip().replace("", None)
 
         # save boolean series for duplicates based on titles/abstracts
-        s_dups_text = ((s.duplicated(keep=keep)) & (s.notnull()))
+        s_dups_text = ((s.duplicated()) & (s.notnull()))
 
         # final boolean series for all duplicates
         if s_dups_pid is not None:
