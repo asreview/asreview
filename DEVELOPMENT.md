@@ -85,7 +85,7 @@ The source files are available in the [`docs`](/docs) folder of this repository.
 use of [Sphinx](https://www.sphinx-doc.org/) to convert the source files and docstrings into HTML
 or PDF files.
 
-Install the dependcies for rendering the documenation with
+Install the dependencies for rendering the documentation with
 
 ```
 pip install -r docs/requirements.txt
@@ -129,7 +129,7 @@ You can deploy ASReview LAB right now in one click on any of these clouds provid
 [<img src="https://deploy.cloud.run/button.svg" height="30px">](https://deploy.cloud.run)
 [<img src="https://www.herokucdn.com/deploy/button.svg" height="30px">](https://heroku.com/deploy?template=https://github.com/asreview/asreview/tree/master)
 
-❗❗❗ ASReview doens't have builtin authentication. You are responsible for the authentication and security of the server yourself.
+❗❗❗ ASReview doesn't have builtin authentication. You are responsible for the authentication and security of the server yourself.
 
 
 ## Release instructions

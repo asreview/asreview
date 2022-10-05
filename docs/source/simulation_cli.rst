@@ -1,8 +1,8 @@
 ﻿Simulation via command line
 ===========================
 
-ASReview LAB comes with an extensive simulation interface via the command
-line.
+ASReview LAB comes with a command line inferface for simulating the
+performance of ASReview algorithm.
 
 .. _simulation-cli-getting-started:
 
@@ -13,53 +13,170 @@ The simulation command line tool can be accessed directly like:
 
 .. code-block:: bash
 
-	asreview simulate MY_DATASET.csv --state_file MY_SIMULATION.asreview
+	asreview simulate MY_DATASET.csv -s MY_SIMULATION.asreview
 
 This performs a simulation with the default active learning model, where
-``MY_DATASET.csv`` is the path to the fully labeled dataset you want to
-simulate. The result of the simulation is stored, after a succesful
-simulation, at ``MY_SIMULATION.asreview`` where ``MY_SIMULATION`` is the
-filename you prefer.
+``MY_DATASET.csv`` is the path to the :ref:`data_labeled:Fully labeled data`
+you want to simulate. The result of the simulation is stored, after a
+succesful simulation, at ``MY_SIMULATION.asreview`` where ``MY_SIMULATION``
+is the filename you prefer and the extension is ``.asreview``
+(ASReview project file extension).
 
-.. note::
 
-	For instructions on preparing your fully labeled data, see :doc:`data`.
+Command line arguments for simulating
+-------------------------------------
 
-Simulation options
-------------------
+The command ``asreview simulate --help`` provides an overview of available
+arguments for the simulation.
 
-ASReview LAB provides an extensive simulation interface via the command line.
-An overview of the options are found on the :ref:`ASReview command line
-interface for simulation <cli:Simulate>` page. This section highlights
-some of the most used options. When no additional arguments are specified in
-the ``asreview simulate`` command, default settings are used.
+Each of the sections below describe the available arguments. The example below
+shows how you can set the command line arguments. This can be helpful if you
+are new to the using the command line. For example, you want to change the
+query strategy being used. The command line and this documentation show
+``-q, --query_strategy QUERY_STRATEGY``. The default is ``max``. If you want
+to change it to ``max_random``, you use:
 
-- To make your simulations reproducible you can use the ``--seed`` and
-  ``--init_seed`` options. 'init_seed' controls the starting set of papers to
-  train the model on, while the 'seed' controls the seed of the random number
-  generation that is used after initialization.
+.. code-block:: bash
 
-- By default, the model initializes with one relevant and one irrelevant record.
-  You can set the number of priors by ``--n_prior_included`` and
-  ``--n_prior_excluded``. However, if you want to initialize your model with a
-  specific set of starting papers, you can use ``--prior_idx`` to select the
-  indices of the papers you want to start the simulation with.
+    asreview simulate MY_DATASET.csv -s MY_SIMULATION.asreview -q max_random
 
-- The ``--n_instances`` argument controls the number of records that have to be
-  labeled before the model is retrained, and is set at 1 by default. If
-  you want to reduce the number of training iterations, for example to limit the
-  size of your state file and the time to simulate, you can increase
-  ``--n_instances``.
 
-- You can select a classifier with the ``-m`` flag, which is set to be Naive
-  Bayes by default. Names for implemented classifiers are listed on the
-  :ref:`classifiers-table` table.
+Dataset
+~~~~~~~
 
-- Implemented query strategies are listed on the :ref:`query-strategies-table`
-  table and can be set with the ``-q`` option.
+.. option:: dataset
 
-- For feature extraction, supply the ``-e`` flag. Default is TF-IDF, more
-  details on the table for :ref:`feature-extraction-table`.
+    Required. File path or URL to the dataset or one of the benchmark datasets.
 
-- The last element that can be changed is the :ref:`balance-strategies-table`,
-  and is changed with the ``-b`` flag. Default is double balance.
+You can also use one of the :ref:`benchmark-datasets <data_labeled:fully
+labeled data>` (see `index.csv
+<https://github.com/asreview/systematic-review-datasets/blob/master/index.csv>`_
+for dataset IDs). Use the following command and replace ``DATASET_ID`` by the
+dataset ID.
+
+.. code:: bash
+
+    asreview simulate benchmark:DATASET_ID
+
+For example:
+
+.. code:: bash
+
+    asreview simulate benchmark:van_de_Schoot_2017 -s myreview.asreview
+
+
+Active learning
+~~~~~~~~~~~~~~~
+
+.. option:: -e, --feature_extraction FEATURE_EXTRACTION
+
+    The default is TF-IDF (:code:`tfidf`). More options and details are listed
+    in :ref:`ref-feature-extraction`.
+
+.. option:: -m, --model MODEL
+
+    The default is Naive Bayes (:code:`nb`). More options and details are listed
+    in :ref:`ref-classifiers`.
+
+.. option:: -q, --query_strategy QUERY_STRATEGY
+
+    The default is Maximum (:code:`max`). More options and details are listed
+    in :ref:`ref-query-strategies`.
+
+.. option:: -b, --balance_strategy BALANCE_STRATEGY
+
+    The default is :code:`double`. The balancing strategy is used to deal with
+    the sparsity of relevant records. More options and details are listed
+    in :ref:`ref-balance-strategies`
+
+.. option:: --seed SEED
+
+    To make your simulations reproducible you can use the ``--seed`` and
+    ``--init_seed`` options. 'init_seed' controls the starting set of papers
+    to train the model on, while the 'seed' controls the seed of the random
+    number generation that is used after initialization.
+
+.. option:: --embedding EMBEDDING_FP
+
+    File path of embedding matrix. Required for LSTM models.
+
+
+Prior knowledge
+~~~~~~~~~~~~~~~
+
+By default, the model initializes with one relevant and one irrelevant record.
+You can set the number of priors by ``--n_prior_included`` and
+``--n_prior_excluded``. However, if you want to initialize your model with a
+specific set of starting papers, you can use ``--prior_idx`` to select the
+indices of the papers you want to start the simulation with.
+
+.. option:: --n_prior_included N_PRIOR_INCLUDED
+
+    The number of prior included papers. Only used when :code:`prior_idx` is
+    not given. Default 1.
+
+.. option:: --n_prior_excluded N_PRIOR_EXCLUDED
+
+    The number of prior excluded papers. Only used when :code:`prior_idx` is
+    not given. Default 1.
+
+
+.. option:: --prior_idx [PRIOR_IDX [PRIOR_IDX ...]]
+
+    Prior indices by rownumber (rownumbers start at 0).
+
+
+.. option:: --init_seed INIT_SEED
+
+    Seed for setting the prior indices if the prior_idx option is not used. If
+    the option prior_idx is used with one or more index, this option is
+    ignored.
+
+
+
+Simulation setup
+~~~~~~~~~~~~~~~~
+
+.. option:: --n_instances N_INSTANCES
+
+    Controls the number of records to be labeled before the model is
+    retrained. Increase ``n_instances``, for example, to reduce the time it
+    takes to simulate. Default 1.
+
+.. option:: --stop_if STOP_IF
+
+    The number of label actions to simulate. Default, 'min' will stop
+    simulating when all relevant records are found. Use -1 to simulate all
+    labels actions.
+
+
+Save
+~~~~
+
+
+.. option:: --state_file STATE_FILE, -s STATE_FILE
+
+    Location to ASReview project file of simulation.
+
+
+Algorithms
+----------
+
+The command line interface provides an easy way to get an overview of all
+available active learning model elements (classifiers, query strategies,
+balance strategies, and feature extraction algorithms) and their names for
+command line usage in ASReview LAB. It also includes models added
+via :doc:`extensions_overview`. The following command lists
+the available models:
+
+.. code:: bash
+
+    asreview algorithms
+
+See :ref:`develop-extensions` for more information on developing new models
+and install them via extensions.
+
+Some models require additional dependecies to be installed. Use
+:code:`pip install asreview[all]` to install all additional dependencies
+at once or check the installation instruction in section :ref:`ref-models`
+of the :doc:`reference`.

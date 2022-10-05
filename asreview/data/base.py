@@ -18,6 +18,7 @@ from urllib.parse import urlparse
 
 import numpy as np
 import pandas as pd
+from pandas.api.types import is_string_dtype
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
@@ -427,7 +428,6 @@ class ASReviewData():
 
         # if there are labels, add them to the frame
         if labels is not None:
-
             # unnest the nested (record_id, label) tuples
             labeled_record_ids = [x[0] for x in labels]
             labeled_values = [x[1] for x in labels]
@@ -449,3 +449,79 @@ class ASReviewData():
             result_df.loc[result_df[col_label] == LABEL_NA, col_label] = np.nan
 
         return result_df
+
+    def duplicated(self, pid='doi'):
+        """Return boolean Series denoting duplicate rows.
+
+        Identify duplicates based on titles and abstracts and if available,
+        on a persistent identifier (PID) such as the Digital Object Identifier
+        (`DOI <https://www.doi.org/>`_).
+
+        Arguments
+        ---------
+        pid: string
+            Which persistent identifier to use for deduplication.
+            Default is 'doi'.
+
+        Returns
+        -------
+        pandas.Series
+            Boolean series for each duplicated rows.
+        """
+        if pid in self.df.columns:
+            # in case of strings, strip whitespaces and replace empty strings with None
+            if is_string_dtype(self.df[pid]):
+                s_pid = self.df[pid].str.strip().replace("", None)
+            else:
+                s_pid = self.df[pid]
+
+            # save boolean series for duplicates based on persistent identifiers
+            s_dups_pid = ((s_pid.duplicated()) & (s_pid.notnull()))
+        else:
+            s_dups_pid = None
+
+        # get the texts and clean them
+        s = pd.Series(self.texts) \
+            .str.replace("[^A-Za-z0-9]", "", regex=True) \
+            .str.lower()
+
+        # save boolean series for duplicates based on titles/abstracts
+        s_dups_text = s.duplicated()
+
+        # final boolean series for all duplicates
+        if s_dups_pid is not None:
+            s_dups = s_dups_pid | s_dups_text
+        else:
+            s_dups = s_dups_text
+
+        return s_dups
+
+    def drop_duplicates(self, pid='doi', inplace=False, reset_index=True):
+        """Drop duplicate records.
+
+        Drop duplicates based on titles and abstracts and if available,
+        on a persistent identifier (PID) such the Digital Object Identifier
+        (`DOI <https://www.doi.org/>`_).
+
+        Arguments
+        ---------
+        pid: string, default 'doi'
+            Which persistent identifier to use for deduplication.
+        inplace: boolean, default False
+            Whether to modify the DataFrame rather than creating a new one.
+        reset_index: boolean, default True
+            If True, the existing index column is reset to the default integer index.
+
+        Returns
+        -------
+        pandas.DataFrame or None
+            DataFrame with duplicates removed or None if inplace=True
+        """
+        df = self.df[~self.duplicated(pid)]
+
+        if reset_index:
+            df = df.reset_index(drop=True)
+        if inplace:
+            self.df = df
+            return
+        return df

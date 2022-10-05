@@ -49,7 +49,7 @@ Partially labeled data
 	Useful for Oracle projects. Read more about :ref:`project_create:Project modes`.
 
 Partially labeled datasets are datasets with a labeling decision for a subset
-of the records in the dataset and no decission for another subset.  
+of the records in the dataset and no decision for another subset.  
 
 A partially labeled dataset can be obtained by exporting results from ASReview
 LAB or other software. It can also be constructed given the format described
@@ -92,8 +92,7 @@ ASReview LAB, these datasets are referred to as "Benchmark Datasets".
 The Benchmark Datasets are directly available in the software. During the
 :ref:`project_create:Add Dataset` step of the project setup, there is a panel
 with all the datasets. The datasets can be selected and used directly.
-
-Benchmark datasets are also available via the :doc:`cli`. Use the prefix
+Benchmark datasets are also available via the :doc:`simulation_cli`. Use the prefix
 ``benchmark:`` followed by the identifier of the dataset (see `Systematic
 Review Datasets <https://github.com/asreview/systematic-review-datasets>`_
 repository). For example, to use the Van de Schoot et al. (2017) dataset, use
