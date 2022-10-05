@@ -1,9 +1,8 @@
 import * as React from "react";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation } from "react-query";
 import { connect } from "react-redux";
 import {
-  Box,
-  Button,
+  Dialog,
   DialogContent,
   DialogTitle,
   Divider,
@@ -15,25 +14,32 @@ import {
   Radio,
   RadioGroup,
   Stack,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { Close } from "@mui/icons-material";
 
 import { AppBarWithinDialog } from "../../../Components";
-import { DatasetFromEntryPoint, DatasetFromURL } from "../DataComponents";
-import { InfoCard } from "../../SetupComponents";
-import { ImportFromFile } from "../../../ProjectComponents";
+import { StyledIconButton } from "../../../StyledComponents/StyledButton.js";
+import { DatasetFromEntryPoint, DatasetFromURL } from ".";
+import { InfoCard } from "..";
+import { ImportFromFile } from "../..";
 import { ProjectAPI } from "../../../api/index.js";
-import { mapStateToProps, projectModes } from "../../../globals.js";
+import {
+  mapDispatchToProps,
+  mapStateToProps,
+  projectModes,
+} from "../../../globals.js";
 
-const PREFIX = "AddDataset";
+const PREFIX = "ImportDataset";
 
 const classes = {
   root: `${PREFIX}-root`,
   form: `${PREFIX}-form`,
 };
 
-const Root = styled("div")(({ theme }) => ({
+const StyledDialog = styled(Dialog)(({ theme }) => ({
   overflowY: "hidden",
   [`& .${classes.form}`]: {
     height: "calc(100% - 64px)",
@@ -46,28 +52,48 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const AddDataset = (props) => {
-  const queryClient = useQueryClient();
-
+const ImportDataset = (props) => {
   const [datasetSource, setDatasetSource] = React.useState("file");
   const [file, setFile] = React.useState(null);
   const [url, setURL] = React.useState("");
   const [extension, setExtension] = React.useState(null);
   const [benchmark, setBenchmark] = React.useState(null);
 
+  /**
+   * Import a dataset.
+   */
   const { error, isError, isLoading, mutate, reset } = useMutation(
     ProjectAPI.mutateData,
     {
-      onSettled: () => {
-        props.setDisableFetchInfo(false);
-        queryClient.invalidateQueries("fetchInfo");
+      onMutate: () => {
+        setFile(null);
+        setURL("");
+        setExtension(null);
+        setBenchmark(null);
       },
-      onSuccess: () => {
-        queryClient.invalidateQueries("fetchLabeledStats");
-        props.toggleAddDataset();
+      onSuccess: (data) => {
+        props.setProjectId(data["project_id"]);
+        props.toggleImportDataset();
+        props.toggleProjectSetup();
       },
     }
   );
+
+  /**
+   * Delete the temporary project.
+   */
+  const {
+    // TODO{Terry}: add error handling
+    // error: deleteProjectError,
+    // isError: isDeleteProjectError,
+    // isLoading: isDeletingProject,
+    mutate: deleteProject,
+    // reset: resetDeleteProject,
+  } = useMutation(ProjectAPI.mutateDeleteProject, {
+    onSuccess: () => {
+      props.toggleImportDataset();
+    },
+  });
 
   const handleDatasetSource = (event) => {
     setDatasetSource(event.target.value);
@@ -75,7 +101,7 @@ const AddDataset = (props) => {
     reset();
   };
 
-  const handleSaveDataset = React.useCallback(() => {
+  const handleImportDataset = React.useCallback(() => {
     mutate({
       project_id: props.project_id,
       file: file,
@@ -86,9 +112,9 @@ const AddDataset = (props) => {
   }, [benchmark, extension, file, mutate, props.project_id, url]);
 
   const handleClose = () => {
-    props.toggleAddDataset();
-    // clear potential error
-    reset();
+    deleteProject({
+      project_id: props.project_id,
+    });
   };
 
   React.useEffect(() => {
@@ -103,12 +129,22 @@ const AddDataset = (props) => {
   // auto import once dataset is selected
   React.useEffect(() => {
     if (file || extension || benchmark) {
-      handleSaveDataset();
+      handleImportDataset();
     }
-  }, [handleSaveDataset, file, benchmark, extension]);
+  }, [handleImportDataset, file, benchmark, extension]);
 
   return (
-    <Root>
+    <StyledDialog
+      open={props.open}
+      fullScreen={props.mobileScreen}
+      fullWidth
+      hideBackdrop={props.datasetAdded}
+      maxWidth="md"
+      PaperProps={{
+        elevation: !props.datasetAdded ? 1 : 0,
+        sx: { height: !props.mobileScreen ? "calc(100% - 96px)" : "100%" },
+      }}
+    >
       {props.mobileScreen && (
         <AppBarWithinDialog
           disableStartIcon={isLoading}
@@ -120,12 +156,18 @@ const AddDataset = (props) => {
       {!props.mobileScreen && (
         <Fade in>
           <Stack className="dialog-header" direction="row">
-            <DialogTitle>Dataset</DialogTitle>
-            <Box className="dialog-header-button right">
-              <Button disabled={isLoading} onClick={handleClose}>
-                Close
-              </Button>
-            </Box>
+            <DialogTitle>Import Dataset</DialogTitle>
+            <Stack
+              className="dialog-header-button right"
+              direction="row"
+              spacing={1}
+            >
+              <Tooltip title="Close">
+                <StyledIconButton onClick={handleClose}>
+                  <Close />
+                </StyledIconButton>
+              </Tooltip>
+            </Stack>
           </Stack>
         </Fade>
       )}
@@ -236,7 +278,7 @@ const AddDataset = (props) => {
             {datasetSource === "url" && (
               <DatasetFromURL
                 addDatasetError={error}
-                handleSaveDataset={handleSaveDataset}
+                handleImportDataset={handleImportDataset}
                 url={url}
                 setURL={setURL}
                 isAddDatasetError={isError}
@@ -271,8 +313,8 @@ const AddDataset = (props) => {
           </Stack>
         </DialogContent>
       </Fade>
-    </Root>
+    </StyledDialog>
   );
 };
 
-export default connect(mapStateToProps)(AddDataset);
+export default connect(mapStateToProps, mapDispatchToProps)(ImportDataset);

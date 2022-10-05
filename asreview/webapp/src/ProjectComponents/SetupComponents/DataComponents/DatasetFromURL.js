@@ -34,7 +34,7 @@ const DatasetFromURL = (props) => {
   };
 
   const addURL = () => {
-    props.handleSaveDataset();
+    props.handleImportDataset();
   };
 
   return (

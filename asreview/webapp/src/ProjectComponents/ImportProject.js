@@ -9,11 +9,11 @@ import {
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 
-import { ImportFromFile } from "../ProjectComponents";
+import { ImportFromFile } from ".";
 import { StyledIconButton } from "../StyledComponents/StyledButton.js";
 import { ProjectAPI } from "../api/index.js";
 
-const ProjectImportDialog = (props) => {
+const ImportProject = (props) => {
   const queryClient = useQueryClient();
   const descriptionElementRef = React.useRef(null);
   const [file, setFile] = React.useState(null);
@@ -93,4 +93,4 @@ const ProjectImportDialog = (props) => {
   );
 };
 
-export default ProjectImportDialog;
+export default ImportProject;

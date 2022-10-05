@@ -85,7 +85,7 @@ const ImportFromFile = ({
       if (isAddFileError) {
         reset();
       }
-      // set the state such that we ca upload the file
+      // set the state such that we can import the file
       setFile(acceptedFiles[0]);
     },
     [setFile, isAddFileError, reset]
