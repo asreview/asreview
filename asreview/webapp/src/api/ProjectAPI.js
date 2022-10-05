@@ -35,9 +35,6 @@ class ProjectAPI {
   static mutateInitProject(variables) {
     let body = new FormData();
     body.set("mode", variables.mode);
-    body.set("name", variables.title);
-    body.set("authors", variables.authors);
-    body.set("description", variables.description);
 
     const url = api_url + `projects/info`;
     return new Promise((resolve, reject) => {

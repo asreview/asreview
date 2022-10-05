@@ -17,6 +17,7 @@ import logging
 import shutil
 import subprocess
 import tempfile
+import time
 import urllib.parse
 from pathlib import Path
 from urllib.request import urlretrieve
@@ -181,9 +182,8 @@ def api_init_project():  # noqa: F401
     """Get info on the article"""
 
     project_mode = request.form['mode']
-    project_name = request.form['name']
-    project_description = request.form['description']
-    project_authors = request.form['authors']
+    project_name = request.form['mode'] + "_" + time.strftime("%Y%m%d-%H%M%S")
+    # TODO{Terry}: retrieve author from the authenticated profile
 
     project_id = _create_project_id(project_name)
 
@@ -194,9 +194,7 @@ def api_init_project():  # noqa: F401
     project = ASReviewProject.create(get_project_path(project_id),
                                      project_id=project_id,
                                      project_mode=project_mode,
-                                     project_name=project_name,
-                                     project_description=project_description,
-                                     project_authors=project_authors)
+                                     project_name=project_name)
 
     response = jsonify(project.config)
 
@@ -407,10 +405,17 @@ def api_upload_data_to_project(project):  # noqa: F401
 
     # Bad format. TODO{Jonathan} Return informative message with link.
     except BadFileFormatError as err:
-        message = f"Failed to upload file '{filename}'. {err}"
+        message = f"Failed to import file '{filename}'. {err}"
         return jsonify(message=message), 400
 
-    response = jsonify({'success': True})
+    try:
+        # rename project to filename
+        project.rename(filename.rsplit('.', 1)[0])
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message=f"Failed to rename project. {err}"), 400
+
+    response = jsonify({"project_id": project.project_id})
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     return response
