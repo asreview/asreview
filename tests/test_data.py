@@ -1,3 +1,4 @@
+import io
 import urllib
 from pathlib import Path
 
@@ -54,31 +55,43 @@ def test_datasets(data_name):
 
 
 def test_duplicate_count():
-    d = asreview.ASReviewData(
-        pd.DataFrame({
-            "title": ["a", "a", "b", "c", "d", "e", "f",
-                      "g", "h", "i", "", "", "   ", "   "],
-            "abstract": ["lorem", "lorem", "lorem", "lorem", "lorem", "lorem",
-                         "lorem", "lorem", "lorem", "lorem", "", "", "   ", "   "],
-            "doi": ["10.1", "", "10.3", "10.3", "", "", "   ", "   ",
-                    None, None, "10.4", "10.5", "10.6", "10.7"]
-        })
-    )
+    d = asreview.ASReviewData(pd.read_csv(io.StringIO("""title;abstract;doi
+a;lorem;10.1
+a;lorem;
+b;lorem;10.3
+c;lorem;10.3
+d;lorem;
+e;lorem;
+f;lorem;   
+g;lorem;   
+h;lorem;
+i;lorem;
+;;10.4
+;;10.5
+   ;   ;10.6
+   ;   ;10.7
+"""), sep=';'))
 
     assert n_duplicates(d) == 2
 
 
 def test_deduplication():
-    d_dups = ASReviewData(
-        pd.DataFrame({
-            "title": ["a", "a", "b", "c", "d", "e", "f", "g",
-                      "h", "i", "", "", "   ", "   "],
-            "abstract": ["lorem", "lorem", "lorem", "lorem", "lorem", "lorem",
-                         "lorem", "lorem", "lorem", "lorem", "", "", "   ", "   "],
-            "doi": ["10.1", "", "10.3", "10.3", "", "", "   ", "   ",
-                    None, None, "10.4", "10.5", "10.6", "10.7"]
-        })
-    )
+    d_dups = ASReviewData(pd.read_csv(io.StringIO("""title;abstract;doi
+a;lorem;10.1
+a;lorem;
+b;lorem;10.3
+c;lorem;10.3
+d;lorem;
+e;lorem;
+f;lorem;   
+g;lorem;   
+h;lorem;
+i;lorem;
+;;10.4
+;;10.5
+;   ;10.6
+;   ;10.7
+"""), sep=';'))
 
     s_dups_bool = pd.Series([False, True, False, True, False, False, False,
                              False, False, False, False, False, False, False])
@@ -89,10 +102,10 @@ def test_deduplication():
     d_nodups = ASReviewData(
         pd.DataFrame({
             "title": ["a", "b", "d", "e", "f", "g", "h", "i",
-                      "", "", "   ", "   "],
+                      None, None, "   ", "   "],
             "abstract": ["lorem", "lorem", "lorem", "lorem", "lorem",
-                         "lorem", "lorem", "lorem", "", "", "   ", "   "],
-            "doi": ["10.1", "10.3", "", "", "   ", "   ", None,
+                         "lorem", "lorem", "lorem", None, None, "   ", "   "],
+            "doi": ["10.1", "10.3", None, None, "   ", "   ", None,
                     None, "10.4", "10.5", "10.6", "10.7"]
         })
     )
