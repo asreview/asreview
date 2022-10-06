@@ -53,42 +53,47 @@ def test_datasets(data_name):
     assert exists(data.filepath)
 
 
-def test_data_statistics():
+def test_duplicate_count():
     d = asreview.ASReviewData(
         pd.DataFrame({
-            "title": ["a", "a", "b", "c", "d", "e", "f", "g", "h", "i"],
-            "abstract": ["lorem", "lorem", "lorem", "lorem", "lorem",
-                         "lorem", "lorem", "lorem", "lorem", "lorem"],
-            "doi": ["10.1", "", "10.3", "10.3", "", "", "   ", "   ", None, None]
+            "title": ["a", "a", "b", "c", "d", "e", "f",
+                      "g", "h", "i", "", "", "   ", "   "],
+            "abstract": ["lorem", "lorem", "lorem", "lorem", "lorem", "lorem",
+                         "lorem", "lorem", "lorem", "lorem", "", "", "   ", "   "],
+            "doi": ["10.1", "", "10.3", "10.3", "", "", "   ", "   ",
+                    None, None, "10.4", "10.5", "10.6", "10.7"]
         })
     )
 
     assert n_duplicates(d) == 2
 
 
-def test_data_base():
+def test_deduplication():
     d_dups = ASReviewData(
         pd.DataFrame({
             "title": ["a", "a", "b", "c", "d", "e", "f", "g",
-                      "h", "i"],
-            "abstract": ["lorem", "lorem", "lorem", "lorem", "lorem",
-                         "lorem", "lorem", "lorem", "lorem", "lorem"],
-            "doi": ["10.1", "", "10.3", "10.3", "", "", "   ", "   ", None, None]
+                      "h", "i", "", "", "   ", "   "],
+            "abstract": ["lorem", "lorem", "lorem", "lorem", "lorem", "lorem",
+                         "lorem", "lorem", "lorem", "lorem", "", "", "   ", "   "],
+            "doi": ["10.1", "", "10.3", "10.3", "", "", "   ", "   ",
+                    None, None, "10.4", "10.5", "10.6", "10.7"]
         })
     )
 
-    s_dups_bool = pd.Series([False, True, False, True, False,
-                             False, False, False, False, False])
+    s_dups_bool = pd.Series([False, True, False, True, False, False, False,
+                             False, False, False, False, False, False, False])
 
     # test whether .duplicated() provides correct boolean series for duplicates
     pd.testing.assert_series_equal(d_dups.duplicated(), s_dups_bool)
 
     d_nodups = ASReviewData(
         pd.DataFrame({
-            "title": ["a", "b", "d", "e", "f", "g", "h", "i"],
-            "abstract": ["lorem", "lorem", "lorem", "lorem",
-                         "lorem", "lorem", "lorem", "lorem"],
-            "doi": ["10.1", "10.3", "", "", "   ", "   ", None, None]
+            "title": ["a", "b", "d", "e", "f", "g", "h", "i",
+                      "", "", "   ", "   "],
+            "abstract": ["lorem", "lorem", "lorem", "lorem", "lorem",
+                         "lorem", "lorem", "lorem", "", "", "   ", "   "],
+            "doi": ["10.1", "10.3", "", "", "   ", "   ", None,
+                    None, "10.4", "10.5", "10.6", "10.7"]
         })
     )
 
