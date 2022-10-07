@@ -89,8 +89,8 @@ h;lorem;
 i;lorem;
 ;;10.4
 ;;10.5
-;   ;10.6
-;   ;10.7
+   ;   ;10.6
+   ;   ;10.7
 """), sep=';'))
 
     s_dups_bool = pd.Series([False, True, False, True, False, False, False,
