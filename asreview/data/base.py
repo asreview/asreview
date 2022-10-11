@@ -240,7 +240,7 @@ class ASReviewData():
             return self.title
 
         cur_texts = np.array([
-            self.title[i] + self.abstract[i] for i in range(len(self))
+            self.title[i] + " " + self.abstract[i] for i in range(len(self))
         ], dtype=object)
         return cur_texts
 
