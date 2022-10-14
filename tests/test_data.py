@@ -55,58 +55,30 @@ def test_datasets(data_name):
 
 
 def test_duplicate_count():
-    d = asreview.ASReviewData(pd.read_csv(io.StringIO("""title;abstract;doi;some_column
-a;lorem;10.1;lorem
-a;lorem;;lorem
-b;lorem;10.3;lorem
-c;lorem;10.3;lorem
-d;lorem;;lorem
-e;lorem;;lorem
-f;lorem;   ;lorem
-g;lorem;   ;lorem
-h;lorem;;lorem
-i;lorem;;lorem
-;;10.4;lorem
-;;10.5;lorem
-   ;   ;10.6;lorem
-   ;   ;10.7;lorem
-"""), sep=';'))
+    d = ASReviewData.from_file(Path("demo_data", "duplicate_records.csv"))
 
     assert n_duplicates(d) == 2
 
 
 def test_deduplication():
-    d_dups = ASReviewData(pd.read_csv(io.StringIO("""title;abstract;doi;some_column
-a;lorem;10.1;lorem
-a;lorem;;lorem
-b;lorem;10.3;lorem
-c;lorem;10.3;lorem
-d;lorem;;lorem
-e;lorem;;lorem
-f;lorem;   ;lorem
-g;lorem;   ;lorem
-h;lorem;;lorem
-i;lorem;;lorem
-;;10.4;lorem
-;;10.5;lorem
-   ;   ;10.6;lorem
-   ;   ;10.7;lorem
-"""), sep=';'))
+    d_dups = ASReviewData.from_file(Path("demo_data", "duplicate_records.csv"))
 
     s_dups_bool = pd.Series([False, True, False, True, False, False, False,
                              False, False, False, False, False, False, False])
 
     # test whether .duplicated() provides correct boolean series for duplicates
-    pd.testing.assert_series_equal(d_dups.duplicated(), s_dups_bool)
+    pd.testing.assert_series_equal(d_dups.duplicated(), s_dups_bool, check_index=False)
 
     d_nodups = ASReviewData(
         pd.DataFrame({
             "title": ["a", "b", "d", "e", "f", "g", "h", "i",
-                      None, None, "   ", "   "],
+                      "", "", "   ", "   "],
             "abstract": ["lorem", "lorem", "lorem", "lorem", "lorem",
-                         "lorem", "lorem", "lorem", None, None, "   ", "   "],
+                         "lorem", "lorem", "lorem", "", "", "   ", "   "],
             "doi": ["10.1", "10.3", None, None, "   ", "   ", None,
-                    None, "10.4", "10.5", "10.6", "10.7"]
+                    None, "10.4", "10.5", "10.6", "10.7"],
+            "some_column": ["lorem", "lorem", "lorem", "lorem", "lorem", "lorem", "lorem",
+                         "lorem", "lorem", "lorem", "lorem", "lorem"]
         })
     )
 
