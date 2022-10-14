@@ -54,13 +54,13 @@ def test_datasets(data_name):
 
 
 def test_duplicate_count():
-    d = ASReviewData.from_file(Path("demo_data", "duplicate_records.csv"))
+    d = ASReviewData.from_file(Path("tests", "demo_data", "duplicate_records.csv"))
 
     assert n_duplicates(d) == 2
 
 
 def test_deduplication():
-    d_dups = ASReviewData.from_file(Path("demo_data", "duplicate_records.csv"))
+    d_dups = ASReviewData.from_file(Path("tests", "demo_data", "duplicate_records.csv"))
 
     s_dups_bool = pd.Series([False, True, False, True, False, False, False,
                              False, False, False, False, False, False, False])
