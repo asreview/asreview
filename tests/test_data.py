@@ -1,4 +1,3 @@
-import io
 import urllib
 from pathlib import Path
 
@@ -77,8 +76,8 @@ def test_deduplication():
                          "lorem", "lorem", "lorem", "", "", "   ", "   "],
             "doi": ["10.1", "10.3", None, None, "   ", "   ", None,
                     None, "10.4", "10.5", "10.6", "10.7"],
-            "some_column": ["lorem", "lorem", "lorem", "lorem", "lorem", "lorem", "lorem",
-                         "lorem", "lorem", "lorem", "lorem", "lorem"]
+            "some_column": ["lorem", "lorem", "lorem", "lorem", "lorem", "lorem",
+                            "lorem", "lorem", "lorem", "lorem", "lorem", "lorem"]
         })
     )
 
