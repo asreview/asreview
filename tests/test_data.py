@@ -55,42 +55,42 @@ def test_datasets(data_name):
 
 
 def test_duplicate_count():
-    d = asreview.ASReviewData(pd.read_csv(io.StringIO("""title;abstract;doi
-a;lorem;10.1
-a;lorem;
-b;lorem;10.3
-c;lorem;10.3
-d;lorem;
-e;lorem;
-f;lorem;   
-g;lorem;   
-h;lorem;
-i;lorem;
-;;10.4
-;;10.5
-   ;   ;10.6
-   ;   ;10.7
+    d = asreview.ASReviewData(pd.read_csv(io.StringIO("""title;abstract;doi;some_column
+a;lorem;10.1;lorem
+a;lorem;;lorem
+b;lorem;10.3;lorem
+c;lorem;10.3;lorem
+d;lorem;;lorem
+e;lorem;;lorem
+f;lorem;   ;lorem
+g;lorem;   ;lorem
+h;lorem;;lorem
+i;lorem;;lorem
+;;10.4;lorem
+;;10.5;lorem
+   ;   ;10.6;lorem
+   ;   ;10.7;lorem
 """), sep=';'))
 
     assert n_duplicates(d) == 2
 
 
 def test_deduplication():
-    d_dups = ASReviewData(pd.read_csv(io.StringIO("""title;abstract;doi
-a;lorem;10.1
-a;lorem;
-b;lorem;10.3
-c;lorem;10.3
-d;lorem;
-e;lorem;
-f;lorem;   
-g;lorem;   
-h;lorem;
-i;lorem;
-;;10.4
-;;10.5
-   ;   ;10.6
-   ;   ;10.7
+    d_dups = ASReviewData(pd.read_csv(io.StringIO("""title;abstract;doi;some_column
+a;lorem;10.1;lorem
+a;lorem;;lorem
+b;lorem;10.3;lorem
+c;lorem;10.3;lorem
+d;lorem;;lorem
+e;lorem;;lorem
+f;lorem;   ;lorem
+g;lorem;   ;lorem
+h;lorem;;lorem
+i;lorem;;lorem
+;;10.4;lorem
+;;10.5;lorem
+   ;   ;10.6;lorem
+   ;   ;10.7;lorem
 """), sep=';'))
 
     s_dups_bool = pd.Series([False, True, False, True, False, False, False,
