@@ -480,13 +480,13 @@ class ASReviewData():
         else:
             s_dups_pid = None
 
-        # get the texts and clean them
+        # get the texts, clean them and replace empty strings with None
         s = pd.Series(self.texts) \
             .str.replace("[^A-Za-z0-9]", "", regex=True) \
-            .str.lower()
+            .str.lower().str.strip().replace("", None)
 
         # save boolean series for duplicates based on titles/abstracts
-        s_dups_text = s.duplicated()
+        s_dups_text = ((s.duplicated()) & (s.notnull()))
 
         # final boolean series for all duplicates
         if s_dups_pid is not None:
