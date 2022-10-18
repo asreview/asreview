@@ -170,10 +170,3 @@ class RISReader():
             # Return the standardised dataframe
             return _standardize_dataframe(df)
 
-
-if __name__ == '__main__':
-    from asreview import ASReviewData
-    ris_url = "https://raw.githubusercontent.com/asreview/systematic-review-datasets/master/datasets" \
-              "/van_de_Schoot_2017/raw/schoot-lgmm-ptsd-included-3.ris"
-    d = ASReviewData.from_file(ris_url)
-    print(d.df)
