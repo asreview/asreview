@@ -123,7 +123,8 @@ setup(
         'openpyxl',
         'gevent',
         'jsonschema',
-        'filelock'
+        'filelock',
+        'requests'
     ],
     extras_require=DEPS,
     entry_points={
