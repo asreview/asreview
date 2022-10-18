@@ -19,6 +19,10 @@ import pandas
 import rispy
 
 from asreview.io.utils import _standardize_dataframe
+from asreview.utils import is_url
+import requests
+import tempfile
+import io
 
 
 class RISReader():
@@ -126,18 +130,28 @@ class RISReader():
         """
         encodings = ['utf-8', 'utf-8-sig', 'ISO-8859-1']
         entries = None
-        for encoding in encodings:
-            try:
-                with open(fp, 'r', encoding=encoding) as bibliography_file:
-                    entries = list(
-                        rispy.load(bibliography_file, skip_unknown_tags=True))
-                    break
-            except UnicodeDecodeError:
-                pass
-            except IOError as e:
-                logging.warning(e)
         if entries is None:
-            raise ValueError("Cannot find proper encoding for data file.")
+            for encoding in encodings:
+                if is_url(fp):
+                    try:
+                        url_input = requests.get(fp)
+                        bibliography_file = io.StringIO(url_input.content.decode(encoding))
+                        entries = list(rispy.load(bibliography_file, skip_unknown_tags=True))
+                        bibliography_file.close()
+                    except UnicodeDecodeError:
+                        pass
+                else:
+                    try:
+                        with open(fp, 'r', encoding=encoding) as bibliography_file:
+                            entries = list(
+                                rispy.load(bibliography_file, skip_unknown_tags=True))
+                            break
+                    except UnicodeDecodeError:
+                        pass
+                    except IOError as e:
+                        logging.warning(e)
+            if entries is None:
+                raise ValueError("Cannot find proper encoding for data file.")
 
         # Turn the entries dictionary into a Pandas dataframe
         df = pandas.DataFrame(entries)
@@ -155,3 +169,11 @@ class RISReader():
         else:
             # Return the standardised dataframe
             return _standardize_dataframe(df)
+
+
+if __name__ == '__main__':
+    from asreview import ASReviewData
+    ris_url = "https://raw.githubusercontent.com/asreview/systematic-review-datasets/master/datasets" \
+              "/van_de_Schoot_2017/raw/schoot-lgmm-ptsd-included-3.ris"
+    d = ASReviewData.from_file(ris_url)
+    print(d.df)
