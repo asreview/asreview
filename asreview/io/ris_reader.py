@@ -12,22 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import io
 import logging
 import re
+import tempfile
 
 import pandas
+import requests
 import rispy
 
 from asreview.io.utils import _standardize_dataframe
 from asreview.utils import is_url
-import requests
-import tempfile
-import io
 
 
-class RISReader():
-    """RIS file reader.
-    """
+class RISReader:
+    """RIS file reader."""
 
     read_format = [".ris", ".txt"]
     write_format = [".csv", ".tsv", ".xlsx", ".ris"]
@@ -51,7 +50,7 @@ class RISReader():
             new_notes = []
             for v in note_list:
                 try:
-                    new_notes.append(re.sub(r'^<p>|<\/p>$', '', v))
+                    new_notes.append(re.sub(r"^<p>|<\/p>$", "", v))
                 except Exception:
                     new_notes.append(v)
             return new_notes
@@ -84,17 +83,13 @@ class RISReader():
 
         # Create lists of lists for ASReview references
         asreview_refs = [re.findall(regex, note) for note in note_list]
-        asreview_refs_list = [
-            item for sublist in asreview_refs for item in sublist
-        ]
+        asreview_refs_list = [item for sublist in asreview_refs for item in sublist]
 
         if len(asreview_refs_list) > 0:
             # Create lists of lists for notes without references
             asreview_new_notes = [re.sub(regex, "", note) for note in note_list]
             # Remove empty elements from list
-            asreview_new_notes[:] = [
-                item for item in asreview_new_notes if item != ""
-            ]
+            asreview_new_notes[:] = [item for item in asreview_new_notes if item != ""]
             label = asreview_refs_list[-1]
 
             # Check for the label and return proper values for internal representation
@@ -128,23 +123,28 @@ class RISReader():
         ValueError
             File with unrecognized encoding is used as input.
         """
-        encodings = ['utf-8', 'utf-8-sig', 'ISO-8859-1']
+        encodings = ["utf-8", "utf-8-sig", "ISO-8859-1"]
         entries = None
         if entries is None:
             for encoding in encodings:
                 if is_url(fp):
                     try:
                         url_input = requests.get(fp)
-                        bibliography_file = io.StringIO(url_input.content.decode(encoding))
-                        entries = list(rispy.load(bibliography_file, skip_unknown_tags=True))
+                        bibliography_file = io.StringIO(
+                            url_input.content.decode(encoding)
+                        )
+                        entries = list(
+                            rispy.load(bibliography_file, skip_unknown_tags=True)
+                        )
                         bibliography_file.close()
                     except UnicodeDecodeError:
                         pass
                 else:
                     try:
-                        with open(fp, 'r', encoding=encoding) as bibliography_file:
+                        with open(fp, "r", encoding=encoding) as bibliography_file:
                             entries = list(
-                                rispy.load(bibliography_file, skip_unknown_tags=True))
+                                rispy.load(bibliography_file, skip_unknown_tags=True)
+                            )
                             break
                     except UnicodeDecodeError:
                         pass
@@ -161,12 +161,12 @@ class RISReader():
             # Strip Zotero XHTML <p> tags on "notes"
             df["notes"] = df["notes"].apply(cls._strip_zotero_p_tags)
             # Split "included" from "notes"
-            df[["included", "notes"
-                ]] = pandas.DataFrame(df["notes"].apply(cls._label_parser).tolist(),
-                                      columns=["included", "notes"])
+            df[["included", "notes"]] = pandas.DataFrame(
+                df["notes"].apply(cls._label_parser).tolist(),
+                columns=["included", "notes"],
+            )
             # Return the standardised dataframe with label and notes separated
             return _standardize_dataframe(df)
         else:
             # Return the standardised dataframe
             return _standardize_dataframe(df)
-
