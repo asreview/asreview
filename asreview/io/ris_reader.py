@@ -15,7 +15,6 @@
 import io
 import logging
 import re
-import tempfile
 
 import pandas
 import requests
