@@ -15,11 +15,10 @@
 import io
 import logging
 import re
+from urllib.request import urlopen
 
 import pandas
-import requests
 import rispy
-from urllib.request import urlopen
 
 from asreview.io.utils import _standardize_dataframe
 from asreview.utils import is_url
@@ -130,7 +129,9 @@ class RISReader:
                 if is_url(fp):
                     try:
                         url_input = urlopen(fp)
-                        bibliography_file = io.StringIO(url_input.read().decode(encoding))
+                        bibliography_file = io.StringIO(
+                            url_input.read().decode(encoding)
+                        )
 
                         entries = list(
                             rispy.load(bibliography_file, skip_unknown_tags=True)
@@ -169,8 +170,3 @@ class RISReader:
         else:
             # Return the standardised dataframe
             return _standardize_dataframe(df)
-
-if __name__ == '__main__':
-    from asreview import ASReviewData
-    d = ASReviewData.from_file("https://raw.githubusercontent.com/asreview/systematic-review-datasets/master/datasets/van_de_Schoot_2017/raw/schoot-lgmm-ptsd-included-3.ris")
-    print(d.df)
