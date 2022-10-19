@@ -125,10 +125,11 @@ class RISReader:
         encodings = ["utf-8", "utf-8-sig", "ISO-8859-1"]
         entries = None
         if entries is None:
+            if is_url(fp):
+                url_input = urlopen(fp)
             for encoding in encodings:
                 if is_url(fp):
                     try:
-                        url_input = urlopen(fp)
                         bibliography_file = io.StringIO(
                             url_input.read().decode(encoding)
                         )
@@ -137,6 +138,7 @@ class RISReader:
                             rispy.load(bibliography_file, skip_unknown_tags=True)
                         )
                         bibliography_file.close()
+                        break
                     except UnicodeDecodeError:
                         pass
                 else:
