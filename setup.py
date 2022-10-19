@@ -124,7 +124,6 @@ setup(
         'gevent',
         'jsonschema',
         'filelock',
-        'requests'
     ],
     extras_require=DEPS,
     entry_points={
