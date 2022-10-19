@@ -15,6 +15,7 @@
 import hashlib
 from pathlib import Path
 from urllib.parse import urlparse
+from urllib.request import urlopen
 
 import numpy as np
 import pandas as pd
@@ -179,6 +180,16 @@ class ASReviewData():
             if path.endswith(suffix):
                 if best_suffix is None or len(suffix) > len(best_suffix):
                     best_suffix = suffix
+
+        if best_suffix is None and is_url(fp):
+            try:
+                url_filename = urlopen(fp).info().get_filename()
+                for suffix, entry in entry_points.items():
+                    if url_filename.endswith(suffix):
+                        if best_suffix is None or len(suffix) > len(best_suffix):
+                            best_suffix = suffix
+            except:
+                pass
 
         if best_suffix is None:
             raise BadFileFormatError(f"Error importing file {fp}, no capabilities "
