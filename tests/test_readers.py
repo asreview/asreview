@@ -1,28 +1,43 @@
 from pathlib import Path
 
-from pytest import mark
 import rispy
+from pytest import mark
 
 from asreview import ASReviewData
 
 
-@mark.parametrize("test_file,n_lines,ignore_col",
-                  [("_baseline.ris", 100, []),
-                   ("embase.csv", 6, ["keywords"]),
-                   ("embase_newpage.csv", 6, ["keywords"]),
-                   ("embase.ris", 6, []), ("generic.csv", 2, []),
-                   ("generic_semicolon.csv", 2, []),
-                   ("generic_tab.csv", 2, []), ("generic_tab.tab", 2, []),
-                   ("generic_tab.tsv", 2, []), ("generic_labels.csv", 6, []),
-                   ("pubmed_zotero.ris", 6, []), ("pubmed_endnote.txt", 6, []),
-                   ("scopus.ris", 6, []), ("ovid_zotero.ris", 6, []),
-                   ("proquest.ris", 6, [])])
+@mark.parametrize(
+    "test_file,n_lines,ignore_col",
+    [
+        ("_baseline.ris", 100, []),
+        ("embase.csv", 6, ["keywords"]),
+        ("embase_newpage.csv", 6, ["keywords"]),
+        ("embase.ris", 6, []),
+        ("generic.csv", 2, []),
+        ("generic_semicolon.csv", 2, []),
+        ("generic_tab.csv", 2, []),
+        ("generic_tab.tab", 2, []),
+        ("generic_tab.tsv", 2, []),
+        ("generic_labels.csv", 6, []),
+        ("pubmed_zotero.ris", 6, []),
+        ("pubmed_endnote.txt", 6, []),
+        ("scopus.ris", 6, []),
+        ("ovid_zotero.ris", 6, []),
+        ("proquest.ris", 6, []),
+        (
+            "https://raw.githubusercontent.com/asreview/systematic-review-datasets/master/datasets"
+            "/van_de_Schoot_2017/raw/schoot-lgmm-ptsd-included-3.ris",
+            8,
+            [],
+        ),
+    ],
+)
 def test_reader(test_file, n_lines, ignore_col):
     fp = Path("tests", "demo_data", test_file)
     as_data = ASReviewData.from_file(fp)
     assert len(as_data) == n_lines
 
-    cols = ['title', 'abstract', 'authors', 'keywords']
+    cols = ["title", "abstract", "authors", "keywords"]
     cols = [col for col in cols if col not in ignore_col]
     # if labels is not None:
     #     cols.append('included')
@@ -78,8 +93,9 @@ def test_reader(test_file, n_lines, ignore_col):
         (29, 0),
         (30, -1),
         # No notes tag present
-        (31, -1)
-    ])
+        (31, -1),
+    ],
+)
 def test_asreview_labels_ris(record_i, included):
     fp = Path("tests", "demo_data", "baseline_tag-notes_labels.ris")
     as_data = ASReviewData.from_file(fp)
@@ -88,9 +104,8 @@ def test_asreview_labels_ris(record_i, included):
 
 def test_multiline_tags_ris():
 
-    fp = Path("tests", "demo_data",
-              "baseline_tag_and_field_definitions_lists.ris")
-    entries = rispy.load(fp, encoding='utf-8')
+    fp = Path("tests", "demo_data", "baseline_tag_and_field_definitions_lists.ris")
+    entries = rispy.load(fp, encoding="utf-8")
     assert entries[0]["notes"] == ["Notes 1", "Notes 2"]
 
 
