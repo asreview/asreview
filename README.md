@@ -35,7 +35,7 @@ ASReview software implements three different modes:
   suitable for teaching purposes.
 - **Simulation** :chart_with_upwards_trend: Evaluate
   the performance of active learning models on fully labeled data. Simulations
-  can be run in ASReview LAB or via the command-line interface with more
+  can be run in ASReview LAB or via the command line interface with more
   advanced options.
 
 

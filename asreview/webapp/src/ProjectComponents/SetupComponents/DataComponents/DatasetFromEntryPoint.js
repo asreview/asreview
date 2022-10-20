@@ -106,6 +106,7 @@ const DatasetFromEntryPoint = (props) => {
                     license={dataset.license}
                     link={dataset.link}
                     location={dataset.filepath}
+                    mobileScreen={props.mobileScreen}
                     reset={props.reset}
                     selectedDatasetId={
                       props.subset === "plugin"

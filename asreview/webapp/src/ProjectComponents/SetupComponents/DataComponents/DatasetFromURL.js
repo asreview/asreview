@@ -1,6 +1,7 @@
 import React from "react";
-import { Box, Stack, TextField } from "@mui/material";
+import { InputBase, Paper, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 import { InlineErrorHandler } from "../../../Components";
 
@@ -8,16 +9,19 @@ const PREFIX = "DatasetFromURL";
 
 const classes = {
   root: `${PREFIX}-root`,
-  uploadButton: `${PREFIX}-uploadButton`,
+  input: `${PREFIX}-input`,
 };
 
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.root}`]: {
-    paddingTop: "24px",
+    alignItems: "center",
   },
 
-  [`& .${classes.uploadButton}`]: {
-    marginTop: "26px",
+  [`& .${classes.input}`]: {
+    display: "flex",
+    alignItems: "center",
+    width: "100%",
+    padding: "4px 8px",
   },
 }));
 
@@ -29,24 +33,39 @@ const DatasetFromURL = (props) => {
     props.setURL(event.target.value);
   };
 
+  const addURL = () => {
+    props.handleSaveDataset();
+  };
+
   return (
     <Root>
       <Stack spacing={3}>
-        <Box
+        <Paper
+          className={classes.input}
           component="form"
           noValidate
           autoComplete="off"
           onSubmit={(e) => e.preventDefault()}
+          variant="outlined"
         >
-          <TextField
+          <InputBase
+            autoFocus
             disabled={props.isAddingDataset}
             fullWidth
             id="url-dataset"
-            label="Dataset URL"
+            placeholder="Dataset URL"
             value={props.url}
             onChange={handleURL}
+            sx={{ ml: 1, flex: 1 }}
           />
-        </Box>
+          <LoadingButton
+            disabled={!props.url}
+            loading={props.isAddingDataset}
+            onClick={addURL}
+          >
+            Add
+          </LoadingButton>
+        </Paper>
         {props.isAddDatasetError && (
           <InlineErrorHandler
             message={props.addDatasetError?.message + " Please try again."}

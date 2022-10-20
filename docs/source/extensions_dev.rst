@@ -98,11 +98,9 @@ Subcommand extensions are programs that create a new entry point for ASReview.
 From this entry point the Python API can be used in many ways (like ``plot`` or
 ``simulate``).
 
-Extensions in ASReview are Python packages and can extend the
-subcommands of asreview (see ``asreview -h``).
-
-An example of a subcommand extension is the `Visualization Extension
-<https://github.com/asreview/asreview-visualization>`_
+Extensions in ASReview are Python packages and can extend the subcommands of
+asreview (see ``asreview -h``). An example of a subcommand extension is
+`ASReview Insights <https://github.com/asreview/asreview-insights>`_.
 
 The easiest way to create a new subcommand is by defining a class that can be
 used as a new entry point for ASReview. This class should inherit from
@@ -125,7 +123,7 @@ class method ``execute``.
 It is strongly recommended to define the attributes ``description``,
 ``extension_name``, and ``version``.
 
-The class method ``execute`` accepts a positional arugument (``argv`` in this
+The class method ``execute`` accepts a positional argument (``argv`` in this
 example).  First create the functionality you would like to be able to use in
 any directory. The argument ``argv`` are the command line arguments left after
 removing asreview and the entry point.

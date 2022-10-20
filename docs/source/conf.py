@@ -9,9 +9,10 @@
 import datetime
 
 try:
-    from asreview import __version__ as asreview_verion
+    from asreview import __version__ as asreview_version
+    print(asreview_version)
 except Exception:
-    asreview_verion = ""
+    asreview_version = ""
 
 # -- Path setup --------------------------------------------------------------
 
@@ -55,6 +56,8 @@ autodoc_mock_imports = [
     "gensim.models.doc2vec",
     "sentence_transformers",
     "sentence_transformers.SentenceTransformer",
+    "jsonschema",
+    "filelock"
 ]
 
 
@@ -68,9 +71,9 @@ copyright = '{}, ASReview LAB developers'.format(year)
 author = 'ASReview LAB developers, Utrecht University'
 
 # The short X.Y version
-version = asreview_verion
+version = asreview_version
 # The full version, including alpha/beta/rc tags
-release = asreview_verion
+release = asreview_version
 
 
 # -- General configuration ---------------------------------------------------
@@ -281,6 +284,7 @@ redirects = {
     "extensions/extension_wordcloud": "../extensions_overview.html",
 
     "API/extension_dev": "../extensions_dev.html",
+    "API/reference": "../reference.html",
 
     "guides/activelearning": "https://asreview.nl/blog/active-learning-explained/",
     "guides/simulation_study_results": "https://asreview.nl/research/",

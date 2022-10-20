@@ -15,9 +15,9 @@ const classes = {
 const Root = styled("div")(({ theme }) => ({
   height: "inherit",
   [`& .${classes.img}`]: {
-    maxWidth: 350,
+    maxWidth: 250,
     [theme.breakpoints.down("md")]: {
-      maxWidth: 250,
+      maxWidth: 150,
     },
   },
 

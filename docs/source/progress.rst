@@ -1,9 +1,9 @@
 Progress and results
 ====================
 
-During screening, you might want to keep track of your progress and know when
-to stop. This section provides documentation on useful tools for these
-purposes.
+During screening, you might want to keep track of your progress and to obtain
+information for your stopping criteria. This section provides documentation on
+useful tools for these purposes.
 
 Analytics
 ---------
@@ -36,19 +36,18 @@ The summary statistics are counts of the records in your dataset.
 - Labeled records: the number of records that you labeled as relevant or irrelevant, including those you added as prior knowledge.
 - Relevant records: the number of records that you labeled as relevant, including those you added as prior knowledge.
 - Irrelevant records: the number of records that you labeled as irrelevant, including those you added as prior knowledge.
-- Irrelevant since last relevant: the number of irrelevant records you have seen since the last relevant record. The larger this number (relatively), the more likely you have seen the relevant records.
+- Irrelevant since last relevant: the number of irrelevant records you have seen since the last relevant record. 
+
 
 Charts
 ~~~~~~
 
 The charts on the analytics page can be useful to monitor your progress. There
-is a *Progress* and a *Recall* chart. You will probably see a decline in the
-number of relevant items you find. This helps to decide when to stop. The
-charts do not include prior knowledge and are most relevant after you have
-screened a couple of hundreds of records.
+is a *Progress* and a *Recall* chart. The charts do not include prior
+knowledge and are most relevant after you have screened at least 10 records.
+
 
 **Progress chart**
-
 
 The progress chart plots the number of relevant records in the last 10 records
 that you reviewed in ASReview LAB. For example, when you reviewed 100 records,
@@ -57,11 +56,21 @@ you labeled 3 relevant records between the 91st and 100th reviewed records.
 **Recall chart**
 
 The recall chart plots the number of relevant records against the number of
-records that you reviewed in ASReview LAB. Relevant by ASReview LAB refers to
+records that you reviewed in ASReview LAB. *Relevant by ASReview LAB* refers to
 the relevant records that you labeled with the assistance of the active
-learning model. Random relevant refers to the relevant records that you might
-find if you manually reviewed all the records without the assistance of the
+learning model. *Random relevant* refers to the relevant records that you might
+find if you manually reviewed the records so far without the assistance of the
 active learning model.
+
+**Export Figure**
+
+The plots can be exported as a figure:
+
+1. :doc:`start`.
+2. Open or :doc:`project_create`.
+3. Click on Analytics on in the left menu.
+4. Click on the hamburger menu next to the Progress or Recall chart. 
+5. Select *Download SVG* or *PNG* to export a figure, or select *Download CSV* to export the data behind the figure. 
 
 
 Stop screening
@@ -72,6 +81,21 @@ The `blogpost
 `How to stop screening?
 <https://github.com/asreview/asreview/discussions/557>`_ discussion provide
 tips on when to stop with screening.
+
+.. tip::
+
+  The number of *irrelevant records since last relevant* will increase the longer you screen.
+
+.. tip:: 
+
+  With *Maximum* as :ref:`project_create:Query Strategy`, you will 
+  see a decline in the number of relevant items in the plots the longer you screen. This may
+  help to decide when to 'stop screening <https://github.com/asreview/asreview/discussions/557>`_. 
+
+.. tip::
+
+  The data behind the recall plot can be used to calculate the `knee-algortitm <https://github.com/asreview/asreview/discussions/1115#discussioncomment-2812003>`_ as a stopping criteria. 
+
 
 Mark project as finished
 ------------------------
@@ -91,12 +115,22 @@ clicking again on *Mark as in review*.
 Export results
 --------------
 
-You can export the results of your screening to a RIS, CSV, TSV or Excel file.
-A file contains all imported data including your decisions. The file is ordered as follows:
+You can export the results of your labeling to a RIS, CSV, TSV, or Excel file.
+A file contains all imported data including your decisions. 
+
+The following variables will be added to your dataset:
+
+- The column titled **included** contains the labels as provided by the user:
+  ``0`` = not relevant, ``1`` = relevant and if missing it means the record is
+  not seen during the screening process.
+- The column titled **asreview_ranking** contains an identifier to
+  preserve the rank ordering as described above.
+
+The file is ordered as follows:
 
 1. All relevant records you have seen in the order they were shown during the screening process.
 2. All records not seen during the screening and ordered from most to least relevant according to the last iteration of the model.
-3. All non-relevant records are presented in the order these are shown during the screening proces.
+3. All non-relevant records are presented in the order these are shown during the screening process.
 
 
 To download your results follow these steps:
@@ -115,12 +149,6 @@ To download your results follow these steps:
 
     A RIS file can only be exported if a RIS file is imported.
 
-The following variables will be added to your dataset:
 
-- The column titled **included** contains the labels as provided by the user:
-  ``0`` = not relevant, ``1`` = relevant and if missing it means the record is
-  not seen during the screening process.
-- The column titled **asreview_ranking** contains an identifier to
-  preserve the rank ordering as described above.
 
 

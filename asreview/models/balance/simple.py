@@ -16,7 +16,7 @@ from asreview.models.balance.base import BaseBalance
 
 
 class SimpleBalance(BaseBalance):
-    """Simple (no balancing) balance strategy.
+    """No balance strategy (``simple``).
 
     Use all training data.
     """

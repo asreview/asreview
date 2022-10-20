@@ -43,7 +43,7 @@ def _check_tensorflow():
 
 
 class EmbeddingIdf(BaseFeatureExtraction):
-    """Embedding IDF feature extraction technique.
+    """Embedding IDF feature extraction technique (``embedding-idf``).
 
     This model averages the weighted word vectors of all the words in the
     text, in order to get a single feature vector for each text. The weights
