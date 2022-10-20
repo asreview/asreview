@@ -18,9 +18,7 @@ from asreview.utils import is_url
                    ("pubmed_zotero.ris", 6, []), ("pubmed_endnote.txt", 6, []),
                    ("scopus.ris", 6, []), ("ovid_zotero.ris", 6, []),
                    ("proquest.ris", 6, []),
-                   ("https://raw.githubusercontent.com/asreview/systematic-"
-                    "review-datasets/master/datasets/van_de_Schoot_2017/raw/"
-                    "schoot-lgmm-ptsd-included-3.ris", 8, [])])
+                   ("https://osf.io/download/fg93a/", 38, [])])
 def test_reader(test_file, n_lines, ignore_col):
     if is_url(test_file):
         fp = test_file
