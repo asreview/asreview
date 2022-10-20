@@ -239,7 +239,7 @@ class SimulateEntryPoint(BaseEntryPoint):
                     preview = as_data.record(row['record_id'])
                     print(preview)
 
-            print("Simulation started")
+            print("Simulation started\n")
             reviewer.review()
         except Exception as err:
 
@@ -248,7 +248,7 @@ class SimulateEntryPoint(BaseEntryPoint):
 
             raise err
 
-        print("Simulation finished")
+        print("\nSimulation finished")
         project.mark_review_finished()
 
         # create .ASReview file out of simulation folder
