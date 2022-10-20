@@ -36,6 +36,10 @@ SQLSTATE_VERSION = "1.0"
 ASREVIEW_FILE_EXTENSION = '.asreview'
 
 
+class StateConversionException(Exception):
+    pass
+
+
 def is_old_project(fp):
     """Check if state file is old version."""
     if Path(fp, 'reviews').is_dir():
@@ -105,65 +109,72 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     legacy_fp = Path(fp, 'legacy')
     move_old_files_to_legacy_folder(fp)
 
-    # Current paths.
-    json_fp = Path(legacy_fp, 'result.json')
-    labeled_json_fp = Path(legacy_fp, 'labeled.json')
-    pool_fp = Path(legacy_fp, 'pool.json')
-    kwargs_fp = Path(legacy_fp, 'kwargs.json')
-    review_id = str(uuid4().hex)
+    try:
+        # Current paths.
+        json_fp = Path(legacy_fp, 'result.json')
+        labeled_json_fp = Path(legacy_fp, 'labeled.json')
+        pool_fp = Path(legacy_fp, 'pool.json')
+        kwargs_fp = Path(legacy_fp, 'kwargs.json')
+        review_id = str(uuid4().hex)
 
-    # Create the reviews folder and the paths for the results and settings.
-    Path(fp, 'reviews', review_id).mkdir(parents=True)
-    sql_fp = str(Path(fp, 'reviews', review_id, 'results.sql'))
-    settings_metadata_fp = Path(fp, 'reviews', review_id,
-                                'settings_metadata.json')
+        # Create the reviews folder and the paths for the results and settings.
+        Path(fp, 'reviews', review_id).mkdir(parents=True)
+        sql_fp = str(Path(fp, 'reviews', review_id, 'results.sql'))
+        settings_metadata_fp = Path(fp, 'reviews', review_id,
+                                    'settings_metadata.json')
 
-    # Create the path for the feature matrix.
+        # Create the path for the feature matrix.
 
-    # Create sqlite table with the results of the review.
-    convert_json_results_to_sql(sql_fp, json_fp, labeled_json_fp)
+        # Create sqlite table with the results of the review.
+        convert_json_results_to_sql(sql_fp, json_fp, labeled_json_fp)
 
-    # Create sqlite tables 'last_probabilities'.
-    convert_json_last_probabilities(sql_fp, json_fp)
+        # Create sqlite tables 'last_probabilities'.
+        convert_json_last_probabilities(sql_fp, json_fp)
 
-    # Create the table for the last ranking of the model.
-    create_last_ranking_table(sql_fp, pool_fp, kwargs_fp, json_fp)
+        # Create the table for the last ranking of the model.
+        create_last_ranking_table(sql_fp, pool_fp, kwargs_fp, json_fp)
 
-    # Add the record table to the sqlite database as the table 'record_table'.
-    convert_json_record_table(sql_fp, json_fp)
+        # Add the record table to the sqlite database as the table 'record_table'.
+        convert_json_record_table(sql_fp, json_fp)
 
-    # Create decision changes table.
-    create_decision_changes_table(sql_fp)
+        # Create decision changes table.
+        create_decision_changes_table(sql_fp)
 
-    # Create json for settings.
-    convert_json_settings_metadata(settings_metadata_fp, json_fp)
+        # Create json for settings.
+        convert_json_settings_metadata(settings_metadata_fp, json_fp)
 
-    # Create file for the feature matrix.
-    with open(kwargs_fp, 'r') as f:
-        kwargs_dict = json.load(f)
-        feature_extraction_method = kwargs_dict['feature_extraction']
-    feature_matrix_fp = convert_json_feature_matrix(fp, json_fp,
+        # Create file for the feature matrix.
+        with open(kwargs_fp, 'r') as f:
+            kwargs_dict = json.load(f)
+            feature_extraction_method = kwargs_dict['feature_extraction']
+        feature_matrix_fp = convert_json_feature_matrix(fp, json_fp,
+                                                        feature_extraction_method)
+
+        # --- Upgrade the project.json file.
+
+        # extract the start time from the state json
+        with open(json_fp, 'r') as f:
+            start_time = json.load(f)['time']['start_time']
+            start_time = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S.%f")
+
+        # open the project json and upgrade
+        with open(Path(fp, 'project.json'), 'r') as f:
+            project_config_old = json.load(f)
+
+        project_config_new = upgrade_project_config(project_config_old, review_id,
+                                                    start_time,
+                                                    Path(feature_matrix_fp).name,
                                                     feature_extraction_method)
 
-    # --- Upgrade the project.json file.
-
-    # extract the start time from the state json
-    with open(json_fp, 'r') as f:
-        start_time = json.load(f)['time']['start_time']
-        start_time = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S.%f")
-
-    # open the project json and upgrade
-    with open(Path(fp, 'project.json'), 'r') as f:
-        project_config_old = json.load(f)
-
-    project_config_new = upgrade_project_config(project_config_old, review_id,
-                                                start_time,
-                                                Path(feature_matrix_fp).name,
-                                                feature_extraction_method)
-
-    # dump the project json
-    with open(Path(fp, 'project.json'), 'w') as f:
-        json.dump(project_config_new, f)
+        # dump the project json
+        with open(Path(fp, 'project.json'), 'w') as f:
+            json.dump(project_config_new, f)
+    except Exception as e:
+        rollback_conversion(fp, check_is_converted=False)
+        raise StateConversionException(
+            f"An error occurred during conversion of state "
+            f"from {from_version} to {to_version}."
+        ) from e
 
 
 def move_old_files_to_legacy_folder(fp):
@@ -572,3 +583,62 @@ def create_decision_changes_table(sql_fp):
                                     time INTEGER)''')
 
         con.commit()
+
+
+# Disable is_converted_check.
+def rollback_conversion(fp,
+                        from_version=1,
+                        to_version=0,
+                        check_is_converted=True):
+    if from_version != 1 and to_version != 0:
+        raise ValueError(
+            f"Not possible to roll back conversion from v{from_version} "
+            f"to v{to_version}."
+        )
+
+    if check_is_converted and not is_converted_project(fp):
+        raise ValueError(f"Project file at {fp} is not a converted "
+                         f"project file.")
+
+    fp = Path(fp)
+    legacy_fp = Path(fp, 'legacy')
+
+    # Delete everything other than the legacy folder.
+    for item in fp.iterdir():
+        if item.is_file():
+            item.unlink()
+        elif item.is_dir() and (item.name != 'legacy'):
+            shutil.rmtree(item)
+        else:
+            pass
+
+    # Copy from legacy folder and delete it after.
+    shutil.copytree(legacy_fp, fp, dirs_exist_ok=True)
+    shutil.rmtree(legacy_fp)
+
+
+def is_converted_project(fp):
+    """Check if asreview file has been converter from v0 to v1."""
+    # Check if there is a legacy project.json and it has v0.
+    try:
+        with open(Path(fp, 'legacy', 'project.json'), 'r') as f:
+            project_config_old = json.load(f)
+    except FileNotFoundError:
+        return False
+
+    if project_config_old['version'][0] != '0':
+        return False
+
+    # Check if the current project.json has 'state_version' == 1.
+    with open(Path(fp, 'project.json'), 'r') as f:
+        project_config_current = json.load(f)
+
+    try:
+        current_state_version = project_config_current['state_version']
+    except KeyError:
+        return False
+
+    if current_state_version[0] == "1":
+        return True
+    else:
+        return False
