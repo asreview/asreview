@@ -22,6 +22,22 @@ succesful simulation, at ``MY_SIMULATION.asreview`` where ``MY_SIMULATION``
 is the filename you prefer and the extension is ``.asreview``
 (ASReview project file extension).
 
+Simulation progress
+-------------------
+
+The progress of the simulation is given with two progress bars. The top one is
+used to count the number of relevant records found. The bottom one monitors
+the number of records labeled. By default (with ``--stop-if min``), the
+simulation stops once the the top progress bar reaches 100%.
+
+.. code-block:: bash
+
+  Simulation started
+
+  Relevant records found: 100%|███████████████████████████████████████████████| 43/43 [00:03<00:00, 13.42it/s]
+  Records labeled       :   7%|██▉                                        | 420/6189 [00:03<00:43, 133.58it/s]
+
+  Simulation finished
 
 Command line arguments for simulating
 -------------------------------------
