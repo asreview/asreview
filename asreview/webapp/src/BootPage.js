@@ -1,7 +1,7 @@
 import * as React from "react";
 import ReactLoading from "react-loading";
 import { useNavigate } from "react-router-dom";
-import { Box, Fade, Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "./Components";
@@ -60,45 +60,29 @@ const BootPage = (props) => {
 
   return (
     <Root>
-      <Fade
-        in={onAnimation}
-        timeout={{ enter: 0, exit: 600 }}
-        mountOnEnter
-        unmountOnExit
-        onEnter={() => {
-          if (!isError) {
-            setTimeout(() => {
-              toggleAnimation();
-            }, 3000);
-          }
-        }}
-        onExited={() => {
-          setTimeout(() => navigate("projects", 2000))
-        }}
-      >
-        <Box className={classes.background}>
+      <Box className={classes.background}>
           <Stack className={classes.root} spacing={3}>
-            <img
+          <img
               className={classes.logo}
               src={wordmarkState()}
               alt="ASReview LAB"
-            />
-            {!isError && (
+          />
+          {!isError && (
               <ReactLoading
-                type="bubbles"
-                color={
+              type="bubbles"
+              color={
                   theme.palette.mode === "dark"
-                    ? theme.palette.primary.main
-                    : theme.palette.primary.light
-                }
-                height={100}
-                width={100}
+                  ? theme.palette.primary.main
+                  : theme.palette.primary.light
+              }
+              height={100}
+              width={100}
               />
-            )}
-            {isError && <InlineErrorHandler message={error.message} />}
+          )}
+          {isError && <InlineErrorHandler message={error.message} />}
+          <button>Go to projects</button>
           </Stack>
-        </Box>
-      </Fade>
+      </Box>
     </Root>
   );
 };

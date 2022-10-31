@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { useSelector, useDispatch } from 'react-redux';
 import { Routes, Route } from "react-router-dom";
 import "typeface-roboto";
-import { CssBaseline, createTheme, useMediaQuery } from "@mui/material";
+import { CssBaseline, createTheme, Fade, useMediaQuery } from "@mui/material";
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import "./App.css";
 
@@ -66,13 +66,14 @@ const App = (props) => {
 
   // Navigation drawer state
   const [onNavDrawer, toggleNavDrawer] = useToggle(mobileScreen ? false : true);
+  const [onAnimation, toggleAnimation] = useToggle(false);
 
   // This effect does a boot request to gather information 
   // about the backend
   React.useEffect(() => {
     let result = BaseAPI.boot({})
       .then(response => {
-        const delay = (response.status === 'development')? 3000 : 3000;
+        const delay = (response.status === 'development')? 7000 : 7000;
         // in production we set a 3 secs delay to show the logo,
         // in development we immediately set the boot-data
         setTimeout(() => {
@@ -171,7 +172,11 @@ const App = (props) => {
           <CssBaseline />
 
           <div aria-label="nav and main content">
-            { (appReady === false) && <BootPage /> }
+            { (appReady === false) && 
+                <Fade in={false} timeout={4000}>
+                    <BootPage />
+                </Fade> 
+            }
             { (appReady === true) && render_routes() }
           </div>
 
