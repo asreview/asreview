@@ -57,16 +57,30 @@ def test_duplicate_count():
     d = ASReviewData.from_file(Path("tests", "demo_data", "duplicate_records.csv"))
 
     assert n_duplicates(d) == 2
+    assert n_duplicates(d, dedup='p') == 1
+    assert n_duplicates(d, dedup='t') == 1
 
 
 def test_deduplication():
     d_dups = ASReviewData.from_file(Path("tests", "demo_data", "duplicate_records.csv"))
 
+    # test boolean series returned by .duplicated() based on text
+    s_dups_bool = pd.Series([False, True, False, False, False, False, False,
+                             False, False, False, False, False, False, False])
+    pd.testing.assert_series_equal(d_dups.duplicated(dedup='t'), s_dups_bool,
+                                   check_names=False, check_index=False)
+
+    # test boolean series returned by .duplicated() based on pid
+    s_dups_bool = pd.Series([False, False, False, True, False, False, False,
+                             False, False, False, False, False, False, False])
+    pd.testing.assert_series_equal(d_dups.duplicated(dedup='p'), s_dups_bool,
+                                   check_names=False, check_index=False)
+
+    # test boolean series returned by .duplicated() based on text and pid
     s_dups_bool = pd.Series([False, True, False, True, False, False, False,
                              False, False, False, False, False, False, False])
-
-    # test whether .duplicated() provides correct boolean series for duplicates
-    pd.testing.assert_series_equal(d_dups.duplicated(), s_dups_bool, check_index=False)
+    pd.testing.assert_series_equal(d_dups.duplicated(dedup='pt'), s_dups_bool,
+                                   check_names=False, check_index=False)
 
     d_nodups = ASReviewData(
         pd.DataFrame({
