@@ -486,6 +486,8 @@ class ASReviewData():
         if len(dedup) == 2:
             s_dups_2 = dict_dedup[dedup[1]]
             s_dups = s_dups | s_dups_2
+        if len(dedup) > 2:
+            raise ValueError("Too many deduplication methods passed with dedup parameter.")
 
         return s_dups
 
@@ -574,3 +576,4 @@ class ASReviewData():
             self.df = df
             return
         return df
+
