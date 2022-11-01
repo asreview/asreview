@@ -458,11 +458,12 @@ class ASReviewData():
 
         return result_df
 
-    def duplicated(self, pid='doi'):
+    def duplicated(self, pid='doi', dedup='pt'):
         """Return boolean Series denoting duplicate rows.
 
-        Identify duplicates based on titles and abstracts and if available,
-        on a persistent identifier (PID) such as the Digital Object Identifier
+        Identify duplicates based on deduplication strategies specified
+        by the user. This can be based on text (titles/abstracts) and on
+        a persistent identifier (PID) such the Digital Object Identifier
         (`DOI <https://www.doi.org/>`_).
 
         Arguments
@@ -470,6 +471,34 @@ class ASReviewData():
         pid: string
             Which persistent identifier to use for deduplication.
             Default is 'doi'.
+        dedup: string, default 'pt'
+            Which deduplication strategies to use:
+            'p' for persistent identifier
+            't' for text
+
+        Returns
+        -------
+        pandas.Series
+            Boolean series for each duplicated rows.
+        """
+        dict_dedup = {"p": self.pid_duplicated(pid), "t": self.text_duplicated()}
+        s_dups = dict_dedup[dedup[0]]
+        if len(dedup) == 2:
+            s_dups_2 = dict_dedup[dedup[1]]
+            s_dups = s_dups | s_dups_2
+
+        return s_dups
+
+    def pid_duplicated(self, pid='doi'):
+        """Return boolean Series denoting duplicate rows based on persistent identifier,
+
+        Identify duplicates based on a persistent identifier (PID) such as the
+        Digital Object Identifier (`DOI <https://www.doi.org/>`_).
+
+        Arguments
+        ---------
+        pid: string, default 'doi'
+            Which persistent identifier to use for deduplication.
 
         Returns
         -------
@@ -486,8 +515,21 @@ class ASReviewData():
             # save boolean series for duplicates based on persistent identifiers
             s_dups_pid = ((s_pid.duplicated()) & (s_pid.notnull()))
         else:
-            s_dups_pid = None
+            # return false series if pid is not found
+            s_dups_pid = pd.Series(False, index=range(len(self.df)))
 
+        return s_dups_pid
+
+    def text_duplicated(self):
+        """Return boolean Series denoting duplicate rows based on text.
+
+        Identify duplicates based on titles and abstracts.
+
+        Returns
+        -------
+        pandas.Series
+            Boolean series for each duplicated rows.
+        """
         # get the texts, clean them and replace empty strings with None
         s = pd.Series(self.texts) \
             .str.replace("[^A-Za-z0-9]", "", regex=True) \
@@ -496,19 +538,14 @@ class ASReviewData():
         # save boolean series for duplicates based on titles/abstracts
         s_dups_text = ((s.duplicated()) & (s.notnull()))
 
-        # final boolean series for all duplicates
-        if s_dups_pid is not None:
-            s_dups = s_dups_pid | s_dups_text
-        else:
-            s_dups = s_dups_text
+        return s_dups_text
 
-        return s_dups
-
-    def drop_duplicates(self, pid='doi', inplace=False, reset_index=True):
+    def drop_duplicates(self, pid='doi', inplace=False, reset_index=True, dedup='pt'):
         """Drop duplicate records.
 
-        Drop duplicates based on titles and abstracts and if available,
-        on a persistent identifier (PID) such the Digital Object Identifier
+        Drop duplicates based on deduplication strategies specified by
+        the user. This can be based on text (titles/abstracts) and on a
+        persistent identifier (PID) such the Digital Object Identifier
         (`DOI <https://www.doi.org/>`_).
 
         Arguments
@@ -519,13 +556,17 @@ class ASReviewData():
             Whether to modify the DataFrame rather than creating a new one.
         reset_index: boolean, default True
             If True, the existing index column is reset to the default integer index.
+        dedup: string, default 'pt'
+            Which deduplication strategies to use:
+            'p' for persistent identifier
+            't' for text
 
         Returns
         -------
         pandas.DataFrame or None
             DataFrame with duplicates removed or None if inplace=True
         """
-        df = self.df[~self.duplicated(pid)]
+        df = self.df[~self.duplicated(pid, dedup)]
 
         if reset_index:
             df = df.reset_index(drop=True)
