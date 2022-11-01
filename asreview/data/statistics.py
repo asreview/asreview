@@ -203,7 +203,7 @@ def n_keywords(data):
     return np.average([len(keywords) for keywords in data.keywords])
 
 
-def n_duplicates(data, pid='doi'):
+def n_duplicates(data, pid='doi', dedup='pt'):
     """Number of duplicates.
 
     Duplicate detection can be a very challenging task. Multiple
@@ -216,10 +216,14 @@ def n_duplicates(data, pid='doi'):
     pid: string
         Which persistent identifier (PID) to use for deduplication.
         Default is 'doi'.
+    dedup: string, default 'pt'
+        Which deduplication strategies to use:
+        'p' for persistent identifier
+        't' for text
 
     Return
     ------
     int:
         Number of duplicates
     """
-    return int(data.duplicated(pid).sum())
+    return int(data.duplicated(pid, dedup).sum())
