@@ -1,7 +1,7 @@
 ﻿Simulation via command line
 ===========================
 
-ASReview LAB comes with a command line inferface for simulating the
+ASReview LAB comes with a command line interface for simulating the
 performance of ASReview algorithm.
 
 .. _simulation-cli-getting-started:
