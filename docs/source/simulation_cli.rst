@@ -105,12 +105,12 @@ Active learning
     the sparsity of relevant records. More options and details are listed
     in :ref:`ref-balance-strategies`
 
-.. option:: --seed SEED
+.. option:: --model_seed MODEL_SEED
 
-    To make your simulations reproducible you can use the ``--seed`` and
-    ``--init_seed`` options. 'init_seed' controls the starting set of papers
-    to train the model on, while the 'seed' controls the seed of the random
-    number generation that is used after initialization.
+    Some processes in ASReview require (pseudo-)random number generation. You can give such a process a fixed “seed” to start from, so you get the same sequence each time and make your simulation reproducible. The :code:`--model_seed` command controls the seed of the random number generation that is used after model initialization. 
+    
+    The :code:`--init_seed` command controls the random set of papers to train the model on, see the documentation under prior knowledge. 
+
 
 .. option:: --embedding EMBEDDING_FP
 
@@ -144,9 +144,7 @@ indices of the papers you want to start the simulation with.
 
 .. option:: --init_seed INIT_SEED
 
-    Seed for setting the prior indices if the prior_idx option is not used. If
-    the option prior_idx is used with one or more index, this option is
-    ignored.
+    Controls the random selection of papers to train the model on, if :code:`prior_idx` is not specified. The value specified determines the random sequence of prior indices by row numbers. If :code:`prior_idx` is specified, the :code:`--init_seed` argument is ignored.
 
 
 
