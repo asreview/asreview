@@ -93,7 +93,7 @@ def _base_parser(prog=None, description=None):
              "and parameter values."
     )
     parser.add_argument(
-        "--seed",
+        "--seed", "--model_seed",
         default=None,
         type=int,
         help="Seed for the model (classifiers, balance "
