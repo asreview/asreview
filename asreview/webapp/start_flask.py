@@ -142,7 +142,6 @@ def create_app(**kwargs):
         with app.app_context():
             DB.create_all()
     else:
-        print('NOT AUTH')
         # Don't want to use the standard Anonymous User
         login_manager.anonymous_user = SingleUser
 

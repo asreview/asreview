@@ -73,7 +73,7 @@ const App = (props) => {
   React.useEffect(() => {
     let result = BaseAPI.boot({})
       .then(response => {
-        const delay = (response.status === 'development')? 7000 : 7000;
+        const delay = (response.status === 'development')? 3000 : 3000;
         // in production we set a 3 secs delay to show the logo,
         // in development we immediately set the boot-data
         setTimeout(() => {
@@ -173,9 +173,9 @@ const App = (props) => {
 
           <div aria-label="nav and main content">
             { (appReady === false) && 
-                <Fade in={false} timeout={4000}>
+                //<Fade in={false} timeout={4000}>
                     <BootPage />
-                </Fade> 
+                //</Fade> 
             }
             { (appReady === true) && render_routes() }
           </div>
