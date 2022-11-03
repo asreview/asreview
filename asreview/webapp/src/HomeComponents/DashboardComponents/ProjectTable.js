@@ -469,6 +469,10 @@ const ProjectTable = (props) => {
                     openProject(row, "review");
                   };
 
+                  const onClickCollaboration = () => {
+                    console.log('Collabo');
+                  };
+
                   const onClickProjectExport = () => {
                     if (
                       row["reviews"][0] === undefined ||
@@ -521,6 +525,7 @@ const ProjectTable = (props) => {
                               showAnalyticsButton={showAnalyticsButton}
                               showReviewButton={showReviewButton}
                               onClickProjectAnalytics={onClickProjectAnalytics}
+                              onClickCollaboration={onClickCollaboration}
                               onClickProjectReview={onClickProjectReview}
                               onClickProjectExport={onClickProjectExport}
                               onClickProjectDetails={onClickProjectDetails}

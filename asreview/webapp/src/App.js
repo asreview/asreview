@@ -94,7 +94,6 @@ const App = (props) => {
   }, [authentication])
 
 
-
   const render_sign_routes = () => {
     return (
       <>

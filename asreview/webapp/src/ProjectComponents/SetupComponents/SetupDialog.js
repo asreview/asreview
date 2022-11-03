@@ -41,8 +41,7 @@ import {
   projectStatuses,
 } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
-
-const steps = ["Project information", "Data", "Model", "Warm up"];
+import { useSelector } from "react-redux";
 
 const PREFIX = "SetupDialog";
 
@@ -78,6 +77,17 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 const SetupDialog = (props) => {
+  // setup steps: in the authenticated version we have
+  // an extra step for collaboration
+  const authenticated = useSelector(state => state.authentication);
+
+  const steps = (() => {
+    if (authenticated)
+      return ["Project information", "Data", "Model", "Collaboration", "Warm up"];
+    else
+      return ["Project information", "Data", "Model", "Warm up"];
+  })();
+  
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const descriptionElementRef = React.useRef(null);
