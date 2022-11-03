@@ -14,4 +14,4 @@ Install ASReview Insights directly from PyPi:
 
 	pip install asreview-insights
 
-Detailed documention on the extension can be found on the `ASReview Insights GitHub <https://github.com/asreview/asreview-insights>` page.
+Detailed documentation on the extension can be found on the `ASReview Insights GitHub <https://github.com/asreview/asreview-insights>`_ page.
