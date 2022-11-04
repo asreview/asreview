@@ -35,6 +35,8 @@ from asreview.project import list_asreview_projects
 from asreview.utils import asreview_path
 from asreview.webapp import api
 from asreview.webapp import auth
+from asreview.webapp import collaboration as collab
+
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import (
     SingleUser,
@@ -168,6 +170,7 @@ def create_app(**kwargs):
 
     app.register_blueprint(api.bp)
     app.register_blueprint(auth.bp)
+    app.register_blueprint(collab.bp)
 
     @app.errorhandler(InternalServerError)
     def error_500(e):

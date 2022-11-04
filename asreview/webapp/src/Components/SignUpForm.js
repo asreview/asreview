@@ -17,13 +17,14 @@ import {
   Typography,
 } from "@mui/material";
 
+import { InlineErrorHandler } from ".";
 import { WordmarkState } from "../globals";
 import { styled } from "@mui/material/styles";
 import { HelpPrivacyTermsButton } from "../Components";
 import { FormatLineSpacing } from '@mui/icons-material';
 import { useToggle } from "../hooks/useToggle";
 import BaseAPI from "../api/AuthAPI";
-import { useFormik } from 'formik';
+import { useFormik, resetForm } from 'formik';
 import * as Yup from 'yup';
 
 const PREFIX = "SignUpForm";
@@ -70,13 +71,17 @@ const SignupSchema = Yup.object().shape({
       /^[a-zA-Z0-9_]{3,20}$/,
       'Sorry, your username must be between 3 and 20 characters long and only contain letters (a-z), numbers (0-9), and underscores (_)'
     )
-    .required('Required'),
+    .required('Username is required'),
+  firstName: Yup.string()
+    .required('First name is required'),
+  lastName: Yup.string()
+    .required('Last name is required'),
   affiliation: Yup.string()
     .min(2, 'Affiliation must be at least 2 characters long')
-    .required('Required'),
+    .required('Affiliation is required'),
   email: Yup.string()
     .email('Invalid email')
-    .required('Required'),
+    .required('Email is required'),
   password: Yup.string()
     .matches(
       /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
@@ -102,39 +107,33 @@ const SignUpForm = (props) => {
     return !showPassword ? "password" : "text";
   };
 
+  const initialValues = {
+    userName: '',
+    firstName: '',
+    lastName: '',
+    affiliation: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    publicAccount: true
+  };
+
   const formik = useFormik({
-    initialValues: {
-      userName: '',
-      firstName: '',
-      lastName: '',
-      affiliation: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      publicAccount: true
-    },
+    initialValues: initialValues,
     validationSchema: SignupSchema,
   });
 
   const { error, isError, isLoading, mutate, reset } = useMutation(
     BaseAPI.signup,
-    {
-      onSuccess: () => {
-        // setUsername("");
-        // setFirstName("");
-        // setLastName("");
-        // setAffiliation("");
-        // setEmail("");
-        // setPassword("");
-        // setConfirmPassword("");
-        // setPublicAccount("");
-        // navigate("/signin");
-      },
-    }
+      {
+        onSuccess: () => {
+          formik.setValues(initialValues, false);
+          navigate('/signin');
+        },
+      }
   );
 
   const handleSubmit = () => {
-    console.log('Hello');
     mutate(formik.values);
   }
 
@@ -180,6 +179,8 @@ const SignUpForm = (props) => {
                       size="small"
                       fullWidth
                       value={formik.values.firstName}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
                     />
                     <TextField
                       id="lastName"
@@ -187,7 +188,13 @@ const SignUpForm = (props) => {
                       size="small"
                       fullWidth
                       value={formik.values.lastName}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
                     />
+                  </Stack>
+                  <Stack direction="row" spacing={2}>
+                    {formik.touched.firstName && formik.errors.firstName ? <FHT error={true}>{formik.errors.firstName}</FHT> : null}
+                    {formik.touched.lastName && formik.errors.lastName ? <FHT error={true}>{formik.errors.lastName}</FHT> : null}
                   </Stack>
                 </FormControl>
                 <TextField
@@ -253,9 +260,11 @@ const SignUpForm = (props) => {
                     control={
                       <Checkbox
                         color="primary"
+                        id="publicAccount"
                         defaultChecked={formik.values.publicAccount}
                         value={formik.values.publicAccount}
                         onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
                       />
                     }
                     label="Make this account public"
@@ -264,6 +273,7 @@ const SignUpForm = (props) => {
                     Making this account public allows you to collaborate.
                   </FHT>
                 </FormControl>
+                {isError && <InlineErrorHandler message={error.message} />}
                 <Stack className={classes.button} direction="row">
                   <Button onClick={handleSignIn} sx={{ textTransform: "none" }}>
                     Sign in instead

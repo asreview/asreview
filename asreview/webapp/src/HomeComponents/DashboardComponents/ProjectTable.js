@@ -22,6 +22,7 @@ import { styled } from "@mui/material/styles";
 import { BoxErrorHandler, DialogErrorHandler } from "../../Components";
 import { ProjectDeleteDialog } from "../../ProjectComponents";
 import { ProjectCheckDialog, TableRowButton } from "../DashboardComponents";
+import { CollaboDialog } from "../../ProjectComponents/CollaborationComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { useRowsPerPage } from "../../hooks/SettingsHooks";
 import { useToggle } from "../../hooks/useToggle";
@@ -130,6 +131,7 @@ const ProjectTable = (props) => {
    * Dialog state
    */
   const [onDeleteDialog, toggleDeleteDialog] = useToggle();
+  const [onCollaboDialog, toggleCollaboDialog] = useToggle();
 
   /**
    * Simulation status query state
@@ -470,7 +472,8 @@ const ProjectTable = (props) => {
                   };
 
                   const onClickCollaboration = () => {
-                    console.log('Collabo');
+                    toggleCollaboDialog();
+                    console.log(onCollaboDialog);
                   };
 
                   const onClickProjectExport = () => {
@@ -623,6 +626,13 @@ const ProjectTable = (props) => {
       <ProjectDeleteDialog
         onDeleteDialog={onDeleteDialog}
         toggleDeleteDialog={toggleDeleteDialog}
+        projectTitle={hoverRowTitle}
+        project_id={hoverRowIdPersistent}
+      />
+      <CollaboDialog
+        mobileScreen={props.mobileScreen}
+        openCollaboDialog={onCollaboDialog}
+        toggleCollaboDialog={toggleCollaboDialog}
         projectTitle={hoverRowTitle}
         project_id={hoverRowIdPersistent}
       />

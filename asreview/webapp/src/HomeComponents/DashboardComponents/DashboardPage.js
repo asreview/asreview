@@ -11,7 +11,6 @@ import {
   ProjectTable,
 } from "../DashboardComponents";
 import { SetupDialog } from "../../ProjectComponents/SetupComponents";
-
 import { useToggle } from "../../hooks/useToggle";
 
 const Root = styled("div")(({ theme }) => ({}));
