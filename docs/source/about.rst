@@ -22,10 +22,12 @@ grown into a vivid community of researchers,  users, and developers from
 around the world.
 
 
-.. image:: ../images/ASReviewLAB_explanation_Website_v3_wit.png
-    :width: 320
-    :align: center
-    :alt: ASReview LAB overview
+.. raw:: html
+
+    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+        <iframe src="https://www.youtube.com/embed/k-a2SCq-LtA" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+    </div>
+
 
 
 What is active learning?
@@ -48,12 +50,6 @@ and time-efficient manner. ASReview LAB, published in Nature Machine
 Intelligence, has shown the benefits of active learning, `reducing up to 95%
 <https://www.nature.com/articles/s42256-020-00287-7>`_ of the required
 screening time.
-
-.. raw:: html
-
-    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
-        <iframe src="https://www.youtube.com/embed/k-a2SCq-LtA" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
-    </div>
 
 
 Labeling workflow with ASReview
