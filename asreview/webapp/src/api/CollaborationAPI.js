@@ -6,12 +6,10 @@ class CollaborationAPI {
   static fetchCollaborators(projectId) {
     if (projectId !== null) {
       const url = collab_url + `collaborators/${projectId}`;
-      console.log(url)
       return new Promise((resolve, reject) => {
         axios
           .get(url, { withCredentials: true })
           .then((result) => {
-            console.log('result', result["data"])
             resolve(result["data"]);
           })
           .catch((error) => {

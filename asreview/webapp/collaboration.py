@@ -46,7 +46,8 @@ def users(project_id):
             'email': u.email,
             'full_name': get_full_name(u)
         }
-        for u in User.query.all() if u.id not in involved
+        for u in User.query.filter(User.public == True).all()
+        if u.id not in involved
     ]
     response = jsonify({
         'potential_collaborators': all_users,

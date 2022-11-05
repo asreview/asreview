@@ -1,38 +1,24 @@
 import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
-import ListItemText from '@mui/material/ListItemText';
-import PersonIcon from '@mui/icons-material/Person';
-import AddIcon from '@mui/icons-material/Add';
-import { blue } from '@mui/material/colors';
 
+import List from '@mui/material/List';
 import { useQuery } from "react-query";
 import { CollaborationAPI } from "../../api/index.js";
 import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
 import {
-  Box,
-  Button,
   DialogTitle,
-  DialogContent,
-  DialogActions,
   Dialog,
   Divider,
   Fab,
   Fade,
   Stack,
-  Step,
-  StepLabel,
-  Stepper,
   Tooltip,
-  Typography,
 } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import { styled } from "@mui/material/styles";
-import { Close, ResetTv } from "@mui/icons-material";
+import { Close } from "@mui/icons-material";
+import UserListEntry from "./UserListEntry";
 
 
 const PREFIX = "SetupDialog";
@@ -72,17 +58,22 @@ const CollaborationDialog = (props) => {
 
   const [selectedUser, setSelectedUser] = React.useState(null);
   const [inputValue, setInputValue] = React.useState('');
+  const [potentialCollaborators, setPotentialCollaborators] = React.useState([]);
+  const [collaborators, setCollaborators] = React.useState([]);
+  const [pendingCollaborators, setPendingCollaborators] = React.useState([]);
 
   const handleClose = () => {
     props.toggleCollaboDialog();
   };
 
-  const { data, error, isError, isFetched, isFetching, isSuccess } = useQuery(
+  useQuery(
     ["fetchCollaborators", props.project_id],
     () => CollaborationAPI.fetchCollaborators(props.project_id),
     {
       onSuccess: (data) => {
-        console.log('succes', data);
+        setPotentialCollaborators(data.potential_collaborators || []);
+        setCollaborators(data.collaborators || []);
+        setPendingCollaborators(data.invited_users || []);
       },
       onError: (data) => {
         console.log('error', data);
@@ -91,9 +82,16 @@ const CollaborationDialog = (props) => {
   );
 
   const inviteUser = () => {
-    console.log(selectedUser)
+    if (selectedUser) {
+      // remove from potential collabos
+      console.log(selectedUser);
+      // and add to pending invites
+      setPendingCollaborators((state) => 
+        [...state, selectedUser]);
+      // set selected value to null
+      setSelectedUser(null);
+    }
   }
-
 
   const handleListItemClick = (value) => {
     //onClose(value);
@@ -132,11 +130,6 @@ const CollaborationDialog = (props) => {
     <Divider />
 
     { // AUTOCOMPLETE
-      !isError &&
-      !isFetching &&
-      isFetched &&
-      isSuccess &&
-      data.potential_collaborators &&
       <>
         <h2>Invite</h2>
         <Autocomplete
@@ -152,7 +145,8 @@ const CollaborationDialog = (props) => {
             setInputValue(newInputValue);
           }}
           id="controllable-states-demo"
-          options={data.potential_collaborators.map(user => ({id: user.id, label: user.full_name}))}
+          options={ potentialCollaborators }
+          getOptionLabel={option => option.full_name }
           sx={{ width: 300, padding: 1 }}
           renderInput={(params) => <TextField {...params} label="Select a user" />}
         />
@@ -168,10 +162,15 @@ const CollaborationDialog = (props) => {
         </Fab>
 
         <h2>Pending</h2>
-        <ul>{ data.invited_users.map(user => <li>user.full_name</li> )}</ul>
+        <List sx={{ pt: 0 }}>
+        { pendingCollaborators.map((user) => <UserListEntry id={user.id} fullName={user.full_name} /> )}
+        </List>
+
 
         <h2>Collaborators</h2>
-        <ul>{ data.collaborators.map(user => <li>{user.full_name}</li> )}</ul>
+        <List sx={{ pt: 0 }}>
+        { collaborators.map((user) => <UserListEntry id={user.id} fullName={user.full_name} /> )}
+        </List>
 
       </>
     }
