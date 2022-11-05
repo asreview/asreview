@@ -22,7 +22,7 @@ import { styled } from "@mui/material/styles";
 import { BoxErrorHandler, DialogErrorHandler } from "../../Components";
 import { ProjectDeleteDialog } from "../../ProjectComponents";
 import { ProjectCheckDialog, TableRowButton } from "../DashboardComponents";
-import { CollaboDialog } from "../../ProjectComponents/CollaborationComponents";
+import { CollaborationDialog } from "../../ProjectComponents/CollaborationComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { useRowsPerPage } from "../../hooks/SettingsHooks";
 import { useToggle } from "../../hooks/useToggle";
@@ -473,7 +473,6 @@ const ProjectTable = (props) => {
 
                   const onClickCollaboration = () => {
                     toggleCollaboDialog();
-                    console.log(onCollaboDialog);
                   };
 
                   const onClickProjectExport = () => {
@@ -629,7 +628,7 @@ const ProjectTable = (props) => {
         projectTitle={hoverRowTitle}
         project_id={hoverRowIdPersistent}
       />
-      <CollaboDialog
+      <CollaborationDialog
         mobileScreen={props.mobileScreen}
         openCollaboDialog={onCollaboDialog}
         toggleCollaboDialog={toggleCollaboDialog}

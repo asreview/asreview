@@ -22,7 +22,7 @@ from sqlalchemy.exc import IntegrityError
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import (
-    Collaboration, User, Project
+    Collaboration, CollaborationInvitation, User, Project
 )
 from asreview.webapp.start_flask import create_app
 
@@ -53,6 +53,7 @@ def setup_teardown_standard():
         DB.session.query(Project).delete()
         DB.session.query(User).delete()
         DB.session.query(Collaboration).delete()
+        DB.session.query(CollaborationInvitation).delete()
         DB.session.commit()
 
 
@@ -280,6 +281,9 @@ def test_deleting_a_project():
     assert len(Project.query.all()) == 2
     assert len(User.query.all()) == 1
 
+
+
+
 def test_add_collaboration():
     """Verify if I can add a collaborator's user account to a project"""
     # verify we start with a clean database
@@ -288,12 +292,11 @@ def test_add_collaboration():
     coll1 = User('collabo1', 'Collabo')
     coll2 = User('collabo2', 'Collabo')
     owner.projects.append(Project(project_id='my-project', folder='a'))
-    DB.session.add(owner)
-    DB.session.add(coll1, coll2)
+    DB.session.add_all([owner, coll1, coll2])
     DB.session.commit()
 
     # verify we have 1 record
-    assert len(User.query.all()) == 2
+    assert len(User.query.all()) == 3
     assert len(Project.query.all()) == 1
     
     # Now I want to add coll as a collaborator
@@ -401,3 +404,170 @@ def test_removing_project_removes_collaborations():
     assert len(User.query.all()) == 3
     # and no collaborations
     assert len(Collaboration.query.all()) == 0
+
+
+#####################
+## COLLABO invitations ##
+#####################
+
+def test_add_collaboration_invite():
+    """Verify if I can add a collaboration invite user account to a project"""
+    # verify we start with a clean database
+    assert len(User.query.all()) == 0
+    owner = User('cskaandorp', 'Onyx')
+    coll1 = User('collabo1', 'Collabo')
+    coll2 = User('collabo2', 'Collabo')
+    owner.projects.append(Project(project_id='my-project', folder='a'))
+    DB.session.add_all([owner, coll1, coll2])
+    DB.session.commit()
+
+    assert len(User.query.all()) == 3
+    assert len(Project.query.all()) == 1
+    
+    # Now I want to add coll as a collaborator
+    project = owner.projects[0]
+    # assert there are no collaborators
+    assert len(project.collaborators) == 0
+    project.pending_invitations.append(coll1)
+    project.pending_invitations.append(coll2)
+    DB.session.commit()
+
+    # assert there are collaborators
+    assert len(project.pending_invitations) == 2
+    assert coll1 in owner.projects[0].pending_invitations
+    assert coll2 in owner.projects[0].pending_invitations
+
+def test_list_projects_in_which_i_am_invited():
+    """Verify I can list projects in which a user is invited for"""
+    # verify we start with a clean database
+    assert len(User.query.all()) == 0
+    assert len(Project.query.all()) == 0
+    assert len(Collaboration.query.all()) == 0
+    assert len(CollaborationInvitation.query.all()) == 0
+
+    owner = User('cskaandorp', 'Onyx')
+    coll1 = User('coll_1', 'Collabo')
+    owner.projects.append(Project(project_id='my-project', folder='a'))
+    coll1.projects.append(Project(project_id='other-project', folder='b'))
+    DB.session.add_all([owner, coll1])
+    DB.session.commit()
+
+    # verify we have 2 users and 2 projects
+    assert len(User.query.all()) == 2
+    assert len(Project.query.all()) == 2
+
+    # invite coll1 to my-project
+    project = owner.projects[-1]
+    project.pending_invitations.append(coll1)
+    DB.session.commit()
+
+    # check if coll1 can reach this project
+    assert coll1.pending_invitations == [project]
+    assert coll1.pending_invitations[0].project_id == 'my-project'
+    assert coll1.projects[0].project_id == 'other-project'
+
+def test_removing_an_invitation():
+    """Verify if I can remove an invitation from a project"""
+    # verify we start with a clean database
+    assert len(User.query.all()) == 0
+    assert len(Project.query.all()) == 0
+    assert len(Collaboration.query.all()) == 0
+    assert len(CollaborationInvitation.query.all()) == 0
+
+    owner = User('cskaandorp', 'Onyx')
+    coll1 = User('coll_1', 'Collabo')
+    coll2 = User('coll_2', 'Collabo')
+    owner.projects.append(Project(project_id='my-project', folder='a'))
+    DB.session.add_all([owner, coll1, coll2])
+    DB.session.commit()
+
+    # verify we have 1 record
+    assert len(User.query.all()) == 3
+    assert len(Project.query.all()) == 1
+
+    # assert there are no collaborators
+    project = owner.projects[-1]
+    assert len(project.pending_invitations) == 0
+    # add collaborators
+    project.pending_invitations.append(coll1)
+    project.pending_invitations.append(coll2)
+    DB.session.commit()
+
+    # assert there are 2 collaborators
+    assert len(project.pending_invitations) == 2
+
+    # remove collaborator 2
+    owner.projects[0].pending_invitations.remove(coll2)
+    DB.session.commit()
+
+    # assert one collaborator is gone
+    assert len(project.pending_invitations) == 1
+    # and the remaining collaborators is still there
+    assert project.pending_invitations == [coll1]
+
+def test_removing_an_invitation():
+    """Verify if I can remove an invitation from a project"""
+    # verify we start with a clean database
+    assert len(User.query.all()) == 0
+    assert len(Project.query.all()) == 0
+    assert len(Collaboration.query.all()) == 0
+    assert len(CollaborationInvitation.query.all()) == 0
+
+    owner = User('cskaandorp', 'Onyx')
+    coll1 = User('coll_1', 'Collabo')
+    coll2 = User('coll_2', 'Collabo')
+    owner.projects.append(Project(project_id='my-project', folder='a'))
+    DB.session.add_all([owner, coll1, coll2])
+    DB.session.commit()
+
+    # verify we have 1 record
+    assert len(User.query.all()) == 3
+    assert len(Project.query.all()) == 1
+
+    # assert there are no collaborators
+    project = owner.projects[-1]
+    assert len(project.pending_invitations) == 0
+    # add collaborators
+    project.pending_invitations.append(coll1)
+    project.pending_invitations.append(coll2)
+    DB.session.commit()
+
+    # assert there are 2 collaborators
+    assert len(project.pending_invitations) == 2
+
+    # remove collaborator 2
+    owner.projects[0].pending_invitations.remove(coll2)
+    DB.session.commit()
+
+    # assert one collaborator is gone
+    assert len(project.pending_invitations) == 1
+    # and the remaining collaborators is still there
+    assert project.pending_invitations == [coll1]
+
+def test_removing_project_removes_invitations():
+    """If a project is destroyed, all invitations should be removed"""
+    # verify we start with a clean database
+    assert len(User.query.all()) == 0
+    assert len(Project.query.all()) == 0
+    assert len(Collaboration.query.all()) == 0
+    assert len(CollaborationInvitation.query.all()) == 0
+
+    # create project and add collaborators
+    owner = User('cskaandorp', 'Onyx')
+    coll1 = User('coll_1', 'Collabo')
+    coll2 = User('coll_2', 'Collabo')
+    owner.projects.append(Project(project_id='my-project', folder='a'))
+    DB.session.add_all([owner, coll1, coll2])
+    owner.projects[-1].pending_invitations = [coll1, coll2]
+    DB.session.commit()
+
+    # assert we have to 2 collaborations
+    assert len(owner.projects[-1].pending_invitations) == 2
+
+    # now remove the project
+    DB.session.delete(owner.projects[-1])
+
+    # assert we still have 3 users
+    assert len(User.query.all()) == 3
+    # and no collaborations
+    assert len(CollaborationInvitation.query.all()) == 0

@@ -1,1 +1,1 @@
-export { default as CollaboDialog } from "./CollaboDialog";
+export { default as CollaborationDialog } from "./CollaborationDialog";

@@ -19,6 +19,7 @@ import {
   DialogActions,
   Dialog,
   Divider,
+  Fab,
   Fade,
   Stack,
   Step,
@@ -27,10 +28,12 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import { Add } from "@mui/icons-material";
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 import { styled } from "@mui/material/styles";
 import { Close, ResetTv } from "@mui/icons-material";
 
-const emails = ['username@gmail.com', 'user02@gmail.com'];
 
 const PREFIX = "SetupDialog";
 
@@ -65,16 +68,18 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-const CollaboDialog = (props) => {
+const CollaborationDialog = (props) => {
+
+  const [selectedUser, setSelectedUser] = React.useState(null);
+  const [inputValue, setInputValue] = React.useState('');
 
   const handleClose = () => {
-    //onClose(selectedValue);
     props.toggleCollaboDialog();
   };
 
   const { data, error, isError, isFetched, isFetching, isSuccess } = useQuery(
-    ["fetchPotentialCollaborators", "je;;p"],
-    CollaborationAPI.fetchPotentialCollaborators,
+    ["fetchCollaborators", props.project_id],
+    () => CollaborationAPI.fetchCollaborators(props.project_id),
     {
       onSuccess: (data) => {
         console.log('succes', data);
@@ -82,9 +87,12 @@ const CollaboDialog = (props) => {
       onError: (data) => {
         console.log('error', data);
       }
-
     }
   );
+
+  const inviteUser = () => {
+    console.log(selectedUser)
+  }
 
 
   const handleListItemClick = (value) => {
@@ -123,33 +131,54 @@ const CollaboDialog = (props) => {
     </Fade>
     <Divider />
 
-    <List sx={{ pt: 0 }}>
+    { // AUTOCOMPLETE
+      !isError &&
+      !isFetching &&
+      isFetched &&
+      isSuccess &&
+      data.potential_collaborators &&
+      <>
+        <h2>Invite</h2>
+        <Autocomplete
+          value={selectedUser}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(event, newValue=null) => {
+            if (newValue !== null) {
+              setSelectedUser(newValue);
+            }
+          }}
+          inputValue={inputValue}
+          onInputChange={(event, newInputValue) => {
+            setInputValue(newInputValue);
+          }}
+          id="controllable-states-demo"
+          options={data.potential_collaborators.map(user => ({id: user.id, label: user.full_name}))}
+          sx={{ width: 300, padding: 1 }}
+          renderInput={(params) => <TextField {...params} label="Select a user" />}
+        />
+        <Fab
+          className=''
+          color="primary"
+          onClick={inviteUser}
+          variant="extended"
+          sx={{ width: 120, padding: 1, margin: 2 }}
+        >
+          <Add sx={{ mr: 1 }} />
+          Invite
+        </Fab>
 
-      {!isError &&
-        !isFetching &&
-        isFetched &&
-        isSuccess &&
-        data.result
-          .map((user) => {
-            return (
+        <h2>Pending</h2>
+        <ul>{ data.invited_users.map(user => <li>user.full_name</li> )}</ul>
 
-        <ListItem button onClick={() => handleListItemClick(user.email)} key={user.email}>
-          <ListItemAvatar>
-            <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
-              <PersonIcon />
-            </Avatar>
-          </ListItemAvatar>
-          <ListItemText primary={user.full_name} />
-        </ListItem>
+        <h2>Collaborators</h2>
+        <ul>{ data.collaborators.map(user => <li>{user.full_name}</li> )}</ul>
 
-        )})
-      }
-    </List>
-
+      </>
+    }
     </StyledDialog>
   );
 }
 
-export default CollaboDialog;
+export default CollaborationDialog;
 
 

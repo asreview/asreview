@@ -123,7 +123,6 @@ def create_app(**kwargs):
 
     # setup all database/authentication related resources
     if app.config['LOGIN_DISABLED'] == False:
-        print('AUTHENTICATED')
 
         # default config
         app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'

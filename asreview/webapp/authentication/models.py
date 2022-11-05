@@ -49,6 +49,11 @@ class User(UserMixin, DB.Model):
         secondary='collaborations',
         back_populates='collaborators'
     )
+    pending_invitations = relationship(
+        'Project',
+        secondary='collaboration_invitations',
+        back_populates='pending_invitations'
+    )
 
     def __init__(self, username, password, first_name=None,
         last_name=None, affiliation=None, email=None, public=True):
@@ -122,6 +127,11 @@ class Project(DB.Model):
         secondary='collaborations',
         back_populates='involved_in'
     )
+    pending_invitations = relationship(
+        'User',
+        secondary='collaboration_invitations',
+        back_populates='pending_invitations'
+    )
 
     @property
     def project_path(self):
@@ -130,3 +140,18 @@ class Project(DB.Model):
 
     def __repr__(self):
         return f'<Project id: {self.project_id}, owner_id: {self.owner_id}>'
+
+
+class CollaborationInvitation(DB.Model):
+    """Colleboration invitations"""
+    __tablename__ = 'collaboration_invitations'
+    id = Column(Integer, primary_key=True)
+    project_id = Column(
+        Integer,
+        ForeignKey('projects.id', ondelete='cascade')
+    )
+    user_id = Column(
+        Integer,
+        ForeignKey('users.id', ondelete='cascade')
+    )
+

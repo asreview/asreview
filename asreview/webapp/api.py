@@ -152,7 +152,6 @@ def api_get_projects_stats():  # noqa: F401
     }
 
     for project in list_asreview_projects(current_user):
-        print('\n\n', '----->')
         print(project)
 
         try:
