@@ -7,15 +7,15 @@ import { blue } from '@mui/material/colors';
 
 const UserListEntry = (props) => {
   return (
-    <ListItem button onClick={() => console.log('click')} key={props.id}>
+    <ListItem button onDoubleClick={() => props.onDoubleClick(props.id)}>
       <ListItemAvatar>
         <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
           <PersonIcon />
         </Avatar>
       </ListItemAvatar>
-      <ListItemText primary={props.fullName} />
+      <ListItemText primary={props.fullName} secondary={props.id} />
     </ListItem>
-  )
+  );
 }
 
 export default UserListEntry;

@@ -22,10 +22,7 @@ CORS(
     supports_credentials=True,
 )
 
-def get_full_name(user):
-    first_name = user.first_name or ''
-    last_name = user.last_name or ''
-    return ' '.join([first_name, last_name]).strip()
+
 
 @bp.route('/collaborators/<project_id>', methods=["GET"])
 @asreview_login_required
@@ -33,25 +30,30 @@ def users(project_id):
     """returns all users involved in a project"""
     # get project
     project = Project.query.filter(Project.project_id == project_id).one()
-    # I need to know who is involved
+
+    # get associated users from project
+    collaborators = project.collaborators
+    invitations = project.pending_invitations
+
+    # union those associate users to remove them from all users
     owner = set([current_user.id])
-    collab_ids = set([user.id for user in project.collaborators])
-    invite_ids = set([user.id for user in project.pending_invitations])
-    involved = set.union(owner, collab_ids, invite_ids)
-    # who is left out
-    all_users = [
-        {
-            'id': u.id,
-            'name': u.username,
-            'email': u.email,
-            'full_name': get_full_name(u)
-        }
-        for u in User.query.filter(User.public == True).all()
-        if u.id not in involved
+    collaborators = [user.id for user in collaborators]
+    invititations = [user.id for user in invitations]
+    involved = set.union(owner, collaborators, invitations)
+
+    # get all users minus the associated ones, and collect the 
+    # associated ones separately
+    all_users = [ 
+        u.summarize()
+        for u in User.query.filter(User.public == True) \
+            .order_by('last_name').all()
     ]
+
+    # response
     response = jsonify({
-        'potential_collaborators': all_users,
-        'collaborators': [{ 'id': u.id, 'full_name': get_full_name(u)} for u in project.collaborators],
-        'invited_users': [{ 'id': u.id, 'full_name': get_full_name(u)} for u in project.pending_invitations],
+        'all_users': all_users,
+        'collaborators': collaborators,
+        'invitations': invitations
     })
+
     return response, 200

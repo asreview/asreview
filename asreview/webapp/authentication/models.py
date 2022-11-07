@@ -69,8 +69,23 @@ class User(UserMixin, DB.Model):
         """Verify password"""
         return check_password_hash(self.hashed_password, password)
 
+    def get_full_name(self):
+        """Get full name from user account"""
+        first_name = self.first_name or ''
+        last_name = self.last_name or ''
+        return ' '.join([first_name, last_name]).strip()
+
+    def summarize(self):
+        """Summarize user account in frontend data packet"""
+        return {
+            'id': self.id,
+            'last_name': self.last_name,
+            'full_name': self.get_full_name() 
+        }
+
     def __repr__(self):
         return f'<User {self.username!r}, id: {self.id}>'
+
 
 
 class SingleUser:
