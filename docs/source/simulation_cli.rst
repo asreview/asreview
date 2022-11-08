@@ -18,7 +18,7 @@ The simulation command line tool can be accessed directly like:
 This performs a simulation with the default active learning model, where
 ``MY_DATASET.csv`` is the path to the :ref:`data_labeled:Fully labeled data`
 you want to simulate. The result of the simulation is stored, after a
-succesful simulation, at ``MY_SIMULATION.asreview`` where ``MY_SIMULATION``
+successful simulation, at ``MY_SIMULATION.asreview`` where ``MY_SIMULATION``
 is the filename you prefer and the extension is ``.asreview``
 (ASReview project file extension).
 
@@ -192,7 +192,7 @@ the available models:
 See :ref:`develop-extensions` for more information on developing new models
 and install them via extensions.
 
-Some models require additional dependecies to be installed. Use
+Some models require additional dependencies to be installed. Use
 :code:`pip install asreview[all]` to install all additional dependencies
 at once or check the installation instruction in section :ref:`ref-models`
 of the :doc:`reference`.
