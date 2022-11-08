@@ -24,7 +24,7 @@ CORS(
 
 
 
-@bp.route('/collaborators/<project_id>', methods=["GET"])
+@bp.route('/<project_id>/users', methods=["GET"])
 @asreview_login_required
 def users(project_id):
     """returns all users involved in a project"""
@@ -38,8 +38,7 @@ def users(project_id):
     # union those associate users to remove them from all users
     owner = set([current_user.id])
     collaborators = [user.id for user in collaborators]
-    invititations = [user.id for user in invitations]
-    involved = set.union(owner, collaborators, invitations)
+    invitations = [user.id for user in invitations]
 
     # get all users minus the associated ones, and collect the 
     # associated ones separately
@@ -57,3 +56,51 @@ def users(project_id):
     })
 
     return response, 200
+
+
+@bp.route('/<project_id>/user/<user_id>/invite', methods=["POST"])
+@asreview_login_required
+def invite(project_id, user_id):
+    """invites a user to collaborate on a project"""
+    # get project
+    project = Project.query.filter(Project.project_id == project_id).one()
+    user = User.query.get(user_id)
+    project.pending_invitations.append(user)
+    try:
+        DB.session.commit()
+        return jsonify({ 'success': True }), 200
+    except SQLAlchemyError:
+        return jsonify({ 'success': False }), 404
+
+
+@bp.route('/<project_id>/user/<user_id>/delete_invitation', methods=["DELETE"])
+@asreview_login_required
+def delete_invitation(project_id, user_id):
+    """removes an invitation"""
+    # get project
+    project = Project.query.filter(Project.project_id == project_id).one()
+    user = User.query.get(user_id)
+    project.pending_invitations.remove(user)
+    try:
+        DB.session.commit()
+        return jsonify({ 'success': True }), 200
+    except SQLAlchemyError:
+        return jsonify({ 'success': False }), 404
+
+
+@bp.route('/<project_id>/user/<user_id>/delete_collaborator', methods=["DELETE"])
+@asreview_login_required
+def delete_collaborator(project_id, user_id):
+    """removes a collaborator"""
+    # get project
+    project = Project.query.filter(Project.project_id == project_id).one()
+    user = User.query.get(user_id)
+    project.collaborators.remove(user)
+    try:
+        DB.session.commit()
+        return jsonify({ 'success': True }), 200
+    except SQLAlchemyError:
+        return jsonify({ 'success': False }), 404
+
+
+    

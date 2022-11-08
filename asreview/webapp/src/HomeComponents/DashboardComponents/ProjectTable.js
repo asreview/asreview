@@ -27,13 +27,13 @@ import { ProjectAPI } from "../../api/index.js";
 import { useRowsPerPage } from "../../hooks/SettingsHooks";
 import { useToggle } from "../../hooks/useToggle";
 import ElasArrowRightAhead from "../../images/ElasArrowRightAhead.svg";
-
 import {
   checkIfSimulationFinishedDuration,
   mapDispatchToProps,
   projectModes,
   projectStatuses,
 } from "../../globals";
+import { useSelector } from "react-redux";
 
 const PREFIX = "ProjectTable";
 
@@ -117,6 +117,7 @@ const columns = [
 const ProjectTable = (props) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const authenticated = useSelector(state => state.authentication);
 
   /**
    * Project table state
@@ -143,6 +144,8 @@ const ProjectTable = (props) => {
     isError: false,
     message: null,
   });
+
+  
 
   /**
    * Fetch projects and check if simulation running in the background
@@ -628,13 +631,15 @@ const ProjectTable = (props) => {
         projectTitle={hoverRowTitle}
         project_id={hoverRowIdPersistent}
       />
-      <CollaborationDialog
-        mobileScreen={props.mobileScreen}
-        openCollaboDialog={onCollaboDialog}
-        toggleCollaboDialog={toggleCollaboDialog}
-        projectTitle={hoverRowTitle}
-        project_id={hoverRowIdPersistent}
-      />
+      { authenticated &&
+        <CollaborationDialog
+          mobileScreen={props.mobileScreen}
+          openCollaboDialog={onCollaboDialog}
+          toggleCollaboDialog={toggleCollaboDialog}
+          projectTitle={hoverRowTitle}
+          project_id={hoverRowIdPersistent}
+        />
+      }
       <DialogErrorHandler
         error={querySimulationError}
         isError={querySimulationError.isError}

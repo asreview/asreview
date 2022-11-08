@@ -39,28 +39,54 @@ const CollaborationContents = (props) => {
 
   const inviteUser = () => {
     if (selectedUser) {
-      // add this user to the invited users (ofEffect will take care of the rest
-      // -autocomplete-)
-      setInvitedUsers(state => new Set([...state, selectedUser.id]))
-      // set selected value to null
-      setSelectedUser(null);
+      CollaborationAPI.inviteUser(props.project_id, selectedUser.id)
+        .then(data => {
+          if (data.success) {
+            // add this user to the invited users (ofEffect will take care of the rest
+            // -autocomplete-)
+            setInvitedUsers(state => new Set([...state, selectedUser.id]))
+            // set selected value to null
+            setSelectedUser(null);
+          } else {
+            console.log('Could not invite user -- DB failure');
+          }
+        })
+        .catch(err => console.log('Could not invite user', err));
     }
   };
 
   const removeInvitation = (id) => {
-    // remove from the invited users list, useEffect will take care of the rest
-    // for the autocomplete
-    setInvitedUsers(state => {
-      state.delete(id);
-      return new Set([...state]);
-    })
+    CollaborationAPI.deleteInvitation(props.project_id, id)
+      .then(data => {
+        if (data.success) {
+          // remove from the invited users list, useEffect will take care of the rest
+          // for the autocomplete
+          setInvitedUsers(state => {
+            state.delete(id);
+            return new Set([...state]);
+          })
+        } else {
+          console.log('Could not delete invitation -- DB failure');
+        }
+      })
+      .catch(err => console.log('Could not delete invitation', err));
   }
 
   const removeCollaborator = (id) => {
-    setCollaborators(state => {
-      state.delete(id);
-      return new Set([...state]);
-    })
+    CollaborationAPI.deleteCollaborator(props.project_id, id)
+      .then(data => {
+        if (data.success) {
+          // remove from the collabo users list, useEffect will take care of the rest
+          // for the autocomplete
+          setCollaborators(state => {
+            state.delete(id);
+            return new Set([...state]);
+          })
+        } else {
+          console.log('Could not delete invitation -- DB failure');
+        }
+      })
+      .catch(err => console.log('Could not delete invitation', err));
   };
 
   return (
