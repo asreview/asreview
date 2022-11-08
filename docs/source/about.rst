@@ -40,9 +40,9 @@ of screening large amounts of textual data is screening prioritization through
 `Active Learning <https://asreview.ai/blog/active-learning-explained/>`_: a constant
 interaction between a human who labels records and a machine learning model
 which selects the most likely relevant record based on a minimum training
-dataset. The active learning cycle is repeated until the annotator has seen all
-relevant records. Thus, the machine learning model is responsible for ranking the
-records and the human provides the labels, this is called
+dataset. The active learning cycle is repeated until the annotator is sufficiently
+confident they haves seen all relevant records. Thus, the machine learning model is
+responsible for ranking the records and the human provides the labels, this is called
 `Researcher-In-The-Loop (RITL) <https://asreview.ai/blog/active-learning-explained/>`_.
 
 It allows the screening of large amounts of text in an intelligent
