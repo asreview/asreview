@@ -107,7 +107,7 @@ Active learning
 
 .. option:: --model_seed MODEL_SEED
 
-    Some processes in ASReview require (pseudo-)random number generation. You can give such a process a fixed “seed” to start from, so you get the same sequence each time and make your simulation reproducible. The :code:`--model_seed` command controls the seed of the random number generation that is used after model initialization. 
+    Some processes in ASReview require (pseudo-)random number generation. The user can give such a process a fixed “seed” to start from, which means the same sequence is generated each time, making any simulation reproducible. The :code:`--model_seed` command controls the seed of the random number generation that is used after model initialization. 
     
     The :code:`--init_seed` command controls the random set of papers to train the model on, see the documentation under prior knowledge. 
 
@@ -144,7 +144,7 @@ indices of the papers you want to start the simulation with.
 
 .. option:: --init_seed INIT_SEED
 
-    Controls the random selection of papers to train the model on, if :code:`prior_idx` is not specified. The value specified determines the random sequence of prior indices by row numbers. If :code:`prior_idx` is specified, the :code:`--init_seed` argument is ignored.
+    Controls the random selection of papers to train the model on, if :code:`prior_idx` is not specified. The seed value is used to initiate the random selection of relevant and irrelevant records used in the simulation. If :code:`prior_idx` is specified, the :code:`--init_seed` argument is ignored.
 
 
 
