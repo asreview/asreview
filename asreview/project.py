@@ -60,6 +60,11 @@ class ProjectExistsError(Exception):
 class ProjectNotFoundError(Exception):
     pass
 
+# !=============================================
+# @TODO: I HATE THE FACT THAT I AM TALKING ABOUT 
+# Users in this module, but I need a quick fix
+# for now
+# !=============================================
 
 def get_project_path(project_id, user=None, asreview_dir=None):
     """Get the project directory.
@@ -100,11 +105,20 @@ def project_from_id(user):
     return decorate
 
 
-def list_asreview_projects(user):
+def list_asreview_projects(user=None):
     """List the projects in the asreview path from user"""
 
+    project_paths = []
+    if isinstance(user, User) and isinstance(user.id, int):
+        project_paths = [
+            Path(asreview_path(), p.folder) 
+            for p in user.projects
+        ]
+    else:
+        project_paths = asreview_path().iterdir()
+
     file_list = []
-    for x in asreview_path().iterdir():
+    for x in project_paths:
         if x.is_dir():
             try:
                 project = ASReviewProject(x)

@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { notifyManager, useQuery } from "react-query";
+import { useQuery } from "react-query";
 import { CollaborationAPI } from "../../api/index.js";
 import List from '@mui/material/List';
 import { Add } from "@mui/icons-material";
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import UserListEntry from "./UserListEntry";
-import { Fab } from "@mui/material";
+import { Stack, Fab } from "@mui/material";
 
 
 const CollaborationContents = (props) => {
@@ -106,7 +106,7 @@ const CollaborationContents = (props) => {
         }}
         id="controllable-states-demo"
         options={ allUsers.filter(item => !associatedUsers.has(item.id)) }
-        getOptionLabel={option => option.full_name }
+        getOptionLabel={option => `${option.full_name}` }
         sx={{ width: 300, padding: 1 }}
         renderInput={(params) => <TextField {...params} label="Select a user" />}
       />
@@ -121,27 +121,23 @@ const CollaborationContents = (props) => {
         Invite
       </Fab>
 
-      <h2>Pending</h2>
-      <p>Double click to remove</p>
-      <List sx={{ pt: 0 }}>
+      <h2>Pending (dbl click to remove)</h2>
+      <List component={Stack} direction="row">
       { allUsers.filter(item => invitedUsers.has(item.id)).map((user) => (
         <UserListEntry
           key={user.id}
-          id={user.id}
-          fullName={user.full_name}
+          user={user}
           onDoubleClick={removeInvitation}
         />))
       }
       </List>
 
-      <h2>Collaborators</h2>
-      <p>Double click to remove</p>
+      <h2>Collaborators (dbl click to remove)</h2>
       <List sx={{ pt: 0 }}>
       { allUsers.filter(item  => collaborators.has(item.id)).map((user) => (
         <UserListEntry
           key={user.id}
-          id={user.id}
-          fullName={user.full_name}
+          user={user}
           onDoubleClick={removeCollaborator}
         />))
       }

@@ -17,7 +17,7 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Logout } from "@mui/icons-material";
+import { Logout, GroupAdd } from "@mui/icons-material";
 
 import { StyledMenuItem } from "../StyledComponents/StyledMenuItem";
 import { TypographySubtitle1Medium } from "../StyledComponents/StyledTypography";
@@ -105,6 +105,16 @@ const ProfilePopper = (props) => {
                   </Stack>
                 </StyledMenuItem>
                 <Divider />
+
+                <MenuItem onClick={handleSignOut}>
+                  <ListItemIcon>
+                    <GroupAdd fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText disableTypography>
+                    <Typography variant="body2">Collaboration Invites</Typography>
+                  </ListItemText>
+                </MenuItem>
+                
                 <MenuItem onClick={handleSignOut}>
                   <ListItemIcon>
                     <Logout fontSize="small" />
@@ -113,6 +123,7 @@ const ProfilePopper = (props) => {
                     <Typography variant="body2">Sign out</Typography>
                   </ListItemText>
                 </MenuItem>
+
               </MenuList>
             </Paper>
           </Popper>

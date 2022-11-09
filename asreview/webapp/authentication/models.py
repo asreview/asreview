@@ -80,7 +80,8 @@ class User(UserMixin, DB.Model):
         return {
             'id': self.id,
             'last_name': self.last_name,
-            'full_name': self.get_full_name() 
+            'full_name': self.get_full_name(),
+            'email': self.email
         }
 
     def __repr__(self):

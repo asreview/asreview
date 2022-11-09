@@ -1,7 +1,7 @@
 import { axiosErrorHandler } from "./axiosErrorHandler";
 import { collab_url } from "../globals.js";
 import axios from "axios";
-import { responsiveFontSizes } from "@mui/material";
+
 
 class CollaborationAPI {
   static fetchCollaborators(projectId) {

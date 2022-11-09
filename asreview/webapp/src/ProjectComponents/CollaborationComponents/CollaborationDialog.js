@@ -1,16 +1,11 @@
 import * as React from 'react';
-import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
 import {
-  DialogTitle,
   Dialog,
   Divider,
-  Fade,
-  Stack,
-  Tooltip,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Close } from "@mui/icons-material";
 import CollaborationContents from "./CollaborationContents";
+import CollaborationDialogHeader from "./CollaborationDialogHeader";
 
 const PREFIX = "SetupDialog";
 
@@ -62,29 +57,15 @@ const CollaborationDialog = (props) => {
         sx: { height: !props.mobileScreen ? "calc(100% - 96px)" : "100%" },
       }}
     >
-      <Fade in={true}>
-        <Stack className="dialog-header" direction="row">
-          <DialogTitle>Collaborators</DialogTitle>
-          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-            <Stack
-              className="dialog-header-button right"
-              direction="row"
-              spacing={1}
-            >
-              <Tooltip title="Close">
-                <StyledIconButton onClick={handleClose}>
-                  <Close />
-                </StyledIconButton>
-              </Tooltip>
-            </Stack>
-          </Stack>
-        </Stack>
-      </Fade>
+      <CollaborationDialogHeader
+        title="Collaborators"
+        handleClose={handleClose}
+      />
       <Divider />
       <CollaborationContents
         project_id={props.project_id}
       />
-    </StyledDialog>
+    </StyledDialog>    
   );
 }
 

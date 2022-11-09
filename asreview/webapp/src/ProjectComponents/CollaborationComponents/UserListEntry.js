@@ -7,13 +7,13 @@ import { blue } from '@mui/material/colors';
 
 const UserListEntry = (props) => {
   return (
-    <ListItem button onDoubleClick={() => props.onDoubleClick(props.id)}>
+    <ListItem button onDoubleClick={() => props.onDoubleClick(props.user.id)}>
       <ListItemAvatar>
         <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
           <PersonIcon />
         </Avatar>
       </ListItemAvatar>
-      <ListItemText primary={props.fullName} secondary={props.id} />
+      <ListItemText primary={props.user.full_name} secondary={props.user.email} />
     </ListItem>
   );
 }

@@ -79,7 +79,8 @@ def delete_invitation(project_id, user_id):
     """removes an invitation"""
     # get project
     project = Project.query.filter(Project.project_id == project_id).one()
-    user = User.query.get(user_id)
+    user = User.query.get(int(user_id))
+    print(user, project.pending_invitations)
     project.pending_invitations.remove(user)
     try:
         DB.session.commit()
