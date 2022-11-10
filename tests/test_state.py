@@ -75,28 +75,25 @@ def test_init_project_folder(tmpdir):
     assert project.config['id'] == 'test'
 
 
-@pytest.mark.xfail(raises=ProjectExistsError,
-                   reason="Project {project_path} already exists.")
 def test_init_project_already_exists(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
     ASReviewProject.create(project_path)
-    ASReviewProject.create(project_path)
+    with pytest.raises(ProjectExistsError):
+        ASReviewProject.create(project_path)
 
 
-@pytest.mark.xfail(raises=StateNotFoundError,
-                   reason="Project folder does not exist")
 def test_invalid_project_folder():
-    with open_state('this_is_not_a_project') as state:  # noqa
-        pass
+    with pytest.raises(StateNotFoundError):
+        with open_state('this_is_not_a_project') as state:  # noqa
+            pass
 
 
-@pytest.mark.xfail(raises=StateNotFoundError,
-                   reason="State file does not exist")
 def test_state_not_found(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
     ASReviewProject.create(project_path)
-    with open_state(project_path) as state:  # noqa
-        pass
+    with pytest.raises(StateNotFoundError):
+        with open_state(project_path) as state:  # noqa
+            pass
 
 
 def test_read_basic_state():
@@ -109,11 +106,10 @@ def test_version_number_state():
         assert state.version[0] == "1"
 
 
-@pytest.mark.xfail(raises=OperationalError,
-                   reason="attempt to write a readonly database")
 def test_write_while_read_only_state():
     with open_state(TEST_STATE_FP, read_only=True) as state:
-        state.add_last_probabilities([1.0] * len(TEST_RECORD_TABLE))
+        with pytest.raises(OperationalError):
+            state.add_last_probabilities([1.0] * len(TEST_RECORD_TABLE))
 
 
 def test_print_state():
@@ -321,13 +317,10 @@ def test_get_last_probabilities():
         assert probabilities.to_list()[-10:] == TEST_LAST_PROBS
 
 
-@pytest.mark.xfail(
-    raises=ValueError,
-    reason="There are 851 probabilities in the"
-    " database, but 'probabilities' has length 3")
 def test_add_last_probabilities_fail():
     with open_state(TEST_STATE_FP) as state:
-        state.add_last_probabilities([1.0, 2.0, 3.0])
+        with pytest.raises(ValueError):
+            state.add_last_probabilities([1.0, 2.0, 3.0])
 
 
 def test_add_last_probabilities(tmpdir):
