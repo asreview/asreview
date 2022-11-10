@@ -592,3 +592,43 @@ def test_get_labeled():
     assert isinstance(labeled, pd.DataFrame)
     assert labeled['record_id'].to_list() == TEST_RECORD_IDS
     assert labeled['label'].to_list() == TEST_LABELS
+
+
+def test_add_extra_column(tmpdir):
+    """Check if state still works with extra colums added to tables."""
+    project_path = Path(tmpdir, 'test.asreview')
+    ASReviewProject.create(project_path)
+
+    with open_state(project_path, read_only=False) as state:
+        con = state._connect_to_sql()
+        cur = con.cursor()
+        cur.execute("ALTER TABLE last_ranking ADD COLUMN test_lr INTEGER;")
+        cur.execute("ALTER TABLE results ADD COLUMN test_res INTEGER;")
+        con.commit()
+        con.close()
+
+    record_ids = [1, 2, 3, 4, 5, 6]
+    ranking = [1, 3, 4, 6, 2, 5]
+    classifier = 'nb'
+    query_strategy = 'max'
+    balance_strategy = 'double'
+    feature_extraction = 'tfidf'
+    training_set = 2
+
+    with open_state(project_path, read_only=False) as state:
+        state.add_record_table(record_ids)
+        state.add_last_ranking(ranking, classifier,
+                               query_strategy, balance_strategy,
+                               feature_extraction, training_set)
+
+        top_ranked = state.query_top_ranked(1)
+        pool, labeled, pending = state.get_pool_labeled_pending()
+        assert len(pending) == 1
+        assert len(pool) == len(record_ids) - 1
+        assert len(labeled) == 0
+
+        state.add_labeling_data(top_ranked, [0 for _ in top_ranked])
+        pool, labeled, pending = state.get_pool_labeled_pending()
+        assert len(pending) == 0
+        assert len(pool) == len(record_ids) - 1
+        assert len(labeled) == 1
