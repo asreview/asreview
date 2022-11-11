@@ -23,7 +23,7 @@ class CollaborationAPI {
   }
 
   static inviteUser(projectId, userId) {
-    if (projectId !== null) {
+    if (projectId !== null && userId !== null) {
       const url = collab_url + `${projectId}/user/${userId}/invite`
       return new Promise((resolve, reject) => {
         axios({
@@ -42,7 +42,7 @@ class CollaborationAPI {
   }
 
   static deleteInvitation(projectId, userId) {
-    if (projectId !== null) {
+    if (projectId !== null && userId !== null) {
       const url = collab_url + `${projectId}/user/${userId}/delete_invitation`
       return new Promise((resolve, reject) => {
         axios({
@@ -60,15 +60,12 @@ class CollaborationAPI {
     }
   }
 
-  static deleteCollaborator(projectId, userId) {
-    if (projectId !== null) {
-      const url = collab_url + `${projectId}/user/${userId}/delete_collaborator`
+  static getProjectInvitations(userId) {
+    if (userId !== null) {
+      const url = collab_url + `${userId}/pending_invitations`
       return new Promise((resolve, reject) => {
-        axios({
-          method: "delete",
-          url: url,
-          withCredentials: true,
-        })
+        axios
+          .get(url, { withCredentials: true })
           .then((result) => {
             resolve(result["data"]);
           })

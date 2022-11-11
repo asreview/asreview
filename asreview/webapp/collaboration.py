@@ -58,6 +58,23 @@ def users(project_id):
     return response, 200
 
 
+@bp.route('/<user_id>/pending_invitations', methods=["GET"])
+@asreview_login_required
+def pending_invitations(user_id):
+    """invites a user to collaborate on a project"""
+    # get project
+    user = User.query.get(user_id)
+    invitations = [
+        { 'id': p.id, 'project_id': p.project_id } 
+        for p in user.pending_invitations
+    ]
+    response = jsonify({
+        'invited_for_projects': invitations
+    })
+    return response, 200
+
+
+
 @bp.route('/<project_id>/user/<user_id>/invite', methods=["POST"])
 @asreview_login_required
 def invite(project_id, user_id):

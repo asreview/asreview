@@ -1,7 +1,8 @@
 import * as React from "react";
-import { useMutation } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import {
   Avatar,
+  Badge,
   Box,
   ButtonBase,
   ClickAwayListener,
@@ -16,13 +17,14 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import MailIcon from '@mui/icons-material/Mail';
 import { styled } from "@mui/material/styles";
 import { Logout, GroupAdd } from "@mui/icons-material";
 
 import { StyledMenuItem } from "../StyledComponents/StyledMenuItem";
 import { TypographySubtitle1Medium } from "../StyledComponents/StyledTypography";
 
-import { AuthAPI } from "../api";
+import { AuthAPI, CollaborationAPI } from "../api";
 import useAuth from "../hooks/useAuth";
 import ElasAvatar from "../images/ElasAvatar.svg";
 
@@ -30,9 +32,23 @@ const Root = styled("div")(({ theme }) => ({}));
 
 const ProfilePopper = (props) => {
   const { auth, setAuth } = useAuth();
+  const [numberOfInvitations, setNumberOfInvitations] = React.useState(0);
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [open, setOpen] = React.useState(false);
+
+  useQuery(
+    ["getProjectInvitations"],
+    () => CollaborationAPI.getProjectInvitations(auth.id),
+    {
+      onSuccess: (data) => {
+        setNumberOfInvitations((data['invited_for_projects'] || []).length);
+      },
+      onError: (data) => {
+        console.log('error', data);
+      }
+    }
+  );
 
   const { mutate } = useMutation(AuthAPI.signout, {
     onSuccess: () => {
@@ -105,16 +121,25 @@ const ProfilePopper = (props) => {
                   </Stack>
                 </StyledMenuItem>
                 <Divider />
-
-                <MenuItem onClick={handleSignOut}>
-                  <ListItemIcon>
-                    <GroupAdd fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText disableTypography>
-                    <Typography variant="body2">Collaboration Invites</Typography>
-                  </ListItemText>
-                </MenuItem>
-                
+                { 
+                  numberOfInvitations > 0 &&
+                  <MenuItem onClick={handleSignOut}>
+                    <ListItemIcon>
+                      <GroupAdd fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText disableTypography>
+                      <Typography variant="body2">
+                        Collaboration Invites
+                        <Badge 
+                          badgeContent={numberOfInvitations}
+                          sx={{"& .MuiBadge-badge": { color: "white", backgroundColor: "red"}}}
+                        >
+                          <MailIcon color="action" />
+                        </Badge>
+                      </Typography>
+                    </ListItemText>
+                  </MenuItem>
+                }
                 <MenuItem onClick={handleSignOut}>
                   <ListItemIcon>
                     <Logout fontSize="small" />
