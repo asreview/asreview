@@ -9,7 +9,7 @@ import UserListEntry from "./UserListEntry";
 import { Stack, Fab } from "@mui/material";
 
 
-const CollaborationContents = (props) => {
+const InvitationContents = (props) => {
 
   const [selectedUser, setSelectedUser] = React.useState(null);
   const [inputValue, setInputValue] = React.useState('');
@@ -146,4 +146,4 @@ const CollaborationContents = (props) => {
   );
 }
 
-export default CollaborationContents;
+export default InvitationContents;

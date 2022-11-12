@@ -22,7 +22,7 @@ import { styled } from "@mui/material/styles";
 import { BoxErrorHandler, DialogErrorHandler } from "../../Components";
 import { ProjectDeleteDialog } from "../../ProjectComponents";
 import { ProjectCheckDialog, TableRowButton } from "../DashboardComponents";
-import { CollaborationDialog } from "../../ProjectComponents/CollaborationComponents";
+import { InvitationDialog } from "../../ProjectComponents/CollaborationComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { useRowsPerPage } from "../../hooks/SettingsHooks";
 import { useToggle } from "../../hooks/useToggle";
@@ -34,6 +34,7 @@ import {
   projectStatuses,
 } from "../../globals";
 import { useSelector } from "react-redux";
+import useAuth from "../../hooks/useAuth";
 
 const PREFIX = "ProjectTable";
 
@@ -118,6 +119,7 @@ const ProjectTable = (props) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const authenticated = useSelector(state => state.authentication);
+  const { auth } = useAuth();
 
   /**
    * Project table state
@@ -144,8 +146,6 @@ const ProjectTable = (props) => {
     isError: false,
     message: null,
   });
-
-  
 
   /**
    * Fetch projects and check if simulation running in the background
@@ -431,6 +431,7 @@ const ProjectTable = (props) => {
               data.result
                 ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
+
                   const isSimulating = () => {
                     return (
                       row["mode"] === projectModes.SIMULATION &&
@@ -454,6 +455,10 @@ const ProjectTable = (props) => {
                       row["reviews"][0] !== undefined &&
                       row["reviews"][0]["status"] === projectStatuses.REVIEW
                     );
+                  };
+
+                  const showCollaborationButton = () => {
+                    return authenticated && ('owner_id' in row) && row.owner_id === auth.id;
                   };
 
                   const disableProjectStatusChange = () => {
@@ -527,6 +532,7 @@ const ProjectTable = (props) => {
                                 disableProjectStatusChange
                               }
                               isSimulating={isSimulating}
+                              showCollaborationButton={showCollaborationButton}
                               showAnalyticsButton={showAnalyticsButton}
                               showReviewButton={showReviewButton}
                               onClickProjectAnalytics={onClickProjectAnalytics}
@@ -632,7 +638,7 @@ const ProjectTable = (props) => {
         project_id={hoverRowIdPersistent}
       />
       { authenticated &&
-        <CollaborationDialog
+        <InvitationDialog
           mobileScreen={props.mobileScreen}
           openCollaboDialog={onCollaboDialog}
           toggleCollaboDialog={toggleCollaboDialog}

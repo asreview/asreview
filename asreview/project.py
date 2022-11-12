@@ -105,27 +105,42 @@ def project_from_id(user):
     return decorate
 
 
+# !=============================================
+# @TODO: Another thing that needs consideration:
+# I need ownership id's to avoid collaborators inviting
+# new collaborators. That means I'd like to alter
+# the ASReviewProject class -> adding an ownership 
+# attribute. I could add it on the class itself, but 
+# this is only needed in the authenticated version.
+# Instead I will add it dynamically in this function...
+# Feedback is required.
+# !=============================================
 def list_asreview_projects(user=None):
     """List the projects in the asreview path from user"""
 
     project_paths = []
     if isinstance(user, User) and isinstance(user.id, int):
         project_paths = [
-            Path(asreview_path(), p.folder) 
+            (Path(asreview_path(), p.folder), p.owner_id) 
             for p in user.projects
         ]
     else:
-        project_paths = asreview_path().iterdir()
+        project_paths = [(x, None) for x in asreview_path().iterdir()]
 
     file_list = []
-    for x in project_paths:
-        if x.is_dir():
+    for folder, owner_id in project_paths:
+
+        # create ASReviewProject
+        if folder.is_dir():
             try:
-                project = ASReviewProject(x)
+                project = ASReviewProject(folder)
                 project.project_id = project.config["id"]
+                # inject owner_id property into Project list
+                project.owner_id = owner_id
                 file_list.append(project)
             except Exception:
                 pass
+
     return file_list
 
 

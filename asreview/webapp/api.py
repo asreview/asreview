@@ -113,15 +113,17 @@ def api_get_projects():  # noqa: F401
     """Get info on the article"""
     project_info = []
     for project in list_asreview_projects(current_user):
-
         try:
-
             project_config = project.config
 
             # upgrade info of v0 projects
             if project_config["version"].startswith("0"):
                 project_config = upgrade_project_config(project_config)
                 project_config["projectNeedsUpgrade"] = True
+
+            # add ownership information if it is available
+            if hasattr(project, "owner_id"):
+                project_config["owner_id"] = project.owner_id 
 
             logging.info("Project found: {}".format(project_config["id"]))
             project_info.append(project_config)
@@ -152,7 +154,6 @@ def api_get_projects_stats():  # noqa: F401
     }
 
     for project in list_asreview_projects(current_user):
-        print(project)
 
         try:
             project_config = project.config

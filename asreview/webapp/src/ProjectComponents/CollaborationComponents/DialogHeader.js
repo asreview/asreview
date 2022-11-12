@@ -7,7 +7,7 @@ import { Close } from "@mui/icons-material";
 import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
 
 
-const CollaborationDialogHeader = (props) => {
+const DialogHeader = (props) => {
   return (
     <Stack className="dialog-header" direction="row">
       <DialogTitle>{props.title}</DialogTitle>
@@ -28,4 +28,4 @@ const CollaborationDialogHeader = (props) => {
   )
 }
 
-export default CollaborationDialogHeader;
+export default DialogHeader;

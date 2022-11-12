@@ -4,8 +4,8 @@ import {
   Divider,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import CollaborationContents from "./CollaborationContents";
-import CollaborationDialogHeader from "./CollaborationDialogHeader";
+import InvitationContents from "./InvitationContents";
+import DialogHeader from "./DialogHeader";
 
 const PREFIX = "SetupDialog";
 
@@ -40,7 +40,7 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-const CollaborationDialog = (props) => {
+const InvitationDialog = (props) => {
 
   const handleClose = () => {
     props.toggleCollaboDialog();
@@ -57,18 +57,18 @@ const CollaborationDialog = (props) => {
         sx: { height: !props.mobileScreen ? "calc(100% - 96px)" : "100%" },
       }}
     >
-      <CollaborationDialogHeader
+      <DialogHeader
         title="Collaborators"
         handleClose={handleClose}
       />
       <Divider />
-      <CollaborationContents
+      <InvitationContents
         project_id={props.project_id}
       />
     </StyledDialog>    
   );
 }
 
-export default CollaborationDialog;
+export default InvitationDialog;
 
 

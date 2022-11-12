@@ -1,4 +1,4 @@
-export { default as CollaborationDialog } from "./CollaborationDialog";
-export { default as CollaborationDialogHeader } from "./CollaborationDialogHeader";
-export { default as CollaborationContents } from "./CollaborationContents";
+export { default as InvitationDialog } from "./InvitationDialog";
+export { default as DialogHeader } from "./DialogHeader";
+export { default as InvitationContents } from "./InvitationContents";
 export { default as UserListEntry } from "./UserListEntry";

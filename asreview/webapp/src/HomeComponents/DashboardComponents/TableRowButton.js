@@ -8,8 +8,8 @@ import {
   MoreVert,
   GroupAdd
 } from "@mui/icons-material";
-
 import { projectStatuses } from "../../globals.js";
+
 
 const PREFIX = "TableRowButton";
 
@@ -78,14 +78,16 @@ export default function TableRowButton(props) {
             </IconButton>
           </Tooltip>
         )}
-        <Tooltip title="Collaboration">
-          <IconButton
-            className={classes.button}
-            onClick={props.onClickCollaboration}
-          >
-            <GroupAdd />
-          </IconButton>
-        </Tooltip>
+        { props.showCollaborationButton() && (
+          <Tooltip title="Collaboration">
+            <IconButton
+              className={classes.button}
+              onClick={props.onClickCollaboration}
+            >
+              <GroupAdd />
+            </IconButton>
+          </Tooltip>
+        )}
         {!props.isSimulating() && (
           <Tooltip title="Export">
             <IconButton
