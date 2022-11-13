@@ -114,14 +114,14 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
 }));
 
 const columns = [
-  { id: "name", label: "Project", width: "55%" },
+  { id: "name", label: "Project", width: "45%" },
   { id: "created_at_unix", label: "Date", width: "15%" },
   { id: "mode", label: "Mode", width: "15%" },
-  { id: "status", label: "Status", width: "15%" },
+  { id: "action", label: "Action", width: "25%" },
 ];
 
 const AcceptanceDialog = (props) => {
-  console.log(props.invitations);
+  const [projects, setProjects] = React.useState(props.invitations);
 
   return (
     <StyledPaper elevation={2} className={classes.root}>
@@ -137,6 +137,25 @@ const AcceptanceDialog = (props) => {
             </TableRow>
           </TableHead>
           <TableBody>
+            { 
+              projects.map((project) => {
+                return(
+                  <TableRow>
+                    <TableCell>{project.name}</TableCell>
+                    <TableCell></TableCell>
+                    <TableCell>{project.mode}</TableCell>
+                    <TableCell>
+                      <Button onClick={true} sx={{ textTransform: "none" }}>
+                        Accept
+                      </Button>
+                      <Button onClick={true} sx={{ textTransform: "none" }}>
+                        Decline
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            }
           </TableBody>
         </Table>
       </TableContainer>

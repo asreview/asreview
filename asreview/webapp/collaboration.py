@@ -8,7 +8,7 @@ from flask_cors import CORS
 from flask_login import current_user, login_user, logout_user
 from sqlalchemy.exc import SQLAlchemyError
 
-from asreview.project import project_from_id
+from asreview.project import ASReviewProject
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.login_required import asreview_login_required
@@ -64,10 +64,21 @@ def pending_invitations(user_id):
     """invites a user to collaborate on a project"""
     # get project
     user = User.query.get(user_id)
-    invitations = [
-        { 'id': p.id, 'project_id': p.project_id } 
-        for p in user.pending_invitations
-    ]
+    invitations = []
+    for p in user.pending_invitations:
+        # get path of project
+        path = Path(asreview_path(), p.folder)
+        # get object to get name
+        asreview_object = ASReviewProject(path)
+        # append info
+        invitations.append({
+            'id': p.id,
+            'project_id': p.project_id,
+            'owner_id': p.owner_id,
+            'name': asreview_object.config['name'],
+            'created_at_unix': asreview_object.config['created_at_unix'],
+            'mode': asreview_object.config['mode']
+        })
     response = jsonify({
         'invited_for_projects': invitations
     })
