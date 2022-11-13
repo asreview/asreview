@@ -29,7 +29,7 @@ DEPRECATED_ENTRY_POINTS = ["oracle"]
 
 
 def _sort_entry_points(entry_points):
-    
+
     entry_points_copy = entry_points.copy()
 
     entry_points_sorted = {
@@ -69,7 +69,7 @@ def _output_available_entry_points(entry_points):
 def main():
     # Get the available entry points.
     entry_points = get_entry_points("asreview.entry_points")
-    
+
     # Try to load the entry point if available.
     if len(sys.argv) > 1 and sys.argv[1] in entry_points:
 
