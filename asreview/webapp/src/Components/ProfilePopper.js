@@ -28,11 +28,16 @@ import { AuthAPI, CollaborationAPI } from "../api";
 import useAuth from "../hooks/useAuth";
 import ElasAvatar from "../images/ElasAvatar.svg";
 
+import { AcceptanceDialog } from "../ProjectComponents/CollaborationComponents";
+import { useToggle } from "../hooks/useToggle";
+
 const Root = styled("div")(({ theme }) => ({}));
 
 const ProfilePopper = (props) => {
   const { auth, setAuth } = useAuth();
-  const [numberOfInvitations, setNumberOfInvitations] = React.useState(0);
+  const [invitations, setInvitations] = React.useState(0);
+
+  const [onAcceptanceSetup, toggleAcceptanceSetup] = useToggle();
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [open, setOpen] = React.useState(false);
@@ -42,7 +47,7 @@ const ProfilePopper = (props) => {
     () => CollaborationAPI.getProjectInvitations(auth.id),
     {
       onSuccess: (data) => {
-        setNumberOfInvitations((data['invited_for_projects'] || []).length);
+        setInvitations((data['invited_for_projects'] || []));
       },
       onError: (data) => {
         console.log('error', data);
@@ -67,6 +72,11 @@ const ProfilePopper = (props) => {
 
   const handleSignOut = () => {
     mutate();
+  };
+
+  const openAcceptanceDialog = () => {
+    setOpen(false);
+    toggleAcceptanceSetup();
   };
 
   return (
@@ -122,8 +132,8 @@ const ProfilePopper = (props) => {
                 </StyledMenuItem>
                 <Divider />
                 { 
-                  numberOfInvitations > 0 &&
-                  <MenuItem onClick={handleSignOut}>
+                  invitations.length > 0 &&
+                  <MenuItem onClick={openAcceptanceDialog}>
                     <ListItemIcon>
                       <GroupAdd fontSize="small" />
                     </ListItemIcon>
@@ -131,7 +141,7 @@ const ProfilePopper = (props) => {
                       <Typography variant="body2">
                         Collaboration Invites
                         <Badge 
-                          badgeContent={numberOfInvitations}
+                          badgeContent={invitations.length}
                           sx={{"& .MuiBadge-badge": { color: "white", backgroundColor: "red"}}}
                         >
                           <MailIcon color="action" />
@@ -154,6 +164,12 @@ const ProfilePopper = (props) => {
           </Popper>
         </Box>
       </ClickAwayListener>
+      <AcceptanceDialog 
+        open={onAcceptanceSetup}
+        onClose={toggleAcceptanceSetup}
+        userId={auth.id}
+        invitations={invitations}
+      />
     </Root>
   );
 };

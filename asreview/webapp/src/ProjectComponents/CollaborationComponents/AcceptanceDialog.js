@@ -4,8 +4,9 @@ import {
   Divider,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import InvitationContents from "./InvitationContents";
+import AcceptanceContents from "./AcceptanceContents";
 import DialogHeader from "./DialogHeader";
+
 
 const PREFIX = "SetupDialog";
 
@@ -40,16 +41,16 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-const InvitationDialog = (props) => {
+const AcceptanceDialog = (props) => {
 
   const handleClose = () => {
-    props.toggleCollaboDialog();
+    props.onClose();
   };
 
   return (
     <StyledDialog
-      aria-label="collaboration dialog"
-      open={props.openCollaboDialog}
+      aria-label="acceptance dialog"
+      open={props.open}
       fullScreen={props.mobileScreen}
       fullWidth
       maxWidth="md"
@@ -58,17 +59,15 @@ const InvitationDialog = (props) => {
       }}
     >
       <DialogHeader
-        title="Collaborators"
+        title="Collaboration invitations"
         handleClose={handleClose}
       />
       <Divider />
-      <InvitationContents
-        project_id={props.project_id}
+      <AcceptanceContents
+        invitations={props.invitations}
       />
     </StyledDialog>    
   );
 }
 
-export default InvitationDialog;
-
-
+export default AcceptanceDialog;

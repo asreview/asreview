@@ -13,6 +13,7 @@ import {
 import { SetupDialog } from "../../ProjectComponents/SetupComponents";
 import { useToggle } from "../../hooks/useToggle";
 
+
 const Root = styled("div")(({ theme }) => ({}));
 
 const DashboardPage = (props) => {
@@ -46,6 +47,7 @@ const DashboardPage = (props) => {
                 setFeedbackBar={setFeedbackBar}
                 setProjectCheck={props.setProjectCheck}
                 toggleProjectSetup={props.toggleProjectSetup}
+                toggleAcceptanceSetup={props.AcceptanceDialog}
               />
             </Stack>
           </Box>
