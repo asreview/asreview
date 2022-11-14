@@ -154,7 +154,7 @@ const SignInForm = () => {
                 </Stack>
                 <Stack spacing={3}>
                   <TextField
-                    label="Username"
+                    label="Username or email"
                     value={username}
                     onChange={handleUsernameChange}
                     variant="outlined"

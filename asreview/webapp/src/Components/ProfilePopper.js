@@ -38,10 +38,9 @@ const Root = styled("div")(({ theme }) => ({}));
 const ProfilePopper = (props) => {
   const { auth, setAuth } = useAuth();
   const [projectInvitations, setProjectInvitations] = React.useState([]);
-
   const dispatch = useDispatch();
 
-  const [onAcceptanceSetup, toggleAcceptanceSetup] = useToggle();
+  const [onAcceptanceDialog, toggleAcceptanceDialog] = useToggle();
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [open, setOpen] = React.useState(false);
@@ -80,7 +79,7 @@ const ProfilePopper = (props) => {
 
   const openAcceptanceDialog = () => {
     setOpen(false);
-    toggleAcceptanceSetup();
+    toggleAcceptanceDialog();
   };
 
   const acceptanceHandler = (project) => {
@@ -98,7 +97,12 @@ const ProfilePopper = (props) => {
             // refresh project list
             dispatch(setMyProjects(data.result));
             // remove project from Dialog table
-            setProjectInvitations(projectInvitations.filter((p) => p.id !== project.id))
+            const newProjectList = projectInvitations.filter((p) => p.id !== project.id);
+            setProjectInvitations(newProjectList);
+            // close modal if there are no more invitations
+            if (newProjectList.length === 0) {
+              toggleAcceptanceDialog();
+            }
           } else {
             console.log('Could not get projects list -- DB failure');
           }
@@ -117,8 +121,14 @@ const ProfilePopper = (props) => {
     CollaborationAPI.rejectInvitation(project.project_id, auth.id)
       .then(data => {
         if (data.success) {
-          // remove project from Dialog table
-          setProjectInvitations(projectInvitations.filter((p) => p.id !== project.id))
+          // remove project from Dialog table and close if there are 
+          // no more invitations
+          const newProjectList = projectInvitations.filter((p) => p.id !== project.id);
+          setProjectInvitations(newProjectList);
+          // close modal if there are no more invitations
+          if (newProjectList.length === 0) {
+            toggleAcceptanceDialog();
+          }
         } else {
           console.log('Could not reject invitation -- DB failure');
         }
@@ -216,8 +226,8 @@ const ProfilePopper = (props) => {
         </Box>
       </ClickAwayListener>
       <AcceptanceDialog 
-        open={onAcceptanceSetup}
-        onClose={toggleAcceptanceSetup}
+        open={onAcceptanceDialog}
+        onClose={toggleAcceptanceDialog}
         userId={auth.id}
         projectInvitations={projectInvitations}
         handleAcceptance={acceptanceHandler}

@@ -36,7 +36,7 @@ class User(UserMixin, DB.Model):
     first_name = Column(String(50))
     last_name = Column(String(50))
     affiliation = Column(String(100))
-    email = Column(String(100))
+    email = Column(String(100), unique=True)
     public = Column(Boolean)
 
     projects = relationship(

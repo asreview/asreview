@@ -83,7 +83,8 @@ const SetupDialog = (props) => {
 
   const steps = (() => {
     if (authenticated)
-      return ["Project information", "Data", "Model", "Collaboration", "Warm up"];
+      //return ["Project information", "Data", "Model", "Collaboration", "Warm up"];
+      return ["Project information", "Data", "Model", "Warm up"];
     else
       return ["Project information", "Data", "Model", "Warm up"];
   })();

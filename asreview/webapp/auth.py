@@ -41,8 +41,15 @@ def signin():
     username = request.form.get('username').strip()
     password = request.form.get('password')
 
-    # check if username already exists
-    user = User.query.filter(User.username == username).one_or_none()
+    # generate conditions depending on username being
+    # an email or a regular username
+    condition = []
+    if '@' in username:
+        condition.append(User.email == username)
+    else:
+        condition.append(User.username == username)
+    # get the user
+    user = User.query.filter(*condition).one_or_none()
     # if the user exist proceed and verify
     if not user:
         result = (404, {'message': f'User account {username} does not exist.'})
@@ -56,7 +63,7 @@ def signin():
             )
             result = (200, {
                 'logged_in': logged_in,
-                'username': username,
+                'username': user.username,
                 'id': user.id
             })
         else:
