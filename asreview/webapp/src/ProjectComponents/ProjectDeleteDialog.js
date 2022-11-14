@@ -1,5 +1,6 @@
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Alert,
@@ -12,13 +13,18 @@ import {
   Typography,
   TextField,
 } from "@mui/material";
-
-import { ProjectAPI } from "../api/index.js";
+import { CollaborationAPI, ProjectAPI } from "../api/index.js";
+import { setMyProjects } from "../redux/actions";
+import useAuth from "../hooks/useAuth";
 
 const ProjectDeleteDialog = (props) => {
   const navigate = useNavigate();
   const { project_id } = useParams();
   const queryClient = useQueryClient();
+
+  const authenticated = useSelector(state => state.authentication);
+  const { auth } = useAuth();
+  const myProjects = useSelector(state => state.myProjects);
 
   const descriptionElementRef = React.useRef(null);
   const [deleteInput, setDeleteInput] = React.useState("");
@@ -63,6 +69,15 @@ const ProjectDeleteDialog = (props) => {
     }
   }, [props.onDeleteDialog]);
 
+  const warningSuffix = () => {
+    // which project are we talking about?
+    if (authenticated && props.owner_id !== auth.id) {
+      return " from your list";
+    } else {
+      return ", including the dataset, review history, notes, and model configuration.";
+    }
+  }
+
   return (
     <Dialog
       open={props.onDeleteDialog}
@@ -78,8 +93,7 @@ const ProjectDeleteDialog = (props) => {
           <Stack spacing={2}>
             <Typography>
               This action <b>cannot</b> be undone. This will permanently delete
-              the <b>{props.projectTitle}</b> project, including the dataset,
-              review history, notes, and model configuration.
+              the <b>{props.projectTitle}</b> project{warningSuffix()}
             </Typography>
             <Typography>
               Please type <b>{props.projectTitle}</b> to confirm.

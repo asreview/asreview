@@ -34,7 +34,6 @@ import {
   projectStatuses,
   formatDate
 } from "../../globals";
-//import { useSelector } from "react-redux";
 import useAuth from "../../hooks/useAuth";
 import { setMyProjects } from "../../redux/actions";
 
@@ -132,6 +131,7 @@ const ProjectTable = (props) => {
   const [hoverRowId, setHoverRowId] = React.useState(null);
   const [hoverRowIdPersistent, setHoverRowIdPersistent] = React.useState(null);
   const [hoverRowTitle, setHoverRowTitle] = React.useState(null);
+  const [hoverRowOwnerId, setHoverRowOwnerId] = React.useState(false);
   const [rowsPerPage, handleRowsPerPage] = useRowsPerPage();
 
   /**
@@ -336,10 +336,11 @@ const ProjectTable = (props) => {
   /**
    * Show buttons when hovering over project title
    */
-  const hoverOnProject = (project_id, project_title) => {
+  const hoverOnProject = (project_id, project_title, owner_id) => {
     setHoverRowId(project_id);
     setHoverRowIdPersistent(project_id);
     setHoverRowTitle(project_title);
+    setHoverRowOwnerId(owner_id);
   };
 
   const hoverOffProject = () => {
@@ -426,6 +427,10 @@ const ProjectTable = (props) => {
               myProjects
                 ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
+                  // if we do authentication, then we need to know who the owner is
+                  row["owner_id"] = authenticated && ("owner_id" in row)? row["owner_id"] : false;
+                  // A collaborator can not edit
+                  const canEdit = authenticated && row["owner_id"] !== auth.id ? false : true;
 
                   const isSimulating = () => {
                     return (
@@ -506,9 +511,9 @@ const ProjectTable = (props) => {
                       role="checkbox"
                       tabIndex={-1}
                       key={row.id}
-                      onMouseEnter={() =>
-                        hoverOnProject(row["id"], row["name"])
-                      }
+                      onMouseEnter={() => {
+                        return hoverOnProject(row["id"], row["name"], row["owner_id"]);
+                      }}
                       onMouseLeave={() => hoverOffProject()}
                     >
                       <TableCell sx={{ display: "flex" }}>
@@ -538,6 +543,7 @@ const ProjectTable = (props) => {
                               projectStatus={status(row)[0]}
                               toggleDeleteDialog={toggleDeleteDialog}
                               updateProjectStatus={updateProjectStatus}
+                              canEdit={canEdit}
                             />
                           )}
                         </Box>
@@ -631,6 +637,7 @@ const ProjectTable = (props) => {
         toggleDeleteDialog={toggleDeleteDialog}
         projectTitle={hoverRowTitle}
         project_id={hoverRowIdPersistent}
+        owner_id={hoverRowOwnerId}
       />
       { authenticated &&
         <InvitationDialog
