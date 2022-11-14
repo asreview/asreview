@@ -109,7 +109,7 @@ export default function TableRowButton(props) {
             open={onRowMenu}
             onClose={handleCloseRowMenu}
           >
-            {!props.isSimulating() && props.canEdit && (
+            {!props.isSimulating() && ( // && props.canEdit
               <MenuItem onClick={handleClickEditDetails}>Edit details</MenuItem>
             )}
             {!props.disableProjectStatusChange() && (
@@ -119,7 +119,7 @@ export default function TableRowButton(props) {
                   : "Mark as in review"}
               </MenuItem>
             )}
-            <MenuItem onClick={handleClickDelete}>Delete forever</MenuItem>
+            <MenuItem onClick={handleClickDelete}>Delete {props.isOwner ? "forever" : ""}</MenuItem>
           </Menu>
         </div>
       </Stack>

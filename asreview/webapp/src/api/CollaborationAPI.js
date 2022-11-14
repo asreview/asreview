@@ -113,6 +113,44 @@ class CollaborationAPI {
       });
     }
   }
+
+  static deleteCollaborator(projectId, userId) {
+    if (userId !== null && projectId !== null) {
+      const url = collab_url + `${projectId}/user/${userId}/delete_collaborator`
+      return new Promise((resolve, reject) => {
+        axios({
+          method: "delete",
+          url: url,
+          withCredentials: true,
+        })
+          .then((result) => {
+            resolve(result["data"]);
+          })
+          .catch((error) => {
+            reject(axiosErrorHandler(error));
+          });
+      });
+    }
+  }
+
+  static endCollaboration(projectId, userId) {
+    if (userId !== null && projectId !== null) {
+      const url = collab_url + `${projectId}/user/${userId}/end_collaboration`
+      return new Promise((resolve, reject) => {
+        axios({
+          method: "delete",
+          url: url,
+          withCredentials: true,
+        })
+          .then((result) => {
+            resolve(result["data"]);
+          })
+          .catch((error) => {
+            reject(axiosErrorHandler(error));
+          });
+      });
+    }
+  }
 }
 
 export default CollaborationAPI;

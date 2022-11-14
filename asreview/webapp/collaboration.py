@@ -32,7 +32,7 @@ def users(project_id):
     response = jsonify(REQUESTER_FRAUD, 404)
 
     # get project
-    project = Project.query.filter(Project.project_id == project_id).one()
+    project = Project.query.filter(Project.project_id == project_id).one_or_none()
 
     # check if this project is in fact from current user
     if project in current_user.projects:
@@ -104,7 +104,7 @@ def invite(project_id, user_id):
     """invites a user to collaborate on a project"""
     response = jsonify(REQUESTER_FRAUD, 404)
     # get project
-    project = Project.query.filter(Project.project_id == project_id).one()
+    project = Project.query.filter(Project.project_id == project_id).one_or_none()
     # check if project is from current user
     if project in current_user.projects:
         user = User.query.get(user_id)
@@ -123,7 +123,7 @@ def delete_invitation(project_id, user_id):
     """removes an invitation"""
     response = jsonify(REQUESTER_FRAUD, 404)
     # get project
-    project = Project.query.filter(Project.project_id == project_id).one()
+    project = Project.query.filter(Project.project_id == project_id).one_or_none()
     # check if project is from current user
     if project in current_user.projects:
         user = User.query.get(user_id)
@@ -136,16 +136,38 @@ def delete_invitation(project_id, user_id):
     return response
 
 
+# An owner can remove a collaborator
 @bp.route('/<project_id>/user/<user_id>/delete_collaborator', methods=["DELETE"])
 @asreview_login_required
 def delete_collaborator(project_id, user_id):
     """removes a collaborator"""
     response = jsonify(REQUESTER_FRAUD, 404)
     # get project
-    project = Project.query.filter(Project.project_id == project_id).one()
+    project = Project.query.filter(Project.project_id == project_id).one_or_none()
     # check if project is from current user
     if project in current_user.projects:
         user = User.query.get(user_id)
+        project.collaborators.remove(user)
+        try:
+            DB.session.commit()
+            response = jsonify({ 'success': True }), 200
+        except SQLAlchemyError:
+            response = jsonify({ 'success': False }), 404
+    return response
+
+
+# A collaborator can end his/her collaboration
+@bp.route('/<project_id>/user/<user_id>/end_collaboration', methods=["DELETE"])
+@asreview_login_required
+def end_collaboration(project_id, user_id):
+    """removes a collaborator"""
+    response = jsonify(REQUESTER_FRAUD, 404)
+    # get user
+    user = User.query.get(user_id)
+    # get project
+    project = Project.query.filter(Project.project_id == project_id).one_or_none()
+    # check if project is from current user
+    if current_user == user and project in current_user.involved_in:
         project.collaborators.remove(user)
         try:
             DB.session.commit()
@@ -165,7 +187,7 @@ def reject_invitation(project_id, user_id):
     # if user is current user, try to remove
     if user == current_user:
         # get project
-        project = Project.query.filter(Project.project_id == project_id).one()
+        project = Project.query.filter(Project.project_id == project_id).one_or_none()
         # remove invitation
         project.pending_invitations.remove(user)
         try:
@@ -186,7 +208,7 @@ def accept_invitation(project_id, user_id):
     # if user is current user, try to add this user to project
     if user == current_user:
         # get project
-        project = Project.query.filter(Project.project_id == project_id).one()
+        project = Project.query.filter(Project.project_id == project_id).one_or_none()
         # remove invitation
         project.pending_invitations.remove(user)
         # add as collaborator

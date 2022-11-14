@@ -283,7 +283,7 @@ def api_update_project_info(project):  # noqa: F401
             # update project in the database
             # ==============================
             db_project = Project.query.filter(
-                Project.owner_id == current_user.id and
+                Project.owner_id == current_user.id,
                 Project.project_id == old_project_id
             ).update({
                 'project_id': new_project_id,
@@ -1596,7 +1596,7 @@ def api_delete_project(project):  # noqa: F401
 
             # remove from database as well
             Project.query.filter(
-                Project.project_id == project.project_id and
+                Project.project_id == project.project_id,
                 Project.owner_id == current_user.id
             ).delete()
             DB.session.commit()

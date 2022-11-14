@@ -40,7 +40,7 @@ from asreview.config import SCHEMA
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
 from asreview.utils import asreview_path
-from asreview.webapp.authentication.models import User
+from asreview.webapp.authentication.models import Project, User
 from asreview.webapp.io import read_data
 
 
@@ -81,7 +81,19 @@ def get_project_path(project_id, user=None, asreview_dir=None):
         asreview_dir = asreview_path()
 
     if isinstance(user, User) and isinstance(user.id, int):
-        folder_id = f'{user.id}_{project_id}'
+        # if we do authentication and user is a collaborator
+        # then we need the owner id of the project in order
+        # to reach it
+        if isinstance(user, User) and isinstance(user.id, int):
+            project_from_db = Project.query.filter(
+                Project.project_id == project_id).one_or_none()
+            # is this user an owner or collaborator?
+            if project_from_db and user == project_from_db.owner:
+                folder_id = f'{user.id}_{project_id}'
+            elif project_from_db and user in project_from_db.collaborators:
+                folder_id = f'{project_from_db.owner_id}_{project_id}'
+            else:
+                folder_id = project_id
     else:
         folder_id = project_id
 

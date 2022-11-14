@@ -131,7 +131,7 @@ const ProjectTable = (props) => {
   const [hoverRowId, setHoverRowId] = React.useState(null);
   const [hoverRowIdPersistent, setHoverRowIdPersistent] = React.useState(null);
   const [hoverRowTitle, setHoverRowTitle] = React.useState(null);
-  const [hoverRowOwnerId, setHoverRowOwnerId] = React.useState(false);
+  const [hoverIsOwner, setHoverIsOwner] = React.useState(false);
   const [rowsPerPage, handleRowsPerPage] = useRowsPerPage();
 
   /**
@@ -340,7 +340,7 @@ const ProjectTable = (props) => {
     setHoverRowId(project_id);
     setHoverRowIdPersistent(project_id);
     setHoverRowTitle(project_title);
-    setHoverRowOwnerId(owner_id);
+    setHoverIsOwner(authenticated && owner_id !== auth.id ? false : true);
   };
 
   const hoverOffProject = () => {
@@ -430,7 +430,8 @@ const ProjectTable = (props) => {
                   // if we do authentication, then we need to know who the owner is
                   row["owner_id"] = authenticated && ("owner_id" in row)? row["owner_id"] : false;
                   // A collaborator can not edit
-                  const canEdit = authenticated && row["owner_id"] !== auth.id ? false : true;
+                  //const canEdit = authenticated && row["owner_id"] !== auth.id ? false : true;
+                  const isOwner = authenticated && row["owner_id"] !== auth.id ? false : true;
 
                   const isSimulating = () => {
                     return (
@@ -543,7 +544,8 @@ const ProjectTable = (props) => {
                               projectStatus={status(row)[0]}
                               toggleDeleteDialog={toggleDeleteDialog}
                               updateProjectStatus={updateProjectStatus}
-                              canEdit={canEdit}
+                              isOwner={isOwner}
+                              //canEdit={canEdit}
                             />
                           )}
                         </Box>
@@ -637,7 +639,7 @@ const ProjectTable = (props) => {
         toggleDeleteDialog={toggleDeleteDialog}
         projectTitle={hoverRowTitle}
         project_id={hoverRowIdPersistent}
-        owner_id={hoverRowOwnerId}
+        isOwner={hoverIsOwner}
       />
       { authenticated &&
         <InvitationDialog

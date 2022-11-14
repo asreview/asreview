@@ -22,9 +22,9 @@ const ProjectDeleteDialog = (props) => {
   const { project_id } = useParams();
   const queryClient = useQueryClient();
 
-  const authenticated = useSelector(state => state.authentication);
   const { auth } = useAuth();
-  const myProjects = useSelector(state => state.myProjects);
+  const authenticated = useSelector(state => state.authentication);
+  const dispatch = useDispatch();
 
   const descriptionElementRef = React.useRef(null);
   const [deleteInput, setDeleteInput] = React.useState("");
@@ -43,6 +43,32 @@ const ProjectDeleteDialog = (props) => {
       },
     }
   );
+
+  const endCollaboration = () => {
+    if (authenticated && props.project_id && auth.id) {
+      CollaborationAPI.endCollaboration(props.project_id, auth.id)
+      .then(data => {
+        if (data.success) {
+          // success, the collaboration was ended, get all projects
+          ProjectAPI.fetchProjects({})
+          .then(data => {
+            if (data.result instanceof Array) {
+              // refresh project list
+              dispatch(setMyProjects(data.result));
+              // close dialog
+              props.toggleDeleteDialog();
+            } else {
+              console.log('Could not get projects list -- DB failure');
+            }
+          })
+          .catch(err => console.log('Could not pull all projects', err));
+        } else {
+          console.log('Could not end collaboration -- DB failure');
+        }
+      })
+      .catch(err => console.log('Could not end collaboration', err))
+    }
+  };
 
   const onChangeTitle = (event) => {
     if (isError) {
@@ -71,10 +97,10 @@ const ProjectDeleteDialog = (props) => {
 
   const warningSuffix = () => {
     // which project are we talking about?
-    if (authenticated && props.owner_id !== auth.id) {
-      return " from your list";
-    } else {
+    if (props.isOwner) {
       return ", including the dataset, review history, notes, and model configuration.";
+    } else {
+      return " from your list";
     }
   }
 
@@ -113,12 +139,22 @@ const ProjectDeleteDialog = (props) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={cancelDelete}>Cancel</Button>
-        <Button
-          onClick={() => mutate({ project_id: props.project_id })}
-          disabled={disableConfirmButton()}
-        >
-          Delete Forever
-        </Button>
+        { props.isOwner &&
+          <Button
+            onClick={() => mutate({ project_id: props.project_id })}
+            disabled={disableConfirmButton()}
+          >
+            Delete Forever
+          </Button>
+        }
+        { !props.isOwner && 
+          <Button
+            onClick={endCollaboration}
+            disabled={disableConfirmButton()}
+          >
+            Delete
+          </Button>
+        }
       </DialogActions>
     </Dialog>
   );
