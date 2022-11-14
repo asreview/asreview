@@ -423,7 +423,9 @@ class SQLiteState(BaseState):
         cur = con.cursor()
         cur.execute("DELETE FROM record_table")
         cur.executemany(
-            """INSERT INTO record_table VALUES (?)""", record_sql_input)
+            "INSERT INTO record_table (record_id) VALUES (?)",
+            record_sql_input
+        )
         con.commit()
 
     def add_last_probabilities(self, probabilities):
@@ -450,8 +452,9 @@ class SQLiteState(BaseState):
 
         cur.execute("""DELETE FROM last_probabilities""")
         cur.executemany(
-            """INSERT INTO last_probabilities VALUES
-                                            (?)""", proba_sql_input)
+            "INSERT INTO last_probabilities (proba) VALUES (?)",
+            proba_sql_input
+        )
         con.commit()
 
     def add_last_ranking(self, ranked_record_ids, classifier, query_strategy,
@@ -500,8 +503,11 @@ class SQLiteState(BaseState):
         cur = con.cursor()
         cur.execute("DELETE FROM last_ranking")
         cur.executemany(
-            """INSERT INTO last_ranking VALUES
-                                    (?, ?, ?, ?, ?, ?, ?, ?)""", db_rows)
+            ("INSERT INTO last_ranking (record_id, ranking, classifier, "
+             "query_strategy, balance_strategy, feature_extraction, "
+             "training_set, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"),
+            db_rows
+        )
         con.commit()
         con.close()
 
@@ -609,7 +615,10 @@ class SQLiteState(BaseState):
             query_strategy: str, balance_strategy: str, feature_extraction: str,
              training_set: int, labeling_time: int, notes: str).
         """
-        query = "INSERT INTO results VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        query = ("INSERT INTO results (record_id, label, classifier, "
+                 "query_strategy, balance_strategy, feature_extraction, "
+                 "training_set, labeling_time, notes) "
+                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
 
         con = self._connect_to_sql()
         cur = con.cursor()
@@ -638,8 +647,11 @@ class SQLiteState(BaseState):
                     "WHERE record_id = ?", (label, note, record_id))
 
         # Add the change to the decision changes table.
-        cur.execute("INSERT INTO decision_changes VALUES (?,?, ?)",
-                    (record_id, label, datetime.now()))
+        cur.execute(
+            ("INSERT INTO decision_changes (record_id, new_label, time) "
+             "VALUES (?, ?, ?)"),
+            (record_id, label, datetime.now())
+        )
 
         con.commit()
         con.close()
@@ -660,8 +672,11 @@ class SQLiteState(BaseState):
         cur.execute('DELETE FROM results WHERE record_id=?', (record_id, ))
 
         # Add the change to the decision changes table.
-        cur.execute("INSERT INTO decision_changes VALUES (?,?, ?)",
-                    (record_id, None, current_time))
+        cur.execute(
+            ("INSERT INTO decision_changes (record_id, new_label, time) "
+             "VALUES (?,?, ?)"),
+            (record_id, None, current_time)
+        )
         con.commit()
         con.close()
 
