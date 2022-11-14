@@ -42,6 +42,7 @@ autodoc_mock_imports = [
     "tensorflow.keras.models.layers",
     "tensorflow.keras.optimizers",
     "tensorflow.keras.constraints",
+    "tqdm",
     "sklearn",
     "sklearn.naive_bayes",
     "sklearn.svm",
