@@ -4,6 +4,7 @@ import {
   SET_PROJECT,
   TOGGLE_HELP_DIALOG,
   SET_BOOT_DATA,
+  MY_PROJECTS,
 } from "../../constants/action-types";
 
 // note: I am not too sure about these functions, they
@@ -27,5 +28,9 @@ export function toggleHelpDialog() {
 }
 
 export function setBootData(data) {
-    return { type: SET_BOOT_DATA, data: data };
+  return { type: SET_BOOT_DATA, data: data };
+}
+
+export function setMyProjects(data) {
+  return { type: MY_PROJECTS, data: data };
 }

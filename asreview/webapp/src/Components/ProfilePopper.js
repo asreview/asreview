@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useDispatch } from "react-redux";
 import { useMutation, useQuery } from "react-query";
 import {
   Avatar,
@@ -24,18 +25,21 @@ import { Logout, GroupAdd } from "@mui/icons-material";
 import { StyledMenuItem } from "../StyledComponents/StyledMenuItem";
 import { TypographySubtitle1Medium } from "../StyledComponents/StyledTypography";
 
-import { AuthAPI, CollaborationAPI } from "../api";
+import { AuthAPI, CollaborationAPI, ProjectAPI } from "../api";
 import useAuth from "../hooks/useAuth";
 import ElasAvatar from "../images/ElasAvatar.svg";
 
 import { AcceptanceDialog } from "../ProjectComponents/CollaborationComponents";
 import { useToggle } from "../hooks/useToggle";
+import { setMyProjects } from "../redux/actions";
 
 const Root = styled("div")(({ theme }) => ({}));
 
 const ProfilePopper = (props) => {
   const { auth, setAuth } = useAuth();
-  const [invitations, setInvitations] = React.useState(0);
+  const [projectInvitations, setProjectInvitations] = React.useState([]);
+
+  const dispatch = useDispatch();
 
   const [onAcceptanceSetup, toggleAcceptanceSetup] = useToggle();
 
@@ -47,7 +51,7 @@ const ProfilePopper = (props) => {
     () => CollaborationAPI.getProjectInvitations(auth.id),
     {
       onSuccess: (data) => {
-        setInvitations((data['invited_for_projects'] || []));
+        setProjectInvitations((data['invited_for_projects'] || []));
       },
       onError: (data) => {
         console.log('error', data);
@@ -78,6 +82,49 @@ const ProfilePopper = (props) => {
     setOpen(false);
     toggleAcceptanceSetup();
   };
+
+  const acceptanceHandler = (project) => {
+    // Call the API to accept the invitation, if that is successful
+    // get list of all projects of this user and refresh the projects
+    // list, remove from Dialog
+    CollaborationAPI.acceptInvitation(project.project_id, auth.id)
+    .then(data => {
+      if (data.success) {
+
+        // success, the invite was transformed into a collaboration, get all projects
+        ProjectAPI.fetchProjects({})
+        .then(data => {
+          if (data.result instanceof Array) {
+            // refresh project list
+            dispatch(setMyProjects(data.result));
+            // remove project from Dialog table
+            setProjectInvitations(projectInvitations.filter((p) => p.id !== project.id))
+          } else {
+            console.log('Could not get projects list -- DB failure');
+          }
+        })
+        .catch(err => console.log('Could not pull all projects', err));
+
+      } else {
+        console.log('Could not reject invitation -- DB failure');
+      }
+    })
+    .catch(err => console.log('Could not reject invitation', err));
+  }
+
+  const rejectionHandler = (project) => {
+    // call API to remove the invitation
+    CollaborationAPI.rejectInvitation(project.project_id, auth.id)
+      .then(data => {
+        if (data.success) {
+          // remove project from Dialog table
+          setProjectInvitations(projectInvitations.filter((p) => p.id !== project.id))
+        } else {
+          console.log('Could not reject invitation -- DB failure');
+        }
+      })
+      .catch(err => console.log('Could not reject invitation', err));
+  }
 
   return (
     <Root>
@@ -132,7 +179,7 @@ const ProfilePopper = (props) => {
                 </StyledMenuItem>
                 <Divider />
                 { 
-                  invitations.length > 0 &&
+                  projectInvitations.length > 0 &&
                   <MenuItem onClick={openAcceptanceDialog}>
                     <ListItemIcon>
                       <GroupAdd fontSize="small" />
@@ -141,10 +188,14 @@ const ProfilePopper = (props) => {
                       <Typography variant="body2">
                         Collaboration Invites
                         <Badge 
-                          badgeContent={invitations.length}
-                          sx={{"& .MuiBadge-badge": { color: "white", backgroundColor: "red"}}}
+                          badgeContent={projectInvitations.length}
+                          sx={{"& .MuiBadge-badge": { 
+                            color: "white", 
+                            backgroundColor: "red",
+                            fontSize: 11
+                          }}}
                         >
-                          <MailIcon color="action" />
+                          <MailIcon color="action" fontSize="small"/>
                         </Badge>
                       </Typography>
                     </ListItemText>
@@ -168,7 +219,9 @@ const ProfilePopper = (props) => {
         open={onAcceptanceSetup}
         onClose={toggleAcceptanceSetup}
         userId={auth.id}
-        invitations={invitations}
+        projectInvitations={projectInvitations}
+        handleAcceptance={acceptanceHandler}
+        handleRejection={rejectionHandler}
       />
     </Root>
   );

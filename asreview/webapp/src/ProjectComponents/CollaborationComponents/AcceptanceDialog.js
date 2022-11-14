@@ -7,7 +7,6 @@ import { styled } from "@mui/material/styles";
 import AcceptanceContents from "./AcceptanceContents";
 import DialogHeader from "./DialogHeader";
 
-
 const PREFIX = "SetupDialog";
 
 const classes = {
@@ -64,7 +63,9 @@ const AcceptanceDialog = (props) => {
       />
       <Divider />
       <AcceptanceContents
-        invitations={props.invitations}
+        projectInvitations={props.projectInvitations}
+        handleAcceptance={props.handleAcceptance}
+        handleRejection={props.handleRejection}
       />
     </StyledDialog>    
   );

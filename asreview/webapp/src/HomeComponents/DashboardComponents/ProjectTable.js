@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useMutation, useQuery, useQueries, useQueryClient } from "react-query";
-import { connect } from "react-redux";
+import { connect, useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -32,9 +32,11 @@ import {
   mapDispatchToProps,
   projectModes,
   projectStatuses,
+  formatDate
 } from "../../globals";
-import { useSelector } from "react-redux";
+//import { useSelector } from "react-redux";
 import useAuth from "../../hooks/useAuth";
+import { setMyProjects } from "../../redux/actions";
 
 const PREFIX = "ProjectTable";
 
@@ -119,6 +121,8 @@ const ProjectTable = (props) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const authenticated = useSelector(state => state.authentication);
+  const myProjects = useSelector(state => state.myProjects);
+  const dispatch = useDispatch();
   const { auth } = useAuth();
 
   /**
@@ -158,6 +162,8 @@ const ProjectTable = (props) => {
         setQuerySimulationFinished([]);
       },
       onSuccess: (data) => {
+        // set in redux store
+        dispatch(setMyProjects(data.result));
         // reset query for fetching simulation project(s) status
         setQuerySimulationFinished([]);
         // get simulation project(s) running in the background
@@ -340,17 +346,6 @@ const ProjectTable = (props) => {
     setHoverRowId(null);
   };
 
-  /**
-   * Format date and mode
-   */
-  const formatDate = (datetime) => {
-    let date = new Date(datetime * 1000);
-    let dateString = date.toDateString().slice(4);
-    let dateDisplay =
-      dateString.replace(/\s+\S*$/, ",") + dateString.match(/\s+\S*$/);
-    return dateDisplay;
-  };
-
   const formatMode = (mode) => {
     if (mode === "oracle" || !mode) {
       return "Oracle";
@@ -428,7 +423,7 @@ const ProjectTable = (props) => {
               !isFetching &&
               isFetched &&
               isSuccess &&
-              data.result
+              myProjects
                 ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
 
@@ -586,7 +581,7 @@ const ProjectTable = (props) => {
           !isFetching &&
           isFetched &&
           isSuccess &&
-          data.result?.length === 0 && (
+          myProjects.length === 0 && (
             <Box
               sx={{
                 alignItems: "center",
@@ -615,11 +610,11 @@ const ProjectTable = (props) => {
         !isFetching &&
         isFetched &&
         isSuccess &&
-        data.result?.length !== 0 && (
+        myProjects.length !== 0 && (
           <TablePagination
             rowsPerPageOptions={[5, 10, 15]}
             component="div"
-            count={data.result?.length}
+            count={myProjects.length}
             rowsPerPage={rowsPerPage}
             labelRowsPerPage="Projects per page:"
             page={page}

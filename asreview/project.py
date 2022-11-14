@@ -120,10 +120,15 @@ def list_asreview_projects(user=None):
 
     project_paths = []
     if isinstance(user, User) and isinstance(user.id, int):
-        project_paths = [
+        own_projects = [
             (Path(asreview_path(), p.folder), p.owner_id) 
             for p in user.projects
         ]
+        collaboration_projects = [
+            (Path(asreview_path(), p.folder), p.owner_id) 
+            for p in user.involved_in
+        ]
+        project_paths = own_projects + collaboration_projects
     else:
         project_paths = [(x, None) for x in asreview_path().iterdir()]
 

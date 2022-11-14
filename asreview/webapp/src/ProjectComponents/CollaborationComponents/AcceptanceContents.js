@@ -1,40 +1,17 @@
 import * as React from "react";
-import { useMutation, useQuery, useQueries, useQueryClient } from "react-query";
-import { connect } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import {
-  Box,
   Button,
-  Chip,
-  CircularProgress,
   Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
-  Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-
-// import { BoxErrorHandler, DialogErrorHandler } from "../../Components";
-// import { ProjectDeleteDialog } from "../../ProjectComponents";
-// import { ProjectCheckDialog, TableRowButton } from "../DashboardComponents";
-// import { InvitationDialog } from "../../ProjectComponents/CollaborationComponents";
-// import { ProjectAPI } from "../../api/index.js";
-// import { useRowsPerPage } from "../../hooks/SettingsHooks";
-// import { useToggle } from "../../hooks/useToggle";
-// import ElasArrowRightAhead from "../../images/ElasArrowRightAhead.svg";
-// import {
-//   checkIfSimulationFinishedDuration,
-//   mapDispatchToProps,
-//   projectModes,
-//   projectStatuses,
-// } from "../../globals";
-// import { useSelector } from "react-redux";
-// import useAuth from "../../hooks/useAuth";
+import {formatDate} from "../../globals";
+import useAuth from "../../hooks/useAuth";
 
 const PREFIX = "ProjectTable";
 
@@ -121,7 +98,7 @@ const columns = [
 ];
 
 const AcceptanceDialog = (props) => {
-  const [projects, setProjects] = React.useState(props.invitations);
+  const { auth } = useAuth();
 
   return (
     <StyledPaper elevation={2} className={classes.root}>
@@ -138,18 +115,24 @@ const AcceptanceDialog = (props) => {
           </TableHead>
           <TableBody>
             { 
-              projects.map((project) => {
-                return(
-                  <TableRow>
+              props.projectInvitations.map((project) => {
+                return (
+                  <TableRow key={project.id}>
                     <TableCell>{project.name}</TableCell>
-                    <TableCell></TableCell>
+                    <TableCell>{formatDate(project.created_at_unix)}</TableCell>
                     <TableCell>{project.mode}</TableCell>
                     <TableCell>
-                      <Button onClick={true} sx={{ textTransform: "none" }}>
+                      <Button
+                        onClick={() => props.handleAcceptance(project)} 
+                        sx={{ textTransform: "none" }}
+                      >
                         Accept
                       </Button>
-                      <Button onClick={true} sx={{ textTransform: "none" }}>
-                        Decline
+                      <Button
+                        onClick={() => props.handleRejection(project)}
+                        sx={{ textTransform: "none" }}
+                      >
+                        Reject
                       </Button>
                     </TableCell>
                   </TableRow>

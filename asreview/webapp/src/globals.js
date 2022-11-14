@@ -99,6 +99,7 @@ export const fontSizeOptions = [
 export const mapStateToProps = (state) => {
   return { project_id: state.project_id };
 };
+
 export const mapDispatchToProps = (dispatch) => {
   return {
     setProjectId: (project_id) => {
@@ -106,6 +107,19 @@ export const mapDispatchToProps = (dispatch) => {
     },
   };
 };
+
+/**
+ * Format date and mode
+ */
+export const formatDate = (datetime) => {
+  let date = new Date(datetime * 1000);
+  let dateString = date.toDateString().slice(4);
+  let dateDisplay =
+    dateString.replace(/\s+\S*$/, ",") + dateString.match(/\s+\S*$/);
+  return dateDisplay;
+};
+
+
 
 // enums
 export const projectModes = {

@@ -4,6 +4,7 @@ import {
   SET_PROJECT,
   TOGGLE_HELP_DIALOG,
   SET_BOOT_DATA,
+  MY_PROJECTS,
 } from "../../constants/action-types";
 
 const initialState = {
@@ -12,6 +13,7 @@ const initialState = {
   status: undefined,
   project_id: null,
   onHelpDialog: false,
+  myProjects: [],
 };
 
 function rootReducer(state = initialState, action) {
@@ -32,11 +34,17 @@ function rootReducer(state = initialState, action) {
       return Object.assign({}, state, { 
         onHelpDialog: !state.onHelpDialog,
       });
+    // set boot data
     case SET_BOOT_DATA:
       return Object.assign({}, state, {
         asreview_version: action.data.version,
         authentication: action.data.authentication,
         status: action.data.status
+      });
+    // set my projects list
+    case MY_PROJECTS:
+      return Object.assign({}, state, {
+        myProjects: action.data
       });
     default:
       return state;

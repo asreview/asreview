@@ -131,6 +131,12 @@ const SignInForm = () => {
     setPassword(e.target.value);
   };
 
+  const handleEnterKey = (e) => {
+    if (e.key === 'Enter') {
+      handleSubmit(e);
+    }
+  };
+
   return (
     <Root>
       <Fade in>
@@ -160,6 +166,7 @@ const SignInForm = () => {
                       label="Password"
                       value={password}
                       onChange={handlePasswordChange}
+                      onKeyPress={handleEnterKey}
                       variant="outlined"
                       fullWidth
                       type={returnType()}

@@ -75,7 +75,44 @@ class CollaborationAPI {
       });
     }
   }
-}
 
+  static rejectInvitation(projectId, userId) {
+    if (userId !== null && projectId !== null) {
+      const url = collab_url + `${projectId}/user/${userId}/reject_invitation`
+      return new Promise((resolve, reject) => {
+        axios({
+          method: "delete",
+          url: url,
+          withCredentials: true,
+        })
+          .then((result) => {
+            resolve(result["data"]);
+          })
+          .catch((error) => {
+            reject(axiosErrorHandler(error));
+          });
+      });
+    }
+  }
+
+  static acceptInvitation(projectId, userId) {
+    if (userId !== null && projectId !== null) {
+      const url = collab_url + `${projectId}/user/${userId}/accept_invitation`
+      return new Promise((resolve, reject) => {
+        axios({
+          method: "post",
+          url: url,
+          withCredentials: true,
+        })
+          .then((result) => {
+            resolve(result["data"]);
+          })
+          .catch((error) => {
+            reject(axiosErrorHandler(error));
+          });
+      });
+    }
+  }
+}
 
 export default CollaborationAPI;
