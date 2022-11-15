@@ -23,6 +23,7 @@ from urllib.request import urlretrieve
 
 from flask import Blueprint
 from flask import abort
+from flask import current_app
 from flask import jsonify
 from flask import request
 from flask import send_file
@@ -80,7 +81,7 @@ from asreview.webapp.io import read_data
 bp = Blueprint('api', __name__, url_prefix='/api')
 CORS(
     bp,
-    resources={r"*": {"origins": "http://localhost:3000"}},
+    resources={r"*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000", "localhost:3000"]}},
     supports_credentials=True
 )
 
@@ -212,13 +213,14 @@ def api_init_project():  # noqa: F401
     )
 
     # create a database entry for this project
-    current_user.projects.append(
-        Project(
-            project_id=project_id,
-            folder=project_path.stem
+    if not current_app.config['LOGIN_DISABLED']:
+        current_user.projects.append(
+            Project(
+                project_id=project_id,
+                folder=project_path.stem
+            )
         )
-    )
-    DB.session.commit()
+        DB.session.commit()
 
     response = jsonify(project.config)
 
@@ -248,7 +250,6 @@ def api_upgrade_project_if_old(project):
 @project_from_id(current_user)
 def api_get_project_info(project):  # noqa: F401
     """Get info on the article"""
-
     project_config = project.config
 
     # upgrade info of v0 projects
@@ -282,14 +283,15 @@ def api_update_project_info(project):  # noqa: F401
 
             # update project in the database
             # ==============================
-            db_project = Project.query.filter(
-                Project.owner_id == current_user.id,
-                Project.project_id == old_project_id
-            ).update({
-                'project_id': new_project_id,
-                'folder': new_project_path.stem
-            })
-            DB.session.commit()
+            if not current_app.config['LOGIN_DISABLED']:
+                db_project = Project.query.filter(
+                    Project.owner_id == current_user.id,
+                    Project.project_id == old_project_id
+                ).update({
+                    'project_id': new_project_id,
+                    'folder': new_project_path.stem
+                })
+                DB.session.commit()
 
     # update the project info
     project.update_config(mode=request.form['mode'],
@@ -1487,8 +1489,6 @@ def api_classify_instance(project, doc_id):  # noqa: F401
     retrain_model = False if is_prior == "1" else True
     prior = True if is_prior == "1" else False
 
-    print(current_user)
-
     if request.method == 'POST':
 
         with open_state(project.project_path, read_only=False) as state:
@@ -1595,11 +1595,12 @@ def api_delete_project(project):  # noqa: F401
             shutil.rmtree(project.project_path)
 
             # remove from database as well
-            Project.query.filter(
-                Project.project_id == project.project_id,
-                Project.owner_id == current_user.id
-            ).delete()
-            DB.session.commit()
+            if not current_app.config['LOGIN_DISABLED']:
+                Project.query.filter(
+                    Project.project_id == project.project_id,
+                    Project.owner_id == current_user.id
+                ).delete()
+                DB.session.commit()
 
         except Exception as err:
             logging.error(err)
