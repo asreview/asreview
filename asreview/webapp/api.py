@@ -81,7 +81,11 @@ from asreview.webapp.io import read_data
 bp = Blueprint('api', __name__, url_prefix='/api')
 CORS(
     bp,
-    resources={r"*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000", "localhost:3000"]}},
+    resources={r"*": {"origins": [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "localhost:3000"
+    ]}},
     supports_credentials=True
 )
 
@@ -1592,15 +1596,24 @@ def api_delete_project(project):  # noqa: F401
 
     if project.project_path.exists() and project.project_path.is_dir():
         try:
-            shutil.rmtree(project.project_path)
 
-            # remove from database as well
+            # remove from database if applicable
             if not current_app.config['LOGIN_DISABLED']:
-                Project.query.filter(
+                project = Project.query.filter(
                     Project.project_id == project.project_id,
                     Project.owner_id == current_user.id
-                ).delete()
-                DB.session.commit()
+                ).one_or_none()
+                print(project)
+                if project != None:
+                    DB.session.delete(project)
+                    DB.session.commit()
+                else:
+                    return jsonify(
+                        message="Failed to delete project in DB."
+                    ), 500
+
+            # and remove the folder
+            shutil.rmtree(project.project_path)
 
         except Exception as err:
             logging.error(err)

@@ -81,8 +81,6 @@ def signin():
 
 @bp.route('/signup', methods=["POST"])
 def signup():
-    print('-------->')
-    print(request.form)
     username = request.form.get('username').strip().lower()
     password = request.form.get('password')
     first_name = request.form.get('first_name', '').strip()
@@ -105,9 +103,6 @@ def signup():
                 affiliation, email, public)
             DB.session.add(user)
             DB.session.commit()
-            # at this stage we know the user account is stored,
-            # let's add a working directory for this user
-            Path(asreview_path(), str(user.id)).mkdir(exist_ok=True)
             # result is a 201 with message
             result = (201, f'User "#{username}" created.')
         except SQLAlchemyError:
