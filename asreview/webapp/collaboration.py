@@ -15,7 +15,7 @@ from asreview.webapp.authentication.login_required import asreview_login_require
 from asreview.webapp.authentication.models import User, Project
 
 
-bp = Blueprint('collab', __name__, url_prefix='/collab')
+bp = Blueprint('collab', __name__, url_prefix='/api/collab')
 CORS(
     bp,
     resources={r"*": {"origins": "http://localhost:3000"}},

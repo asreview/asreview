@@ -15,8 +15,8 @@ export const base_url =
     ? "http://localhost:5000/"
     : "/";
 export const api_url = base_url + "api/";
-export const auth_url = base_url + "auth/";
-export const collab_url = base_url + "collab/";
+export const auth_url = base_url + "api/auth/";
+export const collab_url = base_url + "api/collab/";
 
 export const donateURL = "https://asreview.nl/donate";
 
