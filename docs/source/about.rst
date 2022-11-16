@@ -22,7 +22,6 @@ grown into a vivid community of researchers,  users, and developers from
 around the world.
 
 .. youtube:: k-a2SCq-LtA
-|
 
 What is active learning?
 ------------------------
