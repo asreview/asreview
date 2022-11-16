@@ -28,7 +28,7 @@ from asreview.webapp import DB
 from asreview.webapp.authentication.login_required import asreview_login_required
 from asreview.webapp.authentication.models import User
 
-bp = Blueprint('auth', __name__, url_prefix='/api/auth')
+bp = Blueprint('auth', __name__, url_prefix='/auth')
 CORS(
     bp,
     resources={r"*": {"origins": "http://localhost:3000"}},
