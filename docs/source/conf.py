@@ -93,6 +93,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.autosectionlabel',
     'sphinx_reredirects',
+    'sphinxcontrib.youtube',
     'nbsphinx',
 ]
 autosectionlabel_prefix_document = True
