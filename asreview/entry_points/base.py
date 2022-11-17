@@ -17,15 +17,9 @@ from abc import ABC
 from abc import abstractclassmethod
 from argparse import RawTextHelpFormatter
 
-from asreview import __version__
-
 
 class BaseEntryPoint(ABC):
     """Base class for defining entry points."""
-
-    # description = "Base Entry point."
-    extension_name = "asreview"
-    version = __version__
 
     @abstractclassmethod
     def execute(self, argv):

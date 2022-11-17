@@ -64,7 +64,7 @@ def main():
     entry_points = get_entry_points("asreview.entry_points")
 
     # Try to load the entry point if available.
-    if len(sys.argv) > 1 and sys.argv[1] not in entry_points:
+    if len(sys.argv) > 1 and not sys.argv[1].startswith("-") and sys.argv[1] not in entry_points:
         raise ValueError(f"'{sys.argv[1]}' is not a valid subcommand.")
 
     elif len(sys.argv) > 1 and sys.argv[1] in entry_points:
