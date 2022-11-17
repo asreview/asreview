@@ -14,8 +14,12 @@
 
 """Command Line Interface (CLI) for ASReview project."""
 import argparse
+from itertools import groupby
 import logging
 import sys
+import pkg_resources
+from importlib import metadata
+
 
 from asreview import __version__
 from asreview.utils import get_entry_points
@@ -28,42 +32,31 @@ INTERNAL_ENTRY_POINTS = ["web_run_model"]
 DEPRECATED_ENTRY_POINTS = ["oracle"]
 
 
-def _sort_entry_points(entry_points):
+def _output_available_entry_points():
 
-    entry_points_copy = entry_points.copy()
+    s = ""
 
-    entry_points_sorted = {
-        "lab": entry_points_copy.pop("lab"),
-        "simulate": entry_points_copy.pop("simulate")
-    }
+    entry_points = pkg_resources.iter_entry_points("asreview.entry_points")
 
-    entry_points_sorted.update(entry_points_copy)
+    for name, pkg_entry_points in groupby(entry_points, lambda entry: entry.dist):
 
-    return entry_points_sorted
+        description = metadata.metadata(name.project_name)['Summary']
 
+        s += f"\n[{name}] - {description}\n"
 
-def _output_available_entry_points(entry_points):
+        for entry in pkg_entry_points:
 
-    entry_points_sorted = _sort_entry_points(entry_points)
+            # don't display the internal entry points
+            if entry.name in INTERNAL_ENTRY_POINTS:
+                continue
 
-    description_list = []
-    for name, entry in entry_points_sorted.items():
+            # don't display the deprecated entry points
+            if entry.name in DEPRECATED_ENTRY_POINTS:
+                continue
 
-        # don't display the internal entry points
-        if name in INTERNAL_ENTRY_POINTS:
-            continue
+            s+= f"\t{entry.name}\n"
 
-        # don't display the deprecated entry points
-        if name in DEPRECATED_ENTRY_POINTS:
-            continue
-
-        # try to load entry points, hide when failing on loading
-        try:
-            description_list.append(entry.load()().format(name))
-        except ModuleNotFoundError:
-            logging.warning(
-                f"Plugin with entry point {name} could not be loaded.")
-    return "\n\n".join(description_list)
+    return s
 
 
 def main():
@@ -71,20 +64,18 @@ def main():
     entry_points = get_entry_points("asreview.entry_points")
 
     # Try to load the entry point if available.
-    if len(sys.argv) > 1 and sys.argv[1] in entry_points:
+    if len(sys.argv) > 1 and sys.argv[1] not in entry_points:
+        raise ValueError(f"'{sys.argv[1]}' is not a valid subcommand.")
 
-        try:
-            entry = entry_points[sys.argv[1]]
-            entry.load()().execute(sys.argv[2:])
-        except ModuleNotFoundError:
-            raise ValueError(
-                f"Plugin with entry point {entry.name} could not be loaded.")
+    elif len(sys.argv) > 1 and sys.argv[1] in entry_points:
 
-    # Print help message if subcommand not given or incorrect
+        entry = entry_points[sys.argv[1]]
+        entry.load()().execute(sys.argv[2:])
+
     else:
 
         # format the available subcommands
-        description_subcommands = _output_available_entry_points(entry_points)
+        description_subcommands = _output_available_entry_points()
 
         parser = argparse.ArgumentParser(
             prog="asreview",
