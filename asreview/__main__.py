@@ -32,38 +32,10 @@ INTERNAL_ENTRY_POINTS = ["web_run_model"]
 DEPRECATED_ENTRY_POINTS = ["oracle"]
 
 
-def _output_available_entry_points():
-
-    s = ""
-
-    entry_points = pkg_resources.iter_entry_points("asreview.entry_points")
-
-    for name, pkg_entry_points in groupby(entry_points, lambda entry: entry.dist):
-
-        description = metadata.metadata(name.project_name)['Summary']
-
-        s += f"\n[{name}] - {description}\n"
-
-        for entry in pkg_entry_points:
-
-            # don't display the internal entry points
-            if entry.name in INTERNAL_ENTRY_POINTS:
-                continue
-
-            # don't display the deprecated entry points
-            if entry.name in DEPRECATED_ENTRY_POINTS:
-                continue
-
-            s+= f"\t{entry.name}\n"
-
-    return s
-
-
 def main():
     # Get the available entry points.
     entry_points = get_entry_points("asreview.entry_points")
 
-    # Try to load the entry point if available.
     if len(sys.argv) > 1 and not sys.argv[1].startswith("-") and sys.argv[1] not in entry_points:
         raise ValueError(f"'{sys.argv[1]}' is not a valid subcommand.")
 
@@ -74,8 +46,18 @@ def main():
 
     else:
 
-        # format the available subcommands
-        description_subcommands = _output_available_entry_points()
+        description_subcommands = ""
+
+        for name, pkg_entry_points in groupby(
+                pkg_resources.iter_entry_points("asreview.entry_points"),
+                lambda entry: entry.dist
+        ):
+            description = metadata.metadata(name.project_name)['Summary']
+            description_subcommands += f"\n[{name}] - {description}\n"
+
+            for entry in pkg_entry_points:
+                if entry.name not in INTERNAL_ENTRY_POINTS + DEPRECATED_ENTRY_POINTS:
+                    description_subcommands+= f"\t{entry.name}\n"
 
         parser = argparse.ArgumentParser(
             prog="asreview",
@@ -102,6 +84,5 @@ def main():
         parser.print_help()
 
 
-# execute main function
 if __name__ == "__main__":
     main()
