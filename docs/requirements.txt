@@ -2,4 +2,5 @@ ipython
 sphinx==5.0.1
 sphinx_rtd_theme==1.0.0
 sphinx-reredirects
+sphinxcontrib-youtube
 nbsphinx
