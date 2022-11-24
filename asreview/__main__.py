@@ -15,7 +15,6 @@
 """Command Line Interface (CLI) for ASReview project."""
 import argparse
 from itertools import groupby
-import logging
 import sys
 import pkg_resources
 from importlib import metadata
@@ -36,7 +35,11 @@ def main():
     # Get the available entry points.
     entry_points = get_entry_points("asreview.entry_points")
 
-    if len(sys.argv) > 1 and not sys.argv[1].startswith("-") and sys.argv[1] not in entry_points:
+    if (
+        len(sys.argv) > 1 and
+        not sys.argv[1].startswith("-") and
+        sys.argv[1] not in entry_points
+    ):
         raise ValueError(f"'{sys.argv[1]}' is not a valid subcommand.")
 
     elif len(sys.argv) > 1 and sys.argv[1] in entry_points:
@@ -49,34 +52,34 @@ def main():
         description_subcommands = ""
 
         for name, pkg_entry_points in groupby(
-                pkg_resources.iter_entry_points("asreview.entry_points"),
-                lambda entry: entry.dist
+            pkg_resources.iter_entry_points("asreview.entry_points"),
+            lambda entry: entry.dist,
         ):
-            description = metadata.metadata(name.project_name)['Summary']
+            description = metadata.metadata(name.project_name)["Summary"]
             description_subcommands += f"\n[{name}] - {description}\n"
 
             for entry in pkg_entry_points:
                 if entry.name not in INTERNAL_ENTRY_POINTS + DEPRECATED_ENTRY_POINTS:
-                    description_subcommands+= f"\t{entry.name}\n"
+                    description_subcommands += f"\t{entry.name}\n"
 
         parser = argparse.ArgumentParser(
             prog="asreview",
             formatter_class=argparse.RawTextHelpFormatter,
-            description=PROG_DESCRIPTION
+            description=PROG_DESCRIPTION,
         )
         parser.add_argument(
             "subcommand",
             nargs="?",
             default=None,
             help=f"The subcommand to launch. Available commands:\n\n"
-            f"{description_subcommands}"
+            f"{description_subcommands}",
         )
 
         parser.add_argument(
             "-V",
             "--version",
             action="version",
-            version='%(prog)s {version}'.format(version=__version__)
+            version="%(prog)s {version}".format(version=__version__),
         )
 
         args, _ = parser.parse_known_args()
