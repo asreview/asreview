@@ -75,7 +75,9 @@ class RISWriter():
             included = rec_copy.pop("included", -1)
 
             # Map labels to notes
-            dict_note = {-1: "ASReview_not_seen", 0: "ASReview_irrelevant", 1: "ASReview_relevant"}
+            dict_note = {-1: "ASReview_not_seen",
+                         0: "ASReview_irrelevant",
+                         1: "ASReview_relevant"}
             rec_copy["notes"].append(dict_note[included])
 
             # Append the deepcopied and updated record to a new array
