@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
+
 import {
   Routes,
   Route,
@@ -18,6 +19,8 @@ import { AnalyticsPage } from "../ProjectComponents/AnalyticsComponents";
 import { DetailsPage } from "../ProjectComponents/DetailsComponents";
 import { HistoryPage } from "../ProjectComponents/HistoryComponents";
 import { ExportPage } from "../ProjectComponents/ExportComponents";
+import { TeamPage } from "./TeamComponents";
+
 import {
   ReviewPage,
   ReviewPageFinished,
@@ -61,6 +64,7 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const ProjectPage = (props) => {
+  const authenticated = useSelector(state => state.authentication);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { project_id } = useParams();
@@ -232,6 +236,19 @@ const ProjectPage = (props) => {
                   mode={data?.mode}
                   setFilterQuery={setHistoryFilterQuery}
                   setLabel={setHistoryLabel}
+                />
+              }
+            />
+          )}
+
+          {/* Team */}
+          {isSuccess && authenticated && !data?.projectNeedsUpgrade && (
+            <Route
+              path="team"
+              element={
+                <TeamPage
+                  mobileScreen={props.mobileScreen}
+                  mode={data?.mode}
                 />
               }
             />

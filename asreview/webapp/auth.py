@@ -23,7 +23,6 @@ from flask_cors import CORS
 from flask_login import current_user, login_user, logout_user
 from sqlalchemy.exc import SQLAlchemyError
 
-from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.login_required import asreview_login_required
 from asreview.webapp.authentication.models import User

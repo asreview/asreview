@@ -22,7 +22,6 @@ import { styled } from "@mui/material/styles";
 import { BoxErrorHandler, DialogErrorHandler } from "../../Components";
 import { ProjectDeleteDialog } from "../../ProjectComponents";
 import { ProjectCheckDialog, TableRowButton } from "../DashboardComponents";
-import { InvitationDialog } from "../../ProjectComponents/CollaborationComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { useRowsPerPage } from "../../hooks/SettingsHooks";
 import { useToggle } from "../../hooks/useToggle";
@@ -138,7 +137,6 @@ const ProjectTable = (props) => {
    * Dialog state
    */
   const [onDeleteDialog, toggleDeleteDialog] = useToggle();
-  const [onCollaboDialog, toggleCollaboDialog] = useToggle();
 
   /**
    * Simulation status query state
@@ -481,7 +479,8 @@ const ProjectTable = (props) => {
                   };
 
                   const onClickCollaboration = () => {
-                    toggleCollaboDialog();
+                    openProject(row, "team");
+                    // ******* toggleCollaboDialog();
                   };
 
                   const onClickProjectExport = () => {
@@ -641,15 +640,6 @@ const ProjectTable = (props) => {
         project_id={hoverRowIdPersistent}
         isOwner={hoverIsOwner}
       />
-      { authenticated &&
-        <InvitationDialog
-          mobileScreen={props.mobileScreen}
-          openCollaboDialog={onCollaboDialog}
-          toggleCollaboDialog={toggleCollaboDialog}
-          projectTitle={hoverRowTitle}
-          project_id={hoverRowIdPersistent}
-        />
-      }
       <DialogErrorHandler
         error={querySimulationError}
         isError={querySimulationError.isError}

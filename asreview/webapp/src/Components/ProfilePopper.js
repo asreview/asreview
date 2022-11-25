@@ -25,11 +25,11 @@ import { Logout, GroupAdd } from "@mui/icons-material";
 import { StyledMenuItem } from "../StyledComponents/StyledMenuItem";
 import { TypographySubtitle1Medium } from "../StyledComponents/StyledTypography";
 
-import { AuthAPI, CollaborationAPI, ProjectAPI } from "../api";
+import { AuthAPI, TeamAPI, ProjectAPI } from "../api";
 import useAuth from "../hooks/useAuth";
 import ElasAvatar from "../images/ElasAvatar.svg";
 
-import { AcceptanceDialog } from "../ProjectComponents/CollaborationComponents";
+import { AcceptanceDialog } from "../ProjectComponents/TeamComponents";
 import { useToggle } from "../hooks/useToggle";
 import { setMyProjects } from "../redux/actions";
 
@@ -47,7 +47,7 @@ const ProfilePopper = (props) => {
 
   useQuery(
     ["getProjectInvitations"],
-    () => CollaborationAPI.getProjectInvitations(auth.id),
+    () => TeamAPI.getProjectInvitations(auth.id),
     {
       onSuccess: (data) => {
         setProjectInvitations((data['invited_for_projects'] || []));
@@ -86,7 +86,7 @@ const ProfilePopper = (props) => {
     // Call the API to accept the invitation, if that is successful
     // get list of all projects of this user and refresh the projects
     // list, remove from Dialog
-    CollaborationAPI.acceptInvitation(project.project_id, auth.id)
+    TeamAPI.acceptInvitation(project.project_id, auth.id)
     .then(data => {
       if (data.success) {
 
@@ -118,7 +118,7 @@ const ProfilePopper = (props) => {
 
   const rejectionHandler = (project) => {
     // call API to remove the invitation
-    CollaborationAPI.rejectInvitation(project.project_id, auth.id)
+    TeamAPI.rejectInvitation(project.project_id, auth.id)
       .then(data => {
         if (data.success) {
           // remove project from Dialog table and close if there are 
@@ -188,15 +188,15 @@ const ProfilePopper = (props) => {
                   </Stack>
                 </StyledMenuItem>
                 <Divider />
-                { 
-                  projectInvitations.length > 0 &&
-                  <MenuItem onClick={openAcceptanceDialog}>
-                    <ListItemIcon>
-                      <GroupAdd fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText disableTypography>
-                      <Typography variant="body2">
-                        Collaboration Invites
+          
+                <MenuItem onClick={openAcceptanceDialog}>
+                  <ListItemIcon>
+                    <GroupAdd fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText disableTypography>
+                    <Typography variant="body2">
+                      Collaboration Invites
+                      { projectInvitations.length > 0 &&
                         <Badge 
                           badgeContent={projectInvitations.length}
                           sx={{"& .MuiBadge-badge": { 
@@ -207,10 +207,11 @@ const ProfilePopper = (props) => {
                         >
                           <MailIcon color="action" fontSize="small"/>
                         </Badge>
-                      </Typography>
-                    </ListItemText>
-                  </MenuItem>
-                }
+                      }
+                    </Typography>
+                  </ListItemText>
+                </MenuItem>
+
                 <MenuItem onClick={handleSignOut}>
                   <ListItemIcon>
                     <Logout fontSize="small" />

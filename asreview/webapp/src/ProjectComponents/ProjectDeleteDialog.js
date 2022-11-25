@@ -13,7 +13,7 @@ import {
   Typography,
   TextField,
 } from "@mui/material";
-import { CollaborationAPI, ProjectAPI } from "../api/index.js";
+import { TeamAPI, ProjectAPI } from "../api/index.js";
 import { setMyProjects } from "../redux/actions";
 import useAuth from "../hooks/useAuth";
 
@@ -46,7 +46,7 @@ const ProjectDeleteDialog = (props) => {
 
   const endCollaboration = () => {
     if (authenticated && props.project_id && auth.id) {
-      CollaborationAPI.endCollaboration(props.project_id, auth.id)
+      TeamAPI.endCollaboration(props.project_id, auth.id)
       .then(data => {
         if (data.success) {
           // success, the collaboration was ended, get all projects

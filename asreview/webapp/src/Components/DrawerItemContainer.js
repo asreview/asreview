@@ -153,6 +153,10 @@ const DrawerItemContainer = (props) => {
       label: "History",
     },
     {
+      path: "team",
+      label: "Team",
+    },
+    {
       path: "export",
       label: "Export",
     },

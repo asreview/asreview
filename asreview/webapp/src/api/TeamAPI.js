@@ -3,7 +3,7 @@ import { collab_url } from "../globals.js";
 import axios from "axios";
 
 
-class CollaborationAPI {
+class TeamAPI {
   static fetchCollaborators(projectId) {
     if (projectId !== null) {
       const url = collab_url + `${projectId}/users`;
@@ -153,4 +153,4 @@ class CollaborationAPI {
   }
 }
 
-export default CollaborationAPI;
+export default TeamAPI;

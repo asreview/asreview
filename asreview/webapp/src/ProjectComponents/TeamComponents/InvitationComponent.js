@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { useQuery } from "react-query";
-import { CollaborationAPI } from "../../api/index.js";
+import { useParams } from "react-router-dom";
+import { TeamAPI } from "../../api/index.js";
 import List from '@mui/material/List';
 import { Add } from "@mui/icons-material";
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import UserListEntry from "./UserListEntry";
-import { Stack, Fab } from "@mui/material";
+import { Box, Fab, Stack } from "@mui/material";
 
 
 const InvitationContents = (props) => {
@@ -17,10 +18,11 @@ const InvitationContents = (props) => {
   const [invitedUsers, setInvitedUsers] = React.useState(new Set([]));
   const [allUsers, setAllUsers] = React.useState([]);
   const [associatedUsers, setAssociatedUsers] = React.useState(new Set([]));
+  const { project_id } = useParams();
 
   useQuery(
-    ["fetchCollaborators", props.project_id],
-    () => CollaborationAPI.fetchCollaborators(props.project_id),
+    ["fetchCollaborators", project_id],
+    () => TeamAPI.fetchCollaborators(project_id),
     {
       onSuccess: (data) => {
         setAllUsers(data.all_users || []);
@@ -39,7 +41,7 @@ const InvitationContents = (props) => {
 
   const inviteUser = () => {
     if (selectedUser) {
-      CollaborationAPI.inviteUser(props.project_id, selectedUser.id)
+      TeamAPI.inviteUser(project_id, selectedUser.id)
         .then(data => {
           if (data.success) {
             // add this user to the invited users (ofEffect will take care of the rest
@@ -56,7 +58,7 @@ const InvitationContents = (props) => {
   };
 
   const removeInvitation = (id) => {
-    CollaborationAPI.deleteInvitation(props.project_id, id)
+    TeamAPI.deleteInvitation(project_id, id)
       .then(data => {
         if (data.success) {
           // remove from the invited users list, useEffect will take care of the rest
@@ -73,7 +75,7 @@ const InvitationContents = (props) => {
   }
 
   const removeCollaborator = (id) => {
-    CollaborationAPI.deleteCollaborator(props.project_id, id)
+    TeamAPI.deleteCollaborator(project_id, id)
       .then(data => {
         if (data.success) {
           // remove from the collabo users list, useEffect will take care of the rest
@@ -90,59 +92,65 @@ const InvitationContents = (props) => {
   };
 
   return (
-    <>
-      <h2>Invite</h2>
-      <Autocomplete
-        value={selectedUser}
-        isOptionEqualToValue={(option, value) => option.id === value.id}
-        onChange={(event, newValue=null) => {
-          if (newValue !== null) {
-            setSelectedUser(newValue);
-          }
-        }}
-        inputValue={inputValue}
-        onInputChange={(event, newInputValue) => {
-          setInputValue(newInputValue);
-        }}
-        id="controllable-states-demo"
-        options={ allUsers.filter(item => !associatedUsers.has(item.id)) }
-        getOptionLabel={option => `${option.full_name}` }
-        sx={{ width: 300, padding: 1 }}
-        renderInput={(params) => <TextField {...params} label="Select a user" />}
-      />
-      <Fab
-        className=''
-        color="primary"
-        onClick={inviteUser}
-        variant="extended"
-        sx={{ width: 120, padding: 1, margin: 2 }}
-      >
-        <Add sx={{ mr: 1 }} />
-        Invite
-      </Fab>
+    <Box>
+      <Box>
+        <h2>Invite</h2>
+        <Autocomplete
+          value={selectedUser}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(event, newValue=null) => {
+            if (newValue !== null) {
+              setSelectedUser(newValue);
+            }
+          }}
+          inputValue={inputValue}
+          onInputChange={(event, newInputValue) => {
+            setInputValue(newInputValue);
+          }}
+          id="controllable-states-demo"
+          options={ allUsers.filter(item => !associatedUsers.has(item.id)) }
+          getOptionLabel={option => `${option.full_name}` }
+          sx={{ width: 300, padding: 1 }}
+          renderInput={(params) => <TextField {...params} label="Select a user" />}
+        />
+        <Fab
+          className=''
+          color="primary"
+          onClick={inviteUser}
+          variant="extended"
+          sx={{ width: 120, padding: 1, margin: 2 }}
+        >
+          <Add sx={{ mr: 1 }} />
+          Invite
+        </Fab>
+      </Box>
 
-      <h2>Pending (dbl click to remove)</h2>
-      <List component={Stack} direction="row">
-      { allUsers.filter(item => invitedUsers.has(item.id)).map((user) => (
-        <UserListEntry
-          key={user.id}
-          user={user}
-          onDoubleClick={removeInvitation}
-        />))
-      }
-      </List>
+      <Box>
+        <h2>Pending (dbl click to remove)</h2>
+        <List component={Stack} direction="row">
+        { allUsers.filter(item => invitedUsers.has(item.id)).map((user) => (
+          <UserListEntry
+            key={user.id}
+            user={user}
+            onDoubleClick={removeInvitation}
+          />))
+        }
+        </List>
+      </Box>
 
-      <h2>Collaborators (dbl click to remove)</h2>
-      <List sx={{ pt: 0 }}>
-      { allUsers.filter(item  => collaborators.has(item.id)).map((user) => (
-        <UserListEntry
-          key={user.id}
-          user={user}
-          onDoubleClick={removeCollaborator}
-        />))
-      }
-      </List>
-    </>
+      <Box>
+        <h2>Collaborators (dbl click to remove)</h2>
+        <List sx={{ pt: 0 }}>
+        { allUsers.filter(item  => collaborators.has(item.id)).map((user) => (
+          <UserListEntry
+            key={user.id}
+            user={user}
+            onDoubleClick={removeCollaborator}
+          />))
+        }
+        </List>
+      </Box>
+    </Box>
   );
 }
 
