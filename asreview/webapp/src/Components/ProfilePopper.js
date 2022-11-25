@@ -183,7 +183,7 @@ const ProfilePopper = (props) => {
                       imgProps={{ sx: { p: 1 } }}
                     />
                     <TypographySubtitle1Medium>
-                      {auth?.username}
+                      {auth?.name}
                     </TypographySubtitle1Medium>
                   </Stack>
                 </StyledMenuItem>

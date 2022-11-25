@@ -22,7 +22,7 @@ const PersistSignIn = () => {
         return {
           ...prev,
           logged_in: data.logged_in,
-          username: data.username,
+          name: data.name,
           id: data.id,
         };
       });

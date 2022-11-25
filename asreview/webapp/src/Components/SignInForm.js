@@ -80,7 +80,7 @@ const SignInForm = () => {
   const navigate = useNavigate();
   const { setAuth } = useAuth();
 
-  const [username, setUsername] = React.useState("");
+  const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
 
   const [showPassword, toggleShowPassword] = useToggle();
@@ -95,10 +95,10 @@ const SignInForm = () => {
       onSuccess: (data) => {
         setAuth({
           logged_in: data.logged_in,
-          username: data.username,
+          name: data.name,
           id: data.id,
         });
-        setUsername("");
+        setEmail("");
         setPassword("");
         if (from === "/") {
           navigate("/projects");
@@ -112,7 +112,7 @@ const SignInForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     reset();
-    mutate({ username, password });
+    mutate({ email, password });
   };
 
   const handleSignUp = () => {
@@ -123,8 +123,8 @@ const SignInForm = () => {
     return !showPassword ? "password" : "text";
   };
 
-  const handleUsernameChange = (e) => {
-    setUsername(e.target.value);
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
   };
 
   const handlePasswordChange = (e) => {
@@ -154,9 +154,9 @@ const SignInForm = () => {
                 </Stack>
                 <Stack spacing={3}>
                   <TextField
-                    label="Username or email"
-                    value={username}
-                    onChange={handleUsernameChange}
+                    label="Email"
+                    value={email}
+                    onChange={handleEmailChange}
                     variant="outlined"
                     fullWidth
                     autoFocus

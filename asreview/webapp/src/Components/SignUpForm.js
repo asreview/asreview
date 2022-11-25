@@ -21,7 +21,6 @@ import { InlineErrorHandler } from ".";
 import { WordmarkState } from "../globals";
 import { styled } from "@mui/material/styles";
 import { HelpPrivacyTermsButton } from "../Components";
-import { FormatLineSpacing } from '@mui/icons-material';
 import { useToggle } from "../hooks/useToggle";
 import BaseAPI from "../api/AuthAPI";
 import { useFormik, resetForm } from 'formik';
@@ -66,12 +65,9 @@ const Root = styled("div")(({ theme }) => ({
 
 // VALIDATION SCHEMA
 const SignupSchema = Yup.object().shape({
-  userName: Yup.string()
-    .matches(
-      /^[a-zA-Z0-9_]{3,20}$/,
-      'Sorry, your username must be between 3 and 20 characters long and only contain letters (a-z), numbers (0-9), and underscores (_)'
-    )
-    .required('Username is required'),
+  email: Yup.string()
+    .email('Invalid email')
+    .required('Email is required'),
   firstName: Yup.string()
     .required('First name is required'),
   lastName: Yup.string()
@@ -79,9 +75,6 @@ const SignupSchema = Yup.object().shape({
   affiliation: Yup.string()
     .min(2, 'Affiliation must be at least 2 characters long')
     .required('Affiliation is required'),
-  email: Yup.string()
-    .email('Invalid email')
-    .required('Email is required'),
   password: Yup.string()
     .matches(
       /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
@@ -91,8 +84,6 @@ const SignupSchema = Yup.object().shape({
   confirmPassword: Yup.string()
      .oneOf([Yup.ref('password'), null], 'Passwords must match')
 });
-
-
 
 
 const SignUpForm = (props) => {
@@ -108,11 +99,10 @@ const SignUpForm = (props) => {
   };
 
   const initialValues = {
-    userName: '',
+    email: '',
     firstName: '',
     lastName: '',
     affiliation: '',
-    email: '',
     password: '',
     confirmPassword: '',
     publicAccount: true
@@ -161,16 +151,15 @@ const SignUpForm = (props) => {
                   autoComplete="off"
                 >
                 <TextField
-                  id="userName"
-                  label="Username"
+                  id="email"
+                  label="Email"
                   size="small"
                   fullWidth
-                  autoFocus
-                  value={formik.values.userName}
+                  value={formik.values.email}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
-                {formik.touched.userName && formik.errors.userName ? <FHT error={true}>{formik.errors.userName}</FHT> : null}
+                {formik.touched.email && formik.errors.email ? <FHT error={true}>{formik.errors.email}</FHT> : null}
                 <FormControl>
                   <Stack direction="row" spacing={2}>
                     <TextField
@@ -207,17 +196,6 @@ const SignUpForm = (props) => {
                   onBlur={formik.handleBlur}
                 />
                 {formik.touched.affiliation && formik.errors.affiliation ? <FHT error={true}>{formik.errors.affiliation}</FHT> : null}
-                <TextField
-                  id="email"
-                  label="Email"
-                  size="small"
-                  fullWidth
-                  value={formik.values.email}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                />
-                {formik.touched.email && formik.errors.email ? <FHT error={true}>{formik.errors.email}</FHT> : null}
-
                 <FormControl>
                   <Stack direction="row" spacing={2}>
                     <TextField
@@ -256,22 +234,27 @@ const SignUpForm = (props) => {
                     }
                     label="Show password"
                   />
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        color="primary"
-                        id="publicAccount"
-                        defaultChecked={formik.values.publicAccount}
-                        value={formik.values.publicAccount}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
+                  { false && 
+                    <>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            color="primary"
+                            id="publicAccount"
+                            defaultChecked={formik.values.publicAccount}
+                            value={formik.values.publicAccount}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                          />
+                        }
+                        label="Make this account public"
                       />
-                    }
-                    label="Make this account public"
-                  />
-                  <FHT>
-                    Making this account public allows you to collaborate.
-                  </FHT>
+                      <FHT>
+                        Making this account public allows you to collaborate.
+                      </FHT>
+                    </>
+                  }
+
                 </FormControl>
                 {isError && <InlineErrorHandler message={error.message} />}
                 <Stack className={classes.button} direction="row">

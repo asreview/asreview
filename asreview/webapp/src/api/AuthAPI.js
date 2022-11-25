@@ -6,7 +6,6 @@ import { getBackdropUtilityClass } from "@mui/material";
 class AuthAPI {
   static signup(variables) {
     let body = new FormData();
-    body.set("username", variables.userName);
     body.set("password", variables.password);
     body.set("first_name", variables.firstName);
     body.set("last_name", variables.lastName);
@@ -32,7 +31,7 @@ class AuthAPI {
 
   static signin(variables) {
     let body = new FormData();
-    body.set("username", variables.username);
+    body.set("email", variables.email);
     body.set("password", variables.password);
 
     const url = auth_url + `signin`;

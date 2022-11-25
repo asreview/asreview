@@ -37,21 +37,15 @@ CORS(
 
 @bp.route('/signin', methods=["POST"])
 def signin():
-    username = request.form.get('username').strip()
+    print(request.form)
+    email = request.form.get('email').strip()
     password = request.form.get('password')
 
-    # generate conditions depending on username being
-    # an email or a regular username
-    condition = []
-    if '@' in username:
-        condition.append(User.email == username)
-    else:
-        condition.append(User.username == username)
     # get the user
-    user = User.query.filter(*condition).one_or_none()
+    user = User.query.filter(User.email == email).one_or_none()
     # if the user exist proceed and verify
     if not user:
-        result = (404, {'message': f'User account {username} does not exist.'})
+        result = (404, {'message': f'User account {email} does not exist.'})
     else:
         # verify password
         if user.verify_password(password):
@@ -62,48 +56,46 @@ def signin():
             )
             result = (200, {
                 'logged_in': logged_in,
-                'username': user.username,
+                'name': user.get_full_name(),
                 'id': user.id
             })
         else:
             # password is wrong
             result = (
                 404,
-                {'message': f'Incorrect password for user {username}'}
+                {'message': f'Incorrect password for user {email}'}
             )
 
     status, message = result
-    # check in database if username exists and if password is correct
     response = jsonify(message)
     return response, status
 
 
 @bp.route('/signup', methods=["POST"])
 def signup():
-    username = request.form.get('username').strip().lower()
+    email = request.form.get('email', '').strip()
     password = request.form.get('password')
     first_name = request.form.get('first_name', '').strip()
     last_name = request.form.get('last_name', '').strip()
     affiliation = request.form.get('affiliation', '').strip()
-    email = request.form.get('email', '').strip()
     public = bool(int(request.form.get('public', '0')))
 
-    # check if username already exists
-    user = User.query.filter(User.username == username).one_or_none()
+    # check if email already exists
+    user = User.query.filter(User.email == email).one_or_none()
     # return error if user doesn't exist
     if isinstance(user, User):
-        result = (404, f'Username "{username}" already exists.')
+        result = (404, f'User with email "{email}" already exists.')
     else:
         # password confirmation is done by front end, so the only
         # thing that remains is to add the user (password will be
         # hashed in the User model)
         try:
-            user = User(username, password, first_name, last_name,
-                affiliation, email, public)
+            user = User(email, password, first_name, last_name,
+                affiliation, public)
             DB.session.add(user)
             DB.session.commit()
             # result is a 201 with message
-            result = (201, f'User "#{username}" created.')
+            result = (201, f'User "#{email}" created.')
         except SQLAlchemyError:
             DB.session.rollback()
             result = (500, 'Creating account unsuccessful!')
@@ -119,7 +111,7 @@ def refresh():
     if current_user:
         result = (200, {
             'logged_in': current_user.is_authenticated,
-            'username': current_user.username,
+            'name': current_user.get_full_name(),
             'id': current_user.id
         })
     else:
@@ -134,9 +126,9 @@ def refresh():
 @asreview_login_required
 def signout():
     if current_user:
-        username = current_user.username
+        email = current_user.email
         logout_user()
-        result = (200, f'User {username} has been signed out')
+        result = (200, f'User with email {email} has been signed out')
     else:
         result = (404, 'No user found, no one can be signed out')
 

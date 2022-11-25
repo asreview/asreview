@@ -29,20 +29,20 @@ except ImportError:
     TMP_ENV_VARS = {}
 
 
-def signup_user(client, username, password='!biuCrgfsiOOO6987'):
+def signup_user(client, email, password='!biuCrgfsiOOO6987'):
     """Signs up a user through the api"""
     response = client.post(
         '/auth/signup',
-        data={'username': username, 'password': password}
+        data={'email': email, 'password': password}
     )
     return response
 
 
-def signin_user(client, username, password):
+def signin_user(client, email, password):
     """Signs in a user through the api"""
     return client.post(
         '/auth/signin',
-        data={'username': username, 'password': password}
+        data={'email': email, 'password': password}
     )
 
 # TODO@{Casper}:
@@ -59,14 +59,14 @@ def setup_teardown_signed_in():
     # create app and client
     app = create_app(enable_auth=True)
     client = app.test_client()
-    username, password = 'cskaandorp', '123456!AbC'
-    signup_user(client, username, password)
+    email, password = 'c.s.kaandorp@uu.nl', '123456!AbC'
+    signup_user(client, email, password)
 
     # inject testuser
     with app.app_context():
         # signin this user
-        signin_user(client, username, password)
-        user = DB.session.query(User).filter(User.username==username).one_or_none()
+        signin_user(client, email, password)
+        user = DB.session.query(User).filter(User.email==email).one_or_none()
 
         yield app, client, user
         try:

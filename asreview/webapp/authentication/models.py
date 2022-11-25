@@ -31,12 +31,11 @@ class User(UserMixin, DB.Model):
     """The User model for user accounts."""
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
-    username = Column(String(50), unique=True)
+    email = Column(String(100), unique=True)
     hashed_password = Column(String(100), unique=True)
     first_name = Column(String(50))
     last_name = Column(String(50))
     affiliation = Column(String(100))
-    email = Column(String(100), unique=True)
     public = Column(Boolean)
 
     projects = relationship(
@@ -55,9 +54,9 @@ class User(UserMixin, DB.Model):
         back_populates='pending_invitations'
     )
 
-    def __init__(self, username, password, first_name=None,
-        last_name=None, affiliation=None, email=None, public=True):
-        self.username = username
+    def __init__(self, email, password, first_name=None,
+        last_name=None, affiliation=None, public=True):
+        self.email = email
         self.first_name = first_name
         self.last_name = last_name
         self.affiliation = affiliation
@@ -73,7 +72,11 @@ class User(UserMixin, DB.Model):
         """Get full name from user account"""
         first_name = self.first_name or ''
         last_name = self.last_name or ''
-        return ' '.join([first_name, last_name]).strip()
+        name = ' '.join([first_name, last_name]).strip()
+        if name == '':
+            # fallback is email
+            name = self.email
+        return name
 
     def summarize(self):
         """Summarize user account in frontend data packet"""
@@ -85,7 +88,7 @@ class User(UserMixin, DB.Model):
         }
 
     def __repr__(self):
-        return f'<User {self.username!r}, id: {self.id}>'
+        return f'<User {self.email!r}, id: {self.id}>'
 
 
 
@@ -94,7 +97,7 @@ class SingleUser:
     to bypass authentication."""
     def __init__(self):
         self.id = None
-        self.username = None
+        self.email = None
         self.is_authenticated = True
         self.is_active = False
         self.is_anonymous = True
