@@ -123,7 +123,7 @@ setup(
         'gevent',
         'jsonschema',
         'filelock',
-        'Flask-SQLAlchemy',
+        'Flask-SQLAlchemy>=3.0.2',
     ],
     extras_require=DEPS,
     entry_points={

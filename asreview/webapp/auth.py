@@ -37,7 +37,6 @@ CORS(
 
 @bp.route('/signin', methods=["POST"])
 def signin():
-    print(request.form)
     email = request.form.get('email').strip()
     password = request.form.get('password')
 
