@@ -84,8 +84,6 @@ def _lab_parser(prog="lab"):
 class LABEntryPoint(BaseEntryPoint):
     """Entry point to start the ASReview LAB webapp."""
 
-    description = "The ASReview LAB webapp."
-
     def execute(self, argv):
 
         from asreview.webapp.start_flask import main

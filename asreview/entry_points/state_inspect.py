@@ -41,7 +41,6 @@ def _parse_state_inspect_args():
 
 class StateInspectEntryPoint(BaseEntryPoint):
     """Entry point to inspect ASReview LAB review progress."""
-    description = "Inspect ASReview LAB review progress."
 
     def execute(self, argv):
         parser = _parse_state_inspect_args()
