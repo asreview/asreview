@@ -3,7 +3,7 @@ Simulate via the webapp
 
 To run a simulation in the ASReview webapp, create a project as described in
 :doc:`project_create`. Most of the steps of the setup are identical or
-straightworward. In this section, some of the differences are highlighted.
+straightforward. In this section, some of the differences are highlighted.
 
 In the step on *Project Information*, select the "Simulation"
 mode (see figure below).
@@ -32,7 +32,7 @@ the Analytics page.
 
 This page now has a refresh button on the top right. If the simulation is not
 finished yet, you can refresh the page or use the refresh button to follow the
-progress. After a while, the Elas mascotte on the left will hold a sign with
+progress. After a while, the Elas mascot on the left will hold a sign with
 "finished". Your simulation is now finished and you can study the results in
 the analytics page.
 
