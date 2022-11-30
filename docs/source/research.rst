@@ -28,7 +28,7 @@ The research team works according to the Open Science principles and invests in 
 inclusive community contributing to the project. In short, research is
 conducted according to the following fundamental principles:
 
-- Research output should be `FAIR <https://www.uu.nl/en/research/open-science>`_ (Finable Accessible Interoperable and Reusable).
+- Research output should be `FAIR <https://www.uu.nl/en/research/open-science>`_ (Findable Accessible Interoperable and Reusable).
 - Research should be conducted with integrity, and we commit ourselves to the `Netherlands Code of Conduct for Research Integrity <https://www.nwo.nl/en/netherlands-code-conduct-research-integrity>`_.
 - Output should be rewarded according to the Declaration on Research Assessment (`DORA <https://sfdora.org/read/>`_).
 

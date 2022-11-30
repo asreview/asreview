@@ -94,7 +94,7 @@ tips on when to stop with screening.
 
 .. tip::
 
-  The data behind the recall plot can be used to calculate the `knee-algortitm <https://github.com/asreview/asreview/discussions/1115#discussioncomment-2812003>`_ as a stopping criteria. 
+  The data behind the recall plot can be used to calculate the `knee-algorithm <https://github.com/asreview/asreview/discussions/1115#discussioncomment-2812003>`_ as a stopping criteria. 
 
 
 Mark project as finished
@@ -124,7 +124,7 @@ The following variables will be added to your dataset:
   ``0`` = not relevant, ``1`` = relevant and if missing it means the record is
   not seen during the screening process.
 - The column titled **asreview_ranking** contains an identifier to
-  preserve the rank ordering as described above.
+  preserve the rank ordering as described below.
 
 The file is ordered as follows:
 

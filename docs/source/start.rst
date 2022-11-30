@@ -81,7 +81,7 @@ available commands in ASReview LAB, type :code:`asreview lab --help`.
 Set environment variables
 -------------------------
 
-The following evironment variables are available.
+The following environment variables are available.
 
 .. option:: ASREVIEW_PATH
 
