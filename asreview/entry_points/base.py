@@ -13,9 +13,16 @@
 # limitations under the License.
 
 import argparse
+import warnings
 from abc import ABC
 from abc import abstractclassmethod
 from argparse import RawTextHelpFormatter
+
+
+class DeprecateAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        warnings.warn(f"Argument {self.option_strings} is deprecated and is ignored.")
+        delattr(namespace, self.dest)
 
 
 class BaseEntryPoint(ABC):
@@ -62,20 +69,5 @@ def _base_parser(prog=None, description=None):
         default=None,
         dest='embedding_fp',
         help="File path of embedding matrix. Required for LSTM models."
-    )
-    parser.add_argument(
-        "--config_file",
-        type=str,
-        default=None,
-        help="Configuration file with model settings"
-             "and parameter values."
-    )
-    parser.add_argument(
-        "--seed",
-        default=None,
-        type=int,
-        help="Seed for the model (classifiers, balance "
-             "strategies, feature extraction techniques, and query "
-             "strategies). Use an integer between 0 and 2^32 - 1."
     )
     return parser
