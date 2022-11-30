@@ -14,11 +14,11 @@
 
 """Command Line Interface (CLI) for ASReview project."""
 import argparse
-from itertools import groupby
 import sys
-import pkg_resources
 from importlib import metadata
+from itertools import groupby
 
+import pkg_resources
 
 from asreview import __version__
 from asreview.utils import get_entry_points
