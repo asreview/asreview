@@ -71,17 +71,14 @@ class RISWriter():
                 except Exception:
                     rec_copy[m] = []
 
-            # Relevant records
-            if "included" in rec_copy and rec_copy["included"] == 1:
-                rec_copy["notes"].append("ASReview_relevant")
-            # Irrelevant records
-            elif "included" in rec_copy and rec_copy["included"] == 0:
-                rec_copy["notes"].append("ASReview_irrelevant")
-            # Not seen records
-            elif "included" in rec_copy and rec_copy["included"] == -1:
-                rec_copy["notes"].append("ASReview_not_seen")
-            else:
-                rec_copy["notes"].append("ASReview_not_seen")
+            # Get label for record if specified, if not specified set to -1
+            included = rec_copy.pop("included", -1)
+
+            # Map labels to notes
+            dict_note = {-1: "ASReview_not_seen",
+                         0: "ASReview_irrelevant",
+                         1: "ASReview_relevant"}
+            rec_copy["notes"].append(dict_note[included])
 
             # Append the deepcopied and updated record to a new array
             records_new.append(rec_copy)
