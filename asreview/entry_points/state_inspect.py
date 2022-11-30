@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import argparse
+from pathlib import Path
 
 import pandas as pd
 
@@ -26,7 +27,10 @@ def _parse_state_inspect_args():
     # parse arguments if available
     parser = argparse.ArgumentParser(prog="state-inspect",
                                      description="Inspect state file.")
-    parser.add_argument("project_id", type=str, help="Project_id or url.")
+    parser.add_argument(
+        "project_id",
+        type=str,
+        help="Project_id or path to ASReview file.")
     parser.add_argument(
         "table",
         type=str,
@@ -37,13 +41,15 @@ def _parse_state_inspect_args():
 
 class StateInspectEntryPoint(BaseEntryPoint):
     """Entry point to inspect ASReview LAB review progress."""
-    description = "Inspect ASReview LAB review progress."
 
     def execute(self, argv):
         parser = _parse_state_inspect_args()
         args = parser.parse_args(argv)
 
-        project_path = get_project_path(args.project_id)
+        if Path(args.project_id).suffix == ".asreview":
+            project_path = args.project_id
+        else:
+            project_path = get_project_path(args.project_id)
 
         with open_state(project_path) as s:
             conn = s._connect_to_sql()

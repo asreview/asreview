@@ -121,7 +121,7 @@ setup(
         'flask>=2.0',
         'flask_cors',
         'openpyxl',
-        'gevent',
+        'gevent>=20',
         'jsonschema',
         'filelock',
         'tqdm'

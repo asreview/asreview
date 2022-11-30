@@ -21,12 +21,7 @@ ASReview LAB is one of the products of the `ASReview research project
 grown into a vivid community of researchers,  users, and developers from
 around the world.
 
-
-.. image:: ../images/ASReviewLAB_explanation_Website_v3_wit.png
-    :width: 320
-    :align: center
-    :alt: ASReview LAB overview
-
+.. youtube:: k-a2SCq-LtA
 
 What is active learning?
 ------------------------
@@ -38,7 +33,12 @@ of screening large amounts of textual data is screening prioritization through
 `Active Learning <https://asreview.ai/blog/active-learning-explained/>`_: a constant
 interaction between a human who labels records and a machine learning model
 which selects the most likely relevant record based on a minimum training
-dataset. It allows the screening of large amounts of text in an intelligent
+dataset. The active learning cycle is repeated until the annotator is sufficiently
+confident they have seen all relevant records. Thus, the machine learning model is
+responsible for ranking the records and the human provides the labels, this is called
+`Researcher-In-The-Loop (RITL) <https://asreview.ai/blog/active-learning-explained/>`_.
+
+It allows the screening of large amounts of text in an intelligent
 and time-efficient manner. ASReview LAB, published in Nature Machine
 Intelligence, has shown the benefits of active learning, `reducing up to 95%
 <https://www.nature.com/articles/s42256-020-00287-7>`_ of the required
