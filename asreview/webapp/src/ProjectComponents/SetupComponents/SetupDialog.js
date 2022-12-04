@@ -81,14 +81,8 @@ const SetupDialog = (props) => {
   // an extra step for collaboration
   const authenticated = useSelector(state => state.authentication);
 
-  const steps = (() => {
-    if (authenticated)
-      //return ["Project information", "Data", "Model", "Collaboration", "Warm up"];
-      return ["Project information", "Data", "Model", "Warm up"];
-    else
-      return ["Project information", "Data", "Model", "Warm up"];
-  })();
-  
+  const steps = ["Project information", "Data", "Model", "Warm up"];
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const descriptionElementRef = React.useRef(null);

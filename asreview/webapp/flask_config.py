@@ -1,6 +1,0 @@
-import os
-
-SECRET_KEY = os.environ.get('SECRET_KEY', 'JeMoederHeetHenk1!')
-SESSION_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SECURE = True
-REMEMBER_COOKIE_SECURE = True

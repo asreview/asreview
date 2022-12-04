@@ -30,7 +30,11 @@ LAB
 
 .. option:: --enable-auth ENABLE_AUTH
 
-	Use authentication
+	Use authentication.
+
+.. option:: --flask-configfile FLASK_CONFIGFILE
+
+    The full path to a JSON file for Flask parameters.
 
 .. option:: --no-browser NO_BROWSER
 

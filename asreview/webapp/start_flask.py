@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import logging
 import os
 import socket
@@ -114,7 +115,13 @@ def create_app(**kwargs):
 
     # Get the ASReview arguments.
     app.config['asr_kwargs'] = kwargs
-    app.config['LOGIN_DISABLED'] = not kwargs['enable_auth']
+    app.config['AUTHENTICATION_ENABLED'] = kwargs['enable_auth']
+
+    # Read config parameters if possible, this overrides
+    # the previous assignments.
+    config_file_path = kwargs.get('flask_config', '').strip()
+    if config_file_path != '':
+        app.config.from_file(config_file_path, load=json.load)
 
     # config JSON Web Tokens
     login_manager = LoginManager(app)
@@ -122,21 +129,18 @@ def create_app(**kwargs):
     login_manager.session_protection = 'strong'
 
     # setup all database/authentication related resources
-    if app.config['LOGIN_DISABLED'] == False:
+    if app.config['AUTHENTICATION_ENABLED'] == True:
 
-        # default config
-        app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-        app.config['SESSION_COOKIE_SECURE'] = True
-        app.config['REMEMBER_COOKIE_SECURE'] = True
-        app.config['SECRET_KEY'] = os.environ.get(
-            'SECRET_KEY',
-            'JeMoederHeetHenk1!'
-        )
+        # In this code-block we make sure certain authentication-related
+        # config parameters are set.
+        app.config['SECRET_KEY'] = app.config.get(
+            'SECRET_KEY', 'secret_key!')
 
-        # setup the database
-        uri = os.path.join(asreview_path(), f'asreview.{env}.sqlite')
-        app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{uri}'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+        # We must be sure we have a database URI
+        if not app.config.get('SQLALCHEMY_DATABASE_URI', False):
+            # create default path
+            uri = os.path.join(asreview_path(), f'asreview.{env}.sqlite')
+            app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{uri}'
 
         # create the database plus table(s)
         DB.init_app(app)
@@ -202,14 +206,14 @@ def create_app(**kwargs):
     @app.route('/boot', methods=["GET"])
     def api_boot():
         """Get the boot info."""
-        if os.environ.get("FLASK_ENV", None) == "development":
+        if os.environ.get("ENV", None) == "development":
             status = "development"
         else:
             status = "asreview"
 
         response = jsonify({
             "status": status,
-            "authentication": bool(not app.config['LOGIN_DISABLED']),
+            "authentication": bool(app.config['AUTHENTICATION_ENABLED']),
             "version": asreview_version,
         })
 
@@ -226,7 +230,8 @@ def main(argv):
 
     app = create_app(
         embedding_fp=args.embedding_fp,
-        enable_auth=args.enable_authentication
+        enable_auth=args.enable_authentication,
+        flask_config=args.flask_configfile
     )
     app.config['PROPAGATE_EXCEPTIONS'] = False
 

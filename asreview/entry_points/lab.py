@@ -59,6 +59,14 @@ def _lab_parser(prog="lab"):
         help="Use authentication")
 
     parser.add_argument(
+        "--flask-configfile",
+        default="",
+        type=str,
+        help="The full path to a JSON file " \
+            + "for Flask parameters."
+    )
+
+    parser.add_argument(
         "--no-browser",
         dest="no_browser",
         action='store_true',

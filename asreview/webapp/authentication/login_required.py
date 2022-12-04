@@ -45,8 +45,8 @@ def asreview_login_required(func):
     ...which is essentially the code that this function adds to your views.
 
     It can be convenient to globally turn off authentication when unit testing.
-    To enable this, if the application configuration variable `LOGIN_DISABLED`
-    is set to `True`, this decorator will be ignored.
+    To enable this, if the application configuration variable 
+    `AUTHENTICATION_ENABLED` is set to `False`, this decorator will be ignored.
 
     .. Note ::
 
@@ -61,7 +61,7 @@ def asreview_login_required(func):
     def decorated_view(*args, **kwargs):
 
         if (request.method in EXEMPT_METHODS or
-            current_app.config.get("LOGIN_DISABLED")):
+            current_app.config.get("AUTHENTICATION_ENABLED") == False):
             pass
         else:
             # get current user

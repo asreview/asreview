@@ -217,7 +217,7 @@ def api_init_project():  # noqa: F401
     )
 
     # create a database entry for this project
-    if not current_app.config['LOGIN_DISABLED']:
+    if current_app.config['AUTHENTICATION_ENABLED']:
         current_user.projects.append(
             Project(
                 project_id=project_id,
@@ -287,7 +287,7 @@ def api_update_project_info(project):  # noqa: F401
 
             # update project in the database
             # ==============================
-            if not current_app.config['LOGIN_DISABLED']:
+            if current_app.config['AUTHENTICATION_ENABLED']:
                 db_project = Project.query.filter(
                     Project.owner_id == current_user.id,
                     Project.project_id == old_project_id
@@ -1598,7 +1598,7 @@ def api_delete_project(project):  # noqa: F401
         try:
 
             # remove from database if applicable
-            if not current_app.config['LOGIN_DISABLED']:
+            if current_app.config['AUTHENTICATION_ENABLED']:
                 project = Project.query.filter(
                     Project.project_id == project.project_id,
                     Project.owner_id == current_user.id
