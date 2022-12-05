@@ -342,6 +342,20 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         help="Seed for setting the prior indices if the --prior_idx option is "
         "not used. If the option --prior_idx is used with one or more "
         "index, this option is ignored.")
+    parser.add_argument(
+        "--seed",
+        default=None,
+        type=int,
+        help="Seed for the model (classifiers, balance strategies, "
+             "feature extraction techniques, and query strategies)."
+    )
+    parser.add_argument(
+        "--config_file",
+        type=str,
+        default=None,
+        help="Configuration file with model settings"
+             "and parameter values."
+    )
     parser.add_argument("--n_instances",
                         default=DEFAULT_N_INSTANCES,
                         type=int,
