@@ -97,7 +97,6 @@ const App = (props) => {
 
 
   const render_sign_routes = () => {
-    console.log('hallo');
     return (
       <>
         <Route
