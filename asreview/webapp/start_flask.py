@@ -168,7 +168,10 @@ def create_app(**kwargs):
     # !! not to '*'
     CORS(
         app,
-        resources={r"*": {"origins": "http://localhost:3000"}},
+        resources={r"*": {"origins": [
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+        ]}},
     )
 
     app.register_blueprint(api.bp)
@@ -206,20 +209,46 @@ def create_app(**kwargs):
     @app.route('/boot', methods=["GET"])
     def api_boot():
         """Get the boot info."""
-        if os.environ.get("ENV", None) == "development":
-            status = "development"
+        if os.environ.get('ENV', None) == 'development':
+            status = 'development'
         else:
-            status = "asreview"
+            status = 'asreview'
 
-        response = jsonify({
-            "status": status,
-            "authentication": bool(app.config['AUTHENTICATION_ENABLED']),
-            "version": asreview_version,
-        })
+        response = {
+            'status': status,
+            'authentication': bool(app.config['AUTHENTICATION_ENABLED']),
+            'version': asreview_version,
+        }
+        # if recaptcha config is provided 
+        if app.config.get('RE_CAPTCHA_V3', False):
+            response['recaptchav3_key'] = app.config['RE_CAPTCHA_V3'] \
+                .get('KEY', False)
 
-        return response
+        # if oauth config is provided
+        if app.config.get('OAUTH', False) and \
+            isinstance(app.config.get('OAUTH'), list):
+            services = []
+            for service in app.config.get('OAUTH'):
+                provider = service.get('PROVIDER', False)
+                url = service.get('URL', False)
+                client_id = service.get('CLIENT_ID', False)
+                redirect_uri = service.get('REDIRECT_URI', False)
+                scope = service.get('SCOPE', False)
+                if all([provider, url, client_id, redirect_uri, scope]):
+                    services.append({
+                        'provider': provider,
+                        'url': url,
+                        'client_id': client_id,
+                        'redirect_uri': redirect_uri,
+                        'scope': scope
+                    })
+            if len(services) > 0:
+                response['oauth'] = services
+
+        return jsonify(response)
 
     return app
+
 
 
 def main(argv):

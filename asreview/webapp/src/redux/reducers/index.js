@@ -10,6 +10,7 @@ import {
 const initialState = {
   asreview_version: undefined,
   authentication: undefined,
+  oauth: undefined,
   status: undefined,
   project_id: null,
   onHelpDialog: false,
@@ -39,7 +40,8 @@ function rootReducer(state = initialState, action) {
       return Object.assign({}, state, {
         asreview_version: action.data.version,
         authentication: action.data.authentication,
-        status: action.data.status
+        status: action.data.status,
+        oauth: action.data?.oauth
       });
     // set my projects list
     case MY_PROJECTS:

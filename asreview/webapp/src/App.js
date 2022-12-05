@@ -1,7 +1,7 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { useSelector, useDispatch } from 'react-redux';
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import "typeface-roboto";
 import { CssBaseline, createTheme, Fade, useMediaQuery } from "@mui/material";
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
@@ -17,9 +17,9 @@ import {
   RequireAuth,
   PersistSignIn,
   SettingsDialog,
-  SignInForm,
-  SignUpForm,
-  ConditionalWrapper,
+  SignIn,
+  SignInOAuthCallback,
+  SignUpForm
 } from "./Components";
 import { HomePage } from "./HomeComponents";
 import { ProjectPage } from "./ProjectComponents";
@@ -68,19 +68,21 @@ const App = (props) => {
   const [onNavDrawer, toggleNavDrawer] = useToggle(mobileScreen ? false : true);
   const [onAnimation, toggleAnimation] = useToggle(false);
 
+
   // This effect does a boot request to gather information 
   // about the backend
   React.useEffect(() => {
+    // @Todo: THIS FEELS VERY BAD
     let result = BaseAPI.boot({})
-      .then(response => {
-        const delay = (response.status === 'development')? 3000 : 3000;
-        // in production we set a 3 secs delay to show the logo,
-        // in development we immediately set the boot-data
-        setTimeout(() => {
-            dispatch(setBootData(response));
-        }, delay);
-      })
-      .catch(err => { console.log(err); });
+    .then(response => {
+      const delay = (response.status === 'development')? 500 : 500;
+      // in production we set a 3 secs delay to show the logo,
+      // in development we immediately set the boot-data
+      setTimeout(() => {
+          dispatch(setBootData(response));
+      }, delay);
+    })
+    .catch(err => { console.log(err); });
   }, [])
 
   // This effect makes sure we handle routing at the 
@@ -95,6 +97,7 @@ const App = (props) => {
 
 
   const render_sign_routes = () => {
+    console.log('hallo');
     return (
       <>
         <Route
@@ -103,7 +106,11 @@ const App = (props) => {
         />
         <Route
             path="/signin"
-            element={<SignInForm mobileScreen={mobileScreen} />}
+            element={<SignIn mobileScreen={mobileScreen} />}
+        />
+        <Route
+            path="/oauth_callback"
+            element={<SignInOAuthCallback mobileScreen={mobileScreen} />}
         />
       </>
     );

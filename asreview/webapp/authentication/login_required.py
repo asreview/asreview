@@ -67,7 +67,7 @@ def asreview_login_required(func):
             # get current user
             current_user = _get_user()
 
-            if not current_user.is_authenticated:
+            if not (bool(current_user) and current_user.is_authenticated):
                 return jsonify({'message': 'login required'}), 401
 
         # flask 1.x compatibility

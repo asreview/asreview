@@ -3,76 +3,23 @@ import { useMutation, useQueryClient } from "react-query";
 import { useLocation, useNavigate } from "react-router-dom";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
-  Box,
   Button,
-  Card,
-  CardContent,
   Checkbox,
-  Fade,
   FormControl,
   FormControlLabel,
   Stack,
   TextField,
-  Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-
-import { HelpPrivacyTermsButton } from "../Components";
-
 import { InlineErrorHandler } from ".";
 
 import BaseAPI from "../api/AuthAPI";
 import useAuth from "../hooks/useAuth";
 import { useToggle } from "../hooks/useToggle";
-import { WordmarkState } from "../globals";
 
 
-const PREFIX = "SignInForm";
+const SignInForm = (props) => {
+  const classes = props.classes;
 
-const classes = {
-  button: `${PREFIX}-button`,
-  card: `${PREFIX}-card`,
-  cardContent: `${PREFIX}-card-content`,
-  checkbox: `${PREFIX}-checkbox`,
-  header: `${PREFIX}-header`,
-  logo: `${PREFIX}-logo`,
-};
-
-const Root = styled("div")(({ theme }) => ({
-  display: "flex",
-  height: "100%",
-  width: "100%",
-  alignItems: "center",
-  justifyContent: "center",
-  position: "absolute",
-  [`& .${classes.button}`]: {
-    paddingTop: theme.spacing(3),
-    paddingBottom: theme.spacing(3),
-    justifyContent: "space-between",
-  },
-
-  [`& .${classes.card}`]: {
-    borderRadius: theme.spacing(2),
-    width: "450px",
-  },
-
-  [`& .${classes.cardContent}`]: {
-    padding: "48px 40px",
-  },
-
-  [`& .${classes.header}`]: {
-    alignItems: "center",
-  },
-
-  [`& .${classes.logo}`]: {
-    width: "100%",
-    maxWidth: "130px",
-  },
-}));
-
-
-
-const SignInForm = () => {
   const queryClient = useQueryClient();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
@@ -138,73 +85,54 @@ const SignInForm = () => {
   };
 
   return (
-    <Root>
-      <Fade in>
-        <Box>
-          <Card className={classes.card} variant="outlined">
-            <CardContent className={classes.cardContent}>
-              <Stack spacing={3}>
-                <Stack className={classes.header} spacing={2}>
-                  <img
-                    className={classes.logo}
-                    src={WordmarkState()}
-                    alt="ASReview LAB"
-                  />
-                  <Typography variant="h5">Sign in</Typography>
-                </Stack>
-                <Stack spacing={3}>
-                  <TextField
-                    label="Email"
-                    value={email}
-                    onChange={handleEmailChange}
-                    variant="outlined"
-                    fullWidth
-                    autoFocus
-                  />
-                  <FormControl>
-                    <TextField
-                      label="Password"
-                      value={password}
-                      onChange={handlePasswordChange}
-                      onKeyPress={handleEnterKey}
-                      variant="outlined"
-                      fullWidth
-                      type={returnType()}
-                    />
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={showPassword}
-                          onChange={toggleShowPassword}
-                          value="showPassword"
-                          color="primary"
-                        />
-                      }
-                      label="Show password"
-                    />
-                  </FormControl>
-                </Stack>
-                {isError && <InlineErrorHandler message={error.message} />}
-                <Stack className={classes.button} direction="row">
-                  <Button onClick={handleSignUp} sx={{ textTransform: "none" }}>
-                    Create profile
-                  </Button>
-                  <LoadingButton
-                    loading={isLoading}
-                    variant="contained"
-                    color="primary"
-                    onClick={handleSubmit}
-                  >
-                    Sign in
-                  </LoadingButton>
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
-          <HelpPrivacyTermsButton />
-        </Box>
-      </Fade>
-    </Root>
+    <>
+      <Stack spacing={3}>
+        <TextField
+          label="Email"
+          value={email}
+          onChange={handleEmailChange}
+          variant="outlined"
+          fullWidth
+          autoFocus
+        />
+        <FormControl>
+          <TextField
+            label="Password"
+            value={password}
+            onChange={handlePasswordChange}
+            onKeyPress={handleEnterKey}
+            variant="outlined"
+            fullWidth
+            type={returnType()}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={showPassword}
+                onChange={toggleShowPassword}
+                value="showPassword"
+                color="primary"
+              />
+            }
+            label="Show password"
+          />
+        </FormControl>
+      </Stack>
+      {isError && <InlineErrorHandler message={error.message} />}
+      <Stack className={classes.button} direction="row">
+        <Button onClick={handleSignUp} sx={{ textTransform: "none" }}>
+          Create profile
+        </Button>
+        <LoadingButton
+          loading={isLoading}
+          variant="contained"
+          color="primary"
+          onClick={handleSubmit}
+        >
+          Sign in
+        </LoadingButton>
+      </Stack>
+    </>
   );
 };
 

@@ -2,7 +2,6 @@ export { default as ActionsFeedbackBar } from "./ActionsFeedbackBar";
 export { default as AppBarWithinDialog } from "./AppBarWithinDialog";
 export { default as BoxErrorHandler } from "./BoxErrorHandler";
 export { default as CardErrorHandler } from "./CardErrorHandler";
-export { default as ConditionalWrapper } from "./ConditionalWrapper";
 export { default as DialogErrorHandler } from "./DialogErrorHandler";
 export { default as DrawerItem } from "./DrawerItem";
 export { default as DrawerItemContainer } from "./DrawerItemContainer";
@@ -18,5 +17,7 @@ export { default as PersistSignIn } from "./PersistSignIn";
 export { default as ProfilePopper } from "./ProfilePopper";
 export { default as RequireAuth } from "./RequireAuth";
 export { default as SettingsDialog } from "./SettingsDialog";
+export { default as SignIn } from "./SignIn";
 export { default as SignInForm } from "./SignInForm";
+export { default as SignInOAuthCallback } from "./SignInOAuthCallback"
 export { default as SignUpForm } from "./SignUpForm";

@@ -80,7 +80,6 @@ const BootPage = (props) => {
               />
           )}
           {isError && <InlineErrorHandler message={error.message} />}
-          <button>Go to projects</button>
           </Stack>
       </Box>
     </Root>
