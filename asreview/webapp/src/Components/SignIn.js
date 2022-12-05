@@ -87,10 +87,12 @@ const SignIn = () => {
                 <SignInForm
                   classes={classes}
                 />
-                <SignInOAuth
-                  classes={classes}
-                  oauthServices={oauthServices}
-                />
+                { oauthServices.length > 0 && 
+                  <SignInOAuth
+                    classes={classes}
+                    oauthServices={oauthServices}
+                  />
+                }
               </Stack>
             </CardContent>
           </Card>
