@@ -273,14 +273,11 @@ def get_random_state(random_state):
         If it is a RandomState, return it (nop).
         If it is None, return the random state of numpy.
     """
-    if random_state is None:
-        return np.random.random.__self__
-    else:
-        if isinstance(random_state, np.random.RandomState):
-            return random_state
-        else:
-            return np.random.RandomState(
-                random_state % (2**32))
+
+    if not isinstance(random_state, np.random.RandomState):
+        return np.random.RandomState(random_state)
+
+    return random_state
 
 
 def _get_executable():
