@@ -96,6 +96,7 @@ extensions = [
     'sphinx_reredirects',
     'sphinxcontrib.youtube',
     'nbsphinx',
+    'IPython.sphinxext.ipython_console_highlighting',
 ]
 autosectionlabel_prefix_document = True
 
