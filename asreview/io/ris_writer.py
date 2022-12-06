@@ -78,7 +78,7 @@ class RISWriter():
             dict_note = {-1: "ASReview_not_seen",
                          0: "ASReview_irrelevant",
                          1: "ASReview_relevant"}
-            rec_copy["notes"].append(dict_note[included])
+            rec_copy["notes"].insert(0, dict_note[included])
 
             # Append the deepcopied and updated record to a new array
             records_new.append(rec_copy)
