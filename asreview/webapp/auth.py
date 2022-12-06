@@ -14,17 +14,18 @@
 
 
 import datetime
+import json
 from pathlib import Path
+import requests
 
-from flask import Blueprint
-from flask import jsonify
-from flask import request
+from flask import Blueprint, current_app, jsonify, request
 from flask_cors import CORS
 from flask_login import current_user, login_user, logout_user
 from sqlalchemy.exc import SQLAlchemyError
 
 from asreview.webapp import DB
-from asreview.webapp.authentication.login_required import asreview_login_required
+from asreview.webapp.authentication.login_required import \
+    asreview_login_required
 from asreview.webapp.authentication.models import User
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -133,4 +134,43 @@ def signout():
 
     status, message = result
     response = jsonify({'message': message})
+    return response, status
+
+@bp.route('/oauth_callback', methods=["POST"])
+def oauth_callback():
+    # get parameters
+    client_id = request.form.get('client_id', '').strip()
+    code = request.form.get('code', '').strip()
+    provider = request.form.get('provider', '').strip()
+    redirect_uri = request.form.get('redirect_uri', '').strip()
+    # find service in env
+    providers = current_app.config.get('OAUTH', [])
+    provider = [p for p in providers if p['PROVIDER'] == provider][0]
+    # what is the token url
+    token_url = provider['TOKEN_URL']
+    # send request to token URL
+    response = requests.post(provider['TOKEN_URL'], data={
+        'code': code,
+        'client_id': client_id,
+        'client_secret': provider['CLIENT_SECRET'],
+        'grant_type': 'authorization_code',
+        'redirect_uri': redirect_uri
+    })
+    response = json.loads(response.text)
+    print(response)
+    token = response['access_token']
+    # get email
+    response = requests.post(
+        'https://www.googleapis.com/oauth2/v3/userinfo',
+        data={
+            'access_token': token
+        }
+    )
+    print('--->', response.text)
+
+
+    result = (200, { 'data': 'hello' })
+
+    status, message = result
+    response = jsonify(message)
     return response, status

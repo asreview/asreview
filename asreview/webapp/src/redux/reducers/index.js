@@ -1,16 +1,21 @@
 import {
-  SET_ASREVIEW_VERSION,
   AUTHENTICATION,
+  MY_PROJECTS,
+  OAUTH_SERVICES,
+  SET_ASREVIEW_VERSION,
+  SET_BOOT_DATA,
   SET_PROJECT,
   TOGGLE_HELP_DIALOG,
-  SET_BOOT_DATA,
-  MY_PROJECTS,
 } from "../../constants/action-types";
 
 const initialState = {
   asreview_version: undefined,
   authentication: undefined,
-  oauth: undefined,
+  oAuthData: {
+    services: [],
+    compareKey: 'oAuthCompareKey',  // these 2 values are used when the oAuth
+    messageType: 'oAuthMessage'     // popup has to communicate with the opener
+  },
   status: undefined,
   project_id: null,
   onHelpDialog: false,
@@ -41,13 +46,23 @@ function rootReducer(state = initialState, action) {
         asreview_version: action.data.version,
         authentication: action.data.authentication,
         status: action.data.status,
-        oauth: action.data?.oauth
       });
     // set my projects list
     case MY_PROJECTS:
       return Object.assign({}, state, {
         myProjects: action.data
       });
+    // set OAuth services
+    case OAUTH_SERVICES: {
+      const newState = {
+        ...state.oAuthData,
+        services: action.data
+      }
+      return Object.assign({}, state, {
+        oAuthData: newState
+      });
+    }
+    // default
     default:
       return state;
   }

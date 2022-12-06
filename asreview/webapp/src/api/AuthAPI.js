@@ -1,7 +1,6 @@
 import { axiosErrorHandler } from "./axiosErrorHandler";
 import { auth_url } from "../globals.js";
 import axios from "axios";
-import { getBackdropUtilityClass } from "@mui/material";
 
 class AuthAPI {
   static signup(variables) {
@@ -73,6 +72,28 @@ class AuthAPI {
         method: "delete",
         url: url,
         withCredentials: true,
+      })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static oAuthCallback(data) {
+    let body = new FormData();
+    body.set("client_id", data.clientId);
+    body.set("code", data.code);
+    body.set("provider", data.provider);
+    body.set("redirect_uri", data.redirectURI);
+    const url = auth_url + `oauth_callback`;
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "post",
+        url: url,
+        data: body,
       })
         .then((result) => {
           resolve(result["data"]);

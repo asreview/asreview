@@ -19,5 +19,5 @@ export { default as RequireAuth } from "./RequireAuth";
 export { default as SettingsDialog } from "./SettingsDialog";
 export { default as SignIn } from "./SignIn";
 export { default as SignInForm } from "./SignInForm";
-export { default as SignInOAuthCallback } from "./SignInOAuthCallback"
+export { default as SignInOAuthCallback } from "./SignInOAuthCallback";
 export { default as SignUpForm } from "./SignUpForm";

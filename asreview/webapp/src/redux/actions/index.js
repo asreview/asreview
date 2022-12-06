@@ -1,10 +1,11 @@
 import {
-  SET_ASREVIEW_VERSION,
   AUTHENTICATION,
+  MY_PROJECTS,
+  OAUTH_SERVICES,
+  SET_ASREVIEW_VERSION,
+  SET_BOOT_DATA,
   SET_PROJECT,
   TOGGLE_HELP_DIALOG,
-  SET_BOOT_DATA,
-  MY_PROJECTS,
 } from "../../constants/action-types";
 
 // note: I am not too sure about these functions, they
@@ -33,4 +34,8 @@ export function setBootData(data) {
 
 export function setMyProjects(data) {
   return { type: MY_PROJECTS, data: data };
+}
+
+export function setOAuthServices(data) {
+  return { type: OAUTH_SERVICES, data: data };
 }

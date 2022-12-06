@@ -1,15 +1,15 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { useSelector, useDispatch } from 'react-redux';
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import "typeface-roboto";
-import { CssBaseline, createTheme, Fade, useMediaQuery } from "@mui/material";
+import { Box, CssBaseline, createTheme, useMediaQuery } from "@mui/material";
+import CircularProgress from '@mui/material/CircularProgress';
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import "./App.css";
 
 import { BaseAPI } from "./api/index.js";
-import { setBootData } from "./redux/actions";
-
+import { setBootData, setOAuthServices } from "./redux/actions";
 
 import {
   HelpDialog,
@@ -23,7 +23,6 @@ import {
 } from "./Components";
 import { HomePage } from "./HomeComponents";
 import { ProjectPage } from "./ProjectComponents";
-import BootPage from "./BootPage";
 import {
   useDarkMode,
   useFontSize,
@@ -31,10 +30,8 @@ import {
   useUndoEnabled,
 } from "./hooks/SettingsHooks";
 import { useToggle } from "./hooks/useToggle";
-import { SettingsEthernet } from "@mui/icons-material";
 
 const queryClient = new QueryClient();
-
 
 const App = (props) => {
   // state related stuff for booting the app
@@ -68,19 +65,16 @@ const App = (props) => {
   const [onNavDrawer, toggleNavDrawer] = useToggle(mobileScreen ? false : true);
   const [onAnimation, toggleAnimation] = useToggle(false);
 
-
   // This effect does a boot request to gather information 
-  // about the backend
+  // from the backend
   React.useEffect(() => {
-    // @Todo: THIS FEELS VERY BAD
     let result = BaseAPI.boot({})
     .then(response => {
-      const delay = (response.status === 'development')? 500 : 500;
-      // in production we set a 3 secs delay to show the logo,
-      // in development we immediately set the boot-data
-      setTimeout(() => {
-          dispatch(setBootData(response));
-      }, delay);
+      dispatch(setBootData(response));
+      // set oauth services if there are any
+      if (response?.oauth) {
+        dispatch(setOAuthServices(response.oauth));
+      }
     })
     .catch(err => { console.log(err); });
   }, [])
@@ -178,9 +172,14 @@ const App = (props) => {
 
           <div aria-label="nav and main content">
             { (appReady === false) && 
-                //<Fade in={false} timeout={4000}>
-                    <BootPage />
-                //</Fade> 
+              <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                minHeight="100vh"
+              >
+                <CircularProgress/>
+              </Box>
             }
             { (appReady === true) && render_routes() }
           </div>

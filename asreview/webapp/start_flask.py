@@ -229,19 +229,29 @@ def create_app(**kwargs):
             isinstance(app.config.get('OAUTH'), list):
             services = []
             for service in app.config.get('OAUTH'):
+
+                # get data from dictionary
                 provider = service.get('PROVIDER', False)
-                url = service.get('URL', False)
+                authentication_url = service.get('AUTHENTICATION_URL', False)
                 client_id = service.get('CLIENT_ID', False)
+                secret = service.get('CLIENT_SECRET', False) # do not share!
                 redirect_uri = service.get('REDIRECT_URI', False)
                 scope = service.get('SCOPE', False)
-                if all([provider, url, client_id, redirect_uri, scope]):
+
+                # check if all is there
+                if all([provider, authentication_url, client_id, secret, 
+                    redirect_uri, scope]):
+
+                    # if all is there append
                     services.append({
                         'provider': provider,
-                        'url': url,
+                        'authentication_url': authentication_url,
                         'client_id': client_id,
                         'redirect_uri': redirect_uri,
                         'scope': scope
                     })
+
+            # communicate complete oauth services to front end 
             if len(services) > 0:
                 response['oauth'] = services
 

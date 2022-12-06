@@ -1,7 +1,4 @@
 import * as React from "react";
-import {
-  useLocation
-} from "react-router-dom";
 import { useSelector } from 'react-redux';
 import {
   Box,
@@ -20,7 +17,6 @@ import {
 
 import { WordmarkState } from "../globals";
 import SignInOAuth from "./SignInOAuth";
-
 
 const PREFIX = "SignInForm";
 
@@ -67,7 +63,8 @@ const Root = styled("div")(({ theme }) => ({
 
 
 const SignIn = () => {
-  const oauthServices = useSelector(state => state.oauth) || [];
+  const oAuthData = useSelector(state => state.oAuthData);
+  const oAuthServices = oAuthData.services || [];
 
   return (
     <Root>
@@ -87,10 +84,9 @@ const SignIn = () => {
                 <SignInForm
                   classes={classes}
                 />
-                { oauthServices.length > 0 && 
+                { oAuthServices.length > 0 && 
                   <SignInOAuth
                     classes={classes}
-                    oauthServices={oauthServices}
                   />
                 }
               </Stack>

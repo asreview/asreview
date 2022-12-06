@@ -5,4 +5,6 @@ export const SET_PROJECT = "SET_PROJECT";
 export const TOGGLE_HELP_DIALOG = "TOGGLE_HELP_DIALOG";
 
 export const SET_BOOT_DATA = "SET_BOOT_DATA";
+export const OAUTH_SERVICES = "OAUTH_SERVICES";
+
 export const MY_PROJECTS = "MY_PROJECTS";
