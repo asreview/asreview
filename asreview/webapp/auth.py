@@ -148,7 +148,7 @@ def oauth_callback():
     providers = current_app.config.get('OAUTH', [])
     provider = [p for p in providers if p['PROVIDER'] == provider_name][0]
 
-    # Step 1: we have a code, now let's get a token:
+    # We have a code, now let's get a token:
     # what is the endpoint to get this token
     token_url = provider['TOKEN_URL']
 
@@ -168,7 +168,7 @@ def oauth_callback():
         print('Orcid response: ', response.json())
 
     elif provider_name == 'GitHub':
-        print('GITHUB')
+        
         response = requests.post(
             provider['TOKEN_URL'], 
             data={
@@ -179,7 +179,7 @@ def oauth_callback():
             headers={'Accept': 'application/json'}
         )
         print('GitHub response: ', response.json())
-        
+
         # get token from service response
         token = response.json()['access_token']
         # get a user profile
