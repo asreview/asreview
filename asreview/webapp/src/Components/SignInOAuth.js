@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import {
   Apple, 
+  GitHub,
   Google, 
   LinkedIn
 } from "@mui/icons-material";
@@ -104,7 +105,7 @@ const SignInOauth = (props) => {
     // 3. Open popup
     popupRef.current = openPopup(
       enhanceAuthorizeUrl(
-        service.authentication_url,
+        service.authorization_url,
         service.client_id,
         service.redirect_uri,
         service.scope,
@@ -208,6 +209,17 @@ const SignInOauth = (props) => {
 
   });
 
+  const getIcon = (service) => {
+    switch(service) {
+      case 'Google':
+        return <Google/>
+      case 'GitHub':
+        return <GitHub/>
+      case 'Orcid':
+        return <Apple/>
+    }
+  }
+
   return (
     <Stack className={classes.button} direction="row">
     <Typography variant="body1">Or sign in with:</Typography>
@@ -217,7 +229,7 @@ const SignInOauth = (props) => {
           onClick={() => handleOauthSignIn(service)}
           key={service.provider}
         >
-          < Google />
+          {getIcon(service.provider)}
         </IconButton>
       )
     })}

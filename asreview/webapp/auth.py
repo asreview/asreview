@@ -141,32 +141,57 @@ def oauth_callback():
     # get parameters
     client_id = request.form.get('client_id', '').strip()
     code = request.form.get('code', '').strip()
-    provider = request.form.get('provider', '').strip()
+    provider_name = request.form.get('provider', '').strip()
     redirect_uri = request.form.get('redirect_uri', '').strip()
-    # find service in env
+
+    # find this service in env parameters
     providers = current_app.config.get('OAUTH', [])
-    provider = [p for p in providers if p['PROVIDER'] == provider][0]
-    # what is the token url
+    provider = [p for p in providers if p['PROVIDER'] == provider_name][0]
+
+    # Step 1: we have a code, now let's get a token:
+    # what is the endpoint to get this token
     token_url = provider['TOKEN_URL']
+
     # send request to token URL
-    response = requests.post(provider['TOKEN_URL'], data={
-        'code': code,
-        'client_id': client_id,
-        'client_secret': provider['CLIENT_SECRET'],
-        'grant_type': 'authorization_code',
-        'redirect_uri': redirect_uri
-    })
-    response = json.loads(response.text)
-    print(response)
-    token = response['access_token']
-    # get email
-    response = requests.post(
-        'https://www.googleapis.com/oauth2/v3/userinfo',
-        data={
-            'access_token': token
-        }
-    )
-    print('--->', response.text)
+    if provider_name == 'Orcid':
+        # get token
+        response = requests.post(
+            provider['TOKEN_URL'], 
+            data={
+                'code': code,
+                'client_id': client_id,
+                'client_secret': provider['CLIENT_SECRET'],
+                'grant_type': 'authorization_code'
+            },
+            headers={'Accept': 'application/json'}
+        )
+        print('Orcid response: ', response.json())
+
+    elif provider_name == 'GitHub':
+        print('GITHUB')
+        response = requests.post(
+            provider['TOKEN_URL'], 
+            data={
+                'code': code,
+                'client_id': client_id,
+                'client_secret': provider['CLIENT_SECRET'],
+            },
+            headers={'Accept': 'application/json'}
+        )
+        print('GitHub response: ', response.json())
+        
+        # get token from service response
+        token = response.json()['access_token']
+        # get a user profile
+        response = requests.get(
+            'https://api.github.com/user',
+            headers={
+                'Authorization': f'Bearer {token}',
+                'Accept': 'application/json'
+            }
+        )
+        print('-----', response.json())        
+
 
 
     result = (200, { 'data': 'hello' })
