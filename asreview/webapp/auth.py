@@ -32,7 +32,10 @@ from asreview.webapp.authentication.oauth_handler import OAuthHandler
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 CORS(
     bp,
-    resources={r"*": {"origins": "http://localhost:3000"}},
+    resources={r"*": {"origins": [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000"
+    ]}},
     supports_credentials=True,
 )
 

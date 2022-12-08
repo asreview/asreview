@@ -31,7 +31,7 @@ class AuthAPI {
     let body = new FormData();
     body.set("email", variables.email);
     body.set("password", variables.password);
-
+    
     const url = auth_url + `signin`;
     return new Promise((resolve, reject) => {
       axios({
