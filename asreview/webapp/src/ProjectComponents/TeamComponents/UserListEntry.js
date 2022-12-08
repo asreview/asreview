@@ -13,7 +13,7 @@ const UserListEntry = (props) => {
           <PersonIcon />
         </Avatar>
       </ListItemAvatar>
-      <ListItemText primary={props.user.full_name} secondary={props.user.email} />
+      <ListItemText primary={props.user.name} secondary={props.user.email} />
     </ListItem>
   );
 }

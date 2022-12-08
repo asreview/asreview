@@ -6,8 +6,7 @@ class AuthAPI {
   static signup(variables) {
     let body = new FormData();
     body.set("password", variables.password);
-    body.set("first_name", variables.firstName);
-    body.set("last_name", variables.lastName);
+    body.set("name", variables.name);
     body.set("affiliation", variables.affiliation);
     body.set("email", variables.email);
     body.set("public", variables.publicAccount === true ? 1 : 0);

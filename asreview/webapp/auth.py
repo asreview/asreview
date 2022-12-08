@@ -57,7 +57,7 @@ def signin():
             )
             result = (200, {
                 'logged_in': logged_in,
-                'name': user.get_full_name(),
+                'name': user.get_name(),
                 'id': user.id
             })
         else:
@@ -81,8 +81,7 @@ def signup():
     if current_app.config.get('ALLOW_ACCOUNT_CREATION', False):
         email = request.form.get('email', '').strip()
         password = request.form.get('password')
-        first_name = request.form.get('first_name', '').strip()
-        last_name = request.form.get('last_name', '').strip()
+        name = request.form.get('name', '').strip()
         affiliation = request.form.get('affiliation', '').strip()
         public = bool(int(request.form.get('public', '0')))
 
@@ -96,8 +95,7 @@ def signup():
             # thing that remains is to add the user (password will be
             # hashed in the User model)
             try:
-                user = User(email, password, first_name, last_name,
-                    affiliation, public)
+                user = User(email, password, name, affiliation, public)
                 DB.session.add(user)
                 DB.session.commit()
                 # set user_id
@@ -121,7 +119,7 @@ def refresh():
     if current_user:
         result = (200, {
             'logged_in': current_user.is_authenticated,
-            'name': current_user.get_full_name(),
+            'name': current_user.get_name(),
             'id': current_user.id
         })
     else:

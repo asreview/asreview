@@ -68,10 +68,8 @@ const SignupSchema = Yup.object().shape({
   email: Yup.string()
     .email('Invalid email')
     .required('Email is required'),
-  firstName: Yup.string()
-    .required('First name is required'),
-  lastName: Yup.string()
-    .required('Last name is required'),
+  name: Yup.string()
+    .required('Full name is required'),
   affiliation: Yup.string()
     .min(2, 'Affiliation must be at least 2 characters long')
     .required('Affiliation is required'),
@@ -82,7 +80,8 @@ const SignupSchema = Yup.object().shape({
     )
     .required('Password is required'),
   confirmPassword: Yup.string()
-     .oneOf([Yup.ref('password'), null], 'Passwords must match')
+    .required('Password confirmation is required')
+    .oneOf([Yup.ref('password'), null], 'Passwords must match')
 });
 
 
@@ -100,8 +99,7 @@ const SignUpForm = (props) => {
 
   const initialValues = {
     email: '',
-    firstName: '',
-    lastName: '',
+    name: '',
     affiliation: '',
     password: '',
     confirmPassword: '',
@@ -160,32 +158,16 @@ const SignUpForm = (props) => {
                   onBlur={formik.handleBlur}
                 />
                 {formik.touched.email && formik.errors.email ? <FHT error={true}>{formik.errors.email}</FHT> : null}
-                <FormControl>
-                  <Stack direction="row" spacing={2}>
-                    <TextField
-                      id="firstName"
-                      label="First name"
-                      size="small"
-                      fullWidth
-                      value={formik.values.firstName}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                    />
-                    <TextField
-                      id="lastName"
-                      label="Last name"
-                      size="small"
-                      fullWidth
-                      value={formik.values.lastName}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                    />
-                  </Stack>
-                  <Stack direction="row" spacing={2}>
-                    {formik.touched.firstName && formik.errors.firstName ? <FHT error={true}>{formik.errors.firstName}</FHT> : null}
-                    {formik.touched.lastName && formik.errors.lastName ? <FHT error={true}>{formik.errors.lastName}</FHT> : null}
-                  </Stack>
-                </FormControl>
+                <TextField
+                  id="name"
+                  label="Full name"
+                  size="small"
+                  fullWidth
+                  value={formik.values.name}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                />
+                {formik.touched.name && formik.errors.name ? <FHT error={true}>{formik.errors.name}</FHT> : null}
                 <TextField
                   id="affiliation"
                   label="Affiliation"
@@ -222,7 +204,6 @@ const SignUpForm = (props) => {
                 </FormControl>
                 {formik.touched.password && formik.errors.password ? <FHT error={true}>{formik.errors.password}</FHT> : null}
                 {formik.touched.confirmPassword && formik.errors.confirmPassword ? <FHT error={true}>{formik.errors.confirmPassword}</FHT> : null}
-
                 <FormControl>
                   <FormControlLabel
                     control={

@@ -18,7 +18,8 @@ from uuid import uuid4
 
 from flask_login import UserMixin
 from sqlalchemy import (
-    Boolean, Column, ForeignKey, Integer, String, Table, UniqueConstraint
+    Boolean, Column, DateTime, ForeignKey, Integer, 
+    String
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.session import Session
@@ -32,13 +33,16 @@ class User(UserMixin, DB.Model):
     """The User model for user accounts."""
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
+    identifier = Column(String(100))
+    origin = Column(String(100))
     email = Column(String(100), unique=True)
-    hashed_password = Column(String(100), unique=True)
     name = Column(String(100))
     affiliation = Column(String(100))
     public = Column(Boolean)
     verified = Column(Boolean)
     token = Column(String(50))
+    token_created_at = Column(DateTime)
+    hashed_password = Column(String(100), unique=True)
 
     projects = relationship(
         'Project',
@@ -56,36 +60,33 @@ class User(UserMixin, DB.Model):
         back_populates='pending_invitations'
     )
 
-    def __init__(self, email, password, first_name=None,
-        last_name=None, affiliation=None, public=True):
+    def __init__(self, email, password, name=None,
+        affiliation=None, public=True, verified=True, origin='system'):
+
         self.email = email
-        self.first_name = first_name
-        self.last_name = last_name
+        self.identifier = self.email if origin == 'system' else origin
+        self.origin = origin
+        self.name = name
         self.affiliation = affiliation
         self.email = email
         self.public = public
+        self.verified = verified
         self.hashed_password = generate_password_hash(password)
 
     def verify_password(self, password):
         """Verify password"""
         return check_password_hash(self.hashed_password, password)
 
-    def get_full_name(self):
-        """Get full name from user account"""
-        first_name = self.first_name or ''
-        last_name = self.last_name or ''
-        name = ' '.join([first_name, last_name]).strip()
-        if name == '':
-            # fallback is email
-            name = self.email
+    def get_name(self):
+        """Get name-ish thing from user account"""
+        name = self.name or self.email
         return name
 
     def summarize(self):
         """Summarize user account in frontend data packet"""
         return {
             'id': self.id,
-            'last_name': self.last_name,
-            'full_name': self.get_full_name(),
+            'name': self.get_name(),
             'email': self.email
         }
 

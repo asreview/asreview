@@ -109,7 +109,7 @@ const InvitationContents = (props) => {
           }}
           id="controllable-states-demo"
           options={ allUsers.filter(item => !associatedUsers.has(item.id)) }
-          getOptionLabel={option => `${option.full_name}` }
+          getOptionLabel={option => `${option.name}` }
           sx={{ width: 300, padding: 1 }}
           renderInput={(params) => <TextField {...params} label="Select a user" />}
         />
