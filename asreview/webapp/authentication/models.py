@@ -14,6 +14,7 @@
 
 from email.headerregistry import UniqueAddressHeader
 from pathlib import Path
+from uuid import uuid4
 
 from flask_login import UserMixin
 from sqlalchemy import (
@@ -33,10 +34,11 @@ class User(UserMixin, DB.Model):
     id = Column(Integer, primary_key=True)
     email = Column(String(100), unique=True)
     hashed_password = Column(String(100), unique=True)
-    first_name = Column(String(50))
-    last_name = Column(String(50))
+    name = Column(String(100))
     affiliation = Column(String(100))
     public = Column(Boolean)
+    verified = Column(Boolean)
+    token = Column(String(50))
 
     projects = relationship(
         'Project',
@@ -86,6 +88,10 @@ class User(UserMixin, DB.Model):
             'full_name': self.get_full_name(),
             'email': self.email
         }
+
+    def generate_token(self):
+        """Generate a token for verification by email"""
+        return str(uuid4())
 
     def __repr__(self):
         return f'<User {self.email!r}, id: {self.id}>'

@@ -11,8 +11,10 @@ import {
 const initialState = {
   asreview_version: undefined,
   authentication: undefined,
+  email_verification: undefined,
+  allow_account_creation: undefined,
   oAuthData: {
-    services: [],
+    services: {},
     compareKey: 'oAuthCompareKey',  // these 2 values are used when the oAuth
     messageType: 'oAuthMessage'     // popup has to communicate with the opener
   },
@@ -46,6 +48,8 @@ function rootReducer(state = initialState, action) {
         asreview_version: action.data.version,
         authentication: action.data.authentication,
         status: action.data.status,
+        email_verification: action.data.email_verification,
+        allow_account_creation: action.data.allow_account_creation,
       });
     // set my projects list
     case MY_PROJECTS:

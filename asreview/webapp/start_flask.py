@@ -43,6 +43,7 @@ from asreview.webapp.authentication.models import (
     SingleUser,
     User
 )
+from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
 # set logging level
 if os.environ.get('FLASK_ENV', "") == "development":
@@ -142,6 +143,10 @@ def create_app(**kwargs):
             uri = os.path.join(asreview_path(), f'asreview.{env}.sqlite')
             app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{uri}'
 
+        # store oauth config in oauth handler
+        if bool(app.config.get('OAUTH', False)):
+            app.config['OAUTH'] = OAuthHandler(app.config['OAUTH'])
+
         # create the database plus table(s)
         DB.init_app(app)
         with app.app_context():
@@ -214,49 +219,38 @@ def create_app(**kwargs):
         else:
             status = 'asreview'
 
+        # the big one
+        authenticated = bool(app.config['AUTHENTICATION_ENABLED'])
+
         response = {
             'status': status,
-            'authentication': bool(app.config['AUTHENTICATION_ENABLED']),
+            'authentication':authenticated,
             'version': asreview_version,
         }
-        # if recaptcha config is provided 
-        if app.config.get('RE_CAPTCHA_V3', False):
-            response['recaptchav3_key'] = app.config['RE_CAPTCHA_V3'] \
-                .get('KEY', False)
 
-        # if oauth config is provided
-        if app.config.get('OAUTH', False) and \
-            isinstance(app.config.get('OAUTH'), list):
-            services = []
-            for service in app.config.get('OAUTH'):
+        # if we do authentication we have a lot of extra parameters
+        if authenticated:
+            # if recaptcha config is provided for account creation
+            if app.config.get('RE_CAPTCHA_V3', False):
+                response['recaptchav3_key'] = app.config['RE_CAPTCHA_V3'] \
+                    .get('KEY', False)
 
-                # get data from dictionary
-                provider = service.get('PROVIDER', False)
-                authorization_url = service.get('AUTHORIZATION_URL', False)
-                client_id = service.get('CLIENT_ID', False)
-                secret = service.get('CLIENT_SECRET', False) # do not share!
-                redirect_uri = service.get('REDIRECT_URI', False)
-                scope = service.get('SCOPE', '')
+            # check if users can create accounts (FOR NOW SET TO FALSE!!!)
+            response['allow_account_creation'] = \
+                False # app.config.get('ALLOW_ACCOUNT_CREATION', False)
 
-                # check if all is there
-                if all([provider, authorization_url, client_id, 
-                    secret, redirect_uri]):
+            # check if we are doing email verification
+            response['email_verification'] = \
+                bool(app.config.get('EMAIL_VERIFICATION', False))
 
-                    # if all is there append
-                    services.append({
-                        'provider': provider,
-                        'authorization_url': authorization_url,
-                        'client_id': client_id,
-                        'redirect_uri': redirect_uri,
-                        'scope': scope
-                    })
-
-            # communicate complete oauth services to front end 
-            if len(services) > 0:
-                response['oauth'] = services
+            # if oauth config is provided
+            if isinstance(app.config.get('OAUTH', False), OAuthHandler):
+                params = app.config.get('OAUTH').front_end_params()
+                # and there something in it, just to be sure
+                if params:
+                    response['oauth'] = params
 
         return jsonify(response)
-
     return app
 
 

@@ -84,10 +84,8 @@ class AuthAPI {
 
   static oAuthCallback(data) {
     let body = new FormData();
-    body.set("client_id", data.clientId);
     body.set("code", data.code);
     body.set("provider", data.provider);
-    body.set("redirect_uri", data.redirectURI);
     const url = auth_url + `oauth_callback`;
     return new Promise((resolve, reject) => {
       axios({

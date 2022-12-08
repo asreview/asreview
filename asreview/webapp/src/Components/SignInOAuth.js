@@ -81,9 +81,8 @@ const removeState = (key) => {
 
 const SignInOauth = (props) => {
   const classes = props.classes;
-
-  const oAuthData = useSelector(state => state.oAuthData);
-  const oAuthServices = oAuthData.services || [];
+  const oAuthData = props.oAuthData;
+  const oAuthServices = oAuthData.services;
   const messageType = oAuthData.messageType;
   const compareKey = oAuthData.compareKey;
 
@@ -91,7 +90,10 @@ const SignInOauth = (props) => {
   const intervalRef = React.useRef();
   const [{ loading, error }, setUI] = React.useState({ loading: false, error: null });
 
-  const handleOauthSignIn = React.useCallback((service) => {
+  const handleOauthSignIn = React.useCallback((provider) => {
+    let service = oAuthServices[provider]
+    let redirect_uri = `${window.location.origin}/oauth_callback`;
+
     // 1. Init
     setUI({
       loading: true,
@@ -107,7 +109,7 @@ const SignInOauth = (props) => {
       enhanceAuthorizeUrl(
         service.authorization_url,
         service.client_id,
-        service.redirect_uri,
+        redirect_uri,
         service.scope,
         state
       )
@@ -130,10 +132,8 @@ const SignInOauth = (props) => {
 
             const code = message && message.data && message.data.payload && message.data.payload.code;
             const payload = {
-              provider: service.provider,
-              clientId: service.client_id,
+              provider: provider,
               code: code,
-              redirectURI: service.redirect_uri,
             }
             AuthAPI.oAuthCallback(payload)
               .then(data => {
@@ -211,11 +211,11 @@ const SignInOauth = (props) => {
 
   const getIcon = (service) => {
     switch(service) {
-      case 'Google':
+      case 'google':
         return <Google/>
-      case 'GitHub':
+      case 'github':
         return <GitHub/>
-      case 'Orcid':
+      case 'orcid':
         return <Apple/>
     }
   }
@@ -223,13 +223,13 @@ const SignInOauth = (props) => {
   return (
     <Stack className={classes.button} direction="row">
     <Typography variant="body1">Or sign in with:</Typography>
-    { oAuthServices.map((service) => {
+    { Object.keys(oAuthServices).map((provider) => {
       return (
         <IconButton
-          onClick={() => handleOauthSignIn(service)}
-          key={service.provider}
+          onClick={() => handleOauthSignIn(provider)}
+          key={provider}
         >
-          {getIcon(service.provider)}
+          {getIcon(provider)}
         </IconButton>
       )
     })}

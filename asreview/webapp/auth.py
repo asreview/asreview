@@ -27,6 +27,7 @@ from asreview.webapp import DB
 from asreview.webapp.authentication.login_required import \
     asreview_login_required
 from asreview.webapp.authentication.models import User
+from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 CORS(
@@ -73,35 +74,44 @@ def signin():
 
 @bp.route('/signup', methods=["POST"])
 def signup():
-    email = request.form.get('email', '').strip()
-    password = request.form.get('password')
-    first_name = request.form.get('first_name', '').strip()
-    last_name = request.form.get('last_name', '').strip()
-    affiliation = request.form.get('affiliation', '').strip()
-    public = bool(int(request.form.get('public', '0')))
+    # this is for the response
+    user_id = False
 
-    # check if email already exists
-    user = User.query.filter(User.email == email).one_or_none()
-    # return error if user doesn't exist
-    if isinstance(user, User):
-        result = (404, f'User with email "{email}" already exists.')
+    # Can we create accounts?
+    if current_app.config.get('ALLOW_ACCOUNT_CREATION', False):
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password')
+        first_name = request.form.get('first_name', '').strip()
+        last_name = request.form.get('last_name', '').strip()
+        affiliation = request.form.get('affiliation', '').strip()
+        public = bool(int(request.form.get('public', '0')))
+
+        # check if email already exists
+        user = User.query.filter(User.email == email).one_or_none()
+        # return error if user doesn't exist
+        if isinstance(user, User):
+            result = (404, f'User with email "{email}" already exists.')
+        else:
+            # password confirmation is done by front end, so the only
+            # thing that remains is to add the user (password will be
+            # hashed in the User model)
+            try:
+                user = User(email, password, first_name, last_name,
+                    affiliation, public)
+                DB.session.add(user)
+                DB.session.commit()
+                # set user_id
+                user_id = user.id
+                # result is a 201 with message
+                result = (201, f'User "#{email}" created.')
+            except SQLAlchemyError:
+                DB.session.rollback()
+                result = (500, 'Creating account unsuccessful!')
     else:
-        # password confirmation is done by front end, so the only
-        # thing that remains is to add the user (password will be
-        # hashed in the User model)
-        try:
-            user = User(email, password, first_name, last_name,
-                affiliation, public)
-            DB.session.add(user)
-            DB.session.commit()
-            # result is a 201 with message
-            result = (201, f'User "#{email}" created.')
-        except SQLAlchemyError:
-            DB.session.rollback()
-            result = (500, 'Creating account unsuccessful!')
+        result = (400, 'The app is not configured to create accounts')
 
     (status, message) = result
-    response = jsonify({'message': message, 'user_id': user.id})
+    response = jsonify({'message': message, 'user_id': user_id})
     return response, status
 
 
@@ -139,62 +149,23 @@ def signout():
 @bp.route('/oauth_callback', methods=["POST"])
 def oauth_callback():
     # get parameters
-    client_id = request.form.get('client_id', '').strip()
     code = request.form.get('code', '').strip()
-    provider_name = request.form.get('provider', '').strip()
-    redirect_uri = request.form.get('redirect_uri', '').strip()
+    provider = request.form.get('provider', '').strip()
 
-    # find this service in env parameters
-    providers = current_app.config.get('OAUTH', [])
-    provider = [p for p in providers if p['PROVIDER'] == provider_name][0]
+    # assuming we have this provider
+    oauth_handler = current_app.config.get('OAUTH', False)
+    if isinstance(oauth_handler, OAuthHandler) and \
+        provider in oauth_handler.providers():
 
-    # We have a code, now let's get a token:
-    # what is the endpoint to get this token
-    token_url = provider['TOKEN_URL']
+        (identifier, email, name) = \
+            oauth_handler.get_user_credentials(provider, code)
+        print(identifier, email, name)
 
-    # send request to token URL
-    if provider_name == 'Orcid':
-        # get token
-        response = requests.post(
-            provider['TOKEN_URL'], 
-            data={
-                'code': code,
-                'client_id': client_id,
-                'client_secret': provider['CLIENT_SECRET'],
-                'grant_type': 'authorization_code'
-            },
-            headers={'Accept': 'application/json'}
-        )
-        print('Orcid response: ', response.json())
+        result = (200, { 'data': 'hello' })
 
-    elif provider_name == 'GitHub':
-        
-        response = requests.post(
-            provider['TOKEN_URL'], 
-            data={
-                'code': code,
-                'client_id': client_id,
-                'client_secret': provider['CLIENT_SECRET'],
-            },
-            headers={'Accept': 'application/json'}
-        )
-        print('GitHub response: ', response.json())
-
-        # get token from service response
-        token = response.json()['access_token']
-        # get a user profile
-        response = requests.get(
-            'https://api.github.com/user',
-            headers={
-                'Authorization': f'Bearer {token}',
-                'Accept': 'application/json'
-            }
-        )
-        print('-----', response.json())        
-
-
-
-    result = (200, { 'data': 'hello' })
+    else:
+        result = (400, 
+            { 'data': f'OAuth provider {provider} could not be found' })
 
     status, message = result
     response = jsonify(message)

@@ -17,6 +17,7 @@ import {
 
 import { WordmarkState } from "../globals";
 import SignInOAuth from "./SignInOAuth";
+import { ContentPasteSearchOutlined } from "@mui/icons-material";
 
 const PREFIX = "SignInForm";
 
@@ -64,7 +65,7 @@ const Root = styled("div")(({ theme }) => ({
 
 const SignIn = () => {
   const oAuthData = useSelector(state => state.oAuthData);
-  const oAuthServices = oAuthData.services || [];
+  const allowAccountCreation = useSelector(state => state.allow_account_creation) || false;
 
   return (
     <Root>
@@ -83,10 +84,12 @@ const SignIn = () => {
                 </Stack>
                 <SignInForm
                   classes={classes}
+                  allowAccountCreation={allowAccountCreation}
                 />
-                { oAuthServices.length > 0 && 
+                { Object.keys(oAuthData.services).length > 0 && 
                   <SignInOAuth
                     classes={classes}
+                    oAuthData={oAuthData}
                   />
                 }
               </Stack>

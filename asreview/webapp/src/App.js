@@ -38,7 +38,8 @@ const App = (props) => {
   const [appReady, setAppReadyState] = React.useState(false)
   const dispatch = useDispatch();
   const authentication = useSelector(state => state.authentication);
-  const status = useSelector(state => state.status);
+  const allowAccountCreation = useSelector(state => state.allow_account_creation);
+  const emailVerification = useSelector(state => state.email_verification);
 
   // Dialog state
   const [onSettings, toggleSettings] = useToggle();
@@ -63,7 +64,6 @@ const App = (props) => {
 
   // Navigation drawer state
   const [onNavDrawer, toggleNavDrawer] = useToggle(mobileScreen ? false : true);
-  const [onAnimation, toggleAnimation] = useToggle(false);
 
   // This effect does a boot request to gather information 
   // from the backend
@@ -82,7 +82,11 @@ const App = (props) => {
   // This effect makes sure we handle routing at the 
   // moment we know for sure if there is, or isn't authentication.
   React.useEffect(() => {
-    if (authentication !== undefined) {
+    if (
+        authentication !== undefined &&
+        allowAccountCreation !== undefined &&
+        emailVerification !== undefined
+      ) {
         setAppReadyState(true);
     } else {
         setAppReadyState(false);
@@ -93,10 +97,12 @@ const App = (props) => {
   const render_sign_routes = () => {
     return (
       <>
-        <Route
+        { allowAccountCreation &&
+          <Route
             path="/signup"
             element={<SignUpForm mobileScreen={mobileScreen} />}
-        />
+          />
+        }
         <Route
             path="/signin"
             element={<SignIn mobileScreen={mobileScreen} />}

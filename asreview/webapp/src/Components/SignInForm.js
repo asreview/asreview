@@ -19,6 +19,7 @@ import { useToggle } from "../hooks/useToggle";
 
 const SignInForm = (props) => {
   const classes = props.classes;
+  const allowAccountCreation = props.allowAccountCreation;
 
   const queryClient = useQueryClient();
   const location = useLocation();
@@ -120,9 +121,12 @@ const SignInForm = (props) => {
       </Stack>
       {isError && <InlineErrorHandler message={error.message} />}
       <Stack className={classes.button} direction="row">
-        <Button onClick={handleSignUp} sx={{ textTransform: "none" }}>
-          Create profile
-        </Button>
+        { allowAccountCreation && 
+          <Button onClick={handleSignUp} sx={{ textTransform: "none" }}>
+            Create profile
+          </Button>
+        }
+
         <LoadingButton
           loading={isLoading}
           variant="contained"
