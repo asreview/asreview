@@ -129,11 +129,11 @@ const SignInOauth = (props) => {
             });
 
           } else {
-
             const code = message && message.data && message.data.payload && message.data.payload.code;
             const payload = {
               provider: provider,
               code: code,
+              redirect_uri: redirect_uri,
             }
             AuthAPI.oAuthCallback(payload)
               .then(data => {

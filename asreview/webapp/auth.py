@@ -152,6 +152,7 @@ def oauth_callback():
     # get parameters
     code = request.form.get('code', '').strip()
     provider = request.form.get('provider', '').strip()
+    redirect_uri = request.form.get('redirect_uri', '').strip()
 
     # assuming we have this provider
     oauth_handler = current_app.config.get('OAUTH', False)
@@ -159,7 +160,7 @@ def oauth_callback():
         provider in oauth_handler.providers():
 
         (identifier, email, name) = \
-            oauth_handler.get_user_credentials(provider, code)
+            oauth_handler.get_user_credentials(provider, code, redirect_uri)
         print(identifier, email, name)
 
         result = (200, { 'data': 'hello' })

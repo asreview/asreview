@@ -85,6 +85,7 @@ class AuthAPI {
     let body = new FormData();
     body.set("code", data.code);
     body.set("provider", data.provider);
+    body.set("redirect_uri", data.redirect_uri);
     const url = auth_url + `oauth_callback`;
     return new Promise((resolve, reject) => {
       axios({
