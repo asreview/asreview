@@ -71,14 +71,28 @@ class OAuthHandler:
                 'code': code,
                 'client_id': params['client_id'],
                 'client_secret': params['secret'],
-                'grant_type': 'authorization_code'
+                'grant_type': 'authorization_code',
+                'scope': '/authenticate'
             },
             headers={'Accept': 'application/json'}
         ).json()
         id = response['orcid']
         name = response.get('name', '')
-        token = response['access_token']
-        return (id, 'email', name)
+        # TODO@Casper: I don't understand why I can't
+        # get an email address from the public API. The
+        # next call responds with a 401 Unauthorized which
+        # doesn't make sense (I've set my email address on 'public')
+        # because the call and the scope should OK. Why!?
+        # token = response['access_token']
+        # response = requests.get(
+        #     f'https://api.sandbox.orcid.org/v3.0/{id}/email',
+        #     headers={
+        #         'Authorization': f'Bearer {token}',
+        #         'Accept': 'application/json'
+        #     }
+        # ).json()
+        # print(response.json())
+        return (id, 'email-unknown', name)
 
 
     def __handle_github(self, code):
@@ -106,7 +120,7 @@ class OAuthHandler:
         )
         response = response.json()
         id = response['id']
-        email = response.get('email', 'no-email-found')
+        email = response.get('email', 'email-unknown')
         name = response['name'] or response['login'] or response['id']
         return (id, email, name) 
 
@@ -135,7 +149,7 @@ class OAuthHandler:
             headers={'Accept': 'application/json'}
         ).json()
         id = response['sub']
-        email = response.get('email', 'no-email-found')
+        email = response.get('email', 'email-unknown')
         name = response.get('name', False) or \
             response.get('family_name', False) or 'Name'
         return (id, email, name)

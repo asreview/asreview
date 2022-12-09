@@ -83,13 +83,13 @@ def signup():
     # Can we create accounts?
     if current_app.config.get('ALLOW_ACCOUNT_CREATION', False):
         email = request.form.get('email', '').strip()
-        password = request.form.get('password')
         name = request.form.get('name', '').strip()
         affiliation = request.form.get('affiliation', '').strip()
+        password = request.form.get('password')
         public = bool(int(request.form.get('public', '0')))
 
         # check if email already exists
-        user = User.query.filter(User.email == email).one_or_none()
+        user = User.query.filter(User.identifier == email).one_or_none()
         # return error if user doesn't exist
         if isinstance(user, User):
             result = (404, f'User with email "{email}" already exists.')
@@ -98,13 +98,28 @@ def signup():
             # thing that remains is to add the user (password will be
             # hashed in the User model)
             try:
-                user = User(email, password, name, affiliation, public)
+                identifier = email
+                origin = 'system'
+                # set verified to False if EMAIL_VERIFICATION has
+                # paramaters (expect SMPT config)
+                verified = not bool(current_app.config.get(
+                    'EMAIL_VERIFICATION', False))
+                user = User(
+                    identifier=identifier,
+                    origin=origin,
+                    email=email, 
+                    name=name,
+                    affiliation=affiliation,
+                    password=password,
+                    verified=verified,
+                    public=public
+                )
                 DB.session.add(user)
                 DB.session.commit()
                 # set user_id
                 user_id = user.id
                 # result is a 201 with message
-                result = (201, f'User "#{email}" created.')
+                result = (201, f'User "#{identifier}" created.')
             except SQLAlchemyError:
                 DB.session.rollback()
                 result = (500, 'Creating account unsuccessful!')
@@ -137,15 +152,16 @@ def refresh():
 @asreview_login_required
 def signout():
     if current_user:
-        email = current_user.email
+        identifier = current_user.identifier
         logout_user()
-        result = (200, f'User with email {email} has been signed out')
+        result = (200, f'User with identifier {identifier} has been signed out')
     else:
         result = (404, 'No user found, no one can be signed out')
 
     status, message = result
     response = jsonify({'message': message})
     return response, status
+
 
 @bp.route('/oauth_callback', methods=["POST"])
 def oauth_callback():
@@ -159,10 +175,40 @@ def oauth_callback():
     if isinstance(oauth_handler, OAuthHandler) and \
         provider in oauth_handler.providers():
 
-        (identifier, email, name) = \
-            oauth_handler.get_user_credentials(provider, code, redirect_uri)
-        print(identifier, email, name)
-
+        response = oauth_handler.get_user_credentials(
+            provider, 
+            code, 
+            redirect_uri
+        )
+        (identifier, email, name) = response
+        # try to find this user
+        user = User.query.filter(User.identifier == identifier).one_or_none()
+        # if not create user
+        if user is None:
+            try:
+                origin = provider
+                verified = True
+                public = True
+                user = User(
+                    identifier=identifier,
+                    origin=origin,
+                    email=email, 
+                    name=name,
+                    verified=verified,
+                    public=public
+                )
+                DB.session.add(user)
+                DB.session.commit()
+                # set user_id
+                user_id = user.id
+                # result is a 201 with message
+                result = (201, f'User "#{identifier}" created.')
+            except SQLAlchemyError:
+                DB.session.rollback()
+                result = (500, 'Creating account unsuccessful!')
+        
+        # log in this user
+            
         result = (200, { 'data': 'hello' })
 
     else:

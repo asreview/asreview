@@ -21,7 +21,7 @@ from sqlalchemy import (
     Boolean, Column, DateTime, ForeignKey, Integer, 
     String
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, validates
 from sqlalchemy.orm.session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -33,45 +33,88 @@ class User(UserMixin, DB.Model):
     """The User model for user accounts."""
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
-    identifier = Column(String(100))
-    origin = Column(String(100))
+    identifier = Column(String(100), nullable=False)
+    origin = Column(String(100), nullable=False)
     email = Column(String(100), unique=True)
     name = Column(String(100))
     affiliation = Column(String(100))
-    public = Column(Boolean)
+    hashed_password = Column(String(100), unique=True)
     verified = Column(Boolean)
+    public = Column(Boolean)
     token = Column(String(50))
     token_created_at = Column(DateTime)
-    hashed_password = Column(String(100), unique=True)
 
     projects = relationship(
         'Project',
         back_populates='owner',
         cascade='all, delete'
     )
+
     involved_in = relationship(
         'Project',
         secondary='collaborations',
         back_populates='collaborators'
     )
+
     pending_invitations = relationship(
         'Project',
         secondary='collaboration_invitations',
         back_populates='pending_invitations'
     )
 
-    def __init__(self, email, password, name=None,
-        affiliation=None, public=True, verified=True, origin='system'):
+    @validates('identifier')
+    def validate_identifier(self, _key, identifier):
+        if not bool(identifier):
+            raise ValueError('Identifier is required')
+        return identifier
 
-        self.email = email
-        self.identifier = self.email if origin == 'system' else origin
+    @validates('origin')
+    def validate_origin(self, _key, origin):
+        if not bool(origin):
+            raise ValueError('Origin is required')
+        return origin
+
+    @validates('name')
+    def validate_origin(self, _key, name):
+        if not bool(name):
+            raise ValueError('Name is required')
+        return name
+
+    # this is pretty weird, it 'loops', starting at 
+    # origin, stores origin because of the return, moves
+    # on to email and now self contains origin so
+    # I can compare it... and so on.
+    @validates('origin', 'email', 'hashed_password')
+    def validate_password(self, key, value):
+        if key == 'email' and self.origin == 'system' and \
+            bool(value) == False:
+            raise ValueError('Email is required when origin is "system"')
+        if key == 'hashed_password' and self.origin == 'system' and \
+            bool(value) == False:
+            raise ValueError('Password is required when origin is "system"')                
+        return value
+
+    def __init__(
+            self,
+            identifier,
+            origin='system',
+            email=None,
+            name=None,
+            affiliation=None,
+            password=None,
+            verified=False,
+            public=True,
+        ):
+
+        self.identifier = identifier
         self.origin = origin
+        self.email = email
         self.name = name
         self.affiliation = affiliation
-        self.email = email
-        self.public = public
+        if bool(password):
+            self.hashed_password = generate_password_hash(password)
         self.verified = verified
-        self.hashed_password = generate_password_hash(password)
+        self.public = public
 
     def verify_password(self, password):
         """Verify password"""
