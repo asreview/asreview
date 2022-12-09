@@ -9,11 +9,10 @@ import {
   Typography,
 } from "@mui/material";
 import {
-  Apple, 
   GitHub,
-  Google, 
-  LinkedIn
+  Google
 } from "@mui/icons-material";
+import { Orcid } from "../icons";
 import AuthAPI from "../api/AuthAPI";
 
 const POPUP_HEIGHT = 700;
@@ -216,7 +215,7 @@ const SignInOauth = (props) => {
       case 'github':
         return <GitHub/>
       case 'orcid':
-        return <Apple/>
+        return <Orcid/>
     }
   }
 
