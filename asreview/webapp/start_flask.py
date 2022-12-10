@@ -34,9 +34,7 @@ from asreview.project import ASReviewProject
 from asreview.project import get_project_path
 from asreview.project import list_asreview_projects
 from asreview.utils import asreview_path
-from asreview.webapp import api
-from asreview.webapp import auth
-from asreview.webapp import team
+from asreview.webapp.api import api, auth, team
 
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import (
@@ -237,7 +235,7 @@ def create_app(**kwargs):
 
             # check if users can create accounts (FOR NOW SET TO FALSE!!!)
             response['allow_account_creation'] = \
-                False # app.config.get('ALLOW_ACCOUNT_CREATION', False)
+                app.config.get('ALLOW_ACCOUNT_CREATION', False)
 
             # check if we are doing email verification
             response['email_verification'] = \

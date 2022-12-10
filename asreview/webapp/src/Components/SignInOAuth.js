@@ -2,7 +2,7 @@
 // following URL: https://tasoskakour.com/blog/react-use-oauth2
 
 import * as React from "react";
-import { useSelector } from 'react-redux';
+import { useNavigate } from "react-router-dom";
 import {
   IconButton,
   Stack,
@@ -14,6 +14,7 @@ import {
 } from "@mui/icons-material";
 import { Orcid } from "../icons";
 import AuthAPI from "../api/AuthAPI";
+import useAuth from "../hooks/useAuth";
 
 const POPUP_HEIGHT = 700;
 const POPUP_WIDTH = 600;
@@ -88,6 +89,8 @@ const SignInOauth = (props) => {
   const popupRef = React.useRef();
   const intervalRef = React.useRef();
   const [{ loading, error }, setUI] = React.useState({ loading: false, error: null });
+  const navigate = useNavigate();
+  const { setAuth } = useAuth();
 
   const handleOauthSignIn = React.useCallback((provider) => {
     let service = oAuthServices[provider]
@@ -136,36 +139,20 @@ const SignInOauth = (props) => {
             }
             AuthAPI.oAuthCallback(payload)
               .then(data => {
-                
-                console.log(data)
+                if (data.logged_in) {
+                  setAuth({
+                    logged_in: data.logged_in,
+                    name: data.name,
+                    id: data.id,
+                  });
+                  // navigate
+                  navigate("/projects");
+                } else {
+                  console.error('Backend could not log you in.')
+
+                }
               })
-              .catch(err => console.log('Could not pull all projects', err));
-            
-
-            // const response = await fetch(
-            //   formatExchangeCodeForTokenServerURL(
-            //     'https://your-server.com/token',
-            //     service.client_id,
-            //     code,
-            //     service.redirect_uri
-            //   )
-            // );
-
-            // if (!response.ok) {
-            //   setUI({
-            //     loading: false,
-            //     error: "Failed to exchange code for token",
-            //   });
-            // } else {
-            //   const payload = await response.json();
-            //   setUI({
-            //     loading: false,
-            //     error: null,
-            //   });
-            //   //setData(payload);
-            //   // Lines above will cause 2 rerenders but it's fine for this tutorial :-)
-            // }
-
+              .catch(err => console.log('Did not receive OAuth data from backend', err));
           }
         }
       } catch (genericError) {

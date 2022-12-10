@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery } from "react-query";
 import {
   Avatar,
@@ -20,7 +21,7 @@ import {
 } from "@mui/material";
 import MailIcon from '@mui/icons-material/Mail';
 import { styled } from "@mui/material/styles";
-import { Logout, GroupAdd } from "@mui/icons-material";
+import { Logout, GroupAdd, Person } from "@mui/icons-material";
 
 import { StyledMenuItem } from "../StyledComponents/StyledMenuItem";
 import { TypographySubtitle1Medium } from "../StyledComponents/StyledTypography";
@@ -37,6 +38,8 @@ const Root = styled("div")(({ theme }) => ({}));
 
 const ProfilePopper = (props) => {
   const { auth, setAuth } = useAuth();
+  const navigate = useNavigate();
+
   const [projectInvitations, setProjectInvitations] = React.useState([]);
   const dispatch = useDispatch();
 
@@ -81,6 +84,11 @@ const ProfilePopper = (props) => {
     setOpen(false);
     toggleAcceptanceDialog();
   };
+
+  const handleProfile = () => {
+    setOpen(false);
+    navigate("/profile");
+  }
 
   const acceptanceHandler = (project) => {
     // Call the API to accept the invitation, if that is successful
@@ -188,6 +196,15 @@ const ProfilePopper = (props) => {
                   </Stack>
                 </StyledMenuItem>
                 <Divider />
+
+                <MenuItem onClick={handleProfile}>
+                  <ListItemIcon>
+                    <Person fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText disableTypography>
+                    <Typography variant="body2">Profile</Typography>
+                  </ListItemText>
+                </MenuItem>
           
                 <MenuItem onClick={openAcceptanceDialog}>
                   <ListItemIcon>

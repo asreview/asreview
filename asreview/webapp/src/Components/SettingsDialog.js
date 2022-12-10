@@ -71,7 +71,6 @@ const SettingsDialog = (props) => {
     enabled: props.asreview_version === undefined,
     onSuccess: (data) => {
       // set the version of asreview
-      // console.log("EARLY ON");
       //props.setASReviewVersion(data.version);
     },
     refetchOnWindowFocus: false,

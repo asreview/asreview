@@ -92,6 +92,8 @@ class AuthAPI {
         method: "post",
         url: url,
         data: body,
+        // This is essential, allows cookies to be created through Headers
+        withCredentials: true,
       })
         .then((result) => {
           resolve(result["data"]);

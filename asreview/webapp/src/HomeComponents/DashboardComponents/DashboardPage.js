@@ -1,15 +1,10 @@
 import React from "react";
-import { Box, Fab, Fade, Stack } from "@mui/material";
+import { Box, Fab, Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Add } from "@mui/icons-material";
 
 import { ActionsFeedbackBar } from "../../Components";
 import { ProjectImportDialog } from "../../ProjectComponents";
-import {
-  DashboardPageHeader,
-  NumberCard,
-  ProjectTable,
-} from "../DashboardComponents";
 import { SetupDialog } from "../../ProjectComponents/SetupComponents";
 import { useToggle } from "../../hooks/useToggle";
 
@@ -34,23 +29,7 @@ const DashboardPage = (props) => {
     <Root aria-label="projects page">
       <Fade in>
         <Box>
-          <DashboardPageHeader
-            mobileScreen={props.mobileScreen}
-            toggleImportDialog={toggleImportDialog}
-          />
-          <Box className="main-page-body-wrapper">
-            <Stack className="main-page-body" spacing={6}>
-              <NumberCard mobileScreen={props.mobileScreen} />
-              <ProjectTable
-                onNavDrawer={props.onNavDrawer}
-                projectCheck={props.projectCheck}
-                setFeedbackBar={setFeedbackBar}
-                setProjectCheck={props.setProjectCheck}
-                toggleProjectSetup={props.toggleProjectSetup}
-                toggleAcceptanceSetup={props.AcceptanceDialog}
-              />
-            </Stack>
-          </Box>
+          {props.children}
         </Box>
       </Fade>
       <Fab

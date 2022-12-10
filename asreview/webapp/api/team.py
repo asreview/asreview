@@ -222,6 +222,3 @@ def accept_invitation(project_id, user_id):
         except SQLAlchemyError:
             response = jsonify({ 'success': False }), 404
     return response
-
-
-    

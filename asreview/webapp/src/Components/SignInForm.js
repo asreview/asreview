@@ -41,17 +41,21 @@ const SignInForm = (props) => {
         queryClient.resetQueries("refresh");
       },
       onSuccess: (data) => {
-        setAuth({
-          logged_in: data.logged_in,
-          name: data.name,
-          id: data.id,
-        });
-        setEmail("");
-        setPassword("");
-        if (from === "/") {
-          navigate("/projects");
+        if (data.logged_in) {
+          setAuth({
+            logged_in: data.logged_in,
+            name: data.name,
+            id: data.id,
+          });
+          setEmail("");
+          setPassword("");
+          if (from === "/") {
+            navigate("/projects");
+          } else {
+            navigate(from, { replace: true });
+          }
         } else {
-          navigate(from, { replace: true });
+          console.error('Backend could not log you in.')
         }
       },
     }
