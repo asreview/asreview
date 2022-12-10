@@ -136,6 +136,7 @@ const SignInOauth = (props) => {
             }
             AuthAPI.oAuthCallback(payload)
               .then(data => {
+                
                 console.log(data)
               })
               .catch(err => console.log('Could not pull all projects', err));

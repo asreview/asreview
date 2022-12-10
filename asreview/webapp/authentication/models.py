@@ -118,7 +118,10 @@ class User(UserMixin, DB.Model):
 
     def verify_password(self, password):
         """Verify password"""
-        return check_password_hash(self.hashed_password, password)
+        if bool(self.hashed_password):
+            return check_password_hash(self.hashed_password, password)
+        else:
+            return False
 
     def get_name(self):
         """Get name-ish thing from user account"""

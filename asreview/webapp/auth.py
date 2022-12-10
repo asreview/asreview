@@ -40,24 +40,32 @@ CORS(
 )
 
 
+def perform_login_user(user):
+    """Helper function to login a user"""            
+    return login_user(
+        user,
+        remember=True,
+        duration=datetime.timedelta(days=31)
+    )
+
+
 @bp.route('/signin', methods=["POST"])
 def signin():
     email = request.form.get('email').strip()
-    password = request.form.get('password')
+    password = request.form.get('password', '')
 
     # get the user
-    user = User.query.filter(User.email == email).one_or_none()
+    user = User.query.filter(
+        User.identifier == email or User.email == email
+    ).one_or_none()
+
     # if the user exist proceed and verify
     if not user:
         result = (404, {'message': f'User account {email} does not exist.'})
     else:
         # verify password
         if user.verify_password(password):
-            logged_in = login_user(
-                user,
-                remember=True,
-                duration=datetime.timedelta(days=31)
-            )
+            logged_in = perform_login_user(user)
             result = (200, {
                 'logged_in': logged_in,
                 'name': user.get_name(),
@@ -65,10 +73,18 @@ def signin():
             })
         else:
             # password is wrong
-            result = (
-                404,
-                {'message': f'Incorrect password for user {email}'}
-            )
+            if user.origin == 'system':
+                result = (
+                    404,
+                    {'message': f'Incorrect password for user {email}'}
+                )
+            else:
+                service = user.origin.capitalize()
+                result = (
+                    404,
+                    {'message': 
+                        f'Please login with the {service} service'}
+                )
 
     status, message = result
     response = jsonify(message)
@@ -122,7 +138,7 @@ def signup():
                 result = (201, f'User "#{identifier}" created.')
             except SQLAlchemyError:
                 DB.session.rollback()
-                result = (500, 'Creating account unsuccessful!')
+                result = (500, 'Unable to create your account!')
     else:
         result = (400, 'The app is not configured to create accounts')
 
@@ -174,7 +190,7 @@ def oauth_callback():
     oauth_handler = current_app.config.get('OAUTH', False)
     if isinstance(oauth_handler, OAuthHandler) and \
         provider in oauth_handler.providers():
-
+        # get user credentials for this user
         response = oauth_handler.get_user_credentials(
             provider, 
             code, 
@@ -183,6 +199,8 @@ def oauth_callback():
         (identifier, email, name) = response
         # try to find this user
         user = User.query.filter(User.identifier == identifier).one_or_none()
+        # flag for response (I'd like to communicate if this user was created)
+        created_account = False
         # if not create user
         if user is None:
             try:
@@ -199,18 +217,22 @@ def oauth_callback():
                 )
                 DB.session.add(user)
                 DB.session.commit()
-                # set user_id
-                user_id = user.id
-                # result is a 201 with message
-                result = (201, f'User "#{identifier}" created.')
+                created_account = True
             except SQLAlchemyError:
                 DB.session.rollback()
-                result = (500, 'Creating account unsuccessful!')
+                message = 'OAuth: unable to create your account!'
+                # return this immediately
+                return jsonify({'data': message}), 500
         
         # log in this user
-            
-        result = (200, { 'data': 'hello' })
-
+        if bool(user):
+            logged_in = perform_login_user(user)
+            result = (200, {
+                'account_created': created_account,
+                'logged_in': logged_in,
+                'name': user.get_name(),
+                'id': user.id
+            })
     else:
         result = (400, 
             { 'data': f'OAuth provider {provider} could not be found' })
