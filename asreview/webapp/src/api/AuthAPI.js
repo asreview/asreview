@@ -81,6 +81,20 @@ class AuthAPI {
     });
   }
 
+  static profile() {
+    const url = auth_url + `profile`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url, { withCredentials: true })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static oAuthCallback(data) {
     let body = new FormData();
     body.set("code", data.code);

@@ -147,6 +147,26 @@ def signup():
     return response, status
 
 
+@bp.route('/profile', methods=["GET"])
+@asreview_login_required
+def profile():
+
+    user = User.query.get(current_user.id)
+    if user:
+        result = (200, {
+            'email': user.email,
+            'name': user.name,
+            'affiliation': user.affiliation,
+            'public': user.public
+        })
+    else:
+        result = (404, 'No user found')
+
+    status, message = result
+    response = jsonify(message)
+    return response, status
+
+
 @bp.route('/refresh', methods=["GET"])
 @asreview_login_required
 def refresh():
@@ -240,4 +260,3 @@ def oauth_callback():
     status, message = result
     response = jsonify(message)
     return response, status
-    

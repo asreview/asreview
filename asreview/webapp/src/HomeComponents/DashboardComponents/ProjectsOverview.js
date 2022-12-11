@@ -1,11 +1,15 @@
 import * as React from "react";
-import { Box, Stack } from "@mui/material";
+import { Box, Fab, Stack } from "@mui/material";
+import { Add } from "@mui/icons-material";
 import {
   DashboardPageHeader,
   NumberCard,
   ProjectTable,
 } from "../DashboardComponents";
 import { useToggle } from "../../hooks/useToggle";
+import { ActionsFeedbackBar } from "../../Components";
+import { ProjectImportDialog } from "../../ProjectComponents";
+import { SetupDialog } from "../../ProjectComponents/SetupComponents";
 
 const ProjectsOverview = (props) => {
   const [onImportDialog, toggleImportDialog] = useToggle();
@@ -40,6 +44,33 @@ const ProjectsOverview = (props) => {
           />
         </Stack>
       </Box>
+      <Fab
+        className="main-page-fab"
+        color="primary"
+        onClick={props.toggleProjectSetup}
+        variant="extended"
+      >
+        <Add sx={{ mr: 1 }} />
+        Create
+      </Fab>
+      <ProjectImportDialog
+        mobileScreen={props.mobileScreen}
+        open={onImportDialog}
+        onClose={toggleImportDialog}
+        setFeedbackBar={setFeedbackBar}
+      />
+      <SetupDialog
+        mobileScreen={props.mobileScreen}
+        open={props.onProjectSetup}
+        onClose={props.toggleProjectSetup}
+        setFeedbackBar={setFeedbackBar}
+      />
+      <ActionsFeedbackBar
+        center
+        onClose={resetFeedbackBar}
+        open={feedbackBar.open}
+        feedback={feedbackBar.message}
+      />
     </>
   );
 };

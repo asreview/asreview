@@ -23,7 +23,7 @@ import { styled } from "@mui/material/styles";
 import { HelpPrivacyTermsButton } from "../Components";
 import { useToggle } from "../hooks/useToggle";
 import BaseAPI from "../api/AuthAPI";
-import { useFormik, resetForm } from 'formik';
+import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
 const PREFIX = "SignUpForm";
@@ -148,110 +148,112 @@ const SignUpForm = (props) => {
                   noValidate
                   autoComplete="off"
                 >
-                <TextField
-                  id="email"
-                  label="Email"
-                  size="small"
-                  fullWidth
-                  value={formik.values.email}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                />
-                {formik.touched.email && formik.errors.email ? <FHT error={true}>{formik.errors.email}</FHT> : null}
-                <TextField
-                  id="name"
-                  label="Full name"
-                  size="small"
-                  fullWidth
-                  value={formik.values.name}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                />
-                {formik.touched.name && formik.errors.name ? <FHT error={true}>{formik.errors.name}</FHT> : null}
-                <TextField
-                  id="affiliation"
-                  label="Affiliation"
-                  size="small"
-                  fullWidth
-                  value={formik.values.affiliation}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                />
-                {formik.touched.affiliation && formik.errors.affiliation ? <FHT error={true}>{formik.errors.affiliation}</FHT> : null}
-                <FormControl>
-                  <Stack direction="row" spacing={2}>
-                    <TextField
-                      id="password"
-                      label="Password"
-                      size="small"
-                      fullWidth
-                      type={returnType()}
-                      value={formik.values.password}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                    />
-                    <TextField
-                      id="confirmPassword"
-                      label="Confirm Password"
-                      size="small"
-                      fullWidth
-                      type={returnType()}
-                      value={formik.values.confirmPassword}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                    />
-                  </Stack>
-                </FormControl>
-                {formik.touched.password && formik.errors.password ? <FHT error={true}>{formik.errors.password}</FHT> : null}
-                {formik.touched.confirmPassword && formik.errors.confirmPassword ? <FHT error={true}>{formik.errors.confirmPassword}</FHT> : null}
-                <FormControl>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        id="public"
-                        color="primary"
-                        onChange={toggleShowPassword}
-                      />
-                    }
-                    label="Show password"
+                  
+                  <TextField
+                    id="email"
+                    label="Email"
+                    size="small"
+                    fullWidth
+                    value={formik.values.email}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                   />
-                  { false && 
-                    <>
-                      <FormControlLabel
-                        control={
-                          <Checkbox
-                            color="primary"
-                            id="publicAccount"
-                            defaultChecked={formik.values.publicAccount}
-                            value={formik.values.publicAccount}
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                          />
-                        }
-                        label="Make this account public"
+                  {formik.touched.email && formik.errors.email ? <FHT error={true}>{formik.errors.email}</FHT> : null}
+                  <TextField
+                    id="name"
+                    label="Full name"
+                    size="small"
+                    fullWidth
+                    value={formik.values.name}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  />
+                  {formik.touched.name && formik.errors.name ? <FHT error={true}>{formik.errors.name}</FHT> : null}
+                  <TextField
+                    id="affiliation"
+                    label="Affiliation"
+                    size="small"
+                    fullWidth
+                    value={formik.values.affiliation}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  />
+                  {formik.touched.affiliation && formik.errors.affiliation ? <FHT error={true}>{formik.errors.affiliation}</FHT> : null}
+                  <FormControl>
+                    <Stack direction="row" spacing={2}>
+                      <TextField
+                        id="password"
+                        label="Password"
+                        size="small"
+                        fullWidth
+                        type={returnType()}
+                        value={formik.values.password}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
                       />
-                      <FHT>
-                        Making this account public allows you to collaborate.
-                      </FHT>
-                    </>
-                  }
+                      <TextField
+                        id="confirmPassword"
+                        label="Confirm Password"
+                        size="small"
+                        fullWidth
+                        type={returnType()}
+                        value={formik.values.confirmPassword}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                      />
+                    </Stack>
+                  </FormControl>
+                  {formik.touched.password && formik.errors.password ? <FHT error={true}>{formik.errors.password}</FHT> : null}
+                  {formik.touched.confirmPassword && formik.errors.confirmPassword ? <FHT error={true}>{formik.errors.confirmPassword}</FHT> : null}
+                  <FormControl>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          id="public"
+                          color="primary"
+                          onChange={toggleShowPassword}
+                        />
+                      }
+                      label="Show password"
+                    />
+                    { false && 
+                      <>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              color="primary"
+                              id="publicAccount"
+                              defaultChecked={formik.values.publicAccount}
+                              value={formik.values.publicAccount}
+                              onChange={formik.handleChange}
+                              onBlur={formik.handleBlur}
+                            />
+                          }
+                          label="Make this account public"
+                        />
+                        <FHT>
+                          Making this account public allows you to collaborate.
+                        </FHT>
+                      </>
+                    }
+                  </FormControl>
+                  {isError && <InlineErrorHandler message={error.message} />}
 
-                </FormControl>
-                {isError && <InlineErrorHandler message={error.message} />}
-                <Stack className={classes.button} direction="row">
-                  <Button onClick={handleSignIn} sx={{ textTransform: "none" }}>
-                    Sign in instead
-                  </Button>
-                  <LoadingButton
-                    //loading={isLoading}
-                    variant="contained"
-                    color="primary"
-                    onClick={handleSubmit}
-                    disabled={!(formik.isValid && formik.dirty)}
-                  >
-                    Create
-                  </LoadingButton>
-                </Stack>
+                  <Stack className={classes.button} direction="row">
+                    <Button onClick={handleSignIn} sx={{ textTransform: "none" }}>
+                      Sign in instead
+                    </Button>
+                    <LoadingButton
+                      //loading={isLoading}
+                      variant="contained"
+                      color="primary"
+                      onClick={handleSubmit}
+                      disabled={!(formik.isValid && formik.dirty)}
+                    >
+                      Create
+                    </LoadingButton>
+                  </Stack>
+
                 </Stack>
               </Stack>
             </CardContent>
