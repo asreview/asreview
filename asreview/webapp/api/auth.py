@@ -102,7 +102,7 @@ def signup():
         name = request.form.get('name', '').strip()
         affiliation = request.form.get('affiliation', '').strip()
         password = request.form.get('password')
-        public = bool(int(request.form.get('public', '0')))
+        public = bool(int(request.form.get('public', '1')))
 
         # check if email already exists
         user = User.query.filter(User.identifier == email).one_or_none()
@@ -147,14 +147,15 @@ def signup():
     return response, status
 
 
-@bp.route('/profile', methods=["GET"])
+@bp.route('/get_profile', methods=["GET"])
 @asreview_login_required
-def profile():
+def get_profile():
 
     user = User.query.get(current_user.id)
     if user:
         result = (200, {
             'email': user.email,
+            'origin': user.origin,
             'name': user.name,
             'affiliation': user.affiliation,
             'public': user.public
@@ -164,6 +165,42 @@ def profile():
 
     status, message = result
     response = jsonify(message)
+    return response, status
+
+
+@bp.route('/update_profile', methods=["POST"])
+@asreview_login_required
+def update_profile():
+
+    user = User.query.get(current_user.id)
+    if user:
+        print(request.form)
+        email = request.form.get('email', '').strip()
+        name = request.form.get('name', '').strip()
+        affiliation = request.form.get('affiliation', '').strip()
+        password = request.form.get('password', None)
+        public = bool(int(request.form.get('public', '1')))
+        origin = user.origin
+
+        try:
+            user = user.update_profile(
+                email,
+                name,
+                affiliation,
+                password,
+                public
+            )
+            DB.session.commit()
+            result = (200, 'User profile updated')
+        except SQLAlchemyError:
+            DB.session.rollback()
+            result = (500, 'Unable to update your profile!')
+
+    else:
+        result = (404, 'No user found')
+
+    status, message = result
+    response = jsonify({'message': message})
     return response, status
 
 

@@ -116,6 +116,25 @@ class User(UserMixin, DB.Model):
         self.verified = verified
         self.public = public
 
+
+    def update_profile(
+        self,
+        email,
+        name,
+        affiliation,
+        password=None,
+        public=True):
+
+        self.email = email
+        self.name = name
+        self.affiliation = affiliation
+        if self.origin == 'system' and bool(password):
+            self.hashed_password = generate_password_hash(password)
+        self.public = public
+
+        return self
+
+
     def verify_password(self, password):
         """Verify password"""
         if bool(self.hashed_password):

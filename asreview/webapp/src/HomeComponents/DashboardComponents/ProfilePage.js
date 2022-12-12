@@ -1,4 +1,9 @@
 import React from "react";
+import {
+  useNavigate,
+  useSearchParams
+} from "react-router-dom";
+import { useMutation } from "react-query";
 import DashboardPage from "./DashboardPage";
 import {
   Box, 
@@ -8,17 +13,19 @@ import {
   FormHelperText as FHT,
   Stack,
   TextField,
-  Tooltip,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import LoadingButton from "@mui/lab/LoadingButton";
-import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
+import { 
+  TypographyH5Medium,
+  TypographyH6Medium 
+} from "../../StyledComponents/StyledTypography.js";
 import { useToggle } from "../../hooks/useToggle";
 
 import { AuthAPI } from "../../api";
-import { useFormik, resetForm } from 'formik';
+import { useFormik, resetForm, FormikConsumer } from 'formik';
 import * as Yup from 'yup';
 
 // VALIDATION SCHEMA
@@ -30,25 +37,39 @@ const SignupSchema = Yup.object().shape({
     .required('Full name is required'),
   affiliation: Yup.string()
     .min(2, 'Affiliation must be at least 2 characters long')
-    .required('Affiliation is required'),
+    .nullable(),
   password: Yup.string()
     .matches(
       /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
       'Use 8 or more characters with a mix of letters, numbers & symbols'
-    )
-    .required('Password is required'),
+    ),
   confirmPassword: Yup.string()
-    .required('Password confirmation is required')
     .oneOf([Yup.ref('password'), null], 'Passwords must match')
 });
 
 const Root = styled("div")(({ theme }) => ({}));
 
 const ProfilePage = (props) => {
+  const navigate = useNavigate();
 
   const [showPassword, toggleShowPassword] = useToggle();
-  const [loadingSaveButton, setLoadingSaveButton] = useToggle(true);
-  const [disableSaveButton, setDisabledSavweButton] = useToggle(true);
+  const [loadingSaveButton, setLoadingSaveButton] = React.useState(true);
+  const [showPasswordFields, setShowPasswordFields] = React.useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const showFirstTimeMessage = searchParams.get('first_time');
+
+  const { error, isError, isLoading, mutate, reset } = useMutation(
+    AuthAPI.updateProfile,
+      {
+        onSuccess: () => {
+          navigate('/projects');
+        },
+      }
+  );
+
+  const handleSubmit = () => {
+    mutate(formik.values);
+  }
 
   const initialValues = {
     email: '',
@@ -59,6 +80,25 @@ const ProfilePage = (props) => {
     publicAccount: true
   };
 
+  React.useEffect(() => {
+    AuthAPI.getProfile()
+      .then(data => {
+        formik.setFieldValue('email', data.email, true);
+        formik.setFieldValue('name', data.name, true);
+        formik.setFieldValue('affiliation', data.affiliation || '', false);
+        formik.setFieldValue('public', data.public || true);
+        // show password field?
+        if (data.origin === "system") {
+          setShowPasswordFields(true);
+        } else {
+          setShowPasswordFields(false);
+        }
+        // stop spinner in button
+        setLoadingSaveButton(false);
+      })
+      .catch(err => console.log('Did not profile data from backend', err));
+  }, [])
+
   const formik = useFormik({
     initialValues: initialValues,
     validationSchema: SignupSchema,
@@ -68,7 +108,50 @@ const ProfilePage = (props) => {
     return !showPassword ? "password" : "text";
   };
 
-
+  const renderPasswordFields = (formik) => {
+    return (
+      <>
+        <FormControl>
+          <Stack direction="row" spacing={2}>
+            <TextField
+              id="password"
+              label="Change Password"
+              size="small"
+              fullWidth
+              type={returnType()}
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            />
+            <TextField
+              id="confirmPassword"
+              label="Confirm Password"
+              size="small"
+              fullWidth
+              type={returnType()}
+              value={formik.values.confirmPassword}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            />
+          </Stack>
+        </FormControl>
+        {formik.touched.password && formik.errors.password ? <FHT error={true}>{formik.errors.password}</FHT> : null}
+        {formik.touched.confirmPassword && formik.errors.confirmPassword ? <FHT error={true}>{formik.errors.confirmPassword}</FHT> : null}
+        <FormControl>
+          <FormControlLabel
+            control={
+              <Checkbox
+                id="public"
+                color="primary"
+                onChange={toggleShowPassword}
+              />
+            }
+            label="Show password"
+          />
+        </FormControl>
+      </>
+    );
+  }
 
   return (
     <DashboardPage>
@@ -85,19 +168,17 @@ const ProfilePage = (props) => {
             <Typography variant="h6">Profile</Typography>
           )}
           <Stack direction="row" spacing={1}>
-            <Tooltip>
-              <span>
-                <LoadingButton
-                  disabled={disableSaveButton}
-                  loading={loadingSaveButton}
-                  variant="contained"
-                  onClick={true}
-                  size={!props.mobileScreen ? "medium" : "small"}
-                >
-                  Save
-                </LoadingButton>
-              </span>
-            </Tooltip>
+            <span>
+              <LoadingButton
+                disabled={!(formik.isValid && formik.dirty)}
+                loading={loadingSaveButton}
+                variant="contained"
+                onClick={handleSubmit}
+                size={!props.mobileScreen ? "medium" : "small"}
+              >
+                Save
+              </LoadingButton>
+            </span>
           </Stack>
         </Box>
       </Box>
@@ -108,8 +189,11 @@ const ProfilePage = (props) => {
           className="main-page-body"
           direction={"column"}
           spacing={3}
-        >
 
+        >
+          { showFirstTimeMessage && 
+            <TypographyH6Medium>Please take a second to review your profile data:</TypographyH6Medium>
+          }
           <TextField
             id="email"
             label="Email"
@@ -119,7 +203,7 @@ const ProfilePage = (props) => {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
           />
-          {formik.touched.email && formik.errors.email ? <FHT error={true}>{formik.errors.email}</FHT> : null}
+          {formik.errors.email ? <FHT error={true}>{formik.errors.email}</FHT> : null}
           <TextField
             id="name"
             label="Full name"
@@ -129,7 +213,7 @@ const ProfilePage = (props) => {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
           />
-          {formik.touched.name && formik.errors.name ? <FHT error={true}>{formik.errors.name}</FHT> : null}
+          {formik.errors.name ? <FHT error={true}>{formik.errors.name}</FHT> : null}
           <TextField
             id="affiliation"
             label="Affiliation"
@@ -140,73 +224,30 @@ const ProfilePage = (props) => {
             onBlur={formik.handleBlur}
           />
           {formik.touched.affiliation && formik.errors.affiliation ? <FHT error={true}>{formik.errors.affiliation}</FHT> : null}
-          <FormControl>
-            <Stack direction="row" spacing={2}>
-              <TextField
-                id="password"
-                label="Password"
-                size="small"
-                fullWidth
-                type={returnType()}
-                value={formik.values.password}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
+          {showPasswordFields && renderPasswordFields(formik) }
+          { false && 
+            <>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    color="primary"
+                    id="publicAccount"
+                    defaultChecked={formik.values.publicAccount}
+                    value={formik.values.publicAccount}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  />
+                }
+                label="Make this account public"
               />
-              <TextField
-                id="confirmPassword"
-                label="Confirm Password"
-                size="small"
-                fullWidth
-                type={returnType()}
-                value={formik.values.confirmPassword}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              />
-            </Stack>
-          </FormControl>
-          {formik.touched.password && formik.errors.password ? <FHT error={true}>{formik.errors.password}</FHT> : null}
-          {formik.touched.confirmPassword && formik.errors.confirmPassword ? <FHT error={true}>{formik.errors.confirmPassword}</FHT> : null}
-          <FormControl>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  id="public"
-                  color="primary"
-                  onChange={toggleShowPassword}
-                />
-              }
-              label="Show password"
-            />
-            { false && 
-              <>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      color="primary"
-                      id="publicAccount"
-                      defaultChecked={formik.values.publicAccount}
-                      value={formik.values.publicAccount}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                    />
-                  }
-                  label="Make this account public"
-                />
-                <FHT>
-                  Making this account public allows you to collaborate.
-                </FHT>
-              </>
-            }
-          </FormControl>
+              <FHT>
+                Making this account public allows you to collaborate.
+              </FHT>
+            </>
+          }
           {/*isError && <InlineErrorHandler message={error.message} />*/}
-
         </Stack>
       </Box>
-
-
-
-
-
     </DashboardPage>
   );
 };

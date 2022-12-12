@@ -146,7 +146,7 @@ const SignInOauth = (props) => {
                     id: data.id,
                   });
                   // navigate
-                  navigate("/projects");
+                  navigate("/profile?first_time=true");
                 } else {
                   console.error('Backend could not log you in.')
 

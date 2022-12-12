@@ -81,11 +81,36 @@ class AuthAPI {
     });
   }
 
-  static profile() {
-    const url = auth_url + `profile`;
+  static getProfile() {
+    const url = auth_url + `get_profile`;
     return new Promise((resolve, reject) => {
       axios
         .get(url, { withCredentials: true })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static updateProfile(variables) {
+    let body = new FormData();
+    body.set("password", variables.password);
+    body.set("name", variables.name);
+    body.set("affiliation", variables.affiliation);
+    body.set("email", variables.email);
+    body.set("public", variables.publicAccount === true ? 1 : 0);
+
+    const url = auth_url + `update_profile`;
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "post",
+        url: url,
+        data: body,
+        withCredentials: true,
+      })
         .then((result) => {
           resolve(result["data"]);
         })
