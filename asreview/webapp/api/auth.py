@@ -21,7 +21,7 @@ import requests
 from flask import Blueprint, current_app, jsonify, request
 from flask_cors import CORS
 from flask_login import current_user, login_user, logout_user
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from asreview.webapp import DB
 from asreview.webapp.authentication.login_required import \
@@ -136,9 +136,18 @@ def signup():
                 user_id = user.id
                 # result is a 201 with message
                 result = (201, f'User "#{identifier}" created.')
-            except SQLAlchemyError:
+            except IntegrityError as e:            
                 DB.session.rollback()
-                result = (500, 'Unable to create your account!')
+                result = (
+                    500,
+                    f'Unable to create your account! Reason: {str(e)}'
+                )
+            except SQLAlchemyError as e:
+                DB.session.rollback()
+                result = (
+                    500,
+                    f'Unable to create your account! Reason: {str(e)}'
+                )
     else:
         result = (400, 'The app is not configured to create accounts')
 
@@ -174,13 +183,11 @@ def update_profile():
 
     user = User.query.get(current_user.id)
     if user:
-        print(request.form)
         email = request.form.get('email', '').strip()
         name = request.form.get('name', '').strip()
         affiliation = request.form.get('affiliation', '').strip()
         password = request.form.get('password', None)
         public = bool(int(request.form.get('public', '1')))
-        origin = user.origin
 
         try:
             user = user.update_profile(
@@ -192,9 +199,18 @@ def update_profile():
             )
             DB.session.commit()
             result = (200, 'User profile updated')
-        except SQLAlchemyError:
+        except IntegrityError as e:          
             DB.session.rollback()
-            result = (500, 'Unable to update your profile!')
+            result = (
+                500,
+                f'Unable to update your profile! Reason: {str(e)}'
+            )
+        except SQLAlchemyError as e:
+            DB.session.rollback()
+            result = (
+                500, 
+                f'Unable to update your profile! Reason: {str(e)}'
+            )
 
     else:
         result = (404, 'No user found')

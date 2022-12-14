@@ -4,6 +4,7 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  Button,
   IconButton,
   Stack,
   Typography,
@@ -15,6 +16,7 @@ import {
 import { Orcid } from "../icons";
 import AuthAPI from "../api/AuthAPI";
 import useAuth from "../hooks/useAuth";
+import { InlineErrorHandler } from ".";
 
 const POPUP_HEIGHT = 700;
 const POPUP_WIDTH = 600;
@@ -58,19 +60,6 @@ const objectToQuery = (object) => {
   return new URLSearchParams(object).toString();
 };
 
-const formatExchangeCodeForTokenServerURL = (
-  serverUrl,
-  clientId,
-  code,
-  redirectUri
-) => {
-  return `${serverUrl}?${objectToQuery({
-    client_id: clientId,
-    code,
-    redirect_uri: redirectUri,
-	})}`;
-};
-
 const saveState = (key, value) => {
 	sessionStorage.setItem(key, value);
 };
@@ -89,8 +78,13 @@ const SignInOauth = (props) => {
   const popupRef = React.useRef();
   const intervalRef = React.useRef();
   const [{ loading, error }, setUI] = React.useState({ loading: false, error: null });
+  const [authSuccessful, setAuthSuccessful] = React.useState(undefined);
+  const [accountCreated, setAccountCreated] = React.useState(undefined);
+  const [errorMessage, setErrorMessage] = React.useState('')
   const navigate = useNavigate();
   const { setAuth } = useAuth();
+
+  let message = '';
 
   const handleOauthSignIn = React.useCallback((provider) => {
     let service = oAuthServices[provider]
@@ -125,11 +119,12 @@ const SignInOauth = (props) => {
 
           const errorMaybe = message && message.data && message.data.error;
           if (errorMaybe) {
+            message = 'Unknown Error';
             setUI({
               loading: false,
-              error: errorMaybe || 'Unknown Error',
+              error: errorMaybe || message,
             });
-
+            setErrorMessage(message);
           } else {
             const code = message && message.data && message.data.payload && message.data.payload.code;
             const payload = {
@@ -145,14 +140,21 @@ const SignInOauth = (props) => {
                     name: data.name,
                     id: data.id,
                   });
-                  // navigate
-                  navigate("/profile?first_time=true");
+                  // make sure we know we were successful
+                  setAuthSuccessful(true);
+                  // did we just -create- a new account?
+                  setAccountCreated(Boolean(data.account_created));
                 } else {
-                  console.error('Backend could not log you in.')
-
+                  message = 'Backend could not log you in.'
+                  console.error(message);
+                  setErrorMessage(message);
                 }
               })
-              .catch(err => console.log('Did not receive OAuth data from backend', err));
+              .catch(err => {
+                message = 'Did not receive OAuth data from backend';
+                console.log(message, err)
+                setErrorMessage(message);
+              });
           }
         }
       } catch (genericError) {
@@ -161,6 +163,7 @@ const SignInOauth = (props) => {
           loading: false,
           error: genericError.toString(),
         });
+        setErrorMessage(genericError.toString());
       } finally {
         // Clear stuff ...
         clearInterval(intervalRef.current);
@@ -180,7 +183,9 @@ const SignInOauth = (props) => {
           ...ui,
           loading: false,
         }));
-        console.warn('Warning: Popup was closed before completing authentication.');
+        message = 'Warning: Popup was closed before completing authentication.'
+        console.warn(message);
+        setErrorMessage(message);
         clearInterval(intervalRef.current);
         // cleanup compareKey
         removeState(compareKey);
@@ -193,8 +198,21 @@ const SignInOauth = (props) => {
       window.removeEventListener('message', handleMessageListener);
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-
   });
+
+  // This effect navigates to thge appropriate page after
+  // the authentication
+  React.useEffect(() => {
+    if (!(authSuccessful === undefined || accountCreated === undefined)) {
+      if (Boolean(authSuccessful)) {
+        if (Boolean(accountCreated)) {
+          navigate("/profile?first_time=true");
+        } else {
+          navigate("/projects");
+        }
+      }
+    }
+  }, [authSuccessful, accountCreated])
 
   const getIcon = (service) => {
     switch(service) {
@@ -204,23 +222,28 @@ const SignInOauth = (props) => {
         return <GitHub/>
       case 'orcid':
         return <Orcid/>
+      default:
+        return service
     }
   }
 
   return (
-    <Stack className={classes.button} direction="row">
-    <Typography variant="body1">Or sign in with:</Typography>
-    { Object.keys(oAuthServices).map((provider) => {
-      return (
-        <IconButton
-          onClick={() => handleOauthSignIn(provider)}
-          key={provider}
-        >
-          {getIcon(provider)}
-        </IconButton>
-      )
-    })}
-    </Stack>
+    <>
+      <Stack className={classes.button} direction="row">
+      <Typography variant="body1">Or sign in with:</Typography>
+      { Object.keys(oAuthServices).map((provider) => {
+        return (
+          <IconButton
+            onClick={() => handleOauthSignIn(provider)}
+            key={provider}
+          >
+            {getIcon(provider)}
+          </IconButton>
+        )
+      })}
+      </Stack>
+      {Boolean(errorMessage) && <InlineErrorHandler message={errorMessage} />}
+    </>
   )
 };
 

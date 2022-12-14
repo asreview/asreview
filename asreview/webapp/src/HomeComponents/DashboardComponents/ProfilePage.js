@@ -22,6 +22,7 @@ import {
   TypographyH5Medium,
   TypographyH6Medium 
 } from "../../StyledComponents/StyledTypography.js";
+import { InlineErrorHandler } from "../../Components";
 import { useToggle } from "../../hooks/useToggle";
 
 import { AuthAPI } from "../../api";
@@ -245,7 +246,7 @@ const ProfilePage = (props) => {
               </FHT>
             </>
           }
-          {/*isError && <InlineErrorHandler message={error.message} />*/}
+          {isError && <FHT><InlineErrorHandler message={error.message} /></FHT>}
         </Stack>
       </Box>
     </DashboardPage>
