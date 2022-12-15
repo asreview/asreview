@@ -124,6 +124,7 @@ setup(
         'jsonschema',
         'filelock',
         'Flask-SQLAlchemy>=3.0.2',
+        'requests'
     ],
     extras_require=DEPS,
     entry_points={

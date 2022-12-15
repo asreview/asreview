@@ -56,32 +56,52 @@ def setup_teardown_standard():
         DB.session.query(CollaborationInvitation).delete()
         DB.session.commit()
 
+TEST_USER_IDENTIFIER = 'c.s.kaandorp@uu.nl'
+
+def create_test_user():
+    email = TEST_USER_IDENTIFIER
+    return User(
+        TEST_USER_IDENTIFIER,
+        email = TEST_USER_IDENTIFIER,
+        name='Casper Kaandorp',
+        password='Onyx123!'
+    )
+
+def create_team_user(name):
+    email = f'{name}@test.nl'
+    return User(
+        email,
+        email=email,
+        name=name,
+        password='Onyx123!'
+    )
+
 
 def test_add_user_record():
     """Verify if I can add a user account"""
     # verify we start with a clean database
     assert len(User.query.all()) == 0
 
-    user = User('c.s.kaandorp@uu.nl', 'Onyx')
+    user = create_test_user()
     DB.session.add(user)
     DB.session.commit()
 
     # verify we have 1 record
     assert len(User.query.all()) == 1
     # verify we have added a record
-    user = User.query.filter(User.email == 'c.s.kaandorp@uu.nl').one()
+    user = User.query.filter(User.identifier == TEST_USER_IDENTIFIER).one()
 
 def test_email_is_unique():
     """Verify we can not add two users with the same email"""
-    user = User('c.s.kaandorp@uu.nl', 'Onyx')
+    user = create_test_user()
     DB.session.add(user)
     DB.session.commit()
 
     # verify we have 1 record
     assert len(User.query.all()) == 1
-    user = User.query.filter(User.email == 'c.s.kaandorp@uu.nl').one()
+    user = User.query.filter(User.identifier == TEST_USER_IDENTIFIER).one()
 
-    new_user = User('c.s.kaandorp@uu.nl', 'Onyx')
+    new_user = create_test_user()
     DB.session.add(new_user)
     with pytest.raises(IntegrityError):
         DB.session.commit()
@@ -92,10 +112,10 @@ def test_email_is_unique():
 
 def test_if_user_has_projects_property():
     """Make sure a User object has access to his/her projects"""
-    user = User('c.s.kaandorp@uu.nl', 'Onyx')
+    user = create_test_user()
     DB.session.add(user)
     DB.session.commit()
-    user = User.query.filter(User.email == 'c.s.kaandorp@uu.nl').one()
+    user = User.query.filter(User.identifier == TEST_USER_IDENTIFIER).one()
     # check if user points to empty list
     assert user.projects == []
 
@@ -117,7 +137,7 @@ def test_creating_a_project_without_user():
 
 def test_creating_a_project_with_user():
     """Create a project with a valid user"""
-    user = User('c.s.kaandorp@uu.nl', 'Onyx')
+    user = create_test_user()
     DB.session.add(user)
     DB.session.commit()
 
@@ -132,7 +152,7 @@ def test_creating_a_project_with_user():
 
 def test_creating_a_project_without_a_path():
     """Create a project with a valid user"""
-    user = User('c.s.kaandorp@uu.nl', 'Onyx')
+    user = create_test_user()
     DB.session.add(user)
     DB.session.commit()
     assert len(Project.query.all()) == 0
@@ -148,7 +168,7 @@ def test_creating_a_project_without_a_path():
 
 def test_uniqueness_of_project_id():
     """Create a project with a valid user"""
-    user = User('c.s.kaandorp@uu.nl', 'Onyx')
+    user = create_test_user()
     DB.session.add(user)
     DB.session.commit()
     assert len(Project.query.all()) == 0
@@ -169,7 +189,7 @@ def test_uniqueness_of_project_id():
 
 def test_uniqueness_of_project_path():
     """Create a project with a valid user"""
-    user = User('c.s.kaandorp@uu.nl', 'Onyx')
+    user = create_test_user()
     DB.session.add(user)
     DB.session.commit()
 
@@ -188,7 +208,7 @@ def test_uniqueness_of_project_path():
 
 def test_project_path():
     """Test full path of project"""
-    user = User('c.s.kaandorp@uu.nl', 'Onyx')
+    user = create_test_user()
     DB.session.add(user)
     DB.session.commit()
 
@@ -200,7 +220,7 @@ def test_project_path():
 def test_updating_a_project():
     """Update a project, just see if it works and how it
     should be done. This is not a very valuable test."""
-    user = User('c.s.kaandorp@uu.nl', 'Onyx')
+    user = create_test_user()
     user.projects.append(Project(project_id='my-project', folder='a'))
     DB.session.add(user)
     DB.session.commit()
@@ -221,7 +241,7 @@ def test_updating_a_project():
 def test_deleting_a_project_no_collaboration():
     """Delete a single project from a user. Again, not a valuable
     test, just seeing if it works and how it is done."""
-    user = User('c.s.kaandorp@uu.nl', 'Onyx')
+    user = create_test_user()
     user.projects.append(Project(project_id='my-project', folder='a'))
     user.projects.append(Project(project_id='my-other-project', folder='b'))
     user.projects.append(Project(
@@ -243,7 +263,7 @@ def test_deleting_a_project_no_collaboration():
 
 def test_deleting_a_user_with_projections_no_collaboration():
     """When I destroy a user, all projects have to be destroyed"""
-    user = User('c.s.kaandorp@uu.nl', 'Onyx')
+    user = create_test_user()
     user.projects.append(Project(project_id='my-project', folder='a'))
     user.projects.append(Project(project_id='my-other-project', folder='b'))
     user.projects.append(Project(
@@ -262,7 +282,7 @@ def test_deleting_a_user_with_projections_no_collaboration():
 
 def test_deleting_a_project():
     """Destroy a project of a user, no rocket science here"""
-    user = User('c.s.kaandorp@uu.nl', 'Onyx')
+    user = create_test_user()
     user.projects.append(Project(project_id='my-project', folder='a'))
     user.projects.append(Project(project_id='my-other-project', folder='b'))
     user.projects.append(Project(
@@ -284,9 +304,9 @@ def test_add_collaboration():
     """Verify if I can add a collaborator's user account to a project"""
     # verify we start with a clean database
     assert len(User.query.all()) == 0
-    owner = User('c.s.kaandorp@uu.nl', 'Onyx')
-    coll1 = User('collabo1', 'Collabo')
-    coll2 = User('collabo2', 'Collabo')
+    owner = create_test_user()
+    coll1 = create_team_user('collabo1')
+    coll2 = create_team_user('collabo2')
     owner.projects.append(Project(project_id='my-project', folder='a'))
     DB.session.add_all([owner, coll1, coll2])
     DB.session.commit()
@@ -315,8 +335,9 @@ def test_list_projects_in_which_i_am_collaborating():
     assert len(Project.query.all()) == 0
     assert len(Collaboration.query.all()) == 0
 
-    owner = User('c.s.kaandorp@uu.nl', 'Onyx')
-    coll1 = User('coll_1@uu.nl', 'Collabo')
+    owner = create_test_user()
+    coll1 = create_team_user('collabo1')
+
     owner.projects.append(Project(project_id='my-project', folder='a'))
     coll1.projects.append(Project(project_id='other-project', folder='b'))
     DB.session.add_all([owner, coll1])
@@ -343,9 +364,9 @@ def test_removing_a_collaborator():
     assert len(Project.query.all()) == 0
     assert len(Collaboration.query.all()) == 0
 
-    owner = User('c.s.kaandorp@uu.nl', 'Onyx')
-    coll1 = User('coll_1@uu.nl', 'Collabo')
-    coll2 = User('coll_2@uu.nl', 'Collabo')
+    owner = create_test_user()
+    coll1 = create_team_user('collabo1')
+    coll2 = create_team_user('collabo2')
     owner.projects.append(Project(project_id='my-project', folder='a'))
     DB.session.add_all([owner, coll1, coll2])
     DB.session.commit()
@@ -382,9 +403,9 @@ def test_removing_project_removes_collaborations():
     assert len(Collaboration.query.all()) == 0
 
     # create project and add collaborators
-    owner = User('c.s.kaandorp@uu.nl', 'Onyx')
-    coll1 = User('coll_1@uu.nl', 'Collabo')
-    coll2 = User('coll_2@uu.nl', 'Collabo')
+    owner = create_test_user()
+    coll1 = create_team_user('collabo1')
+    coll2 = create_team_user('collabo2')
     owner.projects.append(Project(project_id='my-project', folder='a'))
     DB.session.add_all([owner, coll1, coll2])
     owner.projects[-1].collaborators = [coll1, coll2]
@@ -409,9 +430,9 @@ def test_removing_project_removes_invites():
     assert len(Collaboration.query.all()) == 0
 
     # create project and add collaborators
-    owner = User('c.s.kaandorp@uu.nl', 'Onyx')
-    coll1 = User('coll_1@uu.nl', 'Collabo')
-    coll2 = User('coll_2@uu.nl', 'Collabo')
+    owner = create_test_user()
+    coll1 = create_team_user('collabo1')
+    coll2 = create_team_user('collabo2')
     owner.projects.append(Project(project_id='my-project', folder='a'))
     DB.session.add_all([owner, coll1, coll2])
     owner.projects[-1].pending_invitations = [coll1, coll2]
@@ -437,9 +458,9 @@ def test_add_collaboration_invite():
     """Verify if I can add a collaboration invite user account to a project"""
     # verify we start with a clean database
     assert len(User.query.all()) == 0
-    owner = User('c.s.kaandorp@uu.nl', 'Onyx')
-    coll1 = User('collabo1', 'Collabo')
-    coll2 = User('collabo2', 'Collabo')
+    owner = create_test_user()
+    coll1 = create_team_user('collabo1')
+    coll2 = create_team_user('collabo2')
     owner.projects.append(Project(project_id='my-project', folder='a'))
     DB.session.add_all([owner, coll1, coll2])
     DB.session.commit()
@@ -468,8 +489,9 @@ def test_list_projects_in_which_i_am_invited():
     assert len(Collaboration.query.all()) == 0
     assert len(CollaborationInvitation.query.all()) == 0
 
-    owner = User('c.s.kaandorp@uu.nl', 'Onyx')
-    coll1 = User('coll_1@uu.nl', 'Collabo')
+    owner = create_test_user()
+    coll1 = create_team_user('collabo1')
+
     owner.projects.append(Project(project_id='my-project', folder='a'))
     coll1.projects.append(Project(project_id='other-project', folder='b'))
     DB.session.add_all([owner, coll1])
@@ -497,9 +519,9 @@ def test_removing_an_invitation():
     assert len(Collaboration.query.all()) == 0
     assert len(CollaborationInvitation.query.all()) == 0
 
-    owner = User('c.s.kaandorp@uu.nl', 'Onyx')
-    coll1 = User('coll_1@uu.nl', 'Collabo')
-    coll2 = User('coll_2@uu.nl', 'Collabo')
+    owner = create_test_user()
+    coll1 = create_team_user('collabo1')
+    coll2 = create_team_user('collabo2')
     owner.projects.append(Project(project_id='my-project', folder='a'))
     DB.session.add_all([owner, coll1, coll2])
     DB.session.commit()
@@ -536,9 +558,9 @@ def test_removing_an_invitation():
     assert len(Collaboration.query.all()) == 0
     assert len(CollaborationInvitation.query.all()) == 0
 
-    owner = User('c.s.kaandorp@uu.nl', 'Onyx')
-    coll1 = User('coll_1@uu.nl', 'Collabo')
-    coll2 = User('coll_2@uu.nl', 'Collabo')
+    owner = create_test_user()
+    coll1 = create_team_user('collabo1')
+    coll2 = create_team_user('collabo2')
     owner.projects.append(Project(project_id='my-project', folder='a'))
     DB.session.add_all([owner, coll1, coll2])
     DB.session.commit()
@@ -576,9 +598,9 @@ def test_removing_project_removes_invitations():
     assert len(CollaborationInvitation.query.all()) == 0
 
     # create project and add collaborators
-    owner = User('c.s.kaandorp@uu.nl', 'Onyx')
-    coll1 = User('coll_1@uu.nl', 'Collabo')
-    coll2 = User('coll_2@uu.nl', 'Collabo')
+    owner = create_test_user()
+    coll1 = create_team_user('collabo1')
+    coll2 = create_team_user('collabo2')
     owner.projects.append(Project(project_id='my-project', folder='a'))
     DB.session.add_all([owner, coll1, coll2])
     owner.projects[-1].pending_invitations = [coll1, coll2]

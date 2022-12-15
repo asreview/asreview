@@ -14,6 +14,7 @@
 
 import os
 import shutil
+from pathlib import Path
 
 import pytest
 
@@ -29,20 +30,31 @@ except ImportError:
     TMP_ENV_VARS = {}
 
 
-def signup_user(client, email, password='!biuCrgfsiOOO6987'):
+def signup_user(client, identifier, password='!biuCrgfsiOOO6987'):
     """Signs up a user through the api"""
     response = client.post(
         '/auth/signup',
-        data={'email': email, 'password': password}
+        data={
+            'identifier': identifier,
+            'email': identifier,
+            'name': 'Test Kees',
+            'password': password,
+            'origin': 'system',
+        }
     )
+    print('-------------->')
+    print(response.text)
     return response
 
 
-def signin_user(client, email, password):
+def signin_user(client, identifier, password):
     """Signs in a user through the api"""
     return client.post(
         '/auth/signin',
-        data={'email': email, 'password': password}
+        data={
+            'identifier': identifier,
+            'password': password
+        }
     )
 
 # TODO@{Casper}:
@@ -57,7 +69,11 @@ def setup_teardown_signed_in():
     # setup environment variables
     os.environ.update(TMP_ENV_VARS)
     # create app and client
-    app = create_app(enable_auth=True)
+    app = create_app(
+        enable_auth=True,
+        flask_config=Path('/Users/casperkaandorp/Work/asreview/asreview/webapp/tests/auth_config.json')
+    )
+    print('^^^^^^^^^^^^^^^^^^^^^^^^^^', app.config)
     client = app.test_client()
     email, password = 'c.s.kaandorp@uu.nl', '123456!AbC'
     signup_user(client, email, password)
