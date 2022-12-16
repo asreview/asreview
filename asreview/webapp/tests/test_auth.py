@@ -24,41 +24,71 @@ from asreview.webapp.authentication.models import User
 from asreview.webapp.start_flask import create_app
 from asreview.webapp.tests.conftest import signin_user, signup_user
 
-
 try:
     from.temp_env_var import TMP_ENV_VARS
 except ImportError:
     TMP_ENV_VARS = {}
 
-@pytest.fixture(scope='function', autouse=True)
-def setup_teardown_standard():
+@pytest.fixture(
+    scope='function',
+    name='setup_teardown_standard',
+    autouse=True
+)
+def setup_teardown_standard(request):
     """Standard setup and teardown, create the app and
     make sure the database is cleaned up after running
     each and every test"""
     # setup environment variables
     os.environ.update(TMP_ENV_VARS)
 
-    
+    # find config file
+    root_dir = str(Path(os.path.abspath(__file__)).parent)
+    if hasattr(request, 'param') and \
+        request.param == 'user_creation_not_allowed':
+        config_file_path = f'{root_dir}/configs/auth_config_no_accounts.json'
+    else:
+        config_file_path = f'{root_dir}/configs/auth_config.json'
 
     # create app and client
     app = create_app(
         enable_auth=True,
-        flask_config='auth_config.json'
+        flask_config=config_file_path
     )
     client = app.test_client()
-    # create user
-    email, password = 'c.s.kaandorp@uu.nl', 'i876KJiuiuy!'
     # clean database
     with app.app_context():
         yield client
         DB.session.query(User).delete()
         DB.session.commit()
 
+def create_user(identifier, email=None, password=None):
+    return User(
+        identifier,
+        email=(email if email != None else identifier),
+        name='Whatever',
+        password=(password if password != None else '127635uyguytAYUTUYT')
+    )
+
 def get_user(identifier):
     """Gets a user by email, only works in app context"""
     return DB.session.query(User). \
         filter(User.identifier == identifier). \
         one_or_none()
+
+# force different config file that doesn't allow user
+# creation
+@pytest.mark.parametrize(
+    'setup_teardown_standard',
+    ['user_creation_not_allowed'],
+    indirect=True
+)
+def test_impossible_to_signup_when_not_allowed(setup_teardown_standard):
+    """UNSuccessful signup when account creation is not allowed"""
+    client = setup_teardown_standard
+    # post form data
+    response = signup_user(client, 'test1@uu.nl', 'wdas32d!')
+    # check if we get a 400 status
+    assert response.status_code == 400
 
 
 def test_successful_signup(setup_teardown_standard):
@@ -70,119 +100,136 @@ def test_successful_signup(setup_teardown_standard):
     assert response.status_code == 201
 
 
-# def test_user_record_creation(setup_teardown_standard):
-#     """Successful signup creates a user record"""
-#     client = setup_teardown_standard
-#     # count initial amount of records
-#     count = DB.session.query(User).count()
-#     # signup user
-#     email = 'test2@uu.nl'
-#     signup_user(client, email, 'ieouoiu')
-#     # recount
-#     new_count = DB.session.query(User).count()
-#     assert new_count == (count + 1)
-#     # find it
-#     user = get_user(email)
-#     # check email
-#     assert user.email == email
-
-# def test_unique_emails_api(setup_teardown_standard):
-#     """Adding an existing email must return a 404 status and
-#     appropriate message"""
-#     client = setup_teardown_standard
-#     email = 'test4@uu.nl'
-#     DB.session.add(User(email, '123456!AbC'))
-#     DB.session.commit()
-#     # try to create the same user again with the api
-#     response = signup_user(client, email, '3434rwq')
-#     assert response.status_code == 404
-#     assert f'"{email}" already exists' in \
-#         json.loads(response.data)['message']
+def test_user_record_creation(setup_teardown_standard):
+    """Successful signup creates a user record"""
+    client = setup_teardown_standard
+    # count initial amount of records
+    count = DB.session.query(User).count()
+    # signup user
+    identifier = 'test2@uu.nl'
+    signup_user(client, identifier, 'ieouoiu')
+    # recount
+    new_count = DB.session.query(User).count()
+    assert new_count == (count + 1)
+    # find it
+    user = get_user(identifier)
+    # check email
+    assert user.identifier == identifier
 
 
-# def test_unique_emails_db(setup_teardown_standard):
-#     """Trying to add an existing user must not create a user record"""
-#     client = setup_teardown_standard
-#     # create user
-#     email = 'test5@uu.nl'
-#     DB.session.add(User(email, '123456!AbC'))
-#     DB.session.commit()
-#     # count initial amount of records
-#     count = DB.session.query(User).count()
-#     # try to create the same user again with the api
-#     signup_user(client, email, '123456!AbC')
-#     # recount
-#     new_count = DB.session.query(User).count()
-#     assert new_count == count
+def test_unique_identifier_api(setup_teardown_standard):
+    """Adding an existing identifier must return a 404 status and
+    appropriate message"""
+    client = setup_teardown_standard
+    identifier = 'test4@uu.nl'
+    DB.session.add(create_user(identifier))
+    DB.session.commit()
+    # try to create the same user again with the api
+    response = signup_user(client, identifier, '3434rwq')
+    assert response.status_code == 403
+    assert f'"{identifier}" already exists' in \
+        json.loads(response.data)['message']
 
 
-# def test_successful_signin_api(setup_teardown_standard):
-#     """Successfully signing in a user must return a 200 response"""
-#     client = setup_teardown_standard
-#     # create user
-#     email = 'test6@uu.nl'
-#     password = '123456Ab@'
-#     DB.session.add(User(email, password))
-#     DB.session.commit()
-#     response = signin_user(client, email, password)
-#     assert response.status_code == 200
+def test_unique_email_api(setup_teardown_standard):
+    """Adding an existing email must return a 404 status and
+    appropriate message"""
+    client = setup_teardown_standard
+    email = 'test4@uu.nl'
+    DB.session.add(
+        create_user(email+'001', email)
+    )
+    DB.session.commit()
+    # try to create the same user again with the api
+    response = signup_user(client, email, '3434rwq')
+    assert response.status_code == 403
+    assert f'"{email}" already exists' in \
+        json.loads(response.data)['message']
 
 
-# def test_unsuccessful_signin_wrong_password_api(setup_teardown_standard):
-#     """Wrong password must return a 404 response
-#     and an appropriate response"""
-#     client = setup_teardown_standard
-#     # create user
-#     email = 'test7@uu.nl'
-#     password = '123456Ab@'
-#     DB.session.add(User(email, password))
-#     DB.session.commit()
-#     response = signin_user(client, email, 'wrong_password')
-#     assert response.status_code == 404
-#     assert 'Incorrect password' in \
-#         json.loads(response.data)['message']
+def test_unique_emails_db(setup_teardown_standard):
+    """Trying to add an existing user must not create a user record"""
+    client = setup_teardown_standard
+    # create user
+    identifier = 'test5@uu.nl'
+    DB.session.add(create_user(identifier))
+    DB.session.commit()
+    # count initial amount of records
+    count = DB.session.query(User).count()
+    # try to create the same user again with the api
+    signup_user(client, identifier, '123456!AbC')
+    # recount
+    new_count = DB.session.query(User).count()
+    assert new_count == count
 
 
-# def test_unsuccessful_signin_wrong_email_api(setup_teardown_standard):
-#     """Wrong email must return a 404 response
-#     and an appropriate response"""
-#     client = setup_teardown_standard
-#     # create user
-#     email = 'test8@uu.nl'
-#     password = '123456Ab@'
-#     DB.session.add(User(email, password))
-#     DB.session.commit()
-#     response = signin_user(client, 'TedjevanEs', password)
-#     assert response.status_code == 404
-#     assert 'does not exist' in \
-#         json.loads(response.data)['message']
+def test_successful_signin_api(setup_teardown_standard):
+    """Successfully signing in a user must return a 200 response"""
+    client = setup_teardown_standard
+    # create user
+    email = 'test6@uu.nl'
+    password = '123456Ab@'
+    DB.session.add(create_user(email, password=password))
+    DB.session.commit()
+    response = signin_user(client, email, password)
+    assert response.status_code == 200
 
 
-# def test_must_be_signed_in_to_signout(setup_teardown_standard):
-#     """User must be logged in, in order to signout,
-#     we expect an error if we sign out if not signed in"""
-#     client = setup_teardown_standard
-#     # make sure any signed-in user is signed out
-#     client.delete('/auth/signout')
-#     # and do it again
-#     response = client.delete('/auth/signout')
-#     assert response.status_code == 401
+def test_unsuccessful_signin_wrong_password_api(setup_teardown_standard):
+    """Wrong password must return a 404 response
+    and an appropriate response"""
+    client = setup_teardown_standard
+    # create user
+    email = 'test7@uu.nl'
+    password = '123456Ab@'
+    DB.session.add(create_user(email, password=password))
+    DB.session.commit()
+    response = signin_user(client, email, 'wrong_password')
+    assert response.status_code == 404
+    assert 'Incorrect password' in \
+        json.loads(response.data)['message']
 
 
-# def test_singout(setup_teardown_standard):
-#     """Signing out must return a 200 status and an
-#     appropriate message"""
-#     client = setup_teardown_standard
-#     # create user
-#     email = 'test9@uu.nl'
-#     password = '123456Ab@'
-#     DB.session.add(User(email, password))
-#     DB.session.commit()
-#     # signin
-#     signin_user(client, email, password)
-#     # make sure any signed-in user is signed out
-#     response = client.delete('/auth/signout')
-#     # expect a 200
-#     assert response.status_code == 200
-#     assert 'signed out' in \
-#         json.loads(response.data)['message']
+def test_unsuccessful_signin_wrong_email_api(setup_teardown_standard):
+    """Wrong email must return a 404 response
+    and an appropriate response"""
+    client = setup_teardown_standard
+    # create user
+    email = 'test8@uu.nl'
+    password = '123456Ab@'
+    DB.session.add(create_user(email, password=password))
+    DB.session.commit()
+    response = signin_user(client, 'TedjevanEs', password)
+    assert response.status_code == 404
+    assert 'does not exist' in \
+        json.loads(response.data)['message']
+
+
+def test_must_be_signed_in_to_signout(setup_teardown_standard):
+    """User must be logged in, in order to signout,
+    we expect an error if we sign out if not signed in"""
+    client = setup_teardown_standard
+    # make sure any signed-in user is signed out
+    client.delete('/auth/signout')
+    # and do it again
+    response = client.delete('/auth/signout')
+    assert response.status_code == 401
+
+
+def test_singout(setup_teardown_standard):
+    """Signing out must return a 200 status and an
+    appropriate message"""
+    client = setup_teardown_standard
+    # create user
+    email = 'test9@uu.nl'
+    password = '123456Ab@'
+    DB.session.add(create_user(email, password=password))
+    DB.session.commit()
+    # signin
+    signin_user(client, email, password)
+    # make sure any signed-in user is signed out
+    response = client.delete('/auth/signout')
+    # expect a 200
+    assert response.status_code == 200
+    assert 'signed out' in \
+        json.loads(response.data)['message']

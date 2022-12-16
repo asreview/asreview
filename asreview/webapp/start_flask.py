@@ -114,7 +114,8 @@ def create_app(**kwargs):
 
     # Get the ASReview arguments.
     app.config['asr_kwargs'] = kwargs
-    app.config['AUTHENTICATION_ENABLED'] = kwargs['enable_auth']
+    app.config['AUTHENTICATION_ENABLED'] = \
+        kwargs['enable_auth'] if 'enable_auth' in kwargs else False
 
     # Read config parameters if possible, this overrides
     # the previous assignments.

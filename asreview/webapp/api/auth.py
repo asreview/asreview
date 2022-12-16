@@ -105,10 +105,11 @@ def signup():
         public = bool(int(request.form.get('public', '1')))
 
         # check if email already exists
-        user = User.query.filter(User.identifier == email).one_or_none()
+        user = User.query.filter(
+            User.identifier == email or User.email == email).one_or_none()
         # return error if user doesn't exist
         if isinstance(user, User):
-            result = (404, f'User with email "{email}" already exists.')
+            result = (403, f'User with email "{email}" already exists.')
         else:
             # password confirmation is done by front end, so the only
             # thing that remains is to add the user (password will be
@@ -139,13 +140,13 @@ def signup():
             except IntegrityError as e:            
                 DB.session.rollback()
                 result = (
-                    500,
+                    403,
                     f'Unable to create your account! Reason: {str(e)}'
                 )
             except SQLAlchemyError as e:
                 DB.session.rollback()
                 result = (
-                    500,
+                    403,
                     f'Unable to create your account! Reason: {str(e)}'
                 )
     else:

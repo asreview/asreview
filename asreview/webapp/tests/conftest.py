@@ -42,17 +42,14 @@ def signup_user(client, identifier, password='!biuCrgfsiOOO6987'):
             'origin': 'system',
         }
     )
-    print('-------------->')
-    print(response.text)
     return response
-
 
 def signin_user(client, identifier, password):
     """Signs in a user through the api"""
     return client.post(
         '/auth/signin',
         data={
-            'identifier': identifier,
+            'email': identifier,
             'password': password
         }
     )
@@ -68,12 +65,14 @@ def setup_teardown_signed_in():
     """Setup and teardown with a signed in user."""
     # setup environment variables
     os.environ.update(TMP_ENV_VARS)
+    # load appropriate config file
+    root_dir = str(Path(os.path.abspath(__file__)).parent)
+    config_file_path = f'{root_dir}/configs/auth_config.json'
     # create app and client
     app = create_app(
         enable_auth=True,
-        flask_config=Path('/Users/casperkaandorp/Work/asreview/asreview/webapp/tests/auth_config.json')
+        flask_config=config_file_path
     )
-    print('^^^^^^^^^^^^^^^^^^^^^^^^^^', app.config)
     client = app.test_client()
     email, password = 'c.s.kaandorp@uu.nl', '123456!AbC'
     signup_user(client, email, password)
