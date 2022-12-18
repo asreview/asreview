@@ -48,8 +48,8 @@ function rootReducer(state = initialState, action) {
         asreview_version: action.data.version,
         authentication: action.data.authentication,
         status: action.data.status,
-        email_verification: action.data.email_verification,
-        allow_account_creation: action.data.allow_account_creation,
+        email_verification: Boolean(action.data.email_verification),
+        allow_account_creation: Boolean(action.data.allow_account_creation),
       });
     // set my projects list
     case MY_PROJECTS:

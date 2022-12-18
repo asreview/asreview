@@ -6,6 +6,7 @@ import useAuth from "../hooks/useAuth";
 import { AuthAPI } from "../api";
 
 const PersistSignIn = () => {
+
   const location = useLocation();
   const { auth, setAuth } = useAuth();
   const [isLoading, setIsLoading] = React.useState(

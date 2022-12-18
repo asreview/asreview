@@ -213,7 +213,7 @@ def create_app(**kwargs):
     @app.route('/boot', methods=["GET"])
     def api_boot():
         """Get the boot info."""
-        if os.environ.get('ENV', None) == 'development':
+        if os.environ.get('FLASK_ENV', None) == 'development':
             status = 'development'
         else:
             status = 'asreview'
@@ -248,6 +248,8 @@ def create_app(**kwargs):
                 # and there something in it, just to be sure
                 if params:
                     response['oauth'] = params
+
+        print(response)
 
         return jsonify(response)
     return app

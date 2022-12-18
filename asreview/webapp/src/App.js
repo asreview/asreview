@@ -115,58 +115,55 @@ const App = (props) => {
     );
   }
 
+
+
   const render_routes = () => {
     return (
-      <Routes>
-        {/* authentication-related routes */}
-        { (authentication === true) && render_sign_routes() }
-
+      <>
         {/* Public or Private routes, depending on authentication */}
-        <Route element={<PersistSignIn />}>
+        <Route
+          path="*"
+          element={
+            <RequireAuth enforce_authentication={authentication}>
+              <NavigationDrawer
+                mobileScreen={mobileScreen}
+                onNavDrawer={onNavDrawer}
+                toggleNavDrawer={toggleNavDrawer}
+                toggleSettings={toggleSettings}
+              />
+            </RequireAuth>
+          }
+        >
           <Route
             path="*"
             element={
-              <RequireAuth enforce_authentication={authentication}>
-                <NavigationDrawer
-                  mobileScreen={mobileScreen}
-                  onNavDrawer={onNavDrawer}
-                  toggleNavDrawer={toggleNavDrawer}
-                  toggleSettings={toggleSettings}
-                />
-              </RequireAuth>
+              <HomePage
+                mobileScreen={mobileScreen}
+                onNavDrawer={onNavDrawer}
+                onProjectSetup={onProjectSetup}
+                projectCheck={projectCheck}
+                setProjectCheck={setProjectCheck}
+                toggleProjectSetup={toggleProjectSetup}
+              />
             }
-          >
-            <Route
-              path="*"
-              element={
-                <HomePage
-                  mobileScreen={mobileScreen}
-                  onNavDrawer={onNavDrawer}
-                  onProjectSetup={onProjectSetup}
-                  projectCheck={projectCheck}
-                  setProjectCheck={setProjectCheck}
-                  toggleProjectSetup={toggleProjectSetup}
-                />
-              }
-            />
-            <Route
-              path="projects/:project_id/*"
-              element={
-                <ProjectPage
-                  mobileScreen={mobileScreen}
-                  onNavDrawer={onNavDrawer}
-                  fontSize={fontSize}
-                  undoEnabled={undoEnabled}
-                  keyPressEnabled={keyPressEnabled}
-                  projectCheck={projectCheck}
-                  setProjectCheck={setProjectCheck}
-                  toggleProjectSetup={toggleProjectSetup}
-                />
-              }
-            />
-          </Route>
+          />
+          <Route
+            path="projects/:project_id/*"
+            element={
+              <ProjectPage
+                mobileScreen={mobileScreen}
+                onNavDrawer={onNavDrawer}
+                fontSize={fontSize}
+                undoEnabled={undoEnabled}
+                keyPressEnabled={keyPressEnabled}
+                projectCheck={projectCheck}
+                setProjectCheck={setProjectCheck}
+                toggleProjectSetup={toggleProjectSetup}
+              />
+            }
+          />
         </Route>
-    </Routes>
+      </>
     )
   };
 
@@ -187,7 +184,17 @@ const App = (props) => {
                 <CircularProgress/>
               </Box>
             }
-            { (appReady === true) && render_routes() }
+            { (appReady === true) && (authentication === false) && 
+              <Routes>{render_routes()}</Routes> }
+
+            { (appReady === true) && (authentication === true) && 
+              <Routes>
+                { render_sign_routes() }
+                <Route element={<PersistSignIn />}>
+                  { render_routes() }
+                </Route>
+              </Routes>
+            }
           </div>
 
           {/* Dialogs */}
