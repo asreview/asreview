@@ -117,6 +117,7 @@ def error_500(e):
 def api_get_projects():  # noqa: F401
     """Get info on the article"""
     project_info = []
+
     for project in list_asreview_projects(current_user):
         try:
             project_config = project.config
@@ -1603,7 +1604,7 @@ def api_delete_project(project):  # noqa: F401
                     Project.project_id == project.project_id,
                     Project.owner_id == current_user.id
                 ).one_or_none()
-                print(project)
+                
                 if project != None:
                     DB.session.delete(project)
                     DB.session.commit()

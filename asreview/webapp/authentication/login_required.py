@@ -60,8 +60,9 @@ def asreview_login_required(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
 
-        if (request.method in EXEMPT_METHODS or
-            current_app.config.get("AUTHENTICATION_ENABLED") == False):
+        if request.method in EXEMPT_METHODS:
+            pass
+        elif current_app.config.get("AUTHENTICATION_ENABLED") == False:
             pass
         else:
             # get current user
@@ -70,10 +71,12 @@ def asreview_login_required(func):
             if not (bool(current_user) and current_user.is_authenticated):
                 return jsonify({'message': 'login required'}), 401
 
-        # flask 1.x compatibility
-        # current_app.ensure_sync is only available in Flask >= 2.0
-        if callable(getattr(current_app, "ensure_sync", None)):
-            return current_app.ensure_sync(func)(*args, **kwargs)
+        # # TODO@Jonathan/Casper 
+        # # flask 1.x compatibility <= WE REQUIRE FLASK >= 2.0 but 
+        # # this function was used by Flask. Don't understand.
+        # # current_app.ensure_sync is only available in Flask >= 2.0
+        # if callable(getattr(current_app, "ensure_sync", None)):
+        #     return current_app.ensure_sync(func)(*args, **kwargs)
 
         return func(*args, **kwargs)
 

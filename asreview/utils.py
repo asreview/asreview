@@ -109,7 +109,6 @@ def asreview_path():
     Overwrite this location by specifying the ASREVIEW_PATH enviroment
     variable.
     """
-
     if os.environ.get("ASREVIEW_PATH", None):
         asreview_path = Path(os.environ["ASREVIEW_PATH"])
     else:

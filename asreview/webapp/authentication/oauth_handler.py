@@ -127,7 +127,6 @@ class OAuthHandler:
 
     def __handle_google(self, code, redirect_uri):
         # request token
-        print(redirect_uri)
         params = self.services['google']
         response = requests.post(
             params['token_url'], 

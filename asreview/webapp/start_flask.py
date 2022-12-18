@@ -34,7 +34,7 @@ from asreview.project import ASReviewProject
 from asreview.project import get_project_path
 from asreview.project import list_asreview_projects
 from asreview.utils import asreview_path
-from asreview.webapp.api import api, auth, team
+from asreview.webapp.api import auth, projects, team
 
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import (
@@ -131,6 +131,11 @@ def create_app(**kwargs):
     # setup all database/authentication related resources
     if app.config['AUTHENTICATION_ENABLED'] == True:
 
+        # Register a callback function for current_user.
+        @login_manager.user_loader
+        def load_user(user_id):
+            return User.query.get(int(user_id))
+
         # In this code-block we make sure certain authentication-related
         # config parameters are set.
         app.config['SECRET_KEY'] = app.config.get(
@@ -150,15 +155,14 @@ def create_app(**kwargs):
         DB.init_app(app)
         with app.app_context():
             DB.create_all()
+
     else:
-        # Don't want to use the standard Anonymous User
-        login_manager.anonymous_user = SingleUser
 
-
-    # Register a callback function for current_user.
-    @login_manager.user_loader
-    def load_user(user_id):
-        return User.query.get(int(user_id))
+        # Register a callback function for current_user.
+        # Return our custome SingleUser object (that has an id)
+        @login_manager.user_loader
+        def load_user(user_id):
+            return SingleUser()
 
     # Ensure the instance folder exists.
     try:
@@ -178,7 +182,7 @@ def create_app(**kwargs):
         ]}},
     )
 
-    app.register_blueprint(api.bp)
+    app.register_blueprint(projects.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(team.bp)
 
@@ -248,8 +252,6 @@ def create_app(**kwargs):
                 # and there something in it, just to be sure
                 if params:
                     response['oauth'] = params
-
-        print(response)
 
         return jsonify(response)
     return app

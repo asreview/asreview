@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from email.headerregistry import UniqueAddressHeader
 from pathlib import Path
 from uuid import uuid4
 
@@ -163,7 +162,6 @@ class User(UserMixin, DB.Model):
         return f'<User {self.email!r}, id: {self.id}>'
 
 
-
 class SingleUser:
     """This class serves an unauthenticated app, we use a pseudo user
     to bypass authentication."""
@@ -174,10 +172,19 @@ class SingleUser:
         self.is_active = False
         self.is_anonymous = True
 
+    def is_authenticated(self):
+      return True
+
+    def is_active(self):
+      return True
+
+    def is_anonymous(self):
+      return False
+
     def get_id(self):
         """This class needs to have this method implemented
         for the LoginManager"""
-        return 'single_user'
+        return 0
 
     def __repr__(self):
         return f'<SingleUser>'
