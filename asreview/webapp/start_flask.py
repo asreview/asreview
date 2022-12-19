@@ -44,10 +44,11 @@ from asreview.webapp.authentication.models import (
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
 # set logging level
-if os.environ.get('FLASK_ENV', "") == "development":
+if os.environ.get('FLASK_DEBUG', "") == "1":
     logging.basicConfig(level=logging.DEBUG)
 else:
     logging.basicConfig(level=logging.INFO)
+
 
 
 def _url(host, port, protocol):
@@ -102,8 +103,6 @@ def _open_browser(host, port, protocol, no_browser):
 
 
 def create_app(**kwargs):
-    # get flask environment
-    env = os.environ.get('FLASK_ENV', '')
 
     app = Flask(
         __name__,
@@ -122,6 +121,9 @@ def create_app(**kwargs):
     config_file_path = kwargs.get('flask_config', '').strip()
     if config_file_path != '':
         app.config.from_file(config_file_path, load=json.load)
+
+    # set development / production
+    env = 'development' if app.config['DEBUG'] == True else 'production'
 
     # config JSON Web Tokens
     login_manager = LoginManager(app)
@@ -217,7 +219,7 @@ def create_app(**kwargs):
     @app.route('/boot', methods=["GET"])
     def api_boot():
         """Get the boot info."""
-        if os.environ.get('FLASK_ENV', None) == 'development':
+        if app.config.get('DEBUG', None) == True:
             status = 'development'
         else:
             status = 'asreview'
@@ -262,7 +264,6 @@ def main(argv):
 
     parser = _lab_parser(prog="lab")
     args = parser.parse_args(argv)
-    env = os.environ.get('FLASK_ENV', '')
 
     app = create_app(
         embedding_fp=args.embedding_fp,
@@ -303,7 +304,7 @@ def main(argv):
         print("Done")
         return
 
-    flask_dev = (env == 'development')
+    flask_dev = app.config.get('DEBUG', False)
     host = args.ip
     port = args.port
     port_retries = args.port_retries

@@ -29,12 +29,12 @@ Install the ASReview package
 
 Start the Python API server with the Flask development environment
 
-	export FLASK_ENV=development
+	export FLASK_DEBUG=1
 	asreview lab
 
 For Windows, use
 
-	set FLASK_ENV=development
+	set FLASK_DEBUG=1
 	asreview lab
 
 ### Front end
@@ -43,12 +43,12 @@ Install both [npm][1] and Python
 
 Start the Python API server with the Flask development environment. Before the front end development can be started, the back end has to run as well
 
-	export FLASK_ENV=development
+	export FLASK_DEBUG=1
 	asreview lab
 
 For Windows, use
 
-	set FLASK_ENV=development
+	set FLASK_DEBUG=1
 	asreview lab
 
 Navigate to `asreview/webapp` and install the front end application with npm
