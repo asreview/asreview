@@ -5,8 +5,9 @@ import {
   Assignment,
   Assessment,
   Download,
+  GroupAdd,
   MoreVert,
-  GroupAdd
+  PersonOff
 } from "@mui/icons-material";
 import { projectStatuses } from "../../globals.js";
 
@@ -78,13 +79,23 @@ export default function TableRowButton(props) {
             </IconButton>
           </Tooltip>
         )}
-        { props.showCollaborationButton() && (
-          <Tooltip title="Collaboration">
+        { props.isOwner && (
+          <Tooltip title="Add team members">
             <IconButton
               className={classes.button}
               onClick={props.onClickCollaboration}
             >
               <GroupAdd />
+            </IconButton>
+          </Tooltip>
+        )}
+        { !props.isOwner && (
+          <Tooltip title="Remove yourself from team">
+            <IconButton
+              className={classes.button}
+              onClick={props.onClickCollaboration}
+            >
+              <PersonOff />
             </IconButton>
           </Tooltip>
         )}

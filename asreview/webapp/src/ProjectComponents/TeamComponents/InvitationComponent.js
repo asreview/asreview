@@ -75,7 +75,7 @@ const InvitationContents = (props) => {
   }
 
   const removeCollaborator = (id) => {
-    TeamAPI.deleteCollaborator(project_id, id)
+    TeamAPI.endCollaboration(project_id, id)
       .then(data => {
         if (data.success) {
           // remove from the collabo users list, useEffect will take care of the rest

@@ -20,7 +20,9 @@ import pytest
 
 from asreview.utils import asreview_path
 from asreview.webapp import DB
-from asreview.webapp.authentication.models import User
+from asreview.webapp.authentication.models import (
+    Collaboration, CollaborationInvitation, Project, User
+)
 from asreview.webapp.start_flask import create_app
 
 
@@ -81,11 +83,14 @@ def setup_teardown_signed_in():
     with app.app_context():
         # signin this user
         signin_user(client, email, password)
-        user = DB.session.query(User).filter(User.email==email).one_or_none()
+        user = DB.session.query(User).filter(User.identifier==email).one_or_none()
 
         yield app, client, user
         try:
             # cleanup the database
+            Collaboration.query.delete()
+            CollaborationInvitation.query.delete()
+            Project.query.delete()
             User.query.delete()
             DB.session.commit()
             # remove the entire .asreview-test folder

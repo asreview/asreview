@@ -1,12 +1,28 @@
 import { axiosErrorHandler } from "./axiosErrorHandler";
-import { collab_url } from "../globals.js";
+import { api_url, collab_url } from "../globals.js";
 import axios from "axios";
 
 
 class TeamAPI {
+
+  static getProjectInvitations() {
+    const url = api_url + `invitations`
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url, { withCredentials: true })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+
   static fetchCollaborators(projectId) {
     if (projectId !== null) {
-      const url = collab_url + `${projectId}/users`;
+      const url = api_url + `projects/${projectId}/users`;
       return new Promise((resolve, reject) => {
         axios
           .get(url, { withCredentials: true })
@@ -24,7 +40,7 @@ class TeamAPI {
 
   static inviteUser(projectId, userId) {
     if (projectId !== null && userId !== null) {
-      const url = collab_url + `${projectId}/user/${userId}/invite`
+      const url = api_url + `invitations/projects/${projectId}/users/${userId}`
       return new Promise((resolve, reject) => {
         axios({
           method: "post",
@@ -43,7 +59,7 @@ class TeamAPI {
 
   static deleteInvitation(projectId, userId) {
     if (projectId !== null && userId !== null) {
-      const url = collab_url + `${projectId}/user/${userId}/delete_invitation`
+      const url = api_url + `invitations/projects/${projectId}/users/${userId}`
       return new Promise((resolve, reject) => {
         axios({
           method: "delete",
@@ -60,25 +76,10 @@ class TeamAPI {
     }
   }
 
-  static getProjectInvitations(userId) {
-    if (userId !== null) {
-      const url = collab_url + `${userId}/pending_invitations`
-      return new Promise((resolve, reject) => {
-        axios
-          .get(url, { withCredentials: true })
-          .then((result) => {
-            resolve(result["data"]);
-          })
-          .catch((error) => {
-            reject(axiosErrorHandler(error));
-          });
-      });
-    }
-  }
 
-  static rejectInvitation(projectId, userId) {
-    if (userId !== null && projectId !== null) {
-      const url = collab_url + `${projectId}/user/${userId}/reject_invitation`
+  static rejectInvitation(projectId) {
+    if (projectId !== null) {
+      const url = api_url + `invitations/projects/${projectId}/reject`
       return new Promise((resolve, reject) => {
         axios({
           method: "delete",
@@ -95,9 +96,9 @@ class TeamAPI {
     }
   }
 
-  static acceptInvitation(projectId, userId) {
-    if (userId !== null && projectId !== null) {
-      const url = collab_url + `${projectId}/user/${userId}/accept_invitation`
+  static acceptInvitation(projectId) {
+    if (projectId !== null) {
+      const url = api_url + `invitations/projects/${projectId}/accept`
       return new Promise((resolve, reject) => {
         axios({
           method: "post",
@@ -114,28 +115,9 @@ class TeamAPI {
     }
   }
 
-  static deleteCollaborator(projectId, userId) {
-    if (userId !== null && projectId !== null) {
-      const url = collab_url + `${projectId}/user/${userId}/delete_collaborator`
-      return new Promise((resolve, reject) => {
-        axios({
-          method: "delete",
-          url: url,
-          withCredentials: true,
-        })
-          .then((result) => {
-            resolve(result["data"]);
-          })
-          .catch((error) => {
-            reject(axiosErrorHandler(error));
-          });
-      });
-    }
-  }
-
   static endCollaboration(projectId, userId) {
     if (userId !== null && projectId !== null) {
-      const url = collab_url + `${projectId}/user/${userId}/end_collaboration`
+      const url = api_url + `projects/${projectId}/users/${userId}`
       return new Promise((resolve, reject) => {
         axios({
           method: "delete",

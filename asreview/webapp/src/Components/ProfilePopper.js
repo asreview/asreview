@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery } from "react-query";
 import {
@@ -38,6 +38,7 @@ const Root = styled("div")(({ theme }) => ({}));
 
 const ProfilePopper = (props) => {
   const { auth, setAuth } = useAuth();
+  const allowTeams = useSelector(state => state.allow_teams);
   const navigate = useNavigate();
 
   const [projectInvitations, setProjectInvitations] = React.useState([]);
@@ -50,7 +51,7 @@ const ProfilePopper = (props) => {
 
   useQuery(
     ["getProjectInvitations"],
-    () => TeamAPI.getProjectInvitations(auth.id),
+    () => TeamAPI.getProjectInvitations(),
     {
       onSuccess: (data) => {
         setProjectInvitations((data['invited_for_projects'] || []));
@@ -94,7 +95,7 @@ const ProfilePopper = (props) => {
     // Call the API to accept the invitation, if that is successful
     // get list of all projects of this user and refresh the projects
     // list, remove from Dialog
-    TeamAPI.acceptInvitation(project.project_id, auth.id)
+    TeamAPI.acceptInvitation(project.project_id)
     .then(data => {
       if (data.success) {
 
@@ -126,7 +127,7 @@ const ProfilePopper = (props) => {
 
   const rejectionHandler = (project) => {
     // call API to remove the invitation
-    TeamAPI.rejectInvitation(project.project_id, auth.id)
+    TeamAPI.rejectInvitation(project.project_id)
       .then(data => {
         if (data.success) {
           // remove project from Dialog table and close if there are 
@@ -206,28 +207,30 @@ const ProfilePopper = (props) => {
                   </ListItemText>
                 </MenuItem>
           
-                <MenuItem onClick={openAcceptanceDialog}>
-                  <ListItemIcon>
-                    <GroupAdd fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText disableTypography>
-                    <Typography variant="body2">
-                      Collaboration Invites
-                      { projectInvitations.length > 0 &&
-                        <Badge 
-                          badgeContent={projectInvitations.length}
-                          sx={{"& .MuiBadge-badge": { 
-                            color: "white", 
-                            backgroundColor: "red",
-                            fontSize: 11
-                          }}}
-                        >
-                          <MailIcon color="action" fontSize="small"/>
-                        </Badge>
-                      }
-                    </Typography>
-                  </ListItemText>
-                </MenuItem>
+                { allowTeams && 
+                  <MenuItem onClick={openAcceptanceDialog}>
+                    <ListItemIcon>
+                      <GroupAdd fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText disableTypography>
+                      <Typography variant="body2">
+                        Collaboration Invites
+                        { projectInvitations.length > 0 &&
+                          <Badge 
+                            badgeContent={projectInvitations.length}
+                            sx={{"& .MuiBadge-badge": { 
+                              color: "white", 
+                              backgroundColor: "red",
+                              fontSize: 11
+                            }}}
+                          >
+                            <MailIcon color="action" fontSize="small"/>
+                          </Badge>
+                        }
+                      </Typography>
+                    </ListItemText>
+                  </MenuItem>
+                }
 
                 <MenuItem onClick={handleSignOut}>
                   <ListItemIcon>
@@ -243,14 +246,18 @@ const ProfilePopper = (props) => {
           </Popper>
         </Box>
       </ClickAwayListener>
-      <AcceptanceDialog 
-        open={onAcceptanceDialog}
-        onClose={toggleAcceptanceDialog}
-        userId={auth.id}
-        projectInvitations={projectInvitations}
-        handleAcceptance={acceptanceHandler}
-        handleRejection={rejectionHandler}
-      />
+
+      { allowTeams && 
+        <AcceptanceDialog 
+          open={onAcceptanceDialog}
+          onClose={toggleAcceptanceDialog}
+          userId={auth.id}
+          projectInvitations={projectInvitations}
+          handleAcceptance={acceptanceHandler}
+          handleRejection={rejectionHandler}
+        />
+      }
+
     </Root>
   );
 };

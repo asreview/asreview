@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Navigate, Routes, Route } from "react-router-dom";
 import clsx from "clsx";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -71,6 +71,8 @@ const HomePage = (props) => {
               />
             }
           />
+          {/* Redirect root to projects */}
+          <Route path="/" element={<Navigate to="/projects"/>}/>
           {/* Not found */}
           <Route path="*" element={<RouteNotFound />} />
         </Routes>

@@ -13,6 +13,7 @@ const initialState = {
   authentication: undefined,
   email_verification: undefined,
   allow_account_creation: undefined,
+  allow_teams: undefined,
   oAuthData: {
     services: {},
     compareKey: 'oAuthCompareKey',  // these 2 values are used when the oAuth
@@ -50,6 +51,7 @@ function rootReducer(state = initialState, action) {
         status: action.data.status,
         email_verification: Boolean(action.data.email_verification),
         allow_account_creation: Boolean(action.data.allow_account_creation),
+        allow_teams: Boolean(action.data.allow_teams),
       });
     // set my projects list
     case MY_PROJECTS:

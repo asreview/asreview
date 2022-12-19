@@ -82,7 +82,7 @@ const SignInOauth = (props) => {
   const [accountCreated, setAccountCreated] = React.useState(undefined);
   const [errorMessage, setErrorMessage] = React.useState('')
   const navigate = useNavigate();
-  const { setAuth } = useAuth();
+  const { auth, setAuth } = useAuth();
 
   let message = '';
 
@@ -152,7 +152,7 @@ const SignInOauth = (props) => {
               })
               .catch(err => {
                 message = 'Did not receive OAuth data from backend';
-                console.log(message, err)
+                console.error(message, err)
                 setErrorMessage(message);
               });
           }

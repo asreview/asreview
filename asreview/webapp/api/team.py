@@ -11,11 +11,15 @@ from sqlalchemy.exc import SQLAlchemyError
 from asreview.project import ASReviewProject
 from asreview.utils import asreview_path
 from asreview.webapp import DB
-from asreview.webapp.authentication.login_required import asreview_login_required
-from asreview.webapp.authentication.models import User, Project
+from asreview.webapp.authentication.login_required import (
+    asreview_login_required
+)
+from asreview.webapp.authentication.models import (
+    CollaborationInvitation, User, Project
+)
 
 
-bp = Blueprint('team', __name__, url_prefix='/team')
+bp = Blueprint('team', __name__, url_prefix='/api')
 CORS(
     bp,
     resources={r"*": {"origins": [
@@ -25,13 +29,13 @@ CORS(
     supports_credentials=True,
 )
 
-REQUESTER_FRAUD = { 'error': 'request is not made by current user' }
+REQUESTER_FRAUD = { 'error': 'request can not made by current user' }
 
 
-@bp.route('/<project_id>/users', methods=["GET"])
+@bp.route('/projects/<project_id>/users', methods=["GET"])
 @asreview_login_required
 def users(project_id):
-    """returns all users involved in a project"""
+    """Returns all users involved in a project."""
     response = jsonify(REQUESTER_FRAUD, 404)
 
     # get project
@@ -53,7 +57,7 @@ def users(project_id):
             u.summarize()
             for u in User.query.filter(
                 User.public == True, User.id != current_user.id) \
-                .order_by('last_name').all()
+                .order_by('name').all()
         ]
 
         # response
@@ -68,48 +72,64 @@ def users(project_id):
     return response
 
 
-@bp.route('/<user_id>/pending_invitations', methods=["GET"])
+@bp.route('/projects/<project_id>/users/<user_id>', methods=["DELETE"])
 @asreview_login_required
-def pending_invitations(user_id):
-    """invites a user to collaborate on a project"""
+def end_collaboration(project_id, user_id):
+    """Project owner removes a collaborator, or collaborator 
+    removes him/herself."""
     response = jsonify(REQUESTER_FRAUD, 404)
     # get project
-    user = User.query.get(user_id)
-    # check if user is current_user
-    if current_user == user:
-        invitations = []
-        for p in user.pending_invitations:
-            # get path of project
-            path = Path(asreview_path(), p.folder)
-            # get object to get name
-            asreview_object = ASReviewProject(path)
-            # append info
-            invitations.append({
-                'id': p.id,
-                'project_id': p.project_id,
-                'owner_id': p.owner_id,
-                'name': asreview_object.config['name'],
-                'created_at_unix': asreview_object.config['created_at_unix'],
-                'mode': asreview_object.config['mode']
-            })
-        response = (
-            jsonify({
-                'invited_for_projects': invitations
-            }),
-            200
-        )
+    project = Project.query.filter(
+        Project.project_id == project_id).one_or_none()
+    # check if project is owned by current user or if the user is
+    # involved in the project
+    if project and \
+        ((project.owner == current_user) or \
+            (project in current_user.involved_in)):
+
+        user = User.query.get(user_id)
+        try:
+            project.collaborators.remove(user)
+            DB.session.commit()
+            response = jsonify({ 'success': True }), 200
+        except SQLAlchemyError:
+            response = jsonify({ 'success': False }), 404
     return response
 
 
-@bp.route('/<project_id>/user/<user_id>/invite', methods=["POST"])
+@bp.route('/invitations', methods=["GET"])
+@asreview_login_required
+def pending_invitations():
+    """Returns pending invitations for current user."""
+    invitations = []
+    for p in current_user.pending_invitations:
+        # get path of project
+        path = Path(asreview_path(), p.folder)
+        # get object to get name
+        asreview_object = ASReviewProject(path)
+        # append info
+        invitations.append({
+            'id': p.id,
+            'project_id': p.project_id,
+            'owner_id': p.owner_id,
+            'name': asreview_object.config['name'],
+            'created_at_unix': asreview_object.config['created_at_unix'],
+            'mode': asreview_object.config['mode']
+        })
+    response = (jsonify({'invited_for_projects': invitations}), 200)
+    return response
+
+
+@bp.route('/invitations/projects/<project_id>/users/<user_id>', methods=["POST"])
 @asreview_login_required
 def invite(project_id, user_id):
-    """invites a user to collaborate on a project"""
+    """Project owner invites a user to collaborate on a project"""
     response = jsonify(REQUESTER_FRAUD, 404)
     # get project
-    project = Project.query.filter(Project.project_id == project_id).one_or_none()
+    project = Project.query.filter(
+        Project.project_id == project_id).one_or_none()
     # check if project is from current user
-    if project in current_user.projects:
+    if project and project.owner == current_user:
         user = User.query.get(user_id)
         project.pending_invitations.append(user)
         try:
@@ -120,102 +140,62 @@ def invite(project_id, user_id):
     return response
 
 
-@bp.route('/<project_id>/user/<user_id>/delete_invitation', methods=["DELETE"])
+@bp.route('/invitations/projects/<project_id>/accept', methods=["POST"])
+@asreview_login_required
+def accept_invitation(project_id):
+    """Invited person accepts an invitation."""
+    response = jsonify(REQUESTER_FRAUD, 404)
+    # get project
+    project = Project.query.filter(
+        Project.project_id == project_id).one_or_none()
+    # if user is current user, try to add this user to project
+    if project and current_user in project.pending_invitations:
+        # remove invitation
+        project.pending_invitations.remove(current_user)
+        # add as collaborator
+        project.collaborators.append(current_user)
+        try:
+            DB.session.commit()
+            response = jsonify({ 'success': True }), 200
+        except SQLAlchemyError:
+            response = jsonify({ 'success': False }), 404
+    return response
+
+
+@bp.route('/invitations/projects/<project_id>/reject', methods=["DELETE"])
+@asreview_login_required
+def reject_invitation(project_id):
+    """Invited person rejects an invitation."""
+    response = jsonify(REQUESTER_FRAUD, 404)
+    # get project
+    project = Project.query.filter(
+        Project.project_id == project_id).one_or_none()
+    # if current_user is indeed invited
+    if project and current_user in project.pending_invitations:
+        # remove invitation
+        project.pending_invitations.remove(current_user)
+        try:
+            DB.session.commit()
+            response = jsonify({ 'success': True }), 200
+        except SQLAlchemyError:
+            response = jsonify({ 'success': False }), 404
+    return response
+
+
+@bp.route('/invitations/projects/<project_id>/users/<user_id>', methods=["DELETE"])
 @asreview_login_required
 def delete_invitation(project_id, user_id):
     """removes an invitation"""
     response = jsonify(REQUESTER_FRAUD, 404)
     # get project
-    project = Project.query.filter(Project.project_id == project_id).one_or_none()
+    project = Project.query.filter(
+        Project.project_id == project_id).one_or_none()
     # check if project is from current user
-    if project in current_user.projects:
+    if project and project.owner == current_user:
+        # get user
         user = User.query.get(user_id)
+        # remove from project 
         project.pending_invitations.remove(user)
-        try:
-            DB.session.commit()
-            response = jsonify({ 'success': True }), 200
-        except SQLAlchemyError:
-            response = jsonify({ 'success': False }), 404
-    return response
-
-
-# An owner can remove a collaborator
-@bp.route('/<project_id>/user/<user_id>/delete_collaborator', methods=["DELETE"])
-@asreview_login_required
-def delete_collaborator(project_id, user_id):
-    """removes a collaborator"""
-    response = jsonify(REQUESTER_FRAUD, 404)
-    # get project
-    project = Project.query.filter(Project.project_id == project_id).one_or_none()
-    # check if project is from current user
-    if project in current_user.projects:
-        user = User.query.get(user_id)
-        project.collaborators.remove(user)
-        try:
-            DB.session.commit()
-            response = jsonify({ 'success': True }), 200
-        except SQLAlchemyError:
-            response = jsonify({ 'success': False }), 404
-    return response
-
-
-# A collaborator can end his/her collaboration
-@bp.route('/<project_id>/user/<user_id>/end_collaboration', methods=["DELETE"])
-@asreview_login_required
-def end_collaboration(project_id, user_id):
-    """removes a collaborator"""
-    response = jsonify(REQUESTER_FRAUD, 404)
-    # get user
-    user = User.query.get(user_id)
-    # get project
-    project = Project.query.filter(Project.project_id == project_id).one_or_none()
-    # check if project is from current user
-    if current_user == user and project in current_user.involved_in:
-        project.collaborators.remove(user)
-        try:
-            DB.session.commit()
-            response = jsonify({ 'success': True }), 200
-        except SQLAlchemyError:
-            response = jsonify({ 'success': False }), 404
-    return response
-
-
-@bp.route('/<project_id>/user/<user_id>/reject_invitation', methods=["DELETE"])
-@asreview_login_required
-def reject_invitation(project_id, user_id):
-    """rejects an invitation"""
-    response = jsonify(REQUESTER_FRAUD, 404)
-    # get user
-    user = User.query.get(user_id)
-    # if user is current user, try to remove
-    if user == current_user:
-        # get project
-        project = Project.query.filter(Project.project_id == project_id).one_or_none()
-        # remove invitation
-        project.pending_invitations.remove(user)
-        try:
-            DB.session.commit()
-            response = jsonify({ 'success': True }), 200
-        except SQLAlchemyError:
-            response = jsonify({ 'success': False }), 404
-    return response
-
-
-@bp.route('/<project_id>/user/<user_id>/accept_invitation', methods=["POST"])
-@asreview_login_required
-def accept_invitation(project_id, user_id):
-    """accepts an invitation"""
-    response = jsonify(REQUESTER_FRAUD, 404)
-    # get user
-    user = User.query.get(user_id)
-    # if user is current user, try to add this user to project
-    if user == current_user:
-        # get project
-        project = Project.query.filter(Project.project_id == project_id).one_or_none()
-        # remove invitation
-        project.pending_invitations.remove(user)
-        # add as collaborator
-        project.collaborators.append(user)
         try:
             DB.session.commit()
             response = jsonify({ 'success': True }), 200

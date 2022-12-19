@@ -428,8 +428,7 @@ const ProjectTable = (props) => {
                   // if we do authentication, then we need to know who the owner is
                   row["owner_id"] = authenticated && ("owner_id" in row)? row["owner_id"] : false;
                   // A collaborator can not edit
-                  //const canEdit = authenticated && row["owner_id"] !== auth.id ? false : true;
-                  const isOwner = authenticated && row["owner_id"] !== auth.id ? false : true;
+                  const isOwner = authenticated && row["owner_id"] === auth.id;
 
                   const isSimulating = () => {
                     return (
@@ -454,10 +453,6 @@ const ProjectTable = (props) => {
                       row["reviews"][0] !== undefined &&
                       row["reviews"][0]["status"] === projectStatuses.REVIEW
                     );
-                  };
-
-                  const showCollaborationButton = () => {
-                    return authenticated && ('owner_id' in row) && row.owner_id === auth.id;
                   };
 
                   const disableProjectStatusChange = () => {
@@ -532,18 +527,18 @@ const ProjectTable = (props) => {
                                 disableProjectStatusChange
                               }
                               isSimulating={isSimulating}
-                              showCollaborationButton={showCollaborationButton}
+                              isOwner={isOwner}
                               showAnalyticsButton={showAnalyticsButton}
                               showReviewButton={showReviewButton}
                               onClickProjectAnalytics={onClickProjectAnalytics}
                               onClickCollaboration={onClickCollaboration}
+                              onClickEndCollaboration={onClickCollaboration} /* !!!!!!!!! */
                               onClickProjectReview={onClickProjectReview}
                               onClickProjectExport={onClickProjectExport}
                               onClickProjectDetails={onClickProjectDetails}
                               projectStatus={status(row)[0]}
                               toggleDeleteDialog={toggleDeleteDialog}
                               updateProjectStatus={updateProjectStatus}
-                              isOwner={isOwner}
                               //canEdit={canEdit}
                             />
                           )}

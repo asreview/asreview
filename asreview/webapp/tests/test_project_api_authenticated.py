@@ -21,7 +21,7 @@ from asreview.project import PATH_FEATURE_MATRICES
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import (
-    User, Project
+    Project, User
 )
 
 

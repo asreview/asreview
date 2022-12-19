@@ -240,9 +240,12 @@ def create_app(**kwargs):
                 response['recaptchav3_key'] = app.config['RE_CAPTCHA_V3'] \
                     .get('KEY', False)
 
-            # check if users can create accounts (FOR NOW SET TO FALSE!!!)
+            # check if users can create accounts
             response['allow_account_creation'] = \
                 app.config.get('ALLOW_ACCOUNT_CREATION', False)
+
+            response['allow_teams'] = \
+                app.config.get('ALLOW_TEAMS', False)
 
             # check if we are doing email verification
             response['email_verification'] = \

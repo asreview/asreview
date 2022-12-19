@@ -262,6 +262,14 @@ def api_get_project_info(project):  # noqa: F401
         project_config = upgrade_project_config(project_config)
         project_config["projectNeedsUpgrade"] = True
 
+    # add user_id of owner to response if authenticated
+    if current_app.config['AUTHENTICATION_ENABLED']:
+        db_project = Project.query.filter(
+            Project.project_id == project.config.get('id', 0)
+        ).one_or_none()
+        if db_project:
+            project_config["ownerId"] = db_project.owner_id
+
     return jsonify(project_config)
 
 
