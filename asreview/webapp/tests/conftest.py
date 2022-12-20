@@ -56,6 +56,11 @@ def signin_user(client, identifier, password):
         }
     )
 
+def signout(client):
+    return client.delete(
+        '/auth/signout'
+    )
+
 # TODO@{Casper}:
 # Something nasty happens when execute multiple test
 # modules, if one stops it takes a while before
@@ -75,25 +80,19 @@ def setup_teardown_signed_in():
         enable_auth=True,
         flask_config=config_file_path
     )
-    client = app.test_client()
-    email, password = 'c.s.kaandorp@uu.nl', '123456!AbC'
-    signup_user(client, email, password)
-
-    # inject testuser
     with app.app_context():
+        client = app.test_client()
+        email, password = 'c.s.kaandorp@uu.nl', '123456!AbC'
+        # create user
+        signup_user(client, email, password)
         # signin this user
         signin_user(client, email, password)
         user = DB.session.query(User).filter(User.identifier==email).one_or_none()
-
         yield app, client, user
+
         try:
-            # cleanup the database
-            Collaboration.query.delete()
-            CollaborationInvitation.query.delete()
-            Project.query.delete()
-            User.query.delete()
-            DB.session.commit()
             # remove the entire .asreview-test folder
+            # which also removes the database
             shutil.rmtree(asreview_path())
         except Exception:
             # don't care

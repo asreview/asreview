@@ -36,7 +36,7 @@ REQUESTER_FRAUD = { 'error': 'request can not made by current user' }
 @asreview_login_required
 def users(project_id):
     """Returns all users involved in a project."""
-    response = jsonify(REQUESTER_FRAUD, 404)
+    response = jsonify(REQUESTER_FRAUD), 404
 
     # get project
     project = Project.query.filter(Project.project_id == project_id).one_or_none()
@@ -77,7 +77,7 @@ def users(project_id):
 def end_collaboration(project_id, user_id):
     """Project owner removes a collaborator, or collaborator 
     removes him/herself."""
-    response = jsonify(REQUESTER_FRAUD, 404)
+    response = jsonify(REQUESTER_FRAUD), 404
     # get project
     project = Project.query.filter(
         Project.project_id == project_id).one_or_none()
@@ -124,10 +124,11 @@ def pending_invitations():
 @asreview_login_required
 def invite(project_id, user_id):
     """Project owner invites a user to collaborate on a project"""
-    response = jsonify(REQUESTER_FRAUD, 404)
+    response = jsonify(REQUESTER_FRAUD), 404
     # get project
     project = Project.query.filter(
         Project.project_id == project_id).one_or_none()
+
     # check if project is from current user
     if project and project.owner == current_user:
         user = User.query.get(user_id)
@@ -144,7 +145,7 @@ def invite(project_id, user_id):
 @asreview_login_required
 def accept_invitation(project_id):
     """Invited person accepts an invitation."""
-    response = jsonify(REQUESTER_FRAUD, 404)
+    response = jsonify(REQUESTER_FRAUD), 404
     # get project
     project = Project.query.filter(
         Project.project_id == project_id).one_or_none()
@@ -166,7 +167,7 @@ def accept_invitation(project_id):
 @asreview_login_required
 def reject_invitation(project_id):
     """Invited person rejects an invitation."""
-    response = jsonify(REQUESTER_FRAUD, 404)
+    response = jsonify(REQUESTER_FRAUD), 404
     # get project
     project = Project.query.filter(
         Project.project_id == project_id).one_or_none()
@@ -186,7 +187,7 @@ def reject_invitation(project_id):
 @asreview_login_required
 def delete_invitation(project_id, user_id):
     """removes an invitation"""
-    response = jsonify(REQUESTER_FRAUD, 404)
+    response = jsonify(REQUESTER_FRAUD), 404
     # get project
     project = Project.query.filter(
         Project.project_id == project_id).one_or_none()
