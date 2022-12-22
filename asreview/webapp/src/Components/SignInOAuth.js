@@ -10,6 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import {
+  ControlPointDuplicateRounded,
   GitHub,
   Google
 } from "@mui/icons-material";
@@ -78,8 +79,6 @@ const SignInOauth = (props) => {
   const popupRef = React.useRef();
   const intervalRef = React.useRef();
   const [{ loading, error }, setUI] = React.useState({ loading: false, error: null });
-  const [authSuccessful, setAuthSuccessful] = React.useState(undefined);
-  const [accountCreated, setAccountCreated] = React.useState(undefined);
   const [errorMessage, setErrorMessage] = React.useState('')
   const navigate = useNavigate();
   const { auth, setAuth } = useAuth();
@@ -140,10 +139,14 @@ const SignInOauth = (props) => {
                     name: data.name,
                     id: data.id,
                   });
-                  // make sure we know we were successful
-                  setAuthSuccessful(true);
-                  // did we just -create- a new account?
-                  setAccountCreated(Boolean(data.account_created));
+                  // Authentication was successful, do we have
+                  // to go to the profile page (if this is the first
+                  // time), or do we go to projects
+                  if (Boolean(data?.account_created)) {
+                    navigate("/profile?first_time=true");
+                  } else {
+                    navigate("/projects");
+                  }
                 } else {
                   message = 'Backend could not log you in.'
                   console.error(message);
@@ -199,20 +202,6 @@ const SignInOauth = (props) => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   });
-
-  // This effect navigates to thge appropriate page after
-  // the authentication
-  React.useEffect(() => {
-    if (!(authSuccessful === undefined || accountCreated === undefined)) {
-      if (Boolean(authSuccessful)) {
-        if (Boolean(accountCreated)) {
-          navigate("/profile?first_time=true");
-        } else {
-          navigate("/projects");
-        }
-      }
-    }
-  }, [authSuccessful, accountCreated])
 
   const getIcon = (service) => {
     switch(service) {

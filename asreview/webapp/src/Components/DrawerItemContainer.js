@@ -23,7 +23,6 @@ import { styled } from "@mui/material/styles";
 import { Help, Payment, Settings } from "@mui/icons-material";
 
 import { DrawerItem, ElasGame } from "../Components";
-import useAuth from "../hooks/useAuth";
 import { ProjectAPI } from "../api/index.js";
 import { donateURL, projectModes, projectStatuses } from "../globals.js";
 import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
@@ -92,7 +91,6 @@ const StyledList = styled(List)(({ theme }) => ({
 
 const DrawerItemContainer = (props) => {
   const { project_id } = useParams();
-  const { auth } = useAuth();
   const authentication = useSelector(state => state.authentication);
   const allowTeams = useSelector(state => state.allow_teams);
   const queryClient = useQueryClient();
@@ -156,7 +154,7 @@ const DrawerItemContainer = (props) => {
       path: "history",
       label: "History",
     },
-    ...(authentication && allowTeams && projectInfo?.ownerId === auth.id ? 
+    ...(authentication && allowTeams ? 
       [{
         path: "team",
         label: "Team",

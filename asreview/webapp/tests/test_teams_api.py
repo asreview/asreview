@@ -75,7 +75,7 @@ def populate(setup_teardown_signed_in):
         
         except Exception as e:
             # don't care
-            print(e)
+            pass
 
 
 def test_if_fixtures_work(populate):

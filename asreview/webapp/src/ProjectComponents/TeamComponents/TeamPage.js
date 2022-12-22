@@ -3,7 +3,7 @@ import { Box, Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { PageHeader } from "../../Components";
-import InvitationContents from "./InvitationComponent";
+import { EndCollaboration, InvitationContents} from ".";
 
 const PREFIX = "TeamPage";
 
@@ -29,7 +29,8 @@ const TeamPage = (props) => {
           <PageHeader header="Team" mobileScreen={props.mobileScreen} />
 
           <Box className="main-page-body-wrapper">
-            <InvitationContents />
+            {props.isOwner && <InvitationContents />}
+            {!props.isOwner && <EndCollaboration />}
           </Box>
 
         </Box>

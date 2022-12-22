@@ -81,6 +81,7 @@ def end_collaboration(project_id, user_id):
     # get project
     project = Project.query.filter(
         Project.project_id == project_id).one_or_none()
+
     # check if project is owned by current user or if the user is
     # involved in the project
     if project and \
@@ -88,6 +89,7 @@ def end_collaboration(project_id, user_id):
             (project in current_user.involved_in)):
 
         user = User.query.get(user_id)
+        
         try:
             project.collaborators.remove(user)
             DB.session.commit()

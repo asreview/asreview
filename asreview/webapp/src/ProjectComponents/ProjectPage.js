@@ -35,6 +35,8 @@ import {
   projectModes,
   projectStatuses,
 } from "../globals.js";
+import useAuth from "../hooks/useAuth";
+
 
 const PREFIX = "ProjectPage";
 
@@ -65,6 +67,7 @@ const Root = styled("div")(({ theme }) => ({
 
 const ProjectPage = (props) => {
   const authenticated = useSelector(state => state.authentication);
+  const { auth } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { project_id } = useParams();
@@ -77,6 +80,9 @@ const ProjectPage = (props) => {
 
   const [isSimulating, setIsSimulating] = React.useState(false);
 
+  // is this user the ownwer of this project
+  const [isOwner, setIsOwner] = React.useState(false);
+
   // History page state
   const [historyLabel, setHistoryLabel] = React.useState("relevant");
   const [historyFilterQuery, setHistoryFilterQuery] = React.useState([]);
@@ -87,6 +93,8 @@ const ProjectPage = (props) => {
     {
       enabled: project_id !== undefined,
       onSuccess: (data) => {
+        // set ownership
+        setIsOwner(auth.id === data.ownerId);
         if (
           data.reviews[0] === undefined ||
           data["reviews"][0]["status"] === projectStatuses.SETUP
@@ -247,6 +255,7 @@ const ProjectPage = (props) => {
               path="team"
               element={
                 <TeamPage
+                  isOwner={isOwner}
                   mobileScreen={props.mobileScreen}
                   mode={data?.mode}
                 />
