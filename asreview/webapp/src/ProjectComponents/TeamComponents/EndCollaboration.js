@@ -3,33 +3,29 @@ import { useNavigate, useParams } from "react-router-dom";
 import { TeamAPI } from "../../api/index.js";
 import useAuth from "../../hooks/useAuth";
 import { Box, Button, Stack } from "@mui/material";
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
 import { InlineErrorHandler } from "../../Components";
+import { ConfirmationDialog } from "."; 
 
 
 
 const EndCollaboration = (props) => {
 
-  const [open, setOpen] = React.useState(false);
+  const [dialogOpen, setDialogOpen] = React.useState(false);
   const { auth } = useAuth();
   const navigate = useNavigate();
   const { project_id } = useParams();
   const [errorMessage, setErrorMessage] = React.useState(undefined);
 
-  const handleClickOpenAlert = () => {
-    setOpen(true);
+  const handleOpenConfirmationDialog = () => {
+    setDialogOpen(true);
   };
 
-  const handleCloseAlert = () => {
-    setOpen(false);
+  const handleCloseConfirmationDialog = () => {
+    setDialogOpen(false);
   };
 
   const handleEndCollaboration = () => {
-    setOpen(false);
+    setDialogOpen(false);
     TeamAPI.endCollaboration(project_id, auth.id)
       .then(data => {
         if (data.success) {
@@ -56,7 +52,7 @@ const EndCollaboration = (props) => {
           <Button
             variant="contained"
             color="error"
-            onClick={handleClickOpenAlert}
+            onClick={handleOpenConfirmationDialog}
           >
             Remove me from this Team
           </Button>
@@ -70,28 +66,14 @@ const EndCollaboration = (props) => {
         </Box>
       </Box>
 
-      <Dialog
-          open={open}
-          onClose={handleCloseAlert}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">
-            {"Removal from team" + project_id}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              Are you sure? You will remove yourself from this project if you 
-              click on the 'Remove' button.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseAlert}>Cancel</Button>
-            <Button onClick={handleEndCollaboration} autoFocus>
-              Remove
-            </Button>
-          </DialogActions>
-        </Dialog>
+      <ConfirmationDialog
+        open={dialogOpen}
+        title={`Removal from project "${project_id}"`}
+        contents={"Are you sure? You will remove yourself from this project if you click on the 'Remove' button."}
+        handleCancel={handleCloseConfirmationDialog}
+        handleConfirm={handleEndCollaboration}
+      />
+
     </>
   )
 }

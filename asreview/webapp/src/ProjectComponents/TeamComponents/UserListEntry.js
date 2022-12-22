@@ -7,7 +7,10 @@ import { blue } from '@mui/material/colors';
 
 const UserListEntry = (props) => {
   return (
-    <ListItem button onDoubleClick={() => props.onDoubleClick(props.user.id)}>
+    <ListItem
+      button 
+      onDoubleClick={() => props.onDoubleClick(props.user)}
+    >
       <ListItemAvatar>
         <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
           <PersonIcon />
