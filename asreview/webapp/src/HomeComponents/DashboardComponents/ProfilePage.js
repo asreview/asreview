@@ -89,7 +89,7 @@ const ProfilePage = (props) => {
         formik.setFieldValue('affiliation', data.affiliation || '', false);
         formik.setFieldValue('public', data.public || true);
         // show password field?
-        if (data.origin === "system") {
+        if (data.origin === "asreview") {
           setShowPasswordFields(true);
         } else {
           setShowPasswordFields(false);

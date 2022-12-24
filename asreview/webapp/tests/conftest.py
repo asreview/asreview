@@ -41,7 +41,7 @@ def signup_user(client, identifier, password='!biuCrgfsiOOO6987'):
             'email': identifier,
             'name': 'Test Kees',
             'password': password,
-            'origin': 'system',
+            'origin': 'asreview',
         }
     )
     return response

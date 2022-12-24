@@ -140,8 +140,22 @@ def create_app(**kwargs):
 
         # In this code-block we make sure certain authentication-related
         # config parameters are set.
-        app.config['SECRET_KEY'] = app.config.get(
-            'SECRET_KEY', 'secret_key!')
+        # TODO: should I raise a custom Exception, like MissingParameterError?
+        app.config['SECRET_KEY'] = app.config.get('SECRET_KEY', False)
+        if not app.config['SECRET_KEY']:
+            raise ValueError(
+                'Please start an authenticated app with a ' + 
+                'secret key parameter (SECRET_KEY)'
+            )
+
+        app.config['SECURITY_PASSWORD_SALT'] = app.config.get(
+            'SECURITY_PASSWORD_SALT', False
+        )
+        if not app.config['SECURITY_PASSWORD_SALT']:
+            raise ValueError(
+                'Please start an authenticated app with a ' + 
+                'security password salt (SECURITY_PASSWORD_SALT)'
+            )
 
         # We must be sure we have a database URI
         if not app.config.get('SQLALCHEMY_DATABASE_URI', False):

@@ -12,10 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime as dt
 from pathlib import Path
 from uuid import uuid4
 
+from flask import current_app
 from flask_login import UserMixin
+from itsdangerous import URLSafeTimedSerializer
 from sqlalchemy import (
     Boolean, Column, DateTime, ForeignKey, Integer, 
     String
@@ -38,7 +41,7 @@ class User(UserMixin, DB.Model):
     name = Column(String(100))
     affiliation = Column(String(100))
     hashed_password = Column(String(100), unique=True)
-    verified = Column(Boolean)
+    confirmed = Column(Boolean)
     public = Column(Boolean)
     token = Column(String(50))
     token_created_at = Column(DateTime)
@@ -85,23 +88,23 @@ class User(UserMixin, DB.Model):
     # I can compare it... and so on.
     @validates('origin', 'email', 'hashed_password')
     def validate_password(self, key, value):
-        if key == 'email' and self.origin == 'system' and \
+        if key == 'email' and self.origin == 'asreview' and \
             bool(value) == False:
-            raise ValueError('Email is required when origin is "system"')
-        if key == 'hashed_password' and self.origin == 'system' and \
+            raise ValueError('Email is required when origin is "asreview"')
+        if key == 'hashed_password' and self.origin == 'asreview' and \
             bool(value) == False:
-            raise ValueError('Password is required when origin is "system"')                
+            raise ValueError('Password is required when origin is "asreview"')                
         return value
 
     def __init__(
             self,
             identifier,
-            origin='system',
+            origin='asreview',
             email=None,
             name=None,
             affiliation=None,
             password=None,
-            verified=False,
+            confirmed=False,
             public=True,
         ):
 
@@ -112,7 +115,10 @@ class User(UserMixin, DB.Model):
         self.affiliation = affiliation
         if bool(password):
             self.hashed_password = generate_password_hash(password)
-        self.verified = verified
+        self.confirmed = confirmed
+        if not self.confirmed:
+            self.token = self.generate_email_token()
+            self.token_created_at = dt.datetime.utcnow()
         self.public = public
 
 
@@ -127,7 +133,7 @@ class User(UserMixin, DB.Model):
         self.email = email
         self.name = name
         self.affiliation = affiliation
-        if self.origin == 'system' and bool(password):
+        if self.origin == 'asreview' and bool(password):
             self.hashed_password = generate_password_hash(password)
         self.public = public
 
@@ -154,9 +160,13 @@ class User(UserMixin, DB.Model):
             'email': self.email
         }
 
-    def generate_token(self):
+    def generate_email_token(self):
         """Generate a token for verification by email"""
-        return str(uuid4())
+        serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+        return serializer.dumps(
+            self.email,
+            salt=current_app.config['SECURITY_PASSWORD_SALT']
+        )
 
     def __repr__(self):
         return f'<User {self.email!r}, id: {self.id}>'

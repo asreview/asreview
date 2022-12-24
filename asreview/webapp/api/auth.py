@@ -59,11 +59,14 @@ def signin():
         User.identifier == email or User.email == email
     ).one_or_none()
 
-    # if the user exist proceed and verify
     if not user:
+        # user does not exsist
         result = (404, {'message': f'User account {email} does not exist.'})
+    elif not user.confirmed:
+        # account is not confirmed
+        result = (404, {'message': f'User account {email} is not confirmed.'})
     else:
-        # verify password
+        # user exists and is confirmed: verify password
         if user.verify_password(password):
             logged_in = perform_login_user(user)
             result = (200, {
@@ -73,12 +76,15 @@ def signin():
             })
         else:
             # password is wrong
-            if user.origin == 'system':
+            if user.origin == 'asreview':
+                # if this is an asreview user
                 result = (
                     404,
                     {'message': f'Incorrect password for user {email}'}
                 )
             else:
+                # this must be an OAuth user trying to get in with
+                # a password
                 service = user.origin.capitalize()
                 result = (
                     404,
@@ -116,11 +122,14 @@ def signup():
             # hashed in the User model)
             try:
                 identifier = email
-                origin = 'system'
-                # set verified to False if EMAIL_VERIFICATION has
-                # paramaters (expect SMPT config)
-                verified = not bool(current_app.config.get(
-                    'EMAIL_VERIFICATION', False))
+                origin = 'asreview'
+                # are we going to verify the email?
+                email_verification = bool(
+                    current_app.config.get('EMAIL_VERIFICATION', False)
+                )
+                # set confirmed to False if we 'do' verification
+                confirmed = not email_verification
+                # create the User account
                 user = User(
                     identifier=identifier,
                     origin=origin,
@@ -128,11 +137,17 @@ def signup():
                     name=name,
                     affiliation=affiliation,
                     password=password,
-                    verified=verified,
+                    confirmed=confirmed,
                     public=public
                 )
                 DB.session.add(user)
                 DB.session.commit()
+                # at this stage, if all went well, the User account is
+                # stored in the database, send the verification email
+                # if applicable
+                if email_verification:
+                    # do send email
+                    pass
                 # set user_id
                 user_id = user.id
                 # result is a 201 with message
@@ -279,14 +294,14 @@ def oauth_callback():
         if user is None:
             try:
                 origin = provider
-                verified = True
+                confirmed = True
                 public = True
                 user = User(
                     identifier=identifier,
                     origin=origin,
                     email=email, 
                     name=name,
-                    verified=verified,
+                    confirmed=confirmed,
                     public=public
                 )
                 DB.session.add(user)

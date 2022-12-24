@@ -45,8 +45,14 @@ def setup_teardown_standard(request):
     root_dir = str(Path(os.path.abspath(__file__)).parent)
     if hasattr(request, 'param') and \
         request.param == 'user_creation_not_allowed':
+        # no user creation allowed
         config_file_path = f'{root_dir}/configs/auth_config_no_accounts.json'
+    elif hasattr(request, 'param') and \
+        request.param == 'verified_user_creation':
+        # user creation WITH email verification
+        config_file_path = f'{root_dir}/configs/auth_config_verification.json'
     else:
+        # user creation WITHOUT email verification
         config_file_path = f'{root_dir}/configs/auth_config.json'
 
     # create app and client
@@ -61,11 +67,12 @@ def setup_teardown_standard(request):
         DB.session.query(User).delete()
         DB.session.commit()
 
-def create_user(identifier, email=None, password=None):
+def create_user(identifier, email=None, confirmed=True, password=None):
     return User(
         identifier,
         email=(email if email != None else identifier),
         name='Whatever',
+        confirmed=confirmed,
         password=(password if password != None else '127635uyguytAYUTUYT')
     )
 
@@ -74,6 +81,11 @@ def get_user(identifier):
     return DB.session.query(User). \
         filter(User.identifier == identifier). \
         one_or_none()
+
+
+# ###################
+# USER CREATION
+# ###################
 
 # force different config file that doesn't allow user
 # creation
@@ -85,36 +97,48 @@ def get_user(identifier):
 def test_impossible_to_signup_when_not_allowed(setup_teardown_standard):
     """UNSuccessful signup when account creation is not allowed"""
     client = setup_teardown_standard
+    assert len(User.query.all()) == 0
     # post form data
     response = signup_user(client, 'test1@uu.nl', 'wdas32d!')
     # check if we get a 400 status
     assert response.status_code == 400
+    assert len(User.query.all()) == 0
 
 
-def test_successful_signup(setup_teardown_standard):
-    """Successful signup returns a 201"""
+@pytest.mark.parametrize(
+    'setup_teardown_standard',
+    ['verified_user_creation'],
+    indirect=True
+)
+def test_successful_signup_verified(setup_teardown_standard):
+    """Successful signup returns a 201 but with an unconfirmed
+    user and a email token"""
     client = setup_teardown_standard
+    assert len(User.query.all()) == 0
     # post form data
     response = signup_user(client, 'test1@uu.nl', 'wdas32d!')
     # check if we get a 201 status
     assert response.status_code == 201
+    # get user
+    user = User.query.first()
+    assert user.confirmed == False
+    assert bool(user.token) == True
+    assert bool(user.token_created_at) == True 
 
 
-def test_user_record_creation(setup_teardown_standard):
-    """Successful signup creates a user record"""
+def test_successful_signup_unverified(setup_teardown_standard):
+    """Successful signup returns a 201"""
     client = setup_teardown_standard
-    # count initial amount of records
-    count = DB.session.query(User).count()
-    # signup user
-    identifier = 'test2@uu.nl'
-    signup_user(client, identifier, 'ieouoiu')
-    # recount
-    new_count = DB.session.query(User).count()
-    assert new_count == (count + 1)
-    # find it
-    user = get_user(identifier)
-    # check email
-    assert user.identifier == identifier
+    assert len(User.query.all()) == 0
+    # post form data
+    response = signup_user(client, 'test1@uu.nl', 'wdas32d!')
+    # check if we get a 201 status
+    assert response.status_code == 201
+    # get user
+    user = User.query.first()
+    assert user.confirmed == True
+    assert bool(user.token) == False
+    assert bool(user.token_created_at) == False
 
 
 def test_unique_identifier_api(setup_teardown_standard):
@@ -162,6 +186,10 @@ def test_unique_emails_db(setup_teardown_standard):
     new_count = DB.session.query(User).count()
     assert new_count == count
 
+
+# ###################
+# SIGNIN
+# ###################
 
 def test_successful_signin_api(setup_teardown_standard):
     """Successfully signing in a user must return a 200 response"""
@@ -216,7 +244,11 @@ def test_must_be_signed_in_to_signout(setup_teardown_standard):
     assert response.status_code == 401
 
 
-def test_singout(setup_teardown_standard):
+# ###################
+# SIGNOUT
+# ###################
+
+def test_signout(setup_teardown_standard):
     """Signing out must return a 200 status and an
     appropriate message"""
     client = setup_teardown_standard

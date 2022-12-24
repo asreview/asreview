@@ -8,12 +8,13 @@
     "REMEMBER_COOKIE_SECURE": true,
     "SESSION_COOKIE_SAMESITE": "Lax",
     "SQLALCHEMY_TRACK_MODIFICATIONS": true,
-    "ALLOW_ACCOUNT_CREATION": false,
-    "EMAIL_VERIFICATION": false,
+    "ALLOW_ACCOUNT_CREATION": true,
+    "EMAIL_VERIFICATION": {
+        "SERVER": "smtp.server.email",
+        "PORT": 465,
+        "LOGIN": "account@test.nl",
+        "PASSWORD": "secret_password",
+        "REPLY_ADDRESS": "no_reply@test.nl"
+    },
     "OAUTH": false
 }
-
-
-
-
-
