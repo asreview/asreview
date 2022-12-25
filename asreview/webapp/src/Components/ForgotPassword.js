@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useSelector } from 'react-redux';
 import { useMutation, useQueryClient } from "react-query";
 import {
   Box,
@@ -65,6 +66,7 @@ const Root = styled("div")(({ theme }) => ({
 
 
 const ForgotPassword = () => {
+  const emailConfig = useSelector(state => state.email_config) || false;
   const [email, setEmail] = React.useState('');
   const [successMessage, setSuccessMessage] = React.useState(false);
   const queryClient = useQueryClient();
@@ -110,34 +112,42 @@ const ForgotPassword = () => {
                     alt="ASReview LAB"
                   />
                   <Typography variant="h5">Forgot your password?</Typography>
-                  <p>
-                    Enter your email address, click on the submit button and an email will be sent to you. 
-                    Check your spam or bulk folder if you don't get an email.
-                  </p>
+                  { emailConfig && 
+                    <p>
+                        Enter your email address, click on the submit button and an email will be sent to you. 
+                        Check your spam or bulk folder if you don't get an email.
+                    </p>
+                  }
+                  { !emailConfig && <p>Contact your ASReview-app administrator</p>}
                 </Stack>
-                <Stack spacing={3}>
-                  <TextField
-                    label="Email"
-                    value={email}
-                    onChange={handleEmailChange}
-                    variant="outlined"
-                    fullWidth
-                    autoFocus
-                  />
-                </Stack>
-                {isError && <InlineErrorHandler message={error.message} />}
-                {successMessage && <p>{successMessage}</p>}
+                { emailConfig &&
+                  <>
 
-                <Stack className={classes.button} direction="row">
-                  <LoadingButton
-                    loading={isLoading}
-                    variant="contained"
-                    color="primary"
-                    onClick={handleSubmit}
-                  >
-                    Submit
-                  </LoadingButton>
-                </Stack>
+                    <Stack spacing={3}>
+                      <TextField
+                        label="Email"
+                        value={email}
+                        onChange={handleEmailChange}
+                        variant="outlined"
+                        fullWidth
+                        autoFocus
+                      />
+                    </Stack>
+                    {isError && <InlineErrorHandler message={error.message} />}
+                    {successMessage && <p>{successMessage}</p>}
+
+                    <Stack className={classes.button} direction="row">
+                      <LoadingButton
+                        loading={isLoading}
+                        variant="contained"
+                        color="primary"
+                        onClick={handleSubmit}
+                      >
+                        Submit
+                      </LoadingButton>
+                    </Stack>
+                  </>
+                }
               </Stack>
             </CardContent>
           </Card>

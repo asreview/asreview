@@ -9,7 +9,8 @@
     "SESSION_COOKIE_SAMESITE": "Lax",
     "SQLALCHEMY_TRACK_MODIFICATIONS": true,
     "ALLOW_ACCOUNT_CREATION": true,
-    "EMAIL_VERIFICATION": {
+    "EMAIL_VERIFICATION": true,
+    "EMAIL_CONFIG": {
         "SERVER": "smtp.server.email",
         "PORT": 465,
         "LOGIN": "account@test.nl",

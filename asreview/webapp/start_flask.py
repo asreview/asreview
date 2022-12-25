@@ -141,20 +141,22 @@ def create_app(**kwargs):
         # In this code-block we make sure certain authentication-related
         # config parameters are set.
         # TODO: should I raise a custom Exception, like MissingParameterError?
-        app.config['SECRET_KEY'] = app.config.get('SECRET_KEY', False)
-        if not app.config['SECRET_KEY']:
+        if not app.config.get('SECRET_KEY', False):
             raise ValueError(
                 'Please start an authenticated app with a ' + 
                 'secret key parameter (SECRET_KEY)'
             )
 
-        app.config['SECURITY_PASSWORD_SALT'] = app.config.get(
-            'SECURITY_PASSWORD_SALT', False
-        )
-        if not app.config['SECURITY_PASSWORD_SALT']:
+        if not app.config.get('SECURITY_PASSWORD_SALT', False):
             raise ValueError(
                 'Please start an authenticated app with a ' + 
                 'security password salt (SECURITY_PASSWORD_SALT)'
+            )
+
+        if app.config.get('EMAIL_VERIFICATION', False) and \
+            not app.config.get('EMAIL_CONFIG', False):
+            raise ValueError(
+                'Missing email configuration to facilitate email verification'
             )
 
         # We must be sure we have a database URI
@@ -264,6 +266,10 @@ def create_app(**kwargs):
             # check if we are doing email verification
             response['email_verification'] = \
                 bool(app.config.get('EMAIL_VERIFICATION', False))
+
+            # check if there is an email server setup (forgot password)
+            response['email_config'] = \
+                bool(app.config.get('EMAIL_CONFIG', False))
 
             # if oauth config is provided
             if isinstance(app.config.get('OAUTH', False), OAuthHandler):

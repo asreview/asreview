@@ -112,24 +112,20 @@ const App = (props) => {
             path="/oauth_callback"
             element={<SignInOAuthCallback mobileScreen={mobileScreen} />}
         />
+        <Route
+          path="/forgot_password"
+          element={<ForgotPassword mobileScreen={mobileScreen} />}
+        />
         {
           emailVerification &&
-          <>
-            <Route
-              path="/forgot_password"
-              element={<ForgotPassword mobileScreen={mobileScreen} />}
-            />
-            <Route
-              path="/confirm_account"
-              element={<SignUpForm mobileScreen={mobileScreen} />}
-            />
-          </>
+          <Route
+            path="/confirm_account"
+            element={<SignUpForm mobileScreen={mobileScreen} />}
+          />
         }
       </>
     );
   }
-
-
 
   const render_routes = () => {
     return (

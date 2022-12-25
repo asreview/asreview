@@ -12,6 +12,7 @@ const initialState = {
   asreview_version: undefined,
   authentication: undefined,
   email_verification: undefined,
+  email_config: undefined,
   allow_account_creation: undefined,
   allow_teams: undefined,
   oAuthData: {
@@ -50,6 +51,7 @@ function rootReducer(state = initialState, action) {
         authentication: action.data.authentication,
         status: action.data.status,
         email_verification: Boolean(action.data.email_verification),
+        email_config: Boolean(action.data.email_config),
         allow_account_creation: Boolean(action.data.allow_account_creation),
         allow_teams: Boolean(action.data.allow_teams),
       });

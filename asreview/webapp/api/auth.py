@@ -198,7 +198,6 @@ def forgot_password():
 
     if current_app.config.get('EMAIL_VERIFICATION', False):
         email = request.form.get('email', '').strip()
-        print(email)
 
         # check if email already exists
         user = User.query.filter(
@@ -206,24 +205,22 @@ def forgot_password():
 
         if not user:
             result = (404, f'User with email "{email}" not found.')
+        elif user.origin != 'asreview':
+            result = (404, f'Your account has been created with {user.origin}')
         else:
+            # create a token
+            token = User.generate_email_token(
+                current_app.config['SECRET_KEY'],
+                current_app.config['SECURITY_PASSWORD_SALT'],
+                user.email
+            )
+            print(token)
             # send an email
             result = (200, f'An email has been sent to {email}')
 
     print(result)
 
 
-    # user = User.query.get(current_user.id)
-    # if user:
-    #     result = (200, {
-    #         'email': user.email,
-    #         'origin': user.origin,
-    #         'name': user.name,
-    #         'affiliation': user.affiliation,
-    #         'public': user.public
-    #     })
-    # else:
-    #     result = (404, 'No user found')
 
     status, message = result
     response = jsonify({'message': message})
@@ -274,20 +271,24 @@ def update_profile():
 
 
 @bp.route('/refresh', methods=["GET"])
-@asreview_login_required
 def refresh():
-    if current_user:
-        result = (200, {
-            'logged_in': current_user.is_authenticated,
-            'name': current_user.get_name(),
-            'id': current_user.id
-        })
+    if current_user and isinstance(current_user, User):
+        logged_in = current_user.is_authenticated
+        name = current_user.get_name()
+        id = current_user.id
     else:
-        result = (404, 'No user found')
+        logged_in = False
+        name = ''
+        id = None
 
-    status, message = result
-    response = jsonify(message)
-    return response, status
+    result = {
+        'logged_in': logged_in,
+        'name': name,
+        'id': id
+    }
+
+    response = jsonify(result)
+    return response, 200
 
 
 @bp.route('/signout', methods=["DELETE"])

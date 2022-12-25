@@ -20,7 +20,6 @@ import { useToggle } from "../hooks/useToggle";
 const SignInForm = (props) => {
   const classes = props.classes;
   const allowAccountCreation = props.allowAccountCreation;
-  const emailVerification = props.emailVerification;
 
   const queryClient = useQueryClient();
   const location = useLocation();
@@ -139,11 +138,9 @@ const SignInForm = (props) => {
           </Button>
         }
 
-        { emailVerification && 
-          <Button onClick={handleForgotPassword} sx={{ textTransform: "none" }}>
-            Forgot password
-          </Button>
-        }
+        <Button onClick={handleForgotPassword} sx={{ textTransform: "none" }}>
+          Forgot password
+        </Button>
 
         <LoadingButton
           loading={isLoading}

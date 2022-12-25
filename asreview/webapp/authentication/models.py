@@ -117,7 +117,11 @@ class User(UserMixin, DB.Model):
             self.hashed_password = generate_password_hash(password)
         self.confirmed = confirmed
         if not self.confirmed:
-            self.token = self.generate_email_token()
+            secret = current_app.config['SECRET_KEY']
+            salt = current_app.config['SECURITY_PASSWORD_SALT']
+            token = self.generate_email_token(secret, salt, email)
+
+            self.token = token
             self.token_created_at = dt.datetime.utcnow()
         self.public = public
 
@@ -160,13 +164,11 @@ class User(UserMixin, DB.Model):
             'email': self.email
         }
 
-    def generate_email_token(self):
+    @classmethod
+    def generate_email_token(cls, secret, salt, email):
         """Generate a token for verification by email"""
-        serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-        return serializer.dumps(
-            self.email,
-            salt=current_app.config['SECURITY_PASSWORD_SALT']
-        )
+        serializer = URLSafeTimedSerializer(secret)
+        return serializer.dumps(email, salt=salt)
 
     def __repr__(self):
         return f'<User {self.email!r}, id: {self.id}>'
