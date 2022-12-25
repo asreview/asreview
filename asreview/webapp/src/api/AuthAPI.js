@@ -50,6 +50,26 @@ class AuthAPI {
     });
   }
 
+  static forgotPassword(variables) {
+    let body = new FormData();
+    body.set("email", variables.email);
+    
+    const url = auth_url + `forgot_password`;
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "post",
+        url: url,
+        data: body,
+      })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static refresh() {
     const url = auth_url + `refresh`;
     return new Promise((resolve, reject) => {

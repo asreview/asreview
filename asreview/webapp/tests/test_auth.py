@@ -110,7 +110,7 @@ def test_impossible_to_signup_when_not_allowed(setup_teardown_standard):
     ['verified_user_creation'],
     indirect=True
 )
-def test_successful_signup_verified(setup_teardown_standard):
+def test_successful_signup_confirmed(setup_teardown_standard):
     """Successful signup returns a 201 but with an unconfirmed
     user and a email token"""
     client = setup_teardown_standard
@@ -126,7 +126,7 @@ def test_successful_signup_verified(setup_teardown_standard):
     assert bool(user.token_created_at) == True 
 
 
-def test_successful_signup_unverified(setup_teardown_standard):
+def test_successful_signup_no_confirmation(setup_teardown_standard):
     """Successful signup returns a 201"""
     client = setup_teardown_standard
     assert len(User.query.all()) == 0
@@ -191,6 +191,30 @@ def test_unique_emails_db(setup_teardown_standard):
 # SIGNIN
 # ###################
 
+@pytest.mark.parametrize(
+    'setup_teardown_standard',
+    ['verified_user_creation'],
+    indirect=True
+)
+def test_unsuccessful_signin_with_unconfirmed_account(
+    setup_teardown_standard):
+    """User can not sign in with uncomfirmed account"""
+    client = setup_teardown_standard
+    assert len(User.query.all()) == 0
+    # post form data
+    email, password = 'test1@uu.nl', 'wdas32d!'
+    response = signup_user(client, email, password)
+    # check if we get a 201 status
+    assert response.status_code == 201
+    # get user
+    user = User.query.first()
+    assert user.confirmed == False
+    # try to sign in
+    response = signin_user(client, email, password)
+    assert response.status_code == 404
+    assert f'User account {email} is not confirmed' in response.text
+
+
 def test_successful_signin_api(setup_teardown_standard):
     """Successfully signing in a user must return a 200 response"""
     client = setup_teardown_standard
@@ -233,6 +257,13 @@ def test_unsuccessful_signin_wrong_email_api(setup_teardown_standard):
         json.loads(response.data)['message']
 
 
+
+
+
+# ###################
+# SIGNOUT
+# ###################
+
 def test_must_be_signed_in_to_signout(setup_teardown_standard):
     """User must be logged in, in order to signout,
     we expect an error if we sign out if not signed in"""
@@ -242,11 +273,6 @@ def test_must_be_signed_in_to_signout(setup_teardown_standard):
     # and do it again
     response = client.delete('/auth/signout')
     assert response.status_code == 401
-
-
-# ###################
-# SIGNOUT
-# ###################
 
 def test_signout(setup_teardown_standard):
     """Signing out must return a 200 status and an

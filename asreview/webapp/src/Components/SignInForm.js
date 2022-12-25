@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { InlineErrorHandler } from ".";
 
-import BaseAPI from "../api/AuthAPI";
+import AuthAPI from "../api/AuthAPI";
 import useAuth from "../hooks/useAuth";
 import { useToggle } from "../hooks/useToggle";
 
@@ -20,6 +20,7 @@ import { useToggle } from "../hooks/useToggle";
 const SignInForm = (props) => {
   const classes = props.classes;
   const allowAccountCreation = props.allowAccountCreation;
+  const emailVerification = props.emailVerification;
 
   const queryClient = useQueryClient();
   const location = useLocation();
@@ -34,7 +35,7 @@ const SignInForm = (props) => {
   const [showPassword, toggleShowPassword] = useToggle();
 
   const { error, isError, isLoading, mutate, reset } = useMutation(
-    BaseAPI.signin,
+    AuthAPI.signin,
     {
       onMutate: () => {
         // clear potential error
@@ -58,6 +59,9 @@ const SignInForm = (props) => {
           console.error('Backend could not log you in.')
         }
       },
+      onError: (data) => {
+        console.error('Signin error', data);
+      }
     }
   );
 
@@ -70,6 +74,10 @@ const SignInForm = (props) => {
   const handleSignUp = () => {
     navigate("/signup");
   };
+
+  const handleForgotPassword = () => {
+    navigate("/forgot_password")
+  }
 
   const returnType = () => {
     return !showPassword ? "password" : "text";
@@ -128,6 +136,12 @@ const SignInForm = (props) => {
         { allowAccountCreation && 
           <Button onClick={handleSignUp} sx={{ textTransform: "none" }}>
             Create profile
+          </Button>
+        }
+
+        { emailVerification && 
+          <Button onClick={handleForgotPassword} sx={{ textTransform: "none" }}>
+            Forgot password
           </Button>
         }
 

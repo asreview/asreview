@@ -12,6 +12,7 @@ import { BaseAPI } from "./api/index.js";
 import { setBootData, setOAuthServices } from "./redux/actions";
 
 import {
+  ForgotPassword,
   HelpDialog,
   NavigationDrawer,
   RequireAuth,
@@ -111,6 +112,19 @@ const App = (props) => {
             path="/oauth_callback"
             element={<SignInOAuthCallback mobileScreen={mobileScreen} />}
         />
+        {
+          emailVerification &&
+          <>
+            <Route
+              path="/forgot_password"
+              element={<ForgotPassword mobileScreen={mobileScreen} />}
+            />
+            <Route
+              path="/confirm_account"
+              element={<SignUpForm mobileScreen={mobileScreen} />}
+            />
+          </>
+        }
       </>
     );
   }

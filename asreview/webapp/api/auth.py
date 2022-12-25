@@ -189,7 +189,44 @@ def get_profile():
         result = (404, 'No user found')
 
     status, message = result
-    response = jsonify(message)
+    response = jsonify({'message': message})
+    return response, status
+
+
+@bp.route('/forgot_password', methods=["POST"])
+def forgot_password():
+
+    if current_app.config.get('EMAIL_VERIFICATION', False):
+        email = request.form.get('email', '').strip()
+        print(email)
+
+        # check if email already exists
+        user = User.query.filter(
+            User.identifier == email or User.email == email).one_or_none()
+
+        if not user:
+            result = (404, f'User with email "{email}" not found.')
+        else:
+            # send an email
+            result = (200, f'An email has been sent to {email}')
+
+    print(result)
+
+
+    # user = User.query.get(current_user.id)
+    # if user:
+    #     result = (200, {
+    #         'email': user.email,
+    #         'origin': user.origin,
+    #         'name': user.name,
+    #         'affiliation': user.affiliation,
+    #         'public': user.public
+    #     })
+    # else:
+    #     result = (404, 'No user found')
+
+    status, message = result
+    response = jsonify({'message': message})
     return response, status
 
 

@@ -66,6 +66,7 @@ const Root = styled("div")(({ theme }) => ({
 const SignIn = () => {
   const oAuthData = useSelector(state => state.oAuthData);
   const allowAccountCreation = useSelector(state => state.allow_account_creation) || false;
+  const emailVerification = useSelector(state => state.email_verification) || false;
 
   return (
     <Root>
@@ -85,6 +86,7 @@ const SignIn = () => {
                 <SignInForm
                   classes={classes}
                   allowAccountCreation={allowAccountCreation}
+                  emailVerification={emailVerification}
                 />
                 { Object.keys(oAuthData.services).length > 0 && 
                   <SignInOAuth
