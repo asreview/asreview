@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-import datetime
+import datetime as dt
 import json
 from pathlib import Path
 import requests
@@ -45,7 +45,7 @@ def perform_login_user(user):
     return login_user(
         user,
         remember=True,
-        duration=datetime.timedelta(days=31)
+        duration=dt.timedelta(days=31)
     )
 
 
@@ -127,7 +127,8 @@ def signup():
                 email_verification = bool(
                     current_app.config.get('EMAIL_VERIFICATION', False)
                 )
-                # set confirmed to False if we 'do' verification
+                # set confirmed to False if we 'do' verification. Note
+                # that this route only creates 'asreview' accounts
                 confirmed = not email_verification
                 # create the User account
                 user = User(
@@ -140,6 +141,14 @@ def signup():
                     confirmed=confirmed,
                     public=public
                 )
+                # if this is an un-confirmed account, set token
+                if not confirmed:
+                    # set token data
+                    user = user.set_token_data(
+                        current_app.config['SECRET_KEY'],
+                        current_app.config['SECURITY_PASSWORD_SALT']
+                    )
+                # store user
                 DB.session.add(user)
                 DB.session.commit()
                 # at this stage, if all went well, the User account is
@@ -169,6 +178,45 @@ def signup():
 
     (status, message) = result
     response = jsonify({'message': message, 'user_id': user_id})
+    return response, status
+
+
+@bp.route('/confirm', methods=["GET"])
+def confirm():
+    """Confirms account with email verification"""
+    # find user by token and user id
+    user_id = request.args.get('user_id', 0)
+    token = request.args.get('token', '')
+    
+    user = User.query.filter(
+        User.id == user_id and User.token == token
+    ).one_or_none()
+
+    if user:
+        # get timestamp
+        now = dt.datetime.utcnow()
+        # get time-difference in hours
+        diff = now - user.token_created_at
+        [hours, plus_change] = divmod(diff.total_seconds(), 3600)
+        # we expect a reaction within 24 hours
+        if hours >= 24.0 and plus_change > 0:
+            result = (403, 'Can not confirm account, token has expired')
+        else:
+            user = user.confirm_user()
+            try:
+                DB.session.commit()
+                result = (200, 'Updated user')
+            except SQLAlchemyError as e:
+                DB.session.rollback()
+                result = (
+                    403,
+                    f'Unable to to confirm user! Reason: {str(e)}'
+                )
+    else:
+        result = (404, 'No user found')
+
+    status, message = result
+    response = jsonify({'message': message})
     return response, status
 
 
@@ -208,19 +256,17 @@ def forgot_password():
         elif user.origin != 'asreview':
             result = (404, f'Your account has been created with {user.origin}')
         else:
-            # create a token
-            token = User.generate_email_token(
+            # set a token
+            user = user.set_token_data(
                 current_app.config['SECRET_KEY'],
-                current_app.config['SECURITY_PASSWORD_SALT'],
-                user.email
+                current_app.config['SECURITY_PASSWORD_SALT']
             )
-            print(token)
+            # store data
+            DB.session.commit()
             # send an email
             result = (200, f'An email has been sent to {email}')
 
     print(result)
-
-
 
     status, message = result
     response = jsonify({'message': message})

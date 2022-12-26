@@ -291,3 +291,68 @@ def test_signout(setup_teardown_standard):
     assert response.status_code == 200
     assert 'signed out' in \
         json.loads(response.data)['message']
+
+
+# ###################
+# CONFIRMATION
+# ###################
+
+@pytest.mark.parametrize(
+    'setup_teardown_standard',
+    ['verified_user_creation'],
+    indirect=True
+)
+def test_token_creation_if_forgot_password(setup_teardown_standard):
+    """A new token is created when forgot password is requested"""
+    client = setup_teardown_standard
+    assert len(User.query.all()) == 0
+    # post form data
+    response = signup_user(client, 'test1@uu.nl', 'wdas32d!')
+    # check if we get a 201 status
+    assert response.status_code == 201
+    # get user
+    user = User.query.first()
+    assert user.confirmed == False
+    assert bool(user.token) == True
+    assert bool(user.token_created_at) == True 
+    # now we confirm this user
+    response = client.get(
+        f'/auth/confirm?user_id={user.id}&token={user.token}',
+    )
+    assert response.status_code == 200
+    # get user again
+    user = User.query.first()
+    assert user.confirmed == True
+    assert bool(user.token) == False
+    assert bool(user.token_created_at) == False
+
+def test_expired_token(setup_teardown_standard):
+    pass
+
+def test_if_this_route_returns_404_when_not_verified(setup_teardown_standard):
+    """If we are not doing verification this route should return a 404"""
+    pass
+
+
+# ###################
+# FORGOT PASSWORD
+# ###################
+
+# @pytest.mark.parametrize(
+#     'setup_teardown_standard',
+#     ['verified_user_creation'],
+#     indirect=True
+# )
+# def test_token_creation_if_forgot_password(setup_teardown_standard):
+#     """A new token is created when forgot password is requested"""
+#     client = setup_teardown_standard
+#     assert len(User.query.all()) == 0
+#     # post form data
+#     response = signup_user(client, 'test1@uu.nl', 'wdas32d!')
+#     # check if we get a 201 status
+#     assert response.status_code == 201
+#     # get user
+#     user = User.query.first()
+#     assert user.confirmed == False
+#     assert bool(user.token) == True
+#     assert bool(user.token_created_at) == True 

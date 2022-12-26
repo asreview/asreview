@@ -16,7 +16,6 @@ import datetime as dt
 from pathlib import Path
 from uuid import uuid4
 
-from flask import current_app
 from flask_login import UserMixin
 from itsdangerous import URLSafeTimedSerializer
 from sqlalchemy import (
@@ -105,7 +104,7 @@ class User(UserMixin, DB.Model):
             affiliation=None,
             password=None,
             confirmed=False,
-            public=True,
+            public=True
         ):
 
         self.identifier = identifier
@@ -116,13 +115,6 @@ class User(UserMixin, DB.Model):
         if bool(password):
             self.hashed_password = generate_password_hash(password)
         self.confirmed = confirmed
-        if not self.confirmed:
-            secret = current_app.config['SECRET_KEY']
-            salt = current_app.config['SECURITY_PASSWORD_SALT']
-            token = self.generate_email_token(secret, salt, email)
-
-            self.token = token
-            self.token_created_at = dt.datetime.utcnow()
         self.public = public
 
 
@@ -141,6 +133,17 @@ class User(UserMixin, DB.Model):
             self.hashed_password = generate_password_hash(password)
         self.public = public
 
+        return self
+
+
+    def set_token_data(self, secret, salt):
+        """Set token data (used in email verification after
+        init, and for forgot-password"""
+        token, token_created_at = User.generate_token_data(
+            secret, salt, self.email
+        )
+        self.token = token
+        self.token_created_at = token_created_at
         return self
 
 
@@ -164,11 +167,21 @@ class User(UserMixin, DB.Model):
             'email': self.email
         }
 
+    def confirm_user(self):
+        """This function confirms a user by setting the confirmed
+        field to True and removes the token data"""
+        self.confirmed = True
+        self.token = None
+        self.token_created_at = None
+        return self
+
     @classmethod
-    def generate_email_token(cls, secret, salt, email):
+    def generate_token_data(cls, secret, salt, email):
         """Generate a token for verification by email"""
         serializer = URLSafeTimedSerializer(secret)
-        return serializer.dumps(email, salt=salt)
+        token = serializer.dumps(email, salt=salt)
+        created_at = dt.datetime.utcnow()
+        return token, created_at
 
     def __repr__(self):
         return f'<User {self.email!r}, id: {self.id}>'
