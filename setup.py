@@ -119,6 +119,7 @@ setup(
         'flask>=2.0',
         'flask_cors',
         'flask-login',
+        'flask-mail',
         'openpyxl',
         'gevent',
         'jsonschema',

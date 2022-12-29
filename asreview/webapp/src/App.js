@@ -17,6 +17,7 @@ import {
   NavigationDrawer,
   RequireAuth,
   PersistSignIn,
+  ResetPassword,
   SettingsDialog,
   SignIn,
   SignInOAuthCallback,
@@ -115,6 +116,10 @@ const App = (props) => {
         <Route
           path="/forgot_password"
           element={<ForgotPassword mobileScreen={mobileScreen} />}
+        />
+        <Route
+          path="/reset_password"
+          element={<ResetPassword mobileScreen={mobileScreen} />}
         />
         {
           emailVerification &&

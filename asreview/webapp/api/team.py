@@ -6,6 +6,7 @@ from flask import jsonify
 from flask import request
 from flask_cors import CORS
 from flask_login import current_user
+from sqlalchemy import and_
 from sqlalchemy.exc import SQLAlchemyError
 
 from asreview.project import ASReviewProject
@@ -56,8 +57,11 @@ def users(project_id):
         all_users = [ 
             u.summarize()
             for u in User.query.filter(
-                User.public == True, User.id != current_user.id) \
-                .order_by('name').all()
+                and_(
+                    User.public == True,
+                    User.id != current_user.id
+                )
+            ).order_by('name').all()
         ]
 
         # response

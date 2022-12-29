@@ -16,6 +16,7 @@ export { default as OpenInNewIconStyled } from "./OpenInNewIconStyled";
 export { default as PageHeader } from "./PageHeader";
 export { default as PersistSignIn } from "./PersistSignIn";
 export { default as ProfilePopper } from "./ProfilePopper";
+export { default as ResetPassword } from "./ResetPassword";
 export { default as RequireAuth } from "./RequireAuth";
 export { default as SettingsDialog } from "./SettingsDialog";
 export { default as SignIn } from "./SignIn";

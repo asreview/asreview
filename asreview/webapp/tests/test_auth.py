@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime as dt
 import json
 import os
 from pathlib import Path
+import time
 
 import pytest
 
@@ -257,9 +259,6 @@ def test_unsuccessful_signin_wrong_email_api(setup_teardown_standard):
         json.loads(response.data)['message']
 
 
-
-
-
 # ###################
 # SIGNOUT
 # ###################
@@ -302,8 +301,9 @@ def test_signout(setup_teardown_standard):
     ['verified_user_creation'],
     indirect=True
 )
-def test_token_creation_if_forgot_password(setup_teardown_standard):
-    """A new token is created when forgot password is requested"""
+def token_confirmation_after_signup(setup_teardown_standard):
+    """A new token is created on signup, that token is can 
+    be confirmed by the confirm route"""
     client = setup_teardown_standard
     assert len(User.query.all()) == 0
     # post form data
@@ -326,33 +326,141 @@ def test_token_creation_if_forgot_password(setup_teardown_standard):
     assert bool(user.token) == False
     assert bool(user.token_created_at) == False
 
+@pytest.mark.parametrize(
+    'setup_teardown_standard',
+    ['verified_user_creation'],
+    indirect=True
+)
 def test_expired_token(setup_teardown_standard):
-    pass
+    """A token expires in 24 hours"""
+    client = setup_teardown_standard
+    assert len(User.query.all()) == 0
+    # post form data
+    response = signup_user(client, 'test1@uu.nl', 'wdas32d!')
+    # check if we get a 201 status
+    assert response.status_code == 201
+    # get user
+    user = User.query.first()
+    # change token created at
+    token = user.token
+    new_created_at = user.token_created_at - dt.timedelta(hours=24, minutes=1)
+    user.token_created_at = new_created_at
+    DB.session.commit()
+    # try to confirm this account
+        # now we confirm this user
+    response = client.get(
+        f'/auth/confirm?user_id={user.id}&token={user.token}',
+    )
+    assert response.status_code == 403
+    assert 'token has expired' in response.text
+    # get user again
+    user = User.query.first()
+    # user is not confirmed yet
+    assert user.confirmed == False
+    # token is unchanged
+    assert user.token == token
 
-def test_if_this_route_returns_404_when_not_verified(setup_teardown_standard):
+@pytest.mark.parametrize(
+    'setup_teardown_standard',
+    ['verified_user_creation'],
+    indirect=True
+)
+def test_if_this_route_returns_404_user_not_found(setup_teardown_standard):
+    """If the user cant be found, this route should return a 404"""
+    client = setup_teardown_standard
+    assert len(User.query.all()) == 0
+    # post form data
+    response = signup_user(client, 'test1@uu.nl', 'wdas32d!')
+    # check if we get a 201 status
+    assert response.status_code == 201
+    # get user
+    user = User.query.first()
+    # confirm with wrong user id
+    response = client.get(
+        f'/auth/confirm?user_id={user.id - 1}&token={user.token}',
+    )
+    assert response.status_code == 404
+    assert 'No user/token found' in response.text
+
+@pytest.mark.parametrize(
+    'setup_teardown_standard',
+    ['verified_user_creation'],
+    indirect=True
+)
+def test_if_this_route_returns_404_token_not_found(setup_teardown_standard):
+    """If the token cant be found, this route should return a 404"""
+    client = setup_teardown_standard
+    assert len(User.query.all()) == 0
+    # post form data
+    response = signup_user(client, 'test1@uu.nl', 'wdas32d!')
+    # check if we get a 201 status
+    assert response.status_code == 201
+    # get user
+    user = User.query.first()
+    # confirm with wrong user id
+    response = client.get(
+        f'/auth/confirm?user_id={user.id}&token=A{user.token}A',
+    )
+    assert response.status_code == 404
+    assert 'No user/token found' in response.text
+
+def test_if_this_route_returns_403_if_app_not_verified(
+        setup_teardown_standard
+    ):
     """If we are not doing verification this route should return a 404"""
-    pass
-
+    client = setup_teardown_standard
+    assert len(User.query.all()) == 0
+    # post form data
+    response = signup_user(client, 'test1@uu.nl', 'wdas32d!')
+    # check if we get a 201 status
+    assert response.status_code == 201
+    # get user
+    user = User.query.first()
+    # try to confirm
+    response = client.get(
+        f'/auth/confirm?user_id={user.id}&token={user.token}',
+    )
+    assert response.status_code == 400
+    assert 'not configured to verify accounts' in response.text
+    
 
 # ###################
 # FORGOT PASSWORD
 # ###################
 
-# @pytest.mark.parametrize(
-#     'setup_teardown_standard',
-#     ['verified_user_creation'],
-#     indirect=True
-# )
-# def test_token_creation_if_forgot_password(setup_teardown_standard):
-#     """A new token is created when forgot password is requested"""
-#     client = setup_teardown_standard
-#     assert len(User.query.all()) == 0
-#     # post form data
-#     response = signup_user(client, 'test1@uu.nl', 'wdas32d!')
-#     # check if we get a 201 status
-#     assert response.status_code == 201
-#     # get user
-#     user = User.query.first()
-#     assert user.confirmed == False
-#     assert bool(user.token) == True
-#     assert bool(user.token_created_at) == True 
+@pytest.mark.parametrize(
+    'setup_teardown_standard',
+    ['verified_user_creation'],
+    indirect=True
+)
+def test_token_creation_if_forgot_password(setup_teardown_standard):
+    """A new token is created when forgot password is requested"""
+    client = setup_teardown_standard
+    assert len(User.query.all()) == 0
+    # post form data
+    response = signup_user(client, 'test1@uu.nl', 'wdas32d!')
+    # check if we get a 201 status
+    assert response.status_code == 201
+    # get user
+    user = User.query.first()
+    # get initial token
+    old_token = user.token
+    old_token_created_at = user.token_created_at
+    # confirm this user
+    user.confirmed = True
+    DB.session.commit()
+    time.sleep(1.5)
+    # forgot password
+    response = client.post(
+        f'/auth/forgot_password',
+        data={'email': user.email}
+    )
+    # get latest version of user
+    user = User.query.first()
+    # asserts
+    assert bool(user.token) == True
+    assert user.token != old_token
+    assert user.token_created_at > old_token_created_at
+
+
+

@@ -13,8 +13,10 @@
     "EMAIL_CONFIG": {
         "SERVER": "smtp.server.email",
         "PORT": 465,
-        "LOGIN": "account@test.nl",
+        "USERNAME": "account@test.nl",
         "PASSWORD": "secret_password",
+        "USE_TLS": false,
+        "USE_SSL": true,
         "REPLY_ADDRESS": "no_reply@test.nl"
     },
     "OAUTH": false

@@ -13,10 +13,6 @@ import {
 import LoadingButton from "@mui/lab/LoadingButton";
 import { styled } from "@mui/material/styles";
 
-import { 
-  SignInForm,
-} from "../Components";
-
 import { WordmarkState } from "../globals";
 import { InlineErrorHandler } from ".";
 import AuthAPI from "../api/AuthAPI";
@@ -122,7 +118,6 @@ const ForgotPassword = () => {
                 </Stack>
                 { emailConfig &&
                   <>
-
                     <Stack spacing={3}>
                       <TextField
                         label="Email"

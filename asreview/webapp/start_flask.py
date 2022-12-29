@@ -159,6 +159,16 @@ def create_app(**kwargs):
                 'Missing email configuration to facilitate email verification'
             )
 
+        # set email config for Flask-Mail
+        conf = app.config.get('EMAIL_CONFIG', {})
+        app.config['MAIL_SERVER'] = conf.get('SERVER')
+        app.config['MAIL_PORT'] = conf.get('PORT', 465)
+        app.config['MAIL_USERNAME'] = conf.get('USERNAME')
+        app.config['MAIL_PASSWORD'] = conf.get('PASSWORD')
+        app.config['MAIL_USE_TLS'] = conf.get('USE_TLS', False)
+        app.config['MAIL_USE_SSL'] = conf.get('USE_SSL', False)
+        app.config['MAIL_REPLY_ADDRESS'] = conf.get('REPLY_ADDRESS')
+
         # We must be sure we have a database URI
         if not app.config.get('SQLALCHEMY_DATABASE_URI', False):
             # create default path

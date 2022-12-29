@@ -31,6 +31,7 @@ from flask_cors import CORS
 from flask_login import current_user
 import numpy as np
 import pandas as pd
+from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
@@ -298,8 +299,10 @@ def api_update_project_info(project):  # noqa: F401
             # ==============================
             if current_app.config['AUTHENTICATION_ENABLED']:
                 db_project = Project.query.filter(
-                    Project.owner_id == current_user.id,
-                    Project.project_id == old_project_id
+                    and_(
+                        Project.owner_id == current_user.id,
+                        Project.project_id == old_project_id
+                    )
                 ).update({
                     'project_id': new_project_id,
                     'folder': new_project_path.stem
@@ -1609,8 +1612,10 @@ def api_delete_project(project):  # noqa: F401
             # remove from database if applicable
             if current_app.config['AUTHENTICATION_ENABLED']:
                 project = Project.query.filter(
-                    Project.project_id == project.project_id,
-                    Project.owner_id == current_user.id
+                    and_(
+                        Project.project_id == project.project_id,
+                        Project.owner_id == current_user.id
+                    )
                 ).one_or_none()
                 
                 if project != None:

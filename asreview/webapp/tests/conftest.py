@@ -87,7 +87,8 @@ def setup_teardown_signed_in():
         signup_user(client, email, password)
         # signin this user
         signin_user(client, email, password)
-        user = DB.session.query(User).filter(User.identifier==email).one_or_none()
+        user = DB.session.query(User) \
+            .filter(User.identifier==email).one_or_none()
         yield app, client, user
 
         try:

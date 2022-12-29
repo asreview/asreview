@@ -17,10 +17,14 @@ import datetime as dt
 import json
 from pathlib import Path
 import requests
+import smtplib
+import ssl
 
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, current_app, jsonify, render_template, request
 from flask_cors import CORS
 from flask_login import current_user, login_user, logout_user
+from flask_mail import Mail, Message
+from sqlalchemy import and_, or_
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from asreview.webapp import DB
@@ -49,6 +53,23 @@ def perform_login_user(user):
     )
 
 
+def send_email(message, receiver_email, sender_email):
+    context = ssl.create_default_context()
+    config = current_app.get('EMAIL_CONFIG')
+    with smtplib.SMTP_SSL(
+        config['SERVER'], 
+        config['PORT'], 
+        context=context) as server:
+        
+        server.login(config['LOGIN'], config['PASSWORD'])
+        result = server.sendmail(
+            sender_email,
+            receiver_email,
+            message.as_string()
+        )
+        return result
+
+
 @bp.route('/signin', methods=["POST"])
 def signin():
     email = request.form.get('email').strip()
@@ -56,7 +77,7 @@ def signin():
 
     # get the user
     user = User.query.filter(
-        User.identifier == email or User.email == email
+        or_(User.identifier == email, User.email == email)
     ).one_or_none()
 
     if not user:
@@ -112,7 +133,8 @@ def signup():
 
         # check if email already exists
         user = User.query.filter(
-            User.identifier == email or User.email == email).one_or_none()
+            or_(User.identifier == email, User.email == email)
+        ).one_or_none()
         # return error if user doesn't exist
         if isinstance(user, User):
             result = (403, f'User with email "{email}" already exists.')
@@ -155,8 +177,25 @@ def signup():
                 # stored in the database, send the verification email
                 # if applicable
                 if email_verification:
-                    # do send email
-                    pass
+                    # create Flask-Mail object
+                    mailer = Mail(current_app)
+                    # get reply address
+                    sender_email = current_app.config.get(
+                        'MAIL_REPLY_ADDRESS'
+                    )
+                    # create url
+                    url = f'http://127.0.0.1:3000/confirm_account?' \
+                        + f'user_id={user.id}&token={user.token}'
+                    # create message
+                    msg = Message(
+                        subject='This is a test',
+                        sender=sender_email,
+                        recipients=[user.email]
+                    )
+                    msg.body = '' # render_template('emails/confirm.txt')
+                    msg.html = '' # render_template('emails/confirm.html')
+                    # send email
+                    # mailer.send(msg)
                 # set user_id
                 user_id = user.id
                 # result is a 201 with message
@@ -184,36 +223,41 @@ def signup():
 @bp.route('/confirm', methods=["GET"])
 def confirm():
     """Confirms account with email verification"""
-    # find user by token and user id
-    user_id = request.args.get('user_id', 0)
-    token = request.args.get('token', '')
-    
-    user = User.query.filter(
-        User.id == user_id and User.token == token
-    ).one_or_none()
+    if current_app.config.get('EMAIL_VERIFICATION', False):
+        # find user by token and user id
+        user_id = request.args.get('user_id', 0)
+        token = request.args.get('token', '')
+        
+        user = User.query.filter(
+            and_(User.id == user_id, User.token == token)
+        ).one_or_none()
 
-    if user:
-        # get timestamp
-        now = dt.datetime.utcnow()
-        # get time-difference in hours
-        diff = now - user.token_created_at
-        [hours, plus_change] = divmod(diff.total_seconds(), 3600)
-        # we expect a reaction within 24 hours
-        if hours >= 24.0 and plus_change > 0:
-            result = (403, 'Can not confirm account, token has expired')
+        if user:
+            # get timestamp
+            now = dt.datetime.utcnow()
+            # get time-difference in hours
+            diff = now - user.token_created_at
+            [hours, plus_change] = divmod(diff.total_seconds(), 3600)
+            # we expect a reaction within 24 hours
+            if hours >= 24.0 and plus_change > 0:
+                message = 'Can not confirm account, token has expired. ' \
+                    + 'Use "forgot password" to obtain a new one.'
+                result = (403, message)
+            else:
+                user = user.confirm_user()
+                try:
+                    DB.session.commit()
+                    result = (200, 'Updated user')
+                except SQLAlchemyError as e:
+                    DB.session.rollback()
+                    result = (
+                        403,
+                        f'Unable to to confirm user! Reason: {str(e)}'
+                    )
         else:
-            user = user.confirm_user()
-            try:
-                DB.session.commit()
-                result = (200, 'Updated user')
-            except SQLAlchemyError as e:
-                DB.session.rollback()
-                result = (
-                    403,
-                    f'Unable to to confirm user! Reason: {str(e)}'
-                )
+            result = (404, 'No user/token found')
     else:
-        result = (404, 'No user found')
+        result = (400, 'The app is not configured to verify accounts')
 
     status, message = result
     response = jsonify({'message': message})
@@ -249,7 +293,8 @@ def forgot_password():
 
         # check if email already exists
         user = User.query.filter(
-            User.identifier == email or User.email == email).one_or_none()
+            or_(User.identifier == email, User.email == email)
+        ).one_or_none()
 
         if not user:
             result = (404, f'User with email "{email}" not found.')
@@ -261,13 +306,16 @@ def forgot_password():
                 current_app.config['SECRET_KEY'],
                 current_app.config['SECURITY_PASSWORD_SALT']
             )
-            # store data
-            DB.session.commit()
-            # send an email
-            result = (200, f'An email has been sent to {email}')
-
-    print(result)
-
+            try:
+                # store data
+                DB.session.commit()
+                # send an email
+                # =============
+                result = (200, f'An email has been sent to {email}')
+            except SQLAlchemyError as e:
+                DB.session.rollback()
+                result = (403, f'Unable to to confirm user! Reason: {str(e)}')
+            
     status, message = result
     response = jsonify({'message': message})
     return response, status
@@ -371,7 +419,9 @@ def oauth_callback():
         )
         (identifier, email, name) = response
         # try to find this user
-        user = User.query.filter(User.identifier == identifier).one_or_none()
+        user = User.query.filter(
+            User.identifier == identifier
+        ).one_or_none()
         # flag for response (I'd like to communicate if this user was created)
         created_account = False
         # if not create user
