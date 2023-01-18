@@ -136,6 +136,12 @@ class User(UserMixin, DB.Model):
         return self
 
 
+    def reset_password(self, new_password):
+        if self.origin == 'asreview' and bool(new_password):
+            self.hashed_password = generate_password_hash(new_password)
+        return self
+
+
     def set_token_data(self, secret, salt):
         """Set token data (used in email verification after
         init, and for forgot-password"""

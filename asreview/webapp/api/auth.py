@@ -20,7 +20,8 @@ import requests
 import smtplib
 import ssl
 
-from flask import Blueprint, current_app, jsonify, render_template, request
+from flask import Blueprint, current_app, jsonify, \
+    render_template_string, request
 from flask_cors import CORS
 from flask_login import current_user, login_user, logout_user
 from flask_mail import Mail, Message
@@ -33,7 +34,11 @@ from asreview.webapp.authentication.login_required import \
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
+# TODO: I need a folder to stash templates for emails,
+# is this the way we should do it? I don't see the point
+# of making the end-user decide the exact location.
 bp = Blueprint('auth', __name__, url_prefix='/auth')
+
 CORS(
     bp,
     resources={r"*": {"origins": [
@@ -53,21 +58,45 @@ def perform_login_user(user):
     )
 
 
-def send_email(message, receiver_email, sender_email):
+def send_email(msg, config):
     context = ssl.create_default_context()
-    config = current_app.get('EMAIL_CONFIG')
     with smtplib.SMTP_SSL(
         config['SERVER'], 
         config['PORT'], 
         context=context) as server:
-        
-        server.login(config['LOGIN'], config['PASSWORD'])
-        result = server.sendmail(
-            sender_email,
-            receiver_email,
-            message.as_string()
-        )
-        return result
+
+        # login smtp server
+        server.login(config['USERNAME'], config['PASSWORD'])
+        # send email
+        return server.sendmail(msg)
+
+
+def send_forgot_password_email(user, config):
+    # get necessary information out of user object
+    name = user.name or 'ASReview user'
+    # current_app
+    cur_app = config['current_app']
+    print(cur_app.config.keys(), '->', cur_app.config.get('SERVER_NAME'))
+    root_url = 'http://127.0.0.1:3000/'
+    # redirect url
+    url = f'{root_url}reset_password?user_id={user.id}&token={user.token}'
+    # create a mailer
+    mailer = Mail(cur_app)
+    # open templates as string and render
+    root_path = Path(cur_app.root_path)
+    with open(root_path / 'templates/emails/forgot_password.html', 'r') as f:
+        html_text = render_template_string(f.read(), name=name, url=url)
+    with open(root_path / 'templates/emails/forgot_password.txt', 'r') as f:
+        txt_text = render_template_string(f.read(), name=name, url=url)
+    # create message
+    msg = Message(
+        'ASReview: forgot password',
+        recipients=[user.email],
+        sender=config.get('REPLY_ADDRESS')
+    )
+    msg.body = txt_text
+    msg.html = html_text
+    return mailer.send(msg)
 
 
 @bp.route('/signin', methods=["POST"])
@@ -289,15 +318,18 @@ def get_profile():
 def forgot_password():
 
     if current_app.config.get('EMAIL_VERIFICATION', False):
-        email = request.form.get('email', '').strip()
+        email_address = request.form.get('email', '').strip()
+        # email config
+        email_config = current_app.config.get('EMAIL_CONFIG')
 
         # check if email already exists
         user = User.query.filter(
-            or_(User.identifier == email, User.email == email)
+            or_(User.identifier == email_address, 
+                User.email == email_address)
         ).one_or_none()
 
         if not user:
-            result = (404, f'User with email "{email}" not found.')
+            result = (404, f'User with email "{email_address}" not found.')
         elif user.origin != 'asreview':
             result = (404, f'Your account has been created with {user.origin}')
         else:
@@ -311,7 +343,12 @@ def forgot_password():
                 DB.session.commit()
                 # send an email
                 # =============
-                result = (200, f'An email has been sent to {email}')
+                # add current_app and request object to config
+                email_config['current_app'] = current_app
+                # send email
+                send_forgot_password_email(user, email_config)
+                # result
+                result = (200, f'An email has been sent to {email_address}')
             except SQLAlchemyError as e:
                 DB.session.rollback()
                 result = (403, f'Unable to to confirm user! Reason: {str(e)}')
@@ -354,6 +391,40 @@ def update_profile():
             result = (
                 500, 
                 f'Unable to update your profile! Reason: {str(e)}'
+            )
+
+    else:
+        result = (404, 'No user found')
+
+    status, message = result
+    response = jsonify({'message': message})
+    return response, status
+
+
+@bp.route('/reset_password', methods=["POST"])
+def reset_password():
+
+    new_password = request.form.get('password', '').strip()
+    token = request.form.get('token', '').strip()
+    user_id = request.form.get('user_id', '0').strip()
+
+    user = User.query.get(user_id)
+    if user:
+        try:
+            user = user.reset_password(new_password)
+            DB.session.commit()
+            result = (200, 'Password updated')
+        except IntegrityError as e:          
+            DB.session.rollback()
+            result = (
+                500,
+                f'Unable to reset your password! Reason: {str(e)}'
+            )
+        except SQLAlchemyError as e:
+            DB.session.rollback()
+            result = (
+                500, 
+                f'Unable to reset your password! Reason: {str(e)}'
             )
 
     else:

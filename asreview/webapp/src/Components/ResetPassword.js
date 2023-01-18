@@ -1,6 +1,6 @@
 
 import * as React from "react";
-import { useSelector } from 'react-redux';
+import { useSearchParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "react-query";
 import {
   Box,
@@ -22,6 +22,7 @@ import { WordmarkState } from "../globals";
 import { useToggle } from "../hooks/useToggle";
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { CountertopsOutlined } from "@mui/icons-material";
 
 const PREFIX = "SignInForm";
 
@@ -82,6 +83,7 @@ const SignupSchema = Yup.object().shape({
 const ResetPassword = (props) => {
   const queryClient = useQueryClient();
   const [showPassword, toggleShowPassword] = useToggle();
+  const [searchParams] = useSearchParams();
 
   const initialValues = {
     password: '',
@@ -117,8 +119,12 @@ const ResetPassword = (props) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    reset();
-    //mutate({ password });
+    let userId = searchParams.get('user_id')
+    let token = searchParams.get('token');
+    let password = formik.values.password;
+    console.log(password);
+    //mutate({ userId, token, password });
+    //reset();
   }
 
   return (
