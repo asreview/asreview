@@ -241,7 +241,7 @@ const SignUpForm = (props) => {
 
                   <Stack className={classes.button} direction="row">
                     <Button onClick={handleSignIn} sx={{ textTransform: "none" }}>
-                      Sign in instead
+                      Sign In instead
                     </Button>
                     <LoadingButton
                       //loading={isLoading}

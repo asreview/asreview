@@ -141,6 +141,7 @@ class User(UserMixin, DB.Model):
             self.hashed_password = generate_password_hash(new_password)
         # reset token
         self.token = None
+        self.token_created_at = None
         return self
 
 
@@ -182,6 +183,22 @@ class User(UserMixin, DB.Model):
         self.token = None
         self.token_created_at = None
         return self
+
+    def token_valid(self, provided_token, max_hours=24):
+        """Checks whether provided token is correct and still valid"""
+        # there must be a token and a timestamp
+        if bool(self.token) and bool(self.token_created_at):
+            # what is now
+            now = dt.datetime.utcnow()
+            # get time-difference in hours
+            diff = now - self.token_created_at
+            # give me hours and remaining seconds
+            [hours, r_secs] = divmod(diff.total_seconds(), 3600)
+            # return if token is correct and we are still before deadline
+            return self.token == provided_token and \
+                (hours <= max_hours or (hours == max_hours and r_secs < 60))
+        else:
+            return False
 
     @classmethod
     def generate_token_data(cls, secret, salt, email):

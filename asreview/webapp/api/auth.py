@@ -57,7 +57,7 @@ def perform_login_user(user):
         duration=dt.timedelta(days=31)
     )
 
-
+# TODO: not sure if this file is the right place for this function
 def send_email(msg, config):
     context = ssl.create_default_context()
     with smtplib.SMTP_SSL(
@@ -71,12 +71,14 @@ def send_email(msg, config):
         return server.sendmail(msg)
 
 
-def send_forgot_password_email(user, config):
+# TODO: not sure if this file is the right place for this function
+def send_forgot_password_email(user, cur_app):
     # get necessary information out of user object
     name = user.name or 'ASReview user'
-    # current_app
-    cur_app = config['current_app']
-    print(cur_app.config.keys(), '->', cur_app.config.get('SERVER_NAME'))
+    # email config
+    config = cur_app.config.get('EMAIL_CONFIG')
+    # TODO: this is horrible => what if there is a domain name,
+    # where is it coming from? Where can I get it?
     root_url = 'http://127.0.0.1:3000/'
     # redirect url
     url = f'{root_url}reset_password?user_id={user.id}&token={user.token}'
@@ -98,6 +100,40 @@ def send_forgot_password_email(user, config):
     msg.html = html_text
     return mailer.send(msg)
 
+
+# TODO: not sure if this file is the right place for this function
+def send_confirm_account_email(user, cur_app):
+    # get necessary information out of user object
+    name = user.name or 'ASReview user'
+    # email config
+    config = cur_app.config.get('EMAIL_CONFIG')
+    # TODO: this is horrible => what if there is a domain name,
+    # where is it coming from? Where can I get it?
+    root_url = 'http://127.0.0.1:3000/'
+    # redirect url
+    url = f'{root_url}confirm_account?user_id={user.id}&token={user.token}'
+    # create a mailer
+    mailer = Mail(cur_app)
+    # open templates as string and render
+    root_path = Path(cur_app.root_path)
+    with open(root_path / 'templates/emails/confirm_account.html', 'r') as f:
+        html_text = render_template_string(f.read(), name=name, url=url)
+    with open(root_path / 'templates/emails/confirm_account.txt', 'r') as f:
+        txt_text = render_template_string(f.read(), name=name, url=url)
+    # create message
+    msg = Message(
+        'ASReview: please confirm your account',
+        recipients=[user.email],
+        sender=config.get('REPLY_ADDRESS')
+    )
+    msg.body = txt_text
+    msg.html = html_text
+    return mailer.send(msg)
+
+
+# ------------------
+#      ROUTES
+# ------------------
 
 @bp.route('/signin', methods=["POST"])
 def signin():
@@ -206,29 +242,17 @@ def signup():
                 # stored in the database, send the verification email
                 # if applicable
                 if email_verification:
-                    # create Flask-Mail object
-                    mailer = Mail(current_app)
-                    # get reply address
-                    sender_email = current_app.config.get(
-                        'MAIL_REPLY_ADDRESS'
-                    )
-                    # create url
-                    url = f'http://127.0.0.1:3000/confirm_account?' \
-                        + f'user_id={user.id}&token={user.token}'
-                    # create message
-                    msg = Message(
-                        subject='This is a test',
-                        sender=sender_email,
-                        recipients=[user.email]
-                    )
-                    msg.body = '' # render_template('emails/confirm.txt')
-                    msg.html = '' # render_template('emails/confirm.html')
                     # send email
-                    # mailer.send(msg)
-                # set user_id
-                user_id = user.id
-                # result is a 201 with message
-                result = (201, f'User "#{identifier}" created.')
+                    send_confirm_account_email(user, current_app)
+                    # result
+                    result = (
+                        200, 
+                        f'An email has been sent to {user.email} to verify ' \
+                            + f'your account. Please follow instructions.'
+                    )
+                else:
+                    # result is a 201 with message
+                    result = (201, f'User "#{identifier}" created.')
             except IntegrityError as e:            
                 DB.session.rollback()
                 result = (
@@ -249,42 +273,36 @@ def signup():
     return response, status
 
 
-@bp.route('/confirm', methods=["GET"])
-def confirm():
+@bp.route('/confirm_account', methods=["POST"])
+def confirm_account():
     """Confirms account with email verification"""
+
     if current_app.config.get('EMAIL_VERIFICATION', False):
         # find user by token and user id
-        user_id = request.args.get('user_id', 0)
-        token = request.args.get('token', '')
+        user_id = request.form.get('user_id', 0)
+        token = request.form.get('token', '')
         
         user = User.query.filter(
             and_(User.id == user_id, User.token == token)
         ).one_or_none()
 
-        if user:
-            # get timestamp
-            now = dt.datetime.utcnow()
-            # get time-difference in hours
-            diff = now - user.token_created_at
-            [hours, plus_change] = divmod(diff.total_seconds(), 3600)
-            # we expect a reaction within 24 hours
-            if hours >= 24.0 and plus_change > 0:
-                message = 'Can not confirm account, token has expired. ' \
-                    + 'Use "forgot password" to obtain a new one.'
-                result = (403, message)
-            else:
-                user = user.confirm_user()
-                try:
-                    DB.session.commit()
-                    result = (200, 'Updated user')
-                except SQLAlchemyError as e:
-                    DB.session.rollback()
-                    result = (
-                        403,
-                        f'Unable to to confirm user! Reason: {str(e)}'
-                    )
+        if not user:
+            result = (404, 'No user account / correct token found')
+        elif not user.token_valid(token, max_hours=24):
+            message = 'Can not confirm account, token has expired. ' \
+                + 'Use "forgot password" to obtain a new one.'
+            result = (403, message)
         else:
-            result = (404, 'No user/token found')
+            user = user.confirm_user()
+            try:
+                DB.session.commit()
+                result = (200, 'Updated user')
+            except SQLAlchemyError as e:
+                DB.session.rollback()
+                result = (
+                    403,
+                    f'Unable to to confirm user! Reason: {str(e)}'
+                )     
     else:
         result = (400, 'The app is not configured to verify accounts')
 
@@ -318,9 +336,9 @@ def get_profile():
 def forgot_password():
 
     if current_app.config.get('EMAIL_VERIFICATION', False):
+
+        # get email address from request
         email_address = request.form.get('email', '').strip()
-        # email config
-        email_config = current_app.config.get('EMAIL_CONFIG')
 
         # check if email already exists
         user = User.query.filter(
@@ -341,14 +359,11 @@ def forgot_password():
             try:
                 # store data
                 DB.session.commit()
-                # send an email
-                # =============
-                # add current_app and request object to config
-                email_config['current_app'] = current_app
                 # send email
-                send_forgot_password_email(user, email_config)
+                send_forgot_password_email(user, current_app)
                 # result
                 result = (200, f'An email has been sent to {email_address}')
+
             except SQLAlchemyError as e:
                 DB.session.rollback()
                 result = (403, f'Unable to to confirm user! Reason: {str(e)}')
@@ -414,7 +429,7 @@ def reset_password():
             404,
             'User not found, try restarting the forgot-password procedure.'
         )
-    elif user.token != token:
+    elif not user.token_valid(token, max_hours=24):
         result = (
             404, 
             'Token is invalid, restart the forgot-password procedure.'

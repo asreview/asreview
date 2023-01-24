@@ -1,8 +1,10 @@
 import * as React from "react";
 import { useSelector } from 'react-redux';
+import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "react-query";
 import {
   Box,
+  Button,
   Card,
   CardContent,
   Fade,
@@ -16,6 +18,7 @@ import { styled } from "@mui/material/styles";
 import { WordmarkState } from "../globals";
 import { InlineErrorHandler } from ".";
 import AuthAPI from "../api/AuthAPI";
+import { Navigate } from "react-router-dom";
 
 const PREFIX = "SignInForm";
 
@@ -66,6 +69,7 @@ const ForgotPassword = () => {
   const [email, setEmail] = React.useState('');
   const [successMessage, setSuccessMessage] = React.useState(false);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { error, isError, isLoading, mutate, reset } = useMutation(
     AuthAPI.forgotPassword,
@@ -93,6 +97,10 @@ const ForgotPassword = () => {
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
   };
+
+  const handleSignin = (event) => {
+    navigate('/signin')
+  }
 
   return (
     <Root>
@@ -140,6 +148,9 @@ const ForgotPassword = () => {
                       >
                         Submit
                       </LoadingButton>
+                      <Button onClick={handleSignin} sx={{ textTransform: "none" }}>
+                        Sign In instead
+                      </Button>
                     </Stack>
                   </>
                 }

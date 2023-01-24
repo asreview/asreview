@@ -12,6 +12,7 @@ import { BaseAPI } from "./api/index.js";
 import { setBootData, setOAuthServices } from "./redux/actions";
 
 import {
+  ConfirmAccount,
   ForgotPassword,
   HelpDialog,
   NavigationDrawer,
@@ -116,6 +117,10 @@ const App = (props) => {
         <Route
           path="/forgot_password"
           element={<ForgotPassword mobileScreen={mobileScreen} />}
+        />
+        <Route
+          path="/confirm_account"
+          element={<ConfirmAccount/>}
         />
         <Route
           path="/reset_password"

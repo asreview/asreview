@@ -2,6 +2,7 @@ export { default as ActionsFeedbackBar } from "./ActionsFeedbackBar";
 export { default as AppBarWithinDialog } from "./AppBarWithinDialog";
 export { default as BoxErrorHandler } from "./BoxErrorHandler";
 export { default as CardErrorHandler } from "./CardErrorHandler";
+export { default as ConfirmAccount } from "./ConfirmAccount";
 export { default as DialogErrorHandler } from "./DialogErrorHandler";
 export { default as DrawerItem } from "./DrawerItem";
 export { default as DrawerItemContainer } from "./DrawerItemContainer";

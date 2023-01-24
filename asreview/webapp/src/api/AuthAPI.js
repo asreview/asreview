@@ -70,6 +70,27 @@ class AuthAPI {
     });
   }
 
+  static confirmAccount(variables) {
+    let body = new FormData();
+    body.set("user_id", variables.userId);
+    body.set("token", variables.token);
+
+    const url = auth_url + `confirm_account`;
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "post",
+        url: url,
+        data: body,
+      })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static refresh() {
     const url = auth_url + `refresh`;
     return new Promise((resolve, reject) => {
