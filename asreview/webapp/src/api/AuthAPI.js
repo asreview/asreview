@@ -140,6 +140,29 @@ class AuthAPI {
     });
   }
 
+  static resetPassword(variables) {
+    let body = new FormData();
+    body.set("password", variables.password);
+    body.set("token", variables.token);
+    body.set("user_id", variables.userId);
+
+    const url = auth_url + `reset_password`;
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "post",
+        url: url,
+        data: body,
+      })
+        .then((result) => {
+          console.log(result);
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static oAuthCallback(data) {
     let body = new FormData();
     body.set("code", data.code);

@@ -139,6 +139,8 @@ class User(UserMixin, DB.Model):
     def reset_password(self, new_password):
         if self.origin == 'asreview' and bool(new_password):
             self.hashed_password = generate_password_hash(new_password)
+        # reset token
+        self.token = None
         return self
 
 

@@ -361,7 +361,7 @@ def forgot_password():
 @bp.route('/update_profile', methods=["POST"])
 @asreview_login_required
 def update_profile():
-
+    """Update user profile"""
     user = User.query.get(current_user.id)
     if user:
         email = request.form.get('email', '').strip()
@@ -403,13 +403,23 @@ def update_profile():
 
 @bp.route('/reset_password', methods=["POST"])
 def reset_password():
-
+    """Resests password of user"""
     new_password = request.form.get('password', '').strip()
     token = request.form.get('token', '').strip()
     user_id = request.form.get('user_id', '0').strip()
 
     user = User.query.get(user_id)
-    if user:
+    if not user:
+        result = (
+            404,
+            'User not found, try restarting the forgot-password procedure.'
+        )
+    elif user.token != token:
+        result = (
+            404, 
+            'Token is invalid, restart the forgot-password procedure.'
+        )
+    else:
         try:
             user = user.reset_password(new_password)
             DB.session.commit()
@@ -426,9 +436,6 @@ def reset_password():
                 500, 
                 f'Unable to reset your password! Reason: {str(e)}'
             )
-
-    else:
-        result = (404, 'No user found')
 
     status, message = result
     response = jsonify({'message': message})

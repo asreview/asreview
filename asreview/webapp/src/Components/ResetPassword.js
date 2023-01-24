@@ -1,6 +1,6 @@
 
 import * as React from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "react-query";
 import {
   Box,
@@ -15,6 +15,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { InlineErrorHandler } from ".";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { styled } from "@mui/material/styles";
 import AuthAPI from "../api/AuthAPI";
@@ -22,7 +23,6 @@ import { WordmarkState } from "../globals";
 import { useToggle } from "../hooks/useToggle";
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { CountertopsOutlined } from "@mui/icons-material";
 
 const PREFIX = "SignInForm";
 
@@ -84,6 +84,8 @@ const ResetPassword = (props) => {
   const queryClient = useQueryClient();
   const [showPassword, toggleShowPassword] = useToggle();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = React.useState('')
 
   const initialValues = {
     password: '',
@@ -100,19 +102,19 @@ const ResetPassword = (props) => {
   };
 
   const { error, isError, isLoading, mutate, reset } = useMutation(
-    AuthAPI.forgotPassword,
+    AuthAPI.resetPassword,
     {
       onMutate: () => {
         // clear potential error
         queryClient.resetQueries("refresh");
       },
       onSuccess: (data) => {
-          //setEmail('');
-          //setSuccessMessage(data.message)
-          let a = 1;
+          formik.setValues(initialValues, false);
+          navigate('/sigin');
       },
       onError: (data) => {
-        console.error('Forgot password error', data);
+        setErrorMessage(data.message);
+        console.error('Reset password error', data);
       }
     }
   );
@@ -122,8 +124,8 @@ const ResetPassword = (props) => {
     let userId = searchParams.get('user_id')
     let token = searchParams.get('token');
     let password = formik.values.password;
-    console.log(password);
-    //mutate({ userId, token, password });
+    console.log(userId, token, password);
+    mutate({ userId, token, password });
     //reset();
   }
 
@@ -184,6 +186,7 @@ const ResetPassword = (props) => {
                     label="Show password"
                   />
                 </FormControl>
+                {Boolean(errorMessage) && <InlineErrorHandler message={errorMessage} />}
                 <Stack className={classes.button} direction="row">
                   <LoadingButton
                     loading={isLoading}
@@ -194,7 +197,6 @@ const ResetPassword = (props) => {
                     Submit
                   </LoadingButton>
                 </Stack>
-
               </Stack>
             </CardContent>
           </Card>
