@@ -101,7 +101,7 @@ Open the file `docs/build/html/index.html` in your web browser.
 
 ### Broken links
 
-Navigate into the `docs` folder and check for broken links with: 
+Navigate into the `docs` folder and check for broken links with:
 
 ```
 make linkcheck
@@ -130,3 +130,28 @@ You can deploy ASReview LAB right now in one click on any of these clouds provid
 [<img src="https://www.herokucdn.com/deploy/button.svg" height="30px">](https://heroku.com/deploy?template=https://github.com/asreview/asreview/tree/master)
 
 ❗❗❗ ASReview doens't have builtin authentication. You are responsible for the authentication and security of the server yourself.
+
+
+## Release instructions
+
+### Docker
+
+Creating a Docker release can't be done with a hook anymore (not for free). Find the manual instructions at
+https://docs.docker.com/docker-hub/. Replace the version numbers below by the version you want to push.
+
+ASReview LAB
+```
+docker build -t asreview/asreview docker/asreview-lab/.
+docker build -t asreview/asreview:1.0 docker/asreview-lab/.
+docker push asreview/asreview
+docker push asreview/asreview:1.0
+```
+
+
+ASReview CLI
+```
+docker build -t asreview/asreview-cli docker/asreview-cli/.
+docker build -t asreview/asreview-cli:1.0 docker/asreview-cli/.
+docker push asreview/asreview-cli
+docker push asreview/asreview-cli:1.0
+```

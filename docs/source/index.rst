@@ -1,110 +1,86 @@
-************************************************
-ASReview: Active learning for Systematic Reviews
-************************************************
+ASReview LAB: Active learning for Systematic Reviews
+====================================================
 
-Welcome to the documentation of ASReview! It includes an :doc:`installation
-</intro/installation>` guide, a :doc:`quick tour </lab/oracle>`, details how
-to prepare your :doc:`dataset </intro/datasets>` and much more - enjoy!
-
-ASReview is `open source <https://github.com/asreview/asreview>`_ research
-software developed by :ref:`researchers <intro/about:research team>` at Utrecht
-University and is published under the `Apache 2.0 licence
-<https://github.com/asreview/asreview/blob/master/LICENSE>`_.
-
-A (citable) PDF of the ASReview documentation can be found on `Zenodo <https://doi.org/10.5281/zenodo.4287119>`_. 
-
-.. toctree::
-   :caption: Introduction
-   :maxdepth: 1
-
-   intro/about
-
-   intro/zen
-
-   intro/installation
-
-   intro/datasets
-
-   intro/contribute
-
-   intro/faq
-
-   intro/vocabulary
+Welcome to the ASReview LAB Documentation!
 
 
 .. toctree::
-   :maxdepth: 1
-   :caption: ASReview LAB
+    :maxdepth: 1
 
-   lab/overview_lab
+    about
 
-   lab/launch
+    research
 
-   lab/oracle
+    contribute
 
-   lab/exploration
+Questions can be asked on `GitHub Discussions
+<https://github.com/asreview/asreview/discussions>`__. For bug reports and
+feature requests, please submit an issue on `GitHub
+<https://github.com/asreview/asreview/issues/new/choose>`__.
 
-   lab/simulation
+.. toctree::
+    :maxdepth: 1
+    :caption: Install and Upgrade
+
+    installation
+
+    start
+
+    troubleshooting
 
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Features
+    :maxdepth: 1
+    :caption: Data
 
-   features/settings
+    data
 
-   features/pre_screening
+    data_format
 
-   features/screening
-
-   features/post_screening
+    data_labeled
 
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Extensions
+    :maxdepth: 1
+    :caption: Screening and Projects
 
-   extensions/overview_extensions
+    project_create
 
-   extensions/extension_covid19
+    screening
 
-   extensions/extension_visualization
+    progress
 
-   extensions/extension_wordcloud
+    manage
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Development
-
-   API/overview_development
-
-   API/cli
-
-   API/extensions_dev
-   
-   API/asreview_file
-
-   API/reference
-
-   API/extension_dev
+    extensions_overview
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Guides
+    :maxdepth: 1
+    :caption: Simulation
 
-   guides/activelearning
+    simulation_overview
 
-   guides/simulation_study_results
+    simulation_cli
 
-   guides/sim_overview
+    simulation_api_example
 
-   guides/api
+.. toctree::
+    :maxdepth: 1
+    :caption: Development
+
+    overview_development
+
+    cli
+
+    example_api_asreview_file
+
+    extensions_dev
+
+    reference
 
 
 Indices and tables
-==================
+------------------
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+- :ref:`genindex`
+- :ref:`modindex`

@@ -55,6 +55,8 @@ autodoc_mock_imports = [
     "gensim.models.doc2vec",
     "sentence_transformers",
     "sentence_transformers.SentenceTransformer",
+    "jsonschema",
+    "filelock"
 ]
 
 
@@ -63,9 +65,9 @@ autodoc_mock_imports = [
 # add current year
 year = datetime.datetime.now().year
 
-project = 'ASReview'
-copyright = '{}, ASReview Core Development Team'.format(year)
-author = 'ASReview Core Development Team, Utrecht University'
+project = 'ASReview LAB'
+copyright = '{}, ASReview LAB developers'.format(year)
+author = 'ASReview LAB developers, Utrecht University'
 
 # The short X.Y version
 version = asreview_verion
@@ -89,6 +91,8 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
     'sphinx.ext.autosectionlabel',
+    'sphinx_reredirects',
+    'nbsphinx',
 ]
 autosectionlabel_prefix_document = True
 
@@ -112,12 +116,12 @@ master_doc = 'index'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+# language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = ['build', '**.ipynb_checkpoints']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
@@ -253,3 +257,35 @@ napoleon_use_admonition_for_references = True
 napoleon_use_ivar = True
 napoleon_use_param = True
 napoleon_use_rtype = False
+
+# -- Redirects ---------------------------------------------------------------
+
+redirects = {
+    "intro/zen": "https://asreview.ai/blog/the-zen-of-elas/",
+    "intro/datasets": "../data.html",
+    "intro/faq": "https://github.com/asreview/asreview/discussions",
+    "intro/vocabulary": "../about.html",
+
+    "lab/overview_lab": "../about.html",
+    "lab/launch": "../start.html",
+    "lab/oracle": "../about.html",
+    "lab/exploration": "../about.html",
+    "lab/simulation": "../simulation_overview.html",
+
+    "features/settings": "../screening.html",
+    "features/pre_screening": "../project_create.html",
+    "features/screening": "../screening.html",
+    "features/post_screening": "../progress.html",
+
+    "extensions/overview_extensions": "../extensions_overview.html",
+    "extensions/extension_covid19": "../extensions_overview.html",
+    "extensions/extension_visualization": "../extensions_overview.html",
+    "extensions/extension_wordcloud": "../extensions_overview.html",
+
+    "API/extension_dev": "../extensions_dev.html",
+    "API/reference": "../reference.html",
+
+    "guides/activelearning": "https://asreview.nl/blog/active-learning-explained/",
+    "guides/simulation_study_results": "https://asreview.nl/research/",
+    "guides/sim_overview": "../simulation_overview.html",
+}
