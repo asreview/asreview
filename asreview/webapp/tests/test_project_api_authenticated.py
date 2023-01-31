@@ -14,15 +14,12 @@
 
 import time
 from pathlib import Path
-from uuid import uuid5, NAMESPACE_URL
+from uuid import NAMESPACE_URL, uuid5
 
-from asreview.project import _create_project_id
-from asreview.project import PATH_FEATURE_MATRICES
+from asreview.project import PATH_FEATURE_MATRICES, _create_project_id
 from asreview.utils import asreview_path
 from asreview.webapp import DB
-from asreview.webapp.authentication.models import (
-    Project, User
-)
+from asreview.webapp.authentication.models import Project, User
 
 
 def test_get_projects(setup_teardown_signed_in):
@@ -42,29 +39,32 @@ def test_init_project(setup_teardown_signed_in):
 
     # verify we have 0 projects in the database and 1 user
     assert len(User.query.all()) == 1
-    assert len(Project.query.all()) == 0 
+    assert len(Project.query.all()) == 0
 
-    response = client.post("/api/projects/info", data={
-        "mode": "explore",
-        "name": "project_id",
-        "authors": "name",
-        "description": "hello world"
-    })
+    response = client.post(
+        "/api/projects/info",
+        data={
+            "mode": "explore",
+            "name": "project_id",
+            "authors": "name",
+            "description": "hello world",
+        },
+    )
     json_data = response.get_json()
 
     # make sure a folder is created
-    project_id = json_data['id']
-    foldername = uuid5(NAMESPACE_URL, f'{user.id}_{project_id}').hex
+    project_id = json_data["id"]
+    foldername = uuid5(NAMESPACE_URL, f"{user.id}_{project_id}").hex
     assert Path(asreview_path(), foldername).exists()
-    assert Path(asreview_path(), foldername, 'data').exists()
-    assert Path(asreview_path(), foldername, 'reviews').exists()
+    assert Path(asreview_path(), foldername, "data").exists()
+    assert Path(asreview_path(), foldername, "reviews").exists()
     assert Path(asreview_path(), foldername, PATH_FEATURE_MATRICES).exists()
 
     # make sure the project can be found in the database as well
     assert len(Project.query.all()) == 1
     # get project
-    project = Project.query.filter(Project.project_id == 'project-id').one()
-    assert project.project_id == 'project-id'
+    project = Project.query.filter(Project.project_id == "project-id").one()
+    assert project.project_id == "project-id"
     assert project.folder == foldername
     assert project.project_path == Path(asreview_path(), foldername)
     assert project.owner_id == user.id
@@ -113,9 +113,9 @@ def test_upload_data_to_project(setup_teardown_signed_in):
     """Test upload data to project."""
     _, client, _ = setup_teardown_signed_in
 
-    response = client.post("/api/projects/project-id/data", data={
-        "benchmark": "benchmark:Hall_2012"
-    })
+    response = client.post(
+        "/api/projects/project-id/data", data={"benchmark": "benchmark:Hall_2012"}
+    )
     assert response.status_code == 200
 
 
@@ -144,21 +144,25 @@ def test_update_project_info_no_name_change(setup_teardown_signed_in):
     # assert if we still have one project in the database
     assert len(Project.query.all()) == 1
 
-    response = client.put("/api/projects/project-id/info", data={
-        "mode": "explore",
-        "name": "project_id",
-        "authors": "asreview team",
-        "description": "hello world"
-    })
+    response = client.put(
+        "/api/projects/project-id/info",
+        data={
+            "mode": "explore",
+            "name": "project_id",
+            "authors": "asreview team",
+            "description": "hello world",
+        },
+    )
     assert response.status_code == 200
 
     # assert if we still have one project in the database
-    project_id = 'project-id'
+    project_id = "project-id"
     assert len(Project.query.all()) == 1
     project = Project.query.one()
     assert project.project_id == project_id
-    expected_folder = uuid5(NAMESPACE_URL, f'{user.id}_{project_id}').hex
+    expected_folder = uuid5(NAMESPACE_URL, f"{user.id}_{project_id}").hex
     assert project.folder == expected_folder
+
 
 def test_update_project_info_with_name_change(setup_teardown_signed_in):
     """Test update project info -with- changing the project name"""
@@ -167,24 +171,27 @@ def test_update_project_info_with_name_change(setup_teardown_signed_in):
     new_project_name = "another_project"
     old_project_id = "project-id"
 
-    response = client.put(f"/api/projects/{old_project_id}/info", data={
-        "mode": "explore",
-        "name": new_project_name,
-        "authors": "asreview team",
-        "description": "hello world"
-    })
+    response = client.put(
+        f"/api/projects/{old_project_id}/info",
+        data={
+            "mode": "explore",
+            "name": new_project_name,
+            "authors": "asreview team",
+            "description": "hello world",
+        },
+    )
     assert response.status_code == 200
 
     # check if folder has been renamed
     new_project_id = _create_project_id(new_project_name)
-    foldername = uuid5(NAMESPACE_URL, f'{user.id}_{new_project_id}').hex
+    foldername = uuid5(NAMESPACE_URL, f"{user.id}_{new_project_id}").hex
     assert Path(asreview_path(), foldername).exists()
-    assert Path(asreview_path(), foldername, 'data').exists()
-    assert Path(asreview_path(), foldername, 'reviews').exists()
+    assert Path(asreview_path(), foldername, "data").exists()
+    assert Path(asreview_path(), foldername, "reviews").exists()
     assert Path(asreview_path(), foldername, PATH_FEATURE_MATRICES).exists()
 
     # check if old folder is removed
-    old_foldername = uuid5(NAMESPACE_URL, f'{user.id}_{old_project_id}').hex
+    old_foldername = uuid5(NAMESPACE_URL, f"{user.id}_{old_project_id}").hex
     assert Path(asreview_path(), old_foldername).exists() is False
 
     # now we check the database
@@ -202,15 +209,18 @@ def test_get_project_info(setup_teardown_signed_in):
 
     # since we have renamed the previous project we have to
     # add the old project again
-    client.post("/api/projects/info", data={
-        "mode": "explore",
-        "name": "project_id",
-        "authors": "asreview team",
-        "description": "hello world"
-    })
-    client.post("/api/projects/project-id/data", data={
-        "benchmark": "benchmark:Hall_2012"
-    })
+    client.post(
+        "/api/projects/info",
+        data={
+            "mode": "explore",
+            "name": "project_id",
+            "authors": "asreview team",
+            "description": "hello world",
+        },
+    )
+    client.post(
+        "/api/projects/project-id/data", data={"benchmark": "benchmark:Hall_2012"}
+    )
 
     # call the info method
     response = client.get("/api/projects/project-id/info")
@@ -245,16 +255,14 @@ def test_label_item(setup_teardown_signed_in):
     """Test label item"""
     _, client, _ = setup_teardown_signed_in
 
-    response_irrelevant = client.post("/api/projects/project-id/record/5509", data={
-        "doc_id": 5509,
-        "label": 0,
-        "is_prior": 1
-    })
-    response_relevant = client.post("/api/projects/project-id/record/58", data={
-        "doc_id": 58,
-        "label": 1,
-        "is_prior": 1
-    })
+    response_irrelevant = client.post(
+        "/api/projects/project-id/record/5509",
+        data={"doc_id": 5509, "label": 0, "is_prior": 1},
+    )
+    response_relevant = client.post(
+        "/api/projects/project-id/record/58",
+        data={"doc_id": 58, "label": 1, "is_prior": 1},
+    )
 
     assert response_irrelevant.status_code == 200
     assert response_relevant.status_code == 200
@@ -299,12 +307,15 @@ def test_set_algorithms(setup_teardown_signed_in):
     """Test set active learning model"""
     _, client, _ = setup_teardown_signed_in
 
-    response = client.post("/api/projects/project-id/algorithms", data={
-        "model": "svm",
-        "query_strategy": "max_random",
-        "balance_strategy": "double",
-        "feature_extraction": "tfidf"
-    })
+    response = client.post(
+        "/api/projects/project-id/algorithms",
+        data={
+            "model": "svm",
+            "query_strategy": "max_random",
+            "balance_strategy": "double",
+            "feature_extraction": "tfidf",
+        },
+    )
     assert response.status_code == 200
 
 
@@ -349,7 +360,8 @@ def test_export_result(setup_teardown_signed_in):
     response_csv = client.get("/api/projects/project-id/export_dataset?file_format=csv")
     response_tsv = client.get("/api/projects/project-id/export_dataset?file_format=tsv")
     response_excel = client.get(
-        "/api/projects/project-id/export_dataset?file_format=xlsx")
+        "/api/projects/project-id/export_dataset?file_format=xlsx"
+    )
     assert response_csv.status_code == 200
     assert response_tsv.status_code == 200
     assert response_excel.status_code == 200
@@ -367,16 +379,17 @@ def test_finish_project(setup_teardown_signed_in):
     """Test mark a project as finished or not"""
     _, client, _ = setup_teardown_signed_in
 
-    response = client.put("/api/projects/project-id/status",
-                          data={"status": "finished"})
+    response = client.put(
+        "/api/projects/project-id/status", data={"status": "finished"}
+    )
     assert response.status_code == 200
 
-    response = client.put("/api/projects/project-id/status",
-                          data={"status": "review"})
+    response = client.put("/api/projects/project-id/status", data={"status": "review"})
     assert response.status_code == 200
 
-    response = client.put("/api/projects/project-id/status",
-                          data={"status": "finished"})
+    response = client.put(
+        "/api/projects/project-id/status", data={"status": "finished"}
+    )
     assert response.status_code == 200
 
 
@@ -421,7 +434,7 @@ def test_get_document(setup_teardown_signed_in):
     assert "result" in json_data
     assert isinstance(json_data, dict)
 
-    doc_id = json_data["result"]['doc_id']
+    doc_id = json_data["result"]["doc_id"]
 
     # Test retrieve classification result
     response = client.post(
@@ -429,7 +442,7 @@ def test_get_document(setup_teardown_signed_in):
         data={
             "doc_id": doc_id,
             "label": 1,
-        }
+        },
     )
     assert response.status_code == 200
 
@@ -439,7 +452,7 @@ def test_get_document(setup_teardown_signed_in):
         data={
             "doc_id": doc_id,
             "label": 0,
-        }
+        },
     )
     assert response.status_code == 200
 
@@ -456,10 +469,10 @@ def test_delete_project(setup_teardown_signed_in):
 
     # assert that one project is gone
     assert len(user.projects) == 1
-    
+
     # assert if the other project still exists
     project = Project.query.one()
-    assert project.project_id == 'another-project'
-    foldername = uuid5(NAMESPACE_URL, f'{user.id}_{project.project_id}').hex
+    assert project.project_id == "another-project"
+    foldername = uuid5(NAMESPACE_URL, f"{user.id}_{project.project_id}").hex
     assert project.folder == foldername
     assert Path(asreview_path(), foldername).exists() == True

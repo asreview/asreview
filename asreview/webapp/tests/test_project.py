@@ -35,7 +35,8 @@ def test_project_file(tmp_path, client, url):
     with urlopen(url) as project_file:
         response_import = client.post(
             "/api/projects/import_project",
-            data={"file": (BytesIO(project_file.read()), "project.asreview")})
+            data={"file": (BytesIO(project_file.read()), "project.asreview")},
+        )
     json_data_import = response_import.get_json()
     assert response_import.status_code == 200
 
@@ -55,8 +56,7 @@ def test_project_file(tmp_path, client, url):
     response_projects = client.get("/api/projects")
     json_data_projects = response_projects.get_json()
     assert "result" in json_data_projects
-    assert any(item["id"] == project_id
-               for item in json_data_projects["result"])
+    assert any(item["id"] == project_id for item in json_data_projects["result"])
 
     # Test export project before upgrade
     response_export_old_project = client.get(f"{api_url}/export_project")
@@ -77,14 +77,15 @@ def test_project_file(tmp_path, client, url):
     assert isinstance(json_data_get_writer["result"], list)
 
     # Test update info of the project
-    response_update_info = client.put(f"{api_url}/info",
-                                      data={
-                                          "mode": "explore",
-                                          "name": json_data_get_info["name"],
-                                          "authors":
-                                          json_data_get_info["authors"],
-                                          "description": "Hoi Elas"
-                                      })
+    response_update_info = client.put(
+        f"{api_url}/info",
+        data={
+            "mode": "explore",
+            "name": json_data_get_info["name"],
+            "authors": json_data_get_info["authors"],
+            "description": "Hoi Elas",
+        },
+    )
     assert response_update_info.status_code == 200
 
     # Test get progress info on the article
@@ -116,19 +117,23 @@ def test_project_file(tmp_path, client, url):
     doc_id = json_data_get_document["result"]["doc_id"]
 
     # Test retrieve classification result
-    response_classify_instance = client.post(f"{api_url}/record/{doc_id}",
-                                             data={
-                                                 "doc_id": doc_id,
-                                                 "label": 1,
-                                             })
+    response_classify_instance = client.post(
+        f"{api_url}/record/{doc_id}",
+        data={
+            "doc_id": doc_id,
+            "label": 1,
+        },
+    )
     assert response_classify_instance.status_code == 200
 
     # Test update classification result
-    response_update_classify = client.put(f"{api_url}/record/{doc_id}",
-                                          data={
-                                              "doc_id": doc_id,
-                                              "label": 0,
-                                          })
+    response_update_classify = client.put(
+        f"{api_url}/record/{doc_id}",
+        data={
+            "doc_id": doc_id,
+            "label": 0,
+        },
+    )
     assert response_update_classify.status_code == 200
 
     # Test retrieve review history
@@ -138,12 +143,11 @@ def test_project_file(tmp_path, client, url):
     assert isinstance(json_data_prior["result"], list)
 
     # Test export result
-    response_export_result_csv = client.get(
-        f"{api_url}/export_dataset?file_format=csv")
-    response_export_result_tsv = client.get(
-        f"{api_url}/export_dataset?file_format=tsv")
+    response_export_result_csv = client.get(f"{api_url}/export_dataset?file_format=csv")
+    response_export_result_tsv = client.get(f"{api_url}/export_dataset?file_format=tsv")
     response_export_result_excel = client.get(
-        f"{api_url}/export_dataset?file_format=xlsx")
+        f"{api_url}/export_dataset?file_format=xlsx"
+    )
     assert response_export_result_csv.status_code == 200
     assert response_export_result_tsv.status_code == 200
     assert response_export_result_excel.status_code == 200
@@ -159,8 +163,7 @@ def test_project_file(tmp_path, client, url):
     assert isinstance(json_data_status, dict)
 
     # Test mark project as finished
-    response_finish = client.put(f"{api_url}/status",
-                                 data={"status": "finished"})
+    response_finish = client.put(f"{api_url}/status", data={"status": "finished"})
     assert response_finish.status_code == 200
 
     # Test delete project

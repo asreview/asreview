@@ -14,9 +14,7 @@
 
 from functools import wraps
 
-from flask import current_app
-from flask import jsonify
-from flask import request
+from flask import current_app, jsonify, request
 from flask_login.config import EXEMPT_METHODS
 from flask_login.utils import _get_user
 
@@ -45,7 +43,7 @@ def asreview_login_required(func):
     ...which is essentially the code that this function adds to your views.
 
     It can be convenient to globally turn off authentication when unit testing.
-    To enable this, if the application configuration variable 
+    To enable this, if the application configuration variable
     `AUTHENTICATION_ENABLED` is set to `False`, this decorator will be ignored.
 
     .. Note ::
@@ -57,6 +55,7 @@ def asreview_login_required(func):
     :param func: The view function to decorate.
     :type func: function
     """
+
     @wraps(func)
     def decorated_view(*args, **kwargs):
 
@@ -69,10 +68,10 @@ def asreview_login_required(func):
             current_user = _get_user()
 
             if not (bool(current_user) and current_user.is_authenticated):
-                return jsonify({'message': 'login required'}), 401
+                return jsonify({"message": "login required"}), 401
 
-        # # TODO@Jonathan/Casper 
-        # # flask 1.x compatibility <= WE REQUIRE FLASK >= 2.0 but 
+        # # TODO@Jonathan/Casper
+        # # flask 1.x compatibility <= WE REQUIRE FLASK >= 2.0 but
         # # this function was used by Flask. Don't understand.
         # # current_app.ensure_sync is only available in Flask >= 2.0
         # if callable(getattr(current_app, "ensure_sync", None)):

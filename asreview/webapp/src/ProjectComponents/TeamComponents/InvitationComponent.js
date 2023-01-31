@@ -3,7 +3,7 @@ import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import { TeamAPI } from "../../api/index.js";
 import List from '@mui/material/List';
-import { Add, FoodBank } from "@mui/icons-material";
+import { Add } from "@mui/icons-material";
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import UserListEntry from "./UserListEntry";

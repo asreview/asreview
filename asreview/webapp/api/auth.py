@@ -14,14 +14,11 @@
 
 
 import datetime as dt
-import json
-from pathlib import Path
-import requests
 import smtplib
 import ssl
+from pathlib import Path
 
-from flask import Blueprint, current_app, jsonify, \
-    render_template_string, request
+from flask import Blueprint, current_app, jsonify, render_template_string, request
 from flask_cors import CORS
 from flask_login import current_user, login_user, logout_user
 from flask_mail import Mail, Message
@@ -29,44 +26,34 @@ from sqlalchemy import and_, or_
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from asreview.webapp import DB
-from asreview.webapp.authentication.login_required import \
-    asreview_login_required
+from asreview.webapp.authentication.login_required import asreview_login_required
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
 # TODO: I need a folder to stash templates for emails,
 # is this the way we should do it? I don't see the point
 # of making the end-user decide the exact location.
-bp = Blueprint('auth', __name__, url_prefix='/auth')
+bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 CORS(
     bp,
-    resources={r"*": {"origins": [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000"
-    ]}},
+    resources={r"*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000"]}},
     supports_credentials=True,
 )
 
 
 def perform_login_user(user):
-    """Helper function to login a user"""            
-    return login_user(
-        user,
-        remember=True,
-        duration=dt.timedelta(days=31)
-    )
+    """Helper function to login a user"""
+    return login_user(user, remember=True, duration=dt.timedelta(days=31))
+
 
 # TODO: not sure if this file is the right place for this function
 def send_email(msg, config):
     context = ssl.create_default_context()
-    with smtplib.SMTP_SSL(
-        config['SERVER'], 
-        config['PORT'], 
-        context=context) as server:
+    with smtplib.SMTP_SSL(config["SERVER"], config["PORT"], context=context) as server:
 
         # login smtp server
-        server.login(config['USERNAME'], config['PASSWORD'])
+        server.login(config["USERNAME"], config["PASSWORD"])
         # send email
         return server.sendmail(msg)
 
@@ -74,27 +61,27 @@ def send_email(msg, config):
 # TODO: not sure if this file is the right place for this function
 def send_forgot_password_email(user, cur_app):
     # get necessary information out of user object
-    name = user.name or 'ASReview user'
+    name = user.name or "ASReview user"
     # email config
-    config = cur_app.config.get('EMAIL_CONFIG')
+    config = cur_app.config.get("EMAIL_CONFIG")
     # TODO: this is horrible => what if there is a domain name,
     # where is it coming from? Where can I get it?
-    root_url = 'http://127.0.0.1:3000/'
+    root_url = "http://127.0.0.1:3000/"
     # redirect url
-    url = f'{root_url}reset_password?user_id={user.id}&token={user.token}'
+    url = f"{root_url}reset_password?user_id={user.id}&token={user.token}"
     # create a mailer
     mailer = Mail(cur_app)
     # open templates as string and render
     root_path = Path(cur_app.root_path)
-    with open(root_path / 'templates/emails/forgot_password.html', 'r') as f:
+    with open(root_path / "templates/emails/forgot_password.html", "r") as f:
         html_text = render_template_string(f.read(), name=name, url=url)
-    with open(root_path / 'templates/emails/forgot_password.txt', 'r') as f:
+    with open(root_path / "templates/emails/forgot_password.txt", "r") as f:
         txt_text = render_template_string(f.read(), name=name, url=url)
     # create message
     msg = Message(
-        'ASReview: forgot password',
+        "ASReview: forgot password",
         recipients=[user.email],
-        sender=config.get('REPLY_ADDRESS')
+        sender=config.get("REPLY_ADDRESS"),
     )
     msg.body = txt_text
     msg.html = html_text
@@ -104,27 +91,27 @@ def send_forgot_password_email(user, cur_app):
 # TODO: not sure if this file is the right place for this function
 def send_confirm_account_email(user, cur_app):
     # get necessary information out of user object
-    name = user.name or 'ASReview user'
+    name = user.name or "ASReview user"
     # email config
-    config = cur_app.config.get('EMAIL_CONFIG')
+    config = cur_app.config.get("EMAIL_CONFIG")
     # TODO: this is horrible => what if there is a domain name,
     # where is it coming from? Where can I get it?
-    root_url = 'http://127.0.0.1:3000/'
+    root_url = "http://127.0.0.1:3000/"
     # redirect url
-    url = f'{root_url}confirm_account?user_id={user.id}&token={user.token}'
+    url = f"{root_url}confirm_account?user_id={user.id}&token={user.token}"
     # create a mailer
     mailer = Mail(cur_app)
     # open templates as string and render
     root_path = Path(cur_app.root_path)
-    with open(root_path / 'templates/emails/confirm_account.html', 'r') as f:
+    with open(root_path / "templates/emails/confirm_account.html", "r") as f:
         html_text = render_template_string(f.read(), name=name, url=url)
-    with open(root_path / 'templates/emails/confirm_account.txt', 'r') as f:
+    with open(root_path / "templates/emails/confirm_account.txt", "r") as f:
         txt_text = render_template_string(f.read(), name=name, url=url)
     # create message
     msg = Message(
-        'ASReview: please confirm your account',
+        "ASReview: please confirm your account",
         recipients=[user.email],
-        sender=config.get('REPLY_ADDRESS')
+        sender=config.get("REPLY_ADDRESS"),
     )
     msg.body = txt_text
     msg.html = html_text
@@ -135,10 +122,11 @@ def send_confirm_account_email(user, cur_app):
 #      ROUTES
 # ------------------
 
-@bp.route('/signin', methods=["POST"])
+
+@bp.route("/signin", methods=["POST"])
 def signin():
-    email = request.form.get('email').strip()
-    password = request.form.get('password', '')
+    email = request.form.get("email").strip()
+    password = request.form.get("password", "")
 
     # get the user
     user = User.query.filter(
@@ -147,54 +135,46 @@ def signin():
 
     if not user:
         # user does not exsist
-        result = (404, {'message': f'User account {email} does not exist.'})
+        result = (404, {"message": f"User account {email} does not exist."})
     elif not user.confirmed:
         # account is not confirmed
-        result = (404, {'message': f'User account {email} is not confirmed.'})
+        result = (404, {"message": f"User account {email} is not confirmed."})
     else:
         # user exists and is confirmed: verify password
         if user.verify_password(password):
             logged_in = perform_login_user(user)
-            result = (200, {
-                'logged_in': logged_in,
-                'name': user.get_name(),
-                'id': user.id
-            })
+            result = (
+                200,
+                {"logged_in": logged_in, "name": user.get_name(), "id": user.id},
+            )
         else:
             # password is wrong
-            if user.origin == 'asreview':
+            if user.origin == "asreview":
                 # if this is an asreview user
-                result = (
-                    404,
-                    {'message': f'Incorrect password for user {email}'}
-                )
+                result = (404, {"message": f"Incorrect password for user {email}"})
             else:
                 # this must be an OAuth user trying to get in with
                 # a password
                 service = user.origin.capitalize()
-                result = (
-                    404,
-                    {'message': 
-                        f'Please login with the {service} service'}
-                )
+                result = (404, {"message": f"Please login with the {service} service"})
 
     status, message = result
     response = jsonify(message)
     return response, status
 
 
-@bp.route('/signup', methods=["POST"])
+@bp.route("/signup", methods=["POST"])
 def signup():
     # this is for the response
     user_id = False
 
     # Can we create accounts?
-    if current_app.config.get('ALLOW_ACCOUNT_CREATION', False):
-        email = request.form.get('email', '').strip()
-        name = request.form.get('name', '').strip()
-        affiliation = request.form.get('affiliation', '').strip()
-        password = request.form.get('password')
-        public = bool(int(request.form.get('public', '1')))
+    if current_app.config.get("ALLOW_ACCOUNT_CREATION", False):
+        email = request.form.get("email", "").strip()
+        name = request.form.get("name", "").strip()
+        affiliation = request.form.get("affiliation", "").strip()
+        password = request.form.get("password")
+        public = bool(int(request.form.get("public", "1")))
 
         # check if email already exists
         user = User.query.filter(
@@ -209,10 +189,10 @@ def signup():
             # hashed in the User model)
             try:
                 identifier = email
-                origin = 'asreview'
+                origin = "asreview"
                 # are we going to verify the email?
                 email_verification = bool(
-                    current_app.config.get('EMAIL_VERIFICATION', False)
+                    current_app.config.get("EMAIL_VERIFICATION", False)
                 )
                 # set confirmed to False if we 'do' verification. Note
                 # that this route only creates 'asreview' accounts
@@ -221,19 +201,19 @@ def signup():
                 user = User(
                     identifier=identifier,
                     origin=origin,
-                    email=email, 
+                    email=email,
                     name=name,
                     affiliation=affiliation,
                     password=password,
                     confirmed=confirmed,
-                    public=public
+                    public=public,
                 )
                 # if this is an un-confirmed account, set token
                 if not confirmed:
                     # set token data
                     user = user.set_token_data(
-                        current_app.config['SECRET_KEY'],
-                        current_app.config['SECURITY_PASSWORD_SALT']
+                        current_app.config["SECRET_KEY"],
+                        current_app.config["SECURITY_PASSWORD_SALT"],
                     )
                 # store user
                 DB.session.add(user)
@@ -246,115 +226,110 @@ def signup():
                     send_confirm_account_email(user, current_app)
                     # result
                     result = (
-                        200, 
-                        f'An email has been sent to {user.email} to verify ' \
-                            + f'your account. Please follow instructions.'
+                        200,
+                        f"An email has been sent to {user.email} to verify "
+                        + f"your account. Please follow instructions.",
                     )
                 else:
                     # result is a 201 with message
                     result = (201, f'User "#{identifier}" created.')
-            except IntegrityError as e:            
+            except IntegrityError as e:
                 DB.session.rollback()
-                result = (
-                    403,
-                    f'Unable to create your account! Reason: {str(e)}'
-                )
+                result = (403, f"Unable to create your account! Reason: {str(e)}")
             except SQLAlchemyError as e:
                 DB.session.rollback()
-                result = (
-                    403,
-                    f'Unable to create your account! Reason: {str(e)}'
-                )
+                result = (403, f"Unable to create your account! Reason: {str(e)}")
     else:
-        result = (400, 'The app is not configured to create accounts')
+        result = (400, "The app is not configured to create accounts")
 
     (status, message) = result
-    response = jsonify({'message': message, 'user_id': user_id})
+    response = jsonify({"message": message, "user_id": user_id})
     return response, status
 
 
-@bp.route('/confirm_account', methods=["POST"])
+@bp.route("/confirm_account", methods=["POST"])
 def confirm_account():
     """Confirms account with email verification"""
 
-    if current_app.config.get('EMAIL_VERIFICATION', False):
+    if current_app.config.get("EMAIL_VERIFICATION", False):
         # find user by token and user id
-        user_id = request.form.get('user_id', 0)
-        token = request.form.get('token', '')
-        
+        user_id = request.form.get("user_id", 0)
+        token = request.form.get("token", "")
+
         user = User.query.filter(
             and_(User.id == user_id, User.token == token)
         ).one_or_none()
 
         if not user:
-            result = (404, 'No user account / correct token found')
+            result = (404, "No user account / correct token found")
         elif not user.token_valid(token, max_hours=24):
-            message = 'Can not confirm account, token has expired. ' \
+            message = (
+                "Can not confirm account, token has expired. "
                 + 'Use "forgot password" to obtain a new one.'
+            )
             result = (403, message)
         else:
             user = user.confirm_user()
             try:
                 DB.session.commit()
-                result = (200, 'Updated user')
+                result = (200, "Updated user")
             except SQLAlchemyError as e:
                 DB.session.rollback()
-                result = (
-                    403,
-                    f'Unable to to confirm user! Reason: {str(e)}'
-                )     
+                result = (403, f"Unable to to confirm user! Reason: {str(e)}")
     else:
-        result = (400, 'The app is not configured to verify accounts')
+        result = (400, "The app is not configured to verify accounts")
 
     status, message = result
-    response = jsonify({'message': message})
+    response = jsonify({"message": message})
     return response, status
 
 
-@bp.route('/get_profile', methods=["GET"])
+@bp.route("/get_profile", methods=["GET"])
 @asreview_login_required
 def get_profile():
 
     user = User.query.get(current_user.id)
     if user:
-        result = (200, {
-            'email': user.email,
-            'origin': user.origin,
-            'name': user.name,
-            'affiliation': user.affiliation,
-            'public': user.public
-        })
+        result = (
+            200,
+            {
+                "email": user.email,
+                "origin": user.origin,
+                "name": user.name,
+                "affiliation": user.affiliation,
+                "public": user.public,
+            },
+        )
     else:
-        result = (404, 'No user found')
+        result = (404, "No user found")
 
     status, message = result
-    response = jsonify({'message': message})
+    response = jsonify({"message": message})
     return response, status
 
 
-@bp.route('/forgot_password', methods=["POST"])
+@bp.route("/forgot_password", methods=["POST"])
 def forgot_password():
 
-    if current_app.config.get('EMAIL_VERIFICATION', False):
+    if current_app.config.get("EMAIL_VERIFICATION", False):
 
         # get email address from request
-        email_address = request.form.get('email', '').strip()
+        email_address = request.form.get("email", "").strip()
 
         # check if email already exists
         user = User.query.filter(
-            or_(User.identifier == email_address, 
-                User.email == email_address)
+            or_(User.identifier == email_address, User.email == email_address)
         ).one_or_none()
 
         if not user:
             result = (404, f'User with email "{email_address}" not found.')
-        elif user.origin != 'asreview':
-            result = (404, f'Your account has been created with {user.origin}')
+        elif user.origin != "asreview":
+            result = (404, f"Your account has been created with {user.origin}")
         else:
             # set a token
             user = user.set_token_data(
-                current_app.config['SECRET_KEY'],
-                current_app.config['SECURITY_PASSWORD_SALT']
+                current_app.config["SECRET_KEY"],
+                current_app.config["SECURITY_PASSWORD_SALT"],
             )
             try:
                 # store data
@@ -362,102 +337,78 @@ def forgot_password():
                 # send email
                 send_forgot_password_email(user, current_app)
                 # result
-                result = (200, f'An email has been sent to {email_address}')
+                result = (200, f"An email has been sent to {email_address}")
 
             except SQLAlchemyError as e:
                 DB.session.rollback()
-                result = (403, f'Unable to to confirm user! Reason: {str(e)}')
-            
+                result = (403, f"Unable to to confirm user! Reason: {str(e)}")
+
     status, message = result
-    response = jsonify({'message': message})
+    response = jsonify({"message": message})
     return response, status
 
 
-@bp.route('/update_profile', methods=["POST"])
+@bp.route("/update_profile", methods=["POST"])
 @asreview_login_required
 def update_profile():
     """Update user profile"""
     user = User.query.get(current_user.id)
     if user:
-        email = request.form.get('email', '').strip()
-        name = request.form.get('name', '').strip()
-        affiliation = request.form.get('affiliation', '').strip()
-        password = request.form.get('password', None)
-        public = bool(int(request.form.get('public', '1')))
+        email = request.form.get("email", "").strip()
+        name = request.form.get("name", "").strip()
+        affiliation = request.form.get("affiliation", "").strip()
+        password = request.form.get("password", None)
+        public = bool(int(request.form.get("public", "1")))
 
         try:
-            user = user.update_profile(
-                email,
-                name,
-                affiliation,
-                password,
-                public
-            )
+            user = user.update_profile(email, name, affiliation, password, public)
             DB.session.commit()
-            result = (200, 'User profile updated')
-        except IntegrityError as e:          
+            result = (200, "User profile updated")
+        except IntegrityError as e:
             DB.session.rollback()
-            result = (
-                500,
-                f'Unable to update your profile! Reason: {str(e)}'
-            )
+            result = (500, f"Unable to update your profile! Reason: {str(e)}")
         except SQLAlchemyError as e:
             DB.session.rollback()
-            result = (
-                500, 
-                f'Unable to update your profile! Reason: {str(e)}'
-            )
+            result = (500, f"Unable to update your profile! Reason: {str(e)}")
 
     else:
-        result = (404, 'No user found')
+        result = (404, "No user found")
 
     status, message = result
-    response = jsonify({'message': message})
+    response = jsonify({"message": message})
     return response, status
 
 
-@bp.route('/reset_password', methods=["POST"])
+@bp.route("/reset_password", methods=["POST"])
 def reset_password():
     """Resests password of user"""
-    new_password = request.form.get('password', '').strip()
-    token = request.form.get('token', '').strip()
-    user_id = request.form.get('user_id', '0').strip()
+    new_password = request.form.get("password", "").strip()
+    token = request.form.get("token", "").strip()
+    user_id = request.form.get("user_id", "0").strip()
 
     user = User.query.get(user_id)
     if not user:
-        result = (
-            404,
-            'User not found, try restarting the forgot-password procedure.'
-        )
+        result = (404, "User not found, try restarting the forgot-password procedure.")
     elif not user.token_valid(token, max_hours=24):
-        result = (
-            404, 
-            'Token is invalid, restart the forgot-password procedure.'
-        )
+        result = (404, "Token is invalid, restart the forgot-password procedure.")
     else:
         try:
             user = user.reset_password(new_password)
             DB.session.commit()
-            result = (200, 'Password updated')
-        except IntegrityError as e:          
+            result = (200, "Password updated")
+        except IntegrityError as e:
             DB.session.rollback()
-            result = (
-                500,
-                f'Unable to reset your password! Reason: {str(e)}'
-            )
+            result = (500, f"Unable to reset your password! Reason: {str(e)}")
         except SQLAlchemyError as e:
             DB.session.rollback()
-            result = (
-                500, 
-                f'Unable to reset your password! Reason: {str(e)}'
-            )
+            result = (500, f"Unable to reset your password! Reason: {str(e)}")
 
     status, message = result
-    response = jsonify({'message': message})
+    response = jsonify({"message": message})
     return response, status
 
 
-@bp.route('/refresh', methods=["GET"])
+@bp.route("/refresh", methods=["GET"])
 def refresh():
     if current_user and isinstance(current_user, User):
         logged_in = current_user.is_authenticated
@@ -465,56 +416,48 @@ def refresh():
         id = current_user.id
     else:
         logged_in = False
-        name = ''
+        name = ""
         id = None
 
-    result = {
-        'logged_in': logged_in,
-        'name': name,
-        'id': id
-    }
+    result = {"logged_in": logged_in, "name": name, "id": id}
 
     response = jsonify(result)
     return response, 200
 
 
-@bp.route('/signout', methods=["DELETE"])
+@bp.route("/signout", methods=["DELETE"])
 @asreview_login_required
 def signout():
     if current_user:
         identifier = current_user.identifier
         logout_user()
-        result = (200, f'User with identifier {identifier} has been signed out')
+        result = (200, f"User with identifier {identifier} has been signed out")
     else:
-        result = (404, 'No user found, no one can be signed out')
+        result = (404, "No user found, no one can be signed out")
 
     status, message = result
-    response = jsonify({'message': message})
+    response = jsonify({"message": message})
     return response, status
 
 
-@bp.route('/oauth_callback', methods=["POST"])
+@bp.route("/oauth_callback", methods=["POST"])
 def oauth_callback():
     # get parameters
-    code = request.form.get('code', '').strip()
-    provider = request.form.get('provider', '').strip()
-    redirect_uri = request.form.get('redirect_uri', '').strip()
+    code = request.form.get("code", "").strip()
+    provider = request.form.get("provider", "").strip()
+    redirect_uri = request.form.get("redirect_uri", "").strip()
 
     # assuming we have this provider
-    oauth_handler = current_app.config.get('OAUTH', False)
-    if isinstance(oauth_handler, OAuthHandler) and \
-        provider in oauth_handler.providers():
+    oauth_handler = current_app.config.get("OAUTH", False)
+    if (
+        isinstance(oauth_handler, OAuthHandler)
+        and provider in oauth_handler.providers()
+    ):
         # get user credentials for this user
-        response = oauth_handler.get_user_credentials(
-            provider, 
-            code, 
-            redirect_uri
-        )
+        response = oauth_handler.get_user_credentials(provider, code, redirect_uri)
         (identifier, email, name) = response
         # try to find this user
-        user = User.query.filter(
-            User.identifier == identifier
-        ).one_or_none()
+        user = User.query.filter(User.identifier == identifier).one_or_none()
         # flag for response (I'd like to communicate if this user was created)
         created_account = False
         # if not create user
@@ -526,32 +469,34 @@ def oauth_callback():
                 user = User(
                     identifier=identifier,
                     origin=origin,
-                    email=email, 
+                    email=email,
                     name=name,
                     confirmed=confirmed,
-                    public=public
+                    public=public,
                 )
                 DB.session.add(user)
                 DB.session.commit()
                 created_account = True
             except SQLAlchemyError:
                 DB.session.rollback()
-                message = 'OAuth: unable to create your account!'
+                message = "OAuth: unable to create your account!"
                 # return this immediately
-                return jsonify({'data': message}), 500
-        
+                return jsonify({"data": message}), 500
+
         # log in this user
         if bool(user):
             logged_in = perform_login_user(user)
-            result = (200, {
-                'account_created': created_account,
-                'logged_in': logged_in,
-                'name': user.get_name(),
-                'id': user.id
-            })
+            result = (
+                200,
+                {
+                    "account_created": created_account,
+                    "logged_in": logged_in,
+                    "name": user.get_name(),
+                    "id": user.id,
+                },
+            )
     else:
-        result = (400, 
-            { 'data': f'OAuth provider {provider} could not be found' })
+        result = (400, {"data": f"OAuth provider {provider} could not be found"})
 
     status, message = result
     response = jsonify(message)

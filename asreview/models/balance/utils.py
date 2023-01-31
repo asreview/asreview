@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.utils import _model_class_from_entry_point
-from asreview.utils import list_model_names
+from asreview.utils import _model_class_from_entry_point, list_model_names
 
 
 def list_balance_strategies():
@@ -45,9 +44,7 @@ def get_balance_class(name):
     BaseBalanceModel:
         Class corresponding to the name.
     """
-    return _model_class_from_entry_point(
-        name,
-        entry_name="asreview.models.balance")
+    return _model_class_from_entry_point(name, entry_name="asreview.models.balance")
 
 
 def get_balance_model(name, *args, random_state=None, **kwargs):

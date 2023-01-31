@@ -34,7 +34,7 @@ def _sort_entry_points(entry_points):
 
     entry_points_sorted = {
         "lab": entry_points_copy.pop("lab"),
-        "simulate": entry_points_copy.pop("simulate")
+        "simulate": entry_points_copy.pop("simulate"),
     }
 
     entry_points_sorted.update(entry_points_copy)
@@ -61,8 +61,7 @@ def _output_available_entry_points(entry_points):
         try:
             description_list.append(entry.load()().format(name))
         except ModuleNotFoundError:
-            logging.warning(
-                f"Plugin with entry point {name} could not be loaded.")
+            logging.warning(f"Plugin with entry point {name} could not be loaded.")
     return "\n\n".join(description_list)
 
 
@@ -78,7 +77,8 @@ def main():
             entry.load()().execute(sys.argv[2:])
         except ModuleNotFoundError:
             raise ValueError(
-                f"Plugin with entry point {entry.name} could not be loaded.")
+                f"Plugin with entry point {entry.name} could not be loaded."
+            )
 
     # Print help message if subcommand not given or incorrect
     else:
@@ -89,21 +89,23 @@ def main():
         parser = argparse.ArgumentParser(
             prog="asreview",
             formatter_class=argparse.RawTextHelpFormatter,
-            description=PROG_DESCRIPTION
+            description=PROG_DESCRIPTION,
         )
         parser.add_argument(
             "subcommand",
             nargs="?",
             default=None,
             help=f"The subcommand to launch. Available commands:\n\n"
-            f"{description_subcommands}"
+            f"{description_subcommands}",
         )
 
         # version
         parser.add_argument(
-            "-V", "--version",
-            action='store_true',
-            help="print the ASR version number and exit")
+            "-V",
+            "--version",
+            action="store_true",
+            help="print the ASR version number and exit",
+        )
 
         args, _ = parser.parse_known_args()
 

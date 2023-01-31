@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import {formatDate} from "../../globals";
-import useAuth from "../../hooks/useAuth";
 
 const PREFIX = "ProjectTable";
 
@@ -98,7 +97,6 @@ const columns = [
 ];
 
 const AcceptanceDialog = (props) => {
-  const { auth } = useAuth();
 
   return (
     <StyledPaper elevation={2} className={classes.root}>

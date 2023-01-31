@@ -152,7 +152,7 @@ const ProjectTable = (props) => {
   /**
    * Fetch projects and check if simulation running in the background
    */
-  const { data, error, isError, isFetched, isFetching, isSuccess } = useQuery(
+  const { error, isError, isFetched, isFetching, isSuccess } = useQuery(
     "fetchProjects",
     ProjectAPI.fetchProjects,
     {

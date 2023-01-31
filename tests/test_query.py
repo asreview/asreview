@@ -2,18 +2,20 @@ import numpy as np
 from pytest import mark
 
 from asreview.models.classifiers import get_classifier
-from asreview.models.query import get_query_model
-from asreview.models.query import list_query_strategies
+from asreview.models.query import get_query_model, list_query_strategies
 
 
-@mark.parametrize("query_strategy", [
-    "max",
-    "random",
-    "max_random",
-    "uncertainty",
-    "max_uncertainty",
-    "cluster",
-])
+@mark.parametrize(
+    "query_strategy",
+    [
+        "max",
+        "random",
+        "max_random",
+        "uncertainty",
+        "max_uncertainty",
+        "cluster",
+    ],
+)
 @mark.parametrize("n_instances", [0, 1, 5, 50])
 @mark.parametrize("n_train", [0, 1, 5, 50])
 def test_query(query_strategy, n_instances, n_train):
@@ -25,8 +27,7 @@ def test_query(query_strategy, n_instances, n_train):
     query_model = get_query_model(query_strategy)
     X = np.random.rand(n_sample, n_features)
 
-    y = np.concatenate((np.zeros(n_sample // 2), np.ones(n_sample // 2)),
-                       axis=0)
+    y = np.concatenate((np.zeros(n_sample // 2), np.ones(n_sample // 2)), axis=0)
     order = np.random.permutation(n_sample)
     X = X[order]
     y = y[order]

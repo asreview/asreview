@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABC
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 
 class BaseState(ABC):
@@ -83,9 +82,15 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def add_last_ranking(self, ranked_record_ids, classifier,
-                         query_strategy, balance_strategy, feature_extraction,
-                         training_set):
+    def add_last_ranking(
+        self,
+        ranked_record_ids,
+        classifier,
+        query_strategy,
+        balance_strategy,
+        feature_extraction,
+        training_set,
+    ):
         """Save the ranking of the last iteration of the model, in the ranking
         order.
 
@@ -120,8 +125,7 @@ class BaseState(ABC):
     @property
     @abstractmethod
     def settings(self):
-        """Get settings from the state.
-        """
+        """Get settings from the state."""
         raise NotImplementedError
 
     @abstractmethod
@@ -303,7 +307,7 @@ class BaseState(ABC):
         """
         raise NotImplementedError
 
-    def get_labeling_times(self, time_format='int'):
+    def get_labeling_times(self, time_format="int"):
         """Get the time of labeling the state file.
 
         Arguments
@@ -322,9 +326,7 @@ class BaseState(ABC):
 
     @abstractmethod
     def close(self):
-        """Close the files opened by the state.
-
-        """
+        """Close the files opened by the state."""
         raise NotImplementedError
 
     def to_dict(self):
@@ -336,8 +338,5 @@ class BaseState(ABC):
             Dictionary with all settings and results.
         """
         state_data = self.get_dataset()
-        state_dict = {
-            'settings': vars(self.settings),
-            'data': state_data.to_dict()
-        }
+        state_dict = {"settings": vars(self.settings), "data": state_data.to_dict()}
         return state_dict

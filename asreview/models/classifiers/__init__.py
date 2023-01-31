@@ -19,9 +19,11 @@ from asreview.models.classifiers.nb import NaiveBayesClassifier
 from asreview.models.classifiers.nn_2_layer import NN2LayerClassifier
 from asreview.models.classifiers.rf import RandomForestClassifier
 from asreview.models.classifiers.svm import SVMClassifier
-from asreview.models.classifiers.utils import get_classifier
-from asreview.models.classifiers.utils import get_classifier_class
-from asreview.models.classifiers.utils import list_classifiers
+from asreview.models.classifiers.utils import (
+    get_classifier,
+    get_classifier_class,
+    list_classifiers,
+)
 
 """Machine learning classifiers to classify the documents.
 

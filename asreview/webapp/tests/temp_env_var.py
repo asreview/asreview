@@ -15,7 +15,7 @@
 from pathlib import Path
 
 TMP_ENV_VARS = {
-    'ASREVIEW_PATH': str(Path("~", ".asreview-test").expanduser()),
-    'FLASK_DEBUG': '1',
-    'SECRET_KEY': '99Problems!',
+    "ASREVIEW_PATH": str(Path("~", ".asreview-test").expanduser()),
+    "FLASK_DEBUG": "1",
+    "SECRET_KEY": "99Problems!",
 }

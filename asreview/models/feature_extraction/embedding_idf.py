@@ -37,9 +37,7 @@ from asreview.utils import get_random_state
 
 def _check_tensorflow():
     if not TF_AVAILABLE:
-        raise ImportError(
-            "Install tensorflow package to use"
-            " Embedding IDF.")
+        raise ImportError("Install tensorflow package to use" " Embedding IDF.")
 
 
 class EmbeddingIdf(BaseFeatureExtraction):
@@ -79,14 +77,12 @@ class EmbeddingIdf(BaseFeatureExtraction):
 
         if self.embedding is None:
             if self.embedding_fp is None:
-                raise ValueError(
-                    "Error: need embedding to train Embeddingdf model.")
+                raise ValueError("Error: need embedding to train Embeddingdf model.")
             self.embedding = load_embedding(self.embedding_fp, n_jobs=-1)
 
         text_counts = _get_freq_dict(texts)
         idf = _get_idf(text_counts)
-        X = _get_X_from_dict(text_counts, idf, self.embedding,
-                             self._random_state)
+        X = _get_X_from_dict(text_counts, idf, self.embedding, self._random_state)
         return X
 
 

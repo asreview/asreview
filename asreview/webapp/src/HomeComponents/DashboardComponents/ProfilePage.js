@@ -15,7 +15,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 
 import LoadingButton from "@mui/lab/LoadingButton";
 import { 
@@ -26,7 +25,7 @@ import { InlineErrorHandler } from "../../Components";
 import { useToggle } from "../../hooks/useToggle";
 
 import { AuthAPI } from "../../api";
-import { useFormik, resetForm, FormikConsumer } from 'formik';
+import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
 // VALIDATION SCHEMA
@@ -48,18 +47,17 @@ const SignupSchema = Yup.object().shape({
     .oneOf([Yup.ref('password'), null], 'Passwords must match')
 });
 
-const Root = styled("div")(({ theme }) => ({}));
-
 const ProfilePage = (props) => {
   const navigate = useNavigate();
 
   const [showPassword, toggleShowPassword] = useToggle();
   const [loadingSaveButton, setLoadingSaveButton] = React.useState(true);
   const [showPasswordFields, setShowPasswordFields] = React.useState(false);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const showFirstTimeMessage = searchParams.get('first_time');
+  console.log(showFirstTimeMessage);
 
-  const { error, isError, isLoading, mutate, reset } = useMutation(
+  const { error, isError, mutate } = useMutation(
     AuthAPI.updateProfile,
       {
         onSuccess: () => {
@@ -81,9 +79,15 @@ const ProfilePage = (props) => {
     publicAccount: true
   };
 
+  const formik = useFormik({
+    initialValues: initialValues,
+    validationSchema: SignupSchema,
+  });
+
   React.useEffect(() => {
     AuthAPI.getProfile()
       .then(data => {
+        console.log(data);
         formik.setFieldValue('email', data.email, true);
         formik.setFieldValue('name', data.name, true);
         formik.setFieldValue('affiliation', data.affiliation || '', false);
@@ -99,11 +103,6 @@ const ProfilePage = (props) => {
       })
       .catch(err => console.log('Did not profile data from backend', err));
   }, [])
-
-  const formik = useFormik({
-    initialValues: initialValues,
-    validationSchema: SignupSchema,
-  });
 
   const returnType = () => {
     return !showPassword ? "password" : "text";

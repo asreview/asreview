@@ -19,17 +19,12 @@ from urllib.parse import urlparse
 import numpy as np
 import pandas as pd
 
-from asreview.config import COLUMN_DEFINITIONS
-from asreview.config import LABEL_NA
-from asreview.datasets import DatasetManager
-from asreview.datasets import DatasetNotFoundError
+from asreview.config import COLUMN_DEFINITIONS, LABEL_NA
+from asreview.datasets import DatasetManager, DatasetNotFoundError
 from asreview.exceptions import BadFileFormatError
 from asreview.io import PaperRecord
-from asreview.io.utils import convert_keywords
-from asreview.io.utils import type_from_column
-from asreview.utils import get_entry_points
-from asreview.utils import is_iterable
-from asreview.utils import is_url
+from asreview.io.utils import convert_keywords, type_from_column
+from asreview.utils import get_entry_points, is_iterable, is_url
 
 
 def load_data(name, *args, **kwargs):
@@ -58,11 +53,10 @@ def load_data(name, *args, **kwargs):
         pass
 
     # Could not find dataset, return None.
-    raise FileNotFoundError(
-        f"File, URL, or dataset does not exist: '{name}'")
+    raise FileNotFoundError(f"File, URL, or dataset does not exist: '{name}'")
 
 
-class ASReviewData():
+class ASReviewData:
     """Data object to the dataset with texts, labels, DOIs etc.
 
     Arguments
@@ -105,9 +99,7 @@ class ASReviewData():
 
     """
 
-    def __init__(self,
-                 df=None,
-                 column_spec=None):
+    def __init__(self, df=None, column_spec=None):
         self.df = df
         self.prior_idx = np.array([], dtype=int)
 
@@ -139,13 +131,15 @@ class ASReviewData():
         str:
             SHA1 hash, computed from the titles/abstracts of the dataframe.
         """
-        if ((len(self.df.index) < 1000 and self.bodies is not None) or
-                self.texts is None):
+        if (
+            len(self.df.index) < 1000 and self.bodies is not None
+        ) or self.texts is None:
             texts = " ".join(self.bodies)
         else:
             texts = " ".join(self.texts)
-        return hashlib.sha1(" ".join(texts).encode(
-            encoding='UTF-8', errors='ignore')).hexdigest()
+        return hashlib.sha1(
+            " ".join(texts).encode(encoding="UTF-8", errors="ignore")
+        ).hexdigest()
 
     @classmethod
     def from_file(cls, fp, reader=None):
@@ -180,8 +174,10 @@ class ASReviewData():
                     best_suffix = suffix
 
         if best_suffix is None:
-            raise BadFileFormatError(f"Error importing file {fp}, no capabilities "
-                                     "for importing such a file.")
+            raise BadFileFormatError(
+                f"Error importing file {fp}, no capabilities "
+                "for importing such a file."
+            )
 
         reader = entry_points[best_suffix].load()
         df, column_spec = reader.read_data(fp)
@@ -211,16 +207,19 @@ class ASReviewData():
 
         if by_index:
             records = [
-                PaperRecord(**self.df.iloc[j],
-                            column_spec=self.column_spec,
-                            record_id=self.df.index.values[j])
+                PaperRecord(
+                    **self.df.iloc[j],
+                    column_spec=self.column_spec,
+                    record_id=self.df.index.values[j],
+                )
                 for j in index_list
             ]
         else:
             records = [
-                PaperRecord(**self.df.loc[j, :],
-                            record_id=j,
-                            column_spec=self.column_spec) for j in index_list
+                PaperRecord(
+                    **self.df.loc[j, :], record_id=j, column_spec=self.column_spec
+                )
+                for j in index_list
             ]
 
         if is_iterable(i):
@@ -238,9 +237,10 @@ class ASReviewData():
         if self.abstract is None:
             return self.title
 
-        cur_texts = np.array([
-            self.title[i] + " " + self.abstract[i] for i in range(len(self))
-        ], dtype=object)
+        cur_texts = np.array(
+            [self.title[i] + " " + self.abstract[i] for i in range(len(self))],
+            dtype=object,
+        )
         return cur_texts
 
     @property
@@ -275,8 +275,7 @@ class ASReviewData():
     @property
     def keywords(self):
         try:
-            return self.df[self.column_spec["keywords"]].apply(
-                convert_keywords).values
+            return self.df[self.column_spec["keywords"]].apply(convert_keywords).values
         except KeyError:
             return None
 
@@ -399,8 +398,10 @@ class ASReviewData():
                         best_suffix = suffix
 
             if best_suffix is None:
-                raise BadFileFormatError(f"Error exporting file {fp}, no capabilities "
-                                         "for exporting such a file.")
+                raise BadFileFormatError(
+                    f"Error exporting file {fp}, no capabilities "
+                    "for exporting such a file."
+                )
 
             writer = entry_points[best_suffix].load()
             writer.write_data(df, fp, labels=labels, ranking=ranking)

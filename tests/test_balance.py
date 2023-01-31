@@ -1,8 +1,7 @@
 import numpy as np
 from pytest import mark
 
-from asreview.models.balance import get_balance_model
-from asreview.models.balance import list_balance_strategies
+from asreview.models.balance import get_balance_model, list_balance_strategies
 
 
 def generate_data(n_feature=20, n_sample=10):
@@ -28,16 +27,16 @@ def check_partition(X, y, X_partition, y_partition, train_idx):
     assert np.all(y[partition_idx] == y_partition)
 
 
-@mark.parametrize("balance_strategy", [
-    "undersample",
-    "simple",
-    "double",
-    # "triple",  # Broken, only via API
-])
-def test_balance(balance_strategy,
-                 n_partition=100,
-                 n_feature=200,
-                 n_sample=100):
+@mark.parametrize(
+    "balance_strategy",
+    [
+        "undersample",
+        "simple",
+        "double",
+        # "triple",  # Broken, only via API
+    ],
+)
+def test_balance(balance_strategy, n_partition=100, n_feature=200, n_sample=100):
     model = get_balance_model(balance_strategy)
     assert isinstance(model.param, dict)
     assert model.name == balance_strategy
@@ -45,9 +44,7 @@ def test_balance(balance_strategy,
     for _ in range(n_partition):
         n_train = np.random.randint(10, n_sample)
         while True:
-            train_idx = np.random.choice(np.arange(len(y)),
-                                         n_train,
-                                         replace=False)
+            train_idx = np.random.choice(np.arange(len(y)), n_train, replace=False)
             num_zero = np.count_nonzero(y[train_idx] == 0)
             num_one = np.count_nonzero(y[train_idx] == 1)
             if num_zero > 0 and num_one > 0:

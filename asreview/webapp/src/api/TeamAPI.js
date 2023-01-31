@@ -1,5 +1,5 @@
 import { axiosErrorHandler } from "./axiosErrorHandler";
-import { api_url, collab_url } from "../globals.js";
+import { api_url } from "../globals.js";
 import axios from "axios";
 
 

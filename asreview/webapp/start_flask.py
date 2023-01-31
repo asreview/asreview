@@ -19,8 +19,7 @@ import socket
 import webbrowser
 from threading import Timer
 
-from flask import Flask
-from flask import send_from_directory
+from flask import Flask, send_from_directory
 from flask.json import jsonify
 from flask.templating import render_template
 from flask_cors import CORS
@@ -30,25 +29,18 @@ from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
 from asreview.entry_points.lab import _lab_parser
-from asreview.project import ASReviewProject
-from asreview.project import get_project_path
-from asreview.project import list_asreview_projects
+from asreview.project import ASReviewProject, get_project_path, list_asreview_projects
 from asreview.utils import asreview_path
-from asreview.webapp.api import auth, projects, team
-
 from asreview.webapp import DB
-from asreview.webapp.authentication.models import (
-    SingleUser,
-    User
-)
+from asreview.webapp.api import auth, projects, team
+from asreview.webapp.authentication.models import SingleUser, User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
 # set logging level
-if os.environ.get('FLASK_DEBUG', "") == "1":
+if os.environ.get("FLASK_DEBUG", "") == "1":
     logging.basicConfig(level=logging.DEBUG)
 else:
     logging.basicConfig(level=logging.INFO)
-
 
 
 def _url(host, port, protocol):
@@ -71,10 +63,8 @@ def _check_port_in_use(host, port):
     bool:
         True if port is in use, false otherwise.
     """
-    logging.info(
-        f"Checking if host and port are available :: {host}:{port}"
-    )
-    host = host.replace('https://', '').replace('http://', '')
+    logging.info(f"Checking if host and port are available :: {host}:{port}")
+    host = host.replace("https://", "").replace("http://", "")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         return s.connect_ex((host, port)) == 0
 
@@ -108,30 +98,31 @@ def create_app(**kwargs):
         __name__,
         instance_relative_config=True,
         static_folder="build/static",
-        template_folder="build"
+        template_folder="build",
     )
 
     # Get the ASReview arguments.
-    app.config['asr_kwargs'] = kwargs
-    app.config['AUTHENTICATION_ENABLED'] = \
-        kwargs['enable_auth'] if 'enable_auth' in kwargs else False
+    app.config["asr_kwargs"] = kwargs
+    app.config["AUTHENTICATION_ENABLED"] = (
+        kwargs["enable_auth"] if "enable_auth" in kwargs else False
+    )
 
     # Read config parameters if possible, this overrides
     # the previous assignments.
-    config_file_path = kwargs.get('flask_config', '').strip()
-    if config_file_path != '':
+    config_file_path = kwargs.get("flask_config", "").strip()
+    if config_file_path != "":
         app.config.from_file(config_file_path, load=json.load)
 
     # set development / production
-    env = 'development' if app.config['DEBUG'] == True else 'production'
+    env = "development" if app.config["DEBUG"] == True else "production"
 
     # config JSON Web Tokens
     login_manager = LoginManager(app)
     login_manager.init_app(app)
-    login_manager.session_protection = 'strong'
+    login_manager.session_protection = "strong"
 
     # setup all database/authentication related resources
-    if app.config['AUTHENTICATION_ENABLED'] == True:
+    if app.config["AUTHENTICATION_ENABLED"] == True:
 
         # Register a callback function for current_user.
         @login_manager.user_loader
@@ -141,43 +132,44 @@ def create_app(**kwargs):
         # In this code-block we make sure certain authentication-related
         # config parameters are set.
         # TODO: should I raise a custom Exception, like MissingParameterError?
-        if not app.config.get('SECRET_KEY', False):
+        if not app.config.get("SECRET_KEY", False):
             raise ValueError(
-                'Please start an authenticated app with a ' + 
-                'secret key parameter (SECRET_KEY)'
+                "Please start an authenticated app with a "
+                + "secret key parameter (SECRET_KEY)"
             )
 
-        if not app.config.get('SECURITY_PASSWORD_SALT', False):
+        if not app.config.get("SECURITY_PASSWORD_SALT", False):
             raise ValueError(
-                'Please start an authenticated app with a ' + 
-                'security password salt (SECURITY_PASSWORD_SALT)'
+                "Please start an authenticated app with a "
+                + "security password salt (SECURITY_PASSWORD_SALT)"
             )
 
-        if app.config.get('EMAIL_VERIFICATION', False) and \
-            not app.config.get('EMAIL_CONFIG', False):
+        if app.config.get("EMAIL_VERIFICATION", False) and not app.config.get(
+            "EMAIL_CONFIG", False
+        ):
             raise ValueError(
-                'Missing email configuration to facilitate email verification'
+                "Missing email configuration to facilitate email verification"
             )
 
         # set email config for Flask-Mail
-        conf = app.config.get('EMAIL_CONFIG', {})
-        app.config['MAIL_SERVER'] = conf.get('SERVER')
-        app.config['MAIL_PORT'] = conf.get('PORT', 465)
-        app.config['MAIL_USERNAME'] = conf.get('USERNAME')
-        app.config['MAIL_PASSWORD'] = conf.get('PASSWORD')
-        app.config['MAIL_USE_TLS'] = conf.get('USE_TLS', False)
-        app.config['MAIL_USE_SSL'] = conf.get('USE_SSL', False)
-        app.config['MAIL_REPLY_ADDRESS'] = conf.get('REPLY_ADDRESS')
+        conf = app.config.get("EMAIL_CONFIG", {})
+        app.config["MAIL_SERVER"] = conf.get("SERVER")
+        app.config["MAIL_PORT"] = conf.get("PORT", 465)
+        app.config["MAIL_USERNAME"] = conf.get("USERNAME")
+        app.config["MAIL_PASSWORD"] = conf.get("PASSWORD")
+        app.config["MAIL_USE_TLS"] = conf.get("USE_TLS", False)
+        app.config["MAIL_USE_SSL"] = conf.get("USE_SSL", False)
+        app.config["MAIL_REPLY_ADDRESS"] = conf.get("REPLY_ADDRESS")
 
         # We must be sure we have a database URI
-        if not app.config.get('SQLALCHEMY_DATABASE_URI', False):
+        if not app.config.get("SQLALCHEMY_DATABASE_URI", False):
             # create default path
-            uri = os.path.join(asreview_path(), f'asreview.{env}.sqlite')
-            app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{uri}'
+            uri = os.path.join(asreview_path(), f"asreview.{env}.sqlite")
+            app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{uri}"
 
         # store oauth config in oauth handler
-        if bool(app.config.get('OAUTH', False)):
-            app.config['OAUTH'] = OAuthHandler(app.config['OAUTH'])
+        if bool(app.config.get("OAUTH", False)):
+            app.config["OAUTH"] = OAuthHandler(app.config["OAUTH"])
 
         # create the database plus table(s)
         DB.init_app(app)
@@ -204,10 +196,14 @@ def create_app(**kwargs):
     # !! not to '*'
     CORS(
         app,
-        resources={r"*": {"origins": [
-            "http://localhost:3000",
-            "http://127.0.0.1:3000",
-        ]}},
+        resources={
+            r"*": {
+                "origins": [
+                    "http://localhost:3000",
+                    "http://127.0.0.1:3000",
+                ]
+            }
+        },
     )
 
     app.register_blueprint(projects.bp)
@@ -227,70 +223,69 @@ def create_app(**kwargs):
         logging.error(e.original_exception)
         return jsonify(message=str(e.original_exception)), 500
 
-    @app.route('/', methods=['GET'])
-    @app.route('/projects/', methods=['GET'])
-    @app.route('/projects/<project_id>/', methods=['GET'])
-    @app.route('/projects/<project_id>/<tab>/', methods=['GET'])
+    @app.route("/", methods=["GET"])
+    @app.route("/projects/", methods=["GET"])
+    @app.route("/projects/<project_id>/", methods=["GET"])
+    @app.route("/projects/<project_id>/<tab>/", methods=["GET"])
     def index(**kwargs):
         return render_template("index.html")
 
-    @app.route('/favicon.ico')
+    @app.route("/favicon.ico")
     def send_favicon():
         return send_from_directory(
-            'build',
-            'favicon.ico',
-            mimetype='image/vnd.microsoft.icon'
+            "build", "favicon.ico", mimetype="image/vnd.microsoft.icon"
         )
 
-    @app.route('/boot', methods=["GET"])
+    @app.route("/boot", methods=["GET"])
     def api_boot():
         """Get the boot info."""
-        if app.config.get('DEBUG', None) == True:
-            status = 'development'
+        if app.config.get("DEBUG", None) == True:
+            status = "development"
         else:
-            status = 'asreview'
+            status = "asreview"
 
         # the big one
-        authenticated = bool(app.config['AUTHENTICATION_ENABLED'])
+        authenticated = bool(app.config["AUTHENTICATION_ENABLED"])
 
         response = {
-            'status': status,
-            'authentication':authenticated,
-            'version': asreview_version,
+            "status": status,
+            "authentication": authenticated,
+            "version": asreview_version,
         }
 
         # if we do authentication we have a lot of extra parameters
         if authenticated:
             # if recaptcha config is provided for account creation
-            if app.config.get('RE_CAPTCHA_V3', False):
-                response['recaptchav3_key'] = app.config['RE_CAPTCHA_V3'] \
-                    .get('KEY', False)
+            if app.config.get("RE_CAPTCHA_V3", False):
+                response["recaptchav3_key"] = app.config["RE_CAPTCHA_V3"].get(
+                    "KEY", False
+                )
 
             # check if users can create accounts
-            response['allow_account_creation'] = \
-                app.config.get('ALLOW_ACCOUNT_CREATION', False)
+            response["allow_account_creation"] = app.config.get(
+                "ALLOW_ACCOUNT_CREATION", False
+            )
 
-            response['allow_teams'] = \
-                app.config.get('ALLOW_TEAMS', False)
+            response["allow_teams"] = app.config.get("ALLOW_TEAMS", False)
 
             # check if we are doing email verification
-            response['email_verification'] = \
-                bool(app.config.get('EMAIL_VERIFICATION', False))
+            response["email_verification"] = bool(
+                app.config.get("EMAIL_VERIFICATION", False)
+            )
 
             # check if there is an email server setup (forgot password)
-            response['email_config'] = \
-                bool(app.config.get('EMAIL_CONFIG', False))
+            response["email_config"] = bool(app.config.get("EMAIL_CONFIG", False))
 
             # if oauth config is provided
-            if isinstance(app.config.get('OAUTH', False), OAuthHandler):
-                params = app.config.get('OAUTH').front_end_params()
+            if isinstance(app.config.get("OAUTH", False), OAuthHandler):
+                params = app.config.get("OAUTH").front_end_params()
                 # and there something in it, just to be sure
                 if params:
-                    response['oauth'] = params
+                    response["oauth"] = params
 
         return jsonify(response)
-    return app
 
+    return app
 
 
 def main(argv):
@@ -301,9 +296,9 @@ def main(argv):
     app = create_app(
         embedding_fp=args.embedding_fp,
         enable_auth=args.enable_authentication,
-        flask_config=args.flask_configfile
+        flask_config=args.flask_configfile,
     )
-    app.config['PROPAGATE_EXCEPTIONS'] = False
+    app.config["PROPAGATE_EXCEPTIONS"] = False
 
     # ssl certificate, key and protocol
     certfile = args.certfile
@@ -331,13 +326,11 @@ def main(argv):
     # option
     if args.clean_project is not None:
         print(f"Cleaning project file '{args.clean_project}'.")
-        ASReviewProject(
-            get_project_path(args.clean_project)
-        ).clean_tmp_files()
+        ASReviewProject(get_project_path(args.clean_project)).clean_tmp_files()
         print("Done")
         return
 
-    flask_dev = app.config.get('DEBUG', False)
+    flask_dev = app.config.get("DEBUG", False)
     host = args.ip
     port = args.port
     port_retries = args.port_retries
@@ -353,9 +346,7 @@ def main(argv):
                     "to launch ASReview LAB. Last port \n"
                     f"was {str(port)}"
                 )
-            print(
-                f"Port {old_port} is in use.\n* Trying to start at {port}"
-            )
+            print(f"Port {old_port} is in use.\n* Trying to start at {port}")
 
     # open webbrowser if not in flask development mode
     if flask_dev is False:
@@ -365,6 +356,6 @@ def main(argv):
     if flask_dev is True:
         app.run(host=host, port=port, ssl_context=ssl_context)
     else:
-        ssl_args = {'keyfile': keyfile, 'certfile': certfile} if ssl_context else {}
+        ssl_args = {"keyfile": keyfile, "certfile": certfile} if ssl_context else {}
         server = WSGIServer((host, port), app, **ssl_args)
         server.serve_forever()

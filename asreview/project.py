@@ -23,30 +23,24 @@ from contextlib import contextmanager
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
-from uuid import uuid4, uuid5, NAMESPACE_URL
+from uuid import NAMESPACE_URL, uuid4, uuid5
 
-from filelock import FileLock
 import jsonschema
 import numpy as np
-from scipy.sparse import csr_matrix
-from scipy.sparse import load_npz
-from scipy.sparse import save_npz
+from filelock import FileLock
+from scipy.sparse import csr_matrix, load_npz, save_npz
 
 from asreview._version import get_versions
-from asreview.config import LABEL_NA
-from asreview.config import PROJECT_MODES
-from asreview.config import PROJECT_MODE_SIMULATE
-from asreview.config import SCHEMA
+from asreview.config import LABEL_NA, PROJECT_MODE_SIMULATE, PROJECT_MODES, SCHEMA
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
 from asreview.utils import asreview_path
 from asreview.webapp.authentication.models import Project, User
 from asreview.webapp.io import read_data
 
-
 PATH_PROJECT_CONFIG = "project.json"
 PATH_PROJECT_CONFIG_LOCK = "project.json.lock"
-PATH_FEATURE_MATRICES = 'feature_matrices'
+PATH_FEATURE_MATRICES = "feature_matrices"
 
 
 class ProjectError(Exception):
@@ -60,11 +54,13 @@ class ProjectExistsError(Exception):
 class ProjectNotFoundError(Exception):
     pass
 
+
 # !=============================================
-# @TODO: I HATE THE FACT THAT I AM TALKING ABOUT 
+# @TODO: I HATE THE FACT THAT I AM TALKING ABOUT
 # Users in this module, but I need a quick fix
 # for now
 # !=============================================
+
 
 def get_project_path(project_id, user=None, asreview_dir=None):
     """Get the project directory.
@@ -88,17 +84,19 @@ def get_project_path(project_id, user=None, asreview_dir=None):
         # real User
         if isinstance(user, User) and isinstance(user.id, int):
             project_from_db = Project.query.filter(
-                Project.project_id == project_id).one_or_none()
+                Project.project_id == project_id
+            ).one_or_none()
 
             # project exists and user is owner OR this is a new project
-            if (project_from_db and user == project_from_db.owner) or \
-                (project_from_db == None):
+            if (project_from_db and user == project_from_db.owner) or (
+                project_from_db == None
+            ):
 
-                folder_id = f'{user.id}_{project_id}'
+                folder_id = f"{user.id}_{project_id}"
 
-            # project exists but user is a collaborator 
+            # project exists but user is a collaborator
             elif project_from_db and user in project_from_db.collaborators:
-                folder_id = f'{project_from_db.owner_id}_{project_id}'
+                folder_id = f"{project_from_db.owner_id}_{project_id}"
 
             else:
                 folder_id = project_id
@@ -115,13 +113,16 @@ def project_from_id(user):
     the user account is used to get the correct sub folder in which
     the projects is
     """
+
     def decorate(f):
         @wraps(f)
         def decorated_function(project_id, *args, **kwargs):
             project_path = get_project_path(project_id, user)
             project = ASReviewProject(project_path, project_id=project_id)
             return f(project, *args, **kwargs)
+
         return decorated_function
+
     return decorate
 
 
@@ -129,8 +130,8 @@ def project_from_id(user):
 # @TODO: Another thing that needs consideration:
 # I need ownership id's to avoid collaborators inviting
 # new collaborators. That means I'd like to alter
-# the ASReviewProject class -> adding an ownership 
-# attribute. I could add it on the class itself, but 
+# the ASReviewProject class -> adding an ownership
+# attribute. I could add it on the class itself, but
 # this is only needed in the authenticated version.
 # Instead I will add it dynamically in this function...
 # Feedback is required.
@@ -141,12 +142,10 @@ def list_asreview_projects(user=None):
     project_paths = []
     if isinstance(user, User) and isinstance(user.id, int):
         own_projects = [
-            (Path(asreview_path(), p.folder), p.owner_id) 
-            for p in user.projects
+            (Path(asreview_path(), p.folder), p.owner_id) for p in user.projects
         ]
         collaboration_projects = [
-            (Path(asreview_path(), p.folder), p.owner_id) 
-            for p in user.involved_in
+            (Path(asreview_path(), p.folder), p.owner_id) for p in user.involved_in
         ]
         project_paths = own_projects + collaboration_projects
     else:
@@ -172,15 +171,12 @@ def list_asreview_projects(user=None):
 def _create_project_id(name):
     """Create project id from input name."""
 
-    if isinstance(name, str) \
-            and len(name) > 0 \
-            and not name[0].isalnum():
-        raise ValueError("First character should be alphabet"
-                         " letter (a-z) or number (0-9).")
+    if isinstance(name, str) and len(name) > 0 and not name[0].isalnum():
+        raise ValueError(
+            "First character should be alphabet" " letter (a-z) or number (0-9)."
+        )
 
-    if not name \
-            and not isinstance(name, str) \
-            and len(name) >= 3:
+    if not name and not isinstance(name, str) and len(name) >= 3:
         raise ValueError("Project name should be at least 3 characters.")
 
     project_id = ""
@@ -228,12 +224,10 @@ def open_state(asreview_obj, review_id=None, read_only=True):
     # Unzip the ASReview data if needed.
     if isinstance(asreview_obj, ASReviewProject):
         project = asreview_obj
-    elif zipfile.is_zipfile(asreview_obj) and Path(
-            asreview_obj).suffix == ".asreview":
+    elif zipfile.is_zipfile(asreview_obj) and Path(asreview_obj).suffix == ".asreview":
 
         if not read_only:
-            raise ValueError(
-                "ASReview files do not support not read only files.")
+            raise ValueError("ASReview files do not support not read only files.")
 
         # work from a temp dir
         tmpdir = tempfile.TemporaryDirectory()
@@ -247,7 +241,7 @@ def open_state(asreview_obj, review_id=None, read_only=True):
     try:
         if len(project.reviews) > 0:
             if review_id is None:
-                review_id = project.config['reviews'][0]['id']
+                review_id = project.config["reviews"][0]["id"]
             logging.debug(f"Opening review {review_id}.")
             state._restore(project.project_path, review_id)
         elif len(project.reviews) == 0 and not read_only:
@@ -256,8 +250,9 @@ def open_state(asreview_obj, review_id=None, read_only=True):
             state._create_new_state_file(project.project_path, review_id)
             project.add_review(review_id)
         else:
-            raise StateNotFoundError("State file does not exist, and in "
-                                     "read only mode.")
+            raise StateNotFoundError(
+                "State file does not exist, and in " "read only mode."
+            )
         yield state
     finally:
         try:
@@ -267,7 +262,7 @@ def open_state(asreview_obj, review_id=None, read_only=True):
             pass
 
 
-class ASReviewProject():
+class ASReviewProject:
     """Project class for ASReview project files."""
 
     def __init__(self, project_path, project_id=None):
@@ -275,13 +270,15 @@ class ASReviewProject():
         self.project_id = project_id
 
     @classmethod
-    def create(cls,
-               project_path,
-               project_id=None,
-               project_mode="oracle",
-               project_name=None,
-               project_description=None,
-               project_authors=None):
+    def create(
+        cls,
+        project_path,
+        project_id=None,
+        project_mode="oracle",
+        project_name=None,
+        project_description=None,
+        project_authors=None,
+    ):
         """Initialize the necessary files specific to the web app."""
 
         project_path = Path(project_path)
@@ -290,8 +287,9 @@ class ASReviewProject():
             raise ProjectExistsError("Project already exists.")
 
         if project_mode not in PROJECT_MODES:
-            raise ValueError(f"Project mode '{project_mode}' is not in "
-                             f"{PROJECT_MODES}.")
+            raise ValueError(
+                f"Project mode '{project_mode}' is not in " f"{PROJECT_MODES}."
+            )
 
         if project_id is None:
             project_id = project_path.stem
@@ -300,8 +298,7 @@ class ASReviewProject():
             project_name = project_path.stem
 
         if project_path.is_dir():
-            raise IsADirectoryError(
-                f'Project folder {project_path} already exists.')
+            raise IsADirectoryError(f"Project folder {project_path} already exists.")
 
         try:
             project_path.mkdir(parents=True, exist_ok=True)
@@ -310,17 +307,16 @@ class ASReviewProject():
             Path(project_path, "reviews").mkdir(exist_ok=True)
 
             config = {
-                'version':
-                get_versions()['version'],
-                'id': project_id,
-                'mode': project_mode,
-                'name': project_name,
-                'description': project_description,
-                'authors': project_authors,
-                'created_at_unix': int(time.time()),
-                'datetimeCreated': str(datetime.now()),
-                'reviews': [],
-                'feature_matrices': []
+                "version": get_versions()["version"],
+                "id": project_id,
+                "mode": project_mode,
+                "name": project_name,
+                "description": project_description,
+                "authors": project_authors,
+                "created_at_unix": int(time.time()),
+                "datetimeCreated": str(datetime.now()),
+                "reviews": [],
+                "feature_matrices": [],
             }
 
             # validate new config before storing
@@ -366,8 +362,7 @@ class ASReviewProject():
                         return config
 
             except FileNotFoundError:
-                raise ProjectNotFoundError(
-                    f"Project '{self.project_path}' not found")
+                raise ProjectNotFoundError(f"Project '{self.project_path}' not found")
 
     @config.setter
     def config(self, config):
@@ -395,8 +390,7 @@ class ASReviewProject():
 
         # validate schema
         if "mode" in kwargs_copy and kwargs_copy["mode"] not in PROJECT_MODES:
-            raise ValueError("Project mode '{}' not found.".format(
-                kwargs_copy["mode"]))
+            raise ValueError("Project mode '{}' not found.".format(kwargs_copy["mode"]))
 
         # update project file
         config = self.config
@@ -426,16 +420,15 @@ class ASReviewProject():
             The updated project
         """
         # get all data
-        new_project_name = new_project_data.get('name', None)
-        new_project_id = new_project_data.get('project_id', None)
-        new_project_path = new_project_data.get('project_path', None)
+        new_project_name = new_project_data.get("name", None)
+        new_project_id = new_project_data.get("project_id", None)
+        new_project_path = new_project_data.get("project_path", None)
 
         if self.project_id == new_project_id:
             # nothing to do
             return self
 
-        if (self.project_path != new_project_path) and \
-            is_project(new_project_path):
+        if (self.project_path != new_project_path) and is_project(new_project_path):
             raise ValueError(f"Project '{new_project_path}' already exists.")
 
         self.project_path.rename(new_project_path)
@@ -469,25 +462,25 @@ class ASReviewProject():
             state.add_record_table(as_data.record_ids)
 
             # if the data contains labels, add them to the state file
-            if self.config["mode"] != PROJECT_MODE_SIMULATE and \
-                    as_data.labels is not None:
+            if (
+                self.config["mode"] != PROJECT_MODE_SIMULATE
+                and as_data.labels is not None
+            ):
 
                 labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
                 labels = as_data.labels[labeled_indices].tolist()
-                labeled_record_ids = as_data.record_ids[
-                    labeled_indices].tolist()
+                labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
 
                 # add the labels as prior data
                 state.add_labeling_data(
                     record_ids=labeled_record_ids,
                     labels=labels,
                     notes=[None for _ in labeled_record_ids],
-                    prior=True)
+                    prior=True,
+                )
 
     def remove_dataset(self):
-        """Remove dataset from project.
-
-        """
+        """Remove dataset from project."""
         # reset dataset_path
         self.update_config(dataset_path=None)
 
@@ -495,8 +488,9 @@ class ASReviewProject():
         shutil.rmtree(Path(self.project_path, "data"))
 
         # remove state file if present
-        if Path(self.project_path, "reviews").is_dir() and \
-                any(Path(self.project_path, "reviews").iterdir()):
+        if Path(self.project_path, "reviews").is_dir() and any(
+            Path(self.project_path, "reviews").iterdir()
+        ):
             self.delete_review()
 
     def clean_tmp_files(self):
@@ -518,7 +512,7 @@ class ASReviewProject():
     @property
     def feature_matrices(self):
         try:
-            return self.config['feature_matrices']
+            return self.config["feature_matrices"]
         except Exception:
             return []
 
@@ -538,18 +532,21 @@ class ASReviewProject():
         if not isinstance(feature_matrix, csr_matrix):
             raise ValueError(
                 "The feature matrix should be convertible to type "
-                "scipy.sparse.csr.csr_matrix.")
+                "scipy.sparse.csr.csr_matrix."
+            )
 
-        matrix_filename = f'{feature_extraction_method}_feature_matrix.npz'
-        save_npz(Path(self.project_path, PATH_FEATURE_MATRICES,
-                      matrix_filename), feature_matrix)
+        matrix_filename = f"{feature_extraction_method}_feature_matrix.npz"
+        save_npz(
+            Path(self.project_path, PATH_FEATURE_MATRICES, matrix_filename),
+            feature_matrix,
+        )
 
         # Add the feature matrix to the project config.
         config = self.config
 
         feature_matrix_config = {
             "id": feature_extraction_method,
-            "filename": matrix_filename
+            "filename": matrix_filename,
         }
 
         # Add container for feature matrices.
@@ -573,14 +570,13 @@ class ASReviewProject():
         scipy.sparse.csr_matrix:
             Feature matrix in sparse format.
         """
-        matrix_filename = f'{feature_extraction_method}_feature_matrix.npz'
-        return load_npz(Path(self.project_path, PATH_FEATURE_MATRICES,
-                             matrix_filename))
+        matrix_filename = f"{feature_extraction_method}_feature_matrix.npz"
+        return load_npz(Path(self.project_path, PATH_FEATURE_MATRICES, matrix_filename))
 
     @property
     def reviews(self):
         try:
-            return self.config['reviews']
+            return self.config["reviews"]
         except Exception:
             return []
 
@@ -641,8 +637,7 @@ class ASReviewProject():
         if review_id is None:
             review_index = 0
         else:
-            review_index = [x['id'] for x in self.config['reviews']
-                            ].index(review_id)
+            review_index = [x["id"] for x in self.config["reviews"]].index(review_id)
 
         review_config = config["reviews"][review_index]
         review_config.update(kwargs)
@@ -660,24 +655,20 @@ class ASReviewProject():
 
             # recreate folder structure if True
             if not remove_folders:
-                Path(self.project_path,
-                     PATH_FEATURE_MATRICES).mkdir(exist_ok=True)
+                Path(self.project_path, PATH_FEATURE_MATRICES).mkdir(exist_ok=True)
         except Exception:
             print("Failed to remove feature matrices.")
 
         try:
-            path_review = Path(self.project_path, 'reviews')
+            path_review = Path(self.project_path, "reviews")
             shutil.rmtree(path_review)
             if not remove_folders:
-                Path(self.project_path, 'reviews').mkdir(exist_ok=True)
+                Path(self.project_path, "reviews").mkdir(exist_ok=True)
         except Exception:
             print("Failed to remove sql database.")
 
         # update the config
-        self.update_config(**{
-            'reviews': [],
-            'feature_matrices': []
-        })
+        self.update_config(**{"reviews": [], "feature_matrices": []})
 
     def mark_review_finished(self, review_id=None):
         """Mark a review in the project as finished.
@@ -690,9 +681,9 @@ class ASReviewProject():
             Identifier of the review to mark as finished.
         """
 
-        self.update_review(review_id=review_id,
-                           status="finished",
-                           end_time=str(datetime.now()))
+        self.update_review(
+            review_id=review_id, status="finished", end_time=str(datetime.now())
+        )
 
     def export(self, export_fp):
 
@@ -700,22 +691,23 @@ class ASReviewProject():
             raise ValueError("Export file should have .asreview extension.")
 
         if Path(export_fp) == Path(self.project_path):
-            raise ValueError(
-                "export_fp should not be identical to project path.")
+            raise ValueError("export_fp should not be identical to project path.")
 
         export_fp_tmp = Path(export_fp).with_suffix(".asreview.zip")
 
         # copy the source tree, but ignore pickle files
-        shutil.copytree(self.project_path,
-                        export_fp_tmp,
-                        ignore=shutil.ignore_patterns('*.pickle', '*.lock'))
+        shutil.copytree(
+            self.project_path,
+            export_fp_tmp,
+            ignore=shutil.ignore_patterns("*.pickle", "*.lock"),
+        )
 
         # create the archive
         shutil.make_archive(export_fp_tmp, "zip", root_dir=export_fp_tmp)
 
         # remove the unzipped folder and move zip
         shutil.rmtree(export_fp_tmp)
-        shutil.move(f'{export_fp_tmp}.zip', export_fp)
+        shutil.move(f"{export_fp_tmp}.zip", export_fp)
 
     @classmethod
     def load(cls, asreview_file, project_path, safe_import=False):
@@ -746,14 +738,11 @@ class ASReviewProject():
             # If the uploaded project already exists,
             # then overwrite project.json with a copy suffix.
             while Path(
-                    project_path,
-                    project_config["id"],
-                    PATH_PROJECT_CONFIG
+                project_path, project_config["id"], PATH_PROJECT_CONFIG
             ).exists():
                 # project update
                 project_config["id"] = f"{project_config['id']}-copy"
-                project_config[
-                    "name"] = f"{project_config['name']} copy"
+                project_config["name"] = f"{project_config['name']} copy"
             else:
                 with open(Path(tmpdir, PATH_PROJECT_CONFIG), "r+") as f:
                     # write to file
@@ -777,10 +766,10 @@ class ASReviewProject():
             message = {
                 "message": f"{err_type}: {err}",
                 "type": f"{err_type}",
-                "datetime": str(datetime.now())
+                "datetime": str(datetime.now()),
             }
 
-            with open(Path(self.project_path, "error.json"), 'w') as f:
+            with open(Path(self.project_path, "error.json"), "w") as f:
                 json.dump(message, f)
 
     def remove_error(self, status):

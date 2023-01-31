@@ -21,5 +21,4 @@ from asreview.io.paper_record import PaperRecord
 from asreview.io.ris_reader import RISReader
 from asreview.io.ris_writer import RISWriter
 from asreview.io.tsv_writer import TSVWriter
-from asreview.io.utils import list_readers
-from asreview.io.utils import list_writers
+from asreview.io.utils import list_readers, list_writers

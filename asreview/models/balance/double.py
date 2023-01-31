@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from math import floor
-from math import log
+from math import floor, log
 
 import numpy as np
 
@@ -52,12 +51,7 @@ class DoubleBalance(BaseBalance):
     name = "double"
     label = "Dynamic resampling (Double)"
 
-    def __init__(self,
-                 a=2.155,
-                 alpha=0.94,
-                 b=0.789,
-                 beta=1.0,
-                 random_state=None):
+    def __init__(self, a=2.155, alpha=0.94, b=0.789, beta=1.0, random_state=None):
         super(DoubleBalance, self).__init__()
         self.a = a
         self.alpha = alpha
@@ -101,7 +95,8 @@ class DoubleBalance(BaseBalance):
         tot_zo_weight = one_weight * n_one + zero_weight * n_zero
         # Number of inclusions to sample.
         n_one_train = random_round(
-            one_weight * n_one * n_train / tot_zo_weight, self._random_state)
+            one_weight * n_one * n_train / tot_zo_weight, self._random_state
+        )
         # Should be at least 1, and at least two spots should be for exclusions.
         n_one_train = max(1, min(n_train - 2, n_one_train))
         # Number of exclusions to sample
@@ -109,8 +104,7 @@ class DoubleBalance(BaseBalance):
 
         # Sample records of ones and zeroes
         one_train_idx = fill_training(one_idx, n_one_train, self._random_state)
-        zero_train_idx = fill_training(zero_idx, n_zero_train,
-                                       self._random_state)
+        zero_train_idx = fill_training(zero_idx, n_zero_train, self._random_state)
         # Merge and shuffle.
         all_idx = np.concatenate([one_train_idx, zero_train_idx])
         self._random_state.shuffle(all_idx)
@@ -120,6 +114,7 @@ class DoubleBalance(BaseBalance):
 
     def full_hyper_space(self):
         from hyperopt import hp
+
         parameter_space = {
             "bal_a": hp.lognormal("bal_a", 0, 1),
             "bal_alpha": hp.uniform("bal_alpha", 0, 2),
@@ -131,13 +126,13 @@ class DoubleBalance(BaseBalance):
 
 def _one_weight(n_one, n_zero, a, alpha):
     """Get the weight of the ones."""
-    weight = a * (n_one / n_zero)**(-alpha)
+    weight = a * (n_one / n_zero) ** (-alpha)
     return weight
 
 
 def _zero_weight(n_read, b, beta):
     """Get the weight of the zeros."""
-    weight = 1 - (1 - b) * (1 + log(n_read))**(-beta)
+    weight = 1 - (1 - b) * (1 + log(n_read)) ** (-beta)
     return weight
 
 
@@ -154,8 +149,7 @@ def random_round(value, random_state):
 
 
 def fill_training(src_idx, n_train, random_state):
-    """Copy/sample until there are n_train indices sampled/copied.
-    """
+    """Copy/sample until there are n_train indices sampled/copied."""
     # Number of copies needed.
     n_copy = int(n_train / len(src_idx))
     # For the remainder, use sampling.
@@ -164,6 +158,7 @@ def fill_training(src_idx, n_train, random_state):
     # Copy indices
     dest_idx = np.tile(src_idx, n_copy).reshape(-1)
     # Add samples
-    dest_idx = np.append(dest_idx,
-                         random_state.choice(src_idx, n_sample, replace=False))
+    dest_idx = np.append(
+        dest_idx, random_state.choice(src_idx, n_sample, replace=False)
+    )
     return dest_idx

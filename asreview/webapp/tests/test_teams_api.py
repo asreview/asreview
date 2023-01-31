@@ -15,18 +15,21 @@
 import json
 import os
 import shutil
-from uuid import uuid5, NAMESPACE_URL
+from uuid import NAMESPACE_URL, uuid5
 
 import pytest
+from conftest import signin_user, signout, signup_user
 
-from asreview.project import _create_project_id
-from asreview.project import PATH_FEATURE_MATRICES
+from asreview.project import PATH_FEATURE_MATRICES, _create_project_id
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import (
-    Collaboration, CollaborationInvitation, Project, User
+    Collaboration,
+    CollaborationInvitation,
+    Project,
+    User,
 )
-from conftest import signin_user, signup_user, signout
+
 
 @pytest.fixture
 def populate(setup_teardown_signed_in):
@@ -36,27 +39,27 @@ def populate(setup_teardown_signed_in):
     app, client, _ = setup_teardown_signed_in
     with app.app_context():
         # create 2 other users
-        signup_user(client, 'main@test.org', 'abcdefg!!')
-        signup_user(client, 'coll1@test.org', '123456')
-        signup_user(client, 'coll2@test.org', '123456')
-        signin_user(client, 'main@test.org', 'abcdefg!!')
+        signup_user(client, "main@test.org", "abcdefg!!")
+        signup_user(client, "coll1@test.org", "123456")
+        signup_user(client, "coll2@test.org", "123456")
+        signin_user(client, "main@test.org", "abcdefg!!")
         # create project for users
         resp = client.post(
-            '/api/projects/info',
+            "/api/projects/info",
             data={
-                'mode': 'oracle',
-                'name': 'Test Project',
-                'description': 'blabla',
-                'authors': 'bunch',
-            }
+                "mode": "oracle",
+                "name": "Test Project",
+                "description": "blabla",
+                "authors": "bunch",
+            },
         )
         # get project
         assert len(Project.query.all()) == 1
         project = Project.query.first()
         # return yield
-        owner = User.query.filter(User.identifier=='main@test.org').first()
-        coll1 = User.query.filter(User.identifier=='coll1@test.org').first()
-        coll2 = User.query.filter(User.identifier=='coll2@test.org').first()
+        owner = User.query.filter(User.identifier == "main@test.org").first()
+        coll1 = User.query.filter(User.identifier == "coll1@test.org").first()
+        coll2 = User.query.filter(User.identifier == "coll2@test.org").first()
         yield (client, owner, coll1, coll2, project)
 
         try:
@@ -65,14 +68,13 @@ def populate(setup_teardown_signed_in):
                 DB.session.query(model).delete()
             DB.session.commit()
             # clean up project folders
-            project_folders = [ 
-                f for f in os.listdir(asreview_path())
-                if not(f.endswith('.sqlite'))
+            project_folders = [
+                f for f in os.listdir(asreview_path()) if not (f.endswith(".sqlite"))
             ]
             # remove subfolders
             for f in project_folders:
-                shutil.rmtree(f'{asreview_path()}/{f}')
-        
+                shutil.rmtree(f"{asreview_path()}/{f}")
+
         except Exception as e:
             # don't care
             pass
@@ -91,7 +93,7 @@ def test_if_fixtures_work(populate):
 def test_get_team(populate):
     """Test if owner can get a user overview of his/her team"""
     client, _, coll1, coll2, project = populate
-    
+
     # assert I have 0 invitations
     invites = CollaborationInvitation.query.all()
     assert len(invites) == 0
@@ -101,67 +103,66 @@ def test_get_team(populate):
     assert len(collabs) == 0
 
     # invite 2
-    url = f'/api/invitations/projects/{project.project_id}/users/{coll1.id}'
+    url = f"/api/invitations/projects/{project.project_id}/users/{coll1.id}"
     resp = client.post(url)
-    assert resp.status == '200 OK'
-    url = f'/api/invitations/projects/{project.project_id}/users/{coll2.id}'
+    assert resp.status == "200 OK"
+    url = f"/api/invitations/projects/{project.project_id}/users/{coll2.id}"
     resp = client.post(url)
-    assert resp.status == '200 OK'
+    assert resp.status == "200 OK"
 
     # signout owner, signin coll1
     signout(client)
-    signin_user(client, 'coll1@test.org', '123456')
+    signin_user(client, "coll1@test.org", "123456")
     # coll1 accepts invitation
-    url = f'/api/invitations/projects/{project.project_id}/accept'
+    url = f"/api/invitations/projects/{project.project_id}/accept"
     resp = client.post(url)
-    assert resp.status == '200 OK'
+    assert resp.status == "200 OK"
 
     # back to owner
     signout(client)
-    resp = signin_user(client, 'main@test.org', 'abcdefg!!')
+    resp = signin_user(client, "main@test.org", "abcdefg!!")
 
     # owner wants overview
-    url = f'/api/projects/{project.project_id}/users'
+    url = f"/api/projects/{project.project_id}/users"
     resp = client.get(url)
-    assert resp.status == '200 OK'
+    assert resp.status == "200 OK"
 
     data = json.loads(resp.text)
-    assert sorted(list(data.keys())) == \
-        ['all_users', 'collaborators', 'invitations']
-    assert data['collaborators'] == [coll1.id]
-    assert data['invitations'] == [coll2.id]
-    assert sorted([d['id'] for d in data['all_users']]) == [2, 3]
+    assert sorted(list(data.keys())) == ["all_users", "collaborators", "invitations"]
+    assert data["collaborators"] == [coll1.id]
+    assert data["invitations"] == [coll2.id]
+    assert sorted([d["id"] for d in data["all_users"]]) == [2, 3]
 
 
 def test_owner_removes_collaborator(populate):
     """Test owner removes a collaborator"""
     client, _, coll1, _, project = populate
-    
+
     # invite
-    url = f'/api/invitations/projects/{project.project_id}/users/{coll1.id}'
+    url = f"/api/invitations/projects/{project.project_id}/users/{coll1.id}"
     resp = client.post(url)
-    assert resp.status == '200 OK'
+    assert resp.status == "200 OK"
 
     # signout owner, signin coll1
     signout(client)
-    signin_user(client, 'coll1@test.org', '123456')
+    signin_user(client, "coll1@test.org", "123456")
     # coll1 accepts invitation
-    url = f'/api/invitations/projects/{project.project_id}/accept'
+    url = f"/api/invitations/projects/{project.project_id}/accept"
     resp = client.post(url)
-    assert resp.status == '200 OK'
+    assert resp.status == "200 OK"
 
     # back to owner
     signout(client)
-    resp = signin_user(client, 'main@test.org', 'abcdefg!!')
+    resp = signin_user(client, "main@test.org", "abcdefg!!")
 
     # assert we have a collaboration
     collabs = Collaboration.query.all()
     assert len(collabs) == 1
 
     # remove collaborator
-    url = f'/api/projects/{project.project_id}/users/{coll1.id}'
+    url = f"/api/projects/{project.project_id}/users/{coll1.id}"
     resp = client.delete(url)
-    assert resp.status == '200 OK'
+    assert resp.status == "200 OK"
 
     # assert we have 0 collaborations
     collabs = Collaboration.query.all()
@@ -171,28 +172,28 @@ def test_owner_removes_collaborator(populate):
 def test_collaborator_ends_collaboration(populate):
     """Test collaborator ends collaboration"""
     client, _, coll1, _, project = populate
-    
+
     # invite
-    url = f'/api/invitations/projects/{project.project_id}/users/{coll1.id}'
+    url = f"/api/invitations/projects/{project.project_id}/users/{coll1.id}"
     resp = client.post(url)
-    assert resp.status == '200 OK'
+    assert resp.status == "200 OK"
 
     # signout owner, signin coll1
     signout(client)
-    signin_user(client, 'coll1@test.org', '123456')
+    signin_user(client, "coll1@test.org", "123456")
     # coll1 accepts invitation
-    url = f'/api/invitations/projects/{project.project_id}/accept'
+    url = f"/api/invitations/projects/{project.project_id}/accept"
     resp = client.post(url)
-    assert resp.status == '200 OK'
+    assert resp.status == "200 OK"
 
     # assert we have a collaboration
     collabs = Collaboration.query.all()
     assert len(collabs) == 1
 
     # remove collaborator
-    url = f'/api/projects/{project.project_id}/users/{coll1.id}'
+    url = f"/api/projects/{project.project_id}/users/{coll1.id}"
     resp = client.delete(url)
-    assert resp.status == '200 OK'
+    assert resp.status == "200 OK"
 
     # assert we have 0 collaborations
     collabs = Collaboration.query.all()
@@ -202,25 +203,25 @@ def test_collaborator_ends_collaboration(populate):
 def test_invitation_overview(populate):
     """Test if invitee sees invitation"""
     client, _, coll1, _, project = populate
-    
+
     # invite
-    url = f'/api/invitations/projects/{project.project_id}/users/{coll1.id}'
+    url = f"/api/invitations/projects/{project.project_id}/users/{coll1.id}"
     resp = client.post(url)
-    assert resp.status == '200 OK'
+    assert resp.status == "200 OK"
 
     # signout owner, signin coll1
     signout(client)
-    signin_user(client, 'coll1@test.org', '123456')
+    signin_user(client, "coll1@test.org", "123456")
 
     # coll1 wants to see invitations
-    url = f'/api/invitations'
+    url = f"/api/invitations"
     resp = client.get(url)
-    assert resp.status == '200 OK' 
+    assert resp.status == "200 OK"
 
     data = json.loads(resp.text)
-    assert ('invited_for_projects' in data.keys()) == True
-    assert len(data['invited_for_projects']) == 1
-    assert data['invited_for_projects'][0]['id'] == project.id
+    assert ("invited_for_projects" in data.keys()) == True
+    assert len(data["invited_for_projects"]) == 1
+    assert data["invited_for_projects"][0]["id"] == project.id
 
 
 def test_owner_send_invitation(populate):
@@ -230,9 +231,9 @@ def test_owner_send_invitation(populate):
     invites = CollaborationInvitation.query.all()
     assert len(invites) == 0
 
-    url = f'/api/invitations/projects/{project.project_id}/users/{coll1.id}'
+    url = f"/api/invitations/projects/{project.project_id}/users/{coll1.id}"
     resp = client.post(url)
-    assert resp.status == '200 OK'
+    assert resp.status == "200 OK"
 
     # assert I have 1 invitation
     invites = CollaborationInvitation.query.all()
@@ -250,17 +251,17 @@ def test_accept_team_invitation(populate):
     collabs = Collaboration.query.all()
     assert len(collabs) == 0
 
-    url = f'/api/invitations/projects/{project.project_id}/users/{coll1.id}'
+    url = f"/api/invitations/projects/{project.project_id}/users/{coll1.id}"
     resp = client.post(url)
-    assert resp.status == '200 OK'
+    assert resp.status == "200 OK"
 
     # signout owner, signin coll1
     signout(client)
-    signin_user(client, 'coll1@test.org', '123456')
+    signin_user(client, "coll1@test.org", "123456")
     # accept invitation
-    url = f'/api/invitations/projects/{project.project_id}/accept'
+    url = f"/api/invitations/projects/{project.project_id}/accept"
     resp = client.post(url)
-    assert resp.status == '200 OK'
+    assert resp.status == "200 OK"
 
     # assert system has 0 invitations
     invites = CollaborationInvitation.query.all()
@@ -281,9 +282,9 @@ def test_reject_team_invitation(populate):
     collabs = Collaboration.query.all()
     assert len(collabs) == 0
 
-    url = f'/api/invitations/projects/{project.project_id}/users/{coll1.id}'
+    url = f"/api/invitations/projects/{project.project_id}/users/{coll1.id}"
     resp = client.post(url)
-    assert resp.status == '200 OK'
+    assert resp.status == "200 OK"
 
     # assert system has 1 invitations
     invites = CollaborationInvitation.query.all()
@@ -291,11 +292,11 @@ def test_reject_team_invitation(populate):
 
     # signout owner, signin coll1
     signout(client)
-    signin_user(client, 'coll1@test.org', '123456')
+    signin_user(client, "coll1@test.org", "123456")
     # reject invitation
-    url = f'/api/invitations/projects/{project.project_id}/reject'
+    url = f"/api/invitations/projects/{project.project_id}/reject"
     resp = client.delete(url)
-    assert resp.status == '200 OK'
+    assert resp.status == "200 OK"
 
     # assert system has 0 invitations
     invites = CollaborationInvitation.query.all()
@@ -314,18 +315,18 @@ def test_owner_deletes_invitation(populate):
     collabs = Collaboration.query.all()
     assert len(collabs) == 0
 
-    url = f'/api/invitations/projects/{project.project_id}/users/{coll1.id}'
+    url = f"/api/invitations/projects/{project.project_id}/users/{coll1.id}"
     resp = client.post(url)
-    assert resp.status == '200 OK'
+    assert resp.status == "200 OK"
 
     # assert system has 1 invitations
     invites = CollaborationInvitation.query.all()
     assert len(invites) == 1
 
     # remove invitation
-    url = f'/api/invitations/projects/{project.project_id}/users/{coll1.id}'
+    url = f"/api/invitations/projects/{project.project_id}/users/{coll1.id}"
     resp = client.delete(url)
-    assert resp.status == '200 OK'
+    assert resp.status == "200 OK"
 
     # assert system has 0 invitations
     invites = CollaborationInvitation.query.all()
@@ -336,7 +337,7 @@ def test_owner_deletes_invitation(populate):
     assert len(collabs) == 0
 
 
-# 
+#
 # TEST IMPROPER USE OF TEAMS API
 #
 
@@ -347,31 +348,31 @@ def test_improper_get_team(populate):
 
     # signout owner, signin coll1
     signout(client)
-    signin_user(client, 'coll1@test.org', '123456')
+    signin_user(client, "coll1@test.org", "123456")
 
     # owner wants overview
-    url = f'/api/projects/{project.project_id}/users'
+    url = f"/api/projects/{project.project_id}/users"
     resp = client.get(url)
-    assert resp.status == '404 NOT FOUND'
+    assert resp.status == "404 NOT FOUND"
 
 
 def test_owner_removes_collaborator(populate):
     """Test owner removes a collaborator"""
     client, _, coll1, _, project = populate
-    
+
     # invite
-    url = f'/api/invitations/projects/{project.project_id}/users/{coll1.id}'
+    url = f"/api/invitations/projects/{project.project_id}/users/{coll1.id}"
     resp = client.post(url)
-    assert resp.status == '200 OK'
+    assert resp.status == "200 OK"
 
     # signout owner, signin coll2
     signout(client)
-    signin_user(client, 'coll2@test.org', '123456')
+    signin_user(client, "coll2@test.org", "123456")
 
     # coll1 tries to remove collaborator
-    url = f'/api/projects/{project.project_id}/users/{coll1.id}'
+    url = f"/api/projects/{project.project_id}/users/{coll1.id}"
     resp = client.delete(url)
-    assert resp.status == '404 NOT FOUND'
+    assert resp.status == "404 NOT FOUND"
 
 
 def test_improper_owner_send_invitation(populate):
@@ -380,60 +381,60 @@ def test_improper_owner_send_invitation(populate):
 
     # signout owner, signin coll2
     signout(client)
-    signin_user(client, 'coll2@test.org', '123456')
+    signin_user(client, "coll2@test.org", "123456")
 
-    url = f'/api/invitations/projects/{project.project_id}/users/{coll1.id}'
+    url = f"/api/invitations/projects/{project.project_id}/users/{coll1.id}"
     resp = client.post(url)
-    assert resp.status == '404 NOT FOUND'
+    assert resp.status == "404 NOT FOUND"
 
 
 def test_improper_accept_team_invitation(populate):
     """Test outsider can not accept invitation"""
     client, _, coll1, _, project = populate
 
-    url = f'/api/invitations/projects/{project.project_id}/users/{coll1.id}'
+    url = f"/api/invitations/projects/{project.project_id}/users/{coll1.id}"
     resp = client.post(url)
-    assert resp.status == '200 OK'
+    assert resp.status == "200 OK"
 
     # signout owner, signin coll2
     signout(client)
-    signin_user(client, 'coll2@test.org', '123456')
+    signin_user(client, "coll2@test.org", "123456")
     # accept invitation
-    url = f'/api/invitations/projects/{project.project_id}/accept'
+    url = f"/api/invitations/projects/{project.project_id}/accept"
     resp = client.post(url)
-    assert resp.status == '404 NOT FOUND'
+    assert resp.status == "404 NOT FOUND"
 
 
 def test_improper_reject_team_invitation(populate):
     """Test outsider can not reject invitation"""
     client, _, coll1, _, project = populate
 
-    url = f'/api/invitations/projects/{project.project_id}/users/{coll1.id}'
+    url = f"/api/invitations/projects/{project.project_id}/users/{coll1.id}"
     resp = client.post(url)
-    assert resp.status == '200 OK'
+    assert resp.status == "200 OK"
 
     # signout owner, signin coll2
     signout(client)
-    signin_user(client, 'coll2@test.org', '123456')
+    signin_user(client, "coll2@test.org", "123456")
     # accept invitation
-    url = f'/api/invitations/projects/{project.project_id}/reject'
+    url = f"/api/invitations/projects/{project.project_id}/reject"
     resp = client.delete(url)
-    assert resp.status == '404 NOT FOUND'
+    assert resp.status == "404 NOT FOUND"
 
 
 def test_improper_owner_deletes_invitation(populate):
     """Test owner retracts invitation"""
     client, _, coll1, _, project = populate
 
-    url = f'/api/invitations/projects/{project.project_id}/users/{coll1.id}'
+    url = f"/api/invitations/projects/{project.project_id}/users/{coll1.id}"
     resp = client.post(url)
-    assert resp.status == '200 OK'
+    assert resp.status == "200 OK"
 
     # signout owner, signin coll2
     signout(client)
-    signin_user(client, 'coll2@test.org', '123456')
+    signin_user(client, "coll2@test.org", "123456")
 
     # remove invitation
-    url = f'/api/invitations/projects/{project.project_id}/users/{coll1.id}'
+    url = f"/api/invitations/projects/{project.project_id}/users/{coll1.id}"
     resp = client.delete(url)
-    assert resp.status == '404 NOT FOUND'
+    assert resp.status == "404 NOT FOUND"

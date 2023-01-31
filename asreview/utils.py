@@ -56,7 +56,7 @@ def _unsafe_dict_update(default_dict, override_dict):
                 try:
                     new_dict[key] = type(new_dict[key])(str_val)
                 except TypeError:
-                    raise(TypeError(f"Error at {key}"))
+                    raise (TypeError(f"Error at {key}"))
     return new_dict
 
 
@@ -138,8 +138,7 @@ def get_data_home(data_home=None):
 
     """
     if data_home is None:
-        data_home = os.environ.get('ASR_DATA',
-                                   Path('~', 'asr_data'))
+        data_home = os.environ.get("ASR_DATA", Path("~", "asr_data"))
     data_home = Path(data_home).expanduser()
 
     if not data_home.exists():
@@ -206,10 +205,7 @@ def get_entry_points(entry_name="asreview.entry_points"):
         Dictionary with the name of the entry point as key
         and the entry point as value.
     """
-    return {
-        entry.name: entry
-        for entry in pkg_resources.iter_entry_points(entry_name)
-    }
+    return {entry.name: entry for entry in pkg_resources.iter_entry_points(entry_name)}
 
 
 def _model_class_from_entry_point(method, entry_name="asreview.models"):
@@ -219,11 +215,13 @@ def _model_class_from_entry_point(method, entry_name="asreview.models"):
     except KeyError:
         raise ValueError(
             f"Error: method '{method}' is not implemented for entry point "
-            f"{entry_name}.")
+            f"{entry_name}."
+        )
     except ImportError as e:
         raise ValueError(
             f"Failed to import '{method}' model ({entry_name}) "
-            f"with the following error:\n{e}")
+            f"with the following error:\n{e}"
+        )
 
 
 def _reader_class_from_entry_point(suffix, entry_name="asreview.readers"):
@@ -233,11 +231,13 @@ def _reader_class_from_entry_point(suffix, entry_name="asreview.readers"):
     except KeyError:
         raise ValueError(
             f"Error: suffix '{suffix}' is not implemented for entry point "
-            f"{entry_name}.")
+            f"{entry_name}."
+        )
     except ImportError as e:
         raise ValueError(
             f"Failed to import '{suffix}' reader ({entry_name}) "
-            f"with the following error:\n{e}")
+            f"with the following error:\n{e}"
+        )
 
 
 def _writer_class_from_entry_point(suffix, entry_name="asreview.writers"):
@@ -247,19 +247,20 @@ def _writer_class_from_entry_point(suffix, entry_name="asreview.writers"):
     except KeyError:
         raise ValueError(
             f"Error: suffix '{suffix}' is not implemented for entry point "
-            f"{entry_name}.")
+            f"{entry_name}."
+        )
     except ImportError as e:
         raise ValueError(
             f"Failed to import '{suffix}' writer ({entry_name}) "
-            f"with the following error:\n{e}")
+            f"with the following error:\n{e}"
+        )
 
 
 def is_url(url):
     """Check if object is a valid url."""
     try:
         result = urlparse(url)
-        return all(getattr(result, x) != ""
-                   for x in ["scheme", "netloc", "path"])
+        return all(getattr(result, x) != "" for x in ["scheme", "netloc", "path"])
     except Exception:
         return False
 
@@ -280,11 +281,10 @@ def get_random_state(random_state):
         if isinstance(random_state, np.random.RandomState):
             return random_state
         else:
-            return np.random.RandomState(
-                random_state % (2**32))
+            return np.random.RandomState(random_state % (2**32))
 
 
 def _get_executable():
     """Get the Python executable"""
 
-    return sys.executable if sys.executable else 'python'
+    return sys.executable if sys.executable else "python"

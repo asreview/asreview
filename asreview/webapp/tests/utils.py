@@ -17,8 +17,8 @@ from urllib.request import urlopen
 
 
 def retrieve_project_url_github(major=None):
-    '''Retrieve .asreview file url from
-    asreview-project-files-testing GitHub repository'''
+    """Retrieve .asreview file url from
+    asreview-project-files-testing GitHub repository"""
 
     repo = "/asreview/asreview-project-files-testing"
     repo_api_url = "https://api.github.com/repos" + repo + "/git/trees/master"

@@ -18,10 +18,7 @@ from uuid import uuid4
 
 from flask_login import UserMixin
 from itsdangerous import URLSafeTimedSerializer
-from sqlalchemy import (
-    Boolean, Column, DateTime, ForeignKey, Integer, 
-    String
-)
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship, validates
 from sqlalchemy.orm.session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -32,7 +29,8 @@ from asreview.webapp import DB
 
 class User(UserMixin, DB.Model):
     """The User model for user accounts."""
-    __tablename__ = 'users'
+
+    __tablename__ = "users"
     id = Column(Integer, primary_key=True)
     identifier = Column(String(100), nullable=False)
     origin = Column(String(100), nullable=False)
@@ -45,67 +43,63 @@ class User(UserMixin, DB.Model):
     token = Column(String(50))
     token_created_at = Column(DateTime)
 
-    projects = relationship(
-        'Project',
-        back_populates='owner',
-        cascade='all, delete'
-    )
+    projects = relationship("Project", back_populates="owner", cascade="all, delete")
 
     involved_in = relationship(
-        'Project',
-        secondary='collaborations',
-        back_populates='collaborators'
+        "Project", secondary="collaborations", back_populates="collaborators"
     )
 
     pending_invitations = relationship(
-        'Project',
-        secondary='collaboration_invitations',
-        back_populates='pending_invitations'
+        "Project",
+        secondary="collaboration_invitations",
+        back_populates="pending_invitations",
     )
 
-    @validates('identifier')
+    @validates("identifier")
     def validate_identifier(self, _key, identifier):
         if not bool(identifier):
-            raise ValueError('Identifier is required')
+            raise ValueError("Identifier is required")
         return identifier
 
-    @validates('origin')
+    @validates("origin")
     def validate_origin(self, _key, origin):
         if not bool(origin):
-            raise ValueError('Origin is required')
+            raise ValueError("Origin is required")
         return origin
 
-    @validates('name')
+    @validates("name")
     def validate_origin(self, _key, name):
         if not bool(name):
-            raise ValueError('Name is required')
+            raise ValueError("Name is required")
         return name
 
-    # this is pretty weird, it 'loops', starting at 
+    # this is pretty weird, it 'loops', starting at
     # origin, stores origin because of the return, moves
     # on to email and now self contains origin so
     # I can compare it... and so on.
-    @validates('origin', 'email', 'hashed_password')
+    @validates("origin", "email", "hashed_password")
     def validate_password(self, key, value):
-        if key == 'email' and self.origin == 'asreview' and \
-            bool(value) == False:
+        if key == "email" and self.origin == "asreview" and bool(value) == False:
             raise ValueError('Email is required when origin is "asreview"')
-        if key == 'hashed_password' and self.origin == 'asreview' and \
-            bool(value) == False:
-            raise ValueError('Password is required when origin is "asreview"')                
+        if (
+            key == "hashed_password"
+            and self.origin == "asreview"
+            and bool(value) == False
+        ):
+            raise ValueError('Password is required when origin is "asreview"')
         return value
 
     def __init__(
-            self,
-            identifier,
-            origin='asreview',
-            email=None,
-            name=None,
-            affiliation=None,
-            password=None,
-            confirmed=False,
-            public=True
-        ):
+        self,
+        identifier,
+        origin="asreview",
+        email=None,
+        name=None,
+        affiliation=None,
+        password=None,
+        confirmed=False,
+        public=True,
+    ):
 
         self.identifier = identifier
         self.origin = origin
@@ -117,44 +111,32 @@ class User(UserMixin, DB.Model):
         self.confirmed = confirmed
         self.public = public
 
-
-    def update_profile(
-        self,
-        email,
-        name,
-        affiliation,
-        password=None,
-        public=True):
+    def update_profile(self, email, name, affiliation, password=None, public=True):
 
         self.email = email
         self.name = name
         self.affiliation = affiliation
-        if self.origin == 'asreview' and bool(password):
+        if self.origin == "asreview" and bool(password):
             self.hashed_password = generate_password_hash(password)
         self.public = public
 
         return self
 
-
     def reset_password(self, new_password):
-        if self.origin == 'asreview' and bool(new_password):
+        if self.origin == "asreview" and bool(new_password):
             self.hashed_password = generate_password_hash(new_password)
         # reset token
         self.token = None
         self.token_created_at = None
         return self
 
-
     def set_token_data(self, secret, salt):
         """Set token data (used in email verification after
         init, and for forgot-password"""
-        token, token_created_at = User.generate_token_data(
-            secret, salt, self.email
-        )
+        token, token_created_at = User.generate_token_data(secret, salt, self.email)
         self.token = token
         self.token_created_at = token_created_at
         return self
-
 
     def verify_password(self, password):
         """Verify password"""
@@ -170,11 +152,7 @@ class User(UserMixin, DB.Model):
 
     def summarize(self):
         """Summarize user account in frontend data packet"""
-        return {
-            'id': self.id,
-            'name': self.get_name(),
-            'email': self.email
-        }
+        return {"id": self.id, "name": self.get_name(), "email": self.email}
 
     def confirm_user(self):
         """This function confirms a user by setting the confirmed
@@ -195,8 +173,9 @@ class User(UserMixin, DB.Model):
             # give me hours and remaining seconds
             [hours, r_secs] = divmod(diff.total_seconds(), 3600)
             # return if token is correct and we are still before deadline
-            return self.token == provided_token and \
-                (hours <= max_hours or (hours == max_hours and r_secs < 60))
+            return self.token == provided_token and (
+                hours <= max_hours or (hours == max_hours and r_secs < 60)
+            )
         else:
             return False
 
@@ -209,12 +188,13 @@ class User(UserMixin, DB.Model):
         return token, created_at
 
     def __repr__(self):
-        return f'<User {self.email!r}, id: {self.id}>'
+        return f"<User {self.email!r}, id: {self.id}>"
 
 
 class SingleUser:
     """This class serves an unauthenticated app, we use a pseudo user
     to bypass authentication."""
+
     def __init__(self):
         self.id = None
         self.email = None
@@ -223,13 +203,13 @@ class SingleUser:
         self.is_anonymous = True
 
     def is_authenticated(self):
-      return True
+        return True
 
     def is_active(self):
-      return True
+        return True
 
     def is_anonymous(self):
-      return False
+        return False
 
     def get_id(self):
         """This class needs to have this method implemented
@@ -237,48 +217,34 @@ class SingleUser:
         return 0
 
     def __repr__(self):
-        return f'<SingleUser>'
+        return f"<SingleUser>"
 
 
 class Collaboration(DB.Model):
-    __tablename__ = 'collaborations'
+    __tablename__ = "collaborations"
     id = Column(Integer, primary_key=True)
-    user_id = Column(
-        Integer,
-        ForeignKey('users.id', ondelete='cascade')
-    )
-    project_id = Column(
-        Integer,
-        ForeignKey('projects.id', ondelete='cascade')
-    )
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="cascade"))
+    project_id = Column(Integer, ForeignKey("projects.id", ondelete="cascade"))
 
 
 class Project(DB.Model):
     """Project table"""
-    __tablename__ = 'projects'
+
+    __tablename__ = "projects"
     id = Column(Integer, primary_key=True)
     project_id = Column(String(250), nullable=False, unique=True)
     folder = Column(String(100), nullable=False, unique=True)
-    owner_id = Column(
-        Integer,
-        ForeignKey(User.id),
-        nullable=False
-    )
-    owner = relationship(
-        'User',
-        back_populates='projects'
-    )
-    # do not delete cascade: we don't want to 
+    owner_id = Column(Integer, ForeignKey(User.id), nullable=False)
+    owner = relationship("User", back_populates="projects")
+    # do not delete cascade: we don't want to
     # lose users, only collaborations
     collaborators = relationship(
-        'User',
-        secondary='collaborations',
-        back_populates='involved_in'
+        "User", secondary="collaborations", back_populates="involved_in"
     )
     pending_invitations = relationship(
-        'User',
-        secondary='collaboration_invitations',
-        back_populates='pending_invitations'
+        "User",
+        secondary="collaboration_invitations",
+        back_populates="pending_invitations",
     )
 
     @property
@@ -287,19 +253,13 @@ class Project(DB.Model):
         return Path(utils.asreview_path(), self.folder)
 
     def __repr__(self):
-        return f'<Project id: {self.project_id}, owner_id: {self.owner_id}>'
+        return f"<Project id: {self.project_id}, owner_id: {self.owner_id}>"
 
 
 class CollaborationInvitation(DB.Model):
     """Colleboration invitations"""
-    __tablename__ = 'collaboration_invitations'
-    id = Column(Integer, primary_key=True)
-    project_id = Column(
-        Integer,
-        ForeignKey('projects.id', ondelete='cascade')
-    )
-    user_id = Column(
-        Integer,
-        ForeignKey('users.id', ondelete='cascade')
-    )
 
+    __tablename__ = "collaboration_invitations"
+    id = Column(Integer, primary_key=True)
+    project_id = Column(Integer, ForeignKey("projects.id", ondelete="cascade"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="cascade"))

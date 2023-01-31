@@ -13,8 +13,7 @@
 # limitations under the License.
 
 import argparse
-from abc import ABC
-from abc import abstractclassmethod
+from abc import ABC, abstractclassmethod
 from argparse import RawTextHelpFormatter
 
 from asreview import __version__
@@ -74,30 +73,27 @@ def _base_parser(prog=None, description=None):
 
     # parse arguments if available
     parser = argparse.ArgumentParser(
-        prog=prog,
-        description=description,
-        formatter_class=RawTextHelpFormatter
+        prog=prog, description=description, formatter_class=RawTextHelpFormatter
     )
     parser.add_argument(
         "--embedding",
         type=str,
         default=None,
-        dest='embedding_fp',
-        help="File path of embedding matrix. Required for LSTM models."
+        dest="embedding_fp",
+        help="File path of embedding matrix. Required for LSTM models.",
     )
     parser.add_argument(
         "--config_file",
         type=str,
         default=None,
-        help="Configuration file with model settings"
-             "and parameter values."
+        help="Configuration file with model settings" "and parameter values.",
     )
     parser.add_argument(
         "--seed",
         default=None,
         type=int,
         help="Seed for the model (classifiers, balance "
-             "strategies, feature extraction techniques, and query "
-             "strategies). Use an integer between 0 and 2^32 - 1."
+        "strategies, feature extraction techniques, and query "
+        "strategies). Use an integer between 0 and 2^32 - 1.",
     )
     return parser
