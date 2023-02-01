@@ -6,7 +6,9 @@ import pytest
 from scipy.sparse import csr_matrix
 
 from asreview import ASReviewData
-from asreview.project import ASReviewProject, ProjectExistsError, open_state
+from asreview.project import ASReviewProject
+from asreview.project import ProjectExistsError
+from asreview.project import open_state
 from asreview.settings import ASReviewSettings
 from asreview.state import SQLiteState
 from asreview.state.errors import StateNotFoundError

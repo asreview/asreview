@@ -1,7 +1,8 @@
 import numpy as np
 from pytest import mark
 
-from asreview.models.balance import get_balance_model, list_balance_strategies
+from asreview.models.balance import get_balance_model
+from asreview.models.balance import list_balance_strategies
 
 
 def generate_data(n_feature=20, n_sample=10):

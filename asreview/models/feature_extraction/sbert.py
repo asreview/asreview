@@ -15,9 +15,7 @@
 import numpy as np
 
 try:
-    from sentence_transformers.SentenceTransformer import (  # noqa  # NOQA
-        SentenceTransformer,
-    )
+    from sentence_transformers.SentenceTransformer import SentenceTransformer  # noqa  # NOQA
 except ImportError:
     ST_AVAILABLE = False
 else:

@@ -21,12 +21,10 @@ from sqlalchemy.exc import IntegrityError
 
 from asreview.utils import asreview_path
 from asreview.webapp import DB
-from asreview.webapp.authentication.models import (
-    Collaboration,
-    CollaborationInvitation,
-    Project,
-    User,
-)
+from asreview.webapp.authentication.models import Collaboration
+from asreview.webapp.authentication.models import CollaborationInvitation
+from asreview.webapp.authentication.models import Project
+from asreview.webapp.authentication.models import User
 from asreview.webapp.start_flask import create_app
 
 try:

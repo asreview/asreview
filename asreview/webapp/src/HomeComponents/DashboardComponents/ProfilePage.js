@@ -50,6 +50,7 @@ const SignupSchema = Yup.object().shape({
 const ProfilePage = (props) => {
   const navigate = useNavigate();
 
+  const [profileData, getProfileData] = React.useState();
   const [showPassword, toggleShowPassword] = useToggle();
   const [loadingSaveButton, setLoadingSaveButton] = React.useState(true);
   const [showPasswordFields, setShowPasswordFields] = React.useState(false);
@@ -83,6 +84,8 @@ const ProfilePage = (props) => {
     initialValues: initialValues,
     validationSchema: SignupSchema,
   });
+
+  mount
 
   React.useEffect(() => {
     AuthAPI.getProfile()

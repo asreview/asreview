@@ -17,13 +17,11 @@ import logging
 import numpy as np
 
 from asreview.models.balance.base import BaseBalance
-from asreview.models.balance.double import (
-    DoubleBalance,
-    _one_weight,
-    _zero_weight,
-    fill_training,
-    random_round,
-)
+from asreview.models.balance.double import DoubleBalance
+from asreview.models.balance.double import _one_weight
+from asreview.models.balance.double import _zero_weight
+from asreview.models.balance.double import fill_training
+from asreview.models.balance.double import random_round
 from asreview.utils import get_random_state
 
 

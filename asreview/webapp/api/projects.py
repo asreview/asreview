@@ -23,54 +23,58 @@ from urllib.request import urlretrieve
 
 import numpy as np
 import pandas as pd
-from flask import Blueprint, abort, current_app, jsonify, request, send_file
+from flask import Blueprint
+from flask import abort
+from flask import current_app
+from flask import jsonify
+from flask import request
+from flask import send_file
 from flask_cors import CORS
 from flask_login import current_user
 from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
-from asreview.config import (
-    DEFAULT_BALANCE_STRATEGY,
-    DEFAULT_FEATURE_EXTRACTION,
-    DEFAULT_MODEL,
-    DEFAULT_QUERY_STRATEGY,
-    PROJECT_MODE_EXPLORE,
-    PROJECT_MODE_SIMULATE,
-)
+from asreview.config import DEFAULT_BALANCE_STRATEGY
+from asreview.config import DEFAULT_FEATURE_EXTRACTION
+from asreview.config import DEFAULT_MODEL
+from asreview.config import DEFAULT_QUERY_STRATEGY
+from asreview.config import PROJECT_MODE_EXPLORE
+from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.data import ASReviewData
 from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
-from asreview.io import list_readers, list_writers
-from asreview.models.balance import get_balance_model, list_balance_strategies
-from asreview.models.classifiers import get_classifier, list_classifiers
-from asreview.models.feature_extraction import (
-    get_feature_model,
-    list_feature_extraction,
-)
-from asreview.models.query import get_query_model, list_query_strategies
-from asreview.project import (
-    ASReviewProject,
-    ProjectNotFoundError,
-    _create_project_id,
-    get_project_path,
-    is_project,
-    is_v0_project,
-    list_asreview_projects,
-    open_state,
-    project_from_id,
-)
-from asreview.search import SearchError, fuzzy_find
+from asreview.io import list_readers
+from asreview.io import list_writers
+from asreview.models.balance import get_balance_model
+from asreview.models.balance import list_balance_strategies
+from asreview.models.classifiers import get_classifier
+from asreview.models.classifiers import list_classifiers
+from asreview.models.feature_extraction import get_feature_model
+from asreview.models.feature_extraction import list_feature_extraction
+from asreview.models.query import get_query_model
+from asreview.models.query import list_query_strategies
+from asreview.project import ASReviewProject
+from asreview.project import ProjectNotFoundError
+from asreview.project import _create_project_id
+from asreview.project import get_project_path
+from asreview.project import is_project
+from asreview.project import is_v0_project
+from asreview.project import list_asreview_projects
+from asreview.project import open_state
+from asreview.project import project_from_id
+from asreview.search import SearchError
+from asreview.search import fuzzy_find
 from asreview.settings import ASReviewSettings
-from asreview.state.errors import StateError, StateNotFoundError
-from asreview.state.sql_converter import (
-    upgrade_asreview_project_file,
-    upgrade_project_config,
-)
-from asreview.utils import _get_executable, asreview_path
+from asreview.state.errors import StateError
+from asreview.state.errors import StateNotFoundError
+from asreview.state.sql_converter import upgrade_asreview_project_file
+from asreview.state.sql_converter import upgrade_project_config
+from asreview.utils import _get_executable
+from asreview.utils import asreview_path
 from asreview.webapp import DB
-from asreview.webapp.authentication.login_required import asreview_login_required
+from asreview.webapp.authentication.login_required import asreview_login_required  # NOQA
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.io import read_data
 

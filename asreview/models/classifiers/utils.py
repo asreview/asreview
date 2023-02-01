@@ -14,7 +14,8 @@
 
 import logging
 
-from asreview.utils import _model_class_from_entry_point, list_model_names
+from asreview.utils import _model_class_from_entry_point
+from asreview.utils import list_model_names
 
 
 def _set_class_weight(weight1):

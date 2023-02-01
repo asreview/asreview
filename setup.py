@@ -20,7 +20,9 @@ import subprocess
 from io import open
 from os import path
 
-from setuptools import Command, find_packages, setup
+from setuptools import Command
+from setuptools import find_packages
+from setuptools import setup
 
 import versioneer
 

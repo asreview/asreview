@@ -4,7 +4,8 @@ from abc import ABC
 import numpy as np
 import pandas as pd
 
-from asreview.config import DEFAULT_N_INSTANCES, LABEL_NA
+from asreview.config import DEFAULT_N_INSTANCES
+from asreview.config import LABEL_NA
 from asreview.models.balance.simple import SimpleBalance
 from asreview.models.classifiers import NaiveBayesClassifier
 from asreview.models.feature_extraction.tfidf import Tfidf

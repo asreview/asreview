@@ -14,12 +14,14 @@
 
 import json
 import socket
-from abc import ABC, abstractmethod
+from abc import ABC
+from abc import abstractmethod
 from pathlib import Path
 from urllib.error import URLError
 from urllib.request import urlopen
 
-from asreview.utils import get_entry_points, is_iterable
+from asreview.utils import get_entry_points
+from asreview.utils import is_iterable
 
 
 class DatasetNotFoundError(Exception):

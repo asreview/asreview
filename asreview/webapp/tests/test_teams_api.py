@@ -15,20 +15,22 @@
 import json
 import os
 import shutil
-from uuid import NAMESPACE_URL, uuid5
+from uuid import NAMESPACE_URL
+from uuid import uuid5
 
 import pytest
-from conftest import signin_user, signout, signup_user
+from conftest import signin_user
+from conftest import signout
+from conftest import signup_user
 
-from asreview.project import PATH_FEATURE_MATRICES, _create_project_id
+from asreview.project import PATH_FEATURE_MATRICES
+from asreview.project import _create_project_id
 from asreview.utils import asreview_path
 from asreview.webapp import DB
-from asreview.webapp.authentication.models import (
-    Collaboration,
-    CollaborationInvitation,
-    Project,
-    User,
-)
+from asreview.webapp.authentication.models import Collaboration
+from asreview.webapp.authentication.models import CollaborationInvitation
+from asreview.webapp.authentication.models import Project
+from asreview.webapp.authentication.models import User
 
 
 @pytest.fixture

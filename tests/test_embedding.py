@@ -3,10 +3,8 @@ import random
 import string
 import urllib.request
 
-from asreview.models.feature_extraction.embedding_lstm import (
-    load_embedding,
-    sample_embedding,
-)
+from asreview.models.feature_extraction.embedding_lstm import load_embedding
+from asreview.models.feature_extraction.embedding_lstm import sample_embedding
 
 
 def random_words(n_words=1000, other_word_dict={}):

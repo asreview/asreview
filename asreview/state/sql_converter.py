@@ -23,7 +23,10 @@ from pathlib import Path
 from uuid import uuid4
 
 import numpy as np
-from scipy.sparse import csr_matrix, issparse, load_npz, save_npz
+from scipy.sparse import csr_matrix
+from scipy.sparse import issparse
+from scipy.sparse import load_npz
+from scipy.sparse import save_npz
 
 from asreview._version import get_versions
 from asreview.state.errors import StateError

@@ -1,7 +1,9 @@
 import datetime
 from pathlib import Path
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint
+from flask import jsonify
+from flask import request
 from flask_cors import CORS
 from flask_login import current_user
 from sqlalchemy import and_
@@ -10,8 +12,10 @@ from sqlalchemy.exc import SQLAlchemyError
 from asreview.project import ASReviewProject
 from asreview.utils import asreview_path
 from asreview.webapp import DB
-from asreview.webapp.authentication.login_required import asreview_login_required
-from asreview.webapp.authentication.models import CollaborationInvitation, Project, User
+from asreview.webapp.authentication.login_required import asreview_login_required  # NOQA
+from asreview.webapp.authentication.models import CollaborationInvitation
+from asreview.webapp.authentication.models import Project
+from asreview.webapp.authentication.models import User
 
 bp = Blueprint("team", __name__, url_prefix="/api")
 CORS(

@@ -18,15 +18,24 @@ import smtplib
 import ssl
 from pathlib import Path
 
-from flask import Blueprint, current_app, jsonify, render_template_string, request
+from flask import Blueprint
+from flask import current_app
+from flask import jsonify
+from flask import render_template_string
+from flask import request
 from flask_cors import CORS
-from flask_login import current_user, login_user, logout_user
-from flask_mail import Mail, Message
-from sqlalchemy import and_, or_
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from flask_login import current_user
+from flask_login import login_user
+from flask_login import logout_user
+from flask_mail import Mail
+from flask_mail import Message
+from sqlalchemy import and_
+from sqlalchemy import or_
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import SQLAlchemyError
 
 from asreview.webapp import DB
-from asreview.webapp.authentication.login_required import asreview_login_required
+from asreview.webapp.authentication.login_required import asreview_login_required  # NOQA
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 

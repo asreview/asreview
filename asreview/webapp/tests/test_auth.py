@@ -24,7 +24,8 @@ from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import User
 from asreview.webapp.start_flask import create_app
-from asreview.webapp.tests.conftest import signin_user, signup_user
+from asreview.webapp.tests.conftest import signin_user
+from asreview.webapp.tests.conftest import signup_user
 
 try:
     from .temp_env_var import TMP_ENV_VARS

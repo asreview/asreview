@@ -18,25 +18,26 @@ import shutil
 from pathlib import Path
 
 from asreview.compat import convert_id_to_idx
-from asreview.config import (
-    ASCII_LOGO,
-    DEFAULT_BALANCE_STRATEGY,
-    DEFAULT_FEATURE_EXTRACTION,
-    DEFAULT_MODEL,
-    DEFAULT_N_INSTANCES,
-    DEFAULT_N_PRIOR_EXCLUDED,
-    DEFAULT_N_PRIOR_INCLUDED,
-    DEFAULT_QUERY_STRATEGY,
-    EMAIL_ADDRESS,
-    GITHUB_PAGE,
-)
+from asreview.config import ASCII_LOGO
+from asreview.config import DEFAULT_BALANCE_STRATEGY
+from asreview.config import DEFAULT_FEATURE_EXTRACTION
+from asreview.config import DEFAULT_MODEL
+from asreview.config import DEFAULT_N_INSTANCES
+from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
+from asreview.config import DEFAULT_N_PRIOR_INCLUDED
+from asreview.config import DEFAULT_QUERY_STRATEGY
+from asreview.config import EMAIL_ADDRESS
+from asreview.config import GITHUB_PAGE
 from asreview.data import load_data
-from asreview.entry_points.base import BaseEntryPoint, _base_parser
+from asreview.entry_points.base import BaseEntryPoint
+from asreview.entry_points.base import _base_parser
 from asreview.models.balance.utils import get_balance_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
-from asreview.project import ASReviewProject, ProjectExistsError, open_state
+from asreview.project import ASReviewProject
+from asreview.project import ProjectExistsError
+from asreview.project import open_state
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
 from asreview.types import type_n_queries

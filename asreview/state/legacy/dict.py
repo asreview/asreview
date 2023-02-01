@@ -12,13 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from base64 import b64decode, b64encode
+from base64 import b64decode
+from base64 import b64encode
 from collections import OrderedDict
 from datetime import datetime
 from io import BytesIO
 
 import numpy as np
-from scipy.sparse import csr_matrix, load_npz, save_npz
+from scipy.sparse import csr_matrix
+from scipy.sparse import load_npz
+from scipy.sparse import save_npz
 
 from asreview.settings import ASReviewSettings
 from asreview.state.legacy.base import BaseState

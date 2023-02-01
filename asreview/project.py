@@ -23,19 +23,27 @@ from contextlib import contextmanager
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
-from uuid import NAMESPACE_URL, uuid4, uuid5
+from uuid import NAMESPACE_URL
+from uuid import uuid4
+from uuid import uuid5
 
 import jsonschema
 import numpy as np
 from filelock import FileLock
-from scipy.sparse import csr_matrix, load_npz, save_npz
+from scipy.sparse import csr_matrix
+from scipy.sparse import load_npz
+from scipy.sparse import save_npz
 
 from asreview._version import get_versions
-from asreview.config import LABEL_NA, PROJECT_MODE_SIMULATE, PROJECT_MODES, SCHEMA
+from asreview.config import LABEL_NA
+from asreview.config import PROJECT_MODE_SIMULATE
+from asreview.config import PROJECT_MODES
+from asreview.config import SCHEMA
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
 from asreview.utils import asreview_path
-from asreview.webapp.authentication.models import Project, User
+from asreview.webapp.authentication.models import Project
+from asreview.webapp.authentication.models import User
 from asreview.webapp.io import read_data
 
 PATH_PROJECT_CONFIG = "project.json"

@@ -15,7 +15,8 @@
 from abc import abstractmethod
 
 import numpy as np
-from scipy.sparse import hstack, issparse
+from scipy.sparse import hstack
+from scipy.sparse import issparse
 
 from asreview.models.base import BaseModel
 

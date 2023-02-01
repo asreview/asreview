@@ -19,7 +19,8 @@ import socket
 import webbrowser
 from threading import Timer
 
-from flask import Flask, send_from_directory
+from flask import Flask
+from flask import send_from_directory
 from flask.json import jsonify
 from flask.templating import render_template
 from flask_cors import CORS
@@ -29,11 +30,16 @@ from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
 from asreview.entry_points.lab import _lab_parser
-from asreview.project import ASReviewProject, get_project_path, list_asreview_projects
+from asreview.project import ASReviewProject
+from asreview.project import get_project_path
+from asreview.project import list_asreview_projects
 from asreview.utils import asreview_path
 from asreview.webapp import DB
-from asreview.webapp.api import auth, projects, team
-from asreview.webapp.authentication.models import SingleUser, User
+from asreview.webapp.api import auth
+from asreview.webapp.api import projects
+from asreview.webapp.api import team
+from asreview.webapp.authentication.models import SingleUser
+from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
 # set logging level

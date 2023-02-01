@@ -14,9 +14,11 @@
 
 import time
 from pathlib import Path
-from uuid import NAMESPACE_URL, uuid5
+from uuid import NAMESPACE_URL
+from uuid import uuid5
 
-from asreview.project import PATH_FEATURE_MATRICES, _create_project_id
+from asreview.project import PATH_FEATURE_MATRICES
+from asreview.project import _create_project_id
 from asreview.utils import asreview_path
 
 

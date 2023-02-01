@@ -2,7 +2,8 @@ import numpy as np
 from pytest import mark
 
 from asreview.models.classifiers import get_classifier
-from asreview.models.query import get_query_model, list_query_strategies
+from asreview.models.query import get_query_model
+from asreview.models.query import list_query_strategies
 
 
 @mark.parametrize(

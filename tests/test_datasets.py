@@ -1,11 +1,9 @@
 import pytest
 
-from asreview.datasets import (
-    BaseDataGroup,
-    BaseDataSet,
-    DatasetManager,
-    NaturePublicationDataGroup,
-)
+from asreview.datasets import BaseDataGroup
+from asreview.datasets import BaseDataSet
+from asreview.datasets import DatasetManager
+from asreview.datasets import NaturePublicationDataGroup
 
 
 @pytest.mark.parametrize(

@@ -3,7 +3,8 @@ from pathlib import Path
 from shutil import copyfile
 from zipfile import ZipFile
 
-from asreview.project import ASReviewProject, open_state
+from asreview.project import ASReviewProject
+from asreview.project import open_state
 from asreview.state.legacy.utils import open_state as open_state_legacy
 from asreview.state.sql_converter import upgrade_asreview_project_file
 

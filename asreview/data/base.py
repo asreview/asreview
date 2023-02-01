@@ -19,12 +19,17 @@ from urllib.parse import urlparse
 import numpy as np
 import pandas as pd
 
-from asreview.config import COLUMN_DEFINITIONS, LABEL_NA
-from asreview.datasets import DatasetManager, DatasetNotFoundError
+from asreview.config import COLUMN_DEFINITIONS
+from asreview.config import LABEL_NA
+from asreview.datasets import DatasetManager
+from asreview.datasets import DatasetNotFoundError
 from asreview.exceptions import BadFileFormatError
 from asreview.io import PaperRecord
-from asreview.io.utils import convert_keywords, type_from_column
-from asreview.utils import get_entry_points, is_iterable, is_url
+from asreview.io.utils import convert_keywords
+from asreview.io.utils import type_from_column
+from asreview.utils import get_entry_points
+from asreview.utils import is_iterable
+from asreview.utils import is_url
 
 
 def load_data(name, *args, **kwargs):

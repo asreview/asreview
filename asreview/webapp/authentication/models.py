@@ -18,10 +18,17 @@ from uuid import uuid4
 
 from flask_login import UserMixin
 from itsdangerous import URLSafeTimedSerializer
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship, validates
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy.orm import relationship
+from sqlalchemy.orm import validates
 from sqlalchemy.orm.session import Session
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash
+from werkzeug.security import generate_password_hash
 
 import asreview.utils as utils
 from asreview.webapp import DB

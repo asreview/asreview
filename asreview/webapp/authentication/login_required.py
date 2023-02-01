@@ -14,7 +14,9 @@
 
 from functools import wraps
 
-from flask import current_app, jsonify, request
+from flask import current_app
+from flask import jsonify
+from flask import request
 from flask_login.config import EXEMPT_METHODS
 from flask_login.utils import _get_user
 
