@@ -3,7 +3,6 @@ import { useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import {
   Box,
-  Card,
   CircularProgress,
   Divider,
   Fade,
@@ -28,6 +27,7 @@ import { useToggle } from "../../../hooks/useToggle";
 const PREFIX = "PriorRandom";
 
 const classes = {
+  root: `${PREFIX}-root`,
   recordCard: `${PREFIX}-record-card`,
   infoCard: `${PREFIX}-info-card`,
   empty: `${PREFIX}-empty`,
@@ -36,13 +36,20 @@ const classes = {
 };
 
 const Root = styled("div")(({ theme }) => ({
-  width: "50%",
+  height: "100%",
+  [`& .${classes.root}`]: {
+    height: "100%",
+  },
+
   [`& .${classes.recordCard}`]: {
     alignItems: "center",
     height: "calc(100vh - 208px)",
     width: "100%",
     overflowY: "scroll",
     padding: "32px 24px",
+    [theme.breakpoints.down("md")]: {
+      height: "calc(100% - 56px)",
+    },
   },
 
   [`& .${classes.infoCard}`]: {
@@ -138,12 +145,7 @@ const PriorRandom = (props) => {
   return (
     <Root>
       <Fade in>
-        <Card
-          elevation={0}
-          square
-          variant="outlined"
-          sx={{ height: "100%", bgcolor: "transparent" }}
-        >
+        <Box className={classes.root}>
           <Stack direction="row" sx={{ p: "4px 16px" }}>
             <Tooltip title="Select another way">
               <StyledIconButton onClick={props.toggleRandom}>
@@ -248,7 +250,7 @@ const PriorRandom = (props) => {
                 </Typography>
               </Box>
             )}
-        </Card>
+        </Box>
       </Fade>
     </Root>
   );

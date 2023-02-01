@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from asreview.entry_points.base import BaseEntryPoint
+from asreview.entry_points.base import DeprecateAction
 from asreview.entry_points.base import _base_parser
 from asreview.webapp.run_model import main as main_run_model
 
@@ -78,13 +79,25 @@ def _lab_parser(prog="lab"):
         type=str,
         help="The full path to a private key file for usage with SSL/TLS.")
 
+    parser.add_argument(
+        "--config_file",
+        type=str,
+        default=None,
+        help="Deprecated, see subcommand simulate.",
+        action=DeprecateAction
+    )
+    parser.add_argument(
+        "--seed",
+        default=None,
+        type=int,
+        help="Deprecated, see subcommand simulate.",
+        action=DeprecateAction
+    )
     return parser
 
 
 class LABEntryPoint(BaseEntryPoint):
     """Entry point to start the ASReview LAB webapp."""
-
-    description = "The ASReview LAB webapp."
 
     def execute(self, argv):
 

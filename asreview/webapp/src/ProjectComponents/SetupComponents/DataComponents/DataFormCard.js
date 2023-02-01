@@ -40,7 +40,7 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.singleLine}`]: {
     display: "-webkit-box",
     WebkitBoxOrient: "vertical",
-    WebkitLineClamp: 1,
+    WebkitLineClamp: 2,
     whiteSpace: "pre-line",
     overflow: "hidden",
   },

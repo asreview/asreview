@@ -3,7 +3,6 @@ import { useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import {
   Box,
-  Card,
   CircularProgress,
   Divider,
   Fade,
@@ -26,6 +25,7 @@ import { useToggle } from "../../../hooks/useToggle";
 const PREFIX = "PriorSearch";
 
 const classes = {
+  root: `${PREFIX}-root`,
   recordCard: `${PREFIX}-record-card`,
   infoCard: `${PREFIX}-info-card`,
   empty: `${PREFIX}-empty`,
@@ -33,13 +33,20 @@ const classes = {
 };
 
 const Root = styled("div")(({ theme }) => ({
-  width: "50%",
+  height: "100%",
+  [`& .${classes.root}`]: {
+    height: "100%",
+  },
+
   [`& .${classes.recordCard}`]: {
     alignItems: "center",
     height: "calc(100vh - 208px)",
     width: "100%",
     overflowY: "scroll",
     padding: "32px 24px",
+    [theme.breakpoints.down("md")]: {
+      height: "calc(100% - 56px)",
+    },
   },
 
   [`& .${classes.infoCard}`]: {
@@ -98,12 +105,7 @@ const PriorSearch = (props) => {
   return (
     <Root>
       <Fade in>
-        <Card
-          elevation={0}
-          square
-          variant="outlined"
-          sx={{ height: "100%", bgcolor: "transparent" }}
-        >
+        <Box className={classes.root}>
           <Stack direction="row" sx={{ p: "4px 16px" }}>
             <Tooltip title="Select another way">
               <StyledIconButton onClick={props.toggleSearch}>
@@ -137,17 +139,11 @@ const PriorSearch = (props) => {
               />
             </Box>
           )}
-          {!isFetching && !isError && data === undefined && (
-            <Box className={classes.empty}>
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Your search results will show up here
-              </Typography>
-            </Box>
-          )}
           {!isFetching &&
             !isError &&
-            !data?.result.filter((record) => record?.included === -1)
-              .length && (
+            (data === undefined ||
+              !data?.result.filter((record) => record?.included === -1)
+                .length) && (
               <Box className={classes.empty}>
                 <Typography variant="body2" sx={{ color: "text.secondary" }}>
                   Your search results will show up here
@@ -175,7 +171,7 @@ const PriorSearch = (props) => {
                 ))}
             </Stack>
           )}
-        </Card>
+        </Box>
       </Fade>
     </Root>
   );

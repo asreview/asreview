@@ -3,6 +3,7 @@ from abc import ABC
 
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import LABEL_NA
@@ -153,10 +154,25 @@ class BaseReview(ABC):
     def review(self):
         """Do a full review."""
         # Label any pending records.
-        with open_state(self.project, read_only=False) as state:
-            pending = state.get_pending()
+
+        with open_state(self.project, read_only=False) as s:
+            pending = s.get_pending()
             if not pending.empty:
                 self._label(pending)
+
+            labels_prior = s.get_labels()
+
+        # progress bars
+        pbar_rel = tqdm(
+            initial=sum(labels_prior),
+            total=sum(self.as_data.labels),
+            desc="Relevant records found"
+        )
+        pbar_total = tqdm(
+            initial=len(labels_prior),
+            total=len(self.as_data),
+            desc="Records labeled       "
+        )
 
         # While the stopping condition has not been met:
         while not self._stop_review():
@@ -167,9 +183,16 @@ class BaseReview(ABC):
             record_ids = self._query(self.n_instances)
 
             # Label the records.
-            self._label(record_ids)
+            labels = self._label(record_ids)
+
+            # monitor progress here
+            pbar_rel.update(sum(labels))
+            pbar_total.update(len(labels))
+
         else:
             # write to state when stopped
+            pbar_rel.close()
+            pbar_total.close()
             self._write_to_state()
 
     def _label_priors(self):
@@ -244,6 +267,7 @@ class BaseReview(ABC):
             Whether the records priors or not.
         """
         labels = self.data_labels[record_ids]
+
         with open_state(self.project, read_only=False) as s:
             s.add_labeling_data(record_ids, labels, prior=prior)
 

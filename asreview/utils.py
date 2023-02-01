@@ -54,7 +54,7 @@ def _unsafe_dict_update(default_dict, override_dict):
                 try:
                     new_dict[key] = type(new_dict[key])(str_val)
                 except TypeError:
-                    raise(TypeError(f"Error at {key}"))
+                    raise TypeError(f"Error at {key}")
     return new_dict
 
 
@@ -97,7 +97,7 @@ def _safe_dict_update(default_dict, override_dict):
                 try:
                     new_dict[key] = type_val(str_val)
                 except TypeError:
-                    raise(TypeError(f"Error at {key}"))
+                    raise TypeError(f"Error at {key}")
     return new_dict
 
 
@@ -273,14 +273,11 @@ def get_random_state(random_state):
         If it is a RandomState, return it (nop).
         If it is None, return the random state of numpy.
     """
-    if random_state is None:
-        return np.random.random.__self__
-    else:
-        if isinstance(random_state, np.random.RandomState):
-            return random_state
-        else:
-            return np.random.RandomState(
-                random_state % (2**32))
+
+    if not isinstance(random_state, np.random.RandomState):
+        return np.random.RandomState(random_state)
+
+    return random_state
 
 
 def _get_executable():
