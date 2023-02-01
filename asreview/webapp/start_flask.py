@@ -37,7 +37,10 @@ from asreview.webapp.authentication.models import SingleUser, User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
 # set logging level
-if os.environ.get("FLASK_DEBUG", "") == "1":
+if (
+    os.environ.get("FLASK_DEBUG", "") == "1"
+    or os.environ.get("FLASK_ENV", "") == "development"
+):
     logging.basicConfig(level=logging.DEBUG)
 else:
     logging.basicConfig(level=logging.INFO)
@@ -103,9 +106,7 @@ def create_app(**kwargs):
 
     # Get the ASReview arguments.
     app.config["asr_kwargs"] = kwargs
-    app.config["AUTHENTICATION_ENABLED"] = (
-        kwargs["enable_auth"] if "enable_auth" in kwargs else False
-    )
+    app.config["AUTHENTICATION_ENABLED"] = kwargs.get("enable_auth", False)
 
     # Read config parameters if possible, this overrides
     # the previous assignments.

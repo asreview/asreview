@@ -20,8 +20,6 @@ from urllib.parse import urlparse
 import numpy as np
 import pkg_resources
 
-from asreview.webapp.authentication.models import SingleUser
-
 
 def _unsafe_dict_update(default_dict, override_dict):
     """

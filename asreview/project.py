@@ -77,29 +77,27 @@ def get_project_path(project_id, user=None, asreview_dir=None):
         asreview_dir = asreview_path()
 
     if isinstance(user, User) and isinstance(user.id, int):
-        # if we do authentication and user is a collaborator
-        # then we need the owner id of the project in order
-        # to reach it. I don't to talk about authentication yes or
-        # no here. I can infer this by asking if the user is a
-        # real User
-        if isinstance(user, User) and isinstance(user.id, int):
-            project_from_db = Project.query.filter(
-                Project.project_id == project_id
-            ).one_or_none()
+        # if we do authentication, then the project must be 
+        # registered in the database
+        project_from_db = Project.query.filter(
+            Project.project_id == project_id
+        ).one_or_none()
 
-            # project exists and user is owner OR this is a new project
-            if (project_from_db and user == project_from_db.owner) or (
-                project_from_db == None
-            ):
+        # project exists and user -is- owner OR this is a new project
+        if (project_from_db and user == project_from_db.owner) or (
+            project_from_db == None
+        ):
 
-                folder_id = f"{user.id}_{project_id}"
+            folder_id = f"{user.id}_{project_id}"
 
-            # project exists but user is a collaborator
-            elif project_from_db and user in project_from_db.collaborators:
-                folder_id = f"{project_from_db.owner_id}_{project_id}"
+        # project exists but user is a collaborator
+        elif project_from_db and user in project_from_db.collaborators:
+            folder_id = f"{project_from_db.owner_id}_{project_id}"
 
-            else:
-                folder_id = project_id
+        # default to project_id
+        else:
+            folder_id = project_id
+            
     else:
         folder_id = project_id
 
