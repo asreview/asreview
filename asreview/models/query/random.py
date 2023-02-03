@@ -20,7 +20,7 @@ from asreview.utils import get_random_state
 
 
 class RandomQuery(BaseQueryStrategy):
-    """Random query strategy.
+    """Random query strategy (``random``).
 
     Randomly select samples with no regard to model assigned probabilities.
 

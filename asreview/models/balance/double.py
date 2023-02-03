@@ -23,7 +23,7 @@ from asreview.utils import get_random_state
 
 
 class DoubleBalance(BaseBalance):
-    """Double balance strategy.
+    """Double balance strategy (``double``).
 
     Class to get the two way rebalancing function and arguments.
     It super samples ones depending on the number of 0's and total number

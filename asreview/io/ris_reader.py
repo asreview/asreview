@@ -12,13 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import io
 import logging
 import re
+from urllib.request import urlopen
 
 import pandas
 import rispy
 
 from asreview.io.utils import _standardize_dataframe
+from asreview.utils import is_url
 
 
 class RISReader:
@@ -54,7 +57,7 @@ class RISReader:
             return note_list
 
     def _label_parser(note_list):
-        """Converter function for manipulating the internal "included" and "notes" columns.
+        """Parse "included" and "notes" columns.
 
         Arguments
         ---------
@@ -121,19 +124,36 @@ class RISReader:
         """
         encodings = ["utf-8", "utf-8-sig", "ISO-8859-1"]
         entries = None
-        for encoding in encodings:
-            try:
-                with open(fp, "r", encoding=encoding) as bibliography_file:
-                    entries = list(
-                        rispy.load(bibliography_file, skip_unknown_tags=True)
-                    )
-                    break
-            except UnicodeDecodeError:
-                pass
-            except IOError as e:
-                logging.warning(e)
         if entries is None:
-            raise ValueError("Cannot find proper encoding for data file.")
+            if is_url(fp):
+                url_input = urlopen(fp)
+            for encoding in encodings:
+                if is_url(fp):
+                    try:
+                        bibliography_file = io.StringIO(
+                            url_input.read().decode(encoding)
+                        )
+
+                        entries = list(
+                            rispy.load(bibliography_file, skip_unknown_tags=True)
+                        )
+                        bibliography_file.close()
+                        break
+                    except UnicodeDecodeError:
+                        pass
+                else:
+                    try:
+                        with open(fp, "r", encoding=encoding) as bibliography_file:
+                            entries = list(
+                                rispy.load(bibliography_file, skip_unknown_tags=True)
+                            )
+                            break
+                    except UnicodeDecodeError:
+                        pass
+                    except IOError as e:
+                        logging.warning(e)
+            if entries is None:
+                raise ValueError("Cannot find proper encoding for data file.")
 
         # Turn the entries dictionary into a Pandas dataframe
         df = pandas.DataFrame(entries)

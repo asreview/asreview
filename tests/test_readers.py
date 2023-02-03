@@ -4,30 +4,27 @@ import rispy
 from pytest import mark
 
 from asreview import ASReviewData
+from asreview.utils import is_url
 
 
-@mark.parametrize(
-    "test_file,n_lines,ignore_col",
-    [
-        ("_baseline.ris", 100, []),
-        ("embase.csv", 6, ["keywords"]),
-        ("embase_newpage.csv", 6, ["keywords"]),
-        ("embase.ris", 6, []),
-        ("generic.csv", 2, []),
-        ("generic_semicolon.csv", 2, []),
-        ("generic_tab.csv", 2, []),
-        ("generic_tab.tab", 2, []),
-        ("generic_tab.tsv", 2, []),
-        ("generic_labels.csv", 6, []),
-        ("pubmed_zotero.ris", 6, []),
-        ("pubmed_endnote.txt", 6, []),
-        ("scopus.ris", 6, []),
-        ("ovid_zotero.ris", 6, []),
-        ("proquest.ris", 6, []),
-    ],
-)
+@mark.parametrize("test_file,n_lines,ignore_col",
+                  [("_baseline.ris", 100, []),
+                   ("embase.csv", 6, ["keywords"]),
+                   ("embase_newpage.csv", 6, ["keywords"]),
+                   ("embase.ris", 6, []), ("generic.csv", 2, []),
+                   ("generic_semicolon.csv", 2, []),
+                   ("generic_tab.csv", 2, []), ("generic_tab.tab", 2, []),
+                   ("generic_tab.tsv", 2, []), ("generic_labels.csv", 6, []),
+                   ("pubmed_zotero.ris", 6, []), ("pubmed_endnote.txt", 6, []),
+                   ("scopus.ris", 6, []), ("ovid_zotero.ris", 6, []),
+                   ("proquest.ris", 6, []),
+                   ("https://osf.io/download/fg93a/", 38, [])])
 def test_reader(test_file, n_lines, ignore_col):
-    fp = Path("tests", "demo_data", test_file)
+    if is_url(test_file):
+        fp = test_file
+    else:
+        fp = Path("tests", "demo_data", test_file)
+
     as_data = ASReviewData.from_file(fp)
     assert len(as_data) == n_lines
 

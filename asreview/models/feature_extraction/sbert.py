@@ -32,7 +32,7 @@ def _check_st():
 
 
 class SBERT(BaseFeatureExtraction):
-    """Sentence BERT feature extraction technique.
+    """Sentence BERT feature extraction technique (``sbert``).
 
     By setting the ``transformer_model`` parameter, you can use other
     transformer models. For example, ``transformer_model='bert-base-nli-stsb-

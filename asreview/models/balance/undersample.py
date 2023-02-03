@@ -21,7 +21,7 @@ from asreview.utils import get_random_state
 
 
 class UndersampleBalance(BaseBalance):
-    """Undersampling balance strategy.
+    """Undersampling balance strategy (``undersample``).
 
     This undersamples the data, leaving out excluded papers so that the
     included and excluded papers are in some particular ratio (closer to one).

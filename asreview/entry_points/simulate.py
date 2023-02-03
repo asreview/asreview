@@ -93,8 +93,6 @@ def _set_log_verbosity(verbose):
 class SimulateEntryPoint(BaseEntryPoint):
     """Entry point for simulation with ASReview LAB."""
 
-    description = "Simulate the performance of ASReview."
-
     def execute(self, argv):  # noqa
 
         # parse arguments
@@ -250,7 +248,7 @@ class SimulateEntryPoint(BaseEntryPoint):
                     preview = as_data.record(row["record_id"])
                     print(preview)
 
-            print("Simulation started")
+            print("Simulation started\n")
             reviewer.review()
         except Exception as err:
 
@@ -259,7 +257,7 @@ class SimulateEntryPoint(BaseEntryPoint):
 
             raise err
 
-        print("Simulation finished")
+        print("\nSimulation finished")
         project.mark_review_finished()
 
         # create .ASReview file out of simulation folder
@@ -369,8 +367,26 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         type=int,
         help="Seed for setting the prior indices if the --prior_idx option is "
         "not used. If the option --prior_idx is used with one or more "
-        "index, this option is ignored.",
+        "index, this option is ignored.")
+    parser.add_argument(
+        "--seed",
+        default=None,
+        type=int,
+        help="Seed for the model (classifiers, balance strategies, "
+             "feature extraction techniques, and query strategies)."
     )
+    parser.add_argument(
+        "--config_file",
+        type=str,
+        default=None,
+        help="Configuration file with model settings"
+             "and parameter values."
+    )
+    parser.add_argument("--n_instances",
+                        default=DEFAULT_N_INSTANCES,
+                        type=int,
+                        help="Number of papers queried each query."
+                        f"Default {DEFAULT_N_INSTANCES}.")
     parser.add_argument(
         "--n_instances",
         default=DEFAULT_N_INSTANCES,

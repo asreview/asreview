@@ -124,11 +124,12 @@ setup(
         "flask-login",
         "flask-mail",
         "openpyxl",
-        "gevent",
         "jsonschema",
         "filelock",
         "Flask-SQLAlchemy>=3.0.2",
         "requests",
+        'tqdm',
+        'gevent>=20',
     ],
     extras_require=DEPS,
     entry_points={

@@ -20,11 +20,11 @@ import {
 } from "@mui/material";
 
 import { styled } from "@mui/material/styles";
-import { Help, Payment, Settings } from "@mui/icons-material";
+import { Diversity3, Help, Payment, Settings } from "@mui/icons-material";
 
 import { DrawerItem, ElasGame } from "../Components";
 import { ProjectAPI } from "../api/index.js";
-import { donateURL, projectModes, projectStatuses } from "../globals.js";
+import { communityURL, donateURL, projectModes, projectStatuses } from "../globals.js";
 import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
 import InReview from "../images/ElasHoldingSIGNS_InReview.svg";
 import SetUp from "../images/ElasHoldingSIGNS_SetUp.svg";
@@ -308,6 +308,21 @@ const DrawerItemContainer = (props) => {
                 <Payment />
               </ListItemIcon>
               <ListItemText primary="Donate" />
+            </ListItemButton>
+          </Tooltip>
+        )}
+        {communityURL !== undefined && (
+          <Tooltip disableHoverListener={props.onNavDrawer} title="Community">
+            <ListItemButton
+              component={"a"}
+              color="inherit"
+              href={communityURL}
+              target="_blank"
+            >
+              <ListItemIcon className={classes.icon}>
+                <Diversity3 />
+              </ListItemIcon>
+              <ListItemText primary="Community" />
             </ListItemButton>
           </Tooltip>
         )}

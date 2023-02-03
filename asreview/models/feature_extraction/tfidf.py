@@ -18,7 +18,7 @@ from asreview.models.feature_extraction.base import BaseFeatureExtraction
 
 
 class Tfidf(BaseFeatureExtraction):
-    """TF-IDF feature extraction technique.
+    """TF-IDF feature extraction technique (``tfidf``).
 
     Use the standard TF-IDF (Term Frequency-Inverse Document Frequency) feature
     extraction technique from `SKLearn <https://scikit-learn.org/stable/modules/

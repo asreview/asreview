@@ -4,8 +4,7 @@ Extensions
 ASReview has extensive support for extensions. They can extend the
 functionality of ASReview LAB, and the
 :doc:`Command Line Interface <cli>`. There are :ref:`officially
-supported extensions<extensions-official>` and
-:ref:`community<extensions-community>` maintained extensions.
+supported extensions <extensions-official>` and `community maintained extensions <https://github.com/asreview/asreview/discussions/1140>`_.
 
 Looking to develop your own extension? See :ref:`develop-extensions` for
 detailed instructions.
@@ -24,7 +23,7 @@ and computing metrics for simulations in ASReview.
 
 .. code:: bash
 
-    pip install asreview-visualization
+    pip install asreview-insights
 
 Extension (only) published on Github can be installed directly from the
 repository. Replace `{USER_NAME}` and `{REPO_NAME}` by the corresponding
@@ -55,6 +54,8 @@ with ASReview LAB.
 * ASReview Wordcloud
     - `ASReview-wordcloud <https://github.com/asreview/asreview-wordcloud>`__: Create wordclouds to visualize the contents of datasets.
 
+* ASReview Makita
+    - `ASReview-makita <https://github.com/asreview/asreview-makita>`__: ASReviews' Makita (MAKe IT Automatic) is a workflow generator for simulation studies using the command line interface of ASReview LAB. Makita can be used to simplify your own research by enabling you to effortlessly generate the framework and code for your simulation study.
 
 
 .. _extensions-community:

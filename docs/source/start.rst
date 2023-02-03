@@ -48,6 +48,14 @@ available commands in ASReview LAB, type :code:`asreview lab --help`.
 	The number of additional ports to try if the specified port is not
         available.
 
+.. option:: --enable-auth ENABLE_AUTH
+
+	Use authentication.
+
+.. option:: --flask-configfile FLASK_CONFIGFILE
+
+    The full path to a JSON file for Flask parameters.
+
 .. option:: --no-browser NO_BROWSER
 
 	Do not open ASReview LAB in a browser after startup.
@@ -78,14 +86,15 @@ available commands in ASReview LAB, type :code:`asreview lab --help`.
 	techniques, and query strategies). Use an integer between 0 and 2^32 - 1.
 
 
-The following evironment variables are available.
+Set environment variables
+-------------------------
+
+The following environment variables are available.
 
 .. option:: ASREVIEW_PATH
 
 	The path to the folder with project. Default `~/.asreview`.
 
-Set environment variables
-~~~~~~~~~~~~~~~~~~~~~~~~~
 
 How you set environment variables depends on the operating system and the
 environment in which you deploy ASReview LAB.

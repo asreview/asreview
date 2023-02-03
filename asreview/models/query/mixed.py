@@ -159,7 +159,7 @@ class MixedQuery(BaseQueryStrategy):
 
 
 class MaxRandomQuery(MixedQuery):
-    """Mixed (95% Maximum and 5% Random) query strategy.
+    """Mixed (95% Maximum and 5% Random) query strategy (``max_random``).
 
     A mix of maximum and random query strategies with a mix ratio of 0.95.
     At each query 95% of the instances would be sampled with the maximum
@@ -182,7 +182,7 @@ class MaxRandomQuery(MixedQuery):
 
 
 class MaxUncertaintyQuery(MixedQuery):
-    """Mixed (95% Maximum and 5% Uncertainty) query strategy.
+    """Mixed (95% Maximum and 5% Uncertainty) query strategy (``max_uncertainty``).
 
     A mix of maximum and random query strategies with a mix ratio of 0.95.
     At each query 95% of the instances would be sampled with the maximum

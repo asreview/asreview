@@ -9,9 +9,10 @@
 import datetime
 
 try:
-    from asreview import __version__ as asreview_verion
+    from asreview import __version__ as asreview_version
+    print(asreview_version)
 except Exception:
-    asreview_verion = ""
+    asreview_version = ""
 
 # -- Path setup --------------------------------------------------------------
 
@@ -42,6 +43,7 @@ autodoc_mock_imports = [
     "tensorflow.keras.models.layers",
     "tensorflow.keras.optimizers",
     "tensorflow.keras.constraints",
+    "tqdm",
     "sklearn",
     "sklearn.naive_bayes",
     "sklearn.svm",
@@ -70,9 +72,9 @@ copyright = "{}, ASReview LAB developers".format(year)
 author = "ASReview LAB developers, Utrecht University"
 
 # The short X.Y version
-version = asreview_verion
+version = asreview_version
 # The full version, including alpha/beta/rc tags
-release = asreview_verion
+release = asreview_version
 
 
 # -- General configuration ---------------------------------------------------
@@ -85,14 +87,16 @@ release = asreview_verion
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx.ext.intersphinx",
-    "sphinx.ext.autosummary",
-    "sphinx.ext.viewcode",
-    "sphinx.ext.napoleon",
-    "sphinx.ext.autosectionlabel",
-    "sphinx_reredirects",
-    "nbsphinx",
+    'sphinx.ext.autodoc',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.autosectionlabel',
+    'sphinx_reredirects',
+    'sphinxcontrib.youtube',
+    'nbsphinx',
+    'IPython.sphinxext.ipython_console_highlighting',
 ]
 autosectionlabel_prefix_document = True
 

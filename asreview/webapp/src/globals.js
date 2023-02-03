@@ -20,6 +20,8 @@ export const collab_url = base_url + "team/";
 
 export const donateURL = "https://asreview.nl/donate";
 
+export const communityURL = "https://asreview.nl/community";
+
 export const feedbackURL =
   "https://github.com/asreview/asreview/issues/new/choose";
 

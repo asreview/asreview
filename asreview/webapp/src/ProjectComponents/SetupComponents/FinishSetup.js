@@ -18,6 +18,8 @@ import {
   projectStatuses,
 } from "../../globals.js";
 
+let width = window.screen.width;
+
 const YouTubeVideoID = "k-a2SCq-LtA";
 
 const PREFIX = "FinishSetup";
@@ -100,7 +102,7 @@ const FinishSetup = (props) => {
             videoId={YouTubeVideoID}
             opts={{
               height: "315",
-              width: "560",
+              width: width < 560 ? width - 48 : "560",
               playerVars: {
                 rel: 0,
               },
@@ -117,7 +119,10 @@ const FinishSetup = (props) => {
                 </TypographySubtitle1Medium>
                 <Typography
                   variant="body2"
-                  sx={{ color: "text.secondary", width: "65%" }}
+                  sx={{
+                    color: "text.secondary",
+                    width: width < 560 ? "90%" : "65%",
+                  }}
                 >
                   ASReview LAB is extracting features from the text and training
                   the classifier with selected prior knowledge. Learn more by

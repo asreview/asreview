@@ -29,7 +29,7 @@ ASReview LAB, see :doc:`start`.
 
     See :doc:`troubleshooting` for common problems during installation.
 
-.. note::
+.. tip::
 
     For users with Apple M1 computers, if you experience problems, follow the
     `instructions

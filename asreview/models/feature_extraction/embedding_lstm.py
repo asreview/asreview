@@ -42,7 +42,7 @@ def _check_tensorflow():
 
 
 class EmbeddingLSTM(BaseFeatureExtraction):
-    """Embedding LSTM feature extraction technique.
+    """Embedding LSTM feature extraction technique (``embedding-lstm``).
 
     Feature extraction technique for
     :class:`asreview.models.classifiers.LSTMBaseClassifier` and
