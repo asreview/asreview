@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
+
 import {
   Routes,
   Route,
@@ -18,6 +19,8 @@ import { AnalyticsPage } from "../ProjectComponents/AnalyticsComponents";
 import { DetailsPage } from "../ProjectComponents/DetailsComponents";
 import { HistoryPage } from "../ProjectComponents/HistoryComponents";
 import { ExportPage } from "../ProjectComponents/ExportComponents";
+import { TeamPage } from "./TeamComponents";
+
 import {
   ReviewPage,
   ReviewPageFinished,
@@ -32,6 +35,8 @@ import {
   projectModes,
   projectStatuses,
 } from "../globals.js";
+import useAuth from "../hooks/useAuth";
+
 
 const PREFIX = "ProjectPage";
 
@@ -61,6 +66,8 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const ProjectPage = (props) => {
+  const authenticated = useSelector(state => state.authentication);
+  const { auth } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { project_id } = useParams();
@@ -73,6 +80,9 @@ const ProjectPage = (props) => {
 
   const [isSimulating, setIsSimulating] = React.useState(false);
 
+  // is this user the ownwer of this project
+  const [isOwner, setIsOwner] = React.useState(false);
+
   // History page state
   const [historyLabel, setHistoryLabel] = React.useState("relevant");
   const [historyFilterQuery, setHistoryFilterQuery] = React.useState([]);
@@ -83,6 +93,8 @@ const ProjectPage = (props) => {
     {
       enabled: project_id !== undefined,
       onSuccess: (data) => {
+        // set ownership
+        setIsOwner(auth.id === data.ownerId);
         if (
           data.reviews[0] === undefined ||
           data["reviews"][0]["status"] === projectStatuses.SETUP
@@ -232,6 +244,20 @@ const ProjectPage = (props) => {
                   mode={data?.mode}
                   setFilterQuery={setHistoryFilterQuery}
                   setLabel={setHistoryLabel}
+                />
+              }
+            />
+          )}
+
+          {/* Team */}
+          {isSuccess && authenticated && !data?.projectNeedsUpgrade && (
+            <Route
+              path="team"
+              element={
+                <TeamPage
+                  isOwner={isOwner}
+                  mobileScreen={props.mobileScreen}
+                  mode={data?.mode}
                 />
               }
             />

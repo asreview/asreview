@@ -23,6 +23,7 @@ from asreview.models.base import BaseModel
 
 class BaseFeatureExtraction(BaseModel):
     """Base class for feature extraction methods."""
+
     name = "base-feature"
 
     def __init__(self, split_ta=0, use_keywords=0):
@@ -45,8 +46,9 @@ class BaseFeatureExtraction(BaseModel):
         self.fit(texts)
         if self.split_ta > 0:
             if titles is None or abstracts is None:
-                raise ValueError("Error: if splitting titles and abstracts,"
-                                 " supply them!")
+                raise ValueError(
+                    "Error: if splitting titles and abstracts," " supply them!"
+                )
             X_titles = self.transform(titles)
             X_abstracts = self.transform(abstracts)
             if issparse(X_titles) and issparse(X_abstracts):
@@ -97,6 +99,7 @@ class BaseFeatureExtraction(BaseModel):
 
     def full_hyper_space(self):
         from hyperopt import hp
+
         hyper_choices = {}
         hyper_space = {
             "fex_split_ta": hp.randint("fex_split_ta", 2),

@@ -24,7 +24,7 @@ PORT_NUMBER = 5000
 def _lab_parser(prog="lab"):
     parser = _base_parser(
         prog=prog,
-        description="""ASReview LAB - Active learning for Systematic Reviews."""  # noqa
+        description="""ASReview LAB - Active learning for Systematic Reviews.""",  # noqa
     )
 
     parser.add_argument(
@@ -32,32 +32,51 @@ def _lab_parser(prog="lab"):
         dest="clean_project",
         default=None,
         type=str,
-        help="Safe cleanup of temporary files in project.")
+        help="Safe cleanup of temporary files in project.",
+    )
 
     parser.add_argument(
         "--clean-all-projects",
         dest="clean_all_projects",
         default=None,
-        action='store_true',
-        help="Safe cleanup of temporary files in all projects.")
+        action="store_true",
+        help="Safe cleanup of temporary files in all projects.",
+    )
 
     parser.add_argument(
         "--ip",
         default=HOST_NAME,
         type=str,
-        help="The IP address the server will listen on.")
+        help="The IP address the server will listen on.",
+    )
 
     parser.add_argument(
         "--port",
         default=PORT_NUMBER,
         type=int,
-        help="The port the server will listen on.")
+        help="The port the server will listen on.",
+    )
+
+    parser.add_argument(
+        "--enable-auth",
+        dest="enable_authentication",
+        action="store_true",
+        help="Use authentication",
+    )
+
+    parser.add_argument(
+        "--flask-configfile",
+        default="",
+        type=str,
+        help="The full path to a JSON file " + "for Flask parameters.",
+    )
 
     parser.add_argument(
         "--no-browser",
         dest="no_browser",
-        action='store_true',
-        help="Do not open ASReview LAB in a browser after startup.")
+        action="store_true",
+        help="Do not open ASReview LAB in a browser after startup.",
+    )
 
     parser.add_argument(
         "--port-retries",
@@ -65,19 +84,22 @@ def _lab_parser(prog="lab"):
         default=50,
         type=int,
         help="The number of additional ports to try if the"
-        "specified port is not available.")
+        "specified port is not available.",
+    )
 
     parser.add_argument(
         "--certfile",
         default="",
         type=str,
-        help="The full path to an SSL/TLS certificate file.")
+        help="The full path to an SSL/TLS certificate file.",
+    )
 
     parser.add_argument(
         "--keyfile",
         default="",
         type=str,
-        help="The full path to a private key file for usage with SSL/TLS.")
+        help="The full path to a private key file for usage with SSL/TLS.",
+    )
 
     parser.add_argument(
         "--config_file",

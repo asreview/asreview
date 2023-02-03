@@ -15,6 +15,8 @@ export const base_url =
     ? "http://localhost:5000/"
     : "/";
 export const api_url = base_url + "api/";
+export const auth_url = base_url + "auth/";
+export const collab_url = base_url + "team/";
 
 export const donateURL = "https://asreview.nl/donate";
 
@@ -99,6 +101,7 @@ export const fontSizeOptions = [
 export const mapStateToProps = (state) => {
   return { project_id: state.project_id };
 };
+
 export const mapDispatchToProps = (dispatch) => {
   return {
     setProjectId: (project_id) => {
@@ -106,6 +109,19 @@ export const mapDispatchToProps = (dispatch) => {
     },
   };
 };
+
+/**
+ * Format date and mode
+ */
+export const formatDate = (datetime) => {
+  let date = new Date(datetime * 1000);
+  let dateString = date.toDateString().slice(4);
+  let dateDisplay =
+    dateString.replace(/\s+\S*$/, ",") + dateString.match(/\s+\S*$/);
+  return dateDisplay;
+};
+
+
 
 // enums
 export const projectModes = {

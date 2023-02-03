@@ -100,14 +100,10 @@ class BaseReview(ABC):
             # Retrieve feature matrix from the project file or create
             # one from scratch.
             try:
-                self.X = self.project.get_feature_matrix(
-                    self.feature_extraction.name)
+                self.X = self.project.get_feature_matrix(self.feature_extraction.name)
             except FileNotFoundError:
                 self.X = self.feature_extraction.fit_transform(
-                    as_data.texts,
-                    as_data.headings,
-                    as_data.bodies,
-                    as_data.keywords
+                    as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
                 )
 
                 # check if the number of records after the transform equals
@@ -115,18 +111,21 @@ class BaseReview(ABC):
                 if self.X.shape[0] != len(as_data):
                     raise ValueError(
                         "Dataset has {} records while feature "
-                        "extractor returns {} records"
-                        .format(len(as_data), self.X.shape[0]))
+                        "extractor returns {} records".format(
+                            len(as_data), self.X.shape[0]
+                        )
+                    )
 
-                self.project.add_feature_matrix(self.X,
-                                                self.feature_extraction.name)
+                self.project.add_feature_matrix(self.X, self.feature_extraction.name)
 
             # Check if the number or records in the feature matrix matches the
             # length of the dataset.
             if self.X.shape[0] != len(self.data_labels):
-                raise ValueError("The state file does not correspond to the "
-                                 "given data file, please use another state "
-                                 "file or dataset.")
+                raise ValueError(
+                    "The state file does not correspond to the "
+                    "given data file, please use another state "
+                    "file or dataset."
+                )
 
             # Make sure the priors are labeled.
             self._label_priors()
@@ -135,21 +134,23 @@ class BaseReview(ABC):
     def settings(self):
         """Get an ASReview settings object"""
         extra_kwargs = {}
-        if hasattr(self, 'n_prior_included'):
-            extra_kwargs['n_prior_included'] = self.n_prior_included
-        if hasattr(self, 'n_prior_excluded'):
-            extra_kwargs['n_prior_excluded'] = self.n_prior_excluded
-        return ASReviewSettings(model=self.classifier.name,
-                                query_strategy=self.query_strategy.name,
-                                balance_strategy=self.balance_model.name,
-                                feature_extraction=self.feature_extraction.name,
-                                n_instances=self.n_instances,
-                                stop_if=self.stop_if,
-                                model_param=self.classifier.param,
-                                query_param=self.query_strategy.param,
-                                balance_param=self.balance_model.param,
-                                feature_param=self.feature_extraction.param,
-                                **extra_kwargs)
+        if hasattr(self, "n_prior_included"):
+            extra_kwargs["n_prior_included"] = self.n_prior_included
+        if hasattr(self, "n_prior_excluded"):
+            extra_kwargs["n_prior_excluded"] = self.n_prior_excluded
+        return ASReviewSettings(
+            model=self.classifier.name,
+            query_strategy=self.query_strategy.name,
+            balance_strategy=self.balance_model.name,
+            feature_extraction=self.feature_extraction.name,
+            n_instances=self.n_instances,
+            stop_if=self.stop_if,
+            model_param=self.classifier.param,
+            query_param=self.query_strategy.param,
+            balance_param=self.balance_model.param,
+            feature_param=self.feature_extraction.param,
+            **extra_kwargs
+        )
 
     def review(self):
         """Do a full review."""
@@ -199,8 +200,9 @@ class BaseReview(ABC):
         """Make sure the prior records are labeled."""
         with open_state(self.project, read_only=False) as state:
             labeled = state.get_labeled()
-            unlabeled_priors = [x for x in self.prior_indices
-                                if x not in labeled['record_id'].to_list()]
+            unlabeled_priors = [
+                x for x in self.prior_indices if x not in labeled["record_id"].to_list()
+            ]
             self._label(unlabeled_priors, prior=True)
 
     def _stop_review(self):
@@ -224,7 +226,7 @@ class BaseReview(ABC):
 
         # If stop_if is set to min, stop when all papers in the pool are
         # irrelevant.
-        if self.stop_if == 'min' and (self.data_labels[pool] == 0).all():
+        if self.stop_if == "min" and (self.data_labels[pool] == 0).all():
             stop = True
         # Otherwise, stop when reaching stop_if (if provided)
         elif self.stop_if is not None:
@@ -276,40 +278,42 @@ class BaseReview(ABC):
         # Check if both labels are available.
         with open_state(self.project) as state:
             labeled = state.get_labeled()
-            labels = labeled['label'].to_list()
+            labels = labeled["label"].to_list()
             training_set = len(labeled)
             if not (0 in labels and 1 in labels):
-                raise ValueError('Not both labels available. '
-                                 'Stopped training the model')
+                raise ValueError(
+                    "Not both labels available. " "Stopped training the model"
+                )
 
         # TODO: Simplify balance model input.
         # Use the balance model to sample the trainings data.
-        y_sample_input = pd.DataFrame(self.record_table).\
-            merge(labeled, how='left', on='record_id').\
-            loc[:, 'label'].\
-            fillna(LABEL_NA).\
-            to_numpy()
+        y_sample_input = (
+            pd.DataFrame(self.record_table)
+            .merge(labeled, how="left", on="record_id")
+            .loc[:, "label"]
+            .fillna(LABEL_NA)
+            .to_numpy()
+        )
         train_idx = np.where(y_sample_input != LABEL_NA)[0]
 
-        X_train, y_train = self.balance_model.sample(
-            self.X,
-            y_sample_input,
-            train_idx
-        )
+        X_train, y_train = self.balance_model.sample(self.X, y_sample_input, train_idx)
 
         # Fit the classifier on the trainings data.
         self.classifier.fit(X_train, y_train)
 
         # Use the query strategy to produce a ranking.
-        ranked_record_ids = \
-            self.query_strategy.query(self.X, classifier=self.classifier)
+        ranked_record_ids = self.query_strategy.query(
+            self.X, classifier=self.classifier
+        )
 
         # TODO: Also log the probablities.
         # Log the ranking in the state.
         with open_state(self.project, read_only=False) as state:
-            state.add_last_ranking(ranked_record_ids,
-                                   self.classifier.name,
-                                   self.query_strategy.name,
-                                   self.balance_model.name,
-                                   self.feature_extraction.name,
-                                   training_set)
+            state.add_last_ranking(
+                ranked_record_ids,
+                self.classifier.name,
+                self.query_strategy.name,
+                self.balance_model.name,
+                self.feature_extraction.name,
+                training_set,
+            )

@@ -39,9 +39,7 @@ from asreview.models.classifiers.utils import _set_class_weight
 
 def _check_tensorflow():
     if not TF_AVAILABLE:
-        raise ImportError(
-            "Install tensorflow package to use"
-            " LSTM-base.")
+        raise ImportError("Install tensorflow package to use" " LSTM-base.")
 
 
 class LSTMBaseClassifier(BaseTrainClassifier):
@@ -90,19 +88,21 @@ class LSTMBaseClassifier(BaseTrainClassifier):
     name = "lstm-base"
     label = "LSTM classic"
 
-    def __init__(self,
-                 embedding_matrix=None,
-                 backwards=True,
-                 dropout=0.4,
-                 optimizer="rmsprop",
-                 lstm_out_width=20,
-                 learn_rate=1.0,
-                 dense_width=128,
-                 verbose=0,
-                 batch_size=32,
-                 epochs=35,
-                 shuffle=False,
-                 class_weight=30.0):
+    def __init__(
+        self,
+        embedding_matrix=None,
+        backwards=True,
+        dropout=0.4,
+        optimizer="rmsprop",
+        lstm_out_width=20,
+        learn_rate=1.0,
+        dense_width=128,
+        verbose=0,
+        batch_size=32,
+        epochs=35,
+        shuffle=False,
+        class_weight=30.0,
+    ):
         """Initialize the LSTM base model"""
         super(LSTMBaseClassifier, self).__init__()
         self.embedding_matrix = embedding_matrix
@@ -140,7 +140,8 @@ class LSTMBaseClassifier(BaseTrainClassifier):
                 lstm_out_width=self.lstm_out_width,
                 dense_width=self.dense_width,
                 learn_rate=self.learn_rate,
-                verbose=self.verbose)
+                verbose=self.verbose,
+            )
             print(keras_model)
             self._model = KerasClassifier(keras_model, verbose=self.verbose)
 
@@ -151,7 +152,8 @@ class LSTMBaseClassifier(BaseTrainClassifier):
             epochs=self.epochs,
             shuffle=self.shuffle,
             class_weight=_set_class_weight(self.class_weight),
-            verbose=self.verbose)
+            verbose=self.verbose,
+        )
 
     def predict_proba(self, X):
         """Get the inclusion probability for each sample.
@@ -175,12 +177,13 @@ class LSTMBaseClassifier(BaseTrainClassifier):
 
     def full_hyper_space(self):
         from hyperopt import hp
+
         hyper_choices = {}
         hyper_space = {
             "mdl_dropout": hp.uniform("mdl_dropout", 0, 0.9),
             "mdl_lstm_out_width": hp.quniform("mdl_lstm_out_width", 1, 50, 1),
             "mdl_dense_width": hp.quniform("mdl_dense_width", 1, 200, 1),
-            "mdl_learn_rate_mult": hp.lognormal("mdl_learn_rate_mult", 0, 1)
+            "mdl_learn_rate_mult": hp.lognormal("mdl_learn_rate_mult", 0, 1),
         }
         return hyper_space, hyper_choices
 
@@ -191,15 +194,17 @@ class LSTMBaseClassifier(BaseTrainClassifier):
         return defaults
 
 
-def _create_lstm_base_model(embedding_matrix,
-                            backwards=True,
-                            dropout=0.4,
-                            optimizer='rmsprop',
-                            max_sequence_length=1000,
-                            lstm_out_width=20,
-                            dense_width=128,
-                            learn_rate=1.0,
-                            verbose=1):
+def _create_lstm_base_model(
+    embedding_matrix,
+    backwards=True,
+    dropout=0.4,
+    optimizer="rmsprop",
+    max_sequence_length=1000,
+    lstm_out_width=20,
+    dense_width=128,
+    learn_rate=1.0,
+    verbose=1,
+):
     """Return callable lstm model.
     Returns
     -------
@@ -222,34 +227,38 @@ def _create_lstm_base_model(embedding_matrix,
                 embedding_matrix.shape[1],
                 weights=[embedding_matrix],
                 input_length=max_sequence_length,
-                trainable=False))
+                trainable=False,
+            )
+        )
 
         # add LSTM layer
         model.add(
             LSTM(
                 lstm_out_width,
-                input_shape=(max_sequence_length, ),
+                input_shape=(max_sequence_length,),
                 go_backwards=backwards,
                 dropout=dropout,
                 recurrent_dropout=dropout,
-            ))
+            )
+        )
 
         # add Dense layer with relu activation
-        model.add(Dense(
-            dense_width,
-            activation='relu',
-        ))
+        model.add(
+            Dense(
+                dense_width,
+                activation="relu",
+            )
+        )
 
         # add Dense layer
-        model.add(Dense(1, activation='sigmoid'))
+        model.add(Dense(1, activation="sigmoid"))
 
         optimizer_fn = _get_optimizer(optimizer, learn_rate)
 
         # Compile model
         model.compile(
-            loss='binary_crossentropy',
-            optimizer=optimizer_fn,
-            metrics=['acc'])
+            loss="binary_crossentropy", optimizer=optimizer_fn, metrics=["acc"]
+        )
 
         if verbose >= 1:
             model.summary(verbose=verbose)

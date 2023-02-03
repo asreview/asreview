@@ -51,14 +51,14 @@ def preview_record(record, w_title=80, w_authors=40, automatic_width=False):
         heading = record.abstract
     if heading is not None:
         if len(heading) > w_title:
-            title_str = heading[:w_title - 2] + ".."
+            title_str = heading[: w_title - 2] + ".."
         else:
             title_str = heading
 
     if record.authors is not None:
         cur_authors = format_to_str(record.authors)
         if len(cur_authors) > w_authors:
-            author_str = cur_authors[:w_authors - 2] + ".."
+            author_str = cur_authors[: w_authors - 2] + ".."
         else:
             author_str = cur_authors
     format_str = "{0: <" + str(w_title) + "}   " + "{1: <" + str(w_authors)
@@ -110,10 +110,10 @@ def format_record(record, use_cli_colors=True):
 
     header = f"---{record.record_id}---{label}---"
 
-    return (f"\n{header:-<60}\n{title}{authors}{abstract}")
+    return f"\n{header:-<60}\n{title}{authors}{abstract}"
 
 
-class PaperRecord():
+class PaperRecord:
     """A single record from a paper in a systematic review.
 
     Arguments

@@ -108,7 +108,7 @@ def n_missing_title(data):
     for i in range(len(data.title)):
         if len(data.title[i]) == 0:
             n_missing += 1
-            if (data.labels is not None and data.labels[i] == 1):
+            if data.labels is not None and data.labels[i] == 1:
                 n_missing_included += 1
     return n_missing, n_missing_included
 
@@ -137,7 +137,7 @@ def n_missing_abstract(data):
     for i in range(len(data.abstract)):
         if len(data.abstract[i]) == 0:
             n_missing += 1
-            if (data.labels is not None and data.labels[i] == 1):
+            if data.labels is not None and data.labels[i] == 1:
                 n_missing_included += 1
 
     return n_missing, n_missing_included

@@ -126,8 +126,9 @@ def _standardize_dataframe(df, column_spec={}):
     # Check if we either have abstracts or titles.
     col_names = list(all_column_spec)
     if "abstract" not in col_names and "title" not in col_names:
-        raise BadFileFormatError("File supplied without 'abstract' or 'title'"
-                                 " fields.")
+        raise BadFileFormatError(
+            "File supplied without 'abstract' or 'title'" " fields."
+        )
     if "abstract" not in col_names:
         logging.warning("Unable to detect abstracts in dataset.")
     if "title" not in col_names:
@@ -138,7 +139,9 @@ def _standardize_dataframe(df, column_spec={}):
         try:
             df[all_column_spec[col]] = np.where(
                 pd.isnull(df[all_column_spec[col]]),
-                "", df[all_column_spec[col]].astype(str))
+                "",
+                df[all_column_spec[col]].astype(str),
+            )
         except KeyError:
             pass
 
@@ -151,8 +154,9 @@ def _standardize_dataframe(df, column_spec={}):
         except KeyError:
             pass
         except ValueError:
-            logging.warning("Failed to parse label column name, no labels will"
-                            " be present.")
+            logging.warning(
+                "Failed to parse label column name, no labels will" " be present."
+            )
             df.rename(columns={"label": "included"})
             all_column_spec.pop("included")
 
@@ -171,7 +175,7 @@ def _standardize_dataframe(df, column_spec={}):
     df["record_id"] = np.arange(len(df.index))
 
     # set the index
-    df.set_index('record_id', inplace=True)
+    df.set_index("record_id", inplace=True)
 
     return df, all_column_spec
 
@@ -221,9 +225,7 @@ def get_reader_class(name):
     class:
         Class corresponding to the name.
     """
-    return _reader_class_from_entry_point(
-        name,
-        entry_name="asreview.readers")
+    return _reader_class_from_entry_point(name, entry_name="asreview.readers")
 
 
 def get_writer_class(name):
@@ -239,6 +241,4 @@ def get_writer_class(name):
     class:
         Class corresponding to the name.
     """
-    return _writer_class_from_entry_point(
-        name,
-        entry_name="asreview.writers")
+    return _writer_class_from_entry_point(name, entry_name="asreview.writers")

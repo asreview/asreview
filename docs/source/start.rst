@@ -48,6 +48,14 @@ available commands in ASReview LAB, type :code:`asreview lab --help`.
 	The number of additional ports to try if the specified port is not
         available.
 
+.. option:: --enable-auth ENABLE_AUTH
+
+	Use authentication.
+
+.. option:: --flask-configfile FLASK_CONFIGFILE
+
+    The full path to a JSON file for Flask parameters.
+
 .. option:: --no-browser NO_BROWSER
 
 	Do not open ASReview LAB in a browser after startup.

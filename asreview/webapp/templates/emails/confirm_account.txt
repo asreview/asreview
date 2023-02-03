@@ -1,0 +1,13 @@
+Hello {{ name }}
+
+Thank you for joining ASReview. You are almost ready! 
+Please click on the following link to confirm your account:</p>
+
+{{ url }}
+
+After confirmation you will be redirected to the signin page.
+Use your account credentials and start using ASReview.
+
+Regards,
+
+The ASReview Team

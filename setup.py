@@ -32,7 +32,7 @@ def get_long_description():
     here = path.abspath(path.dirname(__file__))
 
     # Get the long description from the README file
-    with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+    with open(path.join(here, "README.md"), encoding="utf-8") as f:
         long_description = f.read()
 
     # remove emoji
@@ -42,14 +42,14 @@ def get_long_description():
 
 
 DEPS = {
-    "sbert": ['sentence_transformers'],
-    "doc2vec": ['gensim'],
-    "tensorflow": ['tensorflow~=2.0'],
-    "dev": ['check-manifest'],
-    'test': ['coverage', 'pytest'],
+    "sbert": ["sentence_transformers"],
+    "doc2vec": ["gensim"],
+    "tensorflow": ["tensorflow~=2.0"],
+    "dev": ["check-manifest"],
+    "test": ["coverage", "pytest"],
 }
-DEPS['all'] = DEPS['sbert'] + DEPS['doc2vec'] + DEPS['dev']
-DEPS['all'] += DEPS['tensorflow']
+DEPS["all"] = DEPS["sbert"] + DEPS["doc2vec"] + DEPS["dev"]
+DEPS["all"] += DEPS["tensorflow"]
 
 
 class CompileAssets(Command):
@@ -71,8 +71,7 @@ class CompileAssets(Command):
 
     def run(self):
         """Run a command to compile and build assets."""
-        subprocess.check_call('sh ./asreview/webapp/compile_assets.sh',
-                              shell=True)
+        subprocess.check_call("sh ./asreview/webapp/compile_assets.sh", shell=True)
 
 
 def get_cmdclass():
@@ -82,115 +81,121 @@ def get_cmdclass():
 
 
 setup(
-    name='asreview',
+    name="asreview",
     version=versioneer.get_version(),
     cmdclass=get_cmdclass(),
-    description='ASReview LAB - A tool for AI-assisted systematic reviews',
+    description="ASReview LAB - A tool for AI-assisted systematic reviews",
     long_description=get_long_description(),
-    long_description_content_type='text/markdown',
-    url='https://github.com/asreview/asreview',
-    author='ASReview LAB developers',
-    author_email='asreview@uu.nl',
+    long_description_content_type="text/markdown",
+    url="https://github.com/asreview/asreview",
+    author="ASReview LAB developers",
+    author_email="asreview@uu.nl",
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'License :: OSI Approved :: Apache Software License',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Topic :: Scientific/Engineering :: Artificial Intelligence',
-        'Topic :: Scientific/Engineering :: Information Analysis',
-        'Topic :: Text Processing :: General',
-        'Framework :: Flask',
+        "Development Status :: 5 - Production/Stable",
+        "License :: OSI Approved :: Apache Software License",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "Topic :: Scientific/Engineering :: Information Analysis",
+        "Topic :: Text Processing :: General",
+        "Framework :: Flask",
     ],
-    keywords='systematic review machine-learning',
-    packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-    package_data={'asreview': [
-        'webapp/build/*',
-        'webapp/build/static/*/*',
-    ]},
-    python_requires='~=3.7',
+    keywords="systematic review machine-learning",
+    packages=find_packages(exclude=["contrib", "docs", "tests"]),
+    package_data={
+        "asreview": [
+            "webapp/build/*",
+            "webapp/build/static/*/*",
+        ]
+    },
+    python_requires="~=3.7",
     install_requires=[
-        'numpy',
-        'scikit-learn',
-        'pandas',
-        'rispy~=0.7.0',
-        'dill',
-        'xlrd>=1.0.0',
-        'setuptools',
-        'flask>=2.0',
-        'flask_cors',
-        'openpyxl',
+        "numpy",
+        "scikit-learn",
+        "pandas",
+        "rispy~=0.7.0",
+        "dill",
+        "xlrd>=1.0.0",
+        "setuptools",
+        "flask>=2.0",
+        "flask_cors",
+        "flask-login",
+        "flask-mail",
+        "openpyxl",
+        "jsonschema",
+        "filelock",
+        "Flask-SQLAlchemy>=3.0.2",
+        "requests",
+        'tqdm',
         'gevent>=20',
-        'jsonschema',
-        'filelock',
-        'tqdm'
     ],
     extras_require=DEPS,
     entry_points={
-        'console_scripts': [
-            'asreview=asreview.__main__:main',
+        "console_scripts": [
+            "asreview=asreview.__main__:main",
         ],
-        'asreview.entry_points': [
-            'lab=asreview.entry_points:LABEntryPoint',
-            'web_run_model = asreview.entry_points:WebRunModelEntryPoint',
-            'simulate=asreview.entry_points:SimulateEntryPoint',
-            'algorithms = asreview.entry_points:AlgorithmsEntryPoint',
-            'state-inspect = asreview.entry_points:StateInspectEntryPoint'
+        "asreview.entry_points": [
+            "lab=asreview.entry_points:LABEntryPoint",
+            "web_run_model = asreview.entry_points:WebRunModelEntryPoint",
+            "simulate=asreview.entry_points:SimulateEntryPoint",
+            "algorithms = asreview.entry_points:AlgorithmsEntryPoint",
+            "state-inspect = asreview.entry_points:StateInspectEntryPoint",
         ],
-        'asreview.readers': [
-            '.csv = asreview.io:CSVReader',
-            '.tab = asreview.io:CSVReader',
-            '.tsv = asreview.io:CSVReader',
-            '.ris = asreview.io:RISReader',
-            '.txt = asreview.io:RISReader',
-            '.xlsx = asreview.io:ExcelReader',
+        "asreview.readers": [
+            ".csv = asreview.io:CSVReader",
+            ".tab = asreview.io:CSVReader",
+            ".tsv = asreview.io:CSVReader",
+            ".ris = asreview.io:RISReader",
+            ".txt = asreview.io:RISReader",
+            ".xlsx = asreview.io:ExcelReader",
         ],
-        'asreview.writers': [
-            '.csv = asreview.io:CSVWriter',
-            '.tab = asreview.io:TSVWriter',
-            '.tsv = asreview.io:TSVWriter',
-            '.ris = asreview.io:RISWriter',
-            '.txt = asreview.io:RISWriter',
-            '.xlsx = asreview.io:ExcelWriter',
+        "asreview.writers": [
+            ".csv = asreview.io:CSVWriter",
+            ".tab = asreview.io:TSVWriter",
+            ".tsv = asreview.io:TSVWriter",
+            ".ris = asreview.io:RISWriter",
+            ".txt = asreview.io:RISWriter",
+            ".xlsx = asreview.io:ExcelWriter",
         ],
-        'asreview.datasets': [
-            'benchmark = asreview.datasets:BenchmarkDataGroup',
-            'benchmark-nature = asreview.datasets:NaturePublicationDataGroup',
+        "asreview.datasets": [
+            "benchmark = asreview.datasets:BenchmarkDataGroup",
+            "benchmark-nature = asreview.datasets:NaturePublicationDataGroup",
         ],
-        'asreview.models.classifiers': [
-            'svm = asreview.models.classifiers:SVMClassifier',
-            'nb = asreview.models.classifiers:NaiveBayesClassifier',
-            'rf = asreview.models.classifiers:RandomForestClassifier',
-            'nn-2-layer = asreview.models.classifiers:NN2LayerClassifier',
-            'logistic = asreview.models.classifiers:LogisticClassifier',
-            'lstm-base = asreview.models.classifiers:LSTMBaseClassifier',
-            'lstm-pool = asreview.models.classifiers:LSTMPoolClassifier',
+        "asreview.models.classifiers": [
+            "svm = asreview.models.classifiers:SVMClassifier",
+            "nb = asreview.models.classifiers:NaiveBayesClassifier",
+            "rf = asreview.models.classifiers:RandomForestClassifier",
+            "nn-2-layer = asreview.models.classifiers:NN2LayerClassifier",
+            "logistic = asreview.models.classifiers:LogisticClassifier",
+            "lstm-base = asreview.models.classifiers:LSTMBaseClassifier",
+            "lstm-pool = asreview.models.classifiers:LSTMPoolClassifier",
         ],
-        'asreview.models.feature_extraction': [
-            'doc2vec = asreview.models.feature_extraction:Doc2Vec',
-            'embedding-idf = asreview.models.feature_extraction:EmbeddingIdf',
-            'embedding-lstm = asreview.models.feature_extraction:EmbeddingLSTM',
-            'sbert = asreview.models.feature_extraction:SBERT',
-            'tfidf = asreview.models.feature_extraction:Tfidf',
+        "asreview.models.feature_extraction": [
+            "doc2vec = asreview.models.feature_extraction:Doc2Vec",
+            "embedding-idf = asreview.models.feature_extraction:EmbeddingIdf",
+            "embedding-lstm = asreview.models.feature_extraction:EmbeddingLSTM",
+            "sbert = asreview.models.feature_extraction:SBERT",
+            "tfidf = asreview.models.feature_extraction:Tfidf",
         ],
-        'asreview.models.balance': [
+        "asreview.models.balance": [
             "simple = asreview.models.balance:SimpleBalance",
             "double = asreview.models.balance:DoubleBalance",
             # "triple = asreview.models.balance:TripleBalance",  # Broken, only via API
             "undersample = asreview.models.balance:UndersampleBalance",
         ],
-        'asreview.models.query': [
+        "asreview.models.query": [
             "max = asreview.models.query.max:MaxQuery",
             "random = asreview.models.query.random:RandomQuery",
             "uncertainty = asreview.models.query.uncertainty:UncertaintyQuery",
             "cluster = asreview.models.query.cluster:ClusterQuery",
             "max_random = asreview.models.query.mixed:MaxRandomQuery",
             "max_uncertainty = asreview.models.query.mixed:MaxUncertaintyQuery",
-        ]
+        ],
     },
     project_urls={
-        'Bug Reports': 'https://github.com/asreview/asreview/issues',
-        'Source': 'https://github.com/asreview/asreview/',
+        "Bug Reports": "https://github.com/asreview/asreview/issues",
+        "Source": "https://github.com/asreview/asreview/",
     },
 )

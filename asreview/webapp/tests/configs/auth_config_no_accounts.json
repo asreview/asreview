@@ -1,0 +1,19 @@
+{
+    "ENV": "development",
+    "DEBUG": true,
+    "SECRET_KEY": "my_very_secret_key",
+    "SECURITY_PASSWORD_SALT": "my_salt",
+    "AUTHENTICATION_ENABLED": true,
+    "SESSION_COOKIE_SECURE": true,
+    "REMEMBER_COOKIE_SECURE": true,
+    "SESSION_COOKIE_SAMESITE": "Lax",
+    "SQLALCHEMY_TRACK_MODIFICATIONS": true,
+    "ALLOW_ACCOUNT_CREATION": false,
+    "EMAIL_VERIFICATION": false,
+    "OAUTH": false
+}
+
+
+
+
+

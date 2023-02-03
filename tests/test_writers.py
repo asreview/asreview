@@ -34,9 +34,7 @@ def test_asreview_notes_ris(test_file, tmpdir):
     assert list(asr_data.notes) == list(asr_data_diff.notes)
 
 
-@mark.parametrize("test_file", [
-                  ("ris_issue_992.txt"),
-                  ("ris_issue_1099.txt")])
+@mark.parametrize("test_file", [("ris_issue_992.txt"), ("ris_issue_1099.txt")])
 def test_asreview_ris(test_file, tmpdir):
     fp_in = Path("tests", "demo_data", test_file)
     asr_data = ASReviewData.from_file(fp_in)

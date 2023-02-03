@@ -1,6 +1,6 @@
-import * as React from "react";
-import { useMutation } from "react-query";
+import React from 'react';
 import { useNavigate } from "react-router-dom";
+import { useMutation } from "react-query";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Box,
@@ -11,24 +11,20 @@ import {
   Fade,
   FormControl,
   FormControlLabel,
-  FormHelperText,
+  FormHelperText as FHT,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-
-import { HelpPrivacyTermsButton } from "../Components";
 
 import { InlineErrorHandler } from ".";
-
-import BaseAPI from "../api/BaseAPI";
-import { useToggle } from "../hooks/useToggle";
 import { WordmarkState } from "../globals";
-
-const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
-const PWD_REGEX =
-  /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+import { styled } from "@mui/material/styles";
+import { HelpPrivacyTermsButton } from "../Components";
+import { useToggle } from "../hooks/useToggle";
+import BaseAPI from "../api/AuthAPI";
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 
 const PREFIX = "SignUpForm";
 
@@ -67,104 +63,67 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
+// VALIDATION SCHEMA
+const SignupSchema = Yup.object().shape({
+  email: Yup.string()
+    .email('Invalid email')
+    .required('Email is required'),
+  name: Yup.string()
+    .required('Full name is required'),
+  affiliation: Yup.string()
+    .min(2, 'Affiliation must be at least 2 characters long')
+    .required('Affiliation is required'),
+  password: Yup.string()
+    .matches(
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      'Use 8 or more characters with a mix of letters, numbers & symbols'
+    )
+    .required('Password is required'),
+  confirmPassword: Yup.string()
+    .required('Password confirmation is required')
+    .oneOf([Yup.ref('password'), null], 'Passwords must match')
+});
+
+
 const SignUpForm = (props) => {
+  // Pass the useFormik() hook initial form values, a validate function that will be called when
+  // form values change or fields are blurred, and a submit function that will
+  // be called when the form is submitted
   const navigate = useNavigate();
 
-  const [username, setUsername] = React.useState("");
-  const [validUsername, setValidUsername] = React.useState(false);
-  const [usernameFocused, setUsernameFocused] = React.useState(false);
-
-  const [password, setPassword] = React.useState("");
-  const [validPassword, setValidPassword] = React.useState(false);
-  const [passwordFocused, setPasswordFocused] = React.useState(false);
-
-  const [confirmPassword, setConfirmPassword] = React.useState("");
-  const [validConfirmPassword, setValidConfirmPassword] = React.useState(false);
-  const [confirmPasswordFocused, setConfirmPasswordFocused] =
-    React.useState(false);
-
   const [showPassword, toggleShowPassword] = useToggle();
-
-  const { error, isError, isLoading, mutate, reset } = useMutation(
-    BaseAPI.signup,
-    {
-      onSuccess: () => {
-        setUsername("");
-        setPassword("");
-        setConfirmPassword("");
-      },
-    }
-  );
-
-  const handleUsernameChange = (e) => {
-    reset();
-    setUsername(e.target.value);
-    setValidUsername(USERNAME_REGEX.test(e.target.value));
-  };
-
-  const handlePasswordChange = (e) => {
-    reset();
-    setPassword(e.target.value);
-  };
-
-  const handleConfirmPasswordChange = (e) => {
-    reset();
-    setConfirmPassword(e.target.value);
-  };
-
-  React.useEffect(() => {
-    setValidPassword(PWD_REGEX.test(password));
-    setValidConfirmPassword(confirmPassword === password);
-  }, [password, confirmPassword]);
-
-  const handleUsernameFocus = () => {
-    setUsernameFocused(true);
-  };
-
-  const handleUsernameBlur = () => {
-    setUsernameFocused(false);
-  };
-
-  const handlePasswordFocus = () => {
-    setPasswordFocused(true);
-  };
-
-  const handlePasswordBlur = () => {
-    setPasswordFocused(false);
-  };
-
-  const handleConfirmPasswordFocus = () => {
-    setConfirmPasswordFocused(true);
-  };
-
-  const handleConfirmPasswordBlur = () => {
-    setConfirmPasswordFocused(false);
-  };
 
   const returnType = () => {
     return !showPassword ? "password" : "text";
   };
 
-  const returnHelperText = () => {
-    if (password && !passwordFocused && !validPassword) {
-      return "Sorry, your password must be at least 8 characters long and contain a mix of letters, numbers, and symbols.";
-    } else if (
-      confirmPassword &&
-      !confirmPasswordFocused &&
-      !validConfirmPassword
-    ) {
-      return "Passwords do not match. Try again.";
-    } else {
-      return null;
-    }
+  const initialValues = {
+    email: '',
+    name: '',
+    affiliation: '',
+    password: '',
+    confirmPassword: '',
+    publicAccount: true
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (validUsername && validPassword && validConfirmPassword) {
-      mutate({ username, password });
-    }
-  };
+  const formik = useFormik({
+    initialValues: initialValues,
+    validationSchema: SignupSchema,
+  });
+
+  const { error, isError, isLoading, mutate, reset } = useMutation(
+    BaseAPI.signup,
+      {
+        onSuccess: () => {
+          formik.setValues(initialValues, false);
+          navigate('/signin');
+        },
+      }
+  );
+
+  const handleSubmit = () => {
+    mutate(formik.values);
+  }
 
   const handleSignIn = () => {
     navigate("/signin");
@@ -173,7 +132,7 @@ const SignUpForm = (props) => {
   return (
     <Root>
       <Fade in>
-        <Box>
+        <Box> 
           <Card className={classes.card} variant="outlined">
             <CardContent className={classes.cardContent}>
               <Stack spacing={3}>
@@ -189,25 +148,37 @@ const SignUpForm = (props) => {
                   noValidate
                   autoComplete="off"
                 >
+                  
                   <TextField
-                    id="username"
-                    label="Username"
+                    id="email"
+                    label="Email"
                     size="small"
                     fullWidth
-                    autoFocus
-                    error={
-                      username !== "" && !validUsername && !usernameFocused
-                    }
-                    helperText={
-                      username && !validUsername && !usernameFocused
-                        ? "Sorry, your username must be between 3 and 20 characters long and only contain letters (a-z), numbers (0-9), and underscores (_)."
-                        : "You can use letters, numbers & underscores"
-                    }
-                    value={username}
-                    onChange={handleUsernameChange}
-                    onFocus={handleUsernameFocus}
-                    onBlur={handleUsernameBlur}
+                    value={formik.values.email}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                   />
+                  {formik.touched.email && formik.errors.email ? <FHT error={true}>{formik.errors.email}</FHT> : null}
+                  <TextField
+                    id="name"
+                    label="Full name"
+                    size="small"
+                    fullWidth
+                    value={formik.values.name}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  />
+                  {formik.touched.name && formik.errors.name ? <FHT error={true}>{formik.errors.name}</FHT> : null}
+                  <TextField
+                    id="affiliation"
+                    label="Affiliation"
+                    size="small"
+                    fullWidth
+                    value={formik.values.affiliation}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  />
+                  {formik.touched.affiliation && formik.errors.affiliation ? <FHT error={true}>{formik.errors.affiliation}</FHT> : null}
                   <FormControl>
                     <Stack direction="row" spacing={2}>
                       <TextField
@@ -215,61 +186,74 @@ const SignUpForm = (props) => {
                         label="Password"
                         size="small"
                         fullWidth
-                        error={
-                          password !== "" && !passwordFocused && !validPassword
-                        }
                         type={returnType()}
-                        value={password}
-                        onChange={handlePasswordChange}
-                        onFocus={handlePasswordFocus}
-                        onBlur={handlePasswordBlur}
+                        value={formik.values.password}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
                       />
                       <TextField
-                        id="confirm"
-                        label="Confirm"
+                        id="confirmPassword"
+                        label="Confirm Password"
                         size="small"
                         fullWidth
-                        error={
-                          confirmPassword !== "" &&
-                          !confirmPasswordFocused &&
-                          !validConfirmPassword
-                        }
                         type={returnType()}
-                        value={confirmPassword}
-                        onChange={handleConfirmPasswordChange}
-                        onFocus={handleConfirmPasswordFocus}
-                        onBlur={handleConfirmPasswordBlur}
+                        value={formik.values.confirmPassword}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
                       />
                     </Stack>
-                    <FormHelperText error={returnHelperText() !== null}>
-                      {!returnHelperText()
-                        ? "Use 8 or more characters with a mix of letters, numbers & symbols"
-                        : returnHelperText()}
-                    </FormHelperText>
+                  </FormControl>
+                  {formik.touched.password && formik.errors.password ? <FHT error={true}>{formik.errors.password}</FHT> : null}
+                  {formik.touched.confirmPassword && formik.errors.confirmPassword ? <FHT error={true}>{formik.errors.confirmPassword}</FHT> : null}
+                  <FormControl>
                     <FormControlLabel
                       control={
                         <Checkbox
+                          id="public"
                           color="primary"
                           onChange={toggleShowPassword}
                         />
                       }
                       label="Show password"
                     />
+                    { false && 
+                      <>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              color="primary"
+                              id="publicAccount"
+                              defaultChecked={formik.values.publicAccount}
+                              value={formik.values.publicAccount}
+                              onChange={formik.handleChange}
+                              onBlur={formik.handleBlur}
+                            />
+                          }
+                          label="Make this account public"
+                        />
+                        <FHT>
+                          Making this account public allows you to collaborate.
+                        </FHT>
+                      </>
+                    }
                   </FormControl>
-                </Stack>
-                {isError && <InlineErrorHandler message={error.message} />}
-                <Stack className={classes.button} direction="row">
-                  <Button onClick={handleSignIn} sx={{ textTransform: "none" }}>
-                    Sign in instead
-                  </Button>
-                  <LoadingButton
-                    loading={isLoading}
-                    variant="contained"
-                    color="primary"
-                    onClick={handleSubmit}
-                  >
-                    Create
-                  </LoadingButton>
+                  {isError && <InlineErrorHandler message={error.message} />}
+
+                  <Stack className={classes.button} direction="row">
+                    <Button onClick={handleSignIn} sx={{ textTransform: "none" }}>
+                      Sign In instead
+                    </Button>
+                    <LoadingButton
+                      //loading={isLoading}
+                      variant="contained"
+                      color="primary"
+                      onClick={handleSubmit}
+                      disabled={!(formik.isValid && formik.dirty)}
+                    >
+                      Create
+                    </LoadingButton>
+                  </Stack>
+
                 </Stack>
               </Stack>
             </CardContent>

@@ -27,8 +27,8 @@ from asreview.models.feature_extraction.base import BaseFeatureExtraction
 def _check_st():
     if not ST_AVAILABLE:
         raise ImportError(
-            "Install sentence-transformers package"
-            " to use Sentence BERT.")
+            "Install sentence-transformers package" " to use Sentence BERT."
+        )
 
 
 class SBERT(BaseFeatureExtraction):
@@ -66,7 +66,7 @@ class SBERT(BaseFeatureExtraction):
     name = "sbert"
     label = "Sentence BERT"
 
-    def __init__(self, *args, transformer_model='all-mpnet-base-v2', **kwargs):
+    def __init__(self, *args, transformer_model="all-mpnet-base-v2", **kwargs):
         super(SBERT, self).__init__(*args, **kwargs)
         self.transformer_model = transformer_model
 

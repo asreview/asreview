@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from pytest import mark
 import rispy
+from pytest import mark
 
 from asreview import ASReviewData
 from asreview.utils import is_url
@@ -28,7 +28,7 @@ def test_reader(test_file, n_lines, ignore_col):
     as_data = ASReviewData.from_file(fp)
     assert len(as_data) == n_lines
 
-    cols = ['title', 'abstract', 'authors', 'keywords']
+    cols = ["title", "abstract", "authors", "keywords"]
     cols = [col for col in cols if col not in ignore_col]
     # if labels is not None:
     #     cols.append('included')
@@ -84,8 +84,9 @@ def test_reader(test_file, n_lines, ignore_col):
         (29, 0),
         (30, -1),
         # No notes tag present
-        (31, -1)
-    ])
+        (31, -1),
+    ],
+)
 def test_asreview_labels_ris(record_i, included):
     fp = Path("tests", "demo_data", "baseline_tag-notes_labels.ris")
     as_data = ASReviewData.from_file(fp)
@@ -94,9 +95,8 @@ def test_asreview_labels_ris(record_i, included):
 
 def test_multiline_tags_ris():
 
-    fp = Path("tests", "demo_data",
-              "baseline_tag_and_field_definitions_lists.ris")
-    entries = rispy.load(fp, encoding='utf-8')
+    fp = Path("tests", "demo_data", "baseline_tag_and_field_definitions_lists.ris")
+    entries = rispy.load(fp, encoding="utf-8")
     assert entries[0]["notes"] == ["Notes 1", "Notes 2"]
 
 

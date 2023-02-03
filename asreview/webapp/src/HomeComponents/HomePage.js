@@ -1,10 +1,10 @@
 import * as React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Navigate, Routes, Route } from "react-router-dom";
 import clsx from "clsx";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { DashboardPage } from "../HomeComponents/DashboardComponents";
+import { ProfilePage, ProjectsOverview } from "../HomeComponents/DashboardComponents";
 import RouteNotFound from "../RouteNotFound";
 
 import { drawerWidth } from "../globals.js";
@@ -51,7 +51,7 @@ const HomePage = (props) => {
           <Route
             path="projects"
             element={
-              <DashboardPage
+              <ProjectsOverview
                 mobileScreen={props.mobileScreen}
                 onNavDrawer={props.onNavDrawer}
                 onProjectSetup={props.onProjectSetup}
@@ -61,6 +61,19 @@ const HomePage = (props) => {
               />
             }
           />
+          {/* Profile page */}
+          <Route
+            path="profile"
+            element={
+              <ProfilePage
+                mobileScreen={props.mobileScreen}
+                onNavDrawer={props.onNavDrawer}
+              />
+            }
+          />
+          {/* Redirect root to projects */}
+          <Route path="/" element={<Navigate to="/projects"/>}/>
+          {/* Not found */}
           <Route path="*" element={<RouteNotFound />} />
         </Routes>
       </Box>
