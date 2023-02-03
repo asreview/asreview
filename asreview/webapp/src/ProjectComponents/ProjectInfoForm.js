@@ -1,27 +1,56 @@
 import * as React from "react";
-import { useQueryClient } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import { useParams } from "react-router-dom";
 import {
   Box,
+  Card,
+  CardContent,
   CircularProgress,
+  Grid,
   Stack,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../Components";
-import { ProjectModeSelect } from "../ProjectComponents";
-import { MouseOverPopover } from "../StyledComponents/StyledPopover.js";
 import { TypographySubtitle1Medium } from "../StyledComponents/StyledTypography.js";
+import { ProjectAPI } from "../api/index.js";
 import { mapStateToProps } from "../globals.js";
 
-const Root = styled("div")(({ theme }) => ({}));
+const PREFIX = "ProjectInfoForm";
+
+const classes = {
+  cardContent: `${PREFIX}-card-content`,
+  cardOverlay: `${PREFIX}-card-overlay`,
+  singleLine: `${PREFIX}-single-line`,
+};
+
+const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.cardContent}`]: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 24,
+    paddingRight: 8,
+    position: "relative",
+  },
+}));
 
 const ProjectInfoForm = (props) => {
   const { project_id } = useParams();
   const queryClient = useQueryClient();
+
+  const { data, error, isError, isFetching, refetch } = useQuery(
+    ["fetchData", { project_id: props.project_id }],
+    ProjectAPI.fetchData,
+    {
+      enabled: props.project_id !== null,
+      refetchOnWindowFocus: false,
+    }
+  );
 
   const fetchInfoState = queryClient.getQueryState([
     "fetchInfo",
@@ -60,6 +89,10 @@ const ProjectInfoForm = (props) => {
     }
   };
 
+  const isTitleValidated = () => {
+    return props.info.title.length >= 3;
+  };
+
   const refetchInfo = () => {
     queryClient.resetQueries("fetchInfo");
   };
@@ -81,89 +114,175 @@ const ProjectInfoForm = (props) => {
             </TypographySubtitle1Medium>
           )}
         </Box>
-        {isProjectSetup() && fetchInfoState?.isFetching && (
+        {isProjectSetup() && (fetchInfoState?.isFetching || isFetching) && (
           <Box className="main-page-body-wrapper">
             <CircularProgress />
           </Box>
         )}
         {((isProjectSetup() &&
           fetchInfoState.status !== "error" &&
-          !fetchInfoState.isFetching) ||
+          !fetchInfoState.isFetching &&
+          !isError &&
+          !isFetching) ||
           !isProjectSetup()) && (
-          <Box component="form" noValidate autoComplete="off">
-            <Stack direction="column" spacing={3}>
-              {!isProjectSetup() && (
-                <MouseOverPopover title="Select mode when creating a new project">
-                  <ProjectModeSelect
-                    disableModeSelect
-                    mode={props.info?.mode}
-                    handleMode={handleInfoChange}
-                    onBlur={onBlur}
-                    onFocus={onFocus}
+          <Box>
+            <Grid container columnSpacing={3}>
+              <Grid item xs={12} sm={!isProjectSetup() ? 12 : 8}>
+                <Stack direction="column" spacing={3}>
+                  <Tooltip
+                    disableHoverListener
+                    title="Title must have at least 3 characters"
+                    arrow
+                    open={!isTitleValidated()}
+                    placement="top-start"
+                  >
+                    <TextField
+                      autoFocus
+                      // error={props.isMutateInfoError}
+                      error={!isTitleValidated()}
+                      fullWidth
+                      helperText={props.mutateInfoError?.message}
+                      id="project-title"
+                      inputProps={{
+                        onFocus: () => onFocus(),
+                        onBlur: () => onBlur(),
+                      }}
+                      InputLabelProps={{
+                        required: false,
+                      }}
+                      label="Title (required)"
+                      name="title"
+                      onChange={handleInfoChange}
+                      required
+                      value={props.info?.title}
+                    />
+                  </Tooltip>
+                  <TextField
+                    fullWidth
+                    id="project-author"
+                    inputProps={{
+                      onFocus: () => onFocus(),
+                      onBlur: () => onBlur(),
+                    }}
+                    label="Author(s)"
+                    name="authors"
+                    onChange={handleInfoChange}
+                    value={props.info?.authors}
                   />
-                </MouseOverPopover>
-              )}
+                  <TextField
+                    fullWidth
+                    id="project-description"
+                    inputProps={{
+                      onFocus: () => onFocus(),
+                      onBlur: () => onBlur(),
+                    }}
+                    label="Description"
+                    multiline
+                    minRows={8}
+                    name="description"
+                    onChange={handleInfoChange}
+                    value={props.info?.description}
+                  />
+                </Stack>
+              </Grid>
               {isProjectSetup() && (
-                <ProjectModeSelect
-                  datasetAdded={props.datasetAdded}
-                  mode={props.info?.mode}
-                  handleMode={handleInfoChange}
-                  onBlur={onBlur}
-                  onFocus={onFocus}
-                />
+                <Grid item xs={12} sm={4}>
+                  <Stack>
+                    <Card
+                      elevation={0}
+                      sx={{
+                        bgcolor: (theme) =>
+                          theme.palette.mode === "dark"
+                            ? "background.paper"
+                            : "grey.100",
+                      }}
+                    >
+                      <CardContent>
+                        <Box
+                          className={classes.cardOverlay}
+                          sx={{
+                            bgcolor: (theme) => {
+                              if (
+                                props.datasetAdded !== undefined &&
+                                !props.datasetAdded
+                              ) {
+                                if (theme.palette.mode === "dark") {
+                                  return "rgba(40, 40, 40, 0.7)";
+                                } else {
+                                  return "rgba(255, 255, 255, 0.5)";
+                                }
+                              } else {
+                                return "transparent";
+                              }
+                            },
+                          }}
+                        />
+                        <Stack spacing={2}>
+                          <Stack>
+                            <Typography
+                              variant="body2"
+                              className={classes.singleLine}
+                              sx={{ color: "text.secondary" }}
+                            >
+                              Dataset filename
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              className={classes.singleLine}
+                            >
+                              {props.info?.dataset_path}
+                            </Typography>
+                          </Stack>
+                          <Stack>
+                            <Typography
+                              variant="body2"
+                              className={classes.singleLine}
+                              sx={{ color: "text.secondary" }}
+                            >
+                              Records
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              className={classes.singleLine}
+                            >
+                              {data?.n_rows}
+                            </Typography>
+                          </Stack>
+                          <Stack>
+                            <Typography
+                              variant="body2"
+                              className={classes.singleLine}
+                              sx={{ color: "text.secondary" }}
+                            >
+                              Duplicates
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              className={classes.singleLine}
+                            >
+                              About {data?.n_duplicates}
+                            </Typography>
+                          </Stack>
+                        </Stack>
+                      </CardContent>
+                    </Card>
+                  </Stack>
+                </Grid>
               )}
-              <TextField
-                autoFocus
-                error={props.isMutateInfoError}
-                fullWidth
-                helperText={props.mutateInfoError?.message}
-                id="project-title"
-                inputProps={{
-                  onFocus: () => onFocus(),
-                  onBlur: () => onBlur(),
-                }}
-                InputLabelProps={{
-                  required: false,
-                }}
-                label="Title (required)"
-                name="title"
-                onChange={handleInfoChange}
-                required
-                value={props.info?.title}
-              />
-              <TextField
-                fullWidth
-                id="project-author"
-                inputProps={{
-                  onFocus: () => onFocus(),
-                  onBlur: () => onBlur(),
-                }}
-                label="Author(s)"
-                name="authors"
-                onChange={handleInfoChange}
-                value={props.info?.authors}
-              />
-              <TextField
-                fullWidth
-                id="project-description"
-                inputProps={{
-                  onFocus: () => onFocus(),
-                  onBlur: () => onBlur(),
-                }}
-                label="Description"
-                multiline
-                minRows={8}
-                name="description"
-                onChange={handleInfoChange}
-                value={props.info?.description}
-              />
-            </Stack>
+            </Grid>
           </Box>
         )}
         {isProjectSetup() && fetchInfoState.status === "error" && (
           <InlineErrorHandler
             message={fetchInfoState.error?.message}
             refetch={refetchInfo}
+            button
+          />
+        )}
+        {isProjectSetup() && isError && (
+          <InlineErrorHandler
+            message={error?.message}
+            refetch={refetch}
             button
           />
         )}

@@ -147,7 +147,11 @@ const SetupDialog = (props) => {
     },
   });
 
-  const { error: fetchInfoError, isError: isFetchInfoError } = useQuery(
+  const {
+    error: fetchInfoError,
+    isError: isFetchInfoError,
+    isFetching: isFetchingInfo,
+  } = useQuery(
     ["fetchInfo", { project_id: props.project_id }],
     ProjectAPI.fetchInfo,
     {
@@ -409,6 +413,10 @@ const SetupDialog = (props) => {
     return isMutatingInfo || isMutatingModelConfig;
   };
 
+  const isStepFailed = (step) => {
+    return step === 0 && info?.title.length < 3;
+  };
+
   React.useEffect(() => {
     if (activeStep === 1 && isMutateInfoError) {
       handleBack();
@@ -441,13 +449,13 @@ const SetupDialog = (props) => {
       {props.mobileScreen && !addDataset && !addPriorKnowledge && (
         <AppBarWithinDialog
           onClickStartIcon={handleClose}
-          title="Create a new project"
+          title={info?.title}
         />
       )}
       {!props.mobileScreen && !addDataset && !addPriorKnowledge && (
         <Fade in={!addDataset}>
           <Stack className="dialog-header" direction="row">
-            <DialogTitle>Create a new project</DialogTitle>
+            <DialogTitle>{info?.title}</DialogTitle>
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               {props.project_id && (activeStep === 0 || activeStep === 2) && (
                 <SavingStateBox isSaving={isSaving()} />
@@ -474,11 +482,21 @@ const SetupDialog = (props) => {
           <DialogContent className={classes.content} dividers>
             <Box className={classes.stepper}>
               <Stepper alternativeLabel activeStep={activeStep}>
-                {steps.map((label, index) => (
-                  <Step key={label}>
-                    <StepLabel>{label}</StepLabel>
-                  </Step>
-                ))}
+                {steps.map((label, index) => {
+                  const labelProps = {};
+                  if (
+                    !isFetchingInfo &&
+                    !isFetchInfoError &&
+                    isStepFailed(index)
+                  ) {
+                    labelProps.error = true;
+                  }
+                  return (
+                    <Step key={label}>
+                      <StepLabel {...labelProps}>{label}</StepLabel>
+                    </Step>
+                  );
+                })}
               </Stepper>
             </Box>
             <Box
