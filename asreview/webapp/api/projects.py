@@ -728,6 +728,8 @@ def api_get_labeled(project):  # noqa: F401
                     "abstract": record.abstract,
                     "authors": record.authors,
                     "keywords": record.keywords,
+                    "doi": record.doi,
+                    "url": record.url,
                     "included": int(data.loc[i, "label"]),
                     "note": data.loc[i, "notes"],
                     "prior": int(data.loc[i, "prior"]),
@@ -1046,7 +1048,7 @@ def api_start(project):  # noqa: F401
                 + [
                     # specify state file
                     "--state_file",
-                    project.project_path,
+                    str(project.project_path),
                     # specify write interval
                     "--write_interval",
                     "100",
@@ -1075,7 +1077,7 @@ def api_start(project):  # noqa: F401
                 # train the model via cli
                 "web_run_model",
                 # specify project id
-                project.project_path,
+                str(project.project_path),
                 # output the error of the first model
                 "--output_error",
                 # mark the first run for status update
@@ -1534,7 +1536,8 @@ def api_classify_instance(project, doc_id):  # noqa: F401
 
         # retrain model
         subprocess.Popen(
-            [_get_executable(), "-m", "asreview", "web_run_model", project.project_path]
+            [_get_executable(), "-m", "asreview", "web_run_model",
+             str(project.project_path)]
         )
 
     response = jsonify({"success": True})
