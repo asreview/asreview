@@ -1,9 +1,7 @@
-import datetime
 from pathlib import Path
 
 from flask import Blueprint
 from flask import jsonify
-from flask import request
 from flask_cors import CORS
 from flask_login import current_user
 from sqlalchemy import and_
@@ -13,7 +11,6 @@ from asreview.project import ASReviewProject
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.login_required import asreview_login_required  # NOQA
-from asreview.webapp.authentication.models import CollaborationInvitation
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 
@@ -51,7 +48,7 @@ def users(project_id):
         all_users = [
             u.summarize()
             for u in User.query.filter(
-                and_(User.public == True, User.id != current_user.id)
+                and_(User.public is True, User.id != current_user.id)
             )
             .order_by("name")
             .all()
