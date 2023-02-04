@@ -1,7 +1,7 @@
 ﻿Simulation via command line
 ===========================
 
-ASReview LAB comes with a command line inferface for simulating the
+ASReview LAB comes with a command line interface for simulating the
 performance of ASReview algorithm.
 
 .. _simulation-cli-getting-started:
@@ -18,10 +18,26 @@ The simulation command line tool can be accessed directly like:
 This performs a simulation with the default active learning model, where
 ``MY_DATASET.csv`` is the path to the :ref:`data_labeled:Fully labeled data`
 you want to simulate. The result of the simulation is stored, after a
-succesful simulation, at ``MY_SIMULATION.asreview`` where ``MY_SIMULATION``
+successful simulation, at ``MY_SIMULATION.asreview`` where ``MY_SIMULATION``
 is the filename you prefer and the extension is ``.asreview``
 (ASReview project file extension).
 
+Simulation progress
+-------------------
+
+The progress of the simulation is given with two progress bars. The top one is
+used to count the number of relevant records found. The bottom one monitors
+the number of records labeled. By default (with ``--stop-if min``), the
+simulation stops once the the top progress bar reaches 100%.
+
+.. code-block:: bash
+
+  Simulation started
+
+  Relevant records found: 100%|███████████████████████████████████████████████| 43/43 [00:03<00:00, 13.42it/s]
+  Records labeled       :   7%|██▉                                        | 420/6189 [00:03<00:43, 133.58it/s]
+
+  Simulation finished
 
 Command line arguments for simulating
 -------------------------------------
@@ -176,7 +192,7 @@ the available models:
 See :ref:`develop-extensions` for more information on developing new models
 and install them via extensions.
 
-Some models require additional dependecies to be installed. Use
+Some models require additional dependencies to be installed. Use
 :code:`pip install asreview[all]` to install all additional dependencies
 at once or check the installation instruction in section :ref:`ref-models`
 of the :doc:`reference`.

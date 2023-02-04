@@ -121,9 +121,10 @@ setup(
         'flask>=2.0',
         'flask_cors',
         'openpyxl',
-        'gevent',
+        'gevent>=20',
         'jsonschema',
-        'filelock'
+        'filelock',
+        'tqdm'
     ],
     extras_require=DEPS,
     entry_points={

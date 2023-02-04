@@ -1,0 +1,15 @@
+title;abstract;doi;some_column
+a;lorem;10.1;lorem
+a;lorem;;lorem
+b;lorem;10.3;lorem
+c;lorem;10.3;lorem
+d;lorem;;lorem
+e;lorem;;lorem
+f;lorem;   ;lorem
+g;lorem;   ;lorem
+h;lorem;;lorem
+i;lorem;;lorem
+;;10.4;lorem
+;;10.5;lorem
+   ;   ;10.6;lorem
+   ;   ;10.7;lorem

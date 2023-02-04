@@ -15,6 +15,7 @@
 import hashlib
 from pathlib import Path
 from urllib.parse import urlparse
+from urllib.request import urlopen
 
 import numpy as np
 import pandas as pd
@@ -179,6 +180,13 @@ class ASReviewData():
             if path.endswith(suffix):
                 if best_suffix is None or len(suffix) > len(best_suffix):
                     best_suffix = suffix
+
+        if best_suffix is None and is_url(fp):
+            url_filename = urlopen(fp).info().get_filename()
+            for suffix, entry in entry_points.items():
+                if url_filename.endswith(suffix):
+                    if best_suffix is None or len(suffix) > len(best_suffix):
+                        best_suffix = suffix
 
         if best_suffix is None:
             raise BadFileFormatError(f"Error importing file {fp}, no capabilities "
@@ -480,13 +488,13 @@ class ASReviewData():
         else:
             s_dups_pid = None
 
-        # get the texts and clean them
+        # get the texts, clean them and replace empty strings with None
         s = pd.Series(self.texts) \
             .str.replace("[^A-Za-z0-9]", "", regex=True) \
-            .str.lower()
+            .str.lower().str.strip().replace("", None)
 
         # save boolean series for duplicates based on titles/abstracts
-        s_dups_text = s.duplicated()
+        s_dups_text = ((s.duplicated()) & (s.notnull()))
 
         # final boolean series for all duplicates
         if s_dups_pid is not None:
