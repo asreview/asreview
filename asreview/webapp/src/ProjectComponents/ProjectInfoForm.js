@@ -89,10 +89,6 @@ const ProjectInfoForm = (props) => {
     }
   };
 
-  const isTitleValidated = () => {
-    return props.info.title.length >= 3;
-  };
-
   const refetchInfo = () => {
     queryClient.resetQueries("fetchInfo");
   };
@@ -133,13 +129,13 @@ const ProjectInfoForm = (props) => {
                     disableHoverListener
                     title="Title must have at least 3 characters"
                     arrow
-                    open={!isTitleValidated()}
+                    open={!props.isTitleValidated}
                     placement="top-start"
                   >
                     <TextField
                       autoFocus
                       // error={props.isMutateInfoError}
-                      error={!isTitleValidated()}
+                      error={!props.isTitleValidated}
                       fullWidth
                       helperText={props.mutateInfoError?.message}
                       id="project-title"

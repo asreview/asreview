@@ -417,6 +417,10 @@ const SetupDialog = (props) => {
     return step === 0 && info?.title.length < 3;
   };
 
+  const isTitleValidated = () => {
+    return info.title.length >= 3;
+  };
+
   React.useEffect(() => {
     if (activeStep === 1 && isMutateInfoError) {
       handleBack();
@@ -466,10 +470,21 @@ const SetupDialog = (props) => {
                 spacing={1}
               >
                 {activeStep !== 3 && (
-                  <Tooltip title="Save and close">
-                    <StyledIconButton onClick={handleClose}>
-                      <Close />
-                    </StyledIconButton>
+                  <Tooltip
+                    title={
+                      isTitleValidated()
+                        ? "Save and close"
+                        : "Disabled as some form fields have errors"
+                    }
+                  >
+                    <span>
+                      <StyledIconButton
+                        disabled={!isTitleValidated()}
+                        onClick={handleClose}
+                      >
+                        <Close />
+                      </StyledIconButton>
+                    </span>
                   </Tooltip>
                 )}
               </Stack>
@@ -512,6 +527,7 @@ const SetupDialog = (props) => {
                   mutateInfoError={returnInfoError()[1]}
                   isDeleteProjectError={isDeleteProjectError}
                   isMutateInfoError={returnInfoError()[0]}
+                  isTitleValidated={isTitleValidated()}
                   handleInfoChange={handleInfoChange}
                   datasetAdded={projectHasDataset()}
                   setTextFieldFocused={setTextFieldFocused}
