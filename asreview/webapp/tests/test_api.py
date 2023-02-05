@@ -32,17 +32,35 @@ def test_init_project(tmp_path, client):
     # change default folder for projects
     os.environ["ASREVIEW_PATH"] = str(tmp_path)
 
-    response = client.post("/api/projects/info", data={
+    response_info = client.post("/api/projects/info", data={
+        "mode": "explore",
+    })
+    json_data_info = response_info.get_json()
+    project_id = json_data_info["id"]
+
+    response_data = client.post(f"/api/projects/{project_id}/data", data={
+        "benchmark": "benchmark:Hall_2012"
+    })
+    json_data_data = response_data.get_json()
+
+    assert response_data.status_code == 200
+    assert "project_id" in json_data_data
+
+    assert response_info.status_code == 201
+    assert "name" in json_data_info
+    assert isinstance(json_data_info, dict)
+
+
+def test_update_project_info(client):
+    """Test update project info"""
+
+    response = client.put("/api/projects/hall-2012/info", data={
         "mode": "explore",
         "name": "project_id",
-        "authors": "name",
+        "authors": "asreview team",
         "description": "hello world"
     })
-    json_data = response.get_json()
-
-    assert response.status_code == 201
-    assert "name" in json_data
-    assert isinstance(json_data, dict)
+    assert response.status_code == 200
 
 
 def test_upgrade_project_if_old(client):
@@ -77,15 +95,6 @@ def test_demo_data_project(client):
     assert isinstance(json_benchmark_data["result"], list)
 
 
-def test_upload_data_to_project(client):
-    """Test add data to project."""
-
-    response = client.post("/api/projects/project-id/data", data={
-        "benchmark": "benchmark:Hall_2012"
-    })
-    assert response.status_code == 200
-
-
 def test_get_project_data(client):
     """Test get info on the data"""
 
@@ -100,18 +109,6 @@ def test_get_dataset_writer(client):
     response = client.get("/api/projects/project-id/dataset_writer")
     json_data = response.get_json()
     assert isinstance(json_data["result"], list)
-
-
-def test_update_project_info(client):
-    """Test update project info"""
-
-    response = client.put("/api/projects/project-id/info", data={
-        "mode": "explore",
-        "name": "project_id",
-        "authors": "asreview team",
-        "description": "hello world"
-    })
-    assert response.status_code == 200
 
 
 def test_get_project_info(client):
