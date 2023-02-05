@@ -115,6 +115,13 @@ const ProjectInfoForm = (props) => {
             <CircularProgress />
           </Box>
         )}
+        {isProjectSetup() && props.isMutateInfoError && (
+          <InlineErrorHandler
+            message={props.mutateInfoError?.message}
+            refetch={props.resetMutateInfo}
+            button
+          />
+        )}
         {((isProjectSetup() &&
           fetchInfoState.status !== "error" &&
           !fetchInfoState.isFetching &&
@@ -134,10 +141,8 @@ const ProjectInfoForm = (props) => {
                   >
                     <TextField
                       autoFocus
-                      // error={props.isMutateInfoError}
                       error={!props.isTitleValidated}
                       fullWidth
-                      helperText={props.mutateInfoError?.message}
                       id="project-title"
                       inputProps={{
                         onFocus: () => onFocus(),
@@ -281,9 +286,6 @@ const ProjectInfoForm = (props) => {
             refetch={refetch}
             button
           />
-        )}
-        {props.isDeleteProjectError && (
-          <InlineErrorHandler message={props.deleteProjectError?.message} />
         )}
       </Stack>
     </Root>

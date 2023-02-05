@@ -119,12 +119,6 @@ const SetupDialog = (props) => {
     if (isMutateInfoError && event.target.name === "title") {
       resetMutateInfo();
     }
-    if (isDeleteProjectError) {
-      resetDeleteProject();
-    }
-    if (event.target.name === "mode" && projectHasDataset()) {
-      deleteProject({ project_id: props.project_id });
-    }
     setInfo({
       ...info,
       [event.target.name]: event.target.value,
@@ -170,33 +164,6 @@ const SetupDialog = (props) => {
       refetchOnWindowFocus: false,
     }
   );
-
-  const {
-    error: deleteProjectError,
-    isError: isDeleteProjectError,
-    mutate: deleteProject,
-    reset: resetDeleteProject,
-  } = useMutation(ProjectAPI.mutateDeleteProject, {
-    onSuccess: () => {
-      props.setProjectId(null);
-      setTextFieldFocused(null);
-      setInfo((s) => {
-        return {
-          ...s,
-          dataset_path: undefined,
-        };
-      });
-      queryClient.resetQueries("fetchLabeledStats");
-    },
-  });
-
-  const returnInfoError = () => {
-    if (isMutateInfoError) {
-      return [isMutateInfoError, mutateInfoError];
-    } else {
-      return [false, null];
-    }
-  };
 
   // auto mutate info when text field is not focused
   React.useEffect(() => {
@@ -523,13 +490,12 @@ const SetupDialog = (props) => {
               {activeStep === 0 && (
                 <ProjectInfoForm
                   info={info}
-                  deleteProjectError={deleteProjectError}
-                  mutateInfoError={returnInfoError()[1]}
-                  isDeleteProjectError={isDeleteProjectError}
-                  isMutateInfoError={returnInfoError()[0]}
+                  mutateInfoError={mutateInfoError}
+                  isMutateInfoError={isMutateInfoError}
                   isTitleValidated={isTitleValidated()}
                   handleInfoChange={handleInfoChange}
                   datasetAdded={projectHasDataset()}
+                  resetMutateInfo={resetMutateInfo}
                   setTextFieldFocused={setTextFieldFocused}
                 />
               )}
