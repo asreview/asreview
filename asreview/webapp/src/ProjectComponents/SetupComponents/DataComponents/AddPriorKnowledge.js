@@ -99,7 +99,7 @@ const AddPriorKnowledge = (props) => {
     >
       {props.mobileScreen && (
         <AppBarWithinDialog
-          onClickStartIcon={props.toggleAddPriorKnowledge}
+          onClickStartIcon={props.toggleAddPrior}
           startIconIsClose={false}
           title="Prior knowledge"
         />
@@ -121,7 +121,7 @@ const AddPriorKnowledge = (props) => {
               <Box className="dialog-header-button right">
                 <Button
                   variant={!isEnoughPriorKnowledge() ? "text" : "contained"}
-                  onClick={props.toggleAddPriorKnowledge}
+                  onClick={props.toggleAddPrior}
                 >
                   Close
                 </Button>

@@ -86,7 +86,7 @@ const DataForm = (props) => {
             primaryAdded="Prior knowledge added"
             secondaryDefault="Label at least 1 relevant and 1 irrelevant record to warm up the AI"
             secondaryAdded={`${props.labeledStats?.n_prior_inclusions} relevant and ${props.labeledStats?.n_prior_exclusions} irrelevant records`}
-            toggleAddCard={props.toggleAddPriorKnowledge}
+            toggleAddCard={props.toggleAddPrior}
           />
         </Stack>
       )}

@@ -34,7 +34,6 @@ import {
   projectModes,
   projectStatuses,
 } from "../../globals.js";
-import { useToggle } from "../../hooks/useToggle";
 
 const steps = ["Project information", "Data", "Model", "Warm up"];
 
@@ -93,7 +92,6 @@ const SetupDialog = (props) => {
   const [textFiledFocused, setTextFieldFocused] = React.useState(null); // for autosave on blur
 
   // State Step 2: Data
-  const [addPriorKnowledge, toggleAddPriorKnowledge] = useToggle();
 
   // State Step 3: Model
   const [model, setModel] = React.useState({
@@ -411,13 +409,13 @@ const SetupDialog = (props) => {
         onExited: () => exitedSetup(),
       }}
     >
-      {props.mobileScreen && !addPriorKnowledge && (
+      {props.mobileScreen && (
         <AppBarWithinDialog
           onClickStartIcon={handleClose}
           title={info?.title}
         />
       )}
-      {!props.mobileScreen && !addPriorKnowledge && (
+      {!props.mobileScreen && (
         <Fade in>
           <Stack className="dialog-header" direction="row">
             <DialogTitle>{info?.title}</DialogTitle>
@@ -453,84 +451,82 @@ const SetupDialog = (props) => {
           </Stack>
         </Fade>
       )}
-      {!addPriorKnowledge && (
-        <Fade in>
-          <DialogContent className={classes.content} dividers>
-            <Box className={classes.stepper}>
-              <Stepper alternativeLabel activeStep={activeStep}>
-                {steps.map((label, index) => {
-                  const labelProps = {};
-                  if (
-                    !isFetchingInfo &&
-                    !isFetchInfoError &&
-                    isStepFailed(index)
-                  ) {
-                    labelProps.error = true;
-                  }
-                  return (
-                    <Step key={label}>
-                      <StepLabel {...labelProps}>{label}</StepLabel>
-                    </Step>
-                  );
-                })}
-              </Stepper>
-            </Box>
-            <Box
-              className={clsx({
-                [classes.form]: true,
-                [classes.formWarmup]: activeStep === 3,
+      <Fade in>
+        <DialogContent className={classes.content} dividers>
+          <Box className={classes.stepper}>
+            <Stepper alternativeLabel activeStep={activeStep}>
+              {steps.map((label, index) => {
+                const labelProps = {};
+                if (
+                  !isFetchingInfo &&
+                  !isFetchInfoError &&
+                  isStepFailed(index)
+                ) {
+                  labelProps.error = true;
+                }
+                return (
+                  <Step key={label}>
+                    <StepLabel {...labelProps}>{label}</StepLabel>
+                  </Step>
+                );
               })}
-            >
-              {activeStep === 0 && (
-                <ProjectInfoForm
-                  info={info}
-                  mutateInfoError={mutateInfoError}
-                  isMutateInfoError={isMutateInfoError}
-                  isTitleValidated={isTitleValidated()}
-                  handleInfoChange={handleInfoChange}
-                  resetMutateInfo={resetMutateInfo}
-                  setTextFieldFocused={setTextFieldFocused}
-                />
-              )}
-              {activeStep === 1 && (
-                <DataForm
-                  labeledStats={labeledStats}
-                  toggleAddPriorKnowledge={toggleAddPriorKnowledge}
-                  fetchInfoError={fetchInfoError}
-                  fetchLabeledStatsError={fetchLabeledStatsError}
-                  isFetchInfoError={isFetchInfoError}
-                  isFetchLabeledStatsError={isFetchLabeledStatsError}
-                  isFetchingLabeledStats={isFetchingLabeledStats}
-                />
-              )}
-              {activeStep === 2 && (
-                <ModelForm
-                  model={model}
-                  setModel={setModel}
-                  isMutateModelConfigError={isMutateModelConfigError}
-                  mutateModelConfigError={mutateModelConfigError}
-                  reset={resetMutateModelConfig}
-                />
-              )}
-              {activeStep === 3 && (
-                <FinishSetup
-                  handleBack={handleBack}
-                  isPreparingProject={isPreparingProject}
-                  isProjectReadyError={isProjectReadyError}
-                  isStartTrainingError={isStartTrainingError}
-                  mode={info.mode}
-                  projectReadyError={projectReadyError}
-                  restartTraining={restartTraining}
-                  startTrainingError={startTrainingError}
-                  trainingFinished={trainingFinished}
-                  toggleProjectSetup={props.onClose}
-                />
-              )}
-            </Box>
-          </DialogContent>
-        </Fade>
-      )}
-      {!addPriorKnowledge && activeStep !== 3 && (
+            </Stepper>
+          </Box>
+          <Box
+            className={clsx({
+              [classes.form]: true,
+              [classes.formWarmup]: activeStep === 3,
+            })}
+          >
+            {activeStep === 0 && (
+              <ProjectInfoForm
+                info={info}
+                mutateInfoError={mutateInfoError}
+                isMutateInfoError={isMutateInfoError}
+                isTitleValidated={isTitleValidated()}
+                handleInfoChange={handleInfoChange}
+                resetMutateInfo={resetMutateInfo}
+                setTextFieldFocused={setTextFieldFocused}
+              />
+            )}
+            {activeStep === 1 && (
+              <DataForm
+                labeledStats={labeledStats}
+                fetchInfoError={fetchInfoError}
+                fetchLabeledStatsError={fetchLabeledStatsError}
+                isFetchInfoError={isFetchInfoError}
+                isFetchLabeledStatsError={isFetchLabeledStatsError}
+                isFetchingLabeledStats={isFetchingLabeledStats}
+                toggleAddPrior={props.toggleAddPrior}
+              />
+            )}
+            {activeStep === 2 && (
+              <ModelForm
+                model={model}
+                setModel={setModel}
+                isMutateModelConfigError={isMutateModelConfigError}
+                mutateModelConfigError={mutateModelConfigError}
+                reset={resetMutateModelConfig}
+              />
+            )}
+            {activeStep === 3 && (
+              <FinishSetup
+                handleBack={handleBack}
+                isPreparingProject={isPreparingProject}
+                isProjectReadyError={isProjectReadyError}
+                isStartTrainingError={isStartTrainingError}
+                mode={info.mode}
+                projectReadyError={projectReadyError}
+                restartTraining={restartTraining}
+                startTrainingError={startTrainingError}
+                trainingFinished={trainingFinished}
+                toggleProjectSetup={props.onClose}
+              />
+            )}
+          </Box>
+        </DialogContent>
+      </Fade>
+      {activeStep !== 3 && (
         <Fade in>
           <DialogActions>
             {activeStep !== 0 && (

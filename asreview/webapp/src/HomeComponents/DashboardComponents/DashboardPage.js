@@ -145,6 +145,7 @@ const DashboardPage = (props) => {
       <SetupDialog
         mobileScreen={props.mobileScreen}
         open={props.onProjectSetup}
+        toggleAddPrior={toggleAddPrior}
         onClose={props.toggleProjectSetup}
         selectedMode={selectedMode}
         setFeedbackBar={setFeedbackBar}
