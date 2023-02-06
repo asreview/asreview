@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useQuery, useQueryClient } from "react-query";
+import { useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -30,25 +30,12 @@ const Root = styled("div")(({ theme }) => ({
 const DataForm = (props) => {
   const queryClient = useQueryClient();
 
-  const { data, error, isError, isFetching } = useQuery(
-    ["fetchData", { project_id: props.project_id }],
-    ProjectAPI.fetchData,
-    {
-      enabled: props.project_id !== null && props.datasetAdded,
-      refetchOnWindowFocus: false,
-    }
-  );
-
   const priorAdded = () => {
     return (
       props.labeledStats &&
       props.labeledStats.n_inclusions !== 0 &&
       props.labeledStats.n_exclusions !== 0
     );
-  };
-
-  const refetchData = () => {
-    queryClient.resetQueries("fetchData");
   };
 
   const refetchInfo = () => {
@@ -72,17 +59,10 @@ const DataForm = (props) => {
           the AI. Prior knowledge is required to warm up the AI.
         </Typography>
       </Box>
-      {!props.isFetchInfoError && (isFetching || props.isFetchingLabeledStats) && (
+      {!props.isFetchInfoError && props.isFetchingLabeledStats && (
         <Box className={classes.loading}>
           <CircularProgress />
         </Box>
-      )}
-      {!isFetching && isError && (
-        <InlineErrorHandler
-          message={error?.message}
-          refetch={refetchData}
-          button={true}
-        />
       )}
       {props.isFetchInfoError && (
         <InlineErrorHandler
@@ -98,34 +78,18 @@ const DataForm = (props) => {
           button={true}
         />
       )}
-      {!isFetching &&
-        !props.isFetchingLabeledStats &&
-        !isError &&
-        !props.isFetchLabeledStatsError && (
-          <Stack direction="column" spacing={3}>
-            <DataFormCard
-              added={props.datasetAdded}
-              primaryDefault="Add dataset"
-              primaryAdded={
-                <React.Fragment>
-                  Dataset <i>{data?.filename}</i> added
-                </React.Fragment>
-              }
-              secondaryDefault="Import a dataset or select a built-in dataset"
-              secondaryAdded={`Contains ${data?.n_rows} records with approximate ${data?.n_duplicates} duplicates`}
-              toggleAddCard={props.toggleAddDataset}
-            />
-            <DataFormCard
-              added={priorAdded()}
-              datasetAdded={props.datasetAdded}
-              primaryDefault="Add prior knowledge"
-              primaryAdded="Prior knowledge added"
-              secondaryDefault="Label at least 1 relevant and 1 irrelevant record to warm up the AI"
-              secondaryAdded={`${props.labeledStats?.n_prior_inclusions} relevant and ${props.labeledStats?.n_prior_exclusions} irrelevant records`}
-              toggleAddCard={props.toggleAddPriorKnowledge}
-            />
-          </Stack>
-        )}
+      {!props.isFetchingLabeledStats && !props.isFetchLabeledStatsError && (
+        <Stack direction="column" spacing={3}>
+          <DataFormCard
+            added={priorAdded()}
+            primaryDefault="Add prior knowledge"
+            primaryAdded="Prior knowledge added"
+            secondaryDefault="Label at least 1 relevant and 1 irrelevant record to warm up the AI"
+            secondaryAdded={`${props.labeledStats?.n_prior_inclusions} relevant and ${props.labeledStats?.n_prior_exclusions} irrelevant records`}
+            toggleAddCard={props.toggleAddPriorKnowledge}
+          />
+        </Stack>
+      )}
     </Root>
   );
 };

@@ -61,15 +61,7 @@ const DataFormCard = (props) => {
             className={classes.cardOverlay}
             sx={{
               bgcolor: (theme) => {
-                if (props.datasetAdded !== undefined && !props.datasetAdded) {
-                  if (theme.palette.mode === "dark") {
-                    return "rgba(40, 40, 40, 0.7)";
-                  } else {
-                    return "rgba(255, 255, 255, 0.5)";
-                  }
-                } else {
-                  return "transparent";
-                }
+                return "transparent";
               },
             }}
           />
@@ -115,10 +107,7 @@ const DataFormCard = (props) => {
           )}
           <Stack direction="row" sx={{ alignItems: "center" }}>
             {props.added && <Check color="success" sx={{ mr: 1 }} />}
-            <Button
-              disabled={props.datasetAdded !== undefined && !props.datasetAdded}
-              onClick={props.toggleAddCard}
-            >
+            <Button onClick={props.toggleAddCard}>
               {!props.added ? "Add" : "Edit"}
             </Button>
           </Stack>

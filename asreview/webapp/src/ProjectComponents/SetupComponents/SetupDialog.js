@@ -93,7 +93,6 @@ const SetupDialog = (props) => {
   const [textFiledFocused, setTextFieldFocused] = React.useState(null); // for autosave on blur
 
   // State Step 2: Data
-  const [addDataset, toggleAddDataset] = useToggle();
   const [addPriorKnowledge, toggleAddPriorKnowledge] = useToggle();
 
   // State Step 3: Model
@@ -111,10 +110,6 @@ const SetupDialog = (props) => {
   /**
    * Step 1: Project information
    */
-  const projectHasDataset = () => {
-    return info.dataset_path !== undefined && info.dataset_path !== null;
-  };
-
   const handleInfoChange = (event) => {
     if (isMutateInfoError && event.target.name === "title") {
       resetMutateInfo();
@@ -205,8 +200,7 @@ const SetupDialog = (props) => {
     ["fetchLabeledStats", { project_id: props.project_id }],
     ProjectAPI.fetchLabeledStats,
     {
-      enabled:
-        props.project_id !== null && activeStep === 1 && projectHasDataset(),
+      enabled: props.project_id !== null && activeStep === 1,
       refetchOnWindowFocus: false,
     }
   );
@@ -417,14 +411,14 @@ const SetupDialog = (props) => {
         onExited: () => exitedSetup(),
       }}
     >
-      {props.mobileScreen && !addDataset && !addPriorKnowledge && (
+      {props.mobileScreen && !addPriorKnowledge && (
         <AppBarWithinDialog
           onClickStartIcon={handleClose}
           title={info?.title}
         />
       )}
-      {!props.mobileScreen && !addDataset && !addPriorKnowledge && (
-        <Fade in={!addDataset}>
+      {!props.mobileScreen && !addPriorKnowledge && (
+        <Fade in>
           <Stack className="dialog-header" direction="row">
             <DialogTitle>{info?.title}</DialogTitle>
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
@@ -459,8 +453,8 @@ const SetupDialog = (props) => {
           </Stack>
         </Fade>
       )}
-      {!addDataset && !addPriorKnowledge && (
-        <Fade in={!addDataset}>
+      {!addPriorKnowledge && (
+        <Fade in>
           <DialogContent className={classes.content} dividers>
             <Box className={classes.stepper}>
               <Stepper alternativeLabel activeStep={activeStep}>
@@ -494,16 +488,13 @@ const SetupDialog = (props) => {
                   isMutateInfoError={isMutateInfoError}
                   isTitleValidated={isTitleValidated()}
                   handleInfoChange={handleInfoChange}
-                  datasetAdded={projectHasDataset()}
                   resetMutateInfo={resetMutateInfo}
                   setTextFieldFocused={setTextFieldFocused}
                 />
               )}
               {activeStep === 1 && (
                 <DataForm
-                  datasetAdded={projectHasDataset()}
                   labeledStats={labeledStats}
-                  toggleAddDataset={toggleAddDataset}
                   toggleAddPriorKnowledge={toggleAddPriorKnowledge}
                   fetchInfoError={fetchInfoError}
                   fetchLabeledStatsError={fetchLabeledStatsError}
@@ -539,8 +530,8 @@ const SetupDialog = (props) => {
           </DialogContent>
         </Fade>
       )}
-      {!addDataset && !addPriorKnowledge && activeStep !== 3 && (
-        <Fade in={!addDataset}>
+      {!addPriorKnowledge && activeStep !== 3 && (
+        <Fade in>
           <DialogActions>
             {activeStep !== 0 && (
               <Button disabled={activeStep === 0} onClick={handleBack}>
