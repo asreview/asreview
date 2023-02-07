@@ -63,7 +63,7 @@ def asreview_login_required(func):
 
         if request.method in EXEMPT_METHODS:
             pass
-        elif current_app.config.get("AUTHENTICATION_ENABLED") == False:
+        elif not current_app.config.get("AUTHENTICATION_ENABLED"):
             pass
         else:
             # get current user

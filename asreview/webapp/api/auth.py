@@ -236,8 +236,8 @@ def signup():
                     # result
                     result = (
                         200,
-                        f"An email has been sent to {user.email} to verify "
-                        + f"your account. Please follow instructions.",
+                        f"An email has been sent to {user.email} to verify " +
+                        "your account. Please follow instructions.",
                     )
                 else:
                     # result is a 201 with message
@@ -273,8 +273,8 @@ def confirm_account():
             result = (404, "No user account / correct token found")
         elif not user.token_valid(token, max_hours=24):
             message = (
-                "Can not confirm account, token has expired. "
-                + 'Use "forgot password" to obtain a new one.'
+                "Can not confirm account, token has expired. " +
+                'Use "forgot password" to obtain a new one.'
             )
             result = (403, message)
         else:
@@ -458,10 +458,8 @@ def oauth_callback():
 
     # assuming we have this provider
     oauth_handler = current_app.config.get("OAUTH", False)
-    if (
-        isinstance(oauth_handler, OAuthHandler)
-        and provider in oauth_handler.providers()
-    ):
+    if isinstance(oauth_handler, OAuthHandler) and \
+            provider in oauth_handler.providers():
         # get user credentials for this user
         response = oauth_handler.get_user_credentials(provider, code, redirect_uri)
         (identifier, email, name) = response

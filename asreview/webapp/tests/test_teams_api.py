@@ -15,16 +15,12 @@
 import json
 import os
 import shutil
-from uuid import NAMESPACE_URL
-from uuid import uuid5
 
 import pytest
 from conftest import signin_user
 from conftest import signout
 from conftest import signup_user
 
-from asreview.project import PATH_FEATURE_MATRICES
-from asreview.project import _create_project_id
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import Collaboration
@@ -46,7 +42,7 @@ def populate(setup_teardown_signed_in):
         signup_user(client, "coll2@test.org", "123456")
         signin_user(client, "main@test.org", "abcdefg!!")
         # create project for users
-        resp = client.post(
+        client.post(
             "/api/projects/info",
             data={
                 "mode": "oracle",
@@ -77,7 +73,7 @@ def populate(setup_teardown_signed_in):
             for f in project_folders:
                 shutil.rmtree(f"{asreview_path()}/{f}")
 
-        except Exception as e:
+        except Exception:
             # don't care
             pass
 
@@ -216,12 +212,12 @@ def test_invitation_overview(populate):
     signin_user(client, "coll1@test.org", "123456")
 
     # coll1 wants to see invitations
-    url = f"/api/invitations"
+    url = "/api/invitations"
     resp = client.get(url)
     assert resp.status == "200 OK"
 
     data = json.loads(resp.text)
-    assert ("invited_for_projects" in data.keys()) == True
+    assert ("invited_for_projects" in data.keys())
     assert len(data["invited_for_projects"]) == 1
     assert data["invited_for_projects"][0]["id"] == project.id
 
@@ -358,7 +354,7 @@ def test_improper_get_team(populate):
     assert resp.status == "404 NOT FOUND"
 
 
-def test_owner_removes_collaborator(populate):
+def outsider_can_not_remove_collaborator(populate):
     """Test owner removes a collaborator"""
     client, _, coll1, _, project = populate
 

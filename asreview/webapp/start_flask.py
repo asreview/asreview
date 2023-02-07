@@ -44,8 +44,8 @@ from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
 # set logging level
 if (
-    os.environ.get("FLASK_DEBUG", "") == "1"
-    or os.environ.get("FLASK_ENV", "") == "development"
+    os.environ.get("FLASK_DEBUG", "") == "1" or
+    os.environ.get("FLASK_ENV", "") == "development"
 ):
     logging.basicConfig(level=logging.DEBUG)
 else:
@@ -121,7 +121,7 @@ def create_app(**kwargs):
         app.config.from_file(config_file_path, load=json.load)
 
     # set development / production
-    env = "development" if app.config["DEBUG"] == True else "production"
+    env = "development" if app.config["DEBUG"] is True else "production"
 
     # config JSON Web Tokens
     login_manager = LoginManager(app)
@@ -129,7 +129,7 @@ def create_app(**kwargs):
     login_manager.session_protection = "strong"
 
     # setup all database/authentication related resources
-    if app.config["AUTHENTICATION_ENABLED"] == True:
+    if app.config["AUTHENTICATION_ENABLED"] is True:
 
         # Register a callback function for current_user.
         @login_manager.user_loader
@@ -141,14 +141,14 @@ def create_app(**kwargs):
         # TODO: should I raise a custom Exception, like MissingParameterError?
         if not app.config.get("SECRET_KEY", False):
             raise ValueError(
-                "Please start an authenticated app with a "
-                + "secret key parameter (SECRET_KEY)"
+                "Please start an authenticated app with a " +
+                "secret key parameter (SECRET_KEY)"
             )
 
         if not app.config.get("SECURITY_PASSWORD_SALT", False):
             raise ValueError(
-                "Please start an authenticated app with a "
-                + "security password salt (SECURITY_PASSWORD_SALT)"
+                "Please start an authenticated app with a " +
+                "security password salt (SECURITY_PASSWORD_SALT)"
             )
 
         if app.config.get("EMAIL_VERIFICATION", False) and not app.config.get(
@@ -246,7 +246,7 @@ def create_app(**kwargs):
     @app.route("/boot", methods=["GET"])
     def api_boot():
         """Get the boot info."""
-        if app.config.get("DEBUG", None) == True:
+        if app.config.get("DEBUG", None) is True:
             status = "development"
         else:
             status = "asreview"

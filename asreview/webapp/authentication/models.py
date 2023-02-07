@@ -14,7 +14,6 @@
 
 import datetime as dt
 from pathlib import Path
-from uuid import uuid4
 
 from flask_login import UserMixin
 from itsdangerous import URLSafeTimedSerializer
@@ -26,7 +25,6 @@ from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import validates
-from sqlalchemy.orm.session import Session
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 
@@ -75,7 +73,7 @@ class User(UserMixin, DB.Model):
         return origin
 
     @validates("name")
-    def validate_origin(self, _key, name):
+    def validate_name(self, _key, name):
         if not bool(name):
             raise ValueError("Name is required")
         return name
@@ -86,12 +84,12 @@ class User(UserMixin, DB.Model):
     # I can compare it... and so on.
     @validates("origin", "email", "hashed_password")
     def validate_password(self, key, value):
-        if key == "email" and self.origin == "asreview" and bool(value) == False:
+        if key == "email" and self.origin == "asreview" and bool(value) is False:
             raise ValueError('Email is required when origin is "asreview"')
         if (
-            key == "hashed_password"
-            and self.origin == "asreview"
-            and bool(value) == False
+            key == "hashed_password" and
+            self.origin == "asreview" and
+            bool(value) is False
         ):
             raise ValueError('Password is required when origin is "asreview"')
         return value
@@ -224,7 +222,7 @@ class SingleUser:
         return 0
 
     def __repr__(self):
-        return f"<SingleUser>"
+        return "<SingleUser>"
 
 
 class Collaboration(DB.Model):

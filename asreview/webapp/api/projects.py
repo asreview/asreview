@@ -93,6 +93,7 @@ CORS(
     supports_credentials=True,
 )
 
+
 # error handlers
 @bp.errorhandler(ProjectNotFoundError)
 def project_not_found(e):
@@ -295,7 +296,7 @@ def api_update_project_info(project):  # noqa: F401
             # update project in the database
             # ==============================
             if current_app.config["AUTHENTICATION_ENABLED"]:
-                db_project = Project.query.filter(
+                Project.query.filter(
                     and_(
                         Project.owner_id == current_user.id,
                         Project.project_id == old_project_id,
@@ -382,9 +383,9 @@ def api_upload_data_to_project(project):  # noqa: F401
         url = request.form["url"]
 
     if (
-        request.form.get("plugin", None)
-        or request.form.get("benchmark", None)
-        or request.form.get("url", None)
+        request.form.get("plugin", None) or
+        request.form.get("benchmark", None) or
+        request.form.get("url", None)
     ):
         try:
             url_parts = urllib.parse.urlparse(url)
@@ -558,7 +559,7 @@ def api_list_dataset_writers(project):
         payload["result"] = [
             i
             for n, i in enumerate(payload["result"])
-            if i not in payload["result"][n + 1 :]
+            if i not in payload["result"][(n + 1):]
         ]
 
     except Exception as err:
@@ -1043,9 +1044,9 @@ def api_start(project):  # noqa: F401
                     "",
                     # specify prior indices
                     "--prior_idx",
-                ]
-                + list(map(str, priors))
-                + [
+                ] +
+                list(map(str, priors)) +
+                [
                     # specify state file
                     "--state_file",
                     str(project.project_path),
@@ -1212,10 +1213,10 @@ def api_export_dataset(project):
         included = labeled[labeled["label"] == 1]
         excluded = labeled[labeled["label"] != 1]
         export_order = (
-            included["record_id"].to_list()
-            + pending.to_list()
-            + pool.to_list()
-            + excluded["record_id"].to_list()
+            included["record_id"].to_list() +
+            pending.to_list() +
+            pool.to_list() +
+            excluded["record_id"].to_list()
         )
 
         # get writer corresponding to specified file format
@@ -1313,8 +1314,8 @@ def _get_stats(project, include_priors=False):
                 with open_state(project.project_path) as s:
 
                     if (
-                        project.config["reviews"][0]["status"] == "finished"
-                        and project.config["mode"] == PROJECT_MODE_SIMULATE
+                        project.config["reviews"][0]["status"] == "finished" and
+                        project.config["mode"] == PROJECT_MODE_SIMULATE
                     ):
                         labels = _get_labels(s, priors=include_priors)
                     else:
@@ -1391,8 +1392,8 @@ def api_get_progress_density(project):
         with open_state(project.project_path) as s:
 
             if (
-                project.config["reviews"][0]["status"] == "finished"
-                and project.config["mode"] == PROJECT_MODE_SIMULATE
+                project.config["reviews"][0]["status"] == "finished" and
+                project.config["mode"] == PROJECT_MODE_SIMULATE
             ):
                 data = _get_labels(s, priors=include_priors)
             else:
@@ -1453,8 +1454,8 @@ def api_get_progress_recall(project):
         with open_state(project.project_path) as s:
 
             if (
-                project.config["reviews"][0]["status"] == "finished"
-                and project.config["mode"] == PROJECT_MODE_SIMULATE
+                project.config["reviews"][0]["status"] == "finished" and
+                project.config["mode"] == PROJECT_MODE_SIMULATE
             ):
                 data = _get_labels(s, priors=include_priors)
             else:
@@ -1625,7 +1626,7 @@ def api_delete_project(project):  # noqa: F401
                     )
                 ).one_or_none()
 
-                if project != None:
+                if project is not None:
                     DB.session.delete(project)
                     DB.session.commit()
                 else:

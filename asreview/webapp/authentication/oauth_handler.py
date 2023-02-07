@@ -4,7 +4,7 @@ import requests
 class OAuthHandler:
     def __init__(self, configs=None):
         if not (bool(configs) and isinstance(configs, dict)):
-            raise f"OAuthHandler needs a configuration dictionary."
+            raise "OAuthHandler needs a configuration dictionary."
 
         # check if all necessary config parameters are there
         services = {}

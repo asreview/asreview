@@ -20,7 +20,6 @@ from uuid import uuid5
 from asreview.project import PATH_FEATURE_MATRICES
 from asreview.project import _create_project_id
 from asreview.utils import asreview_path
-from asreview.webapp import DB
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 
@@ -478,4 +477,4 @@ def test_delete_project(setup_teardown_signed_in):
     assert project.project_id == "another-project"
     foldername = uuid5(NAMESPACE_URL, f"{user.id}_{project.project_id}").hex
     assert project.folder == foldername
-    assert Path(asreview_path(), foldername).exists() == True
+    assert Path(asreview_path(), foldername).exists()
