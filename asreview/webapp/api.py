@@ -408,13 +408,6 @@ def api_upload_data_to_project(project):  # noqa: F401
         message = f"Failed to import file '{filename}'. {err}"
         return jsonify(message=message), 400
 
-    try:
-        # rename project to filename
-        project.rename(filename.rsplit('.', 1)[0])
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message=f"Failed to rename project. {err}"), 400
-
     response = jsonify({"project_id": project.project_id})
     response.headers.add('Access-Control-Allow-Origin', '*')
 

@@ -322,7 +322,7 @@ class ASReviewProject():
         if "name" in kwargs_copy:
             del kwargs_copy["name"]
             logging.info(
-                "Update project name is ignored, use 'rename_project' function."
+                "Update project name is ignored, use 'rename' function."
             )
 
         # validate schema
@@ -393,6 +393,7 @@ class ASReviewProject():
 
         Add file to data subfolder and fill the pool of iteration 0.
         """
+        self.rename(file_name.rsplit('.', 1)[0])
         self.update_config(dataset_path=file_name)
 
         # fill the pool of the first iteration
