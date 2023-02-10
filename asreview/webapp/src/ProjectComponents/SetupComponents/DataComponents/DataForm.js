@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useQueryClient } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -30,12 +30,17 @@ const Root = styled("div")(({ theme }) => ({
 const DataForm = (props) => {
   const queryClient = useQueryClient();
 
+  const { data, error, isError, isFetching, refetch } = useQuery(
+    ["fetchLabeledStats", { project_id: props.project_id }],
+    ProjectAPI.fetchLabeledStats,
+    {
+      enabled: props.project_id !== null,
+      refetchOnWindowFocus: false,
+    }
+  );
+
   const priorAdded = () => {
-    return (
-      props.labeledStats &&
-      props.labeledStats.n_inclusions !== 0 &&
-      props.labeledStats.n_exclusions !== 0
-    );
+    return data?.n_inclusions !== 0 && data?.n_exclusions !== 0;
   };
 
   const refetchInfo = () => {
@@ -43,10 +48,6 @@ const DataForm = (props) => {
       ["fetchInfo", { project_id: props.project_id }],
       ProjectAPI.fetchInfo
     );
-  };
-
-  const refetchLabeledStats = () => {
-    queryClient.resetQueries("fetchLabeledStats");
   };
 
   return (
@@ -59,7 +60,7 @@ const DataForm = (props) => {
           the AI. Prior knowledge is required to warm up the AI.
         </Typography>
       </Box>
-      {!props.isFetchInfoError && props.isFetchingLabeledStats && (
+      {!props.isFetchInfoError && isFetching && (
         <Box className={classes.loading}>
           <CircularProgress />
         </Box>
@@ -71,21 +72,17 @@ const DataForm = (props) => {
           button={true}
         />
       )}
-      {!props.isFetchingLabeledStats && props.isFetchLabeledStatsError && (
-        <InlineErrorHandler
-          message={props.fetchLabeledStatsError?.message}
-          refetch={refetchLabeledStats}
-          button={true}
-        />
+      {!isFetching && isError && (
+        <InlineErrorHandler message={error?.message} refetch={refetch} button />
       )}
-      {!props.isFetchingLabeledStats && !props.isFetchLabeledStatsError && (
+      {!isFetching && !isError && (
         <Stack direction="column" spacing={3}>
           <DataFormCard
             added={priorAdded()}
             primaryDefault="Add prior knowledge"
             primaryAdded="Prior knowledge added"
             secondaryDefault="Label at least 1 relevant and 1 irrelevant record to warm up the AI"
-            secondaryAdded={`${props.labeledStats?.n_prior_inclusions} relevant and ${props.labeledStats?.n_prior_exclusions} irrelevant records`}
+            secondaryAdded={`${data?.n_prior_inclusions} relevant and ${data?.n_prior_exclusions} irrelevant records`}
             toggleAddCard={props.toggleAddPrior}
           />
         </Stack>

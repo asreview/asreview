@@ -189,19 +189,10 @@ const SetupDialog = (props) => {
   /**
    * Step 2: Data
    */
-  const {
-    data: labeledStats,
-    error: fetchLabeledStatsError,
-    isError: isFetchLabeledStatsError,
-    isFetching: isFetchingLabeledStats,
-  } = useQuery(
-    ["fetchLabeledStats", { project_id: props.project_id }],
-    ProjectAPI.fetchLabeledStats,
-    {
-      enabled: props.project_id !== null && activeStep === 1,
-      refetchOnWindowFocus: false,
-    }
-  );
+  const labeledStats = queryClient.getQueryData([
+    "fetchLabeledStats",
+    { project_id: props.project_id },
+  ]);
 
   /**
    * Step3: Model
@@ -336,9 +327,7 @@ const SetupDialog = (props) => {
     }
     if (activeStep === 1) {
       return (
-        isFetchLabeledStatsError ||
-        !labeledStats?.n_prior_inclusions ||
-        !labeledStats?.n_prior_exclusions
+        !labeledStats?.n_prior_inclusions || !labeledStats?.n_prior_exclusions
       );
     }
     if (activeStep === 2) {
@@ -491,12 +480,8 @@ const SetupDialog = (props) => {
             )}
             {activeStep === 1 && (
               <DataForm
-                labeledStats={labeledStats}
                 fetchInfoError={fetchInfoError}
-                fetchLabeledStatsError={fetchLabeledStatsError}
                 isFetchInfoError={isFetchInfoError}
-                isFetchLabeledStatsError={isFetchLabeledStatsError}
-                isFetchingLabeledStats={isFetchingLabeledStats}
                 toggleAddPrior={props.toggleAddPrior}
               />
             )}

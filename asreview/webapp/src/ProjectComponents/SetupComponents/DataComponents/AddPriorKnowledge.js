@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useQueryClient } from "react-query";
+import { connect } from "react-redux";
 import {
   Box,
   Button,
@@ -24,6 +25,7 @@ import { AppBarWithinDialog } from "../../../Components";
 import { InfoCard, SavingStateBox } from "../../SetupComponents";
 import { PriorLabeled, PriorRandom, PriorSearch } from "../DataComponents";
 import { useToggle } from "../../../hooks/useToggle";
+import { mapStateToProps } from "../../../globals.js";
 
 const PREFIX = "AddPriorKnowledge";
 
@@ -76,6 +78,11 @@ const AddPriorKnowledge = (props) => {
   const [search, toggleSearch] = useToggle();
   const [random, toggleRandom] = useToggle();
 
+  const data = queryClient.getQueryData([
+    "fetchLabeledStats",
+    { project_id: props.project_id },
+  ]);
+
   const isEnoughPriorKnowledge = () => {
     return props.n_prior_exclusions > 4 && props.n_prior_inclusions > 4;
   };
@@ -89,6 +96,7 @@ const AddPriorKnowledge = (props) => {
 
   return (
     <StyledDialog
+      hideBackdrop
       open={props.open}
       fullScreen={props.mobileScreen}
       fullWidth
@@ -115,7 +123,7 @@ const AddPriorKnowledge = (props) => {
                   step.
                 </Typography>
               )}
-              {props.n_prior !== 0 && (
+              {data?.n_prior !== 0 && (
                 <SavingStateBox isSaving={isSavingPriorKnowledge()} />
               )}
               <Box className="dialog-header-button right">
@@ -181,15 +189,15 @@ const AddPriorKnowledge = (props) => {
               )}
               {search && !random && (
                 <PriorSearch
-                  n_prior={props.n_prior}
+                  n_prior={data?.n_prior}
                   toggleSearch={toggleSearch}
                 />
               )}
               {!search && random && (
                 <PriorRandom
                   mode={props.mode}
-                  n_prior={props.n_prior}
-                  n_prior_exclusions={props.n_prior_exclusions}
+                  n_prior={data?.n_prior}
+                  n_prior_exclusions={data?.n_prior_exclusions}
                   toggleRandom={toggleRandom}
                   toggleSearch={toggleSearch}
                 />
@@ -203,9 +211,9 @@ const AddPriorKnowledge = (props) => {
             >
               <PriorLabeled
                 mobileScreen={props.mobileScreen}
-                n_prior={props.n_prior}
-                n_prior_exclusions={props.n_prior_exclusions}
-                n_prior_inclusions={props.n_prior_inclusions}
+                n_prior={data?.n_prior}
+                n_prior_exclusions={data?.n_prior_exclusions}
+                n_prior_inclusions={data?.n_prior_inclusions}
               />
             </Card>
           </Stack>
@@ -215,4 +223,4 @@ const AddPriorKnowledge = (props) => {
   );
 };
 
-export default AddPriorKnowledge;
+export default connect(mapStateToProps)(AddPriorKnowledge);
