@@ -20,7 +20,6 @@ from pathlib import Path
 
 import pytest
 
-from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import User
 from asreview.webapp.start_flask import create_app
@@ -66,10 +65,10 @@ def setup_teardown_standard(request):
 def create_user(identifier, email=None, confirmed=True, password=None):
     return User(
         identifier,
-        email=(email if email != None else identifier),
+        email=(email if email is not None else identifier),
         name="Whatever",
         confirmed=confirmed,
-        password=(password if password != None else "127635uyguytAYUTUYT"),
+        password=(password if password is not None else "127635uyguytAYUTUYT"),
     )
 
 
@@ -112,9 +111,9 @@ def test_successful_signup_confirmed(setup_teardown_standard):
     assert response.status_code == 201
     # get user
     user = User.query.first()
-    assert user.confirmed == False
-    assert bool(user.token) == True
-    assert bool(user.token_created_at) == True
+    assert not user.confirmed
+    assert bool(user.token)
+    assert bool(user.token_created_at)
 
 
 def test_successful_signup_no_confirmation(setup_teardown_standard):
@@ -127,9 +126,9 @@ def test_successful_signup_no_confirmation(setup_teardown_standard):
     assert response.status_code == 201
     # get user
     user = User.query.first()
-    assert user.confirmed == True
-    assert bool(user.token) == False
-    assert bool(user.token_created_at) == False
+    assert user.confirmed
+    assert not bool(user.token)
+    assert not bool(user.token_created_at)
 
 
 def test_unique_identifier_api(setup_teardown_standard):
@@ -193,7 +192,7 @@ def test_unsuccessful_signin_with_unconfirmed_account(setup_teardown_standard):
     assert response.status_code == 201
     # get user
     user = User.query.first()
-    assert user.confirmed == False
+    assert not user.confirmed
     # try to sign in
     response = signin_user(client, email, password)
     assert response.status_code == 404
@@ -293,9 +292,9 @@ def token_confirmation_after_signup(setup_teardown_standard):
     assert response.status_code == 201
     # get user
     user = User.query.first()
-    assert user.confirmed == False
-    assert bool(user.token) == True
-    assert bool(user.token_created_at) == True
+    assert not user.confirmed
+    assert bool(user.token)
+    assert bool(user.token_created_at)
     # now we confirm this user
     response = client.get(
         f"/auth/confirm?user_id={user.id}&token={user.token}",
@@ -303,9 +302,9 @@ def token_confirmation_after_signup(setup_teardown_standard):
     assert response.status_code == 200
     # get user again
     user = User.query.first()
-    assert user.confirmed == True
-    assert bool(user.token) == False
-    assert bool(user.token_created_at) == False
+    assert user.confirmed
+    assert not bool(user.token)
+    assert not bool(user.token_created_at)
 
 
 @pytest.mark.parametrize(
@@ -336,7 +335,7 @@ def test_expired_token(setup_teardown_standard):
     # get user again
     user = User.query.first()
     # user is not confirmed yet
-    assert user.confirmed == False
+    assert not user.confirmed
     # token is unchanged
     assert user.token == token
 
@@ -427,10 +426,10 @@ def test_token_creation_if_forgot_password(setup_teardown_standard):
     DB.session.commit()
     time.sleep(1.5)
     # forgot password
-    response = client.post(f"/auth/forgot_password", data={"email": user.email})
+    response = client.post("/auth/forgot_password", data={"email": user.email})
     # get latest version of user
     user = User.query.first()
     # asserts
-    assert bool(user.token) == True
+    assert bool(user.token)
     assert user.token != old_token
     assert user.token_created_at > old_token_created_at

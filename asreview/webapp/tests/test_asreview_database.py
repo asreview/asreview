@@ -64,7 +64,6 @@ TEST_USER_IDENTIFIER = "c.s.kaandorp@uu.nl"
 
 
 def create_test_user():
-    email = TEST_USER_IDENTIFIER
     return User(
         TEST_USER_IDENTIFIER,
         email=TEST_USER_IDENTIFIER,
@@ -458,9 +457,9 @@ def test_removing_project_removes_invites():
     assert len(CollaborationInvitation.query.all()) == 0
 
 
-#####################
-## COLLABO invitations ##
-#####################
+#######################
+# COLLABO invitations #
+#######################
 
 
 def test_add_collaboration_invite():
@@ -537,47 +536,7 @@ def test_removing_an_invitation():
     DB.session.add_all([owner, coll1, coll2])
     DB.session.commit()
 
-    # verify we have 1 record
-    assert len(User.query.all()) == 3
-    assert len(Project.query.all()) == 1
-
-    # assert there are no collaborators
-    project = owner.projects[-1]
-    assert len(project.pending_invitations) == 0
-    # add collaborators
-    project.pending_invitations.append(coll1)
-    project.pending_invitations.append(coll2)
-    DB.session.commit()
-
-    # assert there are 2 collaborators
-    assert len(project.pending_invitations) == 2
-
-    # remove collaborator 2
-    owner.projects[0].pending_invitations.remove(coll2)
-    DB.session.commit()
-
-    # assert one collaborator is gone
-    assert len(project.pending_invitations) == 1
-    # and the remaining collaborators is still there
-    assert project.pending_invitations == [coll1]
-
-
-def test_removing_an_invitation():
-    """Verify if I can remove an invitation from a project"""
-    # verify we start with a clean database
-    assert len(User.query.all()) == 0
-    assert len(Project.query.all()) == 0
-    assert len(Collaboration.query.all()) == 0
-    assert len(CollaborationInvitation.query.all()) == 0
-
-    owner = create_test_user()
-    coll1 = create_team_user("collabo1")
-    coll2 = create_team_user("collabo2")
-    owner.projects.append(Project(project_id="my-project", folder="a"))
-    DB.session.add_all([owner, coll1, coll2])
-    DB.session.commit()
-
-    # verify we have 1 record
+    # verify we have project 1 record
     assert len(User.query.all()) == 3
     assert len(Project.query.all()) == 1
 
