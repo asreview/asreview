@@ -62,7 +62,7 @@ def type_from_column_spec(col_name, column_spec):
     str:
         The standardized name. If it wasn't found, return None.
     """
-    for data_type, column_spec_name in column_spec.items():
+    for column_spec_name, data_type in column_spec.items():
         if col_name.lower() == column_spec_name.lower():
             return data_type
     return None
