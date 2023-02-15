@@ -29,7 +29,6 @@ class RandomQuery(BaseQueryStrategy):
         accelerated by ASReview.
 
     """
-
     name = "random"
     label = "Random"
 
@@ -42,7 +41,6 @@ class RandomQuery(BaseQueryStrategy):
             n_instances = X.shape[0]
 
         query_idx = self._random_state.choice(
-            np.arange(X.shape[0]), n_instances, replace=False
-        )
+            np.arange(X.shape[0]), n_instances, replace=False)
 
         return query_idx

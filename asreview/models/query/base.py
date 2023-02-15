@@ -23,7 +23,11 @@ class BaseQueryStrategy(BaseModel):
     name = "base-query"
 
     @abstractmethod
-    def query(self, X, classifier=None, n_instances=None, **kwargs):
+    def query(self,
+              X,
+              classifier=None,
+              n_instances=None,
+              **kwargs):
         """Query new instances.
 
         Arguments
@@ -50,7 +54,8 @@ class ProbaQueryStrategy(BaseQueryStrategy):
     name = "proba"
 
     def query(self, X, classifier, n_instances=None, **kwargs):
-        """Query method for strategies which use class probabilities."""
+        """Query method for strategies which use class probabilities.
+        """
         if n_instances is None:
             n_instances = X.shape[0]
 

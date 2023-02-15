@@ -36,12 +36,12 @@ class Tfidf(BaseFeatureExtraction):
         When set to 'english', use stopwords. If set to None or 'none',
         do not use stop words.
     """
-
     name = "tfidf"
     label = "TF-IDF"
 
     def __init__(self, *args, ngram_max=1, stop_words="english", **kwargs):
-        """Initialize tfidf class."""
+        """Initialize tfidf class.
+        """
         super(Tfidf, self).__init__(*args, **kwargs)
         self.ngram_max = ngram_max
         self.stop_words = stop_words
@@ -49,9 +49,8 @@ class Tfidf(BaseFeatureExtraction):
             sklearn_stop_words = None
         else:
             sklearn_stop_words = self.stop_words
-        self._model = TfidfVectorizer(
-            ngram_range=(1, ngram_max), stop_words=sklearn_stop_words
-        )
+        self._model = TfidfVectorizer(ngram_range=(1, ngram_max),
+                                      stop_words=sklearn_stop_words)
 
     def fit(self, texts):
         self._model.fit(texts)
@@ -64,13 +63,12 @@ class Tfidf(BaseFeatureExtraction):
         from hyperopt import hp
 
         hyper_space, hyper_choices = super(Tfidf, self).full_hyper_space()
-        hyper_choices.update({"fex_stop_words": ["english", "none"]})
-        hyper_space.update(
-            {
-                "fex_ngram_max": hp.uniformint("fex_ngram_max", 1, 3),
-                "fex_stop_words": hp.choice(
-                    "fex_stop_words", hyper_choices["fex_stop_words"]
-                ),
-            }
-        )
+        hyper_choices.update({
+            "fex_stop_words": ["english", "none"]
+        })
+        hyper_space.update({
+            "fex_ngram_max": hp.uniformint("fex_ngram_max", 1, 3),
+            "fex_stop_words": hp.choice('fex_stop_words',
+                                        hyper_choices["fex_stop_words"]),
+        })
         return hyper_space, hyper_choices

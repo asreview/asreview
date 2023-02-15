@@ -18,7 +18,6 @@ try:
     from gensim.models.doc2vec import Doc2Vec as GenSimDoc2Vec
     from gensim.models.doc2vec import TaggedDocument
     from gensim.utils import simple_preprocess
-
     GENSIM_AVAILABLE = True
 except ImportError:
     GENSIM_AVAILABLE = False
@@ -28,7 +27,9 @@ from asreview.models.feature_extraction.base import BaseFeatureExtraction
 
 def _check_gensim():
     if not GENSIM_AVAILABLE:
-        raise ImportError("Install gensim package to use" " Doc2Vec.")
+        raise ImportError(
+            "Install gensim package to use"
+            " Doc2Vec.")
 
 
 def _train_model(corpus, *args, **kwargs):
@@ -92,19 +93,17 @@ class Doc2Vec(BaseFeatureExtraction):
     name = "doc2vec"
     label = "Doc2Vec"
 
-    def __init__(
-        self,
-        *args,
-        vector_size=40,
-        epochs=33,
-        min_count=1,
-        n_jobs=1,
-        window=7,
-        dm_concat=0,
-        dm=2,
-        dbow_words=0,
-        **kwargs
-    ):
+    def __init__(self,
+                 *args,
+                 vector_size=40,
+                 epochs=33,
+                 min_count=1,
+                 n_jobs=1,
+                 window=7,
+                 dm_concat=0,
+                 dm=2,
+                 dbow_words=0,
+                 **kwargs):
         """Initialize the doc2vec model."""
         super(Doc2Vec, self).__init__(*args, **kwargs)
         self.vector_size = int(vector_size)
@@ -135,7 +134,8 @@ class Doc2Vec(BaseFeatureExtraction):
         }
 
         corpus = [
-            TaggedDocument(simple_preprocess(text), [i]) for i, text in enumerate(texts)
+            TaggedDocument(simple_preprocess(text), [i])
+            for i, text in enumerate(texts)
         ]
 
         # If self.dm is 2, train both models and concatenate the feature
@@ -153,7 +153,8 @@ class Doc2Vec(BaseFeatureExtraction):
         _check_gensim()
 
         corpus = [
-            TaggedDocument(simple_preprocess(text), [i]) for i, text in enumerate(texts)
+            TaggedDocument(simple_preprocess(text), [i])
+            for i, text in enumerate(texts)
         ]
 
         if self.dm == 2:
@@ -166,20 +167,24 @@ class Doc2Vec(BaseFeatureExtraction):
 
     def full_hyper_space(self):
         from hyperopt import hp
-
         eps = 1e-7
 
         hyper_space, hyper_choices = super(Doc2Vec, self).full_hyper_space()
-        hyper_space.update(
-            {
-                "fex_vector_size": hp.quniform("fex_vector_size", 31.5, 127.5 - eps, 8),
-                "fex_epochs": hp.quniform("fex_epochs", 20, 50, 1),
-                "fex_min_count": hp.quniform("fex_min_count", 0.5, 2.499999, 1),
-                "fex_window": hp.quniform("fex_window", 4.5, 9.4999999, 1),
-                "fex_dm_concat": hp.randint("fex_dm_concat", 2),
-                "fex_dm": hp.randint("fex_dm", 3),
-                "fex_dbow_words": hp.randint("fex_dbow_words", 2),
-            }
-        )
+        hyper_space.update({
+            "fex_vector_size":
+            hp.quniform("fex_vector_size", 31.5, 127.5 - eps, 8),
+            "fex_epochs":
+            hp.quniform("fex_epochs", 20, 50, 1),
+            "fex_min_count":
+            hp.quniform("fex_min_count", 0.5, 2.499999, 1),
+            "fex_window":
+            hp.quniform("fex_window", 4.5, 9.4999999, 1),
+            "fex_dm_concat":
+            hp.randint("fex_dm_concat", 2),
+            "fex_dm":
+            hp.randint("fex_dm", 3),
+            "fex_dbow_words":
+            hp.randint("fex_dbow_words", 2),
+        })
 
         return hyper_space, hyper_choices

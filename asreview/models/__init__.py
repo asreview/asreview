@@ -21,7 +21,7 @@ from asreview.models.classifiers.rf import RandomForestClassifier
 from asreview.models.classifiers.svm import SVMClassifier
 from asreview.models.classifiers.utils import get_classifier
 from asreview.models.classifiers.utils import get_classifier_class
-from asreview.models.classifiers.utils import list_classifiers as _list_classifiers  # NOQA
+from asreview.models.classifiers.utils import list_classifiers as _list_classifiers    # NOQA
 
 """Active learning model components.
 
