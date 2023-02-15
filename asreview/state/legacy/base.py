@@ -112,7 +112,8 @@ class BaseState(ABC):
     @property
     @abstractmethod
     def settings(self):
-        """Get settings from state"""
+        """Get settings from state
+        """
         raise NotImplementedError
 
     @abstractmethod
@@ -244,12 +245,8 @@ class BaseState(ABC):
 
     def review_state(self):
         startup = self.startup_vals()
-        return (
-            startup["labals"],
-            startup["train_idx"],
-            startup["query_src"],
-            startup["query_i"],
-        )
+        return (startup["labals"], startup["train_idx"], startup["query_src"],
+                startup["query_i"])
 
     @property
     def pred_proba(self):
@@ -315,12 +312,8 @@ class BaseState(ABC):
                 pass
 
         query_datasets = [
-            "label_methods",
-            "label_idx",
-            "inclusions",
-            "proba",
-            "pool_idx",
-            "train_idx",
+            "label_methods", "label_idx", "inclusions", "proba", "pool_idx",
+            "train_idx"
         ]
         state_dict["results"] = []
         for query_i in range(self.n_queries()):
@@ -328,8 +321,7 @@ class BaseState(ABC):
             for dataset in query_datasets:
                 try:
                     state_dict["results"][query_i][dataset] = self.get(
-                        dataset, query_i
-                    ).tolist()
+                        dataset, query_i).tolist()
                 except (KeyError, IndexError):
                     pass
         return state_dict
