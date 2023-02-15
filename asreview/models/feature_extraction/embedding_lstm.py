@@ -38,7 +38,9 @@ else:
 
 def _check_tensorflow():
     if not TF_AVAILABLE:
-        raise ImportError("Install tensorflow package to use" " Embedding LSTM.")
+        raise ImportError(
+            "Install tensorflow package to use"
+            " Embedding LSTM.")
 
 
 class EmbeddingLSTM(BaseFeatureExtraction):
@@ -74,17 +76,15 @@ class EmbeddingLSTM(BaseFeatureExtraction):
     name = "embedding-lstm"
     label = "Embedding LSTM"
 
-    def __init__(
-        self,
-        *args,
-        loop_sequence=1,
-        num_words=20000,
-        max_sequence_length=1000,
-        padding="post",
-        truncating="post",
-        n_jobs=1,
-        **kwargs,
-    ):
+    def __init__(self,
+                 *args,
+                 loop_sequence=1,
+                 num_words=20000,
+                 max_sequence_length=1000,
+                 padding='post',
+                 truncating='post',
+                 n_jobs=1,
+                 **kwargs):
         """Initialize the embedding matrix feature extraction."""
         super(EmbeddingLSTM, self).__init__(*args, **kwargs)
         self.embedding = None
@@ -105,8 +105,7 @@ class EmbeddingLSTM(BaseFeatureExtraction):
             num_words=self.num_words,
             max_sequence_length=self.max_sequence_length,
             padding=self.padding,
-            truncating=self.truncating,
-        )
+            truncating=self.truncating)
         return self.X
 
     def get_embedding_matrix(self, texts, embedding_fp):
@@ -115,16 +114,16 @@ class EmbeddingLSTM(BaseFeatureExtraction):
 
         self.fit_transform(texts)
         if embedding_fp is None:
-            embedding_fp = Path(get_data_home(), EMBEDDING_EN["name"]).expanduser()
+            embedding_fp = Path(get_data_home(),
+                                EMBEDDING_EN["name"]).expanduser()
 
             if not embedding_fp.exists():
-                logging.warning(
-                    "Warning: will start to download large "
-                    "embedding file in 10 seconds."
-                )
+                logging.warning("Warning: will start to download large "
+                                "embedding file in 10 seconds.")
                 time.sleep(10)
                 download_embedding()
-        logging.info("Loading embedding matrix. " "This can take several minutes.")
+        logging.info("Loading embedding matrix. "
+                     "This can take several minutes.")
 
         embedding = load_embedding(embedding_fp, n_jobs=self.n_jobs)
         return sample_embedding(embedding, self.word_index)
@@ -132,14 +131,17 @@ class EmbeddingLSTM(BaseFeatureExtraction):
     def full_hyper_space(self):
         from hyperopt import hp
 
-        hyper_space, hyper_choices = super(EmbeddingLSTM, self).full_hyper_space()
-        hyper_space.update({"fex_loop_sequences": hp.randint("fex_loop_sequences", 2)})
+        hyper_space, hyper_choices = super(EmbeddingLSTM,
+                                           self).full_hyper_space()
+        hyper_space.update(
+            {"fex_loop_sequences": hp.randint("fex_loop_sequences", 2)})
         return hyper_space, hyper_choices
 
 
 EMBEDDING_EN = {
-    "url": "https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.en.300.vec.gz",  # noqa
-    "name": "fasttext.cc.en.300.vec",
+    "url":
+    "https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.en.300.vec.gz",  # noqa
+    "name": 'fasttext.cc.en.300.vec'
 }
 
 
@@ -159,20 +161,18 @@ def loop_sequences(X, max_sequence_length=1000):
         # Copy the old data to the new matrix.
         while nz * j < max_sequence_length:
             cp_len = min(nz * (j + 1), max_sequence_length) - nz * j
-            new_x[nz * j : nz * j + cp_len] = old_x[0:cp_len]
+            new_x[nz * j:nz * j + cp_len] = old_x[0:cp_len]
             j += 1
         X[i] = new_x
     return X
 
 
-def text_to_features(
-    sequences,
-    loop_sequence=1,
-    num_words=20000,
-    max_sequence_length=1000,
-    padding="post",
-    truncating="post",
-):
+def text_to_features(sequences,
+                     loop_sequence=1,
+                     num_words=20000,
+                     max_sequence_length=1000,
+                     padding='post',
+                     truncating='post'):
     """Convert text data into features.
 
     Arguments
@@ -196,21 +196,25 @@ def text_to_features(
     tokens = tokenizer.texts_to_sequences(sequences)
 
     # Pad sequences with zeros.
-    x = pad_sequences(
-        tokens, maxlen=max_sequence_length, padding=padding, truncating=truncating
-    )
+    x = pad_sequences(tokens,
+                      maxlen=max_sequence_length,
+                      padding=padding,
+                      truncating=truncating)
 
     if loop_sequence == 1:
         x = loop_sequences(x, max_sequence_length)
     # word index hack. see issue
     # https://github.com/keras-team/keras/issues/8092
-    word_index = {e: i for e, i in tokenizer.word_index.items() if i <= num_words}
+    word_index = {
+        e: i
+        for e, i in tokenizer.word_index.items() if i <= num_words
+    }
 
     return x, word_index
 
 
 def _embedding_reader(filename, input_queue, block_size=1000):
-    """Process that reads the word embeddings from a file.
+    """ Process that reads the word embeddings from a file.
 
     Parameters
     ----------
@@ -222,7 +226,7 @@ def _embedding_reader(filename, input_queue, block_size=1000):
         Number of lines for each job.
     """
 
-    with open(filename, "r", encoding="utf-8", newline="\n") as f:
+    with open(filename, 'r', encoding='utf-8', newline='\n') as f:
         # Throw away the first line, since we don't care about the dimensions.
         f.readline()
 
@@ -247,7 +251,7 @@ def _embedding_reader(filename, input_queue, block_size=1000):
 
 
 def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
-    """Process that reads the word embeddings from a file.
+    """ Process that reads the word embeddings from a file.
 
     Parameters
     ----------
@@ -271,7 +275,7 @@ def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
 
         for line in buffer:
             line = line.rstrip()
-            values = line.split(" ")
+            values = line.split(' ')
 
             if len(values) != emb_vec_dim + 1:
                 if not bad_input:
@@ -283,7 +287,7 @@ def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
             word = values[0]
             if word_index is not None and word not in word_index:
                 continue
-            coefs = values[1 : emb_vec_dim + 1]
+            coefs = values[1:emb_vec_dim + 1]
 
             # store the results
             embedding[word] = np.asarray(coefs, dtype=np.float32)
@@ -300,7 +304,7 @@ def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
 
 
 def _embedding_aggregator(output_queue, n_worker):
-    """Process that aggregates the results of the workers.
+    """ Process that aggregates the results of the workers.
         This should be the main/original process.
 
     Parameters
@@ -328,9 +332,9 @@ def _embedding_aggregator(output_queue, n_worker):
     return embedding
 
 
-def download_embedding(
-    url=EMBEDDING_EN["url"], name=EMBEDDING_EN["name"], data_home=None
-):
+def download_embedding(url=EMBEDDING_EN['url'],
+                       name=EMBEDDING_EN['name'],
+                       data_home=None):
     """Download word embedding file.
 
     Download word embedding file, unzip the file and save to the
@@ -353,16 +357,16 @@ def download_embedding(
 
     out_fp = Path(data_home, name)
 
-    logging.info(f"Start downloading: {url}")
+    logging.info(f'Start downloading: {url}')
 
     r = urlopen(url)
     compressed_file = io.BytesIO(r.read())
 
-    logging.info(f"Save embedding to {out_fp}")
+    logging.info(f'Save embedding to {out_fp}')
 
     decompressed_file = gzip.GzipFile(fileobj=compressed_file)
 
-    with open(out_fp, "wb") as out_file:
+    with open(out_fp, 'wb') as out_file:
         for line in decompressed_file:
             out_file.write(line)
 
@@ -404,8 +408,8 @@ def load_embedding(fp, word_index=None, n_jobs=None):
     input_queue = Queue(queue_size)
     output_queue = Queue()
 
-    with open(fp, "r", encoding="utf-8", newline="\n") as f:
-        n_words, emb_vec_dim = list(map(int, f.readline().split(" ")))
+    with open(fp, 'r', encoding='utf-8', newline='\n') as f:
+        n_words, emb_vec_dim = list(map(int, f.readline().split(' ')))
 
     logging.debug(f"Reading {n_words} vectors with {emb_vec_dim} dimensions.")
 
@@ -413,11 +417,9 @@ def load_embedding(fp, word_index=None, n_jobs=None):
     p = Process(target=_embedding_reader, args=(fp, input_queue), daemon=True)
     worker_procs.append(p)
     for _ in range(n_jobs):
-        p = Process(
-            target=_embedding_worker,
-            args=(input_queue, output_queue, emb_vec_dim, word_index),
-            daemon=True,
-        )
+        p = Process(target=_embedding_worker,
+                    args=(input_queue, output_queue, emb_vec_dim, word_index),
+                    daemon=True)
         worker_procs.append(p)
 
     # Start workers.
@@ -461,9 +463,8 @@ def sample_embedding(embedding, word_index):
 
     n_words, emb_vec_dim = len(word_index), len(next(iter(embedding.values())))
 
-    logging.debug(
-        f"Creating matrix with {n_words} vectors " f"with dimension {emb_vec_dim}."
-    )
+    logging.debug(f"Creating matrix with {n_words} vectors "
+                  f"with dimension {emb_vec_dim}.")
 
     # n+1 because 0 is preserved in the tokenizing process.
     embedding_matrix = np.zeros((n_words + 1, emb_vec_dim))
@@ -472,6 +473,6 @@ def sample_embedding(embedding, word_index):
         coefs = embedding.get(word)
         if coefs is not None:
             embedding_matrix[i] = coefs
-    logging.debug(f"Shape of embedding matrix: {embedding_matrix.shape}")
+    logging.debug(f'Shape of embedding matrix: {embedding_matrix.shape}')
 
     return embedding_matrix

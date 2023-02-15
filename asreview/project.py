@@ -85,7 +85,7 @@ def get_project_path(project_id, user=None, asreview_dir=None):
         asreview_dir = asreview_path()
 
     if isinstance(user, User) and isinstance(user.id, int):
-        # if we do authentication, then the project must be 
+        # if we do authentication, then the project must be
         # registered in the database
         project_from_db = Project.query.filter(
             Project.project_id == project_id
@@ -105,7 +105,7 @@ def get_project_path(project_id, user=None, asreview_dir=None):
         # default to project_id
         else:
             folder_id = project_id
-            
+
     else:
         folder_id = project_id
 
