@@ -21,8 +21,6 @@ import urllib.parse
 from pathlib import Path
 from urllib.request import urlretrieve
 
-import numpy as np
-import pandas as pd
 from flask import Blueprint
 from flask import abort
 from flask import current_app
@@ -31,6 +29,8 @@ from flask import request
 from flask import send_file
 from flask_cors import CORS
 from flask_login import current_user
+import numpy as np
+import pandas as pd
 from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
