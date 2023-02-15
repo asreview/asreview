@@ -93,7 +93,7 @@ def get_project_path(project_id, user=None, asreview_dir=None):
 
         # project exists and user -is- owner OR this is a new project
         if (project_from_db and user == project_from_db.owner) or (
-            project_from_db == None
+            project_from_db is None
         ):
 
             folder_id = f"{user.id}_{project_id}"
