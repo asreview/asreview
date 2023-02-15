@@ -27,7 +27,22 @@ from asreview.utils import list_writer_names
 
 
 def type_from_column(col_name, col_definitions):
-    """Transform a column name to its standardized form."""
+    """Transform a column name to its standardized form.
+
+    Arguments
+    ---------
+    col_name: str
+        Name of the column in the dataframe.
+    col_definitions: dict
+        Dictionary of {standardized_name: [list of possible names]}.
+        Ex. {"title": ["title", "primary_title"],
+            "authors": ["authors", "author names", "first_authors"]}
+
+    Returns
+    -------
+    str:
+        The standardized name. If it wasn't found, return None.
+    """
     for name, definition in col_definitions.items():
         if col_name.lower() in definition:
             return name
@@ -45,27 +60,6 @@ def convert_keywords(keywords):
         if len(new_split) > len(current_best):
             current_best = new_split
     return current_best
-
-
-def type_from_column_spec(col_name, column_spec):
-    """Retrieve the standardized name of a column.
-
-    Arguments
-    ---------
-    col_name: str
-        Name of the column in the dataframe.
-    column_spec: dict
-        Dictionary of {possible name}:{standardized_name}.
-
-    Returns
-    -------
-    str:
-        The standardized name. If it wasn't found, return None.
-    """
-    for column_spec_name, data_type in column_spec.items():
-        if col_name.lower() == column_spec_name.lower():
-            return data_type
-    return None
 
 
 def _is_record_id_unique(s):
@@ -88,7 +82,7 @@ def _is_record_id_int(s):
         raise ValueError("Column 'record_id' should contain integer values.")
 
 
-def _standardize_dataframe(df, column_spec={}):
+def _standardize_dataframe(df, column_def={}):
     """Create a ASReview readable dataframe.
 
     The main purpose is to rename columns with slightly different names;
@@ -113,8 +107,8 @@ def _standardize_dataframe(df, column_spec={}):
     # map columns on column specification
     col_names = list(df)
     for column_name in col_names:
-        # First try the supplied column specifications if supplied.
-        data_type = type_from_column_spec(column_name, column_spec)
+        # First try the custom column definitions if supplied.
+        data_type = type_from_column(column_name, column_def)
         if data_type is not None:
             all_column_spec[data_type] = column_name
             continue
@@ -126,8 +120,9 @@ def _standardize_dataframe(df, column_spec={}):
     # Check if we either have abstracts or titles.
     col_names = list(all_column_spec)
     if "abstract" not in col_names and "title" not in col_names:
-        raise BadFileFormatError("File supplied without 'abstract' or 'title'"
-                                 " fields.")
+        raise BadFileFormatError(
+            "File supplied without 'abstract' or 'title'" " fields."
+        )
     if "abstract" not in col_names:
         logging.warning("Unable to detect abstracts in dataset.")
     if "title" not in col_names:
@@ -138,7 +133,9 @@ def _standardize_dataframe(df, column_spec={}):
         try:
             df[all_column_spec[col]] = np.where(
                 pd.isnull(df[all_column_spec[col]]),
-                "", df[all_column_spec[col]].astype(str))
+                "",
+                df[all_column_spec[col]].astype(str),
+            )
         except KeyError:
             pass
 
@@ -151,8 +148,9 @@ def _standardize_dataframe(df, column_spec={}):
         except KeyError:
             pass
         except ValueError:
-            logging.warning("Failed to parse label column name, no labels will"
-                            " be present.")
+            logging.warning(
+                "Failed to parse label column name, no labels will" " be present."
+            )
             df.rename(columns={"label": "included"})
             all_column_spec.pop("included")
 
@@ -171,7 +169,7 @@ def _standardize_dataframe(df, column_spec={}):
     df["record_id"] = np.arange(len(df.index))
 
     # set the index
-    df.set_index('record_id', inplace=True)
+    df.set_index("record_id", inplace=True)
 
     return df, all_column_spec
 
@@ -221,9 +219,7 @@ def get_reader_class(name):
     class:
         Class corresponding to the name.
     """
-    return _reader_class_from_entry_point(
-        name,
-        entry_name="asreview.readers")
+    return _reader_class_from_entry_point(name, entry_name="asreview.readers")
 
 
 def get_writer_class(name):
@@ -239,6 +235,4 @@ def get_writer_class(name):
     class:
         Class corresponding to the name.
     """
-    return _writer_class_from_entry_point(
-        name,
-        entry_name="asreview.writers")
+    return _writer_class_from_entry_point(name, entry_name="asreview.writers")
