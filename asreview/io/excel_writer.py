@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-class ExcelWriter:
-    """Excel file writer."""
+class ExcelWriter():
+    """Excel file writer.
+    """
 
     name = "xlsx"
     label = "Excel"
