@@ -382,16 +382,12 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         help="Configuration file with model settings"
              "and parameter values."
     )
-    parser.add_argument("--n_instances",
-                        default=DEFAULT_N_INSTANCES,
-                        type=int,
-                        help="Number of papers queried each query."
-                        f"Default {DEFAULT_N_INSTANCES}.")
     parser.add_argument(
         "--n_instances",
         default=DEFAULT_N_INSTANCES,
         type=int,
-        help="Number of papers queried each query." f"Default {DEFAULT_N_INSTANCES}.",
+        help="Number of papers queried each query."
+        f"Default {DEFAULT_N_INSTANCES}.",
     )
     parser.add_argument(
         "--n_queries",
