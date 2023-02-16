@@ -42,8 +42,6 @@ from asreview.config import SCHEMA
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
 from asreview.utils import asreview_path
-from asreview.webapp.authentication.models import Project
-from asreview.webapp.authentication.models import User
 from asreview.webapp.io import read_data
 
 PATH_PROJECT_CONFIG = "project.json"
@@ -63,55 +61,19 @@ class ProjectNotFoundError(Exception):
     pass
 
 
-# !=============================================
-# @TODO: I HATE THE FACT THAT I AM TALKING ABOUT
-# Users in this module, but I need a quick fix
-# for now
-# !=============================================
-
-
-def get_project_path(project_id, user=None, asreview_dir=None):
+def get_project_path(folder_id):
     """Get the project directory.
 
     Arguments
     ---------
-    project_id: str
-        The id of the current project.
-    user: User
-        User account object.
+    folder_id: str
+        The id of the folder containing a project. If there is no
+        authentication, the folder_id is equal to the project_id. Otherwise,
+        this is equal to {project_owner_id}_{project_id}.
     """
-
-    if asreview_dir is None:
-        asreview_dir = asreview_path()
-
-    if isinstance(user, User) and isinstance(user.id, int):
-        # if we do authentication, then the project must be
-        # registered in the database
-        project_from_db = Project.query.filter(
-            Project.project_id == project_id
-        ).one_or_none()
-
-        # project exists and user -is- owner OR this is a new project
-        if (project_from_db and user == project_from_db.owner) or (
-            project_from_db is None
-        ):
-
-            folder_id = f"{user.id}_{project_id}"
-
-        # project exists but user is a collaborator
-        elif project_from_db and user in project_from_db.collaborators:
-            folder_id = f"{project_from_db.owner_id}_{project_id}"
-
-        # default to project_id
-        else:
-            folder_id = project_id
-
-    else:
-        folder_id = project_id
-
     project_folder = uuid5(NAMESPACE_URL, folder_id).hex
 
-    return Path(asreview_dir, project_folder)
+    return Path(asreview_path(), project_folder)
 
 
 def project_from_id(user):
@@ -132,46 +94,24 @@ def project_from_id(user):
     return decorate
 
 
-# !=============================================
-# @TODO: Another thing that needs consideration:
-# I need ownership id's to avoid collaborators inviting
-# new collaborators. That means I'd like to alter
-# the ASReviewProject class -> adding an ownership
-# attribute. I could add it on the class itself, but
-# this is only needed in the authenticated version.
-# Instead I will add it dynamically in this function...
-# Feedback is required.
-# !=============================================
-def list_asreview_projects(user=None):
-    """List the projects in the asreview path from user"""
+def get_projects(project_paths=None):
+    """Get the ASReview projects at the given paths.
 
-    project_paths = []
-    if isinstance(user, User) and isinstance(user.id, int):
-        own_projects = [
-            (Path(asreview_path(), p.folder), p.owner_id) for p in user.projects
-        ]
-        collaboration_projects = [
-            (Path(asreview_path(), p.folder), p.owner_id) for p in user.involved_in
-        ]
-        project_paths = own_projects + collaboration_projects
-    else:
-        project_paths = [(x, None) for x in asreview_path().iterdir()]
+    Arguments
+    ---------
+    project_paths : list[Path], optional
+        List of paths to projects. By default all the projects in the asreview
+        folder are used, by default None
 
-    file_list = []
-    for folder, owner_id in project_paths:
+    Returns
+    -------
+    list[ASReviewProject]
+        Projects at the given project paths.
+    """
+    if project_paths is None:
+        project_paths = asreview_path().iterdir()
 
-        # create ASReviewProject
-        if folder.is_dir():
-            try:
-                project = ASReviewProject(folder)
-                project.project_id = project.config["id"]
-                # inject owner_id property into Project list
-                project.owner_id = owner_id
-                file_list.append(project)
-            except Exception:
-                pass
-
-    return file_list
+    return [ASReviewProject(project_path) for project_path in project_paths]
 
 
 def _create_project_id(name):

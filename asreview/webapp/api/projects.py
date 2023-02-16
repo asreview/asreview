@@ -59,9 +59,9 @@ from asreview.project import ASReviewProject
 from asreview.project import ProjectNotFoundError
 from asreview.project import _create_project_id
 from asreview.project import get_project_path
+from asreview.project import get_projects
 from asreview.project import is_project
 from asreview.project import is_v0_project
-from asreview.project import list_asreview_projects
 from asreview.project import open_state
 from asreview.project import project_from_id
 from asreview.search import SearchError
@@ -123,7 +123,13 @@ def api_get_projects():  # noqa: F401
     """Get info on the article"""
     project_info = []
 
-    for project in list_asreview_projects(current_user):
+    user_db_projects = list(current_user.projects) + \
+        list(current_user.involved_in)
+    project_paths = [project.folder for project in user_db_projects]
+    owner_ids = [project.owner_id for project in user_db_projects]
+    projects = get_projects(project_paths)
+
+    for project, owner_id in zip(projects, owner_ids):
         try:
             project_config = project.config
 
@@ -132,9 +138,8 @@ def api_get_projects():  # noqa: F401
                 project_config = upgrade_project_config(project_config)
                 project_config["projectNeedsUpgrade"] = True
 
-            # add ownership information if it is available
-            if hasattr(project, "owner_id"):
-                project_config["owner_id"] = project.owner_id
+            # add ownership information
+            project_config["owner_id"] = owner_id
 
             logging.info("Project found: {}".format(project_config["id"]))
             project_info.append(project_config)
@@ -161,7 +166,10 @@ def api_get_projects_stats():  # noqa: F401
 
     stats_counter = {"n_in_review": 0, "n_finished": 0, "n_setup": 0}
 
-    for project in list_asreview_projects(current_user):
+    user_db_projects = list(current_user.projects) + \
+        list(current_user.involved_in)
+    project_paths = [project.folder for project in user_db_projects]
+    for project in get_projects(project_paths):
 
         try:
             project_config = project.config
@@ -207,7 +215,8 @@ def api_init_project():  # noqa: F401
         raise ValueError("Project name should be at least 3 characters.")
 
     # generate a project path
-    project_path = get_project_path(project_id, current_user)
+    folder_id = _get_folder_id(project_id, current_user)
+    project_path = get_project_path(folder_id)
 
     project = ASReviewProject.create(
         project_path,
@@ -284,7 +293,8 @@ def api_update_project_info(project):  # noqa: F401
         if project.config["name"] != new_project_name:
             old_project_id = project.config["id"]
             new_project_id = _create_project_id(new_project_name)
-            new_project_path = get_project_path(new_project_id, current_user)
+            folder_id = _get_folder_id(new_project_id, current_user)
+            new_project_path = get_project_path(folder_id)
             project.rename(
                 {
                     "name": new_project_name,
@@ -1645,3 +1655,27 @@ def api_delete_project(project):  # noqa: F401
 
     response = jsonify(message="project-delete-failure")
     return response, 500
+
+
+def _get_folder_id(project_id, user):
+    # if we do authentication, then the project must be
+    # registered in the database
+    project_from_db = Project.query.filter(
+        Project.project_id == project_id
+    ).one_or_none()
+
+    # project exists and user -is- owner OR this is a new project
+    if (project_from_db and user == project_from_db.owner) or (
+        project_from_db is None
+    ):
+        folder_id = f"{user.id}_{project_id}"
+
+    # project exists but user is a collaborator
+    elif project_from_db and user in project_from_db.collaborators:
+        folder_id = f"{project_from_db.owner_id}_{project_id}"
+
+    # default to project_id
+    else:
+        folder_id = project_id
+
+    return folder_id
