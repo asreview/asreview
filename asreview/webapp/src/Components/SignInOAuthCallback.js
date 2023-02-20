@@ -45,7 +45,7 @@ const SignInOAuthCallback = () => {
         error: 'OAuth error: State mismatch.',
       });
     }
-  }, []);
+  });
 
   return (
     <Box

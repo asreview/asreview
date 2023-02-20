@@ -101,7 +101,7 @@ const ResetPassword = (props) => {
     return !showPassword ? "password" : "text";
   };
 
-  const { error, isError, isLoading, mutate, reset } = useMutation(
+  const { isLoading, mutate } = useMutation(
     AuthAPI.resetPassword,
     {
       onMutate: () => {

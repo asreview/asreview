@@ -1,11 +1,9 @@
 import React from "react";
-import { useQueryClient } from "react-query";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { InlineErrorHandler } from ".";
 import { AuthAPI } from "../api/index.js";
 
 const ConfirmAccount = () => {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [errorMessage, setErrorMessage] = React.useState(false);
@@ -17,7 +15,7 @@ const ConfirmAccount = () => {
     let token = searchParams.get('token');
     console.log(userId, token);
 
-    let result = AuthAPI.confirmAccount({
+    AuthAPI.confirmAccount({
       userId: userId,
       token: token
     })
@@ -29,7 +27,7 @@ const ConfirmAccount = () => {
       console.log(err);
       setErrorMessage('Could not confirm account: ' + err.message);
     });
-  }, [])
+  }, [navigate, searchParams])
 
   return (
     <div>

@@ -18,7 +18,6 @@ import { styled } from "@mui/material/styles";
 import { WordmarkState } from "../globals";
 import { InlineErrorHandler } from ".";
 import AuthAPI from "../api/AuthAPI";
-import { Navigate } from "react-router-dom";
 
 const PREFIX = "SignInForm";
 

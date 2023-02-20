@@ -3,7 +3,7 @@ import {
   useNavigate,
   useSearchParams
 } from "react-router-dom";
-import { useMutation } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import DashboardPage from "./DashboardPage";
 import {
   Box, 
@@ -50,13 +50,11 @@ const SignupSchema = Yup.object().shape({
 const ProfilePage = (props) => {
   const navigate = useNavigate();
 
-  const [profileData, getProfileData] = React.useState();
   const [showPassword, toggleShowPassword] = useToggle();
   const [loadingSaveButton, setLoadingSaveButton] = React.useState(true);
   const [showPasswordFields, setShowPasswordFields] = React.useState(false);
   const [searchParams] = useSearchParams();
   const showFirstTimeMessage = searchParams.get('first_time');
-  console.log(showFirstTimeMessage);
 
   const { error, isError, mutate } = useMutation(
     AuthAPI.updateProfile,
@@ -68,7 +66,9 @@ const ProfilePage = (props) => {
   );
 
   const handleSubmit = () => {
-    mutate(formik.values);
+    if (formik.isValid) {
+      mutate(formik.values);
+    }
   }
 
   const initialValues = {
@@ -85,27 +85,29 @@ const ProfilePage = (props) => {
     validationSchema: SignupSchema,
   });
 
-  mount
-
-  React.useEffect(() => {
-    AuthAPI.getProfile()
-      .then(data => {
-        console.log(data);
-        formik.setFieldValue('email', data.email, true);
-        formik.setFieldValue('name', data.name, true);
-        formik.setFieldValue('affiliation', data.affiliation || '', false);
-        formik.setFieldValue('public', data.public || true);
-        // show password field?
-        if (data.origin === "asreview") {
-          setShowPasswordFields(true);
-        } else {
-          setShowPasswordFields(false);
+  const {data,  isFetched} = useQuery(
+      "fetchProfileData",
+      AuthAPI.getProfile,
+      {
+        onSuccess: (data) => {
+          formik.setFieldValue('email', data.message.email, true);
+          formik.setFieldValue('name', data.message.name, true);
+          formik.setFieldValue('affiliation', data.message.affiliation || '', false);
+          formik.setFieldValue('public', data.message.public || true);
+          // show password field?
+          if (data.message.origin === "asreview") {
+            setShowPasswordFields(true);
+          } else {
+            setShowPasswordFields(false);
+          }
+          // stop spinner in button
+          setLoadingSaveButton(false);
+        },
+        onError: (err) => {
+          console.log('Did not fetch profile data from backend', err)
         }
-        // stop spinner in button
-        setLoadingSaveButton(false);
-      })
-      .catch(err => console.log('Did not profile data from backend', err));
-  }, [])
+      }
+  )
 
   const returnType = () => {
     return !showPassword ? "password" : "text";
@@ -158,99 +160,106 @@ const ProfilePage = (props) => {
 
   return (
     <DashboardPage>
-      {/* Header */}
-      <Box
-        className="main-page-sticky-header-wrapper"
-        sx={{ background: (theme) => theme.palette.background.paper }}
-      >
-        <Box className="main-page-sticky-header with-button">
-          {!props.mobileScreen && (
-            <TypographyH5Medium>Profile</TypographyH5Medium>
-          )}
-          {props.mobileScreen && (
-            <Typography variant="h6">Profile</Typography>
-          )}
-          <Stack direction="row" spacing={1}>
-            <span>
-              <LoadingButton
-                disabled={!(formik.isValid && formik.dirty)}
-                loading={loadingSaveButton}
-                variant="contained"
-                onClick={handleSubmit}
-                size={!props.mobileScreen ? "medium" : "small"}
-              >
-                Save
-              </LoadingButton>
-            </span>
+    { data && isFetched &&
+      <>
+        { console.log('hallo')}
+        {/* Header */}
+        <Box
+          className="main-page-sticky-header-wrapper"
+          sx={{ background: (theme) => theme.palette.background.paper }}
+        >
+          <Box className="main-page-sticky-header with-button">
+            {!props.mobileScreen && (
+              <TypographyH5Medium>Profile</TypographyH5Medium>
+            )}
+            {props.mobileScreen && (
+              <Typography variant="h6">Profile</Typography>
+            )}
+            <Stack direction="row" spacing={1}>
+              <span>
+                <LoadingButton
+                  /*disabled={!formik.isValid}*/
+                  loading={loadingSaveButton}
+                  variant="contained"
+                  onClick={handleSubmit}
+                  size={!props.mobileScreen ? "medium" : "small"}
+                >
+                  Save
+                </LoadingButton>
+              </span>
+            </Stack>
+          </Box>
+        </Box>
+
+        {/* Page body */}
+        <Box className="main-page-body-wrapper">
+          <Stack
+            className="main-page-body"
+            direction={"column"}
+            spacing={3}
+
+          >
+            { showFirstTimeMessage && 
+              <TypographyH6Medium>Please take a second to review your profile data:</TypographyH6Medium>
+            }
+            <TextField
+              autoFocus
+              id="email"
+              label="Email"
+              size="small"
+              fullWidth
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            />
+            {formik.touched.email && formik.errors.email ? <FHT error={true}>{formik.errors.email}</FHT> : null}
+            <TextField
+              id="name"
+              label="Full name"
+              size="small"
+              fullWidth
+              value={formik.values.name}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            />
+            {formik.touched.name && formik.errors.name ? <FHT error={true}>{formik.errors.name}</FHT> : null}
+            <TextField
+              id="affiliation"
+              label="Affiliation"
+              size="small"
+              fullWidth
+              value={formik.values.affiliation}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            />
+            {formik.touched.affiliation && formik.errors.affiliation ? <FHT error={true}>{formik.errors.affiliation}</FHT> : null}
+            {showPasswordFields && renderPasswordFields(formik) }
+            { false && 
+              <>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      color="primary"
+                      id="publicAccount"
+                      defaultChecked={formik.values.publicAccount}
+                      value={formik.values.publicAccount}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                    />
+                  }
+                  label="Make this account public"
+                />
+                <FHT>
+                  Making this account public allows you to collaborate.
+                </FHT>
+                
+              </>
+            }
+            {isError && <FHT><InlineErrorHandler message={error.message} /></FHT>}
           </Stack>
         </Box>
-      </Box>
-
-      {/* Page body */}
-      <Box className="main-page-body-wrapper">
-        <Stack
-          className="main-page-body"
-          direction={"column"}
-          spacing={3}
-
-        >
-          { showFirstTimeMessage && 
-            <TypographyH6Medium>Please take a second to review your profile data:</TypographyH6Medium>
-          }
-          <TextField
-            id="email"
-            label="Email"
-            size="small"
-            fullWidth
-            value={formik.values.email}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-          />
-          {formik.errors.email ? <FHT error={true}>{formik.errors.email}</FHT> : null}
-          <TextField
-            id="name"
-            label="Full name"
-            size="small"
-            fullWidth
-            value={formik.values.name}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-          />
-          {formik.errors.name ? <FHT error={true}>{formik.errors.name}</FHT> : null}
-          <TextField
-            id="affiliation"
-            label="Affiliation"
-            size="small"
-            fullWidth
-            value={formik.values.affiliation}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-          />
-          {formik.touched.affiliation && formik.errors.affiliation ? <FHT error={true}>{formik.errors.affiliation}</FHT> : null}
-          {showPasswordFields && renderPasswordFields(formik) }
-          { false && 
-            <>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    color="primary"
-                    id="publicAccount"
-                    defaultChecked={formik.values.publicAccount}
-                    value={formik.values.publicAccount}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                  />
-                }
-                label="Make this account public"
-              />
-              <FHT>
-                Making this account public allows you to collaborate.
-              </FHT>
-            </>
-          }
-          {isError && <FHT><InlineErrorHandler message={error.message} /></FHT>}
-        </Stack>
-      </Box>
+      </>
+    }
     </DashboardPage>
   );
 };

@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Fab, Fade } from "@mui/material";
+import { Box, Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 const Root = styled("div")(({ theme }) => ({}));

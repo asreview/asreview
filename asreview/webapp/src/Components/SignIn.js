@@ -17,7 +17,6 @@ import {
 
 import { WordmarkState } from "../globals";
 import SignInOAuth from "./SignInOAuth";
-import { ContentPasteSearchOutlined } from "@mui/icons-material";
 
 const PREFIX = "SignInForm";
 
