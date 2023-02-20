@@ -78,11 +78,7 @@ class User(UserMixin, DB.Model):
             raise ValueError("Name is required")
         return name
 
-    # this is pretty weird, it 'loops', starting at
-    # origin, stores origin because of the return, moves
-    # on to email and now self contains origin so
-    # I can compare it... and so on.
-    @validates("origin", "email", "hashed_password")
+    @validates("email", "hashed_password")
     def validate_password(self, key, value):
         if key == "email" and self.origin == "asreview" and bool(value) is False:
             raise ValueError('Email is required when origin is "asreview"')

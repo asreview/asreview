@@ -461,8 +461,9 @@ def oauth_callback():
     if isinstance(oauth_handler, OAuthHandler) and \
             provider in oauth_handler.providers():
         # get user credentials for this user
-        response = oauth_handler.get_user_credentials(provider, code, redirect_uri)
-        (identifier, email, name) = response
+        (identifier, email, name) = oauth_handler.get_user_credentials(
+            provider, code, redirect_uri
+        )
         # try to find this user
         user = User.query.filter(User.identifier == identifier).one_or_none()
         # flag for response (I'd like to communicate if this user was created)
@@ -490,18 +491,17 @@ def oauth_callback():
                 # return this immediately
                 return jsonify({"data": message}), 500
 
-        # log in this user
-        if bool(user):
-            logged_in = perform_login_user(user)
-            result = (
-                200,
-                {
-                    "account_created": created_account,
-                    "logged_in": logged_in,
-                    "name": user.get_name(),
-                    "id": user.id,
-                },
-            )
+        # log in the existing/created user immediately
+        logged_in = perform_login_user(user)
+        result = (
+            200,
+            {
+                "account_created": created_account,
+                "logged_in": logged_in,
+                "name": user.get_name(),
+                "id": user.id,
+            },
+        )
     else:
         result = (400, {"data": f"OAuth provider {provider} could not be found"})
 

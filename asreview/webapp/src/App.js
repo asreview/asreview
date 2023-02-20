@@ -71,7 +71,7 @@ const App = (props) => {
   // This effect does a boot request to gather information 
   // from the backend
   React.useEffect(() => {
-    let result = BaseAPI.boot({})
+    BaseAPI.boot({})
     .then(response => {
       dispatch(setBootData(response));
       // set oauth services if there are any
@@ -80,7 +80,7 @@ const App = (props) => {
       }
     })
     .catch(err => { console.log(err); });
-  }, [])
+  }, [dispatch])
 
   // This effect makes sure we handle routing at the 
   // moment we know for sure if there is, or isn't authentication.
@@ -94,7 +94,7 @@ const App = (props) => {
     } else {
         setAppReadyState(false);
     }
-  }, [authentication])
+  }, [authentication, allowAccountCreation, emailVerification])
 
 
   const render_sign_routes = () => {

@@ -4,13 +4,11 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Button,
   IconButton,
   Stack,
   Typography,
 } from "@mui/material";
 import {
-  ControlPointDuplicateRounded,
   GitHub,
   Google
 } from "@mui/icons-material";
@@ -57,10 +55,6 @@ const enhanceAuthorizeUrl = (
 	return `${authorizeUrl}?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
 };
 
-const objectToQuery = (object) => {
-  return new URLSearchParams(object).toString();
-};
-
 const saveState = (key, value) => {
 	sessionStorage.setItem(key, value);
 };
@@ -81,7 +75,7 @@ const SignInOauth = (props) => {
   const [{ loading, error }, setUI] = React.useState({ loading: false, error: null });
   const [errorMessage, setErrorMessage] = React.useState('')
   const navigate = useNavigate();
-  const { auth, setAuth } = useAuth();
+  const { setAuth } = useAuth();
 
   let message = '';
 

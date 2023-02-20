@@ -111,7 +111,7 @@ const SignUpForm = (props) => {
     validationSchema: SignupSchema,
   });
 
-  const { error, isError, isLoading, mutate, reset } = useMutation(
+  const { error, isError, mutate } = useMutation(
     BaseAPI.signup,
       {
         onSuccess: () => {

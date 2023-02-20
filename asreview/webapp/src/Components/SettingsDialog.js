@@ -31,7 +31,6 @@ import { StyledIconButton } from "../StyledComponents/StyledButton.js";
 import { BaseAPI } from "../api/index.js";
 import { useToggle } from "../hooks/useToggle";
 import { fontSizeOptions, donateURL } from "../globals.js";
-import { setASReviewVersion } from "../redux/actions";
 
 const mapStateToProps = (state) => {
   return {

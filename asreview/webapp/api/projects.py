@@ -120,7 +120,7 @@ def error_500(e):
 @bp.route("/projects", methods=["GET"])
 @asreview_login_required
 def api_get_projects():  # noqa: F401
-    """Get info on the article"""
+    """"""
     project_info = []
 
     user_db_projects = list(current_user.projects) + \
@@ -202,7 +202,7 @@ def api_get_projects_stats():  # noqa: F401
 @bp.route("/projects/info", methods=["POST"])
 @asreview_login_required
 def api_init_project():  # noqa: F401
-    """Get info on the article"""
+    """"""
 
     project_mode = request.form["mode"]
     project_name = request.form["name"]
@@ -260,7 +260,7 @@ def api_upgrade_project_if_old(project):
 @asreview_login_required
 @project_from_id(current_user)
 def api_get_project_info(project):  # noqa: F401
-    """Get info on the article"""
+    """"""
     project_config = project.config
 
     # upgrade info of v0 projects
@@ -283,7 +283,7 @@ def api_get_project_info(project):  # noqa: F401
 @asreview_login_required
 @project_from_id(current_user)
 def api_update_project_info(project):  # noqa: F401
-    """Get info on the article"""
+    """"""
 
     # rename the project if project name is changed
     if request.form.get("name", None) is not None:
@@ -329,7 +329,7 @@ def api_update_project_info(project):  # noqa: F401
 @bp.route("/datasets", methods=["GET"])
 @asreview_login_required
 def api_demo_data_project():  # noqa: F401
-    """Get info on the article"""
+    """"""
 
     subset = request.args.get("subset", None)
 
@@ -370,7 +370,7 @@ def api_demo_data_project():  # noqa: F401
 @asreview_login_required
 @project_from_id(current_user)
 def api_upload_data_to_project(project):  # noqa: F401
-    """Get info on the article"""
+    """"""
 
     # get the project config to modify behavior of dataset
     project_config = project.config
@@ -494,7 +494,7 @@ def api_upload_data_to_project(project):  # noqa: F401
 @asreview_login_required
 @project_from_id(current_user)
 def api_get_project_data(project):  # noqa: F401
-    """Get info on the article"""
+    """"""
 
     if not is_project(project.project_path):
         response = jsonify(message="Project not found.")
@@ -1617,7 +1617,7 @@ def api_get_document(project):  # noqa: F401
 @asreview_login_required
 @project_from_id(current_user)
 def api_delete_project(project):  # noqa: F401
-    """Get info on the article"""
+    """"""
 
     # some checks to check if there is a project to delete
     if project.project_id == "" or project.project_id is None:
