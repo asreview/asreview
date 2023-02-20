@@ -32,7 +32,7 @@ from asreview import __version__ as asreview_version
 from asreview.entry_points.lab import _lab_parser
 from asreview.project import ASReviewProject
 from asreview.project import get_project_path
-from asreview.project import list_asreview_projects
+from asreview.project import get_projects
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.api import auth
@@ -322,7 +322,7 @@ def main(argv):
     # of work, we need to access all sub-folders
     if args.clean_all_projects:
         print("Cleaning all project files.")
-        for project in list_asreview_projects():
+        for project in get_projects():
             project.clean_tmp_files()
         print("Done")
         return
