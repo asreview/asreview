@@ -151,7 +151,7 @@ class ASReviewData():
 
     @classmethod
     def from_file(cls, fp, reader=None):
-        """Create instance from csv/ris/excel file.
+        """Create instance from supported file format.
 
         It works in two ways; either manual control where the conversion
         functions are supplied or automatic, where it searches in the entry
@@ -160,40 +160,36 @@ class ASReviewData():
         Arguments
         ---------
         fp: str, pathlib.Path
-            Read the data from this file.
+            Read the data from this file or url.
         reader: class
             Reader to import the file.
         """
-        if is_url(fp):
-            path = urlparse(fp).path
-        else:
-            path = str(Path(fp).resolve())
 
         if reader is not None:
             return cls(reader.read_data(fp))
 
+        # file is url and has suffix
+        if is_url(fp) and Path(urlparse(fp).path).suffix:
+            suffix = urlparse(fp).path.suffix
+
+        # file is url and has no suffix
+        elif is_url(fp) and not Path(urlparse(fp).path).suffix:
+            suffix = Path(urlopen(fp).info().get_filename()).suffix
+
+        # file is local file
+        else:
+            suffix = fp.suffix
+
         entry_points = get_entry_points(entry_name="asreview.readers")
 
-        best_suffix = None
+        try:
+            reader = entry_points[suffix].load()
+        except Exception:
+            raise BadFileFormatError(
+                f"Importing file {fp} not possible.")
 
-        for suffix, entry in entry_points.items():
-            if path.endswith(suffix):
-                if best_suffix is None or len(suffix) > len(best_suffix):
-                    best_suffix = suffix
-
-        if best_suffix is None and is_url(fp):
-            url_filename = urlopen(fp).info().get_filename()
-            for suffix, entry in entry_points.items():
-                if url_filename.endswith(suffix):
-                    if best_suffix is None or len(suffix) > len(best_suffix):
-                        best_suffix = suffix
-
-        if best_suffix is None:
-            raise BadFileFormatError(f"Error importing file {fp}, no capabilities "
-                                     "for importing such a file.")
-
-        reader = entry_points[best_suffix].load()
         df, column_spec = reader.read_data(fp)
+
         return cls(df, column_spec=column_spec)
 
     def record(self, i, by_index=True):
