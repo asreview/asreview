@@ -17,7 +17,6 @@ import logging
 import shutil
 import subprocess
 import tempfile
-import urllib.parse
 from pathlib import Path
 from urllib.request import urlretrieve
 
