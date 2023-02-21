@@ -170,7 +170,7 @@ class ASReviewData():
 
         # file is url and has suffix
         if is_url(fp) and Path(urlparse(fp).path).suffix:
-            suffix = urlparse(fp).path.suffix
+            suffix = Path(urlparse(fp).path).suffix
 
         # file is url and has no suffix
         elif is_url(fp) and not Path(urlparse(fp).path).suffix:
