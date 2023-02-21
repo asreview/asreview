@@ -178,7 +178,7 @@ class ASReviewData():
 
         # file is local file
         else:
-            suffix = fp.suffix
+            suffix = Path(fp).suffix
 
         entry_points = get_entry_points(entry_name="asreview.readers")
 
