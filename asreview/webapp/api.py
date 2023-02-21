@@ -39,6 +39,7 @@ from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.data import ASReviewData
+from asreview.data.base import _get_filename_from_url
 from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
@@ -82,6 +83,14 @@ CORS(bp, resources={r"*": {"origins": "*"}})
 def project_not_found(e):
 
     message = str(e) if str(e) else "Project not found."
+    logging.error(message)
+    return jsonify(message=message), 400
+
+
+@bp.errorhandler(ValueError)
+def value_error(e):
+
+    message = str(e) if str(e) else "Incorrect value."
     logging.error(message)
     return jsonify(message=message), 400
 
@@ -312,30 +321,25 @@ def api_upload_data_to_project(project):  # noqa: F401
 
     if request.form.get('plugin', None):
         url = DatasetManager().find(request.form['plugin']).filepath
+        filename = _get_filename_from_url(request.form.get('url'))
 
     if request.form.get('benchmark', None):
         url = DatasetManager().find(request.form['benchmark']).filepath
+        filename = _get_filename_from_url(request.form.get('url'))
 
     if request.form.get('url', None):
-        url = request.form['url']
+
+        url = request.form.get('url')
+        filename, url = _get_filename_from_url(url)
+
+        if not filename or not Path(filename).suffix:
+            # TODO use datahugger in the future
+            raise BadFileFormatError("Can't determine file format.")
 
     if request.form.get('plugin', None) or request.form.get(
             'benchmark', None) or request.form.get('url', None):
         try:
-            url_parts = urllib.parse.urlparse(url)
-            filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
-
             urlretrieve(url, Path(project.project_path, "data") / filename)
-
-        except ValueError as err:
-
-            logging.error(err)
-            message = f"Invalid URL '{url}'."
-
-            if isinstance(url, str) and not url.startswith("http"):
-                message += " Usually, the URL starts with 'http' or 'https'."
-
-            return jsonify(message=message), 400
 
         except Exception as err:
 
