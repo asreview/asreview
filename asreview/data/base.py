@@ -14,6 +14,7 @@
 
 import hashlib
 from pathlib import Path
+from urllib.error import HTTPError
 from urllib.parse import urlparse
 from urllib.request import urlopen
 
@@ -64,14 +65,24 @@ def load_data(name, *args, **kwargs):
         f"File, URL, or dataset does not exist: '{name}'")
 
 
-def _get_suffix_from_file(fp):
+def _get_filename_from_url(url):
 
-    if is_url(fp) and Path(urlparse(fp).path).suffix:
-        return Path(urlparse(fp).path).suffix
-    elif is_url(fp) and not Path(urlparse(fp).path).suffix:
-        return Path(urlopen(fp).info().get_filename()).suffix
+    if not is_url(url):
+        raise ValueError(f"{url} is not a valid URL.")
+
+    if Path(urlparse(url).path).suffix:
+        return Path(urlparse(url).path).name, url
     else:
-        return Path(fp).suffix
+
+        try:
+            return urlopen(url).headers.get_filename(), url
+        except HTTPError as err:
+            # 308 (Permanent Redirect) not supported
+            # See https://bugs.python.org/issue40321
+            if err.code == 308:
+                return _get_filename_from_url(err.headers.get("Location"))
+            else:
+                raise err
 
 
 class ASReviewData():
@@ -178,13 +189,16 @@ class ASReviewData():
         if reader is not None:
             return cls(reader.read_data(fp))
 
-        # get the suffix of the file or url
-        suffix = _get_suffix_from_file(fp)
+        # get the filename from a url else file path
+        if is_url(fp):
+            fn, fp = _get_filename_from_url(fp)
+        else:
+            fn = Path(fp).name
 
         entry_points = get_entry_points(entry_name="asreview.readers")
 
         try:
-            reader = entry_points[suffix].load()
+            reader = entry_points[Path(fn).suffix].load()
         except Exception:
             raise BadFileFormatError(
                 f"Importing file {fp} not possible.")
