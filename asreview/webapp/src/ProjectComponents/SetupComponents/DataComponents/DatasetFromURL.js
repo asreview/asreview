@@ -30,7 +30,14 @@ const DatasetFromURL = (props) => {
     if (props.isAddDatasetError) {
       props.reset();
     }
+
     props.setURL(event.target.value);
+  };
+
+  const addURLOnEnter = (event) => {
+    if(event.keyCode === 13){
+       props.handleSaveDataset();
+    }
   };
 
   const addURL = () => {
@@ -56,6 +63,7 @@ const DatasetFromURL = (props) => {
             placeholder="Dataset URL"
             value={props.url}
             onChange={handleURL}
+            onKeyDown={addURLOnEnter}
             sx={{ ml: 1, flex: 1 }}
           />
           <LoadingButton
