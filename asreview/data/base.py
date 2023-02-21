@@ -64,6 +64,16 @@ def load_data(name, *args, **kwargs):
         f"File, URL, or dataset does not exist: '{name}'")
 
 
+def _get_suffix_from_file(fp):
+
+    if is_url(fp) and Path(urlparse(fp).path).suffix:
+        return Path(urlparse(fp).path).suffix
+    elif is_url(fp) and not Path(urlparse(fp).path).suffix:
+        return Path(urlopen(fp).info().get_filename()).suffix
+    else:
+        return Path(fp).suffix
+
+
 class ASReviewData():
     """Data object to the dataset with texts, labels, DOIs etc.
 
@@ -168,17 +178,8 @@ class ASReviewData():
         if reader is not None:
             return cls(reader.read_data(fp))
 
-        # file is url and has suffix
-        if is_url(fp) and Path(urlparse(fp).path).suffix:
-            suffix = Path(urlparse(fp).path).suffix
-
-        # file is url and has no suffix
-        elif is_url(fp) and not Path(urlparse(fp).path).suffix:
-            suffix = Path(urlopen(fp).info().get_filename()).suffix
-
-        # file is local file
-        else:
-            suffix = Path(fp).suffix
+        # get the suffix of the file or url
+        suffix = _get_suffix_from_file(fp)
 
         entry_points = get_entry_points(entry_name="asreview.readers")
 
