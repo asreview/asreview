@@ -30,7 +30,6 @@ const DatasetFromURL = (props) => {
     if (props.isAddDatasetError) {
       props.reset();
     }
-
     props.setURL(event.target.value);
   };
 
