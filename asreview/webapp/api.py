@@ -320,11 +320,11 @@ def api_upload_data_to_project(project):  # noqa: F401
 
     if request.form.get('plugin', None):
         url = DatasetManager().find(request.form['plugin']).filepath
-        filename = _get_filename_from_url(request.form.get('url'))
+        filename, url = _get_filename_from_url(url)
 
     if request.form.get('benchmark', None):
         url = DatasetManager().find(request.form['benchmark']).filepath
-        filename = _get_filename_from_url(request.form.get('url'))
+        filename, url = _get_filename_from_url(url)
 
     if request.form.get('url', None):
 
