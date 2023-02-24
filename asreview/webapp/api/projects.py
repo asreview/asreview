@@ -94,6 +94,37 @@ CORS(
 )
 
 
+# helper function that indicates if app is authenticated
+def app_is_authenticated(app):
+    """Checks is app is authenticated"""
+    return app.config.get("AUTHENTICATION_ENABLED", False)
+
+
+# helper function
+def _get_authenticated_folder_id(project_id, user):
+    # if we do authentication, then the project must be
+    # registered in the database
+    project_from_db = Project.query.filter(
+        Project.project_id == project_id
+    ).one_or_none()
+
+    # project exists and user -is- owner OR this is a new project
+    if (project_from_db and user == project_from_db.owner) or (
+        project_from_db is None
+    ):
+        folder_id = f"{user.id}_{project_id}"
+
+    # project exists but user is a collaborator
+    elif project_from_db and user in project_from_db.collaborators:
+        folder_id = f"{project_from_db.owner_id}_{project_id}"
+
+    # default to project_id
+    else:
+        folder_id = project_id
+
+    return folder_id
+
+
 # error handlers
 @bp.errorhandler(ProjectNotFoundError)
 def project_not_found(e):
@@ -123,7 +154,20 @@ def api_get_projects():  # noqa: F401
     """"""
     project_info = []
 
-    for project in list_asreview_projects(current_user):
+    if app_is_authenticated(current_app):
+        # authenticated with User accounts
+        user_db_projects = list(current_user.projects) + \
+            list(current_user.involved_in)
+        project_paths = [project.folder for project in user_db_projects]
+        owner_ids = [project.owner_id for project in user_db_projects]
+        projects = get_projects(project_paths)
+    else:
+        # force get_projects to list the .asreview folder
+        projects = get_projects(None)
+        owner_ids = [current_user.id for p in projects]
+
+
+    for project, owner_id in zip(projects, owner_ids):
         try:
             project_config = project.config
 
@@ -161,11 +205,15 @@ def api_get_projects_stats():  # noqa: F401
 
     stats_counter = {"n_in_review": 0, "n_finished": 0, "n_setup": 0}
 
-    user_db_projects = list(current_user.projects) + \
-        list(current_user.involved_in)
-    project_paths = [
-        Path(asreview_path(), project.folder) for project in user_db_projects
-    ]
+    if app_is_authenticated(current_app):
+        user_db_projects = list(current_user.projects) + \
+            list(current_user.involved_in)
+        project_paths = [
+            Path(asreview_path(), project.folder) for project in user_db_projects
+        ]
+    else:
+        # force get_projects to list the .asreview folder
+        project_paths = None
 
     for project in get_projects(project_paths):
         try:
@@ -212,7 +260,12 @@ def api_init_project():  # noqa: F401
         raise ValueError("Project name should be at least 3 characters.")
 
     # generate a project path
-    project_path = get_project_path(project_id, current_user)
+    if app_is_authenticated(current_app):
+        folder_id = _get_authenticated_folder_id(project_id, current_user)
+    else:
+        folder_id = project_id
+    # get path of this project
+    project_path = get_project_path(folder_id)
 
     project = ASReviewProject.create(
         project_path,
@@ -224,7 +277,7 @@ def api_init_project():  # noqa: F401
     )
 
     # create a database entry for this project
-    if current_app.config["AUTHENTICATION_ENABLED"]:
+    if app_is_authenticated(current_app):
         current_user.projects.append(
             Project(project_id=project_id, folder=project_path.stem)
         )
@@ -265,7 +318,7 @@ def api_get_project_info(project):  # noqa: F401
         project_config["projectNeedsUpgrade"] = True
 
     # add user_id of owner to response if authenticated
-    if current_app.config["AUTHENTICATION_ENABLED"]:
+    if app_is_authenticated(current_app):
         db_project = Project.query.filter(
             Project.project_id == project.config.get("id", 0)
         ).one_or_none()
@@ -289,7 +342,16 @@ def api_update_project_info(project):  # noqa: F401
         if project.config["name"] != new_project_name:
             old_project_id = project.config["id"]
             new_project_id = _create_project_id(new_project_name)
-            new_project_path = get_project_path(new_project_id, current_user)
+            
+            if app_is_authenticated(current_app):
+                folder_id = _get_authenticated_folder_id(
+                    new_project_id,
+                    current_user
+                )
+            else:
+                folder_id = new_project_id
+
+            new_project_path = get_project_path(folder_id)
             project.rename(
                 {
                     "name": new_project_name,
@@ -300,7 +362,7 @@ def api_update_project_info(project):  # noqa: F401
 
             # update project in the database
             # ==============================
-            if current_app.config["AUTHENTICATION_ENABLED"]:
+            if app_is_authenticated(current_app):
                 Project.query.filter(
                     and_(
                         Project.owner_id == current_user.id,
@@ -1623,7 +1685,7 @@ def api_delete_project(project):  # noqa: F401
         try:
 
             # remove from database if applicable
-            if current_app.config["AUTHENTICATION_ENABLED"]:
+            if app_is_authenticated(current_app):
                 project = Project.query.filter(
                     and_(
                         Project.project_id == project.project_id,
@@ -1650,3 +1712,4 @@ def api_delete_project(project):  # noqa: F401
 
     response = jsonify(message="project-delete-failure")
     return response, 500
+

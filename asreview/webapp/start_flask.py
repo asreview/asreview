@@ -38,7 +38,6 @@ from asreview.webapp import DB
 from asreview.webapp.api import auth
 from asreview.webapp.api import projects
 from asreview.webapp.api import team
-from asreview.webapp.authentication.models import SingleUser
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
@@ -182,14 +181,6 @@ def create_app(**kwargs):
         DB.init_app(app)
         with app.app_context():
             DB.create_all()
-
-    else:
-
-        # Register a callback function for current_user.
-        # Return our custome SingleUser object (that has an id)
-        @login_manager.user_loader
-        def load_user(user_id):
-            return SingleUser()
 
     # Ensure the instance folder exists.
     try:

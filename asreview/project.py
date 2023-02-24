@@ -123,7 +123,21 @@ def project_from_id(user):
     def decorate(f):
         @wraps(f)
         def decorated_function(project_id, *args, **kwargs):
-            project_path = get_project_path(f'{user.id}_{project_id}')
+
+            # we need a user id, but if the app is not authenticated we 
+            # are dealing with an AnonymousUserMixin that doesn't have an
+            # id. This try/except block makes sure this function executes
+            # without having knowledge about the User model and the 
+            # AnonymousUserMixin Object from Flask_Login.
+            try:
+                # authenticated: identifier is concatenated
+                # to the project name
+                project_identifier = f'{user.id}_{project_id}'
+            except Exception:
+                # unauthenticated: user project name
+                project_identifier = project_id
+
+            project_path = get_project_path(project_identifier)
             project = ASReviewProject(project_path, project_id=project_id)
             return f(project, *args, **kwargs)
 
