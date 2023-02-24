@@ -359,7 +359,7 @@ def main(argv):
     if flask_dev is False:
         _open_browser(host, port, protocol, args.no_browser)
 
-    # run app in flask mode only if flask_env == development is True
+    # run app in flask mode only if we run in development mode
     if flask_dev is True:
         app.run(host=host, port=port, ssl_context=ssl_context)
     else:

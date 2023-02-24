@@ -71,6 +71,10 @@ LAB](https://asreview.readthedocs.io/en/latest/about.html).
 
 [![ASReview LAB](https://github.com/asreview/asreview/blob/master/images/ASReviewWebApp.png?raw=true)](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html "ASReview LAB")
 
+## Authentication
+
+
+
 ## Citation
 
 The following publication in [Nature Machine

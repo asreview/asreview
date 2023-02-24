@@ -162,7 +162,6 @@ const ProfilePage = (props) => {
     <DashboardPage>
     { data && isFetched &&
       <>
-        { console.log('hallo')}
         {/* Header */}
         <Box
           className="main-page-sticky-header-wrapper"

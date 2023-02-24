@@ -123,7 +123,7 @@ def project_from_id(user):
     def decorate(f):
         @wraps(f)
         def decorated_function(project_id, *args, **kwargs):
-            project_path = get_project_path(project_id, user)
+            project_path = get_project_path(f'{user.id}_{project_id}')
             project = ASReviewProject(project_path, project_id=project_id)
             return f(project, *args, **kwargs)
 
@@ -356,7 +356,6 @@ class ASReviewProject:
             lock = FileLock(project_fp_lock, timeout=3)
 
             try:
-
                 with lock:
 
                     # read the file with project info
@@ -368,7 +367,7 @@ class ASReviewProject:
                         return config
 
             except FileNotFoundError:
-                raise ProjectNotFoundError(f"Project '{self.project_path}' not found")
+               raise ProjectNotFoundError(f"Project '{self.project_path}' not found")
 
     @config.setter
     def config(self, config):

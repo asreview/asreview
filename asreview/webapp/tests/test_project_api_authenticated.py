@@ -86,6 +86,7 @@ def test_upgrade_project_if_old(setup_teardown_signed_in):
 
 def test_get_projects_stats(setup_teardown_signed_in):
     """Test get dashboard statistics of all projects"""
+
     _, client, _ = setup_teardown_signed_in
 
     response = client.get("/api/projects/stats")

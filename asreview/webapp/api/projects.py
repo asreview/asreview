@@ -161,8 +161,13 @@ def api_get_projects_stats():  # noqa: F401
 
     stats_counter = {"n_in_review": 0, "n_finished": 0, "n_setup": 0}
 
-    for project in list_asreview_projects(current_user):
+    user_db_projects = list(current_user.projects) + \
+        list(current_user.involved_in)
+    project_paths = [
+        Path(asreview_path(), project.folder) for project in user_db_projects
+    ]
 
+    for project in get_projects(project_paths):
         try:
             project_config = project.config
 
