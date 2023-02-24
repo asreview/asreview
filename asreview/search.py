@@ -106,15 +106,16 @@ def _match_string(as_data):
         if all_keywords is not None:
             match_list.append(format_to_str(all_keywords[i]))
 
-        match_str[
-            i,
-        ] = " ".join(match_list)
+        match_str[i, ] = " ".join(match_list)
     return match_str
 
 
-def fuzzy_find(
-    as_data, keywords, threshold=60, max_return=10, exclude=None, by_index=True
-):
+def fuzzy_find(as_data,
+               keywords,
+               threshold=60,
+               max_return=10,
+               exclude=None,
+               by_index=True):
     """Find a record using keywords.
 
     It looks for keywords in the title/authors/keywords
@@ -149,11 +150,8 @@ def fuzzy_find(
     if exclude is None:
         exclude = np.array([], dtype=int)
     for idx in sorted_idx:
-        if (
-            (not by_index and as_data.df.index.values[idx] in exclude)
-            or by_index
-            and idx in exclude
-        ):
+        if ((not by_index and as_data.df.index.values[idx] in exclude) or
+                by_index and idx in exclude):
             continue
         if len(best_idx) >= max_return:
             break

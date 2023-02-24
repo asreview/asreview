@@ -21,8 +21,6 @@ import urllib.parse
 from pathlib import Path
 from urllib.request import urlretrieve
 
-import numpy as np
-import pandas as pd
 from flask import Blueprint
 from flask import abort
 from flask import current_app
@@ -31,6 +29,8 @@ from flask import request
 from flask import send_file
 from flask_cors import CORS
 from flask_login import current_user
+import numpy as np
+import pandas as pd
 from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
@@ -59,9 +59,9 @@ from asreview.project import ASReviewProject
 from asreview.project import ProjectNotFoundError
 from asreview.project import _create_project_id
 from asreview.project import get_project_path
+from asreview.project import get_projects
 from asreview.project import is_project
 from asreview.project import is_v0_project
-from asreview.project import list_asreview_projects
 from asreview.project import open_state
 from asreview.project import project_from_id
 from asreview.search import SearchError
@@ -176,9 +176,8 @@ def api_get_projects():  # noqa: F401
                 project_config = upgrade_project_config(project_config)
                 project_config["projectNeedsUpgrade"] = True
 
-            # add ownership information if it is available
-            if hasattr(project, "owner_id"):
-                project_config["owner_id"] = project.owner_id
+            # add ownership information
+            project_config["owner_id"] = owner_id
 
             logging.info("Project found: {}".format(project_config["id"]))
             project_info.append(project_config)

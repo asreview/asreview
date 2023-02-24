@@ -49,7 +49,6 @@ class NaiveBayesClassifier(BaseTrainClassifier):
 
     def full_hyper_space(self):
         from hyperopt import hp
-
         hyper_choices = {}
         hyper_space = {
             "mdl_alpha": hp.lognormal("mdl_alpha", 0, 1),

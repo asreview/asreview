@@ -16,10 +16,10 @@ import json
 import os
 import shutil
 
-import pytest
 from conftest import signin_user
 from conftest import signout
 from conftest import signup_user
+import pytest
 
 from asreview.utils import asreview_path
 from asreview.webapp import DB

@@ -38,13 +38,14 @@ class RandomForestClassifier(BaseTrainClassifier):
         when building trees and the sampling of the features to consider when
         looking for the best split at each node.
     """
-
     name = "rf"
     label = "Random forest"
 
-    def __init__(
-        self, n_estimators=100, max_features=10, class_weight=1.0, random_state=None
-    ):
+    def __init__(self,
+                 n_estimators=100,
+                 max_features=10,
+                 class_weight=1.0,
+                 random_state=None):
 
         super(RandomForestClassifier, self).__init__()
         self.n_estimators = int(n_estimators)
@@ -56,16 +57,14 @@ class RandomForestClassifier(BaseTrainClassifier):
             n_estimators=self.n_estimators,
             max_features=self.max_features,
             class_weight=_set_class_weight(class_weight),
-            random_state=random_state,
-        )
+            random_state=random_state)
 
     def full_hyper_space(self):
         from hyperopt import hp
-
         hyper_choices = {}
         hyper_space = {
             "mdl_n_estimators": hp.quniform("mdl_n_estimators", 10, 100, 1),
             "mdl_max_features": hp.quniform("mdl_max_features", 6, 10, 1),
-            "mdl_class_weight": hp.lognormal("mdl_class_weight", 0, 1),
+            "mdl_class_weight": hp.lognormal('mdl_class_weight', 0, 1),
         }
         return hyper_space, hyper_choices

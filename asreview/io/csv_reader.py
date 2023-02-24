@@ -17,8 +17,9 @@ import pandas as pd
 from asreview.io.utils import _standardize_dataframe
 
 
-class CSVReader:
-    """CVS file reader."""
+class CSVReader():
+    """CVS file reader.
+    """
 
     read_format = [".csv", ".tab", ".tsv"]
     write_format = [".csv", ".tsv", ".xlsx"]
@@ -39,7 +40,12 @@ class CSVReader:
         """
         for encoding in ["utf-8", "ISO-8859-1"]:
             try:
-                df = pd.read_csv(fp, sep=None, encoding=encoding, engine="python")
+                df = pd.read_csv(
+                    fp,
+                    sep=None,
+                    encoding=encoding,
+                    engine='python'
+                )
                 return _standardize_dataframe(df)
             except UnicodeDecodeError:
                 # if unicode error, go to next encoding

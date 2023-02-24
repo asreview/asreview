@@ -300,7 +300,7 @@ Utils
 
    project.get_project_path
    project.project_from_id
-   project.list_asreview_projects
+   project.get_projects
    project.is_project
    project.is_v0_project
 

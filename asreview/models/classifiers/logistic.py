@@ -54,13 +54,11 @@ class LogisticClassifier(BaseTrainClassifier):
             C=C,
             class_weight=_set_class_weight(class_weight),
             n_jobs=n_jobs,
-            random_state=random_state,
-        )
+            random_state=random_state)
         logging.debug(self._model)
 
     def full_hyper_space(self):
         from hyperopt import hp
-
         hyper_choices = {}
         hyper_space = {
             "mdl_C": hp.lognormal("mdl_C", 0, 1),

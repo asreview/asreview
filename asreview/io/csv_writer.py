@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-class CSVWriter:
-    """CSV file writer."""
+class CSVWriter():
+    """CSV file writer.
+    """
 
     name = "csv"
     label = "CSV (UTF-8)"

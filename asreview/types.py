@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 def type_n_queries(value):
     """Custom type used for --n_queries argument.
 
@@ -26,7 +25,7 @@ def type_n_queries(value):
     type_n_queries:
         A string containing 'min' or an integer.
     """
-    if value == "min":
+    if value == 'min':
         return value
     else:
         try:
