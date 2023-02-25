@@ -235,6 +235,7 @@ const AddDataset = (props) => {
             )}
             {datasetSource === "url" && (
               <DatasetFromURL
+                project_id={props.project_id}
                 addDatasetError={error}
                 handleSaveDataset={handleSaveDataset}
                 url={url}

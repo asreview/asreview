@@ -1,9 +1,23 @@
 import React from "react";
 import { InputBase, Paper, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "react-query";
+
+
 import LoadingButton from "@mui/lab/LoadingButton";
+import InputLabel from '@mui/material/InputLabel';
+import Box from '@mui/material/Box';
+import MenuItem from '@mui/material/MenuItem';
+import FormHelperText from '@mui/material/FormHelperText';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 import { InlineErrorHandler } from "../../../Components";
+import { ProjectAPI } from "../../../api/index.js";
 
 const PREFIX = "DatasetFromURL";
 
@@ -26,21 +40,83 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const DatasetFromURL = (props) => {
+
+  const queryClient = useQueryClient()
+
+  const { error, isError, isLoading, mutate, reset, data } = useMutation(
+    ProjectAPI.mutateData,
+    // {
+    //   onSettled: () => {
+    //     // props.setDisableFetchInfo(false);
+    //     // queryClient.invalidateQueries("fetchInfo");
+    //   },
+    //   onSuccess: () => {
+
+    //     console.log("succes")
+    //     console.log(data);
+    //     // setListFiles(data);
+
+    //     // queryClient.invalidateQueries("fetchLabeledStats");
+    //     // props.toggleAddDataset();
+    //   },
+    // }
+  );
+
+  console.log(data && data["files"])
+
   const handleURL = (event) => {
-    if (props.isAddDatasetError) {
-      props.reset();
-    }
+    console.log("hdgjkfd")
+
+    // if (props.isAddDatasetError) {
+    //   props.reset();
+    // }
     props.setURL(event.target.value);
+    // setFile(null);
+
+
   };
 
   const addURLOnEnter = (event) => {
-    if(event.keyCode === 13){
-       props.handleSaveDataset();
-    }
+
+    // if (file === null){
+    //   if(event.keyCode === 13){
+    //       // setListFiles([10, 20, 30])
+    //       setFile(10)
+    //   }
+    // } else {
+    //   props.handleSaveDataset();
+    // }
   };
 
-  const addURL = () => {
-    props.handleSaveDataset();
+  const addURL = (event) => {
+
+    // const query = useQuery("url", postValidateURL)
+
+    console.log(props.url)
+    console.log(file)
+    console.log({project_id: props.project_id, url: props.url, validate: true})
+
+    // try to validate the url first
+    mutate({project_id: props.project_id, url: props.url, validate: true})
+
+    console.log("end mutate")
+    // if (file === null){
+
+    //     mutate({project_id: props.project_id, url: props.url, validate: 1})
+
+    //     setListFiles([10, 20, 30])
+    //     setFile(10)
+
+    // } else {
+    //   props.handleSaveDataset();
+    // }
+  };
+
+  // const [listFiles, setListFiles] = React.useState(null);
+  const [file, setFile] = React.useState('');
+
+  const handleChange = (event: SelectChangeEvent) => {
+    setFile(event.target.value);
   };
 
   return (
@@ -65,14 +141,34 @@ const DatasetFromURL = (props) => {
             onKeyDown={addURLOnEnter}
             sx={{ ml: 1, flex: 1 }}
           />
+        </Paper>
+
+          {(data && data["files"]) && (
+          <FormControl sx={{ m: 1, minWidth: 120 }} disabled={isLoading}>
+            <InputLabel id="select-file-label">File</InputLabel>
+            <Select
+              labelId="select-file-label"
+              id="select-file"
+              value={file}
+              label="File"
+              onChange={handleChange}
+            >
+              {data["files"].map((val,id)=>{
+                return <MenuItem key={val["name"]} value={val["link"]}>{val["name"]}</MenuItem>
+              })}
+            </Select>
+            <FormHelperText>Select the file you want to use.</FormHelperText>
+          </FormControl>
+          )}
+
           <LoadingButton
             disabled={!props.url}
-            loading={props.isAddingDataset}
+            loading={isLoading}
             onClick={addURL}
           >
             Add
           </LoadingButton>
-        </Paper>
+
         {props.isAddDatasetError && (
           <InlineErrorHandler
             message={props.addDatasetError?.message + " Please try again."}

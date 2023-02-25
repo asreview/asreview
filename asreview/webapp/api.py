@@ -331,9 +331,21 @@ def api_upload_data_to_project(project):  # noqa: F401
         url = request.form.get('url')
         filename, url = _get_filename_from_url(url)
 
-        if not filename or not Path(filename).suffix:
-            # TODO use datahugger in the future
+        if bool(request.form.get('validate', None)):
+
+            if not filename or not Path(filename).suffix:
+                # TODO use datahugger in the future
+                print("DATAHUGGER")
+                import datahugger
+
+                dh = datahugger.get(url, output_folder=".", print_only=True)
+
+                return jsonify(files=dh.files), 201
+
             raise BadFileFormatError("Can't determine file format.")
+
+        else:
+            print("Continue without validation")
 
     if request.form.get('plugin', None) or request.form.get(
             'benchmark', None) or request.form.get('url', None):
