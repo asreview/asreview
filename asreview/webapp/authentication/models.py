@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import datetime as dt
+import re
 from pathlib import Path
 
 from flask_login import UserMixin
@@ -93,7 +94,7 @@ class User(UserMixin, DB.Model):
     def __init__(
         self,
         identifier,
-        origin="asreview",
+        origin='asreview',
         email=None,
         name=None,
         affiliation=None,
@@ -107,8 +108,8 @@ class User(UserMixin, DB.Model):
         self.email = email
         self.name = name
         self.affiliation = affiliation
-        if bool(password):
-            self.hashed_password = generate_password_hash(password)
+        if self.origin == 'asreview' and bool(password):
+            self.hashed_password = User.create_password_hash(password)
         self.confirmed = confirmed
         self.public = public
 
@@ -118,14 +119,14 @@ class User(UserMixin, DB.Model):
         self.name = name
         self.affiliation = affiliation
         if self.origin == "asreview" and bool(password):
-            self.hashed_password = generate_password_hash(password)
+            self.hashed_password = User.create_password_hash(password)
         self.public = public
 
         return self
 
     def reset_password(self, new_password):
         if self.origin == "asreview" and bool(new_password):
-            self.hashed_password = generate_password_hash(new_password)
+            self.hashed_password = User.create_password_hash(new_password)
         # reset token
         self.token = None
         self.token_created_at = None
@@ -188,37 +189,24 @@ class User(UserMixin, DB.Model):
         created_at = dt.datetime.utcnow()
         return token, created_at
 
+    @classmethod
+    def valid_password(cls, password):
+        return re.fullmatch(
+            r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$',
+            password
+        )
+
+    @classmethod
+    def create_password_hash(cls, password):
+        if bool(password) and User.valid_password(password):
+            return generate_password_hash(password)
+        else:
+            raise ValueError(
+                f'Password "{password}" does not meet requirements'
+            )
+
     def __repr__(self):
         return f"<User {self.email!r}, id: {self.id}>"
-
-
-class SingleUser:
-    """This class serves an unauthenticated app, we use a pseudo user
-    to bypass authentication."""
-
-    def __init__(self):
-        self.id = None
-        self.email = None
-        self.is_authenticated = True
-        self.is_active = False
-        self.is_anonymous = True
-
-    def is_authenticated(self):
-        return True
-
-    def is_active(self):
-        return True
-
-    def is_anonymous(self):
-        return False
-
-    def get_id(self):
-        """This class needs to have this method implemented
-        for the LoginManager"""
-        return 0
-
-    def __repr__(self):
-        return "<SingleUser>"
 
 
 class Collaboration(DB.Model):

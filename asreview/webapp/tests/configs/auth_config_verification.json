@@ -1,5 +1,5 @@
 {
-    "ENV": "development",
+    "ENV": "test",
     "DEBUG": true,
     "SECRET_KEY": "my_very_secret_key",
     "SECURITY_PASSWORD_SALT": "my_salt",
@@ -11,7 +11,7 @@
     "ALLOW_ACCOUNT_CREATION": true,
     "EMAIL_VERIFICATION": true,
     "EMAIL_CONFIG": {
-        "SERVER": "smtp.server.email",
+        "SERVER": "127.0.0.1",
         "PORT": 465,
         "USERNAME": "account@test.nl",
         "PASSWORD": "secret_password",

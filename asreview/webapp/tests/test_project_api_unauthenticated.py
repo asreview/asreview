@@ -70,6 +70,7 @@ def test_upgrade_project_if_old(setup_teardown_unauthorized):
     assert response.status_code == 400
 
 
+
 def test_get_projects_stats(setup_teardown_unauthorized):
     """Test get dashboard statistics of all projects"""
     _, client = setup_teardown_unauthorized

@@ -46,10 +46,10 @@ def setup_teardown_standard():
     """Standard setup and teardown, create the app and
     make sure the database is cleaned up after running
     each and every test"""
-    # setup environment variables
-    os.environ.update(TMP_ENV_VARS)
+    root_dir = str(Path(os.path.abspath(__file__)).parent)
+    config_file_path = f"{root_dir}/configs/auth_config.json"
     # create app and client
-    app = create_app(enable_auth=True)
+    app = create_app(enable_auth=True, flask_config=config_file_path)
     # clean database
     with app.app_context():
         yield app

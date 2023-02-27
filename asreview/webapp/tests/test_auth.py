@@ -1,4 +1,4 @@
-# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
+# Copyright 2009-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ def create_user(identifier, email=None, confirmed=True, password=None):
         email=(email if email is not None else identifier),
         name="Whatever",
         confirmed=confirmed,
-        password=(password if password is not None else "127635uyguytAYUTUYT"),
+        password=(password if password is not None else "127635!yguyW"),
     )
 
 
@@ -91,7 +91,7 @@ def test_impossible_to_signup_when_not_allowed(setup_teardown_standard):
     client = setup_teardown_standard
     assert len(User.query.all()) == 0
     # post form data
-    response = signup_user(client, "test1@uu.nl", "wdas32d!")
+    response = signup_user(client, "test1@uu.nl", "Wdas32d!")
     # check if we get a 400 status
     assert response.status_code == 400
     assert len(User.query.all()) == 0
@@ -101,14 +101,14 @@ def test_impossible_to_signup_when_not_allowed(setup_teardown_standard):
     "setup_teardown_standard", ["verified_user_creation"], indirect=True
 )
 def test_successful_signup_confirmed(setup_teardown_standard):
-    """Successful signup returns a 201 but with an unconfirmed
+    """Successful signup returns a 200 but with an unconfirmed
     user and a email token"""
     client = setup_teardown_standard
     assert len(User.query.all()) == 0
     # post form data
-    response = signup_user(client, "test1@uu.nl", "wdas32d!")
-    # check if we get a 201 status
-    assert response.status_code == 201
+    response = signup_user(client, "test1@uu.nl", "Wdas32d!")
+    # check if we get a 200 status
+    assert response.status_code == 200
     # get user
     user = User.query.first()
     assert not user.confirmed
@@ -117,11 +117,11 @@ def test_successful_signup_confirmed(setup_teardown_standard):
 
 
 def test_successful_signup_no_confirmation(setup_teardown_standard):
-    """Successful signup returns a 201"""
+    """Successful signup returns a 200"""
     client = setup_teardown_standard
     assert len(User.query.all()) == 0
     # post form data
-    response = signup_user(client, "test1@uu.nl", "wdas32d!")
+    response = signup_user(client, "test1@uu.nl", "Wdas32d!")
     # check if we get a 201 status
     assert response.status_code == 201
     # get user
@@ -186,10 +186,10 @@ def test_unsuccessful_signin_with_unconfirmed_account(setup_teardown_standard):
     client = setup_teardown_standard
     assert len(User.query.all()) == 0
     # post form data
-    email, password = "test1@uu.nl", "wdas32d!"
+    email, password = "test1@uu.nl", "Wdas32d!"
     response = signup_user(client, email, password)
-    # check if we get a 201 status
-    assert response.status_code == 201
+    # check if we get a 200 status
+    assert response.status_code == 200
     # get user
     user = User.query.first()
     assert not user.confirmed
@@ -287,9 +287,9 @@ def token_confirmation_after_signup(setup_teardown_standard):
     client = setup_teardown_standard
     assert len(User.query.all()) == 0
     # post form data
-    response = signup_user(client, "test1@uu.nl", "wdas32d!")
-    # check if we get a 201 status
-    assert response.status_code == 201
+    response = signup_user(client, "test1@uu.nl", "Wdas32d!")
+    # check if we get a 200 status
+    assert response.status_code == 200
     # get user
     user = User.query.first()
     assert not user.confirmed
@@ -315,20 +315,21 @@ def test_expired_token(setup_teardown_standard):
     client = setup_teardown_standard
     assert len(User.query.all()) == 0
     # post form data
-    response = signup_user(client, "test1@uu.nl", "wdas32d!")
-    # check if we get a 201 status
-    assert response.status_code == 201
+    response = signup_user(client, "test1@uu.nl", "Wdas32d!")
+    # check if we get a 200 status
+    assert response.status_code == 200
     # get user
     user = User.query.first()
     # change token created at
     token = user.token
-    new_created_at = user.token_created_at - dt.timedelta(hours=24, minutes=1)
+    new_created_at = user.token_created_at - dt.timedelta(hours=28)
     user.token_created_at = new_created_at
     DB.session.commit()
     # try to confirm this account
     # now we confirm this user
-    response = client.get(
-        f"/auth/confirm?user_id={user.id}&token={user.token}",
+    response = client.post(
+        f"/auth/confirm_account",
+        data={"user_id": user.id, "token": user.token}
     )
     assert response.status_code == 403
     assert "token has expired" in response.text
@@ -348,17 +349,18 @@ def test_if_this_route_returns_404_user_not_found(setup_teardown_standard):
     client = setup_teardown_standard
     assert len(User.query.all()) == 0
     # post form data
-    response = signup_user(client, "test1@uu.nl", "wdas32d!")
-    # check if we get a 201 status
-    assert response.status_code == 201
+    response = signup_user(client, "test1@uu.nl", "Wdas32d!")
+    # check if we get a 200 status
+    assert response.status_code == 200
     # get user
     user = User.query.first()
     # confirm with wrong user id
-    response = client.get(
-        f"/auth/confirm?user_id={user.id - 1}&token={user.token}",
+    response = client.post(
+        f"/auth/confirm_account",
+        data={"user_id": user.id - 1, "token": user.token}
     )
     assert response.status_code == 404
-    assert "No user/token found" in response.text
+    assert "No user account / correct token found" in response.text
 
 
 @pytest.mark.parametrize(
@@ -369,32 +371,34 @@ def test_if_this_route_returns_404_token_not_found(setup_teardown_standard):
     client = setup_teardown_standard
     assert len(User.query.all()) == 0
     # post form data
-    response = signup_user(client, "test1@uu.nl", "wdas32d!")
-    # check if we get a 201 status
-    assert response.status_code == 201
+    response = signup_user(client, "test1@uu.nl", "Wdas32d!")
+    # check if we get a 200 status
+    assert response.status_code == 200
     # get user
     user = User.query.first()
-    # confirm with wrong user id
-    response = client.get(
-        f"/auth/confirm?user_id={user.id}&token=A{user.token}A",
+    # confirm with wrong token
+    response = client.post(
+        f"/auth/confirm_account",
+        data={"user_id": user.id - 1, "token": "A" + user.token + "A"}
     )
     assert response.status_code == 404
-    assert "No user/token found" in response.text
+    assert "No user account / correct token found" in response.text
 
 
-def test_if_this_route_returns_403_if_app_not_verified(setup_teardown_standard):
+def test_if_this_route_returns_404_if_app_not_verified(setup_teardown_standard):
     """If we are not doing verification this route should return a 404"""
     client = setup_teardown_standard
     assert len(User.query.all()) == 0
     # post form data
-    response = signup_user(client, "test1@uu.nl", "wdas32d!")
+    response = signup_user(client, "test1@uu.nl", "Wdas32d!")
     # check if we get a 201 status
     assert response.status_code == 201
     # get user
     user = User.query.first()
     # try to confirm
-    response = client.get(
-        f"/auth/confirm?user_id={user.id}&token={user.token}",
+    response = client.post(
+        f"/auth/confirm_account",
+        data={"user_id": user.id, "token": user.token}
     )
     assert response.status_code == 400
     assert "not configured to verify accounts" in response.text
@@ -413,9 +417,9 @@ def test_token_creation_if_forgot_password(setup_teardown_standard):
     client = setup_teardown_standard
     assert len(User.query.all()) == 0
     # post form data
-    response = signup_user(client, "test1@uu.nl", "wdas32d!")
-    # check if we get a 201 status
-    assert response.status_code == 201
+    response = signup_user(client, "test1@uu.nl", "Wdas32d!")
+    # check if we get a 200 status
+    assert response.status_code == 200
     # get user
     user = User.query.first()
     # get initial token

@@ -57,74 +57,67 @@ def perform_login_user(user):
 
 
 # TODO: not sure if this file is the right place for this function
-def send_email(msg, config):
-    context = ssl.create_default_context()
-    with smtplib.SMTP_SSL(config["SERVER"], config["PORT"], context=context) as server:
-
-        # login smtp server
-        server.login(config["USERNAME"], config["PASSWORD"])
-        # send email
-        return server.sendmail(msg)
-
-
-# TODO: not sure if this file is the right place for this function
 def send_forgot_password_email(user, cur_app):
-    # get necessary information out of user object
-    name = user.name or "ASReview user"
-    # email config
-    config = cur_app.config.get("EMAIL_CONFIG")
-    # TODO: this is horrible => what if there is a domain name,
-    # where is it coming from? Where can I get it?
-    root_url = "http://127.0.0.1:3000/"
-    # redirect url
-    url = f"{root_url}reset_password?user_id={user.id}&token={user.token}"
-    # create a mailer
-    mailer = Mail(cur_app)
-    # open templates as string and render
-    root_path = Path(cur_app.root_path)
-    with open(root_path / "templates/emails/forgot_password.html", "r") as f:
-        html_text = render_template_string(f.read(), name=name, url=url)
-    with open(root_path / "templates/emails/forgot_password.txt", "r") as f:
-        txt_text = render_template_string(f.read(), name=name, url=url)
-    # create message
-    msg = Message(
-        "ASReview: forgot password",
-        recipients=[user.email],
-        sender=config.get("REPLY_ADDRESS"),
-    )
-    msg.body = txt_text
-    msg.html = html_text
-    return mailer.send(msg)
+    # do not send email in test environment
+    if (cur_app.config['ENV'] or '').lower() != 'test':
+        # get necessary information out of user object
+        name = user.name or "ASReview user"
+        # email config
+        config = cur_app.config.get("EMAIL_CONFIG")
+        # TODO: this is horrible => what if there is a domain name,
+        # where is it coming from? Where can I get it?
+        root_url = "http://127.0.0.1:3000/"
+        # redirect url
+        url = f"{root_url}reset_password?user_id={user.id}&token={user.token}"
+        # create a mailer
+        mailer = Mail(cur_app)
+        # open templates as string and render
+        root_path = Path(cur_app.root_path)
+        with open(root_path / "templates/emails/forgot_password.html", "r") as f:
+            html_text = render_template_string(f.read(), name=name, url=url)
+        with open(root_path / "templates/emails/forgot_password.txt", "r") as f:
+            txt_text = render_template_string(f.read(), name=name, url=url)
+        # create message
+        msg = Message(
+            "ASReview: forgot password",
+            recipients=[user.email],
+            sender=config.get("REPLY_ADDRESS"),
+        )
+        msg.body = txt_text
+        msg.html = html_text
+        return mailer.send(msg)
 
 
 # TODO: not sure if this file is the right place for this function
 def send_confirm_account_email(user, cur_app):
-    # get necessary information out of user object
-    name = user.name or "ASReview user"
-    # email config
-    config = cur_app.config.get("EMAIL_CONFIG")
-    # TODO: this is horrible => what if there is a domain name,
-    # where is it coming from? Where can I get it?
-    root_url = "http://127.0.0.1:3000/"
-    # redirect url
-    url = f"{root_url}confirm_account?user_id={user.id}&token={user.token}"
-    # create a mailer
-    mailer = Mail(cur_app)
-    # open templates as string and render
-    root_path = Path(cur_app.root_path)
-    with open(root_path / "templates/emails/confirm_account.html", "r") as f:
-        html_text = render_template_string(f.read(), name=name, url=url)
-    with open(root_path / "templates/emails/confirm_account.txt", "r") as f:
-        txt_text = render_template_string(f.read(), name=name, url=url)
-    # create message
-    msg = Message(
-        "ASReview: please confirm your account",
-        recipients=[user.email],
-        sender=config.get("REPLY_ADDRESS"),
-    )
-    msg.body = txt_text
-    msg.html = html_text
-    return mailer.send(msg)
+    # do not send email in test environment
+    if (cur_app.config['ENV'] or '').lower() != 'test':
+        # get necessary information out of user object
+        name = user.name or "ASReview user"
+        # email config
+        config = cur_app.config.get("EMAIL_CONFIG")
+        # TODO: this is horrible => what if there is a domain name,
+        # where is it coming from? Where can I get it?
+        root_url = "http://127.0.0.1:3000/"
+        # redirect url
+        url = f"{root_url}confirm_account?user_id={user.id}&token={user.token}"
+        # create a mailer
+        mailer = Mail(cur_app)
+        # open templates as string and render
+        root_path = Path(cur_app.root_path)
+        with open(root_path / "templates/emails/confirm_account.html", "r") as f:
+            html_text = render_template_string(f.read(), name=name, url=url)
+        with open(root_path / "templates/emails/confirm_account.txt", "r") as f:
+            txt_text = render_template_string(f.read(), name=name, url=url)
+        # create message
+        msg = Message(
+            "ASReview: please confirm your account",
+            recipients=[user.email],
+            sender=config.get("REPLY_ADDRESS"),
+        )
+        msg.body = txt_text
+        msg.html = html_text
+        return mailer.send(msg)
 
 
 # ------------------
@@ -193,9 +186,6 @@ def signup():
         if isinstance(user, User):
             result = (403, f'User with email "{email}" already exists.')
         else:
-            # password confirmation is done by front end, so the only
-            # thing that remains is to add the user (password will be
-            # hashed in the User model)
             try:
                 identifier = email
                 origin = "asreview"

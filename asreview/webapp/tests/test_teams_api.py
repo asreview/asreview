@@ -28,6 +28,9 @@ from asreview.webapp.authentication.models import CollaborationInvitation
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 
+password_main_user = "A12bcdefg!!"
+password_coll1 = "B12345*6"
+password_coll2 = "C1@2a3456"
 
 @pytest.fixture
 def populate(setup_teardown_signed_in):
@@ -36,11 +39,14 @@ def populate(setup_teardown_signed_in):
     # the first test
     app, client, _ = setup_teardown_signed_in
     with app.app_context():
-        # create 2 other users
-        signup_user(client, "main@test.org", "abcdefg!!")
-        signup_user(client, "coll1@test.org", "123456")
-        signup_user(client, "coll2@test.org", "123456")
-        signin_user(client, "main@test.org", "abcdefg!!")
+        # create other users
+        signup_user(client, "main@test.org", password_main_user)
+        signup_user(client, "coll1@test.org", password_coll1)
+        signup_user(client, "coll2@test.org", password_coll2)
+
+        # signin main user
+        signin_user(client, "main@test.org", password_main_user)
+
         # create project for users
         client.post(
             "/api/projects/info",
@@ -110,7 +116,7 @@ def test_get_team(populate):
 
     # signout owner, signin coll1
     signout(client)
-    signin_user(client, "coll1@test.org", "123456")
+    signin_user(client, "coll1@test.org", password_coll1)
     # coll1 accepts invitation
     url = f"/api/invitations/projects/{project.project_id}/accept"
     resp = client.post(url)
@@ -118,7 +124,7 @@ def test_get_team(populate):
 
     # back to owner
     signout(client)
-    resp = signin_user(client, "main@test.org", "abcdefg!!")
+    resp = signin_user(client, "main@test.org", password_main_user)
 
     # owner wants overview
     url = f"/api/projects/{project.project_id}/users"
@@ -143,7 +149,7 @@ def test_owner_removes_collaborator(populate):
 
     # signout owner, signin coll1
     signout(client)
-    signin_user(client, "coll1@test.org", "123456")
+    signin_user(client, "coll1@test.org", password_coll1)
     # coll1 accepts invitation
     url = f"/api/invitations/projects/{project.project_id}/accept"
     resp = client.post(url)
@@ -151,7 +157,7 @@ def test_owner_removes_collaborator(populate):
 
     # back to owner
     signout(client)
-    resp = signin_user(client, "main@test.org", "abcdefg!!")
+    resp = signin_user(client, "main@test.org", password_main_user)
 
     # assert we have a collaboration
     collabs = Collaboration.query.all()
@@ -178,7 +184,7 @@ def test_collaborator_ends_collaboration(populate):
 
     # signout owner, signin coll1
     signout(client)
-    signin_user(client, "coll1@test.org", "123456")
+    signin_user(client, "coll1@test.org", password_coll1)
     # coll1 accepts invitation
     url = f"/api/invitations/projects/{project.project_id}/accept"
     resp = client.post(url)
@@ -209,7 +215,7 @@ def test_invitation_overview(populate):
 
     # signout owner, signin coll1
     signout(client)
-    signin_user(client, "coll1@test.org", "123456")
+    signin_user(client, "coll1@test.org", password_coll1)
 
     # coll1 wants to see invitations
     url = "/api/invitations"
@@ -255,7 +261,7 @@ def test_accept_team_invitation(populate):
 
     # signout owner, signin coll1
     signout(client)
-    signin_user(client, "coll1@test.org", "123456")
+    signin_user(client, "coll1@test.org", password_coll1)
     # accept invitation
     url = f"/api/invitations/projects/{project.project_id}/accept"
     resp = client.post(url)
@@ -290,7 +296,7 @@ def test_reject_team_invitation(populate):
 
     # signout owner, signin coll1
     signout(client)
-    signin_user(client, "coll1@test.org", "123456")
+    signin_user(client, "coll1@test.org", password_coll1)
     # reject invitation
     url = f"/api/invitations/projects/{project.project_id}/reject"
     resp = client.delete(url)
@@ -346,7 +352,7 @@ def test_improper_get_team(populate):
 
     # signout owner, signin coll1
     signout(client)
-    signin_user(client, "coll1@test.org", "123456")
+    signin_user(client, "coll1@test.org", password_coll1)
 
     # owner wants overview
     url = f"/api/projects/{project.project_id}/users"
@@ -365,7 +371,7 @@ def outsider_can_not_remove_collaborator(populate):
 
     # signout owner, signin coll2
     signout(client)
-    signin_user(client, "coll2@test.org", "123456")
+    signin_user(client, "coll2@test.org", password_coll2)
 
     # coll1 tries to remove collaborator
     url = f"/api/projects/{project.project_id}/users/{coll1.id}"
@@ -379,7 +385,7 @@ def test_improper_owner_send_invitation(populate):
 
     # signout owner, signin coll2
     signout(client)
-    signin_user(client, "coll2@test.org", "123456")
+    signin_user(client, "coll2@test.org", password_coll2)
 
     url = f"/api/invitations/projects/{project.project_id}/users/{coll1.id}"
     resp = client.post(url)
@@ -396,7 +402,7 @@ def test_improper_accept_team_invitation(populate):
 
     # signout owner, signin coll2
     signout(client)
-    signin_user(client, "coll2@test.org", "123456")
+    signin_user(client, "coll2@test.org", password_coll2)
     # accept invitation
     url = f"/api/invitations/projects/{project.project_id}/accept"
     resp = client.post(url)
@@ -413,7 +419,7 @@ def test_improper_reject_team_invitation(populate):
 
     # signout owner, signin coll2
     signout(client)
-    signin_user(client, "coll2@test.org", "123456")
+    signin_user(client, "coll2@test.org", password_coll2)
     # accept invitation
     url = f"/api/invitations/projects/{project.project_id}/reject"
     resp = client.delete(url)
@@ -430,7 +436,7 @@ def test_improper_owner_deletes_invitation(populate):
 
     # signout owner, signin coll2
     signout(client)
-    signin_user(client, "coll2@test.org", "123456")
+    signin_user(client, "coll2@test.org", password_coll2)
 
     # remove invitation
     url = f"/api/invitations/projects/{project.project_id}/users/{coll1.id}"

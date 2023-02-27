@@ -48,10 +48,8 @@ def users(project_id):
         all_users = [
             u.summarize()
             for u in User.query.filter(
-                and_(User.public is True, User.id != current_user.id)
-            )
-            .order_by("name")
-            .all()
+                and_(User.public, User.id != current_user.id)
+            ).order_by("name").all()
         ]
 
         # response
