@@ -124,7 +124,8 @@ setup(
         'gevent>=20',
         'jsonschema',
         'filelock',
-        'tqdm'
+        'tqdm',
+        'datahugger>=0.2'
     ],
     extras_require=DEPS,
     entry_points={
