@@ -20,6 +20,7 @@ import tempfile
 from pathlib import Path
 from urllib.request import urlretrieve
 
+import datahugger
 from flask import Blueprint
 from flask import abort
 from flask import jsonify
@@ -70,6 +71,7 @@ from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.sql_converter import upgrade_project_config
 from asreview.utils import _get_executable
 from asreview.utils import asreview_path
+from asreview.utils import list_reader_names
 from asreview.webapp.io import read_data
 
 bp = Blueprint('api', __name__, url_prefix='/api')
@@ -329,23 +331,35 @@ def api_upload_data_to_project(project):  # noqa: F401
     if request.form.get('url', None):
 
         url = request.form.get('url')
+
+        # check if url value is actually DOI without netloc
+        if url.startswith("10."):
+            url = f"https://doi.org/{url}"
+
         filename, url = _get_filename_from_url(url)
 
         if bool(request.form.get('validate', None)):
 
-            if not filename or not Path(filename).suffix:
-                # TODO use datahugger in the future
-                print("DATAHUGGER")
-                import datahugger
+            reader_keys = list_reader_names()
 
-                dh = datahugger.get(url, output_folder=".", print_only=True)
+            if filename and Path(filename).suffix and \
+                    Path(filename).suffix in reader_keys:
+                return jsonify(files=[{"link": url, "name": filename}]), 201
+            elif filename and not Path(filename).suffix:
+                raise BadFileFormatError("Can't determine file format.")
+            else:
+                try:
+                    # get file list from datahugger
+                    dh = datahugger.info(url)
+                    files = dh.files.copy()
 
-                return jsonify(files=dh.files), 201
+                    for i, f in enumerate(files):
+                        files[i]["disabled"] = Path(
+                            files[i]["name"]).suffix not in reader_keys
 
-            raise BadFileFormatError("Can't determine file format.")
-
-        else:
-            print("Continue without validation")
+                    return jsonify(files=files), 201
+                except Exception:
+                    raise BadFileFormatError("Can't retrieve files.")
 
     if request.form.get('plugin', None) or request.form.get(
             'benchmark', None) or request.form.get('url', None):
