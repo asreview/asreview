@@ -1,18 +1,15 @@
 import React from "react";
 import { InputBase, Paper, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import {
-  useMutation,
-} from "react-query";
-
+import { useMutation } from "react-query";
 
 import LoadingButton from "@mui/lab/LoadingButton";
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormHelperText from '@mui/material/FormHelperText';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormHelperText from "@mui/material/FormHelperText";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 
 import { InlineErrorHandler } from "../../../Components";
 import { ProjectAPI } from "../../../api/index.js";
@@ -38,13 +35,13 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const DatasetFromURL = (props) => {
-
-  const [localURL, setLocalURL] = React.useState('');
+  const [localURL, setLocalURL] = React.useState("");
 
   const { error, isError, isLoading, mutate, data } = useMutation(
-    ProjectAPI.mutateData, {
+    ProjectAPI.mutateData,
+    {
       onSuccess: (data, variables, context) => {
-        if (data["files"] && data["files"].length === 1){
+        if (data["files"] && data["files"].length === 1) {
           props.setURL(data["files"][0]["link"]);
         }
       },
@@ -56,28 +53,22 @@ const DatasetFromURL = (props) => {
   };
 
   const addURL = (event) => {
-
     // validate the url first
-    mutate({project_id: props.project_id, url: localURL, validate: true})
-
+    mutate({ project_id: props.project_id, url: localURL, validate: true });
   };
 
   const addURLOnEnter = (event) => {
-
-    if(event.keyCode === 13){
-        addURL(event);
+    if (event.keyCode === 13) {
+      addURL(event);
     }
   };
 
   const addFile = (event) => {
-
     // upload dataset
     props.handleSaveDataset();
-
   };
 
   const handleFileChange = (event) => {
-    console.log("change")
     props.setURL(event.target.value);
   };
 
@@ -108,12 +99,15 @@ const DatasetFromURL = (props) => {
             loading={isLoading}
             onClick={addURL}
           >
-            <ArrowForwardOutlinedIcon/>
+            <ArrowForwardOutlinedIcon />
           </LoadingButton>
         </Paper>
 
-          {(data && data["files"]) && (
-          <FormControl sx={{ m: 1, minWidth: 120 }} disabled={props.isAddingDataset || data["files"].length === 1}>
+        {data && data["files"] && (
+          <FormControl
+            sx={{ m: 1, minWidth: 120 }}
+            disabled={props.isAddingDataset || data["files"].length === 1}
+          >
             <InputLabel id="select-file-label">File</InputLabel>
             <Select
               labelId="select-file-label"
@@ -122,17 +116,27 @@ const DatasetFromURL = (props) => {
               label="File"
               onChange={handleFileChange}
             >
-              {data["files"].map((val,id)=>{
-                return <MenuItem key={val["name"]} value={val["link"]} disabled={val["disabled"]}>{val["name"]}</MenuItem>
+              {data["files"].map((val, id) => {
+                return (
+                  <MenuItem
+                    key={val["name"]}
+                    value={val["link"]}
+                    disabled={val["disabled"]}
+                  >
+                    {val["name"]}
+                  </MenuItem>
+                );
               })}
             </Select>
-            {(data && data["files"] && data["files"].length > 1) && (
-              <FormHelperText>Multiple files found. Select the file you want to use.</FormHelperText>
+            {data && data["files"] && data["files"].length > 1 && (
+              <FormHelperText>
+                Multiple files found. Select the file you want to use.
+              </FormHelperText>
             )}
           </FormControl>
-          )}
+        )}
 
-          {(data && data["files"]) && (
+        {data && data["files"] && (
           <LoadingButton
             disabled={!props.url}
             loading={props.isAddingDataset || isLoading}
@@ -140,7 +144,7 @@ const DatasetFromURL = (props) => {
           >
             Add
           </LoadingButton>
-          )}
+        )}
 
         {isError && (
           <InlineErrorHandler
