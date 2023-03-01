@@ -1124,7 +1124,8 @@ def api_export_dataset(project):
 
     # get the export args
     file_format = request.args.get("file_format", None)
-
+    export_only_relevant = request.args.get("export_only_relevant", default=False)
+    
     # create temporary folder to store exported dataset
     tmp_path = tempfile.TemporaryDirectory(dir=project.project_path)
     tmp_path_dataset = Path(tmp_path.name, f"export_dataset.{file_format}")
@@ -1136,7 +1137,12 @@ def api_export_dataset(project):
 
         included = labeled[labeled['label'] == 1]
         excluded = labeled[labeled['label'] != 1]
-        export_order = included['record_id'].to_list() + \
+        
+        if export_only_relevant:
+            export_order = included['record_id'].to_list()
+            labeled = included
+        else:
+            export_order = included['record_id'].to_list() + \
             pending.to_list() + \
             pool.to_list() + \
             excluded['record_id'].to_list()
