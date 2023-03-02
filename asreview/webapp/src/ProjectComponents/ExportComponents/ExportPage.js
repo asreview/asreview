@@ -152,7 +152,9 @@ const ExportPage = (props) => {
                     >
                       <MenuItem value="dataset" divider>
                         <Box>
-                          <Typography variant="subtitle1">Dataset</Typography>
+                          <Typography variant="subtitle1">
+                            Full dataset
+                          </Typography>
                           <Typography
                             variant="body2"
                             gutterBottom
@@ -170,7 +172,7 @@ const ExportPage = (props) => {
                             gutterBottom
                             sx={{ color: "text.secondary" }}
                           >
-                            With relevant labels
+                            Including relevant records only
                           </Typography>
                         </Box>
                       </MenuItem>
