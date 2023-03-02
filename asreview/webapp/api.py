@@ -1134,6 +1134,8 @@ def api_export_dataset(project):
         # get labels and ranking from state file
         with open_state(project.project_path) as s:
             pool, labeled, pending = s.get_pool_labeled_pending()
+            # get state dataset for accessing notes
+            state_df = s.get_dataset().set_index("record_id")
 
         included = labeled[labeled['label'] == 1]
         excluded = labeled[labeled['label'] != 1]
@@ -1146,6 +1148,8 @@ def api_export_dataset(project):
                 pending.to_list() + \
                 pool.to_list() + \
                 excluded['record_id'].to_list()
+        
+        state_df = state_df.loc[export_order, :]
 
         # get writer corresponding to specified file format
         writers = list_writers()
@@ -1157,6 +1161,29 @@ def api_export_dataset(project):
 
         # read the dataset into a ASReview data object
         as_data = read_data(project)
+        
+        # Adding Notes from State file to the exported dataset
+        # Check if exported_notes column already exists due to multiple screenings
+        screening = 0
+        for col in as_data:
+            if col == "exported_notes":
+                screening = 0
+            elif col.startswith("exported_notes"):
+                try:
+                    screening = int(col.split("_")[2])
+                except IndexError:
+                    screening = 0
+        screening += 1
+        
+        state_df.rename(
+            columns={"notes": f"exported_notes_{screening}",},
+            inplace=True,
+        )
+        
+        as_data = as_data.join(
+            state_df[f"exported_notes_{screening}"],
+            on="record_id"
+        )
 
         as_data.to_file(
             fp=tmp_path_dataset,
