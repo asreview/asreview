@@ -1163,7 +1163,7 @@ def api_export_dataset(project):
         # Adding Notes from State file to the exported dataset
         # Check if exported_notes column already exists due to multiple screenings
         screening = 0
-        for col in as_data:
+        for col in as_data.df:
             if col == "exported_notes":
                 screening = 0
             elif col.startswith("exported_notes"):
