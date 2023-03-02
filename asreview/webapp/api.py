@@ -1125,7 +1125,7 @@ def api_export_dataset(project):
     # get the export args
     file_format = request.args.get("file_format", None)
     dataset_label = request.args.get("dataset_label", default="all")
-    
+
     # create temporary folder to store exported dataset
     tmp_path = tempfile.TemporaryDirectory(dir=project.project_path)
     tmp_path_dataset = Path(tmp_path.name, f"export_dataset.{file_format}")
@@ -1137,15 +1137,15 @@ def api_export_dataset(project):
 
         included = labeled[labeled['label'] == 1]
         excluded = labeled[labeled['label'] != 1]
-        
+
         if dataset_label == "relevant":
             export_order = included['record_id'].to_list()
             labeled = included
         else:
             export_order = included['record_id'].to_list() + \
-            pending.to_list() + \
-            pool.to_list() + \
-            excluded['record_id'].to_list()
+                pending.to_list() + \
+                pool.to_list() + \
+                excluded['record_id'].to_list()
 
         # get writer corresponding to specified file format
         writers = list_writers()
