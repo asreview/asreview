@@ -16,10 +16,10 @@ import json
 import os
 import shutil
 
+import pytest
 from conftest import signin_user
 from conftest import signout
 from conftest import signup_user
-import pytest
 
 from asreview.utils import asreview_path
 from asreview.webapp import DB
@@ -27,7 +27,6 @@ from asreview.webapp.authentication.models import Collaboration
 from asreview.webapp.authentication.models import CollaborationInvitation
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
-
 
 password_main_user = "A12bcdefg!!"
 password_coll1 = "B12345*6"
