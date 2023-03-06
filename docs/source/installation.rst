@@ -17,7 +17,7 @@ Install the ASReview software with Pip by running the following command in the
     pip install asreview
 
 Start the application with the following command (in CMD.exe or Terminal):
- 
+
 .. code:: bash
 
     asreview lab
@@ -82,14 +82,14 @@ closed networks.
 Install with Docker
 -------------------
 
-ASReview LAB is also available as a Docker container. Make sure you have
+ASReview is also available as a Docker container. Make sure you have
 Docker installed on your machine.
 
 To install and start ASReview LAB at http://localhost:5000, run the following:
 
 .. code:: bash
 
-   docker run -p 5000:5000 asreview/asreview:latest
+   docker run -p 5000:5000 asreview/asreview:latest lab
 
 
 More advanced command line options can be given
@@ -97,7 +97,7 @@ afterward, like this:
 
 .. code:: bash
 
-   docker run -p 9000:9000 asreview/asreview  --port 9000
+   docker run -p 9000:9000 asreview/asreview lab --port 9000
 
 .. tip::
 
@@ -116,9 +116,33 @@ access the same folder.
 
 .. code:: bash
 
-    docker create --name asreview-lab -p 5000:5000 -v path-to-your-folder:/project_folder asreview/asreview
+    docker run -p 5000:5000 -v path-to-your-folder:/project_folder asreview/asreview lab
 
-Build a local image
+Named container
+~~~~~~~~~~~~~~~
+
+To make the usage easier, you can create a named container like the following:
+
+.. code:: bash
+
+    docker create --name asreview-lab -p 5000:5000 -v path-to-your-folder:/project_folder asreview/asreview lab
+
+To start asreview, enter:
+
+.. code:: bash
+
+    docker start asreview
+
+To stop it, just use `stop` instead of `start`.
+You can also check which images are running with `docker ps`.
+
+Customize the image
 ~~~~~~~~~~~~~~~~~~~
 
-For more information, see `ASReview LAB GitHub <https://github.com/asreview/asreview/tree/master/docker>`__.
+If you want to add more extensions, or build the Docker image yourself, check the file `Dockerfile <https://github.com/asreview/asreview/tree/master/Dockerfiles>`.
+Modify it as you see fit, and then build and run the image with:
+
+.. code:: bash
+
+    docker build -t asreview/asreview:custom .
+    docker run -p 5000:5000 asreview/asreview:custom lab
