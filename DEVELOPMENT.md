@@ -136,8 +136,10 @@ You can deploy ASReview LAB right now in one click on any of these clouds provid
 
 ### Docker
 
-Creating a Docker release can't be done with a hook anymore (not for free). Find the manual instructions at
-https://docs.docker.com/docker-hub/. Replace the version numbers below by the version you want to push.
+A Docker image is created when a tag or a commit to `master` is pushed.
+The workflow `docker.yml` builds images for platforms `linux/amd64` and `linux/arm64`.
+If, for some reason, the image is not built, you can build manually with the commands below.
+Find the manual instructions at https://docs.docker.com/docker-hub/. Replace the version numbers below by the version you want to push.
 
 ASReview LAB
 ```
