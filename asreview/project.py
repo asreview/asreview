@@ -86,10 +86,10 @@ def project_from_id(user):
         @wraps(f)
         def decorated_function(project_id, *args, **kwargs):
 
-            # we need a user id, but if the app is not authenticated we 
+            # we need a user id, but if the app is not authenticated we
             # are dealing with an AnonymousUserMixin that doesn't have an
             # id. This try/except block makes sure this function executes
-            # without having knowledge about the User model and the 
+            # without having knowledge about the User model and the
             # AnonymousUserMixin Object from Flask_Login.
             try:
                 # authenticated: identifier is concatenated
@@ -321,7 +321,9 @@ class ASReviewProject:
                         return config
 
             except FileNotFoundError:
-               raise ProjectNotFoundError(f"Project '{self.project_path}' not found")
+                raise ProjectNotFoundError(
+                    f"Project '{self.project_path}' not found"
+                )
 
     @config.setter
     def config(self, config):

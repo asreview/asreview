@@ -20,6 +20,7 @@ from flask import request
 from flask_login.config import EXEMPT_METHODS
 from flask_login.utils import _get_user
 
+
 def asreview_login_required(func):
     """
     Adjusted version of login_required of flask-login

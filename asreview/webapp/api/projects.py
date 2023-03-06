@@ -166,7 +166,6 @@ def api_get_projects():  # noqa: F401
         projects = get_projects(None)
         owner_ids = [current_user.id for p in projects]
 
-
     for project, owner_id in zip(projects, owner_ids):
         try:
             project_config = project.config
@@ -332,7 +331,6 @@ def api_get_project_info(project):  # noqa: F401
 @project_from_id(current_user)
 def api_update_project_info(project):  # noqa: F401
     """"""
-
     # rename the project if project name is changed
     if request.form.get("name", None) is not None:
         # get new name
@@ -341,7 +339,7 @@ def api_update_project_info(project):  # noqa: F401
         if project.config["name"] != new_project_name:
             old_project_id = project.config["id"]
             new_project_id = _create_project_id(new_project_name)
-            
+
             if app_is_authenticated(current_app):
                 folder_id = _get_authenticated_folder_id(
                     new_project_id,
@@ -1711,4 +1709,3 @@ def api_delete_project(project):  # noqa: F401
 
     response = jsonify(message="project-delete-failure")
     return response, 500
-

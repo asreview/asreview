@@ -28,9 +28,11 @@ from asreview.webapp.authentication.models import CollaborationInvitation
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 
+
 password_main_user = "A12bcdefg!!"
 password_coll1 = "B12345*6"
 password_coll2 = "C1@2a3456"
+
 
 @pytest.fixture
 def populate(setup_teardown_signed_in):
