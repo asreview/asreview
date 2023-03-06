@@ -68,7 +68,7 @@ def setup_teardown_signed_in():
     root_dir = str(Path(os.path.abspath(__file__)).parent)
     config_file_path = f"{root_dir}/configs/auth_config.json"
     # create app and client
-    app = create_app(enable_auth=True, flask_config=config_file_path)
+    app = create_app(enable_auth=True, flask_configfile=config_file_path)
     with app.app_context():
         client = app.test_client()
         email, password = "c.s.kaandorp@uu.nl", "123456!AbC"

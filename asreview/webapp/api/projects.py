@@ -158,7 +158,9 @@ def api_get_projects():  # noqa: F401
         # authenticated with User accounts
         user_db_projects = list(current_user.projects) + \
             list(current_user.involved_in)
-        project_paths = [project.folder for project in user_db_projects]
+        project_paths = [
+            asreview_path() / project.folder for project in user_db_projects
+        ]
         owner_ids = [project.owner_id for project in user_db_projects]
         projects = get_projects(project_paths)
     else:
@@ -207,7 +209,7 @@ def api_get_projects_stats():  # noqa: F401
         user_db_projects = list(current_user.projects) + \
             list(current_user.involved_in)
         project_paths = [
-            Path(asreview_path(), project.folder) for project in user_db_projects
+            asreview_path() / project.folder for project in user_db_projects
         ]
     else:
         # force get_projects to list the .asreview folder

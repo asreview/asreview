@@ -49,7 +49,7 @@ def setup_teardown_standard():
     root_dir = str(Path(os.path.abspath(__file__)).parent)
     config_file_path = f"{root_dir}/configs/auth_config.json"
     # create app and client
-    app = create_app(enable_auth=True, flask_config=config_file_path)
+    app = create_app(enable_auth=True, flask_configfile=config_file_path)
     # clean database
     with app.app_context():
         yield app
