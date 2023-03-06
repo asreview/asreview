@@ -48,7 +48,7 @@ def setup_teardown_standard():
     each and every test"""
     # setup environment variables
     os.environ.update(TMP_ENV_VARS)
-    
+
     root_dir = str(Path(os.path.abspath(__file__)).parent)
     config_file_path = f"{root_dir}/configs/auth_config.json"
     # create app and client
