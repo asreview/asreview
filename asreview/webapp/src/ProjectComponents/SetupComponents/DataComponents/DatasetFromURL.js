@@ -110,12 +110,12 @@ const DatasetFromURL = (props) => {
             sx={{ m: 1, minWidth: 120 }}
             disabled={props.isAddingDataset || data["files"].length === 1}
           >
-            <InputLabel id="select-file-label">File</InputLabel>
+            <InputLabel id="select-file-label">Select dataset</InputLabel>
             <Select
               labelId="select-file-label"
               id="select-file"
               value={props.url}
-              label="File"
+              label="Select dataset"
               onChange={handleFileChange}
             >
               {data["files"].map((val, id) => {
@@ -130,11 +130,6 @@ const DatasetFromURL = (props) => {
                 );
               })}
             </Select>
-            {data && data["files"] && data["files"].length > 1 && (
-              <FormHelperText>
-                Multiple files found. Select the file you want to use.
-              </FormHelperText>
-            )}
           </FormControl>
         )}
 
