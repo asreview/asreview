@@ -126,11 +126,6 @@ class ProjectAPI {
   }
 
   static mutateData(variables) {
-
-    console.log("test")
-
-    console.log(variables.url)
-
     let body = new FormData();
     if (variables.file) {
       body.append("file", variables.file);
