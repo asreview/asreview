@@ -12,6 +12,7 @@ import Select from "@mui/material/Select";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 
 import { InlineErrorHandler } from "../../../Components";
+import { StyledLoadingButton } from "../../../StyledComponents/StyledButton";
 import { ProjectAPI } from "../../../api/index.js";
 
 const PREFIX = "DatasetFromURL";
@@ -94,13 +95,14 @@ const DatasetFromURL = (props) => {
             onKeyDown={addURLOnEnter}
             sx={{ ml: 1, flex: 1 }}
           />
-          <LoadingButton
+          <StyledLoadingButton
             disabled={!localURL || props.isAddingDataset}
             loading={isLoading}
             onClick={addURL}
+            sx={{ minWidth: "32px" }}
           >
             <ArrowForwardOutlinedIcon />
-          </LoadingButton>
+          </StyledLoadingButton>
         </Paper>
 
         {data && data["files"] && (
@@ -137,13 +139,15 @@ const DatasetFromURL = (props) => {
         )}
 
         {data && data["files"] && (
-          <LoadingButton
-            disabled={!props.url}
-            loading={props.isAddingDataset || isLoading}
-            onClick={addFile}
-          >
-            Add
-          </LoadingButton>
+          <Stack className={classes.root}>
+            <LoadingButton
+              disabled={!props.url}
+              loading={props.isAddingDataset || isLoading}
+              onClick={addFile}
+            >
+              Add
+            </LoadingButton>
+          </Stack>
         )}
 
         {isError && (
