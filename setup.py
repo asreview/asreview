@@ -103,7 +103,7 @@ setup(
         'Topic :: Text Processing :: General',
         'Framework :: Flask',
     ],
-    keywords='systematic review machine-learning',
+    keywords=['systematic review', 'machine-learning'],
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
     package_data={'asreview': [
         'webapp/build/*',
