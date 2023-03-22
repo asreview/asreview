@@ -1126,7 +1126,7 @@ def api_export_dataset(project):
     file_format = request.args.get("file_format", None)
 
     # create temporary folder to store exported dataset
-    tmp_path = tempfile.TemporaryDirectory(dir=project.project_path)
+    tmp_path = tempfile.TemporaryDirectory()
     tmp_path_dataset = Path(tmp_path.name, f"export_dataset.{file_format}")
 
     try:
