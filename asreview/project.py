@@ -123,7 +123,9 @@ def get_projects(project_paths=None):
         Projects at the given project paths.
     """
     if project_paths is None:
-        project_paths = asreview_path().iterdir()
+        project_paths = [
+            path for path in asreview_path().iterdir() if path.is_dir()
+        ]
 
     return [ASReviewProject(project_path) for project_path in project_paths]
 

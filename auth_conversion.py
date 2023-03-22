@@ -4,7 +4,8 @@ from pathlib import Path
 from uuid import NAMESPACE_URL
 from uuid import uuid5
 
-ASREVIEW_PATH = Path("/Users/casperkaandorp/.asreview")
+from asreview.utils import asreview_path
+
 DATABASE_NAME = "asreview.development.sqlite"
 
 
@@ -45,7 +46,7 @@ def link_user_to_project(conn, project_id, folder_name, user_id):
 
 if __name__ == "__main__":
     # establish connect with database
-    con = sqlite3.connect(ASREVIEW_PATH / DATABASE_NAME)
+    con = sqlite3.connect(asreview_path() / DATABASE_NAME)
     # get cursor
     cursor = con.cursor()
     # get all users in the user table
@@ -53,8 +54,8 @@ if __name__ == "__main__":
     # all id numbers
     all_ids = [row[0] for row in users]
 
-    # iterate over all files and folders in ASREVIEW_PATH
-    for folder in ASREVIEW_PATH.glob("*"):
+    # iterate over all files and folders in asreview_path()
+    for folder in asreview_path().glob("*"):
 
         # if folder is indeed a folder
         if Path(folder).is_dir():
@@ -91,7 +92,7 @@ if __name__ == "__main__":
                     ).hex
 
                     # rename the folder
-                    folder.rename(ASREVIEW_PATH / new_folder_name)
+                    folder.rename(asreview_path() / new_folder_name)
 
                     # insert record
                     link_user_to_project(

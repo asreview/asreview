@@ -166,7 +166,7 @@ def api_get_projects():  # noqa: F401
     else:
         # force get_projects to list the .asreview folder
         projects = get_projects(None)
-        owner_ids = [current_user.id for p in projects]
+        owner_ids = [None for p in projects]
 
     for project, owner_id in zip(projects, owner_ids):
         try:
@@ -177,8 +177,9 @@ def api_get_projects():  # noqa: F401
                 project_config = upgrade_project_config(project_config)
                 project_config["projectNeedsUpgrade"] = True
 
-            # add ownership information
-            project_config["owner_id"] = owner_id
+            # add ownership information if authentication is enabled
+            if app_is_authenticated(current_app):
+                project_config["owner_id"] = owner_id
 
             logging.info("Project found: {}".format(project_config["id"]))
             project_info.append(project_config)

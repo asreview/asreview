@@ -94,7 +94,7 @@ const ProjectPage = (props) => {
       enabled: project_id !== undefined,
       onSuccess: (data) => {
         // set ownership
-        setIsOwner(auth.id === data.ownerId);
+        setIsOwner(auth?.id === data.ownerId);
         if (
           data.reviews[0] === undefined ||
           data["reviews"][0]["status"] === projectStatuses.SETUP
