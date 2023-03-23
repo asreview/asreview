@@ -152,15 +152,13 @@ const ExportPage = (props) => {
                     >
                       <MenuItem value="dataset" divider>
                         <Box>
-                          <Typography variant="subtitle1">
-                            Full dataset
-                          </Typography>
+                          <Typography variant="subtitle1">Dataset</Typography>
                           <Typography
                             variant="body2"
                             gutterBottom
                             sx={{ color: "text.secondary" }}
                           >
-                            With relevant and irrelevant labels
+                            Including all labeled and unlabeled records
                           </Typography>
                         </Box>
                       </MenuItem>
