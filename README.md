@@ -147,7 +147,7 @@ that contains all authentication parameters. The keys in that JSON file will ove
 Store the JSON file on the server and start the ASReview application from the CLI with the
 `--flask-configfile` parameter:
 ```
-$ FLASK_DEBUG=1 python3 -m asreview lab --flask-configfile=<path-to-JSON-config-file>
+$ python3 -m asreview lab --flask-configfile=<path-to-JSON-config-file>
 ```
 A number of the keys in the JSON file are standard Flask parameters. The keys that are specific for authenticating ASReview 
 
