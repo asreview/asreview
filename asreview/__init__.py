@@ -12,18 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ._version import get_versions
-from . import compat
+from . import compat  # so you can remove it from the api later
 from . import config
 from . import data
 from . import datasets
-from . import entry_points
+from . import entry_points  # so you can remove it from the api later
 from . import exceptions
 from . import io
 from . import models
 from . import project
-from . import review
-from . import search
+from . import review   # so you can remove it from the api later
+from . import search   # so you can remove it from the api later
 from . import settings
 from . import state
 from . import types
@@ -42,24 +41,26 @@ from asreview.utils import asreview_path
 from asreview.utils import get_data_home
 from ._version import get_versions
 
+
 __version__ = get_versions()['version']
 del get_versions
 del webapp
+del search
+del review
+del entry_points
+del compat
+del _version
+
 
 __all__ = [
     "__version__",
-    "_version",
-    "compat",
     "config",
     "data",
     "datasets",
-    "entry_points",
     "exceptions",
     "io",
     "models",
     "project",
-    "review",
-    "search",
     "settings",
     "state",
     "types",
@@ -74,11 +75,12 @@ __all__ = [
     "ASReviewProject",
     "open_state",
     "asreview_path",
-    "get_data_home",
-    "get_versions"
+    "get_data_home"
 ]
 
 for _item in dir():
     if not _item.endswith('__'):
         assert _item in __all__, f"Named export {_item} missing from __all__ in {__package__}"
+for _item in __all__:
+    assert _item in dir(), f"__all__ includes unknown item {_item} in {__package__}"
 del _item
