@@ -21,7 +21,6 @@ from io import open
 from os import path
 
 from setuptools import Command
-from setuptools import find_packages
 from setuptools import setup
 
 import versioneer
@@ -104,7 +103,6 @@ setup(
         'Framework :: Flask',
     ],
     keywords=['systematic review', 'machine-learning'],
-    packages=find_packages(exclude=['contrib', 'docs', 'tests']),
     package_data={'asreview': [
         'webapp/build/*',
         'webapp/build/static/*/*',

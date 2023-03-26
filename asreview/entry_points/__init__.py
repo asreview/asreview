@@ -11,12 +11,31 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from . import base
+from . import lab
+from .algorithms import AlgorithmsEntryPoint
+from .base import BaseEntryPoint
+from .lab import LABEntryPoint
+from .lab import WebRunModelEntryPoint
+from .simulate import SimulateEntryPoint
+from .state_inspect import StateInspectEntryPoint
 
-from asreview.entry_points.algorithms import AlgorithmsEntryPoint
-from asreview.entry_points.base import BaseEntryPoint
-from asreview.entry_points.lab import LABEntryPoint
-from asreview.entry_points.lab import WebRunModelEntryPoint
-from asreview.entry_points.simulate import SimulateEntryPoint
-from asreview.entry_points.state_inspect import StateInspectEntryPoint
 
-"""Default entry points for asreview."""
+__all__ = [
+    "base",
+    "lab",
+    "AlgorithmsEntryPoint",
+    "BaseEntryPoint",
+    "LABEntryPoint",
+    "WebRunModelEntryPoint",
+    "SimulateEntryPoint",
+    "StateInspectEntryPoint",
+    "algorithms",
+    "simulate",
+    "state_inspect"
+]
+
+for _item in dir():
+    if not _item.endswith('__'):
+        assert _item in __all__, f"Named export {_item} missing from __all__ in {__package__}"
+del _item

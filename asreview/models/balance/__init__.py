@@ -12,14 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.models.balance.double import DoubleBalance
-from asreview.models.balance.simple import SimpleBalance
-from asreview.models.balance.triple import TripleBalance
-from asreview.models.balance.undersample import UndersampleBalance
-from asreview.models.balance.utils import get_balance_class
-from asreview.models.balance.utils import get_balance_model
-from asreview.models.balance.utils import list_balance_strategies
-
 """Balance strategies to rebalance and reorder the training data.
 
 There are several balance strategies that rebalance and reorder the
@@ -30,3 +22,43 @@ included (otherwise, automation cannot help much anyway).
 There are several balance strategies available. In configuration
 files, parameters are found under the section ``[balance_param]``.
 """
+
+from . import base
+from . import double
+from . import simple
+from . import triple
+from . import undersample
+from . import utils
+from .utils import get_balance_model
+from .utils import list_balance_strategies
+from .double import DoubleBalance
+from .simple import SimpleBalance
+from .triple import TripleBalance
+from .undersample import UndersampleBalance
+from .utils import get_balance_class
+from .utils import get_balance_model
+from .utils import list_balance_strategies
+
+
+__all__ = [
+    "base",
+    "double",
+    "simple",
+    "triple",
+    "undersample",
+    "utils",
+    "get_balance_model",
+    "list_balance_strategies",
+    "DoubleBalance",
+    "SimpleBalance",
+    "TripleBalance",
+    "UndersampleBalance",
+    "get_balance_class",
+    "get_balance_model",
+    "list_balance_strategies"
+]
+
+for _item in dir():
+    if not _item.endswith('__'):
+        assert _item in __all__, f"Named export {_item} missing from __all__ in {__package__}"
+del _item

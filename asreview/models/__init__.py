@@ -12,18 +12,46 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.models.classifiers.logistic import LogisticClassifier
-from asreview.models.classifiers.lstm_base import LSTMBaseClassifier
-from asreview.models.classifiers.lstm_pool import LSTMPoolClassifier
-from asreview.models.classifiers.nb import NaiveBayesClassifier
-from asreview.models.classifiers.nn_2_layer import NN2LayerClassifier
-from asreview.models.classifiers.rf import RandomForestClassifier
-from asreview.models.classifiers.svm import SVMClassifier
-from asreview.models.classifiers.utils import get_classifier
-from asreview.models.classifiers.utils import get_classifier_class
-from asreview.models.classifiers.utils import list_classifiers as _list_classifiers    # NOQA
-
 """Active learning model components.
 
 Components like classifiers, query strategies, balance strategies, and
 feature_extraction techniques."""
+
+from . import balance
+from . import classifiers
+from . import feature_extraction
+from . import query
+from . import base
+from .classifiers.logistic import LogisticClassifier
+from .classifiers.lstm_base import LSTMBaseClassifier
+from .classifiers.lstm_pool import LSTMPoolClassifier
+from .classifiers.nb import NaiveBayesClassifier
+from .classifiers.nn_2_layer import NN2LayerClassifier
+from .classifiers.rf import RandomForestClassifier
+from .classifiers.svm import SVMClassifier
+from .classifiers.utils import get_classifier
+from .classifiers.utils import get_classifier_class
+from .classifiers.utils import list_classifiers as _list_classifiers
+
+__all__ = [
+    "base",
+    "balance",
+    "classifiers",
+    "feature_extraction",
+    "query",
+    "LogisticClassifier",
+    "LSTMBaseClassifier",
+    "LSTMPoolClassifier",
+    "NaiveBayesClassifier",
+    "NN2LayerClassifier",
+    "RandomForestClassifier",
+    "SVMClassifier",
+    "get_classifier",
+    "get_classifier_class",
+    "_list_classifiers"
+]
+
+for _item in dir():
+    if not _item.endswith('__'):
+        assert _item in __all__, f"Named export {_item} missing from __all__ in {__package__}"
+del _item

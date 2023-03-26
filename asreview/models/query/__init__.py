@@ -12,19 +12,51 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.models.query.cluster import ClusterQuery
-from asreview.models.query.max import MaxQuery
-from asreview.models.query.mixed import MaxRandomQuery
-from asreview.models.query.mixed import MaxUncertaintyQuery
-from asreview.models.query.mixed import MixedQuery
-from asreview.models.query.random import RandomQuery
-from asreview.models.query.uncertainty import UncertaintyQuery
-from asreview.models.query.utils import get_query_class
-from asreview.models.query.utils import get_query_model
-from asreview.models.query.utils import list_query_strategies
-
 """Query strategies query records to label by the user.
 
 There are several query strategies available. In configuration files,
 parameters are found under the section ``[query_param]``.
 """
+
+from . import base
+from .utils import get_query_model
+from .utils import list_query_strategies
+from . import max
+from .cluster import ClusterQuery
+from .max import MaxQuery
+from .mixed import MaxRandomQuery
+from .mixed import MaxUncertaintyQuery
+from .mixed import MixedQuery
+from .random import RandomQuery
+from .uncertainty import UncertaintyQuery
+from .utils import get_query_class
+from .utils import get_query_model
+from .utils import list_query_strategies
+
+
+__all__ = [
+    "base",
+    "get_query_model",
+    "list_query_strategies",
+    "max",
+    "ClusterQuery",
+    "MaxQuery",
+    "MaxRandomQuery",
+    "MaxUncertaintyQuery",
+    "MixedQuery",
+    "RandomQuery",
+    "UncertaintyQuery",
+    "get_query_class",
+    "get_query_model",
+    "list_query_strategies",
+    "cluster",
+    "mixed",
+    "random",
+    "uncertainty",
+    "utils"
+]
+
+for _item in dir():
+    if not _item.endswith('__'):
+        assert _item in __all__, f"Named export {_item} missing from __all__ in {__package__}"
+del _item

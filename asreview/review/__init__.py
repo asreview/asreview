@@ -11,6 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from . import base
+from .base import BaseReview
+from . import simulate
 
-from asreview.review.base import BaseReview
-from asreview.review.simulate import ReviewSimulate
+__all__ = [
+    "base",
+    "BaseReview",
+    "simulate"
+]
+
+for _item in dir():
+    if not _item.endswith('__'):
+        assert _item in __all__, f"Named export {_item} missing from __all__ in {__package__}"
+del _item

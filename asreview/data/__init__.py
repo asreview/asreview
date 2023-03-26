@@ -11,6 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from .base import load_data
+from .base import ASReviewData
+from . import statistics
 
-from asreview.data.base import ASReviewData
-from asreview.data.base import load_data
+
+__all__ = [
+    "load_data",
+    "ASReviewData",
+    "statistics",
+    "base"
+]
+
+for _item in dir():
+    if not _item.endswith('__'):
+        assert _item in __all__, f"Named export {_item} missing from __all__ in {__package__}"
+del _item
