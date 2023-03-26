@@ -160,3 +160,7 @@ bower_components
 psd
 thumb
 sketch
+
+# IDE config files
+.idea
+
