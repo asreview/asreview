@@ -61,14 +61,30 @@ def _lab_parser(prog="lab"):
         "--enable-auth",
         dest="enable_authentication",
         action="store_true",
-        help="Use authentication",
+        help="Enable authentication.",
+    )
+
+    parser.add_argument(
+        "--secret-key",
+        default=None,
+        type=str,
+        help="Secret key for authentication.",
+    )
+
+    parser.add_argument(
+        "--salt",
+        default=None,
+        type=str,
+        help="When using authentication, a salt code is needed"
+        "for hasing passwords.",
     )
 
     parser.add_argument(
         "--flask-configfile",
         default="",
         type=str,
-        help="The full path to a JSON file " + "for Flask parameters.",
+        help="Full path to a JSON file containing Flask parameters"
+        "for authentication.",
     )
 
     parser.add_argument(
@@ -108,6 +124,7 @@ def _lab_parser(prog="lab"):
         help="Deprecated, see subcommand simulate.",
         action=DeprecateAction
     )
+
     parser.add_argument(
         "--seed",
         default=None,

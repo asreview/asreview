@@ -14,8 +14,6 @@
 
 
 import datetime as dt
-import smtplib
-import ssl
 from pathlib import Path
 
 from flask import Blueprint

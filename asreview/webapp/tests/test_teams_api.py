@@ -16,9 +16,6 @@ import json
 import os
 import shutil
 
-from conftest import signin_user
-from conftest import signout
-from conftest import signup_user
 import pytest
 
 from asreview.utils import asreview_path
@@ -27,10 +24,14 @@ from asreview.webapp.authentication.models import Collaboration
 from asreview.webapp.authentication.models import CollaborationInvitation
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
+from asreview.webapp.tests.conftest import signin_user
+from asreview.webapp.tests.conftest import signout
+from asreview.webapp.tests.conftest import signup_user
 
 password_main_user = "A12bcdefg!!"
 password_coll1 = "B12345*6"
 password_coll2 = "C1@2a3456"
+
 
 @pytest.fixture
 def populate(setup_teardown_signed_in):

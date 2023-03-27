@@ -111,11 +111,13 @@ def create_app(**kwargs):
 
     # Get the ASReview arguments.
     app.config["asr_kwargs"] = kwargs
-    app.config["AUTHENTICATION_ENABLED"] = kwargs.get("enable_auth", False)
+    app.config["AUTHENTICATION_ENABLED"] = kwargs.get("enable_authentication", False)
+    app.config["SECRET_KEY"] = kwargs.get("secret_key", False)
+    app.config["SECURITY_PASSWORD_SALT"] = kwargs.get("salt", False)
 
     # Read config parameters if possible, this overrides
     # the previous assignments.
-    config_file_path = kwargs.get("flask_config", "").strip()
+    config_file_path = kwargs.get("flask_configfile", "").strip()
     if config_file_path != "":
         app.config.from_file(config_file_path, load=json.load)
 
@@ -291,11 +293,7 @@ def main(argv):
     parser = _lab_parser(prog="lab")
     args = parser.parse_args(argv)
 
-    app = create_app(
-        embedding_fp=args.embedding_fp,
-        enable_auth=args.enable_authentication,
-        flask_config=args.flask_configfile,
-    )
+    app = create_app(**vars(args))
     app.config["PROPAGATE_EXCEPTIONS"] = False
 
     # ssl certificate, key and protocol

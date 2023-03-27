@@ -50,11 +50,19 @@ available commands in ASReview LAB, type :code:`asreview lab --help`.
 
 .. option:: --enable-auth ENABLE_AUTH
 
-	Use authentication.
+	Enable authentication.
+
+.. option:: --secret-key SECRET_KEY
+
+	Secret key for authentication.
+
+.. option:: --salt SALT
+
+	When using authentication, a salt code is needed for hasing passwords.
 
 .. option:: --flask-configfile FLASK_CONFIGFILE
 
-    The full path to a JSON file for Flask parameters.
+    Full path to a JSON file containing Flask parameters for authentication.
 
 .. option:: --no-browser NO_BROWSER
 

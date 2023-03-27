@@ -53,7 +53,7 @@ def setup_teardown_standard(request):
         config_file_path = f"{root_dir}/configs/auth_config.json"
 
     # create app and client
-    app = create_app(enable_auth=True, flask_config=config_file_path)
+    app = create_app(enable_auth=True, flask_configfile=config_file_path)
     client = app.test_client()
     # clean database
     with app.app_context():
@@ -328,7 +328,7 @@ def test_expired_token(setup_teardown_standard):
     # try to confirm this account
     # now we confirm this user
     response = client.post(
-        f"/auth/confirm_account",
+        "/auth/confirm_account",
         data={"user_id": user.id, "token": user.token}
     )
     assert response.status_code == 403
@@ -356,7 +356,7 @@ def test_if_this_route_returns_404_user_not_found(setup_teardown_standard):
     user = User.query.first()
     # confirm with wrong user id
     response = client.post(
-        f"/auth/confirm_account",
+        "/auth/confirm_account",
         data={"user_id": user.id - 1, "token": user.token}
     )
     assert response.status_code == 404
@@ -378,7 +378,7 @@ def test_if_this_route_returns_404_token_not_found(setup_teardown_standard):
     user = User.query.first()
     # confirm with wrong token
     response = client.post(
-        f"/auth/confirm_account",
+        "/auth/confirm_account",
         data={"user_id": user.id - 1, "token": "A" + user.token + "A"}
     )
     assert response.status_code == 404
@@ -397,7 +397,7 @@ def test_if_this_route_returns_404_if_app_not_verified(setup_teardown_standard):
     user = User.query.first()
     # try to confirm
     response = client.post(
-        f"/auth/confirm_account",
+        "/auth/confirm_account",
         data={"user_id": user.id, "token": user.token}
     )
     assert response.status_code == 400
