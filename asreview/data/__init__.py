@@ -19,9 +19,9 @@ from . import statistics  # so you can remove it from the API later
 del statistics
 
 __all__ = [
-    "load_data",
     "ASReviewData",
-    "base"
+    "base",
+    "load_data"
 ]
 
 for _item in dir():

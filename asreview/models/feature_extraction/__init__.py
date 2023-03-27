@@ -39,22 +39,22 @@ from .utils import list_feature_extraction
 
 __all__ = [
     "base",
-    "embedding_lstm",
-    "get_feature_model",
-    "list_feature_extraction",
-    "tfidf",
+    "doc2vec",
     "Doc2Vec",
+    "embedding_idf",
+    "embedding_lstm",
     "EmbeddingIdf",
     "EmbeddingLSTM",
-    "SBERT",
-    "Tfidf",
     "get_feature_class",
     "get_feature_model",
+    "get_feature_model",
     "list_feature_extraction",
-    "utils",
-    "doc2vec",
-    "embedding_idf",
-    "sbert"
+    "list_feature_extraction",
+    "sbert",
+    "SBERT",
+    "tfidf",
+    "Tfidf",
+    "utils"
 ]
 
 for _item in dir():

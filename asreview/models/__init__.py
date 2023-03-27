@@ -34,21 +34,21 @@ from .classifiers.utils import get_classifier_class
 from .classifiers.utils import list_classifiers as _list_classifiers
 
 __all__ = [
-    "base",
+    "_list_classifiers",
     "balance",
+    "base",
     "classifiers",
     "feature_extraction",
-    "query",
+    "get_classifier_class",
+    "get_classifier",
     "LogisticClassifier",
     "LSTMBaseClassifier",
     "LSTMPoolClassifier",
     "NaiveBayesClassifier",
     "NN2LayerClassifier",
+    "query",
     "RandomForestClassifier",
-    "SVMClassifier",
-    "get_classifier",
-    "get_classifier_class",
-    "_list_classifiers"
+    "SVMClassifier"
 ]
 
 for _item in dir():

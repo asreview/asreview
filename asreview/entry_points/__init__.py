@@ -20,8 +20,8 @@ from .lab import WebRunModelEntryPoint
 
 __all__ = [
     "base",
-    "lab",
     "BaseEntryPoint",
+    "lab",
     "LABEntryPoint",
     "WebRunModelEntryPoint"
 ]

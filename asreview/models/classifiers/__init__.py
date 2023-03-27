@@ -36,27 +36,27 @@ from .utils import list_classifiers
 
 __all__ = [
     "base",
+    "get_classifier_class",
+    "get_classifier",
     "get_classifier",
     "list_classifiers",
-    "NaiveBayesClassifier",
-    "utils",
+    "list_classifiers",
+    "logistic",
     "LogisticClassifier",
+    "lstm_base",
+    "lstm_pool",
     "LSTMBaseClassifier",
     "LSTMPoolClassifier",
     "NaiveBayesClassifier",
-    "NN2LayerClassifier",
-    "RandomForestClassifier",
-    "SVMClassifier",
-    "get_classifier",
-    "get_classifier_class",
-    "list_classifiers",
-    "logistic",
-    "lstm_base",
-    "lstm_pool",
+    "NaiveBayesClassifier",
     "nb",
     "nn_2_layer",
+    "NN2LayerClassifier",
+    "RandomForestClassifier",
     "rf",
-    "svm"
+    "svm",
+    "SVMClassifier",
+    "utils"
 ]
 
 for _item in dir():

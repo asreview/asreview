@@ -25,10 +25,10 @@ del legacy
 
 __all__ = [
     "base",
+    "BaseState",
     "errors",
-    "sqlstate",
     "SQLiteState",
-    "BaseState"
+    "sqlstate"
 ]
 
 for _item in dir():

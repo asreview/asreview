@@ -26,24 +26,24 @@ from .utils import list_writers
 
 
 __all__ = [
+    "csv_reader",
+    "csv_writer",
     "CSVReader",
     "CSVWriter",
+    "excel_reader",
+    "excel_writer",
     "ExcelReader",
     "ExcelWriter",
-    "PaperRecord",
-    "RISReader",
-    "RISWriter",
-    "TSVWriter",
     "list_readers",
     "list_writers",
-    "tsv_writer",
-    "ris_writer",
-    "ris_reader",
     "paper_record",
-    "excel_writer",
-    "excel_reader",
-    "csv_writer",
-    "csv_reader",
+    "PaperRecord",
+    "ris_reader",
+    "ris_writer",
+    "RISReader",
+    "RISWriter",
+    "tsv_writer",
+    "TSVWriter",
     "utils"
 ]
 

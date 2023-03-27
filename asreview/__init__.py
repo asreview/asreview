@@ -54,28 +54,28 @@ del _version
 
 __all__ = [
     "__version__",
+    "asreview_path",
+    "ASReviewData",
+    "ASReviewProject",
     "config",
     "data",
     "datasets",
     "exceptions",
+    "get_data_home",
     "io",
-    "models",
-    "project",
-    "settings",
-    "state",
-    "types",
-    "utils",
-    "ASReviewData",
-    "load_data",
     "list_readers",
     "list_writers",
+    "load_data",
     "load_embedding",
-    "sample_embedding",
-    "text_to_features",
-    "ASReviewProject",
+    "models",
     "open_state",
-    "asreview_path",
-    "get_data_home"
+    "project",
+    "sample_embedding",
+    "settings",
+    "state",
+    "text_to_features",
+    "types",
+    "utils"
 ]
 
 for _item in dir():

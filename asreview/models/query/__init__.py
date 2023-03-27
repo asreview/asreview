@@ -36,23 +36,23 @@ from .utils import list_query_strategies
 
 __all__ = [
     "base",
+    "cluster",
+    "ClusterQuery",
+    "get_query_class",
+    "get_query_model",
     "get_query_model",
     "list_query_strategies",
+    "list_query_strategies",
     "max",
-    "ClusterQuery",
     "MaxQuery",
     "MaxRandomQuery",
     "MaxUncertaintyQuery",
-    "MixedQuery",
-    "RandomQuery",
-    "UncertaintyQuery",
-    "get_query_class",
-    "get_query_model",
-    "list_query_strategies",
-    "cluster",
     "mixed",
+    "MixedQuery",
     "random",
+    "RandomQuery",
     "uncertainty",
+    "UncertaintyQuery",
     "utils"
 ]
 

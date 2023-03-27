@@ -43,19 +43,19 @@ from .utils import list_balance_strategies
 __all__ = [
     "base",
     "double",
-    "simple",
-    "triple",
-    "undersample",
-    "utils",
-    "get_balance_model",
-    "list_balance_strategies",
     "DoubleBalance",
-    "SimpleBalance",
-    "TripleBalance",
-    "UndersampleBalance",
     "get_balance_class",
     "get_balance_model",
-    "list_balance_strategies"
+    "get_balance_model",
+    "list_balance_strategies",
+    "list_balance_strategies",
+    "simple",
+    "SimpleBalance",
+    "triple",
+    "TripleBalance",
+    "undersample",
+    "UndersampleBalance",
+    "utils"
 ]
 
 for _item in dir():
