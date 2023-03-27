@@ -49,7 +49,7 @@ del search
 del review
 del entry_points
 del compat
-del _version
+del _version  # noqa: F821
 
 
 __all__ = [

@@ -25,8 +25,6 @@ files, parameters are found under the section ``[feature_param]``.
 from . import base
 from . import embedding_lstm
 from . import tfidf
-from .utils import get_feature_model
-from .utils import list_feature_extraction
 from .doc2vec import Doc2Vec
 from .embedding_idf import EmbeddingIdf
 from .embedding_lstm import EmbeddingLSTM
@@ -47,8 +45,6 @@ __all__ = [
     "EmbeddingLSTM",
     "get_feature_class",
     "get_feature_model",
-    "get_feature_model",
-    "list_feature_extraction",
     "list_feature_extraction",
     "sbert",
     "SBERT",

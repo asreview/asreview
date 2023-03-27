@@ -29,8 +29,6 @@ from . import simple
 from . import triple
 from . import undersample
 from . import utils
-from .utils import get_balance_model
-from .utils import list_balance_strategies
 from .double import DoubleBalance
 from .simple import SimpleBalance
 from .triple import TripleBalance
@@ -46,8 +44,6 @@ __all__ = [
     "DoubleBalance",
     "get_balance_class",
     "get_balance_model",
-    "get_balance_model",
-    "list_balance_strategies",
     "list_balance_strategies",
     "simple",
     "SimpleBalance",

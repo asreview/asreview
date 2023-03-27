@@ -19,9 +19,6 @@ files, parameters are found under the section ``[model_param]``.
 """
 
 from . import base
-from .utils import get_classifier
-from .utils import list_classifiers
-from .nb import NaiveBayesClassifier
 from .logistic import LogisticClassifier
 from .lstm_base import LSTMBaseClassifier
 from .lstm_pool import LSTMPoolClassifier
@@ -38,8 +35,6 @@ __all__ = [
     "base",
     "get_classifier_class",
     "get_classifier",
-    "get_classifier",
-    "list_classifiers",
     "list_classifiers",
     "logistic",
     "LogisticClassifier",
@@ -47,7 +42,6 @@ __all__ = [
     "lstm_pool",
     "LSTMBaseClassifier",
     "LSTMPoolClassifier",
-    "NaiveBayesClassifier",
     "NaiveBayesClassifier",
     "nb",
     "nn_2_layer",

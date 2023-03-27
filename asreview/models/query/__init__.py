@@ -19,8 +19,6 @@ parameters are found under the section ``[query_param]``.
 """
 
 from . import base
-from .utils import get_query_model
-from .utils import list_query_strategies
 from . import max
 from .cluster import ClusterQuery
 from .max import MaxQuery
@@ -40,8 +38,6 @@ __all__ = [
     "ClusterQuery",
     "get_query_class",
     "get_query_model",
-    "get_query_model",
-    "list_query_strategies",
     "list_query_strategies",
     "max",
     "MaxQuery",
