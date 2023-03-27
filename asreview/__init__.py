@@ -16,7 +16,7 @@ from . import compat  # so you can remove it from the api later
 from . import config
 from . import data
 from . import datasets
-from . import entry_points  # so you can remove it from the api later
+from . import entry_points
 from . import exceptions
 from . import io
 from . import models
@@ -47,7 +47,6 @@ del get_versions
 del webapp
 del search
 del review
-del entry_points
 del compat
 del _version  # noqa: F821
 
@@ -60,6 +59,7 @@ __all__ = [
     "config",
     "data",
     "datasets",
+    "entry_points",
     "exceptions",
     "get_data_home",
     "io",

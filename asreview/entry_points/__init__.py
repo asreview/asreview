@@ -13,16 +13,25 @@
 # limitations under the License.
 from . import base
 from . import lab
+from .algorithms import AlgorithmsEntryPoint
 from .base import BaseEntryPoint
 from .lab import LABEntryPoint
 from .lab import WebRunModelEntryPoint
+from .simulate import SimulateEntryPoint
+from .state_inspect import StateInspectEntryPoint
 
 
 __all__ = [
+    "algorithms",
+    "AlgorithmsEntryPoint",
     "base",
     "BaseEntryPoint",
     "lab",
     "LABEntryPoint",
+    "simulate",
+    "SimulateEntryPoint",
+    "state_inspect",
+    "StateInspectEntryPoint",
     "WebRunModelEntryPoint"
 ]
 
