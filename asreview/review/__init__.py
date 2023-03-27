@@ -14,10 +14,12 @@
 from . import base
 from . import simulate
 from .base import BaseReview
+from .simulate import ReviewSimulate
 
 __all__ = [
     "base",
     "BaseReview",
+    "ReviewSimulate",
     "simulate"
 ]
 

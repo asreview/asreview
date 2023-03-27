@@ -31,7 +31,7 @@ from . import exceptions
 from . import io
 from . import models
 from . import project
-from . import review   # so you can remove it from the api later
+from . import review
 from . import search   # so you can remove it from the api later
 from . import settings
 from . import state
@@ -45,7 +45,6 @@ __version__ = get_versions()['version']
 del get_versions
 del webapp
 del search
-del review
 del compat
 del _version  # noqa: F821
 
@@ -69,6 +68,7 @@ __all__ = [
     "models",
     "open_state",
     "project",
+    "review",
     "sample_embedding",
     "settings",
     "state",
