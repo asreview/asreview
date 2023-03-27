@@ -68,7 +68,7 @@ def load_data(name, *args, **kwargs):
 def _get_filename_from_url(url):
 
     if not is_url(url):
-        raise ValueError(f"{url} is not a valid URL.")
+        raise ValueError(f"'{url}' is not a valid URL.")
 
     if Path(urlparse(url).path).suffix:
         return Path(urlparse(url).path).name, url
