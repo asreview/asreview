@@ -132,6 +132,9 @@ class ProjectAPI {
     }
     if (variables.url) {
       body.append("url", variables.url);
+      if (variables.validate) {
+        body.append("validate", variables.validate);
+      }
     }
     if (variables.extension) {
       body.append("plugin", variables.extension);

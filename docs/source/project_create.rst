@@ -76,13 +76,17 @@ From File
 
 Drag and drop your file or select your file. Click on *Save* on the top right.
 
-From URL
-~~~~~~~~
+From URL or DOI
+~~~~~~~~~~~~~~~
 
-Use a link to a dataset on the Internet. For example, a link from this
-`dataset repository
-<https://github.com/asreview/systematic-review-datasets>`__. Click on *Save* on
-the top right.
+Insert a URL to a dataset. For example, use a URL from this
+`dataset repository <https://github.com/asreview/systematic-review-datasets>`__.
+It is also possible to provide a DOI to a data repository (supported for many
+data repositories via `Datahugger <https://github.com/J535D165/datahugger>`__).
+In a DOI points to multiple files, select the file you want to use (e.g.
+`10.17605/OSF.IO/WDZH5 <https://doi.org/10.17605/OSF.IO/WDZH5>`__).
+
+Click on *Add* to add the dataset.
 
 From Extension
 ~~~~~~~~~~~~~~

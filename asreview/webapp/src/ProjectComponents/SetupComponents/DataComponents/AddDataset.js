@@ -153,7 +153,7 @@ const AddDataset = (props) => {
                 <FormControlLabel
                   value="url"
                   control={<Radio />}
-                  label="URL"
+                  label="URL or DOI"
                   onChange={handleDatasetSource}
                 />
                 {props.mode === projectModes.ORACLE && (
@@ -177,12 +177,12 @@ const AddDataset = (props) => {
             </FormControl>
             {(datasetSource === "file" || datasetSource === "url") && (
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                ASReview LAB accepts RIS file format (<code>.ris</code>,{" "}
-                <code>.txt</code>) and tabular datasets (<code>.csv</code>,{" "}
-                <code>.tab</code>, <code>.tsv</code>, <code>.xlsx</code>). The
-                dataset should contain a title and abstract for each record.{" "}
+                Supported formats are RIS (<code>.ris</code>, <code>.txt</code>)
+                and tabular datasets (<code>.csv</code>, <code>.tab</code>,{" "}
+                <code>.tsv</code>, <code>.xlsx</code>). The dataset should
+                contain a title and abstract for each record.{" "}
                 {props.mode !== projectModes.ORACLE
-                  ? "The dataset should also contain labels for each record. "
+                  ? "The dataset should contain labels for each record. "
                   : ""}
                 To optimally benefit from the performance of the active learning
                 model, it is highly recommended to add a dataset without
@@ -235,6 +235,7 @@ const AddDataset = (props) => {
             )}
             {datasetSource === "url" && (
               <DatasetFromURL
+                project_id={props.project_id}
                 addDatasetError={error}
                 handleSaveDataset={handleSaveDataset}
                 url={url}
