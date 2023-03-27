@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from . import base
-from .base import BaseReview
 from . import simulate
+from .base import BaseReview
 
 __all__ = [
     "base",

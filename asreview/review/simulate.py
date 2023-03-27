@@ -17,9 +17,9 @@ import numpy as np
 import pandas as pd
 
 from asreview.project import open_state
-from asreview.review import BaseReview
 from asreview.review.base import LABEL_NA
 from asreview.utils import get_random_state
+from .base import BaseReview
 
 
 def sample_prior_knowledge(

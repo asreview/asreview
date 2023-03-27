@@ -13,11 +13,11 @@
 # limitations under the License.
 from . import base
 from . import errors
-from . import sql_converter  # so we can delete it later
 from . import legacy         # so we can delete it later
+from . import sql_converter  # so we can delete it later
 from . import sqlstate
-from .sqlstate import SQLiteState
 from .base import BaseState
+from .sqlstate import SQLiteState
 
 del sql_converter
 del legacy

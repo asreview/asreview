@@ -18,10 +18,10 @@ Components like classifiers, query strategies, balance strategies, and
 feature_extraction techniques."""
 
 from . import balance
+from . import base
 from . import classifiers
 from . import feature_extraction
 from . import query
-from . import base
 from .classifiers.logistic import LogisticClassifier
 from .classifiers.lstm_base import LSTMBaseClassifier
 from .classifiers.lstm_pool import LSTMPoolClassifier

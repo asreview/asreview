@@ -25,7 +25,7 @@ def list_members(pkg, level=0, level_max=5):
             # recursion limit due to cyclic imports
             continue
         if inspect.ismodule(value) or level > level_max:
-            r += list_members(value, level+1)
+            r += list_members(value, level + 1)
     return r
 
 

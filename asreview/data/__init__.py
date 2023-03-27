@@ -11,9 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from .base import load_data
-from .base import ASReviewData
 from . import statistics  # so you can remove it from the API later
+from .base import ASReviewData
+from .base import load_data
 
 
 del statistics

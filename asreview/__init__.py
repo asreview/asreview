@@ -11,7 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+from asreview.data.base import ASReviewData
+from asreview.data.base import load_data
+from asreview.io.utils import list_readers
+from asreview.io.utils import list_writers
+from asreview.models.feature_extraction.embedding_lstm import load_embedding
+from asreview.models.feature_extraction.embedding_lstm import sample_embedding
+from asreview.models.feature_extraction.embedding_lstm import text_to_features
+from asreview.project import ASReviewProject
+from asreview.project import open_state
+from asreview.utils import asreview_path
+from asreview.utils import get_data_home
 from . import compat  # so you can remove it from the api later
 from . import config
 from . import data
@@ -28,17 +38,6 @@ from . import state
 from . import types
 from . import utils
 from . import webapp   # so you can remove it from the api later
-from asreview.data.base import ASReviewData
-from asreview.data.base import load_data
-from asreview.io.utils import list_readers
-from asreview.io.utils import list_writers
-from asreview.models.feature_extraction.embedding_lstm import load_embedding
-from asreview.models.feature_extraction.embedding_lstm import sample_embedding
-from asreview.models.feature_extraction.embedding_lstm import text_to_features
-from asreview.project import ASReviewProject
-from asreview.project import open_state
-from asreview.utils import asreview_path
-from asreview.utils import get_data_home
 from ._version import get_versions
 
 
