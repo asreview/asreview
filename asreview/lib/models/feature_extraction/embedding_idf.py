@@ -30,9 +30,9 @@ else:
         logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 
-from asreview.models.feature_extraction.base import BaseFeatureExtraction
-from asreview.models.feature_extraction.embedding_lstm import load_embedding
-from asreview.utils import get_random_state
+from asreview.lib.models.feature_extraction.base import BaseFeatureExtraction
+from asreview.lib.models.feature_extraction.embedding_lstm import load_embedding
+from asreview.lib.utils import get_random_state
 
 
 def _check_tensorflow():

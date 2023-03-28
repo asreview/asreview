@@ -16,8 +16,8 @@ import os
 
 import pandas as pd
 
-from asreview.config import LABEL_NA
-from asreview.utils import format_to_str
+from asreview.lib.config import LABEL_NA
+from asreview.lib.utils import format_to_str
 
 
 def preview_record(record, w_title=80, w_authors=40, automatic_width=False):

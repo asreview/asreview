@@ -13,13 +13,13 @@
 # limitations under the License.
 
 
-from asreview.io.csv_reader import CSVReader
-from asreview.io.csv_writer import CSVWriter
-from asreview.io.excel_reader import ExcelReader
-from asreview.io.excel_writer import ExcelWriter
-from asreview.io.paper_record import PaperRecord
-from asreview.io.ris_reader import RISReader
-from asreview.io.ris_writer import RISWriter
-from asreview.io.tsv_writer import TSVWriter
-from asreview.io.utils import list_readers
-from asreview.io.utils import list_writers
+from asreview.lib.io.csv_reader import CSVReader
+from asreview.lib.io.csv_writer import CSVWriter
+from asreview.lib.io.excel_reader import ExcelReader
+from asreview.lib.io.excel_writer import ExcelWriter
+from asreview.lib.io.paper_record import PaperRecord
+from asreview.lib.io.ris_reader import RISReader
+from asreview.lib.io.ris_writer import RISWriter
+from asreview.lib.io.tsv_writer import TSVWriter
+from asreview.lib.io.utils import list_readers
+from asreview.lib.io.utils import list_writers

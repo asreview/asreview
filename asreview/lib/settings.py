@@ -16,13 +16,13 @@ import logging
 import os
 from configparser import ConfigParser
 
-from asreview.config import DEFAULT_N_INSTANCES
-from asreview.models.balance import get_balance_model
-from asreview.models.classifiers import get_classifier
-from asreview.models.feature_extraction import get_feature_model
-from asreview.models.query import get_query_model
-from asreview.types import type_n_queries
-from asreview.utils import pretty_format
+from asreview.lib.config import DEFAULT_N_INSTANCES
+from asreview.lib.models.balance import get_balance_model
+from asreview.lib.models.classifiers import get_classifier
+from asreview.lib.models.feature_extraction import get_feature_model
+from asreview.lib.models.query import get_query_model
+from asreview.lib.types import type_n_queries
+from asreview.lib.utils import pretty_format
 
 SETTINGS_TYPE_DICT = {
     "model": str,

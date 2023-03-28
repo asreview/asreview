@@ -23,8 +23,8 @@ from scipy.sparse import csr_matrix
 from scipy.sparse import load_npz
 from scipy.sparse import save_npz
 
-from asreview.settings import ASReviewSettings
-from asreview.state.legacy.base import BaseState
+from asreview.lib.settings import ASReviewSettings
+from asreview.lib.state.legacy.base import BaseState
 
 
 # from asreview.analysis.statistics DEPRECATED

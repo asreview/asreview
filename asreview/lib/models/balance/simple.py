@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.models.balance.base import BaseBalance
+from asreview.lib.models.balance.base import BaseBalance
 
 
 class SimpleBalance(BaseBalance):

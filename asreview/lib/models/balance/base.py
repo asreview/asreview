@@ -14,7 +14,7 @@
 
 from abc import abstractmethod
 
-from asreview.models.base import BaseModel
+from asreview.lib.models.base import BaseModel
 
 
 class BaseBalance(BaseModel):

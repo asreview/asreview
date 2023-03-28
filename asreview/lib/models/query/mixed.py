@@ -14,9 +14,9 @@
 
 import numpy as np
 
-from asreview.models.query.base import BaseQueryStrategy
-from asreview.models.query.utils import get_query_model
-from asreview.utils import get_random_state
+from asreview.lib.models.query.base import BaseQueryStrategy
+from asreview.lib.models.query.utils import get_query_model
+from asreview.lib.utils import get_random_state
 
 
 def _parse_mixed_kwargs(kwargs, strategy_name):

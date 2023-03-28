@@ -14,7 +14,7 @@
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from asreview.models.feature_extraction.base import BaseFeatureExtraction
+from asreview.lib.models.feature_extraction.base import BaseFeatureExtraction
 
 
 class Tfidf(BaseFeatureExtraction):

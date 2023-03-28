@@ -33,13 +33,13 @@ from scipy.sparse import load_npz
 from scipy.sparse import save_npz
 
 from asreview._version import get_versions
-from asreview.config import LABEL_NA
-from asreview.config import PROJECT_MODES
-from asreview.config import PROJECT_MODE_SIMULATE
-from asreview.config import SCHEMA
-from asreview.state.errors import StateNotFoundError
-from asreview.state.sqlstate import SQLiteState
-from asreview.utils import asreview_path
+from asreview.lib.config import LABEL_NA
+from asreview.lib.config import PROJECT_MODES
+from asreview.lib.config import PROJECT_MODE_SIMULATE
+from asreview.lib.config import SCHEMA
+from asreview.lib.state.errors import StateNotFoundError
+from asreview.lib.state.sqlstate import SQLiteState
+from asreview.lib.utils import asreview_path
 from asreview.webapp.io import read_data
 
 PATH_PROJECT_CONFIG = "project.json"

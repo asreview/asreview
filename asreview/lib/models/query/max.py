@@ -15,7 +15,7 @@
 
 import numpy as np
 
-from asreview.models.query.base import ProbaQueryStrategy
+from asreview.lib.models.query.base import ProbaQueryStrategy
 
 
 class MaxQuery(ProbaQueryStrategy):

@@ -14,8 +14,8 @@
 
 import pandas as pd
 
-from asreview.config import COLUMN_DEFINITIONS
-from asreview.io.utils import _standardize_dataframe
+from asreview.lib.config import COLUMN_DEFINITIONS
+from asreview.lib.io.utils import _standardize_dataframe
 
 
 class ExcelReader():

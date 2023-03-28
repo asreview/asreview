@@ -22,7 +22,7 @@ try:
 except ImportError:
     GENSIM_AVAILABLE = False
 
-from asreview.models.feature_extraction.base import BaseFeatureExtraction
+from asreview.lib.models.feature_extraction.base import BaseFeatureExtraction
 
 
 def _check_gensim():

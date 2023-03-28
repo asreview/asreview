@@ -12,5 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.review.base import BaseReview
-from asreview.review.simulate import ReviewSimulate
+from asreview.lib.review.base import BaseReview
+from asreview.lib.review.simulate import ReviewSimulate

@@ -18,8 +18,8 @@ from pathlib import Path
 import pandas as pd
 
 from asreview.entry_points.base import BaseEntryPoint
-from asreview.project import get_project_path
-from asreview.project import open_state
+from asreview.lib.project import get_project_path
+from asreview.lib.project import open_state
 
 
 def _parse_state_inspect_args():

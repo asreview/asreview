@@ -5,14 +5,14 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from asreview.config import DEFAULT_N_INSTANCES
-from asreview.config import LABEL_NA
-from asreview.models.balance.simple import SimpleBalance
-from asreview.models.classifiers import NaiveBayesClassifier
-from asreview.models.feature_extraction.tfidf import Tfidf
-from asreview.models.query.max import MaxQuery
-from asreview.project import open_state
-from asreview.settings import ASReviewSettings
+from asreview.lib.config import DEFAULT_N_INSTANCES
+from asreview.lib.config import LABEL_NA
+from asreview.lib.models.balance.simple import SimpleBalance
+from asreview.lib.models.classifiers import NaiveBayesClassifier
+from asreview.lib.models.feature_extraction.tfidf import Tfidf
+from asreview.lib.models.query.max import MaxQuery
+from asreview.lib.project import open_state
+from asreview.lib.settings import ASReviewSettings
 
 
 class BaseReview(ABC):

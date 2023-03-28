@@ -13,10 +13,10 @@
 # limitations under the License.
 
 from asreview.entry_points.base import BaseEntryPoint
-from asreview.models.balance import list_balance_strategies
-from asreview.models.classifiers import list_classifiers
-from asreview.models.feature_extraction import list_feature_extraction
-from asreview.models.query import list_query_strategies
+from asreview.lib.models.balance import list_balance_strategies
+from asreview.lib.models.classifiers import list_classifiers
+from asreview.lib.models.feature_extraction import list_feature_extraction
+from asreview.lib.models.query import list_query_strategies
 
 
 def _format_algorithm(values, name, description):

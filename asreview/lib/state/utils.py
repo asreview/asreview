@@ -14,7 +14,7 @@
 
 from pathlib import Path
 
-from asreview.state.errors import StateNotFoundError
+from asreview.lib.state.errors import StateNotFoundError
 
 V3STATE_VERSION = "1.0"
 

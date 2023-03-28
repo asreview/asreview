@@ -14,7 +14,7 @@
 
 import pandas as pd
 
-from asreview.io.utils import _standardize_dataframe
+from asreview.lib.io.utils import _standardize_dataframe
 
 
 class CSVReader():

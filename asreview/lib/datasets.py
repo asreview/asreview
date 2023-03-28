@@ -20,8 +20,8 @@ from pathlib import Path
 from urllib.error import URLError
 from urllib.request import urlopen
 
-from asreview.utils import get_entry_points
-from asreview.utils import is_iterable
+from asreview.lib.utils import get_entry_points
+from asreview.lib.utils import is_iterable
 
 
 class DatasetNotFoundError(Exception):
@@ -187,7 +187,7 @@ class BaseDataGroup(ABC):
     def append(self, dataset):
         """Append dataset to group.
 
-        dataset: asreview.datasets.BaseDataSet
+        dataset: asreview.lib.datasets.BaseDataSet
             A asreview BaseDataSet-like object.
         """
         if not issubclass(dataset, BaseDataSet):
@@ -207,7 +207,7 @@ class BaseDataGroup(ABC):
 
         Returns
         -------
-        asreview.datasets.BaseDataSet:
+        asreview.lib.datasets.BaseDataSet:
             Returns base dataset with the given dataset_id.
         """
         results = []

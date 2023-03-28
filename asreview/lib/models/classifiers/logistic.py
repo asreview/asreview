@@ -16,8 +16,8 @@ import logging
 
 from sklearn.linear_model import LogisticRegression
 
-from asreview.models.classifiers.base import BaseTrainClassifier
-from asreview.models.classifiers.utils import _set_class_weight
+from asreview.lib.models.classifiers.base import BaseTrainClassifier
+from asreview.lib.models.classifiers.utils import _set_class_weight
 
 
 class LogisticClassifier(BaseTrainClassifier):

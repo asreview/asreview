@@ -17,9 +17,9 @@ from math import log
 
 import numpy as np
 
-from asreview.models.balance.base import BaseBalance
-from asreview.models.balance.simple import SimpleBalance
-from asreview.utils import get_random_state
+from asreview.lib.models.balance.base import BaseBalance
+from asreview.lib.models.balance.simple import SimpleBalance
+from asreview.lib.utils import get_random_state
 
 
 class DoubleBalance(BaseBalance):

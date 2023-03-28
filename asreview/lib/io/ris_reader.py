@@ -20,8 +20,8 @@ from urllib.request import urlopen
 import pandas
 import rispy
 
-from asreview.io.utils import _standardize_dataframe
-from asreview.utils import is_url
+from asreview.lib.io.utils import _standardize_dataframe
+from asreview.lib.utils import is_url
 
 
 class RISReader:

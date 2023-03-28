@@ -16,7 +16,7 @@ import logging
 
 from sklearn.naive_bayes import MultinomialNB
 
-from asreview.models.classifiers.base import BaseTrainClassifier
+from asreview.lib.models.classifiers.base import BaseTrainClassifier
 
 
 class NaiveBayesClassifier(BaseTrainClassifier):

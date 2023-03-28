@@ -12,5 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.state.base import BaseState
-from asreview.state.sqlstate import SQLiteState
+from asreview.lib.state.base import BaseState
+from asreview.lib.state.sqlstate import SQLiteState

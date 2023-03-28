@@ -24,8 +24,8 @@ from urllib.request import urlopen
 
 import numpy as np
 
-from asreview.models.feature_extraction.base import BaseFeatureExtraction
-from asreview.utils import get_data_home
+from asreview.lib.models.feature_extraction.base import BaseFeatureExtraction
+from asreview.lib.utils import get_data_home
 
 try:
     from tensorflow.keras.preprocessing.sequence import pad_sequences

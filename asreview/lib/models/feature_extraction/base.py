@@ -18,7 +18,7 @@ import numpy as np
 from scipy.sparse import hstack
 from scipy.sparse import issparse
 
-from asreview.models.base import BaseModel
+from asreview.lib.models.base import BaseModel
 
 
 class BaseFeatureExtraction(BaseModel):

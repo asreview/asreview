@@ -24,8 +24,8 @@ except ImportError:
 import numpy as np
 from scipy.sparse import csr_matrix
 
-from asreview.settings import ASReviewSettings
-from asreview.state.legacy.base import BaseState
+from asreview.lib.settings import ASReviewSettings
+from asreview.lib.state.legacy.base import BaseState
 
 
 def _append_to_dataset(name, values, g, dtype):

@@ -35,9 +35,9 @@ else:
 
 from scipy.sparse import isspmatrix
 
-from asreview.models.classifiers.base import BaseTrainClassifier
-from asreview.models.classifiers.lstm_base import _get_optimizer
-from asreview.models.classifiers.utils import _set_class_weight
+from asreview.lib.models.classifiers.base import BaseTrainClassifier
+from asreview.lib.models.classifiers.lstm_base import _get_optimizer
+from asreview.lib.models.classifiers.utils import _set_class_weight
 
 
 def _check_tensorflow():

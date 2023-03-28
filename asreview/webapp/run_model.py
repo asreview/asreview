@@ -17,13 +17,13 @@ import logging
 import sys
 from pathlib import Path
 
-from asreview.models.balance import get_balance_model
-from asreview.models.classifiers import get_classifier
-from asreview.models.feature_extraction import get_feature_model
-from asreview.models.query import get_query_model
-from asreview.project import ASReviewProject
-from asreview.project import open_state
-from asreview.review.base import BaseReview
+from asreview.lib.models.balance import get_balance_model
+from asreview.lib.models.classifiers import get_classifier
+from asreview.lib.models.feature_extraction import get_feature_model
+from asreview.lib.models.query import get_query_model
+from asreview.lib.project import ASReviewProject
+from asreview.lib.project import open_state
+from asreview.lib.review.base import BaseReview
 from asreview.webapp.io import read_data
 from asreview.webapp.sqlock import SQLiteLock
 

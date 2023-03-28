@@ -15,9 +15,9 @@
 import numpy as np
 from sklearn.cluster import KMeans
 
-from asreview.models.query.base import ProbaQueryStrategy
-from asreview.models.query.max import MaxQuery
-from asreview.utils import get_random_state
+from asreview.lib.models.query.base import ProbaQueryStrategy
+from asreview.lib.models.query.max import MaxQuery
+from asreview.lib.utils import get_random_state
 
 
 class ClusterQuery(ProbaQueryStrategy):

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.models.base import BaseModel
+from asreview.lib.models.base import BaseModel
 
 
 class BaseTrainClassifier(BaseModel):

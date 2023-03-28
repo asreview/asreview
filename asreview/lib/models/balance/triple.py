@@ -16,13 +16,13 @@ import logging
 
 import numpy as np
 
-from asreview.models.balance.base import BaseBalance
-from asreview.models.balance.double import DoubleBalance
-from asreview.models.balance.double import _one_weight
-from asreview.models.balance.double import _zero_weight
-from asreview.models.balance.double import fill_training
-from asreview.models.balance.double import random_round
-from asreview.utils import get_random_state
+from asreview.lib.models.balance.base import BaseBalance
+from asreview.lib.models.balance.double import DoubleBalance
+from asreview.lib.models.balance.double import _one_weight
+from asreview.lib.models.balance.double import _zero_weight
+from asreview.lib.models.balance.double import fill_training
+from asreview.lib.models.balance.double import random_round
+from asreview.lib.utils import get_random_state
 
 
 class TripleBalance(BaseBalance):

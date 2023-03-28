@@ -28,9 +28,9 @@ from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
 from asreview.entry_points.lab import _lab_parser
-from asreview.project import ASReviewProject
-from asreview.project import get_project_path
-from asreview.project import list_asreview_projects
+from asreview.lib.project import ASReviewProject
+from asreview.lib.project import get_project_path
+from asreview.lib.project import list_asreview_projects
 from asreview.webapp import api
 
 # set logging level

@@ -15,8 +15,8 @@
 
 import numpy as np
 
-from asreview.models.query.base import BaseQueryStrategy
-from asreview.utils import get_random_state
+from asreview.lib.models.query.base import BaseQueryStrategy
+from asreview.lib.utils import get_random_state
 
 
 class RandomQuery(BaseQueryStrategy):

@@ -12,10 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ._version import get_versions
-
-__version__ = get_versions()['version']
-del get_versions
+from .data.base import ASReviewData
+from .data.base import load_data
+from .io.utils import list_readers
+from .io.utils import list_writers
+from .models.feature_extraction.embedding_lstm import load_embedding
+from .models.feature_extraction.embedding_lstm import sample_embedding
+from .models.feature_extraction.embedding_lstm import text_to_features
+from .project import ASReviewProject
+from .project import open_state
+from .utils import asreview_path
+from .utils import get_data_home
 
 __all__ = [
+    'asreview_path',
+    'ASReviewData',
+    'ASReviewProject',
+    'get_data_home',
+    'list_readers',
+    'list_writers',
+    'open_state'
 ]

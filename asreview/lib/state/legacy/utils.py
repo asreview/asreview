@@ -19,21 +19,21 @@ import zipfile
 from contextlib import contextmanager
 from pathlib import Path
 
-from asreview.config import LEGACY_STATE_EXTENSIONS
+from asreview.lib.config import LEGACY_STATE_EXTENSIONS
 
 
 def _get_state_class(fp):
     "Get state class from file extension."
-    from asreview.state.legacy.dict import DictState
+    from asreview.lib.state.legacy.dict import DictState
     if fp is None:
         return DictState
 
     state_ext = Path(fp).suffix
     if state_ext in ['.h5', '.hdf5', '.he5']:
-        from asreview.state.legacy.hdf5 import HDF5StateLegacy
+        from asreview.lib.state.legacy.hdf5 import HDF5StateLegacy
         state_class = HDF5StateLegacy
     elif state_ext in ['.json']:
-        from asreview.state.legacy.json import JSONState
+        from asreview.lib.state.legacy.json import JSONState
         state_class = JSONState
     else:
         state_class = None

@@ -16,10 +16,10 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 
-from asreview.project import open_state
-from asreview.review import BaseReview
-from asreview.review.base import LABEL_NA
-from asreview.utils import get_random_state
+from asreview.lib.project import open_state
+from asreview.lib.review import BaseReview
+from asreview.lib.review.base import LABEL_NA
+from asreview.lib.utils import get_random_state
 
 
 def sample_prior_knowledge(

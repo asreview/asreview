@@ -20,10 +20,10 @@ from pathlib import Path
 import pandas as pd
 
 from asreview._version import get_versions
-from asreview.settings import ASReviewSettings
-from asreview.state.base import BaseState
-from asreview.state.errors import StateError
-from asreview.state.errors import StateNotFoundError
+from asreview.lib.settings import ASReviewSettings
+from asreview.lib.state.base import BaseState
+from asreview.lib.state.errors import StateError
+from asreview.lib.state.errors import StateNotFoundError
 
 REQUIRED_TABLES = [
     # the table with the labeling decisions and models trained

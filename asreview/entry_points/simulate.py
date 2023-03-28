@@ -17,31 +17,31 @@ import logging
 import shutil
 from pathlib import Path
 
-from asreview.compat import convert_id_to_idx
-from asreview.config import ASCII_LOGO
-from asreview.config import DEFAULT_BALANCE_STRATEGY
-from asreview.config import DEFAULT_FEATURE_EXTRACTION
-from asreview.config import DEFAULT_MODEL
-from asreview.config import DEFAULT_N_INSTANCES
-from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
-from asreview.config import DEFAULT_N_PRIOR_INCLUDED
-from asreview.config import DEFAULT_QUERY_STRATEGY
-from asreview.config import EMAIL_ADDRESS
-from asreview.config import GITHUB_PAGE
-from asreview.data import load_data
+from asreview.lib.compat import convert_id_to_idx
+from asreview.lib.config import ASCII_LOGO
+from asreview.lib.config import DEFAULT_BALANCE_STRATEGY
+from asreview.lib.config import DEFAULT_FEATURE_EXTRACTION
+from asreview.lib.config import DEFAULT_MODEL
+from asreview.lib.config import DEFAULT_N_INSTANCES
+from asreview.lib.config import DEFAULT_N_PRIOR_EXCLUDED
+from asreview.lib.config import DEFAULT_N_PRIOR_INCLUDED
+from asreview.lib.config import DEFAULT_QUERY_STRATEGY
+from asreview.lib.config import EMAIL_ADDRESS
+from asreview.lib.config import GITHUB_PAGE
+from asreview.lib.data import load_data
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.entry_points.base import _base_parser
-from asreview.models.balance.utils import get_balance_model
-from asreview.models.classifiers import get_classifier
-from asreview.models.feature_extraction import get_feature_model
-from asreview.models.query import get_query_model
-from asreview.project import ASReviewProject
-from asreview.project import ProjectExistsError
-from asreview.project import open_state
-from asreview.review.simulate import ReviewSimulate
-from asreview.settings import ASReviewSettings
-from asreview.types import type_n_queries
-from asreview.utils import get_random_state
+from asreview.lib.models.balance.utils import get_balance_model
+from asreview.lib.models.classifiers import get_classifier
+from asreview.lib.models.feature_extraction import get_feature_model
+from asreview.lib.models.query import get_query_model
+from asreview.lib.project import ASReviewProject
+from asreview.lib.project import ProjectExistsError
+from asreview.lib.project import open_state
+from asreview.lib.review.simulate import ReviewSimulate
+from asreview.lib.settings import ASReviewSettings
+from asreview.lib.types import type_n_queries
+from asreview.lib.utils import get_random_state
 from asreview.webapp.io import read_data
 
 ASCII_MSG_SIMULATE = """

@@ -21,7 +21,7 @@ except ImportError:
 else:
     ST_AVAILABLE = True
 
-from asreview.models.feature_extraction.base import BaseFeatureExtraction
+from asreview.lib.models.feature_extraction.base import BaseFeatureExtraction
 
 
 def _check_st():

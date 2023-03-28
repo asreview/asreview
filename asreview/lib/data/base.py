@@ -22,17 +22,17 @@ import numpy as np
 import pandas as pd
 from pandas.api.types import is_string_dtype
 
-from asreview.config import COLUMN_DEFINITIONS
-from asreview.config import LABEL_NA
-from asreview.datasets import DatasetManager
-from asreview.datasets import DatasetNotFoundError
-from asreview.exceptions import BadFileFormatError
-from asreview.io import PaperRecord
-from asreview.io.utils import convert_keywords
-from asreview.io.utils import type_from_column
-from asreview.utils import get_entry_points
-from asreview.utils import is_iterable
-from asreview.utils import is_url
+from asreview.lib.config import COLUMN_DEFINITIONS
+from asreview.lib.config import LABEL_NA
+from asreview.lib.datasets import DatasetManager
+from asreview.lib.datasets import DatasetNotFoundError
+from asreview.lib.exceptions import BadFileFormatError
+from asreview.lib.io import PaperRecord
+from asreview.lib.io.utils import convert_keywords
+from asreview.lib.io.utils import type_from_column
+from asreview.lib.utils import get_entry_points
+from asreview.lib.utils import is_iterable
+from asreview.lib.utils import is_url
 
 
 def load_data(name, *args, **kwargs):

@@ -17,7 +17,7 @@ from difflib import SequenceMatcher
 
 import numpy as np
 
-from asreview.utils import format_to_str
+from asreview.lib.utils import format_to_str
 
 
 class SearchError(Exception):
