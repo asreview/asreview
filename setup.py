@@ -178,7 +178,7 @@ setup(
         'asreview.models.balance': [
             "simple = asreview.lib.models.balance:SimpleBalance",
             "double = asreview.lib.models.balance:DoubleBalance",
-            # "triple = asreview.lib.models.balance:TripleBalance",  # Broken, only via API
+            # "triple = asreview.models.balance:TripleBalance",  # Broken, only via API
             "undersample = asreview.lib.models.balance:UndersampleBalance",
         ],
         'asreview.models.query': [
