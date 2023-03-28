@@ -2,9 +2,9 @@ import os
 
 import pytest
 
-from asreview import ASReviewData
-from asreview.models.feature_extraction import get_feature_model
-from asreview.models.feature_extraction import list_feature_extraction
+from asreview.lib import ASReviewData
+from asreview.lib.models.feature_extraction import get_feature_model
+from asreview.lib.models.feature_extraction import list_feature_extraction
 
 ADVANCED_DEPS = {"tensorflow": False}
 

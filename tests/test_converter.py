@@ -4,14 +4,14 @@ from shutil import copyfile
 from shutil import make_archive
 from zipfile import ZipFile
 
-from asreview.project import ASReviewProject
-from asreview.project import open_state
-from asreview.state.legacy.json import JSONState
-from asreview.state.legacy.utils import open_state as open_state_legacy
-from asreview.state.legacy.utils import state_from_file
-from asreview.state.sql_converter import is_converted_project
-from asreview.state.sql_converter import rollback_conversion
-from asreview.state.sql_converter import upgrade_asreview_project_file
+from asreview.lib.project import ASReviewProject
+from asreview.lib.project import open_state
+from asreview.lib.state.legacy.json import JSONState
+from asreview.lib.state.legacy.utils import open_state as open_state_legacy
+from asreview.lib.state.legacy.utils import state_from_file
+from asreview.lib.state.sql_converter import is_converted_project
+from asreview.lib.state.sql_converter import rollback_conversion
+from asreview.lib.state.sql_converter import upgrade_asreview_project_file
 
 OLD_STATE_FP = Path('tests', 'asreview_files',
                     'test_converter_example_old.asreview')

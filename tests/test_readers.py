@@ -3,8 +3,8 @@ from pathlib import Path
 from pytest import mark
 import rispy
 
-from asreview import ASReviewData
-from asreview.utils import is_url
+from asreview.lib import ASReviewData
+from asreview.lib.utils import is_url
 
 
 @mark.parametrize("test_file,n_lines,ignore_col",

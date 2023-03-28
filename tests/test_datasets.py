@@ -1,9 +1,9 @@
 import pytest
 
-from asreview.datasets import BaseDataGroup
-from asreview.datasets import BaseDataSet
-from asreview.datasets import DatasetManager
-from asreview.datasets import NaturePublicationDataGroup
+from asreview.lib.datasets import BaseDataGroup
+from asreview.lib.datasets import BaseDataSet
+from asreview.lib.datasets import DatasetManager
+from asreview.lib.datasets import NaturePublicationDataGroup
 
 
 @pytest.mark.parametrize("data_id", [

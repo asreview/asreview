@@ -5,14 +5,14 @@ import pandas as pd
 import pytest
 from scipy.sparse import csr_matrix
 
-from asreview import ASReviewData
-from asreview.project import ASReviewProject
-from asreview.project import ProjectExistsError
-from asreview.project import open_state
-from asreview.settings import ASReviewSettings
-from asreview.state import SQLiteState
-from asreview.state.errors import StateNotFoundError
-from asreview.state.sqlstate import RESULTS_TABLE_COLUMNS
+from asreview.lib import ASReviewData
+from asreview.lib.project import ASReviewProject
+from asreview.lib.project import ProjectExistsError
+from asreview.lib.project import open_state
+from asreview.lib.settings import ASReviewSettings
+from asreview.lib.state import SQLiteState
+from asreview.lib.state.errors import StateNotFoundError
+from asreview.lib.state.sqlstate import RESULTS_TABLE_COLUMNS
 
 TEST_LABELS = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
 TEST_INDICES = [16, 346, 509, 27, 11, 555, 554, 680, 264, 309]
