@@ -17,6 +17,8 @@ import logging
 import shutil
 from pathlib import Path
 
+from asreview.entry_points.base import BaseEntryPoint
+from asreview.entry_points.base import _base_parser
 from asreview.lib.compat import convert_id_to_idx
 from asreview.lib.config import ASCII_LOGO
 from asreview.lib.config import DEFAULT_BALANCE_STRATEGY
@@ -29,8 +31,6 @@ from asreview.lib.config import DEFAULT_QUERY_STRATEGY
 from asreview.lib.config import EMAIL_ADDRESS
 from asreview.lib.config import GITHUB_PAGE
 from asreview.lib.data import load_data
-from asreview.entry_points.base import BaseEntryPoint
-from asreview.entry_points.base import _base_parser
 from asreview.lib.models.balance.utils import get_balance_model
 from asreview.lib.models.classifiers import get_classifier
 from asreview.lib.models.feature_extraction import get_feature_model
