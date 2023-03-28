@@ -389,8 +389,8 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "-w",
         default=None,
         type=int,
-        help="The simulation data will be written away after each set of this"
-        "many labeled records. By default only writes away data at the end"
+        help="The simulation data will be written after each set of this"
+        "many labeled records. By default only writes data at the end"
         "of the simulation to make it as fast as possible.")
 
     return parser
