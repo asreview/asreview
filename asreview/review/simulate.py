@@ -117,7 +117,7 @@ class ReviewSimulate(BaseReview):
     state_file: str
         Path to state file.
     write_interval: int
-        After how many labeled records to write away the simulation data to the
+        After how many labeled records to write the simulation data to the
         state.
     """
 
