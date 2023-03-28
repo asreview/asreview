@@ -10,9 +10,9 @@ API Reference
 Data and datasets
 =================
 
-.. automodule:: asreview.data
+.. automodule:: asreview.lib.data
 
-.. currentmodule:: asreview
+.. currentmodule:: asreview.lib
 
 Read data
 ---------
@@ -48,7 +48,7 @@ Datasets
 Available datasets
 ~~~~~~~~~~~~~~~~~~
 
-.. automodule:: asreview.datasets
+.. automodule:: asreview.lib.datasets
    :no-members:
    :no-inherited-members:
 
@@ -58,8 +58,8 @@ Available datasets
 .. autosummary::
    :toctree: generated/
 
-   asreview.datasets.BenchmarkDataGroup
-   asreview.datasets.NaturePublicationDataGroup
+   asreview.lib.datasets.BenchmarkDataGroup
+   asreview.lib.datasets.NaturePublicationDataGroup
 
 Dataset managers
 ~~~~~~~~~~~~~~~~
@@ -67,19 +67,19 @@ Dataset managers
 .. autosummary::
    :toctree: generated/
 
-   asreview.datasets.BaseDataSet
-   asreview.datasets.BaseDataGroup
-   asreview.datasets.DatasetManager
+   asreview.lib.datasets.BaseDataSet
+   asreview.lib.datasets.BaseDataGroup
+   asreview.lib.datasets.DatasetManager
 
 
 Reviewer
 ========
 
-.. automodule:: asreview.review
+.. automodule:: asreview.lib.review
    :no-members:
    :no-inherited-members:
 
-.. currentmodule:: asreview
+.. currentmodule:: asreview.lib
 
 .. autosummary::
    :toctree: generated/
@@ -99,11 +99,11 @@ the model description (or see the name property of the model). Some models
 require additional dependencies, see the model class for more information and
 instructions.
 
-.. automodule:: asreview.models
+.. automodule:: asreview.lib.models
     :no-members:
     :no-inherited-members:
 
-.. currentmodule:: asreview
+.. currentmodule:: asreview.lib
 
 Base class
 
@@ -114,14 +114,14 @@ Base class
 
 .. _ref-feature-extraction:
 
-:mod:`asreview.models.feature_extraction`
------------------------------------------
+:mod:`asreview.lib.models.feature_extraction`
+---------------------------------------------
 
-.. automodule:: asreview.models.feature_extraction
+.. automodule:: asreview.lib.models.feature_extraction
    :no-members:
    :no-inherited-members:
 
-.. currentmodule:: asreview.models
+.. currentmodule:: asreview.lib.models
 
 Classes
 
@@ -146,14 +146,14 @@ Functions
 
 .. _ref-classifiers:
 
-:mod:`asreview.models.classifiers`
-----------------------------------
+:mod:`asreview.lib.models.classifiers`
+--------------------------------------
 
-.. automodule:: asreview.models.classifiers
+.. automodule:: asreview.lib.models.classifiers
     :no-members:
     :no-inherited-members:
 
-.. currentmodule:: asreview.models
+.. currentmodule:: asreview.lib.models
 
 Classes
 
@@ -182,14 +182,14 @@ Functions
 
 .. _ref-query-strategies:
 
-:mod:`asreview.models.query`
-----------------------------
+:mod:`asreview.lib.models.query`
+--------------------------------
 
-.. automodule:: asreview.models.query
+.. automodule:: asreview.lib.models.query
    :no-members:
    :no-inherited-members:
 
-.. currentmodule:: asreview.models
+.. currentmodule:: asreview.lib.models
 
 Classes
 
@@ -219,14 +219,14 @@ Functions
    
 .. _ref-balance-strategies:
 
-:mod:`asreview.models.balance`
-------------------------------
+:mod:`asreview.lib.models.balance`
+----------------------------------
 
-.. automodule:: asreview.models.balance
+.. automodule:: asreview.lib.models.balance
     :no-members:
     :no-inherited-members:
 
-.. currentmodule:: asreview.models
+.. currentmodule:: asreview.lib.models
 
 Classes
 
@@ -259,7 +259,7 @@ Projects and States
 Load, interact, and extract information from project files and states (the
 "diary" of the review).
 
-.. automodule:: asreview.project
+.. automodule:: asreview.lib.project
    :no-members:
    :no-inherited-members:
 
@@ -271,6 +271,9 @@ Load, interact, and extract information from project files and states (the
 ASReviewProject
 ---------------
 
+.. currentmodule:: asreview.lib
+
+
 .. autosummary::
    :toctree: generated/
 
@@ -279,11 +282,11 @@ ASReviewProject
 State
 -----
 
-.. automodule:: asreview.state
+.. automodule:: asreview.lib.state
    :no-members:
    :no-inherited-members:
 
-.. currentmodule:: asreview
+.. currentmodule:: asreview.lib
 
 .. autosummary::
    :toctree: generated/
@@ -311,43 +314,43 @@ Readers and writers
 This module contains the input and output functionality. You can install them as extensions.
 
 
-.. currentmodule:: asreview
+.. currentmodule:: asreview.lib
 
 .. autosummary::
    :toctree: generated/
 
-   asreview.list_readers
-   asreview.list_writers
+   list_readers
+   list_writers
 
-.. automodule:: asreview.io
+.. automodule:: asreview.lib.io
     :no-members:
     :no-inherited-members:
 
-.. currentmodule:: asreview
+.. currentmodule:: asreview.lib.io
 
 .. autosummary::
    :toctree: generated/
 
-   io.CSVReader
-   io.CSVWriter
-   io.ExcelReader
-   io.ExcelWriter
-   io.PaperRecord
-   io.RISReader
-   io.RISWriter
-   io.TSVWriter
+   CSVReader
+   CSVWriter
+   ExcelReader
+   ExcelWriter
+   PaperRecord
+   RISReader
+   RISWriter
+   TSVWriter
 
 Misc
 ====
 
-.. currentmodule:: asreview
+.. currentmodule:: asreview.lib
 
 Classes
 
 .. autosummary::
    :toctree: generated/
 
-   asreview.settings.ASReviewSettings
+   settings.ASReviewSettings
 
 Functions
 
