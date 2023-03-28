@@ -312,7 +312,7 @@ class ReviewSimulate(BaseReview):
         return labels
 
     def _write_to_state(self):
-        """Write the data that has not yet been written away to the state."""
+        """Write the data that has not yet been written to the state."""
         # Write the data to the state.
         if len(self.results) > 0:
             rows = [tuple(self.results.iloc[i])
