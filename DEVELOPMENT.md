@@ -139,12 +139,13 @@ You can deploy ASReview LAB right now in one click on any of these clouds provid
 A Docker image is created when a tag or a commit to `master` is pushed.
 The workflow `docker.yml` builds images for platforms `linux/amd64` and `linux/arm64`.
 If, for some reason, the image is not built, you can build manually with the commands below.
-Find the manual instructions at https://docs.docker.com/docker-hub/. Replace the version numbers below by the version you want to push.
+Find the manual instructions at <https://docs.docker.com/docker-hub/> and <https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry>.
+Replace the version numbers below by the version you want to push.
 
 ASReview LAB
 ```
 docker build -t asreview/asreview .
 docker build -t asreview/asreview:1.0 .
-docker push asreview/asreview
-docker push asreview/asreview:1.0
+docker push ghcr.io/asreview/asreview
+docker push ghcr.io/asreview/asreview:1.0
 ```

@@ -33,7 +33,7 @@ ASReview LAB, see :doc:`start`.
 
     For users with Apple M1 computers, if you experience problems, follow the
     `instructions
-    <https://github.com/asreview/asreview/issues/738#issuecomment-919685562>`__.
+    <https://github.com/ghcr.io/asreview/asreview/issues/738#issuecomment-919685562>`__.
 
 
 Upgrade ASReview
@@ -89,7 +89,7 @@ To install and start ASReview LAB at http://localhost:5000, run the following:
 
 .. code:: bash
 
-   docker run -p 5000:5000 asreview/asreview:latest lab
+   docker run -p 5000:5000 ghcr.io/asreview/asreview:latest lab
 
 
 More advanced command line options can be given
@@ -97,7 +97,7 @@ afterward, like this:
 
 .. code:: bash
 
-   docker run -p 9000:9000 asreview/asreview lab --port 9000
+   docker run -p 9000:9000 ghcr.io/asreview/asreview lab --port 9000
 
 .. tip::
 
@@ -116,7 +116,7 @@ access the same folder.
 
 .. code:: bash
 
-    docker run -p 5000:5000 -v path-to-your-folder:/project_folder asreview/asreview lab
+    docker run -p 5000:5000 -v path-to-your-folder:/project_folder ghcr.io/asreview/asreview lab
 
 Named container
 ~~~~~~~~~~~~~~~
@@ -125,7 +125,7 @@ To make the usage easier, you can create a named container like the following:
 
 .. code:: bash
 
-    docker create --name asreview-lab -p 5000:5000 -v path-to-your-folder:/project_folder asreview/asreview lab
+    docker create --name asreview-lab -p 5000:5000 -v path-to-your-folder:/project_folder ghcr.io/asreview/asreview lab
 
 To start asreview, enter:
 
@@ -139,10 +139,10 @@ You can also check which images are running with `docker ps`.
 Customize the image
 ~~~~~~~~~~~~~~~~~~~
 
-If you want to add more extensions, or build the Docker image yourself, check the file `Dockerfile <https://github.com/asreview/asreview/tree/master/Dockerfiles>`.
+If you want to add more extensions, or build the Docker image yourself, check the file `Dockerfile <https://github.com/ghcr.io/asreview/asreview/tree/master/Dockerfiles>`.
 Modify it as you see fit, and then build and run the image with:
 
 .. code:: bash
 
     docker build -t asreview/asreview:custom .
-    docker run -p 5000:5000 asreview/asreview:custom lab
+    docker run -p 5000:5000 ghcr.io/asreview/asreview:custom lab
