@@ -24,24 +24,6 @@ Read data
    ASReviewData
 
 
-Statistics
-----------
-
-.. autosummary::
-   :toctree: generated/
-
-   data.statistics.abstract_length
-   data.statistics.n_duplicates
-   data.statistics.n_irrelevant
-   data.statistics.n_keywords
-   data.statistics.n_missing_abstract
-   data.statistics.n_missing_title
-   data.statistics.n_records
-   data.statistics.n_relevant
-   data.statistics.n_unlabeled
-   data.statistics.title_length
-
-
 Datasets
 --------
 
