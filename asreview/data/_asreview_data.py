@@ -45,35 +45,6 @@ class ASReviewData:
         specification. Key is the standard specification, key is which column
         it is actually in. Default: None.
 
-    Attributes
-    ----------
-    record_ids: numpy.ndarray
-        Return an array representing the data in the Index.
-    texts: numpy.ndarray
-        Returns an array with either headings, bodies, or both.
-    headings: numpy.ndarray
-        Returns an array with dataset headings.
-    title: numpy.ndarray
-        Identical to headings.
-    bodies: numpy.ndarray
-        Returns an array with dataset bodies.
-    abstract: numpy.ndarray
-        Identical to bodies.
-    notes: numpy.ndarray
-        Returns an array with dataset notes.
-    keywords: numpy.ndarray
-        Returns an array with dataset keywords.
-    authors: numpy.ndarray
-        Returns an array with dataset authors.
-    doi: numpy.ndarray
-        Returns an array with dataset DOI.
-    included: numpy.ndarray
-        Returns an array with document inclusion markers.
-    final_included: numpy.ndarray
-        Pending deprecation! Returns an array with document inclusion markers.
-    labels: numpy.ndarray
-        Identical to included.
-
     """
 
     def __init__(self,
@@ -217,10 +188,27 @@ class ASReviewData:
 
     @property
     def record_ids(self):
+        """An array representing the data in the Index.
+
+        Returns
+        -------
+
+        numpy.ndarray
+            An array representing the data in the Index.
+        """
         return self.df.index.values
 
     @property
     def texts(self):
+        """An array with either headings, bodies, or both.
+
+        Returns
+        -------
+
+        numpy.ndarray
+            An array with either headings, bodies, or both.
+        """
+
         if self.title is None:
             return self.abstract
         if self.abstract is None:
@@ -233,10 +221,27 @@ class ASReviewData:
 
     @property
     def headings(self):
+        """
+        The dataset headings.
+
+        Returns
+        -------
+
+        numpy.ndarray
+            An array with dataset headings.
+        """
         return self.title
 
     @property
     def title(self):
+        """Alias for `headings`.
+
+        Returns
+        -------
+
+        numpy.ndarray
+            Alias for `headings`.
+        """
         try:
             return self.df[self.column_spec["title"]].values
         except KeyError:
@@ -244,10 +249,28 @@ class ASReviewData:
 
     @property
     def bodies(self):
+        """
+        Alias for `abstracts`.
+
+        Returns
+        -------
+
+        numpy.ndarray
+            Alias for `abstracts`.
+        """
         return self.abstract
 
     @property
     def abstract(self):
+        """
+        The abstracts.
+
+        Returns
+        -------
+
+        numpy.ndarray
+            Identical to bodies.
+        """
         try:
             return self.df[self.column_spec["abstract"]].values
         except KeyError:
@@ -255,6 +278,14 @@ class ASReviewData:
 
     @property
     def notes(self):
+        """An array with dataset notes.
+
+        Returns
+        -------
+
+        numpy.ndarray
+            An array with dataset notes.
+        """
         try:
             return self.df[self.column_spec["notes"]].values
         except KeyError:
@@ -262,6 +293,15 @@ class ASReviewData:
 
     @property
     def keywords(self):
+        """
+        The dataset keywords.
+
+        Returns
+        -------
+
+        numpy.ndarray
+            An array with dataset keywords.
+        """
         try:
             return self.df[self.column_spec["keywords"]].apply(
                 convert_keywords).values
@@ -270,6 +310,14 @@ class ASReviewData:
 
     @property
     def authors(self):
+        """
+        The dataset authors.
+
+        Returns:
+        --------
+        authors: numpy.ndarray
+            An array with dataset authors.
+        """
         try:
             return self.df[self.column_spec["authors"]].values
         except KeyError:
@@ -277,6 +325,15 @@ class ASReviewData:
 
     @property
     def doi(self):
+        """
+        The dataset DOIs.
+
+        Returns
+        -------
+
+        numpy.ndarray
+            An array with dataset DOIs.
+        """
         try:
             return self.df[self.column_spec["doi"]].values
         except KeyError:
@@ -284,6 +341,13 @@ class ASReviewData:
 
     @property
     def url(self):
+        """An array with dataset URLs.
+
+        Returns
+        -------
+        numpy.ndarray
+            An array with dataset URLs.
+        """
         try:
             return self.df[self.column_spec["url"]].values
         except KeyError:
@@ -305,6 +369,15 @@ class ASReviewData:
 
     @property
     def included(self):
+        """
+        The dataset inclusion markers.
+
+        Returns
+        -------
+
+        numpy.ndarray
+            An array with inclusion markers.
+        """
         return self.labels
 
     @included.setter
@@ -313,6 +386,15 @@ class ASReviewData:
 
     @property  # pending deprecation
     def final_included(self):
+        """
+        Pending deprecation! Document inclusion markers.
+
+        Returns
+        -------
+
+        numpy.ndarray
+            Pending deprecation! Document inclusion markers.
+        """
         return self.labels
 
     @final_included.setter  # pending deprecation
@@ -321,6 +403,15 @@ class ASReviewData:
 
     @property
     def labels(self):
+        """
+        Alias for `included`.
+
+        Returns
+        -------
+
+        numpy.ndarray
+            Alias for `included`.
+        """
         try:
             column = self.column_spec["included"]
             return self.df[column].values
@@ -337,23 +428,23 @@ class ASReviewData:
 
     @property
     def n_records(self):
-        """Return the number of records.
+        """The number of records.
 
-        Return
-        ------
+        Returns
+        -------
         int:
-            The statistic
+            The number of records.
         """
         return len(self)
 
     @property
     def n_relevant(self):
-        """Return the number of relevant records.
+        """The number of relevant records.
 
-        Return
-        ------
+        Returns
+        -------
         int:
-            The statistic
+            The number of relevant records.
         """
         if self.labels is not None:
             return len(np.where(self.labels == 1)[0])
@@ -361,12 +452,12 @@ class ASReviewData:
 
     @property
     def n_irrelevant(self):
-        """Return the number of irrelevant records.
+        """The number of irrelevant records.
 
-        Return
-        ------
+        Returns
+        -------
         int:
-            The statistic
+            The number of irrelevant records.
         """
         if self.labels is None:
             return None
@@ -374,12 +465,12 @@ class ASReviewData:
 
     @property
     def n_unlabeled(self):
-        """Return the number of unlabeled records.
+        """The number of unlabeled records.
 
-        Return
-        ------
+        Returns
+        -------
         int:
-            The statistic
+            The number of unlabeled records.
         """
         if self.labels is None:
             return None
@@ -387,12 +478,12 @@ class ASReviewData:
 
     @property
     def n_missing_title(self):
-        """Return the number of records with missing titles.
+        """The number of records with missing titles.
 
-        Return
-        ------
+        Returns
+        -------
         int:
-            The statistic
+            The number of records with missing titles.
         """
         n_missing = 0
         if self.title is None:
@@ -410,12 +501,12 @@ class ASReviewData:
 
     @property
     def n_missing_abstract(self):
-        """Return the number of records with missing abstracts.
+        """The number of records with missing abstracts.
 
-        Return
-        ------
+        Returns
+        -------
         int:
-            The statistic
+            The number of records with missing abstracts.
         """
         n_missing = 0
         if self.abstract is None:
@@ -435,12 +526,12 @@ class ASReviewData:
 
     @property
     def title_length(self):
-        """Return the average length of the titles.
+        """The average length of the titles.
 
-        Return
-        ------
+        Returns
+        -------
         int:
-            The statistic
+            The average length of the titles.
         """
         if self.title is None:
             return None
@@ -451,12 +542,12 @@ class ASReviewData:
 
     @property
     def abstract_length(self):
-        """Return the average length of the abstracts.
+        """The average length of the abstracts.
 
-        Return
-        ------
+        Returns
+        -------
         int:
-            The statistic
+            The average length of the abstracts.
         """
         if self.abstract is None:
             return None
@@ -467,12 +558,12 @@ class ASReviewData:
 
     @property
     def n_keywords(self):
-        """Return the number of keywords.
+        """The number of keywords.
 
-        Return
-        ------
+        Returns
+        -------
         int:
-            The statistic
+            The number of keywords.
         """
         if self.keywords is None:
             return None
@@ -480,10 +571,7 @@ class ASReviewData:
 
     @property
     def n_duplicates(self, pid='doi'):
-        """Number of duplicates.
-
-        Duplicate detection can be a very challenging task. Multiple
-        algorithms can be used and results can be vary.
+        """The number of duplicates.
 
         Arguments
         ---------
@@ -491,10 +579,10 @@ class ASReviewData:
             Which persistent identifier (PID) to use for deduplication.
             Default is 'doi'.
 
-        Return
-        ------
+        Returns
+        -------
         int:
-            Number of duplicates
+            The number of duplicates
         """
         return int(self.duplicated(pid).sum())
 
