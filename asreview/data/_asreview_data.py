@@ -314,10 +314,10 @@ class ASReviewData:
         """
         The dataset authors.
 
-        Returns:
-        --------
-        authors: numpy.ndarray
-            An array with dataset authors.
+        Returns
+        -------
+        numpy.ndarray
+            The dataset authors.
         """
         try:
             return self.df[self.column_spec["authors"]].values
