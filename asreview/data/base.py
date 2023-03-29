@@ -367,6 +367,169 @@ class ASReviewData():
         except KeyError:
             self.df["included"] = labels
 
+    @property
+    def n_records(self):
+        """Return the number of records.
+
+        Return
+        ------
+        int:
+            The statistic
+        """
+        return len(self)
+
+    @property
+    def n_relevant(self):
+        """Return the number of relevant records.
+
+        Return
+        ------
+        int:
+            The statistic
+        """
+        if self.labels is not None:
+            return len(np.where(self.labels == 1)[0])
+        return None
+
+    @property
+    def n_irrelevant(self):
+        """Return the number of irrelevant records.
+
+        Return
+        ------
+        int:
+            The statistic
+        """
+        if self.labels is None:
+            return None
+        return len(np.where(self.labels == 0)[0])
+
+    @property
+    def n_unlabeled(self):
+        """Return the number of unlabeled records.
+
+        Return
+        ------
+        int:
+            The statistic
+        """
+        if self.labels is None:
+            return None
+        return len(self.labels) - self.n_relevant - self.n_irrelevant
+
+    @property
+    def n_missing_title(self):
+        """Return the number of records with missing titles.
+
+        Return
+        ------
+        int:
+            The statistic
+        """
+        n_missing = 0
+        if self.title is None:
+            return None, None
+        if self.labels is None:
+            n_missing_included = None
+        else:
+            n_missing_included = 0
+        for i in range(len(self.title)):
+            if len(self.title[i]) == 0:
+                n_missing += 1
+                if self.labels is not None and self.labels[i] == 1:
+                    n_missing_included += 1
+        return n_missing, n_missing_included
+
+    @property
+    def n_missing_abstract(self):
+        """Return the number of records with missing abstracts.
+
+        Return
+        ------
+        int:
+            The statistic
+        """
+        n_missing = 0
+        if self.abstract is None:
+            return None, None
+        if self.labels is None:
+            n_missing_included = None
+        else:
+            n_missing_included = 0
+
+        for i in range(len(self.abstract)):
+            if len(self.abstract[i]) == 0:
+                n_missing += 1
+                if self.labels is not None and self.labels[i] == 1:
+                    n_missing_included += 1
+
+        return n_missing, n_missing_included
+
+    @property
+    def title_length(self):
+        """Return the average length of the titles.
+
+        Return
+        ------
+        int:
+            The statistic
+        """
+        if self.title is None:
+            return None
+        avg_len = 0
+        for i in range(len(self.title)):
+            avg_len += len(self.title[i])
+        return avg_len / len(self.title)
+
+    @property
+    def abstract_length(self):
+        """Return the average length of the abstracts.
+
+        Return
+        ------
+        int:
+            The statistic
+        """
+        if self.abstract is None:
+            return None
+        avg_len = 0
+        for i in range(len(self.abstract)):
+            avg_len += len(self.abstract[i])
+        return avg_len / len(self.abstract)
+
+    @property
+    def n_keywords(self):
+        """Return the number of keywords.
+
+        Return
+        ------
+        int:
+            The statistic
+        """
+        if self.keywords is None:
+            return None
+        return np.average([len(keywords) for keywords in self.keywords])
+
+    @property
+    def n_duplicates(self, pid='doi'):
+        """Number of duplicates.
+
+        Duplicate detection can be a very challenging task. Multiple
+        algorithms can be used and results can be vary.
+
+        Arguments
+        ---------
+        pid: string
+            Which persistent identifier (PID) to use for deduplication.
+            Default is 'doi'.
+
+        Return
+        ------
+        int:
+            Number of duplicates
+        """
+        return int(self.duplicated(pid).sum())
+
     def prior_labels(self, state, by_index=True):
         """Get the labels that are marked as 'prior'.
 
