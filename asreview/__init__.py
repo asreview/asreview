@@ -21,10 +21,10 @@ from asreview.project import ASReviewProject
 from asreview.project import open_state
 from asreview.utils import asreview_path
 from asreview.utils import get_data_home
+from ._version import get_versions
 from .data import ASReviewData
 from .data import load_data
 
-from ._version import get_versions
 
 __version__ = get_versions()['version']
 del get_versions

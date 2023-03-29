@@ -16,5 +16,5 @@ from ._asreview_data import ASReviewData
 from ._load_data import load_data
 
 
-del _asreview_data
-del _load_data
+del _asreview_data  # noqa: F821
+del _load_data      # noqa: F821

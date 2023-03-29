@@ -84,7 +84,8 @@ class ASReviewData:
                 # 308 (Permanent Redirect) not supported
                 # See https://bugs.python.org/issue40321
                 if err.code == 308:
-                    return ASReviewData._get_filename_from_url(err.headers.get("Location"))
+                    location = err.headers.get("Location")
+                    return ASReviewData._get_filename_from_url(location)
                 else:
                     raise err
 
