@@ -6,7 +6,6 @@ from pytest import mark
 
 import asreview
 from asreview.data.base import ASReviewData
-from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
 from asreview.search import fuzzy_find
 
@@ -54,9 +53,9 @@ def test_datasets(data_name):
 
 
 def test_duplicate_count():
-    d = ASReviewData.from_file(Path("tests", "demo_data", "duplicate_records.csv"))
-
-    assert n_duplicates(d) == 2
+    p = Path("tests", "demo_data", "duplicate_records.csv")
+    data = ASReviewData.from_file(p)
+    assert data.n_duplicates == 2
 
 
 def test_deduplication():

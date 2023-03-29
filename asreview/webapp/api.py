@@ -40,7 +40,6 @@ from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.data import ASReviewData
 from asreview.data.base import _get_filename_from_url
-from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
 from asreview.io import list_readers
@@ -462,7 +461,7 @@ def api_get_project_data(project):  # noqa: F401
         statistics = {
             "n_rows": as_data.df.shape[0],
             "n_cols": as_data.df.shape[1],
-            "n_duplicates": n_duplicates(as_data),
+            "n_duplicates": as_data.n_duplicates,
             "filename": Path(project.config["dataset_path"]).stem,
         }
 
