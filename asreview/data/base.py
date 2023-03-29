@@ -85,7 +85,7 @@ def _get_filename_from_url(url):
                 raise err
 
 
-class ASReviewData():
+class ASReviewData:
     """Data object to the dataset with texts, labels, DOIs etc.
 
     Arguments
