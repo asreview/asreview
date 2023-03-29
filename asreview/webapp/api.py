@@ -39,7 +39,6 @@ from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.data import ASReviewData
-from asreview.data.base import _get_filename_from_url
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
 from asreview.io import list_readers
@@ -321,11 +320,11 @@ def api_upload_data_to_project(project):  # noqa: F401
 
     if request.form.get('plugin', None):
         url = DatasetManager().find(request.form['plugin']).filepath
-        filename, url = _get_filename_from_url(url)
+        filename, url = ASReviewData._get_filename_from_url(url)
 
     if request.form.get('benchmark', None):
         url = DatasetManager().find(request.form['benchmark']).filepath
-        filename, url = _get_filename_from_url(url)
+        filename, url = ASReviewData._get_filename_from_url(url)
 
     if request.form.get('url', None):
 
@@ -335,7 +334,7 @@ def api_upload_data_to_project(project):  # noqa: F401
         if url.startswith("10."):
             url = f"https://doi.org/{url}"
 
-        filename, url = _get_filename_from_url(url)
+        filename, url = ASReviewData._get_filename_from_url(url)
 
         if bool(request.form.get('validate', None)):
 

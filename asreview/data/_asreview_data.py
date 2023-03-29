@@ -24,8 +24,6 @@ from pandas.api.types import is_string_dtype
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
-from asreview.datasets import DatasetManager
-from asreview.datasets import DatasetNotFoundError
 from asreview.exceptions import BadFileFormatError
 from asreview.io import PaperRecord
 from asreview.io.utils import convert_keywords
@@ -33,56 +31,6 @@ from asreview.io.utils import type_from_column
 from asreview.utils import get_entry_points
 from asreview.utils import is_iterable
 from asreview.utils import is_url
-
-
-def load_data(name, *args, **kwargs):
-    """Load data from file, URL, or plugin.
-
-    Parameters
-    ----------
-    name: str, pathlib.Path
-        File path, URL, or alias of extension dataset.
-
-    Returns
-    -------
-    asreview.ASReviewData:
-        Inititalized ASReview data object.
-    """
-
-    # check is file or URL
-    if is_url(name) or Path(name).exists():
-        return ASReviewData.from_file(name, *args, **kwargs)
-
-    # check if dataset is plugin dataset\
-    try:
-        dataset_path = DatasetManager().find(name).filepath
-        return ASReviewData.from_file(dataset_path, *args, **kwargs)
-    except DatasetNotFoundError:
-        pass
-
-    # Could not find dataset, return None.
-    raise FileNotFoundError(
-        f"File, URL, or dataset does not exist: '{name}'")
-
-
-def _get_filename_from_url(url):
-
-    if not is_url(url):
-        raise ValueError(f"'{url}' is not a valid URL.")
-
-    if Path(urlparse(url).path).suffix:
-        return Path(urlparse(url).path).name, url
-    else:
-
-        try:
-            return urlopen(url).headers.get_filename(), url
-        except HTTPError as err:
-            # 308 (Permanent Redirect) not supported
-            # See https://bugs.python.org/issue40321
-            if err.code == 308:
-                return _get_filename_from_url(err.headers.get("Location"))
-            else:
-                raise err
 
 
 class ASReviewData:
@@ -149,6 +97,26 @@ class ASReviewData:
         if "included" not in self.column_spec:
             self.column_spec["included"] = "included"
 
+    @classmethod
+    def _get_filename_from_url(cls, url):
+
+        if not is_url(url):
+            raise ValueError(f"'{url}' is not a valid URL.")
+
+        if Path(urlparse(url).path).suffix:
+            return Path(urlparse(url).path).name, url
+        else:
+
+            try:
+                return urlopen(url).headers.get_filename(), url
+            except HTTPError as err:
+                # 308 (Permanent Redirect) not supported
+                # See https://bugs.python.org/issue40321
+                if err.code == 308:
+                    return ASReviewData._get_filename_from_url(err.headers.get("Location"))
+                else:
+                    raise err
+
     def __len__(self):
         if self.df is None:
             return 0
@@ -191,7 +159,7 @@ class ASReviewData:
 
         # get the filename from a url else file path
         if is_url(fp):
-            fn, fp = _get_filename_from_url(fp)
+            fn, fp = ASReviewData._get_filename_from_url(fp)
         else:
             fn = Path(fp).name
 

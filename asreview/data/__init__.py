@@ -12,5 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.data.base import ASReviewData
-from asreview.data.base import load_data
+from ._asreview_data import ASReviewData
+from ._load_data import load_data
+
+
+del _asreview_data
+del _load_data

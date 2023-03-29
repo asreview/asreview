@@ -5,7 +5,7 @@ import pandas as pd
 from pytest import mark
 
 import asreview
-from asreview.data.base import ASReviewData
+from asreview.data import ASReviewData
 from asreview.datasets import DatasetManager
 from asreview.search import fuzzy_find
 
