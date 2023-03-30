@@ -498,6 +498,9 @@ class ASReviewData():
             s_dups_pid = ((s_pid.duplicated()) & (s_pid.notnull()))
         else:
             s_dups_pid = None
+           
+        if pid == 'doi':
+            s_pid = s_pid.str.replace("^https?://(www\.)?doi\.org/", "", regex=True)
 
         # get the texts, clean them and replace empty strings with None
         s = pd.Series(self.texts) \
