@@ -164,7 +164,7 @@ const ExportPage = (props) => {
                       </MenuItem>
                       <MenuItem value="dataset_relevant" divider>
                         <Box>
-                          <Typography variant="subtitle1">Dataset</Typography>
+                          <Typography variant="subtitle1">Dataset (relevant only)</Typography>
                           <Typography
                             variant="body2"
                             gutterBottom
