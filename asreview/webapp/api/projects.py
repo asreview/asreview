@@ -20,6 +20,8 @@ import tempfile
 import urllib.parse
 from pathlib import Path
 from urllib.request import urlretrieve
+from uuid import NAMESPACE_URL
+from uuid import uuid5
 
 from flask import Blueprint
 from flask import abort
@@ -112,17 +114,17 @@ def _get_authenticated_folder_id(project_id, user):
     if (project_from_db and user == project_from_db.owner) or (
         project_from_db is None
     ):
-        folder_id = f"{user.id}_{project_id}"
+        user_uuid = uuid5(NAMESPACE_URL, str(user.id)).hex
 
     # project exists but user is a collaborator
     elif project_from_db and user in project_from_db.collaborators:
-        folder_id = f"{project_from_db.owner_id}_{project_id}"
+        user_uuid = uuid5(NAMESPACE_URL, str(project_from_db.owner_id)).hex
 
     # default to project_id
     else:
-        folder_id = project_id
+        user_uuid = ""
 
-    return folder_id
+    return uuid5(NAMESPACE_URL, project_id + user_uuid).hex
 
 
 # error handlers
@@ -159,7 +161,7 @@ def api_get_projects():  # noqa: F401
         user_db_projects = list(current_user.projects) + \
             list(current_user.involved_in)
         project_paths = [
-            asreview_path() / project.folder for project in user_db_projects
+            project.project_path for project in user_db_projects
         ]
         owner_ids = [project.owner_id for project in user_db_projects]
         projects = get_projects(project_paths)
@@ -210,7 +212,7 @@ def api_get_projects_stats():  # noqa: F401
         user_db_projects = list(current_user.projects) + \
             list(current_user.involved_in)
         project_paths = [
-            asreview_path() / project.folder for project in user_db_projects
+            project.project_path for project in user_db_projects
         ]
     else:
         # force get_projects to list the .asreview folder
@@ -255,18 +257,23 @@ def api_init_project():  # noqa: F401
     project_description = request.form["description"]
     project_authors = request.form["authors"]
 
-    project_id = _create_project_id(project_name)
+    plaintext_project_id = _create_project_id(project_name)
 
-    if not project_id and not isinstance(project_id, str) and len(project_id) >= 3:
+    if not plaintext_project_id and not isinstance(plaintext_project_id, str) \
+            and len(plaintext_project_id) >= 3:
         raise ValueError("Project name should be at least 3 characters.")
 
     # generate a project path
     if app_is_authenticated(current_app):
-        folder_id = _get_authenticated_folder_id(project_id, current_user)
+        project_id = _get_authenticated_folder_id(
+            plaintext_project_id,
+            current_user
+        )
     else:
-        folder_id = project_id
+        project_id = plaintext_project_id
+
     # get path of this project
-    project_path = get_project_path(folder_id)
+    project_path = get_project_path(project_id)
 
     project = ASReviewProject.create(
         project_path,
@@ -280,7 +287,7 @@ def api_init_project():  # noqa: F401
     # create a database entry for this project
     if app_is_authenticated(current_app):
         current_user.projects.append(
-            Project(project_id=project_id, folder=project_path.stem)
+            Project(project_id=project_id)
         )
         DB.session.commit()
 
@@ -291,7 +298,7 @@ def api_init_project():  # noqa: F401
 
 @bp.route("/projects/<project_id>/upgrade_if_old", methods=["GET"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_upgrade_project_if_old(project):
     """Get upgrade project if it is v0.x"""
 
@@ -308,7 +315,7 @@ def api_upgrade_project_if_old(project):
 
 @bp.route("/projects/<project_id>/info", methods=["GET"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_get_project_info(project):  # noqa: F401
     """"""
     project_config = project.config
@@ -331,7 +338,7 @@ def api_get_project_info(project):  # noqa: F401
 
 @bp.route("/projects/<project_id>/info", methods=["PUT"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_update_project_info(project):  # noqa: F401
     """"""
     # rename the project if project name is changed
@@ -341,17 +348,17 @@ def api_update_project_info(project):  # noqa: F401
         # if the name has been changed, process changes
         if project.config["name"] != new_project_name:
             old_project_id = project.config["id"]
-            new_project_id = _create_project_id(new_project_name)
+            plaintext_new_project_id = _create_project_id(new_project_name)
 
             if app_is_authenticated(current_app):
-                folder_id = _get_authenticated_folder_id(
-                    new_project_id,
+                new_project_id = _get_authenticated_folder_id(
+                    plaintext_new_project_id,
                     current_user
                 )
             else:
-                folder_id = new_project_id
+                new_project_id = plaintext_new_project_id
 
-            new_project_path = get_project_path(folder_id)
+            new_project_path = get_project_path(new_project_id)
             project.rename(
                 {
                     "name": new_project_name,
@@ -369,7 +376,7 @@ def api_update_project_info(project):  # noqa: F401
                         Project.project_id == old_project_id,
                     )
                 ).update(
-                    {"project_id": new_project_id, "folder": new_project_path.stem}
+                    {"project_id": new_project_id}
                 )
                 DB.session.commit()
 
@@ -425,7 +432,7 @@ def api_demo_data_project():  # noqa: F401
 
 @bp.route("/projects/<project_id>/data", methods=["POST", "PUT"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_upload_data_to_project(project):  # noqa: F401
     """"""
 
@@ -549,7 +556,7 @@ def api_upload_data_to_project(project):  # noqa: F401
 
 @bp.route("/projects/<project_id>/data", methods=["GET"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_get_project_data(project):  # noqa: F401
     """"""
 
@@ -585,7 +592,7 @@ def api_get_project_data(project):  # noqa: F401
 
 @bp.route("/projects/<project_id>/dataset_writer", methods=["GET"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_list_dataset_writers(project):
     """List the name and label of available dataset writer"""
 
@@ -640,7 +647,7 @@ def api_list_dataset_writers(project):
 
 @bp.route("/projects/<project_id>/search", methods=["GET"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_search_data(project):  # noqa: F401
     """Search for papers"""
     q = request.args.get("q", default=None, type=str)
@@ -706,7 +713,7 @@ def api_search_data(project):  # noqa: F401
 
 @bp.route("/projects/<project_id>/labeled", methods=["GET"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_get_labeled(project):  # noqa: F401
     """Get all papers classified as labeled documents"""
 
@@ -815,7 +822,7 @@ def api_get_labeled(project):  # noqa: F401
 
 @bp.route("/projects/<project_id>/labeled_stats", methods=["GET"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_get_labeled_stats(project):  # noqa: F401
     """Get all papers classified as prior documents"""
 
@@ -856,7 +863,7 @@ def api_get_labeled_stats(project):  # noqa: F401
 
 @bp.route("/projects/<project_id>/prior_random", methods=["GET"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_random_prior_papers(project):  # noqa: F401
     """Get a selection of random records.
 
@@ -1013,7 +1020,7 @@ def api_list_algorithms():
 
 @bp.route("/projects/<project_id>/algorithms", methods=["GET"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_get_algorithms(project):  # noqa: F401
 
     default_payload = {
@@ -1046,7 +1053,7 @@ def api_get_algorithms(project):  # noqa: F401
 
 @bp.route("/projects/<project_id>/algorithms", methods=["POST"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_set_algorithms(project):  # noqa: F401
 
     # TODO@{Jonathan} validate model choice on server side
@@ -1079,7 +1086,7 @@ def api_set_algorithms(project):  # noqa: F401
 
 @bp.route("/projects/<project_id>/start", methods=["POST"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_start(project):  # noqa: F401
     """Start training of first model or simulation."""
 
@@ -1093,6 +1100,7 @@ def api_start(project):  # noqa: F401
         logging.info("Start simulation")
 
         try:
+
             datafile = project.config["dataset_path"]
             logging.info("Project data file found: {}".format(datafile))
 
@@ -1164,7 +1172,7 @@ def api_start(project):  # noqa: F401
 
 @bp.route("/projects/<project_id>/status", methods=["GET"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_get_status(project):  # noqa: F401
     """Check the status of the review"""
 
@@ -1189,7 +1197,7 @@ def api_get_status(project):  # noqa: F401
 
 @bp.route("/projects/<project_id>/status", methods=["PUT"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_status_update(project):
     """Update the status of the review.
 
@@ -1261,7 +1269,7 @@ def api_import_project():
 
 @bp.route("/projects/<project_id>/export_dataset", methods=["GET"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_export_dataset(project):
     """Export dataset with relevant/irrelevant labels"""
 
@@ -1317,7 +1325,7 @@ def api_export_dataset(project):
 
 @bp.route("/projects/<project_id>/export_project", methods=["GET"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def export_project(project):
     """Export the project file.
 
@@ -1434,7 +1442,7 @@ def _get_labels(state_obj, priors=False):
 
 @bp.route("/projects/<project_id>/progress", methods=["GET"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_get_progress_info(project):  # noqa: F401
     """Get progress statistics of a project"""
 
@@ -1448,7 +1456,7 @@ def api_get_progress_info(project):  # noqa: F401
 
 @bp.route("/projects/<project_id>/progress_density", methods=["GET"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_get_progress_density(project):
     """Get progress density of a project"""
 
@@ -1511,7 +1519,7 @@ def api_get_progress_density(project):
 
 @bp.route("/projects/<project_id>/progress_recall", methods=["GET"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_get_progress_recall(project):
     """Get cumulative number of inclusions by ASReview/at random"""
 
@@ -1560,7 +1568,7 @@ def api_get_progress_recall(project):
 
 @bp.route("/projects/<project_id>/record/<doc_id>", methods=["POST", "PUT"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_classify_instance(project, doc_id):  # noqa: F401
     """Label item
 
@@ -1615,7 +1623,7 @@ def api_classify_instance(project, doc_id):  # noqa: F401
 
 @bp.route("/projects/<project_id>/get_document", methods=["GET"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_get_document(project):  # noqa: F401
     """Retrieve documents in order of review.
 
@@ -1672,7 +1680,7 @@ def api_get_document(project):  # noqa: F401
 
 @bp.route("/projects/<project_id>/delete", methods=["DELETE"])
 @asreview_login_required
-@project_from_id(current_user)
+@project_from_id
 def api_delete_project(project):  # noqa: F401
     """"""
 

@@ -239,7 +239,12 @@ class Project(DB.Model):
     @property
     def project_path(self):
         """Returns full project path"""
-        return Path(utils.asreview_path(), self.folder)
+        return Path(utils.asreview_path(), self.project_id)
+
+    @property
+    def folder(self):
+        """Returns foldername (which is the project_id)"""
+        return self.project_id
 
     def __repr__(self):
         return f"<Project id: {self.project_id}, owner_id: {self.owner_id}>"

@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from flask import Blueprint
 from flask import jsonify
 from flask_cors import CORS
@@ -8,7 +6,6 @@ from sqlalchemy import and_
 from sqlalchemy.exc import SQLAlchemyError
 
 from asreview.project import ASReviewProject
-from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.login_required import asreview_login_required  # NOQA
 from asreview.webapp.authentication.models import Project
@@ -81,7 +78,7 @@ def end_collaboration(project_id, user_id):
         (project.owner == current_user) or (project in current_user.involved_in)
     ):
 
-        user = User.query.get(user_id)
+        user = DB.session.get(User, user_id)
 
         try:
             project.collaborators.remove(user)
@@ -99,7 +96,7 @@ def pending_invitations():
     invitations = []
     for p in current_user.pending_invitations:
         # get path of project
-        path = Path(asreview_path(), p.folder)
+        path = p.project_path
         # get object to get name
         asreview_object = ASReviewProject(path)
         # append info
@@ -127,7 +124,7 @@ def invite(project_id, user_id):
 
     # check if project is from current user
     if project and project.owner == current_user:
-        user = User.query.get(user_id)
+        user = DB.session.get(User, user_id)
         project.pending_invitations.append(user)
         try:
             DB.session.commit()
@@ -187,7 +184,7 @@ def delete_invitation(project_id, user_id):
     # check if project is from current user
     if project and project.owner == current_user:
         # get user
-        user = User.query.get(user_id)
+        user = DB.session.get(User, user_id)
         # remove from project
         project.pending_invitations.remove(user)
         try:

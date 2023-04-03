@@ -27,6 +27,7 @@ project_urls = retrieve_project_url_github()
 @pytest.mark.parametrize("url", project_urls)
 def test_project_file(tmp_path, client, url):
     """Test import and continue a project created in previous versions."""
+    print(tmp_path)
 
     # change default folder for projects
     os.environ["ASREVIEW_PATH"] = str(tmp_path)

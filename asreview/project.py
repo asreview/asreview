@@ -23,9 +23,7 @@ from contextlib import contextmanager
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
-from uuid import NAMESPACE_URL
 from uuid import uuid4
-from uuid import uuid5
 
 from filelock import FileLock
 import jsonschema
@@ -71,41 +69,21 @@ def get_project_path(folder_id):
         authentication, the folder_id is equal to the project_id. Otherwise,
         this is equal to {project_owner_id}_{project_id}.
     """
-    project_folder = uuid5(NAMESPACE_URL, folder_id).hex
-
-    return Path(asreview_path(), project_folder)
+    return Path(asreview_path(), folder_id)
 
 
-def project_from_id(user):
+def project_from_id(f):
     """Decorator function that takes a user account as parameter,
     the user account is used to get the correct sub folder in which
     the projects is
     """
+    @wraps(f)
+    def decorated_function(project_id, *args, **kwargs):
+        project_path = get_project_path(project_id)
+        project = ASReviewProject(project_path, project_id=project_id)
+        return f(project, *args, **kwargs)
 
-    def decorate(f):
-        @wraps(f)
-        def decorated_function(project_id, *args, **kwargs):
-
-            # we need a user id, but if the app is not authenticated we
-            # are dealing with an AnonymousUserMixin that doesn't have an
-            # id. This try/except block makes sure this function executes
-            # without having knowledge about the User model and the
-            # AnonymousUserMixin Object from Flask_Login.
-            try:
-                # authenticated: identifier is concatenated
-                # to the project name
-                project_identifier = f'{user.id}_{project_id}'
-            except Exception:
-                # unauthenticated: user project name
-                project_identifier = project_id
-
-            project_path = get_project_path(project_identifier)
-            project = ASReviewProject(project_path, project_id=project_id)
-            return f(project, *args, **kwargs)
-
-        return decorated_function
-
-    return decorate
+    return decorated_function
 
 
 def get_projects(project_paths=None):

@@ -14,8 +14,6 @@
 
 import time
 from pathlib import Path
-from uuid import NAMESPACE_URL
-from uuid import uuid5
 
 from asreview.project import PATH_FEATURE_MATRICES
 from asreview.project import _create_project_id
@@ -50,11 +48,10 @@ def test_init_project(setup_teardown_unauthorized):
 
     # make sure a folder is created
     project_id = json_data["id"]
-    foldername = uuid5(NAMESPACE_URL, project_id).hex
-    assert Path(asreview_path(), foldername).exists()
-    assert Path(asreview_path(), foldername, "data").exists()
-    assert Path(asreview_path(), foldername, "reviews").exists()
-    assert Path(asreview_path(), foldername, PATH_FEATURE_MATRICES).exists()
+    assert Path(asreview_path(), project_id).exists()
+    assert Path(asreview_path(), project_id, "data").exists()
+    assert Path(asreview_path(), project_id, "reviews").exists()
+    assert Path(asreview_path(), project_id, PATH_FEATURE_MATRICES).exists()
 
     # test the response
     assert response.status_code == 201
@@ -160,16 +157,14 @@ def test_update_project_info_with_name_change(setup_teardown_unauthorized):
     assert response.status_code == 200
 
     # check if folder has been renamed
-    new_project_id = _create_project_id(new_project_name)
-    foldername = uuid5(NAMESPACE_URL, new_project_id).hex
-    assert Path(asreview_path(), foldername).exists()
-    assert Path(asreview_path(), foldername, "data").exists()
-    assert Path(asreview_path(), foldername, "reviews").exists()
-    assert Path(asreview_path(), foldername, PATH_FEATURE_MATRICES).exists()
+    project_id = _create_project_id(new_project_name)
+    assert Path(asreview_path(), project_id).exists()
+    assert Path(asreview_path(), project_id, "data").exists()
+    assert Path(asreview_path(), project_id, "reviews").exists()
+    assert Path(asreview_path(), project_id, PATH_FEATURE_MATRICES).exists()
 
     # check if old folder is removed
-    old_foldername = uuid5(NAMESPACE_URL, old_project_id).hex
-    assert Path(asreview_path(), old_foldername).exists() is False
+    assert Path(asreview_path(), old_project_id).exists() is False
 
 
 def test_get_project_info(setup_teardown_unauthorized):
@@ -302,20 +297,15 @@ def test_get_algorithms(setup_teardown_unauthorized):
     assert isinstance(json_data, dict)
 
 
-def test_start(setup_teardown_unauthorized):
+def test_start_and_model_ready(setup_teardown_unauthorized):
     """Test start training the model"""
     _, client = setup_teardown_unauthorized
 
     response = client.post("/api/projects/project-id/start")
     assert response.status_code == 200
 
-
-def test_first_model_ready(setup_teardown_unauthorized):
-    """Test check if trained model is available"""
-    _, client = setup_teardown_unauthorized
-
     # wait until the model is ready
-    time.sleep(15)
+    time.sleep(5)
 
     response = client.get("/api/projects/project-id/status")
     json_data = response.get_json()
@@ -424,6 +414,7 @@ def test_get_document(setup_teardown_unauthorized):
         },
     )
     assert response.status_code == 200
+    time.sleep(5)
 
 
 def test_delete_project(setup_teardown_unauthorized):

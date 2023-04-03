@@ -383,7 +383,7 @@ def reset_password():
     token = request.form.get("token", "").strip()
     user_id = request.form.get("user_id", "0").strip()
 
-    user = User.query.get(user_id)
+    user = DB.session.get(User, user_id)
     if not user:
         result = (404, "User not found, try restarting the forgot-password procedure.")
     elif not user.token_valid(token, max_hours=24):
