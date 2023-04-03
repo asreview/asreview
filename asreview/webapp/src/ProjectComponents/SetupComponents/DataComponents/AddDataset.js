@@ -224,7 +224,7 @@ const AddDataset = (props) => {
             )}
             {datasetSource === "file" && (
               <ImportFromFile
-                acceptFormat=".txt,.tsv,.tab,.csv,.ris,.xlsx"
+                acceptFormat=".txt,.tsv,.tab,.csv,.ris,.xlsx,.xml"
                 addFileError={error}
                 file={file}
                 setFile={setFile}

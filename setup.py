@@ -145,6 +145,7 @@ setup(
             '.ris = asreview.io:RISReader',
             '.txt = asreview.io:RISReader',
             '.xlsx = asreview.io:ExcelReader',
+            '.xml = asreview.io:EndnoteXMLReader'
         ],
         'asreview.writers': [
             '.csv = asreview.io:CSVWriter',
