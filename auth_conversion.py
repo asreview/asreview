@@ -1,10 +1,9 @@
 import json
 import sqlite3
 from pathlib import Path
-from uuid import NAMESPACE_URL
-from uuid import uuid5
 
 from asreview.utils import asreview_path
+from asreview.webapp.api.projects import _get_authenticated_folder_id
 
 DATABASE_NAME = "asreview.development.sqlite"
 
@@ -34,12 +33,12 @@ def user_project_link_exists(cursor, folder_id):
     return cursor.fetchone()[0] == 1
 
 
-def link_user_to_project(conn, project_id, folder_name, user_id):
+def link_user_to_project(conn, project_id, user_id):
     """Inserts project record, links user id to project"""
-    query = "INSERT INTO projects(project_id, folder, owner_id)" + \
+    query = "INSERT INTO projects(project_id, owner_id)" + \
         "VALUES(?,?,?)"
     cursor = conn.cursor()
-    cursor.execute(query, (project_id, folder_name, user_id))
+    cursor.execute(query, (project_id, user_id))
     conn.commit()
     return cursor.lastrowid
 
@@ -51,6 +50,8 @@ if __name__ == "__main__":
     cursor = con.cursor()
     # get all users in the user table
     users = get_users(cursor)
+    # user cache to speed things up ;)
+    user_cache = {user.id: user for user in users}
     # all id numbers
     all_ids = [row[0] for row in users]
 
@@ -84,12 +85,15 @@ if __name__ == "__main__":
                     # make sure the user_id exists
                     assert user_id in all_ids
 
+                    # get user record
+                    user = user_cache[user_id]
+
                     # create a new project_id
                     new_project_id = f"{user_id}_{project_id}"
-                    new_folder_name = uuid5(
-                        NAMESPACE_URL,
-                        new_project_id
-                    ).hex
+                    new_folder_name = _get_authenticated_folder_id(
+                        new_project_id,
+                        user
+                    )
 
                     # rename the folder
                     folder.rename(asreview_path() / new_folder_name)
@@ -98,7 +102,6 @@ if __name__ == "__main__":
                     link_user_to_project(
                         con,
                         project_id,
-                        new_folder_name,
                         user_id,
                     )
 

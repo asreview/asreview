@@ -129,8 +129,15 @@ def create_app(**kwargs):
     login_manager.init_app(app)
     login_manager.session_protection = "strong"
 
-    # setup all database/authentication related resources
-    if app.config["AUTHENTICATION_ENABLED"] is True:
+    if app.config["AUTHENTICATION_ENABLED"] is False:
+        # This is necessary to pass the test_webapp.py tests
+        @login_manager.user_loader
+        def load_user(user_id):
+            return False
+
+    # setup all database/authentication related resources,
+    # only do this when AUTHENTICATION_ENABLED is explicitly True
+    elif app.config["AUTHENTICATION_ENABLED"] is True:
 
         # Register a callback function for current_user.
         @login_manager.user_loader
@@ -227,6 +234,7 @@ def create_app(**kwargs):
     @app.route("/projects/", methods=["GET"])
     @app.route("/projects/<project_id>/", methods=["GET"])
     @app.route("/projects/<project_id>/<tab>/", methods=["GET"])
+    @login_manager.user_loader
     def index(**kwargs):
         return render_template("index.html")
 
