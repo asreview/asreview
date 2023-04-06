@@ -113,7 +113,7 @@ setup(
     install_requires=[
         'numpy',
         'scikit-learn',
-        'pandas~=1.0',
+        'pandas>=1,<3',
         'rispy~=0.7.0',
         'dill',
         'xlrd>=1.0.0',
