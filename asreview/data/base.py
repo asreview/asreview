@@ -20,6 +20,7 @@ from urllib.request import urlopen
 
 import numpy as np
 import pandas as pd
+from pandas.api.types import is_object_dtype
 from pandas.api.types import is_string_dtype
 
 from asreview.config import COLUMN_DEFINITIONS
@@ -489,7 +490,7 @@ class ASReviewData():
         """
         if pid in self.df.columns:
             # in case of strings, strip whitespaces and replace empty strings with None
-            if is_string_dtype(self.df[pid]):
+            if is_string_dtype(self.df[pid]) or is_object_dtype(self.df[pid]):
                 s_pid = self.df[pid].str.strip().replace("", None)
             else:
                 s_pid = self.df[pid]
