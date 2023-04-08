@@ -28,6 +28,7 @@ from asreview.webapp.authentication.models import Project, User
 from asreview.webapp.scripts.auth_conversion import main as make_links
 from asreview.webapp.start_flask import create_app
 from asreview.webapp.tests.conftest import signin_user
+from asreview.webapp.tests.conftest import signout
 from asreview.webapp.tests.conftest import signup_user
 
 try:
@@ -39,13 +40,13 @@ PROJECTS = [
     {
         "mode": "explore",
         "name": "project_1",
-        "authors": "authors",
+        "authors": "user 1",
         "description": "project 1",
     },
     {
         "mode": "explore",
         "name": "project_2",
-        "authors": "authors",
+        "authors": "user 2",
         "description": "project 2",    
     }
 ]
@@ -84,12 +85,14 @@ def auth_fixture(request):
         request.cls.app = app
         request.cls.client = client
         request.cls.asreview_folder = Path(asreview_path())
+        request.cls.emails = ["test1@uu.nl", "test2@uu.nl"]
+        request.cls.password = "A123Bb!!"
         yield request.cls
 
 
 @pytest.mark.usefixtures("no_auth_fixture")
 class TestNoAuthentication:
-    """We start with an inital ASReview instance without authentication"""
+    """We start with an inital ASReview instance without authentication."""
 
     def test_existence_empty_test_folder(self):
         # check existence folder
@@ -101,40 +104,45 @@ class TestNoAuthentication:
         # create first project
         self.client.post(
             "/api/projects/info",
-            data=PROJECT_1,
+            data=PROJECTS[0],
         )
         # create second project
         self.client.post(
             "/api/projects/info",
-            data=PROJECT_2,
+            data=PROJECTS[1],
         )
         # check if asreview folder contain 2 projects
         assert len(list(self.asreview_folder.glob("*"))) == 2
         # check if projects are there
         folders = [f.name for f in self.asreview_folder.glob("*")]
-        for p in [PROJECT_1, PROJECT_2]:
+        for p in PROJECTS:
             project_id = _create_project_id(p["name"])
             assert project_id in folders
 
 
 @pytest.mark.usefixtures("auth_fixture")
 class TestConvertToAuthentication:
-    """Now we move on and start the thing in authenticated mode"""
+    """Now we move on and start the thing in authenticated mode."""
 
     def test_if_we_still_have_our_projects_and_a_sqlite_db(self):
+        """Start the app with authentication, we still have the
+        folder structure of the unauthenticated app."""
         # check if asreview folder contain 2 projects
         assert len(list(self.asreview_folder.glob("*"))) == 3
         # check if projects are there
         folder_content = [f.name for f in self.asreview_folder.glob("*")]
-        for p in [PROJECT_1, PROJECT_2]:
+        for p in PROJECTS:
             project_id = _create_project_id(p["name"])
             assert project_id in folder_content
         # check for the database
         assert "asreview.development.sqlite" in folder_content
 
     def test_adding_users_into_the_users_table_and_convert(self):
+        """Convert to authenticated folder structure."""
         self.password = "A123Bb!!"
-        for email in ["test1@uu.nl", "test2@uu.nl"]:
+        self.emails = ["test1@uu.nl", "test2@uu.nl"]
+        # create users
+        for email in self.emails:
             signup_user(self.client, email, self.password)
         assert len(User.query.all()) == 2
 
@@ -181,8 +189,66 @@ class TestConvertToAuthentication:
                 data = json.load(f)
                 assert data["id"] == new_project_id
 
-    def test_whate(self):
-        assert 1 == 1
+    def test_projects_of_user_1(self):
+        """Checkout projects of user 1."""
+        # get user 1
+        user_1 = DB.session.get(User, 1)
+        # signin user
+        signin_user(self.client, user_1.identifier, self.password)
+        # check projects of user_1
+        response = self.client.get("/api/projects")
+        json_data = response.get_json()
+        # get the result data
+        projects = json_data.get("result", [])
+        # there should be 1 project, and it has to be the first
+        assert len(projects) == 1
+        project = projects[0]
+        assert project["name"] == PROJECTS[0]["name"]
+        assert project["authors"] == PROJECTS[0]["authors"]
+        assert project["description"] == PROJECTS[0]["description"]
+        # signout
+        signout(self.client)
+
+    def test_projects_of_user_2(self):
+        """Checkout projects of user 2."""
+        # get user 2
+        user_2 = DB.session.get(User, 2)
+        # signin user
+        signin_user(self.client, user_2.identifier, self.password)
+        # check projects of user_2
+        response = self.client.get("/api/projects")
+        json_data = response.get_json()
+        # get the result data
+        projects = json_data.get("result", [])
+        # there should be 1 project, and it has to be the first
+        assert len(projects) == 1
+        project = projects[0]
+        assert project["name"] == PROJECTS[1]["name"]
+        assert project["authors"] == PROJECTS[1]["authors"]
+        assert project["description"] == PROJECTS[1]["description"]
+        # signout
+        signout(self.client)
+
+    def test_if_user_1_cant_see_project_2(self):
+        """Check if user_1 cant see project 2."""
+        # get user 1
+        user_1 = DB.session.get(User, 1)
+        # signin user
+        signin_user(self.client, user_1.identifier, self.password)
+        # try to get project 2, we need the id first
+        project_2_id = _create_project_id(PROJECTS[1]["name"])
+        project_2_id = _get_authenticated_folder_id(
+            project_2_id,
+            DB.session.get(User, 2)
+        )
+        # user_1 tries to see project 2
+        response = self.client.get(f"/api/projects/{project_2_id}/info")
+        json_data = response.get_json()
+        print(json_data)
+        assert True is False
+
+        # signout
+        signout(self.client)
 
 
 @pytest.mark.usefixtures("no_auth_fixture_with_folder_removal")
