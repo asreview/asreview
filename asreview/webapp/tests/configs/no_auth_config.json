@@ -1,0 +1,5 @@
+{
+    "ENV": "test",
+    "DEBUG": true,
+    "AUTHENTICATION_ENABLED": false
+}
