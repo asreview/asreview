@@ -35,19 +35,20 @@ try:
 except ImportError:
     TMP_ENV_VARS = {}
 
-PROJECT_1 = {
-    "mode": "explore",
-    "name": "project_1",
-    "authors": "authors",
-    "description": "project 1",
-}
-
-PROJECT_2 = {
-    "mode": "explore",
-    "name": "project_2",
-    "authors": "authors",
-    "description": "project 2",
-}
+PROJECTS = [
+    {
+        "mode": "explore",
+        "name": "project_1",
+        "authors": "authors",
+        "description": "project 1",
+    },
+    {
+        "mode": "explore",
+        "name": "project_2",
+        "authors": "authors",
+        "description": "project 2",    
+    }
+]
 
 
 def create_the_app(config_file):
@@ -138,11 +139,10 @@ class TestConvertToAuthentication:
         assert len(User.query.all()) == 2
 
         # we want to assign project 1 to user 1 and project 2 to user 2
-        projects = [PROJECT_1, PROJECT_2]
         mapping = [
             {
                 "user_id": user.id,
-                "project_id": _create_project_id(projects[i]["name"])
+                "project_id": _create_project_id(PROJECTS[i]["name"])
             } for i, user in enumerate(
                 User.query.order_by(User.id.asc()).all()
             )
