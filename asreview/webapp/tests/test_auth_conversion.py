@@ -47,7 +47,7 @@ PROJECTS = [
         "mode": "explore",
         "name": "project_2",
         "authors": "user 2",
-        "description": "project 2",    
+        "description": "project 2",
     }
 ]
 
@@ -118,6 +118,11 @@ class TestNoAuthentication:
         for p in PROJECTS:
             project_id = _create_project_id(p["name"])
             assert project_id in folders
+
+
+# ------------------------------------------
+# NOW WE CONVERT TO AN AUTHENTICATED VERSION
+# ------------------------------------------
 
 
 @pytest.mark.usefixtures("auth_fixture")
@@ -244,11 +249,16 @@ class TestConvertToAuthentication:
         # user_1 tries to see project 2
         response = self.client.get(f"/api/projects/{project_2_id}/info")
         json_data = response.get_json()
-        print(json_data)
-        assert True is False
+        assert response.status_code == 403
+        assert json_data["message"] == "no permission"
 
         # signout
         signout(self.client)
+
+
+# ------------------------------------------
+# NOW WE CONVERT TO AN AUTHENTICATED VERSION
+# ------------------------------------------
 
 
 @pytest.mark.usefixtures("no_auth_fixture_with_folder_removal")
