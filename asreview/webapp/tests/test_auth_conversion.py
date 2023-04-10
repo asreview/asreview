@@ -124,6 +124,23 @@ class TestNoAuthentication:
             project_id = _create_project_id(p["name"])
             assert project_id in folders
 
+    def test_listing_the_projects(self):
+        # use api to get all projects
+        response = self.client.get("/api/projects")
+        json_data = response.get_json()
+        assert response.status_code == 200
+        assert len(json_data["result"]) == 2
+        names = [p["name"] for p in PROJECTS]
+        for p in json_data["result"]:
+            assert p["name"] in names
+
+    def test_accessing_projects(self):
+        for p in PROJECTS:
+            project_id = _create_project_id(p["name"])
+            response = self.client.get(f"/api/projects/{project_id}/info")
+            json_data = response.get_json()
+            assert response.status_code == 200
+            assert json_data["name"] == p["name"]
 
 # ------------------------------------------
 # NOW WE CONVERT TO AN AUTHENTICATED VERSION
@@ -216,6 +233,12 @@ class TestConvertToAuthentication:
         assert project["name"] == PROJECTS[0]["name"]
         assert project["authors"] == PROJECTS[0]["authors"]
         assert project["description"] == PROJECTS[0]["description"]
+        # access project
+        project = user_1.projects[0]
+        response = self.client.get(f"/api/projects/{project.project_id}/info")
+        json_data = response.get_json()
+        assert response.status_code == 200
+        assert json_data["name"] == PROJECTS[0]["name"]
         # signout
         signout(self.client)
 
@@ -236,6 +259,12 @@ class TestConvertToAuthentication:
         assert project["name"] == PROJECTS[1]["name"]
         assert project["authors"] == PROJECTS[1]["authors"]
         assert project["description"] == PROJECTS[1]["description"]
+        # access project
+        project = user_2.projects[0]
+        response = self.client.get(f"/api/projects/{project.project_id}/info")
+        json_data = response.get_json()
+        assert response.status_code == 200
+        assert json_data["name"] == PROJECTS[1]["name"]
         # signout
         signout(self.client)
 
@@ -256,7 +285,26 @@ class TestConvertToAuthentication:
         json_data = response.get_json()
         assert response.status_code == 403
         assert json_data["message"] == "no permission"
+        # signout
+        signout(self.client)
 
+    def test_if_user_2_cant_see_project_1(self):
+        """Check if user_1 cant see project 2."""
+        # get user 1
+        user_2 = DB.session.get(User, 2)
+        # signin user
+        signin_user(self.client, user_2.identifier, self.password)
+        # try to get project 2, we need the id first
+        project_1_id = _create_project_id(PROJECTS[0]["name"])
+        project_1_id = _get_authenticated_folder_id(
+            project_1_id,
+            DB.session.get(User, 1)
+        )
+        # user_2 tries to see project 1
+        response = self.client.get(f"/api/projects/{project_1_id}/info")
+        json_data = response.get_json()
+        assert response.status_code == 403
+        assert json_data["message"] == "no permission"
         # signout
         signout(self.client)
 
@@ -269,13 +317,21 @@ class TestConvertToAuthentication:
 @pytest.mark.usefixtures("no_auth_fixture_with_folder_removal")
 class TestBackToNoAuthentication:
 
-    def test_query1(self):
-        self.lul = 1
-        assert 1 == 1
+    def test_projects_after_unauthentication(self):
+        # test listing the projects throught the api
+        response = self.client.get("/api/projects")
+        json_data = response.get_json()
+        assert response.status_code == 200
+        assert len(json_data["result"]) == 2
+        names = [p["name"] for p in PROJECTS]
+        for p in json_data["result"]:
+            assert p["name"] in names
 
-    def test_whatever(self):
-        print(self.lul)
-        assert 1 == 1
-
-    def test_whate(self):
-        assert 1 == 1
+        # check what's in the asreview-folder to get ids
+        ids = [f.name for f in asreview_path().glob('*') if f.is_dir()]
+        for id in ids:
+            # accessing the projects!!!
+            response = self.client.get(f"/api/projects/{id}/info")
+            json_data = response.get_json()
+            assert response.status_code == 200
+            assert json_data["name"] in names
