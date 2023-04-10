@@ -17,7 +17,6 @@ import os
 import shutil
 from pathlib import Path
 
-
 import pytest
 
 from asreview.project import _create_project_id
@@ -95,6 +94,12 @@ class TestNoAuthentication:
     """We start with an inital ASReview instance without authentication."""
 
     def test_existence_empty_test_folder(self):
+        # make sure we start with a clean slate
+        for path in Path(asreview_path()).glob("**/*"):
+            if path.is_file():
+                path.unlink()
+            elif path.is_dir():
+                shutil.rmtree(path)
         # check existence folder
         assert self.asreview_folder.exists() is True
         # check if folder is empty
@@ -140,7 +145,7 @@ class TestConvertToAuthentication:
             project_id = _create_project_id(p["name"])
             assert project_id in folder_content
         # check for the database
-        assert "asreview.development.sqlite" in folder_content
+        assert "asreview.test.sqlite" in folder_content
 
     def test_adding_users_into_the_users_table_and_convert(self):
         """Convert to authenticated folder structure."""
@@ -265,9 +270,11 @@ class TestConvertToAuthentication:
 class TestBackToNoAuthentication:
 
     def test_query1(self):
+        self.lul = 1
         assert 1 == 1
 
     def test_whatever(self):
+        print(self.lul)
         assert 1 == 1
 
     def test_whate(self):

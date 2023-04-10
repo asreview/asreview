@@ -111,7 +111,8 @@ def create_app(**kwargs):
 
     # Get the ASReview arguments.
     app.config["asr_kwargs"] = kwargs
-    app.config["AUTHENTICATION_ENABLED"] = kwargs.get("enable_authentication", False)
+    app.config["AUTHENTICATION_ENABLED"] = kwargs.get(
+        "enable_authentication", False)
     app.config["SECRET_KEY"] = kwargs.get("secret_key", False)
     app.config["SECURITY_PASSWORD_SALT"] = kwargs.get("salt", False)
 
@@ -121,8 +122,10 @@ def create_app(**kwargs):
     if config_file_path != "":
         app.config.from_file(config_file_path, load=json.load)
 
-    # set development / production
-    env = "development" if app.config["DEBUG"] is True else "production"
+    # set test / development / production environment
+    env = app.config.get("ENV", None)
+    if env is None:
+        env = "development" if app.config["DEBUG"] is True else "production"
 
     # config JSON Web Tokens
     login_manager = LoginManager(app)
