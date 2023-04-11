@@ -17,6 +17,7 @@ from functools import wraps
 from flask import current_app
 from flask import jsonify
 from flask import request
+from flask import session
 from flask_login.config import EXEMPT_METHODS
 from flask_login.utils import _get_user
 
@@ -32,7 +33,7 @@ def asreview_login_required(func):
     example::
 
         @app.route('/post')
-        @login_required
+        @asreview_login_required
         def post():
             pass
 
@@ -57,9 +58,11 @@ def asreview_login_required(func):
     :param func: The view function to decorate.
     :type func: function
     """
-
     @wraps(func)
     def decorated_view(*args, **kwargs):
+
+        print(session)
+        print(session.get("_user_id"))
 
         if request.method in EXEMPT_METHODS:
             pass
@@ -67,6 +70,7 @@ def asreview_login_required(func):
             pass
         else:
             # get current user
+            print(_get_user())
             current_user = _get_user()
 
             if not (bool(current_user) and current_user.is_authenticated):

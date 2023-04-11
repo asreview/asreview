@@ -18,12 +18,9 @@ from flask import current_app
 
 from asreview.utils import asreview_path
 from asreview.webapp import DB
-from asreview.webapp.api.projects import _get_authenticated_folder_id
+from asreview.webapp.api.projects import _get_project_uuid
 from asreview.webapp.authentication.models import Project, User
 from asreview.webapp.start_flask import create_app
-
-
-DATABASE_NAME = "asreview.development.sqlite"
 
 
 def get_users(conn):
@@ -49,25 +46,30 @@ def print_user_records(users):
         print(f"{user.id}.\t{user.name} ({user.email})")
 
 
-def user_project_link_exists(folder_id):
+def user_project_link_exists(conn, folder_id):
     """Check if a project record already exists."""
-    project = Project.query.filter(Project.project_id == folder_id).first()
-    return bool(project)
+    query = "SELECT COUNT(id) FROM projects " + \
+        f"WHERE project_id='{folder_id}'"
+    cursor = conn.cursor()
+    cursor.execute(query)
+    return cursor.fetchone()[0] == 1
 
 
-def link_user_to_project(project_id, user_id):
+def link_user_to_project(conn, project_id, user_id):
     """Inserts project record, links user id to project"""
-    new_project = Project(project_id=project_id, owner_id=user_id)
-    DB.session.add(new_project)
-    DB.session.commit()
+    query = "INSERT INTO projects(project_id, owner_id)" + \
+        "VALUES(?,?)"
+    cursor = conn.cursor()
+    cursor.execute(query, (project_id, user_id))
+    conn.commit()
     return True
 
 
-def main(mapping=[]):
+def main(conn, mapping=[]):
     # keep track of made links
     done = []
     # get all user ids
-    users = get_users()
+    users = get_users(conn)
     # user cache to speed things up ;)
     user_cache = {user.id: user for user in users}
     # user ids
@@ -81,7 +83,7 @@ def main(mapping=[]):
             project_id = link["project_id"]
 
             # see if this project is already connected to a user
-            if user_project_link_exists(project_id):
+            if user_project_link_exists(conn, project_id):
                 print(f"Project {project_id} is already linked to a user")
                 continue
 
@@ -94,9 +96,9 @@ def main(mapping=[]):
                     user = user_cache[user_id]
 
                     # create a new project_id
-                    new_project_id = _get_authenticated_folder_id(
+                    new_project_id = _get_project_uuid(
                         project_id,
-                        user
+                        user.id
                     )
 
                     # rename the folder
@@ -121,6 +123,7 @@ def main(mapping=[]):
 
                     # insert record
                     link_user_to_project(
+                        conn,
                         new_project_id,
                         user_id,
                     )
@@ -159,14 +162,8 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    print("---->", asreview_path())
-
-    # app = create_app(enable_auth=True)
-    # DB.init_app(app)
-    # with app.app_context():
-
     # establish connect with database
-    conn = sqlite3.connect(asreview_path() / DATABASE_NAME)
+    conn = sqlite3.connect(asreview_path() / args.database_path)
     # get all users in the user table
     users = get_users(conn)
 
@@ -185,8 +182,8 @@ if __name__ == "__main__":
 
             # show all users and their ids and ask who's the owner
             print(
-                "==> Who is the owner of this project folder:",
-                f"{project_id}\n"
+                "\n\n==> Who is the owner of this project folder:",
+                f"{project_id}"
             )
             print_user_records(users)
             # ask who's the folder's owner
@@ -207,6 +204,7 @@ if __name__ == "__main__":
                 print("Entered input is not a string, start again.")
                 break
 
+    print(mapping)
     # send mapping to main to do the linking
     main(conn, mapping)
 

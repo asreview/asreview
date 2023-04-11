@@ -44,6 +44,7 @@ from asreview.webapp.authentication.oauth_handler import OAuthHandler
 # set logging level
 if (
     os.environ.get("FLASK_DEBUG", "") == "1" or
+    os.environ.get("DEBUG", "") == "1" or
     os.environ.get("FLASK_ENV", "") == "development"
 ):
     logging.basicConfig(level=logging.DEBUG)
@@ -121,11 +122,15 @@ def create_app(**kwargs):
     config_file_path = kwargs.get("flask_configfile", "").strip()
     if config_file_path != "":
         app.config.from_file(config_file_path, load=json.load)
-
-    # set test / development / production environment
-    env = app.config.get("ENV", None)
-    if env is None:
-        env = "development" if app.config["DEBUG"] is True else "production"
+        
+    # set env (test / development / production) according to
+    # Flask 2.2 specs (ENV is deprecated)
+    if app.config.get("TESTING", None) is True:
+        env = 'test'
+    elif app.config.get("DEBUG", None) is True:
+        env = 'development'
+    else:
+        env = 'production'
 
     # config JSON Web Tokens
     login_manager = LoginManager(app)
@@ -145,8 +150,9 @@ def create_app(**kwargs):
         # Register a callback function for current_user.
         @login_manager.user_loader
         def load_user(user_id):
+            print('LOADING THE USER', user_id)
             return User.query.get(int(user_id))
-
+        
         # In this code-block we make sure certain authentication-related
         # config parameters are set.
         # TODO: should I raise a custom Exception, like MissingParameterError?

@@ -184,7 +184,7 @@ class TestConvertToAuthentication:
         ]
 
         # execute converter with this mapping
-        make_links(mapping)
+        make_links(DB.engine.raw_connection(), mapping)
 
         # check out folders in the asreview folder
         folders = [f.name for f in asreview_path().glob("*") if f.is_dir()]

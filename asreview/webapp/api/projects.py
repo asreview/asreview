@@ -103,7 +103,13 @@ def app_is_authenticated(app):
     return app.config.get("AUTHENTICATION_ENABLED", False)
 
 
-# helper function
+# helper functions for generating a unique uuid for an authenticated
+# project id and folder name in the asreview folder
+def _get_project_uuid(project_id, user_id=""):
+    user_uuid = uuid5(NAMESPACE_URL, str(user_id)).hex
+    return uuid5(NAMESPACE_URL, project_id + user_uuid).hex
+
+
 def _get_authenticated_folder_id(project_id, user):
     # if we do authentication, then the project must be
     # registered in the database
@@ -115,17 +121,17 @@ def _get_authenticated_folder_id(project_id, user):
     if (project_from_db and user == project_from_db.owner) or (
         project_from_db is None
     ):
-        user_uuid = uuid5(NAMESPACE_URL, str(user.id)).hex
+        uuid = _get_project_uuid(project_id, user.id)
 
     # project exists but user is a collaborator
     elif project_from_db and user in project_from_db.collaborators:
-        user_uuid = uuid5(NAMESPACE_URL, str(project_from_db.owner_id)).hex
+        uuid = _get_project_uuid(project_id, project_from_db.owner_id)
 
     # default to project_id
     else:
-        user_uuid = ""
+        uuid = _get_project_uuid(project_id)
 
-    return uuid5(NAMESPACE_URL, project_id + user_uuid).hex
+    return uuid
 
 
 def project_authorization(f):
