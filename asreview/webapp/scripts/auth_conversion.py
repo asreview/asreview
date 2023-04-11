@@ -14,28 +14,39 @@ import json
 import sqlite3
 from pathlib import Path
 
+from flask import current_app
+
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.api.projects import _get_authenticated_folder_id
 from asreview.webapp.authentication.models import Project, User
+from asreview.webapp.start_flask import create_app
 
 
 DATABASE_NAME = "asreview.development.sqlite"
 
 
-def get_users():
+def get_users(conn):
     """Select ids, names and emails from all users"""
-    return User.query.all()
+    qry = """SELECT id, email, name FROM users"""
+    cursor = conn.cursor()
+    cursor.execute(qry)
+    result = []
+    for u in cursor.fetchall():
+        user = User(u[1], name=u[2], email=u[1])
+        user.id = u[0]
+        result.append(user)
+    return result
 
 
-def print_user_records(selection):
+def print_user_records(users):
     """Print user records from database."""
-    if not bool(selection):
+    if not bool(users):
         return "No records."
     print("ID\tname (email)")
     print("==============================")
-    for id, name, email in selection:
-        print(f"{id}.\t{name} ({email})")
+    for user in users:
+        print(f"{user.id}.\t{user.name} ({user.email})")
 
 
 def user_project_link_exists(folder_id):
@@ -148,10 +159,16 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    print("---->", asreview_path())
+
+    # app = create_app(enable_auth=True)
+    # DB.init_app(app)
+    # with app.app_context():
+
     # establish connect with database
     conn = sqlite3.connect(asreview_path() / DATABASE_NAME)
     # get all users in the user table
-    users = get_users()
+    users = get_users(conn)
 
     # set up a mapping dictionary which links users with projects
     mapping = []
@@ -191,6 +208,6 @@ if __name__ == "__main__":
                 break
 
     # send mapping to main to do the linking
-    main(mapping)
+    main(conn, mapping)
 
     print("done.")
