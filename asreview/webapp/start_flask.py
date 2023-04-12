@@ -122,7 +122,7 @@ def create_app(**kwargs):
     config_file_path = kwargs.get("flask_configfile", "").strip()
     if config_file_path != "":
         app.config.from_file(config_file_path, load=json.load)
-        
+
     # set env (test / development / production) according to
     # Flask 2.2 specs (ENV is deprecated)
     if app.config.get("TESTING", None) is True:
@@ -146,13 +146,11 @@ def create_app(**kwargs):
     # setup all database/authentication related resources,
     # only do this when AUTHENTICATION_ENABLED is explicitly True
     elif app.config["AUTHENTICATION_ENABLED"] is True:
-
         # Register a callback function for current_user.
         @login_manager.user_loader
         def load_user(user_id):
-            print('LOADING THE USER', user_id)
             return User.query.get(int(user_id))
-        
+
         # In this code-block we make sure certain authentication-related
         # config parameters are set.
         # TODO: should I raise a custom Exception, like MissingParameterError?
@@ -243,7 +241,6 @@ def create_app(**kwargs):
     @app.route("/projects/", methods=["GET"])
     @app.route("/projects/<project_id>/", methods=["GET"])
     @app.route("/projects/<project_id>/<tab>/", methods=["GET"])
-    @login_manager.user_loader
     def index(**kwargs):
         return render_template("index.html")
 

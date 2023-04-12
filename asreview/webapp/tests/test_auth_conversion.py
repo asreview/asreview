@@ -19,16 +19,18 @@ from pathlib import Path
 
 import pytest
 
+from scripts.auth_conversion import main as make_links
+
 from asreview.project import _create_project_id
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.api.projects import _get_authenticated_folder_id
 from asreview.webapp.authentication.models import Project, User
-from asreview.webapp.scripts.auth_conversion import main as make_links
 from asreview.webapp.start_flask import create_app
 from asreview.webapp.tests.conftest import signin_user
 from asreview.webapp.tests.conftest import signout
 from asreview.webapp.tests.conftest import signup_user
+
 
 try:
     from .temp_env_var import TMP_ENV_VARS
