@@ -94,7 +94,6 @@ class SimulateEntryPoint(BaseEntryPoint):
     """Entry point for simulation with ASReview LAB."""
 
     def execute(self, argv):  # noqa
-
         # parse arguments
         parser = _simulate_parser()
         args = parser.parse_args(argv)
@@ -111,7 +110,6 @@ class SimulateEntryPoint(BaseEntryPoint):
 
         # for webapp
         if args.dataset == "":
-
             project = ASReviewProject(args.state_file)
 
             with open_state(args.state_file) as state:
@@ -132,7 +130,6 @@ class SimulateEntryPoint(BaseEntryPoint):
 
         # for simulation CLI
         else:
-
             # do this check now and again when zipping.
             if Path(args.state_file).exists():
                 raise ProjectExistsError("Project already exists.")
@@ -240,7 +237,6 @@ class SimulateEntryPoint(BaseEntryPoint):
             project.update_review(status="review")
 
             with open_state(project, read_only=True) as s:
-
                 prior_df = s.get_priors()
 
                 print("The following records are prior knowledge:\n")
@@ -251,7 +247,6 @@ class SimulateEntryPoint(BaseEntryPoint):
             print("Simulation started\n")
             reviewer.review()
         except Exception as err:
-
             # save the error to the project
             project.set_error(err)
 
@@ -262,7 +257,6 @@ class SimulateEntryPoint(BaseEntryPoint):
 
         # create .ASReview file out of simulation folder
         if args.dataset != "":
-
             project.export(args.state_file)
             shutil.rmtree(fp_tmp_simulation)
 
@@ -367,27 +361,26 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         type=int,
         help="Seed for setting the prior indices if the --prior_idx option is "
         "not used. If the option --prior_idx is used with one or more "
-        "index, this option is ignored.")
+        "index, this option is ignored.",
+    )
     parser.add_argument(
         "--seed",
         default=None,
         type=int,
         help="Seed for the model (classifiers, balance strategies, "
-             "feature extraction techniques, and query strategies)."
+        "feature extraction techniques, and query strategies).",
     )
     parser.add_argument(
         "--config_file",
         type=str,
         default=None,
-        help="Configuration file with model settings"
-             "and parameter values."
+        help="Configuration file with model settings" "and parameter values.",
     )
     parser.add_argument(
         "--n_instances",
         default=DEFAULT_N_INSTANCES,
         type=int,
-        help="Number of papers queried each query."
-        f"Default {DEFAULT_N_INSTANCES}.",
+        help="Number of papers queried each query." f"Default {DEFAULT_N_INSTANCES}.",
     )
     parser.add_argument(
         "--n_queries",
@@ -418,6 +411,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         type=int,
         help="The simulation data will be written after each set of this"
         "many labeled records. By default only writes data at the end"
-        "of the simulation to make it as fast as possible.")
+        "of the simulation to make it as fast as possible.",
+    )
 
     return parser

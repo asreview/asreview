@@ -84,9 +84,9 @@ class User(UserMixin, DB.Model):
         if key == "email" and self.origin == "asreview" and bool(value) is False:
             raise ValueError('Email is required when origin is "asreview"')
         if (
-            key == "hashed_password" and
-            self.origin == "asreview" and
-            bool(value) is False
+            key == "hashed_password"
+            and self.origin == "asreview"
+            and bool(value) is False
         ):
             raise ValueError('Password is required when origin is "asreview"')
         return value
@@ -94,7 +94,7 @@ class User(UserMixin, DB.Model):
     def __init__(
         self,
         identifier,
-        origin='asreview',
+        origin="asreview",
         email=None,
         name=None,
         affiliation=None,
@@ -102,19 +102,17 @@ class User(UserMixin, DB.Model):
         confirmed=False,
         public=True,
     ):
-
         self.identifier = identifier
         self.origin = origin
         self.email = email
         self.name = name
         self.affiliation = affiliation
-        if self.origin == 'asreview' and bool(password):
+        if self.origin == "asreview" and bool(password):
             self.hashed_password = User.create_password_hash(password)
         self.confirmed = confirmed
         self.public = public
 
     def update_profile(self, email, name, affiliation, password=None, public=True):
-
         self.email = email
         self.name = name
         self.affiliation = affiliation
@@ -192,8 +190,7 @@ class User(UserMixin, DB.Model):
     @classmethod
     def valid_password(cls, password):
         return re.fullmatch(
-            r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$',
-            password
+            r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$", password
         )
 
     @classmethod
@@ -201,9 +198,7 @@ class User(UserMixin, DB.Model):
         if bool(password) and User.valid_password(password):
             return generate_password_hash(password)
         else:
-            raise ValueError(
-                f'Password "{password}" does not meet requirements'
-            )
+            raise ValueError(f'Password "{password}" does not meet requirements')
 
     def __repr__(self):
         return f"<User {self.email!r}, id: {self.id}>"

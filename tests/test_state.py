@@ -136,7 +136,7 @@ def test_init_project_already_exists(tmpdir):
 
 def test_invalid_project_folder():
     with pytest.raises(StateNotFoundError):
-        with open_state('this_is_not_a_project') as state:  # noqa
+        with open_state("this_is_not_a_project") as state:  # noqa
             pass
 
 
@@ -330,7 +330,6 @@ def test_create_empty_state(tmpdir):
 
 
 def test_get_feature_matrix():
-
     project = ASReviewProject(TEST_STATE_FP)
 
     assert len(project.feature_matrices) == 1
@@ -639,7 +638,7 @@ def test_get_labeled():
 
 def test_add_extra_column(tmpdir):
     """Check if state still works with extra colums added to tables."""
-    project_path = Path(tmpdir, 'test.asreview')
+    project_path = Path(tmpdir, "test.asreview")
     ASReviewProject.create(project_path)
 
     with open_state(project_path, read_only=False) as state:
@@ -652,17 +651,22 @@ def test_add_extra_column(tmpdir):
 
     record_ids = [1, 2, 3, 4, 5, 6]
     ranking = [1, 3, 4, 6, 2, 5]
-    classifier = 'nb'
-    query_strategy = 'max'
-    balance_strategy = 'double'
-    feature_extraction = 'tfidf'
+    classifier = "nb"
+    query_strategy = "max"
+    balance_strategy = "double"
+    feature_extraction = "tfidf"
     training_set = 2
 
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(record_ids)
-        state.add_last_ranking(ranking, classifier,
-                               query_strategy, balance_strategy,
-                               feature_extraction, training_set)
+        state.add_last_ranking(
+            ranking,
+            classifier,
+            query_strategy,
+            balance_strategy,
+            feature_extraction,
+            training_set,
+        )
 
         top_ranked = state.query_top_ranked(1)
         pool, labeled, pending = state.get_pool_labeled_pending()
