@@ -28,20 +28,20 @@ from asreview.webapp.io import read_data
 from asreview.webapp.sqlock import SQLiteLock
 
 
-def get_lab_reviewer(as_data,
-                     project,
-                     embedding_fp=None,
-                     verbose=0,
-                     prior_idx=None,
-                     prior_record_id=None,
-                     seed=None,
-                     **kwargs):
-    """Get a review object from arguments.
-    """
+def get_lab_reviewer(
+    as_data,
+    project,
+    embedding_fp=None,
+    verbose=0,
+    prior_idx=None,
+    prior_record_id=None,
+    seed=None,
+    **kwargs,
+):
+    """Get a review object from arguments."""
 
     if len(as_data) == 0:
-        raise ValueError("Supply at least one dataset"
-                         " with at least one record.")
+        raise ValueError("Supply at least one dataset" " with at least one record.")
 
     with open_state(project) as state:
         settings = state.settings
@@ -57,22 +57,27 @@ def get_lab_reviewer(as_data,
     # LSTM models need embedding matrices.
     if classifier_model.name.startswith("lstm-"):
         classifier_model.embedding_matrix = feature_model.get_embedding_matrix(
-            as_data.texts, embedding_fp)
-
-    # prior knowledge
-    if prior_idx is not None and prior_record_id is not None and \
-            len(prior_idx) > 0 and len(prior_record_id) > 0:
-        raise ValueError(
-            "Not possible to provide both prior_idx and prior_record_id"
+            as_data.texts, embedding_fp
         )
 
-    reviewer = BaseReview(as_data,
-                          project,
-                          model=classifier_model,
-                          query_model=query_model,
-                          balance_model=balance_model,
-                          feature_model=feature_model,
-                          **kwargs)
+    # prior knowledge
+    if (
+        prior_idx is not None and
+        prior_record_id is not None and
+        len(prior_idx) > 0 and
+        len(prior_record_id) > 0
+    ):
+        raise ValueError("Not possible to provide both prior_idx and prior_record_id")
+
+    reviewer = BaseReview(
+        as_data,
+        project,
+        model=classifier_model,
+        query_model=query_model,
+        balance_model=balance_model,
+        feature_model=feature_model,
+        **kwargs,
+    )
     return reviewer
 
 
@@ -93,13 +98,15 @@ def train_model(project):
     # Lock so that only one training run is running at the same time.
     # It doesn't lock the flask server/client.
     with SQLiteLock(
-            lock_file, blocking=False, lock_name="training",
-            project_id=project.project_id) as lock:
+        lock_file, blocking=False, lock_name="training", project_id=project.project_id
+    ) as lock:
 
         # If the lock is not acquired, another training instance is running.
         if not lock.locked():
-            logging.info(f"Project {project.project_path} - "
-                         "Cannot acquire lock, other instance running.")
+            logging.info(
+                f"Project {project.project_path} - "
+                "Cannot acquire lock, other instance running."
+            )
             return
 
         # Check if there are new labeled records.
@@ -116,7 +123,8 @@ def train_model(project):
             reviewer.train()
         else:
             logging.info(
-                f"Project {project.project_path} - No new labels since last run.")
+                f"Project {project.project_path} - No new labels since last run."
+            )
             return
 
 
@@ -127,14 +135,16 @@ def main(argv):
     parser.add_argument("project_path", type=str, help="Project id")
     parser.add_argument(
         "--output_error",
-        dest='output_error',
-        action='store_true',
-        help="Save training error message to file.")
+        dest="output_error",
+        action="store_true",
+        help="Save training error message to file.",
+    )
     parser.add_argument(
         "--first_run",
-        dest='first_run',
-        action='store_true',
-        help="After first run, status is updated.")
+        dest="first_run",
+        action="store_true",
+        help="After first run, status is updated.",
+    )
     args = parser.parse_args(argv)
 
     project = ASReviewProject(args.project_path)

@@ -1,5 +1,6 @@
 import React from "react";
 import { useIsFetching, useQueryClient } from "react-query";
+import { useSelector } from "react-redux";
 import { Route, Routes, useParams } from "react-router-dom";
 import {
   Button,
@@ -22,7 +23,6 @@ import { styled } from "@mui/material/styles";
 import { Diversity3, Help, Payment, Settings } from "@mui/icons-material";
 
 import { DrawerItem, ElasGame } from "../Components";
-
 import { ProjectAPI } from "../api/index.js";
 import { communityURL, donateURL, projectModes, projectStatuses } from "../globals.js";
 import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
@@ -91,6 +91,8 @@ const StyledList = styled(List)(({ theme }) => ({
 
 const DrawerItemContainer = (props) => {
   const { project_id } = useParams();
+  const authentication = useSelector(state => state.authentication);
+  const allowTeams = useSelector(state => state.allow_teams);
   const queryClient = useQueryClient();
 
   const isFetchingInfo = useIsFetching("fetchInfo");
@@ -152,6 +154,11 @@ const DrawerItemContainer = (props) => {
       path: "history",
       label: "History",
     },
+    ...(authentication && allowTeams ? 
+      [{
+        path: "team",
+        label: "Team",
+      }] : []),
     {
       path: "export",
       label: "Export",

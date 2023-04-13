@@ -4,9 +4,8 @@ from zipfile import ZipFile
 
 from asreview.state.sql_converter import upgrade_asreview_project_file
 
-old_fp = Path('tests', 'asreview_files', 'test_state_example_old.asreview')
-new_fp = Path('tests', 'asreview_files',
-              'test_state_example_converted.asreview')
+old_fp = Path("tests", "asreview_files", "test_state_example_old.asreview")
+new_fp = Path("tests", "asreview_files", "test_state_example_converted.asreview")
 
 if new_fp.exists():
     rmtree(new_fp)
