@@ -44,6 +44,7 @@ from asreview.webapp.authentication.oauth_handler import OAuthHandler
 # set logging level
 if (
     os.environ.get("FLASK_DEBUG", "") == "1" or
+    os.environ.get("DEBUG", "") == "1" or
     os.environ.get("FLASK_ENV", "") == "development"
 ):
     logging.basicConfig(level=logging.DEBUG)
@@ -111,7 +112,8 @@ def create_app(**kwargs):
 
     # Get the ASReview arguments.
     app.config["asr_kwargs"] = kwargs
-    app.config["AUTHENTICATION_ENABLED"] = kwargs.get("enable_authentication", False)
+    app.config["AUTHENTICATION_ENABLED"] = kwargs.get(
+        "enable_authentication", False)
     app.config["SECRET_KEY"] = kwargs.get("secret_key", False)
     app.config["SECURITY_PASSWORD_SALT"] = kwargs.get("salt", False)
 
@@ -121,8 +123,14 @@ def create_app(**kwargs):
     if config_file_path != "":
         app.config.from_file(config_file_path, load=json.load)
 
-    # set development / production
-    env = "development" if app.config["DEBUG"] is True else "production"
+    # set env (test / development / production) according to
+    # Flask 2.2 specs (ENV is deprecated)
+    if app.config.get("TESTING", None) is True:
+        env = 'test'
+    elif app.config.get("DEBUG", None) is True:
+        env = 'development'
+    else:
+        env = 'production'
 
     # config JSON Web Tokens
     login_manager = LoginManager(app)
@@ -138,7 +146,6 @@ def create_app(**kwargs):
     # setup all database/authentication related resources,
     # only do this when AUTHENTICATION_ENABLED is explicitly True
     elif app.config["AUTHENTICATION_ENABLED"] is True:
-
         # Register a callback function for current_user.
         @login_manager.user_loader
         def load_user(user_id):
@@ -234,7 +241,6 @@ def create_app(**kwargs):
     @app.route("/projects/", methods=["GET"])
     @app.route("/projects/<project_id>/", methods=["GET"])
     @app.route("/projects/<project_id>/<tab>/", methods=["GET"])
-    @login_manager.user_loader
     def index(**kwargs):
         return render_template("index.html")
 

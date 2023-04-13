@@ -19,6 +19,12 @@ from asreview.project import PATH_FEATURE_MATRICES
 from asreview.utils import asreview_path
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
+from asreview.webapp.tests.conftest import signin_user
+from asreview.webapp.tests.conftest import signout
+from asreview.webapp.tests.conftest import signup_user
+
+PASSWORD = "1234ABC!"
+USER_2 = "user2@authtest.nl"
 
 
 def test_get_projects(setup_teardown_signed_in):
@@ -527,3 +533,346 @@ def test_delete_project(setup_teardown_signed_in):
     response = client.get(f"/api/projects/{project.project_id}/info")
     json_data = response.get_json()
     assert json_data["name"] == "another_project"
+
+
+# ------------------------
+# Test improper use of api
+# ------------------------
+
+def test_adding_a_second_user_and_projects(setup_teardown_signed_in):
+    """Adding a second user and a project of that user"""
+    _, client, user = setup_teardown_signed_in
+    # get number of projects in database
+    old_projects = Project.query.all()
+    # signout current user
+    signout(client)
+    # create new user
+    signup_user(client, USER_2, PASSWORD)
+    # assert if we have 2 users now
+    assert len(User.query.all()) == 2
+    # signin user 2
+    signin_user(client, USER_2, PASSWORD)
+    # create project
+    client.post(
+        "/api/projects/info",
+        data={
+            "mode": "explore",
+            "name": "project of user 2",
+            "authors": "user 2",
+            "description": "project 2",
+        },
+    )
+    # assert we have this project
+    assert len(Project.query.all()) == len(old_projects) + 1
+    user = User.query.filter(User.identifier == USER_2).first()
+    assert len(user.projects) == 1
+
+
+def test_accessing_project_that_is_no_permission(setup_teardown_signed_in):
+    """Test if user 1 can reach a project of user 2"""
+    _, client, user = setup_teardown_signed_in
+
+    # ------------------------------------------
+    # explicitly sign in with user 1 credentials
+    # ------------------------------------------
+    signin_user(client, "c.s.kaandorp@uu.nl", "123456!AbC")
+
+    # get user 2
+    user = User.query.filter(User.identifier == USER_2).first()
+    assert len(user.projects) == 1
+    # this is the project from user 2
+    project = user.projects[0]
+    # user 1 tries to reach project 2
+    response = client.get(f"/api/projects/{project.project_id}/info")
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_old_upgrade_no_permission(setup_teardown_signed_in):
+    """Test upgrade project if it is v0.x"""
+    _, client, _ = setup_teardown_signed_in
+
+    project = Project.query.order_by(Project.id.desc()).first()
+    response = client.get(
+        f"/api/projects/{project.project_id}/upgrade_if_old"
+    )
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_update_no_permission(setup_teardown_signed_in):
+    """Test update project info -without- changing the project name"""
+    _, client, user = setup_teardown_signed_in
+
+    project = Project.query.order_by(Project.id.desc()).first()
+    response = client.put(
+        f"/api/projects/{project.project_id}/info",
+        data={
+            "mode": "explore",
+            "name": "project_id",
+            "authors": "different asreview team",
+            "description": "hello world",
+        },
+    )
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_upload_data_no_permission(setup_teardown_signed_in):
+    """Test upload data to project."""
+    _, client, _ = setup_teardown_signed_in
+
+    project = Project.query.order_by(Project.id.desc()).first()
+    response = client.post(
+        f"/api/projects/{project.project_id}/data",
+        data={"benchmark": "benchmark:Hall_2012"}
+    )
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_get_project_data_no_permission(setup_teardown_signed_in):
+    """Test get info on the data"""
+    _, client, _ = setup_teardown_signed_in
+
+    project = Project.query.order_by(Project.id.desc()).first()
+    response = client.get(f"/api/projects/{project.project_id}/data")
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_get_dataset_writer_no_permission(setup_teardown_signed_in):
+    """Test get dataset writer"""
+    _, client, _ = setup_teardown_signed_in
+
+    project = Project.query.order_by(Project.id.desc()).first()
+    response = client.get(
+        f"/api/projects/{project.project_id}/dataset_writer"
+    )
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_search_data_no_permission(setup_teardown_signed_in):
+    """Test search for papers"""
+    _, client, _ = setup_teardown_signed_in
+
+    project = Project.query.order_by(Project.id.desc()).first()
+    response = client.get(
+        f"/api/projects/{project.project_id}/search?q=Software&n_max=10"
+    )
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_get_labeled_no_permission(setup_teardown_signed_in):
+    """Test get all papers classified as labeled documents"""
+    _, client, _ = setup_teardown_signed_in
+
+    project = Project.query.order_by(Project.id.desc()).first()
+    response = client.get(f"/api/projects/{project.project_id}/labeled")
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_get_labeled_stats_no_permission(setup_teardown_signed_in):
+    """Test get all papers classified as prior documents"""
+    _, client, _ = setup_teardown_signed_in
+
+    project = Project.query.order_by(Project.id.desc()).first()
+    response = client.get(f"/api/projects/{project.project_id}/labeled_stats")
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_random_prior_papers_no_permission(setup_teardown_signed_in):
+    """Test get a selection of random papers to find exclusions"""
+    _, client, _ = setup_teardown_signed_in
+
+    project = Project.query.order_by(Project.id.desc()).first()
+    response = client.get(
+        f"/api/projects/{project.project_id}/prior_random"
+    )
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_list_algorithms_no_permission(setup_teardown_signed_in):
+    """Test get list of active learning models"""
+    _, client, _ = setup_teardown_signed_in
+
+    project = Project.query.order_by(Project.id.desc()).first()
+    response = client.get(f"/api/projects/{project.project_id}/algorithms")
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_set_algorithms_no_permission(setup_teardown_signed_in):
+    """Test set active learning model"""
+    _, client, _ = setup_teardown_signed_in
+
+    project = Project.query.order_by(Project.id.desc()).first()
+    response = client.post(
+        f"/api/projects/{project.project_id}/algorithms",
+        data={
+            "model": "svm",
+            "query_strategy": "max_random",
+            "balance_strategy": "double",
+            "feature_extraction": "tfidf",
+        },
+    )
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_start_model_ready_no_permission(setup_teardown_signed_in):
+    """Test start training the model"""
+    _, client, _ = setup_teardown_signed_in
+
+    project = Project.query.order_by(Project.id.desc()).first()
+    response = client.post(f"/api/projects/{project.project_id}/start")
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_get_model_status_no_permission(setup_teardown_signed_in):
+    """Test start training the model"""
+    _, client, _ = setup_teardown_signed_in
+
+    project = Project.query.order_by(Project.id.desc()).first()
+    response = client.get(f"/api/projects/{project.project_id}/status")
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_finish_project_no_permission(setup_teardown_signed_in):
+    """Test mark a project as finished or not"""
+    _, client, _ = setup_teardown_signed_in
+
+    project = Project.query.order_by(Project.id.desc()).first()
+    response = client.put(
+        f"/api/projects/{project.project_id}/status",
+        data={"status": "finished"}
+    )
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_export_result_no_permission(setup_teardown_signed_in):
+    """Test export result"""
+    _, client, _ = setup_teardown_signed_in
+
+    project = Project.query.order_by(Project.id.desc()).first()
+    response = client.get(
+        f"/api/projects/{project.project_id}/export_dataset?file_format=csv"
+    )
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_export_project_no_permission(setup_teardown_signed_in):
+    """Test export the project file"""
+    _, client, _ = setup_teardown_signed_in
+
+    project = Project.query.order_by(Project.id.desc()).first()
+    response = client.get(
+        f"/api/projects/{project.project_id}/export_project"
+    )
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_get_progress_info_no_permission(setup_teardown_signed_in):
+    """Test get progress info on the article"""
+    _, client, _ = setup_teardown_signed_in
+
+    project = Project.query.order_by(Project.id.desc()).first()
+    response = client.get(f"/api/projects/{project.project_id}/progress")
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_get_progress_density_no_permission(setup_teardown_signed_in):
+    """Test get progress density on the article"""
+    _, client, _ = setup_teardown_signed_in
+
+    project = Project.query.order_by(Project.id.desc()).first()
+    response = client.get(
+        f"/api/projects/{project.project_id}/progress_density"
+    )
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_get_progress_recall_no_permission(setup_teardown_signed_in):
+    """Test get cumulative number of inclusions by ASReview/at random"""
+    _, client, _ = setup_teardown_signed_in
+
+    project = Project.query.order_by(Project.id.desc()).first()
+    response = client.get(
+        f"/api/projects/{project.project_id}/progress_recall"
+    )
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_classify_instance_no_permission(setup_teardown_signed_in):
+    """Test retrieve documents in order of review"""
+    _, client, _ = setup_teardown_signed_in
+
+    project = Project.query.order_by(Project.id.desc()).first()
+    # Test retrieve classification result
+    response = client.post(
+        f"/api/projects/{project.project_id}/record/1234",
+        data={
+            "doc_id": 4567,
+            "label": 1,
+        },
+    )
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_get_document_no_permission(setup_teardown_signed_in):
+    """Test retrieve documents in order of review"""
+    _, client, _ = setup_teardown_signed_in
+
+    project = Project.query.order_by(Project.id.desc()).first()
+    response = client.get(
+        f"/api/projects/{project.project_id}/get_document"
+    )
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
+
+
+def test_delete_project_no_permission(setup_teardown_signed_in):
+    """Test get info on the article"""
+    _, client, user = setup_teardown_signed_in
+    project = Project.query.order_by(Project.id.desc()).first()
+    response = client.delete(
+        f"/api/projects/{project.project_id}/delete")
+    json_data = response.get_json()
+    assert response.status_code == 403
+    assert json_data["message"] == "no permission"
