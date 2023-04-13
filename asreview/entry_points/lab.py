@@ -78,8 +78,7 @@ def _lab_parser(prog="lab"):
         "--salt",
         default=None,
         type=str,
-        help="When using authentication, a salt code is needed"
-        "for hasing passwords.",
+        help="When using authentication, a salt code is needed" "for hasing passwords.",
     )
 
     parser.add_argument(
@@ -125,7 +124,7 @@ def _lab_parser(prog="lab"):
         type=str,
         default=None,
         help="Deprecated, see subcommand simulate.",
-        action=DeprecateAction
+        action=DeprecateAction,
     )
 
     parser.add_argument(
@@ -133,7 +132,7 @@ def _lab_parser(prog="lab"):
         default=None,
         type=int,
         help="Deprecated, see subcommand simulate.",
-        action=DeprecateAction
+        action=DeprecateAction,
     )
     return parser
 
@@ -142,7 +141,6 @@ class LABEntryPoint(BaseEntryPoint):
     """Entry point to start the ASReview LAB webapp."""
 
     def execute(self, argv):
-
         from asreview.webapp.start_flask import main
 
         main(argv)

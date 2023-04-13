@@ -66,14 +66,12 @@ def load_data(name, *args, **kwargs):
 
 
 def _get_filename_from_url(url):
-
     if not is_url(url):
         raise ValueError(f"'{url}' is not a valid URL.")
 
     if Path(urlparse(url).path).suffix:
         return Path(urlparse(url).path).name, url
     else:
-
         try:
             return urlopen(url).headers.get_filename(), url
         except HTTPError as err:
@@ -85,7 +83,7 @@ def _get_filename_from_url(url):
                 raise err
 
 
-class ASReviewData():
+class ASReviewData:
     """Data object to the dataset with texts, labels, DOIs etc.
 
     Arguments
@@ -200,8 +198,7 @@ class ASReviewData():
         try:
             reader = entry_points[Path(fn).suffix].load()
         except Exception:
-            raise BadFileFormatError(
-                f"Importing file {fp} not possible.")
+            raise BadFileFormatError(f"Importing file {fp} not possible.")
 
         df, column_spec = reader.read_data(fp)
 
@@ -474,7 +471,7 @@ class ASReviewData():
 
         return result_df
 
-    def duplicated(self, pid='doi'):
+    def duplicated(self, pid="doi"):
         """Return boolean Series denoting duplicate rows.
 
         Identify duplicates based on titles and abstracts and if available,
@@ -500,17 +497,21 @@ class ASReviewData():
                 s_pid = self.df[pid]
 
             # save boolean series for duplicates based on persistent identifiers
-            s_dups_pid = ((s_pid.duplicated()) & (s_pid.notnull()))
+            s_dups_pid = (s_pid.duplicated()) & (s_pid.notnull())
         else:
             s_dups_pid = None
 
         # get the texts, clean them and replace empty strings with None
-        s = pd.Series(self.texts) \
-            .str.replace("[^A-Za-z0-9]", "", regex=True) \
-            .str.lower().str.strip().replace("", None)
+        s = (
+            pd.Series(self.texts)
+            .str.replace("[^A-Za-z0-9]", "", regex=True)
+            .str.lower()
+            .str.strip()
+            .replace("", None)
+        )
 
         # save boolean series for duplicates based on titles/abstracts
-        s_dups_text = ((s.duplicated()) & (s.notnull()))
+        s_dups_text = (s.duplicated()) & (s.notnull())
 
         # final boolean series for all duplicates
         if s_dups_pid is not None:
@@ -520,7 +521,7 @@ class ASReviewData():
 
         return s_dups
 
-    def drop_duplicates(self, pid='doi', inplace=False, reset_index=True):
+    def drop_duplicates(self, pid="doi", inplace=False, reset_index=True):
         """Drop duplicate records.
 
         Drop duplicates based on titles and abstracts and if available,

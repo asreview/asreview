@@ -35,7 +35,6 @@ except ImportError:
     ],
 )
 def test_features(feature_extraction, split_ta):
-
     if feature_extraction in REQUIRES_EXTRA_DEPS and not ADVANCED_DEPS["tensorflow"]:
         pytest.skip()
 

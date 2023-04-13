@@ -63,19 +63,16 @@ def convert_keywords(keywords):
 
 
 def _is_record_id_unique(s):
-
     if len(pd.unique(s)) != len(s.index):
         raise ValueError("Column 'record_id' contains duplicate values.")
 
 
 def _is_record_id_notnull(s):
-
     if s.isnull().any():
         raise ValueError("Column 'record_id' contains missing values.")
 
 
 def _is_record_id_int(s):
-
     try:
         pd.to_numeric(s).astype(int)
     except Exception:

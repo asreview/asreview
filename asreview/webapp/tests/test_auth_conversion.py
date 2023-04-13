@@ -49,7 +49,7 @@ PROJECTS = [
         "name": "project_2",
         "authors": "user 2",
         "description": "project 2",
-    }
+    },
 ]
 
 
@@ -144,6 +144,7 @@ class TestNoAuthentication:
             assert response.status_code == 200
             assert json_data["name"] == p["name"]
 
+
 # ------------------------------------------
 # NOW WE CONVERT TO AN AUTHENTICATED VERSION
 # ------------------------------------------
@@ -177,12 +178,8 @@ class TestConvertToAuthentication:
 
         # we want to assign project 1 to user 1 and project 2 to user 2
         mapping = [
-            {
-                "user_id": user.id,
-                "project_id": _create_project_id(PROJECTS[i]["name"])
-            } for i, user in enumerate(
-                User.query.order_by(User.id.asc()).all()
-            )
+            {"user_id": user.id, "project_id": _create_project_id(PROJECTS[i]["name"])}
+            for i, user in enumerate(User.query.order_by(User.id.asc()).all())
         ]
 
         # execute converter with this mapping
@@ -207,9 +204,7 @@ class TestConvertToAuthentication:
             assert new_project_id in folders
 
             # check project in database and if it's linked to the user
-            project = Project.query.filter(
-                Project.project_id == new_project_id
-            ).first()
+            project = Project.query.filter(Project.project_id == new_project_id).first()
             assert project.owner_id == user.id
 
             # check if we have the correct new project id in the data file
@@ -279,8 +274,7 @@ class TestConvertToAuthentication:
         # try to get project 2, we need the id first
         project_2_id = _create_project_id(PROJECTS[1]["name"])
         project_2_id = _get_authenticated_folder_id(
-            project_2_id,
-            DB.session.get(User, 2)
+            project_2_id, DB.session.get(User, 2)
         )
         # user_1 tries to see project 2
         response = self.client.get(f"/api/projects/{project_2_id}/info")
@@ -299,8 +293,7 @@ class TestConvertToAuthentication:
         # try to get project 2, we need the id first
         project_1_id = _create_project_id(PROJECTS[0]["name"])
         project_1_id = _get_authenticated_folder_id(
-            project_1_id,
-            DB.session.get(User, 1)
+            project_1_id, DB.session.get(User, 1)
         )
         # user_2 tries to see project 1
         response = self.client.get(f"/api/projects/{project_1_id}/info")
@@ -318,7 +311,6 @@ class TestConvertToAuthentication:
 
 @pytest.mark.usefixtures("no_auth_fixture_with_folder_removal")
 class TestBackToNoAuthentication:
-
     def test_projects_after_unauthentication(self):
         # test listing the projects throught the api
         response = self.client.get("/api/projects")
@@ -330,7 +322,7 @@ class TestBackToNoAuthentication:
             assert p["name"] in names
 
         # check what's in the asreview-folder to get ids
-        ids = [f.name for f in asreview_path().glob('*') if f.is_dir()]
+        ids = [f.name for f in asreview_path().glob("*") if f.is_dir()]
         for id in ids:
             # accessing the projects!!!
             response = self.client.get(f"/api/projects/{id}/info")

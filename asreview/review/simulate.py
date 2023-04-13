@@ -23,8 +23,8 @@ from asreview.utils import get_random_state
 
 
 def sample_prior_knowledge(
-        labels, n_prior_included=10,
-        n_prior_excluded=10, random_state=None):
+    labels, n_prior_included=10, n_prior_excluded=10, random_state=None
+):
     """Function to sample prelabelled articles.
 
     Arguments
@@ -58,17 +58,17 @@ def sample_prior_knowledge(
         raise ValueError(
             f"Number of included priors requested ({n_prior_included})"
             f" is bigger than number of included papers "
-            f"({len(included_idx)}).")
+            f"({len(included_idx)})."
+        )
     if len(excluded_idx) < n_prior_excluded:
         raise ValueError(
             f"Number of excluded priors requested ({n_prior_excluded})"
             f" is bigger than number of excluded papers "
-            f"({len(excluded_idx)}).")
+            f"({len(excluded_idx)})."
+        )
     # select randomly from included and excluded papers
-    included_indexes_sample = r.choice(
-        included_idx, n_prior_included, replace=False)
-    excluded_indexes_sample = r.choice(
-        excluded_idx, n_prior_excluded, replace=False)
+    included_indexes_sample = r.choice(included_idx, n_prior_included, replace=False)
+    excluded_indexes_sample = r.choice(excluded_idx, n_prior_excluded, replace=False)
 
     init = np.append(included_indexes_sample, excluded_indexes_sample)
 
@@ -123,16 +123,17 @@ class ReviewSimulate(BaseReview):
 
     name = "simulate"
 
-    def __init__(self,
-                 as_data,
-                 *args,
-                 n_prior_included=0,
-                 n_prior_excluded=0,
-                 prior_indices=None,
-                 init_seed=None,
-                 write_interval=None,
-                 **kwargs):
-
+    def __init__(
+        self,
+        as_data,
+        *args,
+        n_prior_included=0,
+        n_prior_excluded=0,
+        prior_indices=None,
+        init_seed=None,
+        write_interval=None,
+        **kwargs,
+    ):
         self.n_prior_included = n_prior_included
         self.n_prior_excluded = n_prior_excluded
 
@@ -149,14 +150,12 @@ class ReviewSimulate(BaseReview):
         else:
             start_idx = as_data.prior_data_idx
             if len(start_idx) == 0 and n_prior_included + n_prior_excluded > 0:
-                start_idx = sample_prior_knowledge(labels,
-                                                   n_prior_included,
-                                                   n_prior_excluded,
-                                                   random_state=init_seed)
-        super(ReviewSimulate, self).__init__(as_data,
-                                             *args,
-                                             start_idx=start_idx,
-                                             **kwargs)
+                start_idx = sample_prior_knowledge(
+                    labels, n_prior_included, n_prior_excluded, random_state=init_seed
+                )
+        super(ReviewSimulate, self).__init__(
+            as_data, *args, start_idx=start_idx, **kwargs
+        )
 
         # Setup the reviewer attributes that take over the role of state
         # functions.
@@ -168,9 +167,13 @@ class ReviewSimulate(BaseReview):
                 self.last_ranking = None
 
             self.labeled = state.get_labeled()
-            self.pool = pd.Series([
-                record_id for record_id in self.record_table if record_id
-                not in self.labeled['record_id'].values])
+            self.pool = pd.Series(
+                [
+                    record_id
+                    for record_id in self.record_table
+                    if record_id not in self.labeled["record_id"].values
+                ]
+            )
             self.training_set = len(self.labeled)
 
             # Get the number of queries.
@@ -180,16 +183,29 @@ class ReviewSimulate(BaseReview):
             self.total_queries = len(set(training_sets)) - 1
 
             # Check that both labels are available.
-            if (0 not in self.labeled['label'].values) or \
-                    (1 not in self.labeled['label'].values):
-                raise ValueError("Not both labels available Make sure there"
-                                 " is an included and excluded record in "
-                                 "the priors.")
+            if (0 not in self.labeled["label"].values) or (
+                1 not in self.labeled["label"].values
+            ):
+                raise ValueError(
+                    "Not both labels available Make sure there"
+                    " is an included and excluded record in "
+                    "the priors."
+                )
 
-        self.results = pd.DataFrame([], columns=[
-            'record_id', 'label', 'classifier', 'query_strategy',
-            'balance_strategy', 'feature_extraction', 'training_set',
-            'labeling_time', 'notes'])
+        self.results = pd.DataFrame(
+            [],
+            columns=[
+                "record_id",
+                "label",
+                "classifier",
+                "query_strategy",
+                "balance_strategy",
+                "feature_extraction",
+                "training_set",
+                "labeling_time",
+                "notes",
+            ],
+        )
 
     def _label_priors(self):
         """Make sure all the priors are labeled as well as the pending
@@ -197,8 +213,9 @@ class ReviewSimulate(BaseReview):
         with open_state(self.project, read_only=False) as state:
             # Make sure the prior records are labeled.
             labeled = state.get_labeled()
-            unlabeled_priors = [x for x in self.prior_indices
-                                if x not in labeled['record_id'].to_list()]
+            unlabeled_priors = [
+                x for x in self.prior_indices if x not in labeled["record_id"].to_list()
+            ]
             labels = self.data_labels[unlabeled_priors]
 
             with open_state(self.project, read_only=False) as s:
@@ -219,7 +236,7 @@ class ReviewSimulate(BaseReview):
 
         # If stop_if is set to min, stop when all papers in the pool are
         # irrelevant.
-        if self.stop_if == 'min' and (self.data_labels[self.pool] == 0).all():
+        if self.stop_if == "min" and (self.data_labels[self.pool] == 0).all():
             return True
 
         # Stop when reaching stop_if (if provided)
@@ -234,43 +251,44 @@ class ReviewSimulate(BaseReview):
         # Use the balance model to sample the trainings data.
         new_training_set = len(self.labeled)
 
-        y_sample_input = pd.DataFrame(self.record_table). \
-            merge(self.labeled, how='left', on='record_id'). \
-            loc[:, 'label']. \
-            fillna(LABEL_NA). \
-            to_numpy()
+        y_sample_input = (
+            pd.DataFrame(self.record_table)
+            .merge(self.labeled, how="left", on="record_id")
+            .loc[:, "label"]
+            .fillna(LABEL_NA)
+            .to_numpy()
+        )
         train_idx = np.where(y_sample_input != LABEL_NA)[0]
 
-        X_train, y_train = self.balance_model.sample(
-            self.X,
-            y_sample_input,
-            train_idx
-        )
+        X_train, y_train = self.balance_model.sample(self.X, y_sample_input, train_idx)
 
         # Fit the classifier on the trainings data.
         self.classifier.fit(X_train, y_train)
 
         # Use the query strategy to produce a ranking.
-        ranked_record_ids = \
-            self.query_strategy.query(self.X, classifier=self.classifier)
+        ranked_record_ids = self.query_strategy.query(
+            self.X, classifier=self.classifier
+        )
 
-        self.last_ranking = \
-            pd.concat([pd.Series(ranked_record_ids),
-                      pd.Series(range(len(ranked_record_ids)))], axis=1)
-        self.last_ranking.columns = ['record_id', 'label']
+        self.last_ranking = pd.concat(
+            [pd.Series(ranked_record_ids), pd.Series(range(len(ranked_record_ids)))],
+            axis=1,
+        )
+        self.last_ranking.columns = ["record_id", "label"]
 
         self.training_set = new_training_set
 
     def _query(self, n):
         """In simulation mode, the query function should get the n highest
         ranked unlabeled records, without writing the model data to the results
-        table. The """
+        table. The"""
         unlabeled_ranking = self.last_ranking[
-            self.last_ranking['record_id'].isin(self.pool)]
+            self.last_ranking["record_id"].isin(self.pool)
+        ]
 
         self.total_queries += 1
 
-        return unlabeled_ranking['record_id'].iloc[:n].to_list()
+        return unlabeled_ranking["record_id"].iloc[:n].to_list()
 
     def _label(self, record_ids, prior=False):
         """In simulation mode, the label function should also add the model
@@ -281,32 +299,34 @@ class ReviewSimulate(BaseReview):
 
         results = []
         for record_id, label in zip(record_ids, labels):
-            results.append({
-                'record_id': int(record_id),
-                'label': int(label),
-                'classifier': self.classifier.name,
-                'query_strategy': self.query_strategy.name,
-                'balance_strategy': self.balance_model.name,
-                'feature_extraction': self.feature_extraction.name,
-                'training_set': int(self.training_set),
-                'labeling_time': str(labeling_time),
-                'notes': None
-            })
+            results.append(
+                {
+                    "record_id": int(record_id),
+                    "label": int(label),
+                    "classifier": self.classifier.name,
+                    "query_strategy": self.query_strategy.name,
+                    "balance_strategy": self.balance_model.name,
+                    "feature_extraction": self.feature_extraction.name,
+                    "training_set": int(self.training_set),
+                    "labeling_time": str(labeling_time),
+                    "notes": None,
+                }
+            )
 
-        self.results = pd.concat([
-            self.results,
-            pd.DataFrame(results)
-        ], ignore_index=True)
+        self.results = pd.concat(
+            [self.results, pd.DataFrame(results)], ignore_index=True
+        )
 
         # Add the record ids to the labeled and remove from the pool.
-        new_labeled_data = pd.DataFrame(zip(record_ids, labels),
-                                        columns=['record_id', 'label'])
-        self.labeled = pd.concat(
-            [self.labeled, new_labeled_data], ignore_index=True)
+        new_labeled_data = pd.DataFrame(
+            zip(record_ids, labels), columns=["record_id", "label"]
+        )
+        self.labeled = pd.concat([self.labeled, new_labeled_data], ignore_index=True)
         self.pool = self.pool[~self.pool.isin(record_ids)]
 
-        if (self.write_interval is not None) and \
-                (len(self.results) >= self.write_interval):
+        if (self.write_interval is not None) and (
+            len(self.results) >= self.write_interval
+        ):
             self._write_to_state()
 
         return labels
@@ -315,18 +335,18 @@ class ReviewSimulate(BaseReview):
         """Write the data that has not yet been written to the state."""
         # Write the data to the state.
         if len(self.results) > 0:
-            rows = [tuple(self.results.iloc[i])
-                    for i in range(len(self.results))]
+            rows = [tuple(self.results.iloc[i]) for i in range(len(self.results))]
             with open_state(self.project, read_only=False) as state:
                 state._add_labeling_data_simulation_mode(rows)
 
                 state.add_last_ranking(
-                    self.last_ranking['record_id'].to_numpy(),
+                    self.last_ranking["record_id"].to_numpy(),
                     self.classifier.name,
                     self.query_strategy.name,
                     self.balance_model.name,
                     self.feature_extraction.name,
-                    self.training_set)
+                    self.training_set,
+                )
 
             # Empty the results table in memory.
             self.results.drop(self.results.index, inplace=True)

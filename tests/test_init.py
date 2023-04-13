@@ -50,10 +50,8 @@ def test_init_seed(tmpdir, seed):
 
 
 def test_no_seed(tmpdir):
-
     priors = []
     for i in range(20):
-
         # get project url
         project_fp = Path(tmpdir, f"tmp_state_{i}.asreview")
 
@@ -80,7 +78,6 @@ def test_no_seed(tmpdir):
     ],
 )
 def test_model_seed(tmpdir, seed):
-
     project1_fp = Path(tmpdir, "tmp_state1.asreview")
     project2_fp = Path(tmpdir, "tmp_state2.asreview")
 

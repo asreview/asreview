@@ -43,9 +43,9 @@ from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
 # set logging level
 if (
-    os.environ.get("FLASK_DEBUG", "") == "1" or
-    os.environ.get("DEBUG", "") == "1" or
-    os.environ.get("FLASK_ENV", "") == "development"
+    os.environ.get("FLASK_DEBUG", "") == "1"
+    or os.environ.get("DEBUG", "") == "1"
+    or os.environ.get("FLASK_ENV", "") == "development"
 ):
     logging.basicConfig(level=logging.DEBUG)
 else:
@@ -102,7 +102,6 @@ def _open_browser(host, port, protocol, no_browser):
 
 
 def create_app(**kwargs):
-
     app = Flask(
         __name__,
         instance_relative_config=True,
@@ -112,8 +111,7 @@ def create_app(**kwargs):
 
     # Get the ASReview arguments.
     app.config["asr_kwargs"] = kwargs
-    app.config["AUTHENTICATION_ENABLED"] = kwargs.get(
-        "enable_authentication", False)
+    app.config["AUTHENTICATION_ENABLED"] = kwargs.get("enable_authentication", False)
     app.config["SECRET_KEY"] = kwargs.get("secret_key", False)
     app.config["SECURITY_PASSWORD_SALT"] = kwargs.get("salt", False)
 
@@ -126,11 +124,11 @@ def create_app(**kwargs):
     # set env (test / development / production) according to
     # Flask 2.2 specs (ENV is deprecated)
     if app.config.get("TESTING", None) is True:
-        env = 'test'
+        env = "test"
     elif app.config.get("DEBUG", None) is True:
-        env = 'development'
+        env = "development"
     else:
-        env = 'production'
+        env = "production"
 
     # config JSON Web Tokens
     login_manager = LoginManager(app)
@@ -156,14 +154,14 @@ def create_app(**kwargs):
         # TODO: should I raise a custom Exception, like MissingParameterError?
         if not app.config.get("SECRET_KEY", False):
             raise ValueError(
-                "Please start an authenticated app with a " +
-                "secret key parameter (SECRET_KEY)"
+                "Please start an authenticated app with a "
+                + "secret key parameter (SECRET_KEY)"
             )
 
         if not app.config.get("SECURITY_PASSWORD_SALT", False):
             raise ValueError(
-                "Please start an authenticated app with a " +
-                "security password salt (SECURITY_PASSWORD_SALT)"
+                "Please start an authenticated app with a "
+                + "security password salt (SECURITY_PASSWORD_SALT)"
             )
 
         if app.config.get("EMAIL_VERIFICATION", False) and not app.config.get(
@@ -303,7 +301,6 @@ def create_app(**kwargs):
 
 
 def main(argv):
-
     parser = _lab_parser(prog="lab")
     args = parser.parse_args(argv)
 

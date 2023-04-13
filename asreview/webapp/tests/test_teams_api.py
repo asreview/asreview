@@ -224,7 +224,7 @@ def test_invitation_overview(populate):
     assert resp.status == "200 OK"
 
     data = json.loads(resp.text)
-    assert ("invited_for_projects" in data.keys())
+    assert "invited_for_projects" in data.keys()
     assert len(data["invited_for_projects"]) == 1
     assert data["invited_for_projects"][0]["id"] == project.id
 

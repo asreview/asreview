@@ -48,13 +48,21 @@ LEGACY_STATE_EXTENSIONS = [".h5", ".hdf5", ".he5", ".json"]
 COLUMN_DEFINITIONS = {
     # included
     "included": [
-        "final_included", "label", "label_included", "included_label",
-        "included_final", "included", "included_flag", "include"
+        "final_included",
+        "label",
+        "label_included",
+        "included_label",
+        "included_final",
+        "included",
+        "included_flag",
+        "include",
     ],
     # abstract included (pending deprecation)
     "abstract_included": [
-        "abstract_included", "included_abstract", "included_after_abstract",
-        "label_abstract_screening"
+        "abstract_included",
+        "included_abstract",
+        "included_after_abstract",
+        "label_abstract_screening",
     ],
     "title": ["title", "primary_title"],
     "authors": ["authors", "author names", "first_authors"],
@@ -87,24 +95,16 @@ SCHEMA = {
                     "id": "4793de70a8d44eb4baa68bac2853c91a",
                     "start_time": "2022-03-25 11:55:50.551360",
                     "status": "review",
-                    "end_time": "2022-03-26 10:31:52.441360"
+                    "end_time": "2022-03-26 10:31:52.441360",
                 }
             ],
             "feature_matrices": [
-                {
-                    "id": "tfidf",
-                    "filename": "tfidf_feature_matrix.npz"
-                }
+                {"id": "tfidf", "filename": "tfidf_feature_matrix.npz"}
             ],
-            "dataset_path": "example.ris"
+            "dataset_path": "example.ris",
         }
     ],
-    "required": [
-        "version",
-        "id",
-        "mode",
-        "name"
-    ],
+    "required": ["version", "id", "mode", "name"],
     "properties": {
         "version": {
             "$id": "#/properties/version",
@@ -112,9 +112,7 @@ SCHEMA = {
             "title": "The version schema",
             "description": "The version of ASReview on initiation of the project.",
             "default": "",
-            "examples": [
-                "1.0"
-            ]
+            "examples": ["1.0"],
         },
         "id": {
             "$id": "#/properties/id",
@@ -122,9 +120,7 @@ SCHEMA = {
             "title": "The id schema",
             "description": "The unique identifier of the project.",
             "default": "",
-            "examples": [
-                "example"
-            ]
+            "examples": ["example"],
         },
         "mode": {
             "$id": "#/properties/mode",
@@ -133,74 +129,47 @@ SCHEMA = {
             "description": "The mode of the project. One of oracle, explore, or simulate.",
             "default": "",
             "enum": PROJECT_MODES,
-            "examples": [
-                "oracle"
-            ]
+            "examples": ["oracle"],
         },
         "name": {
             "$id": "#/properties/name",
-            "type": [
-                "string",
-                "null"
-            ],
+            "type": ["string", "null"],
             "title": "The name schema",
             "description": "The name of the project.",
             "default": "",
-            "examples": [
-                "example"
-            ]
+            "examples": ["example"],
         },
         "description": {
             "$id": "#/properties/description",
-            "type": [
-                "string",
-                "null"
-            ],
+            "type": ["string", "null"],
             "title": "The description schema",
             "description": "The description of the project.",
             "default": "",
-            "examples": [
-                ""
-            ]
+            "examples": [""],
         },
         "authors": {
             "$id": "#/properties/authors",
-            "type": [
-                "string",
-                "null"
-            ],
+            "type": ["string", "null"],
             "title": "The authors schema",
             "description": "The authors of the project.",
             "default": "",
-            "examples": [
-                ""
-            ]
+            "examples": [""],
         },
         "created_at_unix": {
             "$id": "#/properties/created_at_unix",
-            "type": [
-                "integer",
-                "null"
-            ],
+            "type": ["integer", "null"],
             "title": "The created_at_unix schema",
             "description": "An explanation about the purpose of this instance.",
             "default": 0,
-            "examples": [
-                1648205610
-            ]
+            "examples": [1648205610],
         },
         "datetimeCreated": {
             "$id": "#/properties/datetimeCreated",
-            "type": [
-                "string",
-                "null"
-            ],
+            "type": ["string", "null"],
             "title": "The datetimeCreated schema",
             "description": "The date and time of the project creation.",
             "default": "",
-            "examples": [
-                "2022-03-25 11:53:30.510461"
-            ]
+            "examples": ["2022-03-25 11:53:30.510461"],
         },
         "reviews": {
             "$id": "#/properties/reviews",
@@ -213,7 +182,7 @@ SCHEMA = {
                     {
                         "id": "4793de70a8d44eb4baa68bac2853c91a",
                         "start_time": "2022-03-25 11:55:50.551360",
-                        "status": "review"
+                        "status": "review",
                     }
                 ]
             ],
@@ -231,14 +200,10 @@ SCHEMA = {
                             {
                                 "id": "4793de70a8d44eb4baa68bac2853c91a",
                                 "start_time": "2022-03-25 11:55:50.551360",
-                                "status": "review"
+                                "status": "review",
                             }
                         ],
-                        "required": [
-                            "id",
-                            "start_time",
-                            "status"
-                        ],
+                        "required": ["id", "start_time", "status"],
                         "properties": {
                             "id": {
                                 "$id": "#/properties/reviews/items/anyOf/0/properties/id",
@@ -246,9 +211,7 @@ SCHEMA = {
                                 "title": "The id of the review.",
                                 "description": "A unique UUID4 identifier of the review.",
                                 "default": "",
-                                "examples": [
-                                    "4793de70a8d44eb4baa68bac2853c91a"
-                                ]
+                                "examples": ["4793de70a8d44eb4baa68bac2853c91a"],
                             },
                             "start_time": {
                                 "$id": "#/properties/reviews/items/anyOf/0/properties/start_time",
@@ -256,9 +219,7 @@ SCHEMA = {
                                 "title": "The start_time of the review.",
                                 "description": "The start date and time of the review.",
                                 "default": "",
-                                "examples": [
-                                    "2022-03-25 11:55:50.551360"
-                                ]
+                                "examples": ["2022-03-25 11:55:50.551360"],
                             },
                             "end_time": {
                                 "$id": "#/properties/reviews/items/anyOf/0/properties/start_time",
@@ -266,29 +227,22 @@ SCHEMA = {
                                 "title": "The end_time of the review.",
                                 "description": "The end date and time of the review.",
                                 "default": "",
-                                "examples": [
-                                    "2022-03-26 10:31:52.441360"
-                                ]
+                                "examples": ["2022-03-26 10:31:52.441360"],
                             },
                             "status": {
                                 "$id": "#/properties/reviews/items/anyOf/0/properties/status",
-                                "type": [
-                                    "string",
-                                    "null"
-                                ],
+                                "type": ["string", "null"],
                                 "title": "The status of the review.",
                                 "description": "The status of the review. Options are setup, review, finished.",
                                 "enum": ["setup", "review", "finished"],
                                 "default": "setup",
-                                "examples": [
-                                    "review"
-                                ]
-                            }
+                                "examples": ["review"],
+                            },
                         },
-                        "additionalProperties": True
+                        "additionalProperties": True,
                     }
-                ]
-            }
+                ],
+            },
         },
         "feature_matrices": {
             "$id": "#/properties/feature_matrices",
@@ -296,14 +250,7 @@ SCHEMA = {
             "title": "The feature_matrices schema",
             "description": "Information about the feature matrices.",
             "default": [],
-            "examples": [
-                [
-                    {
-                        "id": "tfidf",
-                        "filename": "tfidf_feature_matrix.npz"
-                    }
-                ]
-            ],
+            "examples": [[{"id": "tfidf", "filename": "tfidf_feature_matrix.npz"}]],
             "additionalItems": True,
             "items": {
                 "$id": "#/properties/feature_matrices/items",
@@ -315,15 +262,9 @@ SCHEMA = {
                         "description": "Information about a feature matrix.",
                         "default": {},
                         "examples": [
-                            {
-                                "id": "tfidf",
-                                "filename": "tfidf_feature_matrix.npz"
-                            }
+                            {"id": "tfidf", "filename": "tfidf_feature_matrix.npz"}
                         ],
-                        "required": [
-                            "id",
-                            "filename"
-                        ],
+                        "required": ["id", "filename"],
                         "properties": {
                             "id": {
                                 "$id": "#/properties/feature_matrices/items/anyOf/0/properties/id",
@@ -331,9 +272,7 @@ SCHEMA = {
                                 "title": "The id schema",
                                 "description": "A unique id of the feature matrix.",
                                 "default": "",
-                                "examples": [
-                                    "tfidf"
-                                ]
+                                "examples": ["tfidf"],
                             },
                             "filename": {
                                 "$id": "#/properties/feature_matrices/items/anyOf/0/properties/filename",
@@ -341,29 +280,22 @@ SCHEMA = {
                                 "title": "The filename schema",
                                 "description": "The name of the file with the feature matrix. Usually a sparse matrix.",
                                 "default": "",
-                                "examples": [
-                                    "tfidf_feature_matrix.npz"
-                                ]
-                            }
+                                "examples": ["tfidf_feature_matrix.npz"],
+                            },
                         },
-                        "additionalProperties": True
+                        "additionalProperties": True,
                     }
-                ]
-            }
+                ],
+            },
         },
         "dataset_path": {
             "$id": "#/properties/dataset_path",
-            "type": [
-                "string",
-                "null"
-            ],
+            "type": ["string", "null"],
             "title": "The dataset_path schema",
             "description": "Name of the dataset file.",
             "default": "",
-            "examples": [
-                "example.ris"
-            ]
-        }
+            "examples": ["example.ris"],
+        },
     },
-    "additionalProperties": True
+    "additionalProperties": True,
 }

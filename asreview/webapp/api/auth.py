@@ -33,7 +33,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import SQLAlchemyError
 
 from asreview.webapp import DB
-from asreview.webapp.authentication.login_required import asreview_login_required  # NOQA
+from asreview.webapp.authentication.login_required import (
+    asreview_login_required,
+)  # NOQA
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
@@ -57,7 +59,7 @@ def perform_login_user(user):
 # TODO: not sure if this file is the right place for this function
 def send_forgot_password_email(user, cur_app):
     # do not send email in test environment
-    if (cur_app.config['ENV'] or '').lower() != 'test':
+    if (cur_app.config["ENV"] or "").lower() != "test":
         # get necessary information out of user object
         name = user.name or "ASReview user"
         # email config
@@ -89,7 +91,7 @@ def send_forgot_password_email(user, cur_app):
 # TODO: not sure if this file is the right place for this function
 def send_confirm_account_email(user, cur_app):
     # do not send email in test environment
-    if (cur_app.config['ENV'] or '').lower() != 'test':
+    if (cur_app.config["ENV"] or "").lower() != "test":
         # get necessary information out of user object
         name = user.name or "ASReview user"
         # email config
@@ -224,8 +226,8 @@ def signup():
                     # result
                     result = (
                         200,
-                        f"An email has been sent to {user.email} to verify " +
-                        "your account. Please follow instructions.",
+                        f"An email has been sent to {user.email} to verify "
+                        + "your account. Please follow instructions.",
                     )
                 else:
                     # result is a 201 with message
@@ -261,8 +263,8 @@ def confirm_account():
             result = (404, "No user account / correct token found")
         elif not user.token_valid(token, max_hours=24):
             message = (
-                "Can not confirm account, token has expired. " +
-                'Use "forgot password" to obtain a new one.'
+                "Can not confirm account, token has expired. "
+                + 'Use "forgot password" to obtain a new one.'
             )
             result = (403, message)
         else:
@@ -284,7 +286,6 @@ def confirm_account():
 @bp.route("/get_profile", methods=["GET"])
 @asreview_login_required
 def get_profile():
-
     user = User.query.get(current_user.id)
     if user:
         result = (
@@ -307,9 +308,7 @@ def get_profile():
 
 @bp.route("/forgot_password", methods=["POST"])
 def forgot_password():
-
     if current_app.config.get("EMAIL_VERIFICATION", False):
-
         # get email address from request
         email_address = request.form.get("email", "").strip()
 
@@ -446,8 +445,10 @@ def oauth_callback():
 
     # assuming we have this provider
     oauth_handler = current_app.config.get("OAUTH", False)
-    if isinstance(oauth_handler, OAuthHandler) and \
-            provider in oauth_handler.providers():
+    if (
+        isinstance(oauth_handler, OAuthHandler)
+        and provider in oauth_handler.providers()
+    ):
         # get user credentials for this user
         (identifier, email, name) = oauth_handler.get_user_credentials(
             provider, code, redirect_uri

@@ -26,15 +26,15 @@ from asreview.utils import get_data_home
 
 from ._version import get_versions
 
-__version__ = get_versions()['version']
+__version__ = get_versions()["version"]
 del get_versions
 
 __all__ = [
-    'asreview_path',
-    'ASReviewData',
-    'ASReviewProject',
-    'get_data_home',
-    'list_readers',
-    'list_writers',
-    'open_state'
+    "asreview_path",
+    "ASReviewData",
+    "ASReviewProject",
+    "get_data_home",
+    "list_readers",
+    "list_writers",
+    "open_state",
 ]

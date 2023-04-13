@@ -167,12 +167,12 @@ class BaseReview(ABC):
         pbar_rel = tqdm(
             initial=sum(labels_prior),
             total=sum(self.as_data.labels),
-            desc="Relevant records found"
+            desc="Relevant records found",
         )
         pbar_total = tqdm(
             initial=len(labels_prior),
             total=len(self.as_data),
-            desc="Records labeled       "
+            desc="Records labeled       ",
         )
 
         # While the stopping condition has not been met:

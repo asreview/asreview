@@ -79,7 +79,9 @@ from asreview.utils import _get_executable
 from asreview.utils import asreview_path
 from asreview.utils import list_reader_names
 from asreview.webapp import DB
-from asreview.webapp.authentication.login_required import asreview_login_required  # NOQA
+from asreview.webapp.authentication.login_required import (
+    asreview_login_required,
+)  # NOQA
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.io import read_data
 
@@ -120,9 +122,7 @@ def _get_authenticated_folder_id(project_id, user):
     ).one_or_none()
 
     # project exists and user -is- owner OR this is a new project
-    if (project_from_db and user == project_from_db.owner) or (
-        project_from_db is None
-    ):
+    if (project_from_db and user == project_from_db.owner) or (project_from_db is None):
         project_uuid = _get_project_uuid(project_id, user.id)
 
     # project exists but user is a collaborator
@@ -139,6 +139,7 @@ def _get_authenticated_folder_id(project_id, user):
 def project_authorization(f):
     """Decorator function that checks if current user can access
     a project in an authenticated situation"""
+
     @wraps(f)
     def decorated_function(project_id, *args, **kwargs):
         if app_is_authenticated(current_app):
@@ -159,7 +160,6 @@ def project_authorization(f):
 
 @bp.errorhandler(ValueError)
 def value_error(e):
-
     message = str(e) if str(e) else "Incorrect value."
     logging.error(message)
     return jsonify(message=message), 400
@@ -196,11 +196,8 @@ def api_get_projects():  # noqa: F401
 
     if app_is_authenticated(current_app):
         # authenticated with User accounts
-        user_db_projects = list(current_user.projects) + \
-            list(current_user.involved_in)
-        project_paths = [
-            project.project_path for project in user_db_projects
-        ]
+        user_db_projects = list(current_user.projects) + list(current_user.involved_in)
+        project_paths = [project.project_path for project in user_db_projects]
         owner_ids = [project.owner_id for project in user_db_projects]
         projects = get_projects(project_paths)
     else:
@@ -247,11 +244,8 @@ def api_get_projects_stats():  # noqa: F401
     stats_counter = {"n_in_review": 0, "n_finished": 0, "n_setup": 0}
 
     if app_is_authenticated(current_app):
-        user_db_projects = list(current_user.projects) + \
-            list(current_user.involved_in)
-        project_paths = [
-            project.project_path for project in user_db_projects
-        ]
+        user_db_projects = list(current_user.projects) + list(current_user.involved_in)
+        project_paths = [project.project_path for project in user_db_projects]
     else:
         # force get_projects to list the .asreview folder
         project_paths = None
@@ -297,16 +291,16 @@ def api_init_project():  # noqa: F401
 
     plaintext_project_id = _create_project_id(project_name)
 
-    if not plaintext_project_id and not isinstance(plaintext_project_id, str) \
-            and len(plaintext_project_id) >= 3:
+    if (
+        not plaintext_project_id
+        and not isinstance(plaintext_project_id, str)
+        and len(plaintext_project_id) >= 3
+    ):
         raise ValueError("Project name should be at least 3 characters.")
 
     # generate a project path
     if app_is_authenticated(current_app):
-        project_id = _get_authenticated_folder_id(
-            plaintext_project_id,
-            current_user
-        )
+        project_id = _get_authenticated_folder_id(plaintext_project_id, current_user)
     else:
         project_id = plaintext_project_id
 
@@ -324,9 +318,7 @@ def api_init_project():  # noqa: F401
 
     # create a database entry for this project
     if app_is_authenticated(current_app):
-        current_user.projects.append(
-            Project(project_id=project_id)
-        )
+        current_user.projects.append(Project(project_id=project_id))
         DB.session.commit()
 
     response = jsonify(project.config)
@@ -393,8 +385,7 @@ def api_update_project_info(project):  # noqa: F401
 
             if app_is_authenticated(current_app):
                 new_project_id = _get_authenticated_folder_id(
-                    plaintext_new_project_id,
-                    current_user
+                    plaintext_new_project_id, current_user
                 )
             else:
                 new_project_id = plaintext_new_project_id
@@ -416,9 +407,7 @@ def api_update_project_info(project):  # noqa: F401
                         Project.owner_id == current_user.id,
                         Project.project_id == old_project_id,
                     )
-                ).update(
-                    {"project_id": new_project_id}
-                )
+                ).update({"project_id": new_project_id})
                 DB.session.commit()
 
     # update the project info
@@ -441,7 +430,6 @@ def api_demo_data_project():  # noqa: F401
     manager = DatasetManager()
 
     if subset == "plugin":
-
         try:
             result_datasets = manager.list(
                 exclude=["builtin", "benchmark", "benchmark-nature"]
@@ -452,7 +440,6 @@ def api_demo_data_project():  # noqa: F401
             return jsonify(message="Failed to load plugin datasets."), 500
 
     elif subset == "benchmark":
-
         try:
             # collect the datasets metadata
             result_datasets = manager.list(include=["benchmark-nature", "benchmark"])
@@ -490,15 +477,15 @@ def api_upload_data_to_project(project):  # noqa: F401
     Path(project.project_path, "data").mkdir(exist_ok=True)
 
     if request.form.get("plugin", None):
-        url = DatasetManager().find(request.form['plugin']).filepath
+        url = DatasetManager().find(request.form["plugin"]).filepath
         filename, url = _get_filename_from_url(url)
 
     if request.form.get("benchmark", None):
-        url = DatasetManager().find(request.form['benchmark']).filepath
+        url = DatasetManager().find(request.form["benchmark"]).filepath
         filename, url = _get_filename_from_url(url)
 
     if request.form.get("url", None):
-        url = request.form.get('url')
+        url = request.form.get("url")
 
         # check if url value is actually DOI without netloc
         if url.startswith("10."):
@@ -506,12 +493,14 @@ def api_upload_data_to_project(project):  # noqa: F401
 
         filename, url = _get_filename_from_url(url)
 
-        if bool(request.form.get('validate', None)):
-
+        if bool(request.form.get("validate", None)):
             reader_keys = list_reader_names()
 
-            if filename and Path(filename).suffix and \
-                    Path(filename).suffix in reader_keys:
+            if (
+                filename
+                and Path(filename).suffix
+                and Path(filename).suffix in reader_keys
+            ):
                 return jsonify(files=[{"link": url, "name": filename}]), 201
             elif filename and not Path(filename).suffix:
                 raise BadFileFormatError("Can't determine file format.")
@@ -522,35 +511,33 @@ def api_upload_data_to_project(project):  # noqa: F401
                     files = dh.files.copy()
 
                     for i, f in enumerate(files):
-                        files[i]["disabled"] = Path(
-                            files[i]["name"]).suffix not in reader_keys
+                        files[i]["disabled"] = (
+                            Path(files[i]["name"]).suffix not in reader_keys
+                        )
 
                     return jsonify(files=files), 201
                 except Exception:
                     raise BadFileFormatError("Can't retrieve files.")
 
     if (
-        request.form.get("plugin", None) or
-        request.form.get("benchmark", None) or
-        request.form.get("url", None)
+        request.form.get("plugin", None)
+        or request.form.get("benchmark", None)
+        or request.form.get("url", None)
     ):
         try:
             urlretrieve(url, Path(project.project_path, "data") / filename)
         except Exception as err:
-
             logging.error(err)
             message = f"Can't retrieve data from URL {url}."
 
             return jsonify(message=message), 400
 
     elif "file" in request.files:
-
         data_file = request.files["file"]
 
         # check the file is file is in a correct format
         # check_dataset(data_file)
         try:
-
             filename = secure_filename(data_file.filename)
             fp_data = Path(project.project_path, "data") / filename
 
@@ -558,7 +545,6 @@ def api_upload_data_to_project(project):  # noqa: F401
             data_file.save(str(fp_data))
 
         except Exception as err:
-
             logging.error(err)
 
             response = jsonify(message=f"Failed to upload file '{filename}'. {err}")
@@ -569,7 +555,6 @@ def api_upload_data_to_project(project):  # noqa: F401
         return response, 400
 
     if project_config["mode"] == PROJECT_MODE_EXPLORE:
-
         data_path_raw = Path(project.project_path, "data") / filename
         data_path = data_path_raw.with_suffix(".csv")
 
@@ -584,7 +569,6 @@ def api_upload_data_to_project(project):  # noqa: F401
         data.to_file(data_path)
 
     elif project_config["mode"] == PROJECT_MODE_SIMULATE:
-
         data_path_raw = Path(project.project_path, "data") / filename
         data_path = data_path_raw.with_suffix(".csv")
 
@@ -625,7 +609,6 @@ def api_get_project_data(project):  # noqa: F401
         return response, 404
 
     try:
-
         # get statistics of the dataset
         as_data = read_data(project)
 
@@ -694,7 +677,7 @@ def api_list_dataset_writers(project):
         payload["result"] = [
             i
             for n, i in enumerate(payload["result"])
-            if i not in payload["result"][(n + 1):]
+            if i not in payload["result"][(n + 1) :]
         ]
 
     except Exception as err:
@@ -720,7 +703,6 @@ def api_search_data(project):  # noqa: F401
     try:
         payload = {"result": []}
         if q:
-
             # read the dataset
             as_data = read_data(project)
 
@@ -738,7 +720,6 @@ def api_search_data(project):  # noqa: F401
             )
 
             for record in as_data.record(result_idx):
-
                 debug_label = record.extra_fields.get("debug_label", None)
                 debug_label = int(debug_label) if pd.notnull(debug_label) else None
 
@@ -786,7 +767,6 @@ def api_get_labeled(project):  # noqa: F401
     latest_first = request.args.get("latest_first", default=1, type=int)
 
     try:
-
         with open_state(project.project_path) as s:
             data = s.get_dataset(["record_id", "label", "query_strategy", "notes"])
             data["prior"] = (data["query_strategy"] == "prior").astype(int)
@@ -858,7 +838,6 @@ def api_get_labeled(project):  # noqa: F401
             "result": [],
         }
         for i, record in zip(data.index.tolist(), records):
-
             payload["result"].append(
                 {
                     "id": int(record.record_id),
@@ -891,7 +870,6 @@ def api_get_labeled_stats(project):  # noqa: F401
     """Get all papers classified as prior documents"""
 
     try:
-
         with open_state(project.project_path) as s:
             data = s.get_dataset(["label", "query_strategy"])
             data_prior = data[data["query_strategy"] == "prior"]
@@ -1088,7 +1066,6 @@ def api_list_algorithms():
 @project_authorization
 @project_from_id
 def api_get_algorithms(project):  # noqa: F401
-
     default_payload = {
         "model": DEFAULT_MODEL,
         "feature_extraction": DEFAULT_FEATURE_EXTRACTION,
@@ -1098,7 +1075,6 @@ def api_get_algorithms(project):  # noqa: F401
 
     # check if there were algorithms stored in the state file
     try:
-
         with open_state(project.project_path) as state:
             if state.settings is not None:
                 payload = {
@@ -1109,7 +1085,7 @@ def api_get_algorithms(project):  # noqa: F401
                 }
             else:
                 payload = default_payload
-    except (StateNotFoundError):
+    except StateNotFoundError:
         payload = default_payload
 
     response = jsonify(payload)
@@ -1122,7 +1098,6 @@ def api_get_algorithms(project):  # noqa: F401
 @project_authorization
 @project_from_id
 def api_set_algorithms(project):  # noqa: F401
-
     # TODO@{Jonathan} validate model choice on server side
     ml_model = request.form.get("model", None)
     ml_query_strategy = request.form.get("query_strategy", None)
@@ -1160,7 +1135,6 @@ def api_start(project):  # noqa: F401
 
     # the project is a simulation project
     if project.config["mode"] == PROJECT_MODE_SIMULATE:
-
         # get priors
         with open_state(project.project_path) as s:
             priors = s.get_priors()["record_id"].tolist()
@@ -1168,7 +1142,6 @@ def api_start(project):  # noqa: F401
         logging.info("Start simulation")
 
         try:
-
             datafile = project.config["dataset_path"]
             logging.info("Project data file found: {}".format(datafile))
 
@@ -1187,9 +1160,9 @@ def api_start(project):  # noqa: F401
                     "",
                     # specify prior indices
                     "--prior_idx",
-                ] +
-                list(map(str, priors)) +
-                [
+                ]
+                + list(map(str, priors))
+                + [
                     # specify state file
                     "--state_file",
                     str(project.project_path),
@@ -1207,7 +1180,6 @@ def api_start(project):  # noqa: F401
 
     # the project is an oracle or explore project
     else:
-
         logging.info("Train first iteration of model")
         try:
             # start training the model
@@ -1363,13 +1335,15 @@ def api_export_dataset(project):
         excluded = labeled[labeled["label"] != 1]
 
         if dataset_label == "relevant":
-            export_order = included['record_id'].to_list()
+            export_order = included["record_id"].to_list()
             labeled = included
         else:
-            export_order = included['record_id'].to_list() + \
-                pending.to_list() + \
-                pool.to_list() + \
-                excluded['record_id'].to_list()
+            export_order = (
+                included["record_id"].to_list()
+                + pending.to_list()
+                + pool.to_list()
+                + excluded["record_id"].to_list()
+            )
 
         # get writer corresponding to specified file format
         writers = list_writers()
@@ -1396,13 +1370,14 @@ def api_export_dataset(project):
         screening += 1
 
         state_df.rename(
-            columns={"notes": f"exported_notes_{screening}", },
+            columns={
+                "notes": f"exported_notes_{screening}",
+            },
             inplace=True,
         )
 
         as_data.df = as_data.df.join(
-            state_df[f"exported_notes_{screening}"],
-            on="record_id"
+            state_df[f"exported_notes_{screening}"], on="record_id"
         )
 
         as_data.to_file(
@@ -1452,15 +1427,12 @@ def export_project(project):
 
 
 def _get_stats(project, include_priors=False):
-
     try:
-
         if is_v0_project(project.project_path):
             json_fp = Path(project.project_path, "result.json")
 
             # Check if the v0 project is in review.
             if json_fp.exists():
-
                 with open(json_fp, "r") as f:
                     s = json.load(f)
 
@@ -1488,10 +1460,9 @@ def _get_stats(project, include_priors=False):
             try:
                 # get label history
                 with open_state(project.project_path) as s:
-
                     if (
-                        project.config["reviews"][0]["status"] == "finished" and
-                        project.config["mode"] == PROJECT_MODE_SIMULATE
+                        project.config["reviews"][0]["status"] == "finished"
+                        and project.config["mode"] == PROJECT_MODE_SIMULATE
                     ):
                         labels = _get_labels(s, priors=include_priors)
                     else:
@@ -1526,7 +1497,6 @@ def _get_stats(project, include_priors=False):
 
 
 def _get_labels(state_obj, priors=False):
-
     # get the number of records
     n_records = state_obj.n_records
 
@@ -1568,10 +1538,9 @@ def api_get_progress_density(project):
     try:
         # get label history
         with open_state(project.project_path) as s:
-
             if (
-                project.config["reviews"][0]["status"] == "finished" and
-                project.config["mode"] == PROJECT_MODE_SIMULATE
+                project.config["reviews"][0]["status"] == "finished"
+                and project.config["mode"] == PROJECT_MODE_SIMULATE
             ):
                 data = _get_labels(s, priors=include_priors)
             else:
@@ -1631,10 +1600,9 @@ def api_get_progress_recall(project):
 
     try:
         with open_state(project.project_path) as s:
-
             if (
-                project.config["reviews"][0]["status"] == "finished" and
-                project.config["mode"] == PROJECT_MODE_SIMULATE
+                project.config["reviews"][0]["status"] == "finished"
+                and project.config["mode"] == PROJECT_MODE_SIMULATE
             ):
                 data = _get_labels(s, priors=include_priors)
             else:
@@ -1696,29 +1664,29 @@ def api_classify_instance(project, doc_id):  # noqa: F401
     prior = True if is_prior == "1" else False
 
     if request.method == "POST":
-
         with open_state(project.project_path, read_only=False) as state:
-
             # add the labels as prior data
             state.add_labeling_data(
                 record_ids=[record_id], labels=[label], notes=[note], prior=prior
             )
 
     elif request.method == "PUT":
-
         with open_state(project.project_path, read_only=False) as state:
-
             if label in [0, 1]:
                 state.update_decision(record_id, label, note=note)
             elif label == -1:
                 state.delete_record_labeling_data(record_id)
 
     if retrain_model:
-
         # retrain model
         subprocess.Popen(
-            [_get_executable(), "-m", "asreview", "web_run_model",
-             str(project.project_path)]
+            [
+                _get_executable(),
+                "-m",
+                "asreview",
+                "web_run_model",
+                str(project.project_path),
+            ]
         )
 
     response = jsonify({"success": True})
@@ -1740,7 +1708,6 @@ def api_get_document(project):  # noqa: F401
     client side.
     """
     try:
-
         with open_state(project.project_path, read_only=False) as state:
             # First check if there is a pending record.
             _, _, pending = state.get_pool_labeled_pending()
@@ -1798,7 +1765,6 @@ def api_delete_project(project):  # noqa: F401
 
     if project.project_path.exists() and project.project_path.is_dir():
         try:
-
             # remove from database if applicable
             if app_is_authenticated(current_app):
                 project = Project.query.filter(

@@ -27,7 +27,6 @@ def test_record_id():
 
 
 def test_column_names_with_spaces():
-
     data_fp = Path("tests", "demo_data", "generic.csv")
     as_data = ASReviewData.from_file(data_fp)
 
@@ -42,7 +41,6 @@ def test_column_names_with_spaces():
 
 
 def test_asdata_init():
-
     data_fp = Path("tests", "demo_data", "generic.csv")
 
     # data via pandas

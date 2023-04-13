@@ -7,7 +7,9 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from asreview.project import ASReviewProject
 from asreview.webapp import DB
-from asreview.webapp.authentication.login_required import asreview_login_required  # NOQA
+from asreview.webapp.authentication.login_required import (
+    asreview_login_required,
+)  # NOQA
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 
@@ -32,7 +34,6 @@ def users(project_id):
 
     # check if this project is in fact from current user
     if project in current_user.projects:
-
         # get associated users from project
         collaborators = project.collaborators
         invitations = project.pending_invitations
@@ -44,9 +45,9 @@ def users(project_id):
         # get all users minus myself
         all_users = [
             u.summarize()
-            for u in User.query.filter(
-                and_(User.public, User.id != current_user.id)
-            ).order_by("name").all()
+            for u in User.query.filter(and_(User.public, User.id != current_user.id))
+            .order_by("name")
+            .all()
         ]
 
         # response
@@ -77,7 +78,6 @@ def end_collaboration(project_id, user_id):
     if project and (
         (project.owner == current_user) or (project in current_user.involved_in)
     ):
-
         user = DB.session.get(User, user_id)
 
         try:

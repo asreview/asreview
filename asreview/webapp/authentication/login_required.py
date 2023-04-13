@@ -22,10 +22,8 @@ from flask_login.config import EXEMPT_METHODS
 
 
 def asreview_login_required(func):
-
     @wraps(func)
     def decorated_view(*args, **kwargs):
-
         if not current_app.config.get("AUTHENTICATION_ENABLED"):
             pass
         elif request.method in EXEMPT_METHODS:

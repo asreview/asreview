@@ -16,9 +16,9 @@ import pandas as pd
 import rispy
 
 
-class RISWriter():
-    """RIS file writer.
-    """
+class RISWriter:
+    """RIS file writer."""
+
     name = "ris"
     label = "RIS"
     caution = "Available only if you imported a RIS file when creating the project"
@@ -48,7 +48,7 @@ class RISWriter():
         """
 
         # Turn pandas DataFrame into records (list of dictionaries) for rispy
-        records = df.to_dict('records')
+        records = df.to_dict("records")
 
         # Create an array for storing modified records
         records_new = []
@@ -75,9 +75,11 @@ class RISWriter():
             included = rec_copy.pop("included", -1)
 
             # Map labels to notes
-            dict_note = {-1: "ASReview_not_seen",
-                         0: "ASReview_irrelevant",
-                         1: "ASReview_relevant"}
+            dict_note = {
+                -1: "ASReview_not_seen",
+                0: "ASReview_irrelevant",
+                1: "ASReview_relevant",
+            }
             rec_copy["notes"].insert(0, dict_note[included])
 
             # Append the deepcopied and updated record to a new array

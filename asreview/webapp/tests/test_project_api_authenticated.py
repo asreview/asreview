@@ -83,9 +83,7 @@ def test_upgrade_project_if_old(setup_teardown_signed_in):
     _, client, _ = setup_teardown_signed_in
 
     project = Project.query.one()
-    response = client.get(
-        f"/api/projects/{project.project_id}/upgrade_if_old"
-    )
+    response = client.get(f"/api/projects/{project.project_id}/upgrade_if_old")
     assert response.status_code == 400
 
 
@@ -124,7 +122,7 @@ def test_upload_data_to_project(setup_teardown_signed_in):
     project = Project.query.one()
     response = client.post(
         f"/api/projects/{project.project_id}/data",
-        data={"benchmark": "benchmark:Hall_2012"}
+        data={"benchmark": "benchmark:Hall_2012"},
     )
     assert response.status_code == 200
 
@@ -144,9 +142,7 @@ def test_get_dataset_writer(setup_teardown_signed_in):
     _, client, _ = setup_teardown_signed_in
 
     project = Project.query.one()
-    response = client.get(
-        f"/api/projects/{project.project_id}/dataset_writer"
-    )
+    response = client.get(f"/api/projects/{project.project_id}/dataset_writer")
     json_data = response.get_json()
     assert isinstance(json_data["result"], list)
 
@@ -237,7 +233,7 @@ def test_get_project_info(setup_teardown_signed_in):
     project = Project.query.order_by(Project.id.desc()).first()
     client.post(
         f"/api/projects/{project.project_id}/data",
-        data={"benchmark": "benchmark:Hall_2012"}
+        data={"benchmark": "benchmark:Hall_2012"},
     )
 
     # call the info method
@@ -266,9 +262,7 @@ def test_random_prior_papers(setup_teardown_signed_in):
     _, client, _ = setup_teardown_signed_in
 
     project = Project.query.order_by(Project.id.desc()).first()
-    response = client.get(
-        f"/api/projects/{project.project_id}/prior_random"
-    )
+    response = client.get(f"/api/projects/{project.project_id}/prior_random")
     json_data = response.get_json()
 
     assert "result" in json_data
@@ -402,9 +396,7 @@ def test_export_project(setup_teardown_signed_in):
     _, client, _ = setup_teardown_signed_in
 
     project = Project.query.order_by(Project.id.desc()).first()
-    response = client.get(
-        f"/api/projects/{project.project_id}/export_project"
-    )
+    response = client.get(f"/api/projects/{project.project_id}/export_project")
     assert response.status_code == 200
 
 
@@ -414,20 +406,17 @@ def test_finish_project(setup_teardown_signed_in):
 
     project = Project.query.order_by(Project.id.desc()).first()
     response = client.put(
-        f"/api/projects/{project.project_id}/status",
-        data={"status": "finished"}
+        f"/api/projects/{project.project_id}/status", data={"status": "finished"}
     )
     assert response.status_code == 200
 
     response = client.put(
-        f"/api/projects/{project.project_id}/status",
-        data={"status": "review"}
+        f"/api/projects/{project.project_id}/status", data={"status": "review"}
     )
     assert response.status_code == 200
 
     response = client.put(
-        f"/api/projects/{project.project_id}/status",
-        data={"status": "finished"}
+        f"/api/projects/{project.project_id}/status", data={"status": "finished"}
     )
     assert response.status_code == 200
 
@@ -447,9 +436,7 @@ def test_get_progress_density(setup_teardown_signed_in):
     _, client, _ = setup_teardown_signed_in
 
     project = Project.query.order_by(Project.id.desc()).first()
-    response = client.get(
-        f"/api/projects/{project.project_id}/progress_density"
-    )
+    response = client.get(f"/api/projects/{project.project_id}/progress_density")
     json_data = response.get_json()
     assert "relevant" in json_data
     assert "irrelevant" in json_data
@@ -461,9 +448,7 @@ def test_get_progress_recall(setup_teardown_signed_in):
     _, client, _ = setup_teardown_signed_in
 
     project = Project.query.order_by(Project.id.desc()).first()
-    response = client.get(
-        f"/api/projects/{project.project_id}/progress_recall"
-    )
+    response = client.get(f"/api/projects/{project.project_id}/progress_recall")
     json_data = response.get_json()
     assert "asreview" in json_data
     assert "random" in json_data
@@ -475,9 +460,7 @@ def test_get_document(setup_teardown_signed_in):
     _, client, _ = setup_teardown_signed_in
 
     project = Project.query.order_by(Project.id.desc()).first()
-    response = client.get(
-        f"/api/projects/{project.project_id}/get_document"
-    )
+    response = client.get(f"/api/projects/{project.project_id}/get_document")
     json_data = response.get_json()
 
     assert "result" in json_data
@@ -516,8 +499,7 @@ def test_delete_project(setup_teardown_signed_in):
     assert len(user.projects) == 2
     # api call
     project = Project.query.order_by(Project.id.desc()).first()
-    response = client.delete(
-        f"/api/projects/{project.project_id}/delete")
+    response = client.delete(f"/api/projects/{project.project_id}/delete")
     assert response.status_code == 200
 
     # assert folder is gone
@@ -538,6 +520,7 @@ def test_delete_project(setup_teardown_signed_in):
 # ------------------------
 # Test improper use of api
 # ------------------------
+
 
 def test_adding_a_second_user_and_projects(setup_teardown_signed_in):
     """Adding a second user and a project of that user"""
@@ -594,9 +577,7 @@ def test_old_upgrade_no_permission(setup_teardown_signed_in):
     _, client, _ = setup_teardown_signed_in
 
     project = Project.query.order_by(Project.id.desc()).first()
-    response = client.get(
-        f"/api/projects/{project.project_id}/upgrade_if_old"
-    )
+    response = client.get(f"/api/projects/{project.project_id}/upgrade_if_old")
     json_data = response.get_json()
     assert response.status_code == 403
     assert json_data["message"] == "no permission"
@@ -628,7 +609,7 @@ def test_upload_data_no_permission(setup_teardown_signed_in):
     project = Project.query.order_by(Project.id.desc()).first()
     response = client.post(
         f"/api/projects/{project.project_id}/data",
-        data={"benchmark": "benchmark:Hall_2012"}
+        data={"benchmark": "benchmark:Hall_2012"},
     )
     json_data = response.get_json()
     assert response.status_code == 403
@@ -651,9 +632,7 @@ def test_get_dataset_writer_no_permission(setup_teardown_signed_in):
     _, client, _ = setup_teardown_signed_in
 
     project = Project.query.order_by(Project.id.desc()).first()
-    response = client.get(
-        f"/api/projects/{project.project_id}/dataset_writer"
-    )
+    response = client.get(f"/api/projects/{project.project_id}/dataset_writer")
     json_data = response.get_json()
     assert response.status_code == 403
     assert json_data["message"] == "no permission"
@@ -699,9 +678,7 @@ def test_random_prior_papers_no_permission(setup_teardown_signed_in):
     _, client, _ = setup_teardown_signed_in
 
     project = Project.query.order_by(Project.id.desc()).first()
-    response = client.get(
-        f"/api/projects/{project.project_id}/prior_random"
-    )
+    response = client.get(f"/api/projects/{project.project_id}/prior_random")
     json_data = response.get_json()
     assert response.status_code == 403
     assert json_data["message"] == "no permission"
@@ -765,8 +742,7 @@ def test_finish_project_no_permission(setup_teardown_signed_in):
 
     project = Project.query.order_by(Project.id.desc()).first()
     response = client.put(
-        f"/api/projects/{project.project_id}/status",
-        data={"status": "finished"}
+        f"/api/projects/{project.project_id}/status", data={"status": "finished"}
     )
     json_data = response.get_json()
     assert response.status_code == 403
@@ -791,9 +767,7 @@ def test_export_project_no_permission(setup_teardown_signed_in):
     _, client, _ = setup_teardown_signed_in
 
     project = Project.query.order_by(Project.id.desc()).first()
-    response = client.get(
-        f"/api/projects/{project.project_id}/export_project"
-    )
+    response = client.get(f"/api/projects/{project.project_id}/export_project")
     json_data = response.get_json()
     assert response.status_code == 403
     assert json_data["message"] == "no permission"
@@ -815,9 +789,7 @@ def test_get_progress_density_no_permission(setup_teardown_signed_in):
     _, client, _ = setup_teardown_signed_in
 
     project = Project.query.order_by(Project.id.desc()).first()
-    response = client.get(
-        f"/api/projects/{project.project_id}/progress_density"
-    )
+    response = client.get(f"/api/projects/{project.project_id}/progress_density")
     json_data = response.get_json()
     assert response.status_code == 403
     assert json_data["message"] == "no permission"
@@ -828,9 +800,7 @@ def test_get_progress_recall_no_permission(setup_teardown_signed_in):
     _, client, _ = setup_teardown_signed_in
 
     project = Project.query.order_by(Project.id.desc()).first()
-    response = client.get(
-        f"/api/projects/{project.project_id}/progress_recall"
-    )
+    response = client.get(f"/api/projects/{project.project_id}/progress_recall")
     json_data = response.get_json()
     assert response.status_code == 403
     assert json_data["message"] == "no permission"
@@ -859,9 +829,7 @@ def test_get_document_no_permission(setup_teardown_signed_in):
     _, client, _ = setup_teardown_signed_in
 
     project = Project.query.order_by(Project.id.desc()).first()
-    response = client.get(
-        f"/api/projects/{project.project_id}/get_document"
-    )
+    response = client.get(f"/api/projects/{project.project_id}/get_document")
     json_data = response.get_json()
     assert response.status_code == 403
     assert json_data["message"] == "no permission"
@@ -871,8 +839,7 @@ def test_delete_project_no_permission(setup_teardown_signed_in):
     """Test get info on the article"""
     _, client, user = setup_teardown_signed_in
     project = Project.query.order_by(Project.id.desc()).first()
-    response = client.delete(
-        f"/api/projects/{project.project_id}/delete")
+    response = client.delete(f"/api/projects/{project.project_id}/delete")
     json_data = response.get_json()
     assert response.status_code == 403
     assert json_data["message"] == "no permission"
