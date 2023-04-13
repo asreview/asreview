@@ -371,7 +371,7 @@ def test_start_and_model_ready(setup_teardown_signed_in):
     assert response.status_code == 200
 
     # wait the model ready
-    time.sleep(5)
+    time.sleep(10)
 
     response = client.get(f"/api/projects/{project.project_id}/status")
     json_data = response.get_json()
@@ -505,7 +505,7 @@ def test_get_document(setup_teardown_signed_in):
     )
     assert response.status_code == 200
 
-    time.sleep(5)
+    time.sleep(10)
 
 
 def test_delete_project(setup_teardown_signed_in):
