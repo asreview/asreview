@@ -121,6 +121,9 @@ pythonenv*
 .spyderproject
 .spyproject
 
+# VS Code
+.vscode
+
 # Rope project settings
 .ropeproject
 
@@ -160,3 +163,6 @@ bower_components
 psd
 thumb
 sketch
+notes.md
+
+flask_config.json

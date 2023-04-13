@@ -24,26 +24,26 @@ def is_zipped_project_file(fp):
     if Path(fp).is_file():
         state_ext = Path(fp).suffix
 
-        if state_ext in ['.h5', '.hdf5', '.he5', '.json']:
+        if state_ext in [".h5", ".hdf5", ".he5", ".json"]:
             raise ValueError(
-                f'State file with extension {state_ext} is no longer '
-                f'supported. Migrate to the new format or '
-                'use an older version of ASReview. See LINK.')
-        elif state_ext == '.asreview':
+                f"State file with extension {state_ext} is no longer "
+                f"supported. Migrate to the new format or "
+                "use an older version of ASReview. See LINK."
+            )
+        elif state_ext == ".asreview":
             return True
         else:
-            raise ValueError(f'State file extension {state_ext} is not '
-                             f'recognized.')
+            raise ValueError(f"State file extension {state_ext} is not " f"recognized.")
     else:
         return False
 
 
 def is_valid_project_folder(fp):
     """Check of the folder contains an asreview project."""
-    if not Path(fp, 'reviews').is_dir() \
-            or not Path(fp, 'feature_matrices').is_dir():
+    if not Path(fp, "reviews").is_dir() or not Path(fp, "feature_matrices").is_dir():
         raise StateNotFoundError(
             f"There does not seem to be a valid project folder at {fp}. The "
-            f"'reviews' or 'feature_matrices' folder is missing.")
+            f"'reviews' or 'feature_matrices' folder is missing."
+        )
     else:
         return

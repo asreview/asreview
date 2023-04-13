@@ -34,7 +34,8 @@ def _parse_state_inspect_args():
     parser.add_argument(
         "table",
         type=str,
-        help="Table to view (e.g. results, record_table, last_ranking).")
+        help="Table to view (e.g. results, record_table, last_ranking).",
+    )
 
     return parser
 
