@@ -121,17 +121,17 @@ def _get_authenticated_folder_id(project_id, user):
     if (project_from_db and user == project_from_db.owner) or (
         project_from_db is None
     ):
-        uuid = _get_project_uuid(project_id, user.id)
+        project_uuid = _get_project_uuid(project_id, user.id)
 
     # project exists but user is a collaborator
     elif project_from_db and user in project_from_db.collaborators:
-        uuid = _get_project_uuid(project_id, project_from_db.owner_id)
+        project_uuid = _get_project_uuid(project_id, project_from_db.owner_id)
 
     # default to project_id
     else:
-        uuid = _get_project_uuid(project_id)
+        project_uuid = _get_project_uuid(project_id)
 
-    return uuid
+    return project_uuid
 
 
 def project_authorization(f):
