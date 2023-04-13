@@ -81,6 +81,7 @@ def get_user(identifier):
 # USER CREATION
 # ###################
 
+
 # force different config file that doesn't allow user
 # creation
 @pytest.mark.parametrize(
@@ -328,8 +329,7 @@ def test_expired_token(setup_teardown_standard):
     # try to confirm this account
     # now we confirm this user
     response = client.post(
-        "/auth/confirm_account",
-        data={"user_id": user.id, "token": user.token}
+        "/auth/confirm_account", data={"user_id": user.id, "token": user.token}
     )
     assert response.status_code == 403
     assert "token has expired" in response.text
@@ -356,8 +356,7 @@ def test_if_this_route_returns_404_user_not_found(setup_teardown_standard):
     user = User.query.first()
     # confirm with wrong user id
     response = client.post(
-        "/auth/confirm_account",
-        data={"user_id": user.id - 1, "token": user.token}
+        "/auth/confirm_account", data={"user_id": user.id - 1, "token": user.token}
     )
     assert response.status_code == 404
     assert "No user account / correct token found" in response.text
@@ -379,7 +378,7 @@ def test_if_this_route_returns_404_token_not_found(setup_teardown_standard):
     # confirm with wrong token
     response = client.post(
         "/auth/confirm_account",
-        data={"user_id": user.id - 1, "token": "A" + user.token + "A"}
+        data={"user_id": user.id - 1, "token": "A" + user.token + "A"},
     )
     assert response.status_code == 404
     assert "No user account / correct token found" in response.text
@@ -397,8 +396,7 @@ def test_if_this_route_returns_404_if_app_not_verified(setup_teardown_standard):
     user = User.query.first()
     # try to confirm
     response = client.post(
-        "/auth/confirm_account",
-        data={"user_id": user.id, "token": user.token}
+        "/auth/confirm_account", data={"user_id": user.id, "token": user.token}
     )
     assert response.status_code == 400
     assert "not configured to verify accounts" in response.text

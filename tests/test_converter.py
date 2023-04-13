@@ -82,8 +82,8 @@ def test_converter(tmpdir):
     rollback_conversion(converted_fp)
 
     # Zip the converted file to allow for reading it.
-    zipped_fp = make_archive(Path(tmpdir, 'zipped'), 'zip', converted_fp)
-    zipped_fp = Path(zipped_fp).rename(Path(tmpdir, 'zipped.asreview'))
+    zipped_fp = make_archive(Path(tmpdir, "zipped"), "zip", converted_fp)
+    zipped_fp = Path(zipped_fp).rename(Path(tmpdir, "zipped.asreview"))
 
     state = state_from_file(zipped_fp)[zipped_fp.name]
     assert isinstance(state, JSONState)

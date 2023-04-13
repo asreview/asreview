@@ -71,7 +71,8 @@ class UndersampleBalance(BaseBalance):
         else:
             n_zero_epoch = ceil(n_one / self.ratio)
             zero_under = self._random_state.choice(
-                np.arange(n_zero), n_zero_epoch, replace=False)
+                np.arange(n_zero), n_zero_epoch, replace=False
+            )
             shuf_ind = np.append(one_ind, zero_ind[zero_under])
 
         self._random_state.shuffle(shuf_ind)
@@ -79,7 +80,8 @@ class UndersampleBalance(BaseBalance):
 
     def full_hyper_space(self):
         from hyperopt import hp
+
         parameter_space = {
-            "bal_ratio": hp.lognormal('bal_ratio', 0, 1),
+            "bal_ratio": hp.lognormal("bal_ratio", 0, 1),
         }
         return parameter_space, {}

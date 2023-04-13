@@ -40,13 +40,8 @@ class ClusterQuery(ProbaQueryStrategy):
     name = "cluster"
     label = "Clustering"
 
-    def __init__(self,
-                 cluster_size=350,
-                 update_interval=200,
-                 random_state=None):
-        """Initialize the clustering strategy.
-
-        """
+    def __init__(self, cluster_size=350, update_interval=200, random_state=None):
+        """Initialize the clustering strategy."""
         super(ClusterQuery, self).__init__()
         self.cluster_size = cluster_size
         self.update_interval = update_interval
@@ -58,16 +53,17 @@ class ClusterQuery(ProbaQueryStrategy):
         n_samples = X.shape[0]
 
         last_update = self.last_update
-        if (last_update is None or self.update_interval is None or
-                last_update - n_samples >= self.update_interval):
+        if (
+            last_update is None
+            or self.update_interval is None
+            or last_update - n_samples >= self.update_interval
+        ):
             n_clusters = round(n_samples / self.cluster_size)
             if n_clusters <= 1:
-                return self.fallback_model._query(
-                    predictions, n_instances, X)
+                return self.fallback_model._query(predictions, n_instances, X)
             model = KMeans(
-                n_clusters=n_clusters,
-                n_init=1,
-                random_state=self._random_state)
+                n_clusters=n_clusters, n_init=1, random_state=self._random_state
+            )
             self.clusters = model.fit_predict(X)
             self.last_update = n_samples
 
@@ -81,8 +77,7 @@ class ClusterQuery(ProbaQueryStrategy):
 
         for cluster_id in clusters:
             try:
-                clusters[cluster_id] = sorted(
-                    clusters[cluster_id], key=lambda x: x[1])
+                clusters[cluster_id] = sorted(clusters[cluster_id], key=lambda x: x[1])
             except ValueError:
                 raise
 
@@ -101,9 +96,9 @@ class ClusterQuery(ProbaQueryStrategy):
 
     def full_hyper_space(self):
         from hyperopt import hp
+
         parameter_space = {
-            "qry_cluster_size": hp.quniform('qry_cluster_size', 50, 1000, 1),
-            "qry_update_interval": hp.quniform('qry_update_interval', 100, 300,
-                                               1),
+            "qry_cluster_size": hp.quniform("qry_cluster_size", 50, 1000, 1),
+            "qry_update_interval": hp.quniform("qry_update_interval", 100, 300, 1),
         }
         return parameter_space, {}

@@ -452,8 +452,7 @@ class SQLiteState(BaseState):
         cur = con.cursor()
         cur.execute("DELETE FROM record_table")
         cur.executemany(
-            "INSERT INTO record_table (record_id) VALUES (?)",
-            record_sql_input
+            "INSERT INTO record_table (record_id) VALUES (?)", record_sql_input
         )
         con.commit()
 
@@ -482,8 +481,7 @@ class SQLiteState(BaseState):
 
         cur.execute("""DELETE FROM last_probabilities""")
         cur.executemany(
-            "INSERT INTO last_probabilities (proba) VALUES (?)",
-            proba_sql_input
+            "INSERT INTO last_probabilities (proba) VALUES (?)", proba_sql_input
         )
         con.commit()
 
@@ -550,10 +548,12 @@ class SQLiteState(BaseState):
         cur = con.cursor()
         cur.execute("DELETE FROM last_ranking")
         cur.executemany(
-            ("INSERT INTO last_ranking (record_id, ranking, classifier, "
-             "query_strategy, balance_strategy, feature_extraction, "
-             "training_set, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"),
-            db_rows
+            (
+                "INSERT INTO last_ranking (record_id, ranking, classifier, "
+                "query_strategy, balance_strategy, feature_extraction, "
+                "training_set, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+            ),
+            db_rows,
         )
         con.commit()
         con.close()
@@ -678,10 +678,12 @@ class SQLiteState(BaseState):
             query_strategy: str, balance_strategy: str, feature_extraction: str,
              training_set: int, labeling_time: int, notes: str).
         """
-        query = ("INSERT INTO results (record_id, label, classifier, "
-                 "query_strategy, balance_strategy, feature_extraction, "
-                 "training_set, labeling_time, notes) "
-                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
+        query = (
+            "INSERT INTO results (record_id, label, classifier, "
+            "query_strategy, balance_strategy, feature_extraction, "
+            "training_set, labeling_time, notes) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        )
 
         con = self._connect_to_sql()
         cur = con.cursor()
@@ -713,9 +715,11 @@ class SQLiteState(BaseState):
 
         # Add the change to the decision changes table.
         cur.execute(
-            ("INSERT INTO decision_changes (record_id, new_label, time) "
-             "VALUES (?, ?, ?)"),
-            (record_id, label, datetime.now())
+            (
+                "INSERT INTO decision_changes (record_id, new_label, time) "
+                "VALUES (?, ?, ?)"
+            ),
+            (record_id, label, datetime.now()),
         )
 
         con.commit()
@@ -738,9 +742,11 @@ class SQLiteState(BaseState):
 
         # Add the change to the decision changes table.
         cur.execute(
-            ("INSERT INTO decision_changes (record_id, new_label, time) "
-             "VALUES (?,?, ?)"),
-            (record_id, None, current_time)
+            (
+                "INSERT INTO decision_changes (record_id, new_label, time) "
+                "VALUES (?,?, ?)"
+            ),
+            (record_id, None, current_time),
         )
         con.commit()
         con.close()

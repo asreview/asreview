@@ -1,24 +1,33 @@
 from pathlib import Path
 
-from pytest import mark
 import rispy
+from pytest import mark
 
 from asreview import ASReviewData
 from asreview.utils import is_url
 
 
-@mark.parametrize("test_file,n_lines,ignore_col",
-                  [("_baseline.ris", 100, []),
-                   ("embase.csv", 6, ["keywords"]),
-                   ("embase_newpage.csv", 6, ["keywords"]),
-                   ("embase.ris", 6, []), ("generic.csv", 2, []),
-                   ("generic_semicolon.csv", 2, []),
-                   ("generic_tab.csv", 2, []), ("generic_tab.tab", 2, []),
-                   ("generic_tab.tsv", 2, []), ("generic_labels.csv", 6, []),
-                   ("pubmed_zotero.ris", 6, []), ("pubmed_endnote.txt", 6, []),
-                   ("scopus.ris", 6, []), ("ovid_zotero.ris", 6, []),
-                   ("proquest.ris", 6, []),
-                   ("https://osf.io/download/fg93a/", 38, [])])
+@mark.parametrize(
+    "test_file,n_lines,ignore_col",
+    [
+        ("_baseline.ris", 100, []),
+        ("embase.csv", 6, ["keywords"]),
+        ("embase_newpage.csv", 6, ["keywords"]),
+        ("embase.ris", 6, []),
+        ("generic.csv", 2, []),
+        ("generic_semicolon.csv", 2, []),
+        ("generic_tab.csv", 2, []),
+        ("generic_tab.tab", 2, []),
+        ("generic_tab.tsv", 2, []),
+        ("generic_labels.csv", 6, []),
+        ("pubmed_zotero.ris", 6, []),
+        ("pubmed_endnote.txt", 6, []),
+        ("scopus.ris", 6, []),
+        ("ovid_zotero.ris", 6, []),
+        ("proquest.ris", 6, []),
+        ("https://osf.io/download/fg93a/", 38, []),
+    ],
+)
 def test_reader(test_file, n_lines, ignore_col):
     if is_url(test_file):
         fp = test_file
@@ -94,14 +103,12 @@ def test_asreview_labels_ris(record_i, included):
 
 
 def test_multiline_tags_ris():
-
     fp = Path("tests", "demo_data", "baseline_tag_and_field_definitions_lists.ris")
     entries = rispy.load(fp, encoding="utf-8")
     assert entries[0]["notes"] == ["Notes 1", "Notes 2"]
 
 
 def test_nan_values_ris():
-
     fp = Path("tests", "demo_data", "baseline_empty_values.ris")
     as_data = ASReviewData.from_file(fp)
 
@@ -131,7 +138,6 @@ def test_nan_values_ris():
 
 
 def test_nan_values_csv():
-
     fp = Path("tests", "demo_data", "missing_values.csv")
     as_data = ASReviewData.from_file(fp)
 

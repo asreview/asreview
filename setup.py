@@ -102,16 +102,18 @@ setup(
         "Topic :: Text Processing :: General",
         "Framework :: Flask",
     ],
-    keywords=['systematic review', 'machine-learning'],
-    packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-    package_data={'asreview': [
-        'webapp/build/*',
-        'webapp/build/static/*/*',
-    ]},
-    python_requires='~=3.7',
+    keywords=["systematic review", "machine-learning"],
+    packages=find_packages(exclude=["contrib", "docs", "tests"]),
+    package_data={
+        "asreview": [
+            "webapp/build/*",
+            "webapp/build/static/*/*",
+        ]
+    },
+    python_requires="~=3.7",
     install_requires=[
         "numpy",
-        'pandas>=1,<3',
+        "pandas>=1,<3",
         "scikit-learn",
         "rispy~=0.7.0",
         "dill",
@@ -126,9 +128,9 @@ setup(
         "filelock",
         "Flask-SQLAlchemy>=3.0.2",
         "requests",
-        'tqdm',
-        'gevent>=20',
-        'datahugger>=0.2'
+        "tqdm",
+        "gevent>=20",
+        "datahugger>=0.2",
     ],
     extras_require=DEPS,
     entry_points={

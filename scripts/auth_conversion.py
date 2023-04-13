@@ -44,8 +44,7 @@ def print_user_records(users):
 
 def user_project_link_exists(conn, folder_id):
     """Check if a project record already exists."""
-    query = "SELECT COUNT(id) FROM projects " + \
-        f"WHERE project_id='{folder_id}'"
+    query = "SELECT COUNT(id) FROM projects " + f"WHERE project_id='{folder_id}'"
     cursor = conn.cursor()
     cursor.execute(query)
     return cursor.fetchone()[0] == 1
@@ -53,8 +52,7 @@ def user_project_link_exists(conn, folder_id):
 
 def link_user_to_project(conn, project_id, user_id):
     """Inserts project record, links user id to project"""
-    query = "INSERT INTO projects(project_id, owner_id)" + \
-        "VALUES(?,?)"
+    query = "INSERT INTO projects(project_id, owner_id)" + "VALUES(?,?)"
     cursor = conn.cursor()
     cursor.execute(query, (project_id, user_id))
     conn.commit()
@@ -73,7 +71,6 @@ def main(conn, mapping=[]):
 
     # loop over links
     for link in mapping:
-
         if link not in done:
             user_id = link["user_id"]
             project_id = link["project_id"]
@@ -92,10 +89,7 @@ def main(conn, mapping=[]):
                     user = user_cache[user_id]
 
                     # create a new project_id
-                    new_project_id = _get_project_uuid(
-                        project_id,
-                        user.id
-                    )
+                    new_project_id = _get_project_uuid(project_id, user.id)
 
                     # rename the folder
                     folder = asreview_path() / project_id
@@ -103,8 +97,7 @@ def main(conn, mapping=[]):
 
                     # take care of the id inside the project.json file
                     with open(
-                        asreview_path() / new_project_id / "project.json",
-                        mode="r"
+                        asreview_path() / new_project_id / "project.json", mode="r"
                     ) as f:
                         data = json.load(f)
                         # change id
@@ -112,8 +105,7 @@ def main(conn, mapping=[]):
 
                     # overwrite original project.json file with new project id
                     with open(
-                        asreview_path() / new_project_id / "project.json",
-                        mode="w"
+                        asreview_path() / new_project_id / "project.json", mode="w"
                     ) as f:
                         json.dump(data, f)
 
@@ -133,28 +125,27 @@ def main(conn, mapping=[]):
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
         "-i",
         "--interactive",
         action="store_true",
-        help="Interactively link projects to users."
+        help="Interactively link projects to users.",
     )
     group.add_argument(
         "-s",
         "--schema",
         type=str,
-        default='[]',
-        help="JSON that links projects to user ids."
+        default="[]",
+        help="JSON that links projects to user ids.",
     )
     parser.add_argument(
         "-d",
         "--database-path",
         type=str,
-        help='Path to sqlite database.',
-        required=True
+        help="Path to sqlite database.",
+        required=True,
     )
     args = parser.parse_args()
 
@@ -167,7 +158,6 @@ if __name__ == "__main__":
     mapping = []
     # iterate over all files and folders in asreview_path()
     for folder in asreview_path().glob("*"):
-
         # if folder is indeed a folder
         if Path(folder).is_dir():
             # open the project.json folder
@@ -177,10 +167,7 @@ if __name__ == "__main__":
             project_id = project_data["id"]
 
             # show all users and their ids and ask who's the owner
-            print(
-                "\n\n==> Who is the owner of this project folder:",
-                f"{project_id}"
-            )
+            print("\n\n==> Who is the owner of this project folder:", f"{project_id}")
             print_user_records(users)
             # ask who's the folder's owner
             user_id = input("Provide ID number of owner > ")
@@ -191,10 +178,7 @@ if __name__ == "__main__":
                 user_id = int(user_id)
 
                 # add pair to the mapping
-                mapping.append({
-                    'user_id': user_id,
-                    'project_id': project_id
-                })
+                mapping.append({"user_id": user_id, "project_id": project_id})
 
             except ValueError:
                 print("Entered input is not a string, start again.")

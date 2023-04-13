@@ -28,12 +28,10 @@ class CacheDataError(Exception):
 
 
 def _get_cache_data_path(fp_data):
-
     return Path(fp_data).with_suffix(fp_data.suffix + ".pickle")
 
 
 def _read_data_from_cache(fp_data, version_check=True):
-
     fp_data_pickle = _get_cache_data_path(fp_data)
 
     try:
@@ -65,7 +63,6 @@ def _read_data_from_cache(fp_data, version_check=True):
 
 
 def _write_data_to_cache(fp_data, data_obj):
-
     fp_data_pickle = _get_cache_data_path(fp_data)
 
     logging.info("Store a copy of the data in a pickle file.")

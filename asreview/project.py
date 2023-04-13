@@ -25,17 +25,17 @@ from functools import wraps
 from pathlib import Path
 from uuid import uuid4
 
-from filelock import FileLock
 import jsonschema
 import numpy as np
+from filelock import FileLock
 from scipy.sparse import csr_matrix
 from scipy.sparse import load_npz
 from scipy.sparse import save_npz
 
 from asreview._version import get_versions
 from asreview.config import LABEL_NA
-from asreview.config import PROJECT_MODES
 from asreview.config import PROJECT_MODE_SIMULATE
+from asreview.config import PROJECT_MODES
 from asreview.config import SCHEMA
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
@@ -77,6 +77,7 @@ def project_from_id(f):
     the user account is used to get the correct sub folder in which
     the projects is
     """
+
     @wraps(f)
     def decorated_function(project_id, *args, **kwargs):
         project_path = get_project_path(project_id)
@@ -101,9 +102,7 @@ def get_projects(project_paths=None):
         Projects at the given project paths.
     """
     if project_paths is None:
-        project_paths = [
-            path for path in asreview_path().iterdir() if path.is_dir()
-        ]
+        project_paths = [path for path in asreview_path().iterdir() if path.is_dir()]
 
     return [ASReviewProject(project_path) for project_path in project_paths]
 
@@ -130,7 +129,6 @@ def _create_project_id(name):
 
 
 def is_project(project_path):
-
     project_path = Path(project_path) / PATH_PROJECT_CONFIG
 
     return project_path.exists()
@@ -165,7 +163,6 @@ def open_state(asreview_obj, review_id=None, read_only=True):
     if isinstance(asreview_obj, ASReviewProject):
         project = asreview_obj
     elif zipfile.is_zipfile(asreview_obj) and Path(asreview_obj).suffix == ".asreview":
-
         if not read_only:
             raise ValueError("ASReview files do not support not read only files.")
 
@@ -280,34 +277,27 @@ class ASReviewProject:
 
     @property
     def config(self):
-
         try:
             return self._config
         except AttributeError:
-
             project_fp = Path(self.project_path, PATH_PROJECT_CONFIG)
             project_fp_lock = Path(self.project_path, PATH_PROJECT_CONFIG_LOCK)
             lock = FileLock(project_fp_lock, timeout=3)
 
             try:
                 with lock:
-
                     # read the file with project info
                     with open(project_fp, "r") as fp:
-
                         config = json.load(fp)
                         self._config = config
 
                         return config
 
             except FileNotFoundError:
-                raise ProjectNotFoundError(
-                    f"Project '{self.project_path}' not found"
-                )
+                raise ProjectNotFoundError(f"Project '{self.project_path}' not found")
 
     @config.setter
     def config(self, config):
-
         project_fp = Path(self.project_path, PATH_PROJECT_CONFIG)
         project_fp_lock = Path(self.project_path, PATH_PROJECT_CONFIG_LOCK)
         lock = FileLock(project_fp_lock, timeout=3)
@@ -398,7 +388,6 @@ class ASReviewProject:
         as_data = read_data(self)
 
         with open_state(self.project_path, read_only=False) as state:
-
             # save the record ids in the state file
             state.add_record_table(as_data.record_ids)
 
@@ -407,7 +396,6 @@ class ASReviewProject:
                 self.config["mode"] != PROJECT_MODE_SIMULATE
                 and as_data.labels is not None
             ):
-
                 labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
                 labels = as_data.labels[labeled_indices].tolist()
                 labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
@@ -589,7 +577,6 @@ class ASReviewProject:
         self.config = config
 
     def delete_review(self, remove_folders=False):
-
         try:
             # remove the folder tree
             shutil.rmtree(Path(self.project_path, PATH_FEATURE_MATRICES))
@@ -627,7 +614,6 @@ class ASReviewProject:
         )
 
     def export(self, export_fp):
-
         if Path(export_fp).suffix != ".asreview":
             raise ValueError("Export file should have .asreview extension.")
 
@@ -652,11 +638,9 @@ class ASReviewProject:
 
     @classmethod
     def load(cls, asreview_file, project_path, safe_import=False):
-
         tmpdir = tempfile.TemporaryDirectory().name
 
         try:
-
             # Unzip the project file
             with zipfile.ZipFile(asreview_file, "r") as zip_obj:
                 zip_filenames = zip_obj.namelist()
@@ -677,7 +661,6 @@ class ASReviewProject:
             project_config = json.load(f)
 
         if safe_import:
-
             # If the uploaded project already exists,
             # then overwrite project.json with a copy suffix.
             while Path(
@@ -700,7 +683,6 @@ class ASReviewProject:
         return cls(Path(project_path, project_config["id"]))
 
     def set_error(self, err, save_error_message=True):
-
         err_type = type(err).__name__
         self.update_review(status="error")
 

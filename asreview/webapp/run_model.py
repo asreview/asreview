@@ -62,10 +62,10 @@ def get_lab_reviewer(
 
     # prior knowledge
     if (
-        prior_idx is not None and
-        prior_record_id is not None and
-        len(prior_idx) > 0 and
-        len(prior_record_id) > 0
+        prior_idx is not None
+        and prior_record_id is not None
+        and len(prior_idx) > 0
+        and len(prior_record_id) > 0
     ):
         raise ValueError("Not possible to provide both prior_idx and prior_record_id")
 
@@ -100,7 +100,6 @@ def train_model(project):
     with SQLiteLock(
         lock_file, blocking=False, lock_name="training", project_id=project.project_id
     ) as lock:
-
         # If the lock is not acquired, another training instance is running.
         if not lock.locked():
             logging.info(
@@ -129,7 +128,6 @@ def train_model(project):
 
 
 def main(argv):
-
     # parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("project_path", type=str, help="Project id")
@@ -156,7 +154,6 @@ def main(argv):
         project.update_review(status="review")
 
     except Exception as err:
-
         # save the error to the project
         project.set_error(err, save_error_message=args.output_error)
 
@@ -167,5 +164,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-
     main(sys.argv)

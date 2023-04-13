@@ -36,19 +36,17 @@ def main():
     entry_points = get_entry_points("asreview.entry_points")
 
     if (
-        len(sys.argv) > 1 and
-        not sys.argv[1].startswith("-") and
-        sys.argv[1] not in entry_points
+        len(sys.argv) > 1
+        and not sys.argv[1].startswith("-")
+        and sys.argv[1] not in entry_points
     ):
         raise ValueError(f"'{sys.argv[1]}' is not a valid subcommand.")
 
     elif len(sys.argv) > 1 and sys.argv[1] in entry_points:
-
         entry = entry_points[sys.argv[1]]
         entry.load()().execute(sys.argv[2:])
 
     else:
-
         description_subcommands = ""
 
         for name, pkg_entry_points in groupby(

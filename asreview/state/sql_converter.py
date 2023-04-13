@@ -49,7 +49,6 @@ def is_old_project(fp):
 
 
 def get_old_project_status(config):
-
     # project is marked as finished
     if config.get("reviewFinished", False):
         return "finished"
@@ -114,17 +113,16 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
 
     try:
         # Current paths.
-        json_fp = Path(legacy_fp, 'result.json')
-        labeled_json_fp = Path(legacy_fp, 'labeled.json')
-        pool_fp = Path(legacy_fp, 'pool.json')
-        kwargs_fp = Path(legacy_fp, 'kwargs.json')
+        json_fp = Path(legacy_fp, "result.json")
+        labeled_json_fp = Path(legacy_fp, "labeled.json")
+        pool_fp = Path(legacy_fp, "pool.json")
+        kwargs_fp = Path(legacy_fp, "kwargs.json")
         review_id = str(uuid4().hex)
 
         # Create the reviews folder and the paths for the results and settings.
-        Path(fp, 'reviews', review_id).mkdir(parents=True)
-        sql_fp = str(Path(fp, 'reviews', review_id, 'results.sql'))
-        settings_metadata_fp = Path(fp, 'reviews', review_id,
-                                    'settings_metadata.json')
+        Path(fp, "reviews", review_id).mkdir(parents=True)
+        sql_fp = str(Path(fp, "reviews", review_id, "results.sql"))
+        settings_metadata_fp = Path(fp, "reviews", review_id, "settings_metadata.json")
 
         # Create the path for the feature matrix.
 
@@ -147,30 +145,34 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
         convert_json_settings_metadata(settings_metadata_fp, json_fp)
 
         # Create file for the feature matrix.
-        with open(kwargs_fp, 'r') as f:
+        with open(kwargs_fp, "r") as f:
             kwargs_dict = json.load(f)
-            feature_extraction_method = kwargs_dict['feature_extraction']
-        feature_matrix_fp = convert_json_feature_matrix(fp, json_fp,
-                                                        feature_extraction_method)
+            feature_extraction_method = kwargs_dict["feature_extraction"]
+        feature_matrix_fp = convert_json_feature_matrix(
+            fp, json_fp, feature_extraction_method
+        )
 
         # --- Upgrade the project.json file.
 
         # extract the start time from the state json
-        with open(json_fp, 'r') as f:
-            start_time = json.load(f)['time']['start_time']
+        with open(json_fp, "r") as f:
+            start_time = json.load(f)["time"]["start_time"]
             start_time = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S.%f")
 
         # open the project json and upgrade
-        with open(Path(fp, 'project.json'), 'r') as f:
+        with open(Path(fp, "project.json"), "r") as f:
             project_config_old = json.load(f)
 
-        project_config_new = upgrade_project_config(project_config_old, review_id,
-                                                    start_time,
-                                                    Path(feature_matrix_fp).name,
-                                                    feature_extraction_method)
+        project_config_new = upgrade_project_config(
+            project_config_old,
+            review_id,
+            start_time,
+            Path(feature_matrix_fp).name,
+            feature_extraction_method,
+        )
 
         # dump the project json
-        with open(Path(fp, 'project.json'), 'w') as f:
+        with open(Path(fp, "project.json"), "w") as f:
             json.dump(project_config_new, f)
     except Exception as e:
         rollback_conversion(fp, check_is_converted=False)
@@ -627,10 +629,7 @@ def create_decision_changes_table(sql_fp):
 
 
 # Disable is_converted_check.
-def rollback_conversion(fp,
-                        from_version=1,
-                        to_version=0,
-                        check_is_converted=True):
+def rollback_conversion(fp, from_version=1, to_version=0, check_is_converted=True):
     if from_version != 1 and to_version != 0:
         raise ValueError(
             f"Not possible to roll back conversion from v{from_version} "
@@ -638,17 +637,16 @@ def rollback_conversion(fp,
         )
 
     if check_is_converted and not is_converted_project(fp):
-        raise ValueError(f"Project file at {fp} is not a converted "
-                         f"project file.")
+        raise ValueError(f"Project file at {fp} is not a converted " f"project file.")
 
     fp = Path(fp)
-    legacy_fp = Path(fp, 'legacy')
+    legacy_fp = Path(fp, "legacy")
 
     # Delete everything other than the legacy folder.
     for item in fp.iterdir():
         if item.is_file():
             item.unlink()
-        elif item.is_dir() and (item.name != 'legacy'):
+        elif item.is_dir() and (item.name != "legacy"):
             shutil.rmtree(item)
         else:
             pass
@@ -662,20 +660,20 @@ def is_converted_project(fp):
     """Check if asreview file has been converter from v0 to v1."""
     # Check if there is a legacy project.json and it has v0.
     try:
-        with open(Path(fp, 'legacy', 'project.json'), 'r') as f:
+        with open(Path(fp, "legacy", "project.json"), "r") as f:
             project_config_old = json.load(f)
     except FileNotFoundError:
         return False
 
-    if project_config_old['version'][0] != '0':
+    if project_config_old["version"][0] != "0":
         return False
 
     # Check if the current project.json has 'state_version' == 1.
-    with open(Path(fp, 'project.json'), 'r') as f:
+    with open(Path(fp, "project.json"), "r") as f:
         project_config_current = json.load(f)
 
     try:
-        current_state_version = project_config_current['state_version']
+        current_state_version = project_config_current["state_version"]
     except KeyError:
         return False
 

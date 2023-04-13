@@ -22,7 +22,6 @@ def test_datasets(data_id):
 
 
 def test_group():
-
     group_nature = NaturePublicationDataGroup()
 
     assert group_nature.group_id is not None
@@ -36,14 +35,12 @@ def test_group():
 
 
 def test_group_to_dict():
-
     group_nature = NaturePublicationDataGroup()
 
     assert isinstance(group_nature.__dict__(), dict)
 
 
 def test_group_list():
-
     dm = DatasetManager()
 
     nature_group = dm.list(
@@ -59,7 +56,6 @@ def test_group_list():
 
 
 def test_group_exclude_list():
-
     dm = DatasetManager()
 
     groups = dm.list(exclude="benchmark-nature", raise_on_error=True, serialize=False)
@@ -70,7 +66,6 @@ def test_group_exclude_list():
 
 
 def test_template_group():
-
     # START - use for building your plugin
     my_dataset1 = BaseDataSet(
         dataset_id="my_dataset1", filepath="http", title="My dataset"
@@ -88,7 +83,6 @@ def test_template_group():
         description = "Template group"
 
         def __init__(self):
-
             super(TemplateDataGroup, self).__init__(my_dataset1, my_dataset2)
 
     # END
@@ -101,7 +95,6 @@ def test_template_group():
 
 @pytest.mark.xfail(raises=TypeError)
 def test_template_group_abc():
-
     my_dataset1 = BaseDataSet(
         dataset_id="my_dataset2",
         filepath="http",

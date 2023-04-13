@@ -43,7 +43,6 @@ def test_dataset_not_found(tmpdir):
 
 
 def test_simulate_review_finished(tmpdir):
-
     # file path
     asreview_fp = Path(tmpdir, "test.asreview")
 
