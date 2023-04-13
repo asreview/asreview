@@ -135,6 +135,9 @@ class ProjectAPI {
     }
     if (variables.url) {
       body.append("url", variables.url);
+      if (variables.validate) {
+        body.append("validate", variables.validate);
+      }
     }
     if (variables.extension) {
       body.append("plugin", variables.extension);
@@ -392,10 +395,10 @@ class ProjectAPI {
   }
 
   static fetchExportDataset({ queryKey }) {
-    const { project_id, fileFormat } = queryKey[1];
+    const { project_id, datasetLabel, fileFormat } = queryKey[1];
     const url =
       api_url +
-      `projects/${project_id}/export_dataset?file_format=${fileFormat}`;
+      `projects/${project_id}/export_dataset?dataset_label=${datasetLabel}&file_format=${fileFormat}`;
     return new Promise((resolve, reject) => {
       axios({
         url: url,
@@ -409,7 +412,7 @@ class ProjectAPI {
           link.href = url;
           link.setAttribute(
             "download",
-            `asreview_dataset_${project_id}.${fileFormat}`
+            `asreview_dataset_${datasetLabel}_${project_id}.${fileFormat}`
           );
           document.body.appendChild(link);
           link.click();

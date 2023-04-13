@@ -238,22 +238,16 @@ You can deploy ASReview LAB right now in one click on any of these clouds provid
 
 ### Docker
 
-Creating a Docker release can't be done with a hook anymore (not for free). Find the manual instructions at
-https://docs.docker.com/docker-hub/. Replace the version numbers below by the version you want to push.
+A Docker image is created when a tag or a commit to `master` is pushed.
+The workflow `docker.yml` builds images for platforms `linux/amd64` and `linux/arm64`.
+If, for some reason, the image is not built, you can build manually with the commands below.
+Find the manual instructions at <https://docs.docker.com/docker-hub/> and <https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry>.
+Replace the version numbers below by the version you want to push.
 
 ASReview LAB
 ```
-docker build -t asreview/asreview docker/asreview-lab/.
-docker build -t asreview/asreview:1.0 docker/asreview-lab/.
-docker push asreview/asreview
-docker push asreview/asreview:1.0
-```
-
-
-ASReview CLI
-```
-docker build -t asreview/asreview-cli docker/asreview-cli/.
-docker build -t asreview/asreview-cli:1.0 docker/asreview-cli/.
-docker push asreview/asreview-cli
-docker push asreview/asreview-cli:1.0
+docker build -t asreview/asreview .
+docker build -t asreview/asreview:1.0 .
+docker push ghcr.io/asreview/asreview
+docker push ghcr.io/asreview/asreview:1.0
 ```

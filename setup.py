@@ -102,19 +102,17 @@ setup(
         "Topic :: Text Processing :: General",
         "Framework :: Flask",
     ],
-    keywords="systematic review machine-learning",
-    packages=find_packages(exclude=["contrib", "docs", "tests"]),
-    package_data={
-        "asreview": [
-            "webapp/build/*",
-            "webapp/build/static/*/*",
-        ]
-    },
-    python_requires="~=3.7",
+    keywords=['systematic review', 'machine-learning'],
+    packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+    package_data={'asreview': [
+        'webapp/build/*',
+        'webapp/build/static/*/*',
+    ]},
+    python_requires='~=3.7',
     install_requires=[
         "numpy",
+        'pandas>=1,<3',
         "scikit-learn",
-        "pandas",
         "rispy~=0.7.0",
         "dill",
         "xlrd>=1.0.0",
@@ -130,6 +128,7 @@ setup(
         "requests",
         'tqdm',
         'gevent>=20',
+        'datahugger>=0.2'
     ],
     extras_require=DEPS,
     entry_points={

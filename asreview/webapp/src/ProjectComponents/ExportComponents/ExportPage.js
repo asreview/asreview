@@ -51,6 +51,7 @@ const ExportPage = (props) => {
   const [file, setFile] = React.useState("");
   const [fileFormat, setFileFormat] = React.useState("");
   const [exporting, setExporting] = React.useState(false);
+  const [datasetLabel, setDatasetLabel] = React.useState("all");
 
   const { data, error, isError, isFetching } = useQuery(
     ["fetchDatasetWriter", { project_id }],
@@ -61,10 +62,10 @@ const ExportPage = (props) => {
   );
 
   const exportDatasetQuery = useQuery(
-    ["fetchExportDataset", { project_id, fileFormat }],
+    ["fetchExportDataset", { project_id, datasetLabel, fileFormat }],
     ProjectAPI.fetchExportDataset,
     {
-      enabled: file === "dataset" && exporting,
+      enabled: (file === "dataset" || file === "dataset_relevant") && exporting,
       refetchOnWindowFocus: false,
       onSettled: () => setExporting(false),
     }
@@ -81,7 +82,7 @@ const ExportPage = (props) => {
   );
 
   const selectedQuery = () => {
-    if (file === "dataset") {
+    if (file === "dataset" || file === "dataset_relevant") {
       return [exportDatasetQuery, "fetchExportDataset"];
     }
     if (file === "project") {
@@ -91,6 +92,9 @@ const ExportPage = (props) => {
 
   const handleFile = (event) => {
     setFile(event.target.value);
+    if (event.target.value === "dataset_relevant") {
+      setDatasetLabel("relevant");
+    }
     if (event.target.value === "project") {
       setFileFormat("asreview");
     } else {
@@ -154,7 +158,19 @@ const ExportPage = (props) => {
                             gutterBottom
                             sx={{ color: "text.secondary" }}
                           >
-                            With relevant/irrelevant labels
+                            Including all labeled and unlabeled records
+                          </Typography>
+                        </Box>
+                      </MenuItem>
+                      <MenuItem value="dataset_relevant" divider>
+                        <Box>
+                          <Typography variant="subtitle1">Dataset (relevant only)</Typography>
+                          <Typography
+                            variant="body2"
+                            gutterBottom
+                            sx={{ color: "text.secondary" }}
+                          >
+                            Including relevant records only
                           </Typography>
                         </Box>
                       </MenuItem>
@@ -193,7 +209,7 @@ const ExportPage = (props) => {
                       </MouseOverPopover>
                     </Box>
                   )}
-                  {file === "dataset" && (
+                  {(file === "dataset" || file === "dataset_relevant") && (
                     <FormControl
                       className={`${classes.select} ${classes.selectHeight}`}
                       disabled={isError || isFetching}

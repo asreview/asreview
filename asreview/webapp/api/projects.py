@@ -17,13 +17,13 @@ import logging
 import shutil
 import subprocess
 import tempfile
-import urllib.parse
 from functools import wraps
 from pathlib import Path
 from urllib.request import urlretrieve
 from uuid import NAMESPACE_URL
 from uuid import uuid5
 
+import datahugger
 from flask import Blueprint
 from flask import abort
 from flask import current_app
@@ -45,6 +45,7 @@ from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.data import ASReviewData
+from asreview.data.base import _get_filename_from_url
 from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
@@ -76,6 +77,7 @@ from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.sql_converter import upgrade_project_config
 from asreview.utils import _get_executable
 from asreview.utils import asreview_path
+from asreview.utils import list_reader_names
 from asreview.webapp import DB
 from asreview.webapp.authentication.login_required import asreview_login_required  # NOQA
 from asreview.webapp.authentication.models import Project
@@ -153,6 +155,14 @@ def project_authorization(f):
         return f(project_id, *args, **kwargs)
 
     return decorated_function
+
+
+@bp.errorhandler(ValueError)
+def value_error(e):
+
+    message = str(e) if str(e) else "Incorrect value."
+    logging.error(message)
+    return jsonify(message=message), 400
 
 
 # error handlers
@@ -480,13 +490,44 @@ def api_upload_data_to_project(project):  # noqa: F401
     Path(project.project_path, "data").mkdir(exist_ok=True)
 
     if request.form.get("plugin", None):
-        url = DatasetManager().find(request.form["plugin"]).filepath
+        url = DatasetManager().find(request.form['plugin']).filepath
+        filename, url = _get_filename_from_url(url)
 
     if request.form.get("benchmark", None):
-        url = DatasetManager().find(request.form["benchmark"]).filepath
+        url = DatasetManager().find(request.form['benchmark']).filepath
+        filename, url = _get_filename_from_url(url)
 
     if request.form.get("url", None):
-        url = request.form["url"]
+        url = request.form.get('url')
+
+        # check if url value is actually DOI without netloc
+        if url.startswith("10."):
+            url = f"https://doi.org/{url}"
+
+        filename, url = _get_filename_from_url(url)
+
+        if bool(request.form.get('validate', None)):
+
+            reader_keys = list_reader_names()
+
+            if filename and Path(filename).suffix and \
+                    Path(filename).suffix in reader_keys:
+                return jsonify(files=[{"link": url, "name": filename}]), 201
+            elif filename and not Path(filename).suffix:
+                raise BadFileFormatError("Can't determine file format.")
+            else:
+                try:
+                    # get file list from datahugger
+                    dh = datahugger.info(url)
+                    files = dh.files.copy()
+
+                    for i, f in enumerate(files):
+                        files[i]["disabled"] = Path(
+                            files[i]["name"]).suffix not in reader_keys
+
+                    return jsonify(files=files), 201
+                except Exception:
+                    raise BadFileFormatError("Can't retrieve files.")
 
     if (
         request.form.get("plugin", None) or
@@ -494,21 +535,7 @@ def api_upload_data_to_project(project):  # noqa: F401
         request.form.get("url", None)
     ):
         try:
-            url_parts = urllib.parse.urlparse(url)
-            filename = secure_filename(url_parts.path.rsplit("/", 1)[-1])
-
             urlretrieve(url, Path(project.project_path, "data") / filename)
-
-        except ValueError as err:
-
-            logging.error(err)
-            message = f"Invalid URL '{url}'."
-
-            if isinstance(url, str) and not url.startswith("http"):
-                message += " Usually, the URL starts with 'http' or 'https'."
-
-            return jsonify(message=message), 400
-
         except Exception as err:
 
             logging.error(err)
@@ -1319,24 +1346,30 @@ def api_export_dataset(project):
 
     # get the export args
     file_format = request.args.get("file_format", None)
+    dataset_label = request.args.get("dataset_label", default="all")
 
     # create temporary folder to store exported dataset
-    tmp_path = tempfile.TemporaryDirectory(dir=project.project_path)
+    tmp_path = tempfile.TemporaryDirectory()
     tmp_path_dataset = Path(tmp_path.name, f"export_dataset.{file_format}")
 
     try:
         # get labels and ranking from state file
         with open_state(project.project_path) as s:
             pool, labeled, pending = s.get_pool_labeled_pending()
+            # get state dataset for accessing notes
+            state_df = s.get_dataset().set_index("record_id")
 
         included = labeled[labeled["label"] == 1]
         excluded = labeled[labeled["label"] != 1]
-        export_order = (
-            included["record_id"].to_list() +
-            pending.to_list() +
-            pool.to_list() +
-            excluded["record_id"].to_list()
-        )
+
+        if dataset_label == "relevant":
+            export_order = included['record_id'].to_list()
+            labeled = included
+        else:
+            export_order = included['record_id'].to_list() + \
+                pending.to_list() + \
+                pool.to_list() + \
+                excluded['record_id'].to_list()
 
         # get writer corresponding to specified file format
         writers = list_writers()
@@ -1348,6 +1381,29 @@ def api_export_dataset(project):
 
         # read the dataset into a ASReview data object
         as_data = read_data(project)
+
+        # Adding Notes from State file to the exported dataset
+        # Check if exported_notes column already exists due to multiple screenings
+        screening = 0
+        for col in as_data.df:
+            if col == "exported_notes":
+                screening = 0
+            elif col.startswith("exported_notes"):
+                try:
+                    screening = int(col.split("_")[2])
+                except IndexError:
+                    screening = 0
+        screening += 1
+
+        state_df.rename(
+            columns={"notes": f"exported_notes_{screening}", },
+            inplace=True,
+        )
+
+        as_data.df = as_data.df.join(
+            state_df[f"exported_notes_{screening}"],
+            on="record_id"
+        )
 
         as_data.to_file(
             fp=tmp_path_dataset,

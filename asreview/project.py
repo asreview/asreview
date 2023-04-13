@@ -666,7 +666,9 @@ class ASReviewProject:
                     raise ValueError("Project file is not valid project.")
 
                 # extract all files to folder
-                zip_obj.extractall(path=tmpdir)
+                for f in zip_filenames:
+                    if not f.endswith(".pickle"):
+                        zip_obj.extract(f, path=tmpdir)
 
         except zipfile.BadZipFile:
             raise ValueError("File is not an ASReview file.")
