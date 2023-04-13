@@ -19,8 +19,8 @@ Examples:
 
 - To update the submodule, you would still need to follow the contribution guide in the submodule repository. And then create a PR for the main repository with the updated submodule commit.
 
-
 ### Back end
+
 Install Python
 
 Install the ASReview package
@@ -36,6 +36,26 @@ For Windows, use
 
 	set FLASK_DEBUG=1
 	asreview lab
+
+#### Formatting and linting
+
+Use `flake8` to lint the Python code and format the code with `black`. Use
+`black[jupyter]` if you are editing the Jupyter notebooks. Use `isort` to
+sort the imports.
+
+Install the linters and formatters with:
+
+```sh
+pip install black[jupyter] flake8 flake8-import-order isort
+```
+
+Run the following commands to lint and format:
+
+```sh
+black .
+flake8 .
+isort --sl -m 7 .
+```
 
 ### Front end
 
@@ -64,6 +84,11 @@ Open the web browser at `localhost:3000`
 
 **Important**: Ignore `localhost:5000`. You can also find a front end on `:5000` but this is not relevant for the current front end development step.
 
+[1]:	https://www.npmjs.com/get-npm
+[2]:	https://reactjs.org/
+
+#### Formatting and linting
+
 Please make use of Prettier (https://prettier.io/docs/en/install.html) to
 format React/Javascript code. Use the following code to format all files in
 the webapp folder.
@@ -72,9 +97,6 @@ the webapp folder.
 cd asreview/webapp
 npx prettier --write .
 ```
-
-[1]:	https://www.npmjs.com/get-npm
-[2]:	https://reactjs.org/
 
 ## Authentication
 
