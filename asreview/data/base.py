@@ -14,11 +14,13 @@
 
 import hashlib
 from pathlib import Path
+from urllib.error import HTTPError
 from urllib.parse import urlparse
 from urllib.request import urlopen
 
 import numpy as np
 import pandas as pd
+from pandas.api.types import is_object_dtype
 from pandas.api.types import is_string_dtype
 
 from asreview.config import COLUMN_DEFINITIONS
@@ -62,6 +64,26 @@ def load_data(name, *args, **kwargs):
     # Could not find dataset, return None.
     raise FileNotFoundError(
         f"File, URL, or dataset does not exist: '{name}'")
+
+
+def _get_filename_from_url(url):
+
+    if not is_url(url):
+        raise ValueError(f"'{url}' is not a valid URL.")
+
+    if Path(urlparse(url).path).suffix:
+        return Path(urlparse(url).path).name, url
+    else:
+
+        try:
+            return urlopen(url).headers.get_filename(), url
+        except HTTPError as err:
+            # 308 (Permanent Redirect) not supported
+            # See https://bugs.python.org/issue40321
+            if err.code == 308:
+                return _get_filename_from_url(err.headers.get("Location"))
+            else:
+                raise err
 
 
 class ASReviewData():
@@ -151,7 +173,7 @@ class ASReviewData():
 
     @classmethod
     def from_file(cls, fp, reader=None):
-        """Create instance from csv/ris/excel file.
+        """Create instance from supported file format.
 
         It works in two ways; either manual control where the conversion
         functions are supplied or automatic, where it searches in the entry
@@ -160,40 +182,30 @@ class ASReviewData():
         Arguments
         ---------
         fp: str, pathlib.Path
-            Read the data from this file.
+            Read the data from this file or url.
         reader: class
             Reader to import the file.
         """
-        if is_url(fp):
-            path = urlparse(fp).path
-        else:
-            path = str(Path(fp).resolve())
 
         if reader is not None:
             return cls(reader.read_data(fp))
 
+        # get the filename from a url else file path
+        if is_url(fp):
+            fn, fp = _get_filename_from_url(fp)
+        else:
+            fn = Path(fp).name
+
         entry_points = get_entry_points(entry_name="asreview.readers")
 
-        best_suffix = None
+        try:
+            reader = entry_points[Path(fn).suffix].load()
+        except Exception:
+            raise BadFileFormatError(
+                f"Importing file {fp} not possible.")
 
-        for suffix, entry in entry_points.items():
-            if path.endswith(suffix):
-                if best_suffix is None or len(suffix) > len(best_suffix):
-                    best_suffix = suffix
-
-        if best_suffix is None and is_url(fp):
-            url_filename = urlopen(fp).info().get_filename()
-            for suffix, entry in entry_points.items():
-                if url_filename.endswith(suffix):
-                    if best_suffix is None or len(suffix) > len(best_suffix):
-                        best_suffix = suffix
-
-        if best_suffix is None:
-            raise BadFileFormatError(f"Error importing file {fp}, no capabilities "
-                                     "for importing such a file.")
-
-        reader = entry_points[best_suffix].load()
         df, column_spec = reader.read_data(fp)
+
         return cls(df, column_spec=column_spec)
 
     def record(self, i, by_index=True):
@@ -478,7 +490,7 @@ class ASReviewData():
         """
         if pid in self.df.columns:
             # in case of strings, strip whitespaces and replace empty strings with None
-            if is_string_dtype(self.df[pid]):
+            if is_string_dtype(self.df[pid]) or is_object_dtype(self.df[pid]):
                 s_pid = self.df[pid].str.strip().replace("", None)
             else:
                 s_pid = self.df[pid]

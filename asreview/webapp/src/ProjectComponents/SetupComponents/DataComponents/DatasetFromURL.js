@@ -1,9 +1,18 @@
 import React from "react";
 import { InputBase, Paper, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { useMutation } from "react-query";
+
 import LoadingButton from "@mui/lab/LoadingButton";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 
 import { InlineErrorHandler } from "../../../Components";
+import { StyledLoadingButton } from "../../../StyledComponents/StyledButton";
+import { ProjectAPI } from "../../../api/index.js";
 
 const PREFIX = "DatasetFromURL";
 
@@ -26,15 +35,41 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const DatasetFromURL = (props) => {
-  const handleURL = (event) => {
-    if (props.isAddDatasetError) {
-      props.reset();
+  const [localURL, setLocalURL] = React.useState("");
+
+  const { error, isError, isLoading, mutate, data } = useMutation(
+    ProjectAPI.mutateData,
+    {
+      onSuccess: (data, variables, context) => {
+        if (data["files"] && data["files"].length === 1) {
+          props.setURL(data["files"][0]["link"]);
+        }
+      },
     }
-    props.setURL(event.target.value);
+  );
+
+  const handleURL = (event) => {
+    setLocalURL(event.target.value);
   };
 
-  const addURL = () => {
-    props.handleImportDataset();
+  const addURL = (event) => {
+    // validate the url first
+    mutate({ project_id: props.project_id, url: localURL, validate: true });
+  };
+
+  const addURLOnEnter = (event) => {
+    if (event.keyCode === 13) {
+      addURL(event);
+    }
+  };
+
+  const addFile = (event) => {
+    // upload dataset
+    props.handleSaveDataset();
+  };
+
+  const handleFileChange = (event) => {
+    props.setURL(event.target.value);
   };
 
   return (
@@ -50,22 +85,70 @@ const DatasetFromURL = (props) => {
         >
           <InputBase
             autoFocus
-            disabled={props.isAddingDataset}
+            disabled={props.isAddingDataset || isLoading}
             fullWidth
             id="url-dataset"
-            placeholder="Dataset URL"
-            value={props.url}
+            placeholder="Type a URL or DOI of the dataset"
+            value={localURL}
             onChange={handleURL}
+            onKeyDown={addURLOnEnter}
             sx={{ ml: 1, flex: 1 }}
           />
-          <LoadingButton
-            disabled={!props.url}
-            loading={props.isAddingDataset}
+          <StyledLoadingButton
+            disabled={!localURL || props.isAddingDataset}
+            loading={isLoading}
             onClick={addURL}
+            sx={{ minWidth: "32px" }}
           >
-            Add
-          </LoadingButton>
+            <ArrowForwardOutlinedIcon />
+          </StyledLoadingButton>
         </Paper>
+
+        {data && data["files"] && (
+          <FormControl
+            sx={{ m: 1, minWidth: 120 }}
+            disabled={props.isAddingDataset || data["files"].length === 1}
+          >
+            <InputLabel id="select-file-label">Select dataset</InputLabel>
+            <Select
+              labelId="select-file-label"
+              id="select-file"
+              value={props.url}
+              label="Select dataset"
+              onChange={handleFileChange}
+            >
+              {data["files"].map((val, id) => {
+                return (
+                  <MenuItem
+                    key={val["name"]}
+                    value={val["link"]}
+                    disabled={val["disabled"]}
+                  >
+                    {val["name"]}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        )}
+
+        {data && data["files"] && (
+          <Stack className={classes.root}>
+            <LoadingButton
+              disabled={!props.url}
+              loading={props.isAddingDataset || isLoading}
+              onClick={addFile}
+            >
+              Add
+            </LoadingButton>
+          </Stack>
+        )}
+
+        {isError && (
+          <InlineErrorHandler
+            message={error?.message + " Use a valid URL or DOI."}
+          />
+        )}
         {props.isAddDatasetError && (
           <InlineErrorHandler
             message={props.addDatasetError?.message + " Please try again."}

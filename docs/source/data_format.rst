@@ -34,6 +34,8 @@ For tabular data files, the software accepts a set of predetermined column names
     +-------------+---------------------------------------------------------------------------------------------------------+-----------+
     | DOI         | doi                                                                                                     | no        |
     +-------------+---------------------------------------------------------------------------------------------------------+-----------+
+    | URL         | url                                                                                                     | no        |
+    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
     | Included    | final_included, label, label_included, included_label, included_final, included, included_flag, include | no        |
     +-------------+---------------------------------------------------------------------------------------------------------+-----------+
 
@@ -53,9 +55,10 @@ searching prior knowledge. Note the information is not shown during the
 screening phase and is also not used for training the model, but the
 information is available via the API.
 
-**DOI**
+**DOI and URL**
 If a Digital Object Identifier ( ``DOI``) is available it will be displayed during the
-screening phase as a clickable hyperlink to the full text document. Note by
+screening phase as a clickable hyperlink to the full text document. Similary, if a URL
+is provided, this is also displayed as a clickable link. Note by
 using ASReview you do *not* automatically have access to full-text and if you do
 not have access you might want to read this `blog post <https://asreview.ai/blog/tools-that-work-well-with-asreview-google-scholar-button/>`__.
 
