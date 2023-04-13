@@ -46,15 +46,15 @@ sort the imports.
 Install the linters and formatters with:
 
 ```sh
-pip install black[jupyter] flake8 flake8-import-order isort
+pip install black[jupyter] flake8 flake8-isort isort
 ```
 
 Run the following commands to lint and format:
 
 ```sh
 black .
+isort .
 flake8 .
-isort --sl -m 7 .
 ```
 
 ### Front end

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.entry_points.base import DeprecateAction
 from asreview.entry_points.base import _base_parser

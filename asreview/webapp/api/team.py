@@ -7,9 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from asreview.project import ASReviewProject
 from asreview.webapp import DB
-from asreview.webapp.authentication.login_required import (
-    asreview_login_required,
-)  # NOQA
+from asreview.webapp.authentication.login_required import asreview_login_required
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 

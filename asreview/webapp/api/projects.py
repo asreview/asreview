@@ -24,6 +24,8 @@ from uuid import NAMESPACE_URL
 from uuid import uuid5
 
 import datahugger
+import numpy as np
+import pandas as pd
 from flask import Blueprint
 from flask import abort
 from flask import current_app
@@ -32,8 +34,6 @@ from flask import request
 from flask import send_file
 from flask_cors import CORS
 from flask_login import current_user
-import numpy as np
-import pandas as pd
 from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
@@ -79,9 +79,7 @@ from asreview.utils import _get_executable
 from asreview.utils import asreview_path
 from asreview.utils import list_reader_names
 from asreview.webapp import DB
-from asreview.webapp.authentication.login_required import (
-    asreview_login_required,
-)  # NOQA
+from asreview.webapp.authentication.login_required import asreview_login_required
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.io import read_data
 

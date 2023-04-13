@@ -25,17 +25,17 @@ from functools import wraps
 from pathlib import Path
 from uuid import uuid4
 
-from filelock import FileLock
 import jsonschema
 import numpy as np
+from filelock import FileLock
 from scipy.sparse import csr_matrix
 from scipy.sparse import load_npz
 from scipy.sparse import save_npz
 
 from asreview._version import get_versions
 from asreview.config import LABEL_NA
-from asreview.config import PROJECT_MODES
 from asreview.config import PROJECT_MODE_SIMULATE
+from asreview.config import PROJECT_MODES
 from asreview.config import SCHEMA
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
