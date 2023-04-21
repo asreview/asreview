@@ -120,6 +120,23 @@ class LSTMBaseClassifier(BaseTrainClassifier):
         self._model = None
         self.sequence_length = None
 
+    @property
+    def _settings(self):
+        return {
+            "embedding_matrix": self.embedding_matrix,
+            "backwards": self.backwards,
+            "dropout": self.dropout,
+            "optimizer": self.optimizer,
+            "lstm_out_width": self.lstm_out_width,
+            "learn_rate": self.learn_rate,
+            "dense_width": self.dense_width,
+            "verbose": self.verbose,
+            "batch_size": self.batch_size,
+            "epochs": self.epochs,
+            "shuffle": self.shuffle,
+            "class_weight": self.class_weight,
+        }
+
     def fit(self, X, y):
         # check is tensorflow is available
         _check_tensorflow()

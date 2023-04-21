@@ -19,7 +19,7 @@ import numpy as np
 
 from asreview.models.balance.base import BaseBalance
 from asreview.models.balance.simple import SimpleBalance
-from asreview.utils import get_random_state
+from asreview.utils import SeededRandomState
 
 
 class DoubleBalance(BaseBalance):
@@ -52,14 +52,24 @@ class DoubleBalance(BaseBalance):
     name = "double"
     label = "Dynamic resampling (Double)"
 
-    def __init__(self, a=2.155, alpha=0.94, b=0.789, beta=1.0, random_state=None):
+    def __init__(self, a=2.155, alpha=0.94, b=0.789, beta=1.0, random_seed=None):
         super(DoubleBalance, self).__init__()
         self.a = a
         self.alpha = alpha
         self.b = b
         self.beta = beta
         self.fallback_model = SimpleBalance()
-        self._random_state = get_random_state(random_state)
+        self._random_state = SeededRandomState(self.random_seed)
+
+    @property
+    def _settings(self):
+        return {
+            "a": self.a,
+            "alpha": self.alpha,
+            "b": self.b,
+            "beta": self.beta,
+            "random_state": self._random_state.seed,
+        }
 
     def sample(self, X, y, train_idx):
         """Resample the training data.

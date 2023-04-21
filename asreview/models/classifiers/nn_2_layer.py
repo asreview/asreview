@@ -115,6 +115,20 @@ class NN2LayerClassifier(BaseTrainClassifier):
         self._model = None
         self.input_dim = None
 
+    @property
+    def _settings(self):
+        return {
+            "dense_width": self.dense_width,
+            "optimizer": self.optimizer,
+            "learn_rate": self.learn_rate,
+            "regularization": self.regularization,
+            "verbose": self.verbose,
+            "epochs": self.epochs,
+            "batch_size": self.batch_size,
+            "shuffle": self.shuffle,
+            "class_weight": self.class_weight,
+        }
+
     def fit(self, X, y):
         # check is tensorflow is available
         _check_tensorflow()

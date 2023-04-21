@@ -19,11 +19,11 @@ import pandas as pd
 from asreview.project import open_state
 from asreview.review import BaseReview
 from asreview.review.base import LABEL_NA
-from asreview.utils import get_random_state
+from asreview.utils import SeededRandomState
 
 
 def sample_prior_knowledge(
-    labels, n_prior_included=10, n_prior_excluded=10, random_state=None
+    labels, n_prior_included=10, n_prior_excluded=10, random_seed=None
 ):
     """Function to sample prelabelled articles.
 
@@ -35,11 +35,8 @@ def sample_prior_knowledge(
         The number of positive labels.
     n_prior_excluded: int
         The number of negative labels.
-    random_state : int, RandomState instance or None, optional (default=None)
-        If int, random_state is the seed used by the random number generator;
-        If RandomState instance, random_state is the random number generator;
-        If None, the random number generator is the RandomState instance used
-        by `np.random`.
+    random_seed : int, SeededRandomState instance or None, optional (default=None)
+        Integer used to seed random processes.
 
     Returns
     -------
@@ -48,7 +45,7 @@ def sample_prior_knowledge(
 
     """
     # set random state
-    r = get_random_state(random_state)
+    r = SeededRandomState(random_seed)
 
     # retrieve the index of included and excluded papers
     included_idx = np.where(labels == 1)[0]
@@ -151,7 +148,7 @@ class ReviewSimulate(BaseReview):
             start_idx = as_data.prior_data_idx
             if len(start_idx) == 0 and n_prior_included + n_prior_excluded > 0:
                 start_idx = sample_prior_knowledge(
-                    labels, n_prior_included, n_prior_excluded, random_state=init_seed
+                    labels, n_prior_included, n_prior_excluded, random_seed=init_seed
                 )
         super(ReviewSimulate, self).__init__(
             as_data, *args, start_idx=start_idx, **kwargs

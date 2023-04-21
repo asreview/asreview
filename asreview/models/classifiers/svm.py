@@ -16,6 +16,7 @@ from sklearn.svm import SVC
 
 from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.models.classifiers.utils import _set_class_weight
+from asreview.utils import SeededRandomState
 
 
 class SVMClassifier(BaseTrainClassifier):
@@ -35,8 +36,8 @@ class SVMClassifier(BaseTrainClassifier):
         C parameter of the SVM model.
     kernel: str
         SVM kernel type.
-    random_state: int, RandomState
-        State of the RNG.
+    random_seed: int, SeededRandomState
+        Integer used to seed random processes.
     """
 
     name = "svm"
@@ -48,23 +49,33 @@ class SVMClassifier(BaseTrainClassifier):
         class_weight=0.249,
         C=15.4,
         kernel="linear",
-        random_state=None,
+        random_seed=None,
     ):
         super(SVMClassifier, self).__init__()
         self.gamma = gamma
         self.class_weight = class_weight
         self.C = C
         self.kernel = kernel
-        self._random_state = random_state
+        self._random_state = SeededRandomState(random_seed)
 
         self._model = SVC(
             kernel=kernel,
             C=C,
             class_weight=_set_class_weight(class_weight),
-            random_state=random_state,
+            random_state=self._random_state,
             gamma=gamma,
             probability=True,
         )
+
+    @property
+    def _settings(self):
+        return {
+            "gamma": self.gamma,
+            "class_weight": self.class_weight,
+            "C": self.C,
+            "kernel": self.kernel,
+            "random_seed": self._random_state.seed,
+        }
 
     def full_hyper_space(self):
         from hyperopt import hp

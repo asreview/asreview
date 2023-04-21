@@ -18,6 +18,7 @@ from sklearn.linear_model import LogisticRegression
 
 from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.models.classifiers.utils import _set_class_weight
+from asreview.utils import SeededRandomState
 
 
 class LogisticClassifier(BaseTrainClassifier):
@@ -33,8 +34,8 @@ class LogisticClassifier(BaseTrainClassifier):
         Parameter inverse to the regularization strength of the model.
     class_weight: float
         Class weight of the inclusions.
-    random_state: int, RandomState
-        Random state for the model.
+    random_seed: int, SeededRandomState
+        Integer used to seed random processes.
     n_jobs: int
         Number of CPU cores used.
     """
@@ -42,20 +43,30 @@ class LogisticClassifier(BaseTrainClassifier):
     name = "logistic"
     label = "Logistic regression"
 
-    def __init__(self, C=1.0, class_weight=1.0, random_state=None, n_jobs=1):
+    def __init__(self, C=1.0, class_weight=1.0, random_seed=None, n_jobs=1):
         super(LogisticClassifier, self).__init__()
         self.C = C
         self.class_weight = class_weight
         self.n_jobs = n_jobs
+        self._random_state = SeededRandomState(random_seed)
 
         self._model = LogisticRegression(
             solver="liblinear",
             C=C,
             class_weight=_set_class_weight(class_weight),
             n_jobs=n_jobs,
-            random_state=random_state,
+            random_state=self._random_state,
         )
         logging.debug(self._model)
+
+    @property
+    def _settings(self):
+        return {
+            "C": self.C,
+            "class_weight": self.class_weight,
+            "n_jobs": self.n_jobs,
+            "random_seed": self._random_state.seed,
+        }
 
     def full_hyper_space(self):
         from hyperopt import hp

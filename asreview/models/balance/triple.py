@@ -22,7 +22,7 @@ from asreview.models.balance.double import _one_weight
 from asreview.models.balance.double import _zero_weight
 from asreview.models.balance.double import fill_training
 from asreview.models.balance.double import random_round
-from asreview.utils import get_random_state
+from asreview.utils import SeededRandomState
 
 
 class TripleBalance(BaseBalance):
@@ -75,7 +75,7 @@ class TripleBalance(BaseBalance):
         c=0.835,
         gamma=2.0,
         shuffle=True,
-        random_state=None,
+        random_seed=None,
     ):
         """Initialize the triple balance strategy."""
 
@@ -88,9 +88,22 @@ class TripleBalance(BaseBalance):
         self.gamma = gamma
         self.shuffle = shuffle
         self.fallback_model = DoubleBalance(
-            a=a, alpha=alpha, b=b, beta=beta, random_state=random_state
+            a=a, alpha=alpha, b=b, beta=beta, random_seed=random_seed
         )
-        self._random_state = get_random_state(random_state)
+        self._random_state = SeededRandomState(random_seed)
+
+    @property
+    def _settings(self):
+        return {
+            "a": self.a,
+            "alpha": self.alpha,
+            "b": self.b,
+            "beta": self.beta,
+            "c": self.c,
+            "gamma": self.gamma,
+            "shuffle": self.shuffle,
+            "random_seed": self._random_state.seed,
+        }
 
     def sample(self, X, y, train_idx, shared):
         """Resample the training data.

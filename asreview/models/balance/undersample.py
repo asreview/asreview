@@ -17,7 +17,7 @@ from math import ceil
 import numpy as np
 
 from asreview.models.balance.base import BaseBalance
-from asreview.utils import get_random_state
+from asreview.utils import SeededRandomState
 
 
 class UndersampleBalance(BaseBalance):
@@ -36,11 +36,15 @@ class UndersampleBalance(BaseBalance):
     name = "undersample"
     label = "Undersampling"
 
-    def __init__(self, ratio=1.0, random_state=None):
+    def __init__(self, ratio=1.0, random_seed=None):
         """Initialize the undersampling balance strategy."""
         super(UndersampleBalance, self).__init__()
         self.ratio = ratio
-        self._random_state = get_random_state(random_state)
+        self._random_state = SeededRandomState(random_seed)
+
+    @property
+    def _settings(self):
+        return {"ratio": self.ratio, "random_seed": self._random_state.seed}
 
     def sample(self, X, y, train_idx):
         """Resample the training data.

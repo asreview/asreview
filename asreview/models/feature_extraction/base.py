@@ -30,6 +30,14 @@ class BaseFeatureExtraction(BaseModel):
         self.split_ta = split_ta
         self.use_keywords = use_keywords
 
+    @property
+    def settings(self):
+        super_settings = super().settings
+        super_settings.update(
+            {"split_ta": self.split_ta, "use_keywords": self.use_keywords}
+        )
+        return super_settings.update(self._settings)
+
     def fit_transform(self, texts, titles=None, abstracts=None, keywords=None):
         """Fit and transform a list of texts.
 

@@ -32,7 +32,7 @@ else:
 
 from asreview.models.feature_extraction.base import BaseFeatureExtraction
 from asreview.models.feature_extraction.embedding_lstm import load_embedding
-from asreview.utils import get_random_state
+from asreview.utils import SeededRandomState
 
 
 def _check_tensorflow():
@@ -63,12 +63,23 @@ class EmbeddingIdf(BaseFeatureExtraction):
     name = "embedding-idf"
     label = "Embedding IDF"
 
-    def __init__(self, *args, embedding_fp=None, random_state=None, **kwargs):
+    def __init__(self, *args, embedding_fp=None, random_seed=None, **kwargs):
         """Initialize the Embedding-Idf model."""
+        self.model_args = args
+        self.model_kwargs = kwargs
         super(EmbeddingIdf, self).__init__(*args, **kwargs)
         self.embedding_fp = embedding_fp
         self.embedding = None
-        self._random_state = get_random_state(random_state)
+        self._random_state = SeededRandomState(random_seed)
+
+    @property
+    def _settings(self):
+        return {
+            "args": self.model_args,
+            "embedding_fp": self.embedding_fp,
+            "random_seed": self._random_state.seed,
+            "kwargs": self.model_kwargs,
+        }
 
     def transform(self, texts):
         # check is tensorflow is available

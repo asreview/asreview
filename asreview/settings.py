@@ -24,6 +24,8 @@ from asreview.models.query import get_query_model
 from asreview.types import type_n_queries
 from asreview.utils import pretty_format
 
+# Dictionary containing the data type each setting should have.
+# 'stop_if' is an exception, it is either an integer or 'min'.
 SETTINGS_TYPE_DICT = {
     "model": str,
     "query_strategy": str,
@@ -42,6 +44,24 @@ SETTINGS_TYPE_DICT = {
 
 
 def _map_settings_type(name, value):
+    """Cast the value of a setting to the correct type according to above dict.
+
+    Parameters
+    ----------
+    name : str
+        Name of the setting. Should be a key in SETTINGS_TYPE_DICT
+    value :
+        Value of the settings.
+
+    Returns
+    -------
+    Value cast to the type as determined by SETTINGS_TYPE_DICT
+
+    Raises
+    ------
+    TypeError
+        If value can't be cast to the correct type.
+    """
     if value is None:
         return None
 
@@ -126,6 +146,8 @@ class ASReviewSettings(object):
         return pretty_format(self.to_dict())
 
     def __setattr__(self, name, value):
+        """Set the attribute value, but first map it to the correct type,
+        if it is included in SETTINGS_TYPE_DICT."""
         try:
             super(ASReviewSettings, self).__setattr__(
                 name, _map_settings_type(name, value)
@@ -134,7 +156,8 @@ class ASReviewSettings(object):
             super(ASReviewSettings, self).__setattr__(name, value)
 
     def to_dict(self):
-        """Export default settings to dict."""
+        """Convert the settings object to a dictionary and drop any information
+        that is not in SETTINGS_TYPE_DICT."""
         info_dict = {}
         for attrib in SETTINGS_TYPE_DICT:
             value = getattr(self, attrib, None)

@@ -42,6 +42,8 @@ class Tfidf(BaseFeatureExtraction):
 
     def __init__(self, *args, ngram_max=1, stop_words="english", **kwargs):
         """Initialize tfidf class."""
+        self.model_args = args
+        self.model_kwargs = kwargs
         super(Tfidf, self).__init__(*args, **kwargs)
         self.ngram_max = ngram_max
         self.stop_words = stop_words
@@ -52,6 +54,15 @@ class Tfidf(BaseFeatureExtraction):
         self._model = TfidfVectorizer(
             ngram_range=(1, ngram_max), stop_words=sklearn_stop_words
         )
+
+    @property
+    def _settings(self):
+        return {
+            "args": self.model_args,
+            "ngram_max": self.ngram_max,
+            "stop_words": self.stop_words,
+            "kwargs": self.model_kwargs,
+        }
 
     def fit(self, texts):
         self._model.fit(texts)

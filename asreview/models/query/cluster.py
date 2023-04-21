@@ -17,7 +17,7 @@ from sklearn.cluster import KMeans
 
 from asreview.models.query.base import ProbaQueryStrategy
 from asreview.models.query.max import MaxQuery
-from asreview.utils import get_random_state
+from asreview.utils import SeededRandomState
 
 
 class ClusterQuery(ProbaQueryStrategy):
@@ -33,21 +33,28 @@ class ClusterQuery(ProbaQueryStrategy):
         smaller than the size of the pool, fall back to max sampling.
     update_interval: int
         Update the clustering every x instances.
-    random_state: int, RandomState
-        State/seed of the RNG.
+    random_seed: int, SeededRandomState
+        Integer used to seed the random processes.
     """
 
     name = "cluster"
     label = "Clustering"
 
-    def __init__(self, cluster_size=350, update_interval=200, random_state=None):
+    def __init__(self, cluster_size=350, update_interval=200, random_seed=None):
         """Initialize the clustering strategy."""
         super(ClusterQuery, self).__init__()
         self.cluster_size = cluster_size
         self.update_interval = update_interval
         self.last_update = None
         self.fallback_model = MaxQuery()
-        self._random_state = get_random_state(random_state)
+        self._random_state = SeededRandomState(random_seed)
+
+    def _settings(self):
+        return {
+            "cluster_size": self.cluster_size,
+            "update_interval": self.update_interval,
+            "random_seed": self._random_state.seed,
+        }
 
     def _query(self, predictions, n_instances, X):
         n_samples = X.shape[0]

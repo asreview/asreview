@@ -46,6 +46,10 @@ class NaiveBayesClassifier(BaseTrainClassifier):
         self._model = MultinomialNB(alpha=alpha)
         logging.debug(self._model)
 
+    @property
+    def _settings(self):
+        return {"alpha": self.alpha}
+
     def full_hyper_space(self):
         from hyperopt import hp
 

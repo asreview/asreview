@@ -57,7 +57,7 @@ def get_query_class(name):
         raise ValueError(f"Error: query name '{name}' is not implemented.")
 
 
-def get_query_model(name, *args, random_state=None, **kwargs):
+def get_query_model(name, *args, random_seed=None, **kwargs):
     """Get an instance of the query strategy.
 
     Arguments
@@ -76,6 +76,6 @@ def get_query_model(name, *args, random_state=None, **kwargs):
     """
     query_class = get_query_class(name)
     try:
-        return query_class(*args, random_state=random_state, **kwargs)
+        return query_class(*args, random_seed=random_seed, **kwargs)
     except TypeError:
         return query_class(*args, **kwargs)

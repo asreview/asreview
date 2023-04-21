@@ -263,21 +263,21 @@ def is_url(url):
         return False
 
 
-def get_random_state(random_state):
-    """Create a RandomState instance.
+class SeededRandomState(np.random.RandomState):
+    def __init__(self, seed=None):
+        """Random State that is always seeded.
 
-    Parameters
-    ----------
-    random_state: int, numpy.RandomState
-        If it is an integer, seed a new random state.
-        If it is a RandomState, return it (nop).
-        If it is None, return the random state of numpy.
-    """
-
-    if not isinstance(random_state, np.random.RandomState):
-        return np.random.RandomState(random_state)
-
-    return random_state
+        Parameters
+        ----------
+        seed : int, optional
+            Integer to use as seed of the random state. If None, a random integer
+            will be used as seed, by default None
+        """
+        if seed is None:
+            self.seed = np.random.randint(0, 2**32)
+        else:
+            self.seed = seed
+        super().__init__(seed=seed)
 
 
 def _get_executable():

@@ -16,6 +16,7 @@ from sklearn.ensemble import RandomForestClassifier as SKRandomForestClassifier
 
 from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.models.classifiers.utils import _set_class_weight
+from asreview.utils import SeededRandomState
 
 
 class RandomForestClassifier(BaseTrainClassifier):
@@ -33,7 +34,8 @@ class RandomForestClassifier(BaseTrainClassifier):
         Number of features in the model.
     class_weight: float, default=1.0
         Class weight of the inclusions.
-    random_state : int or RandomState, default=None
+    random_seed : int or SeededRandomState, default=None
+        Integer used to seed random processes.
         Controls both the randomness of the bootstrapping of the samples used
         when building trees and the sampling of the features to consider when
         looking for the best split at each node.
@@ -43,20 +45,29 @@ class RandomForestClassifier(BaseTrainClassifier):
     label = "Random forest"
 
     def __init__(
-        self, n_estimators=100, max_features=10, class_weight=1.0, random_state=None
+        self, n_estimators=100, max_features=10, class_weight=1.0, random_seed=None
     ):
         super(RandomForestClassifier, self).__init__()
         self.n_estimators = int(n_estimators)
         self.max_features = int(max_features)
         self.class_weight = class_weight
-        self._random_state = random_state
+        self._random_state = SeededRandomState(random_seed)
 
         self._model = SKRandomForestClassifier(
             n_estimators=self.n_estimators,
             max_features=self.max_features,
             class_weight=_set_class_weight(class_weight),
-            random_state=random_state,
+            random_state=self._random_state,
         )
+
+    @property
+    def _settings(self):
+        return {
+            "n_estimators": self.n_estimators,
+            "max_features": self.max_features,
+            "class_weight": self.class_weight,
+            "random_seed": self._random_state.seed,
+        }
 
     def full_hyper_space(self):
         from hyperopt import hp

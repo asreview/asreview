@@ -105,6 +105,8 @@ class Doc2Vec(BaseFeatureExtraction):
         **kwargs
     ):
         """Initialize the doc2vec model."""
+        self.model_args = args
+        self.model_kwargs = kwargs
         super(Doc2Vec, self).__init__(*args, **kwargs)
         self.vector_size = int(vector_size)
         self.epochs = int(epochs)
@@ -117,6 +119,21 @@ class Doc2Vec(BaseFeatureExtraction):
         self._model = None
         self._model_dm = None
         self._model_dbow = None
+
+    @property
+    def _settings(self):
+        return {
+            "args": self.model_args,
+            "vector_size": self.vector_size,
+            "epochs": self.epochs,
+            "min_count": self.min_count,
+            "n_jobs": self.n_jobs,
+            "window": self.window,
+            "dm_concat": self.dm_concat,
+            "dm": self.dm,
+            "dbow_words": self.dbow_words,
+            "kwargs": self.model_kwargs,
+        }
 
     def fit(self, texts):
         # check is gensim is available

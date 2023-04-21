@@ -48,7 +48,7 @@ def get_balance_class(name):
     return _model_class_from_entry_point(name, entry_name="asreview.models.balance")
 
 
-def get_balance_model(name, *args, random_state=None, **kwargs):
+def get_balance_model(name, *args, random_seed=None, **kwargs):
     """Get an instance of a balance model from a string.
 
     Arguments
@@ -67,6 +67,6 @@ def get_balance_model(name, *args, random_state=None, **kwargs):
     """
     balance_class = get_balance_class(name)
     try:
-        return balance_class(*args, random_state=random_state, **kwargs)
+        return balance_class(*args, random_seed=random_seed, **kwargs)
     except TypeError:
         return balance_class(*args, **kwargs)

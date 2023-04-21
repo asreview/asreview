@@ -46,9 +46,8 @@ def get_lab_reviewer(
     with open_state(project) as state:
         settings = state.settings
 
-    # TODO: Set random seed.
-    # Initialize models.
-    # random_state = get_random_state(seed)
+    # TODO(random_state) Get the random seed for each part of the model from the
+    # settings stored in the state file.
     classifier_model = get_classifier(settings.model)
     query_model = get_query_model(settings.query_strategy)
     balance_model = get_balance_model(settings.balance_strategy)

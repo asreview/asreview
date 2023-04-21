@@ -16,7 +16,7 @@ import numpy as np
 
 from asreview.models.query.base import BaseQueryStrategy
 from asreview.models.query.utils import get_query_model
-from asreview.utils import get_random_state
+from asreview.utils import SeededRandomState
 
 
 def _parse_mixed_kwargs(kwargs, strategy_name):
@@ -51,8 +51,8 @@ class MixedQuery(BaseQueryStrategy):
         distribution. E.g. for mix_ratio=0.95, this implies strategy_1
         with probability 0.95 and strategy_2 with probability 0.05.
         Default 0.95.
-    random_state: float
-        Seed for the numpy random number generator.
+    random_seed: int, SeededRandomState
+        Integer used to seed random processes.
     **kwargs: dict
         Keyword arguments for the two strategy. To specify which of the
         strategies the argument is for, prepend with the name of the query
@@ -64,32 +64,42 @@ class MixedQuery(BaseQueryStrategy):
         strategy_1="max",
         strategy_2="random",
         mix_ratio=0.95,
-        random_state=None,
+        random_seed=None,
         **kwargs
     ):
         """Initialize the Mixed query strategy."""
         super(MixedQuery, self).__init__()
+        self.model_kwargs = kwargs
 
         self.strategy_1 = strategy_1
         self.strategy_2 = strategy_2
 
         self.mix_ratio = mix_ratio
-        self._random_state = get_random_state(random_state)
+        self._random_state = SeededRandomState(random_seed)
 
         self.kwargs_1 = _parse_mixed_kwargs(kwargs, strategy_1)
         self.kwargs_2 = _parse_mixed_kwargs(kwargs, strategy_2)
 
         self.query_model1 = get_query_model(strategy_1, **self.kwargs_1)
-        if "random_state" in self.query_model1.default_param:
+        if "random_seed" in self.query_model1.default_param:
             self.query_model1 = get_query_model(
-                strategy_1, random_state=self._random_state, **self.kwargs_1
+                strategy_1, random_seed=self._random_state, **self.kwargs_1
             )
 
         self.query_model2 = get_query_model(strategy_2, **self.kwargs_2)
-        if "random_state" in self.query_model2.default_param:
+        if "random_seed" in self.query_model2.default_param:
             self.query_model2 = get_query_model(
-                strategy_2, random_state=self._random_state, **self.kwargs_2
+                strategy_2, random_seed=self._random_state, **self.kwargs_2
             )
+
+    def _settings(self):
+        return {
+            "strategy_1": self.strategy_1,
+            "strategy_2": self.strategy_2,
+            "mix_ratio": self.mix_ratio,
+            "random_seed": self._random_state.seed,
+            "kwargs": self.model_kwargs,
+        }
 
     def query(self, X, classifier, n_instances=None, **kwargs):
         # set the number of instances to len(X) if None
@@ -167,13 +177,13 @@ class MaxRandomQuery(MixedQuery):
     name = "max_random"
     label = "Mixed (95% Maximum and 5% Random)"
 
-    def __init__(self, mix_ratio=0.95, random_state=None, **kwargs):
+    def __init__(self, mix_ratio=0.95, random_seed=None, **kwargs):
         """Initialize the Mixed (Maximum and Random) query strategy."""
         super(MaxRandomQuery, self).__init__(
             strategy_1="max",
             strategy_2="random",
             mix_ratio=mix_ratio,
-            random_state=random_state,
+            random_seed=random_seed,
             **kwargs
         )
 
@@ -190,12 +200,12 @@ class MaxUncertaintyQuery(MixedQuery):
     name = "max_uncertainty"
     label = "Mixed (95% Maximum and 5% Uncertainty)"
 
-    def __init__(self, mix_ratio=0.95, random_state=None, **kwargs):
+    def __init__(self, mix_ratio=0.95, random_seed=None, **kwargs):
         """Initialize the Mixed (Maximum and Uncertainty) query strategy."""
         super(MaxUncertaintyQuery, self).__init__(
             strategy_1="max",
             strategy_2="uncertainty",
             mix_ratio=mix_ratio,
-            random_state=random_state,
+            random_seed=random_seed,
             **kwargs
         )

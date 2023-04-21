@@ -86,6 +86,8 @@ class EmbeddingLSTM(BaseFeatureExtraction):
         **kwargs,
     ):
         """Initialize the embedding matrix feature extraction."""
+        self.model_args = args
+        self.model_kwargs = kwargs
         super(EmbeddingLSTM, self).__init__(*args, **kwargs)
         self.embedding = None
         self.num_words = num_words
@@ -94,6 +96,19 @@ class EmbeddingLSTM(BaseFeatureExtraction):
         self.truncating = truncating
         self.n_jobs = n_jobs
         self.loop_sequence = loop_sequence
+
+    @property
+    def _settings(self):
+        return {
+            "args": self.model_args,
+            "loop_sequence": self.loop_sequence,
+            "num_words": self.num_words,
+            "max_sequence_length": self.max_sequence_length,
+            "padding": self.padding,
+            "truncating": self.truncating,
+            "n_jobs": self.n_jobs,
+            "kwargs": self.model_kwargs,
+        }
 
     def transform(self, texts):
         _check_tensorflow()

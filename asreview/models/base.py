@@ -31,6 +31,20 @@ class BaseModel(ABC):
 
     name = "base"
 
+    _settings = {}
+
+    @property
+    def settings(self):
+        """Get the settings of the model object.
+
+        Returns
+        -------
+        dict
+            Returns the settings consisting of the name plus
+            any settings in self._settings.
+        """
+        return {"name": self.name}.update(self._settings)
+
     @property
     def default_param(self):
         """Get the default parameters of the model.

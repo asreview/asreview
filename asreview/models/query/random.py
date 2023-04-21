@@ -16,7 +16,7 @@
 import numpy as np
 
 from asreview.models.query.base import BaseQueryStrategy
-from asreview.utils import get_random_state
+from asreview.utils import SeededRandomState
 
 
 class RandomQuery(BaseQueryStrategy):
@@ -33,9 +33,12 @@ class RandomQuery(BaseQueryStrategy):
     name = "random"
     label = "Random"
 
-    def __init__(self, random_state=None):
+    def __init__(self, random_seed=None):
         super(RandomQuery, self).__init__()
-        self._random_state = get_random_state(random_state)
+        self._random_state = SeededRandomState(random_seed)
+
+    def _settings(self):
+        return {"random_seed": self._random_state.seed}
 
     def query(self, X, classifier=None, n_instances=None, **kwargs):
         if n_instances is None:

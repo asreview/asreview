@@ -41,7 +41,6 @@ from asreview.project import open_state
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
 from asreview.types import type_n_queries
-from asreview.utils import get_random_state
 from asreview.webapp.io import read_data
 
 ASCII_MSG_SIMULATE = """
@@ -174,23 +173,22 @@ class SimulateEntryPoint(BaseEntryPoint):
             settings.from_file(args.config_file)
 
             # Initialize models.
-            random_state = get_random_state(args.seed)
             classifier_model = get_classifier(
-                settings.model, random_state=random_state, **settings.model_param
+                settings.model, random_seed=args.seed, **settings.model_param
             )
             query_model = get_query_model(
                 settings.query_strategy,
-                random_state=random_state,
+                random_seed=args.seed,
                 **settings.query_param,
             )
             balance_model = get_balance_model(
                 settings.balance_strategy,
-                random_state=random_state,
+                random_seed=args.seed,
                 **settings.balance_param,
             )
             feature_model = get_feature_model(
                 settings.feature_extraction,
-                random_state=random_state,
+                random_seed=args.seed,
                 **settings.feature_param,
             )
 
