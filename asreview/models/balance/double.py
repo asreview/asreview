@@ -59,7 +59,7 @@ class DoubleBalance(BaseBalance):
         self.b = b
         self.beta = beta
         self.fallback_model = SimpleBalance()
-        self._random_state = SeededRandomState(self.random_seed)
+        self._random_state = SeededRandomState(random_seed)
 
     @property
     def _settings(self):
@@ -68,7 +68,7 @@ class DoubleBalance(BaseBalance):
             "alpha": self.alpha,
             "b": self.b,
             "beta": self.beta,
-            "random_state": self._random_state.seed,
+            "random_state": self._random_state.random_seed,
         }
 
     def sample(self, X, y, train_idx):

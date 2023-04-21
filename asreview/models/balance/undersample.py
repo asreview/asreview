@@ -44,7 +44,7 @@ class UndersampleBalance(BaseBalance):
 
     @property
     def _settings(self):
-        return {"ratio": self.ratio, "random_seed": self._random_state.seed}
+        return {"ratio": self.ratio, "random_seed": self._random_state.random_seed}
 
     def sample(self, X, y, train_idx):
         """Resample the training data.

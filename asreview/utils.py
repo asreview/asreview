@@ -273,11 +273,14 @@ class SeededRandomState(np.random.RandomState):
             Integer to use as seed of the random state. If None, a random integer
             will be used as seed, by default None
         """
-        if seed is None:
-            self.seed = np.random.randint(0, 2**32)
+        if isinstance(seed, SeededRandomState):
+            self.random_seed = seed.random_seed
+        elif seed is None:
+            rng = np.random.default_rng()
+            self.random_seed = int(rng.integers(0, high=2**32))
         else:
-            self.seed = seed
-        super().__init__(seed=seed)
+            self.random_seed = int(seed)
+        super().__init__(seed=self.random_seed)
 
 
 def _get_executable():

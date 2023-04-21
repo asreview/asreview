@@ -66,7 +66,7 @@ class RandomForestClassifier(BaseTrainClassifier):
             "n_estimators": self.n_estimators,
             "max_features": self.max_features,
             "class_weight": self.class_weight,
-            "random_seed": self._random_state.seed,
+            "random_seed": self._random_state.random_seed,
         }
 
     def full_hyper_space(self):

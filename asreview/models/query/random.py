@@ -38,7 +38,7 @@ class RandomQuery(BaseQueryStrategy):
         self._random_state = SeededRandomState(random_seed)
 
     def _settings(self):
-        return {"random_seed": self._random_state.seed}
+        return {"random_seed": self._random_state.random_seed}
 
     def query(self, X, classifier=None, n_instances=None, **kwargs):
         if n_instances is None:

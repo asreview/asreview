@@ -77,7 +77,7 @@ class EmbeddingIdf(BaseFeatureExtraction):
         return {
             "args": self.model_args,
             "embedding_fp": self.embedding_fp,
-            "random_seed": self._random_state.seed,
+            "random_seed": self._random_state.random_seed,
             "kwargs": self.model_kwargs,
         }
 

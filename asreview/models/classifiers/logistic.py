@@ -65,7 +65,7 @@ class LogisticClassifier(BaseTrainClassifier):
             "C": self.C,
             "class_weight": self.class_weight,
             "n_jobs": self.n_jobs,
-            "random_seed": self._random_state.seed,
+            "random_seed": self._random_state.random_seed,
         }
 
     def full_hyper_space(self):

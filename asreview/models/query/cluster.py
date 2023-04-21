@@ -53,7 +53,7 @@ class ClusterQuery(ProbaQueryStrategy):
         return {
             "cluster_size": self.cluster_size,
             "update_interval": self.update_interval,
-            "random_seed": self._random_state.seed,
+            "random_seed": self._random_state.random_seed,
         }
 
     def _query(self, predictions, n_instances, X):

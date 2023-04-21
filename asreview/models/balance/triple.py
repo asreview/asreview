@@ -102,7 +102,7 @@ class TripleBalance(BaseBalance):
             "c": self.c,
             "gamma": self.gamma,
             "shuffle": self.shuffle,
-            "random_seed": self._random_state.seed,
+            "random_seed": self._random_state.random_seed,
         }
 
     def sample(self, X, y, train_idx, shared):

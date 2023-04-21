@@ -97,7 +97,7 @@ class MixedQuery(BaseQueryStrategy):
             "strategy_1": self.strategy_1,
             "strategy_2": self.strategy_2,
             "mix_ratio": self.mix_ratio,
-            "random_seed": self._random_state.seed,
+            "random_seed": self._random_state.random_seed,
             "kwargs": self.model_kwargs,
         }
 

@@ -74,7 +74,7 @@ class SVMClassifier(BaseTrainClassifier):
             "class_weight": self.class_weight,
             "C": self.C,
             "kernel": self.kernel,
-            "random_seed": self._random_state.seed,
+            "random_seed": self._random_state.random_seed,
         }
 
     def full_hyper_space(self):
