@@ -28,7 +28,7 @@ from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import EMAIL_ADDRESS
 from asreview.config import GITHUB_PAGE
-from asreview.data import load_data
+from asreview.data.base import load_data
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.entry_points.base import _base_parser
 from asreview.models.balance.utils import get_balance_model

@@ -24,6 +24,12 @@ from asreview.utils import get_entry_points
 from asreview.utils import is_iterable
 
 
+__all__ = [
+    "DatasetManager",
+    "BaseDataSet"
+]
+
+
 class DatasetNotFoundError(Exception):
     pass
 
