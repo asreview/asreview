@@ -45,10 +45,10 @@ DEPS = {
     "sbert": ["sentence_transformers"],
     "doc2vec": ["gensim"],
     "tensorflow": ["tensorflow~=2.0"],
-    "dev": ["check-manifest"],
+    "dev": ["black", "check-manifest", "flake8", "flake8-isort", "isort"],
     "test": ["coverage", "pytest"],
 }
-DEPS["all"] = DEPS["sbert"] + DEPS["doc2vec"] + DEPS["dev"]
+DEPS["all"] = DEPS["sbert"] + DEPS["doc2vec"]
 DEPS["all"] += DEPS["tensorflow"]
 
 
