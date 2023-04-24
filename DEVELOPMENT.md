@@ -25,7 +25,7 @@ Install Python
 
 Install the ASReview package
 
-	pip install -e .
+	pip install -e .[dev]
 
 Start the Python API server with the Flask development environment
 
