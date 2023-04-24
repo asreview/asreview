@@ -48,7 +48,7 @@ DEPS = {
     "dev": ["black", "check-manifest", "flake8", "flake8-isort", "isort"],
     "test": ["coverage", "pytest"],
 }
-DEPS["all"] = DEPS["sbert"] + DEPS["doc2vec"] + DEPS["dev"]
+DEPS["all"] = DEPS["sbert"] + DEPS["doc2vec"]
 DEPS["all"] += DEPS["tensorflow"]
 
 
