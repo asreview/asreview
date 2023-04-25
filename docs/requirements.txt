@@ -4,3 +4,4 @@ sphinx_rtd_theme==1.0.0
 sphinx-reredirects
 sphinxcontrib-youtube
 nbsphinx
+flask_sqlalchemy
