@@ -104,8 +104,11 @@ autosectionlabel_prefix_document = True
 # generate autosummary even if no references
 autosummary_generate = True
 
-autosummary_imported_members = True
+# don't ignore __all__ if a module has one
 autosummary_ignore_module_all = False
+
+# match star import behavior
+autosummary_imported_members = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
