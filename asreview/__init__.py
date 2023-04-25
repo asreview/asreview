@@ -30,8 +30,8 @@ __version__ = get_versions()["version"]
 del get_versions
 
 __all__ = [
-    "ASReviewData",
     "asreview_path",
+    "ASReviewData",
     "ASReviewProject",
     "get_data_home",
     "list_readers",
