@@ -1,9 +1,4 @@
-=============
-API Reference
-=============
+.. toctree::
+   :hidden:
 
-.. autosummary::
-   :toctree: generated
-   :recursive:
-
-   asreview
+   API reference <generated/asreview>
