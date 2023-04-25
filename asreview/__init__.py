@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from asreview.data.base import ASReviewData
 from asreview.data.base import load_data
 from asreview.io.utils import list_readers
 from asreview.io.utils import list_writers
@@ -29,6 +30,7 @@ __version__ = get_versions()["version"]
 del get_versions
 
 __all__ = [
+    "ASReviewData",
     "asreview_path",
     "ASReviewProject",
     "get_data_home",

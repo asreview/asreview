@@ -20,7 +20,7 @@ from pathlib import Path
 import pandas as pd
 
 from asreview._version import get_versions
-from asreview.data.base import ASReviewData
+from asreview.data import ASReviewData
 
 
 class CacheDataError(Exception):
