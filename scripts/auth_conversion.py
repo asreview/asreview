@@ -10,6 +10,7 @@
 # limitations under the License.
 
 import argparse
+from argparse import RawTextHelpFormatter
 import json
 import sqlite3
 from pathlib import Path
@@ -125,8 +126,54 @@ def main(conn, mapping=[]):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    group = parser.add_mutually_exclusive_group()
+
+    desc = """
+    This script helps to convert your non authenticated ASReview application
+    into an authenticated version. When you would like to start using 
+    authentication you need to assign all existing projects in the dedicated
+    ASReview folder to individual users.
+
+    In the authenticated version of the app the link between a user and a
+    project is established in a slqite database. The database is created when
+    you start the authenticated application for the first time. It needs to
+    know 
+    
+    The script has 2 tools
+    """
+
+    parser = argparse.ArgumentParser(
+        description=desc,
+        formatter_class=RawTextHelpFormatter
+    )
+    sub_parser = parser.add_subparsers(
+        help="Choose between listing the projects " +
+            "or "
+    )
+
+    list_par = sub_parser.add_parser(
+        "list",
+        help="List project info from all projects in the ASReview folder."
+    )
+
+    action_par = sub_parser.add_parser(
+        "link_projects",
+        help="Prepare ASReview to run in authenticated mode."
+    )
+
+    action_par = sub_parser.add_parser(
+        "add_users",
+        help="Add users into the database."
+    )
+
+    action_par.add_argument(
+        "-d",
+        "--db-path",
+        type=str,
+        help="Absolute path to sqlite database.",
+        required=True,
+    )
+
+    group = action_par.add_mutually_exclusive_group()
     group.add_argument(
         "-i",
         "--interactive",
@@ -140,52 +187,48 @@ if __name__ == "__main__":
         default="[]",
         help="JSON that links projects to user ids.",
     )
-    parser.add_argument(
-        "-d",
-        "--database-path",
-        type=str,
-        help="Path to sqlite database.",
-        required=True,
-    )
+
     args = parser.parse_args()
+    print(args)
+    
 
-    # establish connect with database
-    conn = sqlite3.connect(asreview_path() / args.database_path)
-    # get all users in the user table
-    users = get_users(conn)
+    # # establish connect with database
+    # conn = sqlite3.connect(asreview_path() / args.database_path)
+    # # get all users in the user table
+    # users = get_users(conn)
 
-    # set up a mapping dictionary which links users with projects
-    mapping = []
-    # iterate over all files and folders in asreview_path()
-    for folder in asreview_path().glob("*"):
-        # if folder is indeed a folder
-        if Path(folder).is_dir():
-            # open the project.json folder
-            with open(folder / "project.json") as json_file:
-                project_data = json.load(json_file)
-            # get project id
-            project_id = project_data["id"]
+    # # set up a mapping dictionary which links users with projects
+    # mapping = []
+    # # iterate over all files and folders in asreview_path()
+    # for folder in asreview_path().glob("*"):
+    #     # if folder is indeed a folder
+    #     if Path(folder).is_dir():
+    #         # open the project.json folder
+    #         with open(folder / "project.json") as json_file:
+    #             project_data = json.load(json_file)
+    #         # get project id
+    #         project_id = project_data["id"]
 
-            # show all users and their ids and ask who's the owner
-            print("\n\n==> Who is the owner of this project folder:", f"{project_id}")
-            print_user_records(users)
-            # ask who's the folder's owner
-            user_id = input("Provide ID number of owner > ")
-            user_id = user_id.replace(".", "")
+    #         # show all users and their ids and ask who's the owner
+    #         print("\n\n==> Who is the owner of this project folder:", f"{project_id}")
+    #         print_user_records(users)
+    #         # ask who's the folder's owner
+    #         user_id = input("Provide ID number of owner > ")
+    #         user_id = user_id.replace(".", "")
 
-            try:
-                # convert to integer
-                user_id = int(user_id)
+    #         try:
+    #             # convert to integer
+    #             user_id = int(user_id)
 
-                # add pair to the mapping
-                mapping.append({"user_id": user_id, "project_id": project_id})
+    #             # add pair to the mapping
+    #             mapping.append({"user_id": user_id, "project_id": project_id})
 
-            except ValueError:
-                print("Entered input is not a string, start again.")
-                break
+    #         except ValueError:
+    #             print("Entered input is not a string, start again.")
+    #             break
 
-    print(mapping)
-    # send mapping to main to do the linking
-    main(conn, mapping)
+    # print(mapping)
+    # # send mapping to main to do the linking
+    # main(conn, mapping)
 
     print("done.")
