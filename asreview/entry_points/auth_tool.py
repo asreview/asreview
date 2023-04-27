@@ -9,6 +9,8 @@ from sqlalchemy.orm import sessionmaker
 
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.utils import asreview_path
+from asreview.webapp.api.projects import _get_project_uuid
+from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 
 
@@ -114,13 +116,46 @@ def insert_users(session, entries):
             print(f"User with identifier {user.email} already exists")
 
 
-def insert_projects(session, projects):
-    print("ha;;lpo")
+def rename_project_folder(project_id, new_project_id):
+    """Rename folder with an authenticated project id"""
+    folder = asreview_path() / project_id
+    folder.rename(asreview_path() / new_project_id)
+    # take care of the id inside the project.json file
+    with open(
+        asreview_path() / new_project_id / "project.json", mode="r"
+    ) as f:
+        data = json.load(f)
+        # change id
+        data["id"] = new_project_id
+    # overwrite original project.json file with new project id
+    with open(
+        asreview_path() / new_project_id / "project.json", mode="w"
+    ) as f:
+        json.dump(data, f)
 
+
+def convert_projects(session, projects):
+    for project in projects:
+        owner_id = project["owner_id"]
+        project_id = project["project_id"]
+        # create new project id
+        new_project_id = _get_project_uuid(project_id, owner_id)
+        # rename folder and project file
+        rename_project_folder(project_id, new_project_id)
+        # check if this project was already in the database under
+        # the old project id        
+        db_project = session.query(Project). \
+            filter(Project.id == project_id).one_or_none()
+        if db_project is None:
+            # create new record
+            pass
+        else:
+            # update record
+            pass
+        
 
 def get_users(session):
-    with session.begin():
-        return session.query(User).all()
+    return session.query(User).all()
 
 
 class AuthTool(BaseEntryPoint):
@@ -282,7 +317,7 @@ class AuthTool(BaseEntryPoint):
         else:
             projects = json.loads(self.args.json)
         # enter data in the database
-        insert_projects(self.session, projects)
+        convert_projects(self.session, projects)
 
 
 # $ python -m asreview auth-tool add-users -i --db-path ~/.asreview/asreview.development.sqlite

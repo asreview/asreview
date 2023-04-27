@@ -29,7 +29,7 @@ from asreview.webapp.start_flask import create_app
 from asreview.webapp.tests.conftest import signin_user
 from asreview.webapp.tests.conftest import signout
 from asreview.webapp.tests.conftest import signup_user
-from scripts.auth_conversion import main as make_links
+from asreview.entry_points.auth_tool import convert_projects
 
 try:
     from .temp_env_var import TMP_ENV_VARS
@@ -177,12 +177,12 @@ class TestConvertToAuthentication:
 
         # we want to assign project 1 to user 1 and project 2 to user 2
         mapping = [
-            {"user_id": user.id, "project_id": _create_project_id(PROJECTS[i]["name"])}
+            {"owner_id": user.id, "project_id": _create_project_id(PROJECTS[i]["name"])}
             for i, user in enumerate(User.query.order_by(User.id.asc()).all())
         ]
 
         # execute converter with this mapping
-        make_links(DB.engine.raw_connection(), mapping)
+        convert_projects(DB.engine.raw_connection(), mapping)
 
         # check out folders in the asreview folder
         folders = [f.name for f in asreview_path().glob("*") if f.is_dir()]
