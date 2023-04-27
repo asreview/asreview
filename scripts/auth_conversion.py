@@ -10,9 +10,9 @@
 # limitations under the License.
 
 import argparse
-from argparse import RawTextHelpFormatter
 import json
 import sqlite3
+from argparse import RawTextHelpFormatter
 from pathlib import Path
 
 from asreview.utils import asreview_path
