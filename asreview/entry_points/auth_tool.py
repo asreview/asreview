@@ -119,7 +119,7 @@ def insert_users(session, entries):
             name=user["name"],
             affiliation=user["affiliation"],
             password=user["password"],
-            confirmed=True
+            confirmed=True,
         )
         try:
             session.add(user)
@@ -134,16 +134,12 @@ def rename_project_folder(project_id, new_project_id):
     folder = asreview_path() / project_id
     folder.rename(asreview_path() / new_project_id)
     # take care of the id inside the project.json file
-    with open(
-        asreview_path() / new_project_id / "project.json", mode="r"
-    ) as f:
+    with open(asreview_path() / new_project_id / "project.json", mode="r") as f:
         data = json.load(f)
         # change id
         data["id"] = new_project_id
     # overwrite original project.json file with new project id
-    with open(
-        asreview_path() / new_project_id / "project.json", mode="w"
-    ) as f:
+    with open(asreview_path() / new_project_id / "project.json", mode="w") as f:
         json.dump(data, f)
 
 
@@ -157,28 +153,28 @@ def insert_projects(session, projects):
         # rename folder and project file
         rename_project_folder(project_id, new_project_id)
         # check if this project was already in the database under
-        # the old project id        
-        db_project = session.query(Project). \
-            filter(Project.project_id == project_id).one_or_none()
+        # the old project id
+        db_project = (
+            session.query(Project)
+            .filter(Project.project_id == project_id)
+            .one_or_none()
+        )
         if db_project is None:
             # create new record
-            session.add(
-                Project(owner_id=owner_id, project_id=new_project_id)
-            )
+            session.add(Project(owner_id=owner_id, project_id=new_project_id))
         else:
             # update record
             db_project.owner_id = owner_id
             db_project.project_id = new_project_id
         # commit
         session.commit()
-        
+
 
 def get_users(session):
     return session.query(User).all()
 
 
 class AuthTool(BaseEntryPoint):
-
     def execute(self, argv):
         # from asreview.webapp.start_flask import main
         parser = auth_parser()
@@ -263,6 +259,7 @@ class AuthTool(BaseEntryPoint):
         print(f"\tversion: {project['version']}")
         print(f"\tid: {project['project_id']}")
         print(f"\tname: {project['name']}")
+        print(f"\tauthors: {project['authors']}")
         print(f"\tcreated: {project['created']}")
 
     def _print_user(self, user):
@@ -285,12 +282,13 @@ class AuthTool(BaseEntryPoint):
                     "version": project["version"],
                     "project_id": project["id"],
                     "name": project["name"],
+                    "authors": project["authors"],
                     "created": project["datetimeCreated"],
                     "owner_id": 0,
                 }
             )
         return result
-    
+
     def list_users(self):
         users = get_users(self.session)
         print()

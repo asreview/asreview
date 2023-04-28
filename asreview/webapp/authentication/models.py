@@ -32,7 +32,7 @@ from werkzeug.security import generate_password_hash
 import asreview.utils as utils
 from asreview.webapp import DB
 
-PASSWORD_REGEX = r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$" #noqa
+PASSWORD_REGEX = r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$" # noqa
 EMAIL_REGEX = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b"
 
 
@@ -91,7 +91,7 @@ class User(UserMixin, DB.Model):
                 raise ValueError("Email is required when origin is 'asreview'")
             elif not User.valid_email(value):
                 raise ValueError(f"Email address '{value}' is not valid")
-            
+
         if (
             key == "hashed_password"
             and self.origin == "asreview"
@@ -201,7 +201,7 @@ class User(UserMixin, DB.Model):
         return re.fullmatch(
             PASSWORD_REGEX, password
         )
-    
+
     @classmethod
     def valid_email(cls, email):
         return re.fullmatch(

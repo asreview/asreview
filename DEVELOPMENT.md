@@ -217,7 +217,7 @@ The JSON string represents a Python list with a dictionary for every user accoun
 
 #### Preparing the projects
 
-After creating the user accounts, the existing projects must be stored and linked to a user account in the database. The tool provides the `list-projects` command to prepare for this step.
+After creating the user accounts, the existing projects must be stored and linked to a user account in the database. The tool provides the `list-projects` command to prepare for this step in case you would like to bulk store all projects. Ignore the following commands if you prefer to store all projects interactively. 
 
 Without a flag, the command lists all projects:
 ```
@@ -243,7 +243,7 @@ The tool will list project by project and asks what the ID of the owner is. That
 
 One can also insert all project information by using the JSON string that was produced in the previous step:
 ```
-$ asreview auth-tool link-projects --json "[{\"folder\": \"project-id\", \"version\": \"1.1+51.g0ebdb0c.dirty\", \"project_id\": \"project-id\", \"name\": \"project 1\", \"created\": \"2023-04-12 21:23:28.625859\", \"owner_id\": 15}]" --db-path ~/.asreview/asreview.development.sqlite
+$ asreview auth-tool link-projects --json "[{\"folder\": \"project-id\", \"version\": \"1.1+51.g0ebdb0c.dirty\", \"project_id\": \"project-id\", \"name\": \"project 1\", \"authors\": \"Authors\", \"created\": \"2023-04-12 21:23:28.625859\", \"owner_id\": 15}]" --db-path ~/.asreview/asreview.development.sqlite
 ``` 
 
 ## Documentation
