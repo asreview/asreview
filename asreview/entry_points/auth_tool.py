@@ -51,11 +51,24 @@ def auth_parser():
         help="JSON string that contains a list with user account data.",
     )
 
-    list_par = sub_parser.add_parser(
+    list_users_par = sub_parser.add_parser(
+        "list-users",
+        help="List user accounts.",
+    )
+
+    list_users_par.add_argument(
+        "-d",
+        "--db-path",
+        type=str,
+        help="Absolute path to authentication sqlite3 database.",
+        required=True,
+    )
+
+    list_projects_par = sub_parser.add_parser(
         "list-projects",
         help="List project info from all projects in the ASReview folder.",
     )
-    list_par.add_argument(
+    list_projects_par.add_argument(
         "-j",
         "--json",
         action="store_true",
@@ -106,11 +119,11 @@ def insert_users(session, entries):
             name=user["name"],
             affiliation=user["affiliation"],
             password=user["password"],
+            confirmed=True
         )
-
         try:
-            with session.begin():
-                session.add(user)
+            session.add(user)
+            session.commit()
             print(f"User with email {user.email} created.")
         except IntegrityError:
             print(f"User with identifier {user.email} already exists")
@@ -134,8 +147,9 @@ def rename_project_folder(project_id, new_project_id):
         json.dump(data, f)
 
 
-def convert_projects(session, projects):
+def insert_projects(session, projects):
     for project in projects:
+        # get owner and project id
         owner_id = project["owner_id"]
         project_id = project["project_id"]
         # create new project id
@@ -145,13 +159,18 @@ def convert_projects(session, projects):
         # check if this project was already in the database under
         # the old project id        
         db_project = session.query(Project). \
-            filter(Project.id == project_id).one_or_none()
+            filter(Project.project_id == project_id).one_or_none()
         if db_project is None:
             # create new record
-            pass
+            session.add(
+                Project(owner_id=owner_id, project_id=new_project_id)
+            )
         else:
             # update record
-            pass
+            db_project.owner_id = owner_id
+            db_project.project_id = new_project_id
+        # commit
+        session.commit()
         
 
 def get_users(session):
@@ -177,6 +196,8 @@ class AuthTool(BaseEntryPoint):
 
         if "add-users" in argv:
             self.add_users()
+        elif "list-users" in argv:
+            self.list_users()
         elif "list-projects" in argv:
             self.list_projects()
         elif "link-projects" in argv:
@@ -269,6 +290,13 @@ class AuthTool(BaseEntryPoint):
                 }
             )
         return result
+    
+    def list_users(self):
+        users = get_users(self.session)
+        print()
+        for user in users:
+            self._print_user(user)
+        print()
 
     def list_projects(self):
         projects = self._get_projects()
@@ -317,14 +345,5 @@ class AuthTool(BaseEntryPoint):
         else:
             projects = json.loads(self.args.json)
         # enter data in the database
-        convert_projects(self.session, projects)
-
-
-# $ python -m asreview auth-tool add-users -i --db-path ~/.asreview/asreview.development.sqlite
-# $ python -m asreview auth-tool add-users -j "[{\"email\": \"c.s.kaandorp10@uu.nl\", \"name\": \"Casper Kaandoro\", \"affiliation\": \"\", \"password\": \"123#ABcd\"}]" --db-path ~/.asreview/asreview.development.sqlite
-
-# $ python -m asreview auth-tool list-projects
-# $ python -m asreview auth-tool list-projects -j
-
-# $ python -m asreview auth-tool link-projects -i --db-path ~/.asreview/asreview.development.sqlite
-# $ python -m asreview auth-tool link-projects -j "[]" --db-path ~/.asreview/asreview.development.sqlite
+        insert_projects(self.session, projects)
+        print("Project data is stored.")

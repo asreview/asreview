@@ -29,7 +29,7 @@ from asreview.webapp.start_flask import create_app
 from asreview.webapp.tests.conftest import signin_user
 from asreview.webapp.tests.conftest import signout
 from asreview.webapp.tests.conftest import signup_user
-from asreview.entry_points.auth_tool import convert_projects
+from asreview.entry_points.auth_tool import insert_projects
 
 try:
     from .temp_env_var import TMP_ENV_VARS
@@ -182,7 +182,7 @@ class TestConvertToAuthentication:
         ]
 
         # execute converter with this mapping
-        convert_projects(DB.engine.raw_connection(), mapping)
+        insert_projects(DB.session, mapping)
 
         # check out folders in the asreview folder
         folders = [f.name for f in asreview_path().glob("*") if f.is_dir()]
@@ -195,7 +195,7 @@ class TestConvertToAuthentication:
         # check if we have the new folder names and if they exist
         # in the database with the correct user
         for link in mapping:
-            user = DB.session.get(User, link["user_id"])
+            user = DB.session.get(User, link["owner_id"])
             project_id = link["project_id"]
 
             # check out if the folder exists
