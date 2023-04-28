@@ -343,7 +343,7 @@ class ASReviewProject():
     def rename(self, project_name_new):
         """Rename a project id.
 
-        This function only works for projects in ASReview LAB  web interface.
+        This function only works for projects in ASReview LAB web interface.
         This is the result of the file storage in
         asreview.webapp.utils.project_path.asreview_path.
 
@@ -371,6 +371,7 @@ class ASReviewProject():
 
         if (self.project_path !=
                 project_path_new) & is_project(project_path_new):
+            # TODO{Terry}: add trailing number to project_id_new
             raise ValueError(f"Project '{project_path_new}' already exists.")
 
         self.project_path.rename(project_path_new)
