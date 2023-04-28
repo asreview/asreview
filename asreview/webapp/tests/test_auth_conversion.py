@@ -19,6 +19,7 @@ from pathlib import Path
 
 import pytest
 
+from asreview.entry_points.auth_tool import insert_projects
 from asreview.project import _create_project_id
 from asreview.utils import asreview_path
 from asreview.webapp import DB
@@ -29,7 +30,6 @@ from asreview.webapp.start_flask import create_app
 from asreview.webapp.tests.conftest import signin_user
 from asreview.webapp.tests.conftest import signout
 from asreview.webapp.tests.conftest import signup_user
-from asreview.entry_points.auth_tool import insert_projects
 
 try:
     from .temp_env_var import TMP_ENV_VARS
