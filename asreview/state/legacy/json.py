@@ -23,6 +23,7 @@ from asreview.state.legacy.dict import DictState
 
 class JSONState(DictState):
     """Class for storing the state of a Systematic Review using JSON files."""
+
     version = "2.1"
 
     def __init__(self, state_fp, read_only=False):
@@ -31,8 +32,9 @@ class JSONState(DictState):
 
     def save(self):
         if self.read_only:
-            raise ValueError("State error: trying to save when opened file"
-                             " in read_only mode.")
+            raise ValueError(
+                "State error: trying to save when opened file" " in read_only mode."
+            )
         self._state_dict["time"]["end_time"] = str(datetime.now())
         fp = Path(self.state_fp)
 
@@ -47,7 +49,7 @@ class JSONState(DictState):
         except KeyError:
             pass
 
-        with fp.open('w') as outfile:
+        with fp.open("w") as outfile:
             json.dump(self._state_dict, outfile, indent=2)
 
         try:
@@ -66,13 +68,13 @@ class JSONState(DictState):
             if state_version != self.version:
                 raise ValueError(
                     f"State cannot be read: state version {self.version}, "
-                    f"state file version {state_version}.")
+                    f"state file version {state_version}."
+                )
             self.settings = ASReviewSettings(**self._state_dict["settings"])
             try:
                 self._state_dict["current_queries"] = {
                     int(key): val
-                    for key, val in
-                    self._state_dict["current_queries"].items()
+                    for key, val in self._state_dict["current_queries"].items()
                 }
             except KeyError:
                 pass

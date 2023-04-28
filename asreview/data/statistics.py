@@ -108,7 +108,7 @@ def n_missing_title(data):
     for i in range(len(data.title)):
         if len(data.title[i]) == 0:
             n_missing += 1
-            if (data.labels is not None and data.labels[i] == 1):
+            if data.labels is not None and data.labels[i] == 1:
                 n_missing_included += 1
     return n_missing, n_missing_included
 
@@ -137,7 +137,7 @@ def n_missing_abstract(data):
     for i in range(len(data.abstract)):
         if len(data.abstract[i]) == 0:
             n_missing += 1
-            if (data.labels is not None and data.labels[i] == 1):
+            if data.labels is not None and data.labels[i] == 1:
                 n_missing_included += 1
 
     return n_missing, n_missing_included
@@ -203,7 +203,7 @@ def n_keywords(data):
     return np.average([len(keywords) for keywords in data.keywords])
 
 
-def n_duplicates(data, pid='doi'):
+def n_duplicates(data, pid="doi"):
     """Number of duplicates.
 
     Duplicate detection can be a very challenging task. Multiple

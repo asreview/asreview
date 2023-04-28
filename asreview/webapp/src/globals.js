@@ -2,7 +2,11 @@
 // pointing to localhost:5000. In all other configurations, the api url point to
 // the host domain.
 
+import { useTheme } from "@mui/material/styles";
 import { setProject } from "./redux/actions";
+
+import ASReviewLAB_black from "./images/asreview_sub_logo_lab_black_transparent.svg";
+import ASReviewLAB_white from "./images/asreview_sub_logo_lab_white_transparent.svg";
 
 export const base_url =
   (window.location.hostname === "localhost" ||
@@ -11,6 +15,8 @@ export const base_url =
     ? "http://localhost:5000/"
     : "/";
 export const api_url = base_url + "api/";
+export const auth_url = base_url + "auth/";
+export const collab_url = base_url + "team/";
 
 export const donateURL = "https://asreview.nl/donate";
 
@@ -18,6 +24,9 @@ export const communityURL = "https://asreview.nl/community";
 
 export const feedbackURL =
   "https://github.com/asreview/asreview/issues/new/choose";
+
+export const discussionsURL =
+  "https://github.com/asreview/asreview/discussions";
 
 export const getDesignTokens = (mode: PaletteMode) => ({
   palette: {
@@ -43,6 +52,15 @@ export const getDesignTokens = (mode: PaletteMode) => ({
         }),
   },
 });
+
+export const WordmarkState = () => {
+  const theme = useTheme();
+  if (theme.palette.mode === "dark") {
+    return ASReviewLAB_white;
+  } else {
+    return ASReviewLAB_black;
+  }
+};
 
 // algorithm settings configs
 export const defaultAlgorithms = {
@@ -83,6 +101,7 @@ export const fontSizeOptions = [
 export const mapStateToProps = (state) => {
   return { project_id: state.project_id };
 };
+
 export const mapDispatchToProps = (dispatch) => {
   return {
     setProjectId: (project_id) => {
@@ -90,6 +109,19 @@ export const mapDispatchToProps = (dispatch) => {
     },
   };
 };
+
+/**
+ * Format date and mode
+ */
+export const formatDate = (datetime) => {
+  let date = new Date(datetime * 1000);
+  let dateString = date.toDateString().slice(4);
+  let dateDisplay =
+    dateString.replace(/\s+\S*$/, ",") + dateString.match(/\s+\S*$/);
+  return dateDisplay;
+};
+
+
 
 // enums
 export const projectModes = {

@@ -1,0 +1,23 @@
+{
+    "TESTING": true,
+    "DEBUG": true,
+    "SECRET_KEY": "my_very_secret_key",
+    "SECURITY_PASSWORD_SALT": "my_salt",
+    "AUTHENTICATION_ENABLED": true,
+    "SESSION_COOKIE_SECURE": true,
+    "REMEMBER_COOKIE_SECURE": true,
+    "SESSION_COOKIE_SAMESITE": "Lax",
+    "SQLALCHEMY_TRACK_MODIFICATIONS": true,
+    "ALLOW_ACCOUNT_CREATION": true,
+    "EMAIL_VERIFICATION": true,
+    "EMAIL_CONFIG": {
+        "SERVER": "127.0.0.1",
+        "PORT": 465,
+        "USERNAME": "account@test.nl",
+        "PASSWORD": "secret_password",
+        "USE_TLS": false,
+        "USE_SSL": true,
+        "REPLY_ADDRESS": "no_reply@test.nl"
+    },
+    "OAUTH": false
+}

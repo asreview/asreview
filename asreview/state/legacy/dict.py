@@ -75,6 +75,7 @@ def get_serial_list(array, dtype=None):
 
 class DictState(BaseState):
     """Class for storing the state of a review with no permanent storage."""
+
     version = "1.1"
     read_only = False
 
@@ -116,8 +117,7 @@ class DictState(BaseState):
         # Find the first number that has not yet been used.
         results = self._state_dict["results"]
         if i is None:
-            if (len(results) > 0 and
-                    set(new_dict.keys()).isdisjoint(results[-1])):
+            if len(results) > 0 and set(new_dict.keys()).isdisjoint(results[-1]):
                 i = len(results) - 1
             else:
                 i = len(results)
@@ -151,7 +151,7 @@ class DictState(BaseState):
             with BytesIO() as f:
                 save_npz(f, feature_matrix)
                 f.seek(0)
-                encoded_X = b64encode(f.read()).decode('ascii')
+                encoded_X = b64encode(f.read()).decode("ascii")
             matrix_type = "csr_matrix"
         else:
             encoded_X = feature_matrix
@@ -203,7 +203,7 @@ class DictState(BaseState):
         labels = get_serial_list(labels, int)
         methods = get_serial_list(methods, str)
 
-        new_dict = {'labelled': list(zip(idx, labels, methods))}
+        new_dict = {"labelled": list(zip(idx, labels, methods))}
         self._add_to_state(new_dict, query_i, append_result=True)
 
     def add_proba(self, pool_idx, train_idx, proba, query_i):
@@ -229,8 +229,7 @@ class DictState(BaseState):
                 dtype = str
             else:
                 dtype = int
-            array = np.array([x[array_id] for x in res["labelled"]],
-                             dtype=dtype)
+            array = np.array([x[array_id] for x in res["labelled"]], dtype=dtype)
         elif variable == "labels":
             array = np.array(self._state_dict["labels"], dtype=int)
         elif variable == "final_labels":
@@ -252,15 +251,16 @@ class DictState(BaseState):
 
     def initialize_structure(self):
         from asreview import __version__ as asr_version
-        self._state_dict = OrderedDict({
-            "time": {
-                "start_time": str(datetime.now())
-            },
-            "version": self.version,
-            "software_version": asr_version,
-            "settings": {},
-            "results": [],
-        })
+
+        self._state_dict = OrderedDict(
+            {
+                "time": {"start_time": str(datetime.now())},
+                "version": self.version,
+                "software_version": asr_version,
+                "settings": {},
+                "results": [],
+            }
+        )
 
     def close(self):
         if not self.read_only:

@@ -23,18 +23,18 @@ from asreview.project import open_state
 
 
 def _parse_state_inspect_args():
-
     # parse arguments if available
-    parser = argparse.ArgumentParser(prog="state-inspect",
-                                     description="Inspect state file.")
+    parser = argparse.ArgumentParser(
+        prog="state-inspect", description="Inspect state file."
+    )
     parser.add_argument(
-        "project_id",
-        type=str,
-        help="Project_id or path to ASReview file.")
+        "project_id", type=str, help="Project_id or path to ASReview file."
+    )
     parser.add_argument(
         "table",
         type=str,
-        help="Table to view (e.g. results, record_table, last_ranking).")
+        help="Table to view (e.g. results, record_table, last_ranking).",
+    )
 
     return parser
 

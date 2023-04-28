@@ -19,8 +19,10 @@ from pathlib import Path
 try:
     import h5py
 except ImportError:
-    raise ImportError("To use the legacy hdf5 state file, downgrade ASReview "
-                      "to version 0.x and make sure package h5py is installed.")
+    raise ImportError(
+        "To use the legacy hdf5 state file, downgrade ASReview "
+        "to version 0.x and make sure package h5py is installed."
+    )
 import numpy as np
 from scipy.sparse import csr_matrix
 
@@ -30,27 +32,27 @@ from asreview.state.legacy.base import BaseState
 
 def _append_to_dataset(name, values, g, dtype):
     if name not in g:
-        g.create_dataset(name, (len(values), ),
-                         dtype=dtype,
-                         maxshape=(None, ),
-                         chunks=True)
+        g.create_dataset(
+            name, (len(values),), dtype=dtype, maxshape=(None,), chunks=True
+        )
     else:
-        g[name].resize((len(g[name]) + len(values), ))
+        g[name].resize((len(g[name]) + len(values),))
     dataset = g[name]
-    dataset[len(g[name]) - len(values):] = values
+    dataset[len(g[name]) - len(values) :] = values
 
 
 def _result_group(f, query_i):
     try:
-        g = f[f'/results/{query_i}']
+        g = f[f"/results/{query_i}"]
     except KeyError:
-        g = f.create_group(f'/results/{query_i}')
-        g.attrs['creation_time'] = np.string_(datetime.now())
+        g = f.create_group(f"/results/{query_i}")
+        g.attrs["creation_time"] = np.string_(datetime.now())
     return g
 
 
 class HDF5StateLegacy(BaseState):
     """Class for storing the review state with HDF5 storage."""
+
     version = "1.1"
 
     def __init__(self, state_fp, read_only=False):
@@ -64,18 +66,12 @@ class HDF5StateLegacy(BaseState):
 
     def set_final_labels(self, y):
         if "final_labels" not in self.f:
-            self.f.create_dataset("final_labels",
-                                  y.shape,
-                                  dtype=int,
-                                  data=y)
+            self.f.create_dataset("final_labels", y.shape, dtype=int, data=y)
         else:
             self.f["final_labels"][...] = y
 
     def set_current_queries(self, current_queries):
-        str_queries = {
-            str(key): value
-            for key, value in current_queries.items()
-        }
+        str_queries = {str(key): value for key, value in current_queries.items()}
         data = np.string_(json.dumps(str_queries))
         self.f.attrs.pop("current_queries", None)
         self.f.attrs["current_queries"] = data
@@ -89,12 +85,12 @@ class HDF5StateLegacy(BaseState):
         if "new_labels" not in g:
             g.create_group("new_labels")
 
-        g = g['new_labels']
+        g = g["new_labels"]
 
         np_methods = np.array(list(map(np.string_, methods)))
-        _append_to_dataset('idx', idx, g, dtype=int)
-        _append_to_dataset('labels', labels, g, dtype=int)
-        _append_to_dataset('methods', np_methods, g, dtype='S20')
+        _append_to_dataset("idx", idx, g, dtype=int)
+        _append_to_dataset("labels", labels, g, dtype=int)
+        _append_to_dataset("methods", np_methods, g, dtype="S20")
 
     def add_proba(self, pool_idx, train_idx, proba, query_i):
         g = _result_group(self.f, query_i)
@@ -104,7 +100,7 @@ class HDF5StateLegacy(BaseState):
 
     @property
     def settings(self):
-        settings = self.f.attrs.get('settings', None)
+        settings = self.f.attrs.get("settings", None)
         if settings is None:
             return None
         settings_dict = json.loads(settings)
@@ -112,14 +108,14 @@ class HDF5StateLegacy(BaseState):
 
     @settings.setter
     def settings(self, settings):
-        self.f.attrs.pop('settings', None)
-        self.f.attrs['settings'] = np.string_(json.dumps(vars(settings)))
+        self.f.attrs.pop("settings", None)
+        self.f.attrs["settings"] = np.string_(json.dumps(vars(settings)))
 
     def n_queries(self):
-        return len(self.f['results'].keys())
+        return len(self.f["results"].keys())
 
     def save(self):
-        self.f['end_time'] = str(datetime.now())
+        self.f["end_time"] = str(datetime.now())
         self.f.flush()
 
     def _add_as_data(self, as_data, feature_matrix=None):
@@ -144,16 +140,13 @@ class HDF5StateLegacy(BaseState):
             if "feature_matrix" in as_data_group:
                 return
             as_data_group.create_dataset("feature_matrix", data=feature_matrix)
-            as_data_group.attrs['matrix_type'] = np.string_("ndarray")
+            as_data_group.attrs["matrix_type"] = np.string_("ndarray")
         elif isinstance(feature_matrix, csr_matrix):
             if "indptr" in as_data_group:
                 return
             as_data_group.create_dataset("indptr", data=feature_matrix.indptr)
-            as_data_group.create_dataset("indices",
-                                         data=feature_matrix.indices)
-            as_data_group.create_dataset("shape",
-                                         data=feature_matrix.shape,
-                                         dtype=int)
+            as_data_group.create_dataset("indices", data=feature_matrix.indices)
+            as_data_group.create_dataset("shape", data=feature_matrix.shape, dtype=int)
             as_data_group.create_dataset("data", data=feature_matrix.data)
             as_data_group.attrs["matrix_type"] = np.string_("csr_matrix")
         else:
@@ -168,9 +161,13 @@ class HDF5StateLegacy(BaseState):
             return np.array(as_data_group["feature_matrix"])
         elif matrix_type == "csr_matrix":
             feature_matrix = csr_matrix(
-                (as_data_group["data"], as_data_group["indices"],
-                 as_data_group["indexptr"]),
-                shape=as_data_group["shape"])
+                (
+                    as_data_group["data"],
+                    as_data_group["indices"],
+                    as_data_group["indexptr"],
+                ),
+                shape=as_data_group["shape"],
+            )
             return feature_matrix
         return as_data_group["feature_matrix"]
 
@@ -179,7 +176,7 @@ class HDF5StateLegacy(BaseState):
             g = self.f[f"/results/{query_i}"]
         array = None
         if variable == "label_methods":
-            array = np.array(g["new_labels"]["methods"]).astype('U20')
+            array = np.array(g["new_labels"]["methods"]).astype("U20")
         if variable == "label_idx":
             array = np.array(g["new_labels"]["idx"], dtype=int)
         if variable == "inclusions":
@@ -206,29 +203,30 @@ class HDF5StateLegacy(BaseState):
 
     def restore(self, fp):
         if self.read_only:
-            mode = 'r'
+            mode = "r"
         else:
-            mode = 'a'
+            mode = "a"
 
         Path(fp).parent.mkdir(parents=True, exist_ok=True)
         self.f = h5py.File(fp, mode)
         try:
-            state_version = self.f.attrs['version'].decode("ascii")
+            state_version = self.f.attrs["version"].decode("ascii")
             if state_version != self.version:
                 raise ValueError(
                     f"State cannot be read: state version {self.version}, "
-                    f"state file version {state_version}.")
+                    f"state file version {state_version}."
+                )
         except KeyError:
             self.initialize_structure()
 
     def initialize_structure(self):
-        self.f.attrs['start_time'] = np.string_(datetime.now())
-        self.f.attrs['end_time'] = np.string_(datetime.now())
-        self.f.attrs['settings'] = np.string_("{}")
-        self.f.attrs['version'] = np.string_(self.version)
-        self.f.create_group('results')
+        self.f.attrs["start_time"] = np.string_(datetime.now())
+        self.f.attrs["end_time"] = np.string_(datetime.now())
+        self.f.attrs["settings"] = np.string_("{}")
+        self.f.attrs["version"] = np.string_(self.version)
+        self.f.create_group("results")
 
     def close(self):
         if not self.read_only:
-            self.f.attrs['end_time'] = np.string_(datetime.now())
+            self.f.attrs["end_time"] = np.string_(datetime.now())
         self.f.close()

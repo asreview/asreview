@@ -11,3 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+from flask_sqlalchemy import SQLAlchemy
+
+# this is a global variable for accessing the database
+DB = SQLAlchemy()

@@ -48,6 +48,22 @@ available commands in ASReview LAB, type :code:`asreview lab --help`.
 	The number of additional ports to try if the specified port is not
         available.
 
+.. option:: --enable-auth ENABLE_AUTH
+
+	Enable authentication.
+
+.. option:: --secret-key SECRET_KEY
+
+	Secret key for authentication.
+
+.. option:: --salt SALT
+
+	When using authentication, a salt code is needed for hasing passwords.
+
+.. option:: --flask-configfile FLASK_CONFIGFILE
+
+    Full path to a JSON file containing Flask parameters for authentication.
+
 .. option:: --no-browser NO_BROWSER
 
 	Do not open ASReview LAB in a browser after startup.

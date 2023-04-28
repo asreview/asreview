@@ -35,8 +35,6 @@ import {
   projectStatuses,
 } from "../../globals.js";
 
-const steps = ["Project information", "Data", "Model", "Warm up"];
-
 const PREFIX = "SetupDialog";
 
 const classes = {
@@ -74,6 +72,8 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 const SetupDialog = (props) => {
+  const steps = ["Project information", "Data", "Model", "Warm up"];
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const descriptionElementRef = React.useRef(null);

@@ -59,15 +59,13 @@ def _base_parser(prog=None, description=None):
 
     # parse arguments if available
     parser = argparse.ArgumentParser(
-        prog=prog,
-        description=description,
-        formatter_class=RawTextHelpFormatter
+        prog=prog, description=description, formatter_class=RawTextHelpFormatter
     )
     parser.add_argument(
         "--embedding",
         type=str,
         default=None,
-        dest='embedding_fp',
-        help="File path of embedding matrix. Required for LSTM models."
+        dest="embedding_fp",
+        help="File path of embedding matrix. Required for LSTM models.",
     )
     return parser

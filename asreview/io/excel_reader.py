@@ -18,9 +18,8 @@ from asreview.config import COLUMN_DEFINITIONS
 from asreview.io.utils import _standardize_dataframe
 
 
-class ExcelReader():
-    """Excel file reader.
-    """
+class ExcelReader:
+    """Excel file reader."""
 
     read_format = [".xlsx"]
     write_format = [".csv", ".tsv", ".xlsx"]

@@ -12,6 +12,17 @@ export function TypographyH5Medium(props) {
   );
 }
 
+export function TypographyH6Medium(props) {
+  return (
+    <Typography
+      variant="h6"
+      sx={{ fontWeight: (theme) => theme.typography.fontWeightMedium }}
+    >
+      {props.children}
+    </Typography>
+  );
+}
+
 export function TypographySubtitle1Medium(props) {
   return (
     <Typography

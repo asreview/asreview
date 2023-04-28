@@ -42,16 +42,13 @@ SETTINGS_TYPE_DICT = {
 
 
 def _map_settings_type(name, value):
-
     if value is None:
         return None
 
     try:
         return SETTINGS_TYPE_DICT[name](value)
     except TypeError:
-        raise TypeError(
-            f"Can't convert setting '{name}' to {SETTINGS_TYPE_DICT[name]}"
-        )
+        raise TypeError(f"Can't convert setting '{name}' to {SETTINGS_TYPE_DICT[name]}")
 
 
 def _convert_types(par_defaults, param):
@@ -65,11 +62,12 @@ def _convert_types(par_defaults, param):
                 try:
                     param[par] = par_type(param[par])
                 except TypeError:
-                    raise TypeError(
-                        f"Error converting key in config file: {par}")
+                    raise TypeError(f"Error converting key in config file: {par}")
         except KeyError:
-            logging.warning(f"Parameter {par} does not have a default.\n"
-                            f"Defaults: {par_defaults}.")
+            logging.warning(
+                f"Parameter {par} does not have a default.\n"
+                f"Defaults: {par_defaults}."
+            )
 
 
 class ASReviewSettings(object):
@@ -78,28 +76,29 @@ class ASReviewSettings(object):
     The main difference being that it type checks (some)
     of its contents.
     """
-    def __init__(self,
-                 model,
-                 query_strategy,
-                 balance_strategy,
-                 feature_extraction,
-                 n_instances=DEFAULT_N_INSTANCES,
-                 stop_if=None,
-                 n_prior_included=None,
-                 n_prior_excluded=None,
-                 as_data=None,
-                 model_param={},
-                 query_param={},
-                 balance_param={},
-                 feature_param={},
-                 data_fp=None,
-                 n_queries=None,
-                 abstract_only=False,  # deprecated
-                 mode=None,  # deprecated
-                 n_papers=None,  # deprecated
-                 data_name=None  # deprecated
-                 ):
 
+    def __init__(
+        self,
+        model,
+        query_strategy,
+        balance_strategy,
+        feature_extraction,
+        n_instances=DEFAULT_N_INSTANCES,
+        stop_if=None,
+        n_prior_included=None,
+        n_prior_excluded=None,
+        as_data=None,
+        model_param={},
+        query_param={},
+        balance_param={},
+        feature_param={},
+        data_fp=None,
+        n_queries=None,
+        abstract_only=False,  # deprecated
+        mode=None,  # deprecated
+        n_papers=None,  # deprecated
+        data_name=None,  # deprecated
+    ):
         self.model = model
         self.query_strategy = query_strategy
         self.balance_strategy = balance_strategy
@@ -127,17 +126,12 @@ class ASReviewSettings(object):
         return pretty_format(self.to_dict())
 
     def __setattr__(self, name, value):
-
         try:
             super(ASReviewSettings, self).__setattr__(
-                name,
-                _map_settings_type(name, value)
+                name, _map_settings_type(name, value)
             )
         except KeyError:
-            super(ASReviewSettings, self).__setattr__(
-                name,
-                value
-            )
+            super(ASReviewSettings, self).__setattr__(name, value)
 
     def to_dict(self):
         """Export default settings to dict."""
@@ -173,17 +167,23 @@ class ASReviewSettings(object):
                     try:
                         setattr(self, key, SETTINGS_TYPE_DICT[key](value))
                     except (KeyError, TypeError):
-                        print(f"Warning: value with key '{key}' is ignored "
-                              "(spelling mistake, wrong type?).")
+                        print(
+                            f"Warning: value with key '{key}' is ignored "
+                            "(spelling mistake, wrong type?)."
+                        )
 
             elif sect in [
-                    "model_param", "query_param", "balance_param",
-                    "feature_param"
+                "model_param",
+                "query_param",
+                "balance_param",
+                "feature_param",
             ]:
                 setattr(self, sect, dict(config.items(sect)))
             elif sect != "DEFAULT":
-                print(f"Warning: section [{sect}] is ignored in "
-                      f"config file {config_file}")
+                print(
+                    f"Warning: section [{sect}] is ignored in "
+                    f"config file {config_file}"
+                )
 
         model = get_classifier(self.model)
         _convert_types(model.default_param, self.model_param)
