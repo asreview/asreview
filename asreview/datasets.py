@@ -24,6 +24,16 @@ from asreview.utils import get_entry_points
 from asreview.utils import is_iterable
 
 
+__all__ = [
+    "BaseDataGroup",
+    "BaseDataSet",
+    "BenchmarkDataGroup",
+    "DatasetManager",
+    "DatasetNotFoundError",
+    "NaturePublicationDataGroup"
+]
+
+
 class DatasetNotFoundError(Exception):
     pass
 
