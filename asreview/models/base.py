@@ -14,6 +14,7 @@
 
 import inspect
 from abc import ABC
+from abc import abstractproperty
 
 import numpy as np
 
@@ -31,7 +32,13 @@ class BaseModel(ABC):
 
     name = "base"
 
-    _settings = {}
+    @abstractproperty
+    def _settings(self):
+        """Dictionary containing the settings of the model.
+
+        This dictionary should contain all the settings necessary to initialize the
+        model, so that Model(**model._settings) == model."""
+        return {}
 
     @property
     def settings(self):
@@ -43,7 +50,7 @@ class BaseModel(ABC):
             Returns the settings consisting of the name plus
             any settings in self._settings.
         """
-        return {"name": self.name}.update(self._settings)
+        return {"name": self.name, **self._settings}
 
     @property
     def default_param(self):

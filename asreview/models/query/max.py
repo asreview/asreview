@@ -31,3 +31,7 @@ class MaxQuery(ProbaQueryStrategy):
         query_indices = np.argsort(predictions[:, 0])[:n_instances]
 
         return query_indices
+
+    @property
+    def _settings(self):
+        return {}

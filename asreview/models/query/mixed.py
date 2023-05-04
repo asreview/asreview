@@ -92,10 +92,10 @@ class MixedQuery(BaseQueryStrategy):
                 strategy_2, random_seed=self._random_state, **self.kwargs_2
             )
 
+    @property
     def _settings(self):
+        # 'strategy_1' and 'strategy_2' are parsed from the name.
         return {
-            "strategy_1": self.strategy_1,
-            "strategy_2": self.strategy_2,
             "mix_ratio": self.mix_ratio,
             "random_seed": self._random_state.random_seed,
             "kwargs": self.model_kwargs,

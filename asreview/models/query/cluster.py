@@ -49,6 +49,7 @@ class ClusterQuery(ProbaQueryStrategy):
         self.fallback_model = MaxQuery()
         self._random_state = SeededRandomState(random_seed)
 
+    @property
     def _settings(self):
         return {
             "cluster_size": self.cluster_size,

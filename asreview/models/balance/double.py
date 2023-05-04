@@ -68,7 +68,7 @@ class DoubleBalance(BaseBalance):
             "alpha": self.alpha,
             "b": self.b,
             "beta": self.beta,
-            "random_state": self._random_state.random_seed,
+            "random_seed": self._random_state.random_seed,
         }
 
     def sample(self, X, y, train_idx):

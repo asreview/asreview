@@ -34,3 +34,7 @@ class UncertaintyQuery(ProbaQueryStrategy):
         uncertainty = 1 - np.max(predictions, axis=1)
         query_idx = np.argsort(-uncertainty)[:n_instances]
         return query_idx
+
+    @property
+    def _settings(self):
+        return {}

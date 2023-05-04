@@ -43,3 +43,7 @@ class SimpleBalance(BaseBalance):
             Classification of training samples.
         """
         return X[train_idx], y[train_idx]
+
+    @property
+    def _settings(self):
+        return {}

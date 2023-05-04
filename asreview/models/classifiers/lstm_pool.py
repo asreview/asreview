@@ -138,7 +138,7 @@ class LSTMPoolClassifier(BaseTrainClassifier):
             "batch_size": self.batch_size,
             "epochs": self.epochs,
             "shuffle": self.shuffle,
-            "class_weight": self.class_weight,
+            "class_weight": self.class_weight[1],
         }
 
     def fit(self, X, y):

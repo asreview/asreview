@@ -37,6 +37,7 @@ class RandomQuery(BaseQueryStrategy):
         super(RandomQuery, self).__init__()
         self._random_state = SeededRandomState(random_seed)
 
+    @property
     def _settings(self):
         return {"random_seed": self._random_state.random_seed}
 
