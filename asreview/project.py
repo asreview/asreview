@@ -21,8 +21,6 @@ import time
 import zipfile
 from contextlib import contextmanager
 from datetime import datetime
-from flask import current_app
-from flask_login import current_user
 from functools import wraps
 from pathlib import Path
 from uuid import NAMESPACE_URL
@@ -32,6 +30,8 @@ from uuid import uuid5
 import jsonschema
 import numpy as np
 from filelock import FileLock
+from flask import current_app
+from flask_login import current_user
 from scipy.sparse import csr_matrix
 from scipy.sparse import load_npz
 from scipy.sparse import save_npz
@@ -112,19 +112,19 @@ def get_projects(project_paths=None):
     return [ASReviewProject(project_path) for project_path in project_paths]
 
 
-def _create_plaintext_project_id(project_title):
+def _create_plaintext_project_id(title):
     """Create plaintext project id from input title."""
 
-    if isinstance(project_title, str) and len(project_title) > 0 and not project_title[0].isalnum():
+    if isinstance(title, str) and len(title) > 0 and not title[0].isalnum():
         raise ValueError(
             "First character should be alphabet" " letter (a-z) or number (0-9)."
         )
 
-    if not project_title and not isinstance(project_title, str) and len(project_title) >= 3:
+    if not title and not isinstance(title, str) and len(title) >= 3:
         raise ValueError("Project title should be at least 3 characters.")
 
     plaintext_project_id = ""
-    for c in project_title.lower():
+    for c in title.lower():
         if c.isalnum():
             plaintext_project_id += c
         elif len(plaintext_project_id) > 0 and plaintext_project_id[-1] != "-":
@@ -353,7 +353,6 @@ class ASReviewProject:
 
         self.config = config
         return config
-
 
     def add_dataset(self, file_name):
         """Add file path to the project file.
