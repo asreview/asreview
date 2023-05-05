@@ -21,9 +21,13 @@ import time
 import zipfile
 from contextlib import contextmanager
 from datetime import datetime
+from flask import current_app
+from flask_login import current_user
 from functools import wraps
 from pathlib import Path
+from uuid import NAMESPACE_URL
 from uuid import uuid4
+from uuid import uuid5
 
 import jsonschema
 import numpy as np
@@ -40,6 +44,7 @@ from asreview.config import SCHEMA
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
 from asreview.utils import asreview_path
+from asreview.webapp.authentication.login_required import app_is_authenticated
 from asreview.webapp.io import read_data
 
 PATH_PROJECT_CONFIG = "project.json"
@@ -107,25 +112,47 @@ def get_projects(project_paths=None):
     return [ASReviewProject(project_path) for project_path in project_paths]
 
 
-def _create_project_id(name):
-    """Create project id from input name."""
+def _create_plaintext_project_id(project_title):
+    """Create plaintext project id from input title."""
 
-    if isinstance(name, str) and len(name) > 0 and not name[0].isalnum():
+    if isinstance(project_title, str) and len(project_title) > 0 and not project_title[0].isalnum():
         raise ValueError(
             "First character should be alphabet" " letter (a-z) or number (0-9)."
         )
 
-    if not name and not isinstance(name, str) and len(name) >= 3:
-        raise ValueError("Project name should be at least 3 characters.")
+    if not project_title and not isinstance(project_title, str) and len(project_title) >= 3:
+        raise ValueError("Project title should be at least 3 characters.")
 
-    project_id = ""
-    for c in name.lower():
+    plaintext_project_id = ""
+    for c in project_title.lower():
         if c.isalnum():
-            project_id += c
-        elif len(project_id) > 0 and project_id[-1] != "-":
-            project_id += "-"
+            plaintext_project_id += c
+        elif len(plaintext_project_id) > 0 and plaintext_project_id[-1] != "-":
+            plaintext_project_id += "-"
 
-    return project_id
+    return plaintext_project_id
+
+
+def _get_user_uuid(user_id=""):
+    user_uuid = uuid5(NAMESPACE_URL, str(user_id)).hex
+    return user_uuid
+
+
+def _get_project_uuid(project_title, user):
+    """Get the project uuid from project title and user id."""
+
+    plaintext_project_id = _create_plaintext_project_id(project_title)
+
+    # Get the user uuid.
+    if app_is_authenticated(current_app):
+        user_uuid = _get_user_uuid(current_user.id)
+    else:
+        user_uuid = _get_user_uuid()
+
+    # Get the project uuid.
+    project_uuid = uuid5(NAMESPACE_URL, plaintext_project_id + user_uuid).hex
+
+    return project_uuid
 
 
 def is_project(project_path):
@@ -313,12 +340,6 @@ class ASReviewProject:
 
         kwargs_copy = kwargs.copy()
 
-        if "name" in kwargs_copy:
-            del kwargs_copy["name"]
-            logging.info(
-                "Update project name is ignored, use 'rename_project' function."
-            )
-
         # validate schema
         if "mode" in kwargs_copy and kwargs_copy["mode"] not in PROJECT_MODES:
             raise ValueError("Project mode '{}' not found.".format(kwargs_copy["mode"]))
@@ -333,49 +354,6 @@ class ASReviewProject:
         self.config = config
         return config
 
-    def rename(self, new_project_data={}):
-        """Rename a project id.
-
-        This function only works for projects in ASReview LAB  web interface.
-        This is the result of the file storage in
-        asreview.webapp.utils.project_path.asreview_path.
-
-        Arguments
-        ---------
-        new_project_data: dict
-            Dictionary that contains a new name, id and project path
-
-        Returns
-        -------
-        ASReviewProject:
-            The updated project
-        """
-        # get all data
-        new_project_name = new_project_data.get("name", None)
-        new_project_id = new_project_data.get("project_id", None)
-        new_project_path = new_project_data.get("project_path", None)
-
-        if self.project_id == new_project_id:
-            # nothing to do
-            return self
-
-        if (self.project_path != new_project_path) and is_project(new_project_path):
-            raise ValueError(f"Project '{new_project_path}' already exists.")
-
-        self.project_path.rename(new_project_path)
-        self.project_path = new_project_path
-        self.project_id = new_project_id
-
-        # update the project file
-        config = self.config
-
-        config["id"] = new_project_id
-        config["name"] = new_project_name
-
-        self.config = config
-        self._config = config
-
-        return self
 
     def add_dataset(self, file_name):
         """Add file path to the project file.
