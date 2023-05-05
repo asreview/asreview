@@ -113,3 +113,7 @@ def app():
 def client(app):
     """A test client for the app."""
     return app.test_client()
+
+
+class TestProject:
+    project_id = None

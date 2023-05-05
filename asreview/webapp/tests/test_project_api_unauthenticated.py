@@ -16,8 +16,8 @@ import time
 from pathlib import Path
 
 from asreview.project import PATH_FEATURE_MATRICES
-from asreview.project import _create_project_id
 from asreview.utils import asreview_path
+from asreview.webapp.tests.conftest import TestProject
 
 
 def test_get_projects(setup_teardown_unauthorized):
@@ -58,12 +58,15 @@ def test_init_project(setup_teardown_unauthorized):
     assert "name" in json_data
     assert isinstance(json_data, dict)
 
+    # store project id for later use
+    TestProject.project_id = project_id
+
 
 def test_upgrade_project_if_old(setup_teardown_unauthorized):
     """Test upgrade project if it is v0.x"""
     _, client = setup_teardown_unauthorized
 
-    response = client.get("/api/projects/project-id/upgrade_if_old")
+    response = client.get(f"/api/projects/{TestProject.project_id}/upgrade_if_old")
     assert response.status_code == 400
 
 
@@ -99,7 +102,8 @@ def test_upload_data_to_project(setup_teardown_unauthorized):
     _, client = setup_teardown_unauthorized
 
     response = client.post(
-        "/api/projects/project-id/data", data={"benchmark": "benchmark:Hall_2012"}
+        f"/api/projects/{TestProject.project_id}/data",
+        data={"benchmark": "benchmark:Hall_2012"},
     )
     assert response.status_code == 200
 
@@ -108,7 +112,7 @@ def test_get_project_data(setup_teardown_unauthorized):
     """Test get info on the data"""
     _, client = setup_teardown_unauthorized
 
-    response = client.get("/api/projects/project-id/data")
+    response = client.get(f"/api/projects/{TestProject.project_id}/data")
     json_data = response.get_json()
     assert json_data["filename"] == "Hall_2012"
 
@@ -117,77 +121,32 @@ def test_get_dataset_writer(setup_teardown_unauthorized):
     """Test get dataset writer"""
     _, client = setup_teardown_unauthorized
 
-    response = client.get("/api/projects/project-id/dataset_writer")
+    response = client.get(f"/api/projects/{TestProject.project_id}/dataset_writer")
     json_data = response.get_json()
     assert isinstance(json_data["result"], list)
 
 
-def test_update_project_info_no_name_change(setup_teardown_unauthorized):
+def test_update_project_info(setup_teardown_unauthorized):
     """Test update project info without changing the project name"""
     _, client = setup_teardown_unauthorized
 
     response = client.put(
-        "/api/projects/project-id/info",
+        f"/api/projects/{TestProject.project_id}/info",
         data={
             "mode": "explore",
-            "name": "project_id",
+            "name": "another project",
             "authors": "asreview team",
             "description": "hello world",
         },
     )
     assert response.status_code == 200
-
-
-def test_update_project_info_with_name_change(setup_teardown_unauthorized):
-    """Test update project info -with- changing the project name"""
-    _, client = setup_teardown_unauthorized
-
-    new_project_name = "another_project"
-    old_project_id = "project-id"
-
-    response = client.put(
-        f"/api/projects/{old_project_id}/info",
-        data={
-            "mode": "explore",
-            "name": new_project_name,
-            "authors": "asreview team",
-            "description": "hello world",
-        },
-    )
-    assert response.status_code == 200
-
-    # check if folder has been renamed
-    project_id = _create_project_id(new_project_name)
-    assert Path(asreview_path(), project_id).exists()
-    assert Path(asreview_path(), project_id, "data").exists()
-    assert Path(asreview_path(), project_id, "reviews").exists()
-    assert Path(asreview_path(), project_id, PATH_FEATURE_MATRICES).exists()
-
-    # check if old folder is removed
-    assert Path(asreview_path(), old_project_id).exists() is False
 
 
 def test_get_project_info(setup_teardown_unauthorized):
-    """Test get info on the project, start with a new project"""
+    """Test get info on the project"""
     _, client = setup_teardown_unauthorized
 
-    # since we have renamed the previous project we have to
-    # add the old project again
-    client.post(
-        "/api/projects/info",
-        data={
-            "mode": "explore",
-            "name": "project_id",
-            "authors": "asreview team",
-            "description": "hello world",
-        },
-    )
-    client.post(
-        "/api/projects/project-id/data", data={"benchmark": "benchmark:Hall_2012"}
-    )
-
-    # call the info method
-    response = client.get("/api/projects/project-id/info")
+    response = client.get(f"/api/projects/{TestProject.project_id}/info")
     json_data = response.get_json()
     assert json_data["authors"] == "asreview team"
     assert json_data["dataset_path"] == "Hall_2012.csv"
@@ -197,7 +156,9 @@ def test_search_data(setup_teardown_unauthorized):
     """Test search for papers"""
     _, client = setup_teardown_unauthorized
 
-    response = client.get("/api/projects/project-id/search?q=Software&n_max=10")
+    response = client.get(
+        f"/api/projects/{TestProject.project_id}/search?q=Software&n_max=10"
+    )
     json_data = response.get_json()
 
     assert "result" in json_data
@@ -208,7 +169,7 @@ def test_random_prior_papers(setup_teardown_unauthorized):
     """Test get a selection of random papers to find exclusions"""
     _, client = setup_teardown_unauthorized
 
-    response = client.get("/api/projects/project-id/prior_random")
+    response = client.get(f"/api/projects/{TestProject.project_id}/prior_random")
     json_data = response.get_json()
 
     assert "result" in json_data
@@ -220,11 +181,11 @@ def test_label_item(setup_teardown_unauthorized):
     _, client = setup_teardown_unauthorized
 
     response_irrelevant = client.post(
-        "/api/projects/project-id/record/5509",
+        f"/api/projects/{TestProject.project_id}/record/5509",
         data={"doc_id": 5509, "label": 0, "is_prior": 1},
     )
     response_relevant = client.post(
-        "/api/projects/project-id/record/58",
+        f"/api/projects/{TestProject.project_id}/record/58",
         data={"doc_id": 58, "label": 1, "is_prior": 1},
     )
 
@@ -236,7 +197,7 @@ def test_get_labeled(setup_teardown_unauthorized):
     """Test get all papers classified as labeled documents"""
     _, client = setup_teardown_unauthorized
 
-    response = client.get("/api/projects/project-id/labeled")
+    response = client.get(f"/api/projects/{TestProject.project_id}/labeled")
     json_data = response.get_json()
 
     assert "result" in json_data
@@ -247,7 +208,7 @@ def test_get_labeled_stats(setup_teardown_unauthorized):
     """Test get all papers classified as prior documents"""
     _, client = setup_teardown_unauthorized
 
-    response = client.get("/api/projects/project-id/labeled_stats")
+    response = client.get(f"/api/projects/{TestProject.project_id}/labeled_stats")
     json_data = response.get_json()
 
     assert isinstance(json_data, dict)
@@ -272,7 +233,7 @@ def test_set_algorithms(setup_teardown_unauthorized):
     _, client = setup_teardown_unauthorized
 
     response = client.post(
-        "/api/projects/project-id/algorithms",
+        f"/api/projects/{TestProject.project_id}/algorithms",
         data={
             "model": "svm",
             "query_strategy": "max_random",
@@ -287,7 +248,7 @@ def test_get_algorithms(setup_teardown_unauthorized):
     """Test active learning model selection"""
     _, client = setup_teardown_unauthorized
 
-    response = client.get("/api/projects/project-id/algorithms")
+    response = client.get(f"/api/projects/{TestProject.project_id}/algorithms")
     json_data = response.get_json()
 
     assert "model" in json_data
@@ -301,13 +262,13 @@ def test_start_and_model_ready(setup_teardown_unauthorized):
     """Test start training the model"""
     _, client = setup_teardown_unauthorized
 
-    response = client.post("/api/projects/project-id/start")
+    response = client.post(f"/api/projects/{TestProject.project_id}/start")
     assert response.status_code == 200
 
     # wait until the model is ready
     time.sleep(10)
 
-    response = client.get("/api/projects/project-id/status")
+    response = client.get(f"/api/projects/{TestProject.project_id}/status")
     json_data = response.get_json()
     assert json_data["status"] == "review"
 
@@ -316,10 +277,14 @@ def test_export_result(setup_teardown_unauthorized):
     """Test export result"""
     _, client = setup_teardown_unauthorized
 
-    response_csv = client.get("/api/projects/project-id/export_dataset?file_format=csv")
-    response_tsv = client.get("/api/projects/project-id/export_dataset?file_format=tsv")
+    response_csv = client.get(
+        f"/api/projects/{TestProject.project_id}/export_dataset?file_format=csv"
+    )
+    response_tsv = client.get(
+        f"/api/projects/{TestProject.project_id}/export_dataset?file_format=tsv"
+    )
     response_excel = client.get(
-        "/api/projects/project-id/export_dataset?file_format=xlsx"
+        f"/api/projects/{TestProject.project_id}/export_dataset?file_format=xlsx"
     )
     assert response_csv.status_code == 200
     assert response_tsv.status_code == 200
@@ -330,7 +295,7 @@ def test_export_project(setup_teardown_unauthorized):
     """Test export the project file"""
     _, client = setup_teardown_unauthorized
 
-    response = client.get("/api/projects/project-id/export_project")
+    response = client.get(f"/api/projects/{TestProject.project_id}/export_project")
     assert response.status_code == 200
 
 
@@ -339,15 +304,17 @@ def test_finish_project(setup_teardown_unauthorized):
     _, client = setup_teardown_unauthorized
 
     response = client.put(
-        "/api/projects/project-id/status", data={"status": "finished"}
+        f"/api/projects/{TestProject.project_id}/status", data={"status": "finished"}
     )
     assert response.status_code == 200
 
-    response = client.put("/api/projects/project-id/status", data={"status": "review"})
+    response = client.put(
+        f"/api/projects/{TestProject.project_id}/status", data={"status": "review"}
+    )
     assert response.status_code == 200
 
     response = client.put(
-        "/api/projects/project-id/status", data={"status": "finished"}
+        f"/api/projects/{TestProject.project_id}/status", data={"status": "finished"}
     )
     assert response.status_code == 200
 
@@ -356,7 +323,7 @@ def test_get_progress_info(setup_teardown_unauthorized):
     """Test get progress info on the article"""
     _, client = setup_teardown_unauthorized
 
-    response = client.get("/api/projects/project-id/progress")
+    response = client.get(f"/api/projects/{TestProject.project_id}/progress")
     json_data = response.get_json()
     assert isinstance(json_data, dict)
 
@@ -365,7 +332,7 @@ def test_get_progress_density(setup_teardown_unauthorized):
     """Test get progress density on the article"""
     _, client = setup_teardown_unauthorized
 
-    response = client.get("/api/projects/project-id/progress_density")
+    response = client.get(f"/api/projects/{TestProject.project_id}/progress_density")
     json_data = response.get_json()
     assert "relevant" in json_data
     assert "irrelevant" in json_data
@@ -376,7 +343,7 @@ def test_get_progress_recall(setup_teardown_unauthorized):
     """Test get cumulative number of inclusions by ASReview/at random"""
     _, client = setup_teardown_unauthorized
 
-    response = client.get("/api/projects/project-id/progress_recall")
+    response = client.get(f"/api/projects/{TestProject.project_id}/progress_recall")
     json_data = response.get_json()
     assert "asreview" in json_data
     assert "random" in json_data
@@ -387,7 +354,7 @@ def test_get_document(setup_teardown_unauthorized):
     """Test retrieve documents in order of review"""
     _, client = setup_teardown_unauthorized
 
-    response = client.get("/api/projects/project-id/get_document")
+    response = client.get(f"/api/projects/{TestProject.project_id}/get_document")
     json_data = response.get_json()
 
     assert "result" in json_data
@@ -397,7 +364,7 @@ def test_get_document(setup_teardown_unauthorized):
 
     # Test retrieve classification result
     response = client.post(
-        f"/api/projects/project-id/record/{doc_id}",
+        f"/api/projects/{TestProject.project_id}/record/{doc_id}",
         data={
             "doc_id": doc_id,
             "label": 1,
@@ -407,7 +374,7 @@ def test_get_document(setup_teardown_unauthorized):
 
     # Test update classification result
     response = client.put(
-        f"/api/projects/project-id/record/{doc_id}",
+        f"/api/projects/{TestProject.project_id}/record/{doc_id}",
         data={
             "doc_id": doc_id,
             "label": 0,
@@ -421,5 +388,5 @@ def test_delete_project(setup_teardown_unauthorized):
     """Test get info on the article"""
     _, client = setup_teardown_unauthorized
 
-    response = client.delete("/api/projects/project-id/delete")
+    response = client.delete(f"/api/projects/{TestProject.project_id}/delete")
     assert response.status_code == 200

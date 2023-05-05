@@ -147,99 +147,34 @@ def test_get_dataset_writer(setup_teardown_signed_in):
     assert isinstance(json_data["result"], list)
 
 
-def test_update_project_info_no_name_change(setup_teardown_signed_in):
-    """Test update project info -without- changing the project name"""
+def test_update_project_info(setup_teardown_signed_in):
+    """Test update project info"""
     _, client, user = setup_teardown_signed_in
 
     # assert if we still have one project in the database
     assert len(Project.query.all()) == 1
 
     project = Project.query.one()
-    old_project_id = project.project_id
     response = client.put(
-        f"/api/projects/{old_project_id}/info",
+        f"/api/projects/{project.project_id}/info",
         data={
             "mode": "explore",
-            "name": "project_id",
+            "name": "another project",
             "authors": "different asreview team",
             "description": "hello world",
         },
     )
     assert response.status_code == 200
 
-    # assert if we still have one project in the database
-    assert len(Project.query.all()) == 1
-    project = Project.query.one()
-    assert project.project_id == old_project_id
-
-
-def test_update_project_info_with_name_change(setup_teardown_signed_in):
-    """Test update project info -with- changing the project name"""
-    _, client, user = setup_teardown_signed_in
-
-    project = Project.query.one()
-    new_project_name = "another_project"
-    old_project_id = project.project_id
-
-    # verify project folder exists
-    assert Path(asreview_path(), old_project_id).exists() is True
-
-    response = client.put(
-        f"/api/projects/{old_project_id}/info",
-        data={
-            "mode": "explore",
-            "name": new_project_name,
-            "authors": "asreview team",
-            "description": "hello world",
-        },
-    )
-    assert response.status_code == 200
-
-    json_data = response.get_json()
-    new_project_id = json_data["id"]
-
-    # check if folder has been renamed
-    assert Path(asreview_path(), new_project_id).exists()
-    assert Path(asreview_path(), new_project_id, "data").exists()
-    assert Path(asreview_path(), new_project_id, "reviews").exists()
-    assert Path(asreview_path(), new_project_id, PATH_FEATURE_MATRICES).exists()
-
-    # check if old folder is removed
-    assert Path(asreview_path(), old_project_id).exists() is False
-
-    # now we check the database
-    assert len(Project.query.all()) == 1
-    project = Project.query.one()
-    assert project.project_id == new_project_id
-    assert project.owner_id == user.id
-
 
 def test_get_project_info(setup_teardown_signed_in):
-    """Test get info on the project, start with a new project"""
+    """Test get info on the project"""
     _, client, _ = setup_teardown_signed_in
 
-    # since we have renamed the previous project we have to
-    # add the old project again
-    client.post(
-        "/api/projects/info",
-        data={
-            "mode": "explore",
-            "name": "project_id",
-            "authors": "asreview team",
-            "description": "hello world",
-        },
-    )
-
-    project = Project.query.order_by(Project.id.desc()).first()
-    client.post(
-        f"/api/projects/{project.project_id}/data",
-        data={"benchmark": "benchmark:Hall_2012"},
-    )
-
-    # call the info method
+    project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/info")
     json_data = response.get_json()
-    assert json_data["authors"] == "asreview team"
+    assert json_data["authors"] == "different asreview team"
     assert json_data["dataset_path"] == "Hall_2012.csv"
 
 
@@ -247,7 +182,7 @@ def test_search_data(setup_teardown_signed_in):
     """Test search for papers"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = Project.query.one()
     response = client.get(
         f"/api/projects/{project.project_id}/search?q=Software&n_max=10"
     )
@@ -261,7 +196,7 @@ def test_random_prior_papers(setup_teardown_signed_in):
     """Test get a selection of random papers to find exclusions"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/prior_random")
     json_data = response.get_json()
 
@@ -273,7 +208,7 @@ def test_label_item(setup_teardown_signed_in):
     """Test label item"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = Project.query.one()
     response_irrelevant = client.post(
         f"/api/projects/{project.project_id}/record/5509",
         data={"doc_id": 5509, "label": 0, "is_prior": 1},
@@ -291,7 +226,7 @@ def test_get_labeled(setup_teardown_signed_in):
     """Test get all papers classified as labeled documents"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/labeled")
     json_data = response.get_json()
 
@@ -303,7 +238,7 @@ def test_get_labeled_stats(setup_teardown_signed_in):
     """Test get all papers classified as prior documents"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/labeled_stats")
     json_data = response.get_json()
 
@@ -328,7 +263,7 @@ def test_set_algorithms(setup_teardown_signed_in):
     """Test set active learning model"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = Project.query.one()
     response = client.post(
         f"/api/projects/{project.project_id}/algorithms",
         data={
@@ -345,7 +280,7 @@ def test_get_algorithms(setup_teardown_signed_in):
     """Test active learning model selection"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/algorithms")
     json_data = response.get_json()
 
@@ -360,7 +295,7 @@ def test_start_and_model_ready(setup_teardown_signed_in):
     """Test start training the model"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = Project.query.one()
     response = client.post(f"/api/projects/{project.project_id}/start")
     assert response.status_code == 200
 
@@ -376,7 +311,7 @@ def test_export_result(setup_teardown_signed_in):
     """Test export result"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = Project.query.one()
     response_csv = client.get(
         f"/api/projects/{project.project_id}/export_dataset?file_format=csv"
     )
@@ -395,7 +330,7 @@ def test_export_project(setup_teardown_signed_in):
     """Test export the project file"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/export_project")
     assert response.status_code == 200
 
@@ -404,7 +339,7 @@ def test_finish_project(setup_teardown_signed_in):
     """Test mark a project as finished or not"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = Project.query.one()
     response = client.put(
         f"/api/projects/{project.project_id}/status", data={"status": "finished"}
     )
@@ -425,7 +360,7 @@ def test_get_progress_info(setup_teardown_signed_in):
     """Test get progress info on the article"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/progress")
     json_data = response.get_json()
     assert isinstance(json_data, dict)
@@ -435,7 +370,7 @@ def test_get_progress_density(setup_teardown_signed_in):
     """Test get progress density on the article"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/progress_density")
     json_data = response.get_json()
     assert "relevant" in json_data
@@ -447,7 +382,7 @@ def test_get_progress_recall(setup_teardown_signed_in):
     """Test get cumulative number of inclusions by ASReview/at random"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/progress_recall")
     json_data = response.get_json()
     assert "asreview" in json_data
@@ -459,7 +394,7 @@ def test_get_document(setup_teardown_signed_in):
     """Test retrieve documents in order of review"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/get_document")
     json_data = response.get_json()
 
@@ -495,26 +430,12 @@ def test_delete_project(setup_teardown_signed_in):
     """Test get info on the article"""
     _, client, user = setup_teardown_signed_in
 
-    # assert we have two projects in the table
-    assert len(user.projects) == 2
-    # api call
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = Project.query.one()
     response = client.delete(f"/api/projects/{project.project_id}/delete")
     assert response.status_code == 200
 
     # assert folder is gone
     assert Path(asreview_path(), project.project_id).exists() is False
-
-    # assert that one project is gone
-    assert len(user.projects) == 1
-
-    # assert if the other project still exists
-    project = Project.query.one()
-    assert Path(asreview_path(), project.project_id).exists()
-    # make sure it has the correct name
-    response = client.get(f"/api/projects/{project.project_id}/info")
-    json_data = response.get_json()
-    assert json_data["name"] == "another_project"
 
 
 # ------------------------
@@ -576,7 +497,7 @@ def test_old_upgrade_no_permission(setup_teardown_signed_in):
     """Test upgrade project if it is v0.x"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/upgrade_if_old")
     json_data = response.get_json()
     assert response.status_code == 403
@@ -587,7 +508,7 @@ def test_update_no_permission(setup_teardown_signed_in):
     """Test update project info -without- changing the project name"""
     _, client, user = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = project = Project.query.one()
     response = client.put(
         f"/api/projects/{project.project_id}/info",
         data={
@@ -606,7 +527,7 @@ def test_upload_data_no_permission(setup_teardown_signed_in):
     """Test upload data to project."""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = project = Project.query.one()
     response = client.post(
         f"/api/projects/{project.project_id}/data",
         data={"benchmark": "benchmark:Hall_2012"},
@@ -620,7 +541,7 @@ def test_get_project_data_no_permission(setup_teardown_signed_in):
     """Test get info on the data"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/data")
     json_data = response.get_json()
     assert response.status_code == 403
@@ -631,7 +552,7 @@ def test_get_dataset_writer_no_permission(setup_teardown_signed_in):
     """Test get dataset writer"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/dataset_writer")
     json_data = response.get_json()
     assert response.status_code == 403
@@ -642,7 +563,7 @@ def test_search_data_no_permission(setup_teardown_signed_in):
     """Test search for papers"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = project = Project.query.one()
     response = client.get(
         f"/api/projects/{project.project_id}/search?q=Software&n_max=10"
     )
@@ -655,7 +576,7 @@ def test_get_labeled_no_permission(setup_teardown_signed_in):
     """Test get all papers classified as labeled documents"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/labeled")
     json_data = response.get_json()
     assert response.status_code == 403
@@ -666,7 +587,7 @@ def test_get_labeled_stats_no_permission(setup_teardown_signed_in):
     """Test get all papers classified as prior documents"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/labeled_stats")
     json_data = response.get_json()
     assert response.status_code == 403
@@ -677,7 +598,7 @@ def test_random_prior_papers_no_permission(setup_teardown_signed_in):
     """Test get a selection of random papers to find exclusions"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/prior_random")
     json_data = response.get_json()
     assert response.status_code == 403
@@ -688,7 +609,7 @@ def test_list_algorithms_no_permission(setup_teardown_signed_in):
     """Test get list of active learning models"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/algorithms")
     json_data = response.get_json()
     assert response.status_code == 403
@@ -699,7 +620,7 @@ def test_set_algorithms_no_permission(setup_teardown_signed_in):
     """Test set active learning model"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = project = Project.query.one()
     response = client.post(
         f"/api/projects/{project.project_id}/algorithms",
         data={
@@ -718,7 +639,7 @@ def test_start_model_ready_no_permission(setup_teardown_signed_in):
     """Test start training the model"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = project = Project.query.one()
     response = client.post(f"/api/projects/{project.project_id}/start")
     json_data = response.get_json()
     assert response.status_code == 403
@@ -729,7 +650,7 @@ def test_get_model_status_no_permission(setup_teardown_signed_in):
     """Test start training the model"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/status")
     json_data = response.get_json()
     assert response.status_code == 403
@@ -740,7 +661,7 @@ def test_finish_project_no_permission(setup_teardown_signed_in):
     """Test mark a project as finished or not"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = project = Project.query.one()
     response = client.put(
         f"/api/projects/{project.project_id}/status", data={"status": "finished"}
     )
@@ -753,7 +674,7 @@ def test_export_result_no_permission(setup_teardown_signed_in):
     """Test export result"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = project = Project.query.one()
     response = client.get(
         f"/api/projects/{project.project_id}/export_dataset?file_format=csv"
     )
@@ -766,7 +687,7 @@ def test_export_project_no_permission(setup_teardown_signed_in):
     """Test export the project file"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/export_project")
     json_data = response.get_json()
     assert response.status_code == 403
@@ -777,7 +698,7 @@ def test_get_progress_info_no_permission(setup_teardown_signed_in):
     """Test get progress info on the article"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/progress")
     json_data = response.get_json()
     assert response.status_code == 403
@@ -788,7 +709,7 @@ def test_get_progress_density_no_permission(setup_teardown_signed_in):
     """Test get progress density on the article"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/progress_density")
     json_data = response.get_json()
     assert response.status_code == 403
@@ -799,7 +720,7 @@ def test_get_progress_recall_no_permission(setup_teardown_signed_in):
     """Test get cumulative number of inclusions by ASReview/at random"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/progress_recall")
     json_data = response.get_json()
     assert response.status_code == 403
@@ -810,7 +731,7 @@ def test_classify_instance_no_permission(setup_teardown_signed_in):
     """Test retrieve documents in order of review"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = project = Project.query.one()
     # Test retrieve classification result
     response = client.post(
         f"/api/projects/{project.project_id}/record/1234",
@@ -828,7 +749,7 @@ def test_get_document_no_permission(setup_teardown_signed_in):
     """Test retrieve documents in order of review"""
     _, client, _ = setup_teardown_signed_in
 
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/get_document")
     json_data = response.get_json()
     assert response.status_code == 403
@@ -838,7 +759,7 @@ def test_get_document_no_permission(setup_teardown_signed_in):
 def test_delete_project_no_permission(setup_teardown_signed_in):
     """Test get info on the article"""
     _, client, user = setup_teardown_signed_in
-    project = Project.query.order_by(Project.id.desc()).first()
+    project = project = Project.query.one()
     response = client.delete(f"/api/projects/{project.project_id}/delete")
     json_data = response.get_json()
     assert response.status_code == 403
