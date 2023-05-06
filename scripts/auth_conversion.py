@@ -14,8 +14,8 @@ import json
 import sqlite3
 from pathlib import Path
 
-from asreview.utils import asreview_path
 from asreview.project import _get_project_uuid
+from asreview.utils import asreview_path
 from asreview.webapp.authentication.models import User
 
 
