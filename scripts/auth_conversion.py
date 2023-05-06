@@ -15,7 +15,7 @@ import sqlite3
 from pathlib import Path
 
 from asreview.utils import asreview_path
-from asreview.webapp.api.projects import _get_project_uuid
+from asreview.project import _get_project_uuid
 from asreview.webapp.authentication.models import User
 
 
@@ -74,6 +74,7 @@ def main(conn, mapping=[]):
         if link not in done:
             user_id = link["user_id"]
             project_id = link["project_id"]
+            project_title = link["project_title"]
 
             # see if this project is already connected to a user
             if user_project_link_exists(conn, project_id):
@@ -89,7 +90,7 @@ def main(conn, mapping=[]):
                     user = user_cache[user_id]
 
                     # create a new project_id
-                    new_project_id = _get_project_uuid(project_id, user.id)
+                    new_project_id = _get_project_uuid(project_title, user)
 
                     # rename the folder
                     folder = asreview_path() / project_id

@@ -31,7 +31,6 @@ import jsonschema
 import numpy as np
 from filelock import FileLock
 from flask import current_app
-from flask_login import current_user
 from scipy.sparse import csr_matrix
 from scipy.sparse import load_npz
 from scipy.sparse import save_npz
@@ -145,7 +144,7 @@ def _get_project_uuid(project_title, user):
 
     # Get the user uuid.
     if app_is_authenticated(current_app):
-        user_uuid = _get_user_uuid(current_user.id)
+        user_uuid = _get_user_uuid(user.id)
     else:
         user_uuid = _get_user_uuid()
 
