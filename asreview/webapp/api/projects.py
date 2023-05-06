@@ -248,7 +248,6 @@ def api_get_projects_stats():  # noqa: F401
         project_paths = None
 
     for project in get_projects(project_paths):
-
         project_config = project.config
 
         # upgrade info of v0 projects
@@ -648,9 +647,7 @@ def api_list_dataset_writers(project):
 
     if not payload["result"]:
         return (
-            jsonify(
-                message=f"No dataset writer available for {fp_data.suffix} file."
-            ),
+            jsonify(message=f"No dataset writer available for {fp_data.suffix} file."),
             500,
         )
 
@@ -1370,7 +1367,6 @@ def export_project(project):
 
 
 def _get_stats(project, include_priors=False):
-
     if is_v0_project(project.project_path):
         json_fp = Path(project.project_path, "result.json")
 
@@ -1496,9 +1492,7 @@ def api_get_progress_density(project):
     # transform mean(percentage) to number
     for i in range(0, len(df)):
         if df.loc[i, "Total"] < 10:
-            df.loc[i, "Irrelevant"] = (1 - df.loc[i, "Relevant"]) * df.loc[
-                i, "Total"
-            ]
+            df.loc[i, "Irrelevant"] = (1 - df.loc[i, "Relevant"]) * df.loc[i, "Total"]
             df.loc[i, "Relevant"] = df.loc[i, "Total"] - df.loc[i, "Irrelevant"]
         else:
             df.loc[i, "Irrelevant"] = (1 - df.loc[i, "Relevant"]) * 10
