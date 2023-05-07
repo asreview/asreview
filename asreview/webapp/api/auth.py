@@ -57,7 +57,7 @@ def perform_login_user(user):
 # TODO: not sure if this file is the right place for this function
 def send_forgot_password_email(user, cur_app):
     # do not send email in test environment
-    if (cur_app.config["ENV"] or "").lower() != "test":
+    if not cur_app.testing:
         # get necessary information out of user object
         name = user.name or "ASReview user"
         # email config
