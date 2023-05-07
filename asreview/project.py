@@ -111,45 +111,10 @@ def get_projects(project_paths=None):
     return [ASReviewProject(project_path) for project_path in project_paths]
 
 
-def _create_plaintext_project_id(title):
-    """Create plaintext project id from input title."""
+def _get_project_uuid():
+    """Generate a random project uuid."""
 
-    if isinstance(title, str) and len(title) > 0 and not title[0].isalnum():
-        raise ValueError(
-            "First character should be alphabet" " letter (a-z) or number (0-9)."
-        )
-
-    if not title and not isinstance(title, str) and len(title) >= 3:
-        raise ValueError("Project title should be at least 3 characters.")
-
-    plaintext_project_id = ""
-    for c in title.lower():
-        if c.isalnum():
-            plaintext_project_id += c
-        elif len(plaintext_project_id) > 0 and plaintext_project_id[-1] != "-":
-            plaintext_project_id += "-"
-
-    return plaintext_project_id
-
-
-def _get_user_uuid(user_id=""):
-    user_uuid = uuid5(NAMESPACE_URL, str(user_id)).hex
-    return user_uuid
-
-
-def _get_project_uuid(project_title, user):
-    """Get the project uuid from project title and user id."""
-
-    plaintext_project_id = _create_plaintext_project_id(project_title)
-
-    # Get the user uuid.
-    if app_is_authenticated(current_app):
-        user_uuid = _get_user_uuid(user.id)
-    else:
-        user_uuid = _get_user_uuid()
-
-    # Get the project uuid.
-    project_uuid = uuid5(NAMESPACE_URL, plaintext_project_id + user_uuid).hex
+    project_uuid = uuid4().hex
 
     return project_uuid
 

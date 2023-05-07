@@ -230,7 +230,7 @@ def api_init_project():  # noqa: F401
     project_authors = request.form["authors"]
 
     # get a unique project id
-    project_id = _get_project_uuid(project_title, current_user)
+    project_id = _get_project_uuid()
 
     # get path of this project
     project_path = get_project_path(project_id)

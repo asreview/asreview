@@ -185,7 +185,6 @@ class TestConvertToAuthentication:
             {
                 "user_id": user.id,
                 "project_id": PROJECTS[i]["id"],
-                "project_title": PROJECTS[i]["name"],
             }
             for i, user in enumerate(User.query.order_by(User.id.asc()).all())
         ]
