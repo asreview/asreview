@@ -167,7 +167,7 @@ def value_error(e):
 def project_not_found(e):
     message = str(e) if str(e) else "Project not found."
     logging.error(message)
-    return jsonify(message=message), 400
+    return jsonify(message=message), 404
 
 
 @bp.errorhandler(InternalServerError)
