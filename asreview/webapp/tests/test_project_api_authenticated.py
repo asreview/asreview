@@ -19,6 +19,7 @@ from asreview.project import PATH_FEATURE_MATRICES
 from asreview.utils import asreview_path
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
+from asreview.webapp.tests.conftest import PROJECTS
 from asreview.webapp.tests.conftest import signin_user
 from asreview.webapp.tests.conftest import signout
 from asreview.webapp.tests.conftest import signup_user
@@ -48,12 +49,7 @@ def test_init_project(setup_teardown_signed_in):
 
     response = client.post(
         "/api/projects/info",
-        data={
-            "mode": "explore",
-            "name": "project_id",
-            "authors": "name",
-            "description": "hello world",
-        },
+        data=PROJECTS[0],
     )
     json_data = response.get_json()
 
@@ -157,12 +153,7 @@ def test_update_project_info(setup_teardown_signed_in):
     project = Project.query.one()
     response = client.put(
         f"/api/projects/{project.project_id}/info",
-        data={
-            "mode": "explore",
-            "name": "another project",
-            "authors": "different asreview team",
-            "description": "hello world",
-        },
+        data=PROJECTS[1],
     )
     assert response.status_code == 200
 
@@ -174,7 +165,7 @@ def test_get_project_info(setup_teardown_signed_in):
     project = Project.query.one()
     response = client.get(f"/api/projects/{project.project_id}/info")
     json_data = response.get_json()
-    assert json_data["authors"] == "different asreview team"
+    assert json_data["name"] == "another demo project"
     assert json_data["dataset_path"] == "Hall_2012.csv"
 
 
@@ -459,12 +450,7 @@ def test_adding_a_second_user_and_projects(setup_teardown_signed_in):
     # create project
     client.post(
         "/api/projects/info",
-        data={
-            "mode": "explore",
-            "name": "project of user 2",
-            "authors": "user 2",
-            "description": "project 2",
-        },
+        data=PROJECTS[0],
     )
     # assert we have this project
     assert len(Project.query.all()) == len(old_projects) + 1
@@ -511,12 +497,7 @@ def test_update_no_permission(setup_teardown_signed_in):
     project = project = Project.query.one()
     response = client.put(
         f"/api/projects/{project.project_id}/info",
-        data={
-            "mode": "explore",
-            "name": "project_id",
-            "authors": "different asreview team",
-            "description": "hello world",
-        },
+        data=PROJECTS[1],
     )
     json_data = response.get_json()
     assert response.status_code == 403
