@@ -148,7 +148,7 @@ class SimulateEntryPoint(BaseEntryPoint):
                 fp_tmp_simulation,
                 project_id=Path(args.state_file).stem,
                 project_mode="simulate",
-                project_name=Path(args.state_file).stem,
+                project_title=Path(args.state_file).stem,
                 project_description="Simulation created via ASReview via "
                 "command line interface",
             )
