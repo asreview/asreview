@@ -658,7 +658,7 @@ def api_list_dataset_writers(project):
         if i not in payload["result"][(n + 1) :]
     ]
 
-    return jsonify(response)
+    return jsonify(payload)
 
 
 @bp.route("/projects/<project_id>/search", methods=["GET"])
@@ -971,7 +971,7 @@ def api_random_prior_papers(project):  # noqa: F401
                 }
             )
 
-    return jsonify(response)
+    return jsonify(payload)
 
 
 @bp.route("/algorithms", methods=["GET"])
@@ -1000,7 +1000,7 @@ def api_list_algorithms():
             else:
                 payload[key].append({"name": method.name, "label": method.name})
 
-    return jsonify(response)
+    return jsonify(payload)
 
 
 @bp.route("/projects/<project_id>/algorithms", methods=["GET"])
@@ -1030,7 +1030,7 @@ def api_get_algorithms(project):  # noqa: F401
     except StateNotFoundError:
         payload = default_payload
 
-    return jsonify(response)
+    return jsonify(payload)
 
 
 @bp.route("/projects/<project_id>/algorithms", methods=["POST"])
@@ -1512,7 +1512,7 @@ def api_get_progress_density(project):
 
     payload = {"relevant": df_relevant, "irrelevant": df_irrelevant}
 
-    return jsonify(response)
+    return jsonify(payload)
 
 
 @bp.route("/projects/<project_id>/progress_recall", methods=["GET"])
@@ -1554,7 +1554,7 @@ def api_get_progress_recall(project):
 
     payload = {"asreview": df_asreview, "random": df_random}
 
-    return jsonify(response)
+    return jsonify(payload)
 
 
 @bp.route("/projects/<project_id>/record/<doc_id>", methods=["POST", "PUT"])
