@@ -23,14 +23,11 @@ from contextlib import contextmanager
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
-from uuid import NAMESPACE_URL
 from uuid import uuid4
-from uuid import uuid5
 
 import jsonschema
 import numpy as np
 from filelock import FileLock
-from flask import current_app
 from scipy.sparse import csr_matrix
 from scipy.sparse import load_npz
 from scipy.sparse import save_npz
@@ -43,7 +40,6 @@ from asreview.config import SCHEMA
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
 from asreview.utils import asreview_path
-from asreview.webapp.authentication.login_required import app_is_authenticated
 from asreview.webapp.io import read_data
 
 PATH_PROJECT_CONFIG = "project.json"
