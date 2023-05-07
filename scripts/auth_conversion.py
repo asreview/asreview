@@ -14,7 +14,6 @@ import json
 import sqlite3
 from pathlib import Path
 
-from asreview.project import _get_project_uuid
 from asreview.utils import asreview_path
 from asreview.webapp.authentication.models import User
 
@@ -85,34 +84,10 @@ def main(conn, mapping=[]):
                     # make sure user id exists
                     assert user_id in user_ids
 
-                    # get user record
-                    user = user_cache[user_id]
-
-                    # create a new project_id
-                    new_project_id = _get_project_uuid()
-
-                    # rename the folder
-                    folder = asreview_path() / project_id
-                    folder.rename(asreview_path() / new_project_id)
-
-                    # take care of the id inside the project.json file
-                    with open(
-                        asreview_path() / new_project_id / "project.json", mode="r"
-                    ) as f:
-                        data = json.load(f)
-                        # change id
-                        data["id"] = new_project_id
-
-                    # overwrite original project.json file with new project id
-                    with open(
-                        asreview_path() / new_project_id / "project.json", mode="w"
-                    ) as f:
-                        json.dump(data, f)
-
                     # insert record
                     link_user_to_project(
                         conn,
-                        new_project_id,
+                        project_id,
                         user_id,
                     )
 

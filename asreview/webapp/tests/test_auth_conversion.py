@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import os
 import shutil
 from pathlib import Path
@@ -192,35 +191,14 @@ class TestConvertToAuthentication:
         # execute converter with this mapping
         make_links(DB.engine.raw_connection(), mapping)
 
-        # check out folders in the asreview folder
-        folders = [f.name for f in asreview_path().glob("*") if f.is_dir()]
-
-        # check if we don't have the old folder names anymore
-        for link in mapping:
-            project_id = link["project_id"]
-            assert project_id not in folders
-
-        # check if we have the new folder names and if they exist
-        # in the database with the correct user
+        # check if projects are linked to the correct user
         for link in mapping:
             user = DB.session.get(User, link["user_id"])
             project_id = link["project_id"]
 
-            # check out if the folder exists
-            new_project_id = (
-                Project.query.filter(Project.owner_id == user.id).first().project_id
-            )
-            assert new_project_id in folders
-
             # check project in database and if it's linked to the user
-            project = Project.query.filter(Project.project_id == new_project_id).first()
+            project = Project.query.filter(Project.project_id == project_id).first()
             assert project.owner_id == user.id
-
-            # check if we have the correct new project id in the data file
-            # of the folder
-            with open(asreview_path() / new_project_id / "project.json") as f:
-                data = json.load(f)
-                assert data["id"] == new_project_id
 
     def test_projects_of_user_1(self):
         """Checkout projects of user 1."""
