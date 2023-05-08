@@ -81,6 +81,8 @@ def project_from_id(f):
     @wraps(f)
     def decorated_function(project_id, *args, **kwargs):
         project_path = get_project_path(project_id)
+        if not is_project(project_path):
+            raise ProjectNotFoundError(f"Project '{project_id}' not found")
         project = ASReviewProject(project_path, project_id=project_id)
         return f(project, *args, **kwargs)
 
