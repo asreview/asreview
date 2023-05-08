@@ -28,6 +28,7 @@ from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import EMAIL_ADDRESS
 from asreview.config import GITHUB_PAGE
+from asreview.data import ASReviewData
 from asreview.data import load_data
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.entry_points.base import _base_parser
@@ -42,7 +43,6 @@ from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
 from asreview.types import type_n_queries
 from asreview.utils import get_random_state
-from asreview.webapp.io import read_data
 
 ASCII_MSG_SIMULATE = """
 ---------------------------------------------------------------------------------
@@ -120,7 +120,10 @@ class SimulateEntryPoint(BaseEntryPoint):
 
             # collect command line arguments and pass them to the reviewer
             if exist_new_labeled_records:
-                as_data = read_data(project)
+                fp_data = Path(
+                    project.project_path, "data", project.config["dataset_path"]
+                )
+                as_data = ASReviewData.from_file(fp_data)
                 prior_idx = args.prior_idx
 
             classifier_model = get_classifier(settings.model)
