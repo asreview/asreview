@@ -64,7 +64,6 @@ from asreview.project import ProjectNotFoundError
 from asreview.project import _create_project_id
 from asreview.project import get_project_path
 from asreview.project import get_projects
-from asreview.project import is_project
 from asreview.project import is_v0_project
 from asreview.project import open_state
 from asreview.project import project_from_id
@@ -249,28 +248,23 @@ def api_get_projects_stats():  # noqa: F401
         project_paths = None
 
     for project in get_projects(project_paths):
+        project_config = project.config
+
+        # upgrade info of v0 projects
+        if project_config["version"].startswith("0"):
+            project_config = upgrade_project_config(project_config)
+            project_config["projectNeedsUpgrade"] = True
+
+        # get dashboard statistics
         try:
-            project_config = project.config
-
-            # upgrade info of v0 projects
-            if project_config["version"].startswith("0"):
-                project_config = upgrade_project_config(project_config)
-                project_config["projectNeedsUpgrade"] = True
-
-            # get dashboard statistics
-            try:
-                if project_config["reviews"][0]["status"] == "review":
-                    stats_counter["n_in_review"] += 1
-                elif project_config["reviews"][0]["status"] == "finished":
-                    stats_counter["n_finished"] += 1
-                else:
-                    stats_counter["n_setup"] += 1
-            except Exception:
+            if project_config["reviews"][0]["status"] == "review":
+                stats_counter["n_in_review"] += 1
+            elif project_config["reviews"][0]["status"] == "finished":
+                stats_counter["n_finished"] += 1
+            else:
                 stats_counter["n_setup"] += 1
-
-        except Exception as err:
-            logging.error(err)
-            return jsonify(message=f"Failed to load dashboard statistics. {err}"), 500
+        except Exception:
+            stats_counter["n_setup"] += 1
 
     response = jsonify({"result": stats_counter})
 
@@ -602,10 +596,6 @@ def api_upload_data_to_project(project):  # noqa: F401
 def api_get_project_data(project):  # noqa: F401
     """"""
 
-    if not is_project(project.project_path):
-        response = jsonify(message="Project not found.")
-        return response, 404
-
     try:
         # get statistics of the dataset
         as_data = read_data(project)
@@ -621,14 +611,7 @@ def api_get_project_data(project):  # noqa: F401
         logging.info(err)
         statistics = {"filename": None}
 
-    except Exception as err:
-        logging.error(err)
-        message = f"Failed to get file. {err}"
-        return jsonify(message=message), 400
-
-    response = jsonify(statistics)
-
-    return response
+    return jsonify(statistics)
 
 
 @bp.route("/projects/<project_id>/dataset_writer", methods=["GET"])
@@ -640,51 +623,42 @@ def api_list_dataset_writers(project):
 
     fp_data = Path(project.config["dataset_path"])
 
-    try:
-        readers = list_readers()
-        writers = list_writers()
+    readers = list_readers()
+    writers = list_writers()
 
-        # get write format for the data file
-        write_format = None
-        for c in readers:
-            if fp_data.suffix in c.read_format:
-                if write_format is None:
-                    write_format = c.write_format
+    # get write format for the data file
+    write_format = None
+    for c in readers:
+        if fp_data.suffix in c.read_format:
+            if write_format is None:
+                write_format = c.write_format
 
-        # get available writers
-        payload = {"result": []}
-        for c in writers:
-            payload["result"].append(
-                {
-                    "enabled": True if c.write_format in write_format else False,
-                    "name": c.name,
-                    "label": c.label,
-                    "caution": c.caution if hasattr(c, "caution") else None,
-                }
-            )
+    # get available writers
+    payload = {"result": []}
+    for c in writers:
+        payload["result"].append(
+            {
+                "enabled": True if c.write_format in write_format else False,
+                "name": c.name,
+                "label": c.label,
+                "caution": c.caution if hasattr(c, "caution") else None,
+            }
+        )
 
-        if not payload["result"]:
-            return (
-                jsonify(
-                    message=f"No dataset writer available for {fp_data.suffix} file."
-                ),
-                500,
-            )
+    if not payload["result"]:
+        return (
+            jsonify(message=f"No dataset writer available for {fp_data.suffix} file."),
+            500,
+        )
 
-        # remove duplicate writers
-        payload["result"] = [
-            i
-            for n, i in enumerate(payload["result"])
-            if i not in payload["result"][(n + 1) :]
-        ]
+    # remove duplicate writers
+    payload["result"] = [
+        i
+        for n, i in enumerate(payload["result"])
+        if i not in payload["result"][(n + 1) :]
+    ]
 
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message=f"Failed to retrieve dataset writers. {err}"), 500
-
-    response = jsonify(payload)
-
-    return response
+    return jsonify(payload)
 
 
 @bp.route("/projects/<project_id>/search", methods=["GET"])
@@ -698,16 +672,16 @@ def api_search_data(project):  # noqa: F401
 
     project_mode = project.config["mode"]
 
-    try:
-        payload = {"result": []}
-        if q:
-            # read the dataset
-            as_data = read_data(project)
+    payload = {"result": []}
+    if q:
+        # read the dataset
+        as_data = read_data(project)
 
-            # read record_ids of labels from state
-            with open_state(project.project_path) as s:
-                labeled_record_ids = s.get_dataset(["record_id"])["record_id"].to_list()
+        # read record_ids of labels from state
+        with open_state(project.project_path) as s:
+            labeled_record_ids = s.get_dataset(["record_id"])["record_id"].to_list()
 
+        try:
             # search for the keywords
             result_idx = fuzzy_find(
                 as_data,
@@ -716,40 +690,32 @@ def api_search_data(project):  # noqa: F401
                 exclude=labeled_record_ids,
                 by_index=True,
             )
+        except SearchError as err:
+            raise ValueError(err) from err
 
-            for record in as_data.record(result_idx):
-                debug_label = record.extra_fields.get("debug_label", None)
-                debug_label = int(debug_label) if pd.notnull(debug_label) else None
+        for record in as_data.record(result_idx):
+            debug_label = record.extra_fields.get("debug_label", None)
+            debug_label = int(debug_label) if pd.notnull(debug_label) else None
 
-                if project_mode == PROJECT_MODE_SIMULATE:
-                    # ignore existing labels
-                    included = -1
-                else:
-                    included = int(record.included)
+            if project_mode == PROJECT_MODE_SIMULATE:
+                # ignore existing labels
+                included = -1
+            else:
+                included = int(record.included)
 
-                payload["result"].append(
-                    {
-                        "id": int(record.record_id),
-                        "title": record.title,
-                        "abstract": record.abstract,
-                        "authors": record.authors,
-                        "keywords": record.keywords,
-                        "included": included,
-                        "_debug_label": debug_label,
-                    }
-                )
+            payload["result"].append(
+                {
+                    "id": int(record.record_id),
+                    "title": record.title,
+                    "abstract": record.abstract,
+                    "authors": record.authors,
+                    "keywords": record.keywords,
+                    "included": included,
+                    "_debug_label": debug_label,
+                }
+            )
 
-    except SearchError as search_err:
-        logging.error(search_err)
-        return jsonify(message=f"Error: {search_err}"), 500
-
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message="Failed to load search results."), 500
-
-    response = jsonify(payload)
-
-    return response
+    return jsonify(payload)
 
 
 @bp.route("/projects/<project_id>/labeled", methods=["GET"])
@@ -764,100 +730,93 @@ def api_get_labeled(project):  # noqa: F401
     subset = request.args.getlist("subset")
     latest_first = request.args.get("latest_first", default=1, type=int)
 
-    try:
-        with open_state(project.project_path) as s:
-            data = s.get_dataset(["record_id", "label", "query_strategy", "notes"])
-            data["prior"] = (data["query_strategy"] == "prior").astype(int)
+    with open_state(project.project_path) as s:
+        data = s.get_dataset(["record_id", "label", "query_strategy", "notes"])
+        data["prior"] = (data["query_strategy"] == "prior").astype(int)
 
-        if any(s in subset for s in ["relevant", "included"]):
-            data = data[data["label"] == 1]
-        elif any(s in subset for s in ["irrelevant", "excluded"]):
-            data = data[data["label"] == 0]
-        else:
-            data = data[~data["label"].isnull()]
+    if any(s in subset for s in ["relevant", "included"]):
+        data = data[data["label"] == 1]
+    elif any(s in subset for s in ["irrelevant", "excluded"]):
+        data = data[data["label"] == 0]
+    else:
+        data = data[~data["label"].isnull()]
 
-        if "note" in subset:
-            data = data[~data["notes"].isnull()]
+    if "note" in subset:
+        data = data[~data["notes"].isnull()]
 
-        if "prior" in subset:
-            data = data[data["prior"] == 1]
+    if "prior" in subset:
+        data = data[data["prior"] == 1]
 
-        if latest_first == 1:
-            data = data.iloc[::-1]
+    if latest_first == 1:
+        data = data.iloc[::-1]
 
-        # count labeled records and max pages
-        count = len(data)
-        if count == 0:
-            payload = {
-                "count": 0,
-                "next_page": None,
-                "previous_page": None,
-                "result": [],
-            }
-            response = jsonify(payload)
-
-            return response
-
-        max_page_calc = divmod(count, per_page)
-        if max_page_calc[1] == 0:
-            max_page = max_page_calc[0]
-        else:
-            max_page = max_page_calc[0] + 1
-
-        if page is not None:
-            # slice out records on specific page
-            if page <= max_page:
-                idx_start = page * per_page - per_page
-                idx_end = page * per_page
-                data = data.iloc[idx_start:idx_end, :].copy()
-            else:
-                return abort(404)
-
-            # set next & previous page
-            if page < max_page:
-                next_page = page + 1
-                if page > 1:
-                    previous_page = page - 1
-                else:
-                    previous_page = None
-            else:
-                next_page = None
-                previous_page = page - 1
-        else:
-            next_page = None
-            previous_page = None
-
-        records = read_data(project).record(data["record_id"])
-
+    # count labeled records and max pages
+    count = len(data)
+    if count == 0:
         payload = {
-            "count": count,
-            "next_page": next_page,
-            "previous_page": previous_page,
+            "count": 0,
+            "next_page": None,
+            "previous_page": None,
             "result": [],
         }
-        for i, record in zip(data.index.tolist(), records):
-            payload["result"].append(
-                {
-                    "id": int(record.record_id),
-                    "title": record.title,
-                    "abstract": record.abstract,
-                    "authors": record.authors,
-                    "keywords": record.keywords,
-                    "doi": record.doi,
-                    "url": record.url,
-                    "included": int(data.loc[i, "label"]),
-                    "note": data.loc[i, "notes"],
-                    "prior": int(data.loc[i, "prior"]),
-                }
-            )
+        response = jsonify(payload)
 
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message=f"{err}"), 500
+        return response
 
-    response = jsonify(payload)
+    max_page_calc = divmod(count, per_page)
+    if max_page_calc[1] == 0:
+        max_page = max_page_calc[0]
+    else:
+        max_page = max_page_calc[0] + 1
 
-    return response
+    if page is not None:
+        # slice out records on specific page
+        if page <= max_page:
+            idx_start = page * per_page - per_page
+            idx_end = page * per_page
+            data = data.iloc[idx_start:idx_end, :].copy()
+        else:
+            return abort(404)
+
+        # set next & previous page
+        if page < max_page:
+            next_page = page + 1
+            if page > 1:
+                previous_page = page - 1
+            else:
+                previous_page = None
+        else:
+            next_page = None
+            previous_page = page - 1
+    else:
+        next_page = None
+        previous_page = None
+
+    records = read_data(project).record(data["record_id"])
+
+    payload = {
+        "count": count,
+        "next_page": next_page,
+        "previous_page": previous_page,
+        "result": [],
+    }
+    for i, record in zip(data.index.tolist(), records):
+        payload["result"].append(
+            {
+                "id": int(record.record_id),
+                "title": record.title,
+                "abstract": record.abstract,
+                "authors": record.authors,
+                "keywords": record.keywords,
+                "doi": record.doi,
+                "url": record.url,
+                "included": int(data.loc[i, "label"]),
+                "note": data.loc[i, "notes"],
+                "prior": int(data.loc[i, "prior"]),
+            }
+        )
+
+    return jsonify(payload)
 
 
 @bp.route("/projects/<project_id>/labeled_stats", methods=["GET"])
@@ -872,7 +831,7 @@ def api_get_labeled_stats(project):  # noqa: F401
             data = s.get_dataset(["label", "query_strategy"])
             data_prior = data[data["query_strategy"] == "prior"]
 
-        response = jsonify(
+        return jsonify(
             {
                 "n": len(data),
                 "n_inclusions": sum(data["label"] == 1),
@@ -883,7 +842,7 @@ def api_get_labeled_stats(project):  # noqa: F401
             }
         )
     except StateNotFoundError:
-        response = jsonify(
+        return jsonify(
             {
                 "n": 0,
                 "n_inclusions": 0,
@@ -893,12 +852,6 @@ def api_get_labeled_stats(project):  # noqa: F401
                 "n_prior_exclusions": 0,
             }
         )
-
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message="Failed to load prior information."), 500
-
-    return response
 
 
 @bp.route("/projects/<project_id>/prior_random", methods=["GET"])
@@ -1018,9 +971,7 @@ def api_random_prior_papers(project):  # noqa: F401
                 }
             )
 
-    response = jsonify(payload)
-
-    return response
+    return jsonify(payload)
 
 
 @bp.route("/algorithms", methods=["GET"])
@@ -1028,35 +979,28 @@ def api_random_prior_papers(project):  # noqa: F401
 def api_list_algorithms():
     """List the names and labels of available algorithms"""
 
-    try:
-        classes = [
-            list_balance_strategies(),
-            list_classifiers(),
-            list_feature_extraction(),
-            list_query_strategies(),
-        ]
+    classes = [
+        list_balance_strategies(),
+        list_classifiers(),
+        list_feature_extraction(),
+        list_query_strategies(),
+    ]
 
-        payload = {
-            "balance_strategy": [],
-            "classifier": [],
-            "feature_extraction": [],
-            "query_strategy": [],
-        }
+    payload = {
+        "balance_strategy": [],
+        "classifier": [],
+        "feature_extraction": [],
+        "query_strategy": [],
+    }
 
-        for c, key in zip(classes, payload.keys()):
-            for method in c:
-                if hasattr(method, "label"):
-                    payload[key].append({"name": method.name, "label": method.label})
-                else:
-                    payload[key].append({"name": method.name, "label": method.name})
+    for c, key in zip(classes, payload.keys()):
+        for method in c:
+            if hasattr(method, "label"):
+                payload[key].append({"name": method.name, "label": method.label})
+            else:
+                payload[key].append({"name": method.name, "label": method.name})
 
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message="Failed to retrieve algorithms."), 500
-
-    response = jsonify(payload)
-
-    return response
+    return jsonify(payload)
 
 
 @bp.route("/projects/<project_id>/algorithms", methods=["GET"])
@@ -1086,9 +1030,7 @@ def api_get_algorithms(project):  # noqa: F401
     except StateNotFoundError:
         payload = default_payload
 
-    response = jsonify(payload)
-
-    return response
+    return jsonify(payload)
 
 
 @bp.route("/projects/<project_id>/algorithms", methods=["POST"])
@@ -1425,65 +1367,60 @@ def export_project(project):
 
 
 def _get_stats(project, include_priors=False):
-    try:
-        if is_v0_project(project.project_path):
-            json_fp = Path(project.project_path, "result.json")
+    if is_v0_project(project.project_path):
+        json_fp = Path(project.project_path, "result.json")
 
-            # Check if the v0 project is in review.
-            if json_fp.exists():
-                with open(json_fp, "r") as f:
-                    s = json.load(f)
+        # Check if the v0 project is in review.
+        if json_fp.exists():
+            with open(json_fp, "r") as f:
+                s = json.load(f)
 
-                # Get the labels.
-                labels = np.array(
-                    [
-                        int(sample_data[1])
-                        for query in range(len(s["results"]))
-                        for sample_data in s["results"][query]["labelled"]
-                    ]
-                )
+            # Get the labels.
+            labels = np.array(
+                [
+                    int(sample_data[1])
+                    for query in range(len(s["results"]))
+                    for sample_data in s["results"][query]["labelled"]
+                ]
+            )
 
-                # Get the record table.
-                data_hash = list(s["data_properties"].keys())[0]
-                record_table = s["data_properties"][data_hash]["record_table"]
+            # Get the record table.
+            data_hash = list(s["data_properties"].keys())[0]
+            record_table = s["data_properties"][data_hash]["record_table"]
 
-                n_records = len(record_table)
+            n_records = len(record_table)
 
-            # No result found.
-            else:
-                labels = np.array([])
-                n_records = 0
+        # No result found.
         else:
-            # Check if there is a review started in the project.
-            try:
-                # get label history
-                with open_state(project.project_path) as s:
-                    if (
-                        project.config["reviews"][0]["status"] == "finished"
-                        and project.config["mode"] == PROJECT_MODE_SIMULATE
-                    ):
-                        labels = _get_labels(s, priors=include_priors)
-                    else:
-                        labels = s.get_labels(priors=include_priors)
+            labels = np.array([])
+            n_records = 0
+    else:
+        # Check if there is a review started in the project.
+        try:
+            # get label history
+            with open_state(project.project_path) as s:
+                if (
+                    project.config["reviews"][0]["status"] == "finished"
+                    and project.config["mode"] == PROJECT_MODE_SIMULATE
+                ):
+                    labels = _get_labels(s, priors=include_priors)
+                else:
+                    labels = s.get_labels(priors=include_priors)
 
-                    n_records = len(s.get_record_table())
+                n_records = len(s.get_record_table())
 
-            # No state file found or not init.
-            except (StateNotFoundError, StateError):
-                labels = np.array([])
-                n_records = 0
+        # No state file found or not init.
+        except (StateNotFoundError, StateError):
+            labels = np.array([])
+            n_records = 0
 
-        n_included = int(sum(labels == 1))
-        n_excluded = int(sum(labels == 0))
+    n_included = int(sum(labels == 1))
+    n_excluded = int(sum(labels == 0))
 
-        if n_included > 0:
-            n_since_last_relevant = int(labels.tolist()[::-1].index(1))
-        else:
-            n_since_last_relevant = 0
-
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message="Failed to load progress statistics."), 500
+    if n_included > 0:
+        n_since_last_relevant = int(labels.tolist()[::-1].index(1))
+    else:
+        n_since_last_relevant = 0
 
     return {
         "n_included": n_included,
@@ -1533,58 +1470,49 @@ def api_get_progress_density(project):
 
     include_priors = request.args.get("priors", False, type=bool)
 
-    try:
-        # get label history
-        with open_state(project.project_path) as s:
-            if (
-                project.config["reviews"][0]["status"] == "finished"
-                and project.config["mode"] == PROJECT_MODE_SIMULATE
-            ):
-                data = _get_labels(s, priors=include_priors)
-            else:
-                data = s.get_labels(priors=include_priors)
+    # get label history
+    with open_state(project.project_path) as s:
+        if (
+            project.config["reviews"][0]["status"] == "finished"
+            and project.config["mode"] == PROJECT_MODE_SIMULATE
+        ):
+            data = _get_labels(s, priors=include_priors)
+        else:
+            data = s.get_labels(priors=include_priors)
 
-        # create a dataset with the rolling mean of every 10 papers
-        df = (
-            data.to_frame(name="Relevant")
-            .reset_index(drop=True)
-            .rolling(10, min_periods=1)
-            .mean()
-        )
-        df["Total"] = df.index + 1
+    # create a dataset with the rolling mean of every 10 papers
+    df = (
+        data.to_frame(name="Relevant")
+        .reset_index(drop=True)
+        .rolling(10, min_periods=1)
+        .mean()
+    )
+    df["Total"] = df.index + 1
 
-        # transform mean(percentage) to number
-        for i in range(0, len(df)):
-            if df.loc[i, "Total"] < 10:
-                df.loc[i, "Irrelevant"] = (1 - df.loc[i, "Relevant"]) * df.loc[
-                    i, "Total"
-                ]
-                df.loc[i, "Relevant"] = df.loc[i, "Total"] - df.loc[i, "Irrelevant"]
-            else:
-                df.loc[i, "Irrelevant"] = (1 - df.loc[i, "Relevant"]) * 10
-                df.loc[i, "Relevant"] = 10 - df.loc[i, "Irrelevant"]
+    # transform mean(percentage) to number
+    for i in range(0, len(df)):
+        if df.loc[i, "Total"] < 10:
+            df.loc[i, "Irrelevant"] = (1 - df.loc[i, "Relevant"]) * df.loc[i, "Total"]
+            df.loc[i, "Relevant"] = df.loc[i, "Total"] - df.loc[i, "Irrelevant"]
+        else:
+            df.loc[i, "Irrelevant"] = (1 - df.loc[i, "Relevant"]) * 10
+            df.loc[i, "Relevant"] = 10 - df.loc[i, "Irrelevant"]
 
-        df = df.round(1).to_dict(orient="records")
-        for d in df:
-            d["x"] = d.pop("Total")
+    df = df.round(1).to_dict(orient="records")
+    for d in df:
+        d["x"] = d.pop("Total")
 
-        df_relevant = [{k: v for k, v in d.items() if k != "Irrelevant"} for d in df]
-        for d in df_relevant:
-            d["y"] = d.pop("Relevant")
+    df_relevant = [{k: v for k, v in d.items() if k != "Irrelevant"} for d in df]
+    for d in df_relevant:
+        d["y"] = d.pop("Relevant")
 
-        df_irrelevant = [{k: v for k, v in d.items() if k != "Relevant"} for d in df]
-        for d in df_irrelevant:
-            d["y"] = d.pop("Irrelevant")
+    df_irrelevant = [{k: v for k, v in d.items() if k != "Relevant"} for d in df]
+    for d in df_irrelevant:
+        d["y"] = d.pop("Irrelevant")
 
-        payload = {"relevant": df_relevant, "irrelevant": df_irrelevant}
+    payload = {"relevant": df_relevant, "irrelevant": df_irrelevant}
 
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message="Failed to load progress density."), 500
-
-    response = jsonify(payload)
-
-    return response
+    return jsonify(payload)
 
 
 @bp.route("/projects/<project_id>/progress_recall", methods=["GET"])
@@ -1596,44 +1524,37 @@ def api_get_progress_recall(project):
 
     include_priors = request.args.get("priors", False, type=bool)
 
-    try:
-        with open_state(project.project_path) as s:
-            if (
-                project.config["reviews"][0]["status"] == "finished"
-                and project.config["mode"] == PROJECT_MODE_SIMULATE
-            ):
-                data = _get_labels(s, priors=include_priors)
-            else:
-                data = s.get_labels(priors=include_priors)
+    with open_state(project.project_path) as s:
+        if (
+            project.config["reviews"][0]["status"] == "finished"
+            and project.config["mode"] == PROJECT_MODE_SIMULATE
+        ):
+            data = _get_labels(s, priors=include_priors)
+        else:
+            data = s.get_labels(priors=include_priors)
 
-            n_records = len(s.get_record_table())
+        n_records = len(s.get_record_table())
 
-        # create a dataset with the cumulative number of inclusions
-        df = data.to_frame(name="Relevant").reset_index(drop=True).cumsum()
-        df["Total"] = df.index + 1
-        df["Random"] = (df["Total"] * (df["Relevant"][-1:] / n_records).values).round()
+    # create a dataset with the cumulative number of inclusions
+    df = data.to_frame(name="Relevant").reset_index(drop=True).cumsum()
+    df["Total"] = df.index + 1
+    df["Random"] = (df["Total"] * (df["Relevant"][-1:] / n_records).values).round()
 
-        df = df.round(1).to_dict(orient="records")
-        for d in df:
-            d["x"] = d.pop("Total")
+    df = df.round(1).to_dict(orient="records")
+    for d in df:
+        d["x"] = d.pop("Total")
 
-        df_asreview = [{k: v for k, v in d.items() if k != "Random"} for d in df]
-        for d in df_asreview:
-            d["y"] = d.pop("Relevant")
+    df_asreview = [{k: v for k, v in d.items() if k != "Random"} for d in df]
+    for d in df_asreview:
+        d["y"] = d.pop("Relevant")
 
-        df_random = [{k: v for k, v in d.items() if k != "Relevant"} for d in df]
-        for d in df_random:
-            d["y"] = d.pop("Random")
+    df_random = [{k: v for k, v in d.items() if k != "Relevant"} for d in df]
+    for d in df_random:
+        d["y"] = d.pop("Random")
 
-        payload = {"asreview": df_asreview, "random": df_random}
+    payload = {"asreview": df_asreview, "random": df_random}
 
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message="Failed to load progress recall."), 500
-
-    response = jsonify(payload)
-
-    return response
+    return jsonify(payload)
 
 
 @bp.route("/projects/<project_id>/record/<doc_id>", methods=["POST", "PUT"])
@@ -1705,48 +1626,41 @@ def api_get_document(project):  # noqa: F401
     Although it might be better to call this function after 20 requests on the
     client side.
     """
-    try:
-        with open_state(project.project_path, read_only=False) as state:
-            # First check if there is a pending record.
-            _, _, pending = state.get_pool_labeled_pending()
-            if not pending.empty:
-                record_ids = pending.to_list()
-            # Else query for a new record.
-            else:
-                record_ids = state.query_top_ranked(1)
-
-        if len(record_ids) > 0:
-            new_instance = record_ids[0]
-
-            as_data = read_data(project)
-            record = as_data.record(int(new_instance))
-
-            item = {}
-            item["title"] = record.title
-            item["authors"] = record.authors
-            item["abstract"] = record.abstract
-            item["doi"] = record.doi
-            item["url"] = record.url
-
-            # return the debug label
-            debug_label = record.extra_fields.get("debug_label", None)
-            item["_debug_label"] = int(debug_label) if pd.notnull(debug_label) else None
-
-            item["doc_id"] = new_instance
-            pool_empty = False
+    with open_state(project.project_path, read_only=False) as state:
+        # First check if there is a pending record.
+        _, _, pending = state.get_pool_labeled_pending()
+        if not pending.empty:
+            record_ids = pending.to_list()
+        # Else query for a new record.
         else:
-            # end of pool
-            project.update_review(status="finished")
-            item = None
-            pool_empty = True
+            record_ids = state.query_top_ranked(1)
 
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message=f"Failed to retrieve new records. {err}."), 500
+    if len(record_ids) > 0:
+        new_instance = record_ids[0]
 
-    response = jsonify({"result": item, "pool_empty": pool_empty})
+        as_data = read_data(project)
+        record = as_data.record(int(new_instance))
 
-    return response
+        item = {}
+        item["title"] = record.title
+        item["authors"] = record.authors
+        item["abstract"] = record.abstract
+        item["doi"] = record.doi
+        item["url"] = record.url
+
+        # return the debug label
+        debug_label = record.extra_fields.get("debug_label", None)
+        item["_debug_label"] = int(debug_label) if pd.notnull(debug_label) else None
+
+        item["doc_id"] = new_instance
+        pool_empty = False
+    else:
+        # end of pool
+        project.update_review(status="finished")
+        item = None
+        pool_empty = True
+
+    return jsonify({"result": item, "pool_empty": pool_empty})
 
 
 @bp.route("/projects/<project_id>/delete", methods=["DELETE"])
@@ -1755,11 +1669,6 @@ def api_get_document(project):  # noqa: F401
 @project_from_id
 def api_delete_project(project):  # noqa: F401
     """"""
-
-    # some checks to check if there is a project to delete
-    if project.project_id == "" or project.project_id is None:
-        response = jsonify(message="project-delete-failure")
-        return response, 500
 
     if project.project_path.exists() and project.project_path.is_dir():
         try:
