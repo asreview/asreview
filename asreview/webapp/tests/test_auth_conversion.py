@@ -19,7 +19,7 @@ from pathlib import Path
 
 import pytest
 
-from asreview.entry_points.auth_tool import insert_projects
+from asreview.entry_points.auth_tool import insert_project
 from asreview.project import _create_project_id
 from asreview.utils import asreview_path
 from asreview.webapp import DB
@@ -182,7 +182,8 @@ class TestConvertToAuthentication:
         ]
 
         # execute converter with this mapping
-        insert_projects(DB.session, mapping)
+        for project in mapping:
+            insert_project(DB.session, project)
 
         # check out folders in the asreview folder
         folders = [f.name for f in asreview_path().glob("*") if f.is_dir()]

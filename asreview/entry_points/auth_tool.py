@@ -34,20 +34,10 @@ def auth_parser():
         required=True,
     )
 
-    user_group = user_par.add_mutually_exclusive_group()
-
-    user_group.add_argument(
-        "-i",
-        "--interactive",
-        action="store_true",
-        help="Interactively insert user accounts.",
-    )
-
-    user_group.add_argument(
+    user_par.add_argument(
         "-j",
         "--json",
         type=str,
-        default="[]",
         help="JSON string that contains a list with user account data.",
     )
 
@@ -79,20 +69,10 @@ def auth_parser():
         "link-projects", help="Link projects to user accounts."
     )
 
-    link_group = link_par.add_mutually_exclusive_group()
-
-    link_group.add_argument(
-        "-i",
-        "--interactive",
-        action="store_true",
-        help="Interactively link projects to users.",
-    )
-
-    link_group.add_argument(
+    link_par.add_argument(
         "-j",
         "--json",
         type=str,
-        default="[]",
         help="Use a JSON string to link projects to users.",
     )
 
@@ -107,67 +87,70 @@ def auth_parser():
     return parser
 
 
-def insert_users(session, entries):
-    """Inserts a list of dictionaries containing user data
+def insert_user(session, entry):
+    """Inserts a dictionary containing user data
     into the database."""
-    # loop over entries
-    for user in entries:
-        # create a user object
-        user = User(
-            user["email"],
-            email=user["email"],
-            name=user["name"],
-            affiliation=user["affiliation"],
-            password=user["password"],
-            confirmed=True,
-        )
-        try:
-            session.add(user)
-            session.commit()
-            print(f"User with email {user.email} created.")
-        except IntegrityError:
-            print(f"User with identifier {user.email} already exists")
+    # create a user object
+    user = User(
+        entry["email"].lower(),
+        email=entry["email"].lower(),
+        name=entry["name"],
+        affiliation=entry["affiliation"],
+        password=entry["password"],
+        confirmed=True,
+    )
+    try:
+        session.add(user)
+        session.commit()
+        print(f"User with email {user.email} created.")
+    except IntegrityError:
+        print(f"User with identifier {user.email} already exists")
 
 
 def rename_project_folder(project_id, new_project_id):
     """Rename folder with an authenticated project id"""
     folder = asreview_path() / project_id
     folder.rename(asreview_path() / new_project_id)
-    # take care of the id inside the project.json file
-    with open(asreview_path() / new_project_id / "project.json", mode="r") as f:
-        data = json.load(f)
-        # change id
-        data["id"] = new_project_id
-    # overwrite original project.json file with new project id
-    with open(asreview_path() / new_project_id / "project.json", mode="w") as f:
-        json.dump(data, f)
+    try:
+        # take care of the id inside the project.json file
+        with open(asreview_path() / new_project_id / "project.json", mode="r") as f:
+            data = json.load(f)
+            # change id
+            data["id"] = new_project_id
+        # overwrite original project.json file with new project id
+        with open(asreview_path() / new_project_id / "project.json", mode="w") as f:
+            json.dump(data, f)
+    except Exception as exc:
+        # revert renaming the folder
+        folder.rename(asreview_path() / project_id)
+        raise exc
 
 
-def insert_projects(session, projects):
-    for project in projects:
-        # get owner and project id
-        owner_id = project["owner_id"]
-        project_id = project["project_id"]
-        # create new project id
-        new_project_id = _get_project_uuid(project_id, owner_id)
-        # rename folder and project file
-        rename_project_folder(project_id, new_project_id)
-        # check if this project was already in the database under
-        # the old project id
-        db_project = (
-            session.query(Project)
-            .filter(Project.project_id == project_id)
-            .one_or_none()
-        )
-        if db_project is None:
-            # create new record
-            session.add(Project(owner_id=owner_id, project_id=new_project_id))
-        else:
-            # update record
-            db_project.owner_id = owner_id
-            db_project.project_id = new_project_id
-        # commit
-        session.commit()
+def insert_project(session, project):
+    # get owner and project id
+    owner_id = project["owner_id"]
+    project_id = project["project_id"]
+    # create new project id
+    new_project_id = _get_project_uuid(project_id, owner_id)
+    # rename folder and project file
+    rename_project_folder(project_id, new_project_id)
+    # check if this project was already in the database under
+    # the old project id
+    db_project = (
+        session.query(Project)
+        .filter(Project.project_id == project_id)
+        .one_or_none()
+    )
+    if db_project is None:
+        # create new record
+        session.add(Project(owner_id=owner_id, project_id=new_project_id))
+    else:
+        # update record
+        db_project.owner_id = owner_id
+        db_project.project_id = new_project_id
+    # commit
+    session.commit()
+    print('Project data is stored.')
 
 
 def get_users(session):
@@ -176,7 +159,6 @@ def get_users(session):
 
 class AuthTool(BaseEntryPoint):
     def execute(self, argv):
-        # from asreview.webapp.start_flask import main
         parser = auth_parser()
         args = parser.parse_args(argv)
 
@@ -202,12 +184,13 @@ class AuthTool(BaseEntryPoint):
         return True
 
     def add_users(self):
-        if self.args.interactive:
-            entries = self.enter_users()
-        else:
+        if self.args.json is not None:
             entries = json.loads(self.args.json)
-        # try to insert entries into the database
-        insert_users(self.session, entries)
+            # try to insert entries into the database
+            for entry in entries:
+                insert_user(self.session, entry)
+        else:
+            self.enter_users()
 
     def _ensure_valid_value_for(self, name, validation_function, hint=""):
         """Prompt user for validated input."""
@@ -219,7 +202,6 @@ class AuthTool(BaseEntryPoint):
                 print(hint)
 
     def enter_users(self):
-        result = []
         while True:
             new_user = input("Enter a new user [Y/n]? ")
             if new_user == "Y":
@@ -240,7 +222,8 @@ class AuthTool(BaseEntryPoint):
                     "Use 8 or more characters with a mix of letters, numbers & symbols.",  # noqa
                 )
 
-                result.append(
+                insert_user(
+                    self.session,
                     {
                         "email": email,
                         "name": name,
@@ -248,11 +231,10 @@ class AuthTool(BaseEntryPoint):
                         "password": password,
                     }
                 )
-
             else:
                 break
 
-        return result
+        return True
 
     def _print_project(self, project):
         print(f"\n* {project['folder']}")
@@ -328,7 +310,8 @@ class AuthTool(BaseEntryPoint):
                     if id not in user_ids:
                         print("Entered ID does not exists, try again.")
                     else:
-                        result.append(
+                        insert_project(
+                            self.session,
                             {"project_id": project["project_id"], "owner_id": id}
                         )
                         break
@@ -337,11 +320,11 @@ class AuthTool(BaseEntryPoint):
         return result
 
     def link_projects(self):
-        # interactive vs bulk with JSON
-        if self.args.interactive is True:
-            projects = self._generate_project_links()
-        else:
+        # bulk JSON vs interactive
+        if self.args.json is not None:
             projects = json.loads(self.args.json)
-        # enter data in the database
-        insert_projects(self.session, projects)
-        print("Project data is stored.")
+            # enter data in the database
+            for project in projects:
+                insert_project(self.session, project)
+        else:
+            self._generate_project_links()
