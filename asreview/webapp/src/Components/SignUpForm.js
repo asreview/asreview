@@ -75,7 +75,7 @@ const SignupSchema = Yup.object().shape({
     .required('Affiliation is required'),
   password: Yup.string()
     .matches(
-      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/,
       'Use 8 or more characters with a mix of letters, numbers & symbols'
     )
     .required('Password is required'),
