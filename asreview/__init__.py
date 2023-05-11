@@ -16,9 +16,6 @@ from asreview.data.base import ASReviewData
 from asreview.data.base import load_data
 from asreview.io.utils import list_readers
 from asreview.io.utils import list_writers
-from asreview.models.feature_extraction.embedding_lstm import load_embedding
-from asreview.models.feature_extraction.embedding_lstm import sample_embedding
-from asreview.models.feature_extraction.embedding_lstm import text_to_features
 from asreview.project import ASReviewProject
 from asreview.project import open_state
 from asreview.utils import asreview_path
@@ -38,3 +35,8 @@ __all__ = [
     "list_writers",
     "open_state",
 ]
+
+# deprecated in __init__.py, use asreview.models.feature_extraction instead
+from asreview._deprecated import load_embedding
+from asreview._deprecated import sample_embedding
+from asreview._deprecated import text_to_features
