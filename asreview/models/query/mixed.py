@@ -106,14 +106,14 @@ class MixedQuery(BaseQueryStrategy):
             query_idx_1 = self.query_model1._query(predictions, n_instances=n_instances)
         except AttributeError:
             # for random for example
-            query_idx_1 = self.query_model1.query(X, classifier, n_instances)
+            query_idx_1 = self.query_model1.query(X, classifier, n_instances=n_instances, return_classifier_scores=False)
 
         # Perform the query with strategy 2.
         try:
             query_idx_2 = self.query_model2._query(predictions, n_instances=n_instances)
         except AttributeError:
             # for random for example
-            query_idx_2 = self.query_model2.query(X, classifier, n_instances)
+            query_idx_2 = self.query_model2.query(X, classifier, n_instances, return_classifier_scores=False)
 
         # mix the 2 query strategies into one list
         query_idx_mix = []
