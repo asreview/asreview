@@ -23,25 +23,38 @@ class BaseQueryStrategy(BaseModel):
     name = "base-query"
 
     @abstractmethod
-    def query(self, X, classifier=None, n_instances=None, **kwargs):
-        """Query new instances.
+    def query(
+        self,
+        X,
+        classifier=None,
+        n_instances=None,
+        return_classifier_scores=False,
+        **kwargs
+    ):
+        """Put records in ranked order.
 
         Arguments
         ---------
         X: numpy.ndarray
-            Feature matrix to choose samples from.
+            Feature matrix where every row contains the features of a record.
         classifier: SKLearnModel
-            Trained classifier to compute probabilities if they are necessary.
+            Trained classifier to compute relevance scores.
         n_instances: int
-            Number of instances to query.
+            Number of records to query. If None returns all records in ranked order.
+        return_classifier_score : bool
+            Return the relevance scores produced by the classifier.
 
         Returns
         -------
-        (numpy.ndarray, numpy.ndarray)
-            The first is an array of shape (n_instances,) containing the row
-            indices of the new instances in query order. The second is an array
-            of shape (n_instances, n_feature_matrix_columns), containing the
-            feature vectors of the new instances.
+        numpy.ndarray or (numpy.ndarray, np.ndarray)
+            The QueryStrategy ranks the row numbers of the feature matrix. It returns
+            an array of shape (n_instances,) containing the row indices in ranked
+            order.
+            If n_instances is None, returns all row numbers in ranked order. If
+            n_instances is an integer, it only returns the top n_instances.
+            If return_classifier_scores=True, also returns a second array with the same
+            number of rows as the feature matrix, containing the relevance scores
+            predicted by the classifier.
         """
         raise NotImplementedError
 
