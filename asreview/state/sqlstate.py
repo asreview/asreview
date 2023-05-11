@@ -462,8 +462,16 @@ class SQLiteState(BaseState):
         Arguments
         ---------
         probabilities: list, np.array
-            List containing the probabilities for every record.
+            List containing the probabilities for every record. If this is None, the
+            last probabilities table in the state is emptied.
         """
+        if probabilities is None:
+            con = self._connect_to_sql()
+            cur = con.cursor()
+            cur.execute("""DELETE FROM last_probabilities""")
+            con.commit()
+            return
+
         proba_sql_input = [(proba,) for proba in probabilities]
 
         con = self._connect_to_sql()
