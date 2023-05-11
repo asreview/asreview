@@ -54,7 +54,8 @@ class BaseQueryStrategy(BaseModel):
             n_instances is an integer, it only returns the top n_instances.
             If return_classifier_scores=True, also returns a second array with the same
             number of rows as the feature matrix, containing the relevance scores
-            predicted by the classifier.
+            predicted by the classifier. If the classifier is not used, this will be
+            None.
         """
         raise NotImplementedError
 
@@ -62,7 +63,9 @@ class BaseQueryStrategy(BaseModel):
 class ProbaQueryStrategy(BaseQueryStrategy):
     name = "proba"
 
-    def query(self, X, classifier, n_instances=None, **kwargs):
+    def query(
+        self, X, classifier, n_instances=None, return_classifier_scores=False, **kwargs
+    ):
         """Query method for strategies which use class probabilities."""
         if n_instances is None:
             n_instances = X.shape[0]
@@ -71,7 +74,10 @@ class ProbaQueryStrategy(BaseQueryStrategy):
 
         query_idx = self._query(predictions, n_instances, X)
 
-        return query_idx
+        if return_classifier_scores:
+            return query_idx, predictions
+        else:
+            return query_idx
 
     @abstractmethod
     def _query(self, predictions, n_instances, X=None):

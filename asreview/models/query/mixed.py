@@ -91,7 +91,9 @@ class MixedQuery(BaseQueryStrategy):
                 strategy_2, random_state=self._random_state, **self.kwargs_2
             )
 
-    def query(self, X, classifier, n_instances=None, **kwargs):
+    def query(
+        self, X, classifier, n_instances=None, return_classifier_scores=False, **kwargs
+    ):
         # set the number of instances to len(X) if None
         if n_instances is None:
             n_instances = X.shape[0]
@@ -127,7 +129,12 @@ class MixedQuery(BaseQueryStrategy):
                 j = j + 1
 
         indexes = np.unique(query_idx_mix, return_index=True)[1]
-        return [query_idx_mix[i] for i in sorted(indexes)][0:n_instances]
+        ranking = [query_idx_mix[i] for i in sorted(indexes)][0:n_instances]
+
+        if return_classifier_scores:
+            return ranking, predictions
+        else:
+            return ranking
 
     def full_hyper_space(self):
         from hyperopt import hp
