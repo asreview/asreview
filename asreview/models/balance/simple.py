@@ -14,6 +14,10 @@
 
 from asreview.models.balance.base import BaseBalance
 
+__all__ = [
+    "SimpleBalance",
+]
+
 
 class SimpleBalance(BaseBalance):
     """No balance strategy (``simple``).

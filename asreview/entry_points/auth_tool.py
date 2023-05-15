@@ -13,6 +13,10 @@ from asreview.webapp.api.projects import _get_project_uuid
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 
+__all__ = [
+    "AuthTool"
+]
+
 
 def auth_parser():
     parser = argparse.ArgumentParser(

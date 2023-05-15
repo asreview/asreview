@@ -27,3 +27,16 @@ from asreview.models.classifiers.utils import list_classifiers as _list_classifi
 
 Components like classifiers, query strategies, balance strategies, and
 feature_extraction techniques."""
+
+
+__all__ = [
+    "LogisticClassifier",
+    "LSTMBaseClassifier",
+    "LSTMPoolClassifier",
+    "NaiveBayesClassifier",
+    "NN2LayerClassifier",
+    "RandomForestClassifier",
+    "SVMClassifier",
+    "get_classifier",
+    "get_classifier_class",
+]

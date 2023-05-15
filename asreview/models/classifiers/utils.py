@@ -17,6 +17,12 @@ import logging
 from asreview.utils import _model_class_from_entry_point
 from asreview.utils import list_model_names
 
+__all__ = [
+    "get_classifier",
+    "get_classifier_class",
+    "list_classifiers",
+]
+
 
 def _set_class_weight(weight1):
     """Used various classifiers to have quicker learning."""

@@ -16,6 +16,10 @@ import pandas as pd
 
 from asreview.io.utils import _standardize_dataframe
 
+__all__ = [
+    "CSVReader",
+]
+
 
 class CSVReader:
     """CVS file reader."""

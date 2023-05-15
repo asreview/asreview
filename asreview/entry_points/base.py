@@ -18,6 +18,10 @@ from abc import ABC
 from abc import abstractclassmethod
 from argparse import RawTextHelpFormatter
 
+__all__ = [
+    "BaseEntryPoint"
+]
+
 
 class DeprecateAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):

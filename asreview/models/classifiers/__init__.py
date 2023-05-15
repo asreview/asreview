@@ -28,3 +28,17 @@ from asreview.models.classifiers.utils import list_classifiers
 There are several machine learning classifiers available. In configuration
 files, parameters are found under the section ``[model_param]``.
 """
+
+
+__all__ = [
+    "LogisticClassifier",
+    "LSTMBaseClassifier",
+    "LSTMPoolClassifier",
+    "NaiveBayesClassifier",
+    "NN2LayerClassifier",
+    "RandomForestClassifier",
+    "SVMClassifier",
+    "get_classifier",
+    "get_classifier_class",
+    "list_classifiers",
+]

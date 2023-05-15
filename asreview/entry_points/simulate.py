@@ -44,6 +44,11 @@ from asreview.settings import ASReviewSettings
 from asreview.types import type_n_queries
 from asreview.utils import get_random_state
 
+__all__ = [
+    "SimulateEntryPoint"
+]
+
+
 ASCII_MSG_SIMULATE = """
 ---------------------------------------------------------------------------------
 |                                                                                |

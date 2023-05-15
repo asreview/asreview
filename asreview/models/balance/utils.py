@@ -15,6 +15,12 @@
 from asreview.utils import _model_class_from_entry_point
 from asreview.utils import list_model_names
 
+__all__ = [
+    "get_balance_class",
+    "get_balance_model",
+    "list_balance_strategies",
+]
+
 
 def list_balance_strategies():
     """List available balancing strategy classes.

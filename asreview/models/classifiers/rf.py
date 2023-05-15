@@ -17,6 +17,10 @@ from sklearn.ensemble import RandomForestClassifier as SKRandomForestClassifier
 from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.models.classifiers.utils import _set_class_weight
 
+__all__ = [
+    "RandomForestClassifier",
+]
+
 
 class RandomForestClassifier(BaseTrainClassifier):
     """

@@ -16,6 +16,10 @@ from abc import abstractmethod
 
 from asreview.models.base import BaseModel
 
+__all__ = [
+    "BaseBalance",
+]
+
 
 class BaseBalance(BaseModel):
     """Abstract class for balance strategies."""

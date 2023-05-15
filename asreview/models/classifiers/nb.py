@@ -19,6 +19,11 @@ from sklearn.naive_bayes import MultinomialNB
 from asreview.models.classifiers.base import BaseTrainClassifier
 
 
+__all__ = [
+    "NaiveBayesClassifier",
+]
+
+
 class NaiveBayesClassifier(BaseTrainClassifier):
     """Naive Bayes classifier (``nb``).
 

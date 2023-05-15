@@ -21,6 +21,10 @@ from asreview.entry_points.base import BaseEntryPoint
 from asreview.project import get_project_path
 from asreview.project import open_state
 
+__all__ = [
+    "StateInspectEntryPoint"
+]
+
 
 def _parse_state_inspect_args():
     # parse arguments if available

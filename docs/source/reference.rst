@@ -37,6 +37,7 @@ API Reference
    asreview.models.balance.triple
    asreview.models.balance.undersample
    asreview.models.balance.utils
+   asreview.models.base
    asreview.models.classifiers
    asreview.models.classifiers.base
    asreview.models.classifiers.logistic

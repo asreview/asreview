@@ -37,6 +37,11 @@ from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.models.classifiers.utils import _set_class_weight
 
 
+__all__ = [
+    "LSTMBaseClassifier",
+]
+
+
 def _check_tensorflow():
     if not TF_AVAILABLE:
         raise ImportError("Install tensorflow package to use" " LSTM-base.")

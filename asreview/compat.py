@@ -13,6 +13,11 @@
 # limitations under the License.
 
 
+__all__ = [
+    "convert_id_to_idx"
+]
+
+
 def convert_id_to_idx(data_obj, record_id):
     """Convert record_id to row number."""
 

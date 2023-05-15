@@ -30,3 +30,13 @@ included (otherwise, automation cannot help much anyway).
 There are several balance strategies available. In configuration
 files, parameters are found under the section ``[balance_param]``.
 """
+
+__all__ = [
+    "DoubleBalance",
+    "SimpleBalance",
+    "TripleBalance",
+    "UndersampleBalance",
+    "get_balance_class",
+    "get_balance_model",
+    "list_balance_strategies",
+]

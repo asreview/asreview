@@ -24,6 +24,10 @@ from asreview.models.balance.double import fill_training
 from asreview.models.balance.double import random_round
 from asreview.utils import get_random_state
 
+__all__ = [
+    "TripleBalance",
+]
+
 
 class TripleBalance(BaseBalance):
     """Triple balance strategy (``triple``).
