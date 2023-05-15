@@ -14,3 +14,8 @@
 
 from asreview.data.base import ASReviewData
 from asreview.data.base import load_data
+
+__all__ = [
+    "ASReviewData",
+    "load_data",
+]
