@@ -81,25 +81,18 @@ class User(UserMixin, DB.Model):
         if not bool(name):
             raise ValueError("Name is required")
         elif len(name) < 3:
-            raise ValueError("Name must contain more than 2 characyers")
+            raise ValueError("Name must contain more than 2 characters")
         return name
 
-    @validates("email", "hashed_password")
-    def validate_password(self, key, value):
+    @validates("email")
+    def validate_email(self, key, email):
         if key == "email" and self.origin == "asreview":
-            if bool(value) is False:
+            if bool(email) is False:
                 raise ValueError("Email is required when origin is 'asreview'")
-            elif not User.valid_email(value):
-                raise ValueError(f"Email address '{value}' is not valid")
-
-        if (
-            key == "hashed_password"
-            and self.origin == "asreview"
-            and bool(value) is False
-        ):
-            raise ValueError('Password is required when origin is "asreview"')
-        return value
-
+            elif not User.valid_email(email):
+                raise ValueError(f"Email address '{email}' is not valid")
+        return email
+            
     def __init__(
         self,
         identifier,
@@ -116,7 +109,7 @@ class User(UserMixin, DB.Model):
         self.email = email
         self.name = name
         self.affiliation = affiliation
-        if self.origin == "asreview" and bool(password):
+        if self.origin == "asreview":
             self.hashed_password = User.create_password_hash(password)
         self.confirmed = confirmed
         self.public = public
@@ -125,14 +118,14 @@ class User(UserMixin, DB.Model):
         self.email = email
         self.name = name
         self.affiliation = affiliation
-        if self.origin == "asreview" and bool(password):
+        if self.origin == "asreview":
             self.hashed_password = User.create_password_hash(password)
         self.public = public
 
         return self
 
     def reset_password(self, new_password):
-        if self.origin == "asreview" and bool(new_password):
+        if self.origin == "asreview":
             self.hashed_password = User.create_password_hash(new_password)
         # reset token
         self.token = None

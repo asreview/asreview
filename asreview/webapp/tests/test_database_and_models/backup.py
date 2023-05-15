@@ -28,7 +28,7 @@ from asreview.webapp.authentication.models import User
 from asreview.webapp.start_flask import create_app
 
 try:
-    from .temp_env_var import TMP_ENV_VARS
+    from ..temp_env_var import TMP_ENV_VARS
 except ImportError:
     TMP_ENV_VARS = {}
 

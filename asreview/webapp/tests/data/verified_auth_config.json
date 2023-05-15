@@ -1,0 +1,18 @@
+{
+    "TESTING": true,
+    "DEBUG": true,
+    "SECRET_KEY": "my_very_secret_key",
+    "SECURITY_PASSWORD_SALT": "my_salt",
+    "AUTHENTICATION_ENABLED": true,
+    "EMAIL_VERIFICATION": true,
+    "EMAIL_CONFIG": {
+        "SERVER": "127.0.0.1",
+        "PORT": 465,
+        "USERNAME": "admin@asreview.nl",
+        "PASSWORD": "secret_password",
+        "USE_TLS": false,
+        "USE_SSL": true,
+        "REPLY_ADDRESS": "no_reply@asreview.nl"
+    },
+
+}

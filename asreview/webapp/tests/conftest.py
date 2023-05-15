@@ -22,6 +22,62 @@ from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import User
 from asreview.webapp.start_flask import create_app
+import asreview.webapp.tests.utils.flask_configs as fc
+
+ASREVIEW_PATH=str(Path("~", ".asreview-test").expanduser())
+
+def add_asreview_path():
+    # setup environment variables
+    os.environ.update({"ASREVIEW_PATH": ASREVIEW_PATH})
+
+
+# unauthenticated app
+@pytest.fixture()
+def unauth_app():
+    # set asreview path
+    add_asreview_path()
+    # get path of appropriate flask config
+    config_path = fc.get_unauth_config()
+    # create the app
+    app = create_app(flask_configfile=config_path)
+    with app.app_context():
+        yield app
+
+# authenticated app
+@pytest.fixture()
+def auth_app():
+    # set asreview path
+    add_asreview_path()
+    # get path of appropriate flask config
+    config_path = fc.get_basic_auth_config()
+    # create app
+    app = create_app(flask_configfile=config_path)
+    with app.app_context():
+        yield app
+
+
+@pytest.fixture()
+def unauth_client(unauth_app):
+    # make sure we have the asreview_path
+    yield unauth_app.test_client()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def remove_test_asreview_path():
+    pass
+    yield
+    if Path(asreview_path()).exists():
+        shutil.rmtree(asreview_path())
+        print("\n...Removed asreview_path")
+        
+    
+
+
+# =====================
+
+
+
+
 
 try:
     from .temp_env_var import TMP_ENV_VARS
@@ -113,3 +169,6 @@ def app():
 def client(app):
     """A test client for the app."""
     return app.test_client()
+
+
+
