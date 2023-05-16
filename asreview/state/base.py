@@ -15,6 +15,10 @@
 from abc import ABC
 from abc import abstractmethod
 
+__all__ = [
+    "BaseState",
+]
+
 
 class BaseState(ABC):
     def __init__(self, read_only=False):

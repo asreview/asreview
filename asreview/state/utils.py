@@ -19,6 +19,13 @@ from asreview.state.errors import StateNotFoundError
 V3STATE_VERSION = "1.0"
 
 
+__all__ = [
+    "is_valid_project_folder",
+    "is_zipped_project_file",
+    "V3STATE_VERSION"
+]
+
+
 def is_zipped_project_file(fp):
     """Check if it is a zipped asreview project file."""
     if Path(fp).is_file():

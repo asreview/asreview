@@ -29,6 +29,10 @@ from scipy.sparse import csr_matrix
 from asreview.settings import ASReviewSettings
 from asreview.state.legacy.base import BaseState
 
+__all__ = [
+    "HDF5StateLegacy",
+]
+
 
 def _append_to_dataset(name, values, g, dtype):
     if name not in g:

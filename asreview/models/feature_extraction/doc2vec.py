@@ -25,6 +25,10 @@ except ImportError:
 
 from asreview.models.feature_extraction.base import BaseFeatureExtraction
 
+__all__ = [
+    "Doc2Vec",
+]
+
 
 def _check_gensim():
     if not GENSIM_AVAILABLE:

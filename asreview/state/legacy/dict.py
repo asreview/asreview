@@ -27,6 +27,12 @@ from asreview.settings import ASReviewSettings
 from asreview.state.legacy.base import BaseState
 
 
+__all__ = [
+    "DictState",
+    "get_serial_list"
+]
+
+
 # from asreview.analysis.statistics DEPRECATED
 def _get_labeled_order(state):
     """Get the order in which papers were labeled."""

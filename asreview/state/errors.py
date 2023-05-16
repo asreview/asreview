@@ -12,6 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = [
+    "StateNotFoundError",
+    "StateError",
+    "BadStateFileError",
+]
+
 
 class StateNotFoundError(FileNotFoundError):
     pass

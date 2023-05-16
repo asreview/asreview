@@ -21,6 +21,11 @@ from asreview.review import BaseReview
 from asreview.review.base import LABEL_NA
 from asreview.utils import get_random_state
 
+__all__ = [
+    "ReviewSimulate",
+    "sample_prior_knowledge"
+]
+
 
 def sample_prior_knowledge(
     labels, n_prior_included=10, n_prior_excluded=10, random_state=None

@@ -35,6 +35,16 @@ except ImportError:
 else:
     TF_AVAILABLE = True
 
+__all__ = [
+    "download_embedding",
+    "EMBEDDING_EN",
+    "EmbeddingLSTM",
+    "load_embedding",
+    "loop_sequences",
+    "sample_embedding",
+    "text_to_features",
+]
+
 
 def _check_tensorflow():
     if not TF_AVAILABLE:

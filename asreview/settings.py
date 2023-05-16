@@ -24,6 +24,11 @@ from asreview.models.query import get_query_model
 from asreview.types import type_n_queries
 from asreview.utils import pretty_format
 
+__all__ = [
+    "ASReviewSettings",
+    "SETTINGS_TYPE_DICT",
+]
+
 SETTINGS_TYPE_DICT = {
     "model": str,
     "query_strategy": str,

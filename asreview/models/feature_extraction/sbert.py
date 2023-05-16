@@ -30,6 +30,10 @@ def _check_st():
             "Install sentence-transformers package" " to use Sentence BERT."
         )
 
+__all__ = [
+    "SBERT"
+]
+
 
 class SBERT(BaseFeatureExtraction):
     """Sentence BERT feature extraction technique (``sbert``).

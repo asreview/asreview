@@ -32,6 +32,29 @@ from asreview._version import get_versions
 from asreview.state.errors import StateError
 from asreview.state.legacy.utils import open_state as open_state_legacy
 
+__all__ = [
+    "ASREVIEW_FILE_EXTENSION",
+    "convert_json_feature_matrix",
+    "convert_json_last_probabilities",
+    "convert_json_record_table",
+    "convert_json_results_to_sql",
+    "convert_json_settings_metadata",
+    "create_decision_changes_table",
+    "create_last_ranking_table",
+    "decode_feature_matrix",
+    "get_json_record_table",
+    "get_json_state_data_hash",
+    "get_old_project_status",
+    "is_converted_project",
+    "is_old_project",
+    "move_old_files_to_legacy_folder",
+    "rollback_conversion",
+    "SQLSTATE_VERSION",
+    "StateConversionException",
+    "upgrade_asreview_project_file",
+    "upgrade_project_config",
+]
+
 SQLSTATE_VERSION = "1.0"
 ASREVIEW_FILE_EXTENSION = ".asreview"
 

@@ -30,3 +30,13 @@ There are several feature extraction algorithms available. In configuration
 files, parameters are found under the section ``[feature_param]``.
 
 """
+__all__ = [
+    "Doc2Vec",
+    "EmbeddingIdf",
+    "EmbeddingLSTM",
+    "SBERT",
+    "Tfidf",
+    "get_feature_class",
+    "get_feature_model",
+    "list_feature_extraction",
+]

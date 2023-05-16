@@ -14,6 +14,10 @@ from asreview.models.query.max import MaxQuery
 from asreview.project import open_state
 from asreview.settings import ASReviewSettings
 
+__all__ = [
+    "BaseReview",
+]
+
 
 class BaseReview(ABC):
     """Base class for Systematic Review.

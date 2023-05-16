@@ -19,7 +19,8 @@ from abc import abstractclassmethod
 from argparse import RawTextHelpFormatter
 
 __all__ = [
-    "BaseEntryPoint"
+    "BaseEntryPoint",
+    "DeprecateAction",
 ]
 
 

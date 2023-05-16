@@ -19,6 +19,11 @@ import numpy as np
 
 from asreview.utils import format_to_str
 
+__all__ = [
+    "fuzzy_find",
+    "SearchError",
+]
+
 
 class SearchError(Exception):
     pass

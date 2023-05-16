@@ -17,6 +17,10 @@ import numpy as np
 
 from asreview.models.query.base import ProbaQueryStrategy
 
+__all__ = [
+    "UncertaintyQuery",
+]
+
 
 class UncertaintyQuery(ProbaQueryStrategy):
     """Uncertainty query strategy (``uncertainty``).

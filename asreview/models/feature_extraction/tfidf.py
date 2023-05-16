@@ -17,6 +17,11 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from asreview.models.feature_extraction.base import BaseFeatureExtraction
 
 
+__all__ = [
+    "Tfidf"
+]
+
+
 class Tfidf(BaseFeatureExtraction):
     """TF-IDF feature extraction technique (``tfidf``).
 

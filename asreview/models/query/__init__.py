@@ -28,3 +28,17 @@ from asreview.models.query.utils import list_query_strategies
 There are several query strategies available. In configuration files,
 parameters are found under the section ``[query_param]``.
 """
+
+
+__all__ = [
+    "ClusterQuery",
+    "MaxQuery",
+    "MaxRandomQuery",
+    "MaxUncertaintyQuery",
+    "MixedQuery",
+    "RandomQuery",
+    "UncertaintyQuery",
+    "get_query_class",
+    "get_query_model",
+    "list_query_strategies",
+]

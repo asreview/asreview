@@ -18,6 +18,11 @@ from abc import abstractmethod
 import numpy as np
 
 
+__all__ = [
+    "BaseState",
+]
+
+
 class BaseState(ABC):
     def __init__(self, state_fp, read_only=False):
         """Initialize State instance.

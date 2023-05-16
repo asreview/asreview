@@ -46,6 +46,22 @@ PATH_PROJECT_CONFIG = "project.json"
 PATH_PROJECT_CONFIG_LOCK = "project.json.lock"
 PATH_FEATURE_MATRICES = "feature_matrices"
 
+__all__ = [
+    "ASReviewProject",
+    "get_project_path",
+    "get_projects",
+    "is_project",
+    "is_v0_project",
+    "open_state",
+    "PATH_FEATURE_MATRICES",
+    "PATH_PROJECT_CONFIG",
+    "PATH_PROJECT_CONFIG_LOCK",
+    "project_from_id",
+    "ProjectError",
+    "ProjectExistsError",
+    "ProjectNotFoundError",
+]
+
 
 class ProjectError(Exception):
     pass

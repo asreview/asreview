@@ -15,6 +15,12 @@
 from asreview.utils import _model_class_from_entry_point
 from asreview.utils import list_model_names
 
+__all_ = [
+    "get_query_class",
+    "get_query_model",
+    "list_query_strategies",
+]
+
 
 def list_query_strategies():
     """List available query strategy classes.
