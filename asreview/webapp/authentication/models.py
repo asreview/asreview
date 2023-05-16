@@ -41,12 +41,12 @@ class User(UserMixin, DB.Model):
 
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
-    identifier = Column(String(100), nullable=False)
+    identifier = Column(String(100), nullable=False, unique=True)
     origin = Column(String(100), nullable=False)
     email = Column(String(100), unique=True)
     name = Column(String(100))
     affiliation = Column(String(100))
-    hashed_password = Column(String(100), unique=True)
+    hashed_password = Column(String(100))
     confirmed = Column(Boolean)
     public = Column(Boolean)
     token = Column(String(50))
@@ -221,9 +221,9 @@ class Project(DB.Model):
     __tablename__ = "projects"
     id = Column(Integer, primary_key=True)
     project_id = Column(String(250), nullable=False, unique=True)
-    folder = Column(String(100), nullable=False, unique=True)
     owner_id = Column(Integer, ForeignKey(User.id), nullable=False)
     owner = relationship("User", back_populates="projects")
+
     # do not delete cascade: we don't want to
     # lose users, only collaborations
     collaborators = relationship(

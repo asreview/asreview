@@ -2,7 +2,9 @@ from datetime import datetime as dt
 from datetime import timedelta
 
 import pytest
+from sqlalchemy.exc import IntegrityError
 
+import asreview.webapp.tests.utils.config_parser as cp
 import asreview.webapp.tests.utils.crud as crud
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import User
@@ -23,6 +25,18 @@ def test_user_must_have_identifier():
 
     with pytest.raises(ValueError):
         user.identifier = ""
+
+
+# test uniqueness of identifier
+def test_uniqueness_of_identifier():
+    user1 = crud.create_user(DB)
+    assert len(User.query.all()) == 1
+    # create second user with identical identifier
+    user2 = cp.get_user(2)
+    # set to an existing identifier
+    user2.identifier = user1.identifier
+    with pytest.raises(IntegrityError):
+        crud.create_user(DB, user2)
 
 
 # test origin validation
@@ -90,6 +104,18 @@ def test_email_validation_2():
             origin="asreview",
             password="ABCd1234!"
         )
+
+
+# test uniqueness of email
+def test_uniqueness_of_email():
+    user1 = crud.create_user(DB)
+    assert len(User.query.all()) == 1
+    # create second user with identical email
+    user2 = cp.get_user(2)
+    # set to an existing identifier
+    user2.email = user1.email
+    with pytest.raises(IntegrityError):
+        crud.create_user(DB, user2)
 
 
 # test if all fails when password doesn't meet requirements
