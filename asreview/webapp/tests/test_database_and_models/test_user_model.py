@@ -15,7 +15,6 @@ def setup_teardown(auth_app):
     crud.delete_users(DB)
 
 
-
 # test identifier validation
 def test_user_must_have_identifier():
     user = crud.create_user(DB)
@@ -152,7 +151,7 @@ def test_update_user_record():
     assert updated_user.hashed_password != old_hashed_password
     assert updated_user.public == new_public
 
-    
+
 # verify reset password
 def test_update_password():
     user = crud.create_user(DB)
@@ -162,7 +161,7 @@ def test_update_password():
     user.reset_password(new_password)
     DB.session.commit()
 
-     # verify we have 1 record
+    # verify we have 1 record
     assert len(User.query.all()) == 1
     updated_user = User.query.one()
     assert updated_user.hashed_password != old_hashed_password
@@ -172,18 +171,18 @@ def test_update_password():
 def test_set_token():
     user = crud.create_user(DB)
 
-    assert user.token == None
-    assert user.token_created_at == None
+    assert user.token is None
+    assert user.token_created_at is None
 
     user.set_token_data("secret", "salt")
     DB.session.commit()
 
-     # verify we have 1 record
+    # verify we have 1 record
     assert len(User.query.all()) == 1
     updated_user = User.query.one()
 
-    assert updated_user.token != None
-    assert updated_user.token_created_at != None
+    assert updated_user.token is not None
+    assert updated_user.token_created_at is not None
     assert type(updated_user.token_created_at) == dt
 
 
@@ -211,6 +210,23 @@ def test_token_validity(subtract_time):
     # update token_created_at
     user.token_created_at = new_token_created_time
 
-    # assert token is invalid now
+    # assert token validity
     assert user.token_valid(token) == validity
 
+
+# test confirming a user
+def test_confirm_user():
+    user = crud.create_user(DB)
+    # create a token for good measures
+    user.set_token_data("secret", "salt")
+
+    assert user.confirmed is False
+    assert bool(user.token)
+    assert bool(user.token_created_at)
+
+    # now lets confirm
+    user.confirm_user()
+
+    assert user.confirmed
+    assert user.token is None
+    assert user.token_created_at is None

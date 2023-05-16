@@ -171,14 +171,9 @@ class User(UserMixin, DB.Model):
             # what is now
             now = dt.datetime.utcnow()
             # get time-difference in hours
-            diff = now - self.token_created_at
-            # give me hours and remaining seconds
-            [hours, r_secs] = divmod(diff.total_seconds(), 3600)
-            print(hours, r_secs)
+            diff = (now - self.token_created_at).total_seconds()
             # return if token is correct and we are still before deadline
-            return self.token == provided_token and (
-                hours <= max_hours or (hours == max_hours and int(r_secs) < 60)
-            )
+            return self.token == provided_token and diff <= max_hours * 3600
         else:
             return False
 
