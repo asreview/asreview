@@ -20,7 +20,7 @@ Did you develop a useful extension to ASReview and want to list it on
 `GitHub <https://github.com/asreview/asreview/issues>`__.
 
 For more information on the ASReview API for creating an extension, a technical
-reference for development is found under the :ref:`API reference<api_ref>`. This
+reference for development is found under the :doc:`API reference<reference>`. This
 technical reference contains functions for use in your extension, and an
 overview of all classes to extend on.
 
