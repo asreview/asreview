@@ -21,13 +21,6 @@ from pathlib import Path
 
 from asreview.config import LEGACY_STATE_EXTENSIONS
 
-__all__ = [
-    "open_state",
-    "state_from_asreview_file",
-    "state_from_file",
-    "states_from_dir",
-]
-
 
 def _get_state_class(fp):
     "Get state class from file extension."

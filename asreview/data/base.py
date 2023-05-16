@@ -35,11 +35,6 @@ from asreview.utils import get_entry_points
 from asreview.utils import is_iterable
 from asreview.utils import is_url
 
-__all__ = [
-    "ASReviewData",
-    "load_data",
-]
-
 
 def load_data(name, *args, **kwargs):
     """Load data from file, URL, or plugin.

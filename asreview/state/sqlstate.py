@@ -25,13 +25,6 @@ from asreview.state.base import BaseState
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 
-__all__ = [
-    "REQUIRED_TABLES",
-    "RESULTS_TABLE_COLUMNS",
-    "SETTINGS_METADATA_KEYS",
-    "SQLiteState",
-]
-
 REQUIRED_TABLES = [
     # the table with the labeling decisions and models trained
     "results",
