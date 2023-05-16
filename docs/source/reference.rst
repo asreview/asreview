@@ -18,7 +18,6 @@ API Reference
    asreview.io.utils
    asreview.models
    asreview.models.balance
-   asreview.models.base
    asreview.models.classifiers
    asreview.models.feature_extraction
    asreview.models.query
