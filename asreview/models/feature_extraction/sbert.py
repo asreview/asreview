@@ -23,16 +23,16 @@ else:
 
 from asreview.models.feature_extraction.base import BaseFeatureExtraction
 
+__all__ = [
+    "SBERT",
+]
+
 
 def _check_st():
     if not ST_AVAILABLE:
         raise ImportError(
             "Install sentence-transformers package" " to use Sentence BERT."
         )
-
-__all__ = [
-    "SBERT"
-]
 
 
 class SBERT(BaseFeatureExtraction):
