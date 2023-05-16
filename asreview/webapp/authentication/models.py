@@ -174,9 +174,10 @@ class User(UserMixin, DB.Model):
             diff = now - self.token_created_at
             # give me hours and remaining seconds
             [hours, r_secs] = divmod(diff.total_seconds(), 3600)
+            print(hours, r_secs)
             # return if token is correct and we are still before deadline
             return self.token == provided_token and (
-                hours <= max_hours or (hours == max_hours and r_secs < 60)
+                hours <= max_hours or (hours == max_hours and int(r_secs) < 60)
             )
         else:
             return False
