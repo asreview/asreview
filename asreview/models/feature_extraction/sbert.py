@@ -66,7 +66,8 @@ class SBERT(BaseFeatureExtraction):
     pooling_mode: str, optional
         Polling mode to get sentece embeddings from word embeddings
         Default: 'mean'
-        Other options available are mean, max and cls. Only used if is_pretrained_SBERT=False
+        Other options available are mean, max and cls.
+        Only used if is_pretrained_SBERT=False
         mean: Uses mean pooling of word embeddings
         max: Uses max pooling of word embeddings
         cls: Uses embeddings of [CLS] token as sentence embeddings
