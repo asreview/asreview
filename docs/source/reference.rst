@@ -13,11 +13,6 @@ API Reference
    asreview.data.statistics
    asreview.datasets
    asreview.entry_points
-   asreview.entry_points.algorithms
-   asreview.entry_points.base
-   asreview.entry_points.lab
-   asreview.entry_points.simulate
-   asreview.entry_points.state_inspect
    asreview.exceptions
    asreview.io
    asreview.io.csv_reader

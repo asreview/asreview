@@ -18,10 +18,6 @@ from asreview.models.classifiers import list_classifiers
 from asreview.models.feature_extraction import list_feature_extraction
 from asreview.models.query import list_query_strategies
 
-__all__ = [
-    "AlgorithmsEntryPoint"
-]
-
 
 def _format_algorithm(values, name, description):
     s = f"  {name: <20}Available {description}:\n\n"
