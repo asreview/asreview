@@ -13,7 +13,7 @@
 # limitations under the License.
 
 __all__ = [
-    "BadFileFormatError"
+    "BadFileFormatError",
 ]
 
 

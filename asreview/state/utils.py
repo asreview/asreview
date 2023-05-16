@@ -22,7 +22,7 @@ V3STATE_VERSION = "1.0"
 __all__ = [
     "is_valid_project_folder",
     "is_zipped_project_file",
-    "V3STATE_VERSION"
+    "V3STATE_VERSION",
 ]
 
 

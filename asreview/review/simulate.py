@@ -23,7 +23,7 @@ from asreview.utils import get_random_state
 
 __all__ = [
     "ReviewSimulate",
-    "sample_prior_knowledge"
+    "sample_prior_knowledge",
 ]
 
 
