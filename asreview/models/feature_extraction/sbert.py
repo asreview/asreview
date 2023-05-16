@@ -15,8 +15,8 @@
 import numpy as np
 
 try:
-    from sentence_transformers.SentenceTransformer import SentenceTransformer
     from sentence_transformers import models
+    from sentence_transformers.SentenceTransformer import SentenceTransformer
 except ImportError:
     ST_AVAILABLE = False
 else:
