@@ -3,7 +3,7 @@ from pathlib import Path
 import rispy
 from pytest import mark
 
-from asreview import ASReviewData
+from asreview.data import ASReviewData
 from asreview.utils import is_url
 
 

@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from asreview import ASReviewData
+from asreview.data import ASReviewData
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.feature_extraction import list_feature_extraction
 

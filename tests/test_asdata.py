@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 
-from asreview import ASReviewData
+from asreview.data import ASReviewData
 
 
 @pytest.mark.xfail(raises=ValueError, reason="Bad record_id")

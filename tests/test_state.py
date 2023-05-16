@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 from scipy.sparse import csr_matrix
 
-from asreview import ASReviewData
+from asreview.data import ASReviewData
 from asreview.project import ASReviewProject
 from asreview.project import ProjectExistsError
 from asreview.project import open_state

@@ -2,7 +2,7 @@ from pathlib import Path
 
 from pytest import mark
 
-from asreview import ASReviewData
+from asreview.data import ASReviewData
 
 
 @mark.parametrize("test_file", [("baseline_tag-notes_labels.ris")])
