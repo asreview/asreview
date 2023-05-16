@@ -16,6 +16,7 @@ import numpy as np
 
 try:
     from sentence_transformers.SentenceTransformer import SentenceTransformer
+    from sentence_transformers import models
 except ImportError:
     ST_AVAILABLE = False
 else:
@@ -27,7 +28,7 @@ from asreview.models.feature_extraction.base import BaseFeatureExtraction
 def _check_st():
     if not ST_AVAILABLE:
         raise ImportError(
-            "Install sentence-transformers package" " to use Sentence BERT."
+            "Install sentence-transformers package to use Sentence BERT."
         )
 
 
@@ -60,19 +61,49 @@ class SBERT(BaseFeatureExtraction):
     transformer_model : str, optional
         The transformer model to use.
         Default: 'all-mpnet-base-v2'
-
+    is_pretrained_SBERT: boolian, optional
+        Default: True
+    pooling_mode: str, optional
+        Polling mode to get sentece embeddings from word embeddings
+        Default: 'mean'
+        Other options available are mean, max and cls. Only used if is_pretrained_SBERT=False
+        mean: Uses mean pooling of word embeddings
+        max: Uses max pooling of word embeddings
+        cls: Uses embeddings of [CLS] token as sentence embeddings
     """
 
     name = "sbert"
     label = "Sentence BERT"
 
-    def __init__(self, *args, transformer_model="all-mpnet-base-v2", **kwargs):
+    def __init__(
+        self,
+        *args,
+        transformer_model="all-mpnet-base-v2",
+        is_pretrained_SBERT=True,
+        pooling_mode="mean",
+        **kwargs
+    ):
         super(SBERT, self).__init__(*args, **kwargs)
         self.transformer_model = transformer_model
+        self.is_pretrained_SBERT = is_pretrained_SBERT
+        self.pooling_mode = pooling_mode
 
     def transform(self, texts):
         _check_st()
 
-        model = SentenceTransformer(self.transformer_model)
+        if self.is_pretrained_SBERT:
+            model = SentenceTransformer(self.transformer_model)
+        else:
+            # If transformer_model is not a pretrained sentence transformer model,
+            # add a pooling layer to get the pooled sentence embeddings from the
+            # word embeddings
+            word_embedding_model = models.Transformer(self.transformer_model)
+            pooling_layer = models.Pooling(
+                word_embedding_model.get_word_embedding_dimension(),
+                pooling_mode=self.pooling_mode,
+            )
+            model = SentenceTransformer(
+                modules=[word_embedding_model, pooling_layer]
+            )
         X = np.array(model.encode(texts))
         return X
