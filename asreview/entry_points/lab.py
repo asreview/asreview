@@ -20,7 +20,8 @@ from asreview.entry_points.base import _base_parser
 from asreview.webapp.run_model import main as main_run_model
 
 __all__ = [
-    "LABEntryPoint"
+    "LABEntryPoint",
+    "WebRunModelEntryPoint",
 ]
 
 

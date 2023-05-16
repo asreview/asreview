@@ -16,6 +16,7 @@ from asreview.entry_points.algorithms import AlgorithmsEntryPoint
 from asreview.entry_points.auth_tool import AuthTool
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.entry_points.lab import LABEntryPoint
+from asreview.entry_points.lab import WebRunModelEntryPoint
 from asreview.entry_points.simulate import SimulateEntryPoint
 from asreview.entry_points.state_inspect import StateInspectEntryPoint
 
@@ -28,4 +29,5 @@ __all__ = [
     "LABEntryPoint",
     "SimulateEntryPoint",
     "StateInspectEntryPoint",
+    "WebRunModelEntryPoint",
 ]
