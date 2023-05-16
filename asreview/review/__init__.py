@@ -15,7 +15,6 @@
 from asreview.review.base import BaseReview
 from asreview.review.simulate import ReviewSimulate
 
-
 __all__ = [
     "BaseReview",
     "ReviewSimulate",

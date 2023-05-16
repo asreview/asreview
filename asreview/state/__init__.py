@@ -15,7 +15,6 @@
 from asreview.state.base import BaseState
 from asreview.state.sqlstate import SQLiteState
 
-
 __all__ = [
     "BaseState",
     "SQLiteState",

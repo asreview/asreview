@@ -26,7 +26,6 @@ from scipy.sparse import save_npz
 from asreview.settings import ASReviewSettings
 from asreview.state.legacy.base import BaseState
 
-
 __all__ = [
     "DictState",
     "get_serial_list"

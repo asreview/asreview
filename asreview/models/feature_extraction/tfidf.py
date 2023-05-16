@@ -16,7 +16,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 from asreview.models.feature_extraction.base import BaseFeatureExtraction
 
-
 __all__ = [
     "Tfidf"
 ]

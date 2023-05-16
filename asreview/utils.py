@@ -20,7 +20,6 @@ from urllib.parse import urlparse
 import numpy as np
 import pkg_resources
 
-
 __all__ = [
     "asreview_path",
     "format_to_str",

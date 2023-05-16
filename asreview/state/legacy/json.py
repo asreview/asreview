@@ -20,7 +20,6 @@ from pathlib import Path
 from asreview.settings import ASReviewSettings
 from asreview.state.legacy.dict import DictState
 
-
 __all__ = [
     "JSONState",
 ]

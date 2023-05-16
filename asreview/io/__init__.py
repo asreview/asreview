@@ -24,7 +24,6 @@ from asreview.io.tsv_writer import TSVWriter
 from asreview.io.utils import list_readers
 from asreview.io.utils import list_writers
 
-
 __all__ = [
     "CSVReader",
     "CSVWriter",

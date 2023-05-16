@@ -19,7 +19,6 @@ from asreview.models.query.base import ProbaQueryStrategy
 from asreview.models.query.max import MaxQuery
 from asreview.utils import get_random_state
 
-
 __all__ = [
     "ClusterQuery",
 ]
