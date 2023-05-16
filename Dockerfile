@@ -14,6 +14,7 @@ RUN apt-get update \
 
 # Second stage
 FROM python:3.8-slim
+WORKDIR /app
 
 COPY --from=builder /root/.local /root/.local
 
