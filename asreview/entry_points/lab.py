@@ -19,7 +19,6 @@ from asreview.entry_points.base import DeprecateAction
 from asreview.entry_points.base import _base_parser
 from asreview.webapp.run_model import main as main_run_model
 
-
 HOST_NAME = os.getenv("ASREVIEW_HOST")
 if HOST_NAME is None:
     HOST_NAME = "localhost"

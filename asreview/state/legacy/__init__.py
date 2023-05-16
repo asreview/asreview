@@ -8,7 +8,6 @@ from asreview.state.legacy.utils import state_from_asreview_file
 from asreview.state.legacy.utils import state_from_file
 from asreview.state.legacy.utils import states_from_dir
 
-
 __all__ = [
     "BaseState",
     "DictState",
