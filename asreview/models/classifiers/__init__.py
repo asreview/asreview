@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.models.classifiers.logistic import LogisticClassifier
 from asreview.models.classifiers.lstm_base import LSTMBaseClassifier
 from asreview.models.classifiers.lstm_pool import LSTMPoolClassifier
@@ -31,6 +32,7 @@ files, parameters are found under the section ``[model_param]``.
 
 
 __all__ = [
+    "BaseTrainClassifier",
     "LogisticClassifier",
     "LSTMBaseClassifier",
     "LSTMPoolClassifier",

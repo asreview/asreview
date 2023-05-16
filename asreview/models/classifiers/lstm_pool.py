@@ -39,10 +39,6 @@ from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.models.classifiers.lstm_base import _get_optimizer
 from asreview.models.classifiers.utils import _set_class_weight
 
-__all__ = [
-    "LSTMPoolClassifier",
-]
-
 
 def _check_tensorflow():
     if not TF_AVAILABLE:

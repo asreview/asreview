@@ -16,11 +16,6 @@ from abc import abstractmethod
 
 from asreview.models.base import BaseModel
 
-__all__ = [
-    "BaseQueryStrategy",
-    "ProbaQueryStrategy",
-]
-
 
 class BaseQueryStrategy(BaseModel):
     """Abstract class for query strategies."""

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from asreview.models.balance.base import BaseBalance
 from asreview.models.balance.double import DoubleBalance
 from asreview.models.balance.simple import SimpleBalance
 from asreview.models.balance.triple import TripleBalance
@@ -32,6 +33,7 @@ files, parameters are found under the section ``[balance_param]``.
 """
 
 __all__ = [
+    "BaseBalance",
     "DoubleBalance",
     "SimpleBalance",
     "TripleBalance",

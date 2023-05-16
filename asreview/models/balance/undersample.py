@@ -19,10 +19,6 @@ import numpy as np
 from asreview.models.balance.base import BaseBalance
 from asreview.utils import get_random_state
 
-__all__ = [
-    "UndersampleBalance",
-]
-
 
 class UndersampleBalance(BaseBalance):
     """Undersampling balance strategy (``undersample``).

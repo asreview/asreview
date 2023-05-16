@@ -23,10 +23,6 @@ import rispy
 from asreview.io.utils import _standardize_dataframe
 from asreview.utils import is_url
 
-__all__ = [
-    "RISReader",
-]
-
 
 class RISReader:
     """RIS file reader."""

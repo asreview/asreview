@@ -17,10 +17,6 @@ from sklearn.svm import SVC
 from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.models.classifiers.utils import _set_class_weight
 
-__all__ = [
-    "SVMClassifier",
-]
-
 
 class SVMClassifier(BaseTrainClassifier):
     """

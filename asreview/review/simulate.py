@@ -87,7 +87,7 @@ class ReviewSimulate(BaseReview):
     ---------
     as_data: asreview.ASReviewData
         The data object which contains the text, labels, etc.
-    model: BaseModel
+    model: BaseTrainClassifier
         Initialized model to fit the data during active learning.
         See asreview.models.utils.py for possible models.
     query_model: BaseQueryModel

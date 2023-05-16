@@ -20,10 +20,6 @@ from scipy.sparse import issparse
 
 from asreview.models.base import BaseModel
 
-__all__ = [
-    "BaseFeatureExtraction",
-]
-
 
 class BaseFeatureExtraction(BaseModel):
     """Base class for feature extraction methods."""

@@ -18,12 +18,6 @@ from asreview.models.query.base import BaseQueryStrategy
 from asreview.models.query.utils import get_query_model
 from asreview.utils import get_random_state
 
-__all__ = [
-    "MaxRandomQuery",
-    "MaxUncertaintyQuery",
-    "MixedQuery",
-]
-
 
 def _parse_mixed_kwargs(kwargs, strategy_name):
     kwargs_new = {}

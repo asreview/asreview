@@ -15,10 +15,6 @@
 import pandas as pd
 import rispy
 
-__all__ = [
-    "RISWriter",
-]
-
 
 class RISWriter:
     """RIS file writer."""

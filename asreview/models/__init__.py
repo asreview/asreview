@@ -12,16 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.models.classifiers.logistic import LogisticClassifier
-from asreview.models.classifiers.lstm_base import LSTMBaseClassifier
-from asreview.models.classifiers.lstm_pool import LSTMPoolClassifier
-from asreview.models.classifiers.nb import NaiveBayesClassifier
-from asreview.models.classifiers.nn_2_layer import NN2LayerClassifier
-from asreview.models.classifiers.rf import RandomForestClassifier
-from asreview.models.classifiers.svm import SVMClassifier
-from asreview.models.classifiers.utils import get_classifier
-from asreview.models.classifiers.utils import get_classifier_class
-from asreview.models.classifiers.utils import list_classifiers as _list_classifiers
+from asreview.models.base import BaseModel
 
 """Active learning model components.
 
@@ -30,13 +21,5 @@ feature_extraction techniques."""
 
 
 __all__ = [
-    "LogisticClassifier",
-    "LSTMBaseClassifier",
-    "LSTMPoolClassifier",
-    "NaiveBayesClassifier",
-    "NN2LayerClassifier",
-    "RandomForestClassifier",
-    "SVMClassifier",
-    "get_classifier",
-    "get_classifier_class",
+    "BaseModel",
 ]

@@ -21,10 +21,6 @@ from asreview.models.balance.base import BaseBalance
 from asreview.models.balance.simple import SimpleBalance
 from asreview.utils import get_random_state
 
-__all__ = [
-    "DoubleBalance",
-]
-
 
 class DoubleBalance(BaseBalance):
     """Double balance strategy (``double``).

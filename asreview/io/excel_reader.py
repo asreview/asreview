@@ -17,10 +17,6 @@ import pandas as pd
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.io.utils import _standardize_dataframe
 
-__all__ = [
-    "ExcelReader",
-]
-
 
 class ExcelReader:
     """Excel file reader."""

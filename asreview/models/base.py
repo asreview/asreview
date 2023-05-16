@@ -17,10 +17,6 @@ from abc import ABC
 
 import numpy as np
 
-__all__ = [
-    "BaseModel",
-]
-
 
 def sig_to_param(signature):
     return {

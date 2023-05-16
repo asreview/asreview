@@ -19,10 +19,6 @@ import pandas as pd
 from asreview.config import LABEL_NA
 from asreview.utils import format_to_str
 
-__all__ = [
-    "PaperRecord",
-]
-
 
 def preview_record(record, w_title=80, w_authors=40, automatic_width=False):
     """Return a single line preview string for record i.

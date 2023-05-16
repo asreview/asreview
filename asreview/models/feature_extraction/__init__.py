@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from asreview.models.feature_extraction.base import BaseFeatureExtraction
 from asreview.models.feature_extraction.doc2vec import Doc2Vec
 from asreview.models.feature_extraction.embedding_idf import EmbeddingIdf
 from asreview.models.feature_extraction.embedding_lstm import EmbeddingLSTM
@@ -31,6 +32,7 @@ files, parameters are found under the section ``[feature_param]``.
 
 """
 __all__ = [
+    "BaseFeatureExtraction",
     "Doc2Vec",
     "EmbeddingIdf",
     "EmbeddingLSTM",

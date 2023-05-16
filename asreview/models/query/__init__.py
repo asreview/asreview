@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from asreview.models.query.base import BaseQueryStrategy
 from asreview.models.query.cluster import ClusterQuery
 from asreview.models.query.max import MaxQuery
 from asreview.models.query.mixed import MaxRandomQuery
@@ -31,6 +32,7 @@ parameters are found under the section ``[query_param]``.
 
 
 __all__ = [
+    "BaseQueryStrategy",
     "ClusterQuery",
     "MaxQuery",
     "MaxRandomQuery",
