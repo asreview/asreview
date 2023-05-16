@@ -88,6 +88,7 @@ def open_state(fp, *args, read_only=False, **kwargs):
 
 def states_from_dir(data_dir, prefix=""):
     """Obtain a dictionary of states from a directory.
+
     Arguments
     ---------
     data_dir: str
@@ -95,6 +96,7 @@ def states_from_dir(data_dir, prefix=""):
     prefix: str
         Files starting with the prefix are assumed to be state files.
         The rest is ignored.
+
     Returns
     -------
     dict:

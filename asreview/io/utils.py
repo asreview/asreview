@@ -45,7 +45,7 @@ def type_from_column(col_name, col_definitions):
     col_definitions: dict
         Dictionary of {standardized_name: [list of possible names]}.
         Ex. {"title": ["title", "primary_title"],
-            "authors": ["authors", "author names", "first_authors"]}
+        "authors": ["authors", "author names", "first_authors"]}
 
     Returns
     -------

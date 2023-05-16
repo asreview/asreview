@@ -174,6 +174,7 @@ class BaseState(ABC):
         to get a variable from one specific query. In theory, it should get the
         whole data set if query_i=None, but this is not currently implemented
         in any of the States.
+
         Arguments
         ---------
         variable: str
@@ -194,6 +195,7 @@ class BaseState(ABC):
 
     def startup_vals(self):
         """Get variables for reviewer to continue review.
+
         Returns
         -------
         numpy.ndarray:
