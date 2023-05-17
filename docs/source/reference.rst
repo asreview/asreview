@@ -26,6 +26,11 @@ API Reference
    asreview.state
    asreview.state.errors
    asreview.state.legacy
+   asreview.state.legacy.base
+   asreview.state.legacy.dict
+   asreview.state.legacy.hdf5
+   asreview.state.legacy.json
+   asreview.state.legacy.utils
    asreview.state.sql_converter
    asreview.state.utils
    asreview.types

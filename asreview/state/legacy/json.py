@@ -20,6 +20,10 @@ from pathlib import Path
 from asreview.settings import ASReviewSettings
 from asreview.state.legacy.dict import DictState
 
+__all__ = [
+    "JSONState",
+]
+
 
 class JSONState(DictState):
     """Class for storing the state of a Systematic Review using JSON files."""
