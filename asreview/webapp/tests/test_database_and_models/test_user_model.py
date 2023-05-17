@@ -7,15 +7,22 @@ from sqlalchemy.exc import IntegrityError
 import asreview.webapp.tests.utils.config_parser as cp
 import asreview.webapp.tests.utils.crud as crud
 from asreview.webapp import DB
+from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 
 
 @pytest.fixture(autouse=True)
 def setup_teardown(auth_app):
     assert len(User.query.all()) == 0
+    assert len(Project.query.all()) == 0
     yield
     crud.delete_users(DB)
+    crud.delete_projects(DB)
 
+
+# #############
+# CREATE
+# #############
 
 # test identifier validation
 def test_user_must_have_identifier():
@@ -146,6 +153,10 @@ def test_add_user_record():
     assert User.query.one() == user
 
 
+# #############
+# UPDATE
+# #############
+
 # Verify we can update a user record
 def test_update_user_record():
     user = crud.create_user(DB)
@@ -256,3 +267,50 @@ def test_confirm_user():
     assert user.confirmed
     assert user.token is None
     assert user.token_created_at is None
+
+
+# #############
+# DELETE
+# #############
+
+# test deleting a user means deleting all projects
+def test_deleting_user():
+    user, projects = crud.create_user1_with_2_projects(DB)
+    assert len(User.query.all()) == 1
+    assert len(Project.query.all()) == 2
+    # remove the user
+    DB.session.delete(user)
+    DB.session.commit()
+    assert len(User.query.all()) == 0
+    # projects should be gone as well
+    assert len(Project.query.all()) == 0
+
+
+# #############
+# PROPERTIES
+# #############
+
+# test projects
+def test_projects_of_user():
+    crud.create_user1_with_2_projects(DB)
+    assert len(User.query.all()) == 1
+    assert len(Project.query.all()) == 2
+    # get user
+    user = User.query.one()
+    projects = Project.query.all()
+    assert set(user.projects) == set(projects)
+
+
+# test pending invitations
+def test_pending_invitations():
+    user1, _ = crud.create_user1_with_2_projects(DB)
+    user2 = crud.create_user(DB, user=2)
+    assert len(User.query.all()) == 2
+    assert len(Project.query.all()) == 2
+    user1 = User.query.filter_by(id=user1.id).one()
+    project = user1.projects[0]
+    project.pending_invitations.append(user2)
+    DB.session.commit()
+    # fresh object
+    user2 = User.query.filter_by(id=user2.id).one()
+    assert project in user2.pending_invitations
