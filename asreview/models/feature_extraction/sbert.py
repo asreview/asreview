@@ -106,5 +106,5 @@ class SBERT(BaseFeatureExtraction):
             model = SentenceTransformer(
                 modules=[word_embedding_model, pooling_layer]
             )
-        X = np.array(model.encode(texts))
+        X = model.encode(texts)
         return X
