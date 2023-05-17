@@ -74,5 +74,8 @@ class SBERT(BaseFeatureExtraction):
         _check_st()
 
         model = SentenceTransformer(self.transformer_model)
-        X = np.array(model.encode(texts))
+        print(
+            "Encoding texts using sbert, this may take a while..."
+        )
+        X = np.array(model.encode(texts, show_progress_bar=True))
         return X
