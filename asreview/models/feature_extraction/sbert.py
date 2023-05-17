@@ -86,13 +86,13 @@ class SBERT(BaseFeatureExtraction):
     ):
         super(SBERT, self).__init__(*args, **kwargs)
         self.transformer_model = transformer_model
-        self.is_pretrained_SBERT = is_pretrained_SBERT
+        self.is_pretrained_sbert = is_pretrained_sbert
         self.pooling_mode = pooling_mode
 
     def transform(self, texts):
         _check_st()
 
-        if self.is_pretrained_SBERT:
+        if self.is_pretrained_sbert:
             model = SentenceTransformer(self.transformer_model)
         else:
             # If transformer_model is not a pretrained sentence transformer model,
