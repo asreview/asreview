@@ -13,6 +13,8 @@
 # limitations under the License.
 
 
+"""Reading and writing of data."""
+
 from asreview.io.csv_reader import CSVReader
 from asreview.io.csv_writer import CSVWriter
 from asreview.io.excel_reader import ExcelReader

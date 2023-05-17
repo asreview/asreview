@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Subcommand parsers to the ASReview command line program."""
+
 from asreview.entry_points.algorithms import AlgorithmsEntryPoint
 from asreview.entry_points.auth_tool import AuthTool
 from asreview.entry_points.base import BaseEntryPoint

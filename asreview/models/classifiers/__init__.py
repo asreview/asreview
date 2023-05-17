@@ -12,6 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Machine learning classifiers to classify the documents.
+
+There are several machine learning classifiers available. In configuration
+files, parameters are found under the section ``[model_param]``.
+"""
+
 from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.models.classifiers.logistic import LogisticClassifier
 from asreview.models.classifiers.lstm_base import LSTMBaseClassifier
@@ -23,12 +29,6 @@ from asreview.models.classifiers.svm import SVMClassifier
 from asreview.models.classifiers.utils import get_classifier
 from asreview.models.classifiers.utils import get_classifier_class
 from asreview.models.classifiers.utils import list_classifiers
-
-"""Machine learning classifiers to classify the documents.
-
-There are several machine learning classifiers available. In configuration
-files, parameters are found under the section ``[model_param]``.
-"""
 
 
 __all__ = [

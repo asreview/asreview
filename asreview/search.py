@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+Search a data object for records matching user-supplied keywords.
+"""
+
 import re
 from difflib import SequenceMatcher
 

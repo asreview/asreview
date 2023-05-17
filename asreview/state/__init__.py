@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+Manipulation of a project's state file.
+"""
+
 from asreview.state.base import BaseState
 from asreview.state.sqlstate import SQLiteState
 

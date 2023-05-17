@@ -1,3 +1,7 @@
+"""
+Manipulation of state files in legacy formats.
+"""
+
 from asreview.state.legacy.base import BaseState
 from asreview.state.legacy.dict import DictState
 from asreview.state.legacy.dict import get_serial_list

@@ -12,6 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Feature extraction converts texts into features.
+
+Feature extraction is the process of converting a list of texts into some kind
+of feature matrix.
+
+There are several feature extraction algorithms available. In configuration
+files, parameters are found under the section ``[feature_param]``.
+
+"""
+
 from asreview.models.feature_extraction.base import BaseFeatureExtraction
 from asreview.models.feature_extraction.doc2vec import Doc2Vec
 from asreview.models.feature_extraction.embedding_idf import EmbeddingIdf
@@ -22,15 +32,6 @@ from asreview.models.feature_extraction.utils import get_feature_class
 from asreview.models.feature_extraction.utils import get_feature_model
 from asreview.models.feature_extraction.utils import list_feature_extraction
 
-"""Feature extraction converts texts into features.
-
-Feature extraction is the process of converting a list of texts into some kind
-of feature matrix.
-
-There are several feature extraction algorithms available. In configuration
-files, parameters are found under the section ``[feature_param]``.
-
-"""
 __all__ = [
     "BaseFeatureExtraction",
     "Doc2Vec",

@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+Configuration variables for ASReview.
+"""
+
 __all__ = [
     "ASCII_LOGO",
     "COLUMN_DEFINITIONS",

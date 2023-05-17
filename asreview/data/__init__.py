@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Constructing data objects."""
+
 from asreview.data.base import ASReviewData
 from asreview.data.base import load_data
 

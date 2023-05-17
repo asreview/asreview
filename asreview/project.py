@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Constructing a project object, manipulation of project files on disk."""
+
 import json
 import logging
 import os

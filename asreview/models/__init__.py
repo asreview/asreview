@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.models.base import BaseModel
-
-"""Active learning model components.
+"""
+Active learning model components.
 
 Components like classifiers, query strategies, balance strategies, and
-feature_extraction techniques."""
+feature_extraction techniques.
+"""
+
+from asreview.models.base import BaseModel
 
 
 __all__ = [
