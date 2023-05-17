@@ -1,3 +1,5 @@
+from asreview.webapp.authentication.models import Collaboration
+from asreview.webapp.authentication.models import CollaborationInvitation
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 import asreview.webapp.tests.utils.config_parser as cp
@@ -17,13 +19,31 @@ def create_user(DB, user=1):
     return user
 
 
-def delete_users(DB):
-    DB.session.query(User).delete()
+def delete_collaborations(DB):
+    DB.session.query(Collaboration).delete()
+    DB.session.commit()
+
+
+def delete_invitatations(DB):
+    DB.session.query(CollaborationInvitation).delete()
     DB.session.commit()
 
 
 def delete_projects(DB):
     DB.session.query(Project).delete()
+    DB.session.commit()
+
+
+def delete_users(DB):
+    DB.session.query(User).delete()
+    DB.session.commit()
+
+
+def delete_everything(DB):
+    DB.session.query(Collaboration).delete()
+    DB.session.query(CollaborationInvitation).delete()
+    DB.session.query(Project).delete()
+    DB.session.query(User).delete()
     DB.session.commit()
 
 

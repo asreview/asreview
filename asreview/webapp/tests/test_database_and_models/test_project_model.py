@@ -6,6 +6,8 @@ from sqlalchemy.exc import IntegrityError
 import asreview.webapp.tests.utils.crud as crud
 from asreview.utils import asreview_path
 from asreview.webapp import DB
+from asreview.webapp.authentication.models import Collaboration
+from asreview.webapp.authentication.models import CollaborationInvitation
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 
@@ -18,8 +20,7 @@ def user(auth_app):
     user = crud.create_user(DB, 1)
     assert len(User.query.all()) == 1
     yield user
-    crud.delete_users(DB)
-    crud.delete_projects(DB)
+    crud.delete_everything(DB)
 
 
 # NOTE: projects are created from a user account
@@ -27,6 +28,7 @@ def user(auth_app):
 # #############
 # CREATE
 # #############
+
 
 # test uniqueness of project id
 def test_uniqueness_of_project_id(user):
@@ -53,6 +55,7 @@ def test_inserting_project(user):
 # DELETE
 # #############
 
+
 # deleting a project won't delete its owner
 def test_not_delete_user_after_deletion_project(user):
     crud.create_project(DB, user, Project(project_id="project"))
@@ -68,18 +71,43 @@ def test_not_delete_user_after_deletion_project(user):
 
 
 # deleting a project will remove invitations
-def test_project_removal_invitaions():
-    assert False
+def test_project_removal_invitations(user):
+    project = crud.create_project(DB, user, Project(project_id="my-project"))
+    user2 = crud.create_user(DB, user=2)
+    assert len(User.query.all()) == 2
+    assert len(Project.query.all()) == 1
+    assert len(CollaborationInvitation.query.all()) == 0
+    # invite
+    project.pending_invitations.append(user2)
+    DB.session.commit()
+    assert len(CollaborationInvitation.query.all()) == 1
+    DB.session.delete(project)
+    DB.session.commit()
+    assert len(Project.query.all()) == 0
+    assert len(CollaborationInvitation.query.all()) == 0
 
 
 # deleting a project will remove collaboration links
-def test_project_removal_collaborations():
-    assert False
+def test_project_removal_collaborations(user):
+    project = crud.create_project(DB, user, Project(project_id="my-project"))
+    user2 = crud.create_user(DB, user=2)
+    assert len(User.query.all()) == 2
+    assert len(Project.query.all()) == 1
+    assert len(Collaboration.query.all()) == 0
+    # invite
+    project.collaborators.append(user2)
+    DB.session.commit()
+    assert len(Collaboration.query.all()) == 1
+    DB.session.delete(project)
+    DB.session.commit()
+    assert len(Project.query.all()) == 0
+    assert len(Collaboration.query.all()) == 0
 
 
 # #############
 # PROPERTIES
 # #############
+
 
 # test getting a user from project
 def test_getting_user_from_project(user):
@@ -125,3 +153,19 @@ def test_pending_invites(user):
     project = Project.query.filter_by(project_id=project.project_id).one()
     # asserts
     assert user2 in project.pending_invitations
+
+
+# test collaboration
+def test_collaboration(user):
+    project = crud.create_project(DB, user, Project(project_id="my-project"))
+    user2 = crud.create_user(DB, user=2)
+    assert len(User.query.all()) == 2
+    assert len(Project.query.all()) == 1
+    assert len(Collaboration.query.all()) == 0
+    # invite
+    project.collaborators.append(user2)
+    DB.session.commit()
+    assert len(Collaboration.query.all()) == 1
+    # start with a fresh object
+    project = Project.query.one()
+    assert user2 in project.collaborators

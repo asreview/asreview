@@ -1,4 +1,5 @@
 # GOAL: test database creation if app is started with authentication
+import shutil
 from pathlib import Path
 
 import pytest
@@ -6,15 +7,21 @@ import sqlalchemy
 from sqlalchemy import create_engine
 
 from asreview.utils import asreview_path
+from asreview.webapp.tests.conftest import ASREVIEW_PATH
 
 
 def get_db_path():
     return Path(asreview_path() / "asreview.test.sqlite")
 
 
+@pytest.fixture()
+def cleanup_asreview_path():
+    shutil.rmtree(ASREVIEW_PATH)
+
+
 # checks if asreview path does not contain a database if app
 # is unauthenticated
-def test_database_is_not_created_if_unauth_app(unauth_app):
+def test_database_is_not_created_if_unauth_app(cleanup_asreview_path, unauth_app):
     assert Path(asreview_path()).exists()
     assert get_db_path().exists() is False
 
@@ -28,8 +35,7 @@ def test_database_exists_after_starting_auth_app(auth_app):
 
 # checks if all tables were created
 @pytest.mark.parametrize(
-    'table',
-    ['collaboration_invitations', 'collaborations', 'projects', 'users']
+    "table", ["collaboration_invitations", "collaborations", "projects", "users"]
 )
 def test_if_db_table_exists(auth_app, table):
     engine = create_engine(f"sqlite:///{str(get_db_path())}")

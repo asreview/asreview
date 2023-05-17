@@ -24,6 +24,7 @@ def setup_teardown(auth_app):
 # CREATE
 # #############
 
+
 # test identifier validation
 def test_user_must_have_identifier():
     user = crud.create_user(DB)
@@ -65,16 +66,10 @@ def test_user_must_have_name():
     with pytest.raises(ValueError, match="Name is required"):
         user.name = ""
 
-    with pytest.raises(
-        ValueError,
-        match="Name must contain more than 2 characters"
-    ):
+    with pytest.raises(ValueError, match="Name must contain more than 2 characters"):
         user.name = "a"
 
-    with pytest.raises(
-        ValueError,
-        match="Name must contain more than 2 characters"
-    ):
+    with pytest.raises(ValueError, match="Name must contain more than 2 characters"):
         user.name = "ab"
 
 
@@ -82,16 +77,10 @@ def test_user_must_have_name():
 def test_email_validation_1():
     user = crud.create_user(DB)
     user.origin = "asreview"
-    with pytest.raises(
-        ValueError,
-        match="Email is required when origin is 'asreview'"
-    ):
+    with pytest.raises(ValueError, match="Email is required when origin is 'asreview'"):
         user.email = None
 
-    with pytest.raises(
-        ValueError,
-        match="Email is required when origin is 'asreview'"
-    ):
+    with pytest.raises(ValueError, match="Email is required when origin is 'asreview'"):
         user.email = ""
 
 
@@ -101,15 +90,14 @@ def test_email_validation_2():
     invalid_email = "invalid"
 
     with pytest.raises(
-        ValueError,
-        match=f"Email address '{invalid_email}' is not valid"
+        ValueError, match=f"Email address '{invalid_email}' is not valid"
     ):
         User(
             invalid_email,
             email=invalid_email,
             name=user_data.name,
             origin="asreview",
-            password="ABCd1234!"
+            password="ABCd1234!",
         )
 
 
@@ -127,20 +115,18 @@ def test_uniqueness_of_email():
 
 # test if all fails when password doesn't meet requirements
 @pytest.mark.parametrize(
-    "password",
-    ["", None, "a1!", "aaaaaaaaaaaaa", "1111111111111"]
+    "password", ["", None, "a1!", "aaaaaaaaaaaaa", "1111111111111"]
 )
 def test_password_validation(password):
     with pytest.raises(
-        ValueError,
-        match=f"Password \"{str(password)}\" does not meet requirements"
+        ValueError, match=f'Password "{str(password)}" does not meet requirements'
     ):
         User(
             "admin@asreview.nl",
             email="admin@asreview.nl",
             name="Casper",
             origin="asreview",
-            password=password
+            password=password,
         )
 
 
@@ -156,6 +142,7 @@ def test_add_user_record():
 # #############
 # UPDATE
 # #############
+
 
 # Verify we can update a user record
 def test_update_user_record():
@@ -173,7 +160,7 @@ def test_update_user_record():
         name=new_name,
         affiliation=new_affiliation,
         password=new_password,
-        public=new_public
+        public=new_public,
     )
     DB.session.commit()
 
@@ -225,8 +212,7 @@ def test_set_token():
 
 # verify token validity, by default token is 24 hours valid
 @pytest.mark.parametrize(
-    'subtract_time',
-    [(10, 0, True), (23, 59, True), (24, 1, False), (25, 0, False)]
+    "subtract_time", [(10, 0, True), (23, 59, True), (24, 1, False), (25, 0, False)]
 )
 def test_token_validity(subtract_time):
     subtract_hours, subtract_mins, validity = subtract_time
@@ -242,8 +228,9 @@ def test_token_validity(subtract_time):
     assert user.token_valid(token)
 
     # now subtract hours
-    new_token_created_time = token_created_at - \
-        timedelta(hours=subtract_hours, minutes=subtract_mins)
+    new_token_created_time = token_created_at - timedelta(
+        hours=subtract_hours, minutes=subtract_mins
+    )
     # update token_created_at
     user.token_created_at = new_token_created_time
 
@@ -273,6 +260,7 @@ def test_confirm_user():
 # DELETE
 # #############
 
+
 # test deleting a user means deleting all projects
 def test_deleting_user():
     user, projects = crud.create_user1_with_2_projects(DB)
@@ -289,6 +277,7 @@ def test_deleting_user():
 # #############
 # PROPERTIES
 # #############
+
 
 # test projects
 def test_projects_of_user():
@@ -314,3 +303,18 @@ def test_pending_invitations():
     # fresh object
     user2 = User.query.filter_by(id=user2.id).one()
     assert project in user2.pending_invitations
+
+
+# test collaborations
+def test_collaboration():
+    user1, _ = crud.create_user1_with_2_projects(DB)
+    user2 = crud.create_user(DB, user=2)
+    assert len(User.query.all()) == 2
+    assert len(Project.query.all()) == 2
+    user1 = User.query.filter_by(id=user1.id).one()
+    project = user1.projects[0]
+    project.collaborators.append(user2)
+    DB.session.commit()
+    # fresh object
+    user2 = User.query.filter_by(id=user2.id).one()
+    assert project in user2.involved_in

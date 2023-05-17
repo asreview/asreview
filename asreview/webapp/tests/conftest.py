@@ -43,6 +43,7 @@ def unauth_app():
     with app.app_context():
         yield app
 
+
 # authenticated app
 @pytest.fixture()
 def auth_app():
@@ -66,8 +67,8 @@ def unauth_client(unauth_app):
 def remove_test_asreview_path():
     pass
     yield
-    if Path(asreview_path()).exists():
-        shutil.rmtree(asreview_path())
+    if Path(ASREVIEW_PATH).exists():
+        shutil.rmtree(ASREVIEW_PATH)
         print("\n...Removed asreview_path")
         
     
