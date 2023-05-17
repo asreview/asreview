@@ -5,7 +5,6 @@ API Reference
    :toctree: generated
    :template: custom-module-template.rst
 
-   asreview
    asreview.compat
    asreview.config
    asreview.data
