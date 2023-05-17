@@ -108,4 +108,5 @@ class SBERT(BaseFeatureExtraction):
             )
         print("Encoding texts using sbert, this may take a while...")
         X = model.encode(texts, show_progress_bar=True)
+
         return X
