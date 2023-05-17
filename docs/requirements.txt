@@ -5,3 +5,4 @@ sphinx-reredirects
 sphinxcontrib-youtube
 nbsphinx
 flask_sqlalchemy
+h5py==3.*
