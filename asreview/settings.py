@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Constructing the settings object that holds the model choices and their parameterization."""
+"""
+Constructing the settings object that holds the model choices
+and their parameterization.
+"""
 
 import logging
 import os
