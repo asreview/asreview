@@ -31,7 +31,6 @@ from asreview.models.query.utils import get_query_class
 from asreview.models.query.utils import get_query_model
 from asreview.models.query.utils import list_query_strategies
 
-
 __all__ = [
     "BaseQueryStrategy",
     "ClusterQuery",

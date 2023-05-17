@@ -30,7 +30,6 @@ from asreview.models.classifiers.utils import get_classifier
 from asreview.models.classifiers.utils import get_classifier_class
 from asreview.models.classifiers.utils import list_classifiers
 
-
 __all__ = [
     "BaseTrainClassifier",
     "LogisticClassifier",

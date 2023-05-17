@@ -21,7 +21,6 @@ feature_extraction techniques.
 
 from asreview.models.base import BaseModel
 
-
 __all__ = [
     "BaseModel",
 ]
