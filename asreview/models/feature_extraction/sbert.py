@@ -80,7 +80,7 @@ class SBERT(BaseFeatureExtraction):
         self,
         *args,
         transformer_model="all-mpnet-base-v2",
-        is_pretrained_SBERT=True,
+        is_pretrained_sbert=True,
         pooling_mode="mean",
         **kwargs
     ):
