@@ -106,5 +106,6 @@ class SBERT(BaseFeatureExtraction):
             model = SentenceTransformer(
                 modules=[word_embedding_model, pooling_layer]
             )
-        X = model.encode(texts)
+        print("Encoding texts using sbert, this may take a while...")
+        X = model.encode(texts, show_progress_bar=True)
         return X
