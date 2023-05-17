@@ -61,12 +61,12 @@ class SBERT(BaseFeatureExtraction):
     transformer_model : str, optional
         The transformer model to use.
         Default: 'all-mpnet-base-v2'
-    is_pretrained_SBERT: boolian, optional
+    is_pretrained_SBERT: boolean, optional
         Default: True
     pooling_mode: str, optional
-        Polling mode to get sentece embeddings from word embeddings
+        Pooling mode to get sentence embeddings from word embeddings
         Default: 'mean'
-        Other options available are mean, max and cls.
+        Other options available are 'mean', 'max' and 'cls'.
         Only used if is_pretrained_SBERT=False
         mean: Uses mean pooling of word embeddings
         max: Uses max pooling of word embeddings
