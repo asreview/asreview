@@ -142,18 +142,23 @@ def signin():
             logged_in = perform_login_user(user)
             result = (
                 200,
-                {"logged_in": logged_in, "name": user.get_name(), "id": user.id},
+                {
+                    "logged_in": logged_in,
+                    "name": user.get_name(),
+                    "id": user.id,
+                    "message": f"User {user.identifier} is logged in."
+                },
             )
         else:
             # password is wrong
             if user.origin == "asreview":
                 # if this is an asreview user
-                result = (404, {"message": f"Incorrect password for user {email}"})
+                result = (404, {"message": f"Incorrect password for user {email}."})
             else:
                 # this must be an OAuth user trying to get in with
                 # a password
                 service = user.origin.capitalize()
-                result = (404, {"message": f"Please login with the {service} service"})
+                result = (404, {"message": f"Please login with the {service} service."})
 
     status, message = result
     response = jsonify(message)
