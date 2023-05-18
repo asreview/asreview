@@ -24,6 +24,7 @@ from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import validates
 from werkzeug.security import check_password_hash
@@ -211,8 +212,13 @@ class User(UserMixin, DB.Model):
 class Collaboration(DB.Model):
     __tablename__ = "collaborations"
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="cascade"))
-    project_id = Column(Integer, ForeignKey("projects.id", ondelete="cascade"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="cascade"), nullable=False)
+    project_id = Column(Integer, ForeignKey("projects.id", ondelete="cascade"), nullable=False)
+        # make sure we have unique records in this table
+    __table_args__ = (UniqueConstraint("project_id", "user_id", name="unique_records"),)
+
+    def __repr__(self):
+        return f"<Collaboration project:{self.project_id} user:{self.user_id}>"
 
 
 class Project(DB.Model):
@@ -254,5 +260,10 @@ class CollaborationInvitation(DB.Model):
 
     __tablename__ = "collaboration_invitations"
     id = Column(Integer, primary_key=True)
-    project_id = Column(Integer, ForeignKey("projects.id", ondelete="cascade"))
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="cascade"))
+    project_id = Column(Integer, ForeignKey("projects.id", ondelete="cascade"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="cascade"), nullable=False)
+    # make sure we have unique records in this table
+    __table_args__ = (UniqueConstraint("project_id", "user_id", name="unique_records"),)
+
+    def __repr__(self):
+        return f"<CollaborationInvitation project:{self.project_id} user:{self.user_id}>"

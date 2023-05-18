@@ -1,11 +1,10 @@
 import pytest
+from sqlalchemy.exc import IntegrityError
 
 import asreview.webapp.tests.utils.crud as crud
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import Collaboration
 from asreview.webapp.authentication.models import CollaborationInvitation
-from asreview.webapp.authentication.models import Project
-from asreview.webapp.authentication.models import User
 
 
 @pytest.fixture(autouse=True)
@@ -13,12 +12,11 @@ def test_data(auth_app):
     user1, _ = crud.create_user1_with_2_projects(DB)
     user2 = crud.create_user(DB, user=2)
     user3 = crud.create_user(DB, user=3)
-    assert len(Project.query.all()) == 2
-    assert len(User.query.all()) == 3
+    assert crud.count_projects() == 2
+    assert crud.count_users() == 3
     data = {"user1": user1, "user2": user2, "user3": user3}
     yield data
-    crud.delete_users(DB)
-    crud.delete_projects(DB)
+    crud.delete_everything(DB)
 
 
 class TestInvitations:
@@ -35,10 +33,10 @@ class TestInvitations:
         # invite user 2
         project.pending_invitations.append(test_data["user2"])
         DB.session.commit()
-        assert len(CollaborationInvitation.query.all()) == 1
-        # get fresh objects
-        project = Project.query.filter_by(id=project.id).one()
-        invite = CollaborationInvitation.query.one()
+
+        assert crud.count_invitations() == 1
+        # get fresh object
+        invite = crud.last_invitation()
         # asserts Invitations
         assert invite.project_id == project.id
         assert invite.user_id == test_data["user2"].id
@@ -48,14 +46,34 @@ class TestInvitations:
         user1 = test_data["user1"]
         user2 = test_data["user2"]
         project = user1.projects[0]
-        CollaborationInvitation(project_id=project.project_id, user_id=user2.id)
-        DB.session.commit()
-        assert len(CollaborationInvitation.query.all()) == 1
+        crud.create_invitation(DB, project, user2)
+        assert crud.count_invitations() == 1
+
         # create identical invitation
-        CollaborationInvitation(project_id=project.project_id, user_id=user2.id)
-        DB.session.commit()
+        with pytest.raises(IntegrityError):
+            crud.create_invitation(DB, project, user2)
         # if all is well, we can't add the same invitation
-        assert len(CollaborationInvitation.query.all()) == 1
+        assert crud.count_invitations() == 1
+
+    # test missing user is not permitted
+    def test_missing_user_in_invitation(self, test_data):
+        project = test_data["user1"].projects[0]
+        invite = CollaborationInvitation(project_id=project.id, user_id=None)
+        DB.session.add(invite)
+        with pytest.raises(IntegrityError):
+            DB.session.commit()
+        DB.session.rollback()
+        assert crud.count_invitations() == 0
+
+    # test missing project is not permitted
+    def test_missing_project_in_invitation(self, test_data):
+        user = test_data["user1"]
+        invite = CollaborationInvitation(project_id=None, user_id=user.id)
+        DB.session.add(invite)
+        with pytest.raises(IntegrityError):
+            DB.session.commit()
+        DB.session.rollback()
+        assert crud.count_invitations() == 0
 
 
 class TestCollaborations:
@@ -72,11 +90,10 @@ class TestCollaborations:
         # collaboration user 2
         project.collaborators.append(test_data["user2"])
         DB.session.commit()
-        assert len(Collaboration.query.all()) == 1
+        assert crud.count_collaborations() == 1
         # get fresh objects
-        project = Project.query.filter_by(id=project.id).one()
-        collab = Collaboration.query.one()
-        # asserts Invitations
+        collab = crud.last_collaboration()
+        # asserts collaboration
         assert collab.project_id == project.id
         assert collab.user_id == test_data["user2"].id
 
@@ -85,11 +102,31 @@ class TestCollaborations:
         user1 = test_data["user1"]
         user2 = test_data["user2"]
         project = user1.projects[0]
-        Collaboration(project_id=project.project_id, user_id=user2.id)
-        DB.session.commit()
-        assert len(Collaboration.query.all()) == 1
+        crud.create_collaboration(DB, project, user2)
+        assert crud.count_collaborations() == 1
+
         # create identical invitation
-        Collaboration(project_id=project.project_id, user_id=user2.id)
-        DB.session.commit()
+        with pytest.raises(IntegrityError):
+            crud.create_collaboration(DB, project, user2)
         # if all is well, we can't add the same invitation
-        assert len(Collaboration.query.all()) == 1
+        assert crud.count_collaborations() == 1
+
+    # test missing user is not permitted
+    def test_missing_user_in_collaboration(self, test_data):
+        project = test_data["user1"].projects[0]
+        invite = Collaboration(project_id=project.id, user_id=None)
+        DB.session.add(invite)
+        with pytest.raises(IntegrityError):
+            DB.session.commit()
+        DB.session.rollback()
+        assert crud.count_collaborations() == 0
+
+    # test missing project is not permitted
+    def test_missing_project_in_collaboration(self, test_data):
+        user = test_data["user1"]
+        invite = Collaboration(project_id=None, user_id=user.id)
+        DB.session.add(invite)
+        with pytest.raises(IntegrityError):
+            DB.session.commit()
+        DB.session.rollback()
+        assert crud.count_collaborations() == 0

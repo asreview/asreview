@@ -42,12 +42,15 @@ from asreview.webapp.authentication.oauth_handler import OAuthHandler
 # of making the end-user decide the exact location.
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
+# NOTE: not too sure about this, what if we are dealing with a 
+# domain name
+ROOT_URL = "http://127.0.0.1:3000/"
+
 CORS(
     bp,
-    resources={r"*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000"]}},
+    resources={r"*": {"origins": ["http://localhost:3000", ROOT_URL]}},
     supports_credentials=True,
 )
-
 
 def perform_login_user(user):
     """Helper function to login a user"""
@@ -62,11 +65,8 @@ def send_forgot_password_email(user, cur_app):
         name = user.name or "ASReview user"
         # email config
         config = cur_app.config.get("EMAIL_CONFIG")
-        # TODO: this is horrible => what if there is a domain name,
-        # where is it coming from? Where can I get it?
-        root_url = "http://127.0.0.1:3000/"
         # redirect url
-        url = f"{root_url}reset_password?user_id={user.id}&token={user.token}"
+        url = f"{ROOT_URL}reset_password?user_id={user.id}&token={user.token}"
         # create a mailer
         mailer = Mail(cur_app)
         # open templates as string and render
@@ -94,11 +94,8 @@ def send_confirm_account_email(user, cur_app):
         name = user.name or "ASReview user"
         # email config
         config = cur_app.config.get("EMAIL_CONFIG")
-        # TODO: this is horrible => what if there is a domain name,
-        # where is it coming from? Where can I get it?
-        root_url = "http://127.0.0.1:3000/"
         # redirect url
-        url = f"{root_url}confirm_account?user_id={user.id}&token={user.token}"
+        url = f"{ROOT_URL}confirm_account?user_id={user.id}&token={user.token}"
         # create a mailer
         mailer = Mail(cur_app)
         # open templates as string and render
@@ -165,9 +162,6 @@ def signin():
 
 @bp.route("/signup", methods=["POST"])
 def signup():
-    # this is for the response
-    user_id = False
-
     # Can we create accounts?
     if current_app.config.get("ALLOW_ACCOUNT_CREATION", False):
         email = request.form.get("email", "").strip()
@@ -223,13 +217,13 @@ def signup():
                     send_confirm_account_email(user, current_app)
                     # result
                     result = (
-                        200,
+                        201,
                         f"An email has been sent to {user.email} to verify "
                         + "your account. Please follow instructions.",
                     )
                 else:
                     # result is a 201 with message
-                    result = (201, f'User "#{identifier}" created.')
+                    result = (201, f'User "{identifier}" created.')
             except IntegrityError as e:
                 DB.session.rollback()
                 result = (403, f"Unable to create your account! Reason: {str(e)}")
@@ -240,7 +234,7 @@ def signup():
         result = (400, "The app is not configured to create accounts")
 
     (status, message) = result
-    response = jsonify({"message": message, "user_id": user_id})
+    response = jsonify({"message": message})
     return response, status
 
 

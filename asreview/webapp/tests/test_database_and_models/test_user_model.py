@@ -7,17 +7,15 @@ from sqlalchemy.exc import IntegrityError
 import asreview.webapp.tests.utils.config_parser as cp
 import asreview.webapp.tests.utils.crud as crud
 from asreview.webapp import DB
-from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 
 
 @pytest.fixture(autouse=True)
 def setup_teardown(auth_app):
-    assert len(User.query.all()) == 0
-    assert len(Project.query.all()) == 0
+    assert crud.count_users() == 0
+    assert crud.count_projects() == 0
     yield
-    crud.delete_users(DB)
-    crud.delete_projects(DB)
+    crud.delete_everything(DB)
 
 
 # #############
@@ -38,7 +36,7 @@ def test_user_must_have_identifier():
 # test uniqueness of identifier
 def test_uniqueness_of_identifier():
     user1 = crud.create_user(DB)
-    assert len(User.query.all()) == 1
+    assert crud.count_users() == 1
     # create second user with identical identifier
     user2 = cp.get_user(2)
     # set to an existing identifier
@@ -104,7 +102,7 @@ def test_email_validation_2():
 # test uniqueness of email
 def test_uniqueness_of_email():
     user1 = crud.create_user(DB)
-    assert len(User.query.all()) == 1
+    assert crud.count_users() == 1
     # create second user with identical email
     user2 = cp.get_user(2)
     # set to an existing identifier
@@ -133,10 +131,9 @@ def test_password_validation(password):
 # Verify we can add a user record
 def test_add_user_record():
     user = crud.create_user(DB)
-
     # verify we have 1 record
-    assert len(User.query.all()) == 1
-    assert User.query.one() == user
+    assert crud.count_users() == 1
+    assert crud.last_user() == user
 
 
 # #############
@@ -165,8 +162,8 @@ def test_update_user_record():
     DB.session.commit()
 
     # verify we have 1 record
-    assert len(User.query.all()) == 1
-    updated_user = User.query.one()
+    assert crud.count_users() == 1
+    updated_user = crud.last_user()
     # assert identifier remained the same
     assert updated_user.identifier != new_email
     # assert changes
@@ -186,8 +183,8 @@ def test_update_password():
     DB.session.commit()
 
     # verify we have 1 record
-    assert len(User.query.all()) == 1
-    updated_user = User.query.one()
+    assert crud.count_users() == 1
+    updated_user = crud.last_user()
     assert updated_user.hashed_password != old_hashed_password
 
 
@@ -202,8 +199,8 @@ def test_set_token():
     DB.session.commit()
 
     # verify we have 1 record
-    assert len(User.query.all()) == 1
-    updated_user = User.query.one()
+    assert crud.count_users() == 1
+    updated_user = crud.last_user()
 
     assert updated_user.token is not None
     assert updated_user.token_created_at is not None
@@ -220,7 +217,7 @@ def test_token_validity(subtract_time):
     user.set_token_data("secret", "salt")
     DB.session.commit()
     # verify we have 1 record
-    assert len(User.query.all()) == 1
+    assert crud.count_users() == 1
 
     # assert token is valid
     token = user.token
@@ -264,14 +261,14 @@ def test_confirm_user():
 # test deleting a user means deleting all projects
 def test_deleting_user():
     user, projects = crud.create_user1_with_2_projects(DB)
-    assert len(User.query.all()) == 1
-    assert len(Project.query.all()) == 2
+    assert crud.count_users() == 1
+    assert crud.count_projects() == 2
     # remove the user
     DB.session.delete(user)
     DB.session.commit()
-    assert len(User.query.all()) == 0
+    assert crud.count_users() == 0
     # projects should be gone as well
-    assert len(Project.query.all()) == 0
+    assert crud.count_projects() == 0
 
 
 # #############
@@ -282,11 +279,11 @@ def test_deleting_user():
 # test projects
 def test_projects_of_user():
     crud.create_user1_with_2_projects(DB)
-    assert len(User.query.all()) == 1
-    assert len(Project.query.all()) == 2
+    assert crud.count_users() == 1
+    assert crud.count_projects() == 2
     # get user
-    user = User.query.one()
-    projects = Project.query.all()
+    user = crud.last_user()
+    projects = crud.list_projects()
     assert set(user.projects) == set(projects)
 
 
@@ -294,14 +291,14 @@ def test_projects_of_user():
 def test_pending_invitations():
     user1, _ = crud.create_user1_with_2_projects(DB)
     user2 = crud.create_user(DB, user=2)
-    assert len(User.query.all()) == 2
-    assert len(Project.query.all()) == 2
-    user1 = User.query.filter_by(id=user1.id).one()
+    assert crud.count_users() == 2
+    assert crud.count_projects() == 2
+    user1 = crud.get_user_by_id(user1.id)
     project = user1.projects[0]
     project.pending_invitations.append(user2)
     DB.session.commit()
     # fresh object
-    user2 = User.query.filter_by(id=user2.id).one()
+    user2 = crud.get_user_by_id(user2.id)
     assert project in user2.pending_invitations
 
 
@@ -309,12 +306,12 @@ def test_pending_invitations():
 def test_collaboration():
     user1, _ = crud.create_user1_with_2_projects(DB)
     user2 = crud.create_user(DB, user=2)
-    assert len(User.query.all()) == 2
-    assert len(Project.query.all()) == 2
-    user1 = User.query.filter_by(id=user1.id).one()
+    assert crud.count_users() == 2
+    assert crud.count_projects() == 2
+    user1 = crud.get_user_by_id(user1.id)
     project = user1.projects[0]
     project.collaborators.append(user2)
     DB.session.commit()
     # fresh object
-    user2 = User.query.filter_by(id=user2.id).one()
+    user2 = crud.get_user_by_id(user2.id)
     assert project in user2.involved_in

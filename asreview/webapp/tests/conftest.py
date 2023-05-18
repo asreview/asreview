@@ -20,47 +20,79 @@ import pytest
 
 from asreview.utils import asreview_path
 from asreview.webapp import DB
+import asreview.webapp.tests.utils.crud as crud
 from asreview.webapp.authentication.models import User
 from asreview.webapp.start_flask import create_app
-import asreview.webapp.tests.utils.flask_configs as fc
 
 ASREVIEW_PATH=str(Path("~", ".asreview-test").expanduser())
 
-def add_asreview_path():
-    # setup environment variables
-    os.environ.update({"ASREVIEW_PATH": ASREVIEW_PATH})
 
+def _get_app(app_type="auth-basic"):
+    """Create test flask app"""
+    # set asreview path
+    os.environ.update({"ASREVIEW_PATH": ASREVIEW_PATH})
+    # get path of appropriate flask config
+    base_dir = Path(__file__).resolve().parent / "data"
+    if app_type == "auth-basic":
+        config_path = str(base_dir / "auth_basic_config.json")
+    elif app_type == "auth-no-creation":
+        config_path = str(base_dir / "auth_no_creation.json")
+    elif app_type == "auth-verified":
+        config_path = str(base_dir / "auth_verified_config.json")
+    elif app_type == "no-auth":
+        config_path = str(base_dir / "no_auth_config.json")
+    else:
+        raise ValueError(f"Unknown config {app_type}")
+    # create app
+    return create_app(flask_configfile=config_path)
 
 # unauthenticated app
-@pytest.fixture()
+@pytest.fixture
 def unauth_app():
-    # set asreview path
-    add_asreview_path()
-    # get path of appropriate flask config
-    config_path = fc.get_unauth_config()
     # create the app
-    app = create_app(flask_configfile=config_path)
+    app = _get_app("no-auth")
     with app.app_context():
         yield app
-
 
 # authenticated app
-@pytest.fixture()
+@pytest.fixture
 def auth_app():
-    # set asreview path
-    add_asreview_path()
-    # get path of appropriate flask config
-    config_path = fc.get_basic_auth_config()
     # create app
-    app = create_app(flask_configfile=config_path)
+    app = _get_app()
     with app.app_context():
         yield app
+        
+
+@pytest.fixture
+def client_auth():
+    app = _get_app("auth-basic")
+    with app.app_context():
+        yield app.test_client()
+        crud.delete_everything(DB)
 
 
-@pytest.fixture()
-def unauth_client(unauth_app):
+@pytest.fixture
+def client_auth_no_creation():
+    app = _get_app("auth-no-creation")
+    with app.app_context():
+        yield app.test_client()
+        crud.delete_everything(DB)
+
+
+@pytest.fixture
+def client_auth_verified():
+    app = _get_app("auth-verified")
+    with app.app_context():
+        yield app.test_client()
+        crud.delete_everything(DB)
+    
+
+@pytest.fixture
+def client_unauth():
+    app = _get_app("no-auth")
     # make sure we have the asreview_path
-    yield unauth_app.test_client()
+    with app.app_context():
+        yield unauth_app.test_client()
 
 
 @pytest.fixture(scope="session", autouse=True)

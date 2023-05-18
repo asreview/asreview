@@ -6,19 +6,16 @@ from sqlalchemy.exc import IntegrityError
 import asreview.webapp.tests.utils.crud as crud
 from asreview.utils import asreview_path
 from asreview.webapp import DB
-from asreview.webapp.authentication.models import Collaboration
-from asreview.webapp.authentication.models import CollaborationInvitation
 from asreview.webapp.authentication.models import Project
-from asreview.webapp.authentication.models import User
 
 
 # fixture that creates a user and makes sure there
 # are no projects
 @pytest.fixture(autouse=True)
 def user(auth_app):
-    assert len(Project.query.all()) == 0
+    assert crud.count_projects() == 0
     user = crud.create_user(DB, 1)
-    assert len(User.query.all()) == 1
+    assert crud.count_users() == 1
     yield user
     crud.delete_everything(DB)
 
@@ -34,7 +31,7 @@ def user(auth_app):
 def test_uniqueness_of_project_id(user):
     project_id = "my-project"
     crud.create_project(DB, user, Project(project_id=project_id))
-    assert len(Project.query.all()) == 1
+    assert crud.count_projects() == 1
     with pytest.raises(IntegrityError):
         crud.create_project(DB, user, Project(project_id=project_id))
 
@@ -44,9 +41,9 @@ def test_inserting_project(user):
     project_id = "my-project"
     project = Project(project_id=project_id)
     crud.create_project(DB, user, project)
-    assert len(Project.query.all()) == 1
+    assert crud.count_projects() == 1
     # get project
-    project = Project.query.one()
+    project = crud.last_project()
     assert project.project_id == project_id
     assert project.owner_id == user.id
 
@@ -59,49 +56,49 @@ def test_inserting_project(user):
 # deleting a project won't delete its owner
 def test_not_delete_user_after_deletion_project(user):
     crud.create_project(DB, user, Project(project_id="project"))
-    assert len(User.query.all()) == 1
-    assert len(Project.query.all()) == 1
+    assert crud.count_users() == 1
+    assert crud.count_projects() == 1
     # get project
-    project = Project.query.one()
+    project = crud.last_project()
     # delete
     DB.session.delete(project)
     DB.session.commit()
-    assert len(User.query.all()) == 1
-    assert len(Project.query.all()) == 0
+    assert crud.count_users() == 1
+    assert crud.count_projects() == 0
 
 
 # deleting a project will remove invitations
 def test_project_removal_invitations(user):
     project = crud.create_project(DB, user, Project(project_id="my-project"))
     user2 = crud.create_user(DB, user=2)
-    assert len(User.query.all()) == 2
-    assert len(Project.query.all()) == 1
-    assert len(CollaborationInvitation.query.all()) == 0
+    assert crud.count_users() == 2
+    assert crud.count_projects() == 1
+    assert crud.count_invitations() == 0
     # invite
     project.pending_invitations.append(user2)
     DB.session.commit()
-    assert len(CollaborationInvitation.query.all()) == 1
+    assert crud.count_invitations() == 1
     DB.session.delete(project)
     DB.session.commit()
-    assert len(Project.query.all()) == 0
-    assert len(CollaborationInvitation.query.all()) == 0
+    assert crud.count_projects() == 0
+    assert crud.count_invitations() == 0
 
 
 # deleting a project will remove collaboration links
 def test_project_removal_collaborations(user):
     project = crud.create_project(DB, user, Project(project_id="my-project"))
     user2 = crud.create_user(DB, user=2)
-    assert len(User.query.all()) == 2
-    assert len(Project.query.all()) == 1
-    assert len(Collaboration.query.all()) == 0
+    assert crud.count_users() == 2
+    assert crud.count_projects() == 1
+    assert crud.count_collaborations() == 0
     # invite
     project.collaborators.append(user2)
     DB.session.commit()
-    assert len(Collaboration.query.all()) == 1
+    assert crud.count_collaborations() == 1
     DB.session.delete(project)
     DB.session.commit()
-    assert len(Project.query.all()) == 0
-    assert len(Collaboration.query.all()) == 0
+    assert crud.count_projects() == 0
+    assert crud.count_collaborations() == 0
 
 
 # #############
@@ -114,9 +111,9 @@ def test_getting_user_from_project(user):
     project_id = "my-project"
     project = Project(project_id=project_id)
     crud.create_project(DB, user, project)
-    assert len(Project.query.all()) == 1
+    assert crud.count_projects() == 1
     # get project
-    project = Project.query.one()
+    project = crud.last_project()
     assert project.owner == user
 
 
@@ -124,9 +121,9 @@ def test_getting_user_from_project(user):
 def test_project_folder(user):
     project_id = "my-project"
     crud.create_project(DB, user, Project(project_id=project_id))
-    assert len(Project.query.all()) == 1
+    assert crud.count_projects() == 1
     # get project
-    project = Project.query.one()
+    project = crud.last_project()
     assert project.folder == project_id
 
 
@@ -134,9 +131,9 @@ def test_project_folder(user):
 def test_project_path(user):
     project_id = "my-project"
     crud.create_project(DB, user, Project(project_id=project_id))
-    assert len(Project.query.all()) == 1
+    assert crud.count_projects() == 1
     # get project
-    project = Project.query.one()
+    project = crud.last_project()
     assert project.project_path == Path(asreview_path() / project_id)
 
 
@@ -144,13 +141,13 @@ def test_project_path(user):
 def test_pending_invites(user):
     project = crud.create_project(DB, user, Project(project_id="my-project"))
     user2 = crud.create_user(DB, user=2)
-    assert len(User.query.all()) == 2
-    assert len(Project.query.all()) == 1
+    assert crud.count_users() == 2
+    assert crud.count_projects() == 1
     # invite
     project.pending_invitations.append(user2)
     DB.session.commit()
     # fresh object
-    project = Project.query.filter_by(project_id=project.project_id).one()
+    project = crud.last_project()
     # asserts
     assert user2 in project.pending_invitations
 
@@ -159,13 +156,13 @@ def test_pending_invites(user):
 def test_collaboration(user):
     project = crud.create_project(DB, user, Project(project_id="my-project"))
     user2 = crud.create_user(DB, user=2)
-    assert len(User.query.all()) == 2
-    assert len(Project.query.all()) == 1
-    assert len(Collaboration.query.all()) == 0
+    assert crud.count_users() == 2
+    assert crud.count_projects() == 1
+    assert crud.count_collaborations() == 0
     # invite
     project.collaborators.append(user2)
     DB.session.commit()
-    assert len(Collaboration.query.all()) == 1
+    assert crud.count_collaborations() == 1
     # start with a fresh object
-    project = Project.query.one()
+    project = crud.last_project()
     assert user2 in project.collaborators

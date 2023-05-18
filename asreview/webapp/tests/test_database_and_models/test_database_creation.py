@@ -14,7 +14,7 @@ def get_db_path():
     return Path(asreview_path() / "asreview.test.sqlite")
 
 
-@pytest.fixture()
+@pytest.fixture
 def cleanup_asreview_path():
     shutil.rmtree(ASREVIEW_PATH)
 
