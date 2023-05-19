@@ -30,7 +30,7 @@ def asreview_login_required(func):
             pass
         else:
             if not (bool(current_user) and current_user.is_authenticated):
-                return jsonify({"message": "login required"}), 401
+                return jsonify({"message": "Login required."}), 401
 
         return func(*args, **kwargs)
 

@@ -1,11 +1,12 @@
 import asreview.webapp.tests.utils.crud as crud
 from asreview.webapp import DB
 from asreview.webapp.tests.utils.api_utils import signin_user
+from asreview.webapp.tests.utils.api_utils import signout_user
 from asreview.webapp.tests.utils.api_utils import signup_user
 from asreview.webapp.tests.utils.config_parser import get_user
 
 # ###################
-# USER CREATION
+# SIGNUP
 # ###################
 
 
@@ -147,3 +148,34 @@ def test_unsuccessful_signin_wrong_email(client_auth):
     data = response.json
     assert response.status_code == 404
     assert data["message"] == f"User account {user.identifier} does not exist."
+
+
+# ###################
+# SIGNOUT
+# ###################
+
+# User must be logged in, in order to signout,
+# we expect an error if we sign out if not signed in
+def test_must_be_signed_in_to_signout(client_auth):
+    response = signout_user(client_auth)
+    # asserts
+    data = response.json
+    assert response.status_code == 401
+    assert data["message"] == "Login required."
+
+
+# Signing out must return a 200 status and an appropriate message
+def test_signout(client_auth):
+    # create user
+    user = get_user(1)
+    # create user with signup
+    response = signup_user(client_auth, user)
+    # signin
+    signin_user(client_auth, user)
+    # signout
+    response = signout_user(client_auth)
+    # expect a 200
+    data = response.json
+    assert response.status_code == 200
+    assert data["message"] == \
+        f"User with identifier {user.identifier} has been signed out."

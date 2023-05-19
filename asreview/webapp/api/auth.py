@@ -424,9 +424,9 @@ def signout():
     if current_user:
         identifier = current_user.identifier
         logout_user()
-        result = (200, f"User with identifier {identifier} has been signed out")
+        result = (200, f"User with identifier {identifier} has been signed out.")
     else:
-        result = (404, "No user found, no one can be signed out")
+        result = (404, "No user found, no one can be signed out.")
 
     status, message = result
     response = jsonify({"message": message})

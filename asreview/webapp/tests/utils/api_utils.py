@@ -22,3 +22,8 @@ def signup_user(client, user):
         },
     )
     return response
+
+def signout_user(client):
+    """Sign out user"""
+    response = client.delete("/auth/signout")
+    return response
