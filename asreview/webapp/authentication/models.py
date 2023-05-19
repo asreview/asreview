@@ -119,7 +119,7 @@ class User(UserMixin, DB.Model):
         self.email = email
         self.name = name
         self.affiliation = affiliation
-        if self.origin == "asreview":
+        if self.origin == "asreview" and password is not None:
             self.hashed_password = User.create_password_hash(password)
         self.public = public
 

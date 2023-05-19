@@ -257,7 +257,7 @@ def confirm_account():
         ).one_or_none()
 
         if not user:
-            result = (404, "No user account / correct token found")
+            result = (404, "No user account / correct token found.")
         elif not user.token_valid(token, max_hours=24):
             message = (
                 "Can not confirm account, token has expired. "
@@ -268,12 +268,15 @@ def confirm_account():
             user = user.confirm_user()
             try:
                 DB.session.commit()
-                result = (200, "Updated user")
+                result = (200, f"User {user.identifier} confirmed.")
             except SQLAlchemyError as e:
                 DB.session.rollback()
-                result = (403, f"Unable to to confirm user! Reason: {str(e)}")
+                result = (
+                    403, 
+                    f"Unable to to confirm user {user.identifier}! Reason: {str(e)}"
+                )
     else:
-        result = (400, "The app is not configured to verify accounts")
+        result = (400, "The app is not configured to verify accounts.")
 
     status, message = result
     response = jsonify({"message": message})
@@ -283,11 +286,12 @@ def confirm_account():
 @bp.route("/get_profile", methods=["GET"])
 @asreview_login_required
 def get_profile():
-    user = User.query.get(current_user.id)
+    user = User.query.filter(User.id == current_user.id).one_or_none()
     if user:
         result = (
             200,
             {
+                "identifier": user.identifier,
                 "email": user.email,
                 "origin": user.origin,
                 "name": user.name,
@@ -296,7 +300,7 @@ def get_profile():
             },
         )
     else:
-        result = (404, "No user found")
+        result = (404, "No user found.")
 
     status, message = result
     response = jsonify({"message": message})
@@ -305,7 +309,7 @@ def get_profile():
 
 @bp.route("/forgot_password", methods=["POST"])
 def forgot_password():
-    if current_app.config.get("EMAIL_VERIFICATION", False):
+    if current_app.config.get("EMAIL_CONFIG", False):
         # get email address from request
         email_address = request.form.get("email", "").strip()
 
@@ -317,7 +321,7 @@ def forgot_password():
         if not user:
             result = (404, f'User with email "{email_address}" not found.')
         elif user.origin != "asreview":
-            result = (404, f"Your account has been created with {user.origin}")
+            result = (404, f"Your account has been created with {user.origin}.")
         else:
             # set a token
             user = user.set_token_data(
@@ -335,6 +339,8 @@ def forgot_password():
             except SQLAlchemyError as e:
                 DB.session.rollback()
                 result = (403, f"Unable to to confirm user! Reason: {str(e)}")
+    else:
+        result = (404, "Forgot-password feature is not used in this app.")
 
     status, message = result
     response = jsonify({"message": message})
@@ -345,7 +351,7 @@ def forgot_password():
 @asreview_login_required
 def update_profile():
     """Update user profile"""
-    user = User.query.get(current_user.id)
+    user = User.query.filter(User.id == current_user.id).one_or_none()
     if user:
         email = request.form.get("email", "").strip()
         name = request.form.get("name", "").strip()
@@ -356,7 +362,7 @@ def update_profile():
         try:
             user = user.update_profile(email, name, affiliation, password, public)
             DB.session.commit()
-            result = (200, "User profile updated")
+            result = (200, "User profile updated.")
         except IntegrityError as e:
             DB.session.rollback()
             result = (500, f"Unable to update your profile! Reason: {str(e)}")

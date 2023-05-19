@@ -21,11 +21,20 @@ def create_user(DB, user=1):
 def get_user_by_id(id):
     return User.query.filter_by(id=id).one()
 
+def get_user_by_identifier(id):
+    return User.query.filter_by(identifier=id).one()
+
 def list_users():
     return User.query.all()
 
 def count_users():
     return len(User.query.with_entities(User.id).all())
+
+def update_user(DB, user, attribute, value):
+    user = get_user_by_identifier(user.identifier)
+    setattr(user, attribute, value)
+    DB.session.commit()
+    return user
 
 def last_user():
     return User.query.order_by(User.id.desc()).first()
