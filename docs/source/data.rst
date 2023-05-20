@@ -18,15 +18,15 @@ a reference manager. See :ref:`data:Compatibility` for reference managers
 export formats supported by ASReview. For more information about the format of
 the dataset, see :doc:`data_format`.
 
-High quality data
+High-quality data
 -----------------
 
-The algorithms of ASReview LAB works best with high quality datasets. A high
-quality dataset is a dataset with duplicate records removed and the data is
-complete. Complete data implies that titles and abstracts are available for 
+The algorithms of ASReview LAB work best with high-quality datasets. A
+high-quality dataset is a dataset with duplicate records removed, and the data
+is complete. Complete data implies that titles and abstracts are available for
 all (or most) records. See the ASReview blog `Importance of Abstracts
 <https://asreview.ai/blog/the-importance-of-abstracts/>`_ for more ideas on
-composing a high quality dataset.
+composing a high-quality dataset.
 
 Compatibility
 -------------
