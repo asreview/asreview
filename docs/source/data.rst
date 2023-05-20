@@ -21,11 +21,12 @@ the dataset, see :doc:`data_format`.
 High quality data
 -----------------
 
-When you import your dataset, remove duplicates and retrieve the text in as
-many empty fields as possible (`See Importance-of-abstracts blog for help
-<https://asreview.ai/blog/the-importance-of-abstracts/>`_). With clean data,
-you benefit most from what active learning has to offer.
-
+The algorithms of ASReview LAB works best with high quality datasets. A high
+quality dataset is a dataset with duplicate records removed and the data is
+complete. Complete data implies that titles and abstracts are available for 
+all (or most) records. See the ASReview blog `Importance of Abstracts
+<https://asreview.ai/blog/the-importance-of-abstracts/>`_ for more ideas on
+composing a high quality dataset.
 
 Compatibility
 -------------
