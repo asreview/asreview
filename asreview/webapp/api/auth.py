@@ -347,6 +347,45 @@ def forgot_password():
     return response, status
 
 
+@bp.route("/reset_password", methods=["POST"])
+def reset_password():
+    """Resests password of user"""
+    if current_app.config.get("EMAIL_CONFIG", False):
+
+        new_password = request.form.get("password", "").strip()
+        token = request.form.get("token", "").strip()
+        user_id = request.form.get("user_id", "0").strip()
+        user = User.query.filter(User.id == user_id).one_or_none()
+        
+        if not user:
+            result = (
+                404,
+                "User not found, try restarting the forgot-password procedure."
+            )
+        elif not user.token_valid(token, max_hours=24):
+            result = (
+                404,
+                "Token is invalid or too old, restart the forgot-password procedure."
+            )
+        else:
+            try:
+                user = user.reset_password(new_password)
+                DB.session.commit()
+                result = (200, "Password updated.")
+            except ValueError as e:
+                DB.session.rollback()
+                result = (500, f"Unable to reset your password! Reason: {str(e)}")
+            except SQLAlchemyError as e:
+                DB.session.rollback()
+                result = (500, f"Unable to reset your password! Reason: {str(e)}")
+    else:
+        result = (404, "Reset-password feature is not used in this app.")
+
+    status, message = result
+    response = jsonify({"message": message})
+    return response, status
+
+
 @bp.route("/update_profile", methods=["POST"])
 @asreview_login_required
 def update_profile():
@@ -363,6 +402,8 @@ def update_profile():
             user = user.update_profile(email, name, affiliation, password, public)
             DB.session.commit()
             result = (200, "User profile updated.")
+        except ValueError as e:
+            result = (500, f"Unable to update your profile! Reason: {str(e)}")
         except IntegrityError as e:
             DB.session.rollback()
             result = (500, f"Unable to update your profile! Reason: {str(e)}")
@@ -372,35 +413,6 @@ def update_profile():
 
     else:
         result = (404, "No user found")
-
-    status, message = result
-    response = jsonify({"message": message})
-    return response, status
-
-
-@bp.route("/reset_password", methods=["POST"])
-def reset_password():
-    """Resests password of user"""
-    new_password = request.form.get("password", "").strip()
-    token = request.form.get("token", "").strip()
-    user_id = request.form.get("user_id", "0").strip()
-
-    user = DB.session.get(User, user_id)
-    if not user:
-        result = (404, "User not found, try restarting the forgot-password procedure.")
-    elif not user.token_valid(token, max_hours=24):
-        result = (404, "Token is invalid, restart the forgot-password procedure.")
-    else:
-        try:
-            user = user.reset_password(new_password)
-            DB.session.commit()
-            result = (200, "Password updated")
-        except IntegrityError as e:
-            DB.session.rollback()
-            result = (500, f"Unable to reset your password! Reason: {str(e)}")
-        except SQLAlchemyError as e:
-            DB.session.rollback()
-            result = (500, f"Unable to reset your password! Reason: {str(e)}")
 
     status, message = result
     response = jsonify({"message": message})

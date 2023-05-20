@@ -2,15 +2,19 @@ import asreview.webapp.tests.utils.crud as crud
 from asreview.webapp.tests.utils.config_parser import get_user
 
 
+def process_response(response):
+    return (response.status_code, response.json)
+
 def signin_user(client, user):
     """Signs in a user through the api"""
-    return client.post(
+    response = client.post(
         "/auth/signin", 
         data={
             "email": user.identifier,
             "password": user.password
         }
     )
+    return process_response(response)
 
 
 def signup_user(client, user):
@@ -26,13 +30,13 @@ def signup_user(client, user):
             "origin": "asreview",
         },
     )
-    return response
+    return process_response(response)
 
 
 def signout_user(client):
     """Sign out user"""
     response = client.delete("/auth/signout")
-    return response
+    return process_response(response)
 
 
 def confirm_user(client, user):
@@ -43,7 +47,7 @@ def confirm_user(client, user):
             "token": user.token
         }
     )
-    return response
+    return process_response(response)
 
 
 def forgot_password(client, user):
@@ -53,7 +57,19 @@ def forgot_password(client, user):
             "email": user.email
         }
     )
-    return response
+    return process_response(response)
+
+
+def reset_password(client, user):
+    response = client.post(
+        "/auth/reset_password",
+        data = {
+            "password": user.password,
+            "token": user.token,
+            "user_id": user.id
+        }
+    )
+    return process_response(response)
 
 
 def update_user(client, data):
@@ -61,7 +77,17 @@ def update_user(client, data):
         "/auth/update_profile",
         data = data
     )
-    return response
+    return process_response(response)
+
+
+def refresh(client):
+    response = client.get("/auth/refresh")
+    return process_response(response)
+
+
+def get_profile(client):
+    response = client.get("/auth/get_profile")
+    return process_response(response)
 
 
 def create_and_signin_user(client):
@@ -75,6 +101,3 @@ def create_and_signin_user(client):
     # return the user
     return stored_user
 
-
-def get_profile(client):
-    return client.get("/auth/get_profile")
