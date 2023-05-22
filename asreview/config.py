@@ -17,7 +17,6 @@ Configuration variables for ASReview.
 """
 
 __all__ = [
-    "ASCII_LOGO",
     "COLUMN_DEFINITIONS",
     "DEFAULT_BALANCE_STRATEGY",
     "DEFAULT_FEATURE_EXTRACTION",
@@ -26,8 +25,6 @@ __all__ = [
     "DEFAULT_N_PRIOR_EXCLUDED",
     "DEFAULT_N_PRIOR_INCLUDED",
     "DEFAULT_QUERY_STRATEGY",
-    "EMAIL_ADDRESS",
-    "GITHUB_PAGE",
     "KERAS_MODELS",
     "LABEL_NA",
     "LEGACY_STATE_EXTENSIONS",
