@@ -18,7 +18,6 @@ import shutil
 from pathlib import Path
 
 from asreview.compat import convert_id_to_idx
-from asreview.config import ASCII_LOGO
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_MODEL
@@ -26,8 +25,6 @@ from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
-from asreview.config import EMAIL_ADDRESS
-from asreview.config import GITHUB_PAGE
 from asreview.data import ASReviewData
 from asreview.data import load_data
 from asreview.entry_points.base import BaseEntryPoint
@@ -43,22 +40,6 @@ from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
 from asreview.types import type_n_queries
 from asreview.utils import get_random_state
-
-ASCII_MSG_SIMULATE = """
----------------------------------------------------------------------------------
-|                                                                                |
-|  Welcome to ASReview LAB - AI-assisted systematic reviews software.            |
-|  In simulation mode the computer will simulate how well ASReview LAB           |
-|  could have accelerate the systematic review of your dataset.                  |
-|  You can sit back and relax while the computer runs this simulation.           |
-|                                                                                |
-|  GitHub page:        {0: <58}|
-|  Questions/remarks:  {1: <58}|
-|                                                                                |
----------------------------------------------------------------------------------
-""".format(
-    GITHUB_PAGE, EMAIL_ADDRESS
-)  # noqa
 
 
 def _get_dataset_path_from_args(args_dataset):
@@ -104,9 +85,6 @@ class SimulateEntryPoint(BaseEntryPoint):
         # check for state file extension
         if args.state_file is None:
             raise ValueError("Specify project file name (with .asreview extension).")
-
-        # print intro message
-        print(ASCII_LOGO + ASCII_MSG_SIMULATE)
 
         # for webapp
         if args.dataset == "":
