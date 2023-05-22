@@ -112,9 +112,6 @@ def last_invitation():
 def count_invitations():
     return len(CollaborationInvitation.query.with_entities(CollaborationInvitation.id).all())
 
-
-
-
 def create_collaboration(DB, project, user):
     try:
         coll = Collaboration(
@@ -136,8 +133,6 @@ def last_collaboration():
 
 def count_collaborations():
     return len(Collaboration.query.with_entities(Collaboration.id).all())
-
-
 
 
 def create_user1_with_2_projects(DB):

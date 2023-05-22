@@ -1,14 +1,21 @@
 import asreview.webapp.tests.utils.crud as crud
+from asreview.webapp.tests.utils.config_parser import all_users
 from asreview.webapp.tests.utils.config_parser import get_user
 
 
 def process_response(response):
     return (response.status_code, response.json)
 
+
 def signin_user(client, user):
     """Signs in a user through the api"""
+    # If a password is not set, we need to get it
+    if not hasattr(user, 'password'):
+        users = all_users()
+        user.password = users[user.identifier].password
+    # request
     response = client.post(
-        "/auth/signin", 
+        "/auth/signin",
         data={
             "email": user.identifier,
             "password": user.password
@@ -90,9 +97,76 @@ def get_profile(client):
     return process_response(response)
 
 
-def create_and_signin_user(client):
+def create_project(
+    client,
+    project_name,
+    mode="explore",
+    authors="authors",
+    description="description"):
+        
+    response = client.post(
+        "/api/projects/info",
+        data={
+            "mode": mode,
+            "name": project_name,
+            "authors": authors,
+            "description": description,
+        },
+    )
+    return process_response(response)
+    
+
+def invite(client, project, user):
+    url = f"/api/invitations/projects/{project.project_id}/users/{user.id}"
+    response = client.post(url)
+    return process_response(response)
+
+
+def list_invitations(client):
+    response = client.get("/api/invitations")
+    return process_response(response)
+
+
+def list_collaborators(client, project):
+    response = client.get(f"/api/projects/{project.project_id}/users")
+    return process_response(response)
+
+
+def accept_invitation(client, project):
+    response = client.post(
+        f"/api/invitations/projects/{project.project_id}/accept",
+        data={}
+    )
+    return process_response(response)
+
+
+def reject_invitation(client, project):
+    response = client.delete(
+        f"/api/invitations/projects/{project.project_id}/reject",
+        data={}
+    )
+    return process_response(response)
+
+
+def delete_invitation(client, project, user):
+    response = client.delete(
+        f"/api/invitations/projects/{project.project_id}/users/{user.id}",
+        data={}
+    )
+    return process_response(response)
+
+
+def delete_collaboration(client, project, user):
+    response = client.delete(
+        f"/api/projects/{project.project_id}/users/{user.id}",
+        data={}
+    )
+    return process_response(response)
+
+
+def create_and_signin_user(client, test_user_id=1):
     # signup user
-    user = get_user(1)
+    user = get_user(test_user_id)
     response = signup_user(client, user)
     # refresh user
     stored_user = crud.get_user_by_identifier(user.identifier)
@@ -100,4 +174,3 @@ def create_and_signin_user(client):
     signin_user(client, user)
     # return the user
     return stored_user
-

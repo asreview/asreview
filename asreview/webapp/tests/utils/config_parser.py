@@ -13,9 +13,16 @@ CONFIG_FILE = BASE_DIR.joinpath(config_dir).joinpath(config_file)
 
 config.read(CONFIG_FILE)
 
+
+# get all users
+def all_users():
+    users = [get_user(id) for id in [1, 2, 3]]
+    return {u.identifier: u for u in users}
+
+
 # get user (1 of 3)
-def get_user(id):
-    section = config[f"user{id}"]
+def get_user(test_user_id):
+    section = config[f"user{test_user_id}"]
     # create user
     user = User(
         section["email"],
