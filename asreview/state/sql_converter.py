@@ -123,9 +123,9 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
         Path(fp, "reviews", review_id).mkdir(parents=True)
         sql_fp = str(Path(fp, "reviews", review_id, "results.sql"))
         settings_metadata_fp = Path(fp, "reviews", review_id, "settings_metadata.json")
-
+        print("1")
         # Create the path for the feature matrix.
-
+        print(sql_fp, json_fp, labeled_json_fp)
         # Create sqlite table with the results of the review.
         convert_json_results_to_sql(sql_fp, json_fp, labeled_json_fp)
 
@@ -151,7 +151,7 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
         feature_matrix_fp = convert_json_feature_matrix(
             fp, json_fp, feature_extraction_method
         )
-
+        print("3")
         # --- Upgrade the project.json file.
 
         # extract the start time from the state json
@@ -170,7 +170,7 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
             Path(feature_matrix_fp).name,
             feature_extraction_method,
         )
-
+        print("4")
         # dump the project json
         with open(Path(fp, "project.json"), "w") as f:
             json.dump(project_config_new, f)

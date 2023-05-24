@@ -164,6 +164,35 @@ def delete_collaboration(client, project, user):
     return process_response(response)
 
 
+def get_all_projects(client):
+    response = client.get("/api/projects")
+    return process_response(response)
+
+
+def create_project(
+    client,
+    project_name,
+    mode="explore",
+    authors="authors",
+    description="description"):
+        
+    response = client.post(
+        "/api/projects/info",
+        data={
+            "mode": mode,
+            "name": project_name,
+            "authors": authors,
+            "description": description,
+        },
+    )
+    return process_response(response)
+
+
+def upgrade_project(client, project):
+    response = client.get(f"/api/projects/{project.project_id}/upgrade_if_old")
+    return process_response(response)
+
+
 def create_and_signin_user(client, test_user_id=1):
     # signup user
     user = get_user(test_user_id)
