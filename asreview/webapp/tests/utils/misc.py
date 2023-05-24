@@ -27,12 +27,12 @@ def manipulate_project_file(project, key, value):
     return False
 
 
-def downgrade_project_file(project):
-    id = project.project_id
-    # manipulate version in project file
-    manipulate_project_file(project, "version", "0.1")
-    # remove reviews folder
-    if Path(asreview_path() / id / "reviews").exists():
-        shutil.rmtree(asreview_path() / id / "reviews")
-        return True
-    return False
+def subs_for_legacy_project_folder(project):
+    shutil.rmtree(asreview_path() / project.project_id)
+    # I need an old project folder, and I got it in the data dir
+    src = Path(
+        Path(__file__).parent.parent.resolve(),
+        "data/asreview-project-v0-19-startreview"
+    )
+    dst = asreview_path() / project.project_id
+    shutil.copytree(src, dst)

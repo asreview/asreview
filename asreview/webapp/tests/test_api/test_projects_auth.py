@@ -18,7 +18,6 @@ from asreview.webapp.tests.utils.config_parser import get_user
 # Test getting all projects
 def test_get_projects(setup):
     client, user1, _, _, project = setup
-
     status_code, data = au.get_all_projects(client)
     assert status_code == 200
     assert len(data["result"]) == 1
@@ -40,7 +39,6 @@ def test_create_projects(setup):
 # Test upgrading a post v0.x project
 def test_try_upgrade_a_modern_project(setup):
     client, _, _, _, project = setup
-
     # verify version
     data = misc.read_project_file(project)
     assert not data["version"].startswith("0.")
@@ -53,17 +51,54 @@ def test_try_upgrade_a_modern_project(setup):
 # Test upgrading a v0.x project
 def test_upgrade_an_old_project(setup):
     client, _, _, _, project = setup
-    # remove the current project folder
-    shutil.rmtree(asreview_path() / project.project_id)
-    # I need an old project folder, and I got it in the data dir
-    src = Path(__file__).parent.parent.resolve() / "data/v0.9-project-folder"
-    dst = asreview_path() / project.project_id
-    shutil.copytree(src, dst)
-
-    
-
+    # substitute the current project folder for an old type of folder
+    misc.subs_for_legacy_project_folder(project)
+    # try to convert
     status_code, data = au.upgrade_project(client, project)
     assert status_code == 200
-    assert "There already is a 'reviews' folder" in data["message"]
+    assert data["success"]
+
+
+# Test get stats !!!!!!! This test needs more states (finish project, do a review)
+def test_get_projects_stats(setup):
+    client, _, _, _, _ = setup
+    status_code, data = au.get_project_stats(client)
+    assert status_code == 200
+    assert isinstance(data["result"], dict)
+    assert data["result"]["n_in_review"] == 0
+    assert data["result"]["n_finished"] == 0
+    assert data["result"]["n_setup"] == 1
+
+
+# Test known demo data
+@pytest.mark.parametrize("subset", ["plugin", "benchmark"])
+def test_demo_data_project(setup, subset):
+    client, _, _, _, _ = setup
+    status_code, data = au.get_demo_data(client, subset)
+    assert status_code == 200
+    assert isinstance(data["result"], list)
+
+
+# Test unknown demo data
+def test_unknown_demo_data_project(setup):
+    client, _, _, _, _ = setup
+    status_code, data = au.get_demo_data(client, "abcdefg")
+    assert status_code == 400
+    assert data["message"] == "demo-data-loading-failed"
+
+
+# Test uploading data to a project
+def test_upload_data_to_project(setup):
+    client, _, _, _, project = setup
+    status_code, data = au.upload_data_to_project(
+        client,
+        project,
+        data={"benchmark": "benchmark:Hall_2012"}
+    )
+    assert status_code == 200
+    assert data["success"]
+
+
+
 
 

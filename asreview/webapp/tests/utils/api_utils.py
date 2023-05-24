@@ -193,6 +193,23 @@ def upgrade_project(client, project):
     return process_response(response)
 
 
+def get_project_stats(client):
+    response = client.get("/api/projects/stats")
+    return process_response(response)
+
+
+def get_demo_data(client, subset):
+    response = client.get(f"/api/datasets?subset={subset}")
+    return process_response(response)
+
+def upload_data_to_project(client, project, data):
+    response =  client.post(
+        f"/api/projects/{project.project_id}/data",
+        data=data,
+    )
+    return process_response(response)
+
+
 def create_and_signin_user(client, test_user_id=1):
     # signup user
     user = get_user(test_user_id)
