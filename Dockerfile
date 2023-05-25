@@ -14,12 +14,13 @@ RUN apt-get update \
 
 # Second stage
 FROM python:3.8-slim
+WORKDIR /app
 
 COPY --from=builder /root/.local /root/.local
 
 ENV ASREVIEW_HOST=0.0.0.0
 ENV PATH=/root/.local/bin:$PATH
-ENV ASREVIEW_PATH=project_folder
+ENV ASREVIEW_PATH=/app/project_folder
 EXPOSE 5000
 
 ENTRYPOINT ["asreview"]
