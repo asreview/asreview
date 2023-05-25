@@ -18,6 +18,7 @@ from pathlib import Path
 
 import pytest
 
+from asreview.entry_points.auth_tool import insert_project
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import Project
@@ -26,7 +27,6 @@ from asreview.webapp.start_flask import create_app
 from asreview.webapp.tests.conftest import signin_user
 from asreview.webapp.tests.conftest import signout
 from asreview.webapp.tests.conftest import signup_user
-from scripts.auth_conversion import main as make_links
 
 try:
     from .temp_env_var import TMP_ENV_VARS
@@ -189,11 +189,12 @@ class TestConvertToAuthentication:
         ]
 
         # execute converter with this mapping
-        make_links(DB.engine.raw_connection(), mapping)
+        for project in mapping:
+            insert_project(DB.session, project)
 
         # check if projects are linked to the correct user
         for link in mapping:
-            user = DB.session.get(User, link["user_id"])
+            user = DB.session.get(User, link["owner_id"])
             project_id = link["project_id"]
 
             # check project in database and if it's linked to the user

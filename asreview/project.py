@@ -37,10 +37,10 @@ from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.config import PROJECT_MODES
 from asreview.config import SCHEMA
+from asreview.data import ASReviewData
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
 from asreview.utils import asreview_path
-from asreview.webapp.io import read_data
 
 PATH_PROJECT_CONFIG = "project.json"
 PATH_PROJECT_CONFIG_LOCK = "project.json.lock"
@@ -81,6 +81,8 @@ def project_from_id(f):
     @wraps(f)
     def decorated_function(project_id, *args, **kwargs):
         project_path = get_project_path(project_id)
+        if not is_project(project_path):
+            raise ProjectNotFoundError(f"Project '{project_id}' not found")
         project = ASReviewProject(project_path, project_id=project_id)
         return f(project, *args, **kwargs)
 
@@ -314,7 +316,8 @@ class ASReviewProject:
         self.update_config(dataset_path=file_name)
 
         # fill the pool of the first iteration
-        as_data = read_data(self)
+        fp_data = Path(self.project_path, "data", self.config["dataset_path"])
+        as_data = ASReviewData.from_file(fp_data)
 
         with open_state(self.project_path, read_only=False) as state:
             # save the record ids in the state file
