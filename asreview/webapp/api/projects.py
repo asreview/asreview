@@ -239,7 +239,7 @@ def api_init_project():  # noqa: F401
         project_path,
         project_id=project_id,
         project_mode=project_mode,
-        project_title=project_title,
+        project_name=project_title,
         project_description=project_description,
         project_authors=project_authors,
     )

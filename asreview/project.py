@@ -199,7 +199,7 @@ class ASReviewProject:
         project_path,
         project_id=None,
         project_mode="oracle",
-        project_title=None,
+        project_name=None,
         project_description=None,
         project_authors=None,
     ):
@@ -218,8 +218,8 @@ class ASReviewProject:
         if project_id is None:
             project_id = project_path.stem
 
-        if project_title is None:
-            project_title = project_path.stem
+        if project_name is None:
+            project_name = project_path.stem
 
         if project_path.is_dir():
             raise IsADirectoryError(f"Project folder {project_path} already exists.")
@@ -234,7 +234,7 @@ class ASReviewProject:
                 "version": get_versions()["version"],
                 "id": project_id,
                 "mode": project_mode,
-                "name": project_title,
+                "name": project_name,
                 "description": project_description,
                 "authors": project_authors,
                 "created_at_unix": int(time.time()),
