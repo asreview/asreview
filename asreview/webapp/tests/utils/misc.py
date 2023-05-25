@@ -54,7 +54,6 @@ def choose_project_algorithms():
     feature_extraction = random.choice(
         ["tfidf"]
     )
-
     data = {
         "model": model,
         "feature_extraction": feature_extraction,
@@ -65,35 +64,4 @@ def choose_project_algorithms():
             ["double", "simple", "undersample"]
         ),
     }
-    print(data)
     return data
-
-
-# {'balance_strategy': [
-#     {'label': 'Dynamic resampling (Double)', 'name': 'double'},
-#     {'label': 'Simple (no balancing)', 'name': 'simple'},
-#     {'label': 'Undersampling', 'name': 'undersample'}
-# ],
-# 'classifier': [
-#     {'label': 'Logistic regression', 'name': 'logistic'},
-#     {'label': 'LSTM classic', 'name': 'lstm-base'},
-#     {'label': 'LSTM with a max pooling layer', 'name': 'lstm-pool'},
-#     {'label': 'Naive Bayes', 'name': 'nb'},
-#     {'label': 'Fully connected neural network (2 hidden layers)', 'name': 'nn-2-layer'},
-#     {'label': 'Random forest', 'name': 'rf'}, {'label': 'Support vector machine', 'name': 'svm'}
-# ],
-# 'feature_extraction': [
-#     {'label': 'Doc2Vec', 'name': 'doc2vec'},
-#     {'label': 'Embedding IDF', 'name': 'embedding-idf'},
-#     {'label': 'Embedding LSTM', 'name': 'embedding-lstm'},
-#     {'label': 'Sentence BERT', 'name': 'sbert'},
-#     {'label': 'TF-IDF', 'name': 'tfidf'}
-# ],
-# 'query_strategy': [
-#     {'label': 'Clustering', 'name': 'cluster'},
-#     {'label': 'Maximum', 'name': 'max'},
-#     {'label': 'Mixed (95% Maximum and 5% Random)', 'name': 'max_random'},
-#     {'label': 'Mixed (95% Maximum and 5% Uncertainty)', 'name': 'max_uncertainty'},
-#     {'label': 'Random', 'name': 'random'},
-#     {'label': 'Uncertainty', 'name': 'uncertainty'}
-# ]}

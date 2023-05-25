@@ -1,6 +1,8 @@
 import random
+import time
 
 import asreview.webapp.tests.utils.crud as crud
+import asreview.webapp.tests.utils.misc as misc
 from asreview.webapp.tests.utils.config_parser import all_users
 from asreview.webapp.tests.utils.config_parser import get_user
 
@@ -308,6 +310,39 @@ def start_project_algorithms(client, project):
     return process_response(response)
 
 
+def get_project_status(client, project):
+    response = client.get(f"/api/projects/{project.project_id}/status")
+    return process_response(response)
+
+
+def set_project_status(client, project, status):
+    response = client.put(
+        f"/api/projects/{project.project_id}/status",
+        data = {"status": status}
+    )
+    return process_response(response)
+
+
+def export_project_dataset(client, project, format):
+    id = project.project_id
+    response = client.get(
+        f"/api/projects/{id}/export_dataset?file_format={format}"
+    )
+    return process_response(response)
+
+
+def export_project(client, project):
+    response = client.get(
+        f"/api/projects/{project.project_id}/export_project"
+    )
+    return process_response(response)
+
+
+def get_project_progress(client, project):
+    response = client.get(f"/api/projects/{project.project_id}/progress")
+    return process_response(response)
+
+
 def create_and_signin_user(client, test_user_id=1):
     # signup user
     user = get_user(test_user_id)
@@ -318,4 +353,19 @@ def create_and_signin_user(client, test_user_id=1):
     signin_user(client, user)
     # return the user
     return stored_user
+
+
+def upload_label_set_and_start_model(client, project, dataset):
+    # upload dataset
+    upload_data_to_project(client, project, data=dataset)
+    # label 2 random records
+    label_random_project_data_record(client, project, 1)
+    label_random_project_data_record(client, project, 0)
+    # select a model
+    model_data = misc.choose_project_algorithms()
+    set_project_algorithms(client, project, data=model_data)
+    # start the model
+    start_project_algorithms(client, project)
+    # make sure model is done
+    time.sleep(10)
 

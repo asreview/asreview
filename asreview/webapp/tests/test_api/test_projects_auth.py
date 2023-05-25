@@ -27,7 +27,9 @@ UPLOAD_DATA = [
 # an Exception, I think an API should do that. For instance: the webapp
 # ensures that we choose the correct feature extraction based on the
 # model or vice versa, but if you go in without our web-app with the
-# wrong combination you just get an Exception.
+# wrong combination you just get an Exception. Or setting the project
+# status from review to review (also throws an exception, but the front-end
+# will never be notified of that ??)
 
 # Test getting all projects
 def test_get_projects(setup):
@@ -86,12 +88,33 @@ def test_get_projects_stats_setup_stage(setup):
 
 # Test get stats in review state
 def test_get_projects_stats_review_stage(setup):
-    assert False
+    client, _, _, _, project = setup
+    # start the show
+    au.upload_label_set_and_start_model(client, project, UPLOAD_DATA[0])
+    # get stats
+    status_code, data = au.get_project_stats(client)
+    assert status_code == 200
+    assert isinstance(data["result"], dict)
+    assert data["result"]["n_in_review"] == 1
+    assert data["result"]["n_finished"] == 0
+    assert data["result"]["n_setup"] == 0
 
 
 # Test get stats in finished state
 def test_get_projects_stats_finished_stage(setup):
-    assert False
+    client, _, _, _, project = setup
+    # start the show
+    au.upload_label_set_and_start_model(client, project, UPLOAD_DATA[0])
+    # manually finish the project
+    au.set_project_status(client, project, "finished")
+    # get stats
+    status_code, data = au.get_project_stats(client)
+    assert status_code == 200
+    assert isinstance(data["result"], dict)
+    assert data["result"]["n_in_review"] == 0
+    assert data["result"]["n_finished"] == 1
+    assert data["result"]["n_setup"] == 0
+
 
 
 # Test known demo data
@@ -320,10 +343,105 @@ def test_start_and_model_ready(setup):
     time.sleep(10)
 
 
+# Test status of project
+@pytest.mark.parametrize(
+    "state_data",
+    [
+        ("creation", None),
+        ("setup", "setup"),
+        ("review", "review"),
+        ("finish", "finished")
 
-    # response = client.get(f"/api/projects/{project.project_id}/status")
-    # json_data = response.get_json()
-    # assert json_data["status"] == "review"
+    ]
+)
+def test_status_project(setup, state_data):
+    client, _, _, _, project = setup
+    # unpack the state_data
+    state_name, expected_state = state_data
+    # call these progression steps
+    if state_name in ["setup", "review", "finish"]:
+        # upload dataset
+        au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
+        # label 2 records
+        au.label_random_project_data_record(client, project, 1)
+        au.label_random_project_data_record(client, project, 0)
+        # select a model
+        data = misc.choose_project_algorithms()
+        au.set_project_algorithms(client, project, data=data)
+    if state_name in ["review", "finish"]:
+        # start the model
+        au.start_project_algorithms(client, project)
+        time.sleep(10)
+    if state_name == "finish":
+        # mark project as finished
+        au.set_project_status(client, project, "finished")
+
+    status_code, data = au.get_project_status(client, project)
+    assert status_code == 200
+    assert data["status"] == expected_state
+
+
+# Test exporting the results
+@pytest.mark.parametrize("format", ["csv", "tsv", "xlsx"])
+def test_export_result(setup, format):
+    client, _, _, _, project = setup
+    # upload dataset
+    au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
+    au.label_random_project_data_record(client, project, 1)
+    au.label_random_project_data_record(client, project, 0)
+    # request
+    status_code, _ = au.export_project_dataset(client, project, format)
+    assert status_code == 200
+
+
+# Test exporting the entire project
+def test_export_project(setup):
+    client, _, _, _, project = setup
+    # upload dataset
+    au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
+    au.label_random_project_data_record(client, project, 1)
+    au.label_random_project_data_record(client, project, 0)
+    # request
+    status_code, _ = au.export_project(client, project)
+    assert status_code == 200
+
+
+# Test setting the project status
+@pytest.mark.parametrize("status", ["review", "finished"])
+def test_set_project_status(setup, status):
+    client, _, _, _, project = setup
+    # start the show
+    au.upload_label_set_and_start_model(client, project, UPLOAD_DATA[0])
+    # when setting the status to "review", the project must have another
+    # status then "review"
+    if status == "review":
+        au.set_project_status(client, project, "finished")
+    # set project status
+    status_code, data = au.set_project_status(client, project, status)
+    assert status_code == 200
+    assert data["success"]
+
+
+# Test get progress info
+def test_get_progress_info(setup):
+    client, _, _, _, project = setup
+    # upload dataset
+    au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
+    # label 2 random records
+    au.label_random_project_data_record(client, project, 1)
+    au.label_random_project_data_record(client, project, 0)
+    # get progress
+    status_code, data = au.get_project_progress(client, project)
+    assert status_code == 200
+    assert isinstance(data, dict)
+    assert data["n_excluded"] == 1
+    assert data["n_included"] == 1
+    assert data["n_pool"] == data["n_papers"] - 2
+
+
+
+
+
 
 
 
