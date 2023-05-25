@@ -1,4 +1,6 @@
 import json
+import random
+import re
 import shutil
 from pathlib import Path
 
@@ -36,3 +38,62 @@ def subs_for_legacy_project_folder(project):
     )
     dst = asreview_path() / project.project_id
     shutil.copytree(src, dst)
+
+
+def extract_filename_stem(upload_data):
+    # upload data is a dict with a single key value pair
+    value = list(upload_data.values())[0]
+    # split this value on either / or :
+    return Path(re.split(":|/", value)[-1]).stem
+
+
+def choose_project_algorithms():
+    model = random.choice(
+        ["svm", "nb", "logistic"]
+    )
+    feature_extraction = random.choice(
+        ["tfidf"]
+    )
+
+    data = {
+        "model": model,
+        "feature_extraction": feature_extraction,
+        "query_strategy": random.choice(
+            ["cluster", "max", "max_random", "max_uncertainty", "random", "uncertainty"]
+        ),
+        "balance_strategy": random.choice(
+            ["double", "simple", "undersample"]
+        ),
+    }
+    print(data)
+    return data
+
+
+# {'balance_strategy': [
+#     {'label': 'Dynamic resampling (Double)', 'name': 'double'},
+#     {'label': 'Simple (no balancing)', 'name': 'simple'},
+#     {'label': 'Undersampling', 'name': 'undersample'}
+# ],
+# 'classifier': [
+#     {'label': 'Logistic regression', 'name': 'logistic'},
+#     {'label': 'LSTM classic', 'name': 'lstm-base'},
+#     {'label': 'LSTM with a max pooling layer', 'name': 'lstm-pool'},
+#     {'label': 'Naive Bayes', 'name': 'nb'},
+#     {'label': 'Fully connected neural network (2 hidden layers)', 'name': 'nn-2-layer'},
+#     {'label': 'Random forest', 'name': 'rf'}, {'label': 'Support vector machine', 'name': 'svm'}
+# ],
+# 'feature_extraction': [
+#     {'label': 'Doc2Vec', 'name': 'doc2vec'},
+#     {'label': 'Embedding IDF', 'name': 'embedding-idf'},
+#     {'label': 'Embedding LSTM', 'name': 'embedding-lstm'},
+#     {'label': 'Sentence BERT', 'name': 'sbert'},
+#     {'label': 'TF-IDF', 'name': 'tfidf'}
+# ],
+# 'query_strategy': [
+#     {'label': 'Clustering', 'name': 'cluster'},
+#     {'label': 'Maximum', 'name': 'max'},
+#     {'label': 'Mixed (95% Maximum and 5% Random)', 'name': 'max_random'},
+#     {'label': 'Mixed (95% Maximum and 5% Uncertainty)', 'name': 'max_uncertainty'},
+#     {'label': 'Random', 'name': 'random'},
+#     {'label': 'Uncertainty', 'name': 'uncertainty'}
+# ]}

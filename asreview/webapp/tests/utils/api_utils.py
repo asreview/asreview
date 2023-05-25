@@ -1,3 +1,5 @@
+import random
+
 import asreview.webapp.tests.utils.crud as crud
 from asreview.webapp.tests.utils.config_parser import all_users
 from asreview.webapp.tests.utils.config_parser import get_user
@@ -188,6 +190,26 @@ def create_project(
     return process_response(response)
 
 
+def update_project(
+    client,
+    project,
+    name="name",
+    mode="explore",
+    authors="authors",
+    description="description"):
+        
+    response = client.put(
+        f"/api/projects/{project.project_id}/info",
+        data={
+            "mode": mode,
+            "name": name,
+            "authors": authors,
+            "description": description,
+        },
+    )
+    return process_response(response)
+
+
 def upgrade_project(client, project):
     response = client.get(f"/api/projects/{project.project_id}/upgrade_if_old")
     return process_response(response)
@@ -202,11 +224,87 @@ def get_demo_data(client, subset):
     response = client.get(f"/api/datasets?subset={subset}")
     return process_response(response)
 
+
 def upload_data_to_project(client, project, data):
     response =  client.post(
         f"/api/projects/{project.project_id}/data",
         data=data,
     )
+    return process_response(response)
+
+
+def get_project_data(client, project):
+    response = client.get(f"/api/projects/{project.project_id}/data")
+    return process_response(response)
+
+
+def get_project_dataset_writer(client, project):
+    response = client.get(
+        f"/api/projects/{project.project_id}/dataset_writer"
+    )
+    return process_response(response)
+
+
+def search_project_data(client, project, query):
+    response = client.get(
+        f"/api/projects/{project.project_id}/search?q={query}"
+    )
+    return process_response(response)
+
+
+def get_prior_random_project_data(client, project):
+    response = client.get(
+        f"/api/projects/{project.project_id}/prior_random"
+    )
+    return process_response(response)
+
+
+def label_random_project_data_record(client, project, label):
+    # get random data
+    _, data = get_prior_random_project_data(client, project)
+    # select a specific record
+    record = random.choice(data["result"])
+    response = client.post(
+        f"/api/projects/{project.project_id}/record/{record['id']}",
+        data={
+            "doc_id": record['id'],
+            "label": label,
+            "is_prior": 1
+        }
+    )
+    return process_response(response)
+
+
+def get_labeled_project_data(client, project):
+    response = client.get(f"/api/projects/{project.project_id}/labeled")
+    return process_response(response)
+
+
+def get_labeled_project_data_stats(client, project):
+    response = client.get(f"/api/projects/{project.project_id}/labeled_stats")
+    return process_response(response)
+
+
+def get_project_algorithms_options(client):
+    response = client.get("/api/algorithms")
+    return process_response(response)
+
+
+def set_project_algorithms(client, project, data):
+    response = client.post(
+        f"/api/projects/{project.project_id}/algorithms",
+        data=data
+    )
+    return process_response(response)
+
+
+def get_project_algorithms(client, project):
+    response = client.get(f"/api/projects/{project.project_id}/algorithms")
+    return process_response(response)
+
+
+def start_project_algorithms(client, project):
+    response = client.post(f"/api/projects/{project.project_id}/start")
     return process_response(response)
 
 
@@ -220,3 +318,4 @@ def create_and_signin_user(client, test_user_id=1):
     signin_user(client, user)
     # return the user
     return stored_user
+
