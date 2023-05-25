@@ -23,7 +23,7 @@ from scipy.sparse import csr_matrix
 from scipy.sparse import load_npz
 from scipy.sparse import save_npz
 
-from asreview.settings import ASReviewSettings
+from asreview.state.legacy.settings import ASReviewSettingsLegacy
 from asreview.state.legacy.base import BaseState
 
 
@@ -191,7 +191,7 @@ class DictState(BaseState):
         settings = self._state_dict.get("settings", None)
         if settings is None:
             return None
-        return ASReviewSettings(**settings)
+        return ASReviewSettingsLegacy(**settings)
 
     @settings.setter
     def settings(self, settings):

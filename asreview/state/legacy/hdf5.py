@@ -26,7 +26,7 @@ except ImportError:
 import numpy as np
 from scipy.sparse import csr_matrix
 
-from asreview.settings import ASReviewSettings
+from asreview.state.legacy.settings import ASReviewSettingsLegacy
 from asreview.state.legacy.base import BaseState
 
 
@@ -104,7 +104,7 @@ class HDF5StateLegacy(BaseState):
         if settings is None:
             return None
         settings_dict = json.loads(settings)
-        return ASReviewSettings(**settings_dict)
+        return ASReviewSettingsLegacy(**settings_dict)
 
     @settings.setter
     def settings(self, settings):

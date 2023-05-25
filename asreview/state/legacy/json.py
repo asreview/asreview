@@ -17,7 +17,7 @@ from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
 
-from asreview.settings import ASReviewSettings
+from asreview.state.legacy.settings import ASReviewSettingsLegacy
 from asreview.state.legacy.dict import DictState
 
 
@@ -70,7 +70,7 @@ class JSONState(DictState):
                     f"State cannot be read: state version {self.version}, "
                     f"state file version {state_version}."
                 )
-            self.settings = ASReviewSettings(**self._state_dict["settings"])
+            self.settings = ASReviewSettingsLegacy(**self._state_dict["settings"])
             try:
                 self._state_dict["current_queries"] = {
                     int(key): val
