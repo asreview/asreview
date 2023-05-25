@@ -9,7 +9,6 @@ from sqlalchemy.orm import sessionmaker
 
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.utils import asreview_path
-from asreview.webapp.api.projects import _get_project_uuid
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 
@@ -130,10 +129,7 @@ def insert_project(session, project):
     # get owner and project id
     owner_id = project["owner_id"]
     project_id = project["project_id"]
-    # create new project id
-    new_project_id = _get_project_uuid(project_id, owner_id)
-    # rename folder and project file
-    rename_project_folder(project_id, new_project_id)
+
     # check if this project was already in the database under
     # the old project id
     db_project = (
@@ -143,11 +139,11 @@ def insert_project(session, project):
     )
     if db_project is None:
         # create new record
-        session.add(Project(owner_id=owner_id, project_id=new_project_id))
+        session.add(Project(owner_id=owner_id, project_id=project_id))
     else:
         # update record
         db_project.owner_id = owner_id
-        db_project.project_id = new_project_id
+        db_project.project_id = project_id
     # commit
     session.commit()
     print('Project data is stored.')
