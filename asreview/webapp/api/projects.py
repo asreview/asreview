@@ -19,6 +19,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 from urllib.request import urlretrieve
+from uuid import uuid4
 
 import datahugger
 import numpy as np
@@ -58,7 +59,6 @@ from asreview.models.query import get_query_model
 from asreview.models.query import list_query_strategies
 from asreview.project import ASReviewProject
 from asreview.project import ProjectNotFoundError
-from asreview.project import _get_project_uuid
 from asreview.project import get_project_path
 from asreview.project import get_projects
 from asreview.project import is_project
@@ -230,7 +230,7 @@ def api_init_project():  # noqa: F401
     project_authors = request.form["authors"]
 
     # get a unique project id
-    project_id = _get_project_uuid()
+    project_id = uuid4().hex
 
     # get path of this project
     project_path = get_project_path(project_id)

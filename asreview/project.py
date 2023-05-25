@@ -107,14 +107,6 @@ def get_projects(project_paths=None):
     return [ASReviewProject(project_path) for project_path in project_paths]
 
 
-def _get_project_uuid():
-    """Generate a random project uuid."""
-
-    project_uuid = uuid4().hex
-
-    return project_uuid
-
-
 def is_project(project_path):
     project_path = Path(project_path) / PATH_PROJECT_CONFIG
 
