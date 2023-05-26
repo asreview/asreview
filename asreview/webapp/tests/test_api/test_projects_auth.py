@@ -439,6 +439,75 @@ def test_get_progress_info(setup):
     assert data["n_pool"] == data["n_papers"] - 2
 
 
+# Test get progress density on the article
+def test_get_progress_density(setup):
+    client, _, _, _, project = setup
+    # upload dataset
+    au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
+    # request progress density
+    status_code, data = au.get_project_progress_density(client, project)
+    assert status_code == 200
+    assert isinstance(data, dict)
+    assert isinstance(data["relevant"], list)
+    assert isinstance(data["irrelevant"], list)
+
+
+# Test progress recall
+def test_get_progress_recall(setup):
+    client, _, _, _, project = setup
+    # upload dataset
+    au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
+    # get recall
+    status_code, data = au.get_project_progress_recall(client, project)
+    assert status_code == 200
+    assert isinstance(data, dict)
+    assert isinstance(data["asreview"], list)
+    assert isinstance(data["random"], list)
+
+
+# Test retrieve documents in order to review
+def test_get_current_document(setup):
+    client, _, _, _, project = setup
+    # start the show
+    au.upload_label_set_and_start_model(client, project, UPLOAD_DATA[0])
+    # get a document
+    status_code, data = au.get_project_current_document(client, project)
+    assert status_code == 200
+    assert isinstance(data, dict)
+    assert not data["pool_empty"]
+    assert isinstance(data["result"], dict)
+    assert isinstance(data["result"]["doc_id"], int)
+
+    # assert "result" in json_data
+    # assert isinstance(json_data, dict)
+
+    # doc_id = json_data["result"]["doc_id"]
+
+    # # Test retrieve classification result
+    # response = client.post(
+    #     f"/api/projects/{project.project_id}/record/{doc_id}",
+    #     data={
+    #         "doc_id": doc_id,
+    #         "label": 1,
+    #     },
+    # )
+    # assert response.status_code == 200
+
+    # # Test update classification result
+    # response = client.put(
+    #     f"/api/projects/{project.project_id}/record/{doc_id}",
+    #     data={
+    #         "doc_id": doc_id,
+    #         "label": 0,
+    #     },
+    # )
+    # assert response.status_code == 200
+
+    # time.sleep(10)
+
+    
+
+
 
 
 

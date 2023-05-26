@@ -266,12 +266,33 @@ def label_random_project_data_record(client, project, label):
     _, data = get_prior_random_project_data(client, project)
     # select a specific record
     record = random.choice(data["result"])
+    doc_id = record["id"]
+    return label_project_record(client, project, doc_id, label, note="")
+
+
+def label_project_record(client, project, doc_id, label, prior=1, note=""):
     response = client.post(
-        f"/api/projects/{project.project_id}/record/{record['id']}",
+        f"/api/projects/{project.project_id}/record/{doc_id}",
         data={
-            "doc_id": record['id'],
+            "doc_id": doc_id,
             "label": label,
-            "is_prior": 1
+            "is_prior": prior,
+            "note": note
+        }
+    )
+    return process_response(response)
+
+
+def update_label_project_record(
+        client, project, doc_id, label, prior=1, note=""
+    ):
+    response = client.put(
+        f"/api/projects/{project.project_id}/record/{doc_id}",
+        data={
+            "doc_id": doc_id,
+            "label": label,
+            "is_prior": prior,
+            "note": note
         }
     )
     return process_response(response)
@@ -341,6 +362,29 @@ def export_project(client, project):
 def get_project_progress(client, project):
     response = client.get(f"/api/projects/{project.project_id}/progress")
     return process_response(response)
+
+
+def get_project_progress_density(client, project):
+    response = client.get(
+        f"/api/projects/{project.project_id}/progress_density"
+    )
+    return process_response(response)
+
+
+def get_project_progress_recall(client, project):
+    response = client.get(
+        f"/api/projects/{project.project_id}/progress_recall"
+    )
+    return process_response(response)
+
+
+def get_project_current_document(client, project):
+    response = client.get(f"/api/projects/{project.project_id}/get_document")
+    return process_response(response)
+
+
+def get_project_document(client, project, doc_id):
+    pass
 
 
 def create_and_signin_user(client, test_user_id=1):
