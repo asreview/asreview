@@ -26,3 +26,15 @@ def setup(client_auth):
     # cleanup database and asreview_path
     crud.delete_everything(DB)
     clear_folders_in_asreview_path()
+
+
+# @pytest.fixture()
+# def setup(client_no_auth):
+#     # create a project
+#     project_name = "project_name"
+#     au.create_project(client_no_auth, project_name)
+#     # get the project
+#     yield client_no_auth, projects[0]
+#     # cleanup asreview_path
+#     clear_folders_in_asreview_path()
+

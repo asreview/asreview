@@ -1,7 +1,6 @@
-import random
+import inspect
 import time
 from inspect import getfullargspec
-from pathlib import Path
 
 import pytest
 
@@ -17,7 +16,8 @@ from asreview.webapp.tests.utils.config_parser import get_user
 # purposes
 UPLOAD_DATA = [
     {"benchmark": "benchmark:Hall_2012"},
-    {"url": "https://raw.githubusercontent.com/asreview/asreview/master/tests/demo_data/generic_labels.csv"}
+    {"url": "https://raw.githubusercontent.com/asreview/" +
+        "asreview/master/tests/demo_data/generic_labels.csv"}
 ]
 
 # NOTE: the setup fixture entails: 3 users, user1 is signed in,
@@ -30,6 +30,7 @@ UPLOAD_DATA = [
 # wrong combination you just get an Exception. Or setting the project
 # status from review to review (also throws an exception, but the front-end
 # will never be notified of that ??)
+
 
 # Test getting all projects
 def test_get_projects(setup):
@@ -116,7 +117,6 @@ def test_get_projects_stats_finished_stage(setup):
     assert data["result"]["n_setup"] == 0
 
 
-
 # Test known demo data
 @pytest.mark.parametrize("subset", ["plugin", "benchmark"])
 def test_demo_data_project(setup, subset):
@@ -161,7 +161,7 @@ def test_get_project_data(setup, upload_data):
         client,
         project,
         data=upload_data
-    )    
+    )
     status_code, data = au.get_project_data(client, project)
     assert status_code == 200
     assert data["filename"] == misc.extract_filename_stem(upload_data)
@@ -466,7 +466,7 @@ def test_get_progress_recall(setup):
 
 
 # Test retrieve documents in order to review
-def test_get_current_document(setup):
+def test_retrieve_document_for_review(setup):
     client, _, _, _, project = setup
     # start the show
     au.upload_label_set_and_start_model(client, project, UPLOAD_DATA[0])
@@ -478,44 +478,317 @@ def test_get_current_document(setup):
     assert isinstance(data["result"], dict)
     assert isinstance(data["result"]["doc_id"], int)
 
-    # assert "result" in json_data
-    # assert isinstance(json_data, dict)
 
-    # doc_id = json_data["result"]["doc_id"]
-
-    # # Test retrieve classification result
-    # response = client.post(
-    #     f"/api/projects/{project.project_id}/record/{doc_id}",
-    #     data={
-    #         "doc_id": doc_id,
-    #         "label": 1,
-    #     },
-    # )
-    # assert response.status_code == 200
-
-    # # Test update classification result
-    # response = client.put(
-    #     f"/api/projects/{project.project_id}/record/{doc_id}",
-    #     data={
-    #         "doc_id": doc_id,
-    #         "label": 0,
-    #     },
-    # )
-    # assert response.status_code == 200
-
-    # time.sleep(10)
-
-    
+# Test label a document after the model has been started
+def test_label_a_document_with_running_model(setup):
+    client, _, _, _, project = setup
+    # start the show
+    au.upload_label_set_and_start_model(client, project, UPLOAD_DATA[0])
+    # get a document
+    _, data = au.get_project_current_document(client, project)
+    # get id
+    doc_id = data["result"]["doc_id"]
+    # label it
+    status_code, data = au.label_project_record(
+        client,
+        project,
+        doc_id,
+        label=1,
+        prior=0,
+        note="note"
+    )
+    assert status_code == 200
+    assert data["success"]
+    time.sleep(7)
 
 
+# Test update label of a document after the model has been started
+def test_update_label_of_document_with_running_model(setup):
+    client, _, _, _, project = setup
+    # start the show
+    au.upload_label_set_and_start_model(client, project, UPLOAD_DATA[0])
+    # get a document
+    _, data = au.get_project_current_document(client, project)
+    # get id
+    doc_id = data["result"]["doc_id"]
+    # label it
+    au.label_project_record(
+        client, project, doc_id, label=1, prior=0, note="note"
+    )
+    # change label
+    status_code, data = au.update_label_project_record(
+        client, project, doc_id, label=0, prior=0, note="changed note"
+    )
+    assert status_code == 200
+    assert data["success"]
+    time.sleep(7)
 
 
+# Test deleting a project
+def test_delete_project(setup):
+    client, _, _, _, project = setup
+    # delete project
+    status_code, data = au.delete_project(client, project)
+    assert status_code == 200
+    assert data["success"]
 
 
+from flask.testing import FlaskClient
+from asreview.webapp.authentication.models import Project
+
+@pytest.mark.parametrize(
+    "api_call",
+    [
+        au.get_all_projects,
+        au.create_project,
+        au.update_project,
+        au.upgrade_project,
+        au.get_project_stats,
+        au.get_demo_data,
+        au.upload_data_to_project
+    ]
+)
+def test_unauthorized_use_of_api_calls_current(setup, api_call):
+    client, _, _, _, project = setup
+    # signout the client
+    au.signout_user(client)
+    # inspect function
+    sig = inspect.signature(api_call)
+    # form parameters
+    parms = []
+    for par in sig.parameters.keys():
+        annotation = sig.parameters[par].annotation
+        if annotation == FlaskClient:
+            parms.append(client)
+        elif annotation == Project:
+            parms.append(project)
+        elif annotation == str:
+            parms.append("abc")
+        elif annotation == dict:
+            parms.append({})
+
+    # make the api call
+    status_code, data = api_call(*parms)
+    assert status_code == 401
+    assert data["message"] == "Login required."
+
+# def get_all_projects(client):
+#     response = client.get("/api/projects")
+#     return process_response(response)
 
 
+# def create_project(
+#     client,
+#     project_name,
+#     mode="explore",
+#     authors="authors",
+#     description="description"):
+        
+#     response = client.post(
+#         "/api/projects/info",
+#         data={
+#             "mode": mode,
+#             "name": project_name,
+#             "authors": authors,
+#             "description": description,
+#         },
+#     )
+#     return process_response(response)
 
 
+# def update_project(
+#     client,
+#     project,
+#     name="name",
+#     mode="explore",
+#     authors="authors",
+#     description="description"):
+        
+#     response = client.put(
+#         f"/api/projects/{project.project_id}/info",
+#         data={
+#             "mode": mode,
+#             "name": name,
+#             "authors": authors,
+#             "description": description,
+#         },
+#     )
+#     return process_response(response)
 
 
+# def upgrade_project(client, project):
+#     response = client.get(f"/api/projects/{project.project_id}/upgrade_if_old")
+#     return process_response(response)
 
+
+# def get_project_stats(client):
+#     response = client.get("/api/projects/stats")
+#     return process_response(response)
+
+
+# def get_demo_data(client, subset):
+#     response = client.get(f"/api/datasets?subset={subset}")
+#     return process_response(response)
+
+
+# def upload_data_to_project(client, project, data):
+#     response =  client.post(
+#         f"/api/projects/{project.project_id}/data",
+#         data=data,
+#     )
+#     return process_response(response)
+
+
+# def get_project_data(client, project):
+#     response = client.get(f"/api/projects/{project.project_id}/data")
+#     return process_response(response)
+
+
+# def get_project_dataset_writer(client, project):
+#     response = client.get(
+#         f"/api/projects/{project.project_id}/dataset_writer"
+#     )
+#     return process_response(response)
+
+
+# def search_project_data(client, project, query):
+#     response = client.get(
+#         f"/api/projects/{project.project_id}/search?q={query}"
+#     )
+#     return process_response(response)
+
+
+# def get_prior_random_project_data(client, project):
+#     response = client.get(
+#         f"/api/projects/{project.project_id}/prior_random"
+#     )
+#     return process_response(response)
+
+
+# def label_random_project_data_record(client, project, label):
+#     # get random data
+#     _, data = get_prior_random_project_data(client, project)
+#     # select a specific record
+#     record = random.choice(data["result"])
+#     doc_id = record["id"]
+#     return label_project_record(client, project, doc_id, label, note="")
+
+
+# def label_project_record(
+#         client, project, doc_id, label, prior=1, note=""
+#     ):
+#     response = client.post(
+#         f"/api/projects/{project.project_id}/record/{doc_id}",
+#         data={
+#             "doc_id": doc_id,
+#             "label": label,
+#             "is_prior": prior,
+#             "note": note
+#         }
+#     )
+#     return process_response(response)
+
+
+# def update_label_project_record(
+#         client, project, doc_id, label, prior=1, note=""
+#     ):
+#     response = client.put(
+#         f"/api/projects/{project.project_id}/record/{doc_id}",
+#         data={
+#             "doc_id": doc_id,
+#             "label": label,
+#             "is_prior": prior,
+#             "note": note
+#         }
+#     )
+#     return process_response(response)
+
+
+# def get_labeled_project_data(client, project):
+#     response = client.get(f"/api/projects/{project.project_id}/labeled")
+#     return process_response(response)
+
+
+# def get_labeled_project_data_stats(client, project):
+#     response = client.get(f"/api/projects/{project.project_id}/labeled_stats")
+#     return process_response(response)
+
+
+# def get_project_algorithms_options(client):
+#     response = client.get("/api/algorithms")
+#     return process_response(response)
+
+
+# def set_project_algorithms(client, project, data):
+#     response = client.post(
+#         f"/api/projects/{project.project_id}/algorithms",
+#         data=data
+#     )
+#     return process_response(response)
+
+
+# def get_project_algorithms(client, project):
+#     response = client.get(f"/api/projects/{project.project_id}/algorithms")
+#     return process_response(response)
+
+
+# def start_project_algorithms(client, project):
+#     response = client.post(f"/api/projects/{project.project_id}/start")
+#     return process_response(response)
+
+
+# def get_project_status(client, project):
+#     response = client.get(f"/api/projects/{project.project_id}/status")
+#     return process_response(response)
+
+
+# def set_project_status(client, project, status):
+#     response = client.put(
+#         f"/api/projects/{project.project_id}/status",
+#         data = {"status": status}
+#     )
+#     return process_response(response)
+
+
+# def export_project_dataset(client, project, format):
+#     id = project.project_id
+#     response = client.get(
+#         f"/api/projects/{id}/export_dataset?file_format={format}"
+#     )
+#     return process_response(response)
+
+
+# def export_project(client, project):
+#     response = client.get(
+#         f"/api/projects/{project.project_id}/export_project"
+#     )
+#     return process_response(response)
+
+
+# def get_project_progress(client, project):
+#     response = client.get(f"/api/projects/{project.project_id}/progress")
+#     return process_response(response)
+
+
+# def get_project_progress_density(client, project):
+#     response = client.get(
+#         f"/api/projects/{project.project_id}/progress_density"
+#     )
+#     return process_response(response)
+
+
+# def get_project_progress_recall(client, project):
+#     response = client.get(
+#         f"/api/projects/{project.project_id}/progress_recall"
+#     )
+#     return process_response(response)
+
+
+# def get_project_current_document(client, project):
+#     response = client.get(f"/api/projects/{project.project_id}/get_document")
+#     return process_response(response)
+
+
+# def delete_project(client, project):
+#     response = client.delete(f"/api/projects/{project.project_id}/delete")
+#     return process_response(response)

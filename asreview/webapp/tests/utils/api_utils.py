@@ -96,7 +96,9 @@ def refresh(client):
     return process_response(response)
 
 
-def get_profile(client):
+from flask.testing import FlaskClient
+
+def get_profile(client: FlaskClient):
     response = client.get("/auth/get_profile")
     return process_response(response)
 
@@ -167,18 +169,20 @@ def delete_collaboration(client, project, user):
     )
     return process_response(response)
 
+from flask.testing import FlaskClient
+from asreview.webapp.authentication.models import Project
 
-def get_all_projects(client):
+def get_all_projects(client: FlaskClient):
     response = client.get("/api/projects")
     return process_response(response)
 
 
 def create_project(
-    client,
-    project_name,
-    mode="explore",
-    authors="authors",
-    description="description"):
+    client: FlaskClient,
+    project_name: str,
+    mode:str="explore",
+    authors:str="authors",
+    description:str="description"):
         
     response = client.post(
         "/api/projects/info",
@@ -193,12 +197,12 @@ def create_project(
 
 
 def update_project(
-    client,
-    project,
-    name="name",
-    mode="explore",
-    authors="authors",
-    description="description"):
+    client: FlaskClient,
+    project: Project,
+    name:str="name",
+    mode:str="explore",
+    authors:str="authors",
+    description:str="description"):
         
     response = client.put(
         f"/api/projects/{project.project_id}/info",
@@ -212,22 +216,22 @@ def update_project(
     return process_response(response)
 
 
-def upgrade_project(client, project):
+def upgrade_project(client: FlaskClient, project: Project):
     response = client.get(f"/api/projects/{project.project_id}/upgrade_if_old")
     return process_response(response)
 
 
-def get_project_stats(client):
+def get_project_stats(client: FlaskClient):
     response = client.get("/api/projects/stats")
     return process_response(response)
 
 
-def get_demo_data(client, subset):
+def get_demo_data(client: FlaskClient, subset: str):
     response = client.get(f"/api/datasets?subset={subset}")
     return process_response(response)
 
 
-def upload_data_to_project(client, project, data):
+def upload_data_to_project(client:FlaskClient, project:Project, data:dict):
     response =  client.post(
         f"/api/projects/{project.project_id}/data",
         data=data,
@@ -270,7 +274,9 @@ def label_random_project_data_record(client, project, label):
     return label_project_record(client, project, doc_id, label, note="")
 
 
-def label_project_record(client, project, doc_id, label, prior=1, note=""):
+def label_project_record(
+        client, project, doc_id, label, prior=1, note=""
+    ):
     response = client.post(
         f"/api/projects/{project.project_id}/record/{doc_id}",
         data={
@@ -383,8 +389,9 @@ def get_project_current_document(client, project):
     return process_response(response)
 
 
-def get_project_document(client, project, doc_id):
-    pass
+def delete_project(client, project):
+    response = client.delete(f"/api/projects/{project.project_id}/delete")
+    return process_response(response)
 
 
 def create_and_signin_user(client, test_user_id=1):

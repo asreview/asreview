@@ -88,7 +88,7 @@ def client_auth_verified():
     
 
 @pytest.fixture
-def client_unauth():
+def client_no_auth():
     app = _get_app("no-auth")
     # make sure we have the asreview_path
     with app.app_context():
