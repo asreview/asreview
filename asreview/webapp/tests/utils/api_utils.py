@@ -169,17 +169,19 @@ def delete_collaboration(client, project, user):
     )
     return process_response(response)
 
+from typing import Union
 from flask.testing import FlaskClient
 from asreview.webapp.authentication.models import Project
+from asreview.project import ASReviewProject
 
-def get_all_projects(client: FlaskClient):
+def get_all_projects(client:FlaskClient):
     response = client.get("/api/projects")
     return process_response(response)
 
 
 def create_project(
-    client: FlaskClient,
-    project_name: str,
+    client:FlaskClient,
+    project_name:str,
     mode:str="explore",
     authors:str="authors",
     description:str="description"):
@@ -198,7 +200,7 @@ def create_project(
 
 def update_project(
     client: FlaskClient,
-    project: Project,
+    project:Union[Project, ASReviewProject],
     name:str="name",
     mode:str="explore",
     authors:str="authors",
@@ -216,22 +218,29 @@ def update_project(
     return process_response(response)
 
 
-def upgrade_project(client: FlaskClient, project: Project):
+def upgrade_project(
+        client:FlaskClient,
+        project:Union[Project, ASReviewProject]
+    ):
     response = client.get(f"/api/projects/{project.project_id}/upgrade_if_old")
     return process_response(response)
 
 
-def get_project_stats(client: FlaskClient):
+def get_project_stats(client:FlaskClient):
     response = client.get("/api/projects/stats")
     return process_response(response)
 
 
-def get_demo_data(client: FlaskClient, subset: str):
+def get_demo_data(client:FlaskClient, subset: str):
     response = client.get(f"/api/datasets?subset={subset}")
     return process_response(response)
 
 
-def upload_data_to_project(client:FlaskClient, project:Project, data:dict):
+def upload_data_to_project(
+        client:FlaskClient,
+        project:Union[Project, ASReviewProject],
+        data:dict
+    ):
     response =  client.post(
         f"/api/projects/{project.project_id}/data",
         data=data,
@@ -239,33 +248,50 @@ def upload_data_to_project(client:FlaskClient, project:Project, data:dict):
     return process_response(response)
 
 
-def get_project_data(client, project):
+def get_project_data(
+        client:FlaskClient,
+        project:Union[Project, ASReviewProject]
+    ):
     response = client.get(f"/api/projects/{project.project_id}/data")
     return process_response(response)
 
 
-def get_project_dataset_writer(client, project):
+def get_project_dataset_writer(
+        client:FlaskClient,
+        project:Union[Project, ASReviewProject]
+    ):
     response = client.get(
         f"/api/projects/{project.project_id}/dataset_writer"
     )
     return process_response(response)
 
 
-def search_project_data(client, project, query):
+def search_project_data(
+        client:FlaskClient,
+        project:Union[Project, ASReviewProject],
+        query:str
+    ):
     response = client.get(
         f"/api/projects/{project.project_id}/search?q={query}"
     )
     return process_response(response)
 
 
-def get_prior_random_project_data(client, project):
+def get_prior_random_project_data(
+        client:FlaskClient,
+        project:Union[Project, ASReviewProject]
+    ):
     response = client.get(
         f"/api/projects/{project.project_id}/prior_random"
     )
     return process_response(response)
 
 
-def label_random_project_data_record(client, project, label):
+def label_random_project_data_record(
+        client:FlaskClient,
+        project:Union[Project, ASReviewProject],
+        label:int
+    ):
     # get random data
     _, data = get_prior_random_project_data(client, project)
     # select a specific record
@@ -275,7 +301,12 @@ def label_random_project_data_record(client, project, label):
 
 
 def label_project_record(
-        client, project, doc_id, label, prior=1, note=""
+        client:FlaskClient,
+        project:Union[Project, ASReviewProject],
+        doc_id:int,
+        label:str,
+        prior:int=1,
+        note:str=""
     ):
     response = client.post(
         f"/api/projects/{project.project_id}/record/{doc_id}",
@@ -290,7 +321,12 @@ def label_project_record(
 
 
 def update_label_project_record(
-        client, project, doc_id, label, prior=1, note=""
+        client:FlaskClient,
+        project:Union[Project, ASReviewProject],
+        doc_id:int,
+        label:str,
+        prior:int=1,
+        note:str=""
     ):
     response = client.put(
         f"/api/projects/{project.project_id}/record/{doc_id}",
@@ -304,22 +340,32 @@ def update_label_project_record(
     return process_response(response)
 
 
-def get_labeled_project_data(client, project):
+def get_labeled_project_data(
+        client:FlaskClient,
+        project:Union[Project, ASReviewProject]
+    ):
     response = client.get(f"/api/projects/{project.project_id}/labeled")
     return process_response(response)
 
 
-def get_labeled_project_data_stats(client, project):
+def get_labeled_project_data_stats(
+        client:FlaskClient,
+        project:Union[Project, ASReviewProject]
+    ):
     response = client.get(f"/api/projects/{project.project_id}/labeled_stats")
     return process_response(response)
 
 
-def get_project_algorithms_options(client):
+def get_project_algorithms_options(client:FlaskClient):
     response = client.get("/api/algorithms")
     return process_response(response)
 
 
-def set_project_algorithms(client, project, data):
+def set_project_algorithms(
+        client:FlaskClient,
+        project:Union[Project, ASReviewProject],
+        data:dict
+    ):
     response = client.post(
         f"/api/projects/{project.project_id}/algorithms",
         data=data
@@ -327,22 +373,35 @@ def set_project_algorithms(client, project, data):
     return process_response(response)
 
 
-def get_project_algorithms(client, project):
+def get_project_algorithms(
+        client:FlaskClient,
+        project:Union[Project, ASReviewProject]
+    ):
     response = client.get(f"/api/projects/{project.project_id}/algorithms")
     return process_response(response)
 
 
-def start_project_algorithms(client, project):
+def start_project_algorithms(
+        client:FlaskClient, 
+        project:Union[Project, ASReviewProject]
+    ):
     response = client.post(f"/api/projects/{project.project_id}/start")
     return process_response(response)
 
 
-def get_project_status(client, project):
+def get_project_status(
+        client:FlaskClient, 
+        project:Union[Project, ASReviewProject]
+    ):
     response = client.get(f"/api/projects/{project.project_id}/status")
     return process_response(response)
 
 
-def set_project_status(client, project, status):
+def set_project_status(
+        client:FlaskClient, 
+        project:Union[Project, ASReviewProject],
+        status:str
+    ):
     response = client.put(
         f"/api/projects/{project.project_id}/status",
         data = {"status": status}
@@ -350,7 +409,11 @@ def set_project_status(client, project, status):
     return process_response(response)
 
 
-def export_project_dataset(client, project, format):
+def export_project_dataset(
+        client:FlaskClient, 
+        project:Union[Project, ASReviewProject],
+        format:str
+    ):
     id = project.project_id
     response = client.get(
         f"/api/projects/{id}/export_dataset?file_format={format}"
@@ -358,38 +421,56 @@ def export_project_dataset(client, project, format):
     return process_response(response)
 
 
-def export_project(client, project):
+def export_project(
+        client:FlaskClient,
+        project:Union[Project, ASReviewProject],
+    ):
     response = client.get(
         f"/api/projects/{project.project_id}/export_project"
     )
     return process_response(response)
 
 
-def get_project_progress(client, project):
+def get_project_progress(
+        client:FlaskClient,
+        project:Union[Project, ASReviewProject],
+    ):
     response = client.get(f"/api/projects/{project.project_id}/progress")
     return process_response(response)
 
 
-def get_project_progress_density(client, project):
+def get_project_progress_density(
+        client:FlaskClient,
+        project:Union[Project, ASReviewProject],
+    ):
     response = client.get(
         f"/api/projects/{project.project_id}/progress_density"
     )
     return process_response(response)
 
 
-def get_project_progress_recall(client, project):
+def get_project_progress_recall(
+        client:FlaskClient,
+        project:Union[Project, ASReviewProject],
+    ):
     response = client.get(
         f"/api/projects/{project.project_id}/progress_recall"
     )
     return process_response(response)
 
 
-def get_project_current_document(client, project):
+def get_project_current_document(
+        client:FlaskClient,
+        project:Union[Project, ASReviewProject],
+    ):
     response = client.get(f"/api/projects/{project.project_id}/get_document")
     return process_response(response)
 
 
-def delete_project(client, project):
+def delete_project(
+        client:FlaskClient,
+        project:Union[Project, ASReviewProject],
+    ):
     response = client.delete(f"/api/projects/{project.project_id}/delete")
     return process_response(response)
 

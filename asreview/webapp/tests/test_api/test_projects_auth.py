@@ -1,16 +1,14 @@
 import inspect
 import time
-from inspect import getfullargspec
+from typing import Union
 
 import pytest
+from flask.testing import FlaskClient
 
 import asreview.webapp.tests.utils.api_utils as au
-import asreview.webapp.tests.utils.crud as crud
 import asreview.webapp.tests.utils.misc as misc
-from asreview.data.base import _get_filename_from_url
-from asreview.utils import asreview_path
-from asreview.webapp import DB
-from asreview.webapp.tests.utils.config_parser import get_user
+from asreview.project import ASReviewProject
+from asreview.webapp.authentication.models import Project
 
 # NOTE: I don't see a plugin that can be used for testing
 # purposes
@@ -45,7 +43,7 @@ def test_get_projects(setup):
 
 # Test create a project
 def test_create_projects(setup):
-    client, user1, _, _, _ = setup
+    client, _, _, _, _ = setup
     project_name = "new_project"
 
     status_code, data = au.create_project(client, project_name)
@@ -345,7 +343,10 @@ def test_start_and_model_ready(setup):
 
 # Test status of project
 @pytest.mark.parametrize(
-    "state_data",
+    (
+        "state_name",
+        "expected_state"
+    ),
     [
         ("creation", None),
         ("setup", "setup"),
@@ -354,10 +355,8 @@ def test_start_and_model_ready(setup):
 
     ]
 )
-def test_status_project(setup, state_data):
+def test_status_project_current(setup, state_name, expected_state):
     client, _, _, _, project = setup
-    # unpack the state_data
-    state_name, expected_state = state_data
     # call these progression steps
     if state_name in ["setup", "review", "finish"]:
         # upload dataset
@@ -533,9 +532,6 @@ def test_delete_project(setup):
     assert data["success"]
 
 
-from flask.testing import FlaskClient
-from asreview.webapp.authentication.models import Project
-
 @pytest.mark.parametrize(
     "api_call",
     [
@@ -545,10 +541,31 @@ from asreview.webapp.authentication.models import Project
         au.upgrade_project,
         au.get_project_stats,
         au.get_demo_data,
-        au.upload_data_to_project
+        au.upload_data_to_project,
+        au.get_project_data,
+        au.get_project_dataset_writer,
+        au.search_project_data,
+        au.get_prior_random_project_data,
+        au.label_project_record,
+        au.update_label_project_record,
+        au.get_labeled_project_data,
+        au.get_labeled_project_data_stats,
+        au.get_project_algorithms_options,
+        au.set_project_algorithms,
+        au.get_project_algorithms,
+        au.start_project_algorithms,
+        au.get_project_status,
+        au.set_project_status,
+        au.export_project_dataset,
+        au.export_project,
+        au.get_project_progress,
+        au.get_project_progress_density,
+        au.get_project_progress_recall,
+        au.get_project_current_document,
+        au.delete_project
     ]
 )
-def test_unauthorized_use_of_api_calls_current(setup, api_call):
+def test_unauthorized_use_of_api_calls(setup, api_call):
     client, _, _, _, project = setup
     # signout the client
     au.signout_user(client)
@@ -560,8 +577,10 @@ def test_unauthorized_use_of_api_calls_current(setup, api_call):
         annotation = sig.parameters[par].annotation
         if annotation == FlaskClient:
             parms.append(client)
-        elif annotation == Project:
+        elif annotation == Union[Project, ASReviewProject]:
             parms.append(project)
+        elif annotation == int:
+            parms.append(1)
         elif annotation == str:
             parms.append("abc")
         elif annotation == dict:
@@ -571,224 +590,3 @@ def test_unauthorized_use_of_api_calls_current(setup, api_call):
     status_code, data = api_call(*parms)
     assert status_code == 401
     assert data["message"] == "Login required."
-
-# def get_all_projects(client):
-#     response = client.get("/api/projects")
-#     return process_response(response)
-
-
-# def create_project(
-#     client,
-#     project_name,
-#     mode="explore",
-#     authors="authors",
-#     description="description"):
-        
-#     response = client.post(
-#         "/api/projects/info",
-#         data={
-#             "mode": mode,
-#             "name": project_name,
-#             "authors": authors,
-#             "description": description,
-#         },
-#     )
-#     return process_response(response)
-
-
-# def update_project(
-#     client,
-#     project,
-#     name="name",
-#     mode="explore",
-#     authors="authors",
-#     description="description"):
-        
-#     response = client.put(
-#         f"/api/projects/{project.project_id}/info",
-#         data={
-#             "mode": mode,
-#             "name": name,
-#             "authors": authors,
-#             "description": description,
-#         },
-#     )
-#     return process_response(response)
-
-
-# def upgrade_project(client, project):
-#     response = client.get(f"/api/projects/{project.project_id}/upgrade_if_old")
-#     return process_response(response)
-
-
-# def get_project_stats(client):
-#     response = client.get("/api/projects/stats")
-#     return process_response(response)
-
-
-# def get_demo_data(client, subset):
-#     response = client.get(f"/api/datasets?subset={subset}")
-#     return process_response(response)
-
-
-# def upload_data_to_project(client, project, data):
-#     response =  client.post(
-#         f"/api/projects/{project.project_id}/data",
-#         data=data,
-#     )
-#     return process_response(response)
-
-
-# def get_project_data(client, project):
-#     response = client.get(f"/api/projects/{project.project_id}/data")
-#     return process_response(response)
-
-
-# def get_project_dataset_writer(client, project):
-#     response = client.get(
-#         f"/api/projects/{project.project_id}/dataset_writer"
-#     )
-#     return process_response(response)
-
-
-# def search_project_data(client, project, query):
-#     response = client.get(
-#         f"/api/projects/{project.project_id}/search?q={query}"
-#     )
-#     return process_response(response)
-
-
-# def get_prior_random_project_data(client, project):
-#     response = client.get(
-#         f"/api/projects/{project.project_id}/prior_random"
-#     )
-#     return process_response(response)
-
-
-# def label_random_project_data_record(client, project, label):
-#     # get random data
-#     _, data = get_prior_random_project_data(client, project)
-#     # select a specific record
-#     record = random.choice(data["result"])
-#     doc_id = record["id"]
-#     return label_project_record(client, project, doc_id, label, note="")
-
-
-# def label_project_record(
-#         client, project, doc_id, label, prior=1, note=""
-#     ):
-#     response = client.post(
-#         f"/api/projects/{project.project_id}/record/{doc_id}",
-#         data={
-#             "doc_id": doc_id,
-#             "label": label,
-#             "is_prior": prior,
-#             "note": note
-#         }
-#     )
-#     return process_response(response)
-
-
-# def update_label_project_record(
-#         client, project, doc_id, label, prior=1, note=""
-#     ):
-#     response = client.put(
-#         f"/api/projects/{project.project_id}/record/{doc_id}",
-#         data={
-#             "doc_id": doc_id,
-#             "label": label,
-#             "is_prior": prior,
-#             "note": note
-#         }
-#     )
-#     return process_response(response)
-
-
-# def get_labeled_project_data(client, project):
-#     response = client.get(f"/api/projects/{project.project_id}/labeled")
-#     return process_response(response)
-
-
-# def get_labeled_project_data_stats(client, project):
-#     response = client.get(f"/api/projects/{project.project_id}/labeled_stats")
-#     return process_response(response)
-
-
-# def get_project_algorithms_options(client):
-#     response = client.get("/api/algorithms")
-#     return process_response(response)
-
-
-# def set_project_algorithms(client, project, data):
-#     response = client.post(
-#         f"/api/projects/{project.project_id}/algorithms",
-#         data=data
-#     )
-#     return process_response(response)
-
-
-# def get_project_algorithms(client, project):
-#     response = client.get(f"/api/projects/{project.project_id}/algorithms")
-#     return process_response(response)
-
-
-# def start_project_algorithms(client, project):
-#     response = client.post(f"/api/projects/{project.project_id}/start")
-#     return process_response(response)
-
-
-# def get_project_status(client, project):
-#     response = client.get(f"/api/projects/{project.project_id}/status")
-#     return process_response(response)
-
-
-# def set_project_status(client, project, status):
-#     response = client.put(
-#         f"/api/projects/{project.project_id}/status",
-#         data = {"status": status}
-#     )
-#     return process_response(response)
-
-
-# def export_project_dataset(client, project, format):
-#     id = project.project_id
-#     response = client.get(
-#         f"/api/projects/{id}/export_dataset?file_format={format}"
-#     )
-#     return process_response(response)
-
-
-# def export_project(client, project):
-#     response = client.get(
-#         f"/api/projects/{project.project_id}/export_project"
-#     )
-#     return process_response(response)
-
-
-# def get_project_progress(client, project):
-#     response = client.get(f"/api/projects/{project.project_id}/progress")
-#     return process_response(response)
-
-
-# def get_project_progress_density(client, project):
-#     response = client.get(
-#         f"/api/projects/{project.project_id}/progress_density"
-#     )
-#     return process_response(response)
-
-
-# def get_project_progress_recall(client, project):
-#     response = client.get(
-#         f"/api/projects/{project.project_id}/progress_recall"
-#     )
-#     return process_response(response)
-
-
-# def get_project_current_document(client, project):
-#     response = client.get(f"/api/projects/{project.project_id}/get_document")
-#     return process_response(response)
-
-
-# def delete_project(client, project):
-#     response = client.delete(f"/api/projects/{project.project_id}/delete")
-#     return process_response(response)

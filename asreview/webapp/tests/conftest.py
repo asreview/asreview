@@ -92,7 +92,7 @@ def client_no_auth():
     app = _get_app("no-auth")
     # make sure we have the asreview_path
     with app.app_context():
-        yield unauth_app.test_client()
+        yield app.test_client()
 
 
 @pytest.fixture(scope="session", autouse=True)
