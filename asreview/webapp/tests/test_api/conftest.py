@@ -2,13 +2,42 @@ import pytest
 
 import asreview.webapp.tests.utils.api_utils as au
 import asreview.webapp.tests.utils.crud as crud
+from asreview.project import get_projects
 from asreview.webapp import DB
 from asreview.webapp.tests.utils.config_parser import get_user
 from asreview.webapp.tests.utils.misc import clear_folders_in_asreview_path
 
 
+@pytest.fixture(params=["client_auth", "client_no_auth"])
+def setup(request):
+    # get the client
+    client = request.getfixturevalue(request.param)
+    # provide a project name
+    project_name = "project_name"
+    if request.param == "client_auth":
+        # create, signup and signin users
+        user1 = au.create_and_signin_user(client, 1)
+        # create a project for this logged in user
+        au.create_project(client, project_name)
+        # receive project
+        project = user1.projects[0]
+    else:
+        # this has to be created to match the authenticated
+        # version of this fixture
+        user1 = None
+        # create a project
+        au.create_project(client, project_name)
+        # get all project
+        project = get_projects()[0]
+    yield client, user1, project
+    if request.param == "client_auth":
+        # cleanup database and asreview_path
+        crud.delete_everything(DB)
+    clear_folders_in_asreview_path()
+
+
 @pytest.fixture()
-def setup(client_auth):
+def setup_auth(client_auth):
     # create, signup and signin users
     user1 = au.create_and_signin_user(client_auth, 1)
     user2 = get_user(2)
@@ -26,15 +55,3 @@ def setup(client_auth):
     # cleanup database and asreview_path
     crud.delete_everything(DB)
     clear_folders_in_asreview_path()
-
-
-# @pytest.fixture()
-# def setup(client_no_auth):
-#     # create a project
-#     project_name = "project_name"
-#     au.create_project(client_no_auth, project_name)
-#     # get the project
-#     yield client_no_auth, projects[0]
-#     # cleanup asreview_path
-#     clear_folders_in_asreview_path()
-

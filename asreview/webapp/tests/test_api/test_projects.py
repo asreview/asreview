@@ -18,8 +18,10 @@ UPLOAD_DATA = [
         "asreview/master/tests/demo_data/generic_labels.csv"}
 ]
 
-# NOTE: the setup fixture entails: 3 users, user1 is signed in,
-# user1 has one project made
+# NOTE: the setup fixture entails: a FlaskClient, 1 user (signed in),
+# and a project of this user OR a project from an unauthenticated app.
+# The fixture is parametrized! It runs the authenticated app and the
+# unauthenticated app.
 
 # QUESTIONS: maybe we should consider 404's when the code hits
 # an Exception, I think an API should do that. For instance: the webapp
@@ -32,18 +34,21 @@ UPLOAD_DATA = [
 
 # Test getting all projects
 def test_get_projects(setup):
-    client, user1, _, _, project = setup
+    client, user1, project = setup
     status_code, data = au.get_all_projects(client)
     assert status_code == 200
     assert len(data["result"]) == 1
     found_project = data["result"][0]
-    assert found_project["id"] == project.project_id
-    assert found_project["owner_id"] == user1.id
+    if isinstance(project, ASReviewProject):
+        assert found_project["id"] == project.config["id"]
+    else:
+        assert found_project["id"] == project.project_id
+        assert found_project["owner_id"] == user1.id
 
 
 # Test create a project
 def test_create_projects(setup):
-    client, _, _, _, _ = setup
+    client, _, _ = setup
     project_name = "new_project"
 
     status_code, data = au.create_project(client, project_name)
@@ -53,7 +58,7 @@ def test_create_projects(setup):
 
 # Test upgrading a post v0.x project
 def test_try_upgrade_a_modern_project(setup):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # verify version
     data = misc.read_project_file(project)
     assert not data["version"].startswith("0.")
@@ -65,7 +70,7 @@ def test_try_upgrade_a_modern_project(setup):
 
 # Test upgrading a v0.x project
 def test_upgrade_an_old_project(setup):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # substitute the current project folder for an old type of folder
     misc.subs_for_legacy_project_folder(project)
     # try to convert
@@ -76,7 +81,7 @@ def test_upgrade_an_old_project(setup):
 
 # Test get stats in setup state
 def test_get_projects_stats_setup_stage(setup):
-    client, _, _, _, _ = setup
+    client, _, _ = setup
     status_code, data = au.get_project_stats(client)
     assert status_code == 200
     assert isinstance(data["result"], dict)
@@ -87,7 +92,7 @@ def test_get_projects_stats_setup_stage(setup):
 
 # Test get stats in review state
 def test_get_projects_stats_review_stage(setup):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # start the show
     au.upload_label_set_and_start_model(client, project, UPLOAD_DATA[0])
     # get stats
@@ -101,7 +106,7 @@ def test_get_projects_stats_review_stage(setup):
 
 # Test get stats in finished state
 def test_get_projects_stats_finished_stage(setup):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # start the show
     au.upload_label_set_and_start_model(client, project, UPLOAD_DATA[0])
     # manually finish the project
@@ -118,7 +123,7 @@ def test_get_projects_stats_finished_stage(setup):
 # Test known demo data
 @pytest.mark.parametrize("subset", ["plugin", "benchmark"])
 def test_demo_data_project(setup, subset):
-    client, _, _, _, _ = setup
+    client, _, _ = setup
     status_code, data = au.get_demo_data(client, subset)
     assert status_code == 200
     assert isinstance(data["result"], list)
@@ -126,7 +131,7 @@ def test_demo_data_project(setup, subset):
 
 # Test unknown demo data
 def test_unknown_demo_data_project(setup):
-    client, _, _, _, _ = setup
+    client, _, _ = setup
     status_code, data = au.get_demo_data(client, "abcdefg")
     assert status_code == 400
     assert data["message"] == "demo-data-loading-failed"
@@ -138,7 +143,7 @@ def test_unknown_demo_data_project(setup):
     UPLOAD_DATA
 )
 def test_upload_benchmark_data_to_project(setup, upload_data):
-    client, _, _, _, project = setup
+    client, _, project = setup
     status_code, data = au.upload_data_to_project(
         client,
         project,
@@ -154,7 +159,7 @@ def test_upload_benchmark_data_to_project(setup, upload_data):
     UPLOAD_DATA
 )
 def test_get_project_data(setup, upload_data):
-    client, _, _, _, project = setup
+    client, _, project = setup
     au.upload_data_to_project(
         client,
         project,
@@ -167,7 +172,7 @@ def test_get_project_data(setup, upload_data):
 
 # Test get dataset writer
 def test_get_dataset_writer(setup):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # upload data
     au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
     # get dataset writer
@@ -178,7 +183,7 @@ def test_get_dataset_writer(setup):
 
 # Test updating a project
 def test_update_project_info(setup):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # update data
     new_mode = "oracle"
     new_name = "new name"
@@ -202,7 +207,7 @@ def test_update_project_info(setup):
 
 # Test search data
 def test_search_data(setup):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # upload dataset
     au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
     # search
@@ -219,7 +224,7 @@ def test_search_data(setup):
 
 # Test get a selection of random papers to find exclusions
 def test_random_prior_papers(setup):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # upload dataset
     au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
     # get random selection
@@ -233,7 +238,7 @@ def test_random_prior_papers(setup):
 # Test labeling of prior data
 @pytest.mark.parametrize("label", [0, 1])
 def test_label_item(setup, label):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # upload dataset
     au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
     # label
@@ -248,7 +253,7 @@ def test_label_item(setup, label):
 
 # Test getting labeled records
 def test_get_labeled_project_data(setup):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # upload dataset
     au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
     # label a random record
@@ -263,7 +268,7 @@ def test_get_labeled_project_data(setup):
 
 # Test getting labeled records stats
 def test_get_labeled_stats(setup):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # upload dataset
     au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
     # label 2 random records
@@ -282,7 +287,7 @@ def test_get_labeled_stats(setup):
 
 # Test listing the available algorithms
 def test_list_algorithms(setup):
-    client, _, _, _, _ = setup
+    client, _, _ = setup
     status_code, data = au.get_project_algorithms_options(client)
     assert status_code == 200
     expected_keys = [
@@ -301,7 +306,7 @@ def test_list_algorithms(setup):
 
 # Test setting the algorithms
 def test_set_project_algorithms(setup):
-    client, _, _, _, project = setup
+    client, _, project = setup
     data = misc.choose_project_algorithms()
     status_code, data = au.set_project_algorithms(client, project, data=data)
     assert status_code == 200
@@ -310,7 +315,7 @@ def test_set_project_algorithms(setup):
 
 # Test getting the project algorithms
 def test_get_project_algorithms(setup):
-    client, _, _, _, project = setup
+    client, _, project = setup
     data = misc.choose_project_algorithms()
     au.set_project_algorithms(client, project, data=data)
     # get the project algorithms
@@ -324,7 +329,7 @@ def test_get_project_algorithms(setup):
 
 # Test starting the model
 def test_start_and_model_ready(setup):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # upload dataset
     au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
     # label 2 random records
@@ -356,7 +361,7 @@ def test_start_and_model_ready(setup):
     ]
 )
 def test_status_project_current(setup, state_name, expected_state):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # call these progression steps
     if state_name in ["setup", "review", "finish"]:
         # upload dataset
@@ -383,7 +388,7 @@ def test_status_project_current(setup, state_name, expected_state):
 # Test exporting the results
 @pytest.mark.parametrize("format", ["csv", "tsv", "xlsx"])
 def test_export_result(setup, format):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # upload dataset
     au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
     au.label_random_project_data_record(client, project, 1)
@@ -395,7 +400,7 @@ def test_export_result(setup, format):
 
 # Test exporting the entire project
 def test_export_project(setup):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # upload dataset
     au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
     au.label_random_project_data_record(client, project, 1)
@@ -408,7 +413,7 @@ def test_export_project(setup):
 # Test setting the project status
 @pytest.mark.parametrize("status", ["review", "finished"])
 def test_set_project_status(setup, status):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # start the show
     au.upload_label_set_and_start_model(client, project, UPLOAD_DATA[0])
     # when setting the status to "review", the project must have another
@@ -423,7 +428,7 @@ def test_set_project_status(setup, status):
 
 # Test get progress info
 def test_get_progress_info(setup):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # upload dataset
     au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
     # label 2 random records
@@ -440,7 +445,7 @@ def test_get_progress_info(setup):
 
 # Test get progress density on the article
 def test_get_progress_density(setup):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # upload dataset
     au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
     # request progress density
@@ -453,7 +458,7 @@ def test_get_progress_density(setup):
 
 # Test progress recall
 def test_get_progress_recall(setup):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # upload dataset
     au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
     # get recall
@@ -466,7 +471,7 @@ def test_get_progress_recall(setup):
 
 # Test retrieve documents in order to review
 def test_retrieve_document_for_review(setup):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # start the show
     au.upload_label_set_and_start_model(client, project, UPLOAD_DATA[0])
     # get a document
@@ -480,7 +485,7 @@ def test_retrieve_document_for_review(setup):
 
 # Test label a document after the model has been started
 def test_label_a_document_with_running_model(setup):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # start the show
     au.upload_label_set_and_start_model(client, project, UPLOAD_DATA[0])
     # get a document
@@ -503,7 +508,7 @@ def test_label_a_document_with_running_model(setup):
 
 # Test update label of a document after the model has been started
 def test_update_label_of_document_with_running_model(setup):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # start the show
     au.upload_label_set_and_start_model(client, project, UPLOAD_DATA[0])
     # get a document
@@ -525,7 +530,7 @@ def test_update_label_of_document_with_running_model(setup):
 
 # Test deleting a project
 def test_delete_project(setup):
-    client, _, _, _, project = setup
+    client, _, project = setup
     # delete project
     status_code, data = au.delete_project(client, project)
     assert status_code == 200
@@ -566,27 +571,31 @@ def test_delete_project(setup):
     ]
 )
 def test_unauthorized_use_of_api_calls(setup, api_call):
-    client, _, _, _, project = setup
-    # signout the client
-    au.signout_user(client)
-    # inspect function
-    sig = inspect.signature(api_call)
-    # form parameters
-    parms = []
-    for par in sig.parameters.keys():
-        annotation = sig.parameters[par].annotation
-        if annotation == FlaskClient:
-            parms.append(client)
-        elif annotation == Union[Project, ASReviewProject]:
-            parms.append(project)
-        elif annotation == int:
-            parms.append(1)
-        elif annotation == str:
-            parms.append("abc")
-        elif annotation == dict:
-            parms.append({})
+    client, user, project = setup
+    if not user is None:
+        # signout the client
+        au.signout_user(client)
+        # inspect function
+        sig = inspect.signature(api_call)
+        # form parameters
+        parms = []
+        for par in sig.parameters.keys():
+            annotation = sig.parameters[par].annotation
+            if annotation == FlaskClient:
+                parms.append(client)
+            elif annotation == Union[Project, ASReviewProject]:
+                parms.append(project)
+            elif annotation == int:
+                parms.append(1)
+            elif annotation == str:
+                parms.append("abc")
+            elif annotation == dict:
+                parms.append({})
 
-    # make the api call
-    status_code, data = api_call(*parms)
-    assert status_code == 401
-    assert data["message"] == "Login required."
+        # make the api call
+        status_code, data = api_call(*parms)
+        assert status_code == 401
+        assert data["message"] == "Login required."
+    else:
+        # these tests are 
+        pass

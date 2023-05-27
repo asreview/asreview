@@ -6,6 +6,18 @@ from pathlib import Path
 
 from asreview.utils import asreview_path
 
+from asreview.webapp.authentication.models import Project
+from asreview.project import ASReviewProject
+
+
+def get_project_id(project):
+    id = None
+    if isinstance(project, Project):
+        id = project.project_id
+    elif isinstance(project, ASReviewProject):
+        id = project.config["id"]
+    return id
+
 def clear_folders_in_asreview_path():
     for item in Path(asreview_path()).glob("*"):
         if item.is_dir():
@@ -13,14 +25,14 @@ def clear_folders_in_asreview_path():
 
 
 def read_project_file(project):
-    id = project.project_id
+    id = get_project_id(project)
     with open(asreview_path() / id / "project.json", "r") as f:
         data = json.load(f)
         return data
 
 
 def manipulate_project_file(project, key, value):
-    id = project.project_id
+    id = get_project_id(project)
     data = read_project_file(project)
     data[key] = value
     with open(asreview_path() / id / "project.json", "w+") as f:
@@ -30,13 +42,13 @@ def manipulate_project_file(project, key, value):
 
 
 def subs_for_legacy_project_folder(project):
-    shutil.rmtree(asreview_path() / project.project_id)
+    shutil.rmtree(asreview_path() / get_project_id(project))
     # I need an old project folder, and I got it in the data dir
     src = Path(
         Path(__file__).parent.parent.resolve(),
         "data/asreview-project-v0-19-startreview"
     )
-    dst = asreview_path() / project.project_id
+    dst = asreview_path() / get_project_id(project)
     shutil.copytree(src, dst)
 
 

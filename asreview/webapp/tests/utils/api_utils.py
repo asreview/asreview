@@ -3,8 +3,14 @@ import time
 
 import asreview.webapp.tests.utils.crud as crud
 import asreview.webapp.tests.utils.misc as misc
+from asreview.webapp.tests.utils.misc import get_project_id
 from asreview.webapp.tests.utils.config_parser import all_users
 from asreview.webapp.tests.utils.config_parser import get_user
+
+from typing import Union
+from flask.testing import FlaskClient
+from asreview.webapp.authentication.models import Project
+from asreview.project import ASReviewProject
 
 
 def process_response(response):
@@ -123,7 +129,7 @@ def create_project(
     
 
 def invite(client, project, user):
-    url = f"/api/invitations/projects/{project.project_id}/users/{user.id}"
+    url = f"/api/invitations/projects/{get_project_id(project)}/users/{user.id}"
     response = client.post(url)
     return process_response(response)
 
@@ -134,13 +140,13 @@ def list_invitations(client):
 
 
 def list_collaborators(client, project):
-    response = client.get(f"/api/projects/{project.project_id}/users")
+    response = client.get(f"/api/projects/{get_project_id(project)}/users")
     return process_response(response)
 
 
 def accept_invitation(client, project):
     response = client.post(
-        f"/api/invitations/projects/{project.project_id}/accept",
+        f"/api/invitations/projects/{get_project_id(project)}/accept",
         data={}
     )
     return process_response(response)
@@ -148,7 +154,7 @@ def accept_invitation(client, project):
 
 def reject_invitation(client, project):
     response = client.delete(
-        f"/api/invitations/projects/{project.project_id}/reject",
+        f"/api/invitations/projects/{get_project_id(project)}/reject",
         data={}
     )
     return process_response(response)
@@ -156,7 +162,7 @@ def reject_invitation(client, project):
 
 def delete_invitation(client, project, user):
     response = client.delete(
-        f"/api/invitations/projects/{project.project_id}/users/{user.id}",
+        f"/api/invitations/projects/{get_project_id(project)}/users/{user.id}",
         data={}
     )
     return process_response(response)
@@ -164,15 +170,12 @@ def delete_invitation(client, project, user):
 
 def delete_collaboration(client, project, user):
     response = client.delete(
-        f"/api/projects/{project.project_id}/users/{user.id}",
+        f"/api/projects/{get_project_id(project)}/users/{user.id}",
         data={}
     )
     return process_response(response)
 
-from typing import Union
-from flask.testing import FlaskClient
-from asreview.webapp.authentication.models import Project
-from asreview.project import ASReviewProject
+
 
 def get_all_projects(client:FlaskClient):
     response = client.get("/api/projects")
@@ -207,7 +210,7 @@ def update_project(
     description:str="description"):
         
     response = client.put(
-        f"/api/projects/{project.project_id}/info",
+        f"/api/projects/{get_project_id(project)}/info",
         data={
             "mode": mode,
             "name": name,
@@ -222,7 +225,9 @@ def upgrade_project(
         client:FlaskClient,
         project:Union[Project, ASReviewProject]
     ):
-    response = client.get(f"/api/projects/{project.project_id}/upgrade_if_old")
+    response = client.get(
+        f"/api/projects/{get_project_id(project)}/upgrade_if_old"
+    )
     return process_response(response)
 
 
@@ -242,7 +247,7 @@ def upload_data_to_project(
         data:dict
     ):
     response =  client.post(
-        f"/api/projects/{project.project_id}/data",
+        f"/api/projects/{get_project_id(project)}/data",
         data=data,
     )
     return process_response(response)
@@ -252,7 +257,7 @@ def get_project_data(
         client:FlaskClient,
         project:Union[Project, ASReviewProject]
     ):
-    response = client.get(f"/api/projects/{project.project_id}/data")
+    response = client.get(f"/api/projects/{get_project_id(project)}/data")
     return process_response(response)
 
 
@@ -261,7 +266,7 @@ def get_project_dataset_writer(
         project:Union[Project, ASReviewProject]
     ):
     response = client.get(
-        f"/api/projects/{project.project_id}/dataset_writer"
+        f"/api/projects/{get_project_id(project)}/dataset_writer"
     )
     return process_response(response)
 
@@ -272,7 +277,7 @@ def search_project_data(
         query:str
     ):
     response = client.get(
-        f"/api/projects/{project.project_id}/search?q={query}"
+        f"/api/projects/{get_project_id(project)}/search?q={query}"
     )
     return process_response(response)
 
@@ -282,7 +287,7 @@ def get_prior_random_project_data(
         project:Union[Project, ASReviewProject]
     ):
     response = client.get(
-        f"/api/projects/{project.project_id}/prior_random"
+        f"/api/projects/{get_project_id(project)}/prior_random"
     )
     return process_response(response)
 
@@ -309,7 +314,7 @@ def label_project_record(
         note:str=""
     ):
     response = client.post(
-        f"/api/projects/{project.project_id}/record/{doc_id}",
+        f"/api/projects/{get_project_id(project)}/record/{doc_id}",
         data={
             "doc_id": doc_id,
             "label": label,
@@ -329,7 +334,7 @@ def update_label_project_record(
         note:str=""
     ):
     response = client.put(
-        f"/api/projects/{project.project_id}/record/{doc_id}",
+        f"/api/projects/{get_project_id(project)}/record/{doc_id}",
         data={
             "doc_id": doc_id,
             "label": label,
@@ -344,7 +349,7 @@ def get_labeled_project_data(
         client:FlaskClient,
         project:Union[Project, ASReviewProject]
     ):
-    response = client.get(f"/api/projects/{project.project_id}/labeled")
+    response = client.get(f"/api/projects/{get_project_id(project)}/labeled")
     return process_response(response)
 
 
@@ -352,7 +357,9 @@ def get_labeled_project_data_stats(
         client:FlaskClient,
         project:Union[Project, ASReviewProject]
     ):
-    response = client.get(f"/api/projects/{project.project_id}/labeled_stats")
+    response = client.get(
+        f"/api/projects/{get_project_id(project)}/labeled_stats"
+    )
     return process_response(response)
 
 
@@ -367,7 +374,7 @@ def set_project_algorithms(
         data:dict
     ):
     response = client.post(
-        f"/api/projects/{project.project_id}/algorithms",
+        f"/api/projects/{get_project_id(project)}/algorithms",
         data=data
     )
     return process_response(response)
@@ -377,7 +384,9 @@ def get_project_algorithms(
         client:FlaskClient,
         project:Union[Project, ASReviewProject]
     ):
-    response = client.get(f"/api/projects/{project.project_id}/algorithms")
+    response = client.get(
+        f"/api/projects/{get_project_id(project)}/algorithms"
+    )
     return process_response(response)
 
 
@@ -385,7 +394,7 @@ def start_project_algorithms(
         client:FlaskClient, 
         project:Union[Project, ASReviewProject]
     ):
-    response = client.post(f"/api/projects/{project.project_id}/start")
+    response = client.post(f"/api/projects/{get_project_id(project)}/start")
     return process_response(response)
 
 
@@ -393,7 +402,7 @@ def get_project_status(
         client:FlaskClient, 
         project:Union[Project, ASReviewProject]
     ):
-    response = client.get(f"/api/projects/{project.project_id}/status")
+    response = client.get(f"/api/projects/{get_project_id(project)}/status")
     return process_response(response)
 
 
@@ -403,7 +412,7 @@ def set_project_status(
         status:str
     ):
     response = client.put(
-        f"/api/projects/{project.project_id}/status",
+        f"/api/projects/{get_project_id(project)}/status",
         data = {"status": status}
     )
     return process_response(response)
@@ -414,7 +423,7 @@ def export_project_dataset(
         project:Union[Project, ASReviewProject],
         format:str
     ):
-    id = project.project_id
+    id = get_project_id(project)
     response = client.get(
         f"/api/projects/{id}/export_dataset?file_format={format}"
     )
@@ -426,7 +435,7 @@ def export_project(
         project:Union[Project, ASReviewProject],
     ):
     response = client.get(
-        f"/api/projects/{project.project_id}/export_project"
+        f"/api/projects/{get_project_id(project)}/export_project"
     )
     return process_response(response)
 
@@ -435,7 +444,7 @@ def get_project_progress(
         client:FlaskClient,
         project:Union[Project, ASReviewProject],
     ):
-    response = client.get(f"/api/projects/{project.project_id}/progress")
+    response = client.get(f"/api/projects/{get_project_id(project)}/progress")
     return process_response(response)
 
 
@@ -444,7 +453,7 @@ def get_project_progress_density(
         project:Union[Project, ASReviewProject],
     ):
     response = client.get(
-        f"/api/projects/{project.project_id}/progress_density"
+        f"/api/projects/{get_project_id(project)}/progress_density"
     )
     return process_response(response)
 
@@ -454,7 +463,7 @@ def get_project_progress_recall(
         project:Union[Project, ASReviewProject],
     ):
     response = client.get(
-        f"/api/projects/{project.project_id}/progress_recall"
+        f"/api/projects/{get_project_id(project)}/progress_recall"
     )
     return process_response(response)
 
@@ -463,7 +472,9 @@ def get_project_current_document(
         client:FlaskClient,
         project:Union[Project, ASReviewProject],
     ):
-    response = client.get(f"/api/projects/{project.project_id}/get_document")
+    response = client.get(
+        f"/api/projects/{get_project_id(project)}/get_document"
+    )
     return process_response(response)
 
 
@@ -471,7 +482,7 @@ def delete_project(
         client:FlaskClient,
         project:Union[Project, ASReviewProject],
     ):
-    response = client.delete(f"/api/projects/{project.project_id}/delete")
+    response = client.delete(f"/api/projects/{get_project_id(project)}/delete")
     return process_response(response)
 
 

@@ -9,8 +9,8 @@ import asreview.webapp.tests.utils.api_utils as au
 
 
 # Test sending an invitation
-def test_user1_sends_invitation(setup):
-    client, _, user2, _, project = setup
+def test_user1_sends_invitation(setup_auth):
+    client, _, user2, _, project = setup_auth
     # invite
     status_code, resp_data = au.invite(client, project, user2)
     assert status_code == 200
@@ -18,8 +18,8 @@ def test_user1_sends_invitation(setup):
 
 
 # Testing listing invitations
-def test_user2_list_invitations(setup):
-    client, user1, user2, _, project = setup
+def test_user2_list_invitations(setup_auth):
+    client, user1, user2, _, project = setup_auth
     # invite
     au.invite(client, project, user2)
     # signout user 1
@@ -36,8 +36,8 @@ def test_user2_list_invitations(setup):
 
 
 # Testing accepting an invitation
-def test_user2_accept_invitation(setup):
-    client, _, user2, _, project = setup
+def test_user2_accept_invitation(setup_auth):
+    client, _, user2, _, project = setup_auth
     # invite
     au.invite(client, project, user2)
     # signout user 1
@@ -51,8 +51,8 @@ def test_user2_accept_invitation(setup):
 
 
 # Test rejecting invitation
-def test_user2_rejects_invitation(setup):
-    client, _, user2, _, project = setup
+def test_user2_rejects_invitation(setup_auth):
+    client, _, user2, _, project = setup_auth
     # invite
     au.invite(client, project, user2)
     # signout user 1
@@ -66,8 +66,8 @@ def test_user2_rejects_invitation(setup):
 
 
 # Test owner removes invitation
-def test_owner_deletes_invitation(setup):
-    client, _, user2, _, project = setup
+def test_owner_deletes_invitation(setup_auth):
+    client, _, user2, _, project = setup_auth
     # invite
     au.invite(client, project, user2)
     # remove invitation
@@ -77,8 +77,8 @@ def test_owner_deletes_invitation(setup):
 
 
 # Test owner views collaboration team
-def test_view_collaboration_team_with_pending_invitation(setup):
-    client, _, user2, _, project = setup
+def test_view_collaboration_team_with_pending_invitation(setup_auth):
+    client, _, user2, _, project = setup_auth
     # invite
     au.invite(client, project, user2)
     # checks team
@@ -89,8 +89,8 @@ def test_view_collaboration_team_with_pending_invitation(setup):
 
 
 # Test owner views collaboration team
-def test_view_collaboration_team_with_accepted_invitation(setup):
-    client, user1, user2, _, project = setup
+def test_view_collaboration_team_with_accepted_invitation(setup_auth):
+    client, user1, user2, _, project = setup_auth
     # invite
     au.invite(client, project, user2)
     # signout user 1
@@ -110,8 +110,8 @@ def test_view_collaboration_team_with_accepted_invitation(setup):
 
 
 # Test owner removes collaboration
-def test_owner_deletes_collaboration(setup):
-    client, user1, user2, _, project = setup
+def test_owner_deletes_collaboration(setup_auth):
+    client, user1, user2, _, project = setup_auth
     # invite
     au.invite(client, project, user2)
     # signout user 1
@@ -130,8 +130,8 @@ def test_owner_deletes_collaboration(setup):
 
 
 # Test collaborator withdraws from collaboration
-def test_collaborator_withdrawal(setup):
-    client, _, user2, _, project = setup
+def test_collaborator_withdrawal(setup_auth):
+    client, _, user2, _, project = setup_auth
     # invite
     au.invite(client, project, user2)
     # signout user 1
@@ -163,8 +163,8 @@ def test_collaborator_withdrawal(setup):
     ]
 )
 # Test login required for all api routes
-def test_login_required(setup, api_call):
-    client, _, user2, _, project = setup
+def test_login_required(setup_auth, api_call):
+    client, _, user2, _, project = setup_auth
     au.signout_user(client)
     number_of_params = len(getfullargspec(api_call).args)
     if number_of_params == 1:
@@ -184,8 +184,8 @@ def test_login_required(setup, api_call):
 
 
 # Test user3 can't see invite from user 1 to user 2
-def test_user3_cant_see_other_invites(setup):
-    client, _, user2, user3, project = setup
+def test_user3_cant_see_other_invites(setup_auth):
+    client, _, user2, user3, project = setup_auth
     # invite to make sure we have an invitation (user1 is signed in)
     au.invite(client, project, user2)
     # signout user 1
@@ -199,8 +199,8 @@ def test_user3_cant_see_other_invites(setup):
 
 
 # Test user3 can't accept invite to user 2
-def test_user3_cant_reject_invite_of_user_2(setup):
-    client, _, user2, user3, project = setup
+def test_user3_cant_reject_invite_of_user_2(setup_auth):
+    client, _, user2, user3, project = setup_auth
     # invite to make sure we have an invitation (user1 is signed in)
     au.invite(client, project, user2)
     # signout user 1
@@ -213,8 +213,8 @@ def test_user3_cant_reject_invite_of_user_2(setup):
 
 
 # Test user3 can't reject invite to user 2
-def test_user3_cant_accept_invite_of_user_2(setup):
-    client, _, user2, user3, project = setup
+def test_user3_cant_accept_invite_of_user_2(setup_auth):
+    client, _, user2, user3, project = setup_auth
     # invite to make sure we have an invitation (user1 is signed in)
     au.invite(client, project, user2)
     # signout user 1
@@ -227,8 +227,8 @@ def test_user3_cant_accept_invite_of_user_2(setup):
 
 
 # Test user3 can't delete invitation
-def test_user3_cant_delete_invitation(setup):
-    client, _, user2, user3, project = setup
+def test_user3_cant_delete_invitation(setup_auth):
+    client, _, user2, user3, project = setup_auth
     # invite
     au.invite(client, project, user2)
     # signout user 1
@@ -242,8 +242,8 @@ def test_user3_cant_delete_invitation(setup):
 
 
 # Test user3 can't see collaboration team of user 1
-def test_user3_cant_see_collaboration_team(setup):
-    client, _, user2, user3, project = setup
+def test_user3_cant_see_collaboration_team(setup_auth):
+    client, _, user2, user3, project = setup_auth
     # invite
     au.invite(client, project, user2)
     # signout user 1
@@ -257,8 +257,8 @@ def test_user3_cant_see_collaboration_team(setup):
 
 
 # Test user3 can't remove collaboration
-def test_user3_cant_delete_collaboration(setup):
-    client, _, user2, user3, project = setup
+def test_user3_cant_delete_collaboration(setup_auth):
+    client, _, user2, user3, project = setup_auth
     # invite
     au.invite(client, project, user2)
     # signout user 1
