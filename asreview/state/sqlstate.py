@@ -462,7 +462,7 @@ class SQLiteState(BaseState):
         Arguments
         ---------
         probabilities: list, np.array
-            List containing the probabilities for every record. If this is None, the
+            List containing the relevance scores for every record. If this is None, the
             last probabilities table in the state is emptied.
         """
         if probabilities is None:
