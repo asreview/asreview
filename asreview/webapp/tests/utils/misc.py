@@ -3,13 +3,12 @@ import random
 import re
 import shutil
 from pathlib import Path
+from typing import Union
+from urllib.request import urlopen
 
 from flask import current_app
 
 from asreview.utils import asreview_path
-
-from asreview.webapp.authentication.models import Project
-from asreview.project import ASReviewProject
 
 
 def get_project_id(project):
@@ -54,11 +53,15 @@ def subs_for_legacy_project_folder(project):
     shutil.copytree(src, dst)
 
 
+def _extract_stem(path:Union[str, Path]):
+    return Path(re.split(":|/", str(path))[-1]).stem
+
+
 def extract_filename_stem(upload_data):
     # upload data is a dict with a single key value pair
     value = list(upload_data.values())[0]
     # split this value on either / or :
-    return Path(re.split(":|/", value)[-1]).stem
+    return _extract_stem(value)
 
 
 def choose_project_algorithms():
@@ -79,3 +82,30 @@ def choose_project_algorithms():
         ),
     }
     return data
+
+
+def retrieve_project_url_github(major=None):
+    """Retrieve .asreview file url from
+    asreview-project-files-testing GitHub repository"""
+
+    repo = "/asreview/asreview-project-files-testing"
+    repo_api_url = "https://api.github.com/repos" + repo + "/git/trees/master"
+    repo_url = "https://github.com" + repo + "/blob/master"
+    file_type = "startreview.asreview?raw=true"
+
+    json_file = json.loads(urlopen(repo_api_url).read().decode("utf-8"))["tree"]
+
+    version_tags = []
+    project_urls = []
+
+    for file in json_file:
+        if file["type"] == "tree":
+            version_tags.append(file["path"])
+
+    for tag in version_tags:
+        file_version = f"/{tag}/asreview-project-{tag.replace('.', '-')}-"
+
+        if major is None or int(tag[1]) == major:
+            project_urls.append(repo_url + file_version + file_type)
+
+    return project_urls

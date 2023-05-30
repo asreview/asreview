@@ -1,5 +1,7 @@
 import random
 import time
+from io import BytesIO
+from urllib.request import urlopen
 
 import asreview.webapp.tests.utils.crud as crud
 import asreview.webapp.tests.utils.misc as misc
@@ -112,8 +114,6 @@ def refresh(client):
     response = client.get("/auth/refresh")
     return process_response(response)
 
-
-from flask.testing import FlaskClient
 
 def get_profile(client: FlaskClient):
     response = client.get("/auth/get_profile")
@@ -239,6 +239,18 @@ def upgrade_project(
     response = client.get(
         f"/api/projects/{get_project_id(project)}/upgrade_if_old"
     )
+    return process_response(response)
+
+
+def import_project(
+        client:FlaskClient,
+        url: str
+    ):
+    with urlopen(url) as project_file:
+        response = client.post(
+            "/api/projects/import_project",
+            data={"file": (BytesIO(project_file.read()), "project.asreview")},
+        )
     return process_response(response)
 
 

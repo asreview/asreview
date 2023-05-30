@@ -4,6 +4,7 @@ from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 import asreview.webapp.tests.utils.config_parser as cp
 
+
 def create_user(DB, user=1):
     if type(user) == int:
         user = cp.get_user(user)

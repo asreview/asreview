@@ -1239,8 +1239,42 @@ def api_import_project():
 
     try:
         project = ASReviewProject.load(
-            request.files["file"], asreview_path(), safe_import=True
+            request.files["file"],
+            asreview_path(),
+            safe_import=True
         )
+
+    #     plaintext_project_id = _create_project_id(project.config("name"))
+
+    # if (
+    #     not plaintext_project_id
+    #     and not isinstance(plaintext_project_id, str)
+    #     and len(plaintext_project_id) >= 3
+    # ):
+    #     raise ValueError("Project name should be at least 3 characters.")
+
+    # # generate a project path
+    # if app_is_authenticated(current_app):
+    #     project_id = _get_authenticated_folder_id(plaintext_project_id, current_user)
+    # else:
+    #     project_id = plaintext_project_id
+
+    # # get path of this project
+    # project_path = get_project_path(project_id)
+
+    # project = ASReviewProject.create(
+    #     project_path,
+    #     project_id=project_id,
+    #     project_mode=project_mode,
+    #     project_name=project_name,
+    #     project_description=project_description,
+    #     project_authors=project_authors,
+    # )
+
+    # # create a database entry for this project
+    # if app_is_authenticated(current_app):
+    #     current_user.projects.append(Project(project_id=project_id))
+    #     DB.session.commit()
 
     except Exception as err:
         logging.error(err)

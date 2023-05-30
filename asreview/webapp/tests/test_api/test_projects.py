@@ -7,9 +7,11 @@ from flask import current_app
 from flask.testing import FlaskClient
 
 import asreview.webapp.tests.utils.api_utils as au
+import asreview.webapp.tests.utils.crud as crud
 import asreview.webapp.tests.utils.misc as misc
 from asreview.project import ASReviewProject
 from asreview.webapp.authentication.models import Project
+from asreview.webapp.tests.utils.misc import retrieve_project_url_github
 
 # NOTE: I don't see a plugin that can be used for testing
 # purposes
@@ -18,6 +20,7 @@ UPLOAD_DATA = [
     {"url": "https://raw.githubusercontent.com/asreview/" +
         "asreview/master/tests/demo_data/generic_labels.csv"}
 ]
+IMPORT_PROJECT_URLS = retrieve_project_url_github()
 
 # NOTE: the setup fixture entails: a FlaskClient, 1 user (signed in),
 # and a project of this user OR a project from an unauthenticated app.
@@ -78,6 +81,23 @@ def test_upgrade_an_old_project(setup):
     status_code, data = au.upgrade_project(client, project)
     assert status_code == 200
     assert data["success"]
+
+
+# Test importing old projects, verify ids
+@pytest.mark.parametrize("url", IMPORT_PROJECT_URLS)
+def test_import_project_files_current(setup, url):
+    client, _, _ = setup
+    # import project
+    status_code, data = au.import_project(client, url)
+    assert status_code == 200
+    assert isinstance(data, dict)
+    if current_app.config.get("AUTHENTICATION_ENABLED"):
+        # assert it exists in the database
+        assert crud.count_projects() == 2
+        project = crud.last_project()
+        assert data["id"] == project.project_id
+    else:
+        assert data["id"] == misc._extract_stem(url)
 
 
 # Test get stats in setup state
