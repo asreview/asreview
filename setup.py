@@ -19,6 +19,7 @@ import re
 import subprocess
 from io import open
 from os import path
+from pathlib import Path
 
 from setuptools import Command
 from setuptools import find_packages
@@ -71,7 +72,11 @@ class CompileAssets(Command):
 
     def run(self):
         """Run a command to compile and build assets."""
-        subprocess.check_call("sh ./asreview/webapp/compile_assets.sh", shell=True)
+
+        path_webapp = Path(__file__).parent / "asreview" / "webapp"
+
+        subprocess.check_call(["npm", "install"], cwd=str(path_webapp))
+        subprocess.check_call(["npm", "run-script", "build"], cwd=str(path_webapp))
 
 
 def get_cmdclass():
