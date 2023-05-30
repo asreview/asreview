@@ -17,6 +17,17 @@ def process_response(response):
     return (response.status_code, response.json)
 
 
+def call_root_url(client):
+    response = client.get("/")
+    status_code, data = process_response(response)
+    return (status_code, data, response.text)
+
+
+def call_boot_url(client):
+    response = client.get("/boot")
+    return process_response(response)
+
+
 def signin_user(client, user):
     """Signs in a user through the api"""
     # If a password is not set, we need to get it

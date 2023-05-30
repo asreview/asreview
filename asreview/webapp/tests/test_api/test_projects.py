@@ -3,6 +3,7 @@ import time
 from typing import Union
 
 import pytest
+from flask import current_app
 from flask.testing import FlaskClient
 
 import asreview.webapp.tests.utils.api_utils as au
@@ -39,7 +40,7 @@ def test_get_projects(setup):
     assert status_code == 200
     assert len(data["result"]) == 1
     found_project = data["result"][0]
-    if isinstance(project, ASReviewProject):
+    if not current_app.config.get("AUTHENTICATION_ENABLED"):
         assert found_project["id"] == project.config["id"]
     else:
         assert found_project["id"] == project.project_id

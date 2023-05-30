@@ -4,6 +4,8 @@ import re
 import shutil
 from pathlib import Path
 
+from flask import current_app
+
 from asreview.utils import asreview_path
 
 from asreview.webapp.authentication.models import Project
@@ -12,9 +14,9 @@ from asreview.project import ASReviewProject
 
 def get_project_id(project):
     id = None
-    if isinstance(project, Project):
+    if current_app.config.get("AUTHENTICATION_ENABLED"):
         id = project.project_id
-    elif isinstance(project, ASReviewProject):
+    else:
         id = project.config["id"]
     return id
 
