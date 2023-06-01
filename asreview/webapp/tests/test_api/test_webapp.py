@@ -27,13 +27,11 @@ def test_boot(setup_all_clients):
     assert "version" in data.keys()
     if current_app.config.get("AUTHENTICATION_ENABLED"):
         assert data["authentication"]
-        assert (
-            data["allow_account_creation"]
-            == current_app.config.get("ALLOW_ACCOUNT_CREATION")
+        assert data["allow_account_creation"] == current_app.config.get(
+            "ALLOW_ACCOUNT_CREATION"
         )
-        assert (
-            data["email_verification"]
-            == current_app.config.get("EMAIL_VERIFICATION", False)
+        assert data["email_verification"] == current_app.config.get(
+            "EMAIL_VERIFICATION", False
         )
     else:
         assert not data["authentication"]

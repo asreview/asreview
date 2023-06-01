@@ -36,12 +36,14 @@ def setup(request):
     clear_folders_in_asreview_path()
 
 
-@pytest.fixture(params=[
-    "client_auth",
-    "client_auth_no_creation",
-    "client_auth_verified",
-    "client_no_auth"
-])
+@pytest.fixture(
+    params=[
+        "client_auth",
+        "client_auth_no_creation",
+        "client_auth_verified",
+        "client_no_auth",
+    ]
+)
 def setup_all_clients(request):
     # get the client
     client = request.getfixturevalue(request.param)

@@ -536,14 +536,7 @@ def test_refresh_with_signed_out_user(client_auth):
 
 # User must be logged in, in order to signout,
 # we expect an error if we sign out if not signed in
-@pytest.mark.parametrize(
-    "api_call",
-    [
-        au.signout_user,
-        au.get_profile,
-        au.update_user
-    ]
-)
+@pytest.mark.parametrize("api_call", [au.signout_user, au.get_profile, au.update_user])
 def test_must_be_signed_in_to_signout(client_auth, api_call):
     if len(getfullargspec(api_call).args) == 1:
         status_code, data = api_call(client_auth)

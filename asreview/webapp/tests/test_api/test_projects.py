@@ -17,8 +17,10 @@ from asreview.webapp.tests.utils.misc import retrieve_project_url_github
 # purposes
 UPLOAD_DATA = [
     {"benchmark": "benchmark:Hall_2012"},
-    {"url": "https://raw.githubusercontent.com/asreview/" +
-        "asreview/master/tests/demo_data/generic_labels.csv"}
+    {
+        "url": "https://raw.githubusercontent.com/asreview/"
+        + "asreview/master/tests/demo_data/generic_labels.csv"
+    },
 ]
 IMPORT_PROJECT_URLS = retrieve_project_url_github()
 
@@ -159,33 +161,19 @@ def test_unknown_demo_data_project(setup):
 
 
 # Test uploading benchmark data to a project
-@pytest.mark.parametrize(
-    "upload_data",
-    UPLOAD_DATA
-)
+@pytest.mark.parametrize("upload_data", UPLOAD_DATA)
 def test_upload_benchmark_data_to_project(setup, upload_data):
     client, _, project = setup
-    status_code, data = au.upload_data_to_project(
-        client,
-        project,
-        data=upload_data
-    )
+    status_code, data = au.upload_data_to_project(client, project, data=upload_data)
     assert status_code == 200
     assert data["success"]
 
 
 # Test getting the data after an upload
-@pytest.mark.parametrize(
-    "upload_data",
-    UPLOAD_DATA
-)
+@pytest.mark.parametrize("upload_data", UPLOAD_DATA)
 def test_get_project_data(setup, upload_data):
     client, _, project = setup
-    au.upload_data_to_project(
-        client,
-        project,
-        data=upload_data
-    )
+    au.upload_data_to_project(client, project, data=upload_data)
     status_code, data = au.get_project_data(client, project)
     assert status_code == 200
     assert data["filename"] == misc.extract_filename_stem(upload_data)
@@ -217,7 +205,7 @@ def test_update_project_info(setup):
         name=new_name,
         mode=new_mode,
         authors=new_authors,
-        description=new_description
+        description=new_description,
     )
     assert status_code == 200
     assert data["authors"] == new_authors
@@ -233,9 +221,7 @@ def test_search_data(setup):
     au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
     # search
     status_code, data = au.search_project_data(
-        client,
-        project,
-        query="Software&n_max=10"
+        client, project, query="Software&n_max=10"
     )
     assert status_code == 200
     assert "result" in data
@@ -263,11 +249,7 @@ def test_label_item(setup, label):
     # upload dataset
     au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
     # label
-    status_code, data = au.label_random_project_data_record(
-        client,
-        project,
-        label
-    )
+    status_code, data = au.label_random_project_data_record(client, project, label)
     assert status_code == 200
     assert data["success"]
 
@@ -315,7 +297,7 @@ def test_list_algorithms(setup):
         "balance_strategy",
         "classifier",
         "feature_extraction",
-        "query_strategy"
+        "query_strategy",
     ]
     for key in expected_keys:
         assert key in data.keys()
@@ -369,17 +351,13 @@ def test_start_and_model_ready(setup):
 
 # Test status of project
 @pytest.mark.parametrize(
-    (
-        "state_name",
-        "expected_state"
-    ),
+    ("state_name", "expected_state"),
     [
         ("creation", None),
         ("setup", "setup"),
         ("review", "review"),
-        ("finish", "finished")
-
-    ]
+        ("finish", "finished"),
+    ],
 )
 def test_status_project_current(setup, state_name, expected_state):
     client, _, project = setup
@@ -515,12 +493,7 @@ def test_label_a_document_with_running_model(setup):
     doc_id = data["result"]["doc_id"]
     # label it
     status_code, data = au.label_project_record(
-        client,
-        project,
-        doc_id,
-        label=1,
-        prior=0,
-        note="note"
+        client, project, doc_id, label=1, prior=0, note="note"
     )
     assert status_code == 200
     assert data["success"]
@@ -537,9 +510,7 @@ def test_update_label_of_document_with_running_model(setup):
     # get id
     doc_id = data["result"]["doc_id"]
     # label it
-    au.label_project_record(
-        client, project, doc_id, label=1, prior=0, note="note"
-    )
+    au.label_project_record(client, project, doc_id, label=1, prior=0, note="note")
     # change label
     status_code, data = au.update_label_project_record(
         client, project, doc_id, label=0, prior=0, note="changed note"
@@ -588,12 +559,12 @@ def test_delete_project(setup):
         au.get_project_progress_density,
         au.get_project_progress_recall,
         au.get_project_current_document,
-        au.delete_project
-    ]
+        au.delete_project,
+    ],
 )
 def test_unauthorized_use_of_api_calls(setup, api_call):
     client, user, project = setup
-    if not user is None:
+    if current_app.config.get("AUTHENTICATION_ENABLED"):
         # signout the client
         au.signout_user(client)
         # inspect function
@@ -618,5 +589,5 @@ def test_unauthorized_use_of_api_calls(setup, api_call):
         assert status_code == 401
         assert data["message"] == "Login required."
     else:
-        # these tests are 
+        # no asserts in an unauthenticated app
         pass

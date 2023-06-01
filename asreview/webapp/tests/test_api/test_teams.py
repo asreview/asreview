@@ -150,6 +150,7 @@ def test_collaborator_withdrawal(setup_auth):
 # TEST LOGIN REQUIRED
 # ###################
 
+
 @pytest.mark.parametrize(
     "api_call",
     [
@@ -159,8 +160,8 @@ def test_collaborator_withdrawal(setup_auth):
         au.accept_invitation,
         au.reject_invitation,
         au.delete_invitation,
-        au.delete_collaboration
-    ]
+        au.delete_collaboration,
+    ],
 )
 # Test login required for all api routes
 def test_login_required(setup_auth, api_call):

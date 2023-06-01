@@ -18,17 +18,15 @@ from pathlib import Path
 
 import pytest
 
-from asreview.utils import asreview_path
-from asreview.webapp import DB
 import asreview.webapp.tests.utils.crud as crud
-from asreview.webapp.authentication.models import User
+from asreview.webapp import DB
 from asreview.webapp.start_flask import create_app
 
-ASREVIEW_PATH=str(Path("~", ".asreview-test").expanduser())
+ASREVIEW_PATH = str(Path("~", ".asreview-test").expanduser())
 
 
 def _get_app(app_type="auth-basic"):
-    """Create test flask app"""
+    """Create and returns test flask app based on app_type"""
     # set asreview path
     os.environ.update({"ASREVIEW_PATH": ASREVIEW_PATH})
     # get path of appropriate flask config
@@ -46,25 +44,32 @@ def _get_app(app_type="auth-basic"):
     # create app
     return create_app(flask_configfile=config_path)
 
+
 # unauthenticated app
 @pytest.fixture
 def unauth_app():
+    """Create an unauthenticated version of the app."""
     # create the app
     app = _get_app("no-auth")
     with app.app_context():
         yield app
 
+
 # authenticated app
 @pytest.fixture
 def auth_app():
+    """Create an authenticated app, account creation
+    allowed."""
     # create app
     app = _get_app()
     with app.app_context():
         yield app
-        
+
 
 @pytest.fixture
 def client_auth():
+    """Flask client for basic authenticated app, account
+    creation allowed."""
     app = _get_app("auth-basic")
     with app.app_context():
         yield app.test_client()
@@ -73,6 +78,8 @@ def client_auth():
 
 @pytest.fixture
 def client_auth_no_creation():
+    """Flask client for an authenticated app, account
+    creation not allowed."""
     app = _get_app("auth-no-creation")
     with app.app_context():
         yield app.test_client()
@@ -81,14 +88,18 @@ def client_auth_no_creation():
 
 @pytest.fixture
 def client_auth_verified():
+    """Flask client for an authenticated app, account
+    creation allowed, user accounts needs account
+    verification."""
     app = _get_app("auth-verified")
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)
-    
+
 
 @pytest.fixture
 def client_no_auth():
+    """Flask client for an unauthenticated app."""
     app = _get_app("no-auth")
     # make sure we have the asreview_path
     with app.app_context():
@@ -97,6 +108,8 @@ def client_no_auth():
 
 @pytest.fixture(scope="session", autouse=True)
 def remove_test_asreview_path():
+    """Fixture that removes the entire ASReview test directory
+    after a session."""
     pass
     yield
     if Path(ASREVIEW_PATH).exists():
