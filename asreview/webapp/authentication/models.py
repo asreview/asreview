@@ -82,8 +82,8 @@ class User(UserMixin, DB.Model):
     def validate_name(self, _key, name):
         if not bool(name):
             raise ValueError("Name is required")
-        elif len(name) < 3:
-            raise ValueError("Name must contain more than 2 characyers")
+        elif len(name) < 1:
+            raise ValueError("Name must be at least 1 character long")
         return name
 
     @validates("email", "hashed_password")
