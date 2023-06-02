@@ -28,7 +28,6 @@ from asreview.project import ASReviewProject
 from asreview.project import open_state
 from asreview.review.base import BaseReview
 from asreview.webapp.io import read_data
-from asreview.webapp.sqlock import SQLiteLock
 
 
 def get_lab_reviewer(
