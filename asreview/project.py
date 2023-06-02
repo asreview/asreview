@@ -593,20 +593,13 @@ class ASReviewProject:
             project_config = json.load(f)
 
         if safe_import:
-            # If the uploaded project already exists,
-            # then overwrite project.json with a copy suffix.
-            while Path(
-                project_path, project_config["id"], PATH_PROJECT_CONFIG
-            ).exists():
-                # project update
-                project_config["id"] = f"{project_config['id']}-copy"
-                project_config["name"] = f"{project_config['name']} copy"
-            else:
-                with open(Path(tmpdir, PATH_PROJECT_CONFIG), "r+") as f:
-                    # write to file
-                    f.seek(0)
-                    json.dump(project_config, f)
-                    f.truncate()
+            # assign a new id to the project.
+            project_config["id"] = uuid4().hex
+            with open(Path(tmpdir, PATH_PROJECT_CONFIG), "r+") as f:
+                # write to file
+                f.seek(0)
+                json.dump(project_config, f)
+                f.truncate()
 
         # location to copy file to
         # Move the project from the temp folder to the projects folder.
