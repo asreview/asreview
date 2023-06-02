@@ -29,7 +29,6 @@ from gevent.pywsgi import WSGIServer
 from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
-from asreview.entry_points.lab import _lab_parser
 from asreview.project import ASReviewProject
 from asreview.project import get_project_path
 from asreview.project import get_projects
@@ -40,6 +39,13 @@ from asreview.webapp.api import projects
 from asreview.webapp.api import team
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
+from asreview.entry_points.base import _base_parser
+from asreview.entry_points.base import DeprecateAction
+
+HOST_NAME = os.getenv("ASREVIEW_HOST")
+if HOST_NAME is None:
+    HOST_NAME = "localhost"
+PORT_NUMBER = 5000
 
 # set logging level
 if (
@@ -99,6 +105,119 @@ def _open_browser(host, port, protocol, no_browser):
         "\n\n\n\nIf your browser doesn't open. "
         f"Please navigate to '{start_url}'\n\n\n\n"
     )
+
+
+def _lab_parser(prog="lab"):
+    parser = _base_parser(
+        prog=prog,
+        description="""ASReview LAB - Active learning for Systematic Reviews.""",  # noqa
+    )
+
+    parser.add_argument(
+        "--clean-project",
+        dest="clean_project",
+        default=None,
+        type=str,
+        help="Safe cleanup of temporary files in project.",
+    )
+
+    parser.add_argument(
+        "--clean-all-projects",
+        dest="clean_all_projects",
+        default=None,
+        action="store_true",
+        help="Safe cleanup of temporary files in all projects.",
+    )
+
+    parser.add_argument(
+        "--ip",
+        default=HOST_NAME,
+        type=str,
+        help="The IP address the server will listen on.",
+    )
+
+    parser.add_argument(
+        "--port",
+        default=PORT_NUMBER,
+        type=int,
+        help="The port the server will listen on.",
+    )
+
+    parser.add_argument(
+        "--enable-auth",
+        dest="enable_authentication",
+        action="store_true",
+        help="Enable authentication.",
+    )
+
+    parser.add_argument(
+        "--secret-key",
+        default=None,
+        type=str,
+        help="Secret key for authentication.",
+    )
+
+    parser.add_argument(
+        "--salt",
+        default=None,
+        type=str,
+        help="When using authentication, a salt code is needed" "for hasing passwords.",
+    )
+
+    parser.add_argument(
+        "--flask-configfile",
+        default="",
+        type=str,
+        help="Full path to a JSON file containing Flask parameters"
+        "for authentication.",
+    )
+
+    parser.add_argument(
+        "--no-browser",
+        dest="no_browser",
+        action="store_true",
+        help="Do not open ASReview LAB in a browser after startup.",
+    )
+
+    parser.add_argument(
+        "--port-retries",
+        dest="port_retries",
+        default=50,
+        type=int,
+        help="The number of additional ports to try if the"
+        "specified port is not available.",
+    )
+
+    parser.add_argument(
+        "--certfile",
+        default="",
+        type=str,
+        help="The full path to an SSL/TLS certificate file.",
+    )
+
+    parser.add_argument(
+        "--keyfile",
+        default="",
+        type=str,
+        help="The full path to a private key file for usage with SSL/TLS.",
+    )
+
+    parser.add_argument(
+        "--config_file",
+        type=str,
+        default=None,
+        help="Deprecated, see subcommand simulate.",
+        action=DeprecateAction,
+    )
+
+    parser.add_argument(
+        "--seed",
+        default=None,
+        type=int,
+        help="Deprecated, see subcommand simulate.",
+        action=DeprecateAction,
+    )
+    return parser
 
 
 def create_app(**kwargs):
