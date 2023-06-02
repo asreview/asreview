@@ -17,6 +17,9 @@ import logging
 import sys
 from pathlib import Path
 
+from filelock import FileLock
+from filelock import Timeout
+
 from asreview.models.balance import get_balance_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
@@ -85,28 +88,14 @@ def train_model(project):
     """Add the new labels to the review and do the modeling.
 
     It uses a lock to ensure only one model is running at the same time.
-    Old results directories are deleted after 4 iterations.
-
-    It has one argument on the CLI, which is the base project directory.
     """
 
     logging.info(f"Project {project.project_path} - Train a new model for project")
 
-    # get file locations
-    lock_file = Path(project.project_path, "lock.sqlite")
-
     # Lock so that only one training run is running at the same time.
-    # It doesn't lock the flask server/client.
-    with SQLiteLock(
-        lock_file, blocking=False, lock_name="training", project_id=project.project_id
-    ) as lock:
-        # If the lock is not acquired, another training instance is running.
-        if not lock.locked():
-            logging.info(
-                f"Project {project.project_path} - "
-                "Cannot acquire lock, other instance running."
-            )
-            return
+    lock = FileLock(Path(project.project_path, "training.lock"), timeout=0)
+
+    with lock:
 
         # Check if there are new labeled records.
         with open_state(project.project_path) as state:
@@ -120,14 +109,9 @@ def train_model(project):
 
             # Train the model.
             reviewer.train()
-        else:
-            logging.info(
-                f"Project {project.project_path} - No new labels since last run."
-            )
-            return
 
 
-def main(argv):
+if __name__ == "__main__":
     # parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("project_path", type=str, help="Project id")
@@ -143,7 +127,7 @@ def main(argv):
         action="store_true",
         help="After first run, status is updated.",
     )
-    args = parser.parse_args(argv)
+    args = parser.parse_args(sys.argv)
 
     project = ASReviewProject(args.project_path)
 
@@ -153,6 +137,9 @@ def main(argv):
         # change the project status to review
         project.update_review(status="review")
 
+    except Timeout:
+        logging.debug("Another iteration is training")
+
     except Exception as err:
         # save the error to the project
         project.set_error(err, save_error_message=args.output_error)
@@ -161,7 +148,3 @@ def main(argv):
         raise err
     else:
         project.update_review(status="review")
-
-
-if __name__ == "__main__":
-    main(sys.argv)
