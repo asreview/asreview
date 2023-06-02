@@ -110,7 +110,7 @@ def train_model(project):
             reviewer.train()
 
 
-if __name__ == "__main__":
+def main(argv):
     # parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("project_path", type=str, help="Project id")
@@ -126,7 +126,7 @@ if __name__ == "__main__":
         action="store_true",
         help="After first run, status is updated.",
     )
-    args = parser.parse_args(sys.argv)
+    args = parser.parse_args(argv)
 
     project = ASReviewProject(args.project_path)
 
@@ -147,3 +147,6 @@ if __name__ == "__main__":
         raise err
     else:
         project.update_review(status="review")
+
+if __name__ == "__main__":
+    main(sys.argv)
