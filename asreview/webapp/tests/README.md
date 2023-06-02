@@ -31,7 +31,7 @@ Note that the `conftest.py` in the `/webapp/tests` contains an important fixture
 
 ## Test functions
 
-Ideally a test function tests one particular feature and can be executed independently from other test functions. If you would like to add a feature or an enhancement to the ASReview app, please accompany your code with appropriate tests. Append your tests to existing modules, or create a new module.
+Ideally a test function tests one particular feature and can be executed independently from other test functions. If you would like to add a feature or an enhancement to the ASReview app, please accompany your code with appropriate tests. Append your tests to existing modules, or create a new module. If you are adding routes to the API, please wrap your API call in a function and place it in `/utils/api_utils.py` to avoid cluttering the tests with lengthy strings.
 
 ## Running the tests
 
