@@ -190,6 +190,14 @@ def create_project(
     return process_response(response)
 
 
+def create_project_from_dict(client: FlaskClient, data:dict):
+    response = client.post(
+        "/api/projects/info",
+        data=data,
+    )
+    return process_response(response)
+
+
 def update_project(
     client: FlaskClient,
     project: Union[Project, ASReviewProject],

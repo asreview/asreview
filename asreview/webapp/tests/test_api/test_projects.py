@@ -537,6 +537,7 @@ def test_delete_project(setup):
     [
         au.get_all_projects,
         au.create_project,
+        au.create_project_from_dict,
         au.update_project,
         au.upgrade_project,
         au.get_project_stats,

@@ -14,6 +14,7 @@
 
 import os
 import shutil
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -22,7 +23,7 @@ import asreview.webapp.tests.utils.crud as crud
 from asreview.webapp import DB
 from asreview.webapp.start_flask import create_app
 
-ASREVIEW_PATH = str(Path("~", ".asreview-test").expanduser())
+ASREVIEW_PATH = str(tempfile.TemporaryDirectory().name)
 
 PROJECTS = [
     {
