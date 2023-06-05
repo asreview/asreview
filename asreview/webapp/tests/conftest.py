@@ -28,6 +28,21 @@ try:
 except ImportError:
     TMP_ENV_VARS = {}
 
+PROJECTS = [
+    {
+        "mode": "explore",
+        "name": "demo project",
+        "authors": "asreview team",
+        "description": "hello world",
+    },
+    {
+        "mode": "explore",
+        "name": "another demo project",
+        "authors": "asreview team",
+        "description": "hello world",
+    },
+]
+
 
 def signup_user(client, identifier, password="!biuCrgfsiOOO6987"):
     """Signs up a user through the api"""

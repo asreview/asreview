@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import os
 import shutil
 from pathlib import Path
@@ -20,10 +19,8 @@ from pathlib import Path
 import pytest
 
 from asreview.entry_points.auth_tool import insert_project
-from asreview.project import _create_project_id
 from asreview.utils import asreview_path
 from asreview.webapp import DB
-from asreview.webapp.api.projects import _get_authenticated_folder_id
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 from asreview.webapp.start_flask import create_app
@@ -108,21 +105,28 @@ class TestNoAuthentication:
 
     def test_creating_2_projects(self):
         # create first project
-        self.client.post(
+        response_project_1 = self.client.post(
             "/api/projects/info",
             data=PROJECTS[0],
         )
         # create second project
-        self.client.post(
+        response_project_2 = self.client.post(
             "/api/projects/info",
             data=PROJECTS[1],
         )
+
+        json_data_project_1 = response_project_1.get_json()
+        json_data_project_2 = response_project_2.get_json()
+
+        PROJECTS[0]["id"] = json_data_project_1["id"]
+        PROJECTS[1]["id"] = json_data_project_2["id"]
+
         # check if asreview folder contain 2 projects
         assert len(list(self.asreview_folder.glob("*"))) == 2
         # check if projects are there
         folders = [f.name for f in self.asreview_folder.glob("*")]
         for p in PROJECTS:
-            project_id = _create_project_id(p["name"])
+            project_id = p["id"]
             assert project_id in folders
 
     def test_listing_the_projects(self):
@@ -137,7 +141,7 @@ class TestNoAuthentication:
 
     def test_accessing_projects(self):
         for p in PROJECTS:
-            project_id = _create_project_id(p["name"])
+            project_id = p["id"]
             response = self.client.get(f"/api/projects/{project_id}/info")
             json_data = response.get_json()
             assert response.status_code == 200
@@ -161,7 +165,7 @@ class TestConvertToAuthentication:
         # check if projects are there
         folder_content = [f.name for f in self.asreview_folder.glob("*")]
         for p in PROJECTS:
-            project_id = _create_project_id(p["name"])
+            project_id = p["id"]
             assert project_id in folder_content
         # check for the database
         assert "asreview.test.sqlite" in folder_content
@@ -177,7 +181,10 @@ class TestConvertToAuthentication:
 
         # we want to assign project 1 to user 1 and project 2 to user 2
         mapping = [
-            {"owner_id": user.id, "project_id": _create_project_id(PROJECTS[i]["name"])}
+            {
+                "user_id": user.id,
+                "project_id": PROJECTS[i]["id"],
+            }
             for i, user in enumerate(User.query.order_by(User.id.asc()).all())
         ]
 
@@ -185,33 +192,14 @@ class TestConvertToAuthentication:
         for project in mapping:
             insert_project(DB.session, project)
 
-        # check out folders in the asreview folder
-        folders = [f.name for f in asreview_path().glob("*") if f.is_dir()]
-
-        # check if we don't have the old folder names anymore
-        for link in mapping:
-            project_id = link["project_id"]
-            assert project_id not in folders
-
-        # check if we have the new folder names and if they exist
-        # in the database with the correct user
+        # check if projects are linked to the correct user
         for link in mapping:
             user = DB.session.get(User, link["owner_id"])
             project_id = link["project_id"]
 
-            # check out if the folder exists
-            new_project_id = _get_authenticated_folder_id(project_id, user)
-            assert new_project_id in folders
-
             # check project in database and if it's linked to the user
-            project = Project.query.filter(Project.project_id == new_project_id).first()
+            project = Project.query.filter(Project.project_id == project_id).first()
             assert project.owner_id == user.id
-
-            # check if we have the correct new project id in the data file
-            # of the folder
-            with open(asreview_path() / new_project_id / "project.json") as f:
-                data = json.load(f)
-                assert data["id"] == new_project_id
 
     def test_projects_of_user_1(self):
         """Checkout projects of user 1."""
@@ -236,6 +224,8 @@ class TestConvertToAuthentication:
         json_data = response.get_json()
         assert response.status_code == 200
         assert json_data["name"] == PROJECTS[0]["name"]
+        # update new project id
+        PROJECTS[0]["id"] = json_data["id"]
         # signout
         signout(self.client)
 
@@ -262,6 +252,8 @@ class TestConvertToAuthentication:
         json_data = response.get_json()
         assert response.status_code == 200
         assert json_data["name"] == PROJECTS[1]["name"]
+        # update new project id
+        PROJECTS[1]["id"] = json_data["id"]
         # signout
         signout(self.client)
 
@@ -272,10 +264,7 @@ class TestConvertToAuthentication:
         # signin user
         signin_user(self.client, user_1.identifier, self.password)
         # try to get project 2, we need the id first
-        project_2_id = _create_project_id(PROJECTS[1]["name"])
-        project_2_id = _get_authenticated_folder_id(
-            project_2_id, DB.session.get(User, 2)
-        )
+        project_2_id = PROJECTS[1]["id"]
         # user_1 tries to see project 2
         response = self.client.get(f"/api/projects/{project_2_id}/info")
         json_data = response.get_json()
@@ -291,10 +280,7 @@ class TestConvertToAuthentication:
         # signin user
         signin_user(self.client, user_2.identifier, self.password)
         # try to get project 2, we need the id first
-        project_1_id = _create_project_id(PROJECTS[0]["name"])
-        project_1_id = _get_authenticated_folder_id(
-            project_1_id, DB.session.get(User, 1)
-        )
+        project_1_id = PROJECTS[0]["id"]
         # user_2 tries to see project 1
         response = self.client.get(f"/api/projects/{project_1_id}/info")
         json_data = response.get_json()
