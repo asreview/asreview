@@ -95,7 +95,7 @@ class User(UserMixin, DB.Model):
             elif not User.valid_email(email):
                 raise ValueError(f"Email address '{email}' is not valid")
         return email
-            
+
     def __init__(
         self,
         identifier,
@@ -210,9 +210,17 @@ class User(UserMixin, DB.Model):
 class Collaboration(DB.Model):
     __tablename__ = "collaborations"
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="cascade"), nullable=False)
-    project_id = Column(Integer, ForeignKey("projects.id", ondelete="cascade"), nullable=False)
-        # make sure we have unique records in this table
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id", ondelete="cascade"),
+        nullable=False
+    )
+    project_id = Column(
+        Integer,
+        ForeignKey("projects.id", ondelete="cascade"),
+        nullable=False
+    )
+    # make sure we have unique records in this table
     __table_args__ = (UniqueConstraint("project_id", "user_id", name="unique_records"),)
 
     def __repr__(self):
@@ -258,10 +266,20 @@ class CollaborationInvitation(DB.Model):
 
     __tablename__ = "collaboration_invitations"
     id = Column(Integer, primary_key=True)
-    project_id = Column(Integer, ForeignKey("projects.id", ondelete="cascade"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="cascade"), nullable=False)
+    project_id = Column(
+        Integer,
+        ForeignKey("projects.id", ondelete="cascade"),
+        nullable=False
+    )
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id", ondelete="cascade"),
+        nullable=False
+    )
     # make sure we have unique records in this table
     __table_args__ = (UniqueConstraint("project_id", "user_id", name="unique_records"),)
 
     def __repr__(self):
-        return f"<CollaborationInvitation project:{self.project_id} user:{self.user_id}>"
+        pid = self.project_id
+        uid = self.user_id
+        return f"<CollaborationInvitation project:{pid} user:{uid}>"

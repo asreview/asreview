@@ -85,7 +85,7 @@ def end_collaboration(project_id, user_id):
                 jsonify({"message": "Collaborator removed from project."}),
                 200
             )
-            
+
         except SQLAlchemyError:
             response = (
                 jsonify({"message": "Error removing collaborator."}),

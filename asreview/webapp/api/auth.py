@@ -42,7 +42,7 @@ from asreview.webapp.authentication.oauth_handler import OAuthHandler
 # of making the end-user decide the exact location.
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
-# NOTE: not too sure about this, what if we are dealing with a 
+# NOTE: not too sure about this, what if we are dealing with a
 # domain name
 ROOT_URL = "http://127.0.0.1:3000/"
 
@@ -51,6 +51,7 @@ CORS(
     resources={r"*": {"origins": ["http://localhost:3000", ROOT_URL]}},
     supports_credentials=True,
 )
+
 
 def perform_login_user(user):
     """Helper function to login a user"""
@@ -272,7 +273,7 @@ def confirm_account():
             except SQLAlchemyError as e:
                 DB.session.rollback()
                 result = (
-                    403, 
+                    403,
                     f"Unable to to confirm user {user.identifier}! Reason: {str(e)}"
                 )
     else:
@@ -356,7 +357,7 @@ def reset_password():
         token = request.form.get("token", "").strip()
         user_id = request.form.get("user_id", "0").strip()
         user = User.query.filter(User.id == user_id).one_or_none()
-        
+
         if not user:
             result = (
                 404,
