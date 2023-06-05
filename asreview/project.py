@@ -109,27 +109,6 @@ def get_projects(project_paths=None):
     return [ASReviewProject(project_path) for project_path in project_paths]
 
 
-def _create_project_id(name):
-    """Create project id from input name."""
-
-    if isinstance(name, str) and len(name) > 0 and not name[0].isalnum():
-        raise ValueError(
-            "First character should be alphabet" " letter (a-z) or number (0-9)."
-        )
-
-    if not name and not isinstance(name, str) and len(name) >= 3:
-        raise ValueError("Project name should be at least 3 characters.")
-
-    project_id = ""
-    for c in name.lower():
-        if c.isalnum():
-            project_id += c
-        elif len(project_id) > 0 and project_id[-1] != "-":
-            project_id += "-"
-
-    return project_id
-
-
 def is_project(project_path):
     project_path = Path(project_path) / PATH_PROJECT_CONFIG
 
@@ -315,12 +294,6 @@ class ASReviewProject:
 
         kwargs_copy = kwargs.copy()
 
-        if "name" in kwargs_copy:
-            del kwargs_copy["name"]
-            logging.info(
-                "Update project name is ignored, use 'rename_project' function."
-            )
-
         # validate schema
         if "mode" in kwargs_copy and kwargs_copy["mode"] not in PROJECT_MODES:
             raise ValueError("Project mode '{}' not found.".format(kwargs_copy["mode"]))
@@ -334,50 +307,6 @@ class ASReviewProject:
 
         self.config = config
         return config
-
-    def rename(self, new_project_data={}):
-        """Rename a project id.
-
-        This function only works for projects in ASReview LAB  web interface.
-        This is the result of the file storage in
-        asreview.webapp.utils.project_path.asreview_path.
-
-        Arguments
-        ---------
-        new_project_data: dict
-            Dictionary that contains a new name, id and project path
-
-        Returns
-        -------
-        ASReviewProject:
-            The updated project
-        """
-        # get all data
-        new_project_name = new_project_data.get("name", None)
-        new_project_id = new_project_data.get("project_id", None)
-        new_project_path = new_project_data.get("project_path", None)
-
-        if self.project_id == new_project_id:
-            # nothing to do
-            return self
-
-        if (self.project_path != new_project_path) and is_project(new_project_path):
-            raise ValueError(f"Project '{new_project_path}' already exists.")
-
-        self.project_path.rename(new_project_path)
-        self.project_path = new_project_path
-        self.project_id = new_project_id
-
-        # update the project file
-        config = self.config
-
-        config["id"] = new_project_id
-        config["name"] = new_project_name
-
-        self.config = config
-        self._config = config
-
-        return self
 
     def add_dataset(self, file_name):
         """Add file path to the project file.
@@ -664,20 +593,13 @@ class ASReviewProject:
             project_config = json.load(f)
 
         if safe_import:
-            # If the uploaded project already exists,
-            # then overwrite project.json with a copy suffix.
-            while Path(
-                project_path, project_config["id"], PATH_PROJECT_CONFIG
-            ).exists():
-                # project update
-                project_config["id"] = f"{project_config['id']}-copy"
-                project_config["name"] = f"{project_config['name']} copy"
-            else:
-                with open(Path(tmpdir, PATH_PROJECT_CONFIG), "r+") as f:
-                    # write to file
-                    f.seek(0)
-                    json.dump(project_config, f)
-                    f.truncate()
+            # assign a new id to the project.
+            project_config["id"] = uuid4().hex
+            with open(Path(tmpdir, PATH_PROJECT_CONFIG), "r+") as f:
+                # write to file
+                f.seek(0)
+                json.dump(project_config, f)
+                f.truncate()
 
         # location to copy file to
         # Move the project from the temp folder to the projects folder.

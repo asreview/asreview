@@ -269,6 +269,7 @@ const ProjectPage = (props) => {
               path="export"
               element={
                 <ExportPage
+                  info={data}
                   isSimulating={isSimulating}
                   mobileScreen={props.mobileScreen}
                 />

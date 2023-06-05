@@ -25,9 +25,7 @@ from asreview.models.feature_extraction.base import BaseFeatureExtraction
 
 def _check_st():
     if not ST_AVAILABLE:
-        raise ImportError(
-            "Install sentence-transformers package to use Sentence BERT."
-        )
+        raise ImportError("Install sentence-transformers package to use Sentence BERT.")
 
 
 class SBERT(BaseFeatureExtraction):
@@ -101,9 +99,7 @@ class SBERT(BaseFeatureExtraction):
                 word_embedding_model.get_word_embedding_dimension(),
                 pooling_mode=self.pooling_mode,
             )
-            model = SentenceTransformer(
-                modules=[word_embedding_model, pooling_layer]
-            )
+            model = SentenceTransformer(modules=[word_embedding_model, pooling_layer])
         print("Encoding texts using sbert, this may take a while...")
         X = model.encode(texts, show_progress_bar=True)
 
