@@ -5,11 +5,17 @@ import asreview.webapp.tests.utils.crud as crud
 from asreview.project import get_projects
 from asreview.webapp import DB
 from asreview.webapp.tests.utils.config_parser import get_user
-from asreview.webapp.tests.utils.misc import clear_folders_in_asreview_path
+from asreview.webapp.tests.utils.misc import clear_asreview_path
 
 
 @pytest.fixture(params=["client_auth", "client_no_auth"])
 def setup(request):
+    """Setup and teardown fixture that will run each test with
+    an authenticated version and unauthenticated version of the
+    app. In the authenticated version the fixture yields a Flask
+    client, a signed-in user plus a project belongoing to this user.
+    In the unauthenticated version, the fixture yields a Flask
+    client, and a project."""
     # get the client
     client = request.getfixturevalue(request.param)
     # provide a project name
@@ -33,7 +39,7 @@ def setup(request):
     if request.param == "client_auth":
         # cleanup database and asreview_path
         crud.delete_everything(DB)
-    clear_folders_in_asreview_path()
+    clear_asreview_path()
 
 
 @pytest.fixture(
@@ -45,13 +51,17 @@ def setup(request):
     ]
 )
 def setup_all_clients(request):
-    # get the client
+    """This fixture provides 4 different Flask client (authenticated
+    and unauthenticated) for every test that uses it."""
     client = request.getfixturevalue(request.param)
     yield client
 
 
 @pytest.fixture()
 def setup_auth(client_auth):
+    """This fixtures yields a Flask client for an authenticated
+    app, 3 user accounts (first user is signed in) and a project
+    belonging to the first user."""
     # create, signup and signin users
     user1 = au.create_and_signin_user(client_auth, 1)
     user2 = get_user(2)
@@ -68,4 +78,4 @@ def setup_auth(client_auth):
     yield client_auth, user1, user2, user3, user1.projects[0]
     # cleanup database and asreview_path
     crud.delete_everything(DB)
-    clear_folders_in_asreview_path()
+    clear_asreview_path()

@@ -10,6 +10,7 @@ import asreview.webapp.tests.utils.api_utils as au
 import asreview.webapp.tests.utils.crud as crud
 import asreview.webapp.tests.utils.misc as misc
 from asreview.project import ASReviewProject
+from asreview.utils import asreview_path
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.tests.utils.misc import retrieve_project_url_github
 
@@ -29,14 +30,6 @@ IMPORT_PROJECT_URLS = retrieve_project_url_github()
 # The fixture is parametrized! It runs the authenticated app and the
 # unauthenticated app.
 
-# QUESTIONS: maybe we should consider 404's when the code hits
-# an Exception, I think an API should do that. For instance: the webapp
-# ensures that we choose the correct feature extraction based on the
-# model or vice versa, but if you go in without our web-app with the
-# wrong combination you just get an Exception. Or setting the project
-# status from review to review (also throws an exception, but the front-end
-# will never be notified of that ??)
-
 
 # Test getting all projects
 def test_get_projects(setup):
@@ -45,11 +38,11 @@ def test_get_projects(setup):
     assert status_code == 200
     assert len(data["result"]) == 1
     found_project = data["result"][0]
-    if not current_app.config.get("AUTHENTICATION_ENABLED"):
-        assert found_project["id"] == project.config["id"]
-    else:
+    if current_app.config.get("AUTHENTICATION_ENABLED"):
         assert found_project["id"] == project.project_id
         assert found_project["owner_id"] == user1.id
+    else:
+        assert found_project["id"] == project.config["id"]
 
 
 # Test create a project
@@ -88,18 +81,25 @@ def test_upgrade_an_old_project(setup):
 # Test importing old projects, verify ids
 @pytest.mark.parametrize("url", IMPORT_PROJECT_URLS)
 def test_import_project_files_current(setup, url):
-    client, _, _ = setup
+    client, _, first_project = setup
     # import project
     status_code, data = au.import_project(client, url)
+    # get contents asreview folder
+    folders = set([f.stem for f in list(asreview_path().glob("*"))])
+    # asserts
     assert status_code == 200
     assert isinstance(data, dict)
     if current_app.config.get("AUTHENTICATION_ENABLED"):
         # assert it exists in the database
         assert crud.count_projects() == 2
         project = crud.last_project()
+        assert data["id"] != first_project.project_id
         assert data["id"] == project.project_id
     else:
-        assert data["id"] == misc._extract_stem(url)
+        assert len(folders) == 2
+        assert data["id"] != first_project.config.get("id")
+    # in auth/non-auth the project folder must exist in the asreview folder
+    assert data["id"] in folders
 
 
 # Test get stats in setup state
@@ -166,7 +166,10 @@ def test_upload_benchmark_data_to_project(setup, upload_data):
     client, _, project = setup
     status_code, data = au.upload_data_to_project(client, project, data=upload_data)
     assert status_code == 200
-    assert data["success"]
+    if current_app.config.get("AUTHENTICATION_ENABLED"):
+        assert data["project_id"] == project.project_id
+    else:
+        assert data["project_id"] == project.config.get("id")
 
 
 # Test getting the data after an upload
@@ -359,7 +362,7 @@ def test_start_and_model_ready(setup):
         ("finish", "finished"),
     ],
 )
-def test_status_project_current(setup, state_name, expected_state):
+def test_status_project(setup, state_name, expected_state):
     client, _, project = setup
     # call these progression steps
     if state_name in ["setup", "review", "finish"]:

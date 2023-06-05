@@ -8,18 +8,6 @@ from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import Project
 
-
-# fixture that creates a user and makes sure there
-# are no projects
-@pytest.fixture(autouse=True)
-def user(auth_app):
-    assert crud.count_projects() == 0
-    user = crud.create_user(DB, 1)
-    assert crud.count_users() == 1
-    yield user
-    crud.delete_everything(DB)
-
-
 # NOTE: projects are created from a user account
 
 # #############

@@ -24,6 +24,21 @@ from asreview.webapp.start_flask import create_app
 
 ASREVIEW_PATH = str(Path("~", ".asreview-test").expanduser())
 
+PROJECTS = [
+    {
+        "mode": "explore",
+        "name": "demo project",
+        "authors": "asreview team",
+        "description": "hello world",
+    },
+    {
+        "mode": "explore",
+        "name": "another demo project",
+        "authors": "asreview team",
+        "description": "hello world",
+    },
+]
+
 
 def _get_app(app_type="auth-basic"):
     """Create and returns test flask app based on app_type"""

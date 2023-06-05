@@ -1,5 +1,4 @@
 # GOAL: test database creation if app is started with authentication
-import shutil
 from pathlib import Path
 
 import pytest
@@ -7,16 +6,10 @@ import sqlalchemy
 from sqlalchemy import create_engine
 
 from asreview.utils import asreview_path
-from asreview.webapp.tests.conftest import ASREVIEW_PATH
 
 
 def get_db_path():
     return Path(asreview_path() / "asreview.test.sqlite")
-
-
-@pytest.fixture
-def cleanup_asreview_path():
-    shutil.rmtree(ASREVIEW_PATH)
 
 
 # checks if asreview path does not contain a database if app

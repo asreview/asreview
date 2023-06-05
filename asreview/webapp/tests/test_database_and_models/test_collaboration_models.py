@@ -7,18 +7,6 @@ from asreview.webapp.authentication.models import Collaboration
 from asreview.webapp.authentication.models import CollaborationInvitation
 
 
-@pytest.fixture(autouse=True)
-def test_data(auth_app):
-    user1, _ = crud.create_user1_with_2_projects(DB)
-    user2 = crud.create_user(DB, user=2)
-    user3 = crud.create_user(DB, user=3)
-    assert crud.count_projects() == 2
-    assert crud.count_users() == 3
-    data = {"user1": user1, "user2": user2, "user3": user3}
-    yield data
-    crud.delete_everything(DB)
-
-
 class TestInvitations:
     """Testing invitations on database level."""
 

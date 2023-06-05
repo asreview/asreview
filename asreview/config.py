@@ -12,15 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ASCII_LOGO = """
-            _____ _____            _
-     /\    / ____|  __ \          (_)
-    /  \  | (___ | |__) |_____   ___  _____      __
-   / /\ \  \___ \|  _  // _ \ \ / / |/ _ \ \ /\ / /
-  / ____ \ ____) | | \ \  __/\ V /| |  __/\ V  V /
- /_/    \_\_____/|_|  \_\___| \_/ |_|\___| \_/\_/
-"""  # noqa
-
 LABEL_NA = -1
 
 KERAS_MODELS = ["lstm_base", "lstm_pool"]
@@ -39,9 +30,6 @@ DEFAULT_FEATURE_EXTRACTION = "tfidf"
 DEFAULT_N_INSTANCES = 1
 DEFAULT_N_PRIOR_INCLUDED = 1
 DEFAULT_N_PRIOR_EXCLUDED = 1
-
-GITHUB_PAGE = "https://github.com/asreview/asreview"
-EMAIL_ADDRESS = "asreview@uu.nl"
 
 LEGACY_STATE_EXTENSIONS = [".h5", ".hdf5", ".he5", ".json"]
 
