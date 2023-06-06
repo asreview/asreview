@@ -5,7 +5,6 @@ import asreview.webapp.tests.utils.crud as crud
 from asreview.project import get_projects
 from asreview.webapp import DB
 from asreview.webapp.tests.utils.config_parser import get_user
-from asreview.webapp.tests.utils.misc import clear_asreview_path
 
 
 @pytest.fixture(params=["client_auth", "client_no_auth"])

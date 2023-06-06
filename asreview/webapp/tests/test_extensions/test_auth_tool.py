@@ -1,28 +1,13 @@
 import json
-import os
-import shutil
 from pathlib import Path
 from uuid import uuid4
 
-import pytest
-
-from asreview.entry_points.auth_tool import insert_project
-# from asreview.project import _create_project_id
+import asreview.entry_points.auth_tool as tool
 from asreview.utils import asreview_path
 from asreview.webapp import DB
-# from asreview.webapp.api.projects import _get_authenticated_folder_id
-from asreview.webapp.authentication.models import Project
-from asreview.webapp.authentication.models import User
-from asreview.webapp.start_flask import create_app
-from asreview.webapp.tests.utils import crud
+from asreview.webapp.tests.utils import api_utils as au
 from asreview.webapp.tests.utils import config_parser as cp
-from asreview.webapp.tests.utils import api_utils as au
-from asreview.webapp.tests.utils import misc as misc
-from asreview.webapp.tests.utils import api_utils as au
-import asreview.entry_points.auth_tool as tool
-#from asreview.webapp.tests.conftest import signin_user
-#from asreview.webapp.tests.conftest import signout
-#from asreview.webapp.tests.conftest import signup_user
+from asreview.webapp.tests.utils import crud
 
 
 # Test inserting a user into the database
@@ -32,7 +17,7 @@ def test_insert_user(client_auth):
     # get some user credentials
     user_data = cp.get_user_data(1)
     # insert the returned dictionary
-    result = tool.insert_user(DB.session, user_data)
+    tool.insert_user(DB.session, user_data)
     # count users again
     assert crud.count_users() == 1
     # get user
@@ -52,13 +37,14 @@ def test_insert_user_duplicate(client_auth):
     # get some user credentials
     user_data = cp.get_user_data(1)
     # insert the returned dictionary
-    tool.insert_user(DB.session, user_data)    
+    tool.insert_user(DB.session, user_data)
     # verify user has been created
     assert crud.count_users() == 1
     # and again
     result = tool.insert_user(DB.session, user_data)
     # asserts
     assert not result
+    # no inserts, count remains 1
     assert crud.count_users() == 1
 
 
@@ -77,11 +63,44 @@ def test_rename_project_folder(client_no_auth):
     # create new id
     new_id = uuid4().hex
     # call rename project
-    result = tool.rename_project_folder(old_id, new_id)
-    # check 
+    tool.rename_project_folder(old_id, new_id)
+    # check
     assert not Path(asreview_path() / old_id).exists()
     assert Path(asreview_path() / new_id).exists()
     with open(Path(asreview_path() / new_id / "project.json"), "r") as f:
         data = json.load(f)
         assert data["id"] == new_id
 
+
+# Test inserting a project record in the database
+def test_inserting_a_project_record(client_auth):
+    # count projects
+    assert crud.count_projects() == 0
+    # insert this data
+    data = {"project_id": uuid4().hex, "owner_id": 2}
+    tool.insert_project(DB.session, data)
+    # count again
+    assert crud.count_projects() == 1
+    # get last record
+    project = crud.last_project()
+    assert project.project_id == data["project_id"]
+    assert project.owner_id == data["owner_id"]
+
+
+# Test updating a project record in the database
+def test_updating_a_project_record(client_auth):
+    # count projects
+    assert crud.count_projects() == 0
+    # insert this data
+    data = {"project_id": uuid4().hex, "owner_id": 2}
+    tool.insert_project(DB.session, data)
+    # count again
+    assert crud.count_projects() == 1
+    # change owner id
+    data["owner_id"] = 3
+    tool.insert_project(DB.session, data)
+    # count again, no inserts, count remains 1
+    assert crud.count_projects() == 1
+    project = crud.last_project()
+    assert project.project_id == data["project_id"]
+    assert project.owner_id == data["owner_id"]

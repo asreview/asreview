@@ -142,12 +142,12 @@ def insert_project(session, project):
         # create new record
         session.add(Project(owner_id=owner_id, project_id=project_id))
     else:
-        # update record
+        # update record (project_id must be the same)
         db_project.owner_id = owner_id
-        db_project.project_id = project_id
     # commit
     session.commit()
     print("Project data is stored.")
+    return True
 
 
 def get_users(session):
