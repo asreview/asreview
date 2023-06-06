@@ -35,6 +35,18 @@ def get_user(test_user_id):
     return user
 
 
+def get_user_data(test_user_id):
+    """Returns the data for a user account as a
+    dictionary."""
+    section = config[f"user{test_user_id}"]
+    return {
+        "email": section["email"],
+        "name": section["name"],
+        "affiliation": section["affiliation"],
+        "password": section["password"]
+    }
+
+
 # get all users
 def all_users():
     """Returns a dictionary containing User models,

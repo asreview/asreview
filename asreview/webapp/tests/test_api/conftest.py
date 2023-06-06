@@ -39,7 +39,6 @@ def setup(request):
     if request.param == "client_auth":
         # cleanup database and asreview_path
         crud.delete_everything(DB)
-    clear_asreview_path()
 
 
 @pytest.fixture(
@@ -78,4 +77,3 @@ def setup_auth(client_auth):
     yield client_auth, user1, user2, user3, user1.projects[0]
     # cleanup database and asreview_path
     crud.delete_everything(DB)
-    clear_asreview_path()

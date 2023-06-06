@@ -102,8 +102,11 @@ def insert_user(session, entry):
         session.add(user)
         session.commit()
         print(f"User with email {user.email} created.")
+        return True
     except IntegrityError:
+        session.rollback()
         print(f"User with identifier {user.email} already exists")
+        return False
 
 
 def rename_project_folder(project_id, new_project_id):

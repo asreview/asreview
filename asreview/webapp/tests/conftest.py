@@ -19,9 +19,10 @@ from pathlib import Path
 
 import pytest
 
-import asreview.webapp.tests.utils.crud as crud
 from asreview.webapp import DB
 from asreview.webapp.start_flask import create_app
+from asreview.webapp.tests.utils import crud
+from asreview.webapp.tests.utils import misc
 
 ASREVIEW_PATH = str(tempfile.TemporaryDirectory().name)
 
@@ -90,6 +91,7 @@ def client_auth():
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)
+        misc.clear_asreview_path()
 
 
 @pytest.fixture
@@ -100,6 +102,7 @@ def client_auth_no_creation():
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)
+        misc.clear_asreview_path()
 
 
 @pytest.fixture
@@ -111,6 +114,7 @@ def client_auth_verified():
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)
+        misc.clear_asreview_path()
 
 
 @pytest.fixture
@@ -120,6 +124,7 @@ def client_no_auth():
     # make sure we have the asreview_path
     with app.app_context():
         yield app.test_client()
+        misc.clear_asreview_path()
 
 
 @pytest.fixture(scope="session", autouse=True)

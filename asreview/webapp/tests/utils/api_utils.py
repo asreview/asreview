@@ -190,7 +190,7 @@ def create_project(
     return process_response(response)
 
 
-def create_project_from_dict(client: FlaskClient, data:dict):
+def create_project_from_dict(client: FlaskClient, data: dict):
     response = client.post(
         "/api/projects/info",
         data=data,
