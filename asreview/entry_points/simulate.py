@@ -13,6 +13,7 @@
 # limitations under the License.
 """Simulation entry point and utils."""
 
+import argparse
 import logging
 import shutil
 from pathlib import Path
@@ -28,7 +29,6 @@ from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.data import ASReviewData
 from asreview.data import load_data
 from asreview.entry_points.base import BaseEntryPoint
-from asreview.entry_points.base import _base_parser
 from asreview.models.balance.utils import get_balance_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
@@ -252,7 +252,14 @@ review."""
 
 
 def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
-    parser = _base_parser(prog=prog, description=description)
+
+    # parse arguments if available
+    parser = argparse.ArgumentParser(
+        prog=prog,
+        description=description,
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+
     # Active learning parameters
     # File path to the data.
     parser.add_argument(
@@ -394,5 +401,11 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "many labeled records. By default only writes data at the end"
         "of the simulation to make it as fast as possible.",
     )
-
+    parser.add_argument(
+        "--embedding",
+        type=str,
+        default=None,
+        dest="embedding_fp",
+        help="File path of embedding matrix. Required for LSTM models.",
+    )
     return parser

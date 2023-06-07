@@ -12,17 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import argparse
-import warnings
 from abc import ABC
 from abc import abstractclassmethod
-from argparse import RawTextHelpFormatter
-
-
-class DeprecateAction(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string=None):
-        warnings.warn(f"Argument {self.option_strings} is deprecated and is ignored.")
-        delattr(namespace, self.dest)
 
 
 class BaseEntryPoint(ABC):
@@ -39,33 +30,3 @@ class BaseEntryPoint(ABC):
             For example, if `asreview plot X` is executed, then argv == ['X'].
         """
         raise NotImplementedError
-
-
-def _base_parser(prog=None, description=None):
-    """Argument parser for simulate.
-
-    Parameters
-    ----------
-    mode : str
-        The mode to run ASReview.
-    prog : str
-        The program name. For example 'asreview'.
-
-    Returns
-    -------
-    argparse.ArgumentParser
-        Configured argparser.
-    """
-
-    # parse arguments if available
-    parser = argparse.ArgumentParser(
-        prog=prog, description=description, formatter_class=RawTextHelpFormatter
-    )
-    parser.add_argument(
-        "--embedding",
-        type=str,
-        default=None,
-        dest="embedding_fp",
-        help="File path of embedding matrix. Required for LSTM models.",
-    )
-    return parser
