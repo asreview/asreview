@@ -200,8 +200,8 @@ def test_auth_tool_add_users_interact_incorr_email(client_auth, capsys):
     answers.insert(1, "abcd@")
     with patch('builtins.input', side_effect=answers):
         auth_tool.add_users()
-        _, err = capsys.readouterr()
-        assert "Entered email address is not recognized" in err
+    _, err = capsys.readouterr()
+    assert "Entered email address is not recognized" in err
     # assert we now have a users
     assert crud.count_users() == 1
 
@@ -220,8 +220,8 @@ def test_auth_tool_add_users_interact_incorr_name(client_auth, capsys):
     answers.insert(2, "ab")
     with patch('builtins.input', side_effect=answers):
         auth_tool.add_users()
-        _, err = capsys.readouterr()
-        assert "Full name must contain more than 2" in err
+    _, err = capsys.readouterr()
+    assert "Full name must contain more than 2" in err
     # assert we now have a users
     assert crud.count_users() == 1
 
@@ -240,7 +240,140 @@ def test_auth_tool_add_users_interact_incorr_passw(client_auth, capsys):
     answers.insert(4, "1111")
     with patch('builtins.input', side_effect=answers):
         auth_tool.add_users()
-        _, err = capsys.readouterr()
-        assert "Use 8 or more characters with a mix" in err
+    _, err = capsys.readouterr()
+    assert "Use 8 or more characters with a mix" in err
     # assert we now have a users
     assert crud.count_users() == 1
+
+
+# Test validity check. Note: this and the next test can not
+# be parametrized because of the tested function: it -needs-
+# to be finished with a correct value
+def test_validity_function_valid(capsys):
+    """Tests the _ensure_valid_value_for method, expects
+    no error messages if the input value respects the 
+    lambda function."""
+    # get auth_tool object
+    auth_tool = get_auth_tool_object(Namespace(json=None))
+    # define a correct value
+    correct = "a"
+    hint = "Test hint"
+    # run function with patched input
+    with patch('builtins.input', side_effect=[correct]):
+        # run validity function
+        auth_tool._ensure_valid_value_for(
+            "test", lambda x: x == correct, hint=hint
+        )
+    out, err = capsys.readouterr()
+    assert not bool(out)
+    assert not bool(err)
+
+
+# Test validity check, see remark previous test if you notice
+# the repetition
+def test_validity_function_invalid(capsys):
+    """Tests the _ensure_valid_value_for method, expects
+    error messages if the input value does not respect the 
+    lambda function."""
+    # get auth_tool object
+    auth_tool = get_auth_tool_object(Namespace(json=None))
+    # define a correct value
+    correct = "a"
+    incorrect = "b"
+    hint = "Test hint"
+    # run function with patched input
+    with patch('builtins.input', side_effect=[incorrect, correct]):
+        # run validity function
+        auth_tool._ensure_valid_value_for(
+            "test", lambda x: x == correct, hint=hint
+        )
+    out, err = capsys.readouterr()
+    assert not bool(out)
+    assert err == hint
+
+
+# Test printing a project
+def test_print_project(capsys):
+    keys = ["folder", "version", "project_id", "name", "authors", "created"]
+    data = { k: uuid4().hex for k in keys}
+    # get auth_tool object
+    auth_tool = get_auth_tool_object(Namespace(json=None))
+    # run function
+    auth_tool._print_project(data)
+    out, _ = capsys.readouterr()
+    assert f"* {data['folder']}" in out
+    assert f"version: {data['version']}" in out
+    assert f"id: {data['project_id']}" in out
+    assert f"name: {data['name']}" in out
+    assert f"authors: {data['authors']}" in out
+    assert f"created: {data['created']}" in out
+
+
+# Test printing a user with affiliation
+def test_print_user_with_affiliation(client_auth, capsys):
+    user = crud.create_user(DB, 1)
+    # get auth_tool object
+    auth_tool = get_auth_tool_object(Namespace(json=None))
+    # run function
+    auth_tool._print_user(user)
+    out, _ = capsys.readouterr()
+    expected = f"{user.id} - {user.email} ({user.name}), {user.affiliation}"
+    assert out.strip() == expected
+
+
+# Test printing a user without affiliation
+def test_print_user_without_affiliation(client_auth, capsys):
+    user = crud.create_user(DB, 1)
+    user.affiliation = None
+    # get auth_tool object
+    auth_tool = get_auth_tool_object(Namespace(json=None))
+    # run function
+    auth_tool._print_user(user)
+    out, _ = capsys.readouterr()
+    expected = f"{user.id} - {user.email} ({user.name})"
+    assert out.strip() == expected
+
+
+# Testing _get_projects
+def test_get_projects(client_no_auth):
+    # create a project and manipulate it
+    _, data = au.create_project(client_no_auth, "test")
+    # get auth_tool object
+    auth_tool = get_auth_tool_object(Namespace(json=None))
+    # run function
+    result = auth_tool._get_projects()
+    assert isinstance(result, list)
+    assert len(result) == 1
+    result = result[0]
+    assert result["folder"] == data["id"]
+    assert result["version"] == data["version"]
+    assert result["project_id"] == data["id"]
+    assert result["name"] == data["name"]
+    assert result["authors"] == data["authors"]
+    assert result["created"] == data["datetimeCreated"]
+    assert result["owner_id"] == 0
+
+
+# Test listing users
+def test_list_users(client_auth, capsys):
+    # create 2 users
+    u1 = crud.create_user(DB, 1)
+    u2 = crud.create_user(DB, 2)
+    assert crud.count_users() == 2
+    # get auth_tool object
+    auth_tool = get_auth_tool_object(Namespace(json=None))
+    # run function
+    auth_tool.list_users()
+    out, _ = capsys.readouterr()
+    exp1 = f"{u1.id} - {u1.email} ({u1.name}), {u1.affiliation}"
+    exp2 = f"{u2.id} - {u2.email} ({u2.name}), {u2.affiliation}"
+    assert exp1 in out
+    assert exp2 in out
+
+
+
+
+
+
+
+
