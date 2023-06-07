@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 import json
 import logging
 import os
@@ -29,8 +30,7 @@ from gevent.pywsgi import WSGIServer
 from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
-from asreview.entry_points.base import DeprecateAction
-from asreview.entry_points.base import _base_parser
+from asreview._deprecated import DeprecateAction
 from asreview.project import ASReviewProject
 from asreview.project import get_project_path
 from asreview.project import get_projects
@@ -107,10 +107,13 @@ def _open_browser(host, port, protocol, no_browser):
     )
 
 
-def _lab_parser(prog="lab"):
-    parser = _base_parser(
-        prog=prog,
+def _lab_parser():
+
+    # parse arguments if available
+    parser = argparse.ArgumentParser(
+        prog="lab",
         description="""ASReview LAB - Active learning for Systematic Reviews.""",  # noqa
+        formatter_class=argparse.RawTextHelpFormatter
     )
 
     parser.add_argument(
@@ -216,6 +219,14 @@ def _lab_parser(prog="lab"):
         type=int,
         help="Deprecated, see subcommand simulate.",
         action=DeprecateAction,
+    )
+
+    parser.add_argument(
+        "--embedding",
+        type=str,
+        default=None,
+        dest="embedding_fp",
+        help="File path of embedding matrix. Required for LSTM models.",
     )
     return parser
 
@@ -420,7 +431,7 @@ def create_app(**kwargs):
 
 
 def main(argv):
-    parser = _lab_parser(prog="lab")
+    parser = _lab_parser()
     args = parser.parse_args(argv)
 
     app = create_app(**vars(args))
