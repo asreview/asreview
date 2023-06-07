@@ -1,5 +1,6 @@
 import argparse
 import json
+import sys
 from argparse import RawTextHelpFormatter
 from pathlib import Path
 
@@ -105,7 +106,7 @@ def insert_user(session, entry):
         return True
     except IntegrityError:
         session.rollback()
-        print(f"User with identifier {user.email} already exists")
+        sys.stderr.write(f"User with identifier {user.email} already exists")
         return False
 
 
@@ -161,6 +162,7 @@ class AuthTool(BaseEntryPoint):
 
         self.args = args
         self.argv = argv
+        print(self.args)
 
         # create a conn object for the database
         if hasattr(self.args, "db_path") and self.args.db_path is not None:
@@ -196,7 +198,7 @@ class AuthTool(BaseEntryPoint):
             if validation_function(value):
                 return value
             else:
-                print(hint)
+                sys.stderr.write(hint)
 
     def enter_users(self):
         while True:
@@ -313,7 +315,7 @@ class AuthTool(BaseEntryPoint):
                         )
                         break
                 except ValueError:
-                    print("Entered ID is not a number, please try again.")
+                    sys.stderr.write("Entered ID is not a number, please try again.")
         return result
 
     def link_projects(self):
