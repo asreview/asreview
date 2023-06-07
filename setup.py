@@ -122,7 +122,6 @@ setup(
         "pandas>=1,<3",
         "scikit-learn",
         "rispy~=0.7.0",
-        "dill",
         "xlrd>=1.0.0",
         "setuptools",
         "flask>=2.0",
