@@ -49,9 +49,10 @@ def main():
 
         for name, pkg_entry_points in groupby(
             get_entry_points().values(),
-            lambda entry: entry.dist,
+            lambda e: e.dist.name,
         ):
-            description = metadata.metadata(name.project_name)["Summary"]
+
+            description = metadata.metadata(name)["Summary"]
             description_subcommands += f"\n[{name}] - {description}\n"
 
             for entry in pkg_entry_points:
