@@ -26,7 +26,7 @@ def list_balance_strategies():
     """
     model_class = [
         get_balance_class(name)
-        for name in list_model_names(entry_name="asreview.models.balance")
+        for name in list_model_names(group="asreview.models.balance")
     ]
 
     return model_class
@@ -45,7 +45,7 @@ def get_balance_class(name):
     BaseBalanceModel:
         Class corresponding to the name.
     """
-    return _model_class_from_entry_point(name, entry_name="asreview.models.balance")
+    return _model_class_from_entry_point(name, group="asreview.models.balance")
 
 
 def get_balance_model(name, *args, random_state=None, **kwargs):

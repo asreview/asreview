@@ -41,7 +41,7 @@ def list_classifiers():
     """
     model_class = [
         get_classifier_class(name)
-        for name in list_model_names(entry_name="asreview.models.classifiers")
+        for name in list_model_names(group="asreview.models.classifiers")
     ]
 
     return model_class
@@ -60,7 +60,7 @@ def get_classifier_class(name):
     BaseModel:
         Class corresponding to the name.
     """
-    return _model_class_from_entry_point(name, "asreview.models.classifiers")
+    return _model_class_from_entry_point(name, group="asreview.models.classifiers")
 
 
 def get_classifier(name, *args, random_state=None, **kwargs):

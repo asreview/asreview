@@ -181,7 +181,7 @@ def list_readers():
     """
     reader_class = [
         get_reader_class(name)
-        for name in list_reader_names(entry_name="asreview.readers")
+        for name in list_reader_names(group="asreview.readers")
     ]
 
     return reader_class
@@ -197,7 +197,7 @@ def list_writers():
     """
     writer_class = [
         get_writer_class(name)
-        for name in list_writer_names(entry_name="asreview.writers")
+        for name in list_writer_names(group="asreview.writers")
     ]
 
     return writer_class
@@ -216,7 +216,7 @@ def get_reader_class(name):
     class:
         Class corresponding to the name.
     """
-    return _reader_class_from_entry_point(name, entry_name="asreview.readers")
+    return _reader_class_from_entry_point(name, group="asreview.readers")
 
 
 def get_writer_class(name):
@@ -232,4 +232,4 @@ def get_writer_class(name):
     class:
         Class corresponding to the name.
     """
-    return _writer_class_from_entry_point(name, entry_name="asreview.writers")
+    return _writer_class_from_entry_point(name, group="asreview.writers")

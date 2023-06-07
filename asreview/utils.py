@@ -14,11 +14,13 @@
 
 import os
 import sys
+import functools
 from pathlib import Path
 from urllib.parse import urlparse
+from importlib.metadata import entry_points
+import warnings
 
 import numpy as np
-import pkg_resources
 
 
 def _unsafe_dict_update(default_dict, override_dict):
@@ -101,6 +103,20 @@ def _safe_dict_update(default_dict, override_dict):
     return new_dict
 
 
+def _deprecated_kwarg(kwarg_map):
+    def dec(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            new_kwargs = {}
+            for k, v in kwargs.items():
+                if k in kwarg_map:
+                    warnings.warn(f"Keyword argument '{k}' is deprecated. Use '{kwarg_map[k]}' instead.", DeprecationWarning)  # noqa
+                new_kwargs[kwarg_map.get(k, k)] = v
+            return func(*args, **new_kwargs)
+        return wrapper
+    return dec
+
+
 def asreview_path():
     """Get the location where projects are stored.
 
@@ -177,25 +193,32 @@ def is_iterable(i):
         return False
 
 
-def list_model_names(entry_name="asreview.models"):
-    return [*get_entry_points(entry_name)]
+@_deprecated_kwarg({"entry_name": "group"})
+def list_model_names(group="asreview.models"):
+    return [*get_entry_points(group)]
 
 
-def list_reader_names(entry_name="asreview.readers"):
-    return [*get_entry_points(entry_name)]
+@_deprecated_kwarg({"entry_name": "group"})
+def list_reader_names(group="asreview.readers"):
+    return [*get_entry_points(group)]
 
 
-def list_writer_names(entry_name="asreview.writers"):
-    return [*get_entry_points(entry_name)]
+@_deprecated_kwarg({"entry_name": "group"})
+def list_writer_names(group="asreview.writers"):
+    return [*get_entry_points(group)]
 
 
-def get_entry_points(entry_name="asreview.entry_points"):
+@_deprecated_kwarg({"entry_name": "group"})
+def get_entry_points(group="asreview.entry_points"):
     """Get the entry points for asreview.
 
     Parameters
     ----------
-    entry_name: str
+    group: str
         Name of the submodule. Default "asreview.entry_points".
+    entry_name: str
+        Deprecated. Argument "entry_name" is identical to "group".
+        Argument "entry_name" will be removed in version 2.
 
     Returns
     -------
@@ -203,53 +226,58 @@ def get_entry_points(entry_name="asreview.entry_points"):
         Dictionary with the name of the entry point as key
         and the entry point as value.
     """
-    return {entry.name: entry for entry in pkg_resources.iter_entry_points(entry_name)}
+
+    # this function can be simplified for Python >=3.10
+    return {entry.name: entry for entry in entry_points()[group]}
 
 
-def _model_class_from_entry_point(method, entry_name="asreview.models"):
-    entry_points = get_entry_points(entry_name)
+@_deprecated_kwarg({"entry_name": "group"})
+def _model_class_from_entry_point(method, group="asreview.models"):
+    entry_points = get_entry_points(group)
     try:
         return entry_points[method].load()
     except KeyError:
         raise ValueError(
             f"Error: method '{method}' is not implemented for entry point "
-            f"{entry_name}."
+            f"{group}."
         )
     except ImportError as e:
         raise ValueError(
-            f"Failed to import '{method}' model ({entry_name}) "
+            f"Failed to import '{method}' model ({group}) "
             f"with the following error:\n{e}"
         )
 
 
-def _reader_class_from_entry_point(suffix, entry_name="asreview.readers"):
-    entry_points = get_entry_points(entry_name)
+@_deprecated_kwarg({"entry_name": "group"})
+def _reader_class_from_entry_point(suffix, group="asreview.readers"):
+    entry_points = get_entry_points(group)
     try:
         return entry_points[suffix].load()
     except KeyError:
         raise ValueError(
             f"Error: suffix '{suffix}' is not implemented for entry point "
-            f"{entry_name}."
+            f"{group}."
         )
     except ImportError as e:
         raise ValueError(
-            f"Failed to import '{suffix}' reader ({entry_name}) "
+            f"Failed to import '{suffix}' reader ({group}) "
             f"with the following error:\n{e}"
         )
 
 
-def _writer_class_from_entry_point(suffix, entry_name="asreview.writers"):
-    entry_points = get_entry_points(entry_name)
+@_deprecated_kwarg({"entry_name": "group"})
+def _writer_class_from_entry_point(suffix, group="asreview.writers"):
+    entry_points = get_entry_points(group)
     try:
         return entry_points[suffix].load()
     except KeyError:
         raise ValueError(
             f"Error: suffix '{suffix}' is not implemented for entry point "
-            f"{entry_name}."
+            f"{group}."
         )
     except ImportError as e:
         raise ValueError(
-            f"Failed to import '{suffix}' writer ({entry_name}) "
+            f"Failed to import '{suffix}' writer ({group}) "
             f"with the following error:\n{e}"
         )
 

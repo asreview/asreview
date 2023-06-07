@@ -193,7 +193,7 @@ class ASReviewData:
         else:
             fn = Path(fp).name
 
-        entry_points = get_entry_points(entry_name="asreview.readers")
+        entry_points = get_entry_points(group="asreview.readers")
 
         try:
             reader = entry_points[Path(fn).suffix].load()
@@ -409,7 +409,7 @@ class ASReviewData:
         if writer is not None:
             writer.write_data(df, fp, labels=labels, ranking=ranking)
         else:
-            entry_points = get_entry_points(entry_name="asreview.writers")
+            entry_points = get_entry_points(group="asreview.writers")
 
             best_suffix = None
 
