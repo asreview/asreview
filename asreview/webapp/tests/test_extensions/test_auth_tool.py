@@ -251,7 +251,7 @@ def test_auth_tool_add_users_interact_incorr_passw(client_auth, capsys):
 # to be finished with a correct value
 def test_validity_function_valid(capsys):
     """Tests the _ensure_valid_value_for method, expects
-    no error messages if the input value respects the 
+    no error messages if the input value respects the
     lambda function."""
     # get auth_tool object
     auth_tool = get_auth_tool_object(Namespace(json=None))
@@ -273,7 +273,7 @@ def test_validity_function_valid(capsys):
 # the repetition
 def test_validity_function_invalid(capsys):
     """Tests the _ensure_valid_value_for method, expects
-    error messages if the input value does not respect the 
+    error messages if the input value does not respect the
     lambda function."""
     # get auth_tool object
     auth_tool = get_auth_tool_object(Namespace(json=None))
@@ -295,7 +295,7 @@ def test_validity_function_invalid(capsys):
 # Test printing a project
 def test_print_project(capsys):
     keys = ["folder", "version", "project_id", "name", "authors", "created"]
-    data = { k: uuid4().hex for k in keys}
+    data = {k: uuid4().hex for k in keys}
     # get auth_tool object
     auth_tool = get_auth_tool_object(Namespace(json=None))
     # run function
@@ -369,11 +369,3 @@ def test_list_users(client_auth, capsys):
     exp2 = f"{u2.id} - {u2.email} ({u2.name}), {u2.affiliation}"
     assert exp1 in out
     assert exp2 in out
-
-
-
-
-
-
-
-
