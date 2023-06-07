@@ -12,13 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.webapp.run_model import main as main_run_model
 from asreview.webapp.start_flask import main as main_flask
-
-
 
 
 class LABEntryPoint(BaseEntryPoint):

@@ -29,6 +29,8 @@ from gevent.pywsgi import WSGIServer
 from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
+from asreview.entry_points.base import DeprecateAction
+from asreview.entry_points.base import _base_parser
 from asreview.project import ASReviewProject
 from asreview.project import get_project_path
 from asreview.project import get_projects
@@ -39,8 +41,6 @@ from asreview.webapp.api import projects
 from asreview.webapp.api import team
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
-from asreview.entry_points.base import _base_parser
-from asreview.entry_points.base import DeprecateAction
 
 HOST_NAME = os.getenv("ASREVIEW_HOST")
 if HOST_NAME is None:
