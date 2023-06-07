@@ -50,7 +50,7 @@ def main():
         description_subcommands = ""
 
         for name, pkg_entry_points in groupby(
-            pkg_resources.iter_entry_points("asreview.entry_points"),
+            get_entry_points().values(),
             lambda entry: entry.dist,
         ):
             description = metadata.metadata(name.project_name)["Summary"]
