@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import functools
 import os
 import sys
-import functools
+import warnings
+from importlib.metadata import entry_points
 from pathlib import Path
 from urllib.parse import urlparse
-from importlib.metadata import entry_points
-import warnings
 
 import numpy as np
 

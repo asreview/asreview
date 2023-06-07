@@ -45,7 +45,8 @@ def get_feature_class(name):
     BaseFeatureExtraction:
         Class corresponding to the name.
     """
-    return _model_class_from_entry_point(name, group="asreview.models.feature_extraction")
+    return _model_class_from_entry_point(
+        name, group="asreview.models.feature_extraction")
 
 
 def get_feature_model(name, *args, random_state=None, **kwargs):
