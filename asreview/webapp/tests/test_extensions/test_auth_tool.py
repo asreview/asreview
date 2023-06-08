@@ -4,6 +4,8 @@ from pathlib import Path
 from unittest.mock import patch
 from uuid import uuid4
 
+import pytest
+
 import asreview.entry_points.auth_tool as tool
 from asreview.entry_points.auth_tool import AuthTool
 from asreview.state.sql_converter import upgrade_asreview_project_file
@@ -41,7 +43,7 @@ def interactive_user_data():
     ]
 
 
-def import_2_unauthenticated_projects():
+def import_2_unauthenticated_projects(with_upgrade=True):
     """This function retrieves 2 zipped project (version 0.x)
     files from github and copies them in the asreview folder.
     To use them in tests they need to be upgraded. Both projects
@@ -52,9 +54,10 @@ def import_2_unauthenticated_projects():
     # import projects
     proj1 = misc.copy_github_project_into_asreview_folder(url1)
     proj2 = misc.copy_github_project_into_asreview_folder(url2)
-    # update these projects to a 1.x-ish config
-    upgrade_asreview_project_file(proj1.project_path)
-    upgrade_asreview_project_file(proj2.project_path)
+    if with_upgrade:
+        # update these projects to a 1.x-ish config
+        upgrade_asreview_project_file(proj1.project_path)
+        upgrade_asreview_project_file(proj2.project_path)
     return proj1, proj2
 
 
@@ -432,6 +435,7 @@ def test_list_projects_with_json(client_no_auth, capsys):
 # asreview folder and upgraded. This is done without the help of
 # the API, ensuring they can't be linked to a User account.
 def test_link_project_with_json_string(client_auth, capsys):
+    # import projects
     proj1, proj2 = import_2_unauthenticated_projects()
     # create 2 users
     user1 = crud.create_user(DB, 1)
@@ -465,3 +469,74 @@ def test_link_project_with_json_string(client_auth, capsys):
         assert user.projects[0].project_id == expected_proj["project_id"]
         # check also on the file-system
         assert Path(asreview_path() / expected_proj["folder"]).exists()
+
+
+# Test linking projects interactively
+def test_link_projects_interactively(client_auth):
+    # import projects
+    proj1, proj2 = import_2_unauthenticated_projects()
+    project_data = {p.config.get("id"): p for p in [proj1, proj2]}
+    # create a user
+    user = crud.create_user(DB, 1)
+    # check the database
+    assert crud.count_users() == 1
+    assert crud.count_projects() == 0
+    # create AuthTool object
+    auth_tool = get_auth_tool_object(Namespace(json=None))
+    # run function with patched input
+    with patch('builtins.input', side_effect=[user.id, user.id]):
+        # link project to user
+        auth_tool.link_projects()
+    # check database again
+    assert crud.count_projects() == 2
+    # make sure the user has 2 different projects
+    assert len([p.project_id for p in user.projects]) == 2
+    # check user projects
+    for project in user.projects:
+        org_data = project_data[project.project_id]
+        assert org_data.config.get("id") == project.project_id
+        assert Path(asreview_path() / project.project_id).exists()
+
+
+# Test linking projects with a typo
+def test_link_projects_interactively_with_typo(client_auth):
+    # import projects
+    proj1, proj2 = import_2_unauthenticated_projects()
+    # create a user
+    user = crud.create_user(DB, 1)
+    # check the database
+    assert crud.count_users() == 1
+    assert crud.count_projects() == 0
+    # create AuthTool object
+    auth_tool = get_auth_tool_object(Namespace(json=None))
+    # run function with patched input (there is a wrong id in there)
+    with patch('builtins.input', side_effect=[user.id, str(-5), user.id]):
+        # link project to user
+        auth_tool.link_projects()
+    # check database again
+    assert crud.count_projects() == 2
+
+
+# Test failure of anything related to projects if a project is older
+# than version 0.x.
+@pytest.mark.parametrize(
+    "method",
+    [
+        "_generate_project_links",
+        "list_projects",
+        "link_projects"
+    ]
+)
+def test_projects_with_0x_projects(client_auth, method):
+    # import projects
+    proj1, proj2 = import_2_unauthenticated_projects(with_upgrade=False)
+    # make sure these projects exist
+    assert len(misc.get_folders_in_asreview_path()) == 2
+    # create AuthTool object
+    auth_tool = get_auth_tool_object(Namespace(json=None))
+    # try to link project to user
+    with pytest.raises(RuntimeError) as error:
+        func = getattr(auth_tool, method)
+        func()
+        assert "Version of project with id" in str(error.value)
+        assert "too old" in str(error.value)

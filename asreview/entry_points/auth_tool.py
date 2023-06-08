@@ -2,15 +2,14 @@ import argparse
 import json
 import sys
 from argparse import RawTextHelpFormatter
-from pathlib import Path
 from uuid import UUID
-from uuid import uuid4
 
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
 from asreview.entry_points.base import BaseEntryPoint
+from asreview.project import ASReviewProject
 from asreview.utils import asreview_path
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
@@ -245,17 +244,23 @@ class AuthTool(BaseEntryPoint):
         projects = [f for f in asreview_path().glob("*") if f.is_dir()]
         result = []
         for folder in projects:
-            with open(Path(folder) / "project.json", "r") as out:
-                project = json.load(out)
+            project = ASReviewProject(folder)
+
+            # Raise a RuntimeError if the project version is too low.
+            if project.config.get("version").startswith("0."):
+                id = project.config.get("id")
+                message = f"""Version of project with id {id} is too old,
+                please upgrade first before using this tool."""
+                raise RuntimeError(message)
 
             result.append(
                 {
                     "folder": folder.name,
-                    "version": project["version"],
-                    "project_id": project["id"],
-                    "name": project["name"],
-                    "authors": project["authors"],
-                    "created": project["datetimeCreated"],
+                    "version": project.config.get("version"),
+                    "project_id": project.config.get("id"),
+                    "name": project.config.get("name"),
+                    "authors": project.config.get("authors"),
+                    "created": project.config.get("datetimeCreated"),
                     "owner_id": 0,
                 }
             )
@@ -297,7 +302,8 @@ class AuthTool(BaseEntryPoint):
             while True:
                 id = input("Enter the ID number of the owner: ")
                 try:
-                    id = id.replace(".", "")
+                    if isinstance(id, str):
+                        id = id.replace(".", "")
                     id = int(id)
                     if id not in user_ids:
                         print("Entered ID does not exists, try again.")

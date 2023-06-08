@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Union
 from urllib.request import urlopen
 
+import requests
 from flask import current_app
 
 from asreview.project import ASReviewProject
@@ -121,10 +122,9 @@ def retrieve_project_url_github(version=None):
 def copy_github_project_into_asreview_folder(url):
     """This function copies a, on Github stored, ASReview project
     into the asreview folder."""
-
-    import requests
+    response = requests.get(url)
     return ASReviewProject.load(
-        io.BytesIO(requests.get(url).content),
+        io.BytesIO(response.content),
         asreview_path(),
         safe_import=True
     )
