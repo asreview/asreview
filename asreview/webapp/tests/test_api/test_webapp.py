@@ -1,6 +1,7 @@
 from flask import current_app
 
 import asreview.webapp.tests.utils.api_utils as au
+from asreview.webapp.tests.utils import misc
 
 
 # Test if index.html is available!
@@ -25,7 +26,7 @@ def test_boot(setup_all_clients):
     assert "authentication" in data.keys()
     assert "status" in data.keys()
     assert "version" in data.keys()
-    if current_app.config.get("AUTHENTICATION_ENABLED"):
+    if misc.current_app_is_authenticated():
         assert data["authentication"]
         assert data["allow_account_creation"] == current_app.config.get(
             "ALLOW_ACCOUNT_CREATION"

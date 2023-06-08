@@ -3,15 +3,15 @@ import time
 from typing import Union
 
 import pytest
-from flask import current_app
 from flask.testing import FlaskClient
 
 import asreview.webapp.tests.utils.api_utils as au
 import asreview.webapp.tests.utils.crud as crud
 import asreview.webapp.tests.utils.misc as misc
 from asreview.project import ASReviewProject
-from asreview.utils import asreview_path
+from asreview.webapp import DB
 from asreview.webapp.authentication.models import Project
+from asreview.webapp.tests.utils.misc import current_app_is_authenticated
 from asreview.webapp.tests.utils.misc import retrieve_project_url_github
 
 # NOTE: I don't see a plugin that can be used for testing
@@ -38,7 +38,7 @@ def test_get_projects(setup):
     assert status_code == 200
     assert len(data["result"]) == 1
     found_project = data["result"][0]
-    if current_app.config.get("AUTHENTICATION_ENABLED"):
+    if current_app_is_authenticated():
         assert found_project["id"] == project.project_id
         assert found_project["owner_id"] == user1.id
     else:
@@ -69,9 +69,15 @@ def test_try_upgrade_a_modern_project(setup):
 
 # Test upgrading a v0.x project
 def test_upgrade_an_old_project(setup):
-    client, _, project = setup
-    # substitute the current project folder for an old type of folder
-    misc.subs_for_legacy_project_folder(project)
+    client, user, _ = setup
+    # get an old version from github
+    old_project_url = retrieve_project_url_github("v0.19")
+    project = misc.copy_github_project_into_asreview_folder(old_project_url)
+    # we need to make sure this new, old-style project can be found
+    # under current user if the app is authenticated
+    if current_app_is_authenticated():
+        new_project = Project(project_id=project.config.get("id"))
+        project = crud.create_project(DB, user, new_project)
     # try to convert
     status_code, data = au.upgrade_project(client, project)
     assert status_code == 200
@@ -80,26 +86,28 @@ def test_upgrade_an_old_project(setup):
 
 # Test importing old projects, verify ids
 @pytest.mark.parametrize("url", IMPORT_PROJECT_URLS)
-def test_import_project_files_current(setup, url):
-    client, _, first_project = setup
+def test_import_project_files(setup, url):
+    client, user, first_project = setup
     # import project
     status_code, data = au.import_project(client, url)
     # get contents asreview folder
-    folders = set([f.stem for f in list(asreview_path().glob("*"))])
+    folders = set(misc.get_folders_in_asreview_path())
     # asserts
+    assert len(folders) == 2
     assert status_code == 200
     assert isinstance(data, dict)
-    if current_app.config.get("AUTHENTICATION_ENABLED"):
+    if current_app_is_authenticated():
         # assert it exists in the database
         assert crud.count_projects() == 2
         project = crud.last_project()
         assert data["id"] != first_project.project_id
         assert data["id"] == project.project_id
+        # assert the owner is current user
+        assert data["owner_id"] == user.id
     else:
-        assert len(folders) == 2
         assert data["id"] != first_project.config.get("id")
     # in auth/non-auth the project folder must exist in the asreview folder
-    assert data["id"] in folders
+    assert data["id"] in set([f.stem for f in folders])
 
 
 # Test get stats in setup state
@@ -166,7 +174,7 @@ def test_upload_benchmark_data_to_project(setup, upload_data):
     client, _, project = setup
     status_code, data = au.upload_data_to_project(client, project, data=upload_data)
     assert status_code == 200
-    if current_app.config.get("AUTHENTICATION_ENABLED"):
+    if current_app_is_authenticated():
         assert data["project_id"] == project.project_id
     else:
         assert data["project_id"] == project.config.get("id")
@@ -568,7 +576,7 @@ def test_delete_project(setup):
 )
 def test_unauthorized_use_of_api_calls(setup, api_call):
     client, user, project = setup
-    if current_app.config.get("AUTHENTICATION_ENABLED"):
+    if current_app_is_authenticated():
         # signout the client
         au.signout_user(client)
         # inspect function

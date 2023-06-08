@@ -3,6 +3,8 @@ import json
 import sys
 from argparse import RawTextHelpFormatter
 from pathlib import Path
+from uuid import UUID
+from uuid import uuid4
 
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
@@ -87,6 +89,14 @@ def auth_parser():
     return parser
 
 
+def verify_id(id):
+    try:
+        UUID(id)
+        return True
+    except ValueError:
+        return False
+
+
 def insert_user(session, entry):
     """Inserts a dictionary containing user data
     into the database."""
@@ -108,25 +118,6 @@ def insert_user(session, entry):
         session.rollback()
         sys.stderr.write(f"User with identifier {user.email} already exists")
         return False
-
-
-def rename_project_folder(project_id, new_project_id):
-    """Rename folder with an authenticated project id"""
-    folder = asreview_path() / project_id
-    folder.rename(asreview_path() / new_project_id)
-    try:
-        # take care of the id inside the project.json file
-        with open(asreview_path() / new_project_id / "project.json", mode="r") as f:
-            data = json.load(f)
-            # change id
-            data["id"] = new_project_id
-        # overwrite original project.json file with new project id
-        with open(asreview_path() / new_project_id / "project.json", mode="w") as f:
-            json.dump(data, f)
-    except Exception as exc:
-        # revert renaming the folder
-        folder.rename(asreview_path() / project_id)
-        raise exc
 
 
 def insert_project(session, project):
@@ -280,6 +271,8 @@ class AuthTool(BaseEntryPoint):
     def list_projects(self):
         projects = self._get_projects()
         if self.args.json:
+            # dump the data twice to create a string
+            # that can be loaded again by the tool.
             print(json.dumps(json.dumps(projects)))
         else:
             [self._print_project(p) for p in projects]

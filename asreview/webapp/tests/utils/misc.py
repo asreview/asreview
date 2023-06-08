@@ -1,3 +1,4 @@
+import io
 import json
 import random
 import re
@@ -8,7 +9,12 @@ from urllib.request import urlopen
 
 from flask import current_app
 
+from asreview.project import ASReviewProject
 from asreview.utils import asreview_path
+
+
+def current_app_is_authenticated():
+    return current_app.config.get("AUTHENTICATION_ENABLED")
 
 
 def get_project_id(project):
@@ -16,7 +22,7 @@ def get_project_id(project):
     (authenticated app) or an ASReviewProject object
     (unauthenticated app)."""
     id = None
-    if current_app.config.get("AUTHENTICATION_ENABLED"):
+    if current_app_is_authenticated():
         id = project.project_id
     else:
         id = project.config["id"]
@@ -51,21 +57,6 @@ def manipulate_project_file(project, key, value):
     return False
 
 
-def subs_for_legacy_project_folder(project):
-    """This function helps with testing for legacy projects. A
-    quick way to create a legacy project is to take a non-legacy
-    folder, remove it contents and copy a legacy project's contents
-    into it."""
-    shutil.rmtree(asreview_path() / get_project_id(project))
-    # I need an old project folder, and I got it in the data dir
-    src = Path(
-        Path(__file__).parent.parent.resolve(),
-        "data/asreview-project-v0-19-startreview",
-    )
-    dst = asreview_path() / get_project_id(project)
-    shutil.copytree(src, dst)
-
-
 def _extract_stem(path: Union[str, Path]):
     """Extracts a stem from a path or URL containing a filename."""
     return Path(re.split(":|/", str(path))[-1]).stem
@@ -96,13 +87,14 @@ def choose_project_algorithms():
     return data
 
 
-def retrieve_project_url_github(major=None):
-    """Retrieve .asreview file url from
-    asreview-project-files-testing GitHub repository"""
+def retrieve_project_url_github(version=None):
+    """Retrieve .asreview file(s) url from asreview-project-files-testing
+    GitHub repository. When version is not None, the function resturns
+    a single URL, otherwise a list containing URLs."""
 
-    repo = "/asreview/asreview-project-files-testing"
-    repo_api_url = "https://api.github.com/repos" + repo + "/git/trees/master"
-    repo_url = "https://github.com" + repo + "/blob/master"
+    repo = "asreview/asreview-project-files-testing"
+    repo_api_url = f"https://api.github.com/repos/{repo}/git/trees/master"
+    repo_url = f"https://github.com/{repo}/blob/master"
     file_type = "startreview.asreview?raw=true"
 
     json_file = json.loads(urlopen(repo_api_url).read().decode("utf-8"))["tree"]
@@ -116,8 +108,29 @@ def retrieve_project_url_github(major=None):
 
     for tag in version_tags:
         file_version = f"/{tag}/asreview-project-{tag.replace('.', '-')}-"
+        url = repo_url + file_version + file_type
 
-        if major is None or int(tag[1]) == major:
-            project_urls.append(repo_url + file_version + file_type)
+        if version is None:
+            project_urls.append(url)
+        else:
+            return url
 
     return project_urls
+
+
+def copy_github_project_into_asreview_folder(url):
+    """This function copies a, on Github stored, ASReview project
+    into the asreview folder."""
+
+    import requests
+    return ASReviewProject.load(
+        io.BytesIO(requests.get(url).content),
+        asreview_path(),
+        safe_import=True
+    )
+
+
+def get_folders_in_asreview_path():
+    """This function returns the amount of folders located
+    in the asreview folder."""
+    return [f for f in asreview_path().glob("*") if f.is_dir()]

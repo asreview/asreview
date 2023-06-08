@@ -6,11 +6,13 @@ from uuid import uuid4
 
 import asreview.entry_points.auth_tool as tool
 from asreview.entry_points.auth_tool import AuthTool
+from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.tests.utils import api_utils as au
 from asreview.webapp.tests.utils import config_parser as cp
 from asreview.webapp.tests.utils import crud
+from asreview.webapp.tests.utils import misc
 
 
 def get_auth_tool_object(namespace):
@@ -37,6 +39,35 @@ def interactive_user_data():
         user_data["password"],
         "n",
     ]
+
+
+def import_2_unauthenticated_projects():
+    """This function retrieves 2 zipped project (version 0.x)
+    files from github and copies them in the asreview folder.
+    To use them in tests they need to be upgraded. Both projects
+    are returned."""
+    # get 2 unauthenticated projects
+    url1 = misc.retrieve_project_url_github("v0.19")
+    url2 = misc.retrieve_project_url_github("v0.18")
+    # import projects
+    proj1 = misc.copy_github_project_into_asreview_folder(url1)
+    proj2 = misc.copy_github_project_into_asreview_folder(url2)
+    # update these projects to a 1.x-ish config
+    upgrade_asreview_project_file(proj1.project_path)
+    upgrade_asreview_project_file(proj2.project_path)
+    return proj1, proj2
+
+
+# Test verifying uuid: correct
+def test_verify_id_correct_id():
+    id = uuid4().hex
+    assert tool.verify_id(id)
+
+
+# Test verifying uuid: incorrect id
+def test_verify_id_incorrect_id():
+    id = "incorrect-id"
+    assert not tool.verify_id(id)
 
 
 # Test inserting a user into the database
@@ -75,30 +106,6 @@ def test_insert_user_duplicate(client_auth):
     assert not result
     # no inserts, count remains 1
     assert crud.count_users() == 1
-
-
-# Test renaming a project (give it a new id)
-def test_rename_project_folder(client_no_auth):
-    # create a project and manipulate it
-    _, data = au.create_project(client_no_auth, "test")
-    # get uuid of project
-    old_id = data.get("id")
-    # verify if single project folder exists
-    assert len(list(asreview_path().glob("*"))) == 1
-    assert Path(asreview_path() / old_id).exists()
-    with open(Path(asreview_path() / old_id / "project.json"), "r") as f:
-        data = json.load(f)
-        assert data["id"] == old_id
-    # create new id
-    new_id = uuid4().hex
-    # call rename project
-    tool.rename_project_folder(old_id, new_id)
-    # check
-    assert not Path(asreview_path() / old_id).exists()
-    assert Path(asreview_path() / new_id).exists()
-    with open(Path(asreview_path() / new_id / "project.json"), "r") as f:
-        data = json.load(f)
-        assert data["id"] == new_id
 
 
 # Test inserting a project record in the database
@@ -336,7 +343,7 @@ def test_print_user_without_affiliation(client_auth, capsys):
 
 # Testing _get_projects
 def test_get_projects(client_no_auth):
-    # create a project and manipulate it
+    # create a project
     _, data = au.create_project(client_no_auth, "test")
     # get auth_tool object
     auth_tool = get_auth_tool_object(Namespace(json=None))
@@ -369,3 +376,92 @@ def test_list_users(client_auth, capsys):
     exp2 = f"{u2.id} - {u2.email} ({u2.name}), {u2.affiliation}"
     assert exp1 in out
     assert exp2 in out
+
+
+# Test list projects: no json data
+def test_list_projects_no_json(client_no_auth, capsys):
+    # create two projects
+    _, data1 = au.create_project(client_no_auth, "test1")
+    _, data2 = au.create_project(client_no_auth, "test2")
+    # get auth_tool object
+    auth_tool = get_auth_tool_object(Namespace(json=None))
+    # run function
+    auth_tool.list_projects()
+    out, _ = capsys.readouterr()
+    # we have already tested _print_project, so I will keep
+    # it short
+    assert f"* {data1['id']}" in out
+    assert f"* {data2['id']}" in out
+    assert f"name: {data1['name']}" in out
+    assert f"name: {data2['name']}" in out
+
+
+# Test list projects: output is a json string
+def test_list_projects_with_json(client_no_auth, capsys):
+    # create two projects
+    _, data1 = au.create_project(client_no_auth, "test1")
+    _, data2 = au.create_project(client_no_auth, "test2")
+    data = {
+        data1.get("id"): data1,
+        data2.get("id"): data2
+    }
+    # get auth_tool object
+    auth_tool = get_auth_tool_object(Namespace(json=True))
+    # run function
+    auth_tool.list_projects()
+    out, _ = capsys.readouterr()
+    # this loads the out json string into a list of dicts
+    out = json.loads(json.loads(out))
+    assert isinstance(out, list)
+    assert len(out) == 2
+    for proj in out:
+        expected = data[proj["project_id"]]
+        assert proj["folder"] == expected["id"]
+        assert proj["version"] == expected["version"]
+        assert proj["project_id"] == expected["id"]
+        assert proj["name"] == expected["name"]
+        assert proj["authors"] == expected["authors"]
+        assert proj["created"] == expected["datetimeCreated"]
+        assert proj["owner_id"] == 0
+
+
+# Test linking projects to users with a json string
+# Note: We can not simulate a conversion from an unauthenticated
+# app into an authenticated one. To overcome this problem, 2 old
+# project zip files (version 0.x) are copied from Github into the
+# asreview folder and upgraded. This is done without the help of
+# the API, ensuring they can't be linked to a User account.
+def test_link_project_with_json_string(client_auth, capsys):
+    proj1, proj2 = import_2_unauthenticated_projects()
+    # create 2 users
+    user1 = crud.create_user(DB, 1)
+    user2 = crud.create_user(DB, 2)
+    # check database
+    assert crud.count_users() == 2
+    assert crud.count_projects() == 0
+    # check if we have 2 folders in asreview path
+    assert len(misc.get_folders_in_asreview_path()) == 2
+    # get from the auth tool a json string
+    auth_tool = get_auth_tool_object(Namespace(json=True))
+    auth_tool.list_projects()
+    out, _ = capsys.readouterr()
+    # we replace the owner ids with the ids of the users
+    json_string = out.replace(": 0", f": {user1.id}", 1)
+    json_string = json_string.replace(": 0", f": {user2.id}", 1)
+
+    # use this string to run the function with a new AuthTool
+    auth_tool = get_auth_tool_object(Namespace(json=json.loads(json_string)))
+    auth_tool.link_projects()
+    # check database and check if the users own the correct project
+    assert crud.count_projects() == 2
+    project_dict = {
+        proj["owner_id"]: proj
+        for proj in json.loads(json.loads(json_string))
+    }
+    for user in [user1, user2]:
+        expected_proj = project_dict[user.id]
+        assert len(user.projects) == 1
+        assert user.projects[0].project_id == expected_proj["folder"]
+        assert user.projects[0].project_id == expected_proj["project_id"]
+        # check also on the file-system
+        assert Path(asreview_path() / expected_proj["folder"]).exists()
