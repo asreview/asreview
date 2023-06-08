@@ -59,7 +59,10 @@ def _get_app(app_type="auth-basic"):
     else:
         raise ValueError(f"Unknown config {app_type}")
     # create app
-    return create_app(flask_configfile=config_path)
+    app = create_app(flask_configfile=config_path)
+    # ensure we have no projects in our folder (but keep database file)
+    misc.clear_asreview_path(remove_files=False)
+    return app
 
 
 # unauthenticated app

@@ -30,12 +30,13 @@ def get_project_id(project):
     return id
 
 
-def clear_asreview_path():
-    """Removes all files and folders from the ASReview folder."""
+def clear_asreview_path(remove_files=True):
+    """Removes all folders and optional files from the
+    ASReview folder."""
     for item in Path(asreview_path()).glob("*"):
         if item.is_dir():
             shutil.rmtree(item)
-        else:
+        if remove_files and item.is_file():
             item.unlink()
 
 
