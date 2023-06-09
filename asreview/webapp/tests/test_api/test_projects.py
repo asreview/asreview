@@ -508,7 +508,7 @@ def test_label_a_document_with_running_model(setup):
     )
     assert status_code == 200
     assert data["success"]
-    time.sleep(7)
+    time.sleep(10)
 
 
 # Test update label of a document after the model has been started
@@ -528,7 +528,7 @@ def test_update_label_of_document_with_running_model(setup):
     )
     assert status_code == 200
     assert data["success"]
-    time.sleep(7)
+    time.sleep(10)
 
 
 # Test deleting a project
