@@ -56,11 +56,13 @@ def test_create_projects(setup):
 
 
 # Test upgrading a post v0.x project
-def test_try_upgrade_a_modern_project(setup):
+def test_try_upgrade_a_modern_project_XXX(setup):
     client, _, project = setup
     # verify version
     data = misc.read_project_file(project)
     assert not data["version"].startswith("0.")
+
+    print(type(project))
 
     status_code, data = au.upgrade_project(client, project)
     assert status_code == 400
@@ -68,7 +70,7 @@ def test_try_upgrade_a_modern_project(setup):
 
 
 # Test upgrading a v0.x project
-def test_upgrade_an_old_project(setup):
+def test_upgrade_an_old_project_XXX(setup):
     client, user, _ = setup
     # get an old version from github
     old_project_url = retrieve_project_url_github("v0.19")
@@ -78,6 +80,7 @@ def test_upgrade_an_old_project(setup):
     if current_app_is_authenticated():
         new_project = Project(project_id=project.config.get("id"))
         project = crud.create_project(DB, user, new_project)
+    print(type(project))
     # try to convert
     status_code, data = au.upgrade_project(client, project)
     assert status_code == 200

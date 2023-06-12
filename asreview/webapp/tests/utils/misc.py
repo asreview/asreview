@@ -32,7 +32,8 @@ def get_project_id(project):
 
 def clear_asreview_path(remove_files=True):
     """Removes all folders and optional files from the
-    ASReview folder."""
+    ASReview folder. The latter has everything to do with
+    the sqlite3 files."""
     for item in Path(asreview_path()).glob("*"):
         if item.is_dir():
             shutil.rmtree(item)

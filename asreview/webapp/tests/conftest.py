@@ -93,7 +93,7 @@ def client_auth():
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)
-        misc.clear_asreview_path()
+        misc.clear_asreview_path(remove_files=False)
 
 
 @pytest.fixture
@@ -104,7 +104,7 @@ def client_auth_no_creation():
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)
-        misc.clear_asreview_path()
+        misc.clear_asreview_path(remove_files=False)
 
 
 @pytest.fixture
@@ -116,7 +116,7 @@ def client_auth_verified():
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)
-        misc.clear_asreview_path()
+        misc.clear_asreview_path(remove_files=False)
 
 
 @pytest.fixture
