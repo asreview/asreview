@@ -39,7 +39,7 @@ class OAuthHandler:
                     ]
                 )
             ):
-                raise ValueError(f"OAuthHandler has insufficient data for f{provider}")
+                raise ValueError(f"OAuthHandler has insufficient data for {provider}")
             else:
                 # rebuild config
                 services[provider.lower()] = {
