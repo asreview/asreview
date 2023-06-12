@@ -60,9 +60,7 @@ def test_try_upgrade_a_modern_project_XXX(setup):
     client, _, project = setup
     # verify version
     data = misc.read_project_file(project)
-    assert not data["version"].startswith("0.")
-
-    print(type(project))
+    assert not data["version"].startswith("0")
 
     status_code, data = au.upgrade_project(client, project)
     assert status_code == 400
