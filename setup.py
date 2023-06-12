@@ -47,7 +47,7 @@ DEPS = {
     "doc2vec": ["gensim"],
     "tensorflow": ["tensorflow~=2.0"],
     "dev": ["black", "check-manifest", "flake8", "flake8-isort", "isort"],
-    "test": ["coverage", "pytest"],
+    "test": ["coverage", "pytest", "pytest-random-order"],
 }
 DEPS["all"] = DEPS["sbert"] + DEPS["doc2vec"]
 DEPS["all"] += DEPS["tensorflow"]
