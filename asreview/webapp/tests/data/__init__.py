@@ -11,27 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
-def test_landing(client):
-    """Test if index.html is available.
-
-    This test will fail if build is missing. Please run
-    `python setup.py compile_assets` first.
-    """
-    response = client.get("/")
-    html = response.data.decode()
-
-    assert (
-        "<title>ASReview LAB - A tool for AI-assisted systematic reviews</title>"
-        in html
-    )  # noqa
-
-
-def test_boot(client):
-    """Test if version number is available on boot."""
-    response = client.get("/boot")
-    json_data = response.get_json()
-
-    assert "version" in json_data
-    assert "status" in json_data

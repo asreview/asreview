@@ -24,6 +24,7 @@ from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import validates
 from werkzeug.security import check_password_hash
@@ -43,12 +44,12 @@ class User(UserMixin, DB.Model):
 
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
-    identifier = Column(String(100), nullable=False)
+    identifier = Column(String(100), nullable=False, unique=True)
     origin = Column(String(100), nullable=False)
     email = Column(String(100), unique=True)
     name = Column(String(100))
     affiliation = Column(String(100))
-    hashed_password = Column(String(100), unique=True)
+    hashed_password = Column(String(100))
     confirmed = Column(Boolean)
     public = Column(Boolean)
     token = Column(String(50))
@@ -86,21 +87,14 @@ class User(UserMixin, DB.Model):
             raise ValueError("Name must contain more than 2 characters")
         return name
 
-    @validates("email", "hashed_password")
-    def validate_password(self, key, value):
+    @validates("email")
+    def validate_email(self, key, email):
         if key == "email" and self.origin == "asreview":
-            if bool(value) is False:
+            if bool(email) is False:
                 raise ValueError("Email is required when origin is 'asreview'")
-            elif not User.valid_email(value):
-                raise ValueError(f"Email address '{value}' is not valid")
-
-        if (
-            key == "hashed_password"
-            and self.origin == "asreview"
-            and bool(value) is False
-        ):
-            raise ValueError('Password is required when origin is "asreview"')
-        return value
+            elif not User.valid_email(email):
+                raise ValueError(f"Email address '{email}' is not valid")
+        return email
 
     def __init__(
         self,
@@ -118,7 +112,7 @@ class User(UserMixin, DB.Model):
         self.email = email
         self.name = name
         self.affiliation = affiliation
-        if self.origin == "asreview" and bool(password):
+        if self.origin == "asreview":
             self.hashed_password = User.create_password_hash(password)
         self.confirmed = confirmed
         self.public = public
@@ -127,14 +121,14 @@ class User(UserMixin, DB.Model):
         self.email = email
         self.name = name
         self.affiliation = affiliation
-        if self.origin == "asreview" and bool(password):
+        if self.origin == "asreview" and password is not None:
             self.hashed_password = User.create_password_hash(password)
         self.public = public
 
         return self
 
     def reset_password(self, new_password):
-        if self.origin == "asreview" and bool(new_password):
+        if self.origin == "asreview":
             self.hashed_password = User.create_password_hash(new_password)
         # reset token
         self.token = None
@@ -180,13 +174,9 @@ class User(UserMixin, DB.Model):
             # what is now
             now = dt.datetime.utcnow()
             # get time-difference in hours
-            diff = now - self.token_created_at
-            # give me hours and remaining seconds
-            [hours, r_secs] = divmod(diff.total_seconds(), 3600)
+            diff = (now - self.token_created_at).total_seconds()
             # return if token is correct and we are still before deadline
-            return self.token == provided_token and (
-                hours <= max_hours or (hours == max_hours and r_secs < 60)
-            )
+            return self.token == provided_token and diff <= max_hours * 3600
         else:
             return False
 
@@ -220,8 +210,21 @@ class User(UserMixin, DB.Model):
 class Collaboration(DB.Model):
     __tablename__ = "collaborations"
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="cascade"))
-    project_id = Column(Integer, ForeignKey("projects.id", ondelete="cascade"))
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id", ondelete="cascade"),
+        nullable=False
+    )
+    project_id = Column(
+        Integer,
+        ForeignKey("projects.id", ondelete="cascade"),
+        nullable=False
+    )
+    # make sure we have unique records in this table
+    __table_args__ = (UniqueConstraint("project_id", "user_id", name="unique_records"),)
+
+    def __repr__(self):
+        return f"<Collaboration project:{self.project_id} user:{self.user_id}>"
 
 
 class Project(DB.Model):
@@ -230,9 +233,9 @@ class Project(DB.Model):
     __tablename__ = "projects"
     id = Column(Integer, primary_key=True)
     project_id = Column(String(250), nullable=False, unique=True)
-    folder = Column(String(100), nullable=False, unique=True)
     owner_id = Column(Integer, ForeignKey(User.id), nullable=False)
     owner = relationship("User", back_populates="projects")
+
     # do not delete cascade: we don't want to
     # lose users, only collaborations
     collaborators = relationship(
@@ -263,5 +266,20 @@ class CollaborationInvitation(DB.Model):
 
     __tablename__ = "collaboration_invitations"
     id = Column(Integer, primary_key=True)
-    project_id = Column(Integer, ForeignKey("projects.id", ondelete="cascade"))
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="cascade"))
+    project_id = Column(
+        Integer,
+        ForeignKey("projects.id", ondelete="cascade"),
+        nullable=False
+    )
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id", ondelete="cascade"),
+        nullable=False
+    )
+    # make sure we have unique records in this table
+    __table_args__ = (UniqueConstraint("project_id", "user_id", name="unique_records"),)
+
+    def __repr__(self):
+        pid = self.project_id
+        uid = self.user_id
+        return f"<CollaborationInvitation project:{pid} user:{uid}>"
