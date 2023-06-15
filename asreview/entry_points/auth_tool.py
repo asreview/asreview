@@ -152,7 +152,6 @@ class AuthTool(BaseEntryPoint):
 
         self.args = args
         self.argv = argv
-        print(self.args)
 
         # create a conn object for the database
         if hasattr(self.args, "db_path") and self.args.db_path is not None:
@@ -169,8 +168,6 @@ class AuthTool(BaseEntryPoint):
             self.list_projects()
         elif "link-projects" in argv:
             self.link_projects()
-
-        return True
 
     def add_users(self):
         if self.args.json is not None:
