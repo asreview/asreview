@@ -125,7 +125,7 @@ one could use the User model that can be found in `/asreview/webapp/authenticati
 
 To configure the authentication in more detail we need to create a JSON file
 that contains all authentication parameters. The keys in that JSON file will override any parameter that was passed in the CLI. Here's an example:
-```
+```json
 {
     "DEBUG": true,
     "AUTHENTICATION_ENABLED": true,
@@ -139,7 +139,7 @@ that contains all authentication parameters. The keys in that JSON file will ove
     "EMAIL_VERIFICATION": true,
     "EMAIL_CONFIG": {
         "SERVER": "<smtp-server>",
-        "PORT": <smpt-server-port>,
+        "PORT": "<smpt-server-port>",
         "USERNAME": "<smtp-server-username>",
         "PASSWORD": "<smtp-server-password>",
         "USE_TLS": false,
