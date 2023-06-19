@@ -94,6 +94,7 @@ def client_auth():
         yield app.test_client()
         crud.delete_everything(DB)
         DB.session.remove()
+        DB.engine.raw_connection().close()
         misc.clear_asreview_path(remove_files=False)
 
 
@@ -106,6 +107,7 @@ def client_auth_no_creation():
         yield app.test_client()
         crud.delete_everything(DB)
         DB.session.remove()
+        DB.engine.raw_connection().close()
         misc.clear_asreview_path(remove_files=False)
 
 
@@ -119,6 +121,7 @@ def client_auth_verified():
         yield app.test_client()
         crud.delete_everything(DB)
         DB.session.remove()
+        DB.engine.raw_connection().close()
         misc.clear_asreview_path(remove_files=False)
 
 
