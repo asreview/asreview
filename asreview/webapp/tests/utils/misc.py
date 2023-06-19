@@ -36,10 +36,10 @@ def _del_folder(path):
         if sub.is_dir():
             # Delete directory if it's a subdirectory
             _del_folder(sub)
-        else :
+        else:
             # Delete file if it is a file:
             sub.unlink()
-    
+
     # This removes the top-level folder:
     path.rmdir()
 

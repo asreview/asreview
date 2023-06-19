@@ -126,7 +126,7 @@ def client_no_auth():
     # make sure we have the asreview_path
     with app.app_context():
         yield app.test_client()
-        misc.clear_asreview_path()
+        misc.clear_asreview_path(remove_files=False)
 
 
 @pytest.fixture(scope="session", autouse=True)
