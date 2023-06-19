@@ -93,6 +93,7 @@ def client_auth():
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)
+        DB.session.remove()
         misc.clear_asreview_path(remove_files=False)
 
 
@@ -104,6 +105,7 @@ def client_auth_no_creation():
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)
+        DB.session.remove()
         misc.clear_asreview_path(remove_files=False)
 
 
@@ -116,6 +118,7 @@ def client_auth_verified():
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)
+        DB.session.remove()
         misc.clear_asreview_path(remove_files=False)
 
 
@@ -135,6 +138,7 @@ def remove_test_asreview_path():
     after a session."""
     pass
     yield
+    # make sure DB connection is closed
     if Path(ASREVIEW_PATH).exists():
         shutil.rmtree(ASREVIEW_PATH)
         print("\n...Removed asreview_path")
