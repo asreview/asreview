@@ -15,6 +15,7 @@
 import os
 import shutil
 import tempfile
+import time
 from pathlib import Path
 
 import pytest
@@ -103,7 +104,7 @@ def client_auth_no_creation():
     """Flask client for an authenticated app, account
     creation not allowed."""
     app = _get_app("auth-no-creation")
-    with app.app_context():
+    with app.app_context():   
         yield app.test_client()
         crud.delete_everything(DB)
         DB.session.remove()
@@ -141,6 +142,7 @@ def remove_test_asreview_path():
     after a session."""
     pass
     yield
+    time.sleep(5)
     # make sure DB connection is closed
     if Path(ASREVIEW_PATH).exists():
         shutil.rmtree(ASREVIEW_PATH)
