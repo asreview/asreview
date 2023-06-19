@@ -2,7 +2,6 @@ import io
 import json
 import random
 import re
-import shutil
 from pathlib import Path
 from typing import Union
 from urllib.request import urlopen

@@ -15,10 +15,10 @@
 import os
 import shutil
 import tempfile
-import time
 from pathlib import Path
 
 import pytest
+from sqlalchemy.orm import close_all_sessions
 
 from asreview.webapp import DB
 from asreview.webapp.start_flask import create_app
@@ -94,7 +94,7 @@ def client_auth():
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)
-        DB.session.remove()
+        close_all_sessions()
         DB.engine.raw_connection().close()
         misc.clear_asreview_path(remove_files=False)
 
@@ -104,10 +104,10 @@ def client_auth_no_creation():
     """Flask client for an authenticated app, account
     creation not allowed."""
     app = _get_app("auth-no-creation")
-    with app.app_context():   
+    with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)
-        DB.session.remove()
+        close_all_sessions()
         DB.engine.raw_connection().close()
         misc.clear_asreview_path(remove_files=False)
 
@@ -121,7 +121,7 @@ def client_auth_verified():
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)
-        DB.session.remove()
+        close_all_sessions()
         DB.engine.raw_connection().close()
         misc.clear_asreview_path(remove_files=False)
 
@@ -142,7 +142,6 @@ def remove_test_asreview_path():
     after a session."""
     pass
     yield
-    time.sleep(5)
     # make sure DB connection is closed
     if Path(ASREVIEW_PATH).exists():
         shutil.rmtree(ASREVIEW_PATH)
