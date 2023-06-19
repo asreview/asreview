@@ -30,13 +30,28 @@ def get_project_id(project):
     return id
 
 
+def _del_folder(path):
+    """Removes a non-empty folder."""
+    for sub in path.iterdir():
+        if sub.is_dir():
+            # Delete directory if it's a subdirectory
+            _del_folder(sub)
+        else :
+            # Delete file if it is a file:
+            sub.unlink()
+    
+    # This removes the top-level folder:
+    path.rmdir()
+
+
 def clear_asreview_path(remove_files=True):
     """Removes all folders and optional files from the
     ASReview folder. The latter has everything to do with
     the sqlite3 files."""
     for item in Path(asreview_path()).glob("*"):
         if item.is_dir():
-            shutil.rmtree(item)
+            # shutil.rmtree(item)
+            _del_folder(item)
         if remove_files and item.is_file():
             item.unlink()
 
