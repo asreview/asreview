@@ -3,19 +3,17 @@ name: Deploy and release
 on:
   push:
     tags:
-      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
+      - "v*" # Push events to matching v*
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
       - name: Set up Python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.x"
+          python-version: "3.10"
       - name: Get the version (git tag)
         id: get_version
         run: |
@@ -25,7 +23,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install setuptools wheel
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: '16'
           cache: 'npm'
@@ -38,7 +36,7 @@ jobs:
           python setup.py sdist bdist_wheel
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1.0.0
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -48,7 +46,7 @@ jobs:
           prerelease: false
       - name: Upload Release Asset (Wheel)
         id: upload-release-asset-whl
-        uses: actions/upload-release-asset@v1.0.1
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -58,7 +56,7 @@ jobs:
           asset_content_type: application/x-wheel+zip
       - name: Upload Release Asset (Sdist)
         id: upload-release-asset-sdist
-        uses: actions/upload-release-asset@v1.0.1
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:

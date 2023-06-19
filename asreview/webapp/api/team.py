@@ -18,7 +18,7 @@ CORS(
     supports_credentials=True,
 )
 
-REQUESTER_FRAUD = {"error": "request can not made by current user"}
+REQUESTER_FRAUD = {"message": "Request can not made by current user."}
 
 
 @bp.route("/projects/<project_id>/users", methods=["GET"])
@@ -81,9 +81,16 @@ def end_collaboration(project_id, user_id):
         try:
             project.collaborators.remove(user)
             DB.session.commit()
-            response = jsonify({"success": True}), 200
+            response = (
+                jsonify({"message": "Collaborator removed from project."}),
+                200
+            )
+
         except SQLAlchemyError:
-            response = jsonify({"success": False}), 404
+            response = (
+                jsonify({"message": "Error removing collaborator."}),
+                404
+            )
     return response
 
 
@@ -119,16 +126,21 @@ def invite(project_id, user_id):
     response = jsonify(REQUESTER_FRAUD), 404
     # get project
     project = Project.query.filter(Project.project_id == project_id).one_or_none()
-
     # check if project is from current user
     if project and project.owner == current_user:
         user = DB.session.get(User, user_id)
         project.pending_invitations.append(user)
         try:
             DB.session.commit()
-            response = jsonify({"success": True}), 200
+            response = (
+                jsonify({"message": f'User "{user.identifier}" invited.'}),
+                200
+            )
         except SQLAlchemyError:
-            response = jsonify({"success": False}), 404
+            response = (
+                jsonify({"message": f'User "{user.identifier}" not invited.'}),
+                404,
+            )
     return response
 
 
@@ -147,9 +159,15 @@ def accept_invitation(project_id):
         project.collaborators.append(current_user)
         try:
             DB.session.commit()
-            response = jsonify({"success": True}), 200
+            response = (
+                jsonify({"message": "User accepted invitation for project."}),
+                200
+            )
         except SQLAlchemyError:
-            response = jsonify({"success": False}), 404
+            response = (
+                jsonify({"message": "Error accepting invitation."}),
+                404
+            )
     return response
 
 
@@ -166,9 +184,15 @@ def reject_invitation(project_id):
         project.pending_invitations.remove(current_user)
         try:
             DB.session.commit()
-            response = jsonify({"success": True}), 200
+            response = (
+                jsonify({"message": "User rejected invitation for project."}),
+                200
+            )
         except SQLAlchemyError:
-            response = jsonify({"success": False}), 404
+            response = (
+                jsonify({"message": "Error rejecting invitation."}),
+                404
+            )
     return response
 
 
@@ -187,7 +211,7 @@ def delete_invitation(project_id, user_id):
         project.pending_invitations.remove(user)
         try:
             DB.session.commit()
-            response = jsonify({"success": True}), 200
+            response = jsonify({"message": "Owner deleted invitation."}), 200
         except SQLAlchemyError:
-            response = jsonify({"success": False}), 404
+            response = jsonify({"message": "Error deleting invitation."}), 404
     return response

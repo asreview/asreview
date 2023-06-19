@@ -18,7 +18,7 @@ import requests
 class OAuthHandler:
     def __init__(self, configs=None):
         if not (bool(configs) and isinstance(configs, dict)):
-            raise "OAuthHandler needs a configuration dictionary."
+            raise ValueError("OAuthHandler needs a configuration dictionary.")
 
         # check if all necessary config parameters are there
         services = {}
@@ -39,7 +39,7 @@ class OAuthHandler:
                     ]
                 )
             ):
-                raise f"OAuthHandler has insufficient data for f{provider}"
+                raise ValueError(f"OAuthHandler has insufficient data for {provider}")
             else:
                 # rebuild config
                 services[provider.lower()] = {
@@ -76,7 +76,7 @@ class OAuthHandler:
         elif provider == "google":
             result = self.__handle_google(code, redirect_uri)
         else:
-            raise f"Could not find provider {provider}"
+            raise ValueError(f"Could not find provider {provider}")
         return result
 
     def __handle_orcid(self, code):

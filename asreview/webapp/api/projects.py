@@ -1134,8 +1134,18 @@ def api_import_project():
 
     try:
         project = ASReviewProject.load(
-            request.files["file"], asreview_path(), safe_import=True
+            request.files["file"],
+            asreview_path(),
+            safe_import=True
         )
+
+        # create a database entry for this project
+        if app_is_authenticated(current_app):
+            current_user.projects.append(
+                Project(project_id=project.config.get("id"))
+            )
+            project.config["owner_id"] = current_user.id
+            DB.session.commit()
 
     except Exception as err:
         logging.error(err)
