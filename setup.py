@@ -17,6 +17,7 @@
 # Always prefer setuptools over distutils
 import re
 import subprocess
+import sys
 from io import open
 from os import path
 from pathlib import Path
@@ -40,6 +41,30 @@ def get_long_description():
     long_description = re.sub(r"\:[a-z_]+\:", "", long_description)
 
     return long_description
+
+REQUIRES = [
+    "numpy",
+    "pandas>=1,<3",
+    "scikit-learn",
+    "rispy~=0.7.0",
+    "xlrd>=1.0.0",
+    "setuptools",
+    "flask>=2.0",
+    "flask_cors",
+    "flask-login",
+    "flask-mail",
+    "openpyxl",
+    "jsonschema",
+    "filelock",
+    "Flask-SQLAlchemy>=3.0.2",
+    "requests",
+    "tqdm",
+    "gevent>=20",
+    "datahugger>=0.2",
+]
+
+if sys.version_info < (3, 10):
+    REQUIRES += "importlib_metadata>=3.6"
 
 
 DEPS = {
@@ -117,26 +142,7 @@ setup(
         ]
     },
     python_requires="~=3.8",
-    install_requires=[
-        "numpy",
-        "pandas>=1,<3",
-        "scikit-learn",
-        "rispy~=0.7.0",
-        "xlrd>=1.0.0",
-        "setuptools",
-        "flask>=2.0",
-        "flask_cors",
-        "flask-login",
-        "flask-mail",
-        "openpyxl",
-        "jsonschema",
-        "filelock",
-        "Flask-SQLAlchemy>=3.0.2",
-        "requests",
-        "tqdm",
-        "gevent>=20",
-        "datahugger>=0.2",
-    ],
+    install_requires=REQUIRES,
     extras_require=DEPS,
     entry_points={
         "console_scripts": [
