@@ -274,9 +274,9 @@ class DatasetManager:
 
         # Look through all available/installed groups for the name.
         all_results = {}
-        for group_id, dataset_entry in dataset_groups.items():
+        for data_group in dataset_groups:
             try:
-                all_results[group_id] = dataset_entry.load()().find(dataset_id)
+                all_results[data_group.name] = data_group.load()().find(dataset_id)
             except Exception:
                 # don't raise error on loading entry point
                 pass
