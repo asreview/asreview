@@ -222,7 +222,7 @@ def list_writer_names(group="asreview.writers"):
     "get_entry_points is deprecated, "
     "use _entry_points(group='asreview.entry_points') instead"
 )
-def get__entry_points(entry_name="asreview.entry_points"):
+def get_entry_points(entry_name="asreview.entry_points"):
     """Get the entry points for asreview.
 
     Parameters
