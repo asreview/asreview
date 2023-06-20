@@ -24,9 +24,9 @@ import numpy as np
 from asreview._deprecated import _deprecated_func
 
 if sys.version_info >= (3, 10):
-    from importlib.metadata import _entry_points
+    from importlib.metadata import entry_points as _entry_points
 else:
-    from importlib_metadata import _entry_points
+    from importlib_metadata import entry_points as _entry_points
 
 
 def _unsafe_dict_update(default_dict, override_dict):
