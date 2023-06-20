@@ -65,7 +65,7 @@ REQUIRES = [
 ]
 
 if sys.version_info < (3, 10):
-    REQUIRES += "importlib_metadata>=3.6"
+    REQUIRES += ["importlib_metadata>=3.6"]
 
 
 DEPS = {
