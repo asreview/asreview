@@ -61,8 +61,8 @@ def _get_app(app_type="auth-basic", path=None):
     return app
 
 
-@pytest.fixture(scope="session", autouse=True)
-def session_fixture(tmp_path_factory):
+@pytest.fixture(scope="function", autouse=True)
+def asreview_path_fixture(tmp_path_factory):
     """Fixture that creates and removes the ASReview test
     directory for the entire session."""
     # create an ASReview folder
@@ -74,30 +74,30 @@ def session_fixture(tmp_path_factory):
 
 # unauthenticated app
 @pytest.fixture
-def unauth_app(session_fixture):
+def unauth_app(asreview_path_fixture):
     """Create an unauthenticated version of the app."""
     # create the app
-    app = _get_app("no-auth", path=session_fixture)
+    app = _get_app("no-auth", path=asreview_path_fixture)
     with app.app_context():
         yield app
 
 
 # authenticated app
 @pytest.fixture
-def auth_app(session_fixture):
+def auth_app(asreview_path_fixture):
     """Create an authenticated app, account creation
     allowed."""
     # create app
-    app = _get_app(path=session_fixture)
+    app = _get_app(path=asreview_path_fixture)
     with app.app_context():
         yield app
 
 
 @pytest.fixture
-def client_auth(session_fixture):
+def client_auth(asreview_path_fixture):
     """Flask client for basic authenticated app, account
     creation allowed."""
-    app = _get_app("auth-basic", path=session_fixture)
+    app = _get_app("auth-basic", path=asreview_path_fixture)
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)
@@ -107,10 +107,10 @@ def client_auth(session_fixture):
 
 
 @pytest.fixture
-def client_auth_no_creation(session_fixture):
+def client_auth_no_creation(asreview_path_fixture):
     """Flask client for an authenticated app, account
     creation not allowed."""
-    app = _get_app("auth-no-creation", path=session_fixture)
+    app = _get_app("auth-no-creation", path=asreview_path_fixture)
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)
@@ -120,11 +120,11 @@ def client_auth_no_creation(session_fixture):
 
 
 @pytest.fixture
-def client_auth_verified(session_fixture):
+def client_auth_verified(asreview_path_fixture):
     """Flask client for an authenticated app, account
     creation allowed, user accounts needs account
     verification."""
-    app = _get_app("auth-verified", path=session_fixture)
+    app = _get_app("auth-verified", path=asreview_path_fixture)
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)
@@ -134,9 +134,9 @@ def client_auth_verified(session_fixture):
 
 
 @pytest.fixture
-def client_no_auth(session_fixture):
+def client_no_auth(asreview_path_fixture):
     """Flask client for an unauthenticated app."""
-    app = _get_app("no-auth", path=session_fixture)
+    app = _get_app("no-auth", path=asreview_path_fixture)
     # make sure we have the asreview_path
     with app.app_context():
         yield app.test_client()
