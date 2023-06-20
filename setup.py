@@ -42,6 +42,7 @@ def get_long_description():
 
     return long_description
 
+
 REQUIRES = [
     "numpy",
     "pandas>=1,<3",
