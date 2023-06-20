@@ -31,7 +31,7 @@ from asreview.exceptions import BadFileFormatError
 from asreview.io import PaperRecord
 from asreview.io.utils import convert_keywords
 from asreview.io.utils import type_from_column
-from asreview.utils import get_entry_points
+from asreview.utils import _entry_points
 from asreview.utils import is_iterable
 from asreview.utils import is_url
 
@@ -193,10 +193,9 @@ class ASReviewData:
         else:
             fn = Path(fp).name
 
-        entry_points = get_entry_points(group="asreview.readers")
-
         try:
-            reader = entry_points[Path(fn).suffix].load()
+            reader = _entry_points(
+                group="asreview.readers")[Path(fn).suffix].load()
         except Exception:
             raise BadFileFormatError(f"Importing file {fp} not possible.")
 
@@ -409,14 +408,12 @@ class ASReviewData:
         if writer is not None:
             writer.write_data(df, fp, labels=labels, ranking=ranking)
         else:
-            entry_points = get_entry_points(group="asreview.writers")
-
             best_suffix = None
 
-            for suffix, entry in entry_points.items():
-                if Path(fp).suffix == suffix:
-                    if best_suffix is None or len(suffix) > len(best_suffix):
-                        best_suffix = suffix
+            for entry in _entry_points(group="asreview.writers"):
+                if Path(fp).suffix == entry.name:
+                    if best_suffix is None or len(entry.name) > len(best_suffix):
+                        best_suffix = entry.name
 
             if best_suffix is None:
                 raise BadFileFormatError(
@@ -424,7 +421,7 @@ class ASReviewData:
                     "for exporting such a file."
                 )
 
-            writer = entry_points[best_suffix].load()
+            writer = _entry_points(group="asreview.writers")[best_suffix].load()
             writer.write_data(df, fp, labels=labels, ranking=ranking)
 
     def to_dataframe(self, labels=None, ranking=None):

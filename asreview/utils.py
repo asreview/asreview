@@ -16,11 +16,17 @@ import functools
 import os
 import sys
 import warnings
-from importlib.metadata import entry_points
 from pathlib import Path
 from urllib.parse import urlparse
 
 import numpy as np
+
+from asreview._deprecated import _deprecated_func
+
+if sys.version_info >= (3, 10):
+    from importlib.metadata import _entry_points
+else:
+    from importlib_metadata import _entry_points
 
 
 def _unsafe_dict_update(default_dict, override_dict):
@@ -193,32 +199,36 @@ def is_iterable(i):
         return False
 
 
-@_deprecated_kwarg({"entry_name": "group"})
+@_deprecated_func(
+    "list_model_names is deprecated, "
+    "use asreview.models.classifiers.list_classifiers instead"
+)
 def list_model_names(group="asreview.models"):
-    return [*get_entry_points(group)]
+    # Remove because of bug with unused default value.
+    return list(_entry_points(group=group).names)
 
 
 @_deprecated_kwarg({"entry_name": "group"})
 def list_reader_names(group="asreview.readers"):
-    return [*get_entry_points(group)]
+    return list(_entry_points(group=group).names)
 
 
 @_deprecated_kwarg({"entry_name": "group"})
 def list_writer_names(group="asreview.writers"):
-    return [*get_entry_points(group)]
+    return list(_entry_points(group=group).names)
 
 
-@_deprecated_kwarg({"entry_name": "group"})
-def get_entry_points(group="asreview.entry_points"):
+@_deprecated_func(
+    "get_entry_points is deprecated, "
+    "use _entry_points(group='asreview.entry_points') instead"
+)
+def get__entry_points(entry_name="asreview.entry_points"):
     """Get the entry points for asreview.
 
     Parameters
     ----------
-    group: str
-        Name of the submodule. Default "asreview.entry_points".
     entry_name: str
-        Deprecated. Argument "entry_name" is identical to "group".
-        Argument "entry_name" will be removed in version 2.
+        Name of the submodule. Default "asreview.entry_points".
 
     Returns
     -------
@@ -227,59 +237,7 @@ def get_entry_points(group="asreview.entry_points"):
         and the entry point as value.
     """
 
-    # this function can be simplified for Python >=3.10
-    return {entry.name: entry for entry in entry_points()[group]}
-
-
-@_deprecated_kwarg({"entry_name": "group"})
-def _model_class_from_entry_point(method, group="asreview.models"):
-    entry_points = get_entry_points(group)
-    try:
-        return entry_points[method].load()
-    except KeyError:
-        raise ValueError(
-            f"Error: method '{method}' is not implemented for entry point "
-            f"{group}."
-        )
-    except ImportError as e:
-        raise ValueError(
-            f"Failed to import '{method}' model ({group}) "
-            f"with the following error:\n{e}"
-        )
-
-
-@_deprecated_kwarg({"entry_name": "group"})
-def _reader_class_from_entry_point(suffix, group="asreview.readers"):
-    entry_points = get_entry_points(group)
-    try:
-        return entry_points[suffix].load()
-    except KeyError:
-        raise ValueError(
-            f"Error: suffix '{suffix}' is not implemented for entry point "
-            f"{group}."
-        )
-    except ImportError as e:
-        raise ValueError(
-            f"Failed to import '{suffix}' reader ({group}) "
-            f"with the following error:\n{e}"
-        )
-
-
-@_deprecated_kwarg({"entry_name": "group"})
-def _writer_class_from_entry_point(suffix, group="asreview.writers"):
-    entry_points = get_entry_points(group)
-    try:
-        return entry_points[suffix].load()
-    except KeyError:
-        raise ValueError(
-            f"Error: suffix '{suffix}' is not implemented for entry point "
-            f"{group}."
-        )
-    except ImportError as e:
-        raise ValueError(
-            f"Failed to import '{suffix}' writer ({group}) "
-            f"with the following error:\n{e}"
-        )
+    return {entry.name: entry for entry in _entry_points(group=entry_name)}
 
 
 def is_url(url):
