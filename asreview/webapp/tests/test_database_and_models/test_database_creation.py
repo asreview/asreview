@@ -14,7 +14,7 @@ def get_db_path():
 
 # checks if asreview path does not contain a database if app
 # is unauthenticated
-def test_database_is_not_created_if_unauth_app(cleanup_asreview_path, unauth_app):
+def test_database_is_not_created_if_unauth_app(unauth_app):
     assert Path(asreview_path()).exists()
     assert get_db_path().exists() is False
 

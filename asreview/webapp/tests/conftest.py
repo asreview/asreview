@@ -68,6 +68,7 @@ def asreview_path_fixture(tmp_path_factory):
     # create an ASReview folder
     asreview_path = tmp_path_factory.mktemp("asreview-test")
     assert Path(asreview_path).exists()
+    assert len(list(Path(asreview_path).glob('*'))) == 0
     yield str(asreview_path.absolute())
     # Pytest handles removal of ASReview folder
 
