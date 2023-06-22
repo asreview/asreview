@@ -1,13 +1,10 @@
-import shutil
-
 import pytest
 
 import asreview.webapp.tests.utils.crud as crud
-from asreview.utils import asreview_path
 from asreview.webapp import DB
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture()
 def setup_teardown(auth_app):
     """A fixture for an authenticated app that ensures tests are
     started with no users and projects."""
@@ -39,10 +36,3 @@ def user(auth_app):
     assert crud.count_users() == 1
     yield user
     crud.delete_everything(DB)
-
-
-@pytest.fixture
-def cleanup_asreview_path():
-    """Cleanup fixture, removes entire ASReview folder."""
-    if asreview_path().exists():
-        shutil.rmtree(asreview_path())
