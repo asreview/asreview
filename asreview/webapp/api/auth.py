@@ -44,12 +44,19 @@ bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 # NOTE: not too sure about this, what if we are dealing with a
 # domain name
-ROOT_URL = "http://127.0.0.1:3000/"
+ROOT_URL = "http://127.0.0.1:3000"
 
 CORS(
     bp,
-    resources={r"*": {"origins": ["http://localhost:3000", ROOT_URL]}},
-    supports_credentials=True,
+    resources={
+        r"*": {
+            "origins": [
+                ROOT_URL,
+                "http://localhost:3000"
+            ]
+        }
+    },
+    supports_credentials=True
 )
 
 
