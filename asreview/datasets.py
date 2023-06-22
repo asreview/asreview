@@ -20,7 +20,7 @@ from pathlib import Path
 from urllib.error import URLError
 from urllib.request import urlopen
 
-from asreview.utils import get_entry_points
+from asreview.utils import _entry_points
 from asreview.utils import is_iterable
 
 
@@ -229,9 +229,8 @@ class BaseDataGroup(ABC):
 class DatasetManager:
     @property
     def groups(self):
-        entry_points = get_entry_points("asreview.datasets")
 
-        return list(entry_points.keys())
+        return list(_entry_points(group="asreview.datasets").names)
 
     def find(self, dataset_id):
         """Find a dataset.
@@ -263,7 +262,7 @@ class DatasetManager:
         dataset_id = str(dataset_id)
 
         # get installed dataset groups
-        dataset_groups = get_entry_points("asreview.datasets")
+        dataset_groups = _entry_points(group="asreview.datasets")
 
         # Split into group/dataset if possible.
         split_dataset_id = dataset_id.split(":")
@@ -275,9 +274,9 @@ class DatasetManager:
 
         # Look through all available/installed groups for the name.
         all_results = {}
-        for group_id, dataset_entry in dataset_groups.items():
+        for data_group in dataset_groups:
             try:
-                all_results[group_id] = dataset_entry.load()().find(dataset_id)
+                all_results[data_group.name] = data_group.load()().find(dataset_id)
             except Exception:
                 # don't raise error on loading entry point
                 pass
@@ -329,7 +328,7 @@ class DatasetManager:
         else:
             groups = self.groups.copy()
 
-        dataset_groups = get_entry_points("asreview.datasets")
+        dataset_groups = _entry_points(group="asreview.datasets")
 
         group_list = []
         for group in groups:
