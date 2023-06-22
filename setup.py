@@ -75,8 +75,16 @@ class CompileAssets(Command):
 
         path_webapp = Path(__file__).parent / "asreview" / "webapp"
 
-        subprocess.check_call(["npm", "install"], cwd=str(path_webapp))
-        subprocess.check_call(["npm", "run-script", "build"], cwd=str(path_webapp))
+        subprocess.check_call(
+            ["npm", "install"],
+            cwd=str(path_webapp),
+            shell=True
+        )
+        subprocess.check_call(
+            ["npm", "run-script", "build"],
+            cwd=str(path_webapp),
+            shell=True
+        )
 
 
 def get_cmdclass():
