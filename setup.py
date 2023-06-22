@@ -15,6 +15,7 @@
 # based on https://github.com/pypa/sampleproject - MIT License
 
 # Always prefer setuptools over distutils
+import platform
 import re
 import subprocess
 from io import open
@@ -78,12 +79,12 @@ class CompileAssets(Command):
         subprocess.check_call(
             ["npm", "install"],
             cwd=str(path_webapp),
-            shell=True
+            shell=(platform.system() == "Windows")
         )
         subprocess.check_call(
             ["npm", "run-script", "build"],
             cwd=str(path_webapp),
-            shell=True
+            shell=(platform.system() == 'Windows')
         )
 
 
