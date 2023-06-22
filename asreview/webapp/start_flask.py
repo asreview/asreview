@@ -18,6 +18,7 @@ import logging
 import os
 import socket
 import webbrowser
+from pathlib import Path
 from threading import Timer
 
 from flask import Flask
@@ -248,8 +249,9 @@ def create_app(**kwargs):
     # Read config parameters if possible, this overrides
     # the previous assignments.
     config_file_path = kwargs.get("flask_configfile", "").strip()
+    # Use absolute path, because otherwise it is relative to the config root.
     if config_file_path != "":
-        app.config.from_file(config_file_path, load=json.load)
+        app.config.from_file(Path(config_file_path).absolute(), load=json.load)
 
     # set env (test / development / production) according to
     # Flask 2.2 specs (ENV is deprecated)
