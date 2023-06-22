@@ -13,18 +13,14 @@
 # limitations under the License.
 
 import os
-import shutil
-import tempfile
 from pathlib import Path
 
 import pytest
+from sqlalchemy.orm import close_all_sessions
 
 from asreview.webapp import DB
 from asreview.webapp.start_flask import create_app
 from asreview.webapp.tests.utils import crud
-from asreview.webapp.tests.utils import misc
-
-ASREVIEW_PATH = str(tempfile.TemporaryDirectory().name)
 
 PROJECTS = [
     {
@@ -42,10 +38,10 @@ PROJECTS = [
 ]
 
 
-def _get_app(app_type="auth-basic"):
+def _get_app(app_type="auth-basic", path=None):
     """Create and returns test flask app based on app_type"""
     # set asreview path
-    os.environ.update({"ASREVIEW_PATH": ASREVIEW_PATH})
+    os.environ.update({"ASREVIEW_PATH": path})
     # get path of appropriate flask config
     base_dir = Path(__file__).resolve().parent / "config"
     if app_type == "auth-basic":
@@ -64,77 +60,80 @@ def _get_app(app_type="auth-basic"):
     return app
 
 
+@pytest.fixture(scope="function", autouse=True)
+def asreview_path_fixture(tmp_path_factory):
+    """Fixture that creates and removes the ASReview test
+    directory for the entire session."""
+    # create an ASReview folder
+    asreview_path = tmp_path_factory.mktemp("asreview-test")
+    assert Path(asreview_path).exists()
+    assert len(list(Path(asreview_path).glob('*'))) == 0
+    yield str(asreview_path.absolute())
+    # Pytest handles removal of ASReview folder
+
+
 # unauthenticated app
 @pytest.fixture
-def unauth_app():
+def unauth_app(asreview_path_fixture):
     """Create an unauthenticated version of the app."""
     # create the app
-    app = _get_app("no-auth")
+    app = _get_app("no-auth", path=asreview_path_fixture)
     with app.app_context():
         yield app
 
 
 # authenticated app
 @pytest.fixture
-def auth_app():
+def auth_app(asreview_path_fixture):
     """Create an authenticated app, account creation
     allowed."""
     # create app
-    app = _get_app()
+    app = _get_app(path=asreview_path_fixture)
     with app.app_context():
         yield app
 
 
 @pytest.fixture
-def client_auth():
+def client_auth(asreview_path_fixture):
     """Flask client for basic authenticated app, account
     creation allowed."""
-    app = _get_app("auth-basic")
+    app = _get_app("auth-basic", path=asreview_path_fixture)
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)
-        misc.clear_asreview_path(remove_files=False)
+        close_all_sessions()
+        DB.engine.raw_connection().close()
 
 
 @pytest.fixture
-def client_auth_no_creation():
+def client_auth_no_creation(asreview_path_fixture):
     """Flask client for an authenticated app, account
     creation not allowed."""
-    app = _get_app("auth-no-creation")
+    app = _get_app("auth-no-creation", path=asreview_path_fixture)
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)
-        misc.clear_asreview_path(remove_files=False)
+        close_all_sessions()
+        DB.engine.raw_connection().close()
 
 
 @pytest.fixture
-def client_auth_verified():
+def client_auth_verified(asreview_path_fixture):
     """Flask client for an authenticated app, account
     creation allowed, user accounts needs account
     verification."""
-    app = _get_app("auth-verified")
+    app = _get_app("auth-verified", path=asreview_path_fixture)
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)
-        misc.clear_asreview_path(remove_files=False)
+        close_all_sessions()
+        DB.engine.raw_connection().close()
 
 
 @pytest.fixture
-def client_no_auth():
+def client_no_auth(asreview_path_fixture):
     """Flask client for an unauthenticated app."""
-    app = _get_app("no-auth")
+    app = _get_app("no-auth", path=asreview_path_fixture)
     # make sure we have the asreview_path
     with app.app_context():
         yield app.test_client()
-        misc.clear_asreview_path()
-
-
-@pytest.fixture(scope="session", autouse=True)
-def remove_test_asreview_path():
-    """Fixture that removes the entire ASReview test directory
-    after a session."""
-    pass
-    yield
-    if Path(ASREVIEW_PATH).exists():
-        shutil.rmtree(ASREVIEW_PATH)
-        print("\n...Removed asreview_path")

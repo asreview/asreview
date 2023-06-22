@@ -2,7 +2,6 @@ import io
 import json
 import random
 import re
-import shutil
 from pathlib import Path
 from typing import Union
 from urllib.request import urlopen
@@ -28,17 +27,6 @@ def get_project_id(project):
     else:
         id = project.config["id"]
     return id
-
-
-def clear_asreview_path(remove_files=True):
-    """Removes all folders and optional files from the
-    ASReview folder. The latter has everything to do with
-    the sqlite3 files."""
-    for item in Path(asreview_path()).glob("*"):
-        if item.is_dir():
-            shutil.rmtree(item)
-        if remove_files and item.is_file():
-            item.unlink()
 
 
 def read_project_file(project):

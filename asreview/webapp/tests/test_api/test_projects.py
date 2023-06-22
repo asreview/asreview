@@ -56,7 +56,7 @@ def test_create_projects(setup):
 
 
 # Test upgrading a post v0.x project
-def test_try_upgrade_a_modern_project_XXX(setup):
+def test_try_upgrade_a_modern_project(setup):
     client, _, project = setup
     # verify version
     data = misc.read_project_file(project)
@@ -68,7 +68,7 @@ def test_try_upgrade_a_modern_project_XXX(setup):
 
 
 # Test upgrading a v0.x project
-def test_upgrade_an_old_project_XXX(setup):
+def test_upgrade_an_old_project(setup):
     client, user, _ = setup
     # get an old version from github
     old_project_url = retrieve_project_url_github("v0.19")
