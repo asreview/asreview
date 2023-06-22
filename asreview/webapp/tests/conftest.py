@@ -21,7 +21,6 @@ from sqlalchemy.orm import close_all_sessions
 from asreview.webapp import DB
 from asreview.webapp.start_flask import create_app
 from asreview.webapp.tests.utils import crud
-from asreview.webapp.tests.utils import misc
 
 PROJECTS = [
     {
@@ -104,7 +103,6 @@ def client_auth(asreview_path_fixture):
         crud.delete_everything(DB)
         close_all_sessions()
         DB.engine.raw_connection().close()
-        misc.clear_asreview_path(remove_files=False)
 
 
 @pytest.fixture
@@ -117,7 +115,6 @@ def client_auth_no_creation(asreview_path_fixture):
         crud.delete_everything(DB)
         close_all_sessions()
         DB.engine.raw_connection().close()
-        misc.clear_asreview_path(remove_files=False)
 
 
 @pytest.fixture
@@ -131,7 +128,6 @@ def client_auth_verified(asreview_path_fixture):
         crud.delete_everything(DB)
         close_all_sessions()
         DB.engine.raw_connection().close()
-        misc.clear_asreview_path(remove_files=False)
 
 
 @pytest.fixture
@@ -141,4 +137,3 @@ def client_no_auth(asreview_path_fixture):
     # make sure we have the asreview_path
     with app.app_context():
         yield app.test_client()
-        misc.clear_asreview_path(remove_files=False)
