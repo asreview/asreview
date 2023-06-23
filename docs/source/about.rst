@@ -66,7 +66,7 @@ these steps:
 Quick start
 -----------
 
-1. Check if Python 3.7 or later is installed (if not, `install Python <https://www.python.org/downloads>`__)
+1. Check if Python 3.8 or later is installed (if not, `install Python <https://www.python.org/downloads>`__)
 
 .. code:: bash
 
