@@ -82,18 +82,7 @@ from asreview.webapp.authentication.models import Project
 from asreview.webapp.io import read_data
 
 bp = Blueprint("api", __name__, url_prefix="/api")
-CORS(
-    bp,
-    resources={
-        r"*": {
-            "origins": [
-                "http://127.0.0.1:3000",
-                "http://localhost:3000"
-            ]
-        }
-    },
-    supports_credentials=True
-)
+CORS(bp)
 
 
 # error handlers

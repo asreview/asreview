@@ -43,10 +43,14 @@ from asreview.webapp.api import team
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
+# Host name
 HOST_NAME = os.getenv("ASREVIEW_HOST")
 if HOST_NAME is None:
     HOST_NAME = "localhost"
+# Default Port number
 PORT_NUMBER = 5000
+# Default origins for CORS
+FRONT_END_ORIGINS = ["http://127.0.0.1:3000", "http://localhost:3000"]
 
 # set logging level
 if (
@@ -245,6 +249,8 @@ def create_app(**kwargs):
     app.config["AUTHENTICATION_ENABLED"] = kwargs.get("enable_authentication", False)
     app.config["SECRET_KEY"] = kwargs.get("secret_key", False)
     app.config["SECURITY_PASSWORD_SALT"] = kwargs.get("salt", False)
+    app.config["IP"] = kwargs.get("ip")
+    app.config["PORT"] = kwargs.get("port")
 
     # Read config parameters if possible, this overrides
     # the previous assignments.
@@ -252,6 +258,10 @@ def create_app(**kwargs):
     # Use absolute path, because otherwise it is relative to the config root.
     if config_file_path != "":
         app.config.from_file(Path(config_file_path).absolute(), load=json.load)
+
+    # Make sure we have front end origins
+    if not app.config.get("FRONT_END_ORIGINS", False):
+        app.config["FRONT_END_ORIGINS"] = FRONT_END_ORIGINS
 
     # set env (test / development / production) according to
     # Flask 2.2 specs (ENV is deprecated)
@@ -334,25 +344,23 @@ def create_app(**kwargs):
     except OSError:
         pass
 
-    # TODO@{Casper}:
-    # !! Not sure about this, but since the front-end and back-end
-    # !! are coupled I think origins should be set to the URL and
-    # !! not to '*'
     CORS(
         app,
         resources={
             r"*": {
-                "origins": [
-                    "http://localhost:3000",
-                    "http://127.0.0.1:3000",
-                ]
+                "origins": app.config.get("FRONT_END_ORIGINS")
             }
-        },
+        }
     )
 
     app.register_blueprint(projects.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(team.bp)
+
+    @app.after_request
+    def allow_credentials(response):
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        return response
 
     @app.errorhandler(InternalServerError)
     def error_500(e):
@@ -389,7 +397,7 @@ def create_app(**kwargs):
             status = "asreview"
 
         # the big one
-        authenticated = bool(app.config["AUTHENTICATION_ENABLED"])
+        authenticated = app.config.get("AUTHENTICATION_ENABLED", False)
 
         response = {
             "status": status,
@@ -470,8 +478,10 @@ def main(argv):
         return
 
     flask_dev = app.config.get("DEBUG", False)
-    host = args.ip
-    port = args.port
+
+    host = app.config.get("IP")
+    port = app.config.get("PORT")
+
     port_retries = args.port_retries
     # if port is already taken find another one
     if not flask_dev:

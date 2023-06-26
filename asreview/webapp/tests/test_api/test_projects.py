@@ -386,7 +386,7 @@ def test_status_project(setup, state_name, expected_state):
     if state_name in ["review", "finish"]:
         # start the model
         au.start_project_algorithms(client, project)
-        time.sleep(10)
+        time.sleep(15)
     if state_name == "finish":
         # mark project as finished
         au.set_project_status(client, project, "finished")

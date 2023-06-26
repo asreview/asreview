@@ -37,27 +37,8 @@ from asreview.webapp.authentication.login_required import asreview_login_require
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
-# TODO: I need a folder to stash templates for emails,
-# is this the way we should do it? I don't see the point
-# of making the end-user decide the exact location.
 bp = Blueprint("auth", __name__, url_prefix="/auth")
-
-# NOTE: not too sure about this, what if we are dealing with a
-# domain name
-ROOT_URL = "http://127.0.0.1:3000"
-
-CORS(
-    bp,
-    resources={
-        r"*": {
-            "origins": [
-                ROOT_URL,
-                "http://localhost:3000"
-            ]
-        }
-    },
-    supports_credentials=True
-)
+CORS(bp)
 
 
 def perform_login_user(user):
@@ -66,15 +47,17 @@ def perform_login_user(user):
 
 
 # TODO: not sure if this file is the right place for this function
-def send_forgot_password_email(user, cur_app):
+def send_forgot_password_email(user, request, cur_app):
     # do not send email in test environment
     if not cur_app.testing:
         # get necessary information out of user object
         name = user.name or "ASReview user"
         # email config
         config = cur_app.config.get("EMAIL_CONFIG")
-        # redirect url
-        url = f"{ROOT_URL}reset_password?user_id={user.id}&token={user.token}"
+        # get url of front-end
+        root_url = request.headers.get("Origin")
+        # create url that will be used in the email
+        url = f"{root_url}/reset_password?user_id={user.id}&token={user.token}"
         # create a mailer
         mailer = Mail(cur_app)
         # open templates as string and render
@@ -95,15 +78,17 @@ def send_forgot_password_email(user, cur_app):
 
 
 # TODO: not sure if this file is the right place for this function
-def send_confirm_account_email(user, cur_app):
+def send_confirm_account_email(user, request, cur_app):
     # do not send email in test environment
     if not cur_app.testing:
         # get necessary information out of user object
         name = user.name or "ASReview user"
         # email config
         config = cur_app.config.get("EMAIL_CONFIG")
-        # redirect url
-        url = f"{ROOT_URL}confirm_account?user_id={user.id}&token={user.token}"
+        # get url of front-end
+        root_url = request.headers.get("Origin")
+        # create url that will be used in the email
+        url = f"{root_url}/confirm_account?user_id={user.id}&token={user.token}"
         # create a mailer
         mailer = Mail(cur_app)
         # open templates as string and render
@@ -227,7 +212,7 @@ def signup():
                 # if applicable
                 if email_verification:
                     # send email
-                    send_confirm_account_email(user, current_app)
+                    send_confirm_account_email(user, request, current_app)
                     # result
                     result = (
                         201,
@@ -340,7 +325,7 @@ def forgot_password():
                 # store data
                 DB.session.commit()
                 # send email
-                send_forgot_password_email(user, current_app)
+                send_forgot_password_email(user, request, current_app)
                 # result
                 result = (200, f"An email has been sent to {email_address}")
 
