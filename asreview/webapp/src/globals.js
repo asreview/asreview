@@ -7,7 +7,7 @@ import ASReviewLAB_white from "./images/asreview_sub_logo_lab_white_transparent.
 // URL of backend is configured in an .env file. By default it's 
 // the same as the front-end URL.
 let b_url = "/";
-if (Boolean(process.env.REACT_APP_API_URL)) {
+if ((process.env.NODE_ENV !== 'production') && Boolean(process.env.REACT_APP_API_URL)) {
   b_url = process.env.REACT_APP_API_URL;
 }
 export const base_url = b_url;
