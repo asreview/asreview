@@ -15,7 +15,12 @@
 """Command Line Interface (CLI) for ASReview project."""
 import argparse
 import sys
-from importlib.metadata import metadata
+try:
+    from importlib import metadata
+except ImportError: # for Python<3.8
+    import importlib_metadata as metadata
+__version__ = metadata.version("jsonschema")
+#from importlib.metadata import metadata
 from itertools import groupby
 
 from asreview import __version__
