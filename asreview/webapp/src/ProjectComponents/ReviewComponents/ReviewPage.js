@@ -10,6 +10,7 @@ import {
   DecisionUndoBar,
   ExplorationModeBanner,
   RecordCard,
+  LabelsTable
 } from "../ReviewComponents";
 
 import { ProjectAPI } from "../../api/index.js";
@@ -260,6 +261,8 @@ const ReviewPage = (props) => {
             mobileScreen={props.mobileScreen}
             previousRecord={previousRecord}
           />
+          {/* Labels table */}
+          <LabelsTable/>
         </Box>
       </Fade>
       {/* Decision undo bar */}
