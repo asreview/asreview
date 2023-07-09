@@ -259,7 +259,7 @@ def create_app(**kwargs):
     if config_file_path != "":
         app.config.from_file(Path(config_file_path).absolute(), load=json.load)
 
-    # Make sure we have front end origins
+    # Make sure we have front end origins # setdefault
     if not app.config.get("FRONT_END_ORIGINS", False):
         app.config["FRONT_END_ORIGINS"] = FRONT_END_ORIGINS
 
@@ -346,21 +346,13 @@ def create_app(**kwargs):
 
     CORS(
         app,
-        resources={
-            r"*": {
-                "origins": app.config.get("FRONT_END_ORIGINS")
-            }
-        }
+        origins = app.config.get("FRONT_END_ORIGINS"),
+        supports_credentials=True
     )
 
     app.register_blueprint(projects.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(team.bp)
-
-    @app.after_request
-    def allow_credentials(response):
-        response.headers['Access-Control-Allow-Credentials'] = 'true'
-        return response
 
     @app.errorhandler(InternalServerError)
     def error_500(e):
