@@ -87,18 +87,18 @@ Open the web browser at `localhost:3000`
 [1]:	https://www.npmjs.com/get-npm
 [2]:	https://reactjs.org/
 
-#### CORS issues
+#### Connection/CORS issues
 
-In development, if not working with a Docker container, both front- and backend are strictly separated. It is assumed the Flask backend runs on port 5000 and the frontend on port 3000. If port 5000 is unavailable, the app will add 1 to the port number and tries 5001. This is repeated until a free port number is found, or the amount of port-tries is exceeded. If that's the case, the backend runs on an alternative port number and this causes Cross-Origin Resource Sharing (CORS) issues.
+In development, when working on the frontend, the front- and backend are strictly separated. It is assumed the Flask backend runs on port 5000 and the React frontend on port 3000. Deviating from these ports will lead to connection or CORS (Cross-Origin Resource Sharing) issues.
 
-A second cause of CORS problems is running multiple instances of React at the same time. Chances are the ASReview frontend is not running on port 3000.
+As for CORS issues: since ASReview allows you to run an authenticated version of the app, it is necessary to precisely define the "allowed origins" in the backend. These origins are the URL(s) used by the frontend to call the backend. If correctly configured, they are added to the headers of the backend response, so they can be verified by your browser. If the list with origin-URLs doesn't provide a URL that corresponds with the URL used in the original request of the frontend, your request is going to fail.
 
-You can solve these CORS issues by doing the following:
-1. Start the backend and verify on which port number it is running (read the first lines of the output once you have started the backend in the terminal).
-2. Make sure the frontend knows where it can find the backend. React reads a configuration `.env` in the `/asreview/webapp` folder which tells it to use `http://localhost:5000/`. Override this config file by either adding a local version (e.g. `/asreview/webapp/.env.local`) in which you put the correct URL of the backend (and the `REACT_APP_API_URL` environment variable) or change the URL in the `.env` file itself.
-3. If you are running the frontend on an alternative port you need to adjust the 'allowed origins' for it in the backend. This can be done in the [config file](#full-configuration) that you can use to start up the application. Let the backend know the precise URL (including the correct port number) it needs to send in the response header to overcome the CORS issues. By default, the allowed origins are set to: `["http://127.0.0.1:3000", "http://localhost:3000"]`
+You can solve connection/CORS issues by doing the following:
+1. Start the backend and verify what port number it's running on (read the first lines of the output once you've started the backend in the terminal).
+2. Make sure the frontend knows where it can find the backend. React reads a configuration `.env` file in the `/asreview/webapp` folder which tells it to use `http://localhost:5000/`. Override this config file by either adding a local version (e.g. `/asreview/webapp/.env.local`) in which you put the correct backend URL (do not forget the `REACT_APP_API_URL` variable, see the `.env` file) or change the URL in the `.env` file itself.
+3. If you are running the frontend on an alternative port you need to adjust the 'allowed origins' in the backend. The [config file](#full-configuration) allows you to override the defaults.
 
-Be precise when it comes to URLS/port numbers! In the context of CORS `localhost` is different from `127.0.0.1`, although they are usually referring to the same host.
+Be precise when it comes to URLS/port numbers! In the context of CORS `localhost` is different from `127.0.0.1`, although they are normally referring to the same host.
 
 #### Formatting and linting
 
@@ -142,9 +142,9 @@ that contains all authentication parameters. The keys in that JSON file will ove
 {
     "DEBUG": true,
     "AUTHENTICATION_ENABLED": true,
-    "IP": "<IP ADDRESS >",
-    "PORT": <numeric, defaults to 5000>,
-    "FRONT_END_ORIGINS": <list containing allowed origins in string form>,
+    "IP": <string, optional, IP address the server will listen on>,
+    "PORT": <integer, optional, defaults to 5000>,
+    "FRONT_END_ORIGINS": <list containing allowed origins in string form, optional>,
     "SECRET_KEY": "<secret key>",
     "SECURITY_PASSWORD_SALT": "<salt>",
     "SESSION_COOKIE_SECURE": true,
@@ -335,3 +335,5 @@ docker build -t asreview/asreview:1.0 .
 docker push ghcr.io/asreview/asreview
 docker push ghcr.io/asreview/asreview:1.0
 ```
+
+If you are creating a Docker container that runs the app with a [config file](#full-configuration) do __not forget__ to override the IP-address of the Flask backend. Set the IP address to "0.0.0.0" since the default "127.0.0.1" can't be reached from outside the container.

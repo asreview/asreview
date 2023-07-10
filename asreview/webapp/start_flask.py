@@ -350,9 +350,10 @@ def create_app(**kwargs):
         supports_credentials=True
     )
 
-    app.register_blueprint(projects.bp)
-    app.register_blueprint(auth.bp)
-    app.register_blueprint(team.bp)
+    with app.app_context():
+        app.register_blueprint(projects.bp)
+        app.register_blueprint(auth.bp)
+        app.register_blueprint(team.bp)
 
     @app.errorhandler(InternalServerError)
     def error_500(e):

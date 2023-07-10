@@ -38,7 +38,6 @@ from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
-CORS(bp)
 
 
 def perform_login_user(user):

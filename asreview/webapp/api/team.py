@@ -12,7 +12,6 @@ from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 
 bp = Blueprint("team", __name__, url_prefix="/api")
-CORS(bp)
 
 REQUESTER_FRAUD = {"message": "Request can not made by current user."}
 
