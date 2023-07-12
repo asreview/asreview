@@ -98,7 +98,7 @@ You can solve connection/CORS issues by doing the following:
 2. Make sure the frontend knows where it can find the backend. React reads a configuration `.env` file in the `/asreview/webapp` folder which tells it to use `http://localhost:5000/`. Override this config file by either adding a local version (e.g. `/asreview/webapp/.env.local`) in which you put the correct backend URL (do not forget the `REACT_APP_API_URL` variable, see the `.env` file) or change the URL in the `.env` file itself.
 3. If you are running the frontend on an alternative port you need to adjust the 'allowed origins' in the backend. The [config file](#full-configuration) allows you to override the defaults.
 
-Be precise when it comes to URLS/port numbers! In the context of CORS `localhost` is different from `127.0.0.1`, although they are normally referring to the same host.
+Be precise when it comes to URLs/port numbers! In the context of CORS `localhost` is different from `127.0.0.1`, although they are normally referring to the same host.
 
 #### Formatting and linting
 
