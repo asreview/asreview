@@ -1,6 +1,5 @@
 from flask import Blueprint
 from flask import jsonify
-from flask_cors import CORS
 from flask_login import current_user
 from sqlalchemy import and_
 from sqlalchemy.exc import SQLAlchemyError

@@ -21,7 +21,6 @@ from flask import current_app
 from flask import jsonify
 from flask import render_template_string
 from flask import request
-from flask_cors import CORS
 from flask_login import current_user
 from flask_login import login_user
 from flask_login import logout_user

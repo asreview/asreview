@@ -346,7 +346,7 @@ def create_app(**kwargs):
 
     CORS(
         app,
-        origins = app.config.get("FRONT_END_ORIGINS"),
+        origins=app.config.get("FRONT_END_ORIGINS"),
         supports_credentials=True
     )
 
