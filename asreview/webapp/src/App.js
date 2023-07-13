@@ -34,6 +34,13 @@ import {
 } from "./hooks/SettingsHooks";
 import { useToggle } from "./hooks/useToggle";
 
+// Ensure that on localhost we use 'localhost' instead of '127.0.0.1'
+const currentDomain = window.location.href;
+if (currentDomain.includes("127.0.0.1")) {
+  let newDomain = currentDomain.replace("127.0.0.1", "localhost")
+  window.location.replace(newDomain);
+}
+
 const queryClient = new QueryClient();
 
 const App = (props) => {

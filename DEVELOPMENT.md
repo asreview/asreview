@@ -100,6 +100,8 @@ You can solve connection/CORS issues by doing the following:
 
 Be precise when it comes to URLs/port numbers! In the context of CORS `localhost` is different from `127.0.0.1`, although they are normally referring to the same host.
 
+❗Mac users beware: depending on your version of macOS you may experience troubles with `localhost:5000`. Port 5000 may be in use by "Airplay Receiver" which may (!) cause nondeterministic behavior. If you experience similar issues [switch to a different port](#optional-config-parameters).
+
 #### Formatting and linting
 
 Please make use of Prettier (https://prettier.io/docs/en/install.html) to

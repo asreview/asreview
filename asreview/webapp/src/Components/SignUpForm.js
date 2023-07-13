@@ -129,6 +129,12 @@ const SignUpForm = (props) => {
     navigate("/signin");
   };
 
+  const handleEnterKey = (e) => {
+    if (e.keyCode === 13) {
+      handleSubmit(e);
+    }
+  };
+
   return (
     <Root>
       <Fade in>
@@ -197,6 +203,7 @@ const SignUpForm = (props) => {
                         size="small"
                         fullWidth
                         type={returnType()}
+                        onKeyDown={handleEnterKey}
                         value={formik.values.confirmPassword}
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}

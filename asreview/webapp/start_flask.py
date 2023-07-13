@@ -139,6 +139,13 @@ def _lab_parser():
         "--ip",
         default=HOST_NAME,
         type=str,
+        help="The IP address the server will listen on (deprecated).",
+    )
+
+    parser.add_argument(
+        "--host",
+        default=HOST_NAME,
+        type=str,
         help="The IP address the server will listen on.",
     )
 
