@@ -49,8 +49,6 @@ if HOST_NAME is None:
     HOST_NAME = "localhost"
 # Default Port number
 PORT_NUMBER = 5000
-# Default origins for CORS
-FRONT_END_ORIGINS = ["http://127.0.0.1:3000", "http://localhost:3000"]
 
 # set logging level
 if (
@@ -259,9 +257,14 @@ def create_app(**kwargs):
     if config_file_path != "":
         app.config.from_file(Path(config_file_path).absolute(), load=json.load)
 
-    # Make sure we have front end origins # setdefault
-    if not app.config.get("FRONT_END_ORIGINS", False):
-        app.config["FRONT_END_ORIGINS"] = FRONT_END_ORIGINS
+    # If the frontend runs on a different port, or even on a different
+    # URL, then allowed-origins must be set to avoid CORS issues. You can
+    # set the allowed-origins in the config file. In the previous lines
+    # the config file has been read.
+    # If the allowed-origins are not set by now, they are set to 
+    # False, which will bypass setting any CORS parameters!
+    if not app.config.get("ALLOWED_ORIGINS", False):
+        app.config["ALLOWED_ORIGINS"] = False
 
     # set env (test / development / production) according to
     # Flask 2.2 specs (ENV is deprecated)
@@ -344,11 +347,16 @@ def create_app(**kwargs):
     except OSError:
         pass
 
-    CORS(
-        app,
-        origins=app.config.get("FRONT_END_ORIGINS"),
-        supports_credentials=True
-    )
+    # We only need CORS if they are necessary: when the frontend is
+    # running on a different port, or even url, we need to set the
+    # allowed origins to avoid CORS problems. The allowed-origins
+    # can be set in the config file.
+    if app.config.get("ALLOWED_ORIGINS", False):
+        CORS(
+            app,
+            origins=app.config.get("ALLOWED_ORIGINS"),
+            supports_credentials=True
+        )
 
     with app.app_context():
         app.register_blueprint(projects.bp)

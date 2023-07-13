@@ -87,16 +87,16 @@ Open the web browser at `localhost:3000`
 [1]:	https://www.npmjs.com/get-npm
 [2]:	https://reactjs.org/
 
-#### Connection/CORS issues
+### Front end development and connection/CORS issues
 
-In development, when working on the frontend, the front- and backend are strictly separated. It is assumed the Flask backend runs on port 5000 and the React frontend on port 3000. Deviating from these ports will lead to connection or CORS (Cross-Origin Resource Sharing) issues.
+In development, when working on the front end, the front- and backend are strictly separated. It is assumed the Flask backend runs on port 5000 and the React front end on port 3000. Deviating from these ports will lead to connection or CORS (Cross-Origin Resource Sharing) issues.
 
-As for CORS issues: since ASReview allows you to run an authenticated version of the app, it is necessary to precisely define the "allowed origins" in the backend. These origins are the URL(s) used by the frontend to call the backend. If correctly configured, they are added to the headers of the backend response, so they can be verified by your browser. If the list with origin-URLs doesn't provide a URL that corresponds with the URL used in the original request of the frontend, your request is going to fail.
+As for CORS issues: it is necessary to precisely define the "allowed origins" in the backend. These origins must reflect the URL(s) used by the front end to call the backend. If correctly configured, they are added to the headers of the backend response, so they can be verified by your browser. If the list with origin-URLs doesn't provide a URL that corresponds with the URL used in the original request of the front end, your request is going to fail. __Setting the allowed origins can be done in the [config file](#full-configuration)__.
 
 You can solve connection/CORS issues by doing the following:
 1. Start the backend and verify what port number it's running on (read the first lines of the output once you've started the backend in the terminal).
-2. Make sure the frontend knows where it can find the backend. React reads a configuration `.env` file in the `/asreview/webapp` folder which tells it to use `http://localhost:5000/`. Override this config file by either adding a local version (e.g. `/asreview/webapp/.env.local`) in which you put the correct backend URL (do not forget the `REACT_APP_API_URL` variable, see the `.env` file) or change the URL in the `.env` file itself.
-3. If you are running the frontend on an alternative port you need to adjust the 'allowed origins' in the backend. The [config file](#full-configuration) allows you to override the defaults.
+2. Make sure the front end knows where it can find the backend. React reads a configuration `.env` file in the `/asreview/webapp` folder which tells it to use `http://localhost:5000/`. Override this config file by either adding a local version (e.g. `/asreview/webapp/.env.local`) in which you put the correct backend URL (do not forget the `REACT_APP_API_URL` variable, see the `.env` file) or change the URL in the `.env` file itself.
+3. If you are running the front end separate from the backend you need to adjust the CORS's 'allowed origins' parameter in the backend to avoid problems. You can do this by setting the front end URL(s) in the [optional parameters of the config file](#optional-config-parameters) under the "ALLOWED_ORIGINS" key.
 
 Be precise when it comes to URLs/port numbers! In the context of CORS `localhost` is different from `127.0.0.1`, although they are normally referring to the same host.
 
@@ -142,9 +142,6 @@ that contains all authentication parameters. The keys in that JSON file will ove
 {
     "DEBUG": true,
     "AUTHENTICATION_ENABLED": true,
-    "IP": <string, optional, IP address the server will listen on>,
-    "PORT": <integer, optional, defaults to 5000>,
-    "FRONT_END_ORIGINS": <list containing allowed origins in string form, optional>,
     "SECRET_KEY": "<secret key>",
     "SECURITY_PASSWORD_SALT": "<salt>",
     "SESSION_COOKIE_SECURE": true,
@@ -200,6 +197,19 @@ A number of the keys in the JSON file are standard Flask parameters. The keys th
 * EMAIL_VERIFICATION: used in conjunction with ALLOW_ACCOUNT_CREATION. If set to `true` the system sends a verification email after account creation. Only relevant if the account is __not__ created by OAuth. This parameter can be omitted if you don't want verification.
 * EMAIL_CONFIG: configuration of the SMTP email server that is used for email verification. It also allows users to retrieve a new password after forgetting it. Don't forget to enter the reply address (REPLY_ADDRESS) of your system emails. Omit this parameter if system emails for verification and password retrieval are unwanted.
 * OAUTH: an authenticated ASReview application may integrate with the OAuth functionality of Github, Orcid and Google. Provide the necessary OAuth login credentails (for [Github](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app), [Orcid](https://info.orcid.org/documentation/api-tutorials/api-tutorial-get-and-authenticated-orcid-id/) en [Google](https://support.google.com/cloud/answer/6158849?hl=en)). Please note that the AUTHORIZATION_URL and TOKEN_URL of the Orcid entry are sandbox-urls, and thus not to be used in production. Omit this parameter if OAuth is unwanted.
+
+#### Optional config parameters
+
+There are three optional parameters available that control what address the ASReview server listens to, and avoid CORS issues:
+
+```json
+{
+    "HOST": "0.0.0.0",
+    "PORT": 5001,
+    "ALLOWED_ORIGINS": ["http://localhost:3001"],
+}
+```
+The HOST and PORT determine what address the ASReview server listens to. If this deviates from `localhost` and port 5000, and you run the front end separately, make sure the [front end can find the backend](#front-end-development-and-connectioncors-issues). The ALLOWED_ORIGINS key must be set if you run the front end separately. Put in a list all URLs that your front end uses. This can be more than one URL. Failing to do so will certainly lead to CORS issues.
 
 ### Converting an unauthenticated application into an authenticated one
 
@@ -336,4 +346,4 @@ docker push ghcr.io/asreview/asreview
 docker push ghcr.io/asreview/asreview:1.0
 ```
 
-If you are creating a Docker container that runs the app with a [config file](#full-configuration) do __not forget__ to override the IP-address of the Flask backend. Set the IP address to "0.0.0.0" since the default "127.0.0.1" can't be reached from outside the container.
+If you are creating a Docker container that runs the app with a [config file](#full-configuration) do __not forget__ to override the IP-address of the Flask backend. Set the HOST variable to "0.0.0.0" since the default "localhost" can't be reached from outside the container.
