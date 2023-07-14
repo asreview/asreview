@@ -203,6 +203,50 @@ def api_init_project():  # noqa: F401
         project_name=project_title,
         project_description=project_description,
         project_authors=project_authors,
+        project_label_groups=[
+            {
+                "name": "Biomes",
+                "id": "biomes",
+                "labels": [
+                    {"id": "boreal_forest", "name": "Boreal Forest"},
+                    {"id": "savanna", "name": "Savanna"},
+                    {"id": "mangrove", "name": "Mangrove"},
+                    {"id": "tropical_forest", "name": "Tropical Forest"},
+                    {"id": "forest", "name": "Forest"}
+                ]
+            },
+            {
+                "name": "Restoration Approaches",
+                "id": "restoration_approaches",
+                "labels": [
+                    {"id": "direct_seeding", "name": "Direct seeding (i.e. spreading/planting seeds)"},
+                    {"id": "tree_planting", "name": "Planting trees (i.e. planting trees as seedlings)"},
+                    {
+                        "id": "enrichment_planting",
+                        "name": "Enrichment planting (i.e. planting trees under existing forest)"
+                    },
+                    {"id": "assisted_natural_regeneration", "name": "Assisted natural regeneration"},
+                    {"id": "farmer_managed_natural_regeneration", "name": "Farmer managed natural regeneration"}
+                ]
+            },
+            {
+                "name": "Recovery Data",
+                "id": "recovery_data",
+                "labels": [
+                    {"id": "measured_carbon", "name": "Measured carbon (or biomass)"},
+                    {
+                        "id": "diversity_of_plant_species_naturally_recruiting",
+                        "name": "Diversity of plant species naturally recruiting"
+                    },
+                    {
+                        "id": "changes_in_vegetation_structure",
+                        "name": "Changes in vegetation structure (i.e. basal area, canopy cover)"
+                    },
+                    {"id": "recovery_of_animals_insects", "name": "Recovery of animal/insect diversity"},
+                    {"id": "social_benefits", "name": "Social benefits"}
+                ]
+            }
+        ],
     )
 
     if current_app.config.get("LOGIN_DISABLED", False):

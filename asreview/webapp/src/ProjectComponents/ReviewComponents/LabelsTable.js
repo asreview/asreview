@@ -6,43 +6,9 @@ import "./ReviewPage.css";
 const PREFIX = "LabelsTable";
 
 const classes = {
-    categoryCard: `${PREFIX}-categoryCard`,
+    groupCard: `${PREFIX}-groupCard`,
     title: `${PREFIX}-title`,
 };
-
-const categories = [
-    {
-        name: "Biomes",
-        labels: [
-            "Boreal Forest",
-            "Savanna",
-            "Mangrove",
-            "Tropical Forest",
-            "Forest"
-        ]
-    },
-    {
-        name: "Restoration Approaches",
-        labels: [
-            "Direct seeding (i.e. spreading/planting seeds)",
-            "Planting trees (i.e. planting trees as seedlings)",
-            "Enrichment planting (i.e. planting trees under existing forest)",
-            "Direct seeding (i.e. spreading/planting seeds)",
-            "Assisted natural regeneration",
-            "Farmer managed natural regeneration"
-        ]
-    },
-    {
-        name: "Recovery Data",
-        labels: [
-            "Measured carbon (or biomass)",
-            "Diversity of plant species naturally recruiting",
-            "Changes in vegetation structure (i.e. basal area, canopy cover)",
-            "Recovery of animal/insect diversity",
-            "Social benefits"
-        ]
-    }
-]
 
 const Root = styled("div")(({theme}) => ({
     display: "flex",
@@ -52,7 +18,7 @@ const Root = styled("div")(({theme}) => ({
     padding: "108px 0px 32px 0px",
     height: "100%",
 
-    [`& .${classes.categoryCard}`]: {
+    [`& .${classes.groupCard}`]: {
         borderRadius: 16,
         marginBottom: "16px",
         display: "flex",
@@ -69,24 +35,18 @@ const LabelsTable = (props) => {
     return (
         <Root>
             <Box>
-                {/*<Typography*/}
-                {/*    component="div"*/}
-                {/*    className={classes.title}*/}
-                {/*    variant={!props.mobileScreen ? "h5" : "h6"}*/}
-                {/*    sx={{*/}
-                {/*        fontWeight: (theme) => theme.typography.fontWeightRegular,*/}
-                {/*    }}*/}
-                {/*>*/}
-                {/*    Select categories*/}
-                {/*</Typography>*/}
-
-                {categories.map((category) => (
-                    <Card elevation={2} className={classes.categoryCard}>
+                {props.labelGroups.map((group) => (
+                    <Card elevation={2} className={classes.groupCard}>
                         <CardContent>
-                            <Typography variant="h6">{category.name}</Typography>
+                            <Typography variant="h6">{group.name}</Typography>
                             <FormGroup row="false">
-                                {category.labels.map((categoryLabel) => (
-                                    <FormControlLabel control={<Checkbox/>} label={categoryLabel}/>
+                                {group.labels.map((label) => (
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox name={`${group.id}:${label.id}`}/>
+                                        }
+                                        label={label.name}
+                                    />
                                 ))}
                             </FormGroup>
                         </CardContent>

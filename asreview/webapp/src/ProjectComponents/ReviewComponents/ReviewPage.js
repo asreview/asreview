@@ -262,7 +262,11 @@ const ReviewPage = (props) => {
             previousRecord={previousRecord}
           />
           {/* Labels table */}
-          <LabelsTable/>
+          {Array.isArray(props.labelGroups) && props.labelGroups.length && (
+              <LabelsTable
+                  labelGroups={props.labelGroups}
+              />
+          )}
         </Box>
       </Fade>
       {/* Decision undo bar */}
