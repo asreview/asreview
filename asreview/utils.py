@@ -123,6 +123,24 @@ def _deprecated_kwarg(kwarg_map):
     return dec
 
 
+def _get_filename_from_url(url):
+    if not is_url(url):
+        raise ValueError(f"'{url}' is not a valid URL.")
+
+    if Path(urlparse(url).path).suffix:
+        return Path(urlparse(url).path).name
+    else:
+        try:
+            return urlopen(url).headers.get_filename()
+        except HTTPError as err:
+            # 308 (Permanent Redirect) not supported
+            # See https://bugs.python.org/issue40321
+            if err.code == 308:
+                return _get_filename_from_url(err.headers.get("Location"))
+            else:
+                raise err
+
+
 def asreview_path():
     """Get the location where projects are stored.
 
@@ -244,7 +262,8 @@ def is_url(url):
     """Check if object is a valid url."""
     try:
         result = urlparse(url)
-        return all(getattr(result, x) != "" for x in ["scheme", "netloc", "path"])
+        return all(
+            getattr(result, x) not in [b"", ""] for x in ["scheme", "netloc", "path"])
     except Exception:
         return False
 

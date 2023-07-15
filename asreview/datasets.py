@@ -22,6 +22,10 @@ from urllib.request import urlopen
 
 from asreview.utils import _entry_points
 from asreview.utils import is_iterable
+from asreview.utils import _get_filename_from_url
+from asreview.io import CSVReader
+
+from synergy_dataset import Dataset as _SynergyDataset
 
 
 class DatasetNotFoundError(Exception):
@@ -54,8 +58,8 @@ class BaseDataSet:
     def __init__(
         self,
         dataset_id,
-        filepath,
-        title,
+        filepath=None,
+        title=None,
         description=None,
         authors=None,
         topic=None,
@@ -153,6 +157,22 @@ class BaseDataSet:
             "aliases": self.aliases,
             **self.kwargs,
         }
+
+    @property
+    def reader(self):
+
+        return None
+
+    @property
+    def filename(self):
+        if not hasattr(self, "_filename"):
+            self._filename = _get_filename_from_url(self.filepath)
+
+        return self._filename
+
+    def to_file(self, path):
+        # todo return without store
+        urlretrieve(self.filepath, path)
 
 
 class BaseDataGroup(ABC):
@@ -387,3 +407,47 @@ class NaturePublicationDataGroup(BaseDataGroup):
         datasets = _download_from_metadata(meta_file)
 
         super(NaturePublicationDataGroup, self).__init__(*datasets)
+
+
+class SynergyDataSet(BaseDataSet):
+
+    @property
+    def filename(self):
+
+        return self.dataset_id + ".csv"
+
+    @property
+    def reader(self):
+
+        return CSVReader
+
+    def to_file(self, path=None):
+
+        # if path is None, the result is a byte string
+
+        # download, build, and store to local file
+        return _SynergyDataset(self.dataset_id).to_frame().to_csv(path)
+
+
+class SynergyDataGroup(BaseDataGroup):
+    """Datasets available in the SYNERGY dataset."""
+
+    group_id = "benchmark"
+    description = "SYNERGY datasets (asreview.ai/synergy)"
+
+    def __init__(self):
+        datasets = [
+            SynergyDataSet(
+                "Bos_2018",
+                title="Bos 2018",
+                description=None,
+                authors=None,
+                topic=None,
+                link=None,
+                reference=None,
+                license=None,
+                year=None,
+            )
+        ]
+
+        super(SynergyDataGroup, self).__init__(*datasets)

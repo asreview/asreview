@@ -43,7 +43,7 @@ from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.data import ASReviewData
-from asreview.data.base import _get_filename_from_url
+from asreview.utils import _get_filename_from_url
 from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
@@ -363,12 +363,14 @@ def api_upload_data_to_project(project):  # noqa: F401
     Path(project.project_path, "data").mkdir(exist_ok=True)
 
     if request.form.get("plugin", None):
-        url = DatasetManager().find(request.form["plugin"]).filepath
-        filename, url = _get_filename_from_url(url)
+        ds = DatasetManager().find(request.form["plugin"])
+        filename = ds.filename
+        ds.to_file(Path(project.project_path, "data", filename))
 
     if request.form.get("benchmark", None):
-        url = DatasetManager().find(request.form["benchmark"]).filepath
-        filename, url = _get_filename_from_url(url)
+        ds = DatasetManager().find(request.form["benchmark"])
+        filename = ds.filename
+        ds.to_file(Path(project.project_path, "data", filename))
 
     if request.form.get("url", None):
         url = request.form.get("url")
@@ -377,7 +379,7 @@ def api_upload_data_to_project(project):  # noqa: F401
         if url.startswith("10."):
             url = f"https://doi.org/{url}"
 
-        filename, url = _get_filename_from_url(url)
+        filename = _get_filename_from_url(url)
 
         if bool(request.form.get("validate", None)):
             reader_keys = list_reader_names()
@@ -405,11 +407,7 @@ def api_upload_data_to_project(project):  # noqa: F401
                 except Exception:
                     raise BadFileFormatError("Can't retrieve files.")
 
-    if (
-        request.form.get("plugin", None)
-        or request.form.get("benchmark", None)
-        or request.form.get("url", None)
-    ):
+    if (request.form.get("url", None)):
         try:
             urlretrieve(url, Path(project.project_path, "data") / filename)
         except Exception as err:
