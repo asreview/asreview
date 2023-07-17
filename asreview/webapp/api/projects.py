@@ -328,7 +328,7 @@ def api_demo_data_project():  # noqa: F401
     elif subset == "benchmark":
         try:
             # collect the datasets metadata
-            result_datasets = manager.list(include=["benchmark-nature", "benchmark"])
+            result_datasets = manager.list(include=["synergy", "benchmark-nature"])
 
         except Exception as err:
             logging.error(err)
@@ -367,12 +367,12 @@ def api_upload_data_to_project(project):  # noqa: F401
         filename = ds.filename
         ds.to_file(Path(project.project_path, "data", filename))
 
-    if request.form.get("benchmark", None):
+    elif request.form.get("benchmark", None):
         ds = DatasetManager().find(request.form["benchmark"])
         filename = ds.filename
         ds.to_file(Path(project.project_path, "data", filename))
 
-    if request.form.get("url", None):
+    elif request.form.get("url", None):
         url = request.form.get("url")
 
         # check if url value is actually DOI without netloc
@@ -407,7 +407,6 @@ def api_upload_data_to_project(project):  # noqa: F401
                 except Exception:
                     raise BadFileFormatError("Can't retrieve files.")
 
-    if (request.form.get("url", None)):
         try:
             urlretrieve(url, Path(project.project_path, "data") / filename)
         except Exception as err:

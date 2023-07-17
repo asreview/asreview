@@ -19,13 +19,15 @@ from abc import abstractmethod
 from pathlib import Path
 from urllib.error import URLError
 from urllib.request import urlopen
+from urllib.request import urlretrieve
+import tempfile
 
 from asreview.utils import _entry_points
 from asreview.utils import is_iterable
 from asreview.utils import _get_filename_from_url
 from asreview.io import CSVReader
 
-from synergy_dataset import Dataset as _SynergyDataset
+import synergy_dataset as sd
 
 
 class DatasetNotFoundError(Exception):
@@ -137,9 +139,7 @@ class BaseDataSet:
         self.kwargs = kwargs
 
     def __str__(self):
-        return (
-            f"<BaseDataSet dataset_id='{self.dataset_id}' title='{self.title}'>"  # noqa
-        )
+        return f"<BaseDataSet dataset_id='{self.dataset_id}' title='{self.title}'>"
 
     def __dict__(self):
         return {
@@ -160,7 +160,6 @@ class BaseDataSet:
 
     @property
     def reader(self):
-
         return None
 
     @property
@@ -249,7 +248,6 @@ class BaseDataGroup(ABC):
 class DatasetManager:
     @property
     def groups(self):
-
         return list(_entry_points(group="asreview.datasets").names)
 
     def find(self, dataset_id):
@@ -383,24 +381,14 @@ class DatasetManager:
         return group_list
 
 
-class BenchmarkDataGroup(BaseDataGroup):
-    """Datasets available in the benchmark platform."""
-
-    group_id = "benchmark"
-    description = "Datasets available in the online benchmark platform"
-
-    def __init__(self):
-        meta_file = "https://raw.githubusercontent.com/asreview/systematic-review-datasets/master/index_v1.json"  # noqa
-        datasets = _download_from_metadata(meta_file)
-
-        super(BenchmarkDataGroup, self).__init__(*datasets)
-
-
 class NaturePublicationDataGroup(BaseDataGroup):
     """Datasets used in the paper Van de Schoot et al. 2020."""
 
     group_id = "benchmark-nature"
-    description = "Datasets used in the validation paper published in Nature Machine Intelligence (van de Schoot et al. 2021)"  # noqa
+    description = (
+        "Datasets used in the validation paper published"
+        " in Nature Machine Intelligence (van de Schoot et al. 2021)"
+    )
 
     def __init__(self):
         meta_file = "https://raw.githubusercontent.com/asreview/paper-asreview/master/index_v1.json"  # noqa
@@ -410,44 +398,353 @@ class NaturePublicationDataGroup(BaseDataGroup):
 
 
 class SynergyDataSet(BaseDataSet):
-
     @property
     def filename(self):
-
         return self.dataset_id + ".csv"
 
     @property
     def reader(self):
-
         return CSVReader
 
     def to_file(self, path=None):
-
-        # if path is None, the result is a byte string
-
         # download, build, and store to local file
-        return _SynergyDataset(self.dataset_id).to_frame().to_csv(path)
+        try:
+            return sd.Dataset(self.dataset_id).to_frame().to_csv(path)
+        except FileNotFoundError as err:
+            tmp_synergy_folder = tempfile.mkdtemp()
+            sd.download_raw_subset(self.dataset_id, path=tmp_synergy_folder)
+
+            for d in sd.iter_datasets(path=tmp_synergy_folder):
+                if d.name == self.dataset_id:
+                    return d.to_frame().to_csv(path)
+
+        raise ValueError("Synergy dataset not found")
 
 
 class SynergyDataGroup(BaseDataGroup):
     """Datasets available in the SYNERGY dataset."""
 
-    group_id = "benchmark"
+    group_id = "synergy"
     description = "SYNERGY datasets (asreview.ai/synergy)"
 
     def __init__(self):
-        datasets = [
-            SynergyDataSet(
-                "Bos_2018",
-                title="Bos 2018",
-                description=None,
-                authors=None,
-                topic=None,
-                link=None,
-                reference=None,
-                license=None,
-                year=None,
-            )
-        ]
+        # The following code was used to generate the metadata
+        #
+        # import synergy_dataset as sd
+        # from pprint import pprint
+        # meta_synergy = {}
+        # for x in sd.iter_datasets():
+        #     meta_synergy[x.name] = {
+        #         "title": x.metadata["publication"]["display_name"],
+        #         "authors": x.cite.split(",")[0] + " et al.",
+        #         "topic": x.metadata["data"]["concepts"]["included"][0]["display_name"],
+        #         "link": "https://doi.org/10.34894/HE6NAQ",
+        #         "reference": x.metadata["publication"]["doi"],
+        #         "license": "See Synergy dataset",
+        #         "year": x.metadata["publication"]["publication_year"]
+        #     }
+        # pprint(meta_synergy)
+
+        synergy_metadata = {
+            "Appenzeller-Herzog_2019": {
+                "authors": "Appenzeller‐Herzog et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1111/liv.14179",
+                "title": "Comparative effectiveness of common "
+                "therapies for Wilson disease: A "
+                "systematic review and meta‐analysis of "
+                "controlled studies",
+                "topic": "Medicine",
+                "year": 2019,
+            },
+            "Bos_2018": {
+                "authors": "Bos et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1016/j.jalz.2018.04.007",
+                "title": "Cerebral small vessel disease and the risk of "
+                "dementia: A systematic review and meta‐analysis of "
+                "population‐based evidence",
+                "topic": "Medicine",
+                "year": 2018,
+            },
+            "Brouwer_2019": {
+                "authors": "Brouwer et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1016/j.cpr.2019.101773",
+                "title": "Psychological theories of depressive relapse and "
+                "recurrence: A systematic review and meta-analysis "
+                "of prospective studies",
+                "topic": "Psychology",
+                "year": 2019,
+            },
+            "Chou_2003": {
+                "authors": "Chou et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1016/j.jpainsymman.2003.03.003",
+                "title": "Comparative efficacy and safety of long-acting oral "
+                "opioids for chronic non-cancer pain: a systematic "
+                "review",
+                "topic": "Medicine",
+                "year": 2003,
+            },
+            "Chou_2004": {
+                "authors": "Chou et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1016/j.jpainsymman.2004.05.002",
+                "title": "Comparative efficacy and safety of skeletal muscle "
+                "relaxants for spasticity and musculoskeletal "
+                "conditions: a systematic review",
+                "topic": "Medicine",
+                "year": 2004,
+            },
+            "Donners_2021": {
+                "authors": "Donners et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1007/s40262-021-01042-w",
+                "title": "Pharmacokinetics and Associated Efficacy of "
+                "Emicizumab in Humans: A Systematic Review",
+                "topic": "Medicine",
+                "year": 2021,
+            },
+            "Hall_2012": {
+                "authors": "Hall et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1109/tse.2011.103",
+                "title": "A Systematic Literature Review on Fault Prediction "
+                "Performance in Software Engineering",
+                "topic": "Computer science",
+                "year": 2012,
+            },
+            "Jeyaraman_2020": {
+                "authors": "Jeyaraman et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1177/1947603520951623",
+                "title": "Does the Source of Mesenchymal Stem Cell Have an "
+                "Effect in the Management of Osteoarthritis of "
+                "the Knee? Meta-Analysis of Randomized Controlled "
+                "Trials",
+                "topic": "Medicine",
+                "year": 2020,
+            },
+            "Leenaars_2019": {
+                "authors": "Leenaars et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.5334/jcr.183",
+                "title": "Sleep and Microdialysis: An Experiment and a "
+                "Systematic Review of Histamine and Several Amino "
+                "Acids",
+                "topic": "Psychology",
+                "year": 2019,
+            },
+            "Leenaars_2020": {
+                "authors": "Leenaars et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.3390/ani10061047",
+                "title": "A Systematic Review Comparing Experimental Design "
+                "of Animal and Human Methotrexate Efficacy Studies "
+                "for Rheumatoid Arthritis: Lessons for the "
+                "Translational Value of Animal Studies",
+                "topic": "Medicine",
+                "year": 2020,
+            },
+            "Meijboom_2021": {
+                "authors": "Meijboom et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1007/s40259-021-00508-4",
+                "title": "Patients Retransitioning from Biosimilar TNFα "
+                "Inhibitor to the Corresponding Originator After "
+                "Initial Transitioning to the Biosimilar: A "
+                "Systematic Review",
+                "topic": "Medicine",
+                "year": 2021,
+            },
+            "Menon_2022": {
+                "authors": "Menon et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1080/10408444.2022.2082917",
+                "title": "The methodological rigour of systematic reviews in "
+                "environmental health",
+                "topic": "Medicine",
+                "year": 2022,
+            },
+            "Moran_2021": {
+                "authors": "Moran et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1111/brv.12655",
+                "title": "Poor nutritional condition promotes high‐risk "
+                "behaviours: a systematic review and meta‐analysis",
+                "topic": "Biology",
+                "year": 2021,
+            },
+            "Muthu_2021": {
+                "authors": "Muthu et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1097/brs.0000000000003645",
+                "title": "Fragility Analysis of Statistically Significant "
+                "Outcomes of Randomized Control Trials in Spine "
+                "Surgery",
+                "topic": "Medicine",
+                "year": 2021,
+            },
+            "Nelson_2002": {
+                "authors": "Nelson et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1001/jama.288.7.872",
+                "title": "Postmenopausal Hormone Replacement Therapy",
+                "topic": "Medicine",
+                "year": 2002,
+            },
+            "Oud_2018": {
+                "authors": "Oud et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1177/0004867418791257",
+                "title": "Specialized psychotherapies for adults with borderline "
+                "personality disorder: A systematic review and "
+                "meta-analysis",
+                "topic": "Psychology",
+                "year": 2018,
+            },
+            "Radjenovic_2013": {
+                "authors": "Radjenović et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1016/j.infsof.2013.02.009",
+                "title": "Software fault prediction metrics: A systematic "
+                "literature review",
+                "topic": "Computer science",
+                "year": 2013,
+            },
+            "Sep_2021": {
+                "authors": "Sep et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1371/journal.pone.0249102",
+                "title": "The rodent object-in-context task: A systematic review "
+                "and meta-analysis of important variables",
+                "topic": "Psychology",
+                "year": 2021,
+            },
+            "Smid_2020": {
+                "authors": "Smid et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1080/10705511.2019.1577140",
+                "title": "Bayesian Versus Frequentist Estimation for Structural "
+                "Equation Models in Small Sample Contexts: A "
+                "Systematic Review",
+                "topic": "Computer science",
+                "year": 2020,
+            },
+            "Walker_2018": {
+                "authors": "Walker et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1016/j.envint.2017.12.032",
+                "title": "Human and animal evidence of potential "
+                "transgenerational inheritance of health effects: An "
+                "evidence map and state-of-the-science evaluation",
+                "topic": "Biology",
+                "year": 2018,
+            },
+            "Wassenaar_2017": {
+                "authors": "Wassenaar et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1289/ehp1233",
+                "title": "Systematic Review and Meta-Analysis of "
+                "Early-Life Exposure to Bisphenol A and "
+                "Obesity-Related Outcomes in Rodents",
+                "topic": "Medicine",
+                "year": 2017,
+            },
+            "Wolters_2018": {
+                "authors": "Wolters et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1016/j.jalz.2018.01.007",
+                "title": "Coronary heart disease, heart failure, and the "
+                "risk of dementia: A systematic review and "
+                "meta‐analysis",
+                "topic": "Medicine",
+                "year": 2018,
+            },
+            "van_Dis_2020": {
+                "authors": "van Dis et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1001/jamapsychiatry.2019.3986",
+                "title": "Long-term Outcomes of Cognitive Behavioral Therapy "
+                "for Anxiety-Related Disorders",
+                "topic": "Psychology",
+                "year": 2020,
+            },
+            "van_de_Schoot_2018": {
+                "authors": "van de Schoot et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1080/00273171.2017.1412293",
+                "title": "Bayesian PTSD-Trajectory Analysis with "
+                "Informed Priors Based on a Systematic "
+                "Literature Search and Expert Elicitation",
+                "topic": "Psychology",
+                "year": 2018,
+            },
+            "van_der_Valk_2021": {
+                "authors": "Valk et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1111/obr.13376",
+                "title": "Cross‐sectional relation of long‐term "
+                "glucocorticoids in hair with anthropometric "
+                "measurements and their possible determinants: "
+                "A systematic review and meta‐analysis",
+                "topic": "Medicine",
+                "year": 2021,
+            },
+            "van_der_Waal_2022": {
+                "authors": "van der Waal et al.",
+                "license": "See Synergy dataset",
+                "link": "https://doi.org/10.34894/HE6NAQ",
+                "reference": "https://doi.org/10.1016/j.jgo.2022.09.012",
+                "title": "A meta-analysis on the role older adults with "
+                "cancer favour in treatment decision making",
+                "topic": "Medicine",
+                "year": 2022,
+            },
+        }
+
+        datasets = [SynergyDataSet(k, **v) for k, v in synergy_metadata.items()]
 
         super(SynergyDataGroup, self).__init__(*datasets)
+
+
+class BenchmarkDataGroup(BaseDataGroup):
+    """Datasets available in the benchmark platform.
+
+    Deprecated
+    """
+
+    group_id = "benchmark"
+    description = "DEPRECATED: Datasets available in the online benchmark platform"
+
+    def __init__(self):
+        meta_file = "https://raw.githubusercontent.com/asreview/systematic-review-datasets/master/index_v1.json"  # noqa
+        datasets = _download_from_metadata(meta_file)
+
+        super(BenchmarkDataGroup, self).__init__(*datasets)

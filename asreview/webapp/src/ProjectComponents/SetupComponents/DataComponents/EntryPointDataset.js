@@ -61,7 +61,7 @@ const EntryPointDataset = (props) => {
           <Typography>{props.title}</Typography>
           {props.doi && (
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              DOI:{" "}
+              Publication:{" "}
               <Link
                 href={props.doi && DOILink(props.doi)}
                 underline="none"
@@ -73,6 +73,17 @@ const EntryPointDataset = (props) => {
             </Typography>
           )}
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            Dataset:{" "}
+            <Link
+              href={props.link}
+              underline="none"
+              target="_blank"
+              rel="noreferrer"
+            >
+              {props.link}
+            </Link>
+          </Typography>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
             License:{" "}
             <Link
               href={props.link}
@@ -81,17 +92,6 @@ const EntryPointDataset = (props) => {
               rel="noreferrer"
             >
               {props.license}
-            </Link>
-          </Typography>
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            Location:{" "}
-            <Link
-              href={props.location}
-              underline="none"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Link to the dataset
             </Link>
           </Typography>
         </Stack>
