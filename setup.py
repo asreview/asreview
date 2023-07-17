@@ -109,7 +109,7 @@ setup(
         'webapp/build/*',
         'webapp/build/static/*/*',
     ]},
-    python_requires='~=3.7',
+    python_requires='~=3.8',
     install_requires=[
         'numpy',
         'scikit-learn',

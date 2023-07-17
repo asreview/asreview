@@ -42,7 +42,7 @@ ASReview software implements three different modes:
 
 ## Installation
 
-The ASReview software requires Python 3.7+. Detailed step-by-step instructions
+The ASReview software requires Python 3.8+. Detailed step-by-step instructions
 to install Python and ASReview are available for
 [Windows](https://asreview.ai/installation-guide-windows/) and
 [macOS](https://asreview.ai/installation-guide-macos/) users.
