@@ -15,9 +15,6 @@
 import hashlib
 from io import StringIO
 from pathlib import Path
-from urllib.error import HTTPError
-from urllib.parse import urlparse
-from urllib.request import urlopen
 
 import numpy as np
 import pandas as pd
@@ -33,6 +30,7 @@ from asreview.io import PaperRecord
 from asreview.io.utils import convert_keywords
 from asreview.io.utils import type_from_column
 from asreview.utils import _entry_points
+from asreview.utils import _get_filename_from_url
 from asreview.utils import is_iterable
 from asreview.utils import is_url
 

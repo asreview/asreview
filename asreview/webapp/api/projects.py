@@ -43,7 +43,6 @@ from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.data import ASReviewData
-from asreview.utils import _get_filename_from_url
 from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
@@ -72,6 +71,7 @@ from asreview.state.errors import StateNotFoundError
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.sql_converter import upgrade_project_config
 from asreview.utils import _get_executable
+from asreview.utils import _get_filename_from_url
 from asreview.utils import asreview_path
 from asreview.utils import list_reader_names
 from asreview.webapp import DB

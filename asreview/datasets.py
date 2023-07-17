@@ -14,20 +14,20 @@
 
 import json
 import socket
+import tempfile
 from abc import ABC
 from abc import abstractmethod
 from pathlib import Path
 from urllib.error import URLError
 from urllib.request import urlopen
 from urllib.request import urlretrieve
-import tempfile
-
-from asreview.utils import _entry_points
-from asreview.utils import is_iterable
-from asreview.utils import _get_filename_from_url
-from asreview.io import CSVReader
 
 import synergy_dataset as sd
+
+from asreview.io import CSVReader
+from asreview.utils import _entry_points
+from asreview.utils import _get_filename_from_url
+from asreview.utils import is_iterable
 
 
 class DatasetNotFoundError(Exception):
@@ -410,7 +410,7 @@ class SynergyDataSet(BaseDataSet):
         # download, build, and store to local file
         try:
             return sd.Dataset(self.dataset_id).to_frame().to_csv(path)
-        except FileNotFoundError as err:
+        except FileNotFoundError:
             tmp_synergy_folder = tempfile.mkdtemp()
             sd.download_raw_subset(self.dataset_id, path=tmp_synergy_folder)
 
@@ -437,7 +437,8 @@ class SynergyDataGroup(BaseDataGroup):
         #     meta_synergy[x.name] = {
         #         "title": x.metadata["publication"]["display_name"],
         #         "authors": x.cite.split(",")[0] + " et al.",
-        #         "topic": x.metadata["data"]["concepts"]["included"][0]["display_name"],
+        #         "topic": x.metadata
+        #            ["data"]["concepts"]["included"][0]["display_name"],
         #         "link": "https://doi.org/10.34894/HE6NAQ",
         #         "reference": x.metadata["publication"]["doi"],
         #         "license": "See Synergy dataset",
