@@ -63,6 +63,7 @@ REQUIRES = [
     "tqdm",
     "gevent>=20",
     "datahugger>=0.2",
+    "synergy_dataset"
 ]
 
 if sys.version_info < (3, 10):
