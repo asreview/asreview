@@ -169,7 +169,7 @@ def test_non_tf_models(tmpdir):
 
 
 def test_number_records_found(tmpdir):
-    dataset = "benchmark:van_de_Schoot_2017"
+    dataset = "synergy:van_de_Schoot_2018"
     asreview_fp = Path(tmpdir, "test.asreview")
     stop_if = 100
     priors = [284, 285]
@@ -187,7 +187,7 @@ def test_number_records_found(tmpdir):
 
 
 def test_stop_if_min(tmpdir):
-    dataset = "benchmark:van_de_Schoot_2017"
+    dataset = "synergy:van_de_Schoot_2018"
     asreview_fp = Path(tmpdir, "test.asreview")
     stop_if = "min"
     priors = [284, 285]
@@ -206,7 +206,7 @@ def test_stop_if_min(tmpdir):
 
 
 def test_stop_if_all(tmpdir):
-    dataset = "benchmark:van_de_Schoot_2017"
+    dataset = "synergy:van_de_Schoot_2018"
     asreview_fp = Path(tmpdir, "test.asreview")
     stop_if = -1
     priors = [284, 285]
@@ -225,7 +225,7 @@ def test_stop_if_all(tmpdir):
 
 
 def test_write_interval(tmpdir):
-    dataset = "benchmark:van_de_Schoot_2017"
+    dataset = "synergy:van_de_Schoot_2018"
     asreview_fp = Path(tmpdir, "test.asreview")
     stop_if = 100
     priors = [284, 285]
@@ -249,7 +249,7 @@ def test_project_already_exists_error(tmpdir):
     asreview_fp1 = Path(tmpdir, "test1.asreview")
 
     argv = (
-        f"benchmark:van_de_Schoot_2017 -s {asreview_fp1} --stop_if 100"
+        f"synergy:van_de_Schoot_2018 -s {asreview_fp1} --stop_if 100"
         f" --seed 535".split()
     )
     entry_point = SimulateEntryPoint()
@@ -257,7 +257,7 @@ def test_project_already_exists_error(tmpdir):
 
     # Simulate 100 queries in two steps of 50.
     argv = (
-        f"benchmark:van_de_Schoot_2017 -s {asreview_fp1} --stop_if 50"
+        f"synergy:van_de_Schoot_2018 -s {asreview_fp1} --stop_if 50"
         f" --seed 535".split()
     )
     entry_point = SimulateEntryPoint()
@@ -266,7 +266,7 @@ def test_project_already_exists_error(tmpdir):
 
 @pytest.mark.skip(reason="Partial simulations are not available.")
 def test_partial_simulation(tmpdir):
-    dataset = "benchmark:van_de_Schoot_2017"
+    dataset = "synergy:van_de_Schoot_2018"
     asreview_fp1 = Path(tmpdir, "test1.asreview")
     asreview_fp2 = Path(tmpdir, "test2.asreview")
 
@@ -324,7 +324,7 @@ def test_partial_simulation(tmpdir):
 
 @pytest.mark.skip(reason="Partial simulations are not available.")
 def test_is_partial_simulation(tmpdir):
-    dataset = "benchmark:van_de_Schoot_2017"
+    dataset = "synergy:van_de_Schoot_2018"
     asreview_fp = Path(tmpdir, "test.asreview")
 
     argv = f"{dataset} -s {asreview_fp} --stop_if 50".split()
