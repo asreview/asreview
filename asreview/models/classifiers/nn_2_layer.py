@@ -28,8 +28,8 @@ else:
     except AttributeError:
         logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
-import scipy
 import numpy as np
+import scipy
 
 from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.models.classifiers.lstm_base import _get_optimizer
@@ -111,7 +111,7 @@ class NN2LayerClassifier(BaseTrainClassifier):
 
         self._model = None
         self.input_dim = None
-        
+
     def fit(self, X, y):
         # check is tensorflow is available
         _check_tensorflow()
