@@ -19,7 +19,6 @@ try:
     from tensorflow.keras import regularizers
     from tensorflow.keras.layers import Dense
     from tensorflow.keras.models import Sequential
-    from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 except ImportError:
     TF_AVAILABLE = False
 else:
@@ -30,6 +29,7 @@ else:
         logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 import scipy
+import numpy as np
 
 from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.models.classifiers.lstm_base import _get_optimizer
@@ -40,8 +40,7 @@ def _check_tensorflow():
     if not TF_AVAILABLE:
         raise ImportError(
             "Install tensorflow package to use"
-            " Fully connected neural network (2 hidden layers)."
-        )
+            " Fully connected neural network (2 hidden layers).")
 
 
 class NN2LayerClassifier(BaseTrainClassifier):
@@ -88,18 +87,16 @@ class NN2LayerClassifier(BaseTrainClassifier):
     name = "nn-2-layer"
     label = "Fully connected neural network (2 hidden layers)"
 
-    def __init__(
-        self,
-        dense_width=128,
-        optimizer="rmsprop",
-        learn_rate=1.0,
-        regularization=0.01,
-        verbose=0,
-        epochs=35,
-        batch_size=32,
-        shuffle=False,
-        class_weight=30.0,
-    ):
+    def __init__(self,
+                 dense_width=128,
+                 optimizer='rmsprop',
+                 learn_rate=1.0,
+                 regularization=0.01,
+                 verbose=0,
+                 epochs=35,
+                 batch_size=32,
+                 shuffle=False,
+                 class_weight=30.0):
         """Initialize the 2-layer neural network model."""
         super(NN2LayerClassifier, self).__init__()
         self.dense_width = int(dense_width)
@@ -114,7 +111,7 @@ class NN2LayerClassifier(BaseTrainClassifier):
 
         self._model = None
         self.input_dim = None
-
+        
     def fit(self, X, y):
         # check is tensorflow is available
         _check_tensorflow()
@@ -123,7 +120,7 @@ class NN2LayerClassifier(BaseTrainClassifier):
             X = X.toarray()
         if self._model is None or X.shape[1] != self.input_dim:
             self.input_dim = X.shape[1]
-            keras_model = _create_dense_nn_model(
+            self._model = _create_dense_nn_model(
                 self.input_dim,
                 self.dense_width,
                 self.optimizer,
@@ -131,7 +128,6 @@ class NN2LayerClassifier(BaseTrainClassifier):
                 self.regularization,
                 self.verbose,
             )
-            self._model = KerasClassifier(keras_model, verbose=self.verbose)
 
         self._model.fit(
             X,
@@ -146,11 +142,12 @@ class NN2LayerClassifier(BaseTrainClassifier):
     def predict_proba(self, X):
         if scipy.sparse.issparse(X):
             X = X.toarray()
-        return super(NN2LayerClassifier, self).predict_proba(X)
+        pos_pred = self._model.predict(X, verbose=self.verbose)
+        neg_pred = 1 - pos_pred
+        return np.hstack([neg_pred, pos_pred])
 
     def full_hyper_space(self):
         from hyperopt import hp
-
         hyper_choices = {
             "mdl_optimizer": ["sgd", "rmsprop", "adagrad", "adam", "nadam"]
         }
@@ -165,15 +162,13 @@ class NN2LayerClassifier(BaseTrainClassifier):
         return hyper_space, hyper_choices
 
 
-def _create_dense_nn_model(
-    vector_size=40,
-    dense_width=128,
-    optimizer="rmsprop",
-    learn_rate_mult=1.0,
-    regularization=0.01,
-    verbose=1,
-):
-    """Return callable lstm model.
+def _create_dense_nn_model(vector_size=40,
+                           dense_width=128,
+                           optimizer='rmsprop',
+                           learn_rate_mult=1.0,
+                           regularization=0.01,
+                           verbose=1):
+    """Return callable model.
 
     Returns
     -------
@@ -186,42 +181,38 @@ def _create_dense_nn_model(
     # check is tensorflow is available
     _check_tensorflow()
 
-    def model_wrapper():
-        model = Sequential()
+    model = Sequential()
 
-        model.add(
-            Dense(
-                dense_width,
-                input_dim=vector_size,
-                kernel_regularizer=regularizers.l2(regularization),
-                activity_regularizer=regularizers.l1(regularization),
-                activation="relu",
-            )
-        )
+    model.add(
+        Dense(
+            dense_width,
+            input_dim=vector_size,
+            kernel_regularizer=regularizers.l2(regularization),
+            activity_regularizer=regularizers.l1(regularization),
+            activation='relu',
+        ))
 
-        # add Dense layer with relu activation
-        model.add(
-            Dense(
-                dense_width,
-                kernel_regularizer=regularizers.l2(regularization),
-                activity_regularizer=regularizers.l1(regularization),
-                activation="relu",
-            )
-        )
+    # add Dense layer with relu activation
+    model.add(
+        Dense(
+            dense_width,
+            kernel_regularizer=regularizers.l2(regularization),
+            activity_regularizer=regularizers.l1(regularization),
+            activation='relu',
+        ))
 
-        # add Dense layer
-        model.add(Dense(1, activation="sigmoid"))
+    # add Dense layer
+    model.add(Dense(1, activation='sigmoid'))
 
-        optimizer_fn = _get_optimizer(optimizer, learn_rate_mult)
+    optimizer_fn = _get_optimizer(optimizer, learn_rate_mult)
 
-        # Compile model
-        model.compile(
-            loss="binary_crossentropy", optimizer=optimizer_fn, metrics=["acc"]
-        )
+    # Compile model
+    model.compile(
+        loss='binary_crossentropy',
+        optimizer=optimizer_fn,
+        metrics=['acc'])
 
-        if verbose >= 1:
-            model.summary()
+    if verbose >= 1:
+        model.summary()
 
-        return model
-
-    return model_wrapper
+    return model
