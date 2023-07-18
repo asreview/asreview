@@ -172,7 +172,7 @@ def test_number_records_found(tmpdir):
     dataset = "synergy:van_de_Schoot_2018"
     asreview_fp = Path(tmpdir, "test.asreview")
     stop_if = 100
-    priors = [284, 285]
+    priors = [116, 285]
     seed = 101
 
     argv = (
@@ -183,14 +183,14 @@ def test_number_records_found(tmpdir):
     entry_point.execute(argv)
 
     with open_state(asreview_fp) as s:
-        assert s.get_labels().sum() == 28
+        assert s.get_labels().sum() == 29
 
 
 def test_stop_if_min(tmpdir):
     dataset = "synergy:van_de_Schoot_2018"
     asreview_fp = Path(tmpdir, "test.asreview")
     stop_if = "min"
-    priors = [284, 285]
+    priors = [116, 285]
     seed = 101
 
     argv = (
@@ -201,15 +201,15 @@ def test_stop_if_min(tmpdir):
     entry_point.execute(argv)
 
     with open_state(asreview_fp) as s:
-        assert s.get_labels().sum() == 43
-        assert len(s.get_labels()) == 515
+        assert s.get_labels().sum() == 38
+        assert len(s.get_labels()) == 630
 
 
 def test_stop_if_all(tmpdir):
     dataset = "synergy:van_de_Schoot_2018"
     asreview_fp = Path(tmpdir, "test.asreview")
     stop_if = -1
-    priors = [284, 285]
+    priors = [116, 285]
     seed = 101
 
     argv = (
@@ -220,15 +220,15 @@ def test_stop_if_all(tmpdir):
     entry_point.execute(argv)
 
     with open_state(asreview_fp) as s:
-        assert s.get_labels().sum() == 43
-        assert len(s.get_labels()) == 6189
+        assert s.get_labels().sum() == 38
+        assert len(s.get_labels()) == 4544
 
 
 def test_write_interval(tmpdir):
     dataset = "synergy:van_de_Schoot_2018"
     asreview_fp = Path(tmpdir, "test.asreview")
     stop_if = 100
-    priors = [284, 285]
+    priors = [116, 285]
     seed = 101
     write_interval = 20
 
@@ -241,7 +241,7 @@ def test_write_interval(tmpdir):
     entry_point.execute(argv)
 
     with open_state(asreview_fp) as s:
-        assert s.get_labels().sum() == 28
+        assert s.get_labels().sum() == 29
 
 
 @pytest.mark.xfail(raises=ProjectExistsError, reason="Cannot continue simulation.")
