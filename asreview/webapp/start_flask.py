@@ -32,6 +32,7 @@ from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
 from asreview._deprecated import DeprecateAction
+from asreview._deprecated import mark_deprecated_help_strings
 from asreview.project import ASReviewProject
 from asreview.project import get_project_path
 from asreview.project import get_projects
@@ -43,9 +44,11 @@ from asreview.webapp.api import team
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
+# Host name
 HOST_NAME = os.getenv("ASREVIEW_HOST")
 if HOST_NAME is None:
     HOST_NAME = "localhost"
+# Default Port number
 PORT_NUMBER = 5000
 
 # set logging level
@@ -135,6 +138,14 @@ def _lab_parser():
 
     parser.add_argument(
         "--ip",
+        default=HOST_NAME,
+        type=str,
+        action=DeprecateAction,
+        help="The IP address the server will listen on. Use the --host argument.",
+    )
+
+    parser.add_argument(
+        "--host",
         default=HOST_NAME,
         type=str,
         help="The IP address the server will listen on.",
@@ -245,6 +256,8 @@ def create_app(**kwargs):
     app.config["AUTHENTICATION_ENABLED"] = kwargs.get("enable_authentication", False)
     app.config["SECRET_KEY"] = kwargs.get("secret_key", False)
     app.config["SECURITY_PASSWORD_SALT"] = kwargs.get("salt", False)
+    app.config["PORT"] = kwargs.get("port")
+    app.config["HOST"] = kwargs.get("host")
 
     # Read config parameters if possible, this overrides
     # the previous assignments.
@@ -252,6 +265,15 @@ def create_app(**kwargs):
     # Use absolute path, because otherwise it is relative to the config root.
     if config_file_path != "":
         app.config.from_file(Path(config_file_path).absolute(), load=json.load)
+
+    # If the frontend runs on a different port, or even on a different
+    # URL, then allowed-origins must be set to avoid CORS issues. You can
+    # set the allowed-origins in the config file. In the previous lines
+    # the config file has been read.
+    # If the allowed-origins are not set by now, they are set to
+    # False, which will bypass setting any CORS parameters!
+    if not app.config.get("ALLOWED_ORIGINS", False):
+        app.config["ALLOWED_ORIGINS"] = False
 
     # set env (test / development / production) according to
     # Flask 2.2 specs (ENV is deprecated)
@@ -334,25 +356,21 @@ def create_app(**kwargs):
     except OSError:
         pass
 
-    # TODO@{Casper}:
-    # !! Not sure about this, but since the front-end and back-end
-    # !! are coupled I think origins should be set to the URL and
-    # !! not to '*'
-    CORS(
-        app,
-        resources={
-            r"*": {
-                "origins": [
-                    "http://localhost:3000",
-                    "http://127.0.0.1:3000",
-                ]
-            }
-        },
-    )
+    # We only need CORS if they are necessary: when the frontend is
+    # running on a different port, or even url, we need to set the
+    # allowed origins to avoid CORS problems. The allowed-origins
+    # can be set in the config file.
+    if app.config.get("ALLOWED_ORIGINS", False):
+        CORS(
+            app,
+            origins=app.config.get("ALLOWED_ORIGINS"),
+            supports_credentials=True
+        )
 
-    app.register_blueprint(projects.bp)
-    app.register_blueprint(auth.bp)
-    app.register_blueprint(team.bp)
+    with app.app_context():
+        app.register_blueprint(projects.bp)
+        app.register_blueprint(auth.bp)
+        app.register_blueprint(team.bp)
 
     @app.errorhandler(InternalServerError)
     def error_500(e):
@@ -389,7 +407,7 @@ def create_app(**kwargs):
             status = "asreview"
 
         # the big one
-        authenticated = bool(app.config["AUTHENTICATION_ENABLED"])
+        authenticated = app.config.get("AUTHENTICATION_ENABLED", False)
 
         response = {
             "status": status,
@@ -434,6 +452,7 @@ def create_app(**kwargs):
 
 def main(argv):
     parser = _lab_parser()
+    mark_deprecated_help_strings(parser)
     args = parser.parse_args(argv)
 
     app = create_app(**vars(args))
@@ -470,8 +489,10 @@ def main(argv):
         return
 
     flask_dev = app.config.get("DEBUG", False)
-    host = args.ip
-    port = args.port
+
+    host = app.config.get("HOST")
+    port = app.config.get("PORT")
+
     port_retries = args.port_retries
     # if port is already taken find another one
     if not flask_dev:

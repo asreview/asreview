@@ -7,7 +7,7 @@
     "ALLOW_ACCOUNT_CREATION": true,
     "EMAIL_VERIFICATION": true,
     "EMAIL_CONFIG": {
-        "SERVER": "127.0.0.1",
+        "SERVER": "localhost",
         "PORT": 465,
         "USERNAME": "admin@asreview.nl",
         "PASSWORD": "secret_password",
