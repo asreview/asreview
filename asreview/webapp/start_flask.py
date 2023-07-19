@@ -21,6 +21,11 @@ import webbrowser
 from pathlib import Path
 from threading import Timer
 
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
+
 from flask import Flask
 from flask import send_from_directory
 from flask.json import jsonify
@@ -264,7 +269,18 @@ def create_app(**kwargs):
     config_file_path = kwargs.get("flask_configfile", "").strip()
     # Use absolute path, because otherwise it is relative to the config root.
     if config_file_path != "":
-        app.config.from_file(Path(config_file_path).absolute(), load=json.load)
+        config_file_path = Path(config_file_path)
+        if config_file_path.suffix == ".toml":
+            app.config.from_file(
+                config_file_path.absolute(),
+                load=tomllib.load,
+                text=False
+            )
+        elif config_file_path.suffix == ".json":
+            app.config.from_file(
+                config_file_path.absolute(),
+                load=json.load
+            )
 
     # If the frontend runs on a different port, or even on a different
     # URL, then allowed-origins must be set to avoid CORS issues. You can
