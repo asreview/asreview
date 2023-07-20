@@ -138,60 +138,57 @@ one could use the User model that can be found in `/asreview/webapp/authenticati
 
 ### Full configuration
 
-To configure the authentication in more detail we need to create a JSON file
-that contains all authentication parameters. The keys in that JSON file will override any parameter that was passed in the CLI. Here's an example:
-```json
-{
-    "DEBUG": true,
-    "AUTHENTICATION_ENABLED": true,
-    "SECRET_KEY": "<secret key>",
-    "SECURITY_PASSWORD_SALT": "<salt>",
-    "SESSION_COOKIE_SECURE": true,
-    "REMEMBER_COOKIE_SECURE": true,
-    "SESSION_COOKIE_SAMESITE": "Lax",
-    "SQLALCHEMY_TRACK_MODIFICATIONS": true,
-    "ALLOW_ACCOUNT_CREATION": true,
-    "EMAIL_VERIFICATION": true,
-    "EMAIL_CONFIG": {
-        "SERVER": "<smtp-server>",
-        "PORT": "<smpt-server-port>",
-        "USERNAME": "<smtp-server-username>",
-        "PASSWORD": "<smtp-server-password>",
-        "USE_TLS": false,
-        "USE_SSL": true,
-        "REPLY_ADDRESS": "<preferred reply email address>"
-    },
-    "OAUTH": {
-        "GitHub": {
-            "AUTHORIZATION_URL": "https://github.com/login/oauth/authorize",
-            "TOKEN_URL": "https://github.com/login/oauth/access_token",
-            "CLIENT_ID": "<GitHub client ID>",
-            "CLIENT_SECRET": "<GitHub client secret>",
-            "SCOPE": ""
-        },
-        "Orcid": {
-            "AUTHORIZATION_URL": "https://sandbox.orcid.org/oauth/authorize",
-            "TOKEN_URL": "https://sandbox.orcid.org/oauth/token",
-            "CLIENT_ID": "<Orcid client ID>",
-            "CLIENT_SECRET": "<Orcid client secret>",
-            "SCOPE": "/authenticate"
-        },
-        "Google": {
-            "AUTHORIZATION_URL": "https://accounts.google.com/o/oauth2/auth",
-            "TOKEN_URL": "https://oauth2.googleapis.com/token",
-            "CLIENT_ID": "<Google client ID>",
-            "CLIENT_SECRET": "<Google client secret>",
-            "SCOPE": "profile email"
-        }
-    }
-}
+To configure the authentication in more detail we need to create a TOML or a JSON file that contains all authentication parameters. The keys in that TOML/JSON file will override any parameter that was passed in the CLI. Here's an example of a TOML file:
+```toml
+DEBUG = true
+AUTHENTICATION_ENABLED = true
+SECRET_KEY = "<secret key>"
+SECURITY_PASSWORD_SALT = "<salt>"
+SESSION_COOKIE_SECURE = true
+REMEMBER_COOKIE_SECURE = true
+SESSION_COOKIE_SAMESITE = "Lax"
+SQLALCHEMY_TRACK_MODIFICATIONS = true
+ALLOW_ACCOUNT_CREATION = true
+ALLOW_TEAMS = false
+EMAIL_VERIFICATION = false
+
+[EMAIL_CONFIG]
+SERVER = "<smtp-server>"
+PORT = 465
+USERNAME = "<smtp-server-username>"
+PASSWORD = "<smtp-server-password>"
+USE_TLS = false
+USE_SSL = true
+REPLY_ADDRESS = "<preferred reply email address>"
+
+[OAUTH]
+        [OAUTH.GitHub]
+        AUTHORIZATION_URL = "https://github.com/login/oauth/authorize"
+        TOKEN_URL = "https://github.com/login/oauth/access_token"
+        CLIENT_ID = "<GitHub client ID>"
+        CLIENT_SECRET = "<GitHub client secret>"
+        SCOPE = ""
+    
+        [OAUTH.Orcid]
+        AUTHORIZATION_URL = "https://sandbox.orcid.org/oauth/authorize"
+        TOKEN_URL = "https://sandbox.orcid.org/oauth/token"
+        CLIENT_ID = "<Orcid client ID>"
+        CLIENT_SECRET = "<Orcid client secret>"
+        SCOPE = "/authenticate"
+
+        [OAUTH.Google]
+        AUTHORIZATION_URL = "https://accounts.google.com/o/oauth2/auth"
+        TOKEN_URL = "https://oauth2.googleapis.com/token"
+        CLIENT_ID = "<Google client ID>"
+        CLIENT_SECRET = "<Google client secret>"
+        SCOPE = "profile email"
 ```
-Store the JSON file on the server and start the ASReview application from the CLI with the
+Store the TOML file on the server and start the ASReview application from the CLI with the
 `--flask-configfile` parameter:
 ```
-$ python3 -m asreview lab --flask-configfile=<path-to-JSON-config-file>
+$ python3 -m asreview lab --flask-configfile=<path-to-TOML-config-file>
 ```
-A number of the keys in the JSON file are standard Flask parameters. The keys that are specific for authenticating ASReview are summarised below:
+A number of the keys in the TOML file are standard Flask parameters. The keys that are specific for authenticating ASReview are summarised below:
 *  AUTHENTICATION_ENABLED: if set to `true` the application will start with authentication enabled. If the SQLite database does not exist, one will be created during startup.
 * SECRET_KEY: the secret key is a string that is used to encrypt cookies and is mandatory if authentication is required.
 * SECURITY_PASSWORD_SALT: another string used to hash passwords, also mandatory if authentication is required.
@@ -204,12 +201,10 @@ A number of the keys in the JSON file are standard Flask parameters. The keys th
 
 There are three optional parameters available that control what address the ASReview server listens to, and avoid CORS issues:
 
-```json
-{
-    "HOST": "0.0.0.0",
-    "PORT": 5001,
-    "ALLOWED_ORIGINS": ["http://localhost:3001"],
-}
+```toml
+HOST = "0.0.0.0"
+PORT = 5001
+ALLOWED_ORIGINS = ["http://localhost:3000"]
 ```
 The HOST and PORT determine what address the ASReview server listens to. If this deviates from `localhost` and port 5000, and you run the front end separately, make sure the [front end can find the backend](#front-end-development-and-connectioncors-issues). The ALLOWED_ORIGINS key must be set if you run the front end separately. Put in a list all URLs that your front end uses. This can be more than one URL. Failing to do so will certainly lead to CORS issues.
 
