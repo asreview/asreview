@@ -16,7 +16,6 @@ import argparse
 import logging
 import os
 import socket
-import sys
 import webbrowser
 from pathlib import Path
 from threading import Timer
