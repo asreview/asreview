@@ -138,7 +138,7 @@ one could use the User model that can be found in `/asreview/webapp/authenticati
 
 ### Full configuration
 
-To configure the authentication in more detail we need to create a TOML or a JSON file that contains all authentication parameters. The keys in that TOML/JSON file will override any parameter that was passed in the CLI. Here's an example of a TOML file:
+To configure the authentication in more detail we need to create a TOML file that contains all authentication parameters. The parameters in that TOML file will override parameters that were passed in the CLI. Here's an example:
 ```toml
 DEBUG = true
 AUTHENTICATION_ENABLED = true
