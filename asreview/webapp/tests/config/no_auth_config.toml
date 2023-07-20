@@ -1,0 +1,3 @@
+TESTING = true
+DEBUG = true
+AUTHENTICATION_ENABLED = false
