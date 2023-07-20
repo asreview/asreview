@@ -21,9 +21,9 @@ import webbrowser
 from pathlib import Path
 from threading import Timer
 
-if sys.version_info >= (3, 11):
+try:
     import tomllib
-else:
+except ImportError:
     import tomli as tomllib
 
 from flask import Flask
