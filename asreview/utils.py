@@ -14,6 +14,7 @@
 
 import functools
 import os
+import secrets
 import sys
 import warnings
 from pathlib import Path
@@ -264,6 +265,58 @@ def get_random_state(random_state):
         return np.random.RandomState(random_state)
 
     return random_state
+
+
+def get_random_generator(seed=None):
+    """Constructor for the seeded random number class SeededRandomGenerator.
+
+    This is the preferred method of instantiating the SeededRandomGenerator class.
+    This function makes sure that the random generator has been seeded properly.
+
+    Parameters
+    ----------
+    seed : int | SeededRandomGenerator | None, optional
+        Seed for the random generator, or random generator itself. If this is None, a
+        seed is generated randomly. By default None.
+
+    Returns
+    -------
+    SeededRandomGenerator
+        A random generator, seeded by the provided seed.
+    """
+    if isinstance(seed, SeededRandomGenerator):
+        return seed
+    # This follows the seed setting advice from:
+    # https://numpy.org/doc/stable/reference/random/index.html#quick-start
+    if seed is None:
+        seed = secrets.randbits(128)
+    if not isinstance(seed, int):
+        raise ValueError(
+            "'seed' should be of type int, SeededRandomNumberGenerator or None"
+        )
+    return SeededRandomGenerator(np.random.default_rng(seed), seed)
+
+
+class SeededRandomGenerator(np.random.Generator):
+    def __init__(self, generator, seed):
+        """Random State that is always seeded.
+
+        A wrapper class around np.random.Generator that has the attribute `seed` added.
+        Never instantiate this class directly, always use the `get_random_generator`
+        function. It is implicitly assumed that the generator has been seeded using the
+        seed from the argument. The function `get_random_generator` makes sure this
+        happens correctly.
+
+        Parameters
+        ----------
+        generator : np.random.Generator
+            Random number generator that has been instantiated using
+            `np.random.default_rng(seed)`.
+        seed : int
+            Integer that has been used as the seed of the generator.
+        """
+        super().__init__(generator.bit_generator)
+        self.seed = seed
 
 
 def _get_executable():
