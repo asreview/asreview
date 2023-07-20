@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import argparse
-import json
 import logging
 import os
 import socket
@@ -118,12 +117,11 @@ def _open_browser(host, port, protocol, no_browser):
 
 
 def _lab_parser():
-
     # parse arguments if available
     parser = argparse.ArgumentParser(
         prog="lab",
         description="""ASReview LAB - Active learning for Systematic Reviews.""",  # noqa
-        formatter_class=argparse.RawTextHelpFormatter
+        formatter_class=argparse.RawTextHelpFormatter,
     )
 
     parser.add_argument(
@@ -189,7 +187,7 @@ def _lab_parser():
         "--flask-configfile",
         default="",
         type=str,
-        help="Full path to a JSON file containing Flask parameters"
+        help="Full path to a TOML file containing Flask parameters"
         "for authentication.",
     )
 
@@ -273,15 +271,10 @@ def create_app(**kwargs):
         config_file_path = Path(config_file_path)
         if config_file_path.suffix == ".toml":
             app.config.from_file(
-                config_file_path.absolute(),
-                load=tomllib.load,
-                text=False
+                config_file_path.absolute(), load=tomllib.load, text=False
             )
-        elif config_file_path.suffix == ".json":
-            app.config.from_file(
-                config_file_path.absolute(),
-                load=json.load
-            )
+        else:
+            raise ValueError("'flask_configfile' should have a .toml extension")
 
     # If the frontend runs on a different port, or even on a different
     # URL, then allowed-origins must be set to avoid CORS issues. You can
@@ -378,11 +371,7 @@ def create_app(**kwargs):
     # allowed origins to avoid CORS problems. The allowed-origins
     # can be set in the config file.
     if app.config.get("ALLOWED_ORIGINS", False):
-        CORS(
-            app,
-            origins=app.config.get("ALLOWED_ORIGINS"),
-            supports_credentials=True
-        )
+        CORS(app, origins=app.config.get("ALLOWED_ORIGINS"), supports_credentials=True)
 
     with app.app_context():
         app.register_blueprint(projects.bp)
