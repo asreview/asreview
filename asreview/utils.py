@@ -23,9 +23,9 @@ import numpy as np
 
 from asreview._deprecated import _deprecated_func
 
-if sys.version_info >= (3, 10):
+try:
     from importlib.metadata import entry_points as _entry_points
-else:
+except ImportError:
     from importlib_metadata import entry_points as _entry_points
 
 
