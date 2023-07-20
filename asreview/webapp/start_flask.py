@@ -17,13 +17,14 @@ import json
 import logging
 import os
 import socket
+import sys
 import webbrowser
 from pathlib import Path
 from threading import Timer
 
-try:
+if sys.version_info >= (3, 11):
     import tomllib
-except ImportError:
+else:
     import tomli as tomllib
 
 from flask import Flask
