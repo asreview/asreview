@@ -14,7 +14,6 @@
 
 import functools
 import os
-import secrets
 import sys
 import warnings
 from pathlib import Path
@@ -250,55 +249,43 @@ def is_url(url):
         return False
 
 
-def get_random_state(random_state):
-    """Create a RandomState instance.
+def get_random_state(seed=None):
+    """Constructor for the seeded random number generator.
+
+    This is the preferred method of instantiating the SeededRandomState class.
+    This function makes sure that the random number generator has been seeded properly.
+    By having a seperate constructor function, we are following the same pattern as
+    Numpy uses.
 
     Parameters
     ----------
-    random_state: int, numpy.RandomState
-        If it is an integer, seed a new random state.
-        If it is a RandomState, return it (nop).
-        If it is None, return the random state of numpy.
-    """
-
-    if not isinstance(random_state, np.random.RandomState):
-        return np.random.RandomState(random_state)
-
-    return random_state
-
-
-def get_random_generator(seed=None):
-    """Constructor for the seeded random number class SeededRandomGenerator.
-
-    This is the preferred method of instantiating the SeededRandomGenerator class.
-    This function makes sure that the random generator has been seeded properly.
-
-    Parameters
-    ----------
-    seed : int | SeededRandomGenerator | None, optional
+    seed : int | SeededRandomState | None, optional
         Seed for the random generator, or random generator itself. If this is None, a
         seed is generated randomly. By default None.
 
     Returns
     -------
-    SeededRandomGenerator
-        A random generator, seeded by the provided seed.
+    SeededRandomState
+        A random number generator, seeded by the provided seed.
     """
-    if isinstance(seed, SeededRandomGenerator):
+    if isinstance(seed, SeededRandomState):
         return seed
-    # This follows the seed setting advice from:
-    # https://numpy.org/doc/stable/reference/random/index.html#quick-start
+    # # For the newer np.random.Generator class, the seed setting would be as follows:
+    # # https://numpy.org/doc/stable/reference/random/index.html#quick-start
+    # if seed is None:
+    #     seed = secrets.randbits(128)
     if seed is None:
-        seed = secrets.randbits(128)
+        rng = np.random.default_rng()
+        seed = int(rng.integers(low=0, high=2**32))
     if not isinstance(seed, int):
         raise ValueError(
             "'seed' should be of type int, SeededRandomNumberGenerator or None"
         )
-    return SeededRandomGenerator(np.random.default_rng(seed), seed)
+    return SeededRandomState(np.random.RandomState(seed), seed)
 
 
-class SeededRandomGenerator(np.random.Generator):
-    def __init__(self, generator, seed):
+class SeededRandomState(np.random.RandomState):
+    def __init__(self, random_state, seed):
         """Random State that is always seeded.
 
         A wrapper class around np.random.Generator that has the attribute `seed` added.
@@ -309,13 +296,16 @@ class SeededRandomGenerator(np.random.Generator):
 
         Parameters
         ----------
-        generator : np.random.Generator
+        random_state : np.random.RandomState
             Random number generator that has been instantiated using
-            `np.random.default_rng(seed)`.
+            `np.random.RandomState(seed)`.
         seed : int
             Integer that has been used as the seed of the generator.
         """
-        super().__init__(generator.bit_generator)
+        # For the newer `np.random.Generator` class the init argument would be
+        # `generator.bit_generator`. For the legacy `np.random.RandomState` class you
+        # you can get the seed by `random_state.get_state()[1][0]`.
+        super().__init__(random_state.get_state()[1][0])
         self.seed = seed
 
 
