@@ -51,7 +51,7 @@ REQUIRES = [
     "rispy~=0.7.0",
     "xlrd>=1.0.0",
     "setuptools",
-    "flask>=2.0",
+    "flask>=2.3.0",
     "flask_cors",
     "flask-login",
     "flask-mail",
@@ -63,6 +63,7 @@ REQUIRES = [
     "tqdm",
     "gevent>=20",
     "datahugger>=0.2",
+    "tomli",  # included in Python 3.11 as tomllib
 ]
 
 if sys.version_info < (3, 10):
