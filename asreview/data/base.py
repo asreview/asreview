@@ -13,10 +13,8 @@
 # limitations under the License.
 
 import hashlib
+from io import StringIO
 from pathlib import Path
-from urllib.error import HTTPError
-from urllib.parse import urlparse
-from urllib.request import urlopen
 
 import numpy as np
 import pandas as pd
@@ -32,6 +30,7 @@ from asreview.io import PaperRecord
 from asreview.io.utils import convert_keywords
 from asreview.io.utils import type_from_column
 from asreview.utils import _entry_points
+from asreview.utils import _get_filename_from_url
 from asreview.utils import is_iterable
 from asreview.utils import is_url
 
@@ -54,33 +53,14 @@ def load_data(name, *args, **kwargs):
     if is_url(name) or Path(name).exists():
         return ASReviewData.from_file(name, *args, **kwargs)
 
-    # check if dataset is plugin dataset\
+    # check if dataset is plugin dataset
     try:
-        dataset_path = DatasetManager().find(name).filepath
-        return ASReviewData.from_file(dataset_path, *args, **kwargs)
+        return ASReviewData.from_extension(name, *args, **kwargs)
     except DatasetNotFoundError:
         pass
 
     # Could not find dataset, return None.
     raise FileNotFoundError(f"File, URL, or dataset does not exist: '{name}'")
-
-
-def _get_filename_from_url(url):
-    if not is_url(url):
-        raise ValueError(f"'{url}' is not a valid URL.")
-
-    if Path(urlparse(url).path).suffix:
-        return Path(urlparse(url).path).name, url
-    else:
-        try:
-            return urlopen(url).headers.get_filename(), url
-        except HTTPError as err:
-            # 308 (Permanent Redirect) not supported
-            # See https://bugs.python.org/issue40321
-            if err.code == 308:
-                return _get_filename_from_url(err.headers.get("Location"))
-            else:
-                raise err
 
 
 class ASReviewData:
@@ -129,7 +109,6 @@ class ASReviewData:
     def __init__(self, df=None, column_spec=None):
         self.df = df
         self.prior_idx = np.array([], dtype=int)
-
         self.max_idx = max(df.index.values) + 1
 
         # Infer column specifications if it is not given.
@@ -189,7 +168,7 @@ class ASReviewData:
 
         # get the filename from a url else file path
         if is_url(fp):
-            fn, fp = _get_filename_from_url(fp)
+            fn = _get_filename_from_url(fp)
         else:
             fn = Path(fp).name
 
@@ -198,6 +177,44 @@ class ASReviewData:
                 group="asreview.readers")[Path(fn).suffix].load()
         except Exception:
             raise BadFileFormatError(f"Importing file {fp} not possible.")
+
+        df, column_spec = reader.read_data(fp)
+
+        return cls(df, column_spec=column_spec)
+
+    @classmethod
+    def from_extension(cls, name, reader=None):
+        """Load a dataset from extension.
+
+        Arguments
+        ---------
+        fp: str, pathlib.Path
+            Read the data from this file or url.
+        reader: class
+            Reader to import the file.
+        """
+
+        dataset = DatasetManager().find(name)
+
+        if dataset.filepath:
+            fp = dataset.filepath
+        else:
+            # build dataset to temporary file
+            reader = dataset.reader()
+            fp = StringIO(dataset.to_file())
+
+        if reader is None:
+            # get the filename from a url else file path
+            if is_url(fp):
+                fn = _get_filename_from_url(fp)
+            else:
+                fn = Path(fp).name
+
+            try:
+                reader = _entry_points(
+                    group="asreview.readers")[Path(fn).suffix].load()
+            except Exception:
+                raise BadFileFormatError(f"Importing file {fp} not possible.")
 
         df, column_spec = reader.read_data(fp)
 

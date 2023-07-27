@@ -63,6 +63,7 @@ REQUIRES = [
     "tqdm",
     "gevent>=20",
     "datahugger>=0.2",
+    "synergy_dataset"
 ]
 
 if sys.version_info < (3, 11):
@@ -189,6 +190,7 @@ setup(
         "asreview.datasets": [
             "benchmark = asreview.datasets:BenchmarkDataGroup",
             "benchmark-nature = asreview.datasets:NaturePublicationDataGroup",
+            "synergy = asreview.datasets:SynergyDataGroup"
         ],
         "asreview.models.classifiers": [
             "svm = asreview.models.classifiers:SVMClassifier",
