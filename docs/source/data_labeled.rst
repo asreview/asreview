@@ -86,17 +86,13 @@ labeled datasets published open access. The labeled datasets are PRISMA-based
 systematic reviews or meta-analyses on various research topics. They can be
 useful for teaching purposes or for testing the performance of (new) active
 learning models. The datasets and their metadata are available via the
-`Systematic Review Datasets <https://github.com/asreview/systematic-review-datasets>`_ repository. In
-ASReview LAB, these datasets are referred to as "Benchmark Datasets".
+`SYNERGY Dataset <https://github.com/asreview/synergy-dataset>`_ repository. In
+ASReview LAB, these datasets are found under "Benchmark Datasets".
 
 The Benchmark Datasets are directly available in the software. During the
 :ref:`project_create:Add Dataset` step of the project setup, there is a panel
 with all the datasets. The datasets can be selected and used directly.
 Benchmark datasets are also available via the :doc:`simulation_cli`. Use the prefix
-``benchmark:`` followed by the identifier of the dataset (see `Systematic
-Review Datasets <https://github.com/asreview/systematic-review-datasets>`_
-repository). For example, to use the Van de Schoot et al. (2017) dataset, use
-``benchmark:van_de_schoot_2017``.
-
-You can donate your dataset to the `Systematic Review Datasets <https://github.com/asreview/systematic-review-datasets>`_ collection by via a Pull Request, or send an email to asreview@uu.nl.
-
+``synergy:`` followed by the identifier of the dataset (see `Synergy Dataset <https://github.com/asreview/synergy-dataset>`_
+repository). For example, to use the Van de Schoot et al. (2018) dataset, use
+``synergy:van_de_schoot_2018``.
