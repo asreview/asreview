@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.utils import _model_class_from_entry_point
-from asreview.utils import list_model_names
+from asreview.utils import _entry_points
 
 
 def list_feature_extraction():
@@ -24,12 +23,8 @@ def list_feature_extraction():
     list:
         Classes of available feature extraction methods in alphabetical order.
     """
-    model_class = [
-        get_feature_class(name)
-        for name in list_model_names(entry_name="asreview.models.feature_extraction")
-    ]
 
-    return model_class
+    return [e.load() for e in _entry_points(group="asreview.models.feature_extraction")]
 
 
 def get_feature_class(name):
@@ -45,7 +40,7 @@ def get_feature_class(name):
     BaseFeatureExtraction:
         Class corresponding to the name.
     """
-    return _model_class_from_entry_point(name, "asreview.models.feature_extraction")
+    return _entry_points(group="asreview.models.feature_extraction")[name].load()
 
 
 def get_feature_model(name, *args, random_state=None, **kwargs):

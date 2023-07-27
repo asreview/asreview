@@ -1,15 +1,16 @@
 import argparse
 import json
+import sys
 from argparse import RawTextHelpFormatter
-from pathlib import Path
+from uuid import UUID
 
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
 from asreview.entry_points.base import BaseEntryPoint
+from asreview.project import ASReviewProject
 from asreview.utils import asreview_path
-from asreview.webapp.api.projects import _get_project_uuid
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 
@@ -87,6 +88,14 @@ def auth_parser():
     return parser
 
 
+def verify_id(id):
+    try:
+        UUID(id)
+        return True
+    except ValueError:
+        return False
+
+
 def insert_user(session, entry):
     """Inserts a dictionary containing user data
     into the database."""
@@ -103,54 +112,33 @@ def insert_user(session, entry):
         session.add(user)
         session.commit()
         print(f"User with email {user.email} created.")
+        return True
     except IntegrityError:
-        print(f"User with identifier {user.email} already exists")
-
-
-def rename_project_folder(project_id, new_project_id):
-    """Rename folder with an authenticated project id"""
-    folder = asreview_path() / project_id
-    folder.rename(asreview_path() / new_project_id)
-    try:
-        # take care of the id inside the project.json file
-        with open(asreview_path() / new_project_id / "project.json", mode="r") as f:
-            data = json.load(f)
-            # change id
-            data["id"] = new_project_id
-        # overwrite original project.json file with new project id
-        with open(asreview_path() / new_project_id / "project.json", mode="w") as f:
-            json.dump(data, f)
-    except Exception as exc:
-        # revert renaming the folder
-        folder.rename(asreview_path() / project_id)
-        raise exc
+        session.rollback()
+        sys.stderr.write(f"User with identifier {user.email} already exists")
+        return False
 
 
 def insert_project(session, project):
     # get owner and project id
     owner_id = project["owner_id"]
     project_id = project["project_id"]
-    # create new project id
-    new_project_id = _get_project_uuid(project_id, owner_id)
-    # rename folder and project file
-    rename_project_folder(project_id, new_project_id)
+
     # check if this project was already in the database under
     # the old project id
     db_project = (
-        session.query(Project)
-        .filter(Project.project_id == project_id)
-        .one_or_none()
+        session.query(Project).filter(Project.project_id == project_id).one_or_none()
     )
     if db_project is None:
         # create new record
-        session.add(Project(owner_id=owner_id, project_id=new_project_id))
+        session.add(Project(owner_id=owner_id, project_id=project_id))
     else:
-        # update record
+        # update record (project_id must be the same)
         db_project.owner_id = owner_id
-        db_project.project_id = new_project_id
     # commit
     session.commit()
-    print('Project data is stored.')
+    print("Project data is stored.")
+    return True
 
 
 def get_users(session):
@@ -181,8 +169,6 @@ class AuthTool(BaseEntryPoint):
         elif "link-projects" in argv:
             self.link_projects()
 
-        return True
-
     def add_users(self):
         if self.args.json is not None:
             entries = json.loads(self.args.json)
@@ -199,7 +185,7 @@ class AuthTool(BaseEntryPoint):
             if validation_function(value):
                 return value
             else:
-                print(hint)
+                sys.stderr.write(hint)
 
     def enter_users(self):
         while True:
@@ -229,7 +215,7 @@ class AuthTool(BaseEntryPoint):
                         "name": name,
                         "affiliation": affiliation,
                         "password": password,
-                    }
+                    },
                 )
             else:
                 break
@@ -255,17 +241,23 @@ class AuthTool(BaseEntryPoint):
         projects = [f for f in asreview_path().glob("*") if f.is_dir()]
         result = []
         for folder in projects:
-            with open(Path(folder) / "project.json", "r") as out:
-                project = json.load(out)
+            project = ASReviewProject(folder)
+
+            # Raise a RuntimeError if the project version is too low.
+            if project.config.get("version").startswith("0."):
+                id = project.config.get("id")
+                message = f"""Version of project with id {id} is too old,
+                please upgrade first before using this tool."""
+                raise RuntimeError(message)
 
             result.append(
                 {
                     "folder": folder.name,
-                    "version": project["version"],
-                    "project_id": project["id"],
-                    "name": project["name"],
-                    "authors": project["authors"],
-                    "created": project["datetimeCreated"],
+                    "version": project.config.get("version"),
+                    "project_id": project.config.get("id"),
+                    "name": project.config.get("name"),
+                    "authors": project.config.get("authors"),
+                    "created": project.config.get("datetimeCreated"),
                     "owner_id": 0,
                 }
             )
@@ -281,6 +273,8 @@ class AuthTool(BaseEntryPoint):
     def list_projects(self):
         projects = self._get_projects()
         if self.args.json:
+            # dump the data twice to create a string
+            # that can be loaded again by the tool.
             print(json.dumps(json.dumps(projects)))
         else:
             [self._print_project(p) for p in projects]
@@ -305,18 +299,19 @@ class AuthTool(BaseEntryPoint):
             while True:
                 id = input("Enter the ID number of the owner: ")
                 try:
-                    id = id.replace(".", "")
+                    if isinstance(id, str):
+                        id = id.replace(".", "")
                     id = int(id)
                     if id not in user_ids:
                         print("Entered ID does not exists, try again.")
                     else:
                         insert_project(
                             self.session,
-                            {"project_id": project["project_id"], "owner_id": id}
+                            {"project_id": project["project_id"], "owner_id": id},
                         )
                         break
                 except ValueError:
-                    print("Entered ID is not a number, please try again.")
+                    sys.stderr.write("Entered ID is not a number, please try again.")
         return result
 
     def link_projects(self):

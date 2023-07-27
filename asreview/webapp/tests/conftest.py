@@ -13,103 +13,127 @@
 # limitations under the License.
 
 import os
-import shutil
 from pathlib import Path
 
 import pytest
+from sqlalchemy.orm import close_all_sessions
 
-from asreview.utils import asreview_path
 from asreview.webapp import DB
-from asreview.webapp.authentication.models import User
 from asreview.webapp.start_flask import create_app
+from asreview.webapp.tests.utils import crud
 
-try:
-    from .temp_env_var import TMP_ENV_VARS
-except ImportError:
-    TMP_ENV_VARS = {}
-
-
-def signup_user(client, identifier, password="!biuCrgfsiOOO6987"):
-    """Signs up a user through the api"""
-    response = client.post(
-        "/auth/signup",
-        data={
-            "identifier": identifier,
-            "email": identifier,
-            "name": "Test Kees",
-            "password": password,
-            "origin": "asreview",
-        },
-    )
-    return response
+PROJECTS = [
+    {
+        "mode": "explore",
+        "name": "demo project",
+        "authors": "asreview team",
+        "description": "hello world",
+    },
+    {
+        "mode": "explore",
+        "name": "another demo project",
+        "authors": "asreview team",
+        "description": "hello world",
+    },
+]
 
 
-def signin_user(client, identifier, password):
-    """Signs in a user through the api"""
-    return client.post("/auth/signin", data={"email": identifier, "password": password})
-
-
-def signout(client):
-    return client.delete("/auth/signout")
-
-
-# TODO@{Casper}:
-# Something nasty happens when execute multiple test
-# modules, if one stops it takes a while before
-# the teardown is actually processed: that will cause
-# a problem for the still running file (emptying the
-# database, removing the asreview folder...)
-@pytest.fixture(scope="module")
-def setup_teardown_signed_in():
-    """Setup and teardown with a signed in user."""
-    # setup environment variables
-    os.environ.update(TMP_ENV_VARS)
-    # load appropriate config file
-    root_dir = str(Path(os.path.abspath(__file__)).parent)
-    config_file_path = f"{root_dir}/configs/auth_config.json"
-    # create app and client
-    app = create_app(enable_auth=True, flask_configfile=config_file_path)
-    with app.app_context():
-        client = app.test_client()
-        email, password = "c.s.kaandorp@uu.nl", "123456!AbC"
-        # create user
-        signup_user(client, email, password)
-        # signin this user
-        signin_user(client, email, password)
-        user = DB.session.query(User).filter(User.identifier == email).one_or_none()
-        yield app, client, user
-
-        try:
-            # remove the entire .asreview-test folder
-            # which also removes the database
-            shutil.rmtree(asreview_path())
-        except Exception:
-            # don't care
-            pass
-
-
-@pytest.fixture(scope="module")
-def setup_teardown_unauthorized():
-    """Standard setup and teardown, create the app without
-    a database and create testclient"""
-    # setup environment variables
-    os.environ.update(TMP_ENV_VARS)
-    # create app and client
-    app = create_app(enable_auth=False)
-    client = app.test_client()
-
-    yield app, client
-    # remove the entire .asreview-test folder
-    shutil.rmtree(asreview_path())
-
-
-@pytest.fixture
-def app():
-    app = create_app()
+def _get_app(app_type="auth-basic", path=None):
+    """Create and returns test flask app based on app_type"""
+    # set asreview path
+    os.environ.update({"ASREVIEW_PATH": path})
+    # get path of appropriate flask config
+    base_dir = Path(__file__).resolve().parent / "config"
+    if app_type == "auth-basic":
+        config_path = str(base_dir / "auth_basic_config.json")
+    elif app_type == "auth-no-creation":
+        config_path = str(base_dir / "auth_no_creation.json")
+    elif app_type == "auth-verified":
+        config_path = str(base_dir / "auth_verified_config.json")
+    elif app_type == "no-auth":
+        config_path = str(base_dir / "no_auth_config.json")
+    else:
+        raise ValueError(f"Unknown config {app_type}")
+    # create app
+    app = create_app(flask_configfile=config_path)
+    # and return it
     return app
 
 
+@pytest.fixture(scope="function", autouse=True)
+def asreview_path_fixture(tmp_path_factory):
+    """Fixture that creates and removes the ASReview test
+    directory for the entire session."""
+    # create an ASReview folder
+    asreview_path = tmp_path_factory.mktemp("asreview-test")
+    assert Path(asreview_path).exists()
+    assert len(list(Path(asreview_path).glob('*'))) == 0
+    yield str(asreview_path.absolute())
+    # Pytest handles removal of ASReview folder
+
+
+# unauthenticated app
 @pytest.fixture
-def client(app):
-    """A test client for the app."""
-    return app.test_client()
+def unauth_app(asreview_path_fixture):
+    """Create an unauthenticated version of the app."""
+    # create the app
+    app = _get_app("no-auth", path=asreview_path_fixture)
+    with app.app_context():
+        yield app
+
+
+# authenticated app
+@pytest.fixture
+def auth_app(asreview_path_fixture):
+    """Create an authenticated app, account creation
+    allowed."""
+    # create app
+    app = _get_app(path=asreview_path_fixture)
+    with app.app_context():
+        yield app
+
+
+@pytest.fixture
+def client_auth(asreview_path_fixture):
+    """Flask client for basic authenticated app, account
+    creation allowed."""
+    app = _get_app("auth-basic", path=asreview_path_fixture)
+    with app.app_context():
+        yield app.test_client()
+        crud.delete_everything(DB)
+        close_all_sessions()
+        DB.engine.raw_connection().close()
+
+
+@pytest.fixture
+def client_auth_no_creation(asreview_path_fixture):
+    """Flask client for an authenticated app, account
+    creation not allowed."""
+    app = _get_app("auth-no-creation", path=asreview_path_fixture)
+    with app.app_context():
+        yield app.test_client()
+        crud.delete_everything(DB)
+        close_all_sessions()
+        DB.engine.raw_connection().close()
+
+
+@pytest.fixture
+def client_auth_verified(asreview_path_fixture):
+    """Flask client for an authenticated app, account
+    creation allowed, user accounts needs account
+    verification."""
+    app = _get_app("auth-verified", path=asreview_path_fixture)
+    with app.app_context():
+        yield app.test_client()
+        crud.delete_everything(DB)
+        close_all_sessions()
+        DB.engine.raw_connection().close()
+
+
+@pytest.fixture
+def client_no_auth(asreview_path_fixture):
+    """Flask client for an unauthenticated app."""
+    app = _get_app("no-auth", path=asreview_path_fixture)
+    # make sure we have the asreview_path
+    with app.app_context():
+        yield app.test_client()

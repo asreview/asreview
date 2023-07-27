@@ -68,7 +68,7 @@ data`.
 
 .. tip::
 
-    You will benefit most from what active learning has to offer with :ref:`data:High quality data`.
+    You will benefit most from what active learning has to offer with :ref:`data:High-quality data`.
 
 
 From File

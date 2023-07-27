@@ -154,6 +154,7 @@ Thumbs.db #thumbnail cache on Windows
 logs
 **/*.backup.*
 **/*.back.*
+.env.*
 
 node_modules
 bower_components

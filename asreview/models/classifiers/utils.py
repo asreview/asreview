@@ -14,8 +14,7 @@
 
 import logging
 
-from asreview.utils import _model_class_from_entry_point
-from asreview.utils import list_model_names
+from asreview.utils import _entry_points
 
 
 def _set_class_weight(weight1):
@@ -39,12 +38,8 @@ def list_classifiers():
     list:
         Classes of available classifiers in alphabetical order.
     """
-    model_class = [
-        get_classifier_class(name)
-        for name in list_model_names(entry_name="asreview.models.classifiers")
-    ]
 
-    return model_class
+    return [e.load() for e in _entry_points(group="asreview.models.classifiers")]
 
 
 def get_classifier_class(name):
@@ -60,7 +55,7 @@ def get_classifier_class(name):
     BaseModel:
         Class corresponding to the name.
     """
-    return _model_class_from_entry_point(name, "asreview.models.classifiers")
+    return _entry_points(group="asreview.models.classifiers")[name].load()
 
 
 def get_classifier(name, *args, random_state=None, **kwargs):

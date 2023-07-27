@@ -1,19 +1,16 @@
-// When you're running the development server, the javascript code is always
-// pointing to localhost:5000. In all other configurations, the api url point to
-// the host domain.
-
 import { useTheme } from "@mui/material/styles";
 import { setProject } from "./redux/actions";
 
 import ASReviewLAB_black from "./images/asreview_sub_logo_lab_black_transparent.svg";
 import ASReviewLAB_white from "./images/asreview_sub_logo_lab_white_transparent.svg";
 
-export const base_url =
-  (window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1") &&
-  window.location.port === "3000"
-    ? "http://localhost:5000/"
-    : "/";
+// URL of backend is configured in an .env file. By default it's 
+// the same as the front-end URL.
+let b_url = "/";
+if ((process.env.NODE_ENV !== 'production') && Boolean(process.env.REACT_APP_API_URL)) {
+  b_url = process.env.REACT_APP_API_URL;
+}
+export const base_url = b_url;
 export const api_url = base_url + "api/";
 export const auth_url = base_url + "auth/";
 export const collab_url = base_url + "team/";

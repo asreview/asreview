@@ -17,11 +17,9 @@ import logging
 import shutil
 import subprocess
 import tempfile
-from functools import wraps
 from pathlib import Path
 from urllib.request import urlretrieve
-from uuid import NAMESPACE_URL
-from uuid import uuid5
+from uuid import uuid4
 
 import datahugger
 import numpy as np
@@ -32,7 +30,6 @@ from flask import current_app
 from flask import jsonify
 from flask import request
 from flask import send_file
-from flask_cors import CORS
 from flask_login import current_user
 from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
@@ -61,7 +58,6 @@ from asreview.models.query import get_query_model
 from asreview.models.query import list_query_strategies
 from asreview.project import ASReviewProject
 from asreview.project import ProjectNotFoundError
-from asreview.project import _create_project_id
 from asreview.project import get_project_path
 from asreview.project import get_projects
 from asreview.project import is_v0_project
@@ -78,83 +74,16 @@ from asreview.utils import _get_executable
 from asreview.utils import asreview_path
 from asreview.utils import list_reader_names
 from asreview.webapp import DB
+from asreview.webapp.authentication.login_required import app_is_authenticated
 from asreview.webapp.authentication.login_required import asreview_login_required
+from asreview.webapp.authentication.login_required import project_authorization
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.io import read_data
 
 bp = Blueprint("api", __name__, url_prefix="/api")
-CORS(
-    bp,
-    resources={
-        r"*": {
-            "origins": [
-                "http://localhost:3000",
-                "http://127.0.0.1:3000",
-                "localhost:3000",
-            ]
-        }
-    },
-    supports_credentials=True,
-)
 
 
-# helper function that indicates if app is authenticated
-def app_is_authenticated(app):
-    """Checks is app is authenticated"""
-    return app.config.get("AUTHENTICATION_ENABLED", False)
-
-
-# helper functions for generating a unique uuid for an authenticated
-# project id and folder name in the asreview folder
-def _get_project_uuid(project_id, user_id=""):
-    user_uuid = uuid5(NAMESPACE_URL, str(user_id)).hex
-    return uuid5(NAMESPACE_URL, project_id + user_uuid).hex
-
-
-def _get_authenticated_folder_id(project_id, user):
-    # if we do authentication, then the project must be
-    # registered in the database
-    project_from_db = Project.query.filter(
-        Project.project_id == project_id
-    ).one_or_none()
-
-    # project exists and user -is- owner OR this is a new project
-    if (project_from_db and user == project_from_db.owner) or (project_from_db is None):
-        project_uuid = _get_project_uuid(project_id, user.id)
-
-    # project exists but user is a collaborator
-    elif project_from_db and user in project_from_db.collaborators:
-        project_uuid = _get_project_uuid(project_id, project_from_db.owner_id)
-
-    # default to project_id
-    else:
-        project_uuid = _get_project_uuid(project_id)
-
-    return project_uuid
-
-
-def project_authorization(f):
-    """Decorator function that checks if current user can access
-    a project in an authenticated situation"""
-
-    @wraps(f)
-    def decorated_function(project_id, *args, **kwargs):
-        if app_is_authenticated(current_app):
-            # find the project
-            project = Project.query.filter(
-                Project.project_id == project_id
-            ).one_or_none()
-            if project is None:
-                return jsonify({"message": "project not found"}), 404
-            # if there is a project, check if
-            all_users = set([project.owner] + project.collaborators)
-            if current_user not in all_users:
-                return jsonify({"message": "no permission"}), 403
-        return f(project_id, *args, **kwargs)
-
-    return decorated_function
-
-
+# error handlers
 @bp.errorhandler(ValueError)
 def value_error(e):
     message = str(e) if str(e) else "Incorrect value."
@@ -162,7 +91,6 @@ def value_error(e):
     return jsonify(message=message), 400
 
 
-# error handlers
 @bp.errorhandler(ProjectNotFoundError)
 def project_not_found(e):
     message = str(e) if str(e) else "Project not found."
@@ -274,27 +202,15 @@ def api_get_projects_stats():  # noqa: F401
 @bp.route("/projects/info", methods=["POST"])
 @asreview_login_required
 def api_init_project():  # noqa: F401
-    """"""
+    """Initialize a new project"""
 
     project_mode = request.form["mode"]
-    project_name = request.form["name"]
+    project_title = request.form["name"]
     project_description = request.form["description"]
     project_authors = request.form["authors"]
 
-    plaintext_project_id = _create_project_id(project_name)
-
-    if (
-        not plaintext_project_id
-        and not isinstance(plaintext_project_id, str)
-        and len(plaintext_project_id) >= 3
-    ):
-        raise ValueError("Project name should be at least 3 characters.")
-
-    # generate a project path
-    if app_is_authenticated(current_app):
-        project_id = _get_authenticated_folder_id(plaintext_project_id, current_user)
-    else:
-        project_id = plaintext_project_id
+    # get a unique project id
+    project_id = uuid4().hex
 
     # get path of this project
     project_path = get_project_path(project_id)
@@ -303,7 +219,7 @@ def api_init_project():  # noqa: F401
         project_path,
         project_id=project_id,
         project_mode=project_mode,
-        project_name=project_name,
+        project_name=project_title,
         project_description=project_description,
         project_authors=project_authors,
     )
@@ -365,46 +281,11 @@ def api_get_project_info(project):  # noqa: F401
 @project_authorization
 @project_from_id
 def api_update_project_info(project):  # noqa: F401
-    """"""
-    # rename the project if project name is changed
-    if request.form.get("name", None) is not None:
-        # get new name
-        new_project_name = request.form.get("name")
-        # if the name has been changed, process changes
-        if project.config["name"] != new_project_name:
-            old_project_id = project.config["id"]
-            plaintext_new_project_id = _create_project_id(new_project_name)
+    """Update project info"""
 
-            if app_is_authenticated(current_app):
-                new_project_id = _get_authenticated_folder_id(
-                    plaintext_new_project_id, current_user
-                )
-            else:
-                new_project_id = plaintext_new_project_id
-
-            new_project_path = get_project_path(new_project_id)
-            project.rename(
-                {
-                    "name": new_project_name,
-                    "project_id": new_project_id,
-                    "project_path": new_project_path,
-                }
-            )
-
-            # update project in the database
-            # ==============================
-            if app_is_authenticated(current_app):
-                Project.query.filter(
-                    and_(
-                        Project.owner_id == current_user.id,
-                        Project.project_id == old_project_id,
-                    )
-                ).update({"project_id": new_project_id})
-                DB.session.commit()
-
-    # update the project info
     project.update_config(
         mode=request.form["mode"],
+        name=request.form["name"],
         description=request.form["description"],
         authors=request.form["authors"],
     )
@@ -539,11 +420,11 @@ def api_upload_data_to_project(project):  # noqa: F401
         except Exception as err:
             logging.error(err)
 
-            response = jsonify(message=f"Failed to upload file '{filename}'. {err}")
+            response = jsonify(message=f"Failed to import file '{filename}'. {err}")
 
             return response, 400
     else:
-        response = jsonify(message="No file or dataset found to upload.")
+        response = jsonify(message="No file or dataset found to import.")
         return response, 400
 
     if project_config["mode"] == PROJECT_MODE_EXPLORE:
@@ -553,7 +434,7 @@ def api_upload_data_to_project(project):  # noqa: F401
         data = ASReviewData.from_file(data_path_raw)
 
         if data.labels is None:
-            raise ValueError("Upload fully labeled dataset.")
+            raise ValueError("Import fully labeled dataset.")
 
         data.df.rename(
             {data.column_spec["included"]: "debug_label"}, axis=1, inplace=True
@@ -567,7 +448,7 @@ def api_upload_data_to_project(project):  # noqa: F401
         data = ASReviewData.from_file(data_path_raw)
 
         if data.labels is None:
-            raise ValueError("Upload fully labeled dataset.")
+            raise ValueError("Import fully labeled dataset.")
 
         data.df["debug_label"] = data.df[data.column_spec["included"]]
         data.to_file(data_path)
@@ -581,10 +462,10 @@ def api_upload_data_to_project(project):  # noqa: F401
 
     # Bad format. TODO{Jonathan} Return informative message with link.
     except BadFileFormatError as err:
-        message = f"Failed to upload file '{filename}'. {err}"
+        message = f"Failed to import file '{filename}'. {err}"
         return jsonify(message=message), 400
 
-    response = jsonify({"success": True})
+    response = jsonify({"project_id": project.project_id})
 
     return response
 
@@ -1230,17 +1111,27 @@ def api_status_update(project):
 @bp.route("/projects/import_project", methods=["POST"])
 @asreview_login_required
 def api_import_project():
-    """Import uploaded project"""
+    """Import project"""
 
     # raise error if file not given
     if "file" not in request.files:
-        response = jsonify(message="No ASReview file found to upload.")
+        response = jsonify(message="No ASReview file found to import.")
         return response, 400
 
     try:
         project = ASReviewProject.load(
-            request.files["file"], asreview_path(), safe_import=True
+            request.files["file"],
+            asreview_path(),
+            safe_import=True
         )
+
+        # create a database entry for this project
+        if app_is_authenticated(current_app):
+            current_user.projects.append(
+                Project(project_id=project.config.get("id"))
+            )
+            project.config["owner_id"] = current_user.id
+            DB.session.commit()
 
     except Exception as err:
         logging.error(err)
@@ -1330,7 +1221,6 @@ def api_export_dataset(project):
         return send_file(
             tmp_path_dataset,
             as_attachment=True,
-            download_name=f"asreview_dataset_{project.project_id}.{file_format}",
             max_age=0,
         )
 
@@ -1361,7 +1251,6 @@ def export_project(project):
     return send_file(
         tmpfile,
         as_attachment=True,
-        download_name=f"{project.project_id}.asreview",
         max_age=0,
     )
 
@@ -1697,6 +1586,3 @@ def api_delete_project(project):  # noqa: F401
         response = jsonify({"success": True})
 
         return response
-
-    response = jsonify(message="project-delete-failure")
-    return response, 500

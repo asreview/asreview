@@ -226,7 +226,7 @@ const SetupDialog = (props) => {
       props.open &&
       textFiledFocused !== null &&
       !textFiledFocused &&
-      !(info.title.length < 3) &&
+      !(info.title.length < 1) &&
       !isInitError &&
       !isMutateInfoError
     ) {
@@ -411,7 +411,7 @@ const SetupDialog = (props) => {
 
   const disableNextButton = () => {
     if (activeStep === 0) {
-      return isInitError || isMutateInfoError || info.title.length < 3;
+      return isInitError || isMutateInfoError || info.title.length < 1;
     }
     if (activeStep === 1) {
       return (

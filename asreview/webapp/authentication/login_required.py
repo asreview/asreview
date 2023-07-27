@@ -20,6 +20,8 @@ from flask import request
 from flask_login import current_user
 from flask_login.config import EXEMPT_METHODS
 
+from asreview.webapp.authentication.models import Project
+
 
 def asreview_login_required(func):
     @wraps(func)
@@ -30,8 +32,35 @@ def asreview_login_required(func):
             pass
         else:
             if not (bool(current_user) and current_user.is_authenticated):
-                return jsonify({"message": "login required"}), 401
+                return jsonify({"message": "Login required."}), 401
 
         return func(*args, **kwargs)
 
     return decorated_view
+
+
+def project_authorization(f):
+    """Decorator function that checks if current user can access
+    a project in an authenticated situation"""
+
+    @wraps(f)
+    def decorated_function(project_id, *args, **kwargs):
+        if app_is_authenticated(current_app):
+            # find the project
+            project = Project.query.filter(
+                Project.project_id == project_id
+            ).one_or_none()
+            if project is None:
+                return jsonify({"message": "project not found"}), 404
+            # if there is a project, check if
+            all_users = set([project.owner] + project.collaborators)
+            if current_user not in all_users:
+                return jsonify({"message": "no permission"}), 403
+        return f(project_id, *args, **kwargs)
+
+    return decorated_function
+
+
+def app_is_authenticated(app):
+    """Checks is app is authenticated"""
+    return app.config.get("AUTHENTICATION_ENABLED", False)

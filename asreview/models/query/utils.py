@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.utils import _model_class_from_entry_point
-from asreview.utils import list_model_names
+from asreview.utils import _entry_points
 
 
 def list_query_strategies():
@@ -26,12 +25,7 @@ def list_query_strategies():
     list
         Classes of available query strategies in alphabetical order.
     """
-    model_class = [
-        get_query_class(name)
-        for name in list_model_names(entry_name="asreview.models.query")
-    ]
-
-    return model_class
+    return [e.load() for e in _entry_points(group="asreview.models.query")]
 
 
 def get_query_class(name):
@@ -50,11 +44,7 @@ def get_query_class(name):
         Class corresponding to the name name.
     """
 
-    # Try to split the query strategy if the string wasn't found.
-    try:
-        return _model_class_from_entry_point(name, entry_name="asreview.models.query")
-    except ValueError:
-        raise ValueError(f"Error: query name '{name}' is not implemented.")
+    return _entry_points(group="asreview.models.query")[name].load()
 
 
 def get_query_model(name, *args, random_state=None, **kwargs):
