@@ -63,8 +63,11 @@ REQUIRES = [
     "tqdm",
     "gevent>=20",
     "datahugger>=0.2",
-    "tomli",  # included in Python 3.11 as tomllib
 ]
+
+if sys.version_info < (3, 11):
+    REQUIRES += ["tomli"]
+
 
 if sys.version_info < (3, 10):
     REQUIRES += ["importlib_metadata>=3.6"]
