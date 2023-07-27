@@ -30,7 +30,6 @@ from flask import current_app
 from flask import jsonify
 from flask import request
 from flask import send_file
-from flask_cors import CORS
 from flask_login import current_user
 from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
@@ -82,18 +81,6 @@ from asreview.webapp.authentication.models import Project
 from asreview.webapp.io import read_data
 
 bp = Blueprint("api", __name__, url_prefix="/api")
-CORS(
-    bp,
-    resources={
-        r"*": {
-            "origins": [
-                "http://127.0.0.1:3000",
-                "http://localhost:3000"
-            ]
-        }
-    },
-    supports_credentials=True
-)
 
 
 # error handlers

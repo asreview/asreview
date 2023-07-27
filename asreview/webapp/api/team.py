@@ -1,6 +1,5 @@
 from flask import Blueprint
 from flask import jsonify
-from flask_cors import CORS
 from flask_login import current_user
 from sqlalchemy import and_
 from sqlalchemy.exc import SQLAlchemyError
@@ -12,18 +11,6 @@ from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 
 bp = Blueprint("team", __name__, url_prefix="/api")
-CORS(
-    bp,
-    resources={
-        r"*": {
-            "origins": [
-                "http://127.0.0.1:3000",
-                "http://localhost:3000"
-            ]
-        }
-    },
-    supports_credentials=True
-)
 
 REQUESTER_FRAUD = {"message": "Request can not made by current user."}
 

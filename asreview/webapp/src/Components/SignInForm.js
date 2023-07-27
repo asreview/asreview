@@ -91,7 +91,7 @@ const SignInForm = (props) => {
   };
 
   const handleEnterKey = (e) => {
-    if (e.key === 'Enter') {
+    if (e.keyCode === 13) {
       handleSubmit(e);
     }
   };
@@ -112,7 +112,7 @@ const SignInForm = (props) => {
             label="Password"
             value={password}
             onChange={handlePasswordChange}
-            onKeyPress={handleEnterKey}
+            onKeyDown={handleEnterKey}
             variant="outlined"
             fullWidth
             type={returnType()}
