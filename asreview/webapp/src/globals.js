@@ -4,12 +4,13 @@ import { setProject } from "./redux/actions";
 import ASReviewLAB_black from "./images/asreview_sub_logo_lab_black_transparent.svg";
 import ASReviewLAB_white from "./images/asreview_sub_logo_lab_white_transparent.svg";
 
-// URL of backend is configured in an .env file. By default it's 
-// the same as the front-end URL.
+// API URL (backend) is configured in an .env.<NODE_ENV> file. If no value
+// is found, default to the same URL as the front-end.
 let b_url = "/";
-if ((process.env.NODE_ENV !== 'production') && Boolean(process.env.REACT_APP_API_URL)) {
+if (Boolean(process.env.REACT_APP_API_URL)) {
   b_url = process.env.REACT_APP_API_URL;
 }
+
 export const base_url = b_url;
 export const api_url = base_url + "api/";
 export const auth_url = base_url + "auth/";

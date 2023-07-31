@@ -150,6 +150,7 @@ setup(
         "asreview": [
             "webapp/build/*",
             "webapp/build/static/*/*",
+            "webapp/templates/emails/*",
         ]
     },
     python_requires="~=3.8",
