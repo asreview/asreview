@@ -13,6 +13,7 @@ RUN rm -rf /app/asreview/webapp/src
 RUN apt-get update \
     && apt-get install -y git build-essential\
     && pip3 install --upgrade pip setuptools \
+    && pip3 install gunicorn \
     && pip3 install --user . \
     && pip3 install --user asreview-datatools asreview-insights asreview-makita asreview-wordcloud
 
