@@ -64,7 +64,7 @@ const DetailsPage = (props) => {
             authors: variables.authors,
             description: variables.description,
           };
-        }
+        },
       );
     },
   });

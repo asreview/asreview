@@ -29,7 +29,7 @@ const ProjectImportDialog = (props) => {
         queryClient.invalidateQueries("fetchProjects");
         props.onClose();
       },
-    }
+    },
   );
 
   React.useEffect(() => {

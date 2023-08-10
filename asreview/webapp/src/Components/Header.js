@@ -46,7 +46,7 @@ const mapStateToProps = (state) => {
 
 const Header = (props) => {
   const navigate = useNavigate();
-  const authentication = useSelector(state => state.authentication);
+  const authentication = useSelector((state) => state.authentication);
 
   return (
     <Root aria-label="appbar-toolbar">
@@ -73,7 +73,9 @@ const Header = (props) => {
               />
             </ButtonBase>
           </Box>
-          { authentication === true && <ProfilePopper mobilescreen={props.mobilescreen} /> }
+          {authentication === true && (
+            <ProfilePopper mobilescreen={props.mobilescreen} />
+          )}
         </Toolbar>
       </AppBar>
       <Toolbar aria-label="placeholder toolbar" />

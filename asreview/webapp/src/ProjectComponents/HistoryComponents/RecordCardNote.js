@@ -152,7 +152,7 @@ const RecordCardNote = (props) => {
                       onClick={() =>
                         handleClickEditNote(
                           props.record?.note,
-                          props.record?.id
+                          props.record?.id,
                         )
                       }
                       size={!props.mobileScreen ? "medium" : "small"}

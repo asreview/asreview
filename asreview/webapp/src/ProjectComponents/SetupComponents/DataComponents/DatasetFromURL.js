@@ -45,7 +45,7 @@ const DatasetFromURL = (props) => {
           props.setURL(data["files"][0]["link"]);
         }
       },
-    }
+    },
   );
 
   const handleURL = (event) => {

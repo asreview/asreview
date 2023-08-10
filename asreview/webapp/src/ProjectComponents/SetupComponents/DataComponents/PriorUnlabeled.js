@@ -85,7 +85,7 @@ const PriorUnlabeled = (props) => {
                   };
                 }),
               };
-            }
+            },
           );
         } else {
           // update cached data
@@ -112,11 +112,11 @@ const PriorUnlabeled = (props) => {
                   };
                 }),
               };
-            }
+            },
           );
         }
       },
-    }
+    },
   );
 
   const isDebugInclusion = () => {
