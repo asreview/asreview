@@ -101,7 +101,7 @@ const PriorRandom = (props) => {
         setRefresh(false);
       },
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   const handleNRecordsChange = (event) => {

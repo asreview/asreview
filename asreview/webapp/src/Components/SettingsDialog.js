@@ -78,7 +78,7 @@ const SettingsDialog = (props) => {
   // second layer font size setting
   const handleFontSize = (event, newValue) => {
     let fontSizeSelected = fontSizeOptions.find(
-      (size) => size.value === newValue
+      (size) => size.value === newValue,
     );
     if (fontSizeSelected !== props.fontSize) {
       props.handleFontSizeChange(fontSizeSelected);

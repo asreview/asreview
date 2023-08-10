@@ -11,7 +11,7 @@ import {
 // note: I am not too sure about these functions, they
 // shield the dispatch type from the developer, but
 // it complicates the API by adding yet another layer
-// of functions. As far as I am concerned these can go. 
+// of functions. As far as I am concerned these can go.
 export function setASReviewVersion(data) {
   return { type: SET_ASREVIEW_VERSION, asreview_version: data };
 }

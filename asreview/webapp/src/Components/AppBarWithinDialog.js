@@ -134,7 +134,7 @@ const AppBarWithinDialog = React.forwardRef(
       startIconIsClose,
       title,
     },
-    ref
+    ref,
   ) => {
     return (
       <StyledAppBar className={classes.root} color={color} position="relative">
@@ -241,7 +241,7 @@ const AppBarWithinDialog = React.forwardRef(
         </Toolbar>
       </StyledAppBar>
     );
-  }
+  },
 );
 
 AppBarWithinDialog.propTypes = {

@@ -177,7 +177,7 @@ export default function ProgressRecallChart(props) {
         Math,
         seriesArray()[0]?.data.map((element) => {
           return element.y;
-        })
+        }),
       );
     } else {
       return undefined;

@@ -100,7 +100,7 @@ const LabeledRecordCard = (props) => {
                 };
               }),
             };
-          }
+          },
         );
         if (variables.doc_id === recordReadMore) {
           setRecordReadMore(null);
@@ -115,7 +115,7 @@ const LabeledRecordCard = (props) => {
           queryClient.invalidateQueries("fetchLabeledStats");
         }
       },
-    }
+    },
   );
 
   const handleClickLabelConvert = (value) => {
@@ -295,29 +295,32 @@ const LabeledRecordCard = (props) => {
                       </span>
                     </Tooltip>
                   )}
-                  {!props.is_prior && !value.note && value.id !== note.editing && (
-                    <Tooltip
-                      title={
-                        !props.isSimulating
-                          ? !disableAddNoteButton(value.id)
-                            ? ""
-                            : "Save another note before adding"
-                          : "Add note after simulation is finished"
-                      }
-                    >
-                      <span>
-                        <Button
-                          disabled={
-                            props.isSimulating || disableAddNoteButton(value.id)
-                          }
-                          onClick={() => handleClickAddNote(value.id)}
-                          size={!props.mobileScreen ? "medium" : "small"}
-                        >
-                          Add note
-                        </Button>
-                      </span>
-                    </Tooltip>
-                  )}
+                  {!props.is_prior &&
+                    !value.note &&
+                    value.id !== note.editing && (
+                      <Tooltip
+                        title={
+                          !props.isSimulating
+                            ? !disableAddNoteButton(value.id)
+                              ? ""
+                              : "Save another note before adding"
+                            : "Add note after simulation is finished"
+                        }
+                      >
+                        <span>
+                          <Button
+                            disabled={
+                              props.isSimulating ||
+                              disableAddNoteButton(value.id)
+                            }
+                            onClick={() => handleClickAddNote(value.id)}
+                            size={!props.mobileScreen ? "medium" : "small"}
+                          >
+                            Add note
+                          </Button>
+                        </span>
+                      </Tooltip>
+                    )}
                 </CardActions>
                 <RecordCardNote
                   isLoading={isLoading}
