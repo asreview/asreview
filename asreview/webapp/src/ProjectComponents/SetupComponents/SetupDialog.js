@@ -188,7 +188,7 @@ const SetupDialog = (props) => {
         setDisableFetchInfo(true); // avoid getting all the time
       },
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   const {
@@ -276,7 +276,7 @@ const SetupDialog = (props) => {
       enabled:
         props.project_id !== null && activeStep === 1 && projectHasDataset(),
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   /**
@@ -345,13 +345,13 @@ const SetupDialog = (props) => {
           // not ready yet
           setTimeout(
             () => queryClient.invalidateQueries("fetchProjectStatus"),
-            12000
+            12000,
           );
         }
       },
       refetchOnWindowFocus: false,
       retry: false,
-    }
+    },
   );
 
   const restartTraining = () => {

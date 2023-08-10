@@ -2,11 +2,9 @@ import { axiosErrorHandler } from "./axiosErrorHandler";
 import { api_url } from "../globals.js";
 import axios from "axios";
 
-
 class TeamAPI {
-
   static getProjectInvitations() {
-    const url = api_url + `invitations`
+    const url = api_url + `invitations`;
     return new Promise((resolve, reject) => {
       axios
         .get(url, { withCredentials: true })
@@ -18,7 +16,6 @@ class TeamAPI {
         });
     });
   }
-
 
   static fetchCollaborators(projectId) {
     if (projectId !== null) {
@@ -34,13 +31,13 @@ class TeamAPI {
           });
       });
     } else {
-      return {}
+      return {};
     }
   }
 
   static inviteUser(projectId, userId) {
     if (projectId !== null && userId !== null) {
-      const url = api_url + `invitations/projects/${projectId}/users/${userId}`
+      const url = api_url + `invitations/projects/${projectId}/users/${userId}`;
       return new Promise((resolve, reject) => {
         axios({
           method: "post",
@@ -59,7 +56,7 @@ class TeamAPI {
 
   static deleteInvitation(projectId, userId) {
     if (projectId !== null && userId !== null) {
-      const url = api_url + `invitations/projects/${projectId}/users/${userId}`
+      const url = api_url + `invitations/projects/${projectId}/users/${userId}`;
       return new Promise((resolve, reject) => {
         axios({
           method: "delete",
@@ -76,10 +73,9 @@ class TeamAPI {
     }
   }
 
-
   static rejectInvitation(projectId) {
     if (projectId !== null) {
-      const url = api_url + `invitations/projects/${projectId}/reject`
+      const url = api_url + `invitations/projects/${projectId}/reject`;
       return new Promise((resolve, reject) => {
         axios({
           method: "delete",
@@ -98,7 +94,7 @@ class TeamAPI {
 
   static acceptInvitation(projectId) {
     if (projectId !== null) {
-      const url = api_url + `invitations/projects/${projectId}/accept`
+      const url = api_url + `invitations/projects/${projectId}/accept`;
       return new Promise((resolve, reject) => {
         axios({
           method: "post",
@@ -117,7 +113,7 @@ class TeamAPI {
 
   static endCollaboration(projectId, userId) {
     if (userId !== null && projectId !== null) {
-      const url = api_url + `projects/${projectId}/users/${userId}`
+      const url = api_url + `projects/${projectId}/users/${userId}`;
       return new Promise((resolve, reject) => {
         axios({
           method: "delete",

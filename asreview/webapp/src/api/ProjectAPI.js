@@ -412,7 +412,7 @@ class ProjectAPI {
           link.href = url;
           link.setAttribute(
             "download",
-            `asreview_dataset_${datasetLabel}_${project_title}.${fileFormat}`
+            `asreview_dataset_${datasetLabel}_${project_title}.${fileFormat}`,
           );
           document.body.appendChild(link);
           link.click();
@@ -550,7 +550,7 @@ class ProjectAPI {
           console.log(
             `${variables.project_id} - add item ${variables.doc_id} to ${
               variables.label === 1 ? "inclusions" : "exclusions"
-            }`
+            }`,
           );
         })
         .catch((error) => {

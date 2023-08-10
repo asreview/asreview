@@ -43,7 +43,7 @@ const DatasetFromEntryPoint = (props) => {
   } = useQuery(
     ["fetchDatasets", { subset: props.subset }],
     ProjectAPI.fetchDatasets,
-    { refetchOnWindowFocus: false }
+    { refetchOnWindowFocus: false },
   );
 
   const refetchDatasets = () => {

@@ -107,7 +107,7 @@ const HelpDialog = (props) => {
     {
       enabled: props.onHelpDialog,
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   React.useEffect(() => {
