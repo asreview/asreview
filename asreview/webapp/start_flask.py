@@ -264,8 +264,13 @@ def create_app(**kwargs):
     app.config["HOST"] = kwargs.get("host")
 
     # Read config parameters if possible, this overrides
-    # the previous assignments.
-    config_file_path = kwargs.get("flask_configfile", "").strip()
+    # the previous assignments. Flask config parameters may come
+    # as an environment var or from an argument. Argument
+    # takes precedence. 
+    config_from_env = os.environ.get("FLASK_CONFIGFILE", "").strip()
+    config_from_arg = kwargs.get("flask_configfile", "").strip()
+    config_file_path = config_from_arg or config_from_env
+
     # Use absolute path, because otherwise it is relative to the config root.
     if config_file_path != "":
         config_file_path = Path(config_file_path)

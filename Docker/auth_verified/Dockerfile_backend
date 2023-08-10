@@ -13,7 +13,7 @@ RUN rm -rf /app/asreview/webapp/src
 RUN apt-get update \
     && apt-get install -y git build-essential\
     && pip3 install --upgrade pip setuptools \
-    && pip3 install gunicorn \
+    && pip3 install --user gunicorn \
     && pip3 install --user . \
     && pip3 install --user asreview-datatools asreview-insights asreview-makita asreview-wordcloud
 
@@ -28,8 +28,11 @@ COPY --from=builder /root/.local /root/.local
 # copy config file to Image
 COPY ./Docker/auth_verified/flask_config.toml ${WORKDIR}
 
-ENV ASREVIEW_HOST=0.0.0.0
 ENV PATH=/root/.local/bin:$PATH
 ENV ASREVIEW_PATH=/app/project_folder
+ENV FLASK_CONFIGFILE=/app/flask_config.toml
 
-ENTRYPOINT ["asreview", "lab", "--flask-configfile", "flask_config.toml"]
+WORKDIR /root/.local/lib/python3.8/site-packages/asreview/webapp
+COPY ./Docker/auth_verified/wsgi.py ${WORKDIR}
+
+ENTRYPOINT ["gunicorn", "--workers", "4", "--bind", "0.0.0.0:5013", "wsgi:app"]
