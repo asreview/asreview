@@ -58,7 +58,7 @@ def _unsafe_dict_update(default_dict, override_dict):
     for key in new_dict:
         if key in override_dict:
             str_val = override_dict[key]
-            if type(new_dict[key]) == bool:
+            if isinstance(new_dict[key], bool):
                 new_dict[key] = str_val in ["True", "true", "T", "t", True]
             else:
                 try:

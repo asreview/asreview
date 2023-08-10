@@ -6,7 +6,7 @@ from asreview.webapp.authentication.models import User
 
 
 def create_user(DB, user=1):
-    if type(user) == int:
+    if isinstance(user, int):
         user = cp.get_user(user)
     try:
         DB.session.add(user)
