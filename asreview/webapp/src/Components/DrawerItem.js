@@ -20,7 +20,7 @@ import {
   Download,
   Edit,
   History,
-  PeopleAlt
+  PeopleAlt,
 } from "@mui/icons-material";
 
 const PREFIX = "DrawerItem";

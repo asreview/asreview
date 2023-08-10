@@ -33,7 +33,7 @@ const DataForm = (props) => {
     ProjectAPI.fetchLabeledStats,
     {
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   const refetchData = () => {

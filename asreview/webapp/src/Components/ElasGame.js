@@ -71,13 +71,13 @@ const ElasGame = (props) => {
     if (paperSelected?.length < 2) {
       setPaperSelected((paperSelected) => paperSelected?.concat(image));
       setPaperSelectedIds((paperSelectedIds) =>
-        paperSelectedIds?.concat(index)
+        paperSelectedIds?.concat(index),
       );
 
       if (paperSelected?.length === 1) {
         if (paperSelected[0] === image) {
           setOpenCards((openCards) =>
-            openCards?.concat([paperSelected[0], image])
+            openCards?.concat([paperSelected[0], image]),
           );
         }
         setTimeout(() => {

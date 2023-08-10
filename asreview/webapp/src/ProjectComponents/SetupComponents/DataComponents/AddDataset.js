@@ -66,7 +66,7 @@ const AddDataset = (props) => {
         queryClient.invalidateQueries("fetchLabeledStats");
         props.toggleAddDataset();
       },
-    }
+    },
   );
 
   const handleDatasetSource = (event) => {

@@ -63,8 +63,12 @@ REQUIRES = [
     "tqdm",
     "gevent>=20",
     "datahugger>=0.2",
-    "tomli",  # included in Python 3.11 as tomllib
+    "synergy_dataset"
 ]
+
+if sys.version_info < (3, 11):
+    REQUIRES += ["tomli"]
+
 
 if sys.version_info < (3, 10):
     REQUIRES += ["importlib_metadata>=3.6"]
@@ -187,6 +191,7 @@ setup(
         "asreview.datasets": [
             "benchmark = asreview.datasets:BenchmarkDataGroup",
             "benchmark-nature = asreview.datasets:NaturePublicationDataGroup",
+            "synergy = asreview.datasets:SynergyDataGroup"
         ],
         "asreview.models.classifiers": [
             "svm = asreview.models.classifiers:SVMClassifier",

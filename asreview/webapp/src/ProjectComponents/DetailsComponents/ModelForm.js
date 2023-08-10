@@ -49,7 +49,7 @@ const ModelForm = (props) => {
     {
       enabled: project_id !== null,
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   const returnModelError = () => {

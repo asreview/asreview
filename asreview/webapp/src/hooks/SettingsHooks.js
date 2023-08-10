@@ -49,7 +49,7 @@ const useFontSize = () => {
   const handleFontSizeChange = (size) => {
     window.localStorage.setItem(
       "fontSize",
-      JSON.stringify([size.value, size.label])
+      JSON.stringify([size.value, size.label]),
     );
     setFontSize(size);
   };
