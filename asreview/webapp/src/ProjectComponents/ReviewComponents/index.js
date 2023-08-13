@@ -5,4 +5,4 @@ export { default as NoteSheet } from "./NoteSheet";
 export { default as RecordCard } from "./RecordCard";
 export { default as ReviewPage } from "./ReviewPage";
 export { default as ReviewPageFinished } from "./ReviewPageFinished";
-export { default as LabelsTable } from "./LabelsTable";
+export { default as TagsTable } from "./TagsTable";

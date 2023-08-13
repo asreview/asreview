@@ -3,7 +3,7 @@ import {Box, Typography, Checkbox, FormGroup, FormControlLabel, Card, CardConten
 import {styled} from "@mui/material/styles";
 import "./ReviewPage.css";
 
-const PREFIX = "LabelsTable";
+const PREFIX = "TagsTable";
 
 const classes = {
     groupCard: `${PREFIX}-groupCard`,
@@ -31,21 +31,21 @@ const Root = styled("div")(({theme}) => ({
     },
 }));
 
-const LabelsTable = (props) => {
+const TagsTable = (props) => {
     return (
         <Root>
             <Box>
-                {props.labelGroups.map((group) => (
+                {props.tags.map((group) => (
                     <Card elevation={2} className={classes.groupCard}>
                         <CardContent>
                             <Typography variant="h6">{group.name}</Typography>
                             <FormGroup row="false">
-                                {group.labels.map((label) => (
+                                {group.values.map((tag) => (
                                     <FormControlLabel
                                         control={
-                                            <Checkbox name={`${group.id}:${label.id}`}/>
+                                            <Checkbox name={`${group.id}:${tag.id}`}/>
                                         }
-                                        label={label.name}
+                                        label={tag.name}
                                     />
                                 ))}
                             </FormGroup>
@@ -57,4 +57,4 @@ const LabelsTable = (props) => {
     );
 };
 
-export default LabelsTable;
+export default TagsTable;

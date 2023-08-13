@@ -10,7 +10,7 @@ import {
   DecisionUndoBar,
   ExplorationModeBanner,
   RecordCard,
-  LabelsTable
+  TagsTable
 } from "../ReviewComponents";
 
 import { ProjectAPI } from "../../api/index.js";
@@ -262,9 +262,9 @@ const ReviewPage = (props) => {
             previousRecord={previousRecord}
           />
           {/* Labels table */}
-          {Array.isArray(props.labelGroups) && props.labelGroups.length && (
-              <LabelsTable
-                  labelGroups={props.labelGroups}
+          {Array.isArray(props.tags) && props.tags.length && (
+              <TagsTable
+                  tags={props.tags}
               />
           )}
         </Box>
