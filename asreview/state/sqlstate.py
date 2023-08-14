@@ -26,6 +26,7 @@ from asreview.settings import ASReviewSettings
 from asreview.state.base import BaseState
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
+from asreview.state.custom_metadata_mapper import convert_to_custom_metadata_str
 
 REQUIRED_TABLES = [
     # the table with the labeling decisions and models trained
@@ -50,6 +51,7 @@ RESULTS_TABLE_COLUMNS = [
     "training_set",
     "labeling_time",
     "notes",
+    "custom_metadata_json"
 ]
 SETTINGS_METADATA_KEYS = [
     "settings",
@@ -159,7 +161,8 @@ class SQLiteState(BaseState):
                                 feature_extraction TEXT,
                                 training_set INTEGER,
                                 labeling_time INTEGER,
-                                notes TEXT)"""
+                                notes TEXT,
+                                custom_metadata_json TEXT)"""
             )
 
             # Create the record table.
@@ -205,7 +208,7 @@ class SQLiteState(BaseState):
         # content of the settings is added later
         self.settings_metadata = {
             "settings": None,
-            "state_version": "1",
+            "state_version": "2",
             "software_version": get_versions()["version"],
             "model_has_trained": False,
         }
@@ -304,7 +307,7 @@ class SQLiteState(BaseState):
 
     def _is_valid_version(self):
         """Check compatibility of state version."""
-        return self.version[0] == "1"
+        return self.version[0] == "2"
 
     @property
     def version(self):
@@ -590,7 +593,7 @@ class SQLiteState(BaseState):
         con.commit()
         con.close()
 
-    def add_labeling_data(self, record_ids, labels, notes=None, prior=False):
+    def add_labeling_data(self, record_ids, labels, notes=None, tags_list=None, prior=False):
         """Add the data corresponding to a labeling action to the state file.
 
         Arguments
@@ -601,6 +604,8 @@ class SQLiteState(BaseState):
             A list of labels of the labeled records as int.
         notes: list of str/None
             A list of text notes to save with the labeled records.
+        tags_list: list of list
+            A list of tags to save with the labeled records.
         prior: bool
             Whether the added record are prior knowledge.
         """
@@ -613,10 +618,18 @@ class SQLiteState(BaseState):
         if notes is None:
             notes = [None for _ in record_ids]
 
-        lengths = [len(record_ids), len(labels), len(notes)]
+        if tags_list is None:
+            tags_list = [None for _ in record_ids]
+
         # Check that all input data has the same length.
-        if len(set(lengths)) != 1:
+        if len({len(record_ids), len(labels), len(notes), len(tags_list)}) != 1:
             raise ValueError("Input data should be of the same length.")
+
+        custom_metadata_list = [
+            convert_to_custom_metadata_str(tags=tags_list[i])
+            for i, _ in enumerate(record_ids)
+        ]
+
         n_records_labeled = len(record_ids)
 
         pool, _, pending = self.get_pool_labeled_pending()
@@ -638,6 +651,7 @@ class SQLiteState(BaseState):
                     training_sets[i],
                     labeling_times[i],
                     notes[i],
+                    custom_metadata_list[i]
                 )
                 for i in range(n_records_labeled)
             ]
@@ -645,8 +659,8 @@ class SQLiteState(BaseState):
             # If prior, we need to insert new records into the database.
             query = (
                 "INSERT INTO results (record_id, label, query_strategy, "
-                "training_set, labeling_time, notes) "
-                "VALUES (?, ?, ?, ?, ?, ?)"
+                "training_set, labeling_time, notes, custom_metadata_json) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?)"
             )
 
         else:
@@ -657,14 +671,13 @@ class SQLiteState(BaseState):
                 )
 
             data = [
-                (int(labels[i]), labeling_times[i], notes[i], int(record_ids[i]))
+                (int(labels[i]), labeling_times[i], notes[i], custom_metadata_list[i], int(record_ids[i]))
                 for i in range(n_records_labeled)
             ]
 
             # If not prior, we need to update records.
             query = (
-                "UPDATE results SET label=?, labeling_time=?, "
-                "notes=? WHERE record_id=?"
+                "UPDATE results SET label=?, labeling_time=?, notes=?, custom_metadata_json=? WHERE record_id=?"
             )
 
         # Add the rows to the database.
@@ -701,7 +714,7 @@ class SQLiteState(BaseState):
         con.commit()
         con.close()
 
-    def update_decision(self, record_id, label, note=None):
+    def update_decision(self, record_id, label, note=None, tags=None):
         """Change the label of an already labeled record.
 
         Arguments
@@ -712,6 +725,8 @@ class SQLiteState(BaseState):
             New label of the record.
         note: str
             Note to add to the record.
+        tags: list
+            Tags list to add to the record.
         """
 
         con = self._connect_to_sql()
@@ -719,8 +734,8 @@ class SQLiteState(BaseState):
 
         # Change the label.
         cur.execute(
-            "UPDATE results SET label = ?, notes = ? " "WHERE record_id = ?",
-            (label, note, record_id),
+            "UPDATE results SET label = ?, notes = ?, custom_metadata_json=? WHERE record_id = ?",
+            (label, note, convert_to_custom_metadata_str(tags=tags), record_id),
         )
 
         # Add the change to the decision changes table.
