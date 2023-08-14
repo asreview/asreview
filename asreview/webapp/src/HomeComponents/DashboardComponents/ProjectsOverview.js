@@ -5,13 +5,15 @@ import { Box, Fab, Stack } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import {
   DashboardPageHeader,
-  ModePickDialog,
   NumberCard,
   ProjectTable,
 } from "../DashboardComponents";
 import { ActionsFeedbackBar } from "../../Components";
 import { ImportProject } from "../../ProjectComponents";
-import { SetupDialog } from "../../ProjectComponents/SetupComponents";
+import {
+  ModePickDialog,
+  SetupDialog,
+} from "../../ProjectComponents/SetupComponents";
 import {
   AddPriorKnowledge,
   ImportDataset,

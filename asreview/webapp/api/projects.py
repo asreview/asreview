@@ -17,6 +17,7 @@ import logging
 import shutil
 import subprocess
 import tempfile
+import time
 from pathlib import Path
 from urllib.request import urlretrieve
 from uuid import uuid4
@@ -205,9 +206,8 @@ def api_init_project():  # noqa: F401
     """Initialize a new project"""
 
     project_mode = request.form["mode"]
-    project_title = request.form["name"]
-    project_description = request.form["description"]
-    project_authors = request.form["authors"]
+    project_title = request.form["mode"] + "_" + time.strftime("%Y%m%d-%H%M%S")
+    # TODO{Terry}: retrieve author from the authenticated profile
 
     # get a unique project id
     project_id = uuid4().hex
@@ -220,8 +220,6 @@ def api_init_project():  # noqa: F401
         project_id=project_id,
         project_mode=project_mode,
         project_name=project_title,
-        project_description=project_description,
-        project_authors=project_authors,
     )
 
     # create a database entry for this project
@@ -1117,16 +1115,12 @@ def api_import_project():
 
     try:
         project = ASReviewProject.load(
-            request.files["file"],
-            asreview_path(),
-            safe_import=True
+            request.files["file"], asreview_path(), safe_import=True
         )
 
         # create a database entry for this project
         if app_is_authenticated(current_app):
-            current_user.projects.append(
-                Project(project_id=project.config.get("id"))
-            )
+            current_user.projects.append(Project(project_id=project.config.get("id")))
             project.config["owner_id"] = current_user.id
             DB.session.commit()
 

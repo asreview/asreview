@@ -313,8 +313,7 @@ class ASReviewProject:
 
         Add file to data subfolder and fill the pool of iteration 0.
         """
-        self.rename(file_name.rsplit('.', 1)[0])
-        self.update_config(dataset_path=file_name)
+        self.update_config(dataset_path=file_name, name=file_name.rsplit(".", 1)[0])
 
         # fill the pool of the first iteration
         fp_data = Path(self.project_path, "data", self.config["dataset_path"])

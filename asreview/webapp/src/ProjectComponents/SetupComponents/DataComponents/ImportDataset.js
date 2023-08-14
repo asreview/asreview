@@ -55,7 +55,6 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 const ImportDataset = (props) => {
   const [datasetSource, setDatasetSource] = React.useState("file");
   const [file, setFile] = React.useState(null);
-  const [url, setURL] = React.useState("");
   const [extension, setExtension] = React.useState(null);
   const [benchmark, setBenchmark] = React.useState(null);
 
@@ -67,7 +66,6 @@ const ImportDataset = (props) => {
     {
       onMutate: () => {
         setFile(null);
-        setURL("");
         setExtension(null);
         setBenchmark(null);
       },
@@ -105,16 +103,20 @@ const ImportDataset = (props) => {
     mutate({
       project_id: props.project_id,
       file: file,
-      url: url,
       extension: extension,
       benchmark: benchmark,
     });
-  }, [benchmark, extension, file, mutate, props.project_id, url]);
+  }, [benchmark, extension, file, mutate, props.project_id]);
 
   const handleClose = () => {
     deleteProject({
       project_id: props.project_id,
     });
+  };
+
+  const onExited = () => {
+    // reset the data source
+    setDatasetSource("file");
   };
 
   React.useEffect(() => {
@@ -144,6 +146,7 @@ const ImportDataset = (props) => {
         elevation: !props.datasetAdded ? 1 : 0,
         sx: { height: !props.mobileScreen ? "calc(100% - 96px)" : "100%" },
       }}
+      TransitionProps={{ onExited: onExited }}
     >
       {props.mobileScreen && (
         <AppBarWithinDialog
@@ -278,13 +281,8 @@ const ImportDataset = (props) => {
             {datasetSource === "url" && (
               <DatasetFromURL
                 project_id={props.project_id}
-                addDatasetError={error}
-                handleImportDataset={handleImportDataset}
-                url={url}
-                setURL={setURL}
-                isAddDatasetError={isError}
-                isAddingDataset={isLoading}
-                reset={reset}
+                toggleImportDataset={props.toggleImportDataset}
+                toggleProjectSetup={props.toggleProjectSetup}
               />
             )}
             {datasetSource === "extension" && (
