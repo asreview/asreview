@@ -544,6 +544,10 @@ class ProjectAPI {
     body.set("label", variables.label);
     body.set("note", variables.note);
 
+    if (variables.tags) {
+      body.set("tags", variables.tags);
+    }
+
     // prior items should be labeled as such
     if (variables.is_prior === 1) {
       body.set("is_prior", 1);

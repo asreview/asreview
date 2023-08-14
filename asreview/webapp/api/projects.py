@@ -1479,10 +1479,18 @@ def api_classify_instance(project, doc_id):  # noqa: F401
     """
     # return the combination of document_id and label.
     record_id = int(request.form.get("doc_id"))
+
     label = int(request.form.get("label"))
+
     note = request.form.get("note", type=str)
     if not note:
         note = None
+
+    tags = request.form.get("tags", type=str)
+    if not tags:
+        tags = []
+    else:
+        tags = json.loads(tags)
 
     is_prior = request.form.get("is_prior", default=False)
 
@@ -1493,13 +1501,13 @@ def api_classify_instance(project, doc_id):  # noqa: F401
         with open_state(project.project_path, read_only=False) as state:
             # add the labels as prior data
             state.add_labeling_data(
-                record_ids=[record_id], labels=[label], notes=[note], prior=prior
+                record_ids=[record_id], labels=[label], notes=[note], tags_list=[tags], prior=prior
             )
 
     elif request.method == "PUT":
         with open_state(project.project_path, read_only=False) as state:
             if label in [0, 1]:
-                state.update_decision(record_id, label, note=note)
+                state.update_decision(record_id, label, note=note, tags=tags)
             elif label == -1:
                 state.delete_record_labeling_data(record_id)
 
