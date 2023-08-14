@@ -15,15 +15,11 @@
 """Command Line Interface (CLI) for ASReview project."""
 import argparse
 import sys
-from importlib import metadata
+from importlib.metadata import metadata
 from itertools import groupby
 
-import pkg_resources
-
 from asreview import __version__
-from asreview.utils import get_entry_points
-
-PROG_DESCRIPTION = "Automated Systematic Review (ASReview)."
+from asreview.utils import _entry_points
 
 # Internal or deprecated entry points. These entry points
 # are not displayed in the help page of the  user interface.
@@ -33,37 +29,38 @@ DEPRECATED_ENTRY_POINTS = ["oracle"]
 
 def main():
     # Get the available entry points.
-    entry_points = get_entry_points("asreview.entry_points")
+    base_entries = _entry_points(group="asreview.entry_points")
 
     if (
         len(sys.argv) > 1
         and not sys.argv[1].startswith("-")
-        and sys.argv[1] not in entry_points
+        and sys.argv[1] not in base_entries.names
     ):
         raise ValueError(f"'{sys.argv[1]}' is not a valid subcommand.")
 
-    elif len(sys.argv) > 1 and sys.argv[1] in entry_points:
-        entry = entry_points[sys.argv[1]]
+    elif len(sys.argv) > 1 and sys.argv[1] in base_entries.names:
+        entry = base_entries[sys.argv[1]]
         entry.load()().execute(sys.argv[2:])
 
     else:
         description_subcommands = ""
 
-        for name, pkg_entry_points in groupby(
-            pkg_resources.iter_entry_points("asreview.entry_points"),
-            lambda entry: entry.dist,
+        for name, dist_entry_points in groupby(
+            base_entries, lambda e: e.dist.name,
         ):
-            description = metadata.metadata(name.project_name)["Summary"]
-            description_subcommands += f"\n[{name}] - {description}\n"
 
-            for entry in pkg_entry_points:
+            description = metadata(name)["Summary"]
+            version = metadata(name)["Version"]
+            description_subcommands += f"\n[{name} {version}] - {description}\n"
+
+            for entry in dist_entry_points:
                 if entry.name not in INTERNAL_ENTRY_POINTS + DEPRECATED_ENTRY_POINTS:
                     description_subcommands += f"\t{entry.name}\n"
 
         parser = argparse.ArgumentParser(
             prog="asreview",
             formatter_class=argparse.RawTextHelpFormatter,
-            description=PROG_DESCRIPTION,
+            description=metadata("asreview")["Summary"],
         )
         parser.add_argument(
             "subcommand",

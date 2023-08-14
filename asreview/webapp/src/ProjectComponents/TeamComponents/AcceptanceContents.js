@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import {formatDate} from "../../globals";
+import { formatDate } from "../../globals";
 
 const PREFIX = "ProjectTable";
 
@@ -35,7 +35,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
     marginLeft: "auto",
     marginRight: "auto",
     paddingLeft: 10,
-    paddingRight: 10
+    paddingRight: 10,
   },
 
   [`& .${classes.error}`]: {
@@ -97,7 +97,6 @@ const columns = [
 ];
 
 const AcceptanceDialog = (props) => {
-
   return (
     <StyledPaper elevation={2} className={classes.root}>
       <TableContainer>
@@ -112,36 +111,34 @@ const AcceptanceDialog = (props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            { 
-              props.projectInvitations.map((project) => {
-                return (
-                  <TableRow key={project.id}>
-                    <TableCell>{project.name}</TableCell>
-                    <TableCell>{formatDate(project.created_at_unix)}</TableCell>
-                    <TableCell>{project.mode}</TableCell>
-                    <TableCell>
-                      <Button
-                        onClick={() => props.handleAcceptance(project)} 
-                        sx={{ textTransform: "none" }}
-                      >
-                        Accept
-                      </Button>
-                      <Button
-                        onClick={() => props.handleRejection(project)}
-                        sx={{ textTransform: "none" }}
-                      >
-                        Reject
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            }
+            {props.projectInvitations.map((project) => {
+              return (
+                <TableRow key={project.id}>
+                  <TableCell>{project.name}</TableCell>
+                  <TableCell>{formatDate(project.created_at_unix)}</TableCell>
+                  <TableCell>{project.mode}</TableCell>
+                  <TableCell>
+                    <Button
+                      onClick={() => props.handleAcceptance(project)}
+                      sx={{ textTransform: "none" }}
+                    >
+                      Accept
+                    </Button>
+                    <Button
+                      onClick={() => props.handleRejection(project)}
+                      sx={{ textTransform: "none" }}
+                    >
+                      Reject
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
     </StyledPaper>
-  )
+  );
 };
 
 export default AcceptanceDialog;

@@ -4,7 +4,10 @@ import clsx from "clsx";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { ProfilePage, ProjectsOverview } from "../HomeComponents/DashboardComponents";
+import {
+  ProfilePage,
+  ProjectsOverview,
+} from "../HomeComponents/DashboardComponents";
 import RouteNotFound from "../RouteNotFound";
 
 import { drawerWidth } from "../globals.js";
@@ -72,7 +75,7 @@ const HomePage = (props) => {
             }
           />
           {/* Redirect root to projects */}
-          <Route path="/" element={<Navigate to="/projects"/>}/>
+          <Route path="/" element={<Navigate to="/projects" />} />
           {/* Not found */}
           <Route path="*" element={<RouteNotFound />} />
         </Routes>

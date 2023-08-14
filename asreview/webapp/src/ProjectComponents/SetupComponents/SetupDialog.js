@@ -155,7 +155,7 @@ const SetupDialog = (props) => {
         setDisableFetchInfo(true); // avoid getting all the time
       },
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   // auto mutate info when text field is not focused
@@ -164,7 +164,8 @@ const SetupDialog = (props) => {
       props.open &&
       textFiledFocused !== null &&
       !textFiledFocused &&
-      !(info.title.length < 3) &&
+      !(info.title.length < 1) &&
+      !isInitError &&
       !isMutateInfoError
     ) {
       if (props.project_id) {
@@ -189,10 +190,20 @@ const SetupDialog = (props) => {
   /**
    * Step 2: Data
    */
-  const labeledStats = queryClient.getQueryData([
-    "fetchLabeledStats",
-    { project_id: props.project_id },
-  ]);
+  const {
+    data: labeledStats,
+    error: fetchLabeledStatsError,
+    isError: isFetchLabeledStatsError,
+    isFetching: isFetchingLabeledStats,
+  } = useQuery(
+    ["fetchLabeledStats", { project_id: props.project_id }],
+    ProjectAPI.fetchLabeledStats,
+    {
+      enabled:
+        props.project_id !== null && activeStep === 1 && projectHasDataset(),
+      refetchOnWindowFocus: false,
+    },
+  );
 
   /**
    * Step3: Model
@@ -260,13 +271,13 @@ const SetupDialog = (props) => {
           // not ready yet
           setTimeout(
             () => queryClient.invalidateQueries("fetchProjectStatus"),
-            12000
+            12000,
           );
         }
       },
       refetchOnWindowFocus: false,
       retry: false,
-    }
+    },
   );
 
   const restartTraining = () => {
@@ -323,7 +334,7 @@ const SetupDialog = (props) => {
 
   const disableNextButton = () => {
     if (activeStep === 0) {
-      return isMutateInfoError || info.title.length < 3;
+      return isInitError || isMutateInfoError || info.title.length < 1;
     }
     if (activeStep === 1) {
       return (

@@ -21,6 +21,8 @@ import pandas as pd
 
 from asreview._version import get_versions
 from asreview.data import ASReviewData
+from asreview.project import ProjectNotFoundError
+from asreview.project import is_project
 
 
 class CacheDataError(Exception):
@@ -88,6 +90,9 @@ def read_data(project, use_cache=True, save_cache=True):
         The data object for internal use in ASReview.
 
     """
+
+    if not is_project(project.project_path):
+        raise ProjectNotFoundError()
 
     try:
         fp_data = Path(project.project_path, "data", project.config["dataset_path"])

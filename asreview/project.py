@@ -37,10 +37,10 @@ from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.config import PROJECT_MODES
 from asreview.config import SCHEMA
+from asreview.data import ASReviewData
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
 from asreview.utils import asreview_path
-from asreview.webapp.io import read_data
 
 PATH_PROJECT_CONFIG = "project.json"
 PATH_PROJECT_CONFIG_LOCK = "project.json.lock"
@@ -81,6 +81,8 @@ def project_from_id(f):
     @wraps(f)
     def decorated_function(project_id, *args, **kwargs):
         project_path = get_project_path(project_id)
+        if not is_project(project_path):
+            raise ProjectNotFoundError(f"Project '{project_id}' not found")
         project = ASReviewProject(project_path, project_id=project_id)
         return f(project, *args, **kwargs)
 
@@ -105,27 +107,6 @@ def get_projects(project_paths=None):
         project_paths = [path for path in asreview_path().iterdir() if path.is_dir()]
 
     return [ASReviewProject(project_path) for project_path in project_paths]
-
-
-def _create_project_id(name):
-    """Create project id from input name."""
-
-    if isinstance(name, str) and len(name) > 0 and not name[0].isalnum():
-        raise ValueError(
-            "First character should be alphabet" " letter (a-z) or number (0-9)."
-        )
-
-    if not name and not isinstance(name, str) and len(name) >= 3:
-        raise ValueError("Project name should be at least 3 characters.")
-
-    project_id = ""
-    for c in name.lower():
-        if c.isalnum():
-            project_id += c
-        elif len(project_id) > 0 and project_id[-1] != "-":
-            project_id += "-"
-
-    return project_id
 
 
 def is_project(project_path):
@@ -313,12 +294,6 @@ class ASReviewProject:
 
         kwargs_copy = kwargs.copy()
 
-        if "name" in kwargs_copy:
-            del kwargs_copy["name"]
-            logging.info(
-                "Update project name is ignored, use 'rename' function."
-            )
-
         # validate schema
         if "mode" in kwargs_copy and kwargs_copy["mode"] not in PROJECT_MODES:
             raise ValueError("Project mode '{}' not found.".format(kwargs_copy["mode"]))
@@ -333,51 +308,6 @@ class ASReviewProject:
         self.config = config
         return config
 
-    def rename(self, new_project_data={}):
-        """Rename a project id.
-
-        This function only works for projects in ASReview LAB web interface.
-        This is the result of the file storage in
-        asreview.webapp.utils.project_path.asreview_path.
-
-        Arguments
-        ---------
-        new_project_data: dict
-            Dictionary that contains a new name, id and project path
-
-        Returns
-        -------
-        ASReviewProject:
-            The updated project
-        """
-        # get all data
-        new_project_name = new_project_data.get("name", None)
-        new_project_id = new_project_data.get("project_id", None)
-        new_project_path = new_project_data.get("project_path", None)
-
-        if self.project_id == new_project_id:
-            # nothing to do
-            return self
-
-        # TODO{Terry}: add support for repeated auto-generated project names
-        if (self.project_path != new_project_path) and is_project(new_project_path):
-            raise ValueError(f"Project '{new_project_path}' already exists.")
-
-        self.project_path.rename(new_project_path)
-        self.project_path = new_project_path
-        self.project_id = new_project_id
-
-        # update the project file
-        config = self.config
-
-        config["id"] = new_project_id
-        config["name"] = new_project_name
-
-        self.config = config
-        self._config = config
-
-        return self
-
     def add_dataset(self, file_name):
         """Add file path to the project file.
 
@@ -387,7 +317,8 @@ class ASReviewProject:
         self.update_config(dataset_path=file_name)
 
         # fill the pool of the first iteration
-        as_data = read_data(self)
+        fp_data = Path(self.project_path, "data", self.config["dataset_path"])
+        as_data = ASReviewData.from_file(fp_data)
 
         with open_state(self.project_path, read_only=False) as state:
             # save the record ids in the state file
@@ -663,20 +594,13 @@ class ASReviewProject:
             project_config = json.load(f)
 
         if safe_import:
-            # If the uploaded project already exists,
-            # then overwrite project.json with a copy suffix.
-            while Path(
-                project_path, project_config["id"], PATH_PROJECT_CONFIG
-            ).exists():
-                # project update
-                project_config["id"] = f"{project_config['id']}-copy"
-                project_config["name"] = f"{project_config['name']} copy"
-            else:
-                with open(Path(tmpdir, PATH_PROJECT_CONFIG), "r+") as f:
-                    # write to file
-                    f.seek(0)
-                    json.dump(project_config, f)
-                    f.truncate()
+            # assign a new id to the project.
+            project_config["id"] = uuid4().hex
+            with open(Path(tmpdir, PATH_PROJECT_CONFIG), "r+") as f:
+                # write to file
+                f.seek(0)
+                json.dump(project_config, f)
+                f.truncate()
 
         # location to copy file to
         # Move the project from the temp folder to the projects folder.

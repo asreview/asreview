@@ -6,12 +6,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
       with:
-        fetch-depth: 0
-    - uses: actions/setup-python@v1
-      with:
-        python-version: '3.8'
-        architecture: 'x64'
+        python-version: '3.10'
     - name: Install flake8
       run: |
         pip install flake8 isort flake8-isort
@@ -21,14 +18,16 @@ jobs:
   test-minimal-deps:
     name: test-minimal-deps
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.8", "3.9", "3.10", "3.11"]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
-    - uses: actions/setup-python@v1
+    - uses: actions/setup-python@v4
       with:
-        python-version: '3.8'
-        architecture: 'x64'
+        python-version: ${{ matrix.python }}
     - name: Install packages
       run: |
         pip install pytest
@@ -40,19 +39,18 @@ jobs:
     name: test-full-deps
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
-    - uses: actions/setup-python@v1
+    - uses: actions/setup-python@v4
       with:
-        python-version: '3.8'
-        architecture: 'x64'
+        python-version: '3.10'
     - name: Install packages
       run: |
         pip install pytest
         pip install --upgrade setuptools>=41.0.0
         pip install --no-cache-dir .[sbert]
-        pip install --no-cache-dir gensim==4.0.1
+        pip install --no-cache-dir .[doc2vec]
         pip install --no-cache-dir .[tensorflow]
         pip install --no-cache-dir .[dev]
         pip install --no-cache-dir .[test]

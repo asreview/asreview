@@ -885,7 +885,7 @@ class SQLiteState(BaseState):
             query number and columns.
         """
         if columns is not None:
-            if not type(columns) == list:
+            if not isinstance(columns, list):
                 raise ValueError("The columns argument should be a list.")
         col_query_string = "*" if columns is None else ",".join(columns)
 
@@ -953,7 +953,7 @@ class SQLiteState(BaseState):
             Dataframe containing the data of the specified columns of the
             results table.
         """
-        if type(columns) == str:
+        if isinstance(columns, str):
             columns = [columns]
 
         if (not priors) or (not pending):

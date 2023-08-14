@@ -85,7 +85,7 @@ const PriorSearch = (props) => {
         }
       },
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   const refetchPriorSearch = () => {

@@ -31,7 +31,7 @@ import {
   mapDispatchToProps,
   projectModes,
   projectStatuses,
-  formatDate
+  formatDate,
 } from "../../globals";
 import useAuth from "../../hooks/useAuth";
 import { setMyProjects } from "../../redux/actions";
@@ -118,8 +118,8 @@ const columns = [
 const ProjectTable = (props) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const authenticated = useSelector(state => state.authentication);
-  const myProjects = useSelector(state => state.myProjects);
+  const authenticated = useSelector((state) => state.authentication);
+  const myProjects = useSelector((state) => state.myProjects);
   const dispatch = useDispatch();
   const { auth } = useAuth();
 
@@ -142,7 +142,7 @@ const ProjectTable = (props) => {
    * Simulation status query state
    */
   const [querySimulationFinished, setQuerySimulationFinished] = React.useState(
-    []
+    [],
   );
   const [querySimulationError, setQuerySimulationError] = React.useState({
     isError: false,
@@ -169,7 +169,7 @@ const ProjectTable = (props) => {
           (element) =>
             element.mode === projectModes.SIMULATION &&
             element.reviews[0] !== undefined &&
-            element.reviews[0].status === projectStatuses.REVIEW
+            element.reviews[0].status === projectStatuses.REVIEW,
         );
         if (!simulationProjects.length) {
           console.log("No simulation running");
@@ -229,9 +229,9 @@ const ProjectTable = (props) => {
                   setTimeout(
                     () =>
                       queryClient.invalidateQueries(
-                        `fetchProjectStatus-${project_id[key]}`
+                        `fetchProjectStatus-${project_id[key]}`,
                       ),
-                    checkIfSimulationFinishedDuration
+                    checkIfSimulationFinishedDuration,
                   );
                 }
               },
@@ -243,7 +243,7 @@ const ProjectTable = (props) => {
         }
       },
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   /**
@@ -426,7 +426,10 @@ const ProjectTable = (props) => {
                 ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
                   // if we do authentication, then we need to know who the owner is
-                  row["owner_id"] = authenticated && ("owner_id" in row)? row["owner_id"] : false;
+                  row["owner_id"] =
+                    authenticated && "owner_id" in row
+                      ? row["owner_id"]
+                      : false;
                   // A collaborator can not edit
                   const isOwner = authenticated && row["owner_id"] === auth.id;
 
@@ -486,7 +489,7 @@ const ProjectTable = (props) => {
                     ) {
                       queryClient.prefetchQuery(
                         ["fetchExportProject", { project_id: row["id"] }],
-                        ProjectAPI.fetchExportProject
+                        ProjectAPI.fetchExportProject,
                       );
                     } else {
                       openProject(row, "export");
@@ -507,7 +510,11 @@ const ProjectTable = (props) => {
                       tabIndex={-1}
                       key={row.id}
                       onMouseEnter={() => {
-                        return hoverOnProject(row["id"], row["name"], row["owner_id"]);
+                        return hoverOnProject(
+                          row["id"],
+                          row["name"],
+                          row["owner_id"],
+                        );
                       }}
                       onMouseLeave={() => hoverOffProject()}
                     >
@@ -532,7 +539,9 @@ const ProjectTable = (props) => {
                               showReviewButton={showReviewButton}
                               onClickProjectAnalytics={onClickProjectAnalytics}
                               onClickCollaboration={onClickCollaboration}
-                              onClickEndCollaboration={onClickCollaboration} /* !!!!!!!!! */
+                              onClickEndCollaboration={
+                                onClickCollaboration
+                              } /* !!!!!!!!! */
                               onClickProjectReview={onClickProjectReview}
                               onClickProjectExport={onClickProjectExport}
                               onClickProjectDetails={onClickProjectDetails}

@@ -51,17 +51,17 @@ const AnalyticsPage = (props) => {
   const progressQuery = useQuery(
     ["fetchProgress", { project_id }],
     ProjectAPI.fetchProgress,
-    { refetchOnWindowFocus: false }
+    { refetchOnWindowFocus: false },
   );
   const progressDensityQuery = useQuery(
     ["fetchProgressDensity", { project_id }],
     ProjectAPI.fetchProgressDensity,
-    { refetchOnWindowFocus: false }
+    { refetchOnWindowFocus: false },
   );
   const progressRecallQuery = useQuery(
     ["fetchProgressRecall", { project_id }],
     ProjectAPI.fetchProgressRecall,
-    { refetchOnWindowFocus: false }
+    { refetchOnWindowFocus: false },
   );
 
   const twitterRef = React.useRef(null);

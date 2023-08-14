@@ -58,27 +58,35 @@ const ExportPage = (props) => {
     ProjectAPI.fetchDatasetWriter,
     {
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   const exportDatasetQuery = useQuery(
-    ["fetchExportDataset", { project_id, datasetLabel, fileFormat }],
+    [
+      "fetchExportDataset",
+      {
+        project_id,
+        project_title: props.info["name"],
+        datasetLabel,
+        fileFormat,
+      },
+    ],
     ProjectAPI.fetchExportDataset,
     {
       enabled: (file === "dataset" || file === "dataset_relevant") && exporting,
       refetchOnWindowFocus: false,
       onSettled: () => setExporting(false),
-    }
+    },
   );
 
   const exportProjectQuery = useQuery(
-    ["fetchExportProject", { project_id }],
+    ["fetchExportProject", { project_id, project_title: props.info["name"] }],
     ProjectAPI.fetchExportProject,
     {
       enabled: file === "project" && exporting,
       refetchOnWindowFocus: false,
       onSettled: () => setExporting(false),
-    }
+    },
   );
 
   const selectedQuery = () => {
@@ -164,7 +172,9 @@ const ExportPage = (props) => {
                       </MenuItem>
                       <MenuItem value="dataset_relevant" divider>
                         <Box>
-                          <Typography variant="subtitle1">Dataset (relevant only)</Typography>
+                          <Typography variant="subtitle1">
+                            Dataset (relevant only)
+                          </Typography>
                           <Typography
                             variant="body2"
                             gutterBottom

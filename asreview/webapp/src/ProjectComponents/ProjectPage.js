@@ -37,7 +37,6 @@ import {
 } from "../globals.js";
 import useAuth from "../hooks/useAuth";
 
-
 const PREFIX = "ProjectPage";
 
 const classes = {
@@ -66,7 +65,7 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const ProjectPage = (props) => {
-  const authenticated = useSelector(state => state.authentication);
+  const authenticated = useSelector((state) => state.authentication);
   const { auth } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -126,7 +125,7 @@ const ProjectPage = (props) => {
         }
       },
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   const refetchAnalytics = () => {
@@ -154,12 +153,12 @@ const ProjectPage = (props) => {
             // not finished yet
             setTimeout(
               () => queryClient.invalidateQueries("fetchProjectStatus"),
-              checkIfSimulationFinishedDuration
+              checkIfSimulationFinishedDuration,
             );
           }
         },
         refetchOnWindowFocus: false,
-      }
+      },
     );
 
   const returnError = () => {
@@ -269,6 +268,7 @@ const ProjectPage = (props) => {
               path="export"
               element={
                 <ExportPage
+                  info={data}
                   isSimulating={isSimulating}
                   mobileScreen={props.mobileScreen}
                 />

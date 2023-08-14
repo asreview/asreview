@@ -36,7 +36,7 @@ const DataForm = (props) => {
     {
       enabled: props.project_id !== null,
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   const priorAdded = () => {
@@ -46,7 +46,7 @@ const DataForm = (props) => {
   const refetchInfo = () => {
     queryClient.prefetchQuery(
       ["fetchInfo", { project_id: props.project_id }],
-      ProjectAPI.fetchInfo
+      ProjectAPI.fetchInfo,
     );
   };
 
@@ -60,10 +60,18 @@ const DataForm = (props) => {
           the AI. Prior knowledge is required to warm up the AI.
         </Typography>
       </Box>
-      {!props.isFetchInfoError && isFetching && (
-        <Box className={classes.loading}>
-          <CircularProgress />
-        </Box>
+      {!props.isFetchInfoError &&
+        (isFetching || props.isFetchingLabeledStats) && (
+          <Box className={classes.loading}>
+            <CircularProgress />
+          </Box>
+        )}
+      {!isFetching && isError && (
+        <InlineErrorHandler
+          message={error?.message}
+          refetch={refetchData}
+          button={true}
+        />
       )}
       {props.isFetchInfoError && (
         <InlineErrorHandler

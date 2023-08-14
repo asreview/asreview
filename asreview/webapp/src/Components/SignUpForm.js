@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "react-query";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -23,8 +23,8 @@ import { styled } from "@mui/material/styles";
 import { HelpPrivacyTermsButton } from "../Components";
 import { useToggle } from "../hooks/useToggle";
 import BaseAPI from "../api/AuthAPI";
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
 const PREFIX = "SignUpForm";
 
@@ -65,25 +65,21 @@ const Root = styled("div")(({ theme }) => ({
 
 // VALIDATION SCHEMA
 const SignupSchema = Yup.object().shape({
-  email: Yup.string()
-    .email('Invalid email')
-    .required('Email is required'),
-  name: Yup.string()
-    .required('Full name is required'),
+  email: Yup.string().email("Invalid email").required("Email is required"),
+  name: Yup.string().required("Full name is required"),
   affiliation: Yup.string()
-    .min(2, 'Affiliation must be at least 2 characters long')
-    .required('Affiliation is required'),
+    .min(2, "Affiliation must be at least 2 characters long")
+    .required("Affiliation is required"),
   password: Yup.string()
     .matches(
-      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-      'Use 8 or more characters with a mix of letters, numbers & symbols'
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/,
+      "Use 8 or more characters with a mix of letters, numbers & symbols",
     )
-    .required('Password is required'),
+    .required("Password is required"),
   confirmPassword: Yup.string()
-    .required('Password confirmation is required')
-    .oneOf([Yup.ref('password'), null], 'Passwords must match')
+    .required("Password confirmation is required")
+    .oneOf([Yup.ref("password"), null], "Passwords must match"),
 });
-
 
 const SignUpForm = (props) => {
   // Pass the useFormik() hook initial form values, a validate function that will be called when
@@ -98,12 +94,12 @@ const SignUpForm = (props) => {
   };
 
   const initialValues = {
-    email: '',
-    name: '',
-    affiliation: '',
-    password: '',
-    confirmPassword: '',
-    publicAccount: true
+    email: "",
+    name: "",
+    affiliation: "",
+    password: "",
+    confirmPassword: "",
+    publicAccount: true,
   };
 
   const formik = useFormik({
@@ -111,28 +107,31 @@ const SignUpForm = (props) => {
     validationSchema: SignupSchema,
   });
 
-  const { error, isError, mutate } = useMutation(
-    BaseAPI.signup,
-      {
-        onSuccess: () => {
-          formik.setValues(initialValues, false);
-          navigate('/signin');
-        },
-      }
-  );
+  const { error, isError, mutate } = useMutation(BaseAPI.signup, {
+    onSuccess: () => {
+      formik.setValues(initialValues, false);
+      navigate("/signin");
+    },
+  });
 
   const handleSubmit = () => {
     mutate(formik.values);
-  }
+  };
 
   const handleSignIn = () => {
     navigate("/signin");
   };
 
+  const handleEnterKey = (e) => {
+    if (e.keyCode === 13) {
+      handleSubmit(e);
+    }
+  };
+
   return (
     <Root>
       <Fade in>
-        <Box> 
+        <Box>
           <Card className={classes.card} variant="outlined">
             <CardContent className={classes.cardContent}>
               <Stack spacing={3}>
@@ -148,7 +147,6 @@ const SignUpForm = (props) => {
                   noValidate
                   autoComplete="off"
                 >
-                  
                   <TextField
                     id="email"
                     label="Email"
@@ -158,7 +156,9 @@ const SignUpForm = (props) => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                   />
-                  {formik.touched.email && formik.errors.email ? <FHT error={true}>{formik.errors.email}</FHT> : null}
+                  {formik.touched.email && formik.errors.email ? (
+                    <FHT error={true}>{formik.errors.email}</FHT>
+                  ) : null}
                   <TextField
                     id="name"
                     label="Full name"
@@ -168,7 +168,9 @@ const SignUpForm = (props) => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                   />
-                  {formik.touched.name && formik.errors.name ? <FHT error={true}>{formik.errors.name}</FHT> : null}
+                  {formik.touched.name && formik.errors.name ? (
+                    <FHT error={true}>{formik.errors.name}</FHT>
+                  ) : null}
                   <TextField
                     id="affiliation"
                     label="Affiliation"
@@ -178,7 +180,9 @@ const SignUpForm = (props) => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                   />
-                  {formik.touched.affiliation && formik.errors.affiliation ? <FHT error={true}>{formik.errors.affiliation}</FHT> : null}
+                  {formik.touched.affiliation && formik.errors.affiliation ? (
+                    <FHT error={true}>{formik.errors.affiliation}</FHT>
+                  ) : null}
                   <FormControl>
                     <Stack direction="row" spacing={2}>
                       <TextField
@@ -197,14 +201,20 @@ const SignUpForm = (props) => {
                         size="small"
                         fullWidth
                         type={returnType()}
+                        onKeyDown={handleEnterKey}
                         value={formik.values.confirmPassword}
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                       />
                     </Stack>
                   </FormControl>
-                  {formik.touched.password && formik.errors.password ? <FHT error={true}>{formik.errors.password}</FHT> : null}
-                  {formik.touched.confirmPassword && formik.errors.confirmPassword ? <FHT error={true}>{formik.errors.confirmPassword}</FHT> : null}
+                  {formik.touched.password && formik.errors.password ? (
+                    <FHT error={true}>{formik.errors.password}</FHT>
+                  ) : null}
+                  {formik.touched.confirmPassword &&
+                  formik.errors.confirmPassword ? (
+                    <FHT error={true}>{formik.errors.confirmPassword}</FHT>
+                  ) : null}
                   <FormControl>
                     <FormControlLabel
                       control={
@@ -216,7 +226,7 @@ const SignUpForm = (props) => {
                       }
                       label="Show password"
                     />
-                    { false && 
+                    {false && (
                       <>
                         <FormControlLabel
                           control={
@@ -235,12 +245,15 @@ const SignUpForm = (props) => {
                           Making this account public allows you to collaborate.
                         </FHT>
                       </>
-                    }
+                    )}
                   </FormControl>
                   {isError && <InlineErrorHandler message={error.message} />}
 
                   <Stack className={classes.button} direction="row">
-                    <Button onClick={handleSignIn} sx={{ textTransform: "none" }}>
+                    <Button
+                      onClick={handleSignIn}
+                      sx={{ textTransform: "none" }}
+                    >
                       Sign In instead
                     </Button>
                     <LoadingButton
@@ -253,7 +266,6 @@ const SignUpForm = (props) => {
                       Create
                     </LoadingButton>
                   </Stack>
-
                 </Stack>
               </Stack>
             </CardContent>

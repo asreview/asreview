@@ -83,7 +83,14 @@ const ProjectInfoForm = (props) => {
         ...props.info,
         [event.target.name]: event.target.value,
       });
-      props.setDisableButton(false);
+      if (event.target.name === "title" && !event.target.value) {
+        props.setDisableSaveButton(true);
+      } else if (props.info?.title) {
+        props.setDisableSaveButton(false);
+      } else {
+        // do nothing
+      }
+      props.setDisableUndoButton(false);
     } else {
       props.handleInfoChange(event);
     }

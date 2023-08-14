@@ -1,19 +1,9 @@
 import * as React from "react";
-import { useSelector } from 'react-redux';
-import {
-  Box,
-  Card,
-  CardContent,
-  Fade,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { useSelector } from "react-redux";
+import { Box, Card, CardContent, Fade, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { 
-  HelpPrivacyTermsButton,
-  SignInForm,
-} from "../Components";
+import { HelpPrivacyTermsButton, SignInForm } from "../Components";
 
 import { WordmarkState } from "../globals";
 import SignInOAuth from "./SignInOAuth";
@@ -61,10 +51,10 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-
 const SignIn = () => {
-  const oAuthData = useSelector(state => state.oAuthData);
-  const allowAccountCreation = useSelector(state => state.allow_account_creation) || false;
+  const oAuthData = useSelector((state) => state.oAuthData);
+  const allowAccountCreation =
+    useSelector((state) => state.allow_account_creation) || false;
 
   return (
     <Root>
@@ -85,12 +75,9 @@ const SignIn = () => {
                   classes={classes}
                   allowAccountCreation={allowAccountCreation}
                 />
-                { Object.keys(oAuthData.services).length > 0 && 
-                  <SignInOAuth
-                    classes={classes}
-                    oAuthData={oAuthData}
-                  />
-                }
+                {Object.keys(oAuthData.services).length > 0 && (
+                  <SignInOAuth classes={classes} oAuthData={oAuthData} />
+                )}
               </Stack>
             </CardContent>
           </Card>

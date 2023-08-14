@@ -23,7 +23,7 @@ const ProjectDeleteDialog = (props) => {
   const queryClient = useQueryClient();
 
   const { auth } = useAuth();
-  const authenticated = useSelector(state => state.authentication);
+  const authenticated = useSelector((state) => state.authentication);
   const dispatch = useDispatch();
 
   const descriptionElementRef = React.useRef(null);
@@ -41,32 +41,32 @@ const ProjectDeleteDialog = (props) => {
           navigate("/projects");
         }
       },
-    }
+    },
   );
 
   const endCollaboration = () => {
     if (authenticated && props.project_id && auth.id) {
       TeamAPI.endCollaboration(props.project_id, auth.id)
-      .then(data => {
-        if (data.success) {
-          // success, the collaboration was ended, get all projects
-          ProjectAPI.fetchProjects({})
-          .then(data => {
-            if (data.result instanceof Array) {
-              // refresh project list
-              dispatch(setMyProjects(data.result));
-              // close dialog
-              props.toggleDeleteDialog();
-            } else {
-              console.log('Could not get projects list -- DB failure');
-            }
-          })
-          .catch(err => console.log('Could not pull all projects', err));
-        } else {
-          console.log('Could not end collaboration -- DB failure');
-        }
-      })
-      .catch(err => console.log('Could not end collaboration', err))
+        .then((data) => {
+          if (data.success) {
+            // success, the collaboration was ended, get all projects
+            ProjectAPI.fetchProjects({})
+              .then((data) => {
+                if (data.result instanceof Array) {
+                  // refresh project list
+                  dispatch(setMyProjects(data.result));
+                  // close dialog
+                  props.toggleDeleteDialog();
+                } else {
+                  console.log("Could not get projects list -- DB failure");
+                }
+              })
+              .catch((err) => console.log("Could not pull all projects", err));
+          } else {
+            console.log("Could not end collaboration -- DB failure");
+          }
+        })
+        .catch((err) => console.log("Could not end collaboration", err));
     }
   };
 
@@ -102,7 +102,7 @@ const ProjectDeleteDialog = (props) => {
     } else {
       return " from your list";
     }
-  }
+  };
 
   return (
     <Dialog
@@ -139,22 +139,19 @@ const ProjectDeleteDialog = (props) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={cancelDelete}>Cancel</Button>
-        { props.isOwner &&
+        {props.isOwner && (
           <Button
             onClick={() => mutate({ project_id: props.project_id })}
             disabled={disableConfirmButton()}
           >
             Delete Forever
           </Button>
-        }
-        { !props.isOwner && 
-          <Button
-            onClick={endCollaboration}
-            disabled={disableConfirmButton()}
-          >
+        )}
+        {!props.isOwner && (
+          <Button onClick={endCollaboration} disabled={disableConfirmButton()}>
             Delete
           </Button>
-        }
+        )}
       </DialogActions>
     </Dialog>
   );

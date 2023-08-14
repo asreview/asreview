@@ -96,8 +96,8 @@ const StyledList = styled(List)(({ theme }) => ({
 
 const DrawerItemContainer = (props) => {
   const { project_id } = useParams();
-  const authentication = useSelector(state => state.authentication);
-  const allowTeams = useSelector(state => state.allow_teams);
+  const authentication = useSelector((state) => state.authentication);
+  const allowTeams = useSelector((state) => state.allow_teams);
   const queryClient = useQueryClient();
 
   const isFetchingInfo = useIsFetching("fetchInfo");
@@ -107,7 +107,7 @@ const DrawerItemContainer = (props) => {
   const fetchProjectInfo = React.useCallback(async () => {
     const data = await queryClient.fetchQuery(
       ["fetchInfo", { project_id }],
-      ProjectAPI.fetchInfo
+      ProjectAPI.fetchInfo,
     );
     setProjectInfo(data);
   }, [project_id, queryClient]);
@@ -159,11 +159,14 @@ const DrawerItemContainer = (props) => {
       path: "history",
       label: "History",
     },
-    ...(authentication && allowTeams ? 
-      [{
-        path: "team",
-        label: "Team",
-      }] : []),
+    ...(authentication && allowTeams
+      ? [
+          {
+            path: "team",
+            label: "Team",
+          },
+        ]
+      : []),
     {
       path: "export",
       label: "Export",

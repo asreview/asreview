@@ -35,7 +35,7 @@ export default function NumberCard(props) {
   const { data, error, isError, isFetched, isSuccess } = useQuery(
     "fetchDashboardStats",
     ProjectAPI.fetchDashboardStats,
-    { refetchOnWindowFocus: false }
+    { refetchOnWindowFocus: false },
   );
 
   return (

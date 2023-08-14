@@ -24,7 +24,7 @@ const formatCitation = (authors, year) => {
     var first_author = authors[0].split(",")[0];
     return first_author + " et al. (" + year + ")";
   } else {
-    return authors;
+    return authors + " (" + year + ")";
   }
 };
 
@@ -43,7 +43,7 @@ const DatasetFromEntryPoint = (props) => {
   } = useQuery(
     ["fetchDatasets", { subset: props.subset }],
     ProjectAPI.fetchDatasets,
-    { refetchOnWindowFocus: false }
+    { refetchOnWindowFocus: false },
   );
 
   const refetchDatasets = () => {
@@ -105,7 +105,7 @@ const DatasetFromEntryPoint = (props) => {
                     key={group.group_id + ":" + dataset.dataset_id}
                     license={dataset.license}
                     link={dataset.link}
-                    location={dataset.filepath}
+                    location={group.group_id + ":" + dataset.dataset_id}
                     mobileScreen={props.mobileScreen}
                     reset={props.reset}
                     selectedDatasetId={

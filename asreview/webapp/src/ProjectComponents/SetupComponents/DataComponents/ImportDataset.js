@@ -76,7 +76,7 @@ const ImportDataset = (props) => {
         props.toggleImportDataset();
         props.toggleProjectSetup();
       },
-    }
+    },
   );
 
   /**

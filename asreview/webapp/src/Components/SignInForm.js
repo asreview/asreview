@@ -16,7 +16,6 @@ import AuthAPI from "../api/AuthAPI";
 import useAuth from "../hooks/useAuth";
 import { useToggle } from "../hooks/useToggle";
 
-
 const SignInForm = (props) => {
   const classes = props.classes;
   const allowAccountCreation = props.allowAccountCreation;
@@ -55,13 +54,13 @@ const SignInForm = (props) => {
             navigate(from, { replace: true });
           }
         } else {
-          console.error('Backend could not log you in.')
+          console.error("Backend could not log you in.");
         }
       },
       onError: (data) => {
-        console.error('Signin error', data);
-      }
-    }
+        console.error("Signin error", data);
+      },
+    },
   );
 
   const handleSubmit = (e) => {
@@ -75,8 +74,8 @@ const SignInForm = (props) => {
   };
 
   const handleForgotPassword = () => {
-    navigate("/forgot_password")
-  }
+    navigate("/forgot_password");
+  };
 
   const returnType = () => {
     return !showPassword ? "password" : "text";
@@ -91,7 +90,7 @@ const SignInForm = (props) => {
   };
 
   const handleEnterKey = (e) => {
-    if (e.key === 'Enter') {
+    if (e.keyCode === 13) {
       handleSubmit(e);
     }
   };
@@ -112,7 +111,7 @@ const SignInForm = (props) => {
             label="Password"
             value={password}
             onChange={handlePasswordChange}
-            onKeyPress={handleEnterKey}
+            onKeyDown={handleEnterKey}
             variant="outlined"
             fullWidth
             type={returnType()}
@@ -132,11 +131,11 @@ const SignInForm = (props) => {
       </Stack>
       {isError && <InlineErrorHandler message={error.message} />}
       <Stack className={classes.button} direction="row">
-        { allowAccountCreation && 
+        {allowAccountCreation && (
           <Button onClick={handleSignUp} sx={{ textTransform: "none" }}>
             Create profile
           </Button>
-        }
+        )}
 
         <Button onClick={handleForgotPassword} sx={{ textTransform: "none" }}>
           Forgot password

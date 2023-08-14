@@ -15,10 +15,13 @@
 # based on https://github.com/pypa/sampleproject - MIT License
 
 # Always prefer setuptools over distutils
+import platform
 import re
 import subprocess
+import sys
 from io import open
 from os import path
+from pathlib import Path
 
 from setuptools import Command
 from setuptools import find_packages
@@ -41,12 +44,42 @@ def get_long_description():
     return long_description
 
 
+REQUIRES = [
+    "numpy",
+    "pandas>=1,<3",
+    "scikit-learn",
+    "rispy~=0.7.0",
+    "xlrd>=1.0.0",
+    "setuptools",
+    "flask>=2.3.0",
+    "flask_cors",
+    "flask-login",
+    "flask-mail",
+    "openpyxl",
+    "jsonschema",
+    "filelock",
+    "Flask-SQLAlchemy>=3.0.2",
+    "requests",
+    "tqdm",
+    "gevent>=20",
+    "datahugger>=0.2",
+    "synergy_dataset"
+]
+
+if sys.version_info < (3, 11):
+    REQUIRES += ["tomli"]
+
+
+if sys.version_info < (3, 10):
+    REQUIRES += ["importlib_metadata>=3.6"]
+
+
 DEPS = {
     "sbert": ["sentence_transformers"],
     "doc2vec": ["gensim"],
     "tensorflow": ["tensorflow~=2.0"],
     "dev": ["black", "check-manifest", "flake8", "flake8-isort", "isort"],
-    "test": ["coverage", "pytest"],
+    "test": ["coverage", "pytest", "pytest-random-order"],
 }
 DEPS["all"] = DEPS["sbert"] + DEPS["doc2vec"]
 DEPS["all"] += DEPS["tensorflow"]
@@ -71,7 +104,19 @@ class CompileAssets(Command):
 
     def run(self):
         """Run a command to compile and build assets."""
-        subprocess.check_call("sh ./asreview/webapp/compile_assets.sh", shell=True)
+
+        path_webapp = Path(__file__).parent / "asreview" / "webapp"
+
+        subprocess.check_call(
+            ["npm", "install"],
+            cwd=str(path_webapp),
+            shell=(platform.system() == "Windows")
+        )
+        subprocess.check_call(
+            ["npm", "run-script", "build"],
+            cwd=str(path_webapp),
+            shell=(platform.system() == 'Windows')
+        )
 
 
 def get_cmdclass():
@@ -94,9 +139,10 @@ setup(
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
         "Topic :: Scientific/Engineering :: Information Analysis",
         "Topic :: Text Processing :: General",
@@ -110,28 +156,8 @@ setup(
             "webapp/build/static/*/*",
         ]
     },
-    python_requires="~=3.7",
-    install_requires=[
-        "numpy",
-        "pandas>=1,<3",
-        "scikit-learn",
-        "rispy~=0.7.0",
-        "dill",
-        "xlrd>=1.0.0",
-        "setuptools",
-        "flask>=2.0",
-        "flask_cors",
-        "flask-login",
-        "flask-mail",
-        "openpyxl",
-        "jsonschema",
-        "filelock",
-        "Flask-SQLAlchemy>=3.0.2",
-        "requests",
-        "tqdm",
-        "gevent>=20",
-        "datahugger>=0.2",
-    ],
+    python_requires="~=3.8",
+    install_requires=REQUIRES,
     extras_require=DEPS,
     entry_points={
         "console_scripts": [
@@ -139,10 +165,11 @@ setup(
         ],
         "asreview.entry_points": [
             "lab=asreview.entry_points:LABEntryPoint",
-            "web_run_model = asreview.entry_points:WebRunModelEntryPoint",
+            "web_run_model=asreview.entry_points:WebRunModelEntryPoint",
             "simulate=asreview.entry_points:SimulateEntryPoint",
-            "algorithms = asreview.entry_points:AlgorithmsEntryPoint",
-            "state-inspect = asreview.entry_points:StateInspectEntryPoint",
+            "algorithms=asreview.entry_points:AlgorithmsEntryPoint",
+            "state-inspect=asreview.entry_points:StateInspectEntryPoint",
+            "auth-tool=asreview.entry_points:AuthTool",
         ],
         "asreview.readers": [
             ".csv = asreview.io:CSVReader",
@@ -163,6 +190,7 @@ setup(
         "asreview.datasets": [
             "benchmark = asreview.datasets:BenchmarkDataGroup",
             "benchmark-nature = asreview.datasets:NaturePublicationDataGroup",
+            "synergy = asreview.datasets:SynergyDataGroup"
         ],
         "asreview.models.classifiers": [
             "svm = asreview.models.classifiers:SVMClassifier",

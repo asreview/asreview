@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useSelector } from 'react-redux';
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "react-query";
 import {
@@ -62,10 +62,9 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-
 const ForgotPassword = () => {
-  const emailConfig = useSelector(state => state.email_config) || false;
-  const [email, setEmail] = React.useState('');
+  const emailConfig = useSelector((state) => state.email_config) || false;
+  const [email, setEmail] = React.useState("");
   const [successMessage, setSuccessMessage] = React.useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -78,28 +77,28 @@ const ForgotPassword = () => {
         queryClient.resetQueries("refresh");
       },
       onSuccess: (data) => {
-          setEmail('');
-          setSuccessMessage(data.message)
+        setEmail("");
+        setSuccessMessage(data.message);
       },
       onError: (data) => {
-        console.error('Forgot password error', data);
-      }
-    }
+        console.error("Forgot password error", data);
+      },
+    },
   );
 
   const handleSubmit = (event) => {
     event.preventDefault();
     reset();
     mutate({ email });
-  }
+  };
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
   };
 
   const handleSignin = (event) => {
-    navigate('/signin')
-  }
+    navigate("/signin");
+  };
 
   return (
     <Root>
@@ -115,15 +114,18 @@ const ForgotPassword = () => {
                     alt="ASReview LAB"
                   />
                   <Typography variant="h5">Forgot your password?</Typography>
-                  { emailConfig && 
+                  {emailConfig && (
                     <p>
-                        Enter your email address, click on the submit button and an email will be sent to you. 
-                        Check your spam or bulk folder if you don't get an email.
+                      Enter your email address, click on the submit button and
+                      an email will be sent to you. Check your spam or bulk
+                      folder if you don't get an email.
                     </p>
-                  }
-                  { !emailConfig && <p>Contact your ASReview-app administrator</p>}
+                  )}
+                  {!emailConfig && (
+                    <p>Contact your ASReview-app administrator</p>
+                  )}
                 </Stack>
-                { emailConfig &&
+                {emailConfig && (
                   <>
                     <Stack spacing={3}>
                       <TextField
@@ -147,12 +149,15 @@ const ForgotPassword = () => {
                       >
                         Submit
                       </LoadingButton>
-                      <Button onClick={handleSignin} sx={{ textTransform: "none" }}>
+                      <Button
+                        onClick={handleSignin}
+                        sx={{ textTransform: "none" }}
+                      >
                         Sign In instead
                       </Button>
                     </Stack>
                   </>
-                }
+                )}
               </Stack>
             </CardContent>
           </Card>

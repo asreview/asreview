@@ -29,7 +29,7 @@ const ImportProject = (props) => {
         queryClient.invalidateQueries("fetchProjects");
         props.onClose();
       },
-    }
+    },
   );
 
   React.useEffect(() => {
