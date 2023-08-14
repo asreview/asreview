@@ -69,7 +69,7 @@ const DataForm = (props) => {
       {!isFetching && isError && (
         <InlineErrorHandler
           message={error?.message}
-          refetch={refetchData}
+          refetch={refetch}
           button={true}
         />
       )}

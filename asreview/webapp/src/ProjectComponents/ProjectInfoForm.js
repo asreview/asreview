@@ -49,7 +49,7 @@ const ProjectInfoForm = (props) => {
     {
       enabled: props.project_id !== null,
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   const fetchInfoState = queryClient.getQueryState([

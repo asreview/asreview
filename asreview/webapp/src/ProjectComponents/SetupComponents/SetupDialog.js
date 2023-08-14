@@ -13,6 +13,8 @@ import {
   Fade,
   Stack,
   Step,
+  StepButton,
+  StepIcon,
   StepLabel,
   Stepper,
   Tooltip,
@@ -26,6 +28,7 @@ import { DataForm } from "../SetupComponents/DataComponents";
 import { ModelForm } from "../SetupComponents/ModelComponents";
 import { ProjectInfoForm } from "../../ProjectComponents";
 import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
+import { StyledStepIcon } from "../../StyledComponents/StyledStepIcon";
 
 import { ProjectAPI } from "../../api/index.js";
 import {
@@ -34,6 +37,8 @@ import {
   projectModes,
   projectStatuses,
 } from "../../globals.js";
+
+const steps = ["Project information", "Model", "Data", "Warm up"];
 
 const PREFIX = "SetupDialog";
 
@@ -78,6 +83,7 @@ const SetupDialog = (props) => {
   const queryClient = useQueryClient();
   const descriptionElementRef = React.useRef(null);
   const [activeStep, setActiveStep] = React.useState(0);
+  const [completed, setCompleted] = React.useState({ 0: true, 1: true });
 
   // State Step 1: Project information
   const [info, setInfo] = React.useState({
@@ -165,7 +171,6 @@ const SetupDialog = (props) => {
       textFiledFocused !== null &&
       !textFiledFocused &&
       !(info.title.length < 1) &&
-      !isInitError &&
       !isMutateInfoError
     ) {
       if (props.project_id) {
@@ -199,8 +204,7 @@ const SetupDialog = (props) => {
     ["fetchLabeledStats", { project_id: props.project_id }],
     ProjectAPI.fetchLabeledStats,
     {
-      enabled:
-        props.project_id !== null && activeStep === 1 && projectHasDataset(),
+      enabled: props.project_id !== null && activeStep === 1,
       refetchOnWindowFocus: false,
     },
   );
@@ -334,7 +338,7 @@ const SetupDialog = (props) => {
 
   const disableNextButton = () => {
     if (activeStep === 0) {
-      return isInitError || isMutateInfoError || info.title.length < 1;
+      return isMutateInfoError || info.title.length < 1;
     }
     if (activeStep === 1) {
       return (
@@ -350,21 +354,56 @@ const SetupDialog = (props) => {
     }
   };
 
-  const handleNext = () => {
-    if (activeStep === 0 && !isMutateInfoError) {
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    }
-    if (activeStep === 1) {
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    }
-    if (activeStep === 2) {
-      startTraining({ project_id: props.project_id });
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    }
+  const totalSteps = () => {
+    return steps.length;
   };
+
+  const completedSteps = () => {
+    return Object.keys(completed).length;
+  };
+
+  const isLastStep = () => {
+    return activeStep === totalSteps() - 1;
+  };
+
+  const allStepsCompleted = () => {
+    return completedSteps() === totalSteps();
+  };
+
+  const handleNext = () => {
+    const newActiveStep =
+      isLastStep() && !allStepsCompleted()
+        ? // It's the last step, but not all steps have been completed,
+          // find the first step that has been completed
+          steps.findIndex((step, i) => !(i in completed))
+        : activeStep + 1;
+    setActiveStep(newActiveStep);
+  };
+
+  //   if (activeStep === 0 && !isMutateInfoError) {
+  //     setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  //   }
+  //   if (activeStep === 1) {
+  //     setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  //   }
+  //   if (activeStep === 2) {
+  //     startTraining({ project_id: props.project_id });
+  //     setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  //   }
+  // };
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  const handleStep = (step) => () => {
+    setActiveStep(step);
+  };
+
+  const handleComplete = () => {
+    const newCompleted = completed;
+    newCompleted[activeStep] = true;
+    setCompleted(newCompleted);
   };
 
   // saving state box in step 1 & 3
@@ -465,8 +504,26 @@ const SetupDialog = (props) => {
                   labelProps.error = true;
                 }
                 return (
-                  <Step key={label}>
-                    <StepLabel {...labelProps}>{label}</StepLabel>
+                  <Step key={label} completed={completed[index]}>
+                    <StepButton color="inherit" onClick={handleStep(index)}>
+                      <StepLabel
+                        StepIconComponent={
+                          labelProps.error ||
+                          (completed[index] && activeStep !== index)
+                            ? StepIcon
+                            : StyledStepIcon
+                        }
+                        StepIconProps={{
+                          sx: {
+                            width: !labelProps.error ? "19.5px" : "22px",
+                            height: !labelProps.error ? "22px" : "22px",
+                          },
+                        }}
+                        {...labelProps}
+                      >
+                        {label}
+                      </StepLabel>
+                    </StepButton>
                   </Step>
                 );
               })}
@@ -490,19 +547,20 @@ const SetupDialog = (props) => {
               />
             )}
             {activeStep === 1 && (
-              <DataForm
-                fetchInfoError={fetchInfoError}
-                isFetchInfoError={isFetchInfoError}
-                toggleAddPrior={props.toggleAddPrior}
-              />
-            )}
-            {activeStep === 2 && (
               <ModelForm
                 model={model}
                 setModel={setModel}
                 isMutateModelConfigError={isMutateModelConfigError}
                 mutateModelConfigError={mutateModelConfigError}
                 reset={resetMutateModelConfig}
+              />
+            )}
+            {activeStep === 2 && (
+              <DataForm
+                fetchInfoError={fetchInfoError}
+                handleComplete={handleComplete}
+                isFetchInfoError={isFetchInfoError}
+                toggleAddPrior={props.toggleAddPrior}
               />
             )}
             {activeStep === 3 && (
