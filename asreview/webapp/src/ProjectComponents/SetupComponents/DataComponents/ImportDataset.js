@@ -273,7 +273,6 @@ const ImportDataset = (props) => {
             )}
             {datasetSource === "url" && (
               <DatasetFromURL
-                project_id={props.project_id}
                 toggleImportDataset={props.toggleImportDataset}
                 toggleProjectSetup={props.toggleProjectSetup}
               />

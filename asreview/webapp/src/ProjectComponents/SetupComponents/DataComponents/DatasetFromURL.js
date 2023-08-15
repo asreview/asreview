@@ -1,4 +1,5 @@
 import React from "react";
+import { connect } from "react-redux";
 import { InputBase, Paper, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useMutation } from "react-query";
@@ -13,6 +14,7 @@ import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 import { InlineErrorHandler } from "../../../Components";
 import { StyledLoadingButton } from "../../../StyledComponents/StyledButton";
 import { ProjectAPI } from "../../../api/index.js";
+import { mapStateToProps } from "../../../globals.js";
 
 const PREFIX = "DatasetFromURL";
 
@@ -42,7 +44,7 @@ const DatasetFromURL = (props) => {
     ProjectAPI.mutateData,
     {
       onSuccess: (data, variables, context) => {
-        // if there is only one file, select it
+        // if validate is set and there is only one file, select it
         if (data["files"] && data["files"].length === 1) {
           setRemoteURL(data["files"][0]["link"]);
         }
@@ -167,4 +169,4 @@ const DatasetFromURL = (props) => {
   );
 };
 
-export default DatasetFromURL;
+export default connect(mapStateToProps)(DatasetFromURL);
