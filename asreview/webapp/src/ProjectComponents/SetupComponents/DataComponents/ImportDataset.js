@@ -55,8 +55,6 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 const ImportDataset = (props) => {
   const [datasetSource, setDatasetSource] = React.useState("file");
   const [file, setFile] = React.useState(null);
-  const [extension, setExtension] = React.useState(null);
-  const [benchmark, setBenchmark] = React.useState(null);
 
   /**
    * Import a dataset.
@@ -66,11 +64,8 @@ const ImportDataset = (props) => {
     {
       onMutate: () => {
         setFile(null);
-        setExtension(null);
-        setBenchmark(null);
       },
       onSuccess: (data) => {
-        props.setProjectId(data["project_id"]);
         props.toggleImportDataset();
         props.toggleProjectSetup();
       },
@@ -103,10 +98,8 @@ const ImportDataset = (props) => {
     mutate({
       project_id: props.project_id,
       file: file,
-      extension: extension,
-      benchmark: benchmark,
     });
-  }, [benchmark, extension, file, mutate, props.project_id]);
+  }, [file, mutate, props.project_id]);
 
   const handleClose = () => {
     deleteProject({
@@ -130,10 +123,10 @@ const ImportDataset = (props) => {
 
   // auto import once dataset is selected
   React.useEffect(() => {
-    if (file || extension || benchmark) {
+    if (file) {
       handleImportDataset();
     }
-  }, [handleImportDataset, file, benchmark, extension]);
+  }, [handleImportDataset, file]);
 
   return (
     <StyledDialog
@@ -288,25 +281,17 @@ const ImportDataset = (props) => {
             {datasetSource === "extension" && (
               <DatasetFromEntryPoint
                 subset="plugin"
-                addDatasetError={error}
-                extension={extension}
-                setExtension={setExtension}
-                isAddDatasetError={isError}
-                isAddingDataset={isLoading}
                 mobileScreen={props.mobileScreen}
-                reset={reset}
+                toggleImportDataset={props.toggleImportDataset}
+                toggleProjectSetup={props.toggleProjectSetup}
               />
             )}
             {datasetSource === "benchmark" && (
               <DatasetFromEntryPoint
                 subset="benchmark"
-                addDatasetError={error}
-                benchmark={benchmark}
-                setBenchmark={setBenchmark}
-                isAddDatasetError={isError}
-                isAddingDataset={isLoading}
                 mobileScreen={props.mobileScreen}
-                reset={reset}
+                toggleImportDataset={props.toggleImportDataset}
+                toggleProjectSetup={props.toggleProjectSetup}
               />
             )}
           </Stack>
