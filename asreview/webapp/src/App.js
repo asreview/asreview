@@ -5,6 +5,8 @@ import { Routes, Route } from "react-router-dom";
 import "typeface-roboto";
 import { Box, CssBaseline, createTheme, useMediaQuery } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
+import MuiAlert from "@mui/material/Alert";
+import Snackbar from "@mui/material/Snackbar";
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import "./App.css";
 
@@ -41,6 +43,11 @@ if (currentDomain.includes("127.0.0.1")) {
   window.location.replace(newDomain);
 }
 
+// Snackbar Notification Alert
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
+
 const queryClient = new QueryClient();
 
 const App = (props) => {
@@ -52,6 +59,20 @@ const App = (props) => {
     (state) => state.allow_account_creation,
   );
   const emailVerification = useSelector((state) => state.email_verification);
+
+  // Snackbar Notification (taking care of self closing 
+  // notifications visible on the lower left side)
+  const [notification, setNotification] = React.useState({
+    open: false,
+    message: "",
+    severity: "success"
+  });
+  const showNotification = (message, severity="success") => {
+    setNotification({ open: true, message: message, severity: severity })
+  }
+  const handleCloseNotification = () => {
+    setNotification(data => ({ ...data, open: false }));
+  }
 
   // Dialog state
   const [onSettings, toggleSettings] = useToggle();
@@ -113,7 +134,12 @@ const App = (props) => {
         {allowAccountCreation && (
           <Route
             path="/signup"
-            element={<SignUpForm mobileScreen={mobileScreen} />}
+            element={
+              <SignUpForm
+                mobileScreen={mobileScreen}
+                showNotification={emailVerification && showNotification}
+              />
+            }
           />
         )}
         <Route
@@ -126,7 +152,12 @@ const App = (props) => {
         />
         <Route
           path="/forgot_password"
-          element={<ForgotPassword mobileScreen={mobileScreen} />}
+          element={
+            <ForgotPassword
+              mobileScreen={mobileScreen}
+              showNotification={showNotification}
+            />
+          }
         />
         <Route path="/confirm_account" element={<ConfirmAccount />} />
         <Route
@@ -221,6 +252,13 @@ const App = (props) => {
               </Routes>
             )}
           </div>
+
+          {/* Notifications */}
+          <Snackbar open={notification.open} autoHideDuration={6000} onClose={handleCloseNotification}>
+            <Alert onClose={handleCloseNotification} severity={notification.severity} sx={{ width: '100%' }}>
+              {notification.message}
+            </Alert>
+          </Snackbar>
 
           {/* Dialogs */}
           <SettingsDialog

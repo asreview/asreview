@@ -86,7 +86,7 @@ const SignUpForm = (props) => {
   // form values change or fields are blurred, and a submit function that will
   // be called when the form is submitted
   const navigate = useNavigate();
-
+  
   const [showPassword, toggleShowPassword] = useToggle();
 
   const returnType = () => {
@@ -109,7 +109,11 @@ const SignUpForm = (props) => {
 
   const { error, isError, mutate } = useMutation(BaseAPI.signup, {
     onSuccess: () => {
+      let email = formik.values.email;
       formik.setValues(initialValues, false);
+      if (typeof(props.showNotification) === "function") {
+        props.showNotification(`An confirmation email has been sent to ${email}.`);
+      }
       navigate("/signin");
     },
   });

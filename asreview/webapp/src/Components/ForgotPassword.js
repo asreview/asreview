@@ -62,10 +62,9 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const ForgotPassword = () => {
+const ForgotPassword = (props) => {
   const emailConfig = useSelector((state) => state.email_config) || false;
   const [email, setEmail] = React.useState("");
-  const [successMessage, setSuccessMessage] = React.useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -77,8 +76,8 @@ const ForgotPassword = () => {
         queryClient.resetQueries("refresh");
       },
       onSuccess: (data) => {
+        props.showNotification(`An email has beent sent to ${email}.`)
         setEmail("");
-        setSuccessMessage(data.message);
       },
       onError: (data) => {
         console.error("Forgot password error", data);
@@ -138,7 +137,6 @@ const ForgotPassword = () => {
                       />
                     </Stack>
                     {isError && <InlineErrorHandler message={error.message} />}
-                    {successMessage && <p>{successMessage}</p>}
 
                     <Stack className={classes.button} direction="row">
                       <LoadingButton
