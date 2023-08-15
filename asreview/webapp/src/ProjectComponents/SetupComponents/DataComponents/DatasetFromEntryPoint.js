@@ -52,6 +52,7 @@ const DatasetFromEntryPoint = (props) => {
   const { error, isError, isLoading, mutate, reset } = useMutation(
     ProjectAPI.mutateData,
     {
+      mutationKey: ["addDataset"],
       onSuccess: (data) => {
         props.toggleImportDataset();
         props.toggleProjectSetup();

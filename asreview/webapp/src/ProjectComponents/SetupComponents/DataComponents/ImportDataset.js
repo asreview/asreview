@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useMutation } from "react-query";
+import { useIsMutating, useMutation } from "react-query";
 import { connect } from "react-redux";
 import {
   Dialog,
@@ -54,23 +54,10 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 
 const ImportDataset = (props) => {
   const [datasetSource, setDatasetSource] = React.useState("file");
-  const [file, setFile] = React.useState(null);
 
-  /**
-   * Import a dataset.
-   */
-  const { error, isError, isLoading, mutate, reset } = useMutation(
-    ProjectAPI.mutateData,
-    {
-      onMutate: () => {
-        setFile(null);
-      },
-      onSuccess: (data) => {
-        props.toggleImportDataset();
-        props.toggleProjectSetup();
-      },
-    },
-  );
+  const isAddingDataset = useIsMutating(["addDataset"]);
+
+  const isLoading = isAddingDataset !== 0;
 
   /**
    * Delete the temporary project.
@@ -90,16 +77,7 @@ const ImportDataset = (props) => {
 
   const handleDatasetSource = (event) => {
     setDatasetSource(event.target.value);
-    // clear potential error
-    reset();
   };
-
-  const handleImportDataset = React.useCallback(() => {
-    mutate({
-      project_id: props.project_id,
-      file: file,
-    });
-  }, [file, mutate, props.project_id]);
 
   const handleClose = () => {
     deleteProject({
@@ -120,13 +98,6 @@ const ImportDataset = (props) => {
       setDatasetSource("file");
     }
   }, [props.mode]);
-
-  // auto import once dataset is selected
-  React.useEffect(() => {
-    if (file) {
-      handleImportDataset();
-    }
-  }, [handleImportDataset, file]);
 
   return (
     <StyledDialog
@@ -159,7 +130,7 @@ const ImportDataset = (props) => {
               spacing={1}
             >
               <Tooltip title="Close">
-                <StyledIconButton onClick={handleClose}>
+                <StyledIconButton disabled={isLoading} onClick={handleClose}>
                   <Close />
                 </StyledIconButton>
               </Tooltip>
@@ -263,12 +234,8 @@ const ImportDataset = (props) => {
             {datasetSource === "file" && (
               <ImportFromFile
                 acceptFormat=".txt,.tsv,.tab,.csv,.ris,.xlsx"
-                addFileError={error}
-                file={file}
-                setFile={setFile}
-                isAddFileError={isError}
-                isAddingFile={isLoading}
-                reset={reset}
+                toggleImportDataset={props.toggleImportDataset}
+                toggleProjectSetup={props.toggleProjectSetup}
               />
             )}
             {datasetSource === "url" && (

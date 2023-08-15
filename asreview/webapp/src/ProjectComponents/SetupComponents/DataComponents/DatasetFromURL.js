@@ -43,6 +43,7 @@ const DatasetFromURL = (props) => {
   const { error, isError, isLoading, mutate, data } = useMutation(
     ProjectAPI.mutateData,
     {
+      mutationKey: ["addDataset"],
       onSuccess: (data, variables, context) => {
         // if validate is set and there is only one file, select it
         if (data["files"] && data["files"].length === 1) {

@@ -134,7 +134,7 @@ const ProjectsOverview = (props) => {
       <ImportProject
         mobileScreen={props.mobileScreen}
         open={onImportProject}
-        onClose={toggleImportProject}
+        toggleImportProject={toggleImportProject}
         setFeedbackBar={setFeedbackBar}
       />
       <SetupDialog
