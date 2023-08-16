@@ -76,13 +76,13 @@ const ForgotPassword = (props) => {
         queryClient.resetQueries("refresh");
       },
       onSuccess: (data) => {
-        props.showNotification(`An email has beent sent to ${email}.`)
+        props.showNotification(`An email has beent sent to ${email}.`);
         setEmail("");
       },
       onError: (data) => {
         console.error("Forgot password error", data);
       },
-    },
+    }
   );
 
   const handleSubmit = (event) => {

@@ -73,7 +73,7 @@ const SignupSchema = Yup.object().shape({
   password: Yup.string()
     .matches(
       /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/,
-      "Use 8 or more characters with a mix of letters, numbers & symbols",
+      "Use 8 or more characters with a mix of letters, numbers & symbols"
     )
     .required("Password is required"),
   confirmPassword: Yup.string()
@@ -86,7 +86,7 @@ const SignUpForm = (props) => {
   // form values change or fields are blurred, and a submit function that will
   // be called when the form is submitted
   const navigate = useNavigate();
-  
+
   const [showPassword, toggleShowPassword] = useToggle();
 
   const returnType = () => {
@@ -111,8 +111,10 @@ const SignUpForm = (props) => {
     onSuccess: () => {
       let email = formik.values.email;
       formik.setValues(initialValues, false);
-      if (typeof(props.showNotification) === "function") {
-        props.showNotification(`An confirmation email has been sent to ${email}.`);
+      if (typeof props.showNotification === "function") {
+        props.showNotification(
+          `An confirmation email has been sent to ${email}.`
+        );
       }
       navigate("/signin");
     },

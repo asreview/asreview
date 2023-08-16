@@ -56,23 +56,23 @@ const App = (props) => {
   const dispatch = useDispatch();
   const authentication = useSelector((state) => state.authentication);
   const allowAccountCreation = useSelector(
-    (state) => state.allow_account_creation,
+    (state) => state.allow_account_creation
   );
   const emailVerification = useSelector((state) => state.email_verification);
 
-  // Snackbar Notification (taking care of self closing 
+  // Snackbar Notification (taking care of self closing
   // notifications visible on the lower left side)
   const [notification, setNotification] = React.useState({
     open: false,
     message: "",
-    severity: "success"
+    severity: "success",
   });
-  const showNotification = (message, severity="success") => {
-    setNotification({ open: true, message: message, severity: severity })
-  }
+  const showNotification = (message, severity = "success") => {
+    setNotification({ open: true, message: message, severity: severity });
+  };
   const handleCloseNotification = () => {
-    setNotification(data => ({ ...data, open: false }));
-  }
+    setNotification((data) => ({ ...data, open: false }));
+  };
 
   // Dialog state
   const [onSettings, toggleSettings] = useToggle();
@@ -254,8 +254,16 @@ const App = (props) => {
           </div>
 
           {/* Notifications */}
-          <Snackbar open={notification.open} autoHideDuration={6000} onClose={handleCloseNotification}>
-            <Alert onClose={handleCloseNotification} severity={notification.severity} sx={{ width: '100%' }}>
+          <Snackbar
+            open={notification.open}
+            autoHideDuration={6000}
+            onClose={handleCloseNotification}
+          >
+            <Alert
+              onClose={handleCloseNotification}
+              severity={notification.severity}
+              sx={{ width: "100%" }}
+            >
               {notification.message}
             </Alert>
           </Snackbar>
