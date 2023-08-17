@@ -113,7 +113,7 @@ const SignUpForm = (props) => {
       formik.setValues(initialValues, false);
       if (typeof props.showNotification === "function") {
         props.showNotification(
-          `An confirmation email has been sent to ${email}.`
+          `A confirmation email has been sent to ${email}.`
         );
       }
       navigate("/signin");
