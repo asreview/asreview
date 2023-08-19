@@ -32,18 +32,46 @@ const Root = styled("div")(({theme}) => ({
 }));
 
 const TagsTable = (props) => {
+    const removeProperty = (propKey, { [propKey]: propValue, ...rest }) => rest;
+
+    const getTagCompositeId = (groupId, tagId) => `${groupId}:${tagId}`;
+
+    const handleTagValueChange = (isChecked, groupId, tagId) => {
+        let tagValues;
+
+        if (isChecked) {
+            tagValues = {...props.tagValues, [getTagCompositeId(groupId, tagId)]: true};
+        } else {
+            tagValues = removeProperty(getTagCompositeId(groupId, tagId), props.tagValues);
+        }
+
+        console.log(tagValues);
+
+        props.setTagValues(tagValues);
+    };
+
+    const isChecked = (groupId, tagId) => {
+        return props.tagValues.hasOwnProperty(getTagCompositeId(groupId, tagId));
+    };
+
     return (
         <Root>
             <Box>
                 {props.tags.map((group) => (
-                    <Card elevation={2} className={classes.groupCard}>
+                    <Card elevation={2} className={classes.groupCard} key={group.id}>
                         <CardContent>
                             <Typography variant="h6">{group.name}</Typography>
-                            <FormGroup row="false">
+                            <FormGroup row={true}>
                                 {group.values.map((tag) => (
                                     <FormControlLabel
+                                        key={getTagCompositeId(group.id, tag.id)}
                                         control={
-                                            <Checkbox name={`${group.id}:${tag.id}`}/>
+                                            <Checkbox
+                                                checked={isChecked(group.id, tag.id)}
+                                                onChange={e => {
+                                                    handleTagValueChange(e.target.checked, group.id, tag.id);
+                                                }}
+                                            />
                                         }
                                         label={tag.name}
                                     />

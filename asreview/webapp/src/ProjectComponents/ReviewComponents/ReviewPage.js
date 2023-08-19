@@ -32,6 +32,7 @@ const ReviewPage = (props) => {
     record: null,
     label: null,
     note: null,
+    tagValues: null,
     show: false,
   });
   const [recordNote, setRecordNote] = React.useState({
@@ -39,6 +40,7 @@ const ReviewPage = (props) => {
     shrink: true, // for smooth transition
     data: "",
   });
+  const [tagValues, setTagValues] = React.useState({});
   const [undoState, setUndoState] = React.useState({
     open: false,
     message: null,
@@ -48,6 +50,17 @@ const ReviewPage = (props) => {
   const irrelevantPress = useKeyPress("i");
   const undoPress = useKeyPress("u");
   const notePress = useKeyPress("n");
+
+  const tagValuesEqual = (tagValues1, tagValues2) => {
+    if (tagValues1 === null || tagValues2 === null) {
+      return tagValues1 === null && tagValues2 === null;
+    }
+
+    const keys1 = Object.keys(tagValues1);
+    const keys2 = Object.keys(tagValues2);
+    const union = new Set(keys1.concat(keys2));
+    return union.size === keys1.length && union.size === keys2.length;
+  };
 
   const recordQuery = useQuery(
     ["fetchRecord", { project_id }],
@@ -73,12 +86,14 @@ const ReviewPage = (props) => {
           record: activeRecord,
           label: variables.label,
           note: variables.note,
+          tagValues: variables.tagValues,
           show: false,
         });
       },
       onSuccess: (data, variables) => {
         setActiveRecord(null);
         resetNote();
+        resetTagValues();
         queryClient.invalidateQueries("fetchRecord");
         showUndoBarIfNeeded(variables.label, variables.initial);
       },
@@ -102,6 +117,7 @@ const ReviewPage = (props) => {
         data: previousRecord.note,
       };
     });
+    setTagValues(previousRecord.tagValues);
   };
 
   const resetPreviousRecord = () => {
@@ -109,6 +125,7 @@ const ReviewPage = (props) => {
       record: null,
       label: null,
       note: null,
+      tagValues: null,
       show: false,
     });
   };
@@ -155,7 +172,9 @@ const ReviewPage = (props) => {
       return true;
     }
     return (
-      label !== previousRecord.label || recordNote.data !== previousRecord.note
+      label !== previousRecord.label ||
+      recordNote.data !== previousRecord.note ||
+      !tagValuesEqual(tagValues, previousRecord.tagValues)
     );
   };
 
@@ -163,6 +182,7 @@ const ReviewPage = (props) => {
     setActiveRecord(recordQuery.data["result"]);
     resetPreviousRecord();
     resetNote();
+    resetTagValues();
   };
 
   const makeDecision = (label) => {
@@ -174,6 +194,7 @@ const ReviewPage = (props) => {
         doc_id: activeRecord.doc_id,
         label: label,
         note: recordNote.data,
+        tagValues: tagValues,
         initial: !previousRecord.show,
       });
     }
@@ -188,6 +209,10 @@ const ReviewPage = (props) => {
       shrink: true,
       data: "",
     });
+  };
+
+  const resetTagValues = () => {
+    setTagValues({});
   };
 
   const noteFieldAutoFocus = () => {
@@ -265,6 +290,8 @@ const ReviewPage = (props) => {
           {Array.isArray(props.tags) && props.tags.length && (
               <TagsTable
                   tags={props.tags}
+                  tagValues={tagValues}
+                  setTagValues={setTagValues}
               />
           )}
         </Box>
