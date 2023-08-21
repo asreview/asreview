@@ -16,6 +16,7 @@ import { ProjectModeSelect } from "../ProjectComponents";
 import { MouseOverPopover } from "../StyledComponents/StyledPopover.js";
 import { TypographySubtitle1Medium } from "../StyledComponents/StyledTypography.js";
 import { mapStateToProps } from "../globals.js";
+import { TagEditor } from "./TagComponents";
 
 const Root = styled("div")(({ theme }) => ({}));
 
@@ -164,6 +165,7 @@ const ProjectInfoForm = (props) => {
                 onChange={handleInfoChange}
                 value={props.info?.description}
               />
+              <TagEditor tags={props.info.tags} />
             </Stack>
           </Box>
         )}
