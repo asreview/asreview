@@ -396,7 +396,6 @@ def create_app(**kwargs):
     @app.route("/projects/<project_id>/", methods=["GET"])
     @app.route("/projects/<project_id>/<tab>/", methods=["GET"])
     def index(**kwargs):
-        print("RENDERED")
         return render_template("index.html")
 
     @app.route("/favicon.ico")
