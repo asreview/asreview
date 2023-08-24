@@ -299,6 +299,11 @@ def create_app(**kwargs):
     login_manager.session_protection = "strong"
 
     if app.config["AUTHENTICATION_ENABLED"] is False:
+        # This ensures the app handles the anonymous user
+        # when authentication is disabled and there is no
+        # configuration file
+        app.config["SECRET_KEY"] = "no_secret"
+
         # This is necessary to pass the test_webapp.py tests
         @login_manager.user_loader
         def load_user(user_id):
@@ -391,10 +396,12 @@ def create_app(**kwargs):
         return jsonify(message=str(e.original_exception)), 500
 
     @app.route("/", methods=["GET"])
+    @app.route("/confirm_account", methods=["GET"])
     @app.route("/oauth_callback", methods=["GET"])
     @app.route("/projects/", methods=["GET"])
     @app.route("/projects/<project_id>/", methods=["GET"])
     @app.route("/projects/<project_id>/<tab>/", methods=["GET"])
+    @app.route("/reset_password", methods=["GET"])
     def index(**kwargs):
         return render_template("index.html")
 
