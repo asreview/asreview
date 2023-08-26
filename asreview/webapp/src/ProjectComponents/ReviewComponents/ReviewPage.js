@@ -287,7 +287,7 @@ const ReviewPage = (props) => {
             previousRecord={previousRecord}
           />
           {/* Labels table */}
-          {Array.isArray(props.tags) && props.tags.length && (
+          {Array.isArray(props.tags) && props.tags.length > 0 && (
               <TagsTable
                   tags={props.tags}
                   tagValues={tagValues}
