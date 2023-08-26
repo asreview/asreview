@@ -190,6 +190,10 @@ def api_init_project():  # noqa: F401
     project_title = request.form["name"]
     project_description = request.form["description"]
     project_authors = request.form["authors"]
+    project_tags = request.form.get("tags", default="[]", type=str)
+
+    # parse project_tags to python object
+    project_tags = json.loads(project_tags)
 
     # get a unique project id
     project_id = uuid4().hex
@@ -204,50 +208,7 @@ def api_init_project():  # noqa: F401
         project_name=project_title,
         project_description=project_description,
         project_authors=project_authors,
-        project_tags=[
-            {
-                "name": "Biomes",
-                "id": "biomes",
-                "values": [
-                    {"id": "boreal_forest", "name": "Boreal Forest"},
-                    {"id": "savanna", "name": "Savanna"},
-                    {"id": "mangrove", "name": "Mangrove"},
-                    {"id": "tropical_forest", "name": "Tropical Forest"},
-                    {"id": "forest", "name": "Forest"}
-                ]
-            },
-            {
-                "name": "Restoration Approaches",
-                "id": "restoration_approaches",
-                "values": [
-                    {"id": "direct_seeding", "name": "Direct seeding (i.e. spreading/planting seeds)"},
-                    {"id": "tree_planting", "name": "Planting trees (i.e. planting trees as seedlings)"},
-                    {
-                        "id": "enrichment_planting",
-                        "name": "Enrichment planting (i.e. planting trees under existing forest)"
-                    },
-                    {"id": "assisted_natural_regeneration", "name": "Assisted natural regeneration"},
-                    {"id": "farmer_managed_natural_regeneration", "name": "Farmer managed natural regeneration"}
-                ]
-            },
-            {
-                "name": "Recovery Data",
-                "id": "recovery_data",
-                "values": [
-                    {"id": "measured_carbon", "name": "Measured carbon (or biomass)"},
-                    {
-                        "id": "diversity_of_plant_species_naturally_recruiting",
-                        "name": "Diversity of plant species naturally recruiting"
-                    },
-                    {
-                        "id": "changes_in_vegetation_structure",
-                        "name": "Changes in vegetation structure (i.e. basal area, canopy cover)"
-                    },
-                    {"id": "recovery_of_animals_insects", "name": "Recovery of animal/insect diversity"},
-                    {"id": "social_benefits", "name": "Social benefits"}
-                ]
-            }
-        ],
+        project_tags=project_tags,
     )
 
     if current_app.config.get("LOGIN_DISABLED", False):
@@ -321,11 +282,14 @@ def api_get_project_info(project):  # noqa: F401
 def api_update_project_info(project):  # noqa: F401
     """Update project info"""
 
+    tags = json.loads(request.form.get("tags", default="[]", type=str))
+
     project.update_config(
         mode=request.form["mode"],
         name=request.form["name"],
         description=request.form["description"],
         authors=request.form["authors"],
+        tags=tags,
     )
 
     return api_get_project_info(project.project_id)

@@ -292,6 +292,118 @@ SCHEMA = {
                 ],
             },
         },
+        "tags": {
+            "$id": "#/properties/tags",
+            "type": "array",
+            "title": "The tags schema",
+            "description": "The list of tags to show during review.",
+            "default": [],
+            "additionalItems": False,
+            "items": {
+                "$id": "#/properties/tags/items",
+                "anyOf": [
+                    {
+                        "$id": "#/properties/tags/items/anyOf/0",
+                        "type": "object",
+                        "title": "The first anyOf schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "required": ["name", "id", "values"],
+                        "properties": {
+                            "id": {
+                                "$id": "#/properties/tags/items/anyOf/0/properties/id",
+                                "type": "string",
+                                "title": "The id of category.",
+                                "description": "A unique identifier of the category.",
+                                "default": "",
+                                "examples": ["biomes"],
+                            },
+                            "name": {
+                                "$id": "#/properties/tags/items/anyOf/0/properties/name",
+                                "type": "string",
+                                "title": "The name of category.",
+                                "description": "A display name of the category.",
+                                "default": "",
+                                "examples": ["Biomes"],
+                            },
+                            "values": {
+                                "$id": "#/properties/tags/items/anyOf/0/properties/values",
+                                "type": "array",
+                                "title": "The tag list of the category.",
+                                "description": "The tag list of the category.",
+                                "default": [],
+                                "items": {
+                                    "$id": "#/properties/tags/items/anyOf/0/properties/values/items",
+                                    "anyOf": [
+                                        {
+                                            "$id": "#/properties/tags/items/anyOf/0/properties/values/items/anyOf/0",
+                                            "type": "object",
+                                            "required": ["id", "name"],
+                                            "properties": {
+                                                "id": {
+                                                    "$id": "#/properties/tags/items/anyOf/0/properties/values/items"
+                                                           "/anyOf/0/properties/id",
+                                                    "type": "string",
+                                                    "title": "The id of tag.",
+                                                    "description": "A unique identifier of the tag.",
+                                                    "default": "",
+                                                    "examples": ["boreal_forest"],
+                                                },
+                                                "name": {
+                                                    "$id": "#/properties/tags/items/anyOf/0/properties/values/items"
+                                                           "/anyOf/0/properties/name",
+                                                    "type": "string",
+                                                    "title": "The name of tag.",
+                                                    "description": "A display name of the tag.",
+                                                    "default": "",
+                                                    "examples": ["Boreal Forest"],
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "additionalProperties": False,
+                        "examples": [
+                            {
+                                "name": "Biomes",
+                                "id": "biomes",
+                                "values": [
+                                    {"id": "boreal_forest", "name": "Boreal Forest"},
+                                    {"id": "savanna", "name": "Savanna"},
+                                    {"id": "mangrove", "name": "Mangrove"},
+                                    {"id": "tropical_forest", "name": "Tropical Forest"}
+                                ]
+                            }
+                        ],
+                    }
+                ],
+            },
+            "examples": [
+                [
+                    {
+                        "name": "Biomes",
+                        "id": "biomes",
+                        "values": [
+                            {"id": "boreal_forest", "name": "Boreal Forest"},
+                            {"id": "savanna", "name": "Savanna"},
+                            {"id": "mangrove", "name": "Mangrove"},
+                            {"id": "tropical_forest", "name": "Tropical Forest"}
+                        ]
+                    },
+                    {
+                        "name": "Restoration Approaches",
+                        "id": "restoration_approaches",
+                        "values": [
+                            {"id": "direct_seeding", "name": "Direct seeding (i.e. spreading/planting seeds)"},
+                            {"id": "tree_planting", "name": "Planting trees (i.e. planting trees as seedlings)"},
+                            {"id": "assisted_natural_regeneration", "name": "Assisted natural regeneration"},
+                            {"id": "farmer_managed_natural_regeneration", "name": "Farmer managed natural regeneration"}
+                        ]
+                    }
+                ]
+            ],
+        },
         "dataset_path": {
             "$id": "#/properties/dataset_path",
             "type": ["string", "null"],
