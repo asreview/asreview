@@ -1,0 +1,18 @@
+version: '3.9'
+services:
+
+  backend:
+    build:
+      context: ../../
+      dockerfile: ./Docker/auth_verified/Dockerfile_backend
+    ports:
+      - "127.0.0.1:5013:5001"
+
+  frontend:
+    build:
+      context: ../../
+      dockerfile: ./Docker/auth_verified/Dockerfile_frontend
+      args:
+        API_URL: http://localhost:5013/
+    ports:
+      - "127.0.0.1:8080:80"
