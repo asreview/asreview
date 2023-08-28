@@ -302,7 +302,7 @@ def create_app(**kwargs):
         # This ensures the app handles the anonymous user
         # when authentication is disabled and there is no
         # configuration file
-        app.config["SECRET_KEY"] = "no_secret"
+        app.config["SECRET_KEY"] = ""
 
         # This is necessary to pass the test_webapp.py tests
         @login_manager.user_loader
