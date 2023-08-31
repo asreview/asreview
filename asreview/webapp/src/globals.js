@@ -10,6 +10,10 @@ let b_url = "/";
 if ((process.env.NODE_ENV !== 'production') && Boolean(process.env.REACT_APP_API_URL)) {
   b_url = process.env.REACT_APP_API_URL;
 }
+
+console.log(process.env.NODE_ENV, process.env.REACT_APP_API_URL, b_url)
+
+
 export const base_url = b_url;
 export const api_url = base_url + "api/";
 export const auth_url = base_url + "auth/";

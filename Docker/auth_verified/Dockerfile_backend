@@ -36,4 +36,4 @@ ENV FLASK_CONFIGFILE=/app/flask_config.toml
 WORKDIR /root/.local/lib/python3.8/site-packages/asreview/webapp
 COPY ./Docker/auth_verified/wsgi.py ${WORKDIR}
 
-ENTRYPOINT ["gunicorn", "--workers", "4", "--bind", "0.0.0.0:5001", "wsgi:app"]
+ENTRYPOINT ["gunicorn", "--preload", "--workers", "4", "--bind", "0.0.0.0:5001", "wsgi:app"]

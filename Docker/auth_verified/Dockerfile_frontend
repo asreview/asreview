@@ -14,12 +14,15 @@ COPY ./asreview/webapp/src/ ./src/
 COPY ./asreview/webapp/public/ ./public/
 # create an .env file with backend-url in it
 ARG API_URL
-RUN echo "REACT_APP_API_URL=${API_URL}" > ./.env.production
+# RUN echo "REACT_APP_API_URL=${API_URL}" > ./.env.production
 # Build production
-RUN npm run build
+# RUN npm run build
+RUN REACT_APP_API_URL=${API_URL} \
+  npm run build
 
 # second stage: create nginx container with front-end
 # in it
 FROM nginx:alpine
+ARG API_URL
 COPY --from=builder /app/build /usr/share/nginx/html
 COPY ./Docker/auth_verified/asreview.conf /etc/nginx/conf.d/default.conf
