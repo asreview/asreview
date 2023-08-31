@@ -14,9 +14,7 @@ COPY ./asreview/webapp/src/ ./src/
 COPY ./asreview/webapp/public/ ./public/
 # create an .env file with backend-url in it
 ARG API_URL
-# RUN echo "REACT_APP_API_URL=${API_URL}" > ./.env.production
-# Build production
-# RUN npm run build
+# Build for production
 RUN REACT_APP_API_URL=${API_URL} \
   npm run build
 
