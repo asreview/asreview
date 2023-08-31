@@ -355,14 +355,17 @@ def create_app(**kwargs):
             uri = os.path.join(asreview_path(), f"asreview.{env}.sqlite")
             app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{uri}"
 
+            # create the database plus table(s)
+            DB.init_app(app)
+            if not Path(uri).exists():
+                with app.app_context():
+                    DB.create_all()
+
         # store oauth config in oauth handler
         if bool(app.config.get("OAUTH", False)):
             app.config["OAUTH"] = OAuthHandler(app.config["OAUTH"])
 
-        # create the database plus table(s)
-        DB.init_app(app)
-        with app.app_context():
-            DB.create_all()
+
 
     # Ensure the instance folder exists.
     try:
