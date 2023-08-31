@@ -175,7 +175,6 @@ class AuthAPI {
         data: body,
       })
         .then((result) => {
-          console.log(result);
           resolve(result["data"]);
         })
         .catch((error) => {
