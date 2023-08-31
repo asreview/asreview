@@ -265,7 +265,7 @@ def create_app(**kwargs):
     # Read config parameters if possible, this overrides
     # the previous assignments. Flask config parameters may come
     # as an environment var or from an argument. Argument
-    # takes precedence. 
+    # takes precedence.
     config_from_env = os.environ.get("FLASK_CONFIGFILE", "").strip()
     config_from_arg = kwargs.get("flask_configfile", "").strip()
     config_file_path = config_from_arg or config_from_env
@@ -369,8 +369,6 @@ def create_app(**kwargs):
         # store oauth config in oauth handler
         if bool(app.config.get("OAUTH", False)):
             app.config["OAUTH"] = OAuthHandler(app.config["OAUTH"])
-
-
 
     # Ensure the instance folder exists.
     try:
