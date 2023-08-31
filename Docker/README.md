@@ -21,13 +21,14 @@ If you would like to setup the ASReview application as a shared service, a more 
 
 For account verification, but also for the forgot-password feature, an email server is required. But maintaining an email server can be very demanding. If you would like to avoid it, a third-party service like [SendGrid](https://sendgrid.com/) might be a good alternative. In this recipe we use the SMTP Relay Service from Sendgrid: every email sent by the ASReview application will be relayed by this service. Sendgrid is for free if you don't expect the application to send more than 100 emails per day. Receiving reply emails from end-users is not possible if you use the Relay service, but that might be irrelevant.
 
-In the `auth_verified` folder you find 6 files:
-1. `asreview.conf` - a configuration files used by NGINX, the frontend server.
-2. `docker-compose.yml` - the docker compose file that will create the Docker containers.
-3. `Dockerfile_backend` - Dockerfile for the backend, installs all Python related software, including Gunicorn, and starts the backend server on port 5001.
-4. `Dockerfile_frontend` - Dockerfile for the frontend, installs Node, the React frontend and NGINX and starts the NGINX server.
-5. `flask_config.toml` - the configuration file for the ASReview application. Contains the necessary EMAIL_CONFIG parameters to link the application to the Sendgrid Relay Service.
-6. `wsgi.py` - a tiny Python file that serves the backend with Gunicorn.
+In the `auth_verified` folder you find 7 files:
+1. `.env` - An environment variable file for Docker compose, initializes all internal and external container ports.
+2. `asreview.conf` - a configuration files used by NGINX, the frontend server.
+3. `docker-compose.yml` - the docker compose file that will create the Docker containers.
+4. `Dockerfile_backend` - Dockerfile for the backend, installs all Python related software, including Gunicorn, and starts the backend server on port 5001.
+5. `Dockerfile_frontend` - Dockerfile for the frontend, installs Node, the React frontend and NGINX and starts the NGINX server.
+6. `flask_config.toml` - the configuration file for the ASReview application. Contains the necessary EMAIL_CONFIG parameters to link the application to the Sendgrid Relay Service.
+7. `wsgi.py` - a tiny Python file that serves the backend with Gunicorn.
 
 ### SendGrid
 

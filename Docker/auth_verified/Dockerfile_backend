@@ -1,5 +1,5 @@
 # First stage
-FROM python:3.8-slim AS builder
+FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ RUN apt-get update \
     && pip3 install --user asreview-datatools asreview-insights asreview-makita asreview-wordcloud
 
 # Second stage
-FROM python:3.8-slim
+FROM python:3.11-slim
 
 RUN apt-get update && apt-get install -y curl && apt-get install -y procps
 
@@ -33,7 +33,15 @@ ENV PATH=/root/.local/bin:$PATH
 ENV ASREVIEW_PATH=/app/project_folder
 ENV FLASK_CONFIGFILE=/app/flask_config.toml
 
-WORKDIR /root/.local/lib/python3.8/site-packages/asreview/webapp
+WORKDIR /root/.local/lib/python3.11/site-packages/asreview/webapp
 COPY ./Docker/auth_verified/wsgi.py ${WORKDIR}
 
-ENTRYPOINT ["gunicorn", "--preload", "--workers", "4", "--bind", "0.0.0.0:5001", "wsgi:app"]
+# create Gunicorn config file
+ARG BACKEND_INTERNAL_PORT
+RUN echo "import multiprocessing" > gunicorn.conf.py
+RUN echo "preload_app = True"
+RUN echo "bind = \"127.0.0.1:${BACKEND_INTERNAL_PORT}\"" >> gunicorn.conf.py
+RUN echo "workers = multiprocessing.cpu_count() * 2 + 1" >> gunicorn.conf.py
+
+# ENTRYPOINT ["./run.sh"]
+ENTRYPOINT ["gunicorn", "-c", "gunicorn.conf.py", "wsgi:app"]
