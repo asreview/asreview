@@ -190,7 +190,7 @@ const SetupDialog = (props) => {
           title: data["name"],
           authors: data["authors"],
           description: data["description"],
-          tags: data["tags"],
+          tags: data["tags"] || [],
           dataset_path: data["dataset_path"],
         });
         setExTitle(data["name"]);
