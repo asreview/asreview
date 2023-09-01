@@ -32,22 +32,20 @@ In the `auth_verified` folder you find 7 files:
 
 ### SendGrid
 
-If you would like to use or try out [SendGrid](https://sendgrid.com/), go to their website, create an account and sign in. Once signed in, click on "Email API" in the menu and subsequently click on the "Integration Guide" link. Then, choose "SMTP Relay", create an API key and copy the resulting settings (Server, Ports, Username and Password) in your `flask_config.toml` file. The final step would be verification, but that is only possible after building the Docker containers.
+If you would like to use or try out [SendGrid](https://sendgrid.com/), go to their website, create an account and sign in. Once signed in, click on "Email API" in the menu and subsequently click on the "Integration Guide" link. Then, choose "SMTP Relay", create an API key and copy the resulting settings (Server, Ports, Username and Password) in your `flask_config.toml` file. It's important to continue with checking the "I've updated my settings" checkbox when it's visible __and__ to click on the "Next: verify Integration" button before you build the Docker containers.
 
 ### Gunicorn and NGINX workers
 
-As written, the backend is served by Gunicorn. Gunicorn spawns a number of child processes called workers that handle incoming HTTP requests. The amount of workers is configurable in the `Dockerfile_backend` in the ENTRYPOINT command at the end of the file. This number is set to 2, but change this if desired. Changing the amount of NGINX workers is possible, but requires more configuration which we will ignore.
+As written, the backend is served by Gunicorn. Gunicorn spawns a number of child processes called workers that handle incoming HTTP requests. The amount of workers is configurable in the `Dockerfile_backend` above the ENTRYPOINT command where a Gunicorn configuration file is created. This number is set to the amount of cores your server has plus 1, but change this if desired. Changing the amount of NGINX workers is possible, but requires more configuration which we will ignore.
 
 ### Ports
 
-The backend container runs our Flask backend, with Gunicorn, on internal port 5001. This port is bridged to port 5013 on the outside of the container to avoid confusion. Thus, if you would like to access the backend directly in your browser (or via wget or curl), make a request to port 5013. This external port number can be changed in the `docker-compose.yml` file. If you do so, do not forget to change it under the "API_URL" key under "frontend" as well! If you would like to change the internal port number (5001), change it in the `docker-compose.yml`, but also in the "ENTRYPOINT" line in the `Dockerfile_backend` file.\
-The frontend listens internally to port 80. This is bridged externally to port 8080 to, again, avoid confusion. We suggest to not change port 80, but if you would like to alter port 8080 make sure you do so in the `docker-compose.yml` file, but also in the flask_config.toml file under the "ALLOWED_ORIGINS" key.
+The preferred port mapping of your Docker containers is configured in the `.env` file. There are 2 containers, a frontend and a backend container. In the `.env` both internal and external ports are defined with descriptive variable names.
 
 ### Creating and running the containers
 
-Change your working directory to the `auth_verified` folder and execute the `docker compose` command:
+From the __root__ folder of the app execute the `docker compose` command:
 
 ```
-$ cd <asreview root folder>/Docker/auth_verified
-$ docker compose -f docker-compose.yml up --build
+$ docker compose -f ./Docker/auth_verified/docker-compose.yml up --build --force-recreate
 ```

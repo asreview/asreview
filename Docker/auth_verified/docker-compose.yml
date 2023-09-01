@@ -6,9 +6,9 @@ services:
       context: ../../
       dockerfile: ./Docker/auth_verified/Dockerfile_backend
       args:
-        BACKEND_INTERNAL_PORT: ${BACKEND_INTERNAL_PORT}
+        BACKEND_INTERNAL_PORT_ARG: ${BACKEND_INTERNAL_PORT}
     ports:
-      - "127.0.0.1:${BACKEND_EXTERNAL_PORT}:${BACKEND_INTERNAL_PORT}"
+      - "${BACKEND_EXTERNAL_PORT}:${BACKEND_INTERNAL_PORT}"
 
   frontend:
     build:
@@ -17,4 +17,4 @@ services:
       args:
         API_URL: http://localhost:${BACKEND_EXTERNAL_PORT}/
     ports:
-      - "127.0.0.1:${FRONTEND_EXTERNAL_PORT}:${FRONTEND_INTERNAL_PORT}"
+      - "${FRONTEND_EXTERNAL_PORT}:${FRONTEND_INTERNAL_PORT}"

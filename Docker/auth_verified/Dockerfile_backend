@@ -37,11 +37,11 @@ WORKDIR /root/.local/lib/python3.11/site-packages/asreview/webapp
 COPY ./Docker/auth_verified/wsgi.py ${WORKDIR}
 
 # create Gunicorn config file
-ARG BACKEND_INTERNAL_PORT
+ARG BACKEND_INTERNAL_PORT_ARG
 RUN echo "import multiprocessing" > gunicorn.conf.py
 RUN echo "preload_app = True"
-RUN echo "bind = \"127.0.0.1:${BACKEND_INTERNAL_PORT}\"" >> gunicorn.conf.py
+RUN echo "bind = \"0.0.0.0:${BACKEND_INTERNAL_PORT_ARG}\"" >> gunicorn.conf.py
 RUN echo "workers = multiprocessing.cpu_count() * 2 + 1" >> gunicorn.conf.py
+# RUN echo "workers = 2" >> gunicorn.conf.py
 
-# ENTRYPOINT ["./run.sh"]
 ENTRYPOINT ["gunicorn", "-c", "gunicorn.conf.py", "wsgi:app"]
