@@ -68,6 +68,21 @@ const ProjectInfoForm = (props) => {
     }
   };
 
+  const handleTagChange = (newTags) => {
+    if (!isProjectSetup()) {
+      props.setInfo({
+        ...props.info,
+        tags: newTags,
+      });
+      if (props.info?.title) {
+        props.setDisableSaveButton(false);
+      }
+      props.setDisableUndoButton(false);
+    } else {
+      props.handleTagChange(newTags);
+    }
+  };
+
   const refetchInfo = () => {
     queryClient.resetQueries("fetchInfo");
   };
@@ -165,7 +180,13 @@ const ProjectInfoForm = (props) => {
                 onChange={handleInfoChange}
                 value={props.info?.description}
               />
-              <TagEditor tags={props.info.tags} />
+              <TagEditor
+                tags={props.info.tags}
+                handleTagChange={handleTagChange}
+                mobileScreen={props.mobileScreen}
+                onFocus={onFocus}
+                onBlur={onBlur}
+              />
             </Stack>
           </Box>
         )}

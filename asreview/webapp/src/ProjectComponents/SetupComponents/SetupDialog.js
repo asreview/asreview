@@ -90,6 +90,7 @@ const SetupDialog = (props) => {
     title: "",
     authors: "",
     description: "",
+    tags: [],
     dataset_path: undefined,
   });
   const [disableFetchInfo, setDisableFetchInfo] = React.useState(false); // disable fetch when init a project
@@ -138,6 +139,13 @@ const SetupDialog = (props) => {
     });
   };
 
+  const handleTagChange = (newTags) => {
+    setInfo({
+      ...info,
+      tags: newTags,
+    });
+  };
+
   const {
     error: initError,
     isError: isInitError,
@@ -182,6 +190,7 @@ const SetupDialog = (props) => {
           title: data["name"],
           authors: data["authors"],
           description: data["description"],
+          tags: data["tags"],
           dataset_path: data["dataset_path"],
         });
         setExTitle(data["name"]);
@@ -388,6 +397,7 @@ const SetupDialog = (props) => {
       title: "",
       authors: "",
       description: "",
+      tags: [],
       dataset_path: undefined,
     });
     setModel({
@@ -537,6 +547,7 @@ const SetupDialog = (props) => {
                   isDeleteProjectError={isDeleteProjectError}
                   isMutateInfoError={returnInfoError()[0]}
                   handleInfoChange={handleInfoChange}
+                  handleTagChange={handleTagChange}
                   datasetAdded={projectHasDataset()}
                   setTextFieldFocused={setTextFieldFocused}
                 />
