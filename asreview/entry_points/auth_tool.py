@@ -17,13 +17,39 @@ from asreview.webapp.authentication.models import User
 
 def auth_parser():
     parser = argparse.ArgumentParser(
-        prog="auth_converter",
-        description="""ASReview Authentication Conversion - convert your app to handle multiple users.""",  # noqa
+        prog="auth-tool",
+        description="""
+Tool to create and fill a database to authenticate the ASReview application.
+The tool can be used to convert existing project data to be used in an
+authenticated setup.
+        """,
         formatter_class=RawTextHelpFormatter,
         epilog="Use -h or --help on all subcommands to view the available options.",
     )
 
     sub_parser = parser.add_subparsers(help="The following options are available:")
+
+    create_db_par = sub_parser.add_parser(
+        "create-db",
+        help="Create the database necessary to authenticate the ASReview app."
+    )
+
+    create_db_par.add_argument(
+        "-t",
+        "--db-type",
+        type=str,
+        help="Choose the authentication database type.",
+        choices=["sqlite3", "postgres"],
+        required=True,
+    )
+
+    create_db_par.add_argument(
+        "-n",
+        "--name",
+        type=str,
+        help="Name of the database.",
+        required=True
+    )
 
     user_par = sub_parser.add_parser("add-users", help="Add users into the database.")
 
@@ -160,7 +186,9 @@ class AuthTool(BaseEntryPoint):
             Session.configure(bind=engine)
             self.session = Session()
 
-        if "add-users" in argv:
+        if "create-db" in argv:
+            self.create_database()
+        elif "add-users" in argv:
             self.add_users()
         elif "list-users" in argv:
             self.list_users()
@@ -168,6 +196,10 @@ class AuthTool(BaseEntryPoint):
             self.list_projects()
         elif "link-projects" in argv:
             self.link_projects()
+
+    def create_database(self):
+        print("Create Database")
+        pass
 
     def add_users(self):
         if self.args.json is not None:
