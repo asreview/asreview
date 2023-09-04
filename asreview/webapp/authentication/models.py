@@ -221,7 +221,13 @@ class Collaboration(DB.Model):
         nullable=False
     )
     # make sure we have unique records in this table
-    __table_args__ = (UniqueConstraint("project_id", "user_id", name="unique_records"),)
+    __table_args__ = (
+        UniqueConstraint(
+            "project_id",
+            "user_id",
+            name="unique_records_collaboration"
+        ),
+    )
 
     def __repr__(self):
         return f"<Collaboration project:{self.project_id} user:{self.user_id}>"
@@ -277,9 +283,20 @@ class CollaborationInvitation(DB.Model):
         nullable=False
     )
     # make sure we have unique records in this table
-    __table_args__ = (UniqueConstraint("project_id", "user_id", name="unique_records"),)
+    __table_args__ = (
+        UniqueConstraint(
+            "project_id",
+            "user_id",
+            name="unique_records_invitations"
+        ),
+    )
 
     def __repr__(self):
         pid = self.project_id
         uid = self.user_id
         return f"<CollaborationInvitation project:{pid} user:{uid}>"
+
+
+def create_database_and_tables(engine):
+    """Creating database and tables with engine"""
+    DB.Model.metadata.create_all(engine)

@@ -63,7 +63,8 @@ REQUIRES = [
     "tqdm",
     "gevent>=20",
     "datahugger>=0.2",
-    "synergy_dataset"
+    "synergy_dataset",
+    "psycopg2",
 ]
 
 if sys.version_info < (3, 11):

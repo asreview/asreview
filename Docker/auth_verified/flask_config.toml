@@ -13,6 +13,9 @@ ALLOW_ACCOUNT_CREATION = true
 ALLOW_TEAMS = false
 EMAIL_VERIFICATION = true
 
+[DATABASE]
+URI = "postgresql+psycopg2://root@127.0.0.1:5432/asreview"
+
 [EMAIL_CONFIG]
 SERVER = "smtp.sendgrid.net"
 PORT = 465
