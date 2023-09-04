@@ -7,6 +7,8 @@ from uuid import UUID
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy_utils import create_database
+from sqlalchemy_utils import database_exists
 
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.project import ASReviewProject
@@ -253,6 +255,10 @@ class AuthTool(BaseEntryPoint):
             db_name = self.args.db_name
             password = f":{self.args.password}" if self.args.password else ""
             uri = f"postgresql+psycopg2://{username}{password}@{host}:{port}/{db_name}"
+
+            # create the database if necessary
+            if not database_exists(uri):
+                create_database(uri)
         else:
             # open for more database types
             uri = ""

@@ -49,10 +49,10 @@ class User(UserMixin, DB.Model):
     email = Column(String(100), unique=True)
     name = Column(String(100))
     affiliation = Column(String(100))
-    hashed_password = Column(String(100))
+    hashed_password = Column(String(150))
     confirmed = Column(Boolean)
     public = Column(Boolean)
-    token = Column(String(50))
+    token = Column(String(150))
     token_created_at = Column(DateTime)
 
     projects = relationship("Project", back_populates="owner", cascade="all, delete")

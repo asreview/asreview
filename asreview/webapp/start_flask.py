@@ -363,6 +363,9 @@ def create_app(**kwargs):
         app.config["MAIL_USE_SSL"] = conf.get("USE_SSL", False)
         app.config["MAIL_REPLY_ADDRESS"] = conf.get("REPLY_ADDRESS")
 
+        # initialize app for SQLAlchemy
+        DB.init_app(app)
+
         # We must be sure we have a SQLAlchemy database URI. At this
         # stage the TOML file has been read. See if we haven't found
         # such a URI.
@@ -383,7 +386,6 @@ def create_app(**kwargs):
                 # set create_database flag to True
                 create_database = True
 
-            DB.init_app(app)
             # create the database on the fly if it doesn't exist
             if create_database and not (Path(uri).exists()):
                 with app.app_context():

@@ -65,6 +65,7 @@ REQUIRES = [
     "datahugger>=0.2",
     "synergy_dataset",
     "psycopg2",
+    "sqlalchemy-utils",
 ]
 
 if sys.version_info < (3, 11):
