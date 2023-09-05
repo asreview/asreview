@@ -1,5 +1,10 @@
 import * as React from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import {
+  useIsMutating,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "react-query";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
@@ -26,7 +31,7 @@ import { AppBarWithinDialog } from "../../Components";
 import { FinishSetup, SavingStateBox } from "../SetupComponents";
 import { DataForm } from "../SetupComponents/DataComponents";
 import { ModelForm } from "../SetupComponents/ModelComponents";
-import { ProjectInfoForm } from "../../ProjectComponents";
+import { InfoForm } from "../SetupComponents/InfoComponents";
 import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
 import { StyledStepIcon } from "../../StyledComponents/StyledStepIcon";
 
@@ -34,7 +39,6 @@ import { ProjectAPI } from "../../api/index.js";
 import {
   mapStateToProps,
   mapDispatchToProps,
-  projectModes,
   projectStatuses,
 } from "../../globals.js";
 
@@ -47,6 +51,7 @@ const classes = {
   stepper: `${PREFIX}-stepper`,
   form: `${PREFIX}-form`,
   formWarmup: `${PREFIX}-form-warmup`,
+  title: `${PREFIX}-title`,
 };
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
@@ -74,32 +79,24 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
     display: "flex",
     justifyContent: "center",
   },
+
+  [`& .${classes.title}`]: {
+    height: "64px",
+  },
 }));
 
 const SetupDialog = (props) => {
-  const steps = ["Project information", "Data", "Model", "Warm up"];
-
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const descriptionElementRef = React.useRef(null);
+
+  const [title, setTitle] = React.useState("");
+
   const [activeStep, setActiveStep] = React.useState(0);
-  const [completed, setCompleted] = React.useState({ 0: true, 1: true });
+  const [completed, setCompleted] = React.useState({ 0: true });
 
-  // State Step 1: Project information
-  const [info, setInfo] = React.useState({
-    mode: projectModes.ORACLE,
-    title: "",
-    authors: "",
-    description: "",
-    dataset_path: undefined,
-  });
-  const [disableFetchInfo, setDisableFetchInfo] = React.useState(false); // disable fetch when init a project
-  const [exTitle, setExTitle] = React.useState(""); // for comparison to decide on mutate project id
-  const [textFiledFocused, setTextFieldFocused] = React.useState(null); // for autosave on blur
+  const useIsMutatingInfo = useIsMutating(["mutateInfo"]);
 
-  // State Step 2: Data
-
-  // State Step 3: Model
+  // State Step 2: Model
   const [model, setModel] = React.useState({
     classifier: null,
     query_strategy: null,
@@ -107,100 +104,16 @@ const SetupDialog = (props) => {
     feature_extraction: null,
   });
 
+  // State Step 3: Data
+
   // State finish setup
   const [trainingStarted, setTrainingStarted] = React.useState(false);
   const [trainingFinished, setTrainingFinished] = React.useState(false);
 
   /**
-   * Step 1: Project information
-   */
-  const handleInfoChange = (event) => {
-    if (isMutateInfoError && event.target.name === "title") {
-      resetMutateInfo();
-    }
-    setInfo({
-      ...info,
-      [event.target.name]: event.target.value,
-    });
-  };
-
-  const {
-    error: mutateInfoError,
-    isError: isMutateInfoError,
-    isLoading: isMutatingInfo,
-    mutate: mutateInfo,
-    reset: resetMutateInfo,
-  } = useMutation(ProjectAPI.mutateInfo, {
-    onSuccess: (data, variables) => {
-      // mutate project id when typed title is different from existing title/empty string
-      if (variables.title !== exTitle) {
-        props.setProjectId(data["id"]);
-      }
-      setTextFieldFocused(null);
-    },
-  });
-
-  const {
-    error: fetchInfoError,
-    isError: isFetchInfoError,
-    isFetching: isFetchingInfo,
-  } = useQuery(
-    ["fetchInfo", { project_id: props.project_id }],
-    ProjectAPI.fetchInfo,
-    {
-      enabled: props.project_id !== null && props.open && !disableFetchInfo,
-      onSuccess: (data) => {
-        setInfo({
-          mode: data["mode"],
-          title: data["name"],
-          authors: data["authors"] ? data["authors"] : "",
-          description: data["description"] ? data["description"] : "",
-          dataset_path: data["dataset_path"],
-        });
-        setExTitle(data["name"]);
-        setDisableFetchInfo(true); // avoid getting all the time
-      },
-      refetchOnWindowFocus: false,
-    },
-  );
-
-  // auto mutate info when text field is not focused
-  React.useEffect(() => {
-    if (
-      props.open &&
-      textFiledFocused !== null &&
-      !textFiledFocused &&
-      !(info.title.length < 1) &&
-      !isMutateInfoError
-    ) {
-      if (props.project_id) {
-        mutateInfo({
-          project_id: props.project_id,
-          mode: info.mode,
-          title: info.title,
-          authors: info.authors,
-          description: info.description,
-        });
-      }
-    }
-  }, [
-    props.open,
-    info,
-    isMutateInfoError,
-    mutateInfo,
-    props.project_id,
-    textFiledFocused,
-  ]);
-
-  /**
    * Step 2: Data
    */
-  const {
-    data: labeledStats,
-    error: fetchLabeledStatsError,
-    isError: isFetchLabeledStatsError,
-    isFetching: isFetchingLabeledStats,
-  } = useQuery(
+  const { data: labeledStats } = useQuery(
     ["fetchLabeledStats", { project_id: props.project_id }],
     ProjectAPI.fetchLabeledStats,
     {
@@ -294,13 +207,11 @@ const SetupDialog = (props) => {
    */
   const handleClose = () => {
     if (activeStep !== 3) {
-      setTextFieldFocused(null);
-      setExTitle("");
       props.onClose();
       if (props.project_id) {
         props.setFeedbackBar({
           open: true,
-          message: `Your project ${info.title} has been saved as draft`,
+          message: `Your project ${title} has been saved as draft`,
         });
         queryClient.invalidateQueries("fetchProjects");
         navigate("/projects");
@@ -313,32 +224,22 @@ const SetupDialog = (props) => {
   const exitedSetup = () => {
     props.setProjectId(null);
     setActiveStep(0);
-    setInfo({
-      mode: projectModes.ORACLE,
-      title: "",
-      authors: "",
-      description: "",
-      dataset_path: undefined,
-    });
     setModel({
       classifier: null,
       query_strategy: null,
       feature_extraction: null,
     });
-    setDisableFetchInfo(false);
     setTrainingStarted(false);
     setTrainingFinished(false);
-    if (isMutateInfoError) {
-      resetMutateInfo();
-    }
     if (isMutateModelConfigError) {
       resetMutateModelConfig();
     }
   };
 
+  // {TODO} disable when any api is in error state
   const disableNextButton = () => {
     if (activeStep === 0) {
-      return isMutateInfoError || info.title.length < 1;
+      return title.length < 1;
     }
     if (activeStep === 1) {
       return (
@@ -408,31 +309,16 @@ const SetupDialog = (props) => {
 
   // saving state box in step 1 & 3
   const isSaving = () => {
-    return isMutatingInfo || isMutatingModelConfig;
+    return useIsMutatingInfo === 1 || isMutatingModelConfig;
   };
 
   const isStepFailed = (step) => {
-    return step === 0 && info?.title.length < 3;
+    return step === 0 && title.length < 1;
   };
 
   const isTitleValidated = () => {
-    return info.title.length >= 3;
+    return title.length > 0;
   };
-
-  React.useEffect(() => {
-    if (activeStep === 1 && isMutateInfoError) {
-      handleBack();
-    }
-  }, [activeStep, isMutateInfoError]);
-
-  React.useEffect(() => {
-    if (props.open) {
-      const { current: descriptionElement } = descriptionElementRef;
-      if (descriptionElement !== null) {
-        descriptionElement.focus();
-      }
-    }
-  }, [props.open]);
 
   return (
     <StyledDialog
@@ -449,15 +335,12 @@ const SetupDialog = (props) => {
       }}
     >
       {props.mobileScreen && (
-        <AppBarWithinDialog
-          onClickStartIcon={handleClose}
-          title={info?.title}
-        />
+        <AppBarWithinDialog onClickStartIcon={handleClose} title={title} />
       )}
       {!props.mobileScreen && (
         <Fade in>
           <Stack className="dialog-header" direction="row">
-            <DialogTitle>{info?.title}</DialogTitle>
+            <DialogTitle className={classes.title}>{title}</DialogTitle>
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               {props.project_id && (activeStep === 0 || activeStep === 2) && (
                 <SavingStateBox isSaving={isSaving()} />
@@ -496,11 +379,7 @@ const SetupDialog = (props) => {
             <Stepper alternativeLabel activeStep={activeStep}>
               {steps.map((label, index) => {
                 const labelProps = {};
-                if (
-                  !isFetchingInfo &&
-                  !isFetchInfoError &&
-                  isStepFailed(index)
-                ) {
+                if (isStepFailed(index)) {
                   labelProps.error = true;
                 }
                 return (
@@ -536,14 +415,9 @@ const SetupDialog = (props) => {
             })}
           >
             {activeStep === 0 && (
-              <ProjectInfoForm
-                info={info}
-                mutateInfoError={mutateInfoError}
-                isMutateInfoError={isMutateInfoError}
+              <InfoForm
+                setTitle={setTitle}
                 isTitleValidated={isTitleValidated()}
-                handleInfoChange={handleInfoChange}
-                resetMutateInfo={resetMutateInfo}
-                setTextFieldFocused={setTextFieldFocused}
               />
             )}
             {activeStep === 1 && (
@@ -557,9 +431,7 @@ const SetupDialog = (props) => {
             )}
             {activeStep === 2 && (
               <DataForm
-                fetchInfoError={fetchInfoError}
                 handleComplete={handleComplete}
-                isFetchInfoError={isFetchInfoError}
                 toggleAddPrior={props.toggleAddPrior}
               />
             )}
@@ -569,7 +441,6 @@ const SetupDialog = (props) => {
                 isPreparingProject={isPreparingProject}
                 isProjectReadyError={isProjectReadyError}
                 isStartTrainingError={isStartTrainingError}
-                mode={info.mode}
                 projectReadyError={projectReadyError}
                 restartTraining={restartTraining}
                 startTrainingError={startTrainingError}
