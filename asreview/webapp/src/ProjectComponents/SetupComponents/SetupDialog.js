@@ -95,16 +95,7 @@ const SetupDialog = (props) => {
   const [completed, setCompleted] = React.useState({ 0: true });
 
   const useIsMutatingInfo = useIsMutating(["mutateInfo"]);
-
-  // State Step 2: Model
-  const [model, setModel] = React.useState({
-    classifier: null,
-    query_strategy: null,
-    balance_strategy: null,
-    feature_extraction: null,
-  });
-
-  // State Step 3: Data
+  const useIsMutatingModel = useIsMutating(["mutateModelConfig"]);
 
   // State finish setup
   const [trainingStarted, setTrainingStarted] = React.useState(false);
@@ -121,37 +112,6 @@ const SetupDialog = (props) => {
       refetchOnWindowFocus: false,
     },
   );
-
-  /**
-   * Step3: Model
-   */
-  const {
-    error: mutateModelConfigError,
-    isError: isMutateModelConfigError,
-    isLoading: isMutatingModelConfig,
-    isSuccess: isMutateModelConfigSuccess,
-    mutate: mutateModelConfig,
-    reset: resetMutateModelConfig,
-  } = useMutation(ProjectAPI.mutateModelConfig);
-
-  // auto mutate model selection
-  React.useEffect(() => {
-    if (
-      props.project_id &&
-      model.classifier &&
-      model.query_strategy &&
-      model.balance_strategy &&
-      model.feature_extraction
-    ) {
-      mutateModelConfig({
-        project_id: props.project_id,
-        classifier: model["classifier"],
-        query_strategy: model["query_strategy"],
-        balance_strategy: model["balance_strategy"],
-        feature_extraction: model["feature_extraction"],
-      });
-    }
-  }, [model, mutateModelConfig, props.project_id]);
 
   /**
    * Finish setup
@@ -224,16 +184,9 @@ const SetupDialog = (props) => {
   const exitedSetup = () => {
     props.setProjectId(null);
     setActiveStep(0);
-    setModel({
-      classifier: null,
-      query_strategy: null,
-      feature_extraction: null,
-    });
     setTrainingStarted(false);
     setTrainingFinished(false);
-    if (isMutateModelConfigError) {
-      resetMutateModelConfig();
-    }
+    setCompleted({ 0: true });
   };
 
   // {TODO} disable when any api is in error state
@@ -241,16 +194,9 @@ const SetupDialog = (props) => {
     if (activeStep === 0) {
       return title.length < 1;
     }
-    if (activeStep === 1) {
-      return (
-        !labeledStats?.n_prior_inclusions || !labeledStats?.n_prior_exclusions
-      );
-    }
     if (activeStep === 2) {
       return (
-        !isMutateModelConfigSuccess ||
-        isMutatingModelConfig ||
-        isMutateModelConfigError
+        !labeledStats?.n_prior_inclusions || !labeledStats?.n_prior_exclusions
       );
     }
   };
@@ -309,7 +255,7 @@ const SetupDialog = (props) => {
 
   // saving state box in step 1 & 3
   const isSaving = () => {
-    return useIsMutatingInfo === 1 || isMutatingModelConfig;
+    return useIsMutatingInfo === 1 || useIsMutatingModel === 1;
   };
 
   const isStepFailed = (step) => {
@@ -420,15 +366,7 @@ const SetupDialog = (props) => {
                 isTitleValidated={isTitleValidated()}
               />
             )}
-            {activeStep === 1 && (
-              <ModelForm
-                model={model}
-                setModel={setModel}
-                isMutateModelConfigError={isMutateModelConfigError}
-                mutateModelConfigError={mutateModelConfigError}
-                reset={resetMutateModelConfig}
-              />
-            )}
+            {activeStep === 1 && <ModelForm handleComplete={handleComplete} />}
             {activeStep === 2 && (
               <DataForm
                 handleComplete={handleComplete}

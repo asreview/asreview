@@ -6,7 +6,7 @@ import { styled } from "@mui/material/styles";
 
 import { TypographySubtitle1Medium } from "../StyledComponents/StyledTypography.js";
 
-const PREFIX = "ProjectInfoForm";
+const PREFIX = "ProjectInfo";
 
 const classes = {
   root: `${PREFIX}-root`,
