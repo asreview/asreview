@@ -118,9 +118,6 @@ const ProjectsOverview = (props) => {
         open={onAddPrior}
         mobileScreen={props.mobileScreen}
         mode={selectedMode}
-        n_prior={props.n_prior}
-        n_prior_exclusions={props.n_prior_exclusions}
-        n_prior_inclusions={props.n_prior_inclusions}
         toggleAddPrior={toggleAddPrior}
       />
       <ImportDataset

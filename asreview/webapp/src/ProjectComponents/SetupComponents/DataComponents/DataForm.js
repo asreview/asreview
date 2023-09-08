@@ -36,6 +36,13 @@ const DataForm = (props) => {
     {
       enabled: props.project_id !== null,
       refetchOnWindowFocus: false,
+      onSuccess: (data) => {
+        if (data.n_prior_inclusions !== 0 && data.n_prior_exclusions !== 0) {
+          props.handleComplete(true);
+        } else {
+          props.handleComplete(false);
+        }
+      },
     },
   );
 
@@ -88,7 +95,6 @@ const DataForm = (props) => {
           <DataFormCard
             added={priorAdded()}
             primaryDefault="Add prior knowledge"
-            primaryAdded="Prior knowledge added"
             secondaryDefault="Label at least 1 relevant and 1 irrelevant record to warm up the AI"
             secondaryAdded={`${data?.n_prior_inclusions} relevant and ${data?.n_prior_exclusions} irrelevant records`}
             toggleAddCard={props.toggleAddPrior}

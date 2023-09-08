@@ -65,17 +65,17 @@ const DataFormCard = (props) => {
               },
             }}
           />
-          {!props.added && (
-            <Stack spacing={1}>
-              <Typography
-                variant="subtitle1"
-                className={classes.singleLine}
-                sx={{
-                  fontWeight: (theme) => theme.typography.fontWeightMedium,
-                }}
-              >
-                {props.primaryDefault}
-              </Typography>
+          <Stack spacing={1}>
+            <Typography
+              variant="subtitle1"
+              className={classes.singleLine}
+              sx={{
+                fontWeight: (theme) => theme.typography.fontWeightMedium,
+              }}
+            >
+              {props.primaryDefault}
+            </Typography>
+            {!props.added && (
               <Typography
                 variant="body2"
                 className={classes.singleLine}
@@ -83,19 +83,8 @@ const DataFormCard = (props) => {
               >
                 {props.secondaryDefault}
               </Typography>
-            </Stack>
-          )}
-          {props.added && (
-            <Stack spacing={1}>
-              <Typography
-                variant="subtitle1"
-                className={classes.singleLine}
-                sx={{
-                  fontWeight: (theme) => theme.typography.fontWeightMedium,
-                }}
-              >
-                {props.primaryAdded}
-              </Typography>
+            )}
+            {props.added && (
               <Typography
                 variant="body2"
                 className={classes.singleLine}
@@ -103,8 +92,8 @@ const DataFormCard = (props) => {
               >
                 {props.secondaryAdded}
               </Typography>
-            </Stack>
-          )}
+            )}
+          </Stack>
           <Stack direction="row" sx={{ alignItems: "center" }}>
             {props.added && <Check color="success" sx={{ mr: 1 }} />}
             <Button onClick={props.toggleAddCard}>

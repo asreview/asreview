@@ -1,7 +1,15 @@
 import * as React from "react";
+import { useQueryClient } from "react-query";
 import { Chip, Stack } from "@mui/material";
 
 export default function LabelChip(props) {
+  const queryClient = useQueryClient();
+
+  const labeled = queryClient.getQueryData([
+    "fetchLabeledStats",
+    { project_id: props.project_id },
+  ]);
+
   const handleClickRelevant = () => {
     props.setLabel("relevant");
   };
@@ -18,9 +26,9 @@ export default function LabelChip(props) {
     <Stack direction="row" spacing={2} sx={{ padding: "8px 24px" }}>
       <Chip
         label={
-          !props.n_prior_inclusions
+          !labeled?.n_prior_inclusions
             ? "Relevant"
-            : `Relevant (${props.n_prior_inclusions})`
+            : `Relevant (${labeled?.n_prior_inclusions})`
         }
         color="primary"
         variant={props.label === "relevant" ? "filled" : "outlined"}
@@ -29,9 +37,9 @@ export default function LabelChip(props) {
       />
       <Chip
         label={
-          !props.n_prior_exclusions
+          !labeled?.n_prior_exclusions
             ? "Irrelevant"
-            : `Irrelevant (${props.n_prior_exclusions})`
+            : `Irrelevant (${labeled?.n_prior_exclusions})`
         }
         color="primary"
         variant={props.label === "irrelevant" ? "filled" : "outlined"}

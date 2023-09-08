@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useQueryClient } from "react-query";
 import { Box, Divider, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -29,7 +30,14 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 export default function PriorLabeled(props) {
+  const queryClient = useQueryClient();
+
   const [label, setLabel] = React.useState("relevant");
+
+  const labeled = queryClient.getQueryData([
+    "fetchLabeledStats",
+    { project_id: props.project_id },
+  ]);
 
   return (
     <Root>
@@ -44,26 +52,18 @@ export default function PriorLabeled(props) {
           label={label}
           setLabel={setLabel}
           mobileScreen={props.mobileScreen}
-          n_prior_exclusions={props.n_prior_exclusions}
-          n_prior_inclusions={props.n_prior_inclusions}
         />
         <Divider />
-        <LabeledRecord
-          label={label}
-          is_prior={true}
-          n_prior={props.n_prior}
-          n_prior_exclusions={props.n_prior_exclusions}
-          n_prior_inclusions={props.n_prior_inclusions}
-        />
-        {((label === "relevant" && props.n_prior_inclusions === 0) ||
-          (label === "irrelevant" && props.n_prior_exclusions === 0)) && (
+        <LabeledRecord label={label} is_prior={true} />
+        {((label === "relevant" && labeled?.n_prior_inclusions === 0) ||
+          (label === "irrelevant" && labeled?.n_prior_exclusions === 0)) && (
           <Box className={classes.noPrior}>
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
               {`You have not labeled ${label} prior knowledge`}
             </Typography>
           </Box>
         )}
-        {label === "all" && props.n_prior === 0 && (
+        {label === "all" && labeled?.n_prior === 0 && (
           <Box className={classes.noPrior}>
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
               {`You have not labeled prior knowledge`}

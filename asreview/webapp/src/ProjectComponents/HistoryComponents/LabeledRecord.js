@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import { connect } from "react-redux";
 import { InView } from "react-intersection-observer";
-import { useInfiniteQuery } from "react-query";
+import { useInfiniteQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
 import {
   Box,
@@ -59,7 +59,14 @@ const Root = styled("div")(({ theme }) => ({
 const LabeledRecord = (props) => {
   const { project_id } = useParams();
 
+  const queryClient = useQueryClient();
+
   const [subset, setSubset] = React.useState(null);
+
+  const labeled = queryClient.getQueryData([
+    "fetchLabeledStats",
+    { project_id: props.project_id },
+  ]);
 
   const returnSubset = () => {
     return !subset ? [props.label] : [props.label].concat(subset);
@@ -69,9 +76,9 @@ const LabeledRecord = (props) => {
     return !props.is_prior
       ? true
       : !(
-          (props.label === "relevant" && !props.n_prior_inclusions) ||
-          (props.label === "irrelevant" && !props.n_prior_exclusions) ||
-          (props.label === "all" && !props.n_prior)
+          (props.label === "relevant" && !labeled.n_prior_inclusions) ||
+          (props.label === "irrelevant" && !labeled.n_prior_exclusions) ||
+          (props.label === "all" && !labeled.n_prior)
         );
   };
 
@@ -124,7 +131,7 @@ const LabeledRecord = (props) => {
       {isError && (
         <BoxErrorHandler error={error} queryKey="fetchLabeledRecord" />
       )}
-      {props.n_prior !== 0 && !isError && (isLoading || !mounted.current) && (
+      {labeled.n_prior !== 0 && !isError && (isLoading || !mounted.current) && (
         <Box className={classes.loading}>
           <CircularProgress />
         </Box>
