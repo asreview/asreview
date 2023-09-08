@@ -56,7 +56,8 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   },
 
   [`& .${classes.stepper}`]: {
-    padding: 8,
+    padding: "8px 72px",
+    gap: "100px",
   },
 
   [`& .${classes.form}`]: {
@@ -69,7 +70,7 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   },
 
   [`& .${classes.formWarmup}`]: {
-    alignItems: "center",
+    alignItems: "flex-start",
     display: "flex",
     justifyContent: "center",
     height: "100%",
@@ -89,6 +90,9 @@ const SetupDialog = (props) => {
 
   const [activeStep, setActiveStep] = React.useState(0);
   const [completed, setCompleted] = React.useState({ 0: true });
+
+  const [savingState, setSavingState] = React.useState(false);
+  const timerRef = React.useRef(null);
 
   const useIsMutatingInfo = useIsMutating(["mutateInfo"]);
   const useIsMutatingModel = useIsMutating(["mutateModelConfig"]);
@@ -141,11 +145,6 @@ const SetupDialog = (props) => {
     setCompleted(newCompleted);
   };
 
-  // saving state box in step 1 & 3
-  const isSaving = () => {
-    return useIsMutatingInfo === 1 || useIsMutatingModel === 1;
-  };
-
   const isStepCompleted = (step) => {
     if (step === 0) {
       return !isStepFailed(step);
@@ -167,6 +166,67 @@ const SetupDialog = (props) => {
   const isTitleValidated = () => {
     return title.length > 0;
   };
+
+  const DialogStepper = () => (
+    <Box className={classes.stepper}>
+      <Stepper alternativeLabel activeStep={activeStep}>
+        {steps.map((label, index) => {
+          const isError = isStepFailed(index);
+          return (
+            <Step key={label} completed={completed[index]}>
+              <StepButton
+                color="inherit"
+                onClick={handleStep(index)}
+                disabled={false}
+                sx={(theme) => ({
+                  borderRadius: "4px",
+                  "&:hover": {
+                    backgroundColor:
+                      theme.palette.mode === "dark"
+                        ? "rgba(255, 205, 0, 0.12)"
+                        : "rgba(129, 103, 0, 0.12)",
+                  },
+                })}
+              >
+                <StepLabel
+                  StepIconComponent={
+                    isError || (completed[index] && activeStep !== index)
+                      ? StepIcon
+                      : StyledStepIcon
+                  }
+                  StepIconProps={{
+                    sx: { width: isError ? "22px" : "19.5px", height: "22px" },
+                  }}
+                  {...(isError ? { error: true } : {})}
+                >
+                  {label}
+                </StepLabel>
+              </StepButton>
+            </Step>
+          );
+        })}
+      </Stepper>
+    </Box>
+  );
+
+  React.useEffect(() => {
+    const currentSavingStatus =
+      useIsMutatingInfo === 1 || useIsMutatingModel === 1;
+
+    // If the status changes to 'saving', immediately update the state
+    if (currentSavingStatus) {
+      setSavingState(true);
+      if (timerRef.current) clearTimeout(timerRef.current);
+    } else {
+      // If the status changes to 'not saving', delay the update by 1000ms
+      timerRef.current = setTimeout(() => setSavingState(false), 1000);
+    }
+
+    // Cleanup on unmount or if dependencies change
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [useIsMutatingInfo, useIsMutatingModel]);
 
   return (
     <StyledDialog
@@ -191,7 +251,7 @@ const SetupDialog = (props) => {
           <DialogTitle className={classes.title}>{title}</DialogTitle>
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
             {props.project_id && (activeStep === 0 || activeStep === 1) && (
-              <SavingStateBox isSaving={isSaving()} />
+              <SavingStateBox isSaving={savingState} />
             )}
             <Stack
               className="dialog-header-button right"
@@ -221,41 +281,7 @@ const SetupDialog = (props) => {
         </Stack>
       )}
       <DialogContent className={classes.content} dividers>
-        {activeStep !== 3 && (
-          <Box className={classes.stepper}>
-            <Stepper alternativeLabel activeStep={activeStep}>
-              {steps.map((label, index) => {
-                const labelProps = {};
-                if (isStepFailed(index)) {
-                  labelProps.error = true;
-                }
-                return (
-                  <Step key={label} completed={completed[index]}>
-                    <StepButton color="inherit" onClick={handleStep(index)}>
-                      <StepLabel
-                        StepIconComponent={
-                          labelProps.error ||
-                          (completed[index] && activeStep !== index)
-                            ? StepIcon
-                            : StyledStepIcon
-                        }
-                        StepIconProps={{
-                          sx: {
-                            width: !labelProps.error ? "19.5px" : "22px",
-                            height: !labelProps.error ? "22px" : "22px",
-                          },
-                        }}
-                        {...labelProps}
-                      >
-                        {label}
-                      </StepLabel>
-                    </StepButton>
-                  </Step>
-                );
-              })}
-            </Stepper>
-          </Box>
-        )}
+        {activeStep !== 3 && <DialogStepper />}
         <Box
           className={clsx({
             [classes.form]: true,
