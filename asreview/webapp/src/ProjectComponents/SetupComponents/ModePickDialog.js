@@ -34,19 +34,19 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 const modes = [
   {
     value: projectModes.ORACLE,
-    primary: "New Oracle",
+    primary: "Oracle",
     secondary:
       "Review your dataset with interactive artificial intelligence (AI)",
   },
   {
     value: projectModes.EXPLORATION,
-    primary: "New Exploration",
+    primary: "Exploration",
     secondary:
       "Explore or demonstrate ASReview LAB with a completely labeled dataset",
   },
   {
     value: projectModes.SIMULATION,
-    primary: "New Simulation",
+    primary: "Simulation",
     secondary:
       "Simulate a review on a completely labeled dataset to see the performance of ASReview LAB",
   },
