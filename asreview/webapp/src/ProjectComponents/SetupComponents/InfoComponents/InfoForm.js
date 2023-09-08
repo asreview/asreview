@@ -32,7 +32,12 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const InfoForm = (props) => {
+const InfoForm = ({
+  handleComplete,
+  isTitleValidated,
+  project_id,
+  setTitle,
+}) => {
   const [info, setInfo] = React.useState({
     title: "",
     authors: "",
@@ -51,10 +56,10 @@ const InfoForm = (props) => {
     isError: isFetchDataError,
     isFetching: isFetchingData,
   } = useQuery(
-    ["fetchData", { project_id: props.project_id }],
+    ["fetchData", { project_id: project_id }],
     ProjectAPI.fetchData,
     {
-      enabled: props.project_id !== null,
+      enabled: project_id !== null,
       refetchOnWindowFocus: false,
     },
   );
@@ -67,12 +72,12 @@ const InfoForm = (props) => {
     isError: isFetchInfoError,
     isFetching: isFetchingInfo,
   } = useQuery(
-    ["fetchInfo", { project_id: props.project_id }],
+    ["fetchInfo", { project_id: project_id }],
     ProjectAPI.fetchInfo,
     {
-      enabled: props.project_id !== null,
+      enabled: project_id !== null,
       onSuccess: (data) => {
-        props.setTitle(data["name"]);
+        setTitle(data["name"]);
         setInfo({
           title: data["name"],
           authors: data["authors"] ? data["authors"] : "",
@@ -95,38 +100,42 @@ const InfoForm = (props) => {
     reset,
   } = useMutation(ProjectAPI.mutateInfo, {
     mutationKey: ["mutateInfo"],
+    onError: () => {
+      handleComplete(false);
+    },
     onSuccess: () => {
       setTextFieldFocused(null);
+      handleComplete(true);
     },
   });
 
-  // auto mutate info when text field is not focused
-  React.useEffect(() => {
-    if (
-      props.project_id !== null &&
-      textFiledFocused !== null &&
-      !textFiledFocused &&
-      !(info.title.length < 1) &&
-      !isMutateInfoError
-    ) {
-      mutate({
-        project_id: props.project_id,
-        title: info.title,
-        authors: info.authors,
-        description: info.description,
-      });
-    }
-  }, [info, isMutateInfoError, mutate, props.project_id, textFiledFocused]);
-
   const handleInfoChange = (event) => {
     if (event.target.name === "title") {
-      props.setTitle(event.target.value);
+      setTitle(event.target.value);
     }
     setInfo({
       ...info,
       [event.target.name]: event.target.value,
     });
   };
+
+  // auto mutate info when text field is not focused
+  React.useEffect(() => {
+    if (
+      project_id !== null &&
+      textFiledFocused !== null &&
+      !textFiledFocused &&
+      !(info.title.length < 1) &&
+      !isMutateInfoError
+    ) {
+      mutate({
+        project_id: project_id,
+        title: info.title,
+        authors: info.authors,
+        description: info.description,
+      });
+    }
+  }, [info, isMutateInfoError, mutate, project_id, textFiledFocused]);
 
   return (
     <Root className={classes.root}>
@@ -151,7 +160,7 @@ const InfoForm = (props) => {
             <Grid item xs={12} sm={8}>
               <ProjectInfo
                 info={info}
-                isTitleValidated={props.isTitleValidated}
+                isTitleValidated={isTitleValidated}
                 handleInfoChange={handleInfoChange}
                 setTextFieldFocused={setTextFieldFocused}
               />
