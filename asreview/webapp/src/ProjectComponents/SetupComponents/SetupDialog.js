@@ -12,23 +12,17 @@ import {
   Dialog,
   Fade,
   Stack,
-  Step,
-  StepButton,
-  StepIcon,
-  StepLabel,
-  Stepper,
   Tooltip,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Close } from "@mui/icons-material";
 
 import { AppBarWithinDialog } from "../../Components";
-import { FinishSetup, SavingStateBox } from "../SetupComponents";
+import { FinishSetup, SavingStateBox, SetupStepper } from "../SetupComponents";
 import { DataForm } from "../SetupComponents/DataComponents";
 import { ModelForm } from "../SetupComponents/ModelComponents";
 import { InfoForm } from "../SetupComponents/InfoComponents";
 import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
-import { StyledStepIcon } from "../../StyledComponents/StyledStepIcon";
 
 import {
   mapStateToProps,
@@ -36,13 +30,12 @@ import {
   // projectStatuses,
 } from "../../globals.js";
 
-const steps = ["Project information", "Model", "Review criteria"];
-
 const PREFIX = "SetupDialog";
 
 const classes = {
   content: `${PREFIX}-content`,
   stepper: `${PREFIX}-stepper`,
+  stepperWrapper: `${PREFIX}-stepper-wrapper`,
   form: `${PREFIX}-form`,
   formWarmup: `${PREFIX}-form-warmup`,
   title: `${PREFIX}-title`,
@@ -53,11 +46,6 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
     paddingLeft: 0,
     paddingRight: 0,
     overflowY: "hidden",
-  },
-
-  [`& .${classes.stepper}`]: {
-    padding: "8px 72px",
-    gap: "100px",
   },
 
   [`& .${classes.form}`]: {
@@ -167,48 +155,6 @@ const SetupDialog = (props) => {
     return title.length > 0;
   };
 
-  const DialogStepper = () => (
-    <Box className={classes.stepper}>
-      <Stepper alternativeLabel activeStep={activeStep}>
-        {steps.map((label, index) => {
-          const isError = isStepFailed(index);
-          return (
-            <Step key={label} completed={completed[index]}>
-              <StepButton
-                color="inherit"
-                onClick={handleStep(index)}
-                disabled={false}
-                sx={(theme) => ({
-                  borderRadius: "4px",
-                  "&:hover": {
-                    backgroundColor:
-                      theme.palette.mode === "dark"
-                        ? "rgba(255, 205, 0, 0.12)"
-                        : "rgba(129, 103, 0, 0.12)",
-                  },
-                })}
-              >
-                <StepLabel
-                  StepIconComponent={
-                    isError || (completed[index] && activeStep !== index)
-                      ? StepIcon
-                      : StyledStepIcon
-                  }
-                  StepIconProps={{
-                    sx: { width: isError ? "22px" : "19.5px", height: "22px" },
-                  }}
-                  {...(isError ? { error: true } : {})}
-                >
-                  {label}
-                </StepLabel>
-              </StepButton>
-            </Step>
-          );
-        })}
-      </Stepper>
-    </Box>
-  );
-
   React.useEffect(() => {
     const currentSavingStatus =
       useIsMutatingInfo === 1 || useIsMutatingModel === 1;
@@ -281,7 +227,14 @@ const SetupDialog = (props) => {
         </Stack>
       )}
       <DialogContent className={classes.content} dividers>
-        {activeStep !== 3 && <DialogStepper />}
+        {activeStep !== 3 && (
+          <SetupStepper
+            activeStep={activeStep}
+            handleStep={handleStep}
+            completed={completed}
+            isStepFailed={isStepFailed}
+          />
+        )}
         <Box
           className={clsx({
             [classes.form]: true,
@@ -322,7 +275,7 @@ const SetupDialog = (props) => {
             variant="contained"
             onClick={handleNext}
           >
-            {activeStep === steps.length - 1 ? "Finish" : "Next"}
+            {activeStep === 2 ? "Finish" : "Next"}
           </Button>
         </DialogActions>
       )}
