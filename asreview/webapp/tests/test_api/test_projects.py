@@ -48,11 +48,10 @@ def test_get_projects(setup):
 # Test create a project
 def test_create_projects(setup):
     client, _, _ = setup
-    project_name = "new_project"
 
-    status_code, data = au.create_project(client, project_name)
+    status_code, data = au.create_project(client)
     assert status_code == 201
-    assert data["name"] == project_name
+    assert data["mode"] == "explore"
 
 
 # Test upgrading a post v0.x project
@@ -206,7 +205,6 @@ def test_get_dataset_writer(setup):
 def test_update_project_info(setup):
     client, _, project = setup
     # update data
-    new_mode = "oracle"
     new_name = "new name"
     new_authors = "new authors"
     new_description = "new description"
@@ -215,14 +213,12 @@ def test_update_project_info(setup):
         client,
         project,
         name=new_name,
-        mode=new_mode,
         authors=new_authors,
         description=new_description,
     )
     assert status_code == 200
     assert data["authors"] == new_authors
     assert data["description"] == new_description
-    assert data["mode"] == new_mode
     assert data["name"] == new_name
 
 
