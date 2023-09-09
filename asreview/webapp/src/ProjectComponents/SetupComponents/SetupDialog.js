@@ -6,23 +6,22 @@ import clsx from "clsx";
 import {
   Box,
   Button,
-  DialogTitle,
   DialogContent,
   DialogActions,
   Dialog,
   Fade,
-  Stack,
-  Tooltip,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Close } from "@mui/icons-material";
 
 import { AppBarWithinDialog } from "../../Components";
-import { FinishSetup, SavingStateBox, SetupStepper } from "../SetupComponents";
+import {
+  FinishSetup,
+  SetupDialogHeader,
+  SetupStepper,
+} from "../SetupComponents";
 import { DataForm } from "../SetupComponents/DataComponents";
 import { ModelForm } from "../SetupComponents/ModelComponents";
 import { InfoForm } from "../SetupComponents/InfoComponents";
-import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
 
 import {
   mapStateToProps,
@@ -193,38 +192,14 @@ const SetupDialog = (props) => {
         <AppBarWithinDialog onClickStartIcon={handleClose} title={title} />
       )}
       {!props.mobileScreen && (
-        <Stack className="dialog-header" direction="row">
-          <DialogTitle className={classes.title}>{title}</DialogTitle>
-          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-            {props.project_id && (activeStep === 0 || activeStep === 1) && (
-              <SavingStateBox isSaving={savingState} />
-            )}
-            <Stack
-              className="dialog-header-button right"
-              direction="row"
-              spacing={1}
-            >
-              {activeStep !== 3 && (
-                <Tooltip
-                  title={
-                    isTitleValidated()
-                      ? "Save and close"
-                      : "Disabled as some form fields have errors"
-                  }
-                >
-                  <span>
-                    <StyledIconButton
-                      disabled={!isTitleValidated()}
-                      onClick={handleClose}
-                    >
-                      <Close />
-                    </StyledIconButton>
-                  </span>
-                </Tooltip>
-              )}
-            </Stack>
-          </Stack>
-        </Stack>
+        <SetupDialogHeader
+          activeStep={activeStep}
+          handleClose={handleClose}
+          isTitleValidated={isTitleValidated}
+          mobileScreen={props.mobileScreen}
+          savingState={savingState}
+          title={title}
+        />
       )}
       <DialogContent className={classes.content} dividers>
         {activeStep !== 3 && (
