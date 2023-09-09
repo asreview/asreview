@@ -55,12 +55,6 @@ authenticated setup.
         help="Name of the Sqlite3 database (used as filename)",
         required=True
     )
-    sqlite.add_argument(
-        "-P",
-        "--passphrase",
-        type=str,
-        help="Passphrase for Sqlite3 database",
-    )
 
     postgres = subparser.add_parser("postgresql")
     postgres.add_argument(

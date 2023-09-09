@@ -373,9 +373,6 @@ def create_app(**kwargs):
             # there is no configuration, check CLI parameters
             cli_database_uri = (kwargs.get("auth_database_uri") or "").strip()
 
-            # flag to see if we have to create a DB on the fly
-            create_database = False
-
             # if we still haven't found a database URI, create a sqlite3 database
             if cli_database_uri != "":
                 app.config["SQLALCHEMY_DATABASE_URI"] = cli_database_uri
@@ -383,13 +380,13 @@ def create_app(**kwargs):
                 # create default path
                 uri = os.path.join(asreview_path(), f"asreview.{env}.sqlite")
                 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{uri}"
-                # set create_database flag to True
-                create_database = True
 
-            # create the database on the fly if it doesn't exist
-            if create_database and not (Path(uri).exists()):
-                with app.app_context():
-                    DB.create_all()
+                # create the database and tables on the fly if it doesn't exist,
+                # THIS MAY FAIL WHEN DEALING WITH MULTIPLE WORKERS RUNNING AN
+                # INSTANCE OF THE APP
+                if (Path(uri).exists()):
+                    with app.app_context():
+                        DB.create_all()
 
         # store oauth config in oauth handler
         if bool(app.config.get("OAUTH", False)):

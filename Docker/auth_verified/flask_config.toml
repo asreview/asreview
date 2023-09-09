@@ -11,14 +11,14 @@ SESSION_COOKIE_SAMESITE = "Lax"
 SQLALCHEMY_TRACK_MODIFICATIONS = true
 ALLOW_ACCOUNT_CREATION = true
 ALLOW_TEAMS = false
-EMAIL_VERIFICATION = true
-SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://asreview:asreview@asreview_database:5432/asreview"
+EMAIL_VERIFICATION = false
+SQLALCHEMY_DATABASE_URI = "--SQLALCHEMY_DATABASE_URI--"
 
 [EMAIL_CONFIG]
 SERVER = "smtp.sendgrid.net"
 PORT = 465
 USERNAME = "apikey"
-PASSWORD = "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"
+PASSWORD = "--EMAIL_PASSWORD--"
 USE_TLS = false
 USE_SSL = true
 REPLY_ADDRESS = "casper@compunist.nl"
