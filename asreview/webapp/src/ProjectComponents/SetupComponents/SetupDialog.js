@@ -140,6 +140,15 @@ const SetupDialog = (props) => {
   };
 
   const handleTagChange = (newTags) => {
+    if (isInitError) {
+      resetInit();
+    }
+    if (isMutateInfoError) {
+      resetMutateInfo();
+    }
+    if (isDeleteProjectError) {
+      resetDeleteProject();
+    }
     setInfo({
       ...info,
       tags: newTags,
@@ -245,6 +254,7 @@ const SetupDialog = (props) => {
           title: info.title,
           authors: info.authors,
           description: info.description,
+          tags: info.tags,
         });
       }
       if (props.project_id && isInitSuccess) {
@@ -254,6 +264,7 @@ const SetupDialog = (props) => {
           title: info.title,
           authors: info.authors,
           description: info.description,
+          tags: info.tags,
         });
       }
     }

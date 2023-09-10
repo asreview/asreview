@@ -38,6 +38,7 @@ class ProjectAPI {
     body.set("name", variables.title);
     body.set("authors", variables.authors);
     body.set("description", variables.description);
+    body.set("tags", JSON.stringify(variables.tags));
 
     const url = api_url + `projects/info`;
     return new Promise((resolve, reject) => {
