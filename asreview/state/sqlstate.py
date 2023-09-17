@@ -27,6 +27,7 @@ from asreview.state.base import BaseState
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.custom_metadata_mapper import convert_to_custom_metadata_str
+from asreview.state.compatibility import check_and_update_version
 
 REQUIRED_TABLES = [
     # the table with the labeling decisions and models trained
@@ -59,6 +60,7 @@ SETTINGS_METADATA_KEYS = [
     "software_version",
     "model_has_trained",
 ]
+CURRENT_STATE_VERSION = "2"
 
 
 class SQLiteState(BaseState):
@@ -101,14 +103,34 @@ class SQLiteState(BaseState):
         Returns
         -------
         sqlite3.Connection
-            Connection to the the SQLite database.
+            Connection to the SQLite database.
             The connection is read only if self.read_only is true.
         """
         if self.read_only:
-            con = sqlite3.connect(f"file:{str(self._sql_fp)}?mode=ro", uri=True)
+            con = self._connect_to_sql_r()
         else:
-            con = sqlite3.connect(str(self._sql_fp))
+            con = self._connect_to_sql_wr()
         return con
+
+    def _connect_to_sql_r(self):
+        """Get a connection to the SQLite database.
+
+        Returns
+        -------
+        sqlite3.Connection
+            Read only connection to the SQLite database.
+        """
+        return sqlite3.connect(f"file:{str(self._sql_fp)}?mode=ro", uri=True)
+
+    def _connect_to_sql_wr(self):
+        """Get a connection to the SQLite database.
+
+        Returns
+        -------
+        sqlite3.Connection
+            Write / read connection to the SQLite database.
+        """
+        return sqlite3.connect(str(self._sql_fp))
 
     @property
     def _sql_fp(self):
@@ -208,7 +230,7 @@ class SQLiteState(BaseState):
         # content of the settings is added later
         self.settings_metadata = {
             "settings": None,
-            "state_version": "2",
+            "state_version": CURRENT_STATE_VERSION,
             "software_version": get_versions()["version"],
             "model_has_trained": False,
         }
@@ -246,24 +268,22 @@ class SQLiteState(BaseState):
                 "'settings_metadata.json' not found in the state file."
             )
 
-        try:
-            if not self._is_valid_version():
-                raise ValueError(
-                    f"State cannot be read: state version {self.version}, "
-                    f"state file version {self.version}."
-                )
-        except AttributeError as err:
-            raise ValueError(f"Unexpected error when opening state file: {err}")
-
         self._is_valid_state()
 
     def _is_valid_state(self):
-        con = self._connect_to_sql()
+        con = self._connect_to_sql_wr()
+
+        try:
+            version = check_and_update_version(self.version, CURRENT_STATE_VERSION, con)
+            if version != self.version:
+                self._update_version(version)
+        except AttributeError as err:
+            raise ValueError(f"Unexpected error when opening state file: {err}")
+
         cur = con.cursor()
         column_names = cur.execute("PRAGMA table_info(results)").fetchall()
-        table_names = cur.execute(
-            "SELECT name FROM sqlite_master WHERE type='table';"
-        ).fetchall()
+        table_names = cur.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
+
         con.close()
 
         # Check if all required tables are present.
@@ -300,15 +320,15 @@ class SQLiteState(BaseState):
                 f"settings_metadata."
             )
 
+    def _update_version(self, new_version):
+        self.settings_metadata["state_version"] = str(new_version)
+        with open(self._settings_metadata_fp, "w") as f:
+            json.dump(self.settings_metadata, f)
+
     def close(self):
         pass
 
     # PROPERTIES
-
-    def _is_valid_version(self):
-        """Check compatibility of state version."""
-        return self.version[0] == "2"
-
     @property
     def version(self):
         """Version number of the state.

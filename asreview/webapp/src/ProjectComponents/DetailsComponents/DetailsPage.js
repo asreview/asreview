@@ -41,7 +41,7 @@ const DetailsPage = (props) => {
     title: props.info?.name,
     authors: props.info?.authors,
     description: props.info?.description,
-    tags: props.info?.tags,
+    tags: props.tags,
   });
 
   const {
@@ -88,7 +88,7 @@ const DetailsPage = (props) => {
       title: props.info?.name,
       authors: props.info?.authors,
       description: props.info?.description,
-      tags: props.info?.tags,
+      tags: props.tags,
     });
     setDisableSaveButton(true);
     setDisableUndoButton(true);

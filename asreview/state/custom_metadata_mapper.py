@@ -20,6 +20,9 @@ def convert_to_custom_metadata_str(tags=None):
 
 
 def extract_tags(custom_metadata_str):
+    if not isinstance(custom_metadata_str, str):
+        return None
+
     obj = json.loads(custom_metadata_str)
 
     if "tags" in obj:

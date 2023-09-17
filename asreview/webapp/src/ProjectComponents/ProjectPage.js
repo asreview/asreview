@@ -288,6 +288,7 @@ const ProjectPage = (props) => {
               element={
                 <DetailsPage
                   info={data}
+                  tags={tags}
                   isSimulating={isSimulating}
                   mobileScreen={props.mobileScreen}
                   setHistoryFilterQuery={setHistoryFilterQuery}
