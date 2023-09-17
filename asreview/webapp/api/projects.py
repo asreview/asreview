@@ -24,6 +24,7 @@ from uuid import uuid4
 import datahugger
 import numpy as np
 import pandas as pd
+from sklearn.preprocessing import MultiLabelBinarizer
 from flask import Blueprint
 from flask import abort
 from flask import current_app
@@ -1199,6 +1200,15 @@ def api_export_dataset(project):
         as_data.df = as_data.df.join(
             state_df[f"exported_notes_{screening}"], on="record_id"
         )
+
+        tags_df = state_df[["custom_metadata_json"]].copy()
+        tags_df['tags'] = tags_df["custom_metadata_json"] \
+            .apply(lambda d: extract_tags(d)) \
+            .apply(lambda d: d if isinstance(d, list) else [])
+
+        mlb = MultiLabelBinarizer()
+        tags_df = pd.DataFrame(data=mlb.fit_transform(tags_df["tags"]), columns=mlb.classes_, index=tags_df.index)
+        as_data.df = as_data.df.join(tags_df, on="record_id")
 
         as_data.to_file(
             fp=tmp_path_dataset,

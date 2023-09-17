@@ -74,6 +74,7 @@ COLUMN_DEFINITIONS = {
     "notes": ["notes"],
     "keywords": ["keywords"],
     "doi": ["doi"],
+    "custom_metadata_json": ["custom metadata", "custom metadata json", "custom_metadata_json"]
 }
 
 # the schema describes the content of the ASReview project file.
