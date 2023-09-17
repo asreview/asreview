@@ -24,7 +24,6 @@ from uuid import uuid4
 import datahugger
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import MultiLabelBinarizer
 from flask import Blueprint
 from flask import abort
 from flask import current_app
@@ -33,6 +32,7 @@ from flask import request
 from flask import send_file
 from flask_login import current_user
 from flask_login import login_required
+from sklearn.preprocessing import MultiLabelBinarizer
 from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
@@ -65,6 +65,7 @@ from asreview.project import open_state
 from asreview.search import SearchError
 from asreview.search import fuzzy_find
 from asreview.settings import ASReviewSettings
+from asreview.state.custom_metadata_mapper import extract_tags
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sql_converter import upgrade_asreview_project_file
@@ -609,7 +610,9 @@ def api_get_labeled(project):  # noqa: F401
     latest_first = request.args.get("latest_first", default=1, type=int)
 
     with open_state(project.project_path) as s:
-        data = s.get_dataset(["record_id", "label", "query_strategy", "notes", "custom_metadata_json"])
+        data = s.get_dataset(
+            ["record_id", "label", "query_strategy", "notes", "custom_metadata_json"]
+        )
         data["prior"] = (data["query_strategy"] == "prior").astype(int)
 
     if any(s in subset for s in ["relevant", "included"]):
@@ -1109,9 +1112,7 @@ def api_import_project():
 
     try:
         project = ASReviewProject.load(
-            request.files["file"],
-            asreview_path(),
-            safe_import=True
+            request.files["file"], asreview_path(), safe_import=True
         )
 
     except Exception as err:
@@ -1202,12 +1203,18 @@ def api_export_dataset(project):
         )
 
         tags_df = state_df[["custom_metadata_json"]].copy()
-        tags_df['tags'] = tags_df["custom_metadata_json"] \
-            .apply(lambda d: extract_tags(d)) \
+        tags_df["tags"] = (
+            tags_df["custom_metadata_json"]
+            .apply(lambda d: extract_tags(d))
             .apply(lambda d: d if isinstance(d, list) else [])
+        )
 
         mlb = MultiLabelBinarizer()
-        tags_df = pd.DataFrame(data=mlb.fit_transform(tags_df["tags"]), columns=mlb.classes_, index=tags_df.index)
+        tags_df = pd.DataFrame(
+            data=mlb.fit_transform(tags_df["tags"]),
+            columns=mlb.classes_,
+            index=tags_df.index,
+        )
         as_data.df = as_data.df.join(tags_df, on="record_id")
 
         as_data.to_file(
@@ -1477,7 +1484,11 @@ def api_classify_instance(project, doc_id):  # noqa: F401
         with open_state(project.project_path, read_only=False) as state:
             # add the labels as prior data
             state.add_labeling_data(
-                record_ids=[record_id], labels=[label], notes=[note], tags_list=[tags], prior=prior
+                record_ids=[record_id],
+                labels=[label],
+                notes=[note],
+                tags_list=[tags],
+                prior=prior,
             )
 
     elif request.method == "PUT":

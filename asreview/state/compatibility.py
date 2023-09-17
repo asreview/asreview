@@ -10,10 +10,7 @@ def _migrate_2(con: sqlite3.Connection):
 
 
 # Contains version -> migration script pairs
-CHANGE_LOG = {
-    1: _migrate_1,
-    2: _migrate_2
-}
+CHANGE_LOG = {1: _migrate_1, 2: _migrate_2}
 
 
 def check_and_update_version(current_version, new_version, con: sqlite3.Connection):
@@ -29,6 +26,8 @@ def check_and_update_version(current_version, new_version, con: sqlite3.Connecti
             script(con)
             current_version += 1
         except KeyError:
-            raise KeyError(f"Migration script from version {current_version} to {current_version + 1} doesn't exist")
+            raise KeyError(
+                f"Migration script from version {current_version} to {current_version + 1} doesn't exist"
+            )
 
     return current_version

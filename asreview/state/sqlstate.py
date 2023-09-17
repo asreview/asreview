@@ -24,10 +24,10 @@ import pandas as pd
 from asreview._version import get_versions
 from asreview.settings import ASReviewSettings
 from asreview.state.base import BaseState
+from asreview.state.compatibility import check_and_update_version
+from asreview.state.custom_metadata_mapper import convert_to_custom_metadata_str
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
-from asreview.state.custom_metadata_mapper import convert_to_custom_metadata_str
-from asreview.state.compatibility import check_and_update_version
 
 REQUIRED_TABLES = [
     # the table with the labeling decisions and models trained
@@ -52,7 +52,7 @@ RESULTS_TABLE_COLUMNS = [
     "training_set",
     "labeling_time",
     "notes",
-    "custom_metadata_json"
+    "custom_metadata_json",
 ]
 SETTINGS_METADATA_KEYS = [
     "settings",
@@ -671,7 +671,7 @@ class SQLiteState(BaseState):
                     training_sets[i],
                     labeling_times[i],
                     notes[i],
-                    custom_metadata_list[i]
+                    custom_metadata_list[i],
                 )
                 for i in range(n_records_labeled)
             ]
@@ -691,14 +691,18 @@ class SQLiteState(BaseState):
                 )
 
             data = [
-                (int(labels[i]), labeling_times[i], notes[i], custom_metadata_list[i], int(record_ids[i]))
+                (
+                    int(labels[i]),
+                    labeling_times[i],
+                    notes[i],
+                    custom_metadata_list[i],
+                    int(record_ids[i]),
+                )
                 for i in range(n_records_labeled)
             ]
 
             # If not prior, we need to update records.
-            query = (
-                "UPDATE results SET label=?, labeling_time=?, notes=?, custom_metadata_json=? WHERE record_id=?"
-            )
+            query = "UPDATE results SET label=?, labeling_time=?, notes=?, custom_metadata_json=? WHERE record_id=?"
 
         # Add the rows to the database.
         con = self._connect_to_sql()

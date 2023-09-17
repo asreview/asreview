@@ -74,7 +74,11 @@ COLUMN_DEFINITIONS = {
     "notes": ["notes"],
     "keywords": ["keywords"],
     "doi": ["doi"],
-    "custom_metadata_json": ["custom metadata", "custom metadata json", "custom_metadata_json"]
+    "custom_metadata_json": [
+        "custom metadata",
+        "custom metadata json",
+        "custom_metadata_json",
+    ],
 }
 
 # the schema describes the content of the ASReview project file.
@@ -342,7 +346,7 @@ SCHEMA = {
                                             "properties": {
                                                 "id": {
                                                     "$id": "#/properties/tags/items/anyOf/0/properties/values/items"
-                                                           "/anyOf/0/properties/id",
+                                                    "/anyOf/0/properties/id",
                                                     "type": "string",
                                                     "title": "The id of tag.",
                                                     "description": "A unique identifier of the tag.",
@@ -351,18 +355,18 @@ SCHEMA = {
                                                 },
                                                 "name": {
                                                     "$id": "#/properties/tags/items/anyOf/0/properties/values/items"
-                                                           "/anyOf/0/properties/name",
+                                                    "/anyOf/0/properties/name",
                                                     "type": "string",
                                                     "title": "The name of tag.",
                                                     "description": "A display name of the tag.",
                                                     "default": "",
                                                     "examples": ["Boreal Forest"],
-                                                }
-                                            }
+                                                },
+                                            },
                                         }
-                                    ]
-                                }
-                            }
+                                    ],
+                                },
+                            },
                         },
                         "additionalProperties": False,
                         "examples": [
@@ -373,8 +377,11 @@ SCHEMA = {
                                     {"id": "boreal_forest", "name": "Boreal Forest"},
                                     {"id": "savanna", "name": "Savanna"},
                                     {"id": "mangrove", "name": "Mangrove"},
-                                    {"id": "tropical_forest", "name": "Tropical Forest"}
-                                ]
+                                    {
+                                        "id": "tropical_forest",
+                                        "name": "Tropical Forest",
+                                    },
+                                ],
                             }
                         ],
                     }
@@ -389,19 +396,31 @@ SCHEMA = {
                             {"id": "boreal_forest", "name": "Boreal Forest"},
                             {"id": "savanna", "name": "Savanna"},
                             {"id": "mangrove", "name": "Mangrove"},
-                            {"id": "tropical_forest", "name": "Tropical Forest"}
-                        ]
+                            {"id": "tropical_forest", "name": "Tropical Forest"},
+                        ],
                     },
                     {
                         "name": "Restoration Approaches",
                         "id": "restoration_approaches",
                         "values": [
-                            {"id": "direct_seeding", "name": "Direct seeding (i.e. spreading/planting seeds)"},
-                            {"id": "tree_planting", "name": "Planting trees (i.e. planting trees as seedlings)"},
-                            {"id": "assisted_natural_regeneration", "name": "Assisted natural regeneration"},
-                            {"id": "farmer_managed_natural_regeneration", "name": "Farmer managed natural regeneration"}
-                        ]
-                    }
+                            {
+                                "id": "direct_seeding",
+                                "name": "Direct seeding (i.e. spreading/planting seeds)",
+                            },
+                            {
+                                "id": "tree_planting",
+                                "name": "Planting trees (i.e. planting trees as seedlings)",
+                            },
+                            {
+                                "id": "assisted_natural_regeneration",
+                                "name": "Assisted natural regeneration",
+                            },
+                            {
+                                "id": "farmer_managed_natural_regeneration",
+                                "name": "Farmer managed natural regeneration",
+                            },
+                        ],
+                    },
                 ]
             ],
         },
