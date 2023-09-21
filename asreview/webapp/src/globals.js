@@ -25,7 +25,7 @@ export const feedbackURL =
 export const discussionsURL =
   "https://github.com/asreview/asreview/discussions";
 
-export const getDesignTokens = (mode: PaletteMode) => ({
+export const getDesignTokens = (mode) => ({
   palette: {
     mode,
     ...(mode === "light"
