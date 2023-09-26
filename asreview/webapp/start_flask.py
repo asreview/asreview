@@ -363,9 +363,6 @@ def create_app(**kwargs):
         app.config["MAIL_USE_SSL"] = conf.get("USE_SSL", False)
         app.config["MAIL_REPLY_ADDRESS"] = conf.get("REPLY_ADDRESS")
 
-        # initialize app for SQLAlchemy
-        DB.init_app(app)
-
         # We must be sure we have a SQLAlchemy database URI. At this
         # stage the TOML file has been read. See if we haven't found
         # such a URI.
@@ -381,12 +378,12 @@ def create_app(**kwargs):
                 uri = os.path.join(asreview_path(), f"asreview.{env}.sqlite")
                 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{uri}"
 
-                # create the database and tables on the fly if it doesn't exist,
-                # THIS MAY FAIL WHEN DEALING WITH MULTIPLE WORKERS RUNNING AN
-                # INSTANCE OF THE APP
-                if (Path(uri).exists()):
-                    with app.app_context():
-                        DB.create_all()
+        # initialize app for SQLAlchemy
+        DB.init_app(app)
+
+        with app.app_context():
+            # create tables in case they don't exist
+            DB.create_all()
 
         # store oauth config in oauth handler
         if bool(app.config.get("OAUTH", False)):
