@@ -126,11 +126,12 @@ def test_signup_signin_create_project(driver):
     driver.find_element(By.XPATH, "//button[text()='Start Reviewing']").click()
 
     # REVIEWING
-    for _ in range(10):
+    for _ in range(50):
         # choose
         options = ['Irrelevant', 'Relevant']
         label = random.choice(['Irrelevant', 'Relevant'])
-        WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), '{label}')]")))
+        print(label)
+        WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, f"//button[contains(text(), '{label}')]")))
         driver.find_element(By.XPATH, f"//button[contains(text(), '{label}')]").click()
 
 
