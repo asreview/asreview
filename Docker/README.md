@@ -9,11 +9,17 @@ The `auth_verified` folder creates an authenticated version that allows multiple
 Creating the docker container for a simple, non-authenticated version of the app is done with the following commands (run these commands from the __root__ folder of the app to ensure the correct context):
 
 ```
-$ docker build -t asreview -f ./Docker/simple/Dockerfile .
-$ docker run -d -p 8080:5000 asreview
+# create a volume
+$ docker volume create asreview_simple
+# build the container
+$ docker build  -t asreview -f ./Docker/simple/Dockerfile .
+# run container
+$ docker run -d -v asreview_simple_volume:/project_folder -p 8080:5000 asreview
 ```
 
-with port 8080 being a suggestion. After the last command you find the app in your browser at `http://localhost:8080`.
+with the external port 8080 being a suggestion. After the last command you find the app in your browser at `http://localhost:8080`.
+
+If you are creating a Docker container that runs the app with a config file, do __not forget__ to override the IP-address of the Flask backend. Set the HOST variable to "0.0.0.0" since the default "localhost" can't be reached from outside the container.
 
 ## Building the authenticated, verified version
 

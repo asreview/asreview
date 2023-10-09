@@ -16,6 +16,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    volumes:
+      - auth_verified_database:/var/lib/postgresql/data
 
   backend:
     build:
@@ -32,6 +34,8 @@ services:
     depends_on:
       asreview_database:
         condition: service_healthy
+    volumes:
+      - auth_verified_project_folder:/app/project_folder
 
   frontend:
     build:
@@ -41,3 +45,7 @@ services:
         API_URL: http://localhost:${BACKEND_EXTERNAL_PORT}/
     ports:
       - "${FRONTEND_EXTERNAL_PORT}:${FRONTEND_INTERNAL_PORT}"
+
+volumes:
+  auth_verified_project_folder:
+  auth_verified_database:

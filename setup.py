@@ -55,6 +55,7 @@ REQUIRES = [
     "flask_cors",
     "flask-login",
     "flask-mail",
+    "Werkzeug==2.3.0",
     "openpyxl",
     "jsonschema",
     "filelock",
