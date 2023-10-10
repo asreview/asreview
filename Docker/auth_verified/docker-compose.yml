@@ -1,0 +1,51 @@
+version: '3.9'
+services:
+
+  asreview_database:
+    container_name: asreview_database
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_EXTERNAL_PORT}:${POSTGRES_INTERNAL_PORT}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - auth_verified_database:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ../../
+      dockerfile: ./Docker/auth_verified/Dockerfile_backend
+      args:
+        BACKEND_INTERNAL_PORT_ARG: ${BACKEND_INTERNAL_PORT}
+        EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+        WORKERS: ${WORKERS}
+        SQLALCHEMY_DATABASE_URI: "postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@asreview_database:5432/${POSTGRES_DB}"
+        CREATE_TABLES: "asreview auth-tool create-db postgresql -u ${POSTGRES_USER} -p ${POSTGRES_PASSWORD} -n ${POSTGRES_DB} -H asreview_database"
+    ports:
+      - "${BACKEND_EXTERNAL_PORT}:${BACKEND_INTERNAL_PORT}"
+    depends_on:
+      asreview_database:
+        condition: service_healthy
+    volumes:
+      - auth_verified_project_folder:/app/project_folder
+
+  frontend:
+    build:
+      context: ../../
+      dockerfile: ./Docker/auth_verified/Dockerfile_frontend
+      args:
+        API_URL: http://localhost:${BACKEND_EXTERNAL_PORT}/
+    ports:
+      - "${FRONTEND_EXTERNAL_PORT}:${FRONTEND_INTERNAL_PORT}"
+
+volumes:
+  auth_verified_project_folder:
+  auth_verified_database:

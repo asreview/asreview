@@ -169,6 +169,13 @@ def _lab_parser():
     )
 
     parser.add_argument(
+        "--auth-database-uri",
+        default=None,
+        type=str,
+        help="URI of authentication database.",
+    )
+
+    parser.add_argument(
         "--secret-key",
         default=None,
         type=str,
@@ -263,14 +270,21 @@ def create_app(**kwargs):
     app.config["HOST"] = kwargs.get("host")
 
     # Read config parameters if possible, this overrides
-    # the previous assignments.
-    config_file_path = kwargs.get("flask_configfile", "").strip()
+    # the previous assignments. Flask config parameters may come
+    # as an environment var or from an argument. Argument
+    # takes precedence.
+    config_from_env = os.environ.get("FLASK_CONFIGFILE", "").strip()
+    config_from_arg = kwargs.get("flask_configfile", "").strip()
+    config_file_path = config_from_arg or config_from_env
+
     # Use absolute path, because otherwise it is relative to the config root.
     if config_file_path != "":
         config_file_path = Path(config_file_path)
         if config_file_path.suffix == ".toml":
             app.config.from_file(
-                config_file_path.absolute(), load=tomllib.load, text=False
+                config_file_path.absolute(),
+                load=tomllib.load,
+                text=False
             )
         else:
             raise ValueError("'flask_configfile' should have a .toml extension")
@@ -349,20 +363,31 @@ def create_app(**kwargs):
         app.config["MAIL_USE_SSL"] = conf.get("USE_SSL", False)
         app.config["MAIL_REPLY_ADDRESS"] = conf.get("REPLY_ADDRESS")
 
-        # We must be sure we have a database URI
+        # We must be sure we have a SQLAlchemy database URI. At this
+        # stage the TOML file has been read. See if we haven't found
+        # such a URI.
         if not app.config.get("SQLALCHEMY_DATABASE_URI", False):
-            # create default path
-            uri = os.path.join(asreview_path(), f"asreview.{env}.sqlite")
-            app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{uri}"
+            # there is no configuration, check CLI parameters
+            cli_database_uri = (kwargs.get("auth_database_uri") or "").strip()
+
+            # if we still haven't found a database URI, create a sqlite3 database
+            if cli_database_uri != "":
+                app.config["SQLALCHEMY_DATABASE_URI"] = cli_database_uri
+            else:
+                # create default path
+                uri = os.path.join(asreview_path(), f"asreview.{env}.sqlite")
+                app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{uri}"
+
+        # initialize app for SQLAlchemy
+        DB.init_app(app)
+
+        with app.app_context():
+            # create tables in case they don't exist
+            DB.create_all()
 
         # store oauth config in oauth handler
         if bool(app.config.get("OAUTH", False)):
             app.config["OAUTH"] = OAuthHandler(app.config["OAUTH"])
-
-        # create the database plus table(s)
-        DB.init_app(app)
-        with app.app_context():
-            DB.create_all()
 
     # Ensure the instance folder exists.
     try:

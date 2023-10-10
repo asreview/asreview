@@ -3,31 +3,30 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { InlineErrorHandler } from ".";
 import { AuthAPI } from "../api/index.js";
 
-const ConfirmAccount = () => {
+const ConfirmAccount = ({ showNotification }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [errorMessage, setErrorMessage] = React.useState(false);
+  const [errorMessage] = React.useState(false);
 
   // This effect does a boot request to gather information
   // from the backend
   React.useEffect(() => {
     let userId = searchParams.get("user_id");
     let token = searchParams.get("token");
-    console.log(userId, token);
 
     AuthAPI.confirmAccount({
       userId: userId,
       token: token,
     })
       .then((response) => {
+        showNotification("Your account has been confirmed. Please sign in.");
         navigate("/signin");
       })
       .catch((err) => {
-        // I'd like to have a flash!
+        showNotification("Your account could not be confirmed!", "error");
         console.log(err);
-        setErrorMessage("Could not confirm account: " + err.message);
       });
-  }, [navigate, searchParams]);
+  }, [navigate, searchParams, showNotification]);
 
   return (
     <div>
