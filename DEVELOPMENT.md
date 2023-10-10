@@ -334,3 +334,5 @@ docker push ghcr.io/asreview/asreview:1.0
 ```
 
 If you are creating a Docker container that runs the app with a [config file](#full-configuration) do __not forget__ to override the IP-address of the Flask backend. Set the HOST variable to "0.0.0.0" since the default "localhost" can't be reached from outside the container.
+
+See the `Docker` folder for more information about running the ASReview app in Docker containers.

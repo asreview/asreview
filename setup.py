@@ -55,6 +55,7 @@ REQUIRES = [
     "flask_cors",
     "flask-login",
     "flask-mail",
+    "Werkzeug==2.3.0",
     "openpyxl",
     "jsonschema",
     "filelock",
@@ -63,7 +64,9 @@ REQUIRES = [
     "tqdm",
     "gevent>=20",
     "datahugger>=0.2",
-    "synergy_dataset"
+    "synergy_dataset",
+    "psycopg2",
+    "sqlalchemy-utils",
 ]
 
 if sys.version_info < (3, 11):
@@ -154,6 +157,7 @@ setup(
         "asreview": [
             "webapp/build/*",
             "webapp/build/static/*/*",
+            "webapp/templates/emails/*",
         ]
     },
     python_requires="~=3.8",

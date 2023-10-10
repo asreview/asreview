@@ -58,6 +58,7 @@ const App = (props) => {
   const allowAccountCreation = useSelector(
     (state) => state.allow_account_creation
   );
+  const emailConfig = useSelector((state) => state.email_config);
   const emailVerification = useSelector((state) => state.email_verification);
 
   // Snackbar Notification (taking care of self closing
@@ -150,25 +151,33 @@ const App = (props) => {
           path="/oauth_callback"
           element={<SignInOAuthCallback mobileScreen={mobileScreen} />}
         />
-        <Route
-          path="/forgot_password"
-          element={
-            <ForgotPassword
-              mobileScreen={mobileScreen}
-              showNotification={showNotification}
-            />
-          }
-        />
-        <Route path="/confirm_account" element={<ConfirmAccount />} />
-        <Route
-          path="/reset_password"
-          element={<ResetPassword mobileScreen={mobileScreen} />}
-        />
-        {emailVerification && (
+        {emailConfig && emailVerification && (
           <Route
             path="/confirm_account"
-            element={<SignUpForm mobileScreen={mobileScreen} />}
+            element={<ConfirmAccount showNotification={showNotification} />}
           />
+        )}
+        {emailConfig && (
+          <>
+            <Route
+              path="/forgot_password"
+              element={
+                <ForgotPassword
+                  mobileScreen={mobileScreen}
+                  showNotification={showNotification}
+                />
+              }
+            />
+            <Route
+              path="/reset_password"
+              element={
+                <ResetPassword
+                  mobileScreen={mobileScreen}
+                  showNotification={showNotification}
+                />
+              }
+            />
+          </>
         )}
       </>
     );

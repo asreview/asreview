@@ -71,7 +71,7 @@ const SignupSchema = Yup.object().shape({
   password: Yup.string()
     .matches(
       /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/,
-      "Use 8 or more characters with a mix of letters, numbers & symbols",
+      "Use 8 or more characters with a mix of letters, numbers & symbols"
     )
     .required("Password is required"),
   confirmPassword: Yup.string()
@@ -107,10 +107,17 @@ const ResetPassword = (props) => {
     },
     onSuccess: (data) => {
       formik.setValues(initialValues, false);
-      navigate("/sigin");
+      props.showNotification(
+        "Your password has been reset. Please sign in again."
+      );
+      navigate("/signin");
     },
     onError: (data) => {
       setErrorMessage(data.message);
+      props.showNotification(
+        "Your password has not been reset! PLease contact your administrator.",
+        "error"
+      );
       console.error("Reset password error", data);
     },
   });
@@ -120,7 +127,6 @@ const ResetPassword = (props) => {
     let userId = searchParams.get("user_id");
     let token = searchParams.get("token");
     let password = formik.values.password;
-    console.log(userId, token, password);
     mutate({ userId, token, password });
     //reset();
   };
