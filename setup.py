@@ -83,6 +83,14 @@ DEPS = {
     "tensorflow": ["tensorflow~=2.0"],
     "dev": ["black", "check-manifest", "flake8", "flake8-isort", "isort"],
     "test": ["coverage", "pytest", "pytest-random-order"],
+    "docs": [
+        "ipython",
+        "sphinx",
+        "sphinx_rtd_theme",
+        "sphinx-reredirects",
+        "sphinxcontrib-youtube",
+        "nbsphinx",
+    ],
 }
 DEPS["all"] = DEPS["sbert"] + DEPS["doc2vec"]
 DEPS["all"] += DEPS["tensorflow"]
@@ -113,12 +121,12 @@ class CompileAssets(Command):
         subprocess.check_call(
             ["npm", "install"],
             cwd=str(path_webapp),
-            shell=(platform.system() == "Windows")
+            shell=(platform.system() == "Windows"),
         )
         subprocess.check_call(
             ["npm", "run-script", "build"],
             cwd=str(path_webapp),
-            shell=(platform.system() == 'Windows')
+            shell=(platform.system() == "Windows"),
         )
 
 
@@ -194,7 +202,7 @@ setup(
         "asreview.datasets": [
             "benchmark = asreview.datasets:BenchmarkDataGroup",
             "benchmark-nature = asreview.datasets:NaturePublicationDataGroup",
-            "synergy = asreview.datasets:SynergyDataGroup"
+            "synergy = asreview.datasets:SynergyDataGroup",
         ],
         "asreview.models.classifiers": [
             "svm = asreview.models.classifiers:SVMClassifier",
