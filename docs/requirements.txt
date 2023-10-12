@@ -1,6 +1,0 @@
-ipython
-sphinx
-sphinx_rtd_theme
-sphinx-reredirects
-sphinxcontrib-youtube
-nbsphinx
