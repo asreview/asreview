@@ -65,7 +65,7 @@ REQUIRES = [
     "gevent>=20",
     "datahugger>=0.2",
     "synergy_dataset",
-    "psycopg2",
+    "psycopg2-binary",
     "sqlalchemy-utils",
 ]
 
