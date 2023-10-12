@@ -51,6 +51,7 @@ autodoc_mock_imports = [
     "sklearn.base",
     "sklearn.exceptions",
     "scipy",
+    "synergy_dataset",
     "fuzzywuzzy",
     "dill",
     "PyInquirer",
