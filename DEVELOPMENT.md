@@ -59,7 +59,8 @@ flake8 .
 
 ### Front end
 
-Install both [npm][1] and Python
+You need to install [Node.js](https://nodejs.org/en) for local development. We
+use version 20.
 
 Start the Python API server with the Flask development environment. Before the front end development can be started, the back end has to run as well
 
