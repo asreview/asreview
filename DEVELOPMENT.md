@@ -281,7 +281,7 @@ or PDF files.
 Install the dependencies for rendering the documentation with
 
 ```
-pip install -r docs/requirements.txt
+pip install .[docs]
 ```
 
 Navigate into the `docs` folder and render the documentation (the HTML version) with
