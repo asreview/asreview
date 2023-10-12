@@ -3,7 +3,7 @@ on: [push, pull_request]
 
 jobs:
   docs:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
     - name: Clone repo
       uses: actions/checkout@v3
