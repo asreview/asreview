@@ -73,7 +73,7 @@ const SignupSchema = Yup.object().shape({
   password: Yup.string()
     .matches(
       /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/,
-      "Use 8 or more characters with a mix of letters, numbers & symbols",
+      "Use 8 or more characters with a mix of letters, numbers & symbols"
     )
     .required("Password is required"),
   confirmPassword: Yup.string()
@@ -109,7 +109,13 @@ const SignUpForm = (props) => {
 
   const { error, isError, mutate } = useMutation(BaseAPI.signup, {
     onSuccess: () => {
+      let email = formik.values.email;
       formik.setValues(initialValues, false);
+      if (typeof props.showNotification === "function") {
+        props.showNotification(
+          `A confirmation email has been sent to ${email}.`
+        );
+      }
       navigate("/signin");
     },
   });

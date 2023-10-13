@@ -49,10 +49,10 @@ class User(UserMixin, DB.Model):
     email = Column(String(100), unique=True)
     name = Column(String(100))
     affiliation = Column(String(100))
-    hashed_password = Column(String(100))
+    hashed_password = Column(String(150))
     confirmed = Column(Boolean)
     public = Column(Boolean)
-    token = Column(String(50))
+    token = Column(String(150))
     token_created_at = Column(DateTime)
 
     projects = relationship("Project", back_populates="owner", cascade="all, delete")
@@ -221,7 +221,13 @@ class Collaboration(DB.Model):
         nullable=False
     )
     # make sure we have unique records in this table
-    __table_args__ = (UniqueConstraint("project_id", "user_id", name="unique_records"),)
+    __table_args__ = (
+        UniqueConstraint(
+            "project_id",
+            "user_id",
+            name="unique_records_collaboration"
+        ),
+    )
 
     def __repr__(self):
         return f"<Collaboration project:{self.project_id} user:{self.user_id}>"
@@ -277,9 +283,20 @@ class CollaborationInvitation(DB.Model):
         nullable=False
     )
     # make sure we have unique records in this table
-    __table_args__ = (UniqueConstraint("project_id", "user_id", name="unique_records"),)
+    __table_args__ = (
+        UniqueConstraint(
+            "project_id",
+            "user_id",
+            name="unique_records_invitations"
+        ),
+    )
 
     def __repr__(self):
         pid = self.project_id
         uid = self.user_id
         return f"<CollaborationInvitation project:{pid} user:{uid}>"
+
+
+def create_database_and_tables(engine):
+    """Creating database and tables with engine"""
+    DB.Model.metadata.create_all(engine)

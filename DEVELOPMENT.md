@@ -59,7 +59,8 @@ flake8 .
 
 ### Front end
 
-Install both [npm][1] and Python
+You need to install [Node.js](https://nodejs.org/en) for local development. We
+use version 20.
 
 Start the Python API server with the Flask development environment. Before the front end development can be started, the back end has to run as well
 
@@ -281,7 +282,7 @@ or PDF files.
 Install the dependencies for rendering the documentation with
 
 ```
-pip install -r docs/requirements.txt
+pip install .[docs]
 ```
 
 Navigate into the `docs` folder and render the documentation (the HTML version) with
@@ -314,16 +315,6 @@ follow the guidelines below.
 5. Resize image to **1280x800** maximum and **960x600** minimum.
 6. [OPTIONAL] Use a red box to highlight relevant components.
 
-## EXPERIMENTAL: One Click Deploy for ASReview LAB
-
-You can deploy ASReview LAB right now in one click on any of these clouds providers:
-
-[<img src="https://aka.ms/deploytoazurebutton" height="30px">](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fasreview%2Fasreview%2Fmaster%2Fazuredeploy.json)
-[<img src="https://deploy.cloud.run/button.svg" height="30px">](https://deploy.cloud.run)
-[<img src="https://www.herokucdn.com/deploy/button.svg" height="30px">](https://heroku.com/deploy?template=https://github.com/asreview/asreview/tree/master)
-
-❗❗❗ ASReview doesn't have builtin authentication. You are responsible for the authentication and security of the server yourself.
-
 
 ## Release instructions
 
@@ -344,3 +335,5 @@ docker push ghcr.io/asreview/asreview:1.0
 ```
 
 If you are creating a Docker container that runs the app with a [config file](#full-configuration) do __not forget__ to override the IP-address of the Flask backend. Set the HOST variable to "0.0.0.0" since the default "localhost" can't be reached from outside the container.
+
+See the `Docker` folder for more information about running the ASReview app in Docker containers.

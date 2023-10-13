@@ -13,5 +13,7 @@ formats:
    - htmlzip
 
 python:
-   install:
-   - requirements: docs/requirements.txt
+  install:
+    - path: .
+      extra_requirements:
+        - docs
