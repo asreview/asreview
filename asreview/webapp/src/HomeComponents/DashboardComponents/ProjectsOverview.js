@@ -93,6 +93,7 @@ const ProjectsOverview = (props) => {
             projectCheck={props.projectCheck}
             setFeedbackBar={setFeedbackBar}
             setProjectCheck={props.setProjectCheck}
+            handleClickCreate={handleClickCreate}
             toggleProjectSetup={props.toggleProjectSetup}
             toggleAcceptanceSetup={props.AcceptanceDialog}
           />
@@ -136,6 +137,7 @@ const ProjectsOverview = (props) => {
       />
       <SetupDialog
         mobileScreen={props.mobileScreen}
+        onAddPrior={onAddPrior}
         open={props.onProjectSetup}
         onClose={props.toggleProjectSetup}
         selectedMode={selectedMode}
