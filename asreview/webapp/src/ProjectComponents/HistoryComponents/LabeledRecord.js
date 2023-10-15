@@ -131,11 +131,13 @@ const LabeledRecord = (props) => {
       {isError && (
         <BoxErrorHandler error={error} queryKey="fetchLabeledRecord" />
       )}
-      {labeled.n_prior !== 0 && !isError && (isLoading || !mounted.current) && (
-        <Box className={classes.loading}>
-          <CircularProgress />
-        </Box>
-      )}
+      {labeled?.n_prior !== 0 &&
+        !isError &&
+        (isLoading || !mounted.current) && (
+          <Box className={classes.loading}>
+            <CircularProgress />
+          </Box>
+        )}
       {enableQuery() &&
         !isError &&
         !(isLoading || !mounted.current) &&

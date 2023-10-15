@@ -1,10 +1,15 @@
 import * as React from "react";
 import { useQueryClient } from "react-query";
+import { connect } from "react-redux";
+
 import { Chip, Stack } from "@mui/material";
 
-export default function LabelChip(props) {
+import { mapStateToProps } from "../../globals.js";
+
+const LabelChip = (props) => {
   const queryClient = useQueryClient();
 
+  // For Project in Setup ONLY
   const labeled = queryClient.getQueryData([
     "fetchLabeledStats",
     { project_id: props.project_id },
@@ -55,4 +60,6 @@ export default function LabelChip(props) {
       />
     </Stack>
   );
-}
+};
+
+export default connect(mapStateToProps)(LabelChip);
