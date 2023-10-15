@@ -78,6 +78,11 @@ const AddPriorKnowledge = (props) => {
   const [search, toggleSearch] = useToggle();
   const [random, toggleRandom] = useToggle();
 
+  const info = queryClient.getQueryData([
+    "fetchInfo",
+    { project_id: props.project_id },
+  ]);
+
   const data = queryClient.getQueryData([
     "fetchLabeledStats",
     { project_id: props.project_id },
@@ -192,7 +197,7 @@ const AddPriorKnowledge = (props) => {
             )}
             {!search && random && (
               <PriorRandom
-                mode={props.mode}
+                mode={info?.mode}
                 toggleRandom={toggleRandom}
                 toggleSearch={toggleSearch}
               />
