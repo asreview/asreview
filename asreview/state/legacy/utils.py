@@ -19,7 +19,7 @@ import zipfile
 from contextlib import contextmanager
 from pathlib import Path
 
-from asreview.config import LEGACY_STATE_EXTENSIONS
+LEGACY_STATE_EXTENSIONS = [".h5", ".hdf5", ".he5", ".json"]
 
 
 def _get_state_class(fp):
