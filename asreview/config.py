@@ -31,8 +31,6 @@ DEFAULT_N_INSTANCES = 1
 DEFAULT_N_PRIOR_INCLUDED = 1
 DEFAULT_N_PRIOR_EXCLUDED = 1
 
-LEGACY_STATE_EXTENSIONS = [".h5", ".hdf5", ".he5", ".json"]
-
 COLUMN_DEFINITIONS = {
     # included
     "included": [
