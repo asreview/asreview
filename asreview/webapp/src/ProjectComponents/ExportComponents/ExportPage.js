@@ -23,6 +23,7 @@ import { SelectItem } from "../../ProjectComponents";
 import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
 import { ProjectAPI } from "../../api/index.js";
 import "../../App.css";
+import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
 
 const selectWidth = 310;
 
@@ -313,7 +314,31 @@ const ExportPage = (props) => {
                     </Button>
                   </span>
                 </Tooltip>
-              </Box>
+              </Box>.
+
+<Box 
+  display="flex"
+  justifyContent="center"
+  alignItems="center"
+  height="100%"  // This ensures the container takes the full height of its parent
+>            
+  <Box 
+    border={2} 
+    borderColor="warning.main" 
+    borderRadius={3} 
+    padding={2} 
+    bgcolor="warning.lighter" 
+    maxWidth="600px"  // or whatever maximum width you prefer
+  >
+    <TypographySubtitle1Medium>To Cite ASReview</TypographySubtitle1Medium>
+    <Typography variant="body2" sx={{ color: "text.secondary" }}>
+      ASReview LAB developers. (2023). ASReview LAB - 
+      A tool for AI-assisted systematic reviews (v1.3rc1). Zenodo.  
+      <Link href="https://doi.org/10.5281/zenodo.8297019">https://doi.org/10.5281/zenodo.8297019</Link>
+    </Typography>
+  </Box>
+  </Box>
+
             </Stack>
           </Box>
         </Box>
