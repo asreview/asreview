@@ -1,20 +1,8 @@
 import * as React from "react";
-import { useQueryClient } from "react-query";
-import { connect } from "react-redux";
 
 import { Chip, Stack } from "@mui/material";
 
-import { mapStateToProps } from "../../globals.js";
-
 const LabelChip = (props) => {
-  const queryClient = useQueryClient();
-
-  // For Project in Setup ONLY
-  const labeled = queryClient.getQueryData([
-    "fetchLabeledStats",
-    { project_id: props.project_id },
-  ]);
-
   const handleClickRelevant = () => {
     props.setLabel("relevant");
   };
@@ -31,9 +19,9 @@ const LabelChip = (props) => {
     <Stack direction="row" spacing={2} sx={{ padding: "8px 24px" }}>
       <Chip
         label={
-          !labeled?.n_prior_inclusions
+          !props.priorLabeledStats?.n_prior_inclusions
             ? "Relevant"
-            : `Relevant (${labeled?.n_prior_inclusions})`
+            : `Relevant (${props.priorLabeledStats?.n_prior_inclusions})`
         }
         color="primary"
         variant={props.label === "relevant" ? "filled" : "outlined"}
@@ -42,9 +30,9 @@ const LabelChip = (props) => {
       />
       <Chip
         label={
-          !labeled?.n_prior_exclusions
+          !props.priorLabeledStats?.n_prior_exclusions
             ? "Irrelevant"
-            : `Irrelevant (${labeled?.n_prior_exclusions})`
+            : `Irrelevant (${props.priorLabeledStats?.n_prior_exclusions})`
         }
         color="primary"
         variant={props.label === "irrelevant" ? "filled" : "outlined"}
@@ -62,4 +50,4 @@ const LabelChip = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(LabelChip);
+export default LabelChip;

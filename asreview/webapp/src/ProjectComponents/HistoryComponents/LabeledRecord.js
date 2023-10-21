@@ -63,11 +63,6 @@ const LabeledRecord = (props) => {
 
   const [subset, setSubset] = React.useState(null);
 
-  const labeled = queryClient.getQueryData([
-    "fetchLabeledStats",
-    { project_id: props.project_id },
-  ]);
-
   const returnSubset = () => {
     return !subset ? [props.label] : [props.label].concat(subset);
   };
@@ -76,9 +71,11 @@ const LabeledRecord = (props) => {
     return !props.is_prior
       ? true
       : !(
-          (props.label === "relevant" && !labeled.n_prior_inclusions) ||
-          (props.label === "irrelevant" && !labeled.n_prior_exclusions) ||
-          (props.label === "all" && !labeled.n_prior)
+          (props.label === "relevant" &&
+            !props.priorLabeledStats.n_prior_inclusions) ||
+          (props.label === "irrelevant" &&
+            !props.priorLabeledStats.n_prior_exclusions) ||
+          (props.label === "all" && !props.priorLabeledStats.n_prior)
         );
   };
 
@@ -107,6 +104,7 @@ const LabeledRecord = (props) => {
     },
   );
 
+  // For use on History page ONLY
   React.useEffect(() => {
     setSubset(
       props.filterQuery?.map((element) => {
@@ -131,7 +129,7 @@ const LabeledRecord = (props) => {
       {isError && (
         <BoxErrorHandler error={error} queryKey="fetchLabeledRecord" />
       )}
-      {labeled?.n_prior !== 0 &&
+      {props.priorLabeledStats?.n_prior !== 0 &&
         !isError &&
         (isLoading || !mounted.current) && (
           <Box className={classes.loading}>

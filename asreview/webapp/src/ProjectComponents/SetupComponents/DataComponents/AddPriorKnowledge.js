@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useQueryClient } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import {
   Box,
@@ -24,6 +24,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { AppBarWithinDialog } from "../../../Components";
 import { InfoCard, SavingStateBox } from "../../SetupComponents";
 import { PriorLabeled, PriorRandom, PriorSearch } from "../DataComponents";
+import { ProjectAPI } from "../../../api/index.js";
 import { useToggle } from "../../../hooks/useToggle";
 import { mapStateToProps } from "../../../globals.js";
 
@@ -83,10 +84,15 @@ const AddPriorKnowledge = (props) => {
     { project_id: props.project_id },
   ]);
 
-  const data = queryClient.getQueryData([
-    "fetchLabeledStats",
-    { project_id: props.project_id },
-  ]);
+  // {TODO} add error handling
+  const { data } = useQuery(
+    ["fetchLabeledStats", { project_id: props.project_id }],
+    ProjectAPI.fetchLabeledStats,
+    {
+      enabled: props.project_id !== null,
+      refetchOnWindowFocus: false,
+    },
+  );
 
   const isEnoughPriorKnowledge = () => {
     return data?.n_prior_exclusions > 4 && data?.n_prior_inclusions > 4;
@@ -97,6 +103,16 @@ const AddPriorKnowledge = (props) => {
       queryClient.isMutating({ mutationKey: "mutatePriorKnowledge" }) ||
       queryClient.isMutating({ mutationKey: "mutateLabeledPriorKnowledge" })
     );
+  };
+
+  const handleClickClose = () => {
+    props.toggleAddPrior();
+    if (random) {
+      toggleRandom();
+    }
+    if (search) {
+      toggleSearch();
+    }
   };
 
   return (
@@ -113,7 +129,7 @@ const AddPriorKnowledge = (props) => {
     >
       {props.mobileScreen && (
         <AppBarWithinDialog
-          onClickStartIcon={props.toggleAddPrior}
+          onClickStartIcon={handleClickClose}
           startIconIsClose={false}
           title="Prior knowledge"
         />
@@ -133,7 +149,7 @@ const AddPriorKnowledge = (props) => {
             <Box className="dialog-header-button right">
               <Button
                 variant={!isEnoughPriorKnowledge() ? "text" : "contained"}
-                onClick={props.toggleAddPrior}
+                onClick={handleClickClose}
               >
                 Close
               </Button>
@@ -209,7 +225,10 @@ const AddPriorKnowledge = (props) => {
             variant="outlined"
             className={classes.unlabeled}
           >
-            <PriorLabeled mobileScreen={props.mobileScreen} />
+            <PriorLabeled
+              priorLabeledStats={data}
+              mobileScreen={props.mobileScreen}
+            />
           </Card>
         </Stack>
       </DialogContent>

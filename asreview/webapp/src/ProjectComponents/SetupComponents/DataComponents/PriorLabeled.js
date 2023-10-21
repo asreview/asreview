@@ -1,11 +1,8 @@
 import * as React from "react";
-import { useQueryClient } from "react-query";
-import { connect } from "react-redux";
 import { Box, Divider, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { LabelChip, LabeledRecord } from "../../HistoryComponents";
-import { mapStateToProps } from "../../../globals.js";
 
 const PREFIX = "PriorLabeled";
 
@@ -32,14 +29,7 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const PriorLabeled = (props) => {
-  const queryClient = useQueryClient();
-
   const [label, setLabel] = React.useState("relevant");
-
-  const labeled = queryClient.getQueryData([
-    "fetchLabeledStats",
-    { project_id: props.project_id },
-  ]);
 
   return (
     <Root>
@@ -52,20 +42,27 @@ const PriorLabeled = (props) => {
       >
         <LabelChip
           label={label}
+          priorLabeledStats={props.priorLabeledStats}
           setLabel={setLabel}
           mobileScreen={props.mobileScreen}
         />
         <Divider />
-        <LabeledRecord label={label} is_prior={true} />
-        {((label === "relevant" && labeled?.n_prior_inclusions === 0) ||
-          (label === "irrelevant" && labeled?.n_prior_exclusions === 0)) && (
+        <LabeledRecord
+          label={label}
+          is_prior={true}
+          priorLabeledStats={props.priorLabeledStats}
+        />
+        {((label === "relevant" &&
+          props.priorLabeledStats?.n_prior_inclusions === 0) ||
+          (label === "irrelevant" &&
+            props.priorLabeledStats?.n_prior_exclusions === 0)) && (
           <Box className={classes.noPrior}>
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
               {`You have not labeled ${label} prior knowledge`}
             </Typography>
           </Box>
         )}
-        {label === "all" && labeled?.n_prior === 0 && (
+        {label === "all" && props.priorLabeledStats?.n_prior === 0 && (
           <Box className={classes.noPrior}>
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
               {`You have not labeled prior knowledge`}
@@ -77,4 +74,4 @@ const PriorLabeled = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(PriorLabeled);
+export default PriorLabeled;
