@@ -85,6 +85,11 @@ const PriorRandom = (props) => {
   const [nRecords, setNRecords] = React.useState(5);
   const [subset, setSubset] = React.useState("relevant");
 
+  const { mode } = queryClient.getQueryData([
+    "fetchInfo",
+    { project_id: props.project_id },
+  ]);
+
   const labeled = queryClient.getQueryData([
     "fetchLabeledStats",
     { project_id: props.project_id },
@@ -96,7 +101,7 @@ const PriorRandom = (props) => {
       {
         project_id: props.project_id,
         n: nRecords,
-        subset: props.mode !== projectModes.ORACLE ? subset : null,
+        subset: mode !== projectModes.ORACLE ? subset : null,
       },
     ],
     ProjectAPI.fetchPriorRandom,
@@ -130,13 +135,13 @@ const PriorRandom = (props) => {
 
   React.useEffect(() => {
     if (
-      props.mode === projectModes.ORACLE &&
+      mode === projectModes.ORACLE &&
       labeled.n_prior_exclusions !== 0 &&
       labeled.n_prior_exclusions % 5 === 0
     ) {
       toggleReminder();
     }
-  }, [props.mode, labeled.n_prior_exclusions, toggleReminder]);
+  }, [mode, labeled.n_prior_exclusions, toggleReminder]);
 
   React.useEffect(() => {
     if (
@@ -174,11 +179,9 @@ const PriorRandom = (props) => {
                 </Select>
               </FormControl>
               <Typography sx={{ color: "text.secondary" }}>
-                {props.mode === projectModes.ORACLE
-                  ? "random records"
-                  : "random"}
+                {mode === projectModes.ORACLE ? "random records" : "random"}
               </Typography>
-              {props.mode !== projectModes.ORACLE && (
+              {mode !== projectModes.ORACLE && (
                 <Stack
                   direction="row"
                   spacing={1}
