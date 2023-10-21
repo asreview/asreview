@@ -1,9 +1,11 @@
 import * as React from "react";
 import { useQueryClient } from "react-query";
+import { connect } from "react-redux";
 import { Box, Divider, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { LabelChip, LabeledRecord } from "../../HistoryComponents";
+import { mapStateToProps } from "../../../globals.js";
 
 const PREFIX = "PriorLabeled";
 
@@ -29,7 +31,7 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function PriorLabeled(props) {
+const PriorLabeled = (props) => {
   const queryClient = useQueryClient();
 
   const [label, setLabel] = React.useState("relevant");
@@ -73,4 +75,6 @@ export default function PriorLabeled(props) {
       </Box>
     </Root>
   );
-}
+};
+
+export default connect(mapStateToProps)(PriorLabeled);
