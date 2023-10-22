@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { connect } from "react-redux";
 import { Box, CircularProgress, Link, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -28,8 +28,6 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const ModelForm = (props) => {
-  const queryClient = useQueryClient();
-
   const [model, setModel] = React.useState({
     classifier: null,
     query_strategy: null,
@@ -89,7 +87,6 @@ const ModelForm = (props) => {
     },
     onSuccess: () => {
       props.handleComplete(true);
-      prefetchLabeledStats();
     },
   });
 
@@ -155,13 +152,6 @@ const ModelForm = (props) => {
     if (model?.query_strategy === "random") {
       return "Your review is not accelerated by the model";
     }
-  };
-
-  const prefetchLabeledStats = async () => {
-    await queryClient.prefetchQuery(
-      ["fetchLabeledStats", { project_id: props.project_id }],
-      ProjectAPI.fetchLabeledStats,
-    );
   };
 
   return (
