@@ -23,21 +23,15 @@ import { DataForm } from "../SetupComponents/DataComponents";
 import { ModelForm } from "../SetupComponents/ModelComponents";
 import { InfoForm } from "../SetupComponents/InfoComponents";
 
-import {
-  mapStateToProps,
-  mapDispatchToProps,
-  // projectStatuses,
-} from "../../globals.js";
+import { ProjectAPI } from "../../api/index.js";
+import { mapStateToProps, mapDispatchToProps } from "../../globals.js";
 
 const PREFIX = "SetupDialog";
 
 const classes = {
   content: `${PREFIX}-content`,
-  stepper: `${PREFIX}-stepper`,
-  stepperWrapper: `${PREFIX}-stepper-wrapper`,
   form: `${PREFIX}-form`,
   formWarmup: `${PREFIX}-form-warmup`,
-  title: `${PREFIX}-title`,
 };
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
@@ -62,10 +56,6 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
     justifyContent: "center",
     height: "100%",
   },
-
-  [`& .${classes.title}`]: {
-    height: "64px",
-  },
 }));
 
 const SetupDialog = (props) => {
@@ -76,18 +66,13 @@ const SetupDialog = (props) => {
   const [title, setTitle] = React.useState("");
 
   const [activeStep, setActiveStep] = React.useState(0);
-  const [completed, setCompleted] = React.useState({ 0: true });
+  const [completed, setCompleted] = React.useState({ 0: true, 1: true });
 
   const [savingState, setSavingState] = React.useState(false);
   const timerRef = React.useRef(null);
 
-  const useIsMutatingInfo = useIsMutating(["mutateInfo"]);
-  const useIsMutatingModel = useIsMutating(["mutateModelConfig"]);
-
-  const labeled = queryClient.getQueryData([
-    "fetchLabeledStats",
-    { project_id: props.project_id },
-  ]);
+  const isMutatingInfo = useIsMutating(["mutateInfo"]);
+  const isMutatingModel = useIsMutating(["mutateModelConfig"]);
 
   /**
    * Dialog actions
@@ -111,6 +96,7 @@ const SetupDialog = (props) => {
   const exitedSetup = () => {
     props.setProjectId(null);
     setActiveStep(0);
+    setCompleted({ 0: true, 1: true });
   };
 
   const handleNext = () => {
@@ -132,20 +118,6 @@ const SetupDialog = (props) => {
     setCompleted(newCompleted);
   };
 
-  const isStepCompleted = (step) => {
-    if (step === 0) {
-      return !isStepFailed(step);
-    }
-    if (step === 1) {
-      return props.project_id !== null;
-    }
-    if (step === 2) {
-      return (
-        labeled?.n_prior_inclusions !== 0 && labeled?.n_prior_exclusions !== 0
-      );
-    }
-  };
-
   const isStepFailed = (step) => {
     return step === 0 && title.length < 1;
   };
@@ -154,9 +126,24 @@ const SetupDialog = (props) => {
     return title.length > 0;
   };
 
+  // check if prior data is added
   React.useEffect(() => {
-    const currentSavingStatus =
-      useIsMutatingInfo === 1 || useIsMutatingModel === 1;
+    if (props.project_id !== null && !props.onAddPrior) {
+      queryClient
+        .fetchQuery(
+          ["fetchLabeledStats", { project_id: props.project_id }],
+          ProjectAPI.fetchLabeledStats,
+        )
+        .then((data) => {
+          if (data.n_prior_inclusions !== 0 && data.n_prior_exclusions !== 0) {
+            setCompleted((c) => ({ ...c, 2: true }));
+          }
+        });
+    }
+  }, [props.project_id, queryClient]);
+
+  React.useEffect(() => {
+    const currentSavingStatus = isMutatingInfo === 1 || isMutatingModel === 1;
 
     // If the status changes to 'saving', immediately update the state
     if (currentSavingStatus) {
@@ -171,7 +158,7 @@ const SetupDialog = (props) => {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [useIsMutatingInfo, useIsMutatingModel]);
+  }, [isMutatingInfo, isMutatingModel]);
 
   return (
     <StyledDialog
@@ -246,7 +233,7 @@ const SetupDialog = (props) => {
             </Button>
           )}
           <Button
-            disabled={isStepFailed(activeStep) || !isStepCompleted(activeStep)}
+            disabled={isStepFailed(activeStep) || !completed[activeStep]}
             variant="contained"
             onClick={handleNext}
           >

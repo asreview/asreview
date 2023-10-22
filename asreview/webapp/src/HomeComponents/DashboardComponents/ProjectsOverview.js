@@ -140,7 +140,6 @@ const ProjectsOverview = (props) => {
         onAddPrior={onAddPrior}
         open={props.onProjectSetup}
         onClose={props.toggleProjectSetup}
-        selectedMode={selectedMode}
         setFeedbackBar={setFeedbackBar}
         toggleAddPrior={toggleAddPrior}
       />
