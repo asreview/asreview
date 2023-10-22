@@ -79,6 +79,11 @@ const AddPriorKnowledge = (props) => {
   const [search, toggleSearch] = useToggle();
   const [random, toggleRandom] = useToggle();
 
+  const info = queryClient.getQueryData([
+    "fetchInfo",
+    { project_id: props.project_id },
+  ]);
+
   const { data } = useQuery(
     ["fetchLabeledStats", { project_id: props.project_id }],
     ProjectAPI.fetchLabeledStats,
@@ -207,6 +212,7 @@ const AddPriorKnowledge = (props) => {
             )}
             {!search && random && (
               <PriorRandom
+                mode={info?.mode}
                 toggleRandom={toggleRandom}
                 toggleSearch={toggleSearch}
               />
@@ -218,10 +224,7 @@ const AddPriorKnowledge = (props) => {
             variant="outlined"
             className={classes.unlabeled}
           >
-            <PriorLabeled
-              priorLabeledStats={data}
-              mobileScreen={props.mobileScreen}
-            />
+            <PriorLabeled mobileScreen={props.mobileScreen} />
           </Card>
         </Stack>
       </DialogContent>
