@@ -1,7 +1,7 @@
 import * as React from "react";
-import { useQuery, useQueryClient } from "react-query";
+import { useQuery } from "react-query";
 import { connect } from "react-redux";
-import { Box, CircularProgress, Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../../Components";
@@ -28,8 +28,6 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const DataForm = (props) => {
-  const queryClient = useQueryClient();
-
   const { data, error, isError, isFetching, refetch } = useQuery(
     ["fetchLabeledStats", { project_id: props.project_id }],
     ProjectAPI.fetchLabeledStats,
@@ -50,13 +48,6 @@ const DataForm = (props) => {
     return data?.n_inclusions !== 0 && data?.n_exclusions !== 0;
   };
 
-  const refetchInfo = () => {
-    queryClient.prefetchQuery(
-      ["fetchInfo", { project_id: props.project_id }],
-      ProjectAPI.fetchInfo,
-    );
-  };
-
   return (
     <Root>
       <Box className={classes.title}>
@@ -65,23 +56,10 @@ const DataForm = (props) => {
           {/* {Description} */}
         </Typography>
       </Box>
-      {!props.isFetchInfoError &&
-        (isFetching || props.isFetchingLabeledStats) && (
-          <Box className={classes.loading}>
-            <CircularProgress />
-          </Box>
-        )}
       {!isFetching && isError && (
         <InlineErrorHandler
           message={error?.message}
           refetch={refetch}
-          button={true}
-        />
-      )}
-      {props.isFetchInfoError && (
-        <InlineErrorHandler
-          message={props.fetchInfoError?.message}
-          refetch={refetchInfo}
           button={true}
         />
       )}
