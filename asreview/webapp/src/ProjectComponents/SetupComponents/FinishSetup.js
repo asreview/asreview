@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import YouTube from "react-youtube";
 
-import { Button, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../Components";
@@ -43,12 +43,17 @@ const FinishSetup = (props) => {
   // State finish setup
   const [training, setTraining] = React.useState(false);
 
+  const info = queryClient.getQueryData([
+    "fetchInfo",
+    { project_id: props.project_id },
+  ]);
+
   const {
     error: trainError,
     isError: isTrainError,
     isLoading: isTraining,
     mutate: train,
-    // reset,
+    reset,
   } = useMutation(ProjectAPI.mutateStartTraining, {
     onSuccess: () => {
       setTraining(true);
@@ -100,7 +105,7 @@ const FinishSetup = (props) => {
       ["fetchInfo", { project_id: props.project_id }],
       ProjectAPI.fetchInfo,
     );
-    if (props.mode !== projectModes.SIMULATION) {
+    if (info?.mode !== projectModes.SIMULATION) {
       navigate(`/projects/${props.project_id}/review`);
     } else {
       navigate(`/projects/${props.project_id}`);
@@ -125,7 +130,7 @@ const FinishSetup = (props) => {
         {isTrainError && (
           <InlineErrorHandler
             message={trainError?.message}
-            refetch={props.restartTraining}
+            refetch={reset}
             button={true}
           />
         )}
@@ -184,16 +189,18 @@ const FinishSetup = (props) => {
         )}
         {!training && (
           <Stack spacing={3}>
-            {props.mode !== projectModes.SIMULATION && (
-              <Stack spacing={3}>
+            {info?.mode !== projectModes.SIMULATION && (
+              <Stack className={classes.root} spacing={3}>
                 <TypographySubtitle1Medium>
                   AI is ready to assist you
                 </TypographySubtitle1Medium>
-                <Button onClick={onClickCloseSetup}>Start Reviewing</Button>
+                <Box>
+                  <Button onClick={onClickCloseSetup}>Start Reviewing</Button>
+                </Box>
               </Stack>
             )}
-            {props.mode === projectModes.SIMULATION && (
-              <Stack spacing={3}>
+            {info?.mode === projectModes.SIMULATION && (
+              <Stack className={classes.root} spacing={3}>
                 <Stack>
                   <TypographySubtitle1Medium>
                     Your simulation project has been initiated
@@ -202,7 +209,9 @@ const FinishSetup = (props) => {
                     It will take some time to complete the simulation
                   </Typography>
                 </Stack>
-                <Button onClick={onClickCloseSetup}>Got it</Button>
+                <Box>
+                  <Button onClick={onClickCloseSetup}>Got it</Button>
+                </Box>
               </Stack>
             )}
           </Stack>
