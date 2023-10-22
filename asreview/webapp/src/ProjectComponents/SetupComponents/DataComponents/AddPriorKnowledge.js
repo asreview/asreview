@@ -79,7 +79,6 @@ const AddPriorKnowledge = (props) => {
   const [search, toggleSearch] = useToggle();
   const [random, toggleRandom] = useToggle();
 
-  // {TODO} add error handling
   const { data } = useQuery(
     ["fetchLabeledStats", { project_id: props.project_id }],
     ProjectAPI.fetchLabeledStats,

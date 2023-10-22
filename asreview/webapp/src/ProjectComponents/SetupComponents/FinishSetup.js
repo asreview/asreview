@@ -119,8 +119,6 @@ const FinishSetup = (props) => {
     train({ project_id: props.project_id });
   }, [props.project_id, train]);
 
-  console.log(training);
-
   return (
     <Root>
       <Stack spacing={3}>
