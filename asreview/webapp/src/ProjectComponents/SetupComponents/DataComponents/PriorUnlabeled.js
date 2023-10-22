@@ -41,11 +41,6 @@ const PriorUnlabeled = (props) => {
   const queryClient = useQueryClient();
   const [recordReadMore, setRecordReadMore] = React.useState(null);
 
-  const { mode } = queryClient.getQueryData([
-    "fetchInfo",
-    { project_id: props.project_id },
-  ]);
-
   const { error, isError, mutate, reset } = useMutation(
     ProjectAPI.mutateClassification,
     {
@@ -100,7 +95,8 @@ const PriorUnlabeled = (props) => {
               {
                 project_id: props.project_id,
                 n: props.nRecords,
-                subset: mode !== projectModes.ORACLE ? props.subset : null,
+                subset:
+                  props.mode !== projectModes.ORACLE ? props.subset : null,
               },
             ],
             (prev) => {

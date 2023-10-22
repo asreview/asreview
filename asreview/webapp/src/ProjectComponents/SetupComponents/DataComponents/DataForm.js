@@ -60,11 +60,9 @@ const DataForm = (props) => {
   return (
     <Root>
       <Box className={classes.title}>
-        <Typography variant="h6">Data</Typography>
+        <Typography variant="h6">Review criteria</Typography>
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          A dataset contains textual records (e.g., abstracts of scientific
-          papers, newspaper articles) that you want to label in interaction with
-          the AI. Prior knowledge is required to warm up the AI.
+          {/* {Description} */}
         </Typography>
       </Box>
       {!props.isFetchInfoError &&

@@ -85,11 +85,6 @@ const PriorRandom = (props) => {
   const [nRecords, setNRecords] = React.useState(5);
   const [subset, setSubset] = React.useState("relevant");
 
-  const { n_prior_exclusions } = queryClient.getQueryData([
-    "fetchLabeledStats",
-    { project_id: props.project_id },
-  ]);
-
   const { data, error, isError, isFetched, isFetching, isSuccess } = useQuery(
     [
       "fetchPriorRandom",
@@ -131,12 +126,12 @@ const PriorRandom = (props) => {
   React.useEffect(() => {
     if (
       props.mode === projectModes.ORACLE &&
-      n_prior_exclusions !== 0 &&
-      n_prior_exclusions % 5 === 0
+      props.n_prior_exclusions !== 0 &&
+      props.n_prior_exclusions % 5 === 0
     ) {
       toggleReminder();
     }
-  }, [props.mode, n_prior_exclusions, toggleReminder]);
+  }, [props.mode, props.n_prior_exclusions, toggleReminder]);
 
   React.useEffect(() => {
     if (
@@ -213,6 +208,7 @@ const PriorRandom = (props) => {
             </Box>
           )}
           <EnoughPriorBanner
+            n_prior_exclusions={props.n_prior_exclusions}
             onClickPriorSearch={onClickPriorSearch}
             reminder={reminder}
             toggleReminder={toggleReminder}

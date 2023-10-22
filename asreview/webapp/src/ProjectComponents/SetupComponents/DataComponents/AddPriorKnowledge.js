@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useQuery, useQueryClient } from "react-query";
+import { useIsMutating, useQuery } from "react-query";
 import { connect } from "react-redux";
 import {
   Box,
@@ -74,15 +74,23 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 const AddPriorKnowledge = (props) => {
-  const queryClient = useQueryClient();
+  const isMutatingPrior = useIsMutating(["mutatePriorKnowledge"]);
+  const isMutatingLabeled = useIsMutating(["mutateLabeledPriorKnowledge"]);
+
+  const [savingState, setSavingState] = React.useState(false);
+  const timerRef = React.useRef(null);
 
   const [search, toggleSearch] = useToggle();
   const [random, toggleRandom] = useToggle();
 
-  const info = queryClient.getQueryData([
-    "fetchInfo",
-    { project_id: props.project_id },
-  ]);
+  const { data: info } = useQuery(
+    ["fetchInfo", { project_id: props.project_id }],
+    ProjectAPI.fetchInfo,
+    {
+      enabled: props.project_id !== null,
+      refetchOnWindowFocus: false,
+    },
+  );
 
   const { data } = useQuery(
     ["fetchLabeledStats", { project_id: props.project_id }],
@@ -97,13 +105,6 @@ const AddPriorKnowledge = (props) => {
     return data?.n_prior_exclusions > 4 && data?.n_prior_inclusions > 4;
   };
 
-  const isSavingPriorKnowledge = () => {
-    return (
-      queryClient.isMutating({ mutationKey: "mutatePriorKnowledge" }) ||
-      queryClient.isMutating({ mutationKey: "mutateLabeledPriorKnowledge" })
-    );
-  };
-
   const handleClickClose = () => {
     props.toggleAddPrior();
     if (random) {
@@ -113,6 +114,25 @@ const AddPriorKnowledge = (props) => {
       toggleSearch();
     }
   };
+
+  React.useEffect(() => {
+    const currentSavingStatus =
+      isMutatingPrior === 1 || isMutatingLabeled === 1;
+
+    // If the status changes to 'saving', immediately update the state
+    if (currentSavingStatus) {
+      setSavingState(true);
+      if (timerRef.current) clearTimeout(timerRef.current);
+    } else {
+      // If the status changes to 'not saving', delay the update by 1000ms
+      timerRef.current = setTimeout(() => setSavingState(false), 1000);
+    }
+
+    // Cleanup on unmount or if dependencies change
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [isMutatingPrior, isMutatingLabeled]);
 
   return (
     <StyledDialog
@@ -142,9 +162,7 @@ const AddPriorKnowledge = (props) => {
                 Enough prior knowledge. Click CLOSE to move on to the next step.
               </Typography>
             )}
-            {data?.n_prior !== 0 && (
-              <SavingStateBox isSaving={isSavingPriorKnowledge()} />
-            )}
+            {data?.n_prior !== 0 && <SavingStateBox isSaving={savingState} />}
             <Box className="dialog-header-button right">
               <Button
                 variant={!isEnoughPriorKnowledge() ? "text" : "contained"}
@@ -213,6 +231,7 @@ const AddPriorKnowledge = (props) => {
             {!search && random && (
               <PriorRandom
                 mode={info?.mode}
+                n_prior_exclusions={data?.n_prior_exclusions}
                 toggleRandom={toggleRandom}
                 toggleSearch={toggleSearch}
               />
@@ -224,7 +243,12 @@ const AddPriorKnowledge = (props) => {
             variant="outlined"
             className={classes.unlabeled}
           >
-            <PriorLabeled mobileScreen={props.mobileScreen} />
+            <PriorLabeled
+              mobileScreen={props.mobileScreen}
+              n_prior={data?.n_prior}
+              n_prior_exclusions={data?.n_prior_exclusions}
+              n_prior_inclusions={data?.n_prior_inclusions}
+            />
           </Card>
         </Stack>
       </DialogContent>
