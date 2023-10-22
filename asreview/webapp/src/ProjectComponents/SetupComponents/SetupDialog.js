@@ -140,7 +140,7 @@ const SetupDialog = (props) => {
           }
         });
     }
-  }, [props.project_id, queryClient]);
+  }, [props.project_id, props.onAddPrior, queryClient]);
 
   React.useEffect(() => {
     const currentSavingStatus = isMutatingInfo === 1 || isMutatingModel === 1;
