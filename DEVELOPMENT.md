@@ -58,11 +58,24 @@ flake8 .
 ```
 
 ### Front end
+The user interface is written in [React](https://reactjs.org/). 
 
-You need to install [Node.js](https://nodejs.org/en) for local development. We
-use version 20.
 
-Start the Python API server with the Flask development environment. Before the front end development can be started, the back end has to run as well
+Please make use of [npx](https://www.npmjs.com/package/npx) and Prettier
+(https://prettier.io/docs/en/install.html) to format React/Javascript code.
+Afer installing `npx` and `prettier`, navigate to the folder with the file
+you want to 'prettify' and run:
+
+```
+npx prettier --write .
+```
+
+To run a local version of the front-end on `localhost:3000`, proceed as
+follows:
+
+1. You need to install [Node.js](https://nodejs.org/en) for local development (we use version 20).
+
+2. Before the front end development can be started, the back end has to run as well. Therefore, first, start the Python API server with the Flask development environment: 
 
 	export FLASK_DEBUG=1
 	asreview lab
@@ -72,21 +85,21 @@ For Windows, use
 	set FLASK_DEBUG=1
 	asreview lab
 
-Navigate to `asreview/webapp` and install the front end application with npm
+**Important**: Ignore `localhost:5000`, because this is not relevant for the
+  development version, which will run on `localhost:3000`.
+
+3. Next, open a new CLI and navigate to `asreview/webapp` and install the front end application with [npm](https://www.npmjs.com/get-npm):
 
 	cd asreview/webapp
 	npm install
 
-The user interface is written in [React][2]. Start the local front end application with npm
+Start the local front end application with npm
 
 	npm start
 
-Open the web browser at `localhost:3000`
+4. Open the web browser at `localhost:3000`
 
-**Important**: Ignore `localhost:5000`. You can also find a front end on `:5000` but this is not relevant for the current front end development step.
 
-[1]:	https://www.npmjs.com/get-npm
-[2]:	https://reactjs.org/
 
 ### Front end development and connection/CORS issues
 
@@ -103,16 +116,7 @@ Be precise when it comes to URLs/port numbers! In the context of CORS `localhost
 
 ❗Mac users beware: depending on your version of macOS you may experience troubles with `localhost:5000`. Port 5000 may be in use by "Airplay Receiver" which may (!) cause nondeterministic behavior. If you experience similar issues [switch to a different port](#optional-config-parameters).
 
-#### Formatting and linting
 
-Please make use of Prettier (https://prettier.io/docs/en/install.html) to
-format React/Javascript code. Use the following code to format all files in
-the webapp folder.
-
-```
-cd asreview/webapp
-npx prettier --write .
-```
 
 ## Authentication
 
