@@ -491,6 +491,8 @@ class ASReviewData():
             # in case of strings, strip whitespaces and replace empty strings with None
             if is_string_dtype(self.df[pid]):
                 s_pid = self.df[pid].str.strip().replace("", None)
+                if pid == 'doi':
+                    s_pid = s_pid.str.replace(r"^https?://(www\.)?doi\.org/", "", regex=True)
             else:
                 s_pid = self.df[pid]
 
@@ -499,8 +501,6 @@ class ASReviewData():
         else:
             s_dups_pid = None
            
-        if pid == 'doi':
-            s_pid = s_pid.str.replace("^https?://(www\.)?doi\.org/", "", regex=True)
 
         # get the texts, clean them and replace empty strings with None
         s = pd.Series(self.texts) \
