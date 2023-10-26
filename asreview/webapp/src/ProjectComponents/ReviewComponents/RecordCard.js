@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import clsx from "clsx";
 import {
   Box,
@@ -101,168 +101,199 @@ const RecordCard = (props) => {
     });
   };
 
+  const [highlightRegex, setHighlightRegex] = useState('');
+
+  const highlightWithRegex = (text, regexStr) => {
+    try {
+      const regex = new RegExp(regexStr, 'gi');
+      return text.replace(regex, (match) => `<span style="background-color: yellow">${match}</span>`);
+    } catch (e) {
+      // Handle regex errors, e.g., invalid regex string
+      return text;
+    }
+  };          
+
   return (
     <Root aria-label="record card">
-      {!props.isError && !props.activeRecord && (
-        <Card
-          elevation={2}
-          className={clsx(classes.loadedCard, classes.loadingCard)}
-        >
-          <CardContent aria-label="record loading">
-            <CircularProgress />
-          </CardContent>
-        </Card>
-      )}
-      {props.isError && (
-        <Card
-          elevation={2}
-          className={clsx(classes.loadedCard, classes.loadingCard)}
-          aria-label="record loaded failure"
-        >
-          <BoxErrorHandler queryKey="fetchRecord" error={props.error} />
-        </Card>
-      )}
-      {props.activeRecord && (
-        <Card
-          elevation={2}
-          className={classes.loadedCard}
-          aria-label="record loaded"
-        >
-          {/* Previous decision alert */}
-          {props.activeRecord._debug_label !== null && (
-            <ExplorationModeRecordAlert
-              label={!isDebugInclusion() ? "irrelevant" : "relevant"}
-            />
-          )}
-
-          <CardContent
-            className={`${classes.titleAbstract} record-card-content`}
-            aria-label="record title abstract"
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        {!props.isError && !props.activeRecord && (
+          <Card
+            elevation={2}
+            className={clsx(classes.loadedCard, classes.loadingCard)}
           >
-            <Stack spacing={1}>
-              {/* Show the title */}
-              <Typography
-                component="div"
-                className={classes.title}
-                variant={!props.mobileScreen ? "h5" : "h6"}
-                sx={{
-                  fontWeight: (theme) => theme.typography.fontWeightRegular,
-                }}
-              >
-                {/* No title, inplace text */}
-                {(props.activeRecord.title === "" ||
-                  props.activeRecord.title === null) && (
-                  <Box
-                    className={"fontSize" + props.fontSize.label}
-                    fontStyle="italic"
-                  >
-                    No title available
-                  </Box>
-                )}
-
-                {/* Show the title if available */}
-                {!(
-                  props.activeRecord.title === "" ||
-                  props.activeRecord.title === null
-                ) && (
-                  <Box className={"fontSize" + props.fontSize.label}>
-                    {props.activeRecord.title}
-                  </Box>
-                )}
-              </Typography>
-
-              <Stack direction="row" spacing={1}>
-                {/* Show DOI if available */}
-                {!(
-                  props.activeRecord.doi === undefined ||
-                  props.activeRecord.doi === null
-                ) && (
-                  <StyledIconButton
-                    className="record-card-icon"
-                    href={"https://doi.org/" + props.activeRecord.doi}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <DOIIcon />
-                  </StyledIconButton>
-                )}
-
-                {/* Show URL if available */}
-                {!(
-                  props.activeRecord.url === undefined ||
-                  props.activeRecord.url === null
-                ) && (
-                  <Tooltip title="Open URL">
-                    <StyledIconButton
-                      className="record-card-icon"
-                      href={props.activeRecord.url}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <Link />
-                    </StyledIconButton>
-                  </Tooltip>
-                )}
-              </Stack>
-              {/* Show the abstract */}
-              <Typography
-                component="div"
-                className={
-                  classes.abstract + " fontSize" + props.fontSize.label
-                }
-                variant="body2"
-                paragraph
-                sx={{ color: "text.secondary" }}
-              >
-                {/* No abstract, inplace text */}
-                {(props.activeRecord.abstract === "" ||
-                  props.activeRecord.abstract === null) && (
-                  <Box fontStyle="italic">No abstract available</Box>
-                )}
-
-                {/* Show the abstract if available */}
-                {!(
-                  props.activeRecord.abstract === "" ||
-                  props.activeRecord.abstract === null
-                ) && <Box>{props.activeRecord.abstract}</Box>}
-              </Typography>
-            </Stack>
-          </CardContent>
-
-          <Slide
-            direction="up"
-            in={props.recordNote.expand}
-            onExited={shrinkNoteSheet}
-            mountOnEnter
-            unmountOnExit
+            <CardContent aria-label="record loading">
+              <CircularProgress />
+            </CardContent>
+          </Card>
+        )}
+        {props.isError && (
+          <Card
+            elevation={2}
+            className={clsx(classes.loadedCard, classes.loadingCard)}
+            aria-label="record loaded failure"
           >
-            <Box>
-              <NoteSheet
-                note={props.recordNote.data}
-                noteFieldAutoFocus={props.noteFieldAutoFocus}
-                previousRecord={props.previousRecord}
-                setRecordNote={props.setRecordNote}
-              />
-            </Box>
-          </Slide>
+            <BoxErrorHandler queryKey="fetchRecord" error={props.error} />
+          </Card>
+        )}
+        <div style={{ flex: 1 }}>
+          {props.activeRecord && (
+            <Card
+              elevation={2}
+              className={classes.loadedCard}
+              aria-label="record loaded"
+            >
+              {/* Previous decision alert */}
+              {props.activeRecord._debug_label !== null && (
+                <ExplorationModeRecordAlert
+                  label={!isDebugInclusion() ? "irrelevant" : "relevant"}
+                />
+              )}
 
-          {props.recordNote.shrink && (
-            <CardActions className={classes.note}>
-              <Button
-                disabled={props.disableButton()}
-                size="small"
-                onClick={expandNoteSheet}
-                aria-label="add note"
+              <CardContent
+                className={`${classes.titleAbstract} record-card-content`}
+                aria-label="record title abstract"
               >
-                {(props.previousRecord.show && props.previousRecord.note) ||
-                props.recordNote.data
-                  ? "Edit Note"
-                  : "Add Note"}
-              </Button>
-            </CardActions>
+                <Stack spacing={1}>
+                  {/* Show the title */}
+                  <Typography
+                    component="div"
+                    className={classes.title}
+                    variant={!props.mobileScreen ? "h5" : "h6"}
+                    sx={{
+                      fontWeight: (theme) => theme.typography.fontWeightRegular,
+                    }}
+                  >
+                    {/* No title, inplace text */}
+                    {(props.activeRecord.title === "" ||
+                      props.activeRecord.title === null) && (
+                      <Box
+                        className={"fontSize" + props.fontSize.label}
+                        fontStyle="italic"
+                      >
+                        No title available
+                      </Box>
+                    )}
+
+                    {/* Show the title if available */}
+                    {!(
+                      props.activeRecord.title === "" ||
+                      props.activeRecord.title === null
+                    ) && (
+                      <Box className={"fontSize" + props.fontSize.label}>
+                        {props.activeRecord.title}
+                      </Box>
+                    )}
+                  </Typography>
+
+                  <Stack direction="row" spacing={1}>
+                    {/* Show DOI if available */}
+                    {!(
+                      props.activeRecord.doi === undefined ||
+                      props.activeRecord.doi === null
+                    ) && (
+                      <StyledIconButton
+                        className="record-card-icon"
+                        href={"https://doi.org/" + props.activeRecord.doi}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <DOIIcon />
+                      </StyledIconButton>
+                    )}
+
+                    {/* Show URL if available */}
+                    {!(
+                      props.activeRecord.url === undefined ||
+                      props.activeRecord.url === null
+                    ) && (
+                      <Tooltip title="Open URL">
+                        <StyledIconButton
+                          className="record-card-icon"
+                          href={props.activeRecord.url}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <Link />
+                        </StyledIconButton>
+                      </Tooltip>
+                    )}
+                  </Stack>
+                  {/* Show the abstract */}
+                  <Typography
+                    component="div"
+                    className={
+                      classes.abstract + " fontSize" + props.fontSize.label
+                    }
+                    variant="body2"
+                    paragraph
+                    sx={{ color: "text.secondary" }}
+                  >
+                    {/* No abstract, inplace text */}
+                    {(props.activeRecord.abstract === "" ||
+                      props.activeRecord.abstract === null) && (
+                      <Box fontStyle="italic">No abstract available</Box>
+                    )}
+
+                    {/* Show the abstract if available */}
+                    {!(
+                      props.activeRecord.abstract === "" ||
+                      props.activeRecord.abstract === null
+                    ) && <Box 
+                    dangerouslySetInnerHTML={{
+                      __html: highlightWithRegex(props.activeRecord.abstract, highlightRegex)
+                    }}
+                  />
+                      }
+                  </Typography>
+                </Stack>
+              </CardContent>
+
+              <Slide
+                direction="up"
+                in={props.recordNote.expand}
+                onExited={shrinkNoteSheet}
+                mountOnEnter
+                unmountOnExit
+              >
+                <Box>
+                  <NoteSheet
+                    note={props.recordNote.data}
+                    noteFieldAutoFocus={props.noteFieldAutoFocus}
+                    previousRecord={props.previousRecord}
+                    setRecordNote={props.setRecordNote}
+                  />
+                </Box>
+              </Slide>
+
+              {props.recordNote.shrink && (
+                <CardActions className={classes.note}>
+                  <Button
+                    disabled={props.disableButton()}
+                    size="small"
+                    onClick={expandNoteSheet}
+                    aria-label="add note"
+                  >
+                    {(props.previousRecord.show && props.previousRecord.note) ||
+                    props.recordNote.data
+                      ? "Edit Note"
+                      : "Add Note"}
+                  </Button>
+                </CardActions>
+              )}
+            </Card>
           )}
-        </Card>
-      )}
+        </div>
+        <div style={{ flex: 1, paddingTop: '16px' }}>
+          <Typography variant="h6">Regex to Highlight</Typography>
+          <input 
+            type="text" 
+            value={highlightRegex} 
+            onChange={(e) => setHighlightRegex(e.target.value)} 
+            placeholder="Enter regex pattern to highlight"
+            style={{ width: '100%', padding: '8px' }}
+          />
+          </div>
+      </div>
     </Root>
   );
 };
