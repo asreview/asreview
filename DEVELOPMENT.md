@@ -25,17 +25,23 @@ Install Python
 
 Install the ASReview package
 
-	pip install -e .[dev]
+```
+pip install -e .[dev]
+```
 
 Start the Python API server with the Flask development environment
 
-	export FLASK_DEBUG=1
-	asreview lab
+```
+export FLASK_DEBUG=1
+asreview lab
+```
 
 For Windows, use
 
-	set FLASK_DEBUG=1
-	asreview lab
+```
+set FLASK_DEBUG=1
+asreview lab
+```
 
 #### Formatting and linting
 
@@ -77,29 +83,35 @@ follows:
 
 2. Before the front end development can be started, the back end has to run as well. Therefore, first, start the Python API server with the Flask development environment: 
 
-	export FLASK_DEBUG=1
-	asreview lab
+```
+export FLASK_DEBUG=1
+asreview lab
+```
 
 For Windows, use
 
-	set FLASK_DEBUG=1
-	asreview lab
+```
+set FLASK_DEBUG=1
+asreview lab
+```
 
 **Important**: Ignore `localhost:5000`, because this is not relevant for the
   development version, which will run on `localhost:3000`.
 
 3. Next, open a new CLI and navigate to `asreview/webapp` and install the front end application with [npm](https://www.npmjs.com/get-npm):
 
-	cd asreview/webapp
-	npm install
+```
+cd asreview/webapp
+npm install
+```
 
 Start the local front end application with npm
 
-	npm start
+```
+npm start
+```
 
 4. Open the web browser at `localhost:3000`
-
-
 
 ### Front end development and connection/CORS issues
 
