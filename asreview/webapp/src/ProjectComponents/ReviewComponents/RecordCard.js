@@ -106,13 +106,50 @@ const RecordCard = (props) => {
   const highlightWithRegex = (text, regexStr) => {
     try {
       const regex = new RegExp(regexStr, 'gi');
-      return text.replace(regex, (match) => `<span style="background-color: yellow">${match}</span>`);
+      const hasGroups = /\((?!\?:)/.test(regexStr); // Test for capturing groups
+  
+      if (hasGroups) {
+        return text.replace(regex, (match, ...groups) => {
+          let offset = 0;
+          let highlighted = match;
+          
+          // Remove the last two elements (entire string and index)
+          groups.pop();
+          groups.pop();
+  
+          for (let i = 0; i < groups.length; i++) {
+            const group = groups[i];
+            if (group === undefined) continue;
+  
+            let color;
+            if (i === 0) color = '#affaaf'; // Green
+            else if (i === 1) color = '#FFCCCC'; // Red
+            else color = 'lightblue'; // Blue
+  
+            const startIdx = highlighted.indexOf(group, offset);
+            const endIdx = startIdx + group.length;
+            
+            highlighted = (
+              highlighted.substring(0, startIdx) +
+              `<span style="background-color: ${color}">${group}</span>` +
+              highlighted.substring(endIdx)
+            );
+  
+            // Update offset
+            offset = startIdx + `<span style="background-color: ${color}">${group}</span>`.length;
+          }
+  
+          return highlighted;
+        });
+      } else {
+        return text.replace(regex, (match) => `<span style="background-color: yellow">${match}</span>`);
+      }
     } catch (e) {
-      // Handle regex errors, e.g., invalid regex string
-      return text;
-    }
-  };          
-
+      // Handle regex errors by returning the text in red
+      return `<span style="color: red">${text}</span>`;
+    }    
+  };
+  
   return (
     <Root aria-label="record card">
       <div style={{ display: 'flex', flexDirection: 'column' }}>
