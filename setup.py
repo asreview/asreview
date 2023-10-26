@@ -51,10 +51,11 @@ REQUIRES = [
     "rispy~=0.7.0",
     "xlrd>=1.0.0",
     "setuptools",
-    "flask>=2.3.0",
+    "flask>=2.3.0,<3",
     "flask_cors",
     "flask-login",
     "flask-mail",
+    "Werkzeug>=2.3.2,<3",
     "openpyxl",
     "jsonschema",
     "filelock",
@@ -63,7 +64,9 @@ REQUIRES = [
     "tqdm",
     "gevent>=20",
     "datahugger>=0.2",
-    "synergy_dataset"
+    "synergy_dataset",
+    "psycopg2",
+    "sqlalchemy-utils",
 ]
 
 if sys.version_info < (3, 11):
@@ -80,6 +83,14 @@ DEPS = {
     "tensorflow": ["tensorflow~=2.0"],
     "dev": ["black", "check-manifest", "flake8", "flake8-isort", "isort"],
     "test": ["coverage", "pytest", "pytest-random-order"],
+    "docs": [
+        "ipython",
+        "sphinx",
+        "sphinx_rtd_theme",
+        "sphinx-reredirects",
+        "sphinxcontrib-youtube",
+        "nbsphinx",
+    ],
 }
 DEPS["all"] = DEPS["sbert"] + DEPS["doc2vec"]
 DEPS["all"] += DEPS["tensorflow"]
@@ -110,12 +121,12 @@ class CompileAssets(Command):
         subprocess.check_call(
             ["npm", "install"],
             cwd=str(path_webapp),
-            shell=(platform.system() == "Windows")
+            shell=(platform.system() == "Windows"),
         )
         subprocess.check_call(
             ["npm", "run-script", "build"],
             cwd=str(path_webapp),
-            shell=(platform.system() == 'Windows')
+            shell=(platform.system() == "Windows"),
         )
 
 
@@ -154,6 +165,7 @@ setup(
         "asreview": [
             "webapp/build/*",
             "webapp/build/static/*/*",
+            "webapp/templates/emails/*",
         ]
     },
     python_requires="~=3.8",
@@ -190,7 +202,7 @@ setup(
         "asreview.datasets": [
             "benchmark = asreview.datasets:BenchmarkDataGroup",
             "benchmark-nature = asreview.datasets:NaturePublicationDataGroup",
-            "synergy = asreview.datasets:SynergyDataGroup"
+            "synergy = asreview.datasets:SynergyDataGroup",
         ],
         "asreview.models.classifiers": [
             "svm = asreview.models.classifiers:SVMClassifier",

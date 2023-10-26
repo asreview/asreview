@@ -2,7 +2,7 @@
 
 This folder contains the test suite of the ASReview app. It is organized in the following folders:
 
-- **config**: Contains data to create user accounts and a number of json files to start the ASReview app in different modes (e.g. authenticated, authentication with verification, etc).
+- **config**: Contains data to create user accounts and a number of TOML files to start the ASReview app in different modes (e.g. authenticated, authentication with verification, etc).
 
 - **data**: Contains project data used in tests.
 
@@ -58,3 +58,7 @@ If you are in the middle of writing your tests, and your module contains many te
 ```
 pytest --random-order -s -v ./asreview/webapp/tests/test_api/test_projects.py -k current
 ```
+
+## Database
+
+A database is needed to run the tests for authenticated versions of the app. In the `config` file a number of TOML configuration files exist that are used to create different versions of the app. The configuration files that create an authenticated version of the app lack the `SQLALCHEMY_DATABASE_URI` parameter! That parameter tells the backend where it can find the database. If that parameter is missing, the app will create and initialize a sqlite3 database automatically. After the test suite has been executed, this database will be removed. In case you would like to run all tests in a specific database, you need to provide the URI of the database yourself.

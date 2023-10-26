@@ -59,7 +59,8 @@ flake8 .
 
 ### Front end
 
-Install both [npm][1] and Python
+You need to install [Node.js](https://nodejs.org/en) for local development. We
+use version 20.
 
 Start the Python API server with the Flask development environment. Before the front end development can be started, the back end has to run as well
 
@@ -281,7 +282,7 @@ or PDF files.
 Install the dependencies for rendering the documentation with
 
 ```
-pip install -r docs/requirements.txt
+pip install .[docs]
 ```
 
 Navigate into the `docs` folder and render the documentation (the HTML version) with
@@ -334,3 +335,5 @@ docker push ghcr.io/asreview/asreview:1.0
 ```
 
 If you are creating a Docker container that runs the app with a [config file](#full-configuration) do __not forget__ to override the IP-address of the Flask backend. Set the HOST variable to "0.0.0.0" since the default "localhost" can't be reached from outside the container.
+
+See the `Docker` folder for more information about running the ASReview app in Docker containers.

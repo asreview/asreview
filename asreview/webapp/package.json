@@ -62,7 +62,7 @@
     ]
   },
   "devDependencies": {
-    "cypress": "^12.17.4",
+    "cypress": "^13.2.0",
     "node-fetch": ">=3.2.10",
     "react-redux": "^7.2.2",
     "redux": "^4.0.5"
