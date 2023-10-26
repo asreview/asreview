@@ -330,14 +330,40 @@ const ExportPage = (props) => {
     bgcolor="warning.lighter" 
     maxWidth="600px"  // or whatever maximum width you prefer
   >
-    <TypographySubtitle1Medium>To Cite ASReview</TypographySubtitle1Medium>
+    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+    Love using ASReview? Here's how you can give back to our open-source and community-driven project:
+    </Typography>
+
     <Typography variant="body2" sx={{ color: "text.secondary" }}>
+    - <strong>Cite Us:</strong> If you find ASReview useful for your research, please consider citing the project:
       ASReview LAB developers. (2023). ASReview LAB - 
       A tool for AI-assisted systematic reviews (v1.3rc1). Zenodo.  
       <Link href="https://doi.org/10.5281/zenodo.8297019">https://doi.org/10.5281/zenodo.8297019</Link>
     </Typography>
+
+    <Typography variant="body2" sx={{ color: "text.secondary" }}>
+    - <strong>Discuss:</strong> Share your insights and join the conversation on our{' '}
+    <a href="https://github.com/asreview/asreview/discussions" target="_blank" rel="noopener noreferrer">
+      discussion platform
+    </a>.
+    </Typography>
+
+    <Typography variant="body2" sx={{ color: "text.secondary" }}>
+    - <strong>Donate:</strong> Support our research and development by donating through the{' '}
+    <a href="https://steun.uu.nl/project/asreview" target="_blank" rel="noopener noreferrer">
+      Utrecht University crowdfunding platform
+    </a>.
+    </Typography>
+
+   <Typography variant="body2" sx={{ color: "text.secondary" }}>
+    - <strong>Become a Contributor:</strong> Help us improve the code by contributing to our{' '}
+    <a href="https://github.com/asreview/asreview" target="_blank" rel="noopener noreferrer">
+      GitHub repository
+    </a>.
+    </Typography>
+
   </Box>
-  </Box>
+</Box>
 
             </Stack>
           </Box>
