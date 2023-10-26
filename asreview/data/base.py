@@ -61,19 +61,16 @@ def load_data(name, *args, **kwargs):
         pass
 
     # Could not find dataset, return None.
-    raise FileNotFoundError(
-        f"File, URL, or dataset does not exist: '{name}'")
+    raise FileNotFoundError(f"File, URL, or dataset does not exist: '{name}'")
 
 
 def _get_filename_from_url(url):
-
     if not is_url(url):
         raise ValueError(f"'{url}' is not a valid URL.")
 
     if Path(urlparse(url).path).suffix:
         return Path(urlparse(url).path).name, url
     else:
-
         try:
             return urlopen(url).headers.get_filename(), url
         except HTTPError as err:
@@ -85,7 +82,7 @@ def _get_filename_from_url(url):
                 raise err
 
 
-class ASReviewData():
+class ASReviewData:
     """Data object to the dataset with texts, labels, DOIs etc.
 
     Arguments
@@ -128,9 +125,7 @@ class ASReviewData():
 
     """
 
-    def __init__(self,
-                 df=None,
-                 column_spec=None):
+    def __init__(self, df=None, column_spec=None):
         self.df = df
         self.prior_idx = np.array([], dtype=int)
 
@@ -162,13 +157,15 @@ class ASReviewData():
         str:
             SHA1 hash, computed from the titles/abstracts of the dataframe.
         """
-        if ((len(self.df.index) < 1000 and self.bodies is not None) or
-                self.texts is None):
+        if (
+            len(self.df.index) < 1000 and self.bodies is not None
+        ) or self.texts is None:
             texts = " ".join(self.bodies)
         else:
             texts = " ".join(self.texts)
-        return hashlib.sha1(" ".join(texts).encode(
-            encoding='UTF-8', errors='ignore')).hexdigest()
+        return hashlib.sha1(
+            " ".join(texts).encode(encoding="UTF-8", errors="ignore")
+        ).hexdigest()
 
     @classmethod
     def from_file(cls, fp, reader=None):
@@ -200,8 +197,7 @@ class ASReviewData():
         try:
             reader = entry_points[Path(fn).suffix].load()
         except Exception:
-            raise BadFileFormatError(
-                f"Importing file {fp} not possible.")
+            raise BadFileFormatError(f"Importing file {fp} not possible.")
 
         df, column_spec = reader.read_data(fp)
 
@@ -231,16 +227,19 @@ class ASReviewData():
 
         if by_index:
             records = [
-                PaperRecord(**self.df.iloc[j],
-                            column_spec=self.column_spec,
-                            record_id=self.df.index.values[j])
+                PaperRecord(
+                    **self.df.iloc[j],
+                    column_spec=self.column_spec,
+                    record_id=self.df.index.values[j],
+                )
                 for j in index_list
             ]
         else:
             records = [
-                PaperRecord(**self.df.loc[j, :],
-                            record_id=j,
-                            column_spec=self.column_spec) for j in index_list
+                PaperRecord(
+                    **self.df.loc[j, :], record_id=j, column_spec=self.column_spec
+                )
+                for j in index_list
             ]
 
         if is_iterable(i):
@@ -258,9 +257,10 @@ class ASReviewData():
         if self.abstract is None:
             return self.title
 
-        cur_texts = np.array([
-            self.title[i] + " " + self.abstract[i] for i in range(len(self))
-        ], dtype=object)
+        cur_texts = np.array(
+            [self.title[i] + " " + self.abstract[i] for i in range(len(self))],
+            dtype=object,
+        )
         return cur_texts
 
     @property
@@ -295,8 +295,7 @@ class ASReviewData():
     @property
     def keywords(self):
         try:
-            return self.df[self.column_spec["keywords"]].apply(
-                convert_keywords).values
+            return self.df[self.column_spec["keywords"]].apply(convert_keywords).values
         except KeyError:
             return None
 
@@ -419,8 +418,10 @@ class ASReviewData():
                         best_suffix = suffix
 
             if best_suffix is None:
-                raise BadFileFormatError(f"Error exporting file {fp}, no capabilities "
-                                         "for exporting such a file.")
+                raise BadFileFormatError(
+                    f"Error exporting file {fp}, no capabilities "
+                    "for exporting such a file."
+                )
 
             writer = entry_points[best_suffix].load()
             writer.write_data(df, fp, labels=labels, ranking=ranking)
@@ -469,7 +470,7 @@ class ASReviewData():
 
         return result_df
 
-    def duplicated(self, pid='doi'):
+    def duplicated(self, pid="doi"):
         """Return boolean Series denoting duplicate rows.
 
         Identify duplicates based on titles and abstracts and if available,
@@ -491,24 +492,29 @@ class ASReviewData():
             # in case of strings, strip whitespaces and replace empty strings with None
             if is_string_dtype(self.df[pid]):
                 s_pid = self.df[pid].str.strip().replace("", None)
-                if pid == 'doi':
-                    s_pid = s_pid.str.replace(r"^https?://(www\.)?doi\.org/", "", regex=True)
+                if pid == "doi":
+                    s_pid = s_pid.str.replace(
+                        r"^https?://(www\.)?doi\.org/", "", regex=True
+                    )
             else:
                 s_pid = self.df[pid]
 
             # save boolean series for duplicates based on persistent identifiers
-            s_dups_pid = ((s_pid.duplicated()) & (s_pid.notnull()))
+            s_dups_pid = (s_pid.duplicated()) & (s_pid.notnull())
         else:
             s_dups_pid = None
-           
 
         # get the texts, clean them and replace empty strings with None
-        s = pd.Series(self.texts) \
-            .str.replace("[^A-Za-z0-9]", "", regex=True) \
-            .str.lower().str.strip().replace("", None)
+        s = (
+            pd.Series(self.texts)
+            .str.replace("[^A-Za-z0-9]", "", regex=True)
+            .str.lower()
+            .str.strip()
+            .replace("", None)
+        )
 
         # save boolean series for duplicates based on titles/abstracts
-        s_dups_text = ((s.duplicated()) & (s.notnull()))
+        s_dups_text = (s.duplicated()) & (s.notnull())
 
         # final boolean series for all duplicates
         if s_dups_pid is not None:
@@ -518,7 +524,7 @@ class ASReviewData():
 
         return s_dups
 
-    def drop_duplicates(self, pid='doi', inplace=False, reset_index=True):
+    def drop_duplicates(self, pid="doi", inplace=False, reset_index=True):
         """Drop duplicate records.
 
         Drop duplicates based on titles and abstracts and if available,
