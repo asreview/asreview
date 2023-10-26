@@ -22,6 +22,7 @@ ACCOUNT = {
 }
 
 PROJECT = {
+    "mode": "Exploration", # "Oracle", "Simulation"
     "title": "Project Title",
     "author": ACCOUNT["name"],
     "description": "Project description"
