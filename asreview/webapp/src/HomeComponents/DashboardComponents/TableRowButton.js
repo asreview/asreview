@@ -5,9 +5,10 @@ import {
   Assignment,
   Assessment,
   Download,
+  GroupAdd,
   MoreVert,
+  PersonOff,
 } from "@mui/icons-material";
-
 import { projectStatuses } from "../../globals.js";
 
 const PREFIX = "TableRowButton";
@@ -77,6 +78,26 @@ export default function TableRowButton(props) {
             </IconButton>
           </Tooltip>
         )}
+        {false && props.isOwner && (
+          <Tooltip title="Add team members">
+            <IconButton
+              className={classes.button}
+              onClick={props.onClickCollaboration}
+            >
+              <GroupAdd />
+            </IconButton>
+          </Tooltip>
+        )}
+        {false && !props.isOwner && (
+          <Tooltip title="Remove yourself from team">
+            <IconButton
+              className={classes.button}
+              onClick={props.onClickCollaboration}
+            >
+              <PersonOff />
+            </IconButton>
+          </Tooltip>
+        )}
         {!props.isSimulating() && (
           <Tooltip title="Export">
             <IconButton
@@ -98,7 +119,7 @@ export default function TableRowButton(props) {
             open={onRowMenu}
             onClose={handleCloseRowMenu}
           >
-            {!props.isSimulating() && (
+            {!props.isSimulating() && ( // && props.canEdit
               <MenuItem onClick={handleClickEditDetails}>Edit details</MenuItem>
             )}
             {!props.disableProjectStatusChange() && (
@@ -108,7 +129,9 @@ export default function TableRowButton(props) {
                   : "Mark as in review"}
               </MenuItem>
             )}
-            <MenuItem onClick={handleClickDelete}>Delete forever</MenuItem>
+            <MenuItem onClick={handleClickDelete}>
+              Delete {props.isOwner ? "forever" : ""}
+            </MenuItem>
           </Menu>
         </div>
       </Stack>

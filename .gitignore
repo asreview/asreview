@@ -121,6 +121,9 @@ pythonenv*
 .spyderproject
 .spyproject
 
+# VS Code
+.vscode
+
 # Rope project settings
 .ropeproject
 
@@ -151,6 +154,7 @@ Thumbs.db #thumbnail cache on Windows
 logs
 **/*.backup.*
 **/*.back.*
+.env.*
 
 node_modules
 bower_components
@@ -160,3 +164,6 @@ bower_components
 psd
 thumb
 sketch
+notes.md
+
+flask_config.json

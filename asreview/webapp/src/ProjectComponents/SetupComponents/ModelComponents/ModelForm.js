@@ -101,7 +101,7 @@ const ModelForm = (props) => {
         });
       },
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   const handleModel = (event) => {

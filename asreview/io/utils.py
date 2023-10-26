@@ -20,10 +20,7 @@ import pandas as pd
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
 from asreview.exceptions import BadFileFormatError
-from asreview.utils import _reader_class_from_entry_point
-from asreview.utils import _writer_class_from_entry_point
-from asreview.utils import list_reader_names
-from asreview.utils import list_writer_names
+from asreview.utils import _entry_points
 
 
 def type_from_column(col_name, col_definitions):
@@ -63,19 +60,16 @@ def convert_keywords(keywords):
 
 
 def _is_record_id_unique(s):
-
     if len(pd.unique(s)) != len(s.index):
         raise ValueError("Column 'record_id' contains duplicate values.")
 
 
 def _is_record_id_notnull(s):
-
     if s.isnull().any():
         raise ValueError("Column 'record_id' contains missing values.")
 
 
 def _is_record_id_int(s):
-
     try:
         pd.to_numeric(s).astype(int)
     except Exception:
@@ -166,7 +160,7 @@ def _standardize_dataframe(df, column_def={}):
     # # Create a new index if we haven't found it in the data.
     # else:
     #     df["record_id"] = np.arange(len(df.index))
-    df["record_id"] = np.arange(len(df.index))
+    df["record_id"] = np.arange(len(df.index)).astype('int64')
 
     # set the index
     df.set_index("record_id", inplace=True)
@@ -182,12 +176,7 @@ def list_readers():
     list:
         Classes of available dataset readers in alphabetical order.
     """
-    reader_class = [
-        get_reader_class(name)
-        for name in list_reader_names(entry_name="asreview.readers")
-    ]
-
-    return reader_class
+    return [e.load() for e in _entry_points(group="asreview.readers")]
 
 
 def list_writers():
@@ -198,12 +187,7 @@ def list_writers():
     list:
         Classes of available dataset writers in alphabetical order.
     """
-    writer_class = [
-        get_writer_class(name)
-        for name in list_writer_names(entry_name="asreview.writers")
-    ]
-
-    return writer_class
+    return [e.load() for e in _entry_points(group="asreview.writers")]
 
 
 def get_reader_class(name):
@@ -219,7 +203,7 @@ def get_reader_class(name):
     class:
         Class corresponding to the name.
     """
-    return _reader_class_from_entry_point(name, entry_name="asreview.readers")
+    return _entry_points(group="asreview.readers")[name].load()
 
 
 def get_writer_class(name):
@@ -235,4 +219,5 @@ def get_writer_class(name):
     class:
         Class corresponding to the name.
     """
-    return _writer_class_from_entry_point(name, entry_name="asreview.writers")
+
+    return _entry_points(group="asreview.writers")[name].load()

@@ -42,7 +42,7 @@ const ProjectCheckDialog = (props) => {
       retry: false,
       onSuccess: () => {
         navigate(
-          `/projects/${props.projectCheck?.project_id}/${props.projectCheck?.path}`
+          `/projects/${props.projectCheck?.project_id}/${props.projectCheck?.path}`,
         );
         queryClient.invalidateQueries("fetchProjectIsOld", {
           refetchActive: false,
@@ -58,7 +58,7 @@ const ProjectCheckDialog = (props) => {
         setUpgrade(false);
       },
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   /**
@@ -75,7 +75,7 @@ const ProjectCheckDialog = (props) => {
       enabled: exporting,
       refetchOnWindowFocus: false,
       onSettled: () => setExporting(false),
-    }
+    },
   );
 
   const returnAction = () => {
@@ -195,7 +195,7 @@ const ProjectCheckDialog = (props) => {
         <Stack spacing={3}>
           {
             checkText.find(
-              (element) => element.label === props.projectCheck?.issue
+              (element) => element.label === props.projectCheck?.issue,
             )?.text
           }
           {returnError()[0] && (

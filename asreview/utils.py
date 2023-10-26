@@ -12,13 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import functools
 import os
 import sys
+import warnings
 from pathlib import Path
+from urllib.error import HTTPError
 from urllib.parse import urlparse
+from urllib.request import urlopen
 
 import numpy as np
-import pkg_resources
+
+from asreview._deprecated import _deprecated_func
+
+if sys.version_info >= (3, 10):
+    from importlib.metadata import entry_points as _entry_points
+else:
+    from importlib_metadata import entry_points as _entry_points
 
 
 def _unsafe_dict_update(default_dict, override_dict):
@@ -48,7 +58,7 @@ def _unsafe_dict_update(default_dict, override_dict):
     for key in new_dict:
         if key in override_dict:
             str_val = override_dict[key]
-            if type(new_dict[key]) == bool:
+            if isinstance(new_dict[key], bool):
                 new_dict[key] = str_val in ["True", "true", "T", "t", True]
             else:
                 try:
@@ -101,13 +111,44 @@ def _safe_dict_update(default_dict, override_dict):
     return new_dict
 
 
+def _deprecated_kwarg(kwarg_map):
+    def dec(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            new_kwargs = {}
+            for k, v in kwargs.items():
+                if k in kwarg_map:
+                    warnings.warn(f"Keyword argument '{k}' is deprecated. Use '{kwarg_map[k]}' instead.", DeprecationWarning)  # noqa
+                new_kwargs[kwarg_map.get(k, k)] = v
+            return func(*args, **new_kwargs)
+        return wrapper
+    return dec
+
+
+def _get_filename_from_url(url):
+    if not is_url(url):
+        raise ValueError(f"'{url}' is not a valid URL.")
+
+    if Path(urlparse(url).path).suffix:
+        return Path(urlparse(url).path).name
+    else:
+        try:
+            return urlopen(url).headers.get_filename()
+        except HTTPError as err:
+            # 308 (Permanent Redirect) not supported
+            # See https://bugs.python.org/issue40321
+            if err.code == 308:
+                return _get_filename_from_url(err.headers.get("Location"))
+            else:
+                raise err
+
+
 def asreview_path():
     """Get the location where projects are stored.
 
     Overwrite this location by specifying the ASREVIEW_PATH enviroment
     variable.
     """
-
     if os.environ.get("ASREVIEW_PATH", None):
         asreview_path = Path(os.environ["ASREVIEW_PATH"])
     else:
@@ -137,8 +178,7 @@ def get_data_home(data_home=None):
 
     """
     if data_home is None:
-        data_home = os.environ.get('ASR_DATA',
-                                   Path('~', 'asr_data'))
+        data_home = os.environ.get("ASR_DATA", Path("~", "asr_data"))
     data_home = Path(data_home).expanduser()
 
     if not data_home.exists():
@@ -179,18 +219,29 @@ def is_iterable(i):
         return False
 
 
-def list_model_names(entry_name="asreview.models"):
-    return [*get_entry_points(entry_name)]
+@_deprecated_func(
+    "list_model_names is deprecated, "
+    "use asreview.models.classifiers.list_classifiers instead"
+)
+def list_model_names(group="asreview.models"):
+    # Remove because of bug with unused default value.
+    return list(_entry_points(group=group).names)
 
 
-def list_reader_names(entry_name="asreview.readers"):
-    return [*get_entry_points(entry_name)]
+@_deprecated_kwarg({"entry_name": "group"})
+def list_reader_names(group="asreview.readers"):
+    return list(_entry_points(group=group).names)
 
 
-def list_writer_names(entry_name="asreview.writers"):
-    return [*get_entry_points(entry_name)]
+@_deprecated_kwarg({"entry_name": "group"})
+def list_writer_names(group="asreview.writers"):
+    return list(_entry_points(group=group).names)
 
 
+@_deprecated_func(
+    "get_entry_points is deprecated, "
+    "use _entry_points(group='asreview.entry_points') instead"
+)
 def get_entry_points(entry_name="asreview.entry_points"):
     """Get the entry points for asreview.
 
@@ -205,60 +256,16 @@ def get_entry_points(entry_name="asreview.entry_points"):
         Dictionary with the name of the entry point as key
         and the entry point as value.
     """
-    return {
-        entry.name: entry
-        for entry in pkg_resources.iter_entry_points(entry_name)
-    }
 
-
-def _model_class_from_entry_point(method, entry_name="asreview.models"):
-    entry_points = get_entry_points(entry_name)
-    try:
-        return entry_points[method].load()
-    except KeyError:
-        raise ValueError(
-            f"Error: method '{method}' is not implemented for entry point "
-            f"{entry_name}.")
-    except ImportError as e:
-        raise ValueError(
-            f"Failed to import '{method}' model ({entry_name}) "
-            f"with the following error:\n{e}")
-
-
-def _reader_class_from_entry_point(suffix, entry_name="asreview.readers"):
-    entry_points = get_entry_points(entry_name)
-    try:
-        return entry_points[suffix].load()
-    except KeyError:
-        raise ValueError(
-            f"Error: suffix '{suffix}' is not implemented for entry point "
-            f"{entry_name}.")
-    except ImportError as e:
-        raise ValueError(
-            f"Failed to import '{suffix}' reader ({entry_name}) "
-            f"with the following error:\n{e}")
-
-
-def _writer_class_from_entry_point(suffix, entry_name="asreview.writers"):
-    entry_points = get_entry_points(entry_name)
-    try:
-        return entry_points[suffix].load()
-    except KeyError:
-        raise ValueError(
-            f"Error: suffix '{suffix}' is not implemented for entry point "
-            f"{entry_name}.")
-    except ImportError as e:
-        raise ValueError(
-            f"Failed to import '{suffix}' writer ({entry_name}) "
-            f"with the following error:\n{e}")
+    return {entry.name: entry for entry in _entry_points(group=entry_name)}
 
 
 def is_url(url):
     """Check if object is a valid url."""
     try:
         result = urlparse(url)
-        return all(getattr(result, x) != ""
-                   for x in ["scheme", "netloc", "path"])
+        return all(
+            getattr(result, x) not in [b"", ""] for x in ["scheme", "netloc", "path"])
     except Exception:
         return False
 
@@ -283,4 +290,4 @@ def get_random_state(random_state):
 def _get_executable():
     """Get the Python executable"""
 
-    return sys.executable if sys.executable else 'python'
+    return sys.executable if sys.executable else "python"

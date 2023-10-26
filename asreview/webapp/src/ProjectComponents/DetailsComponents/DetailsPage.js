@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useMutation, useQueryClient } from "react-query";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   Box,
   Button,
@@ -27,7 +27,6 @@ import { useToggle } from "../../hooks/useToggle";
 const Root = styled("div")(({ theme }) => ({}));
 
 const DetailsPage = (props) => {
-  const navigate = useNavigate();
   const { project_id } = useParams();
   const queryClient = useQueryClient();
 
@@ -35,7 +34,8 @@ const DetailsPage = (props) => {
   const onOptions = Boolean(anchorEl);
 
   const [onDeleteDialog, toggleDeleteDialog] = useToggle();
-  const [disableButton, setDisableButton] = React.useState(true);
+  const [disableSaveButton, setDisableSaveButton] = React.useState(true);
+  const [disableUndoButton, setDisableUndoButton] = React.useState(true);
   const [info, setInfo] = React.useState({
     mode: props.info?.mode,
     title: props.info?.name,
@@ -52,24 +52,20 @@ const DetailsPage = (props) => {
     reset: resetMutateInfo,
   } = useMutation(ProjectAPI.mutateInfo, {
     onSuccess: (data, variables) => {
-      setDisableButton(true);
-      if (variables.title !== props.info?.name) {
-        // mutate project id when typed title is different from existing title/empty string
-        navigate(`/projects/${data["id"]}/details`);
-      } else {
-        // update cached data
-        queryClient.setQueryData(
-          ["fetchInfo", { project_id: variables.project_id }],
-          (prev) => {
-            return {
-              ...prev,
-              name: variables.title,
-              authors: variables.authors,
-              description: variables.description,
-            };
-          }
-        );
-      }
+      setDisableSaveButton(true);
+      setDisableUndoButton(true);
+      // update cached data
+      queryClient.setQueryData(
+        ["fetchInfo", { project_id: variables.project_id }],
+        (prev) => {
+          return {
+            ...prev,
+            name: variables.title,
+            authors: variables.authors,
+            description: variables.description,
+          };
+        },
+      );
     },
   });
 
@@ -91,7 +87,8 @@ const DetailsPage = (props) => {
       authors: props.info?.authors,
       description: props.info?.description,
     });
-    setDisableButton(true);
+    setDisableSaveButton(true);
+    setDisableUndoButton(true);
   };
 
   const handleClickSave = () => {
@@ -146,7 +143,7 @@ const DetailsPage = (props) => {
               )}
               <Stack direction="row" spacing={1}>
                 <Button
-                  disabled={disableButton}
+                  disabled={disableUndoButton}
                   onClick={handleClickUndoChanges}
                   size={!props.mobileScreen ? "medium" : "small"}
                 >
@@ -160,7 +157,7 @@ const DetailsPage = (props) => {
                 >
                   <span>
                     <LoadingButton
-                      disabled={disableButton || props.isSimulating}
+                      disabled={disableSaveButton || props.isSimulating}
                       loading={isMutatingInfo}
                       variant="contained"
                       onClick={handleClickSave}
@@ -212,7 +209,8 @@ const DetailsPage = (props) => {
                 info={info}
                 mobileScreen={props.mobileScreen}
                 setInfo={setInfo}
-                setDisableButton={setDisableButton}
+                setDisableSaveButton={setDisableSaveButton}
+                setDisableUndoButton={setDisableUndoButton}
               />
               <Stack
                 spacing={3}

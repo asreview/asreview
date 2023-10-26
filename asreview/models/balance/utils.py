@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.utils import _model_class_from_entry_point
-from asreview.utils import list_model_names
+from asreview.utils import _entry_points
 
 
 def list_balance_strategies():
@@ -24,12 +23,7 @@ def list_balance_strategies():
     list:
         Classes of available balance strategies in alphabetical order.
     """
-    model_class = [
-        get_balance_class(name)
-        for name in list_model_names(entry_name="asreview.models.balance")
-    ]
-
-    return model_class
+    return [e.load() for e in _entry_points(group="asreview.models.balance")]
 
 
 def get_balance_class(name):
@@ -45,9 +39,7 @@ def get_balance_class(name):
     BaseBalanceModel:
         Class corresponding to the name.
     """
-    return _model_class_from_entry_point(
-        name,
-        entry_name="asreview.models.balance")
+    return _entry_points(group="asreview.models.balance")[name].load()
 
 
 def get_balance_model(name, *args, random_state=None, **kwargs):

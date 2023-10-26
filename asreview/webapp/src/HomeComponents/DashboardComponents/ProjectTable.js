@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useMutation, useQuery, useQueries, useQueryClient } from "react-query";
-import { connect } from "react-redux";
+import { connect, useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -26,13 +26,15 @@ import { ProjectAPI } from "../../api/index.js";
 import { useRowsPerPage } from "../../hooks/SettingsHooks";
 import { useToggle } from "../../hooks/useToggle";
 import ElasArrowRightAhead from "../../images/ElasArrowRightAhead.svg";
-
 import {
   checkIfSimulationFinishedDuration,
   mapDispatchToProps,
   projectModes,
   projectStatuses,
+  formatDate,
 } from "../../globals";
+import useAuth from "../../hooks/useAuth";
+import { setMyProjects } from "../../redux/actions";
 
 const PREFIX = "ProjectTable";
 
@@ -116,6 +118,10 @@ const columns = [
 const ProjectTable = (props) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const authenticated = useSelector((state) => state.authentication);
+  const myProjects = useSelector((state) => state.myProjects);
+  const dispatch = useDispatch();
+  const { auth } = useAuth();
 
   /**
    * Project table state
@@ -124,6 +130,7 @@ const ProjectTable = (props) => {
   const [hoverRowId, setHoverRowId] = React.useState(null);
   const [hoverRowIdPersistent, setHoverRowIdPersistent] = React.useState(null);
   const [hoverRowTitle, setHoverRowTitle] = React.useState(null);
+  const [hoverIsOwner, setHoverIsOwner] = React.useState(false);
   const [rowsPerPage, handleRowsPerPage] = useRowsPerPage();
 
   /**
@@ -135,7 +142,7 @@ const ProjectTable = (props) => {
    * Simulation status query state
    */
   const [querySimulationFinished, setQuerySimulationFinished] = React.useState(
-    []
+    [],
   );
   const [querySimulationError, setQuerySimulationError] = React.useState({
     isError: false,
@@ -145,7 +152,7 @@ const ProjectTable = (props) => {
   /**
    * Fetch projects and check if simulation running in the background
    */
-  const { data, error, isError, isFetched, isFetching, isSuccess } = useQuery(
+  const { error, isError, isFetched, isFetching, isSuccess } = useQuery(
     "fetchProjects",
     ProjectAPI.fetchProjects,
     {
@@ -153,6 +160,8 @@ const ProjectTable = (props) => {
         setQuerySimulationFinished([]);
       },
       onSuccess: (data) => {
+        // set in redux store
+        dispatch(setMyProjects(data.result));
         // reset query for fetching simulation project(s) status
         setQuerySimulationFinished([]);
         // get simulation project(s) running in the background
@@ -160,7 +169,7 @@ const ProjectTable = (props) => {
           (element) =>
             element.mode === projectModes.SIMULATION &&
             element.reviews[0] !== undefined &&
-            element.reviews[0].status === projectStatuses.REVIEW
+            element.reviews[0].status === projectStatuses.REVIEW,
         );
         if (!simulationProjects.length) {
           console.log("No simulation running");
@@ -220,9 +229,9 @@ const ProjectTable = (props) => {
                   setTimeout(
                     () =>
                       queryClient.invalidateQueries(
-                        `fetchProjectStatus-${project_id[key]}`
+                        `fetchProjectStatus-${project_id[key]}`,
                       ),
-                    checkIfSimulationFinishedDuration
+                    checkIfSimulationFinishedDuration,
                   );
                 }
               },
@@ -234,7 +243,7 @@ const ProjectTable = (props) => {
         }
       },
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   /**
@@ -325,25 +334,15 @@ const ProjectTable = (props) => {
   /**
    * Show buttons when hovering over project title
    */
-  const hoverOnProject = (project_id, project_title) => {
+  const hoverOnProject = (project_id, project_title, owner_id) => {
     setHoverRowId(project_id);
     setHoverRowIdPersistent(project_id);
     setHoverRowTitle(project_title);
+    setHoverIsOwner(authenticated && owner_id !== auth.id ? false : true);
   };
 
   const hoverOffProject = () => {
     setHoverRowId(null);
-  };
-
-  /**
-   * Format date and mode
-   */
-  const formatDate = (datetime) => {
-    let date = new Date(datetime * 1000);
-    let dateString = date.toDateString().slice(4);
-    let dateDisplay =
-      dateString.replace(/\s+\S*$/, ",") + dateString.match(/\s+\S*$/);
-    return dateDisplay;
   };
 
   const formatMode = (mode) => {
@@ -423,9 +422,17 @@ const ProjectTable = (props) => {
               !isFetching &&
               isFetched &&
               isSuccess &&
-              data.result
+              myProjects
                 ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
+                  // if we do authentication, then we need to know who the owner is
+                  row["owner_id"] =
+                    authenticated && "owner_id" in row
+                      ? row["owner_id"]
+                      : false;
+                  // A collaborator can not edit
+                  const isOwner = authenticated && row["owner_id"] === auth.id;
+
                   const isSimulating = () => {
                     return (
                       row["mode"] === projectModes.SIMULATION &&
@@ -469,6 +476,11 @@ const ProjectTable = (props) => {
                     openProject(row, "review");
                   };
 
+                  const onClickCollaboration = () => {
+                    openProject(row, "team");
+                    // ******* toggleCollaboDialog();
+                  };
+
                   const onClickProjectExport = () => {
                     if (
                       row["reviews"][0] === undefined ||
@@ -477,7 +489,7 @@ const ProjectTable = (props) => {
                     ) {
                       queryClient.prefetchQuery(
                         ["fetchExportProject", { project_id: row["id"] }],
-                        ProjectAPI.fetchExportProject
+                        ProjectAPI.fetchExportProject,
                       );
                     } else {
                       openProject(row, "export");
@@ -497,9 +509,13 @@ const ProjectTable = (props) => {
                       role="checkbox"
                       tabIndex={-1}
                       key={row.id}
-                      onMouseEnter={() =>
-                        hoverOnProject(row["id"], row["name"])
-                      }
+                      onMouseEnter={() => {
+                        return hoverOnProject(
+                          row["id"],
+                          row["name"],
+                          row["owner_id"],
+                        );
+                      }}
                       onMouseLeave={() => hoverOffProject()}
                     >
                       <TableCell sx={{ display: "flex" }}>
@@ -518,15 +534,21 @@ const ProjectTable = (props) => {
                                 disableProjectStatusChange
                               }
                               isSimulating={isSimulating}
+                              isOwner={isOwner}
                               showAnalyticsButton={showAnalyticsButton}
                               showReviewButton={showReviewButton}
                               onClickProjectAnalytics={onClickProjectAnalytics}
+                              onClickCollaboration={onClickCollaboration}
+                              onClickEndCollaboration={
+                                onClickCollaboration
+                              } /* !!!!!!!!! */
                               onClickProjectReview={onClickProjectReview}
                               onClickProjectExport={onClickProjectExport}
                               onClickProjectDetails={onClickProjectDetails}
                               projectStatus={status(row)[0]}
                               toggleDeleteDialog={toggleDeleteDialog}
                               updateProjectStatus={updateProjectStatus}
+                              //canEdit={canEdit}
                             />
                           )}
                         </Box>
@@ -570,7 +592,7 @@ const ProjectTable = (props) => {
           !isFetching &&
           isFetched &&
           isSuccess &&
-          data.result?.length === 0 && (
+          myProjects.length === 0 && (
             <Box
               sx={{
                 alignItems: "center",
@@ -599,11 +621,11 @@ const ProjectTable = (props) => {
         !isFetching &&
         isFetched &&
         isSuccess &&
-        data.result?.length !== 0 && (
+        myProjects.length !== 0 && (
           <TablePagination
             rowsPerPageOptions={[5, 10, 15]}
             component="div"
-            count={data.result?.length}
+            count={myProjects.length}
             rowsPerPage={rowsPerPage}
             labelRowsPerPage="Projects per page:"
             page={page}
@@ -620,6 +642,7 @@ const ProjectTable = (props) => {
         toggleDeleteDialog={toggleDeleteDialog}
         projectTitle={hoverRowTitle}
         project_id={hoverRowIdPersistent}
+        isOwner={hoverIsOwner}
       />
       <DialogErrorHandler
         error={querySimulationError}

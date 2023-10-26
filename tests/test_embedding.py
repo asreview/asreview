@@ -8,7 +8,7 @@ from asreview.models.feature_extraction.embedding_lstm import sample_embedding
 
 
 def random_words(n_words=1000, other_word_dict={}):
-    """ Generator of random (ascii) words.
+    """Generator of random (ascii) words.
 
     Parameters
     ----------
@@ -37,7 +37,7 @@ def random_words(n_words=1000, other_word_dict={}):
 
 
 def random_sample_embedding(words, n_samples=200):
-    """ Generator of sampled embeddings.
+    """Generator of sampled embeddings.
 
     Parameters
     ----------
@@ -68,7 +68,7 @@ def random_sample_embedding(words, n_samples=200):
 
 
 def random_embedding(words, emb_vec_dim=300):
-    """ Generator of random embedding.
+    """Generator of random embedding.
 
     Parameters
     ----------
@@ -90,7 +90,7 @@ def random_embedding(words, emb_vec_dim=300):
 
 
 def write_random_embedding(full_embedding, tmpfile):
-    """ Write an embedding to a file.
+    """Write an embedding to a file.
 
     Parameters
     ----------
@@ -112,7 +112,7 @@ def write_random_embedding(full_embedding, tmpfile):
 
 
 def check_embedding(emb, full_embedding, n_samples, emb_vec_dim):
-    """ Do the checking for the loaded embedding.
+    """Do the checking for the loaded embedding.
 
     Parameters
     ----------
@@ -130,11 +130,11 @@ def check_embedding(emb, full_embedding, n_samples, emb_vec_dim):
         assert emb[key].size == emb_vec_dim
         for i in range(emb[key].size):
             assert abs(emb[key][i] - full_embedding[key][i]) < 1e-5
-    assert isinstance(emb, (dict, ))
+    assert isinstance(emb, (dict,))
 
 
 def test_load_embedding(tmpdir):
-    """ Unit test for load_embedding function. """
+    """Unit test for load_embedding function."""
     n_words = 100
     n_samples = 30
     emb_vec_dim = 133
@@ -161,7 +161,7 @@ def test_load_embedding(tmpdir):
 
 
 def test_sample_embedding():
-    """ Unit test for sample_embedding """
+    """Unit test for sample_embedding"""
     n_words = 50
     n_samples = 55
     emb_vec_dim = 133
@@ -185,7 +185,6 @@ def test_sample_embedding():
 
 
 def test_embedding_link():
-    """ Test if wikipedia embedding still exists. """
-    url = "https://dl.fbaipublicfiles.com" \
-          "/fasttext/vectors-crawl/cc.en.300.vec.gz"
+    """Test if wikipedia embedding still exists."""
+    url = "https://dl.fbaipublicfiles.com" "/fasttext/vectors-crawl/cc.en.300.vec.gz"
     assert urllib.request.urlopen(url).getcode() == 200

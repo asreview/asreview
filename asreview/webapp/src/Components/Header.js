@@ -1,12 +1,13 @@
 import React from "react";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { AppBar, ButtonBase, Toolbar, IconButton } from "@mui/material";
-import { styled, useTheme } from "@mui/material/styles";
+import { AppBar, Box, ButtonBase, Toolbar, IconButton } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import { Menu } from "@mui/icons-material";
 
-import ASReviewLAB_black from "../images/asreview_sub_logo_lab_black_transparent.svg";
-import ASReviewLAB_white from "../images/asreview_sub_logo_lab_white_transparent.svg";
+import { ProfilePopper } from "../Components";
+
+import { WordmarkState } from "../globals";
 
 const PREFIX = "Header";
 
@@ -14,6 +15,7 @@ const classes = {
   appBar: `${PREFIX}-appBar`,
   menuButton: `${PREFIX}-menuButton`,
   logo: `${PREFIX}-logo`,
+  toolbar: `${PREFIX}-toolbar`,
 };
 
 const Root = styled("div")(({ theme }) => ({
@@ -30,6 +32,10 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.logo}`]: {
     width: 130,
   },
+
+  [`& .${classes.toolbar}`]: {
+    justifyContent: "space-between",
+  },
 }));
 
 const mapStateToProps = (state) => {
@@ -40,39 +46,36 @@ const mapStateToProps = (state) => {
 
 const Header = (props) => {
   const navigate = useNavigate();
-  const theme = useTheme();
-
-  const wordmarkState = () => {
-    if (theme.palette.mode === "dark") {
-      return ASReviewLAB_white;
-    } else {
-      return ASReviewLAB_black;
-    }
-  };
+  const authentication = useSelector((state) => state.authentication);
 
   return (
     <Root aria-label="appbar-toolbar">
       <AppBar color="inherit" position="fixed" className={classes.appBar}>
-        <Toolbar>
-          <IconButton
-            className={classes.menuButton}
-            edge="start"
-            color="inherit"
-            onClick={props.toggleNavDrawer}
-            size="large"
-          >
-            <Menu />
-          </IconButton>
-          <ButtonBase disableRipple>
-            <img
-              className={classes.logo}
-              src={wordmarkState()}
-              alt="ASReview LAB Dashboard"
-              onClick={() => {
-                navigate("/projects");
-              }}
-            />
-          </ButtonBase>
+        <Toolbar className={classes.toolbar}>
+          <Box>
+            <IconButton
+              className={classes.menuButton}
+              edge="start"
+              color="inherit"
+              onClick={props.toggleNavDrawer}
+              size="large"
+            >
+              <Menu />
+            </IconButton>
+            <ButtonBase disableRipple>
+              <img
+                className={classes.logo}
+                src={WordmarkState()}
+                alt="ASReview LAB Dashboard"
+                onClick={() => {
+                  navigate("/projects");
+                }}
+              />
+            </ButtonBase>
+          </Box>
+          {authentication === true && (
+            <ProfilePopper mobilescreen={props.mobilescreen} />
+          )}
         </Toolbar>
       </AppBar>
       <Toolbar aria-label="placeholder toolbar" />

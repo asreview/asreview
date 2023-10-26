@@ -23,7 +23,6 @@ try:
     from tensorflow.keras.layers import Flatten
     from tensorflow.keras.layers import MaxPooling1D
     from tensorflow.keras.models import Sequential
-    from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 except ImportError:
     TF_AVAILABLE = False
 else:
@@ -33,7 +32,8 @@ else:
     except AttributeError:
         logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
-from scipy.sparse import isspmatrix
+import numpy as np
+import scipy
 
 from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.models.classifiers.lstm_base import _get_optimizer
@@ -42,9 +42,7 @@ from asreview.models.classifiers.utils import _set_class_weight
 
 def _check_tensorflow():
     if not TF_AVAILABLE:
-        raise ImportError(
-            "Install tensorflow package to use"
-            " LSTM-pool.")
+        raise ImportError("Install tensorflow package to use" " LSTM-pool.")
 
 
 class LSTMPoolClassifier(BaseTrainClassifier):
@@ -94,19 +92,21 @@ class LSTMPoolClassifier(BaseTrainClassifier):
     name = "lstm-pool"
     label = "LSTM with a max pooling layer"
 
-    def __init__(self,
-                 embedding_matrix=None,
-                 backwards=True,
-                 dropout=0.4,
-                 optimizer="rmsprop",
-                 lstm_out_width=20,
-                 lstm_pool_size=128,
-                 learn_rate=1.0,
-                 verbose=0,
-                 batch_size=32,
-                 epochs=35,
-                 shuffle=False,
-                 class_weight=30.0):
+    def __init__(
+        self,
+        embedding_matrix=None,
+        backwards=True,
+        dropout=0.4,
+        optimizer="rmsprop",
+        lstm_out_width=20,
+        lstm_pool_size=128,
+        learn_rate=1.0,
+        verbose=0,
+        batch_size=32,
+        epochs=35,
+        shuffle=False,
+        class_weight=30.0,
+    ):
         """Initialize the LSTM pool model."""
         super(LSTMPoolClassifier, self).__init__()
         self.embedding_matrix = embedding_matrix
@@ -125,17 +125,16 @@ class LSTMPoolClassifier(BaseTrainClassifier):
         self.sequence_length = None
 
     def fit(self, X, y):
-
         # check is tensorflow is available
         _check_tensorflow()
 
-        if isspmatrix(X):
+        if scipy.sparse.isspmatrix(X):
             X = X.toarray()
 
         sequence_length = X.shape[1]
         if self._model is None or sequence_length != self.sequence_length:
             self.sequence_length = sequence_length
-            keras_model = _create_lstm_pool_model(
+            self._model = _create_lstm_pool_model(
                 embedding_matrix=self.embedding_matrix,
                 backwards=self.backwards,
                 dropout=self.dropout,
@@ -143,8 +142,9 @@ class LSTMPoolClassifier(BaseTrainClassifier):
                 max_sequence_length=sequence_length,
                 lstm_out_width=self.lstm_out_width,
                 learn_rate=self.learn_rate,
-                verbose=self.verbose)
-            self._model = KerasClassifier(keras_model, verbose=self.verbose)
+                verbose=self.verbose,
+            )
+
         self._model.fit(
             X,
             y,
@@ -152,27 +152,15 @@ class LSTMPoolClassifier(BaseTrainClassifier):
             epochs=self.epochs,
             shuffle=self.shuffle,
             class_weight=self.class_weight,
-            verbose=self.verbose)
+            verbose=self.verbose,
+        )
 
     def predict_proba(self, X):
-        """Get the inclusion probability for each sample.
-
-        Arguments
-        ---------
-        X: numpy.ndarray
-            Feature matrix to predict.
-
-        Returns
-        -------
-        numpy.ndarray
-            Array with the probabilities for each class, with two
-            columns (class 0, and class 1) and the number of samples rows.
-        """
-
-        if isspmatrix(X):
+        if scipy.sparse.isspmatrix(X):
             X = X.toarray()
-
-        return self._model.predict_proba(X)
+        pos_pred = self._model.predict(X, verbose=self.verbose)
+        neg_pred = 1 - pos_pred
+        return np.hstack([neg_pred, pos_pred])
 
     def full_hyper_space(self):
         from hyperopt import hp
@@ -182,7 +170,7 @@ class LSTMPoolClassifier(BaseTrainClassifier):
             "mdl_dropout": hp.uniform("mdl_dropout", 0, 0.9),
             "mdl_lstm_out_width": hp.quniform("mdl_lstm_out_width", 1, 50, 1),
             "mdl_dense_width": hp.quniform("mdl_dense_width", 1, 200, 1),
-            "mdl_learn_rate_mult": hp.lognormal("mdl_learn_rate_mult", 0, 1)
+            "mdl_learn_rate_mult": hp.lognormal("mdl_learn_rate_mult", 0, 1),
         }
         return hyper_space, hyper_choices
 
@@ -193,15 +181,17 @@ class LSTMPoolClassifier(BaseTrainClassifier):
         return defaults
 
 
-def _create_lstm_pool_model(embedding_matrix,
-                            backwards=True,
-                            dropout=0.4,
-                            optimizer='rmsprop',
-                            max_sequence_length=1000,
-                            lstm_out_width=20,
-                            lstm_pool_size=100,
-                            learn_rate=1.0,
-                            verbose=1):
+def _create_lstm_pool_model(
+    embedding_matrix,
+    backwards=True,
+    dropout=0.4,
+    optimizer="rmsprop",
+    max_sequence_length=1000,
+    lstm_out_width=20,
+    lstm_pool_size=100,
+    learn_rate=1.0,
+    verbose=1,
+):
     """Return callable lstm model.
     Returns
     -------
@@ -216,47 +206,50 @@ def _create_lstm_pool_model(embedding_matrix,
 
     # The Sklearn API requires a callable as result.
     # https://keras.io/scikit-learn-api/
-    def model_wrapper():
-        model = Sequential()
+    model = Sequential()
 
-        # add first embedding layer with pretrained wikipedia weights
-        model.add(
-            Embedding(
-                embedding_matrix.shape[0],
-                embedding_matrix.shape[1],
-                weights=[embedding_matrix],
-                input_length=max_sequence_length,
-                trainable=False))
+    # add first embedding layer with pretrained wikipedia weights
+    model.add(
+        Embedding(
+            embedding_matrix.shape[0],
+            embedding_matrix.shape[1],
+            weights=[embedding_matrix],
+            input_length=max_sequence_length,
+            trainable=False,
+        )
+    )
 
-        # add LSTM layer
-        model.add(
-            LSTM(
-                lstm_out_width,
-                input_shape=(max_sequence_length, ),
-                go_backwards=backwards,
-                dropout=dropout,
-                recurrent_dropout=dropout,
-                return_sequences=True,
-                kernel_constraint=MaxNorm(),
-            ))
+    # add LSTM layer
+    model.add(
+        LSTM(
+            lstm_out_width,
+            input_shape=(max_sequence_length,),
+            go_backwards=backwards,
+            dropout=dropout,
+            recurrent_dropout=dropout,
+            return_sequences=True,
+            kernel_constraint=MaxNorm(),
+        )
+    )
 
-        model.add(MaxPooling1D(pool_size=lstm_pool_size, ))
-        model.add(Flatten())
+    model.add(
+        MaxPooling1D(
+            pool_size=lstm_pool_size,
+        )
+    )
+    model.add(Flatten())
 
-        # Add output layer
-        model.add(Dense(1, activation='sigmoid'))
+    # Add output layer
+    model.add(Dense(1, activation="sigmoid"))
 
-        optimizer_fn = _get_optimizer(optimizer, learn_rate)
+    optimizer_fn = _get_optimizer(optimizer, learn_rate)
 
-        # Compile model
-        model.compile(
-            loss='binary_crossentropy',
-            optimizer=optimizer_fn,
-            metrics=['acc'])
+    # Compile model
+    model.compile(
+        loss="binary_crossentropy", optimizer=optimizer_fn, metrics=["acc"]
+    )
 
-        if verbose >= 1:
-            model.summary()
+    if verbose >= 1:
+        model.summary()
 
-        return model
-
-    return model_wrapper
+    return model

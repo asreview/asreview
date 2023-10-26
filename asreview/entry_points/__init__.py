@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from asreview.entry_points.algorithms import AlgorithmsEntryPoint
+from asreview.entry_points.auth_tool import AuthTool
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.entry_points.lab import LABEntryPoint
 from asreview.entry_points.lab import WebRunModelEntryPoint

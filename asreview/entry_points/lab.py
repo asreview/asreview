@@ -13,87 +13,8 @@
 # limitations under the License.
 
 from asreview.entry_points.base import BaseEntryPoint
-from asreview.entry_points.base import DeprecateAction
-from asreview.entry_points.base import _base_parser
 from asreview.webapp.run_model import main as main_run_model
-
-HOST_NAME = "localhost"
-PORT_NUMBER = 5000
-
-
-def _lab_parser(prog="lab"):
-    parser = _base_parser(
-        prog=prog,
-        description="""ASReview LAB - Active learning for Systematic Reviews."""  # noqa
-    )
-
-    parser.add_argument(
-        "--clean-project",
-        dest="clean_project",
-        default=None,
-        type=str,
-        help="Safe cleanup of temporary files in project.")
-
-    parser.add_argument(
-        "--clean-all-projects",
-        dest="clean_all_projects",
-        default=None,
-        action='store_true',
-        help="Safe cleanup of temporary files in all projects.")
-
-    parser.add_argument(
-        "--ip",
-        default=HOST_NAME,
-        type=str,
-        help="The IP address the server will listen on.")
-
-    parser.add_argument(
-        "--port",
-        default=PORT_NUMBER,
-        type=int,
-        help="The port the server will listen on.")
-
-    parser.add_argument(
-        "--no-browser",
-        dest="no_browser",
-        action='store_true',
-        help="Do not open ASReview LAB in a browser after startup.")
-
-    parser.add_argument(
-        "--port-retries",
-        dest="port_retries",
-        default=50,
-        type=int,
-        help="The number of additional ports to try if the"
-        "specified port is not available.")
-
-    parser.add_argument(
-        "--certfile",
-        default="",
-        type=str,
-        help="The full path to an SSL/TLS certificate file.")
-
-    parser.add_argument(
-        "--keyfile",
-        default="",
-        type=str,
-        help="The full path to a private key file for usage with SSL/TLS.")
-
-    parser.add_argument(
-        "--config_file",
-        type=str,
-        default=None,
-        help="Deprecated, see subcommand simulate.",
-        action=DeprecateAction
-    )
-    parser.add_argument(
-        "--seed",
-        default=None,
-        type=int,
-        help="Deprecated, see subcommand simulate.",
-        action=DeprecateAction
-    )
-    return parser
+from asreview.webapp.start_flask import main as main_flask
 
 
 class LABEntryPoint(BaseEntryPoint):
@@ -101,9 +22,7 @@ class LABEntryPoint(BaseEntryPoint):
 
     def execute(self, argv):
 
-        from asreview.webapp.start_flask import main
-
-        main(argv)
+        main_flask(argv)
 
 
 class WebRunModelEntryPoint(BaseEntryPoint):

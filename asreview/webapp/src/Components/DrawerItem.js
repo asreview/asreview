@@ -20,6 +20,7 @@ import {
   Download,
   Edit,
   History,
+  PeopleAlt,
 } from "@mui/icons-material";
 
 const PREFIX = "DrawerItem";
@@ -86,6 +87,9 @@ const DrawerItem = (props) => {
     }
     if (props.label === "History") {
       return <History color={returnIconColor()} />;
+    }
+    if (props.label === "Team") {
+      return <PeopleAlt color={returnIconColor()} />;
     }
     if (props.label === "Export") {
       return <Download color={returnIconColor()} />;

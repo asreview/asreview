@@ -56,7 +56,7 @@ const ReviewPageFinished = (props) => {
       onSuccess: () => {
         queryClient.invalidateQueries("fetchInfo");
       },
-    }
+    },
   );
 
   const handleChangeStatus = () => {
@@ -73,7 +73,7 @@ const ReviewPageFinished = (props) => {
   const ifRecordPoolEmpty = React.useCallback(async () => {
     const data = await queryClient.fetchQuery(
       ["fetchRecord", { project_id }],
-      ProjectAPI.fetchRecord
+      ProjectAPI.fetchRecord,
     );
     setRecordEmpty(data["pool_empty"]);
   }, [project_id, queryClient]);

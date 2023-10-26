@@ -1,0 +1,26 @@
+# pull official base image
+FROM node:latest AS builder
+# set working directory
+WORKDIR /app
+# add `/app/node_modules/.bin` to $PATH
+ENV PATH /app/node_modules/.bin:$PATH
+# install app dependencies
+COPY ./asreview/webapp/package.json ./
+COPY ./asreview/webapp/package-lock.json ./
+# Silent clean install of npm
+RUN npm ci --silent
+# add app folders
+COPY ./asreview/webapp/src/ ./src/
+COPY ./asreview/webapp/public/ ./public/
+# create an .env file with backend-url in it
+ARG API_URL
+# Build for production
+RUN REACT_APP_API_URL=${API_URL} \
+  npm run build
+
+# second stage: create nginx container with front-end
+# in it
+FROM nginx:alpine
+ARG API_URL
+COPY --from=builder /app/build /usr/share/nginx/html
+COPY ./Docker/auth_verified/asreview.conf /etc/nginx/conf.d/default.conf

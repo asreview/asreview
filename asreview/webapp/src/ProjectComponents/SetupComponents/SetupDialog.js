@@ -40,8 +40,6 @@ import {
 } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
 
-const steps = ["Project information", "Data", "Model", "Warm up"];
-
 const PREFIX = "SetupDialog";
 
 const classes = {
@@ -79,6 +77,8 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 const SetupDialog = (props) => {
+  const steps = ["Project information", "Data", "Model", "Warm up"];
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const descriptionElementRef = React.useRef(null);
@@ -188,7 +188,7 @@ const SetupDialog = (props) => {
         setDisableFetchInfo(true); // avoid getting all the time
       },
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   const {
@@ -226,7 +226,7 @@ const SetupDialog = (props) => {
       props.open &&
       textFiledFocused !== null &&
       !textFiledFocused &&
-      !(info.title.length < 3) &&
+      !(info.title.length < 1) &&
       !isInitError &&
       !isMutateInfoError
     ) {
@@ -276,7 +276,7 @@ const SetupDialog = (props) => {
       enabled:
         props.project_id !== null && activeStep === 1 && projectHasDataset(),
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   /**
@@ -345,13 +345,13 @@ const SetupDialog = (props) => {
           // not ready yet
           setTimeout(
             () => queryClient.invalidateQueries("fetchProjectStatus"),
-            12000
+            12000,
           );
         }
       },
       refetchOnWindowFocus: false,
       retry: false,
-    }
+    },
   );
 
   const restartTraining = () => {
@@ -411,7 +411,7 @@ const SetupDialog = (props) => {
 
   const disableNextButton = () => {
     if (activeStep === 0) {
-      return isInitError || isMutateInfoError || info.title.length < 3;
+      return isInitError || isMutateInfoError || info.title.length < 1;
     }
     if (activeStep === 1) {
       return (

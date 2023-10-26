@@ -60,7 +60,7 @@ const ReviewPage = (props) => {
           setActiveRecord(data["result"]);
         }
       },
-    }
+    },
   );
 
   const { error, isError, isLoading, mutate, reset } = useMutation(
@@ -81,7 +81,7 @@ const ReviewPage = (props) => {
         queryClient.invalidateQueries("fetchRecord");
         showUndoBarIfNeeded(variables.label, variables.initial);
       },
-    }
+    },
   );
 
   /**

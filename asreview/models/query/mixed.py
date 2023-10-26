@@ -20,11 +20,10 @@ from asreview.utils import get_random_state
 
 
 def _parse_mixed_kwargs(kwargs, strategy_name):
-
     kwargs_new = {}
     for key, value in kwargs.items():
         if key.startswith(strategy_name):
-            new_key = key[len(strategy_name) + 1:]
+            new_key = key[len(strategy_name) + 1 :]
             kwargs_new[new_key] = value
 
     return kwargs_new
@@ -60,12 +59,14 @@ class MixedQuery(BaseQueryStrategy):
         strategy and an underscore, e.g. 'max' for maximal sampling.
     """
 
-    def __init__(self,
-                 strategy_1="max",
-                 strategy_2="random",
-                 mix_ratio=0.95,
-                 random_state=None,
-                 **kwargs):
+    def __init__(
+        self,
+        strategy_1="max",
+        strategy_2="random",
+        mix_ratio=0.95,
+        random_state=None,
+        **kwargs
+    ):
         """Initialize the Mixed query strategy."""
         super(MixedQuery, self).__init__()
 
@@ -81,15 +82,16 @@ class MixedQuery(BaseQueryStrategy):
         self.query_model1 = get_query_model(strategy_1, **self.kwargs_1)
         if "random_state" in self.query_model1.default_param:
             self.query_model1 = get_query_model(
-                strategy_1, random_state=self._random_state, **self.kwargs_1)
+                strategy_1, random_state=self._random_state, **self.kwargs_1
+            )
 
         self.query_model2 = get_query_model(strategy_2, **self.kwargs_2)
         if "random_state" in self.query_model2.default_param:
             self.query_model2 = get_query_model(
-                strategy_2, random_state=self._random_state, **self.kwargs_2)
+                strategy_2, random_state=self._random_state, **self.kwargs_2
+            )
 
     def query(self, X, classifier, n_instances=None, **kwargs):
-
         # set the number of instances to len(X) if None
         if n_instances is None:
             n_instances = X.shape[0]
@@ -99,23 +101,17 @@ class MixedQuery(BaseQueryStrategy):
 
         # Perform the query with strategy 1.
         try:
-            query_idx_1 = self.query_model1._query(
-                predictions,
-                n_instances=n_instances)
+            query_idx_1 = self.query_model1._query(predictions, n_instances=n_instances)
         except AttributeError:
             # for random for example
-            query_idx_1 = self.query_model1.query(
-                X, classifier, n_instances)
+            query_idx_1 = self.query_model1.query(X, classifier, n_instances)
 
         # Perform the query with strategy 2.
         try:
-            query_idx_2 = self.query_model2._query(
-                predictions,
-                n_instances=n_instances)
+            query_idx_2 = self.query_model2._query(predictions, n_instances=n_instances)
         except AttributeError:
             # for random for example
-            query_idx_2 = self.query_model2.query(
-                X, classifier, n_instances)
+            query_idx_2 = self.query_model2.query(X, classifier, n_instances)
 
         # mix the 2 query strategies into one list
         query_idx_mix = []
@@ -123,7 +119,6 @@ class MixedQuery(BaseQueryStrategy):
         j = 0
 
         while i < len(query_idx_1) and j < len(query_idx_2):
-
             if self._random_state.rand() < self.mix_ratio:
                 query_idx_mix.append(query_idx_1[i])
                 i = i + 1
@@ -172,17 +167,15 @@ class MaxRandomQuery(MixedQuery):
     name = "max_random"
     label = "Mixed (95% Maximum and 5% Random)"
 
-    def __init__(self,
-                 mix_ratio=0.95,
-                 random_state=None,
-                 **kwargs):
+    def __init__(self, mix_ratio=0.95, random_state=None, **kwargs):
         """Initialize the Mixed (Maximum and Random) query strategy."""
         super(MaxRandomQuery, self).__init__(
             strategy_1="max",
             strategy_2="random",
             mix_ratio=mix_ratio,
             random_state=random_state,
-            **kwargs)
+            **kwargs
+        )
 
 
 class MaxUncertaintyQuery(MixedQuery):
@@ -197,14 +190,12 @@ class MaxUncertaintyQuery(MixedQuery):
     name = "max_uncertainty"
     label = "Mixed (95% Maximum and 5% Uncertainty)"
 
-    def __init__(self,
-                 mix_ratio=0.95,
-                 random_state=None,
-                 **kwargs):
+    def __init__(self, mix_ratio=0.95, random_state=None, **kwargs):
         """Initialize the Mixed (Maximum and Uncertainty) query strategy."""
         super(MaxUncertaintyQuery, self).__init__(
             strategy_1="max",
             strategy_2="uncertainty",
             mix_ratio=mix_ratio,
             random_state=random_state,
-            **kwargs)
+            **kwargs
+        )
