@@ -1,5 +1,4 @@
-import { useEffect, useState, useCallback} from "react";
-
+import React, { useEffect, useState, useCallback } from "react";
 import { Grid, Paper, Stack, Box, Switch, FormControlLabel } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -51,30 +50,23 @@ const GameStyle = styled(Box)(({ theme }) => ({
 }));
 
 const ElasGame = (props) => {
-  const [mode, setMode] = useState('simple'); // New state for mode
-  const [cheatMode, setCheatMode] = useState(false); // New state for cheat mode
+  const [mode, setMode] = useState('simple');
+  const [cheatMode, setCheatMode] = useState(false);
   const [imagesArray, setImagesArray] = useState([]);
   const [paperSelected, setPaperSelected] = useState([]);
   const [paperSelectedIds, setPaperSelectedIds] = useState([]);
   const [openCards, setOpenCards] = useState([]);
+  const [showingCheatCards, setShowingCheatCards] = useState(false);
 
-  // function createElasGrid() {
-  //   const imagesGenerated = images?.concat(...images);
-  //   const shuffledImages = shuffle(imagesGenerated);
-  //   setImagesArray(shuffledImages);
-  // }
-
-   // Function to toggle between simple and expert mode
-const toggleMode = () => {
+  const toggleMode = () => {
     setMode(prevMode => prevMode === 'simple' ? 'expert' : 'simple');
   };
 
-  // New function to handle key press, memoized with useCallback
   const handleKeyPress = useCallback((event) => {
     if (event.key === "c") {
       setCheatMode((prevCheatMode) => !prevCheatMode);
     }
-  }, []); 
+  }, []);
 
   function flipImage(image, index) {
     if (paperSelectedIds?.length === 1 && paperSelectedIds[0] === index) {
@@ -115,35 +107,46 @@ const toggleMode = () => {
   }
 
   useEffect(() => {
-    const imagesToUse = mode === 'simple' ? images.slice(0, 4) : images; // Choose first 4 for simple, all for expert
+    const imagesToUse = mode === 'simple' ? images.slice(0, 4) : images;
     const imagesGenerated = imagesToUse.concat(...imagesToUse);
     const shuffledImages = shuffle(imagesGenerated);
     setImagesArray(shuffledImages);
 
-// Add event listener for key press
     window.addEventListener("keydown", handleKeyPress);
 
-    // Cleanup
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
   }, [handleKeyPress, mode]);
 
+  useEffect(() => {
+    if (cheatMode) {
+      setShowingCheatCards(true);
+
+      const hideCheatCardsTimeout = setTimeout(() => {
+        setShowingCheatCards(false);
+      }, 1000);
+
+      return () => {
+        clearTimeout(hideCheatCardsTimeout);
+      };
+    }
+  }, [cheatMode]);
 
   return (
     <GameStyle>
-        <FormControlLabel
-      control={
-        <Switch
-          checked={mode === 'expert'}
-          onChange={toggleMode}
-          name="mode"
-          color="primary"
-        />
-      }
-      label="Expert Mode"
-    />
-        <Grid container justifyContent="center" spacing={2}>
+      <FormControlLabel
+        control={
+          <Switch
+            checked={mode === 'expert'}
+            onChange={toggleMode}
+            name="mode"
+            color="primary"
+          />
+        }
+        label="Expert Mode"
+      />
+      <Grid container justifyContent="center" spacing={2}>
         {imagesArray?.map((image, index) => (
           <Grid key={index} item>
             <Paper
@@ -154,7 +157,7 @@ const toggleMode = () => {
               direction="column"
               justifyContent="center"
             >
-              {isCardChosen(image, index) || (cheatMode && !openCards.includes(image)) ? (
+              {isCardChosen(image, index) || (showingCheatCards && !openCards.includes(image)) ? (
                 <img src={image} alt="" className={classes.image} />
               ) : (
                 <ElasIcon sx={{ fontSize: 100 }} className={classes.icon} />
