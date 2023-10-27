@@ -12,7 +12,6 @@ import ElasWithDuck from "../images/ElasWithDuck.svg";
 import ElasFireMan from "../images/ElasFireMan.svg";
 import ElasWelcome from "../images/ElasWelcome.svg";
 import ElasFinished from "../images/ElasFinished.svg";
-import BenefitFromAI from "../images/FinishSetup_2_BenefitFromAI.svg";
 import ElasPublished from "../images/FinishSetup_5_OpenScience.svg";
 import ElasRelevanceRanking from "../images/ElasRelevanceRanking.svg";
 import ElasConstructionWorkerYellow from "../images/ElasConstructionWorkerYellow.svg";
@@ -20,8 +19,9 @@ import Elasiscold from "../images/Elasiscold.svg";
 import SantaElas from "../images/SantaElas.svg";
 import ElasPlayingRugby from "../images/ElasPlayingRugby.svg";
 import ElasPlayingTennis from "../images/ElasPlayingTennis.svg";
-import ElasFlyingTurtle from "../images/ElasFlyingTurtle.svg";
 import ElasasSuperHero from "../images/ElasasSuperHero.svg";
+import ElasLion from "../images/ElasLion.svg";
+import ElasLollypop from "../images/ElasLollypop.svg";
 
 import ElasIcon from "../icons/ElasIcon";
 
@@ -36,16 +36,16 @@ const images = [
   ElasArrowLeft,
   ElasWelcome,
   ElasFinished,
-  BenefitFromAI,
   ElasPublished,
   ElasRelevanceRanking,
   ElasConstructionWorkerYellow,
   ElasPlayingRugby,
   ElasPlayingTennis,
-  ElasFlyingTurtle,
   ElasasSuperHero,
   Elasiscold,
   SantaElas,
+  ElasLion,
+  ElasLollypop
 ];
 
 const PREFIX = "Game";
@@ -85,6 +85,7 @@ const ElasGame = (props) => {
 
   const toggleMode = () => {
     setMode(prevMode => prevMode === 'simple' ? 'expert' : 'simple');
+    setShuffledOnce(false)
   };
 
   // const handleKeyPress = useCallback((event) => {
