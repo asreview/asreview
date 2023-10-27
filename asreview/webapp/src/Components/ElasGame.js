@@ -81,16 +81,24 @@ const ElasGame = (props) => {
   const [paperSelectedIds, setPaperSelectedIds] = useState([]);
   const [openCards, setOpenCards] = useState([]);
   const [showingCheatCards, setShowingCheatCards] = useState(false);
+  const [shuffledOnce, setShuffledOnce] = useState(false);
 
   const toggleMode = () => {
     setMode(prevMode => prevMode === 'simple' ? 'expert' : 'simple');
   };
 
+  // const handleKeyPress = useCallback((event) => {
+  //   if (event.key === "c") {
+  //     setCheatMode((prevCheatMode) => !prevCheatMode);
+  //   }
+  // }, []);
+
   const handleKeyPress = useCallback((event) => {
-    if (event.key === "c") {
-      setCheatMode((prevCheatMode) => !prevCheatMode);
+    if (event.key === "c" && cheatMode === false) {
+      setCheatMode(true);
+      setShuffledOnce(true)
     }
-  }, []);
+  }, [cheatMode]);
 
   function flipImage(image, index) {
     if (paperSelectedIds?.length === 1 && paperSelectedIds[0] === index) {
@@ -131,11 +139,12 @@ const ElasGame = (props) => {
   }
 
   useEffect(() => {
-    const imagesToUse = mode === 'simple' ? images.slice(0, 4) : images;
+    const imagesToUse = mode === 'simple' ? images.slice(0, 8) : images;
     const imagesGenerated = imagesToUse.concat(...imagesToUse);
+    if  (!shuffledOnce) {
     const shuffledImages = shuffle(imagesGenerated);
     setImagesArray(shuffledImages);
-
+    }
     window.addEventListener("keydown", handleKeyPress);
 
     return () => {
@@ -149,6 +158,7 @@ const ElasGame = (props) => {
 
       const hideCheatCardsTimeout = setTimeout(() => {
         setShowingCheatCards(false);
+        setCheatMode(false); // Reset cheat mode after revealing one pair
       }, 1000);
 
       return () => {
