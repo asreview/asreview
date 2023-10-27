@@ -25,7 +25,19 @@ PROJECT = {
     "mode": "Exploration", # "Oracle", "Simulation"
     "title": "Project Title",
     "author": ACCOUNT["name"],
-    "description": "Project description"
+    "description": "Project description",
+    "dataset": {
+        "type": "benchmark",
+        "label": "Donners et al. (2021)",
+        "prior_knowledge_method": "random",
+        "prior_knowledge": ["Yes", "No", "Yes", "No", "Yes"]
+    },
+    "model": {
+        "feature_extraction": "TF-IDF",
+        "classifier": "Naive Bayes",
+        "query_strategy": "Maximum",
+        "balance_strategy": "Dynamic resampling (Double)"
+    }
 }
 
 SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://postgres:postgres" \
@@ -110,4 +122,4 @@ def test_signup_signin_create_project(driver):
     #     WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, f"//button[contains(text(), '{label}')]")))
     #     driver.find_element(By.XPATH, f"//button[contains(text(), '{label}')]").click()
 
-    time.sleep(10)
+    time.sleep(120)

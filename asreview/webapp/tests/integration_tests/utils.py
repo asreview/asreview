@@ -19,11 +19,21 @@ def browse_to_page(driver, page):
     assert driver.current_url == page
 
 
-def click_clickable_element(driver, css_selector, wait_secs=60):
+def click_clickable_element(driver, selector, wait_secs=60):
+    """Waits until a clickable element is clickable and clicks
+    on it. When <selector> is a String, a CSS selector is
+    assumed."""
+    if isinstance(selector, str):
+        # assume a CSS selector if selector is a string
+        selector = (By.CSS_SELECTOR, selector)
+    # wait until clickable
     WebDriverWait(driver, wait_secs) \
-        .until(EC.element_to_be_clickable(
-            (By.CSS_SELECTOR, css_selector)))
-    driver.find_element(By.CSS_SELECTOR, css_selector).click()
+        .until(EC.element_to_be_clickable(selector))
+    # find the element
+    element = driver.find_element(*selector)
+    # click
+    element.click()
+    return element
 
 
 def create_account(driver, account_data):
@@ -118,28 +128,67 @@ def create_project(driver, project_data):
     # click on next
     click_clickable_element(driver, "button#next")
 
-    # # fill out page 2 of project modal, add a dataset
-    # WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Add']")))
-    # driver.find_element(By.XPATH, "//button[text()='Add']").click()
+    # PAGE 2, DATASET AND PRIOR KNOWLEDGE
+    # adding a dataset
+    click_clickable_element(driver, "button#add-dataset")
 
-    # # select dataset and click 'Add' to add prior knowledge
-    # WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//div[contains(@class, 'MuiAccordionSummary-expandIconWrapper')]")))
-    # first_dataset_option = driver.find_element(By.XPATH, "//div[contains(@class, 'MuiAccordionSummary-expandIconWrapper')]")
-    # first_dataset_option.click()
-    # first_dataset_option.find_element(By.XPATH, "//button[text()='Add']").click()
-    # WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Add']")))
-    # driver.find_element(By.XPATH, "//button[text()='Add']").click()
+    # choose the dataset
+    dataset_button = click_clickable_element(
+        driver,
+        (By.XPATH, f"//p[text()=\"{project_data['dataset']['label']}\"]")
+    )
+    # find the button in the parent and click it (it's clickable)
+    dataset_button.find_element(By.XPATH, "../../../..//button").click()
 
-    # # Opt for adding prior knowledge by labeling random records
-    # WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//span[text()='Random']")))
-    # driver.find_element(By.XPATH, "//span[text()='Random']").click()
+    # prior knowledge
+    click_clickable_element(driver, "button#add-prior-knowledge")
 
-    # # Label random data
-    # for option in ["Yes", "No", "Yes", "No", "Yes"]:
-    #     WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, f"//button[text()='{option}']")))
-    #     driver.find_element(By.XPATH, f"//button[text()='{option}']").click()
-    # WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Close']")))
-    # driver.find_element(By.XPATH, "//button[text()='Close']").click()
+    # click on randomly adding prior knowledge
+    click_clickable_element(
+        driver,
+        (By.XPATH, f"//span[text()=\"Random\"]")
+    )
+
+    # add random prior knowledge
+    if project_data["dataset"]["prior_knowledge_method"] == "random":
+        for option in project_data["dataset"]["prior_knowledge"]:
+            option = option.capitalize()
+            assert option in ["Yes", "No"]
+
+            # make sure its clickable
+            click_clickable_element(
+                driver,
+                (By.XPATH, f"//button[text()='{option}']")
+            )
+    
+    # close page 2
+    click_clickable_element(
+        driver,
+        (By.XPATH, "//button[text()='Close']")
+    )
+
+    # click on next
+    click_clickable_element(driver, "button#next")
+
+    # PAGE 3, MODEL
+    # adding a feature extraction
+    feature_extr_type = project_data["model"]["feature_extraction"]
+    print(feature_extr_type)
+    click_clickable_element(driver, "div#select-feature-extraction")
+    WebDriverWait(driver, 60) \
+        .until(EC.invisibility_of_element_located(
+            (By.XPATH, "//div[@class='MuiBackdrop-root MuiBackdrop-invisible']")))
+    WebDriverWait(driver, 60) \
+        .until(EC.presence_of_element_located(
+            (By.XPATH, f"//h6[text()='{feature_extr_type}']")))
+
+    click_clickable_element(
+        driver,
+        (By.XPATH, f"//h6[text()='{feature_extr_type}']")
+    )
+
+
+
 
     # # Go to page 3 of modal
     # WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Next']")))
