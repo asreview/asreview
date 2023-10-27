@@ -11,6 +11,7 @@ import ElasArrowLeft from "../images/ElasArrowLeft.svg";
 import ElasGrad from "../images/ElasGrad.svg";
 import ElasWithDuck from "../images/ElasWithDuck.svg";
 import ElasFireMan from "../images/ElasFireMan.svg";
+import ElasWelcome from "../images/ElasWelcome.svg";
 
 import ElasIcon from "../icons/ElasIcon";
 
@@ -23,6 +24,7 @@ const images = [
   ElasArrowRightAhead,
   ElasPotter,
   ElasArrowLeft,
+  ElasWelcome,
 ];
 
 const PREFIX = "Game";
