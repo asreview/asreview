@@ -320,15 +320,28 @@ const RecordCard = (props) => {
             </Card>
           )}
         </div>
-        <div style={{ flex: 1, paddingTop: '16px' }}>
-          <Typography variant="h6">Regex to Highlight</Typography>
-          <input 
-            type="text" 
-            value={highlightRegex} 
-            onChange={(e) => setHighlightRegex(e.target.value)} 
-            placeholder="Enter regex pattern to highlight"
-            style={{ width: '100%', padding: '8px' }}
-          />
+          <div style={{ flex: 1, paddingTop: '16px' }}>
+            <Card elevation={2} className={classes.loadedCard} aria-label="regex card">
+              <CardContent>
+                <Typography
+                  component="div"
+                  className={classes.title}
+                  variant={!props.mobileScreen ? "h5" : "h6"}
+                  sx={{
+                    fontWeight: (theme) => theme.typography.fontWeightRegular,
+                  }}
+                >
+                  Regex to Highlight
+                </Typography>
+                <input 
+                  type="text" 
+                  value={highlightRegex} 
+                  onChange={(e) => setHighlightRegex(e.target.value)} 
+                  placeholder="Enter regex pattern to highlight"
+                  style={{ width: '100%', padding: '8px' }}
+                />
+              </CardContent>
+            </Card>
           </div>
       </div>
     </Root>
