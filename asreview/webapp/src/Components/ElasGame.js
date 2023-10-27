@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback} from "react";
 
-import { Grid, Paper, Stack, Box } from "@mui/material";
+import { Grid, Paper, Stack, Box, Switch, FormControlLabel } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import ElasBalloons from "../images/ElasBalloons.svg";
@@ -51,10 +51,11 @@ const GameStyle = styled(Box)(({ theme }) => ({
 }));
 
 const ElasGame = (props) => {
+  const [mode, setMode] = useState('simple'); // New state for mode
+  const [cheatMode, setCheatMode] = useState(false); // New state for cheat mode
   const [imagesArray, setImagesArray] = useState([]);
   const [paperSelected, setPaperSelected] = useState([]);
   const [paperSelectedIds, setPaperSelectedIds] = useState([]);
-
   const [openCards, setOpenCards] = useState([]);
 
   // function createElasGrid() {
@@ -62,6 +63,18 @@ const ElasGame = (props) => {
   //   const shuffledImages = shuffle(imagesGenerated);
   //   setImagesArray(shuffledImages);
   // }
+
+   // Function to toggle between simple and expert mode
+const toggleMode = () => {
+    setMode(prevMode => prevMode === 'simple' ? 'expert' : 'simple');
+  };
+
+  // New function to handle key press, memoized with useCallback
+  const handleKeyPress = useCallback((event) => {
+    if (event.key === "c") {
+      setCheatMode((prevCheatMode) => !prevCheatMode);
+    }
+  }, []); 
 
   function flipImage(image, index) {
     if (paperSelectedIds?.length === 1 && paperSelectedIds[0] === index) {
@@ -102,14 +115,35 @@ const ElasGame = (props) => {
   }
 
   useEffect(() => {
-    const imagesGenerated = images?.concat(...images);
+    const imagesToUse = mode === 'simple' ? images.slice(0, 4) : images; // Choose first 4 for simple, all for expert
+    const imagesGenerated = imagesToUse.concat(...imagesToUse);
     const shuffledImages = shuffle(imagesGenerated);
     setImagesArray(shuffledImages);
-  }, []);
+
+// Add event listener for key press
+    window.addEventListener("keydown", handleKeyPress);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [handleKeyPress, mode]);
+
 
   return (
     <GameStyle>
-      <Grid container justifyContent="center" spacing={2}>
+        <FormControlLabel
+      control={
+        <Switch
+          checked={mode === 'expert'}
+          onChange={toggleMode}
+          name="mode"
+          color="primary"
+        />
+      }
+      label="Expert Mode"
+    />
+        <Grid container justifyContent="center" spacing={2}>
         {imagesArray?.map((image, index) => (
           <Grid key={index} item>
             <Paper
@@ -120,7 +154,7 @@ const ElasGame = (props) => {
               direction="column"
               justifyContent="center"
             >
-              {isCardChosen(image, index) ? (
+              {isCardChosen(image, index) || (cheatMode && !openCards.includes(image)) ? (
                 <img src={image} alt="" className={classes.image} />
               ) : (
                 <ElasIcon sx={{ fontSize: 100 }} className={classes.icon} />
@@ -132,4 +166,5 @@ const ElasGame = (props) => {
     </GameStyle>
   );
 };
+
 export default ElasGame;
