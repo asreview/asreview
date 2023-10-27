@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { Grid, Paper, Stack, Box, Switch, FormControlLabel } from "@mui/material";
+import { useEffect, useState } from "react";
+
+import { Grid, Paper, Stack, Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import ElasBalloons from "../images/ElasBalloons.svg";
@@ -12,7 +13,7 @@ import ElasWithDuck from "../images/ElasWithDuck.svg";
 import ElasFireMan from "../images/ElasFireMan.svg";
 import ElasWelcome from "../images/ElasWelcome.svg";
 import ElasFinished from "../images/ElasFinished.svg";
-import BenefitFromAI from "../images/FinishSetup_2_BenefitFromAI.svg";
+import ElasLion from "../images/ElasLion.svg";
 import ElasPublished from "../images/FinishSetup_5_OpenScience.svg";
 import ElasRelevanceRanking from "../images/ElasRelevanceRanking.svg";
 import ElasConstructionWorkerYellow from "../images/ElasConstructionWorkerYellow.svg";
@@ -20,7 +21,7 @@ import Elasiscold from "../images/Elasiscold.svg";
 import SantaElas from "../images/SantaElas.svg";
 import ElasPlayingRugby from "../images/ElasPlayingRugby.svg";
 import ElasPlayingTennis from "../images/ElasPlayingTennis.svg";
-import ElasFlyingTurtle from "../images/ElasFlyingTurtle.svg";
+import ElasLollypop from "../images/ElasLollypop.svg";
 import ElasasSuperHero from "../images/ElasasSuperHero.svg";
 
 import ElasIcon from "../icons/ElasIcon";
@@ -36,13 +37,13 @@ const images = [
   ElasArrowLeft,
   ElasWelcome,
   ElasFinished,
-  BenefitFromAI,
+  ElasLion,
   ElasPublished,
   ElasRelevanceRanking,
   ElasConstructionWorkerYellow,
   ElasPlayingRugby,
   ElasPlayingTennis,
-  ElasFlyingTurtle,
+  ElasLollypop,
   ElasasSuperHero,
   Elasiscold,
   SantaElas,
@@ -74,23 +75,17 @@ const GameStyle = styled(Box)(({ theme }) => ({
 }));
 
 const ElasGame = (props) => {
-  const [mode, setMode] = useState('simple');
-  const [cheatMode, setCheatMode] = useState(false);
   const [imagesArray, setImagesArray] = useState([]);
   const [paperSelected, setPaperSelected] = useState([]);
   const [paperSelectedIds, setPaperSelectedIds] = useState([]);
+
   const [openCards, setOpenCards] = useState([]);
-  const [showingCheatCards, setShowingCheatCards] = useState(false);
 
-  const toggleMode = () => {
-    setMode(prevMode => prevMode === 'simple' ? 'expert' : 'simple');
-  };
-
-  const handleKeyPress = useCallback((event) => {
-    if (event.key === "c") {
-      setCheatMode((prevCheatMode) => !prevCheatMode);
-    }
-  }, []);
+  // function createElasGrid() {
+  //   const imagesGenerated = images?.concat(...images);
+  //   const shuffledImages = shuffle(imagesGenerated);
+  //   setImagesArray(shuffledImages);
+  // }
 
   function flipImage(image, index) {
     if (paperSelectedIds?.length === 1 && paperSelectedIds[0] === index) {
@@ -131,45 +126,13 @@ const ElasGame = (props) => {
   }
 
   useEffect(() => {
-    const imagesToUse = mode === 'simple' ? images.slice(0, 4) : images;
-    const imagesGenerated = imagesToUse.concat(...imagesToUse);
+    const imagesGenerated = images?.concat(...images);
     const shuffledImages = shuffle(imagesGenerated);
     setImagesArray(shuffledImages);
-
-    window.addEventListener("keydown", handleKeyPress);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress);
-    };
-  }, [handleKeyPress, mode]);
-
-  useEffect(() => {
-    if (cheatMode) {
-      setShowingCheatCards(true);
-
-      const hideCheatCardsTimeout = setTimeout(() => {
-        setShowingCheatCards(false);
-      }, 1000);
-
-      return () => {
-        clearTimeout(hideCheatCardsTimeout);
-      };
-    }
-  }, [cheatMode]);
+  }, []);
 
   return (
     <GameStyle>
-      <FormControlLabel
-        control={
-          <Switch
-            checked={mode === 'expert'}
-            onChange={toggleMode}
-            name="mode"
-            color="primary"
-          />
-        }
-        label="Expert Mode"
-      />
       <Grid container justifyContent="center" spacing={2}>
         {imagesArray?.map((image, index) => (
           <Grid key={index} item>
@@ -181,7 +144,7 @@ const ElasGame = (props) => {
               direction="column"
               justifyContent="center"
             >
-              {isCardChosen(image, index) || (showingCheatCards && !openCards.includes(image)) ? (
+              {isCardChosen(image, index) ? (
                 <img src={image} alt="" className={classes.image} />
               ) : (
                 <ElasIcon sx={{ fontSize: 100 }} className={classes.icon} />
@@ -193,5 +156,4 @@ const ElasGame = (props) => {
     </GameStyle>
   );
 };
-
 export default ElasGame;
