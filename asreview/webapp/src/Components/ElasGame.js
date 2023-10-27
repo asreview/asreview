@@ -17,11 +17,14 @@ import BenefitFromAI from "../images/FinishSetup_2_BenefitFromAI.svg";
 import ElasPublished from "../images/FinishSetup_5_OpenScience.svg";
 import ElasRelevanceRanking from "../images/ElasRelevanceRanking.svg";
 import ElasConstructionWorkerYellow from "../images/ElasConstructionWorkerYellow.svg";
+import Elasiscold from "../images/Elasiscold.svg";
+import SantaElas from "../images/SantaElas.svg";
 import ElasPlayingRugby from "../images/ElasPlayingRugby.svg";
 import ElasPlayingTennis from "../images/ElasPlayingTennis.svg";
 import ElasFlyingTurtle from "../images/ElasFlyingTurtle.svg";
-import ElasFlyingTurtle from "../images/ElasFlyingTurtle.svg";
-import ElasasSuperHero from "../icons/ElasasSuperHero";
+import ElasasSuperHero from "../images/ElasasSuperHero.svg";
+
+import ElasIcon from "../icons/ElasIcon";
 
 const images = [
   ElasConstructionWorkerOrange,
@@ -41,7 +44,9 @@ const images = [
   ElasPlayingRugby,
   ElasPlayingTennis,
   ElasFlyingTurtle,
-  ElasasSuperHero
+  ElasasSuperHero,
+  Elasiscold,
+  SantaElas,
 ];
 
 const PREFIX = "Game";
