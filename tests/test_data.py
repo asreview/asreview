@@ -142,7 +142,7 @@ def test_deduplication():
     pd.testing.assert_frame_equal(d_dups.drop_duplicates(), d_nodups.df)
 
 def test_duplicated():
-    # Create an instance of YourClass
+    # Create an instance of ASReviewData
     instance = ASReviewData()
 
     # Create a sample dataframe for testing
