@@ -172,6 +172,19 @@ const RecordCard = (props) => {
         pushElement(text.slice(lastIndex));
       }
 
+      // count the number of characters inside the span of elements
+      let count = 0;
+      elements.forEach((element) => {
+        if (element.props.children) {
+          count += element.props.children.length;
+        }
+      });
+
+      // check if elements is equal length to text, if not, throw error
+      if (count !== text.length) {
+        throw new Error('Elements outside capturing groups');
+      }
+
       // Return the array of JSX elements
       return elements;
 
