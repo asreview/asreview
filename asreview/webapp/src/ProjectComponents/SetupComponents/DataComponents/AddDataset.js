@@ -215,7 +215,7 @@ const AddDataset = (props) => {
                 to the benchmark platform.{" "}
                 <Link
                   underline="none"
-                  href="https://github.com/asreview/systematic-review-datasets"
+                  href="https://github.com/asreview/synergy-dataset"
                   target="_blank"
                 >
                   Learn more
