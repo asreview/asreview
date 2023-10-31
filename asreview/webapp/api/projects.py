@@ -305,7 +305,9 @@ def api_demo_data_project():  # noqa: F401
     if subset == "plugin":
         try:
             result_datasets = manager.list(
-                exclude=["builtin", "benchmark", "benchmark-nature"]
+                exclude=[
+                    "builtin", "synergy", "nature"
+                ]
             )
 
         except Exception as err:
@@ -315,7 +317,7 @@ def api_demo_data_project():  # noqa: F401
     elif subset == "benchmark":
         try:
             # collect the datasets metadata
-            result_datasets = manager.list(include=["synergy", "benchmark-nature"])
+            result_datasets = manager.list(include=["synergy", "nature"])
 
         except Exception as err:
             logging.error(err)

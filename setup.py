@@ -200,8 +200,7 @@ setup(
             ".xlsx = asreview.io:ExcelWriter",
         ],
         "asreview.datasets": [
-            "benchmark = asreview.datasets:BenchmarkDataGroup",
-            "benchmark-nature = asreview.datasets:NaturePublicationDataGroup",
+            "nature = asreview.datasets:NaturePublicationDataGroup",
             "synergy = asreview.datasets:SynergyDataGroup",
         ],
         "asreview.models.classifiers": [
