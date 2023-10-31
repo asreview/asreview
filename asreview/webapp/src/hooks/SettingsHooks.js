@@ -67,6 +67,27 @@ const useFontSize = () => {
   return [fontSize, handleFontSizeChange];
 };
 
+const useRegexCardEnabled = () => {
+  const [regexCardEnabled, setRegexCardEnabled] = useState(false);
+
+  const toggleRegexCardEnabled = () => {
+    const newValue = !regexCardEnabled;
+    window.localStorage.setItem("regexCardEnabled", newValue.toString());
+    setRegexCardEnabled(newValue);
+  };
+
+  useEffect(() => {
+    const localRegexCardEnabled = window.localStorage.getItem("regexCardEnabled");
+    const localRegexCardEnabledIsTrue = localRegexCardEnabled === "true";
+
+    if (localRegexCardEnabled !== null) {
+      setRegexCardEnabled(localRegexCardEnabledIsTrue);
+    }
+  }, []);
+
+  return [regexCardEnabled, toggleRegexCardEnabled];
+}
+
 const useUndoEnabled = () => {
   const [undoEnabled, setUndoEnabled] = useState(true);
 
@@ -112,6 +133,7 @@ export {
   useRowsPerPage,
   useDarkMode,
   useFontSize,
+  useRegexCardEnabled,
   useUndoEnabled,
   useKeyPressEnabled,
 };

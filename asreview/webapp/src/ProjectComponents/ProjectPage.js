@@ -212,6 +212,7 @@ const ProjectPage = (props) => {
                     projectMode={data?.mode}
                     fontSize={props.fontSize}
                     undoEnabled={props.undoEnabled}
+                    regexCardEnabled={props.regexCardEnabled}
                     keyPressEnabled={props.keyPressEnabled}
                   />
                 }

@@ -245,6 +245,7 @@ const ReviewPage = (props) => {
               error={recordQuery.error}
               isError={recordQuery.isError}
               activeRecord={activeRecord}
+              regexCardEnabled={props.regexCardEnabled}
               recordNote={recordNote}
               setRecordNote={setRecordNote}
               fontSize={props.fontSize}

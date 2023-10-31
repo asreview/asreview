@@ -202,6 +202,22 @@ const SettingsDialog = (props) => {
                 secondary={props.keyPressEnabled ? "On" : "Off"}
               />
             </ListItem>
+            <ListItem button onClick={props.toggleRegexCardEnabled}>
+              <ListItemIcon></ListItemIcon>
+              <ListItemText
+                id="switch-list-label-regex"
+                primary="Regex card"
+                secondary="Show Regex highlight card"
+              />
+              <ListItemSecondaryAction sx={{ right: 24 }}>
+                <Switch
+                  edge="end"
+                  onChange={props.toggleRegexCardEnabled}
+                  checked={props.regexCardEnabled}
+                  inputProps={{ "aria-labelledby": "switch-list-label-regex" }}
+                />
+              </ListItemSecondaryAction>
+            </ListItem>
             <ListItem button onClick={props.toggleUndoEnabled}>
               <ListItemIcon></ListItemIcon>
               <ListItemText

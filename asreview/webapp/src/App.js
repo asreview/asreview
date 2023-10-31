@@ -32,6 +32,7 @@ import {
   useDarkMode,
   useFontSize,
   useKeyPressEnabled,
+  useRegexCardEnabled,
   useUndoEnabled,
 } from "./hooks/SettingsHooks";
 import { useToggle } from "./hooks/useToggle";
@@ -88,6 +89,7 @@ const App = (props) => {
   // Settings hook
   const [theme, toggleDarkMode] = useDarkMode();
   const [fontSize, handleFontSizeChange] = useFontSize();
+  const [regexCardEnabled, toggleRegexCardEnabled] = useRegexCardEnabled();
   const [undoEnabled, toggleUndoEnabled] = useUndoEnabled();
   const [keyPressEnabled, toggleKeyPressEnabled] = useKeyPressEnabled();
 
@@ -220,6 +222,7 @@ const App = (props) => {
                 mobileScreen={mobileScreen}
                 onNavDrawer={onNavDrawer}
                 fontSize={fontSize}
+                regexCardEnabled={regexCardEnabled}
                 undoEnabled={undoEnabled}
                 keyPressEnabled={keyPressEnabled}
                 projectCheck={projectCheck}
@@ -284,11 +287,13 @@ const App = (props) => {
             onDark={theme}
             fontSize={fontSize}
             keyPressEnabled={keyPressEnabled}
+            regexCardEnabled={regexCardEnabled}
             undoEnabled={undoEnabled}
             toggleSettings={toggleSettings}
             toggleDarkMode={toggleDarkMode}
             handleFontSizeChange={handleFontSizeChange}
             toggleKeyPressEnabled={toggleKeyPressEnabled}
+            toggleRegexCardEnabled={toggleRegexCardEnabled}
             toggleUndoEnabled={toggleUndoEnabled}
           />
           <HelpDialog mobileScreen={mobileScreen} />
