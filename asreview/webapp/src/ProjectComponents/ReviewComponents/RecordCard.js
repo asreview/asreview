@@ -130,7 +130,7 @@ const RecordCard = (props) => {
       // Set colors
       const green = theme.palette.mode === 'dark' ? '#2E7D32' : '#9de0a2';
       const red = theme.palette.mode === 'dark' ? '#C62828' : '#FFABAB';
-      const blue = theme.palette.mode === 'dark' ? '#1565C0' : '#A8DADC';
+      // const blue = theme.palette.mode === 'dark' ? '#1565C0' : '#A8DADC';
       const yellow = theme.palette.mode === 'dark' ? '#F9A825' : '#FFF5AB';      
 
       // Iterate over each match and its capturing groups
@@ -150,7 +150,7 @@ const RecordCard = (props) => {
           groups.forEach((group, i) => {
             if (group !== undefined) {
               // Assign colors based on the capturing group index
-              const color = i === 0 ? green : i === 1 ? red : blue;
+              const color = i === 0 ? green : i === 1 ? red : yellow;
               pushElement(group, { backgroundColor: color });
             }
           });
@@ -359,7 +359,7 @@ const RecordCard = (props) => {
                       fontWeight: (theme) => theme.typography.fontWeightRegular,
                     }}
                   >
-                    Regex to Highlight
+                    Regex Highlighter
                   </Typography>
                   <TextField
                     fullWidth
