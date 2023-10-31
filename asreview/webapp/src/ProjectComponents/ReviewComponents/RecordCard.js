@@ -7,6 +7,8 @@ import {
   CardActions,
   CardContent,
   CircularProgress,
+  IconButton,
+  InputAdornment,
   Slide,
   Stack,
   TextField,
@@ -14,6 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
+import SendIcon from '@mui/icons-material/Send';
 import { Link } from "@mui/icons-material";
 
 import { BoxErrorHandler } from "../../Components";
@@ -103,6 +106,7 @@ const RecordCard = (props) => {
   };
 
   const [highlightRegex, setHighlightRegex] = useState('');
+  const [applyHighlightRegex, setApplyHighlightRegex] = useState('');
   const theme = useTheme();
 
   const highlightWithRegex = (text, regexStr) => {
@@ -173,8 +177,10 @@ const RecordCard = (props) => {
 
     } catch (e) {
       // If an error occurs (likely due to an invalid regex), return the text in red
-      console.error(e);
-      return [<span key="error" style={{color: 'red'}}>{text}</span>];
+      return [<span key="error">{text}</span>,
+      <br key="br" />,<br key="br2" />,
+      <span key="error message" style={{color: 'red'}}>{e.message}</span>
+    ];
     }
   };
   
@@ -304,7 +310,7 @@ const RecordCard = (props) => {
                       props.activeRecord.abstract === "" ||
                       props.activeRecord.abstract === null
                     ) && <Box>
-                    {highlightWithRegex(props.activeRecord.abstract, highlightRegex)}
+                    {highlightWithRegex(props.activeRecord.abstract, applyHighlightRegex)}
                   </Box>
                   
                       }
@@ -368,6 +374,19 @@ const RecordCard = (props) => {
                     onChange={(e) => setHighlightRegex(e.target.value)}
                     placeholder="Enter regex pattern to highlight"
                     style={{ margin: '8px 0' }}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="rerender text"
+                            edge="end"
+                            onClick={() => {setApplyHighlightRegex(highlightRegex)}}
+                          >
+                            <SendIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </CardContent>
               </Card>
