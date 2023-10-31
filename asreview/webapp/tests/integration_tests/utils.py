@@ -1,3 +1,5 @@
+import time
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -173,19 +175,48 @@ def create_project(driver, project_data):
     # PAGE 3, MODEL
     # adding a feature extraction
     feature_extr_type = project_data["model"]["feature_extraction"]
-    print(feature_extr_type)
     click_clickable_element(driver, "div#select-feature-extraction")
-    WebDriverWait(driver, 60) \
-        .until(EC.invisibility_of_element_located(
-            (By.XPATH, "//div[@class='MuiBackdrop-root MuiBackdrop-invisible']")))
-    WebDriverWait(driver, 60) \
-        .until(EC.presence_of_element_located(
-            (By.XPATH, f"//h6[text()='{feature_extr_type}']")))
-
-    click_clickable_element(
-        driver,
-        (By.XPATH, f"//h6[text()='{feature_extr_type}']")
+    click_clickable_element(driver, 
+        (By.XPATH, f"//li[@data-value=\"{feature_extr_type}\"]")
     )
+
+    WebDriverWait(driver, 30) \
+        .until(EC.invisibility_of_element_located(
+            (By.XPATH, f"//li[@data-value=\"{feature_extr_type}\"]")
+        ))
+
+    # classifier
+    classifier = project_data["model"]["classifier"]
+    click_clickable_element(driver, "div#select-classifier")
+    click_clickable_element(driver,
+        (By.XPATH, f"//li[@data-value=\"{classifier}\"]")
+    )
+
+
+
+    # WebDriverWait(driver, 30).until(EC.invisibility_of_element_located(
+    #     (By.XPATH, "//div[@class='MuiBackdrop-root MuiBackdrop-invisible css-esi9ax']")
+    # ))
+    # WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
+    #     (By.XPATH, f"//h6[text()='{feature_extr_type}']")
+    # )).click()
+
+
+    # time.sleep(2)
+
+    # # WebDriverWait(driver, 60) \
+    # #     .until(EC.invisibility_of_element_located(
+    # #         (By.XPATH, "//div[@class='MuiBackdrop-root MuiBackdrop-invisible']")))
+    # WebDriverWait(driver, 60) \
+    #     .until(EC.presence_of_element_located(
+    #         (By.XPATH, f"//h6[text()='{feature_extr_type}']")))
+
+    # click_clickable_element(
+    #     driver,
+    #     (By.XPATH, f"//h6[text()='{feature_extr_type}']")
+    # )
+
+
 
 
 

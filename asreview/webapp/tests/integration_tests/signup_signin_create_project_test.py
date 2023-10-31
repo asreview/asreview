@@ -33,10 +33,10 @@ PROJECT = {
         "prior_knowledge": ["Yes", "No", "Yes", "No", "Yes"]
     },
     "model": {
-        "feature_extraction": "TF-IDF",
-        "classifier": "Naive Bayes",
-        "query_strategy": "Maximum",
-        "balance_strategy": "Dynamic resampling (Double)"
+        "feature_extraction": "tfidf", # doc2vec, embedding-idf, sbert, embedding-lstm, tfidf
+        "classifier": "nb", #logistic, lstm-base, lstm-pool, nb, nn-2-layer, rf, svm
+        "query_strategy": "max", # cluster, max, max_random, max_uncertainty, random, uncertainty
+        "balance_strategy": "double" # double, simple, undersample
     }
 }
 
