@@ -9,6 +9,7 @@ import {
   CircularProgress,
   Slide,
   Stack,
+  TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -333,12 +334,13 @@ const RecordCard = (props) => {
                 >
                   Regex to Highlight
                 </Typography>
-                <input 
-                  type="text" 
-                  value={highlightRegex} 
-                  onChange={(e) => setHighlightRegex(e.target.value)} 
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  value={highlightRegex}
+                  onChange={(e) => setHighlightRegex(e.target.value)}
                   placeholder="Enter regex pattern to highlight"
-                  style={{ width: '100%', padding: '8px' }}
+                  style={{ margin: '8px 0' }}
                 />
               </CardContent>
             </Card>
