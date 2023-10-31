@@ -13,7 +13,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { styled, useTheme } from "@mui/material/styles";
 import { Link } from "@mui/icons-material";
 
 import { BoxErrorHandler } from "../../Components";
@@ -103,52 +103,79 @@ const RecordCard = (props) => {
   };
 
   const [highlightRegex, setHighlightRegex] = useState('');
+  const theme = useTheme();
 
   const highlightWithRegex = (text, regexStr) => {
     try {
+      // Create a new RegExp object from the given regex string
       const regex = new RegExp(regexStr, 'gi');
-      const hasGroups = /\((?!\?:)/.test(regexStr); // Test for capturing groups
-  
-      if (hasGroups) {
-        return text.replace(regex, (match, ...groups) => {
-          let offset = 0;
-          let highlighted = match;
+      
+      // Check if the regular expression contains capturing groups
+      const hasGroups = /\((?!\?:)/.test(regexStr);
+      
+      // Initialize an empty array to hold the JSX elements
+      const elements = [];
+      
+      // Initialize variable to keep track of last index
+      let lastIndex = 0;
+      
+      // Initialize counter for React keys
+      let keyCounter = 0;
+
+      // Helper function to push a new span element to the elements array
+      const pushElement = (content, style = {}) => {
+        elements.push(<span key={keyCounter++} style={style}>{content}</span>);
+      };
+
+      // Set colors
+      const green = theme.palette.mode === 'dark' ? '#2E7D32' : '#9de0a2';
+      const red = theme.palette.mode === 'dark' ? '#C62828' : '#FFABAB';
+      const blue = theme.palette.mode === 'dark' ? '#1565C0' : '#A8DADC';
+      const yellow = theme.palette.mode === 'dark' ? '#F9A825' : '#FFF5AB';      
+
+      // Iterate over each match and its capturing groups
+      text.replace(regex, (match, ...groups) => {
+        // Find the index of the match
+        const index = text.indexOf(match, lastIndex);
+        
+        // Push the preceding text that doesn't match the regex
+        pushElement(text.slice(lastIndex, index));
+
+        // If there are capturing groups, handle them
+        if (hasGroups) {
+          // Remove the last two items which are the entire string and index
+          groups = groups.slice(0, -2);
           
-          // Remove the last two elements (entire string and index)
-          groups.pop();
-          groups.pop();
-  
-          for (let i = 0; i < groups.length; i++) {
-            const group = groups[i];
-            if (group === undefined) continue;
-  
-            let color;
-            if (i === 0) color = '#affaaf'; // Green
-            else if (i === 1) color = '#FFCCCC'; // Red
-            else color = 'lightblue'; // Blue
-  
-            const startIdx = highlighted.indexOf(group, offset);
-            const endIdx = startIdx + group.length;
-            
-            highlighted = (
-              highlighted.substring(0, startIdx) +
-              `<span style="background-color: ${color}">${group}</span>` +
-              highlighted.substring(endIdx)
-            );
-  
-            // Update offset
-            offset = startIdx + `<span style="background-color: ${color}">${group}</span>`.length;
-          }
-  
-          return highlighted;
-        });
-      } else {
-        return text.replace(regex, (match) => `<span style="background-color: yellow">${match}</span>`);
+          // Iterate over capturing groups
+          groups.forEach((group, i) => {
+            if (group !== undefined) {
+              // Assign colors based on the capturing group index
+              const color = i === 0 ? green : i === 1 ? red : blue;
+              pushElement(group, { backgroundColor: color });
+            }
+          });
+        } else {
+          // If no capturing groups, highlight the whole match
+          pushElement(match, { backgroundColor: yellow });
+        }
+
+        // Update lastIndex for the next iteration
+        lastIndex = index + match.length;
+      });
+
+      // Push remaining text that doesn't match the regex
+      if (lastIndex < text.length) {
+        pushElement(text.slice(lastIndex));
       }
+
+      // Return the array of JSX elements
+      return elements;
+
     } catch (e) {
-      // Handle regex errors by returning the text in red
-      return `<span style="color: red">${text}</span>`;
-    }    
+      // If an error occurs (likely due to an invalid regex), return the text in red
+      console.error(e);
+      return [<span key="error" style={{color: 'red'}}>{text}</span>];
+    }
   };
   
   return (
@@ -276,11 +303,10 @@ const RecordCard = (props) => {
                     {!(
                       props.activeRecord.abstract === "" ||
                       props.activeRecord.abstract === null
-                    ) && <Box 
-                    dangerouslySetInnerHTML={{
-                      __html: highlightWithRegex(props.activeRecord.abstract, highlightRegex)
-                    }}
-                  />
+                    ) && <Box>
+                    {highlightWithRegex(props.activeRecord.abstract, highlightRegex)}
+                  </Box>
+                  
                       }
                   </Typography>
                 </Stack>
@@ -321,30 +347,32 @@ const RecordCard = (props) => {
             </Card>
           )}
         </div>
-          <div style={{ flex: 1, paddingTop: '16px' }}>
-            <Card elevation={2} className={classes.loadedCard} aria-label="regex card">
-              <CardContent>
-                <Typography
-                  component="div"
-                  className={classes.title}
-                  variant={!props.mobileScreen ? "h5" : "h6"}
-                  sx={{
-                    fontWeight: (theme) => theme.typography.fontWeightRegular,
-                  }}
-                >
-                  Regex to Highlight
-                </Typography>
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  value={highlightRegex}
-                  onChange={(e) => setHighlightRegex(e.target.value)}
-                  placeholder="Enter regex pattern to highlight"
-                  style={{ margin: '8px 0' }}
-                />
-              </CardContent>
-            </Card>
-          </div>
+          {props.regexCardEnabled && (
+            <div style={{ flex: 1, paddingTop: '16px' }}>
+              <Card elevation={2} className={classes.loadedCard} aria-label="regex card">
+                <CardContent>
+                  <Typography
+                    component="div"
+                    className={classes.title}
+                    variant={!props.mobileScreen ? "h5" : "h6"}
+                    sx={{
+                      fontWeight: (theme) => theme.typography.fontWeightRegular,
+                    }}
+                  >
+                    Regex to Highlight
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    value={highlightRegex}
+                    onChange={(e) => setHighlightRegex(e.target.value)}
+                    placeholder="Enter regex pattern to highlight"
+                    style={{ margin: '8px 0' }}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          )}
       </div>
     </Root>
   );
