@@ -1,5 +1,3 @@
-import time
-
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -21,7 +19,7 @@ def browse_to_page(driver, page):
     assert driver.current_url == page
 
 
-def click_clickable_element(driver, selector, wait_secs=60):
+def click_element(driver, selector, wait_secs=60):
     """Waits until a clickable element is clickable and clicks
     on it. When <selector> is a String, a CSS selector is
     assumed."""
@@ -36,6 +34,14 @@ def click_clickable_element(driver, selector, wait_secs=60):
     # click
     element.click()
     return element
+
+
+def select_from_dropdown(driver, parent, data_value):
+    click_element(driver, parent)
+    element = (By.XPATH, f"//li[@data-value=\"{data_value}\"]")
+    click_element(driver, element)
+    WebDriverWait(driver, 60) \
+        .until(EC.invisibility_of_element_located(element))
 
 
 def create_account(driver, account_data):
@@ -65,7 +71,7 @@ def create_account(driver, account_data):
         ).send_keys(value)
 
     # wait until create button is clickable and create profile
-    click_clickable_element(driver, "button#create-profile")
+    click_element(driver, "button#create-profile")
 
 
 def sign_in(driver, account_data):
@@ -92,7 +98,7 @@ def sign_in(driver, account_data):
         ).send_keys(value)
 
     # click on signin button (it must be visible)
-    click_clickable_element(driver, "button#sign-in")
+    click_element(driver, "button#sign-in")
 
 
 def create_project(driver, project_data):
@@ -101,18 +107,11 @@ def create_project(driver, project_data):
     browse_to_page(driver, page)
 
     # click on the create button when it's available
-    click_clickable_element(driver, "button#create-project")
+    click_element(driver, "button#create-project")
 
     # PAGE 1 OF MODAL
     # starting with the mode
-    WebDriverWait(driver, 60) \
-        .until(EC.element_to_be_clickable(
-            (By.CSS_SELECTOR, "div#mode-select")))
-    driver.find_element(By.CSS_SELECTOR, "div#mode-select").click()
-    driver.find_element(
-        By.XPATH,
-        f"//h6[text()=\"{project_data['mode']}\"]"
-    ).click()
+    select_from_dropdown(driver, "div#mode-select", project_data['mode'])
 
     form_field_values = [
         ("input#project-title", project_data["title"]),
@@ -128,14 +127,14 @@ def create_project(driver, project_data):
         ).send_keys(value)
 
     # click on next
-    click_clickable_element(driver, "button#next")
+    click_element(driver, "button#next")
 
     # PAGE 2, DATASET AND PRIOR KNOWLEDGE
     # adding a dataset
-    click_clickable_element(driver, "button#add-dataset")
+    click_element(driver, "button#add-dataset")
 
     # choose the dataset
-    dataset_button = click_clickable_element(
+    dataset_button = click_element(
         driver,
         (By.XPATH, f"//p[text()=\"{project_data['dataset']['label']}\"]")
     )
@@ -143,94 +142,72 @@ def create_project(driver, project_data):
     dataset_button.find_element(By.XPATH, "../../../..//button").click()
 
     # prior knowledge
-    click_clickable_element(driver, "button#add-prior-knowledge")
+    click_element(driver, "button#add-prior-knowledge")
 
     # click on randomly adding prior knowledge
-    click_clickable_element(
+    method = project_data["dataset"]["prior_knowledge_method"]
+    print(method)
+    click_element(
         driver,
-        (By.XPATH, f"//span[text()=\"Random\"]")
+        (By.XPATH, f"//span[text()=\"{method}\"]")
     )
 
     # add random prior knowledge
-    if project_data["dataset"]["prior_knowledge_method"] == "random":
+    if project_data["dataset"]["prior_knowledge_method"] == "Random":
         for option in project_data["dataset"]["prior_knowledge"]:
             option = option.capitalize()
             assert option in ["Yes", "No"]
 
             # make sure its clickable
-            click_clickable_element(
+            click_element(
                 driver,
                 (By.XPATH, f"//button[text()='{option}']")
             )
-    
+
     # close page 2
-    click_clickable_element(
+    click_element(
         driver,
         (By.XPATH, "//button[text()='Close']")
     )
 
     # click on next
-    click_clickable_element(driver, "button#next")
+    click_element(driver, "button#next")
 
     # PAGE 3, MODEL
-    # adding a feature extraction
+    # adding feature extraction mode
     feature_extr_type = project_data["model"]["feature_extraction"]
-    click_clickable_element(driver, "div#select-feature-extraction")
-    click_clickable_element(driver, 
-        (By.XPATH, f"//li[@data-value=\"{feature_extr_type}\"]")
+    select_from_dropdown(
+        driver,
+        "div#select-feature-extraction",
+        feature_extr_type
     )
-
-    WebDriverWait(driver, 30) \
-        .until(EC.invisibility_of_element_located(
-            (By.XPATH, f"//li[@data-value=\"{feature_extr_type}\"]")
-        ))
 
     # classifier
     classifier = project_data["model"]["classifier"]
-    click_clickable_element(driver, "div#select-classifier")
-    click_clickable_element(driver,
-        (By.XPATH, f"//li[@data-value=\"{classifier}\"]")
+    select_from_dropdown(
+        driver,
+        "div#select-classifier",
+        classifier
     )
 
+    # query stratgey
+    query_strategy = project_data["model"]["query_strategy"]
+    select_from_dropdown(
+        driver,
+        "div#select-query-strategy",
+        query_strategy
+    )
 
+    # balance strategy
+    balance_strategy = project_data["model"]["balance_strategy"]
+    select_from_dropdown(
+        driver,
+        "div#select-balance-strategy",
+        balance_strategy
+    )
 
-    # WebDriverWait(driver, 30).until(EC.invisibility_of_element_located(
-    #     (By.XPATH, "//div[@class='MuiBackdrop-root MuiBackdrop-invisible css-esi9ax']")
-    # ))
-    # WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
-    #     (By.XPATH, f"//h6[text()='{feature_extr_type}']")
-    # )).click()
+    # click on next
+    click_element(driver, "button#next")
 
-
-    # time.sleep(2)
-
-    # # WebDriverWait(driver, 60) \
-    # #     .until(EC.invisibility_of_element_located(
-    # #         (By.XPATH, "//div[@class='MuiBackdrop-root MuiBackdrop-invisible']")))
-    # WebDriverWait(driver, 60) \
-    #     .until(EC.presence_of_element_located(
-    #         (By.XPATH, f"//h6[text()='{feature_extr_type}']")))
-
-    # click_clickable_element(
-    #     driver,
-    #     (By.XPATH, f"//h6[text()='{feature_extr_type}']")
-    # )
-
-
-
-
-
-
-    # # Go to page 3 of modal
-    # WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Next']")))
-    # driver.find_element(By.XPATH, "//button[text()='Next']").click()
-
-    # # Go to page 4 of modal
-    # WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Next']")))
-    # driver.find_element(By.XPATH, "//button[text()='Next']").click()
-
-    # # Wait until model is trained and we can start
-    # WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Start Reviewing']")))
-    # driver.find_element(By.XPATH, "//button[text()='Start Reviewing']").click()
-
-
+    # Wait until model is trained and so we can start
+    click_element(driver, "button#start-reviewing", wait_secs=300)
