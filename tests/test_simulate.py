@@ -342,4 +342,4 @@ def test_is_partial_simulation(tmpdir):
 def test_get_dataset_path_from_args():
     assert _get_dataset_path_from_args("test") == "test.csv"
     assert _get_dataset_path_from_args("test.ris") == "test.csv"
-    assert _get_dataset_path_from_args("benchmark:test") == "test.csv"
+    assert _get_dataset_path_from_args("synergy:test") == "test.csv"
