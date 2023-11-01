@@ -41,7 +41,7 @@ inspection
 Datasets for simulation
 -----------------------
 
-Simulations require :ref:`fully labeled datasets <data_labeled:fully labeled data>` (labels: ``0`` = irrelevant, ``1`` = relevant). Such a dataset can be the result of an earlier study. ASReview offers also fully labeled datasets via the `benchmark platform <https://github.com/asreview/systematic-review-datasets>`_. These datasets are available via the user interface in the *Data* step of the setup and in the command line with the prefix `benchmark:` (e.g. `benchmark:van_de_schoot_2017`).
+Simulations require :ref:`fully labeled datasets <data_labeled:fully labeled data>` (labels: ``0`` = irrelevant, ``1`` = relevant). Such a dataset can be the result of an earlier study. ASReview offers also fully labeled datasets via the `SYNERGY dataset <https://github.com/asreview/synergy-dataset>`_. These datasets are available via the user interface in the *Data* step of the setup and in the command line with the prefix `synergy:` (e.g. `synergy:van_de_schoot_2018`).
 
 .. tip::
 

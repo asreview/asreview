@@ -43,7 +43,7 @@ from asreview.utils import get_random_state
 
 
 def _get_dataset_path_from_args(args_dataset):
-    """Remove 'benchmark:' from the dataset name and add .csv suffix.
+    """Remove 'synergy:' from the dataset name and add .csv suffix.
 
     Parameters
     ----------
@@ -53,11 +53,11 @@ def _get_dataset_path_from_args(args_dataset):
     Returns
     -------
     str
-        Dataset name without 'benchmark:' if it started with that,
+        Dataset name without 'synergy:' if it started with that,
         and with .csv suffix.
     """
-    if args_dataset.startswith("benchmark:"):
-        args_dataset = args_dataset[10:]
+    if args_dataset.startswith("synergy:"):
+        args_dataset = args_dataset[8:]
 
     return Path(args_dataset).with_suffix(".csv").name
 
