@@ -138,6 +138,16 @@ accounts and link these accounts to projects. Currently we are using a small SQL
 database (asreview.development.sqlite or asreview.production.sqlite) in the ASReview 
 folder to store that information.
 
+Note that it is possible to run the authenticated application with a 
+[Postgresql database](https://www.postgresql.org/). Using Postgresql requires 2 extra 
+installation steps:
+1. Install the [psycopg2](https://www.psycopg.org/docs/) package. At the time of this writing
+2 versions of this package exist: `psycopg2` and `psycopg2-binary`. According to the
+[documentation](https://www.psycopg.org/docs/install.html#quick-install) the binary 
+version works on most operating systems.
+2. Use the [configuration file](#full-configuration) to setup the connection 
+between the application and the database.
+
 ### Bare bones authentication
 
 Using authentication imposes more configuration. Let's start with running a bare bones
@@ -224,6 +234,12 @@ PORT = 5001
 ALLOWED_ORIGINS = ["http://localhost:3000"]
 ```
 The HOST and PORT determine what address the ASReview server listens to. If this deviates from `localhost` and port 5000, and you run the front end separately, make sure the [front end can find the backend](#front-end-development-and-connectioncors-issues). The ALLOWED_ORIGINS key must be set if you run the front end separately. Put in a list all URLs that your front end uses. This can be more than one URL. Failing to do so will certainly lead to CORS issues.
+
+Do you want to use a Postgresql database? Then add the `SQLALCHEMY_DATABASE_URI` key to the config file:
+
+```toml
+SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://username:password@host:port/database_name"
+```
 
 ### Converting an unauthenticated application into an authenticated one
 
