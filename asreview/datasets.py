@@ -384,7 +384,7 @@ class DatasetManager:
 class NaturePublicationDataGroup(BaseDataGroup):
     """Datasets used in the paper Van de Schoot et al. 2020."""
 
-    group_id = "nature-benchmark"
+    group_id = "benchmark-nature"
     description = (
         "Datasets used in the validation paper published"
         " in Nature Machine Intelligence (van de Schoot et al. 2021)"
