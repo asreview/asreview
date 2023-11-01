@@ -49,7 +49,7 @@ class User(UserMixin, DB.Model):
     email = Column(String(100), unique=True)
     name = Column(String(100))
     affiliation = Column(String(100))
-    hashed_password = Column(String(150))
+    hashed_password = Column(String(500))
     confirmed = Column(Boolean)
     public = Column(Boolean)
     token = Column(String(150))

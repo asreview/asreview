@@ -22,7 +22,7 @@ jobs:
       - name: Build the image for testing
         uses: docker/build-push-action@v4
         with:
-          context: .
+          context: ./Docker/simple
           load: true
           tags: asreview/asreview:test
       - name: Test the built image
