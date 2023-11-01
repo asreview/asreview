@@ -62,3 +62,6 @@ pytest --random-order -s -v ./asreview/webapp/tests/test_api/test_projects.py -k
 ## Database
 
 A database is needed to run the tests for authenticated versions of the app. In the `config` file a number of TOML configuration files exist that are used to create different versions of the app. The configuration files that create an authenticated version of the app lack the `SQLALCHEMY_DATABASE_URI` parameter! That parameter tells the backend where it can find the database. If that parameter is missing, the app will create and initialize a sqlite3 database automatically. After the test suite has been executed, this database will be removed. In case you would like to run all tests in a specific database, you need to provide the URI of the database yourself.
+
+If you want to use a [Postgresql database](https://www.postgresql.org/), read the DEVELOPMENT documentation
+how to set it up.
