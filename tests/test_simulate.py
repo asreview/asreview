@@ -4,7 +4,6 @@ from pathlib import Path
 import pytest
 
 from asreview.entry_points.simulate import SimulateEntryPoint
-from asreview.entry_points.simulate import _get_dataset_path_from_args
 from asreview.entry_points.simulate import _simulate_parser
 from asreview.project import ASReviewProject
 from asreview.project import ProjectExistsError
