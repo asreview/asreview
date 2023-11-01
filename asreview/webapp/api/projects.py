@@ -306,7 +306,7 @@ def api_demo_data_project():  # noqa: F401
         try:
             result_datasets = manager.list(
                 exclude=[
-                    "builtin", "synergy", "benchmark-nature"
+                    "builtin", "synergy", "benchmark", "benchmark-nature"
                 ]
             )
 

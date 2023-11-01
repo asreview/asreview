@@ -15,6 +15,7 @@
 import json
 import socket
 import tempfile
+import warnings
 from abc import ABC
 from abc import abstractmethod
 from pathlib import Path
@@ -733,3 +734,26 @@ class SynergyDataGroup(BaseDataGroup):
         datasets = [SynergyDataSet(k, **v) for k, v in synergy_metadata.items()]
 
         super(SynergyDataGroup, self).__init__(*datasets)
+
+
+class BenchmarkDataGroup(BaseDataGroup):
+    """Datasets available in the benchmark platform.
+    Deprecated
+    """
+
+    group_id = "benchmark"
+    description = "DEPRECATED: Datasets available in the online benchmark platform"
+
+    def __init__(self):
+
+        warnings.warn(
+            "The use of 'benchmark' datasets is deprecated, "
+            "use SYNERGY dataset instead. For more information, see "
+            "https://github.com/asreview/synergy-dataset.",
+            category=UserWarning
+        )
+
+        meta_file = "https://raw.githubusercontent.com/asreview/systematic-review-datasets/master/index_v1.json"  # noqa
+        datasets = _download_from_metadata(meta_file)
+
+        super(BenchmarkDataGroup, self).__init__(*datasets)
