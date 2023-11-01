@@ -19,14 +19,15 @@ The command line returns one of the following messages:
   'pip' is not recognized as an internal or external command, operable program or batch file.
 
 
-First, check if Python is installed with the following command:
+First, check if Python is installed by using the following command:
 
 .. code:: bash
 
     python --version
 
-If this doesn't return 3.7 or higher, then Python isn't or not correctly
-installed.
+If this doesn't return a version number, then Python is either not installed
+or not correctly installed
+
 
 Most likely, the environment variables aren't configured correctly. Follow
 the step-by-step installation instruction on the ASReview website (`Windows <https://asreview.ai/download/>`__
