@@ -139,22 +139,22 @@ def test_deduplication():
 
 def test_duplicated():
     # Create an instance of ASReviewData
-    instance = ASReviewData()
-
-    # Create a sample dataframe for testing
-    instance.df = pd.DataFrame({
+    instance = ASReviewData(pd.DataFrame({
         'doi': ['https://www.doi.org/10.1000/xyz',
                 'https://www.doi.org/10.1000/abc',
-                'https://www.doi.org/10.1000/xyz'],
-        'title': ['Title1', 'Title2', 'Title1'],
-        'abstract': ['Abstract1', 'Abstract2', 'Abstract1']
-    })
-
-    # Set the texts attribute
-    instance.texts = instance.df['title'] + ' ' + instance.df['abstract']
+                'https://www.doi.org/10.1000/xyz',
+                '10.1000/xyz',
+                '10.1000/xyz',
+                'http://www.doi.org/10.1000/xyz',
+                'https://doi.org/10.1000/xyz'],
+        'title': ['T1', 'T2', 'T1', 'T1', 'T1', 'T1', 'T1'],
+        'abstract': ['A1', 'A1', 'A1', 'A1', 'A1', 'A1', 'A1']
+    }))
 
     # Call the function and get the result
     result = instance.duplicated()
 
+    print(result)
+
     # Check the result
-    assert result.equals(pd.Series([False, False, True]))
+    assert result.equals(pd.Series([False, False, True, True, True, True, True]))
