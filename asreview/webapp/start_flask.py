@@ -559,4 +559,8 @@ def main(argv):
     else:
         ssl_args = {"keyfile": keyfile, "certfile": certfile} if ssl_context else {}
         server = WSGIServer((host, port), app, **ssl_args)
-        server.serve_forever()
+
+        try:
+            server.serve_forever()
+        except KeyboardInterrupt:
+            print("\n\nShutting down server\n\n")
