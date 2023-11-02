@@ -95,6 +95,13 @@ set FLASK_DEBUG=1
 asreview lab
 ```
 
+Note, when working with PowerShell use
+
+```
+$env:FLASK_DEBUG = "1"
+asreview lab
+```
+
 **Important**: Ignore `localhost:5000`, because this is not relevant for the
   development version, which will run on `localhost:3000`.
 
