@@ -142,7 +142,9 @@ def test_duplicated():
 
     # Create a sample dataframe for testing
     instance.df = pd.DataFrame({
-        'doi': ['https://www.doi.org/10.1000/xyz', 'https://www.doi.org/10.1000/abc', 'https://www.doi.org/10.1000/xyz'],
+        'doi': ['https://www.doi.org/10.1000/xyz',
+                 'https://www.doi.org/10.1000/abc',
+                   'https://www.doi.org/10.1000/xyz'],
         'title': ['Title1', 'Title2', 'Title1'],
         'abstract': ['Abstract1', 'Abstract2', 'Abstract1']
     })
