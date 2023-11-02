@@ -136,6 +136,7 @@ def test_deduplication():
     # test whether .drop_duplicates() drops the duplicated records correctly
     pd.testing.assert_frame_equal(d_dups.drop_duplicates(), d_nodups.df)
 
+
 def test_duplicated():
     # Create an instance of ASReviewData
     instance = ASReviewData()
@@ -143,8 +144,8 @@ def test_duplicated():
     # Create a sample dataframe for testing
     instance.df = pd.DataFrame({
         'doi': ['https://www.doi.org/10.1000/xyz',
-                 'https://www.doi.org/10.1000/abc',
-                   'https://www.doi.org/10.1000/xyz'],
+                'https://www.doi.org/10.1000/abc',
+                'https://www.doi.org/10.1000/xyz'],
         'title': ['Title1', 'Title2', 'Title1'],
         'abstract': ['Abstract1', 'Abstract2', 'Abstract1']
     })
