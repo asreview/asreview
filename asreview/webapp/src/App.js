@@ -92,7 +92,7 @@ const App = (props) => {
   const [keyPressEnabled, toggleKeyPressEnabled] = useKeyPressEnabled();
 
   const muiTheme = createTheme(theme);
-  const mobileScreen = useMediaQuery(muiTheme.breakpoints.down("md"), {
+  const mobileScreen = useMediaQuery(muiTheme.breakpoints.down('lg'), {
     noSsr: true,
   });
 

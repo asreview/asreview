@@ -22,14 +22,14 @@ const Root = styled("div")(({ theme }) => ({
   height: "inherit",
   [`& .${classes.img}`]: {
     maxWidth: 350,
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.down('lg')]: {
       maxWidth: 250,
     },
   },
 
   [`& .${classes.textTitle}`]: {
     textAlign: "center",
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.down('lg')]: {
       width: "80%",
     },
   },
@@ -37,7 +37,7 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.text}`]: {
     textAlign: "center",
     width: "60%",
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.down('lg')]: {
       width: "80%",
     },
   },

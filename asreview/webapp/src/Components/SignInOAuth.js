@@ -83,34 +83,33 @@ const SignInOauth = (props) => {
     }
   };
 
-  return (
-    <>
-      <Stack className={classes.button} direction="row">
-        <Typography variant="body1">Or sign in with:</Typography>
-        {Object.keys(oAuthServices).map((provider) => {
-          let config = oAuthServices[provider];
-          return (
-            <OauthPopup
-              url={generateOAuthUrl(config)}
-              onCode={(code) => handleSignin(code, provider)}
-              onClose={(data) => true}
+  return <>
+    <Stack className={classes.button} direction="row">
+      <Typography variant="body1">Or sign in with:</Typography>
+      {Object.keys(oAuthServices).map((provider) => {
+        let config = oAuthServices[provider];
+        return (
+          <OauthPopup
+            url={generateOAuthUrl(config)}
+            onCode={(code) => handleSignin(code, provider)}
+            onClose={(data) => true}
+            key={provider}
+            width={POPUP_WIDTH}
+            height={POPUP_HEIGHT}
+          >
+            <IconButton
+              //handleOauthSignIn(provider)}
+              onClick={() => "true"}
               key={provider}
-              width={POPUP_WIDTH}
-              height={POPUP_HEIGHT}
-            >
-              <IconButton
-                onClick={() => "true"} //handleOauthSignIn(provider)}
-                key={provider}
-              >
-                {getIcon(provider)}
-              </IconButton>
-            </OauthPopup>
-          );
-        })}
-      </Stack>
-      {Boolean(errorMessage) && <InlineErrorHandler message={errorMessage} />}
-    </>
-  );
+              size="large">
+              {getIcon(provider)}
+            </IconButton>
+          </OauthPopup>
+        );
+      })}
+    </Stack>
+    {Boolean(errorMessage) && <InlineErrorHandler message={errorMessage} />}
+  </>;
 };
 
 export default SignInOauth;

@@ -21,7 +21,7 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.content}`]: {
     alignItems: "baseline",
     justifyContent: "center",
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.down('lg')]: {
       alignItems: "center",
     },
   },

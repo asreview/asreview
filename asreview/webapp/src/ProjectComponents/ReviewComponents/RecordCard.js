@@ -39,7 +39,7 @@ const Root = styled("div")(({ theme }) => ({
   maxWidth: 960,
   padding: "64px 0px 32px 0px",
   height: "100%",
-  [theme.breakpoints.down("md")]: {
+  [theme.breakpoints.down('lg')]: {
     padding: "4px 0px",
   },
   [`& .${classes.loadedCard}`]: {
@@ -47,7 +47,7 @@ const Root = styled("div")(({ theme }) => ({
     display: "flex",
     flexDirection: "column",
     width: "100%",
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.down('lg')]: {
       borderRadius: 0,
     },
   },

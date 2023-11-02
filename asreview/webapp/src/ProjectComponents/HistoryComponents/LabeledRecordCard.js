@@ -261,7 +261,7 @@ const LabeledRecordCard = (props) => {
                         onClick={() => {
                           handleClickLabelConvert(value);
                         }}
-                      >
+                        size="large">
                         {value.included === 1 ? (
                           <Favorite
                             color="error"
@@ -287,7 +287,7 @@ const LabeledRecordCard = (props) => {
                           onClick={() => {
                             handleClickRemoveLabel(value);
                           }}
-                        >
+                          size="large">
                           <LabelOff
                             fontSize={!props.mobileScreen ? "medium" : "small"}
                           />

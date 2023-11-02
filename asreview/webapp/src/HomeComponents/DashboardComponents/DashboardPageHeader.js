@@ -26,7 +26,7 @@ const Root = styled("div")(({ theme }) => ({
         ? theme.palette.grey[900]
         : theme.palette.grey[100],
     ],
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.down('lg')]: {
       width: 24,
       height: 24,
     },

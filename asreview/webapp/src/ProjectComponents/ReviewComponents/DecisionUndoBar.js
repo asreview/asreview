@@ -15,7 +15,7 @@ const classes = {
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.snackbar}`]: {
     marginBottom: decisionUndoBarMarginBottom,
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.down('lg')]: {
       marginBottom: 70,
     },
   },

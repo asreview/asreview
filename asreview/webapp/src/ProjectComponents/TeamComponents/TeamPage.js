@@ -14,7 +14,7 @@ const classes = {
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.cardWrapper}`]: {
     paddingTop: 32,
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.down('lg')]: {
       paddingLeft: 0,
       paddingRight: 0,
     },

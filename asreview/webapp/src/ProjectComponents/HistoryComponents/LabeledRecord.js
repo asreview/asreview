@@ -41,10 +41,10 @@ const Root = styled("div")(({ theme }) => ({
     height: "calc(100vh - 208px)",
     overflowY: "scroll",
     padding: "32px 24px",
-    [`${theme.breakpoints.down("md")} and (orientation: portrait)`]: {
+    [`${theme.breakpoints.down('lg')} and (orientation: portrait)`]: {
       height: `calc(100vh - ${height / 2 + 80}px)`,
     },
-    [`${theme.breakpoints.down("md")} and (orientation: landscape)`]: {
+    [`${theme.breakpoints.down('lg')} and (orientation: landscape)`]: {
       height: `calc(100vh - 116px)`,
     },
   },

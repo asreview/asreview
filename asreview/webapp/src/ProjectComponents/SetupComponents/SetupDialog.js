@@ -64,7 +64,7 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
     height: "calc(100% - 60px)",
     overflowY: "scroll",
     padding: "32px 48px 48px 48px",
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.down('lg')]: {
       padding: "32px 24px 48px 24px",
     },
   },

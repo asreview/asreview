@@ -56,7 +56,7 @@ const NoteSheet = (props) => {
           <Stack spacing={1}>
             <Box className={classes.button}>
               <Tooltip title="Collapse">
-                <IconButton onClick={handleClickCollapseNote}>
+                <IconButton onClick={handleClickCollapseNote} size="large">
                   <KeyboardArrowDown />
                 </IconButton>
               </Tooltip>

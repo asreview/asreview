@@ -63,7 +63,7 @@ export default function TableRowButton(props) {
             <IconButton
               className={classes.button}
               onClick={props.onClickProjectAnalytics}
-            >
+              size="large">
               <Assessment />
             </IconButton>
           </Tooltip>
@@ -73,7 +73,7 @@ export default function TableRowButton(props) {
             <IconButton
               className={classes.button}
               onClick={props.onClickProjectReview}
-            >
+              size="large">
               <Assignment />
             </IconButton>
           </Tooltip>
@@ -83,7 +83,7 @@ export default function TableRowButton(props) {
             <IconButton
               className={classes.button}
               onClick={props.onClickCollaboration}
-            >
+              size="large">
               <GroupAdd />
             </IconButton>
           </Tooltip>
@@ -93,7 +93,7 @@ export default function TableRowButton(props) {
             <IconButton
               className={classes.button}
               onClick={props.onClickCollaboration}
-            >
+              size="large">
               <PersonOff />
             </IconButton>
           </Tooltip>
@@ -103,14 +103,14 @@ export default function TableRowButton(props) {
             <IconButton
               className={classes.button}
               onClick={props.onClickProjectExport}
-            >
+              size="large">
               <Download />
             </IconButton>
           </Tooltip>
         )}
         <div>
           <Tooltip title="Options">
-            <IconButton className={classes.button} onClick={handleClickRowMenu}>
+            <IconButton className={classes.button} onClick={handleClickRowMenu} size="large">
               <MoreVert />
             </IconButton>
           </Tooltip>

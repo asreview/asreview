@@ -16,14 +16,14 @@ const Root = styled("div")(({ theme }) => ({
   height: "inherit",
   [`& .${classes.img}`]: {
     maxWidth: 250,
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.down('lg')]: {
       maxWidth: 150,
     },
   },
 
   [`& .${classes.textTitle}`]: {
     textAlign: "center",
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.down('lg')]: {
       width: "80%",
     },
   },
