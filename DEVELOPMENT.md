@@ -25,17 +25,23 @@ Install Python
 
 Install the ASReview package
 
-	pip install -e .[dev]
+```
+pip install -e .[dev]
+```
 
 Start the Python API server with the Flask development environment
 
-	export FLASK_DEBUG=1
-	asreview lab
+```
+export FLASK_DEBUG=1
+asreview lab
+```
 
 For Windows, use
 
-	set FLASK_DEBUG=1
-	asreview lab
+```
+set FLASK_DEBUG=1
+asreview lab
+```
 
 #### Formatting and linting
 
@@ -77,29 +83,35 @@ follows:
 
 2. Before the front end development can be started, the back end has to run as well. Therefore, first, start the Python API server with the Flask development environment: 
 
-	export FLASK_DEBUG=1
-	asreview lab
+```
+export FLASK_DEBUG=1
+asreview lab
+```
 
 For Windows, use
 
-	set FLASK_DEBUG=1
-	asreview lab
+```
+set FLASK_DEBUG=1
+asreview lab
+```
 
 **Important**: Ignore `localhost:5000`, because this is not relevant for the
   development version, which will run on `localhost:3000`.
 
 3. Next, open a new CLI and navigate to `asreview/webapp` and install the front end application with [npm](https://www.npmjs.com/get-npm):
 
-	cd asreview/webapp
-	npm install
+```
+cd asreview/webapp
+npm install
+```
 
 Start the local front end application with npm
 
-	npm start
+```
+npm start
+```
 
 4. Open the web browser at `localhost:3000`
-
-
 
 ### Front end development and connection/CORS issues
 
@@ -125,6 +137,16 @@ projects in their own separate workspaces. Authentication requires the storage o
 accounts and link these accounts to projects. Currently we are using a small SQLite 
 database (asreview.development.sqlite or asreview.production.sqlite) in the ASReview 
 folder to store that information.
+
+Note that it is possible to run the authenticated application with a 
+[Postgresql database](https://www.postgresql.org/). Using Postgresql requires 2 extra 
+installation steps:
+1. Install the [psycopg2](https://www.psycopg.org/docs/) package. At the time of this writing
+2 versions of this package exist: `psycopg2` and `psycopg2-binary`. According to the
+[documentation](https://www.psycopg.org/docs/install.html#quick-install) the binary 
+version works on most operating systems.
+2. Use the [configuration file](#full-configuration) to setup the connection 
+between the application and the database.
 
 ### Bare bones authentication
 
@@ -212,6 +234,12 @@ PORT = 5001
 ALLOWED_ORIGINS = ["http://localhost:3000"]
 ```
 The HOST and PORT determine what address the ASReview server listens to. If this deviates from `localhost` and port 5000, and you run the front end separately, make sure the [front end can find the backend](#front-end-development-and-connectioncors-issues). The ALLOWED_ORIGINS key must be set if you run the front end separately. Put in a list all URLs that your front end uses. This can be more than one URL. Failing to do so will certainly lead to CORS issues.
+
+Do you want to use a Postgresql database? Then add the `SQLALCHEMY_DATABASE_URI` key to the config file:
+
+```toml
+SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://username:password@host:port/database_name"
+```
 
 ### Converting an unauthenticated application into an authenticated one
 

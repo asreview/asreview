@@ -198,10 +198,10 @@ const AddDataset = (props) => {
             )}
             {datasetSource === "extension" && (
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Select a dataset from an extension.{" "}
+                Select a dataset from a custom extension.{" "}
                 <Link
                   underline="none"
-                  href="https://asreview.readthedocs.io/en/latest/extensions/overview_extensions.html"
+                  href="https://asreview.readthedocs.io/en/latest/extensions_dev.html#create-extensions"
                   target="_blank"
                 >
                   Learn more
@@ -215,7 +215,7 @@ const AddDataset = (props) => {
                 to the benchmark platform.{" "}
                 <Link
                   underline="none"
-                  href="https://github.com/asreview/systematic-review-datasets"
+                  href="https://github.com/asreview/synergy-dataset"
                   target="_blank"
                 >
                   Learn more
