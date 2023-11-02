@@ -132,6 +132,7 @@ const RecordCard = (props) => {
           {props.activeRecord._debug_label !== null && (
             <ExplorationModeRecordAlert
               label={!isDebugInclusion() ? "irrelevant" : "relevant"}
+              fontSize={props.fontSize}
             />
           )}
 
@@ -249,6 +250,7 @@ const RecordCard = (props) => {
           {props.recordNote.shrink && (
             <CardActions className={classes.note}>
               <Button
+                className={"fontSize" + props.fontSize.label}
                 disabled={props.disableButton()}
                 size="small"
                 onClick={expandNoteSheet}
