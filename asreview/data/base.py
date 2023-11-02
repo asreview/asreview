@@ -507,6 +507,10 @@ class ASReviewData:
             # in case of strings, strip whitespaces and replace empty strings with None
             if is_string_dtype(self.df[pid]) or is_object_dtype(self.df[pid]):
                 s_pid = self.df[pid].str.strip().replace("", None)
+                if pid == "doi":
+                    s_pid = s_pid.str.replace(
+                        r"^https?://(www\.)?doi\.org/", "", regex=True
+                    )
             else:
                 s_pid = self.df[pid]
 
