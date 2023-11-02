@@ -51,11 +51,11 @@ REQUIRES = [
     "rispy~=0.7.0",
     "xlrd>=1.0.0",
     "setuptools",
-    "flask>=2.3.0,<3",
+    "flask>=2.3.0",
     "flask_cors",
-    "flask-login",
+    "flask-login>=0.6.3",
     "flask-mail",
-    "Werkzeug>=2.3.2,<3",
+    "Werkzeug>=2.3.2",
     "openpyxl",
     "jsonschema",
     "filelock",
@@ -65,7 +65,6 @@ REQUIRES = [
     "gevent>=20",
     "datahugger>=0.2",
     "synergy_dataset",
-    "psycopg2",
     "sqlalchemy-utils",
 ]
 
@@ -200,9 +199,9 @@ setup(
             ".xlsx = asreview.io:ExcelWriter",
         ],
         "asreview.datasets": [
-            "benchmark = asreview.datasets:BenchmarkDataGroup",
             "benchmark-nature = asreview.datasets:NaturePublicationDataGroup",
             "synergy = asreview.datasets:SynergyDataGroup",
+            "benchmark = asreview.datasets:BenchmarkDataGroup",
         ],
         "asreview.models.classifiers": [
             "svm = asreview.models.classifiers:SVMClassifier",

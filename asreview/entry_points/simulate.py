@@ -42,26 +42,6 @@ from asreview.types import type_n_queries
 from asreview.utils import get_random_state
 
 
-def _get_dataset_path_from_args(args_dataset):
-    """Remove 'benchmark:' from the dataset name and add .csv suffix.
-
-    Parameters
-    ----------
-    args_dataset : str
-        Name of the dataset.
-
-    Returns
-    -------
-    str
-        Dataset name without 'benchmark:' if it started with that,
-        and with .csv suffix.
-    """
-    if args_dataset.startswith("benchmark:"):
-        args_dataset = args_dataset[10:]
-
-    return Path(args_dataset).with_suffix(".csv").name
-
-
 def _set_log_verbosity(verbose):
     if verbose == 0:
         logging.getLogger().setLevel(logging.WARNING)
@@ -135,7 +115,8 @@ class SimulateEntryPoint(BaseEntryPoint):
             )
 
             # Add the dataset to the project file.
-            dataset_path = _get_dataset_path_from_args(args.dataset)
+            dataset_path = Path(
+                args.dataset.replace(":", "-")).with_suffix(".csv").name
 
             as_data.to_file(Path(fp_tmp_simulation, "data", dataset_path))
             # Update the project.json.
