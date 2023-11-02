@@ -4,7 +4,6 @@ from pathlib import Path
 import pytest
 
 from asreview.entry_points.simulate import SimulateEntryPoint
-from asreview.entry_points.simulate import _get_dataset_path_from_args
 from asreview.entry_points.simulate import _simulate_parser
 from asreview.project import ASReviewProject
 from asreview.project import ProjectExistsError
@@ -337,9 +336,3 @@ def test_is_partial_simulation(tmpdir):
     entry_point.execute(argv)
 
     assert _is_partial_simulation(args)  # noqa
-
-
-def test_get_dataset_path_from_args():
-    assert _get_dataset_path_from_args("test") == "test.csv"
-    assert _get_dataset_path_from_args("test.ris") == "test.csv"
-    assert _get_dataset_path_from_args("benchmark:test") == "test.csv"
