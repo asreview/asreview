@@ -63,24 +63,6 @@ def load_data(name, *args, **kwargs):
     raise FileNotFoundError(f"File, URL, or dataset does not exist: '{name}'")
 
 
-def _get_filename_from_url(url):
-    if not is_url(url):
-        raise ValueError(f"'{url}' is not a valid URL.")
-
-    if Path(urlparse(url).path).suffix:
-        return Path(urlparse(url).path).name, url
-    else:
-        try:
-            return urlopen(url).headers.get_filename(), url
-        except HTTPError as err:
-            # 308 (Permanent Redirect) not supported
-            # See https://bugs.python.org/issue40321
-            if err.code == 308:
-                return _get_filename_from_url(err.headers.get("Location"))
-            else:
-                raise err
-
-
 class ASReviewData:
     """Data object to the dataset with texts, labels, DOIs etc.
 
