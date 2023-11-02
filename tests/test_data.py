@@ -147,14 +147,12 @@ def test_duplicated():
                 '10.1000/xyz',
                 'http://www.doi.org/10.1000/xyz',
                 'https://doi.org/10.1000/xyz'],
-        'title': ['T1', 'T2', 'T1', 'T1', 'T1', 'T1', 'T1'],
-        'abstract': ['A1', 'A1', 'A1', 'A1', 'A1', 'A1', 'A1']
+        'title': ['T1', 'T2', 'T3', 'T4', 'T1', 'T2', 'T3'],
+        'abstract': ['A1', 'A2', 'A3', 'A4', 'A1', 'A2', 'A3']
     }))
 
     # Call the function and get the result
     result = instance.duplicated()
-
-    print(result)
 
     # Check the result
     assert result.equals(pd.Series([False, False, True, True, True, True, True]))
