@@ -52,8 +52,8 @@ from asreview.webapp.authentication.oauth_handler import OAuthHandler
 HOST_NAME = os.getenv("ASREVIEW_HOST")
 if HOST_NAME is None:
     HOST_NAME = "localhost"
-# Default Port number
-PORT_NUMBER = 5000
+# Default Port number from environment or 5000
+PORT_NUMBER = os.getenv("PORT", 5000)
 
 # set logging level
 if (

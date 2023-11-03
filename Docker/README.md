@@ -11,13 +11,25 @@ Creating the docker container for a simple, non-authenticated version of the app
 ```
 # create a volume
 $ docker volume create asreview_simple
-# build the container
-$ docker build  -t asreview .
-# run container
-$ docker run -d -v asreview_simple_volume:/project_folder -p 8080:5000 asreview
 ```
 
-with the external port 8080 being a suggestion. After the last command you find the app in your browser at `http://localhost:8080`.
+Before the app container can be build a decision has to be made on which port the app is going to run. By default it runs on port 5000. If that is fine, execute the following commands:
+
+```
+$ docker build  -t asreview .
+$ docker run -d -v asreview_simple_volume:/project_folder -p 5000:5000 asreview
+```
+
+Find the app in your browser at `http://localhost:5000`.
+
+If you would like to pick a different port, 8080 for instance, run the following commands instead:
+
+```
+$ docker build  -t asreview . --build-arg PORT=8080
+$ docker run -d -v asreview_simple_volume:/project_folder -p 8080:8080 asreview
+```
+
+After the last command you find the app in your browser at `http://localhost:8080`.
 
 If you are creating a Docker container that runs the app with a config file, do __not forget__ to override the IP-address of the Flask backend. Set the HOST variable to "0.0.0.0" since the default "localhost" can't be reached from outside the container.
 
