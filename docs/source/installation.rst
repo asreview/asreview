@@ -1,16 +1,34 @@
 Installation
 ============
 
-Install ASReview
-----------------
+There are three options for installing ASReview:
 
-ASReview software requires an installation of Python 3.8 or later. Detailed
-step-by-step instructions to install Python (and ASReview) are available for
-`Windows <https://asreview.ai/download>`__ and
-`macOS/Linux <https://asreview.ai/download/>`__ users.
+1. Local
+2. Docker
+3. Server
+
+TABLE WITH OVERVIEW PROs AND CONS
+
+
+Python
+------
+All the ASReview software requires an installation of Python 3.8 or later.
+Step-by-step instructions to install Python (and ASReview) are available for
+`Windows <https://asreview.ai/download>`__ and `macOS/Linux
+<https://asreview.ai/download/>`__ users. 
+
+
+Local Installaton
+-----------------
+
+EXPLAIN BENEFITS OF LOCAL INSTALLATION
+EXPLAIN LOCAL DISADVANTAGE, NAMELY FILES ARE STORED LOCALLY
+
+Install
+~~~~~~~
 
 Install the ASReview software with Pip by running the following command in the
-`CMD.exe` (Windows) or `Terminal` (MacOS/Linux):
+`Command Prompt` (Windows) or `Terminal` (MacOS/Linux):
 
 .. code:: bash
 
@@ -36,8 +54,28 @@ ASReview LAB, see :doc:`start`.
     <https://github.com/ghcr.io/asreview/asreview/issues/738#issuecomment-919685562>`__.
 
 
-Upgrade ASReview
-----------------
+Dependencies
+~~~~~~~~~~~~
+
+Some models require additional dependencies to be installed. Use pip install
+asreview[all] to install all additional dependencies at once or check the
+installation instruction in section Models of the API Reference.
+
+For example, some feature extraction technique requires tensorflow to be installed. Use 
+
+.. code:: bash
+
+    pip install tensorflow 
+
+or install all optional ASReview dependencies with 
+
+.. code:: bash
+
+    pip install asreview[all]
+
+
+Upgrade
+~~~~~~~
 
 Upgrade ASReview software with
 
@@ -47,8 +85,8 @@ Upgrade ASReview software with
 
 
 
-Uninstall ASReview
-------------------
+Uninstall
+~~~~~~~~~
 
 Remove ASReview with
 
@@ -62,21 +100,19 @@ Enter ``y`` to confirm.
 
     Note that your project files will **not** delete with this action. You find them in the `.asreview` folder in your home folder.
 
-Server Installation
--------------------
 
-It is possible to run the ASReview software on a server or custom domain. Use
-the flags `ip` and `port` for configuration. ASReview should only be used in
-closed networks.
+File Location
+~~~~~~~~~~~~~
+
+To obtain the location where the `.asreview` files are stored, use
 
 .. code:: bash
 
-    asreview lab --port 5555 --ip xxx.x.x.xx
+    asreview.asreview_path()
 
-.. warning::
+.. tip::
 
-    Don't use the development server in production. Read the Flask documentation
-    about `deploying a Flask app to production <https://flask.palletsprojects.com/en/1.1.x/tutorial/deploy/>`__.
+    We recommend making regular back-ups of your projects by exporting [ADD LINK] the `.asreview` and saving it on a location which is back-uped
 
 
 Install with Docker
@@ -146,3 +182,21 @@ Modify it as you see fit, and then build and run the image with:
 
     docker build -t asreview/asreview:custom .
     docker run -p 5000:5000 ghcr.io/asreview/asreview:custom lab
+
+
+
+Server Installation
+-------------------
+
+It is possible to run the ASReview software on a server or custom domain. Use
+the flags `ip` and `port` for configuration. ASReview should only be used in
+closed networks.
+
+.. code:: bash
+
+    asreview lab --port 5555 --ip xxx.x.x.xx
+
+.. warning::
+
+    Don't use the development server in production. Read the Flask documentation
+    about `deploying a Flask app to production <https://flask.palletsprojects.com/en/1.1.x/tutorial/deploy/>`__.
