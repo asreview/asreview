@@ -21,27 +21,19 @@ Examples:
 
 ### Back end
 
-Install Python
-
-Install the ASReview package
+Install Python and install ASReview in editable mode
 
 ```
 pip install -e .[dev]
 ```
 
-Start the Python API server with the Flask development environment
+Start the Flask app with
 
 ```
-export FLASK_DEBUG=1
-asreview lab
+flask --app asreview/webapp/start_flask.py run --debug
 ```
 
-For Windows, use
-
-```
-set FLASK_DEBUG=1
-asreview lab
-```
+The app will serve on http://localhost:5000.
 
 #### Formatting and linting
 
@@ -81,25 +73,10 @@ follows:
 
 1. You need to install [Node.js](https://nodejs.org/en) for local development (we use version 20).
 
-2. Before the front end development can be started, the back end has to run as well. Therefore, first, start the Python API server with the Flask development environment: 
+2. Before the front end development can be started, the back end has to run as well. Therefore, first, start the Flask app with
 
 ```
-export FLASK_DEBUG=1
-asreview lab
-```
-
-For Windows, use
-
-```
-set FLASK_DEBUG=1
-asreview lab
-```
-
-Note, when working with PowerShell use
-
-```
-$env:FLASK_DEBUG = "1"
-asreview lab
+flask --app asreview/webapp/start_flask.py run --debug
 ```
 
 **Important**: Ignore `localhost:5000`, because this is not relevant for the
