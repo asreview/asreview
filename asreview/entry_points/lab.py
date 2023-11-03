@@ -42,6 +42,17 @@ def _url(host, port, protocol):
     return f"{protocol}{host}:{port}/"
 
 
+def _deprecated_dev_mode():
+    if os.environ.get("FLASK_DEBUG", "") == "1":
+        print(
+            "\n\n\n!IMPORTANT!\n\n"
+            "asreview lab development mode is deprecated, use:\n"
+            "flask --app asreview/webapp/start_flask.py run --debug"
+            "\n\n\n"
+        )
+        exit(1)
+
+
 def _check_port_in_use(host, port):
     """Check if port is already in use.
 
@@ -90,6 +101,9 @@ class LABEntryPoint(BaseEntryPoint):
     """Entry point to start the ASReview LAB webapp."""
 
     def execute(self, argv):
+        # check deprecated dev mode
+        _deprecated_dev_mode()
+
         parser = _lab_parser()
         mark_deprecated_help_strings(parser)
         args = parser.parse_args(argv)
