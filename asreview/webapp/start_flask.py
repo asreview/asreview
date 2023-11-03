@@ -300,6 +300,7 @@ def create_app(**kwargs):
 
     if not app.config["ALLOWED_ORIGINS"] and os.environ.get("FLASK_DEBUG", "") == "1":
         app.config["ALLOWED_ORIGINS"] = [f"http://{app.config['HOST']}:3000"]
+    print(app.config["ALLOWED_ORIGINS"])
 
     # set env (test / development / production) according to
     # Flask 2.2 specs (ENV is deprecated)
