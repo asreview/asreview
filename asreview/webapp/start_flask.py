@@ -38,7 +38,6 @@ from asreview.webapp.api import team
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
-
 # set logging level
 if (
     os.environ.get("FLASK_DEBUG", "") == "1"

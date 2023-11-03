@@ -20,14 +20,14 @@ from threading import Timer
 
 from gevent.pywsgi import WSGIServer
 
+from asreview._deprecated import DeprecateAction
+from asreview._deprecated import mark_deprecated_help_strings
+from asreview.entry_points.base import BaseEntryPoint
 from asreview.project import ASReviewProject
 from asreview.project import get_project_path
 from asreview.project import get_projects
-from asreview.entry_points.base import BaseEntryPoint
 from asreview.webapp.run_model import main as main_run_model
 from asreview.webapp.start_flask import create_app
-from asreview._deprecated import DeprecateAction
-from asreview._deprecated import mark_deprecated_help_strings
 
 # Host name
 HOST_NAME = os.getenv("ASREVIEW_HOST")
