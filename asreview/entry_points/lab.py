@@ -108,16 +108,14 @@ class LABEntryPoint(BaseEntryPoint):
         mark_deprecated_help_strings(parser)
         args = parser.parse_args(argv)
 
-        app = create_app(env = "production", config_file=args.flask_configfile)
+        app = create_app(
+            env = "production",
+            config_file=args.flask_configfile,
+            secret_key=args.secret_key,
+            salt = args.salt,
+            enable_authentication = args.enable_authentication,
+        )
         app.config["PROPAGATE_EXCEPTIONS"] = False
-
-        # ssl certificate, key and protocol
-        ssl_context = None
-        if args.certfile and args.keyfile:
-            protocol = "https://"
-            ssl_context = (args.certfile, args.keyfile)
-        else:
-            protocol = "http://"
 
         # clean all projects
         # TODO@{Casper}: this needs a little bit
@@ -153,12 +151,13 @@ class LABEntryPoint(BaseEntryPoint):
                 )
             print(f"Port {old_port} is in use.\n* Trying to start at {port}")
 
-        _open_browser(args.host, port, protocol, args.no_browser)
+        protocol = "https://" if args.certfile and args.keyfile else "http://"
+        ssl_args = {}
+        if args.keyfile and args.certfile:
+            ssl_args = {"keyfile": args.keyfile, "certfile":args.certfile}
 
-        ssl_args = (
-            {"keyfile": args.keyfile, "certfile": args.certfile} if ssl_context else {}
-        )
         server = WSGIServer((args.host, port), app, **ssl_args)
+        _open_browser(args.host, port, protocol, args.no_browser)
 
         try:
             server.serve_forever()

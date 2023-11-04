@@ -38,18 +38,9 @@ from asreview.webapp.api import team
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
-# set logging level
-if (
-    os.environ.get("FLASK_DEBUG", "") == "1"
-    or os.environ.get("DEBUG", "") == "1"
-    or os.environ.get("FLASK_ENV", "") == "development"
-):
-    logging.basicConfig(level=logging.DEBUG)
-else:
-    logging.basicConfig(level=logging.INFO)
 
-
-def create_app(env = "development", config_file=None, **kwargs):
+def create_app(env = "development", config_file=None, secret_key=None, salt=None,
+               enable_authentication=False):
 
     app = Flask(
         __name__,
@@ -57,6 +48,14 @@ def create_app(env = "development", config_file=None, **kwargs):
         static_folder="build/static",
         template_folder="build",
     )
+
+    # if app.debug:
+    app.config["ALLOWED_ORIGINS"] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+
+    app.config["SECRET_KEY"] = secret_key
+    app.config["SALT"] = salt
+    app.config["ENABLE_AUTHENTICATION"] = enable_authentication
+
     app.config.from_prefixed_env()
 
     if (config_file_path := config_file or app.config.get("CONFIGFILE", "")):
@@ -64,18 +63,7 @@ def create_app(env = "development", config_file=None, **kwargs):
             Path(config_file_path).absolute(), load=tomllib.load, text=False
         )
 
-    # If the frontend runs on a different port, or even on a different
-    # URL, then allowed-origins must be set to avoid CORS issues. You can
-    # set the allowed-origins in the config file. In the previous lines
-    # the config file has been read.
-    # If the allowed-origins are not set by now, they are set to
-    # False, which will bypass setting any CORS parameters!
-    if not app.config.get("ALLOWED_ORIGINS", False):
-        app.config["ALLOWED_ORIGINS"] = False
-
-    if not app.config["ALLOWED_ORIGINS"] and app.debug:
-        app.config["ALLOWED_ORIGINS"] = [
-            "http://localhost:3000", "http://127.0.0.1:3000"]
+    print(app.config)
 
     # config JSON Web Tokens
     login_manager = LoginManager(app)
@@ -83,9 +71,7 @@ def create_app(env = "development", config_file=None, **kwargs):
     login_manager.session_protection = "strong"
 
     if not app.config.get("AUTHENTICATION_ENABLED", False):
-        app.config["SECRET_KEY"] = ""
 
-        # This is necessary to pass the test_webapp.py tests
         @login_manager.user_loader
         def load_user(user_id):
             return False
@@ -142,12 +128,8 @@ def create_app(env = "development", config_file=None, **kwargs):
     except OSError:
         pass
 
-    # We only need CORS if they are necessary: when the frontend is
-    # running on a different port, or even url, we need to set the
-    # allowed origins to avoid CORS problems. The allowed-origins
-    # can be set in the config file.
-    if app.config.get("ALLOWED_ORIGINS", False):
-        CORS(app, origins=app.config.get("ALLOWED_ORIGINS"), supports_credentials=True)
+    if origins := app.config.get("ALLOWED_ORIGINS", False):
+        CORS(app, origins=origins, supports_credentials=True)
 
     with app.app_context():
         app.register_blueprint(projects.bp)
@@ -186,16 +168,17 @@ def create_app(env = "development", config_file=None, **kwargs):
     @app.route("/boot", methods=["GET"])
     def api_boot():
         """Get the boot info."""
-        if app.config.get("DEBUG", None) is True:
-            status = "development"
-        else:
-            status = "asreview"
 
-        # the big one
+        # DO we need this???
+        # if app.config.get("DEBUG", None) is True:
+        #     status = "development"
+        # else:
+        #     status = "asreview"
+
         authenticated = app.config.get("AUTHENTICATION_ENABLED", False)
 
         response = {
-            "status": status,
+            # "status": status,
             "authentication": authenticated,
             "version": asreview_version,
         }
@@ -208,26 +191,18 @@ def create_app(env = "development", config_file=None, **kwargs):
                     "KEY", False
                 )
 
-            # check if users can create accounts
             response["allow_account_creation"] = app.config.get(
                 "ALLOW_ACCOUNT_CREATION", False
             )
-
             response["allow_teams"] = app.config.get("ALLOW_TEAMS", False)
-
-            # check if we are doing email verification
             response["email_verification"] = bool(
                 app.config.get("EMAIL_VERIFICATION", False)
             )
-
-            # check if there is an email server setup (forgot password)
             response["email_config"] = bool(app.config.get("EMAIL_CONFIG", False))
 
             # if oauth config is provided
             if isinstance(app.config.get("OAUTH", False), OAuthHandler):
-                params = app.config.get("OAUTH").front_end_params()
-                # and there something in it, just to be sure
-                if params:
+                if params := app.config.get("OAUTH").front_end_params():
                     response["oauth"] = params
 
         return jsonify(response)
