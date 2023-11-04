@@ -26,8 +26,8 @@ from asreview.entry_points.base import BaseEntryPoint
 from asreview.project import ASReviewProject
 from asreview.project import get_project_path
 from asreview.project import get_projects
-from asreview.webapp.run_model import main as main_run_model
 from asreview.webapp.app import create_app
+from asreview.webapp.run_model import main as main_run_model
 
 # Host name
 HOST_NAME = os.getenv("ASREVIEW_HOST")

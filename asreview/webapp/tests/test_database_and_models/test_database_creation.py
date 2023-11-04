@@ -9,20 +9,20 @@ from asreview.utils import asreview_path
 
 
 def get_db_path():
-    return Path(asreview_path() / "asreview.test.sqlite")
+    return asreview_path() / "asreview.test.sqlite"
 
 
 # checks if asreview path does not contain a database if app
 # is unauthenticated
 def test_database_is_not_created_if_unauth_app(unauth_app):
-    assert Path(asreview_path()).exists()
+    assert asreview_path().exists()
     assert get_db_path().exists() is False
 
 
 # checks is asreview path contains database if app is
 # authenticated
 def test_database_exists_after_starting_auth_app(auth_app):
-    assert Path(asreview_path()).exists()
+    assert asreview_path().exists()
     assert get_db_path().exists()
 
 
