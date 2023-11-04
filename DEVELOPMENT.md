@@ -58,8 +58,7 @@ local config file. Start the application again (If Flask app it still running, t
 
 ```sh
 cd asreview/webapp
-export FLASK_CONFIGFILE=my_config.toml
-flask run --debug
+FLASK_CONFIGFILE=my_config.toml flask run --debug
 ```
 
 The server will read the file and start the authenticated version.
@@ -236,7 +235,6 @@ one could use the User model that can be found in `/asreview/webapp/authenticati
 
 To configure the authentication in more detail we need to create a TOML file that contains all authentication parameters. The parameters in that TOML file will override parameters that were passed in the CLI. Here's an example:
 ```toml
-DEBUG = true
 AUTHENTICATION_ENABLED = true
 SECRET_KEY = "<secret key>"
 SECURITY_PASSWORD_SALT = "<salt>"

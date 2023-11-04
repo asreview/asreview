@@ -1,4 +1,3 @@
-DEBUG = true
 AUTHENTICATION_ENABLED = true
 SECRET_KEY = "<secret key>"
 SECURITY_PASSWORD_SALT = "<salt>"
