@@ -39,15 +39,21 @@ from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
 
-def create_app(env = "development", config_file=None, secret_key=None, salt=None,
-               enable_authentication=False):
-
+def create_app(
+    env="development",
+    config_file=None,
+    secret_key=None,
+    salt=None,
+    enable_authentication=False,
+):
     app = Flask(
         __name__,
         instance_relative_config=True,
         static_folder="build/static",
         template_folder="build",
     )
+
+    print(app.config)
 
     # if app.debug:
     app.config["ALLOWED_ORIGINS"] = ["http://localhost:3000", "http://127.0.0.1:3000"]
@@ -58,7 +64,7 @@ def create_app(env = "development", config_file=None, secret_key=None, salt=None
 
     app.config.from_prefixed_env()
 
-    if (config_file_path := config_file or app.config.get("CONFIGFILE", "")):
+    if config_file_path := config_file or app.config.get("CONFIGFILE", ""):
         app.config.from_file(
             Path(config_file_path).absolute(), load=tomllib.load, text=False
         )

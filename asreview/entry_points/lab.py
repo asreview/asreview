@@ -109,11 +109,11 @@ class LABEntryPoint(BaseEntryPoint):
         args = parser.parse_args(argv)
 
         app = create_app(
-            env = "production",
+            env="production",
             config_file=args.flask_config_file,
             secret_key=args.secret_key,
-            salt = args.salt,
-            enable_authentication = args.enable_authentication,
+            salt=args.salt,
+            enable_authentication=args.enable_authentication,
         )
         app.config["PROPAGATE_EXCEPTIONS"] = False
 
@@ -154,7 +154,7 @@ class LABEntryPoint(BaseEntryPoint):
         protocol = "https://" if args.certfile and args.keyfile else "http://"
         ssl_args = {}
         if args.keyfile and args.certfile:
-            ssl_args = {"keyfile": args.keyfile, "certfile":args.certfile}
+            ssl_args = {"keyfile": args.keyfile, "certfile": args.certfile}
 
         server = WSGIServer((args.host, port), app, **ssl_args)
         _open_browser(args.host, port, protocol, args.no_browser)

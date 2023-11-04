@@ -1,0 +1,42 @@
+DEBUG = true
+AUTHENTICATION_ENABLED = true
+SECRET_KEY = "<secret key>"
+SECURITY_PASSWORD_SALT = "<salt>"
+SESSION_COOKIE_SECURE = true
+REMEMBER_COOKIE_SECURE = true
+SESSION_COOKIE_SAMESITE = "Lax"
+SQLALCHEMY_TRACK_MODIFICATIONS = true
+ALLOW_ACCOUNT_CREATION = true
+ALLOW_TEAMS = false
+EMAIL_VERIFICATION = false
+
+[EMAIL_CONFIG]
+SERVER = "<smtp-server>"
+PORT = 465
+USERNAME = "<smtp-server-username>"
+PASSWORD = "<smtp-server-password>"
+USE_TLS = false
+USE_SSL = true
+REPLY_ADDRESS = "<preferred reply email address>"
+
+[OAUTH]
+        [OAUTH.GitHub]
+        AUTHORIZATION_URL = "https://github.com/login/oauth/authorize"
+        TOKEN_URL = "https://github.com/login/oauth/access_token"
+        CLIENT_ID = "<GitHub client ID>"
+        CLIENT_SECRET = "<GitHub client secret>"
+        SCOPE = ""
+
+        [OAUTH.Orcid]
+        AUTHORIZATION_URL = "https://sandbox.orcid.org/oauth/authorize"
+        TOKEN_URL = "https://sandbox.orcid.org/oauth/token"
+        CLIENT_ID = "<Orcid client ID>"
+        CLIENT_SECRET = "<Orcid client secret>"
+        SCOPE = "/authenticate"
+
+        [OAUTH.Google]
+        AUTHORIZATION_URL = "https://accounts.google.com/o/oauth2/auth"
+        TOKEN_URL = "https://oauth2.googleapis.com/token"
+        CLIENT_ID = "<Google client ID>"
+        CLIENT_SECRET = "<Google client secret>"
+        SCOPE = "profile email"
