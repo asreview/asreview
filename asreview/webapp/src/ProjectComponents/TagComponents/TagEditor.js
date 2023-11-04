@@ -243,6 +243,7 @@ const TagEditor = (props) => {
         >
           Tags
         </Typography>
+        <Typography variant="body2" sx={{ color: "text.secondary" }}>Tags provide additional context for your review. They are not used by the machine learning algorithms.</Typography>
       </AccordionSummary>
       <AccordionDetails>
         <TypographySubtitle1Medium>Categories</TypographySubtitle1Medium>
