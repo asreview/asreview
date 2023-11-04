@@ -55,7 +55,7 @@ def _get_app(app_type="auth-basic", path=None):
     else:
         raise ValueError(f"Unknown config {app_type}")
     # create app
-    app = create_app(flask_configfile=config_path)
+    app = create_app(config_file=config_path)
     # and return it
     return app
 

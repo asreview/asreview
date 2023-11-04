@@ -110,7 +110,7 @@ class LABEntryPoint(BaseEntryPoint):
 
         app = create_app(
             env = "production",
-            config_file=args.flask_configfile,
+            config_file=args.flask_config_file,
             secret_key=args.secret_key,
             salt = args.salt,
             enable_authentication = args.enable_authentication,
@@ -241,7 +241,7 @@ def _lab_parser():
 
     parser.add_argument(
         "--flask-configfile",
-        default="",
+        dest="flask_config_file",
         type=str,
         help="Full path to a TOML file containing Flask parameters"
         "for authentication.",

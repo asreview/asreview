@@ -99,17 +99,9 @@ def create_app(env = "development", config_file=None, secret_key=None, salt=None
         app.config["MAIL_USE_SSL"] = conf.get("USE_SSL", False)
         app.config["MAIL_REPLY_ADDRESS"] = conf.get("REPLY_ADDRESS")
 
-        if not app.config.get("SQLALCHEMY_DATABASE_URI", False):
-            # there is no configuration, check CLI parameters
-            cli_database_uri = (kwargs.get("auth_database_uri") or "").strip()
-
-            # if we still haven't found a database URI, create a sqlite3 database
-            if cli_database_uri != "":
-                app.config["SQLALCHEMY_DATABASE_URI"] = cli_database_uri
-            else:
-                # create default path
-                uri = os.path.join(asreview_path(), f"asreview.{env}.sqlite")
-                app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{uri}"
+        if not app.config.get("SQLALCHEMY_DATABASE_URI", None):
+            uri = os.path.join(asreview_path(), f"asreview.{env}.sqlite")
+            app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{uri}"
 
         # initialize app for SQLAlchemy
         DB.init_app(app)
