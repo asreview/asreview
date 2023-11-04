@@ -33,13 +33,8 @@ from asreview.webapp.run_model import main as main_run_model
 HOST_NAME = os.getenv("ASREVIEW_HOST")
 if HOST_NAME is None:
     HOST_NAME = "localhost"
-# Default Port number
+
 PORT_NUMBER = 5000
-
-
-def _url(host, port, protocol):
-    """Create url from host and port."""
-    return f"{protocol}{host}:{port}/"
 
 
 def _deprecated_dev_mode():
@@ -54,46 +49,20 @@ def _deprecated_dev_mode():
 
 
 def _check_port_in_use(host, port):
-    """Check if port is already in use.
 
-    Arguments
-    ---------
-    host: str
-        The current host.
-    port: int
-        The host port to be checked.
-
-    Returns
-    -------
-    bool:
-        True if port is in use, false otherwise.
-    """
     logging.info(f"Checking if host and port are available :: {host}:{port}")
     host = host.replace("https://", "").replace("http://", "")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         return s.connect_ex((host, port)) == 0
 
 
-def _open_browser(host, port, protocol, no_browser):
-    """Open ASReview in browser if flag is set.
+def _open_browser(start_url):
 
-    Otherwise, it displays an alert to copy and paste the url
-    at which ASReview is currently served.
-    """
-    if no_browser:
-        print(
-            "\nTo access ASReview LAB, copy and paste "
-            "this url in a browser "
-            f"{_url(host, port, protocol)}\n"
-        )
-        return
-
-    start_url = _url(host, port, protocol)
     Timer(1, lambda: webbrowser.open_new(start_url)).start()
+
     print(
-        f"Start browser at {start_url}"
         "\n\n\n\nIf your browser doesn't open. "
-        f"Please navigate to '{start_url}'\n\n\n\n"
+        f"Navigate to {start_url}\n\n\n\n"
     )
 
 
@@ -152,12 +121,17 @@ class LABEntryPoint(BaseEntryPoint):
             print(f"Port {old_port} is in use.\n* Trying to start at {port}")
 
         protocol = "https://" if args.certfile and args.keyfile else "http://"
+        start_url = f"{protocol}{args.host}:{port}/"
+
         ssl_args = {}
         if args.keyfile and args.certfile:
             ssl_args = {"keyfile": args.keyfile, "certfile": args.certfile}
 
         server = WSGIServer((args.host, port), app, **ssl_args)
-        _open_browser(args.host, port, protocol, args.no_browser)
+        print(f"Serving ASReview LAB at {start_url}")
+
+        if not args.no_browser:
+            _open_browser(start_url)
 
         try:
             server.serve_forever()
