@@ -27,7 +27,8 @@ The best development workflow for the ASReview frontend and backend makes use
 of 2 simultanously running servers. One serves the Python server with the
 Flask app and the other the Node server with the frontend.
 
-Open a command line interface (e.g. Terminal or CMD.exe) and start the Flask app with
+Open a command line interface (e.g. Terminal or CMD.exe) and start the Flask
+app with
 
 ```sh
 flask --app asreview/webapp/start_flask.py run --debug
@@ -46,11 +47,14 @@ refresh in the browser.
 
 ### Authentication
 
-When using or developing the authenticated version of ASReview, extra steps are needed to configure the application.
+When using or developing the authenticated version of ASReview, extra steps
+are needed to configure the application.
 
 If Flask app it still running, terminate first.
 
-Create an authentication config file as instructed in [Authentication](#Authentication). Set the environment variable `FLASK_CONFIGFILE` to the local config file. Start the application again
+Create an authentication config file as instructed in [Authentication]
+(#Authentication). Set the environment variable `FLASK_CONFIGFILE` to the
+local config file. Start the application again
 
 ```sh
 export FLASK_CONFIGFILE=my_config.toml
@@ -63,24 +67,42 @@ The server will read the file and start the authenticated version.
 
 #### Port and CORS configuration
 
-In development, when working on the front end, the front- and backend are strictly separated. It is assumed the Flask app runs on port 5000 and the React front end on port 3000. Deviating from these ports will lead to connection or CORS (Cross-Origin Resource Sharing) issues.
+In development, when working on the front end, the front- and backend are
+strictly separated. It is assumed the Flask app runs on port 5000 and the
+React front end on port 3000. Deviating from these ports will lead to
+connection or CORS (Cross-Origin Resource Sharing) issues.
 
-As for CORS issues: it is necessary to precisely define the "allowed origins" in the backend. These origins must reflect the URL(s) used by the front end to call the backend. If correctly configured, they are added to the headers of the backend response, so they can be verified by your browser. If the list with origin-URLs doesn't provide a URL that corresponds with the URL used in the original request of the front end, your request is going to fail.
+As for CORS issues: it is necessary to precisely define the "allowed origins"
+in the backend. These origins must reflect the URL(s) used by the front end
+to call the backend. If correctly configured, they are added to the headers
+of the backend response, so they can be verified by your browser. If the list
+with origin-URLs doesn't provide a URL that corresponds with the URL used in
+the original request of the front end, your request is going to fail.
 
-You can solve connection/CORS issues by doing the following:
-1. Start the backend and verify what port number it's running on (read the first lines of the output once you've started the backend in the terminal).
-2. Make sure the front end knows where it can find the backend. React reads a configuration `.env` file in the `/asreview/webapp` folder which tells it to use `http://localhost:5000/`. Override this config file by either adding a local version (e.g. `/asreview/webapp/.env.local`) in which you put the correct backend URL (do not forget the `REACT_APP_API_URL` variable, see the `.env` file) or change the URL in the `.env` file itself.
-3. If you are running the front end separate from the backend you need to adjust the CORS's 'allowed origins' parameter in the backend to avoid problems. You can do this by setting the front end URL(s) in the [optional parameters of the config file](#optional-config-parameters) under the "ALLOWED_ORIGINS" key.
+**Node server running on port other than 3000**
 
-Be precise when it comes to URLs/port numbers! In the context of CORS `localhost` is different from `127.0.0.1`, although they are normally referring to the same host.
+Set `ALLOWED_ORIGINS` to the url and port of the Node server. E.g., the server
+runs on http://localhost:3010:
 
-❗Mac users beware: depending on your version of macOS you may experience troubles with `localhost:5000`. Port 5000 may be in use by "Airplay Receiver" which may (!) cause nondeterministic behavior. If you experience similar issues [switch to a different port](#optional-config-parameters).
+```sh
+FLASK_ALLOWED_ORIGINS=http://localhost:3010 flask --app asreview/webapp/start_flask.py run --debug
+```
 
+You can also add `ALLOWED_ORIGINS` to your config file or set the environment
+variable `FLASK_ALLOWED_ORIGINS`.
 
+**Flask app running on port other than 5000**
 
+Set `REACT_APP_API_URL` to the url and port of the Flask API server. E.g., the
+server runs on http://localhost:5010:
 
+```sh
+REACT_APP_API_URL=http://localhost:5010 npm start
+```
 
-
+Alternative is to add this `REACT_APP_API_URL` to the `.env` file in the
+`/asreview/webapp` folder. Override this config file with a local version
+(e.g. `/asreview/webapp/.env.local`). More information https://create-react-app.dev/docs/adding-custom-environment-variables/#adding-development-environment-variables-in-env.
 
 ## Testing
 
