@@ -53,8 +53,6 @@ def create_app(
         template_folder="build",
     )
 
-    print(app.config)
-
     # if app.debug:
     app.config["ALLOWED_ORIGINS"] = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
@@ -68,8 +66,6 @@ def create_app(
         app.config.from_file(
             Path(config_file_path).absolute(), load=tomllib.load, text=False
         )
-
-    print(app.config)
 
     # config JSON Web Tokens
     login_manager = LoginManager(app)

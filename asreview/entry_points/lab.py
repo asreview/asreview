@@ -27,7 +27,7 @@ from asreview.project import ASReviewProject
 from asreview.project import get_project_path
 from asreview.project import get_projects
 from asreview.webapp.run_model import main as main_run_model
-from asreview.webapp.start_flask import create_app
+from asreview.webapp.app import create_app
 
 # Host name
 HOST_NAME = os.getenv("ASREVIEW_HOST")
@@ -46,8 +46,8 @@ def _deprecated_dev_mode():
     if os.environ.get("FLASK_DEBUG", "") == "1":
         print(
             "\n\n\n!IMPORTANT!\n\n"
-            "asreview lab development mode is deprecated, use:\n"
-            "flask --app asreview/webapp/start_flask.py run --debug"
+            "asreview lab development mode is deprecated, see:\n"
+            "https://github.com/J535D165/asreview/blob/master/DEVELOPMENT.md"
             "\n\n\n"
         )
         exit(1)

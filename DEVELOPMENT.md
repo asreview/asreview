@@ -27,17 +27,19 @@ The best development workflow for the ASReview frontend and backend makes use
 of 2 simultanously running servers. One serves the Python server with the
 Flask app and the other the Node server with the frontend.
 
-Open a command line interface (e.g. Terminal or CMD.exe) and start the Flask
-app with
+Open a command line interface (e.g. Terminal or CMD.exe) and navigate to
+`asreview/webapp`. Start the Flask app with
 
 ```sh
-flask --app asreview/webapp/start_flask.py run --debug
+cd asreview/webapp
+flask run --debug
 ```
 
 Next, open a new command line interface and navigate to `asreview/webapp`.
 Start the local front end application running on a Node server.
 
 ```sh
+cd asreview/webapp
 npm start
 ```
 
@@ -50,15 +52,14 @@ refresh in the browser.
 When using or developing the authenticated version of ASReview, extra steps
 are needed to configure the application.
 
-If Flask app it still running, terminate first.
-
 Create an authentication config file as instructed in [Authentication]
 (#Authentication). Set the environment variable `FLASK_CONFIGFILE` to the
-local config file. Start the application again
+local config file. Start the application again (If Flask app it still running, terminate first)
 
 ```sh
+cd asreview/webapp
 export FLASK_CONFIGFILE=my_config.toml
-flask --app asreview/webapp/start_flask.py run --debug
+flask run --debug
 ```
 
 The server will read the file and start the authenticated version.
@@ -85,7 +86,7 @@ Set `ALLOWED_ORIGINS` to the url and port of the Node server. E.g., the server
 runs on http://localhost:3010:
 
 ```sh
-FLASK_ALLOWED_ORIGINS=http://localhost:3010 flask --app asreview/webapp/start_flask.py run --debug
+FLASK_ALLOWED_ORIGINS=http://localhost:3010 flask run --debug
 ```
 
 You can also add `ALLOWED_ORIGINS` to your config file or set the environment

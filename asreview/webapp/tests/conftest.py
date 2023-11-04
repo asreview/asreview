@@ -19,7 +19,7 @@ import pytest
 from sqlalchemy.orm import close_all_sessions
 
 from asreview.webapp import DB
-from asreview.webapp.start_flask import create_app
+from asreview.webapp.app import create_app
 from asreview.webapp.tests.utils import crud
 
 PROJECTS = [
