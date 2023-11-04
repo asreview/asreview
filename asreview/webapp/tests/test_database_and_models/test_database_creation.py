@@ -1,6 +1,3 @@
-# GOAL: test database creation if app is started with authentication
-from pathlib import Path
-
 import pytest
 import sqlalchemy
 from sqlalchemy import create_engine
@@ -31,6 +28,6 @@ def test_database_exists_after_starting_auth_app(auth_app):
     "table", ["collaboration_invitations", "collaborations", "projects", "users"]
 )
 def test_if_db_table_exists(auth_app, table):
-    engine = create_engine(f"sqlite:///{str(get_db_path())}")
+    engine = create_engine(f"sqlite:///{get_db_path()}")
     table_names = sqlalchemy.inspect(engine).get_table_names()
     assert table in table_names
