@@ -108,7 +108,7 @@ class LABEntryPoint(BaseEntryPoint):
         mark_deprecated_help_strings(parser)
         args = parser.parse_args(argv)
 
-        app = create_app(**vars(args))
+        app = create_app(env = "production", config_file=args.flask_configfile)
         app.config["PROPAGATE_EXCEPTIONS"] = False
 
         # ssl certificate, key and protocol
@@ -139,12 +139,10 @@ class LABEntryPoint(BaseEntryPoint):
             print("Done")
             return
 
-        host = app.config.get("HOST")
-        port = app.config.get("PORT")
-
         # if port is already taken find another one
+        port = args.port
         original_port = port
-        while _check_port_in_use(host, port) is True:
+        while _check_port_in_use(args.host, port) is True:
             old_port = port
             port = int(port) + 1
             if port - original_port >= args.port_retries:
@@ -155,12 +153,12 @@ class LABEntryPoint(BaseEntryPoint):
                 )
             print(f"Port {old_port} is in use.\n* Trying to start at {port}")
 
-        _open_browser(host, port, protocol, args.no_browser)
+        _open_browser(args.host, port, protocol, args.no_browser)
 
         ssl_args = (
             {"keyfile": args.keyfile, "certfile": args.certfile} if ssl_context else {}
         )
-        server = WSGIServer((host, port), app, **ssl_args)
+        server = WSGIServer((args.host, port), app, **ssl_args)
 
         try:
             server.serve_forever()
@@ -229,13 +227,6 @@ def _lab_parser():
     )
 
     parser.add_argument(
-        "--auth-database-uri",
-        default=None,
-        type=str,
-        help="URI of authentication database.",
-    )
-
-    parser.add_argument(
         "--secret-key",
         default=None,
         type=str,
@@ -246,7 +237,7 @@ def _lab_parser():
         "--salt",
         default=None,
         type=str,
-        help="When using authentication, a salt code is needed" "for hasing passwords.",
+        help="When using authentication, a salt code is needed for hasing passwords.",
     )
 
     parser.add_argument(

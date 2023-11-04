@@ -49,39 +49,20 @@ else:
     logging.basicConfig(level=logging.INFO)
 
 
-def create_app(**kwargs):
+def create_app(env = "development", config_file=None, **kwargs):
+
     app = Flask(
         __name__,
         instance_relative_config=True,
         static_folder="build/static",
         template_folder="build",
     )
+    app.config.from_prefixed_env()
 
-    # Get the ASReview arguments.
-    app.config["asr_kwargs"] = kwargs
-    app.config["AUTHENTICATION_ENABLED"] = kwargs.get("enable_authentication", False)
-    app.config["SECRET_KEY"] = kwargs.get("secret_key", False)
-    app.config["SECURITY_PASSWORD_SALT"] = kwargs.get("salt", False)
-    app.config["PORT"] = kwargs.get("port")
-    app.config["HOST"] = kwargs.get("host")
-
-    # Read config parameters if possible, this overrides
-    # the previous assignments. Flask config parameters may come
-    # as an environment var or from an argument. Argument
-    # takes precedence.
-    config_from_env = os.environ.get("FLASK_CONFIGFILE", "").strip()
-    config_from_arg = kwargs.get("flask_configfile", "").strip()
-    config_file_path = config_from_arg or config_from_env
-
-    # Use absolute path, because otherwise it is relative to the config root.
-    if config_file_path != "":
-        config_file_path = Path(config_file_path)
-        if config_file_path.suffix == ".toml":
-            app.config.from_file(
-                config_file_path.absolute(), load=tomllib.load, text=False
-            )
-        else:
-            raise ValueError("'flask_configfile' should have a .toml extension")
+    if (config_file_path := config_file or app.config.get("CONFIGFILE", "")):
+        app.config.from_file(
+            Path(config_file_path).absolute(), load=tomllib.load, text=False
+        )
 
     # If the frontend runs on a different port, or even on a different
     # URL, then allowed-origins must be set to avoid CORS issues. You can
@@ -92,27 +73,16 @@ def create_app(**kwargs):
     if not app.config.get("ALLOWED_ORIGINS", False):
         app.config["ALLOWED_ORIGINS"] = False
 
-    if not app.config["ALLOWED_ORIGINS"] and os.environ.get("FLASK_DEBUG", "") == "1":
-        app.config["ALLOWED_ORIGINS"] = [f"http://{app.config['HOST']}:3000"]
-
-    # set env (test / development / production) according to
-    # Flask 2.2 specs (ENV is deprecated)
-    if app.config.get("TESTING", None) is True:
-        env = "test"
-    elif app.config.get("DEBUG", None) is True:
-        env = "development"
-    else:
-        env = "production"
+    if not app.config["ALLOWED_ORIGINS"] and app.debug:
+        app.config["ALLOWED_ORIGINS"] = [
+            "http://localhost:3000", "http://127.0.0.1:3000"]
 
     # config JSON Web Tokens
     login_manager = LoginManager(app)
     login_manager.init_app(app)
     login_manager.session_protection = "strong"
 
-    if app.config["AUTHENTICATION_ENABLED"] is False:
-        # This ensures the app handles the anonymous user
-        # when authentication is disabled and there is no
-        # configuration file
+    if not app.config.get("AUTHENTICATION_ENABLED", False):
         app.config["SECRET_KEY"] = ""
 
         # This is necessary to pass the test_webapp.py tests
@@ -120,28 +90,11 @@ def create_app(**kwargs):
         def load_user(user_id):
             return False
 
-    # setup all database/authentication related resources,
-    # only do this when AUTHENTICATION_ENABLED is explicitly True
-    elif app.config["AUTHENTICATION_ENABLED"] is True:
+    elif app.config.get("AUTHENTICATION_ENABLED", False):
         # Register a callback function for current_user.
         @login_manager.user_loader
         def load_user(user_id):
             return User.query.get(int(user_id))
-
-        # In this code-block we make sure certain authentication-related
-        # config parameters are set.
-        # TODO: should I raise a custom Exception, like MissingParameterError?
-        if not app.config.get("SECRET_KEY", False):
-            raise ValueError(
-                "Please start an authenticated app with a "
-                + "secret key parameter (SECRET_KEY)"
-            )
-
-        if not app.config.get("SECURITY_PASSWORD_SALT", False):
-            raise ValueError(
-                "Please start an authenticated app with a "
-                + "security password salt (SECURITY_PASSWORD_SALT)"
-            )
 
         if app.config.get("EMAIL_VERIFICATION", False) and not app.config.get(
             "EMAIL_CONFIG", False
@@ -160,9 +113,6 @@ def create_app(**kwargs):
         app.config["MAIL_USE_SSL"] = conf.get("USE_SSL", False)
         app.config["MAIL_REPLY_ADDRESS"] = conf.get("REPLY_ADDRESS")
 
-        # We must be sure we have a SQLAlchemy database URI. At this
-        # stage the TOML file has been read. See if we haven't found
-        # such a URI.
         if not app.config.get("SQLALCHEMY_DATABASE_URI", False):
             # there is no configuration, check CLI parameters
             cli_database_uri = (kwargs.get("auth_database_uri") or "").strip()
@@ -224,7 +174,7 @@ def create_app(**kwargs):
     @app.route("/projects/<project_id>/", methods=["GET"])
     @app.route("/projects/<project_id>/<tab>/", methods=["GET"])
     @app.route("/reset_password", methods=["GET"])
-    def index(**kwargs):
+    def index():
         return render_template("index.html")
 
     @app.route("/favicon.ico")
