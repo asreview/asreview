@@ -204,18 +204,19 @@ execute the following command:
 Install with Docker
 -------------------
 
-ASReview is also available as a Docker container. Make sure you have
-Docker installed on your machine.
+For a containerized version of ASReview, ensure that Docker is installed on
+your system.
 
-To install and start ASReview LAB at http://localhost:5000, run the following:
+Run the following command to install and start ASReview LAB, accessible at
+http://localhost:5000:
 
 .. code:: bash
 
    docker run -p 5000:5000 ghcr.io/asreview/asreview:latest lab
 
 
-More advanced command line options can be given
-afterward, like this:
+To specify advanced options, such as changing the port, append command-line
+arguments like so:
 
 .. code:: bash
 
@@ -230,44 +231,47 @@ afterward, like this:
 Mount local volume
 ~~~~~~~~~~~~~~~~~~
 
-To mount the container to your local project folder (or any other local
-folder), the `-v` flag can be used. To do so, adjust path-to-your-folder to
-your local folder. When a project folder is specified, ASReview LAB will store
-and load all its projects from this folder. Note that multiple containers can
-access the same folder.
+To persist data and facilitate easy access to project files, mount a local
+directory to the container using the `-v` flag. Replace path-to-your-folder
+with the desired local path. This allows ASReview LAB to store and retrieve
+projects from the specified directory. It is also possible for multiple
+containers to share access to this directory.
 
 .. code:: bash
 
-    docker run -p 5000:5000 -v path-to-your-folder:/project_folder ghcr.io/asreview/asreview lab
+    docker run -p 5000:5000 -v path-to-your-folder:/project ghcr.io/asreview/asreview:latest lab
 
 Named container
 ~~~~~~~~~~~~~~~
 
-To make the usage easier, you can create a named container like the following:
+Creating a named container simplifies the management of your Docker workflow.
+Set up a named container using the docker create command:
 
 .. code:: bash
 
     docker create --name asreview-lab -p 5000:5000 -v path-to-your-folder:/project_folder ghcr.io/asreview/asreview lab
 
-To start asreview, enter:
+To start the ASReview LAB container, execute:
 
 .. code:: bash
 
     docker start asreview
 
-To stop it, just use `stop` instead of `start`.
-You can also check which images are running with `docker ps`.
+To stop it, replace `start` with `stop`. Monitor running containers with
+`docker ps`.
 
 Customize the image
 ~~~~~~~~~~~~~~~~~~~
 
-If you want to add more extensions, or build the Docker image yourself, check the file `Dockerfile <https://github.com/ghcr.io/asreview/asreview/tree/master/Dockerfiles>`.
-Modify it as you see fit, and then build and run the image with:
+
+For additional features or personal customization, modify the `Dockerfile` from the ASReview repository. After making changes, build your custom image and run it:
 
 .. code:: bash
 
     docker build -t asreview/asreview:custom .
-    docker run -p 5000:5000 ghcr.io/asreview/asreview:custom lab
+    docker run -p 5000:5000 asreview/asreview:custom lab
+
+If you want to add more extensisons, or build the Docker image yourself, check the file `Dockerfile <https://github.com/ghcr.io/asreview/asreview/tree/master/Dockerfiles>`.
 
 
 .. _server-installation:
