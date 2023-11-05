@@ -1,15 +1,15 @@
-Installation
-============
+    Installation
+    ============
 
-Welcome to the ASReview installation guide. Set up ASReview on your preferred
-platform and begin your AI-aided systematic review with ease.
+    Welcome to the ASReview installation guide. Set up ASReview on your preferred
+    platform and begin your AI-aided systematic review with ease.
 
-For local installation details, see the :ref:`Local Installation
-<local-installation>` section. For Docker deployment instructions, refer to
-the :ref:`Docker Installation <docker-installation>` section. Consult
-the :ref:`Server Installation <server-installation>` section for server
-deployment guidelines. Each installation method offers full feature support
-across Windows, macOS, and Linux platforms.
+    For local installation details, see the :ref:`Local Installation
+    <local-installation>` section. For Docker deployment instructions, refer to
+    the :ref:`Docker Installation <docker-installation>` section. Consult
+    the :ref:`Server Installation <server-installation>` section for server
+    deployment guidelines. Each installation method offers full feature support
+    across Windows, macOS, and Linux platforms.
 
 .. list-table::
    :header-rows: 1
@@ -26,18 +26,35 @@ across Windows, macOS, and Linux platforms.
      - ✗
      - ✓
      - ✓
-   * - Performance
-     - High
-     - Moderate
-     - High
-   * - Auto-updates
-     - ✗
-     - ✓
-     - ✓
    * - Maintenance Required
      - Moderate
      - Low
      - High
+   * - User Authentication Support
+     - ✗
+     - ✗
+     - ✓
+   * - Database Flexibility
+     - ✗
+     - ✓
+     - ✓
+   * - Customizability
+     - Low
+     - High
+     - High
+   * - Network Configuration
+     - ✗
+     - ✓
+     - ✓
+   * - Backup and Export Capabilities
+     - ✗
+     - ✓
+     - ✓
+   * - Cloud Compatibility
+     - ✗
+     - ✓
+     - ✓
+
 
 .. note::
 
