@@ -55,11 +55,36 @@ Step-by-step instructions to install Python (and ASReview) are available for
 
 .. _local-installation:
 
-Local Installaton
------------------
+Local Installation
+------------------
 
-EXPLAIN BENEFITS OF LOCAL INSTALLATION
-EXPLAIN LOCAL DISADVANTAGE, NAMELY FILES ARE STORED LOCALLY
+Opt for a local installation for swift access and direct control over your
+ASReview setup. This method ensures that your data stays private and secure
+on your personal machine.
+
+
+Considerations for a Local Setup
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Pro's** 
+
+- **Full Control**: Local installation gives users direct control over the ASReview environment and settings. Customize the installation to fit precise requirements without the constraints of a shared or cloud-based system.
+
+- **Immediate Access**: Access the application instantly on your machine without needing an internet connection, allowing uninterrupted work on ASReview anytime.
+
+- **Privacy and Security**: With sensitive data stored on your local system, a local setup can offer additional layers of security and privacy, essential for handling confidential or proprietary research materials.
+
+**Considerations**
+
+- **System Dependencies**: A local installation may require extra steps to manage system dependencies, particularly when navigating different operating systems or conflicting software versions.
+
+- **Resource Limitations**: Your local hardware's capabilities may restrict the performance and scalability of ASReview. Large datasets or computationally intensive tasks might not perform optimally on a personal machine.
+
+- **Manual Updates**: Maintaining the software's currency requires manual updates. Users must stay vigilant about checking for and implementing updates to access the latest features and security enhancements.
+
+.. tip::
+
+        **Important Note on Data Backup**: When using ASReview in a local setup, your project files (``.asreview`` files) are stored on your local machine. To safeguard your work against data loss due to hardware failure or other unforeseen events, we strongly advise regularly exporting your project files and storing them in a secure, backed-up location. This practice ensures that your research can be recovered and continued from the last saved state, maintaining the integrity of your systematic review.
 
 Install
 ~~~~~~~
