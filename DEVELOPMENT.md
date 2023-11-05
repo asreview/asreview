@@ -142,7 +142,7 @@ Be precise when it comes to URLs/port numbers! In the context of CORS `localhost
 
 Documentation for the ASReview project is available on https://asreview.readthedocs.io/en/latest/.
 The source files are available in the [`docs`](/docs) folder of this repository. The project makes
-use of [Sphinx](https://www.sphinx-doc.org/) to convert the source files and docstrings into HTML
+use of [Sphinx](https://www.sphinx-doc.org/en/master/usage/installation.html) to convert the source files and docstrings into HTML
 or PDF files.
 
 Install the dependencies for rendering the documentation with
