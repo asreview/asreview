@@ -1,18 +1,15 @@
 Installation
 ============
 
+Welcome to the ASReview installation guide. Set up ASReview on your preferred
+platform and begin your AI-aided systematic review with ease.
 
-Welcome to the ASReview installation guide. Set up ASReview with ease on any
-platform and start your automated literature review.
-
-
-See the :ref:`Local Installation <local-installation>` section for details on
-installing ASReview locally. Refer to the :ref:`Docker Installation
-<docker-installation>` section for instructions on deploying ASReview with
-Docker. For server deployment, consult the :ref:`Server Installation
-<server-installation>` section. Each method offering full feature support
-across Windows, macOS, and Linux.
-
+For local installation details, see the :ref:`Local Installation
+<local-installation>` section. For Docker deployment instructions, refer to
+the :ref:`Docker Installation <docker-installation>` section. Consult
+the :ref:`Server Installation <server-installation>` section for server
+deployment guidelines. Each installation method offers full feature support
+across Windows, macOS, and Linux platforms.
 
 .. list-table::
    :header-rows: 1
@@ -42,13 +39,18 @@ across Windows, macOS, and Linux.
      - Low
      - High
 
+.. note::
 
+    **Service and Support**: ASReview is a product of `academic collaboration <https://asreview.nl/about/>`__ and is not provided by a commercial software company. As such, we do not offer Software as a Service (SaaS) or dedicated customer support. The software is distributed "as is," and while we commit to supporting the community through our documentation and addressing issues, our level of service may not align with commercial offerings. https://asreview.nl/blog/open-source-and-research/
 
 .. note::
 
-    **Service and Support**: The ASReview project is an academic collaborative initiative and not a commercial software company. Therefore, we do not offer Software as a Service (SaaS) or dedicated customer support. The software is provided "as is," and while we endeavor to support the community through documentation and issue response, our level of service may differ from that of a commercial entity. 
+    **Service and Support**: ASReview is a proud product of `academic collaboration <https://asreview.nl/about/>`__, developed and maintained by the community. Although we do not offer Software as a Service (SaaS) or dedicated customer support typical of commercial software, we are committed to empowering users with comprehensive documentation, responsive issue resolution, and a vibrant community for peer support. For more insights into our open-source vision, visit our `blog <https://asreview.nl/blog/open-source-and-research/>`__.
 
-    For server installations and deployments, we recommend that users have the necessary technical expertise to manage and maintain the software within their environment.
+
+.. tip::
+
+    For advanced scenarios, such as executing ASReview simulations in cloud environments or running them in parallel, consult our specialized `cloud usage guide <https://github.com/asreview/cloud-usage>`__. This guide provides tailored instructions for a variety of use cases, including simulations on cloud platforms such as SURF, Digital Ocean, AWS, Azure, and leveraging Kubernetes for large-scale simulation tasks.
 
 
 .. _python-installation:
@@ -230,10 +232,8 @@ arguments like so:
 
    docker run -p 9000:9000 ghcr.io/asreview/asreview lab --port 9000
 
-.. tip::
-
-    ASReview LAB is now installed. Open the URL in your host web browser:
-    ``http://localhost:5000`` and get started.
+ASReview LAB is now installed. Open the URL in your host web browser,
+``http://localhost:5000``, and get started.
 
 
 Mount local volume
@@ -297,14 +297,13 @@ address and port, use the --ip and --port flags when starting ASReview LAB:
 
 Replace xxx.x.x.xx with your server's actual IP address or domain name.
 
+.. tip::
+
+    For server installations and deployments, it is advised that users possess the requisite technical expertise to manage and maintain the software in their respective environments.Remember to ensure that your network and server configurations adhere to your organization's security policies when exposing the application to a closed network.
 
 .. warning::
 
     The development server provided by Flask is not suitable for production use. For guidelines on deploying a Flask application in a production environment, refer to the official Flask documentation: `Deploying to Production <https://flask.palletsprojects.com/en/2.0.x/tutorial/deploy/>`__.
-
-Remember to ensure that your network and server configurations adhere to your
-organization's security policies when exposing the application to a closed
-network.
 
 
 .. _authentication-installation:
