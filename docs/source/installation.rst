@@ -47,11 +47,35 @@ across Windows, macOS, and Linux.
 
 Python
 ------
-All the ASReview software requires an installation of Python 3.8 or later.
-Step-by-step instructions to install Python (and ASReview) are available for
-`Windows <https://asreview.ai/download>`__ and `macOS/Linux
-<https://asreview.ai/download/>`__ users. 
+ASReview requires Python 3.8 or later. If you do not have Python installed, or
+if you have an earlier version that needs upgrading, follow these
+step-by-step instructions to install the latest version of `Python <https://www.python.org/downloads/>`__.
 
+To verify your Python installation, open a command prompt or terminal and type
+
+
+.. code:: bash
+
+    python --version
+
+
+If Python is installed and correctly added to your
+system's PATH, this command will display the installed version.
+
+Note that installation steps may differ slightly based on your operating
+system. Ensure you select the option to add Python to your PATH if prompted
+during the installation process on Windows. This will make it possible to run
+Python from any command line interface.
+
+.. tip::
+
+    If you encounter issues during the installation, refer to the :doc:`Troubleshooting <troubleshooting>` section for guidance on common problems and their solutions.
+
+.. tip::
+
+    For users with Apple M1 computers, if you experience problems, follow the
+    `instructions
+    <https://github.com/asreview/asreview/issues/738>`__.
 
 .. _local-installation:
 
@@ -89,92 +113,91 @@ Considerations for a Local Setup
 Install
 ~~~~~~~
 
-Install the ASReview software with Pip by running the following command in the
-`Command Prompt` (Windows) or `Terminal` (MacOS/Linux):
+Install the ASReview software with Pip, the Python package installer, by executing the following command in the
+`Command Prompt` on Windows or `Terminal` on MacOS/Linux:
 
 .. code:: bash
 
     pip install asreview
 
-Start the application with the following command (in CMD.exe or Terminal):
+Once installed, start the application with:
 
 .. code:: bash
 
     asreview lab
 
-The ASReview LAB software starts in the browser. For more options on starting
-ASReview LAB, see :doc:`start`.
-
-.. note::
-
-    See :doc:`troubleshooting` for common problems during installation.
-
-.. tip::
-
-    For users with Apple M1 computers, if you experience problems, follow the
-    `instructions
-    <https://github.com/asreview/asreview/issues/738>`__.
+The ASReview LAB software will start in your web browser. For additional options on starting
+ASReview LAB, refer to :doc:`start`.
 
 
 Dependencies
 ~~~~~~~~~~~~
 
-Some models require additional dependencies to be installed. Use pip install
-asreview[all] to install all additional dependencies at once or check the
-installation instruction in section Models of the API Reference.
+Certain advanced models in ASReview require additional dependencies. 
 
-For example, some feature extraction technique requires tensorflow to be installed. Use 
-
-.. code:: bash
-
-    pip install tensorflow 
-
-or install all optional ASReview dependencies with 
+To install all optional dependencies at once, use the following command:
 
 .. code:: bash
 
     pip install asreview[all]
 
+Alternatively, you may install only the specific dependencies required for
+particular models or features. For example, some feature extraction
+techniques require TensorFlow. To install TensorFlow, run:
+
+.. code:: bash
+
+    pip install tensorflow 
+
+For detailed information about model-specific dependencies, refer to
+the 'Models' section in the :doc:API Reference <api/models>.
+
 
 Upgrade
 ~~~~~~~
 
-Upgrade ASReview software with
+To ensure you have the latest features and improvements, you can upgrade your
+ASReview software to the newest version using the following command:
 
 .. code:: bash
 
     pip install --upgrade asreview
 
+It's recommended to periodically check for updates to maintain access to the
+most recent enhancements and fixes.
 
 
 Uninstall
 ~~~~~~~~~
 
-Remove ASReview with
+To remove ASReview from your system, use the following command:
 
 .. code:: bash
 
     pip uninstall asreview
 
-Enter ``y`` to confirm.
+When prompted, enter y to confirm the uninstallation.
 
 .. warning::
 
-    Note that your project files will **not** delete with this action. You find them in the `.asreview` folder in your home folder.
+    Uninstalling ASReview will **not** delete your project files. These are located in the `.asreview` directory within your home folder and must be removed manually if desired.
+
 
 
 File Location
 ~~~~~~~~~~~~~
 
-To obtain the location where the `.asreview` files are stored, use
+To determine the location where the `.asreview` files are stored on your system,
+execute the following command:
 
 .. code:: bash
 
-    asreview.asreview_path()
+    python -c "from asreview import asreview_path; print(asreview_path())"
 
 .. tip::
 
-    We recommend making regular back-ups of your projects by exporting [ADD LINK] the `.asreview` and saving it on a location which is back-uped
+    Regularly back up your `.asreview` project files to prevent data loss. Export your project files by following the instructions in the :ref:`manage-export` section and store them in a secure, backed-up location.
+
 
 .. _docker-installation:
 
