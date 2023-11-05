@@ -279,18 +279,22 @@ If you want to add more extensisons, or build the Docker image yourself, check t
 Server Installation
 -------------------
 
-It is possible to run the ASReview software on a server or custom domain. Use
-the flags `ip` and `port` for configuration. ASReview should only be used in
-closed networks.
+ASReview can be deployed on a server environment or a custom domain for
+broader access. To configure the application to listen on a specific IP
+address and port, use the --ip and --port flags when starting ASReview LAB:
 
 .. code:: bash
 
     asreview lab --port 5555 --ip xxx.x.x.xx
 
+Replace xxx.x.x.xx with your server's actual IP address or domain name.
+
+
 .. warning::
 
-    Don't use the development server in production. Read the Flask documentation
-    about `deploying a Flask app to production <https://flask.palletsprojects.com/en/1.1.x/tutorial/deploy/>`__.
+    The development server provided by Flask is not suitable for production use. For guidelines on deploying a Flask application in a production environment, refer to the official Flask documentation: `Deploying to Production <https://flask.palletsprojects.com/en/2.0.x/tutorial/deploy/>`__.
+
+Remember to ensure that your network and server configurations adhere to your organization's security policies when exposing the application to a closed network.
 
 
 .. _authentication-installation:
