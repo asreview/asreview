@@ -43,6 +43,14 @@ across Windows, macOS, and Linux.
      - High
 
 
+
+.. note::
+
+    **Service and Support**: The ASReview project is an academic collaborative initiative and not a commercial software company. Therefore, we do not offer Software as a Service (SaaS) or dedicated customer support. The software is provided "as is," and while we endeavor to support the community through documentation and issue response, our level of service may differ from that of a commercial entity. 
+
+    For server installations and deployments, we recommend that users have the necessary technical expertise to manage and maintain the software within their environment.
+
+
 .. _python-installation:
 
 Python
@@ -294,7 +302,9 @@ Replace xxx.x.x.xx with your server's actual IP address or domain name.
 
     The development server provided by Flask is not suitable for production use. For guidelines on deploying a Flask application in a production environment, refer to the official Flask documentation: `Deploying to Production <https://flask.palletsprojects.com/en/2.0.x/tutorial/deploy/>`__.
 
-Remember to ensure that your network and server configurations adhere to your organization's security policies when exposing the application to a closed network.
+Remember to ensure that your network and server configurations adhere to your
+organization's security policies when exposing the application to a closed
+network.
 
 
 .. _authentication-installation:
