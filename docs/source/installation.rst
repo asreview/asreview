@@ -1,14 +1,49 @@
 Installation
 ============
 
-There are three options for installing ASReview:
 
-1. Local
-2. Docker
-3. Server
+Welcome to the ASReview installation guide. Set up ASReview with ease on any
+platform and start your automated literature review.
 
-TABLE WITH OVERVIEW PROs AND CONS
 
+See the :ref:`Local Installation <local-installation>` section for details on
+installing ASReview locally. Refer to the :ref:`Docker Installation
+<docker-installation>` section for instructions on deploying ASReview with
+Docker. For server deployment, consult the :ref:`Server Installation
+<server-installation>` section. Each method offering full feature support
+across Windows, macOS, and Linux.
+
+
+.. list-table::
+   :header-rows: 1
+
+   * - Installation Method
+     - Local
+     - Docker
+     - Server
+   * - Ease of Setup
+     - ✓
+     - ✓
+     - ✗
+   * - Isolation from Host System
+     - ✗
+     - ✓
+     - ✓
+   * - Performance
+     - High
+     - Moderate
+     - High
+   * - Auto-updates
+     - ✗
+     - ✓
+     - ✓
+   * - Maintenance Required
+     - Moderate
+     - Low
+     - High
+
+
+.. _python-installation:
 
 Python
 ------
@@ -17,6 +52,8 @@ Step-by-step instructions to install Python (and ASReview) are available for
 `Windows <https://asreview.ai/download>`__ and `macOS/Linux
 <https://asreview.ai/download/>`__ users. 
 
+
+.. _local-installation:
 
 Local Installaton
 -----------------
@@ -114,6 +151,7 @@ To obtain the location where the `.asreview` files are stored, use
 
     We recommend making regular back-ups of your projects by exporting [ADD LINK] the `.asreview` and saving it on a location which is back-uped
 
+.. _docker-installation:
 
 Install with Docker
 -------------------
@@ -184,6 +222,7 @@ Modify it as you see fit, and then build and run the image with:
     docker run -p 5000:5000 ghcr.io/asreview/asreview:custom lab
 
 
+.. _server-installation:
 
 Server Installation
 -------------------
@@ -202,6 +241,7 @@ closed networks.
     about `deploying a Flask app to production <https://flask.palletsprojects.com/en/1.1.x/tutorial/deploy/>`__.
 
 
+.. _authentication-installation:
 
 Authentication
 --------------
