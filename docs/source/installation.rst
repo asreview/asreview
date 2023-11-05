@@ -55,11 +55,6 @@
      - ✓
      - ✓
 
-
-.. note::
-
-    **Service and Support**: ASReview is a product of `academic collaboration <https://asreview.nl/about/>`__ and is not provided by a commercial software company. As such, we do not offer Software as a Service (SaaS) or dedicated customer support. The software is distributed "as is," and while we commit to supporting the community through our documentation and addressing issues, our level of service may not align with commercial offerings. https://asreview.nl/blog/open-source-and-research/
-
 .. note::
 
     **Service and Support**: ASReview is a proud product of `academic collaboration <https://asreview.nl/about/>`__, developed and maintained by the community. Although we do not offer Software as a Service (SaaS) or dedicated customer support typical of commercial software, we are committed to empowering users with comprehensive documentation, responsive issue resolution, and a vibrant community for peer support. For more insights into our open-source vision, visit our `blog <https://asreview.nl/blog/open-source-and-research/>`__.
@@ -98,11 +93,6 @@ Python from any command line interface.
 
     If you encounter issues during the installation, refer to the :doc:`Troubleshooting <troubleshooting>` section for guidance on common problems and their solutions.
 
-.. tip::
-
-    For users with Apple M1 computers, if you experience problems, follow the
-    `instructions
-    <https://github.com/asreview/asreview/issues/738>`__.
 
 .. _local-installation:
 
