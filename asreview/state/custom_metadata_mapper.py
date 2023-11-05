@@ -29,3 +29,7 @@ def extract_tags(custom_metadata_str):
         return obj["tags"]
     else:
         return None
+
+
+def get_tag_composite_id(group_id, tag_id):
+    return f"{group_id}:{tag_id}"

@@ -20,6 +20,7 @@ import tempfile
 from pathlib import Path
 from urllib.request import urlretrieve
 from uuid import uuid4
+from itertools import chain
 
 import datahugger
 import numpy as np
@@ -65,7 +66,7 @@ from asreview.project import open_state
 from asreview.search import SearchError
 from asreview.search import fuzzy_find
 from asreview.settings import ASReviewSettings
-from asreview.state.custom_metadata_mapper import extract_tags
+from asreview.state.custom_metadata_mapper import extract_tags, get_tag_composite_id
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sql_converter import upgrade_asreview_project_file
@@ -1132,6 +1133,37 @@ def api_import_project():
     return jsonify(project.config)
 
 
+def _add_tags_to_export_data(project, export_data, state_df):
+    tags_df = state_df[["custom_metadata_json"]].copy()
+
+    tags_df["tags"] = (
+        tags_df["custom_metadata_json"]
+        .apply(lambda d: extract_tags(d))
+        .apply(lambda d: d if isinstance(d, list) else [])
+    )
+
+    unused_tags = []
+    tags_config = project.config.get("tags")
+
+    if tags_config is not None:
+        all_tags = [[get_tag_composite_id(group["id"], tag["id"]) for tag in group["values"]] for group in tags_config]
+        all_tags = list(chain.from_iterable(all_tags))
+        used_tags = set(tags_df["tags"].explode().unique())
+        unused_tags = [tag for tag in all_tags if tag not in used_tags]
+
+    mlb = MultiLabelBinarizer()
+
+    tags_df = pd.DataFrame(
+        data=mlb.fit_transform(tags_df["tags"]),
+        columns=mlb.classes_,
+        index=tags_df.index,
+    )
+
+    tags_df = tags_df.assign(**{unused_tag: 0 for unused_tag in unused_tags})
+
+    export_data.df = export_data.df.join(tags_df, on="record_id")
+
+
 @bp.route("/projects/<project_id>/export_dataset", methods=["GET"])
 @login_required
 @project_authorization
@@ -1202,20 +1234,7 @@ def api_export_dataset(project):
             state_df[f"exported_notes_{screening}"], on="record_id"
         )
 
-        tags_df = state_df[["custom_metadata_json"]].copy()
-        tags_df["tags"] = (
-            tags_df["custom_metadata_json"]
-            .apply(lambda d: extract_tags(d))
-            .apply(lambda d: d if isinstance(d, list) else [])
-        )
-
-        mlb = MultiLabelBinarizer()
-        tags_df = pd.DataFrame(
-            data=mlb.fit_transform(tags_df["tags"]),
-            columns=mlb.classes_,
-            index=tags_df.index,
-        )
-        as_data.df = as_data.df.join(tags_df, on="record_id")
+        _add_tags_to_export_data(project, as_data, state_df)
 
         as_data.to_file(
             fp=tmp_path_dataset,
