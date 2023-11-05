@@ -107,12 +107,12 @@ class SQLiteState(BaseState):
             The connection is read only if self.read_only is true.
         """
         if self.read_only:
-            con = self._connect_to_sql_r()
+            con = self.connect_to_sql_r()
         else:
-            con = self._connect_to_sql_wr()
+            con = self.connect_to_sql_wr()
         return con
 
-    def _connect_to_sql_r(self):
+    def connect_to_sql_r(self):
         """Get a connection to the SQLite database.
 
         Returns
@@ -122,7 +122,7 @@ class SQLiteState(BaseState):
         """
         return sqlite3.connect(f"file:{str(self._sql_fp)}?mode=ro", uri=True)
 
-    def _connect_to_sql_wr(self):
+    def connect_to_sql_wr(self):
         """Get a connection to the SQLite database.
 
         Returns
@@ -271,19 +271,17 @@ class SQLiteState(BaseState):
         self._is_valid_state()
 
     def _is_valid_state(self):
-        con = self._connect_to_sql_wr()
-
         try:
-            version = check_and_update_version(self.version, CURRENT_STATE_VERSION, con)
+            version = check_and_update_version(self.version, CURRENT_STATE_VERSION, self)
             if version != self.version:
                 self._update_version(version)
         except AttributeError as err:
             raise ValueError(f"Unexpected error when opening state file: {err}")
 
+        con = self.connect_to_sql_wr()
         cur = con.cursor()
         column_names = cur.execute("PRAGMA table_info(results)").fetchall()
         table_names = cur.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
-
         con.close()
 
         # Check if all required tables are present.
