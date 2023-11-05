@@ -1,3 +1,5 @@
+import time
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -101,6 +103,50 @@ def sign_in(driver, account_data):
     click_element(driver, "button#sign-in")
 
 
+def _add_random_prior_knowledge(driver, project_data):
+    # click on randomly adding prior knowledge
+    click_element(
+        driver,
+        (By.XPATH, f"//span[text()=\"Random\"]")
+    )
+
+    # add random prior knowledge
+    for decision in project_data["dataset"]["prior_knowledge"]:
+        assert decision in ["Yes", "No"]
+        # make decision
+        click_element(
+            driver,
+            (By.XPATH, f"//button[text()='{decision}']")
+        )
+
+def _add_searched_prior_knowledge(driver, project_data):
+    # make the Search choice
+    click_element(
+        driver,
+        (By.XPATH, f"//span[text()=\"Search\"]")
+    )
+
+    for search_term, decision in project_data["dataset"]["prior_knowledge"]:
+        assert decision in ["Yes", "No"]
+        # fill out search input
+        driver.find_element(
+            By.CSS_SELECTOR,
+            "input#search-input"
+        ).send_keys(search_term)
+        # click search button
+        click_element(driver, "button#search")
+        # pick first search-hit and make the decision
+        click_element(
+            driver,
+            (By.XPATH, f"//button[text()='{decision}']")
+        )
+        # cleafr search input
+        driver.find_element(
+            By.CSS_SELECTOR,
+            "input#search-input"
+        ).clear()
+
+
 def create_project(driver, project_data):
     # browse to signin page
     page = BASE_URL + "/projects"
@@ -129,6 +175,7 @@ def create_project(driver, project_data):
     # click on next
     click_element(driver, "button#next")
 
+
     # PAGE 2, DATASET AND PRIOR KNOWLEDGE
     # adding a dataset
     click_element(driver, "button#add-dataset")
@@ -141,28 +188,13 @@ def create_project(driver, project_data):
     # find the button in the parent and click it (it's clickable)
     dataset_button.find_element(By.XPATH, "../../../..//button").click()
 
-    # prior knowledge
+    # Adding prior knowledge
     click_element(driver, "button#add-prior-knowledge")
 
-    # click on randomly adding prior knowledge
-    method = project_data["dataset"]["prior_knowledge_method"]
-    print(method)
-    click_element(
-        driver,
-        (By.XPATH, f"//span[text()=\"{method}\"]")
-    )
-
-    # add random prior knowledge
     if project_data["dataset"]["prior_knowledge_method"] == "Random":
-        for option in project_data["dataset"]["prior_knowledge"]:
-            option = option.capitalize()
-            assert option in ["Yes", "No"]
-
-            # make sure its clickable
-            click_element(
-                driver,
-                (By.XPATH, f"//button[text()='{option}']")
-            )
+        _add_random_prior_knowledge(driver, project_data)
+    else:
+        _add_searched_prior_knowledge(driver, project_data)
 
     # close page 2
     click_element(
@@ -172,6 +204,7 @@ def create_project(driver, project_data):
 
     # click on next
     click_element(driver, "button#next")
+
 
     # PAGE 3, MODEL
     # adding feature extraction mode

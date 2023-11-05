@@ -113,7 +113,7 @@ const PriorSearch = (props) => {
               </StyledIconButton>
             </Tooltip>
             <InputBase
-              id="search"
+              id="search-input"
               autoFocus
               fullWidth
               onChange={onChangeKeyword}
@@ -121,7 +121,10 @@ const PriorSearch = (props) => {
               placeholder="Search"
               sx={{ ml: 1 }}
             />
-            <StyledIconButton onClick={onClickSearch}>
+            <StyledIconButton
+              id="search"
+              onClick={onClickSearch}
+            >
               <Search />
             </StyledIconButton>
           </Stack>

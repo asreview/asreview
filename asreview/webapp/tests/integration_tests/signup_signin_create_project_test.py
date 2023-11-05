@@ -31,8 +31,16 @@ PROJECT = {
     "dataset": {
         "type": "benchmark",
         "label": "Donners et al. (2021)",
-        "prior_knowledge_method": "Random",
-        "prior_knowledge": ["Yes", "No", "Yes", "No", "Yes"]
+        # "prior_knowledge_method": "Random",
+        # "prior_knowledge": ["Yes", "No", "Yes", "No", "Yes"]
+        "prior_knowledge_method": "Search",
+        "prior_knowledge": [
+            ("medicine", "Yes"),
+            ("medicine", "No"),
+            ("medicine", "Yes"),
+            ("medicine", "No"),
+            ("medicine", "Yes")
+        ]
     },
     "model": {
         "feature_extraction": "tfidf",
