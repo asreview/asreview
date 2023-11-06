@@ -19,7 +19,7 @@ import pytest
 from sqlalchemy.orm import close_all_sessions
 
 from asreview.webapp import DB
-from asreview.webapp.start_flask import create_app
+from asreview.webapp.app import create_app
 from asreview.webapp.tests.utils import crud
 
 PROJECTS = [
@@ -55,7 +55,7 @@ def _get_app(app_type="auth-basic", path=None):
     else:
         raise ValueError(f"Unknown config {app_type}")
     # create app
-    app = create_app(flask_configfile=config_path)
+    app = create_app(env="test", config_file=config_path)
     # and return it
     return app
 
