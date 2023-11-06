@@ -19,7 +19,7 @@ import pytest
 from sqlalchemy.orm import close_all_sessions
 
 from asreview.webapp import DB
-from asreview.webapp.start_flask import create_app
+from asreview.webapp.app import create_app
 from asreview.webapp.tests.utils import crud
 
 PROJECTS = [
@@ -45,17 +45,17 @@ def _get_app(app_type="auth-basic", path=None):
     # get path of appropriate flask config
     base_dir = Path(__file__).resolve().parent / "config"
     if app_type == "auth-basic":
-        config_path = str(base_dir / "auth_basic_config.json")
+        config_path = str(base_dir / "auth_basic_config.toml")
     elif app_type == "auth-no-creation":
-        config_path = str(base_dir / "auth_no_creation.json")
+        config_path = str(base_dir / "auth_no_creation.toml")
     elif app_type == "auth-verified":
-        config_path = str(base_dir / "auth_verified_config.json")
+        config_path = str(base_dir / "auth_verified_config.toml")
     elif app_type == "no-auth":
-        config_path = str(base_dir / "no_auth_config.json")
+        config_path = str(base_dir / "no_auth_config.toml")
     else:
         raise ValueError(f"Unknown config {app_type}")
     # create app
-    app = create_app(flask_configfile=config_path)
+    app = create_app(env="test", config_file=config_path)
     # and return it
     return app
 

@@ -30,13 +30,6 @@ sys.path.insert(0, os.path.abspath(".."))
 
 # -- Mock
 autodoc_mock_imports = [
-    "numpy",
-    "modAL",
-    "modAL.models",
-    "modAL.utils.data",
-    "modAL.utils.selection",
-    "rispy",
-    "pandas",
     "tensorflow",
     "tensorflow.keras",
     "tensorflow.keras.wrappers.scikit_learn",
@@ -44,22 +37,11 @@ autodoc_mock_imports = [
     "tensorflow.keras.models.layers",
     "tensorflow.keras.optimizers",
     "tensorflow.keras.constraints",
-    "tqdm",
-    "sklearn",
-    "sklearn.naive_bayes",
-    "sklearn.svm",
-    "sklearn.base",
-    "sklearn.exceptions",
-    "scipy",
-    "fuzzywuzzy",
-    "dill",
-    "PyInquirer",
     "gensim",
-    "gensim.utils" "gensim.models.doc2vec",
+    "gensim.utils",
+    "gensim.models.doc2vec",
     "sentence_transformers",
     "sentence_transformers.SentenceTransformer",
-    "jsonschema",
-    "filelock",
 ]
 
 

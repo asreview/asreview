@@ -7,10 +7,9 @@ import {
   Download,
   GroupAdd,
   MoreVert,
-  PersonOff
+  PersonOff,
 } from "@mui/icons-material";
 import { projectStatuses } from "../../globals.js";
-
 
 const PREFIX = "TableRowButton";
 
@@ -79,7 +78,7 @@ export default function TableRowButton(props) {
             </IconButton>
           </Tooltip>
         )}
-        { false && props.isOwner && (
+        {false && props.isOwner && (
           <Tooltip title="Add team members">
             <IconButton
               className={classes.button}
@@ -89,7 +88,7 @@ export default function TableRowButton(props) {
             </IconButton>
           </Tooltip>
         )}
-        { false && !props.isOwner && (
+        {false && !props.isOwner && (
           <Tooltip title="Remove yourself from team">
             <IconButton
               className={classes.button}
@@ -130,7 +129,9 @@ export default function TableRowButton(props) {
                   : "Mark as in review"}
               </MenuItem>
             )}
-            <MenuItem onClick={handleClickDelete}>Delete {props.isOwner ? "forever" : ""}</MenuItem>
+            <MenuItem onClick={handleClickDelete}>
+              Delete {props.isOwner ? "forever" : ""}
+            </MenuItem>
           </Menu>
         </div>
       </Stack>

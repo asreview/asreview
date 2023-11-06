@@ -17,7 +17,7 @@ from asreview.webapp.tests.utils.misc import retrieve_project_url_github
 # NOTE: I don't see a plugin that can be used for testing
 # purposes
 UPLOAD_DATA = [
-    {"benchmark": "benchmark:Hall_2012"},
+    {"benchmark": "synergy:van_der_Valk_2021"},
     {
         "url": "https://raw.githubusercontent.com/asreview/"
         + "asreview/master/tests/demo_data/generic_labels.csv"

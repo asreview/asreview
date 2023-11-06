@@ -58,7 +58,7 @@ Available datasets
 .. autosummary::
    :toctree: generated/
 
-   asreview.datasets.BenchmarkDataGroup
+   asreview.datasets.SynergyDataGroup
    asreview.datasets.NaturePublicationDataGroup
 
 Dataset managers

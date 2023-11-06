@@ -24,15 +24,15 @@ import { defaultAlgorithms, mapStateToProps } from "../../../globals.js";
 const requirements = [
   {
     value: "tensorflow",
-    link: "https://asreview.readthedocs.io/en/latest/API/generated/asreview.models.classifiers.NN2LayerClassifier.html#asreview-models-classifiers-nn2layerclassifier",
+    link: "https://asreview.readthedocs.io/en/latest/generated/asreview.models.classifiers.NN2LayerClassifier.html#asreview-models-classifiers-nn2layerclassifier",
   },
   {
     value: "gensim",
-    link: "https://asreview.readthedocs.io/en/latest/API/generated/asreview.models.feature_extraction.Doc2Vec.html#asreview-models-feature-extraction-doc2vec",
+    link: "https://asreview.readthedocs.io/en/latest/generated/asreview.models.feature_extraction.Doc2Vec.html#asreview-models-feature-extraction-doc2vec",
   },
   {
     value: "sentence-transformers",
-    link: "https://asreview.readthedocs.io/en/latest/API/generated/asreview.models.feature_extraction.SBERT.html#asreview-models-feature-extraction-sbert",
+    link: "https://asreview.readthedocs.io/en/latest/generated/asreview.models.feature_extraction.SBERT.html#asreview-models-feature-extraction-sbert",
   },
 ];
 
@@ -101,7 +101,7 @@ const ModelForm = (props) => {
         });
       },
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   const handleModel = (event) => {

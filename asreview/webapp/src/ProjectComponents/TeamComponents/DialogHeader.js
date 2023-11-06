@@ -1,11 +1,6 @@
-import {
-  DialogTitle,
-  Stack,
-  Tooltip,
-} from "@mui/material";
+import { DialogTitle, Stack, Tooltip } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
-
 
 const DialogHeader = (props) => {
   return (
@@ -25,7 +20,7 @@ const DialogHeader = (props) => {
         </Stack>
       </Stack>
     </Stack>
-  )
-}
+  );
+};
 
 export default DialogHeader;

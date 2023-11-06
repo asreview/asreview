@@ -97,14 +97,14 @@ const LabeledRecord = (props) => {
       enabled: enableQuery(),
       getNextPageParam: (lastPage) => lastPage.next_page ?? false,
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   React.useEffect(() => {
     setSubset(
       props.filterQuery?.map((element) => {
         return element.value;
-      })
+      }),
     );
   }, [props.filterQuery]);
 

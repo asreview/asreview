@@ -58,7 +58,7 @@ const ExportPage = (props) => {
     ProjectAPI.fetchDatasetWriter,
     {
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   const exportDatasetQuery = useQuery(
@@ -76,7 +76,7 @@ const ExportPage = (props) => {
       enabled: (file === "dataset" || file === "dataset_relevant") && exporting,
       refetchOnWindowFocus: false,
       onSettled: () => setExporting(false),
-    }
+    },
   );
 
   const exportProjectQuery = useQuery(
@@ -86,7 +86,7 @@ const ExportPage = (props) => {
       enabled: file === "project" && exporting,
       refetchOnWindowFocus: false,
       onSettled: () => setExporting(false),
-    }
+    },
   );
 
   const selectedQuery = () => {
