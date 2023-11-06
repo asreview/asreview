@@ -250,7 +250,7 @@ const RecordCard = (props) => {
           {props.recordNote.shrink && (
             <CardActions className={classes.note}>
               <Button
-                className={"fontSize" + props.fontSize?.label}
+                className={"fontSize" + props.fontSize.label}
                 disabled={props.disableButton()}
                 size="small"
                 onClick={expandNoteSheet}
