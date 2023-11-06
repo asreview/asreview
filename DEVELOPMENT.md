@@ -100,9 +100,9 @@ server runs on http://localhost:5010:
 REACT_APP_API_URL=http://localhost:5010 npm start
 ```
 
-Alternative is to add this `REACT_APP_API_URL` to the `.env` file in the
+Alternative is to add this `REACT_APP_API_URL` to the `.env.development` file in the
 `/asreview/webapp` folder. Override this config file with a local version
-(e.g. `/asreview/webapp/.env.local`). More information https://create-react-app.dev/docs/adding-custom-environment-variables/#adding-development-environment-variables-in-env.
+(e.g. `/asreview/webapp/.env.development.local`). More information https://create-react-app.dev/docs/adding-custom-environment-variables/#adding-development-environment-variables-in-env.
 
 ## Testing
 

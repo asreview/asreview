@@ -163,21 +163,13 @@ def create_app(
     def api_boot():
         """Get the boot info."""
 
-        # DO we need this???
-        # if app.config.get("DEBUG", None) is True:
-        #     status = "development"
-        # else:
-        #     status = "asreview"
-
         authenticated = app.config.get("AUTHENTICATION_ENABLED", False)
 
         response = {
-            # "status": status,
             "authentication": authenticated,
             "version": asreview_version,
         }
 
-        # if we do authentication we have a lot of extra parameters
         if authenticated:
             # if recaptcha config is provided for account creation
             if app.config.get("RE_CAPTCHA_V3", False):
