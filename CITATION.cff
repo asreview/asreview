@@ -1,8 +1,8 @@
 cff-version: 1.2.0
 title: ASReview LAB - A tool for AI-assisted systematic reviews
 message: >-
-  If you use the ASReview software in your work, please cite it as indicated
-  above. For referencing the underlying methodology, cite Van de Schoot et
+  If you use the ASReview software in your work, please cite it as indicated.
+  For referencing the underlying methodology, cite Van de Schoot et
   al. (2021 - https://doi.org/10.1038/s42256-020-00287-7).
 
 type: software
