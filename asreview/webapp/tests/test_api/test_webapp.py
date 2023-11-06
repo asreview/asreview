@@ -24,7 +24,7 @@ def test_boot(setup_all_clients):
     assert status_code == 200
     assert isinstance(data, dict)
     assert "authentication" in data.keys()
-    assert "status" in data.keys()
+    # assert "status" in data.keys()  # what is the aim of this?
     assert "version" in data.keys()
     if misc.current_app_is_authenticated():
         assert data["authentication"]

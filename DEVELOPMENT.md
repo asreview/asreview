@@ -1,13 +1,111 @@
 # DEVELOPMENT
 
-## Build project
+## Development workflow for frontend and backend development
 
-Build the project from source with the following code.
+Most users will only need the first 2 steps: Installation and Setting Up Servers.
 
-	python setup.py compile_assets
-	python setup.py sdist bdist_wheel
+### Installation
 
-## Development workflow
+Install Python and [Node.js](https://nodejs.org/en) (we use Node v20).
+
+Install ASReview in editable mode
+
+```sh
+pip install -e .[dev]
+```
+
+Navigate into `asreview/webapp` and install NPM packages
+
+```sh
+cd asreview/webapp
+npm install
+```
+
+### Setting up servers
+
+The best development workflow for the ASReview frontend and backend makes use
+of 2 simultanously running servers. One serves the Python server with the
+Flask app and the other the Node server with the frontend.
+
+Open a command line interface (e.g. Terminal or CMD.exe) and navigate to
+`asreview/webapp`. Start the Flask app with
+
+```sh
+cd asreview/webapp
+flask run --debug
+```
+
+Next, open a new command line interface and navigate to `asreview/webapp`.
+Start the local front end application running on a Node server.
+
+```sh
+cd asreview/webapp
+npm start
+```
+
+The webbrowser opens at `localhost:3000`. Every time you edit one of the
+webapp related Python or Javascript files, the application will automatically
+refresh in the browser.
+
+### Authentication
+
+When using or developing the authenticated version of ASReview, extra steps
+are needed to configure the application.
+
+Create an authentication config file as instructed in [Authentication]
+(#Authentication). Set the environment variable `FLASK_CONFIGFILE` to the
+local config file. Start the application again (If Flask app it still running, terminate first)
+
+```sh
+cd asreview/webapp
+FLASK_CONFIGFILE=my_config.toml flask run --debug
+```
+
+The server will read the file and start the authenticated version.
+
+### Advanced
+
+#### Port and CORS configuration
+
+In development, when working on the front end, the front- and backend are
+strictly separated. It is assumed the Flask app runs on port 5000 and the
+React front end on port 3000. Deviating from these ports will lead to
+connection or CORS (Cross-Origin Resource Sharing) issues.
+
+As for CORS issues: it is necessary to precisely define the "allowed origins"
+in the backend. These origins must reflect the URL(s) used by the front end
+to call the backend. If correctly configured, they are added to the headers
+of the backend response, so they can be verified by your browser. If the list
+with origin-URLs doesn't provide a URL that corresponds with the URL used in
+the original request of the front end, your request is going to fail.
+
+**Node server running on port other than 3000**
+
+Set `ALLOWED_ORIGINS` to the url and port of the Node server. E.g., the server
+runs on http://localhost:3010:
+
+```sh
+FLASK_ALLOWED_ORIGINS=http://localhost:3010 flask run --debug
+```
+
+You can also add `ALLOWED_ORIGINS` to your config file or set the environment
+variable `FLASK_ALLOWED_ORIGINS`.
+
+**Flask app running on port other than 5000**
+
+Set `REACT_APP_API_URL` to the url and port of the Flask API server. E.g., the
+server runs on http://localhost:5010:
+
+```sh
+REACT_APP_API_URL=http://localhost:5010 npm start
+```
+
+Alternative is to add this `REACT_APP_API_URL` to the `.env.development` file in the
+`/asreview/webapp` folder. Override this config file with a local version
+(e.g. `/asreview/webapp/.env.development.local`). More information https://create-react-app.dev/docs/adding-custom-environment-variables/#adding-development-environment-variables-in-env.
+
+## Testing
+
 
 ### Git Submodules
 Some demo datasets are included as a submodule. Directory [asreview/tests/citation-file-formatting](https://github.com/ottomattas/asreview/tree/development-v1/tests) is cloned from [citation-file-formatting](https://github.com/asreview/citation-file-formatting).
@@ -15,27 +113,12 @@ Some demo datasets are included as a submodule. Directory [asreview/tests/citati
 Examples:
 - To clone the full repository with submodules in one line, add `--recursive` flag:
 
-	```git clone --recursive git://github.com/asreview/asreview.git```
+  ```git clone --recursive git://github.com/asreview/asreview.git```
 
 - To update the submodule, you would still need to follow the contribution guide in the submodule repository. And then create a PR for the main repository with the updated submodule commit.
 
-### Back end
 
-Install Python
 
-Install the ASReview package
-
-	pip install -e .[dev]
-
-Start the Python API server with the Flask development environment
-
-	export FLASK_DEBUG=1
-	asreview lab
-
-For Windows, use
-
-	set FLASK_DEBUG=1
-	asreview lab
 
 #### Formatting and linting
 
@@ -57,64 +140,61 @@ isort .
 flake8 .
 ```
 
-### Front end
-The user interface is written in [React](https://reactjs.org/). 
 
 
-Please make use of [npx](https://www.npmjs.com/package/npx) and Prettier
-(https://prettier.io/docs/en/install.html) to format React/Javascript code.
-Afer installing `npx` and `prettier`, navigate to the folder with the file
-you want to 'prettify' and run:
+
+
+
+## Documentation
+
+### Sphinx docs
+
+Documentation for the ASReview project is available on https://asreview.readthedocs.io/en/latest/.
+The source files are available in the [`docs`](/docs) folder of this repository. The project makes
+use of [Sphinx](https://www.sphinx-doc.org/) to convert the source files and docstrings into HTML
+or PDF files.
+
+Install the dependencies for rendering the documentation with
 
 ```
-npx prettier --write .
+pip install .[docs]
 ```
 
-To run a local version of the front-end on `localhost:3000`, proceed as
-follows:
+Navigate into the `docs` folder and render the documentation (the HTML version) with
 
-1. You need to install [Node.js](https://nodejs.org/en) for local development (we use version 20).
+```
+make html
+```
 
-2. Before the front end development can be started, the back end has to run as well. Therefore, first, start the Python API server with the Flask development environment: 
+Open the file `docs/build/html/index.html` in your web browser.
 
-	export FLASK_DEBUG=1
-	asreview lab
+### Broken links
 
-For Windows, use
+Navigate into the `docs` folder and check for broken links with:
 
-	set FLASK_DEBUG=1
-	asreview lab
+```
+make linkcheck
+```
 
-**Important**: Ignore `localhost:5000`, because this is not relevant for the
-  development version, which will run on `localhost:3000`.
+Extra information: https://www.writethedocs.org/guide/tools/testing/#link-testing
 
-3. Next, open a new CLI and navigate to `asreview/webapp` and install the front end application with [npm](https://www.npmjs.com/get-npm):
+### Screenshots
 
-	cd asreview/webapp
-	npm install
+Screenshots are an important part of the ASReview documentation. When contributing screenshots,
+follow the guidelines below.
 
-Start the local front end application with npm
+1. Open Developers Tools in your browser (e.g. Chrome or Firefox).
+2. Set device dimensions to **1280x800**.
+3. Capture screenshot with internal screenshot tool (preferred, see [example](https://www.deconetwork.com/blog/how-to-take-full-webpage-screenshots-instantly/)).
+4. [OPTIONAL] Crop relevant part. Keep ratio if possible.
+5. Resize image to **1280x800** maximum and **960x600** minimum.
+6. [OPTIONAL] Use a red box to highlight relevant components.
 
-	npm start
-
-4. Open the web browser at `localhost:3000`
 
 
 
-### Front end development and connection/CORS issues
 
-In development, when working on the front end, the front- and backend are strictly separated. It is assumed the Flask backend runs on port 5000 and the React front end on port 3000. Deviating from these ports will lead to connection or CORS (Cross-Origin Resource Sharing) issues.
 
-As for CORS issues: it is necessary to precisely define the "allowed origins" in the backend. These origins must reflect the URL(s) used by the front end to call the backend. If correctly configured, they are added to the headers of the backend response, so they can be verified by your browser. If the list with origin-URLs doesn't provide a URL that corresponds with the URL used in the original request of the front end, your request is going to fail. __Setting the allowed origins can be done in the [config file](#full-configuration)__.
-
-You can solve connection/CORS issues by doing the following:
-1. Start the backend and verify what port number it's running on (read the first lines of the output once you've started the backend in the terminal).
-2. Make sure the front end knows where it can find the backend. React reads a configuration `.env` file in the `/asreview/webapp` folder which tells it to use `http://localhost:5000/`. Override this config file by either adding a local version (e.g. `/asreview/webapp/.env.local`) in which you put the correct backend URL (do not forget the `REACT_APP_API_URL` variable, see the `.env` file) or change the URL in the `.env` file itself.
-3. If you are running the front end separate from the backend you need to adjust the CORS's 'allowed origins' parameter in the backend to avoid problems. You can do this by setting the front end URL(s) in the [optional parameters of the config file](#optional-config-parameters) under the "ALLOWED_ORIGINS" key.
-
-Be precise when it comes to URLs/port numbers! In the context of CORS `localhost` is different from `127.0.0.1`, although they are normally referring to the same host.
-
-❗Mac users beware: depending on your version of macOS you may experience troubles with `localhost:5000`. Port 5000 may be in use by "Airplay Receiver" which may (!) cause nondeterministic behavior. If you experience similar issues [switch to a different port](#optional-config-parameters).
 
 
 
@@ -125,6 +205,16 @@ projects in their own separate workspaces. Authentication requires the storage o
 accounts and link these accounts to projects. Currently we are using a small SQLite 
 database (asreview.development.sqlite or asreview.production.sqlite) in the ASReview 
 folder to store that information.
+
+Note that it is possible to run the authenticated application with a 
+[Postgresql database](https://www.postgresql.org/). Using Postgresql requires 2 extra 
+installation steps:
+1. Install the [psycopg2](https://www.psycopg.org/docs/) package. At the time of this writing
+2 versions of this package exist: `psycopg2` and `psycopg2-binary`. According to the
+[documentation](https://www.psycopg.org/docs/install.html#quick-install) the binary 
+version works on most operating systems.
+2. Use the [configuration file](#full-configuration) to setup the connection 
+between the application and the database.
 
 ### Bare bones authentication
 
@@ -145,7 +235,6 @@ one could use the User model that can be found in `/asreview/webapp/authenticati
 
 To configure the authentication in more detail we need to create a TOML file that contains all authentication parameters. The parameters in that TOML file will override parameters that were passed in the CLI. Here's an example:
 ```toml
-DEBUG = true
 AUTHENTICATION_ENABLED = true
 SECRET_KEY = "<secret key>"
 SECURITY_PASSWORD_SALT = "<salt>"
@@ -213,6 +302,12 @@ ALLOWED_ORIGINS = ["http://localhost:3000"]
 ```
 The HOST and PORT determine what address the ASReview server listens to. If this deviates from `localhost` and port 5000, and you run the front end separately, make sure the [front end can find the backend](#front-end-development-and-connectioncors-issues). The ALLOWED_ORIGINS key must be set if you run the front end separately. Put in a list all URLs that your front end uses. This can be more than one URL. Failing to do so will certainly lead to CORS issues.
 
+Do you want to use a Postgresql database? Then add the `SQLALCHEMY_DATABASE_URI` key to the config file:
+
+```toml
+SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://username:password@host:port/database_name"
+```
+
 ### Converting an unauthenticated application into an authenticated one
 
 Start the application with authentication enabled for the first time. This ensures the creation of the necessary database. To avoid unwanted user input, shutdown the application.
@@ -273,51 +368,6 @@ One can also insert all project information by using the JSON string that was pr
 ```
 $ asreview auth-tool link-projects --json "[{\"folder\": \"project-id\", \"version\": \"1.1+51.g0ebdb0c.dirty\", \"project_id\": \"project-id\", \"name\": \"project 1\", \"authors\": \"Authors\", \"created\": \"2023-04-12 21:23:28.625859\", \"owner_id\": 15}]" --db-path ~/.asreview/asreview.production.sqlite
 ``` 
-
-## Documentation
-
-### Sphinx docs
-
-Documentation for the ASReview project is available on https://asreview.readthedocs.io/en/latest/.
-The source files are available in the [`docs`](/docs) folder of this repository. The project makes
-use of [Sphinx](https://www.sphinx-doc.org/) to convert the source files and docstrings into HTML
-or PDF files.
-
-Install the dependencies for rendering the documentation with
-
-```
-pip install .[docs]
-```
-
-Navigate into the `docs` folder and render the documentation (the HTML version) with
-
-```
-make html
-```
-
-Open the file `docs/build/html/index.html` in your web browser.
-
-### Broken links
-
-Navigate into the `docs` folder and check for broken links with:
-
-```
-make linkcheck
-```
-
-Extra information: https://www.writethedocs.org/guide/tools/testing/#link-testing
-
-### Screenshots
-
-Screenshots are an important part of the ASReview documentation. When contributing screenshots,
-follow the guidelines below.
-
-1. Open Developers Tools in your browser (e.g. Chrome or Firefox).
-2. Set device dimensions to **1280x800**.
-3. Capture screenshot with internal screenshot tool (preferred, see [example](https://www.deconetwork.com/blog/how-to-take-full-webpage-screenshots-instantly/)).
-4. [OPTIONAL] Crop relevant part. Keep ratio if possible.
-5. Resize image to **1280x800** maximum and **960x600** minimum.
-6. [OPTIONAL] Use a red box to highlight relevant components.
 
 
 ## Release instructions

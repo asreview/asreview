@@ -1,15 +1,24 @@
 import * as React from "react";
-import { Alert } from "@mui/material";
+import { Alert, Box } from "@mui/material";
 
 export function ExplorationModeRecordAlert(props) {
   return (
     <Alert
       severity="info"
+      className={"fontSize" + props.fontSize?.label}
       sx={{ borderBottomRightRadius: 0, borderBottomLeftRadius: 0 }}
     >
-      <span className="labeled-as">
-        {`Labeled as ${props.label} in the dataset`}
-      </span>
+      Labeled as{" "}
+      {
+        <Box
+          className="labeled-as"
+          sx={{ textDecoration: "underline" }}
+          display="inline"
+        >
+          {props.label}
+        </Box>
+      }{" "}
+      in the dataset
     </Alert>
   );
 }

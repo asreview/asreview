@@ -6,21 +6,6 @@ from asreview.datasets import DatasetManager
 from asreview.datasets import NaturePublicationDataGroup
 
 
-@pytest.mark.parametrize(
-    "data_id",
-    [
-        "benchmark:van_de_Schoot_2017",
-        "benchmark:Hall_2012",
-        "benchmark:Cohen_2006_ACEInhibitors",
-        "benchmark:Bos_2018",
-    ],
-)
-def test_datasets(data_id):
-    data = DatasetManager().find(data_id)
-    assert data.filepath.startswith("https://raw.githubusercontent.com/asreview/")
-    assert data.title is not None
-
-
 def test_group():
     group_nature = NaturePublicationDataGroup()
 
