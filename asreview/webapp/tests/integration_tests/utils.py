@@ -103,7 +103,21 @@ def sign_in(driver, account_data):
     click_element(driver, "button#sign-in")
 
 
-def _add_random_prior_knowledge(driver, project_data):
+def _label_first_abstract(driver, label=None):
+    assert label in ["Yes", "No", None]
+    # Use prior label if label is None
+    if label is None:
+        # find first element that has class labeled-as
+        prior = driver.find_element(By.CSS_SELECTOR, "span.labeled-as").text
+        label = "No" if "irrelevant" in prior else "Yes"
+    # proceed with actual labeling
+    click_element(
+        driver,
+        (By.XPATH, f"//button[text()='{label}']")
+    )
+
+
+def _label_random_prior_knowledge(driver, project_data):
     # click on randomly adding prior knowledge
     click_element(
         driver,
@@ -111,23 +125,18 @@ def _add_random_prior_knowledge(driver, project_data):
     )
 
     # add random prior knowledge
-    for decision in project_data["dataset"]["prior_knowledge"]:
-        assert decision in ["Yes", "No"]
-        # make decision
-        click_element(
-            driver,
-            (By.XPATH, f"//button[text()='{decision}']")
-        )
+    for label in project_data["dataset"]["prior_knowledge"]:
+        _label_first_abstract(driver, label)
 
-def _add_searched_prior_knowledge(driver, project_data):
+
+def _label_searched_prior_knowledge(driver, project_data):
     # make the Search choice
     click_element(
         driver,
         (By.XPATH, f"//span[text()=\"Search\"]")
     )
 
-    for search_term, decision in project_data["dataset"]["prior_knowledge"]:
-        assert decision in ["Yes", "No"]
+    for search_term, label in project_data["dataset"]["prior_knowledge"]:
         # fill out search input
         driver.find_element(
             By.CSS_SELECTOR,
@@ -135,16 +144,27 @@ def _add_searched_prior_knowledge(driver, project_data):
         ).send_keys(search_term)
         # click search button
         click_element(driver, "button#search")
-        # pick first search-hit and make the decision
-        click_element(
-            driver,
-            (By.XPATH, f"//button[text()='{decision}']")
+        # make sure the result list is visible
+        no_search_result = driver.find_element(
+            By.CSS_SELECTOR, "p#"
         )
-        # cleafr search input
+        
+        selector = 
+
+    # find the element
+
+        WebDriverWait(driver, 60) \
+            .until(EC.invisibility_of_element_located(no_search_result))
+        
+        # label
+        _label_first_abstract(driver, label)
+
+        # clear search input
         driver.find_element(
             By.CSS_SELECTOR,
             "input#search-input"
         ).clear()
+
 
 
 def create_project(driver, project_data):
@@ -192,9 +212,9 @@ def create_project(driver, project_data):
     click_element(driver, "button#add-prior-knowledge")
 
     if project_data["dataset"]["prior_knowledge_method"] == "Random":
-        _add_random_prior_knowledge(driver, project_data)
+        _label_random_prior_knowledge(driver, project_data)
     else:
-        _add_searched_prior_knowledge(driver, project_data)
+        _label_searched_prior_knowledge(driver, project_data)
 
     # close page 2
     click_element(

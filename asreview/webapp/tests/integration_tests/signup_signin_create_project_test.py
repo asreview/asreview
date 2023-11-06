@@ -35,11 +35,11 @@ PROJECT = {
         # "prior_knowledge": ["Yes", "No", "Yes", "No", "Yes"]
         "prior_knowledge_method": "Search",
         "prior_knowledge": [
-            ("medicine", "Yes"),
-            ("medicine", "No"),
-            ("medicine", "Yes"),
-            ("medicine", "No"),
-            ("medicine", "Yes")
+            ("medicine", None),
+            ("medicine", None),
+            ("medicine", None),
+            ("medicine", None),
+            ("medicine", None)
         ]
     },
     "model": {

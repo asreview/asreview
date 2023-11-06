@@ -149,7 +149,7 @@ const PriorSearch = (props) => {
               !data?.result.filter((record) => record?.included === -1)
                 .length) && (
               <Box className={classes.empty}>
-                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                <Typography id="no-search-result" variant="body2" sx={{ color: "text.secondary" }}>
                   Your search results will show up here
                 </Typography>
               </Box>
