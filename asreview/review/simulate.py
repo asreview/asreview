@@ -228,6 +228,10 @@ class ReviewSimulate(BaseReview):
             pending_labels = self.data_labels[pending]
             state.add_labeling_data(pending, pending_labels)
 
+    def review(self):
+        super().review()
+        self._write_to_state()
+
     def _stop_review(self):
         """In simulation mode, the stop review function should get the labeled
         records list from the reviewer attribute."""

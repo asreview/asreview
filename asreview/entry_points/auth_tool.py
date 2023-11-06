@@ -7,29 +7,97 @@ from uuid import UUID
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy_utils import create_database
+from sqlalchemy_utils import database_exists
 
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.project import ASReviewProject
 from asreview.utils import asreview_path
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
+from asreview.webapp.authentication.models import create_database_and_tables
 
 
 def auth_parser():
     parser = argparse.ArgumentParser(
-        prog="auth_converter",
-        description="""ASReview Authentication Conversion - convert your app to handle multiple users.""",  # noqa
+        prog="auth-tool",
+        description="""
+Tool to create and fill a database to authenticate the ASReview application.
+The tool can be used to convert existing project data to be used in an
+authenticated setup.
+        """,
         formatter_class=RawTextHelpFormatter,
         epilog="Use -h or --help on all subcommands to view the available options.",
     )
 
     sub_parser = parser.add_subparsers(help="The following options are available:")
 
+    create_db_par = sub_parser.add_parser(
+        "create-db",
+        help="Create the database necessary to authenticate the ASReview app."
+    )
+
+    subparser = create_db_par.add_subparsers(dest="db_type", required=True)
+
+    sqlite = subparser.add_parser("sqlite3")
+    sqlite.add_argument(
+        "-p",
+        "--db-path",
+        type=str,
+        help="Absolute path of folder where Sqlite3 database must be created",
+        required=True
+    )
+    sqlite.add_argument(
+        "-n",
+        "--db-name",
+        type=str,
+        default="asreview.sqlite3",
+        help="Name of the Sqlite3 database (used as filename)",
+        required=True
+    )
+
+    postgres = subparser.add_parser("postgresql")
+    postgres.add_argument(
+        "-n",
+        "--db-name",
+        type=str,
+        help="Name of the PostgreSQL database",
+        default="asreview",
+        required=True,
+    )
+    postgres.add_argument(
+        "-u",
+        "--username",
+        type=str,
+        default="root",
+        help="User name if PostgreSQL requires authentication",
+    )
+    postgres.add_argument(
+        "-p",
+        "--password",
+        type=str,
+        help="Password if PostgreSQL requires authentication",
+    )
+    postgres.add_argument(
+        "-H",
+        "--host",
+        type=str,
+        help="Host URL of database",
+        default="127.0.0.1",
+    )
+    postgres.add_argument(
+        "-P",
+        "--port",
+        type=int,
+        help="Port of database",
+        default=5432,
+    )
+
     user_par = sub_parser.add_parser("add-users", help="Add users into the database.")
 
     user_par.add_argument(
         "-d",
-        "--db-path",
+        "--db-uri",
         type=str,
         help="Absolute path to authentication sqlite3 database.",
         required=True,
@@ -49,7 +117,7 @@ def auth_parser():
 
     list_users_par.add_argument(
         "-d",
-        "--db-path",
+        "--db-uri",
         type=str,
         help="Absolute path to authentication sqlite3 database.",
         required=True,
@@ -79,7 +147,7 @@ def auth_parser():
 
     link_par.add_argument(
         "-d",
-        "--db-path",
+        "--db-uri",
         type=str,
         help="Absolute path to authentication sqlite3 database.",
         required=True,
@@ -154,13 +222,15 @@ class AuthTool(BaseEntryPoint):
         self.argv = argv
 
         # create a conn object for the database
-        if hasattr(self.args, "db_path") and self.args.db_path is not None:
+        if hasattr(self.args, "db_uri") and self.args.db_uri is not None:
             Session = sessionmaker()
-            engine = create_engine(f"sqlite:///{self.args.db_path}")
+            engine = create_engine(self.args.db_uri)
             Session.configure(bind=engine)
             self.session = Session()
 
-        if "add-users" in argv:
+        if "create-db" in argv:
+            self.create_database()
+        elif "add-users" in argv:
             self.add_users()
         elif "list-users" in argv:
             self.list_users()
@@ -168,6 +238,27 @@ class AuthTool(BaseEntryPoint):
             self.list_projects()
         elif "link-projects" in argv:
             self.link_projects()
+
+    def create_database(self):
+        if self.args.db_type == "sqlite3":
+            uri = f"sqlite:///{self.args.db_path}/{self.args.db_name}"
+        elif self.args.db_type == "postgresql":
+            username = self.args.username
+            host = self.args.host
+            port = self.args.port
+            db_name = self.args.db_name
+            password = f":{self.args.password}" if self.args.password else ""
+            uri = f"postgresql+psycopg2://{username}{password}@{host}:{port}/{db_name}"
+
+            # create the database if necessary
+            if not database_exists(uri):
+                create_database(uri)
+        else:
+            # open for more database types
+            uri = ""
+        engine = create_engine(uri)
+        create_database_and_tables(engine)
+        print(f"...Database created, URI: {uri}")
 
     def add_users(self):
         if self.args.json is not None:

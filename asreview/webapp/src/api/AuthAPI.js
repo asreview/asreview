@@ -31,7 +31,7 @@ class AuthAPI {
     let body = new FormData();
     body.set("email", variables.email);
     body.set("password", variables.password);
-    
+
     const url = auth_url + `signin`;
     return new Promise((resolve, reject) => {
       axios({
@@ -53,7 +53,7 @@ class AuthAPI {
   static forgotPassword(variables) {
     let body = new FormData();
     body.set("email", variables.email);
-    
+
     const url = auth_url + `forgot_password`;
     return new Promise((resolve, reject) => {
       axios({
@@ -175,7 +175,6 @@ class AuthAPI {
         data: body,
       })
         .then((result) => {
-          console.log(result);
           resolve(result["data"]);
         })
         .catch((error) => {

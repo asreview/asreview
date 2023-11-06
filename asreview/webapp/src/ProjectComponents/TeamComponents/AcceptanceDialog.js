@@ -1,8 +1,5 @@
-import * as React from 'react';
-import {
-  Dialog,
-  Divider,
-} from "@mui/material";
+import * as React from "react";
+import { Dialog, Divider } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import AcceptanceContents from "./AcceptanceContents";
 import DialogHeader from "./DialogHeader";
@@ -41,7 +38,6 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 const AcceptanceDialog = (props) => {
-
   const handleClose = () => {
     props.onClose();
   };
@@ -67,8 +63,8 @@ const AcceptanceDialog = (props) => {
         handleAcceptance={props.handleAcceptance}
         handleRejection={props.handleRejection}
       />
-    </StyledDialog>    
+    </StyledDialog>
   );
-}
+};
 
 export default AcceptanceDialog;

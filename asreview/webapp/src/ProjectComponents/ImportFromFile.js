@@ -88,7 +88,7 @@ const ImportFromFile = ({
       // set the state such that we ca upload the file
       setFile(acceptedFiles[0]);
     },
-    [setFile, isAddFileError, reset]
+    [setFile, isAddFileError, reset],
   );
 
   const {
@@ -112,7 +112,7 @@ const ImportFromFile = ({
       ...(isDragAccept ? acceptStyle : {}),
       ...(isDragReject ? rejectStyle : {}),
     }),
-    [isDragActive, isDragReject, isDragAccept]
+    [isDragActive, isDragReject, isDragAccept],
   );
 
   const returnAcceptFile = () => {

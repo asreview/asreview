@@ -195,7 +195,7 @@ def test_set_token(setup_teardown):
 
     assert updated_user.token is not None
     assert updated_user.token_created_at is not None
-    assert type(updated_user.token_created_at) == dt
+    assert isinstance(updated_user.token_created_at, dt)
 
 
 # verify token validity, by default token is 24 hours valid

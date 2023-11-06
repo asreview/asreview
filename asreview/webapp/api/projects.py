@@ -42,7 +42,6 @@ from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.data import ASReviewData
-from asreview.data.base import _get_filename_from_url
 from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
@@ -71,6 +70,7 @@ from asreview.state.errors import StateNotFoundError
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.sql_converter import upgrade_project_config
 from asreview.utils import _get_executable
+from asreview.utils import _get_filename_from_url
 from asreview.utils import asreview_path
 from asreview.utils import list_reader_names
 from asreview.webapp import DB
@@ -305,7 +305,9 @@ def api_demo_data_project():  # noqa: F401
     if subset == "plugin":
         try:
             result_datasets = manager.list(
-                exclude=["builtin", "benchmark", "benchmark-nature"]
+                exclude=[
+                    "builtin", "synergy", "benchmark", "benchmark-nature"
+                ]
             )
 
         except Exception as err:
@@ -315,7 +317,7 @@ def api_demo_data_project():  # noqa: F401
     elif subset == "benchmark":
         try:
             # collect the datasets metadata
-            result_datasets = manager.list(include=["benchmark-nature", "benchmark"])
+            result_datasets = manager.list(include=["synergy", "benchmark-nature"])
 
         except Exception as err:
             logging.error(err)
@@ -350,21 +352,23 @@ def api_upload_data_to_project(project):  # noqa: F401
     Path(project.project_path, "data").mkdir(exist_ok=True)
 
     if request.form.get("plugin", None):
-        url = DatasetManager().find(request.form["plugin"]).filepath
-        filename, url = _get_filename_from_url(url)
+        ds = DatasetManager().find(request.form["plugin"])
+        filename = ds.filename
+        ds.to_file(Path(project.project_path, "data", filename))
 
-    if request.form.get("benchmark", None):
-        url = DatasetManager().find(request.form["benchmark"]).filepath
-        filename, url = _get_filename_from_url(url)
+    elif request.form.get("benchmark", None):
+        ds = DatasetManager().find(request.form["benchmark"])
+        filename = ds.filename
+        ds.to_file(Path(project.project_path, "data", filename))
 
-    if request.form.get("url", None):
+    elif request.form.get("url", None):
         url = request.form.get("url")
 
         # check if url value is actually DOI without netloc
         if url.startswith("10."):
             url = f"https://doi.org/{url}"
 
-        filename, url = _get_filename_from_url(url)
+        filename = _get_filename_from_url(url)
 
         if bool(request.form.get("validate", None)):
             reader_keys = list_reader_names()
@@ -392,11 +396,6 @@ def api_upload_data_to_project(project):  # noqa: F401
                 except Exception:
                     raise BadFileFormatError("Can't retrieve files.")
 
-    if (
-        request.form.get("plugin", None)
-        or request.form.get("benchmark", None)
-        or request.form.get("url", None)
-    ):
         try:
             urlretrieve(url, Path(project.project_path, "data") / filename)
         except Exception as err:

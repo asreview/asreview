@@ -604,7 +604,7 @@ def test_last_ranking(tmpdir):
         )
 
         last_ranking = state.get_last_ranking()
-        assert type(last_ranking) == pd.DataFrame
+        assert isinstance(last_ranking, pd.DataFrame)
         assert list(last_ranking.columns) == [
             "record_id",
             "ranking",

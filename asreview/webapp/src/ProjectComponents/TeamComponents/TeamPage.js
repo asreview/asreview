@@ -3,7 +3,7 @@ import { Box, Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { PageHeader } from "../../Components";
-import { EndCollaboration, InvitationContents} from ".";
+import { EndCollaboration, InvitationContents } from ".";
 
 const PREFIX = "TeamPage";
 
@@ -32,7 +32,6 @@ const TeamPage = (props) => {
             {props.isOwner && <InvitationContents />}
             {!props.isOwner && <EndCollaboration />}
           </Box>
-
         </Box>
       </Fade>
     </Root>

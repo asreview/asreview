@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "react-query";
@@ -21,8 +20,8 @@ import { styled } from "@mui/material/styles";
 import AuthAPI from "../api/AuthAPI";
 import { WordmarkState } from "../globals";
 import { useToggle } from "../hooks/useToggle";
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
 const PREFIX = "SignInForm";
 
@@ -72,12 +71,12 @@ const SignupSchema = Yup.object().shape({
   password: Yup.string()
     .matches(
       /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/,
-      'Use 8 or more characters with a mix of letters, numbers & symbols'
+      "Use 8 or more characters with a mix of letters, numbers & symbols"
     )
-    .required('Password is required'),
+    .required("Password is required"),
   confirmPassword: Yup.string()
-    .required('Password confirmation is required')
-    .oneOf([Yup.ref('password'), null], 'Passwords must match')
+    .required("Password confirmation is required")
+    .oneOf([Yup.ref("password"), null], "Passwords must match"),
 });
 
 const ResetPassword = (props) => {
@@ -85,11 +84,11 @@ const ResetPassword = (props) => {
   const [showPassword, toggleShowPassword] = useToggle();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [errorMessage, setErrorMessage] = React.useState('')
+  const [errorMessage, setErrorMessage] = React.useState("");
 
   const initialValues = {
-    password: '',
-    confirmPassword: ''
+    password: "",
+    confirmPassword: "",
   };
 
   const formik = useFormik({
@@ -101,33 +100,36 @@ const ResetPassword = (props) => {
     return !showPassword ? "password" : "text";
   };
 
-  const { isLoading, mutate } = useMutation(
-    AuthAPI.resetPassword,
-    {
-      onMutate: () => {
-        // clear potential error
-        queryClient.resetQueries("refresh");
-      },
-      onSuccess: (data) => {
-          formik.setValues(initialValues, false);
-          navigate('/sigin');
-      },
-      onError: (data) => {
-        setErrorMessage(data.message);
-        console.error('Reset password error', data);
-      }
-    }
-  );
+  const { isLoading, mutate } = useMutation(AuthAPI.resetPassword, {
+    onMutate: () => {
+      // clear potential error
+      queryClient.resetQueries("refresh");
+    },
+    onSuccess: (data) => {
+      formik.setValues(initialValues, false);
+      props.showNotification(
+        "Your password has been reset. Please sign in again."
+      );
+      navigate("/signin");
+    },
+    onError: (data) => {
+      setErrorMessage(data.message);
+      props.showNotification(
+        "Your password has not been reset! PLease contact your administrator.",
+        "error"
+      );
+      console.error("Reset password error", data);
+    },
+  });
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    let userId = searchParams.get('user_id')
-    let token = searchParams.get('token');
+    let userId = searchParams.get("user_id");
+    let token = searchParams.get("token");
     let password = formik.values.password;
-    console.log(userId, token, password);
     mutate({ userId, token, password });
     //reset();
-  }
+  };
 
   return (
     <Root>
@@ -172,8 +174,13 @@ const ResetPassword = (props) => {
                     />
                   </Stack>
                 </FormControl>
-                {formik.touched.password && formik.errors.password ? <FHT error={true}>{formik.errors.password}</FHT> : null}
-                {formik.touched.confirmPassword && formik.errors.confirmPassword ? <FHT error={true}>{formik.errors.confirmPassword}</FHT> : null}
+                {formik.touched.password && formik.errors.password ? (
+                  <FHT error={true}>{formik.errors.password}</FHT>
+                ) : null}
+                {formik.touched.confirmPassword &&
+                formik.errors.confirmPassword ? (
+                  <FHT error={true}>{formik.errors.confirmPassword}</FHT>
+                ) : null}
                 <FormControl>
                   <FormControlLabel
                     control={
@@ -186,7 +193,9 @@ const ResetPassword = (props) => {
                     label="Show password"
                   />
                 </FormControl>
-                {Boolean(errorMessage) && <InlineErrorHandler message={errorMessage} />}
+                {Boolean(errorMessage) && (
+                  <InlineErrorHandler message={errorMessage} />
+                )}
                 <Stack className={classes.button} direction="row">
                   <LoadingButton
                     loading={isLoading}
@@ -203,8 +212,7 @@ const ResetPassword = (props) => {
         </Box>
       </Fade>
     </Root>
-  )
-
-}
+  );
+};
 
 export default ResetPassword;

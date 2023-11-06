@@ -1,0 +1,43 @@
+cff-version: 1.2.0
+title: ASReview LAB - A tool for AI-assisted systematic reviews
+message: >-
+  If you use the ASReview software in your work, please cite it as indicated.
+  For referencing the underlying methodology, cite Van de Schoot et
+  al. (2021 - https://doi.org/10.1038/s42256-020-00287-7).
+
+type: software
+authors:
+  - given-names: ASReview LAB developers
+    affiliation: Utrecht University
+    email: asreview@uu.nl
+identifiers:
+  - type: doi
+    value: 10.1038/s42256-020-00287-7
+    description: >-
+      van de Schoot, R., de Bruin, J., Schram, R. et al. An
+      open source machine learning framework for efficient
+      and transparent systematic reviews. Nat Mach Intell 3,
+      125–133 (2021).
+repository-code: 'https://github.com/asreview/asreview'
+url: 'https://asreview.ai'
+repository-artifact: 'https://pypi.org/project/asreview/'
+abstract: >-
+  The Active learning for Systematic Reviews (ASReview)
+  project implements learning algorithms that interactively
+  query the researcher. This way of interactive training is
+  known as Active Learning. ASReview offers support for
+  classical learning algorithms and state-of-the-art
+  learning algorithms like neural networks. ASReview LAB is
+  the graphical user interface of the open-source research
+  software and ships with an Oracle, Exploration, and
+  Simulation Mode.
+keywords:
+  - systematic review
+  - prisma
+  - active learning
+  - statistics
+  - machine learning
+  - text data
+  - natural language processing
+  - human-in-the-loop
+license: Apache-2.0

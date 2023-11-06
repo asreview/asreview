@@ -39,11 +39,6 @@ def test_fuzzy_finder(keywords, paper_id):
 @mark.parametrize(
     "data_name",
     [
-        # datasets from the datasets repo
-        "benchmark:van_de_Schoot_2017",
-        "benchmark:Hall_2012",
-        "benchmark:Cohen_2006_ACEInhibitors",
-        "benchmark:Bos_2018",
         # datasets from the Van de Schoot et al. paper
         # https://github.com/asreview/paper-asreview/blob/master/index_v1.json
         "benchmark-nature:van_de_Schoot_2017",
@@ -140,3 +135,24 @@ def test_deduplication():
 
     # test whether .drop_duplicates() drops the duplicated records correctly
     pd.testing.assert_frame_equal(d_dups.drop_duplicates(), d_nodups.df)
+
+
+def test_duplicated():
+    # Create an instance of ASReviewData
+    instance = ASReviewData(pd.DataFrame({
+        'doi': ['https://www.doi.org/10.1000/xyz',
+                'https://www.doi.org/10.1000/abc',
+                'https://www.doi.org/10.1000/xyz',
+                '10.1000/xyz',
+                '10.1000/xyz',
+                'http://www.doi.org/10.1000/xyz',
+                'https://doi.org/10.1000/xyz'],
+        'title': ['T1', 'T2', 'T3', 'T4', 'T1', 'T2', 'T3'],
+        'abstract': ['A1', 'A2', 'A3', 'A4', 'A1', 'A2', 'A3']
+    }))
+
+    # Call the function and get the result
+    result = instance.duplicated()
+
+    # Check the result
+    assert result.equals(pd.Series([False, False, True, True, True, True, True]))

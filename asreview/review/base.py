@@ -194,7 +194,6 @@ class BaseReview(ABC):
             # write to state when stopped
             pbar_rel.close()
             pbar_total.close()
-            self._write_to_state()
 
     def _label_priors(self):
         """Make sure the prior records are labeled."""

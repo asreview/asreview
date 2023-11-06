@@ -2,19 +2,19 @@
 
 This folder contains the test suite of the ASReview app. It is organized in the following folders:
 
-* __config__: Contains data to create user accounts and a number of json files to start the ASReview app in different modes (e.g. authenticated, authentication with verification, etc).
+- **config**: Contains data to create user accounts and a number of TOML files to start the ASReview app in different modes (e.g. authenticated, authentication with verification, etc).
 
-* __data__: Contains project data used in tests.
+- **data**: Contains project data used in tests.
 
-* __integration_tests__: Forthcoming.
+- **integration_tests**: Forthcoming.
 
-* __test_api__: Contains API related tests. These tests are independent, unit-like tests.
+- **test_api**: Contains API related tests. These tests are independent, unit-like tests.
 
-* __test_database_and_models__: Contains tests that focus on basic database operations and several SQL_Alchemy models that are used in the authenticated version of the ASReview app.
+- **test_database_and_models**: Contains tests that focus on basic database operations and several SQL_Alchemy models that are used in the authenticated version of the ASReview app.
 
-* __test_extensions__: Forthcoming.
+- **test_extensions**: Forthcoming.
 
-* __utils__: Contains various helper files that facilitate writing tests.
+- **utils**: Contains various helper files that facilitate writing tests.
 
 ## Requirements
 
@@ -23,7 +23,7 @@ This folder contains the test suite of the ASReview app. It is organized in the 
 
 ## Fixtures
 
-If you are unfamiliar with Pytest: fixtures enable a setup and teardown mechanism for all tests. They ensure a controlled initial state and clean up afterwards to make sure the next test is conducted with a clean slate. 
+If you are unfamiliar with Pytest: fixtures enable a setup and teardown mechanism for all tests. They ensure a controlled initial state and clean up afterwards to make sure the next test is conducted with a clean slate.
 
 In this suite, all fixtures are defined in `conftest.py` files. These fixtures are automatically picked up by Pytest and can be found in the `/webapp/tests`-folder, but also in nested folders. The nested conftest modules use fixtures defined in the tests-folder without actually importing them: Pytest finds the required fixture if you use their function-name as parameter in either a newly defined fixture or test function.
 
@@ -35,7 +35,8 @@ Ideally a test function tests one particular feature and can be executed indepen
 
 ## Running the tests
 
-__Important__: if you run the entire test stuite, please make sure you have compiles the app's assets:
+**Important**: if you run the entire test stuite, please make sure you have compiles the app's assets:
+
 ```
 python setup.py compile_assets
 ```
@@ -52,8 +53,15 @@ The `-s` option enables capturing stdout (shows your print statements if there a
 pytest --random-order -s -v ./asreview/webapp/tests/test_api/
 ```
 
-If you are in the middle of writing your tests, and your module contains many tests, it is more efficient to run a small cluster or a single test. One of the many possibilities is the `-k` option that executes only tests with a function name that ends with a certain postfix. In the next example we execute only test functions that end with the 'current` postfix in the `test_projects.py` module:
+If you are in the middle of writing your tests, and your module contains many tests, it is more efficient to run a small cluster or a single test. One of the many possibilities is the `-k` option that executes only tests with a function name that ends with a certain postfix. In the next example we execute only test functions that end with the 'current`postfix in the`test_projects.py` module:
 
 ```
 pytest --random-order -s -v ./asreview/webapp/tests/test_api/test_projects.py -k current
 ```
+
+## Database
+
+A database is needed to run the tests for authenticated versions of the app. In the `config` file a number of TOML configuration files exist that are used to create different versions of the app. The configuration files that create an authenticated version of the app lack the `SQLALCHEMY_DATABASE_URI` parameter! That parameter tells the backend where it can find the database. If that parameter is missing, the app will create and initialize a sqlite3 database automatically. After the test suite has been executed, this database will be removed. In case you would like to run all tests in a specific database, you need to provide the URI of the database yourself.
+
+If you want to use a [Postgresql database](https://www.postgresql.org/), read the DEVELOPMENT documentation
+how to set it up.

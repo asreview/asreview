@@ -17,8 +17,8 @@ const initialState = {
   allow_teams: undefined,
   oAuthData: {
     services: {},
-    compareKey: 'oAuthCompareKey',  // these 2 values are used when the oAuth
-    messageType: 'oAuthMessage'     // popup has to communicate with the opener
+    compareKey: "oAuthCompareKey", // these 2 values are used when the oAuth
+    messageType: "oAuthMessage", // popup has to communicate with the opener
   },
   status: undefined,
   project_id: null,
@@ -41,7 +41,7 @@ function rootReducer(state = initialState, action) {
         project_id: action.project_id,
       });
     case TOGGLE_HELP_DIALOG:
-      return Object.assign({}, state, { 
+      return Object.assign({}, state, {
         onHelpDialog: !state.onHelpDialog,
       });
     // set boot data
@@ -58,16 +58,16 @@ function rootReducer(state = initialState, action) {
     // set my projects list
     case MY_PROJECTS:
       return Object.assign({}, state, {
-        myProjects: action.data
+        myProjects: action.data,
       });
     // set OAuth services
     case OAUTH_SERVICES: {
       const newState = {
         ...state.oAuthData,
-        services: action.data
-      }
+        services: action.data,
+      };
       return Object.assign({}, state, {
-        oAuthData: newState
+        oAuthData: newState,
       });
     }
     // default
