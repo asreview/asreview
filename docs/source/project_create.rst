@@ -12,7 +12,7 @@ explain each of the steps of the setup.
 To create a project:
 
 1. :doc:`start`.
-2. Go to the *Projects dashboard* if you are not already there (http://localhost:5000/projects)
+2. Go to the *Projects dashboard* if you are not already there (:samp:`http://localhost:5000/projects`)
 3. Click on the *Create* button on the bottom left
 
 Project information

@@ -118,7 +118,7 @@ There are three optional parameters available that control what address the ASRe
     ALLOWED_ORIGINS = ["http://localhost:3000"]    
 
 
-The HOST and PORT determine what address the ASReview server listens to. If this deviates from ``localhost`` and port 5000, and you run the front end separately, make sure the `front end can find the backend <https://github.com/asreview/asreview/blob/master/DEVELOPMENT.md#front-end-development-and-connectioncors-issues>`_. The ALLOWED_ORIGINS key must be set if you run the front end separately. Put in a list all URLs that your front end uses. This can be more than one URL. Failing to do so will certainly lead to CORS issues.
+The HOST and PORT determine what address the ASReview server listens to. If this deviates from ``localhost`` and port 5000, and you run the front end separately, make sure the `front end can find the backend <https://github.com/asreview/asreview/blob/master/DEVELOPMENT.md>`_. The ALLOWED_ORIGINS key must be set if you run the front end separately. Put in a list all URLs that your front end uses. This can be more than one URL. Failing to do so will certainly lead to CORS issues.
 
 Do you want to use a Postgresql database? Then add the ``SQLALCHEMY_DATABASE_URI`` key to the config file:
 
