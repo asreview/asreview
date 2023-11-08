@@ -24,7 +24,7 @@ Command line arguments
 ----------------------
 
 ASReview LAB provides a powerful command line interface for running ASReview
-LAB with other options or even run tasks like simulations (:doc:`simulation-overview)`. For a list of
+LAB with other options or even run tasks like simulations. For a list of
 available commands in ASReview LAB, type :code:`asreview lab --help`.
 
 :program:`asreview lab` launches the ASReview LAB software (the frontend).
