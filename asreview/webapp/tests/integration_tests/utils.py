@@ -1,5 +1,3 @@
-import time
-
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -103,12 +101,21 @@ def sign_in(driver, account_data):
     click_element(driver, "button#sign-in")
 
 
-def _label_first_abstract(driver, label=None):
+def label_abstract(driver, label):
+    # make sure it is capitalized
+    label = label.capitalize()
+    # check if label is correct
+    assert label in ['Irrelevant', 'Relevant']
+    # click appropriate button
+    click_element(driver, f"button#{label.lower()}")
+
+
+def _label_prior_knowledge_abstract(driver, label=None):
     assert label in ["Yes", "No", None]
     # Use prior label if label is None
     if label is None:
         # find first element that has class labeled-as
-        prior = driver.find_element(By.CSS_SELECTOR, "span.labeled-as").text
+        prior = driver.find_element(By.CSS_SELECTOR, "div.labeled-as").text
         label = "No" if "irrelevant" in prior else "Yes"
     # proceed with actual labeling
     click_element(
@@ -121,19 +128,19 @@ def _label_random_prior_knowledge(driver, project_data):
     # click on randomly adding prior knowledge
     click_element(
         driver,
-        (By.XPATH, f"//span[text()=\"Random\"]")
+        (By.XPATH, "//span[text()=\"Random\"]")
     )
 
     # add random prior knowledge
     for label in project_data["dataset"]["prior_knowledge"]:
-        _label_first_abstract(driver, label)
+        _label_prior_knowledge_abstract(driver, label)
 
 
 def _label_searched_prior_knowledge(driver, project_data):
     # make the Search choice
     click_element(
         driver,
-        (By.XPATH, f"//span[text()=\"Search\"]")
+        (By.XPATH, "//span[text()=\"Search\"]")
     )
 
     for search_term, label in project_data["dataset"]["prior_knowledge"]:
@@ -144,27 +151,20 @@ def _label_searched_prior_knowledge(driver, project_data):
         ).send_keys(search_term)
         # click search button
         click_element(driver, "button#search")
-        # make sure the result list is visible
-        no_search_result = driver.find_element(
-            By.CSS_SELECTOR, "p#"
-        )
-        
-        selector = 
 
-    # find the element
-
+        # wait until we have a result
         WebDriverWait(driver, 60) \
-            .until(EC.invisibility_of_element_located(no_search_result))
-        
-        # label
-        _label_first_abstract(driver, label)
+            .until(EC.presence_of_element_located(
+                (By.CSS_SELECTOR, "div.search-result")))
+
+        # label first abstract
+        _label_prior_knowledge_abstract(driver, label)
 
         # clear search input
         driver.find_element(
             By.CSS_SELECTOR,
             "input#search-input"
         ).clear()
-
 
 
 def create_project(driver, project_data):
@@ -195,7 +195,6 @@ def create_project(driver, project_data):
     # click on next
     click_element(driver, "button#next")
 
-
     # PAGE 2, DATASET AND PRIOR KNOWLEDGE
     # adding a dataset
     click_element(driver, "button#add-dataset")
@@ -224,7 +223,6 @@ def create_project(driver, project_data):
 
     # click on next
     click_element(driver, "button#next")
-
 
     # PAGE 3, MODEL
     # adding feature extraction mode

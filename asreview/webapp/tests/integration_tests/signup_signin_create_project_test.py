@@ -1,6 +1,5 @@
 import random
 
-from selenium.webdriver.common.by import By
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -80,8 +79,5 @@ def test_signup_signin_create_project(driver):
     for _ in range(50):
         # choose
         label = random.choice(['Irrelevant', 'Relevant'])
-
-        utils.click_element(
-            driver,
-            (By.XPATH, f"//button[contains(text(), '{label}')]")
-        )
+        # click
+        utils.label_abstract(driver, label)

@@ -126,7 +126,7 @@ const PriorUnlabeled = (props) => {
   };
 
   return (
-    <Root>
+    <Root className="search-result">
       {isError && (
         <Box sx={{ pt: 8 }}>
           <InlineErrorHandler
