@@ -249,7 +249,7 @@ def api_get_project_info(project):  # noqa: F401
     if db_project:
         project_config["ownerId"] = db_project.owner_id
 
-    return jsonify(project_config)
+    return jsonify(project_config), 201
 
 
 @bp.route("/projects/<project_id>/info", methods=["PUT"])

@@ -67,6 +67,12 @@ def create_app(
             Path(config_file_path).absolute(), load=tomllib.load, text=False
         )
 
+    if origins := app.config.get("ALLOWED_ORIGINS", False):
+        CORS(app, origins=origins, supports_credentials=True)
+
+    with app.app_context():
+        app.register_blueprint(projects.bp)
+
     # config JSON Web Tokens
     login_manager = LoginManager(app)
     login_manager.init_app(app)
@@ -116,19 +122,15 @@ def create_app(
         if bool(app.config.get("OAUTH", False)):
             app.config["OAUTH"] = OAuthHandler(app.config["OAUTH"])
 
+        with app.app_context():
+            app.register_blueprint(auth.bp)
+            app.register_blueprint(team.bp)
+
     # Ensure the instance folder exists.
     try:
         os.makedirs(app.instance_path)
     except OSError:
         pass
-
-    if origins := app.config.get("ALLOWED_ORIGINS", False):
-        CORS(app, origins=origins, supports_credentials=True)
-
-    with app.app_context():
-        app.register_blueprint(projects.bp)
-        app.register_blueprint(auth.bp)
-        app.register_blueprint(team.bp)
 
     @app.errorhandler(InternalServerError)
     def error_500(e):
