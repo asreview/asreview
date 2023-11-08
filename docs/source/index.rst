@@ -26,9 +26,9 @@ feature requests, please submit an issue on `GitHub
 
     installation
 
-    troubleshooting
-
     start
+
+    troubleshooting
 
 .. toctree::
     :maxdepth: 1
@@ -73,8 +73,6 @@ feature requests, please submit an issue on `GitHub
 .. toctree::
     :maxdepth: 1
     :caption: ASReview LAB server
-
-    lab_server
 
     server_features
 
