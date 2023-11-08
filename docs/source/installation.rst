@@ -4,60 +4,11 @@ Installation
 Welcome to the ASReview installation guide. Set up ASReview on your preferred
 platform and begin your AI-aided systematic review with ease.
 
-For local installation details, see the :ref:`Local Installation
-<local-installation>` section. For Docker deployment instructions, refer to
+For local installation details, see the . For Docker deployment instructions, refer to
 the :ref:`Docker Installation <docker-installation>` section. Consult
-the :ref:`Server Installation <server-installation>` section for server
+the  section for server
 deployment guidelines. Each installation method offers full feature support
 across Windows, macOS, and Linux platforms.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Installation Method
-     - Local
-     - Docker
-     - Server
-   * - Ease of Setup
-     - ✓
-     - ✓
-     - ✗
-   * - Isolation from Host System
-     - ✗
-     - ✓
-     - ✓
-   * - Maintenance Required
-     - Moderate
-     - Low
-     - High
-   * - User Authentication Support
-     - ✗
-     - ✗
-     - ✓
-   * - Database Flexibility
-     - ✗
-     - ✓
-     - ✓
-   * - Customizability
-     - Low
-     - High
-     - High
-   * - Network Configuration
-     - ✗
-     - ✓
-     - ✓
-   * - Backup and Export Capabilities
-     - ✗
-     - ✓
-     - ✓
-   * - Cloud Compatibility
-     - ✗
-     - ✓
-     - ✓
-
-.. note::
-
-    **Service and Support**: ASReview is a proud product of `academic collaboration <https://asreview.nl/about/>`__, developed and maintained by the community. Although we do not offer Software as a Service (SaaS) or dedicated customer support typical of commercial software, we are committed to empowering users with comprehensive documentation, responsive issue resolution, and a vibrant community for peer support. For more insights into our open-source vision, visit our `blog <https://asreview.nl/blog/open-source-and-research/>`__.
 
 
 .. _python-installation:
@@ -70,11 +21,9 @@ step-by-step instructions to install the latest version of `Python <https://www.
 
 To verify your Python installation, open a command prompt or terminal and type
 
-
 .. code:: bash
 
     python --version
-
 
 If Python is installed and correctly added to your
 system's PATH, this command will display the installed version.
@@ -89,41 +38,8 @@ Python from any command line interface.
     If you encounter issues during the installation, refer to the :doc:`Troubleshooting <troubleshooting>` section for guidance on common problems and their solutions.
 
 
-.. _local-installation:
-
-Local Installation
-------------------
-
-Opt for a local installation for swift access and direct control over your
-ASReview setup. This method ensures that your data stays private and secure
-on your personal machine.
-
-
-Considerations for a Local Setup
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**Pro's** 
-
-- **Full Control**: Local installation gives users direct control over the ASReview environment and settings. Customize the installation to fit precise requirements without the constraints of a shared or cloud-based system.
-
-- **Immediate Access**: Access the application instantly on your machine without needing an internet connection, allowing uninterrupted work on ASReview anytime.
-
-- **Privacy and Security**: With sensitive data stored on your local system, a local setup can offer additional layers of security and privacy, essential for handling confidential or proprietary research materials.
-
-**Considerations**
-
-- **System Dependencies**: A local installation may require extra steps to manage system dependencies, particularly when navigating different operating systems or conflicting software versions.
-
-- **Resource Limitations**: Your local hardware's capabilities may restrict the performance and scalability of ASReview. Large datasets or computationally intensive tasks might not perform optimally on a personal machine.
-
-- **Manual Updates**: Maintaining the software's currency requires manual updates. Users must stay vigilant about checking for and implementing updates to access the latest features and security enhancements.
-
-.. tip::
-
-        **Important Note on Data Backup**: When using ASReview in a local setup, your project files (``.asreview`` files) are stored on your local machine. To safeguard your work against data loss due to hardware failure or other unforeseen events, we strongly advise regularly exporting your project files and storing them in a secure, backed-up location. This practice ensures that your research can be recovered and continued from the last saved state, maintaining the integrity of your systematic review.
-
 Install
-~~~~~~~
+-------
 
 Install the ASReview software with Pip, the Python package installer, by executing the following command in the
 `Command Prompt` on Windows or `Terminal` on MacOS/Linux:
@@ -283,28 +199,5 @@ For additional features or personal customization, modify the `Dockerfile` from 
 
 If you want to add more extensisons, or build the Docker image yourself, check the file `Dockerfile <https://github.com/ghcr.io/asreview/asreview/tree/master/Dockerfiles>`.
 
-
-.. _server-installation:
-
-Server Installation
--------------------
-
-ASReview can be deployed on a server environment or a custom domain for
-broader access. To configure the application to listen on a specific IP
-address and port, use the --ip and --port flags when starting ASReview LAB:
-
-.. code:: bash
-
-    asreview lab --port 5555 --ip xxx.x.x.xx
-
-Replace xxx.x.x.xx with your server's actual IP address or domain name.
-
-.. tip::
-
-    For server installations and deployments, it is advised that users possess the requisite technical expertise to manage and maintain the software in their respective environments.Remember to ensure that your network and server configurations adhere to your organization's security policies when exposing the application to a closed network.
-
-.. warning::
-
-    The development server provided by Flask is not suitable for production use. For guidelines on deploying a Flask application in a production environment, refer to the official Flask documentation: `Deploying to Production <https://flask.palletsprojects.com/en/2.0.x/tutorial/deploy/>`__.
 
 
