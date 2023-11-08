@@ -24,10 +24,14 @@ feature requests, please submit an issue on `GitHub
 
     installation
 
-    start
-
     troubleshooting
 
+.. toctree::
+    :maxdepth: 1
+    :caption: Start
+
+    start
+    authentication
 
 .. toctree::
     :maxdepth: 1

@@ -14,8 +14,8 @@ MacOS or Linux, you can open `Terminal` and run the command.
 The information in the sections below is more advanced and not needed for the
 majority of the ASReview LAB users.
 
-Command line arguments for starting ASReview LAB
-------------------------------------------------
+Command line arguments
+----------------------
 
 ASReview LAB provides a powerful command line interface for running ASReview
 LAB with other options or even run tasks like simulations. For a list of
@@ -133,8 +133,8 @@ Or the following on Windows operating systems:
 	echo %ASREVIEW_PATH%
 
 
-Run ASReview LAB on localhost with a different port
----------------------------------------------------
+Run with a different port
+-------------------------
 
 By default, ASReview LAB runs on port 5000. If that port is already in use or
 if you want to specify a different port, start ASReview LAB with the following
@@ -149,4 +149,21 @@ For example, start ASReview LAB on port 5001:
 .. code:: bash
 
 	asreview lab --port 5001
+
+
+
+.. _cloud-installation:
+
+Cloud environments
+------------------
+
+For advanced scenarios, such as executing ASReview simulations in cloud
+environments or running them in parallel, consult our specialized `cloud
+usage guide <https://github.com/asreview/cloud-usage>`__. This guide provides
+tailored instructions for a variety of use cases, including simulations on
+cloud platforms such as SURF, Digital Ocean, AWS, Azure, and leveraging
+Kubernetes for large-scale simulation tasks.
+
+
+
 
