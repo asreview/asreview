@@ -27,6 +27,7 @@ import pandas as pd
 from flask import Blueprint
 from flask import abort
 from flask import jsonify
+from flask import current_app
 from flask import request
 from flask import send_file
 from flask_login import current_user
@@ -73,7 +74,6 @@ from asreview.utils import _get_filename_from_url
 from asreview.utils import asreview_path
 from asreview.utils import list_reader_names
 from asreview.webapp import DB
-from asreview.webapp.authentication.login_required import app_is_authenticated
 from flask_login import login_required
 from asreview.webapp.authentication.login_required import project_authorization
 from asreview.webapp.authentication.models import Project
@@ -118,29 +118,25 @@ def api_get_projects():  # noqa: F401
     """"""
     project_info = []
 
-    if app_is_authenticated():
+    if current_app.config.get("LOGIN_DISABLED", False):
+        projects = get_projects(None)
+        owner_ids = [None for p in projects]
+    else:
         # authenticated with User accounts
         user_db_projects = list(current_user.projects) + list(current_user.involved_in)
         project_paths = [project.project_path for project in user_db_projects]
         owner_ids = [project.owner_id for project in user_db_projects]
         projects = get_projects(project_paths)
-    else:
-        # force get_projects to list the .asreview folder
-        projects = get_projects(None)
-        owner_ids = [None for p in projects]
 
     for project, owner_id in zip(projects, owner_ids):
         try:
             project_config = project.config
+            project_config["owner_id"] = owner_id
 
             # upgrade info of v0 projects
             if project_config["version"].startswith("0"):
                 project_config = upgrade_project_config(project_config)
                 project_config["projectNeedsUpgrade"] = True
-
-            # add ownership information if authentication is enabled
-            if app_is_authenticated():
-                project_config["owner_id"] = owner_id
 
             logging.info("Project found: {}".format(project_config["id"]))
             project_info.append(project_config)
@@ -167,12 +163,11 @@ def api_get_projects_stats():  # noqa: F401
 
     stats_counter = {"n_in_review": 0, "n_finished": 0, "n_setup": 0}
 
-    if app_is_authenticated():
+    if current_app.config.get("LOGIN_DISABLED", False):
+        project_paths = None
+    else:
         user_db_projects = list(current_user.projects) + list(current_user.involved_in)
         project_paths = [project.project_path for project in user_db_projects]
-    else:
-        # force get_projects to list the .asreview folder
-        project_paths = None
 
     for project in get_projects(project_paths):
         project_config = project.config
@@ -223,14 +218,14 @@ def api_init_project():  # noqa: F401
         project_authors=project_authors,
     )
 
+    if current_app.config.get("LOGIN_DISABLED", False):
+        return jsonify(project.config), 201
+
     # create a database entry for this project
-    if app_is_authenticated():
-        current_user.projects.append(Project(project_id=project_id))
-        DB.session.commit()
+    current_user.projects.append(Project(project_id=project_id))
+    DB.session.commit()
 
-    response = jsonify(project.config)
-
-    return response, 201
+    return jsonify(project.config), 201
 
 
 @bp.route("/projects/<project_id>/upgrade_if_old", methods=["GET"])
@@ -264,13 +259,14 @@ def api_get_project_info(project):  # noqa: F401
         project_config = upgrade_project_config(project_config)
         project_config["projectNeedsUpgrade"] = True
 
-    # add user_id of owner to response if authenticated
-    if app_is_authenticated():
-        db_project = Project.query.filter(
-            Project.project_id == project.config.get("id", 0)
-        ).one_or_none()
-        if db_project:
-            project_config["ownerId"] = db_project.owner_id
+    if current_app.config.get("LOGIN_DISABLED", False):
+        return jsonify(project_config), 201
+
+    db_project = Project.query.filter(
+        Project.project_id == project.config.get("id", 0)
+    ).one_or_none()
+    if db_project:
+        project_config["ownerId"] = db_project.owner_id
 
     return jsonify(project_config)
 
@@ -1123,17 +1119,19 @@ def api_import_project():
             safe_import=True
         )
 
-        # create a database entry for this project
-        if app_is_authenticated():
-            current_user.projects.append(
-                Project(project_id=project.config.get("id"))
-            )
-            project.config["owner_id"] = current_user.id
-            DB.session.commit()
-
     except Exception as err:
         logging.error(err)
         raise ValueError("Failed to import project.")
+
+    if current_app.config.get("LOGIN_DISABLED", False):
+        return jsonify(project.config)
+
+    # create a database entry for this project
+    current_user.projects.append(
+        Project(project_id=project.config.get("id"))
+    )
+    project.config["owner_id"] = current_user.id
+    DB.session.commit()
 
     return jsonify(project.config)
 
@@ -1560,7 +1558,7 @@ def api_delete_project(project):  # noqa: F401
     if project.project_path.exists() and project.project_path.is_dir():
         try:
             # remove from database if applicable
-            if app_is_authenticated():
+            if not current_app.config.get("LOGIN_DISABLED", False):
                 project = Project.query.filter(
                     and_(
                         Project.project_id == project.project_id,

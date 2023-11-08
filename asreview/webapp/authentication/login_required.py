@@ -29,22 +29,20 @@ def project_authorization(f):
 
     @wraps(f)
     def decorated_function(project_id, *args, **kwargs):
-        if app_is_authenticated(current_app):
-            # find the project
-            project = Project.query.filter(
-                Project.project_id == project_id
-            ).one_or_none()
-            if project is None:
-                return jsonify({"message": "project not found"}), 404
-            # if there is a project, check if
-            all_users = set([project.owner] + project.collaborators)
-            if current_user not in all_users:
-                return jsonify({"message": "no permission"}), 403
+
+        if app.config.get("LOGIN_DISABLED", False):
+            return f(project_id, *args, **kwargs)
+
+        # find the project
+        project = Project.query.filter(
+            Project.project_id == project_id
+        ).one_or_none()
+        if project is None:
+            return jsonify({"message": "project not found"}), 404
+        # if there is a project, check if
+        all_users = set([project.owner] + project.collaborators)
+        if current_user not in all_users:
+            return jsonify({"message": "no permission"}), 403
         return f(project_id, *args, **kwargs)
 
     return decorated_function
-
-
-def app_is_authenticated(app=current_app):
-    """Checks is app is authenticated"""
-    return not app.config.get("LOGIN_DISABLED", False)
