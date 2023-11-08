@@ -30,4 +30,4 @@ jobs:
           pip install --no-cache-dir .
       - name: Test flask web app
         run: |
-          pytest --random-order --ignore=integration_tests asreview/webapp/tests
+          pytest --random-order --ignore=asreview/webapp/tests/integration_tests asreview/webapp/tests
