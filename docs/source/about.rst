@@ -249,7 +249,7 @@ The use of ASReview LAB comes with `five fundamental principles
 
 
 Considerations for a Local Setup
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------
 
 **Pro's** 
 
