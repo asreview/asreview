@@ -133,8 +133,17 @@ Or the following on Windows operating systems:
 	echo %ASREVIEW_PATH%
 
 
-Run with a different port
--------------------------
+Run with different port
+-----------------------
+
+To configure the application to listen on a specific IP
+address and port, use the --ip and --port flags when starting ASReview LAB:
+
+.. code:: bash
+
+    asreview lab --port 5555 --ip xxx.x.x.xx
+
+Replace xxx.x.x.xx with your server's actual IP address or domain name.
 
 By default, ASReview LAB runs on port 5000. If that port is already in use or
 if you want to specify a different port, start ASReview LAB with the following
@@ -149,6 +158,10 @@ For example, start ASReview LAB on port 5001:
 .. code:: bash
 
 	asreview lab --port 5001
+
+.. warning::
+
+    The development server provided by Flask is not suitable for production use. For guidelines on deploying a Flask application in a production environment, refer to the official Flask documentation: `Deploying to Production <https://flask.palletsprojects.com/en/2.0.x/tutorial/deploy/>`__.
 
 
 
