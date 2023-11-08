@@ -1,15 +1,21 @@
-Start ASReview LAB
-==================
+Starting ASReview LAB
+=====================
 
-After you install ASReview LAB, start the program via the command line to
-start using it.
+Once ASReview LAB has been successfully installed on your system, you can
+launch it by entering the following command into your command line interface
+(CLI):
 
 .. code:: bash
 
-	asreview lab
+    asreview lab
 
-When you are using Windows, open `CMD.exe` and run the command. When you use
-MacOS or Linux, you can open `Terminal` and run the command.
+Upon executing this command, ASReview LAB will initiate, and your default web
+browser will automatically open a new tab to the ASReview LAB interface where
+you can begin your systematic review.
+
+.. figure:: ../images/first_time.png
+   :alt: First time opening ASReview LAB
+
 
 The information in the sections below is more advanced and not needed for the
 majority of the ASReview LAB users.
@@ -18,7 +24,7 @@ Command line arguments
 ----------------------
 
 ASReview LAB provides a powerful command line interface for running ASReview
-LAB with other options or even run tasks like simulations. For a list of
+LAB with other options or even run tasks like simulations (:doc:`simulation-overview)`. For a list of
 available commands in ASReview LAB, type :code:`asreview lab --help`.
 
 :program:`asreview lab` launches the ASReview LAB software (the frontend).
