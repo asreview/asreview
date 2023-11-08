@@ -1,5 +1,5 @@
-Authentication
---------------
+Server Configuration
+--------------------
 
 It is possible to run ASReview with authentication, enabling multiple users to run their
 projects in their own separate workspaces. Authentication requires the storage of user
