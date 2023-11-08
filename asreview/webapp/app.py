@@ -58,7 +58,7 @@ def create_app(
 
     app.config["SECRET_KEY"] = secret_key
     app.config["SALT"] = salt
-    app.config["ENABLE_AUTHENTICATION"] = enable_authentication
+    app.config["LOGIN_DISABLED"] = not enable_authentication
 
     app.config.from_prefixed_env()
 
@@ -72,13 +72,13 @@ def create_app(
     login_manager.init_app(app)
     login_manager.session_protection = "strong"
 
-    if not app.config.get("AUTHENTICATION_ENABLED", False):
+    if app.config.get("LOGIN_DISABLED", False):
 
         @login_manager.user_loader
         def load_user(user_id):
             return False
 
-    elif app.config.get("AUTHENTICATION_ENABLED", False):
+    else:
         # Register a callback function for current_user.
         @login_manager.user_loader
         def load_user(user_id):
@@ -163,7 +163,7 @@ def create_app(
     def api_boot():
         """Get the boot info."""
 
-        authenticated = app.config.get("AUTHENTICATION_ENABLED", False)
+        authenticated = not app.config.get("LOGIN_DISABLED", False)
 
         response = {
             "authentication": authenticated,
