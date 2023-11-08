@@ -94,7 +94,7 @@ def naive_prior_knowledge(labels):
     first_included_idx = np.where(labels == 1)[0].min()
     first_excluded_idx = np.where(labels == 0)[0].min()
 
-    return np.arange(max(first_included_idx, first_excluded_idx)+1)
+    return np.arange(max(first_included_idx, first_excluded_idx) + 1)
 
 
 class ReviewSimulate(BaseReview):
@@ -171,7 +171,7 @@ class ReviewSimulate(BaseReview):
             start_idx = prior_indices
         else:
             start_idx = as_data.prior_data_idx
-            if len(as_data.prior_data_idx) == 0 and n_prior_included + n_prior_excluded > 0:
+            if len(start_idx) == 0 and n_prior_included + n_prior_excluded > 0:
                 start_idx = sample_prior_knowledge(
                     labels, n_prior_included, n_prior_excluded, random_state=init_seed
                 )
