@@ -23,6 +23,26 @@ Bare bones authentication
 Using authentication imposes more configuration. Let's start with running a bare bones
 authenticated version of the application from the CLI:
 
+
+.. code:: bash
+
+    asreview lab --enable-auth --secret-key=<secret key> --salt=<salt>
+    
+
+where ``--enable-auth`` forces the application to run in an authenticated mode, 
+``<secret key>`` is a string that is used for encrypting cookies and ``<salt>`` is
+a string that is used to hash passwords.
+
+This bare bones application only allows an administrator to create user accounts by 
+editing the database without the use of the ASReview application! To facilitate this,
+one could use the User model that can be found in ``/asreview/webapp/authentication/models.py``. Note that with this simple configuration it is not possible for a user to change forgotten passwords without the assistance of the administrator.
+
+Full configuration
+~~~~~~~~~~~~~~~~~~
+
+To configure the authentication in more detail we need to create a TOML file that contains all authentication parameters. The parameters in that TOML file will override parameters that were passed in the CLI. Here's an example:
+
+
 .. code-block::  none
 
     DEBUG = true
@@ -67,30 +87,13 @@ authenticated version of the application from the CLI:
             CLIENT_ID = "<Google client ID>"
             CLIENT_SECRET = "<Google client secret>"
             SCOPE = "profile email"
-    
-
-where ``--enable-auth`` forces the application to run in an authenticated mode, 
-``<secret key>`` is a string that is used for encrypting cookies and ``<salt>`` is
-a string that is used to hash passwords.
-
-This bare bones application only allows an administrator to create user accounts by 
-editing the database without the use of the ASReview application! To facilitate this,
-one could use the User model that can be found in ``/asreview/webapp/authentication/models.py``. Note that with this simple configuration it is not possible for a user to change forgotten passwords without the assistance of the administrator.
-
-Full configuration
-~~~~~~~~~~~~~~~~~~
-
-To configure the authentication in more detail we need to create a TOML file that contains all authentication parameters. The parameters in that TOML file will override parameters that were passed in the CLI. Here's an example:
-.. code-block::
-
-    toml    DEBUG = true    AUTHENTICATION_ENABLED = true    SECRET_KEY = "<secret key>"    SECURITY_PASSWORD_SALT = "<salt>"    SESSION_COOKIE_SECURE = true    REMEMBER_COOKIE_SECURE = true    SESSION_COOKIE_SAMESITE = "Lax"    SQLALCHEMY_TRACK_MODIFICATIONS = true    ALLOW_ACCOUNT_CREATION = true    ALLOW_TEAMS = false    EMAIL_VERIFICATION = false        [EMAIL_CONFIG]    SERVER = "<smtp-server>"    PORT = 465    USERNAME = "<smtp-server-username>"    PASSWORD = "<smtp-server-password>"    USE_TLS = false    USE_SSL = true    REPLY_ADDRESS = "<preferred reply email address>"        [OAUTH]            [OAUTH.GitHub]            AUTHORIZATION_URL = "https://github.com/login/oauth/authorize"            TOKEN_URL = "https://github.com/login/oauth/access_token"            CLIENT_ID = "<GitHub client ID>"            CLIENT_SECRET = "<GitHub client secret>"            SCOPE = ""                    [OAUTH.Orcid]            AUTHORIZATION_URL = "https://sandbox.orcid.org/oauth/authorize"            TOKEN_URL = "https://sandbox.orcid.org/oauth/token"            CLIENT_ID = "<Orcid client ID>"            CLIENT_SECRET = "<Orcid client secret>"            SCOPE = "/authenticate"                [OAUTH.Google]            AUTHORIZATION_URL = "https://accounts.google.com/o/oauth2/auth"            TOKEN_URL = "https://oauth2.googleapis.com/token"            CLIENT_ID = "<Google client ID>"            CLIENT_SECRET = "<Google client secret>"            SCOPE = "profile email"    
-
 
 Store the TOML file on the server and start the ASReview application from the CLI with the
 ``--flask-configfile`` parameter:
-.. code-block::
 
-        $ python3 -m asreview lab --flask-configfile=<path-to-TOML-config-file>    
+.. code:: bash
+
+        asreview lab --flask-configfile=<path-to-TOML-config-file>    
 
 
 A number of the keys in the TOML file are standard Flask parameters. The keys that are specific for authenticating ASReview are summarised below:
@@ -108,19 +111,20 @@ Optional config parameters
 
 There are three optional parameters available that control what address the ASReview server listens to, and avoid CORS issues:
 
-.. code-block::
+.. code-block:: none
 
-    toml    HOST = "0.0.0.0"    PORT = 5001    ALLOWED_ORIGINS = ["http://localhost:3000"]    
+    HOST = "0.0.0.0"    
+    PORT = 5001    
+    ALLOWED_ORIGINS = ["http://localhost:3000"]    
 
 
 The HOST and PORT determine what address the ASReview server listens to. If this deviates from ``localhost`` and port 5000, and you run the front end separately, make sure the `front end can find the backend <https://github.com/asreview/asreview/blob/master/DEVELOPMENT.md#front-end-development-and-connectioncors-issues>`_. The ALLOWED_ORIGINS key must be set if you run the front end separately. Put in a list all URLs that your front end uses. This can be more than one URL. Failing to do so will certainly lead to CORS issues.
 
 Do you want to use a Postgresql database? Then add the ``SQLALCHEMY_DATABASE_URI`` key to the config file:
 
-.. code-block::
+.. code-block:: none
 
-    toml    SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://username:password@host:port/database_name"    
-
+    SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://username:password@host:port/database_name"    
 
 
 Convert
@@ -138,28 +142,29 @@ To convert the old unauthenticated projects into authenticated ones, the followi
 
 Under the CLI sub commands of the ASReview application a tool can be found that facilitates these procedures:
 
-.. code-block::
+.. code-block:: bash
 
-        $ asreview auth-tool --help    
-
+        asreview auth-tool --help    
 
 
 Creating user accounts
 ~~~~~~~~~~~~~~~~~~~~~~
 
 The first step is to create user accounts. This can be done interactively or by using a JSON string to bulk insert the accounts. To add user accounts interactively run the following command:
-.. code-block::
 
-        $ asreview auth-tool add-users --db-path ~/.asreview/asreview.production.sqlite    
 
+.. code:: bash
+
+        asreview auth-tool add-users --db-path ~/.asreview/asreview.production.sqlite    
 
 
 Note that the absolute path of the sqlite database has to be provided. Also note that if your app runs in development mode, use the ``asreview.development.sqlite`` database instead. The tool will prompt you if you would like to add a user account. Type ``Y`` to continue and enter an email address, name, affiliation (not required) and a password for every person. Continue to add as many users as you would like.
 
 If you would like to bulk insert user accounts use the ``--json`` option:
-.. code-block::
 
-        $ asreview auth-tool add-users -j "[{\"email\": \"name@email.org\", \"name\": \"Name of User\", \"affiliation\": \"Some Place\", \"password\": \"1234@ABcd\"}]" --db-path ~/.asreview/asreview.production.sqlite    
+.. code:: bash
+
+        asreview auth-tool add-users -j "[{\"email\": \"name@email.org\", \"name\": \"Name of User\", \"affiliation\": \"Some Place\", \"password\": \"1234@ABcd\"}]" --db-path ~/.asreview/asreview.production.sqlite    
 
 
 The JSON string represents a Python list with a dictionary for every user account with the following keys: ``email``, ``name``, ``affiliation`` and ``password``. Note that passwords require at least one symbol. These symbols, such as the exclamation mark, may compromise the integrity of the JSON string.
@@ -170,22 +175,25 @@ Preparing the projects
 After creating the user accounts, the existing projects must be stored and linked to a user account in the database. The tool provides the ``list-projects`` command to prepare for this step in case you would like to bulk store all projects. Ignore the following commands if you prefer to store all projects interactively. 
 
 Without a flag, the command lists all projects:
-.. code-block::
 
-        $ asreview auth-tool list-projects    
+.. code:: bash
+
+        asreview auth-tool list-projects    
 
 
 If you add the ``--json`` flag:
-.. code-block::
 
-        $ asreview auth-tool list-projects --json    
+.. code:: bash
+
+        asreview auth-tool list-projects --json    
 
 
 the tool returns a convenient JSON string that can be used to bulk insert and link projects into the database. The string represents a Python list containing a dictionary for every project. Since the ID of the user account of 
 the owner is initially unknown, the ``0`` behind every ``owner_id`` key needs to be replaced with the appropriate owner ID. That ID number can be found if we list all user accounts with the following command:
-.. code-block::
 
-        $ asreview auth-tool list-users --db-path ~/.asreview/asreview.production.sqlite    
+.. code:: bash
+
+        asreview auth-tool list-users --db-path ~/.asreview/asreview.production.sqlite    
 
 
 Inserting and linking the projects into the database
@@ -193,16 +201,18 @@ Inserting and linking the projects into the database
 
 
 Inserting and linking the projects into the database can be done interactively:
-.. code-block::
 
-        $ asreview auth-tool link-projects --db-path ~/.asreview/asreview.production.sqlite    
+.. code:: bash
+
+        asreview auth-tool link-projects --db-path ~/.asreview/asreview.production.sqlite    
 
 
 The tool will list project by project and asks what the ID of the owner is. That ID can be found in the user list below the project information.
 
 One can also insert all project information by using the JSON string that was produced in the previous step:
-.. code-block::
 
-        $ asreview auth-tool link-projects --json "[{\"folder\": \"project-id\", \"version\": \"1.1+51.g0ebdb0c.dirty\", \"project_id\": \"project-id\", \"name\": \"project 1\", \"authors\": \"Authors\", \"created\": \"2023-04-12 21:23:28.625859\", \"owner_id\": 15}]" --db-path ~/.asreview/asreview.production.sqlite    
+.. code:: bash
+
+        asreview auth-tool link-projects --json "[{\"folder\": \"project-id\", \"version\": \"1.1+51.g0ebdb0c.dirty\", \"project_id\": \"project-id\", \"name\": \"project 1\", \"authors\": \"Authors\", \"created\": \"2023-04-12 21:23:28.625859\", \"owner_id\": 15}]" --db-path ~/.asreview/asreview.production.sqlite    
 
  
