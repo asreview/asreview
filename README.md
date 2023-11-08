@@ -73,9 +73,8 @@ LAB](https://asreview.readthedocs.io/en/latest/about.html).
 
 ## Citation
 
-The following publication in [Nature Machine
-Intelligence](https://doi.org/10.1038/s42256-020-00287-7) can be used to cite
-the project.
+If you wish to cite the underlying methodology of the ASReview software,
+please use the following publication in Nature Machine Intelligence:
 
 > van de Schoot, R., de Bruin, J., Schram, R. et al. An open source machine
   learning framework for efficient and transparent systematic reviews.
