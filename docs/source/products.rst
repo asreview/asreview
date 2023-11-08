@@ -7,8 +7,9 @@ ASReview LAB is an open-source and free-to-use software product resulting from
 an academic collaboration. It enables AI-aided systematic screening of
 textual data, such as in systematic reviews or meta-analyses. It runs in a
 web-browser and is flexible in using many different feature extractors and
-classifiers. For more information, refer to the `Nature Machine Intelligence
-publication <https://www.nature.com/articles/s42256-020-00287-7>`__.
+classifiers. For more information about the underlying infrastructure, refer
+to the `Nature Machine Intelligence publication
+<https://www.nature.com/articles/s42256-020-00287-7>`__.
 
 ASReview LAB Server
 -------------------
