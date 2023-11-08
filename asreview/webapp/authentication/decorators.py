@@ -76,6 +76,6 @@ def current_user_projects(f):
             user_db_projects = list(current_user.projects) + list(current_user.involved_in)
             projects = get_projects([project.project_path for project in user_db_projects])
 
-            return f(projects, *args, **kwargs)
+        return f(projects, *args, **kwargs)
 
     return decorated_function

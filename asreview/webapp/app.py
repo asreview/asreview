@@ -73,18 +73,13 @@ def create_app(
     with app.app_context():
         app.register_blueprint(projects.bp)
 
-    # config JSON Web Tokens
-    login_manager = LoginManager(app)
-    login_manager.init_app(app)
-    login_manager.session_protection = "strong"
+    if not app.config.get("LOGIN_DISABLED", False):
 
-    if app.config.get("LOGIN_DISABLED", False):
+        # config JSON Web Tokens
+        login_manager = LoginManager(app)
+        login_manager.init_app(app)
+        login_manager.session_protection = "strong"
 
-        @login_manager.user_loader
-        def load_user(user_id):
-            return False
-
-    else:
         # Register a callback function for current_user.
         @login_manager.user_loader
         def load_user(user_id):
