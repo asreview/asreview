@@ -76,7 +76,7 @@ def sample_prior_knowledge(
 
 
 def naive_prior_knowledge(labels):
-    """Function to sample prelabelled articles.
+    """Select top records until the first 0 and 1 are found.
 
     Arguments
     ---------
