@@ -1,5 +1,51 @@
 # DEVELOPMENT
 
+## Documentation
+
+### Sphinx docs
+
+Documentation for the ASReview project is available on https://asreview.readthedocs.io/en/latest/.
+The source files are available in the [`docs`](/docs) folder of this repository. The project makes
+use of [Sphinx](https://www.sphinx-doc.org/) to convert the source files and docstrings into HTML
+or PDF files.
+
+Install the dependencies for rendering the documentation with
+
+```
+pip install .[docs]
+```
+
+Navigate into the `docs` folder and render the documentation (the HTML version) with
+
+```
+make html
+```
+
+Open the file `docs/build/html/index.html` in your web browser.
+
+### Broken links
+
+Navigate into the `docs` folder and check for broken links with:
+
+```
+make linkcheck
+```
+
+Extra information: https://www.writethedocs.org/guide/tools/testing/#link-testing
+
+### Screenshots
+
+Screenshots are an important part of the ASReview documentation. When contributing screenshots,
+follow the guidelines below.
+
+1. Open Developers Tools in your browser (e.g. Chrome or Firefox).
+2. Set device dimensions to **1280x800**.
+3. Capture screenshot with internal screenshot tool (preferred, see [example](https://www.deconetwork.com/blog/how-to-take-full-webpage-screenshots-instantly/)).
+4. [OPTIONAL] Crop relevant part. Keep ratio if possible.
+5. Resize image to **1280x800** maximum and **960x600** minimum.
+6. [OPTIONAL] Use a red box to highlight relevant components.
+
+
 ## Development workflow for frontend and backend development
 
 Most users will only need the first 2 steps: Installation and Setting Up Servers.
@@ -118,8 +164,6 @@ Examples:
 - To update the submodule, you would still need to follow the contribution guide in the submodule repository. And then create a PR for the main repository with the updated submodule commit.
 
 
-
-
 #### Formatting and linting
 
 Use `flake8` to lint the Python code and format the code with `black`. Use
@@ -139,52 +183,6 @@ black .
 isort .
 flake8 .
 ```
-
-## Documentation
-
-### Sphinx docs
-
-Documentation for the ASReview project is available on https://asreview.readthedocs.io/en/latest/.
-The source files are available in the [`docs`](/docs) folder of this repository. The project makes
-use of [Sphinx](https://www.sphinx-doc.org/) to convert the source files and docstrings into HTML
-or PDF files.
-
-Install the dependencies for rendering the documentation with
-
-```
-pip install .[docs]
-```
-
-Navigate into the `docs` folder and render the documentation (the HTML version) with
-
-```
-make html
-```
-
-Open the file `docs/build/html/index.html` in your web browser.
-
-### Broken links
-
-Navigate into the `docs` folder and check for broken links with:
-
-```
-make linkcheck
-```
-
-Extra information: https://www.writethedocs.org/guide/tools/testing/#link-testing
-
-### Screenshots
-
-Screenshots are an important part of the ASReview documentation. When contributing screenshots,
-follow the guidelines below.
-
-1. Open Developers Tools in your browser (e.g. Chrome or Firefox).
-2. Set device dimensions to **1280x800**.
-3. Capture screenshot with internal screenshot tool (preferred, see [example](https://www.deconetwork.com/blog/how-to-take-full-webpage-screenshots-instantly/)).
-4. [OPTIONAL] Crop relevant part. Keep ratio if possible.
-5. Resize image to **1280x800** maximum and **960x600** minimum.
-6. [OPTIONAL] Use a red box to highlight relevant components.
-
 
 ## Release instructions
 
