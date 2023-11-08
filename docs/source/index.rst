@@ -9,6 +9,8 @@ Welcome to the ASReview LAB Documentation!
 
     about
 
+    products
+
     research
 
     contribute
@@ -20,18 +22,13 @@ feature requests, please submit an issue on `GitHub
 
 .. toctree::
     :maxdepth: 1
-    :caption: Install and Upgrade
+    :caption: Install and Start
 
     installation
 
     troubleshooting
 
-.. toctree::
-    :maxdepth: 1
-    :caption: Start
-
     start
-    authentication
 
 .. toctree::
     :maxdepth: 1
@@ -71,6 +68,17 @@ feature requests, please submit an issue on `GitHub
     simulation_results
 
     simulation_api_example
+
+
+.. toctree::
+    :maxdepth: 1
+    :caption: ASReview LAB server
+
+    lab_server
+
+    server_features
+
+    server_configuration
 
 .. toctree::
     :maxdepth: 1
