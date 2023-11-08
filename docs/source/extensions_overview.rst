@@ -1,5 +1,5 @@
-Extensions
-==========
+Installation
+============
 
 ASReview has extensive support for extensions. They can extend the
 functionality of ASReview LAB, and the
@@ -9,9 +9,6 @@ supported extensions <extensions-official>` and `community maintained extensions
 Looking to develop your own extension? See :ref:`develop-extensions` for
 detailed instructions.
 
-
-Installation
-------------
 
 Most extensions are installable from PyPI (the same way ASReview LAB is
 installed) or GitHub. It is preferred to follow the installation instructions
@@ -37,7 +34,7 @@ values of the extension.
 .. _extensions-official:
 
 Supported Extensions
---------------------
+====================
 
 The following extensions are officially supported and maintained by the
 maintainers of ASReview LAB. They are extensively tested and integrate well
@@ -60,8 +57,8 @@ with ASReview LAB.
 
 .. _extensions-community:
 
-List of extensions for ASReview LAB
------------------------------------
+List of extensions
+==================
 
 The `List of extensions for ASReview LAB <https://github.com/asreview/asreview/discussions/1140>`__ on the Discussion platform
 gives an overview of known extensions to ASReview LAB and other useful tools
