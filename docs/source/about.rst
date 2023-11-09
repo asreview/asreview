@@ -24,8 +24,10 @@ around the world.
 .. youtube:: k-a2SCq-LtA
 
 
-Cite
-----
+
+
+How to Cite
+-----------
 
 - For scientific use and to refer to the underlying infrastructure, we encourage users to cite the paper published in `Nature Machine Intelligence <https://www.nature.com/articles/s42256-020-00287-7>`_.
 
