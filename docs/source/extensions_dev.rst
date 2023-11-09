@@ -1,7 +1,7 @@
 .. _develop-extensions:
 
-Create extensions
-=================
+Creating extensions
+===================
 
 ASReview extensions enable you to integrate your programs with the ASReview
 framework seamlessly, by using the Python API. These extensions fall into three
@@ -16,7 +16,8 @@ setuptools. You will need to create a package and install it (for example with
 pip).
 
 Did you develop a useful extension to ASReview and want to list it on
-:ref:`extensions-community`? Create a Pull Request or open an issue on
+`the Discussion platform <https://github.com/asreview/asreview/discussions/1140>`__? 
+Create a Pull Request or open an issue on
 `GitHub <https://github.com/asreview/asreview/issues>`__.
 
 For more information on the ASReview API for creating an extension, a technical
