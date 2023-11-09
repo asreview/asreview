@@ -163,8 +163,10 @@ class ReviewSimulate(BaseReview):
             # Check if there is already a ranking stored in the state.
             if state.model_has_trained:
                 self.last_ranking = state.get_last_ranking()
+                self.last_probabilities = state.get_last_probabilities()
             else:
                 self.last_ranking = None
+                self.last_probabilities = None
 
             self.labeled = state.get_labeled()
             self.pool = pd.Series(
@@ -270,8 +272,8 @@ class ReviewSimulate(BaseReview):
         self.classifier.fit(X_train, y_train)
 
         # Use the query strategy to produce a ranking.
-        ranked_record_ids = self.query_strategy.query(
-            self.X, classifier=self.classifier
+        ranked_record_ids, relevance_scores = self.query_strategy.query(
+            self.X, classifier=self.classifier, return_classifier_scores=True
         )
 
         self.last_ranking = pd.concat(
@@ -279,6 +281,8 @@ class ReviewSimulate(BaseReview):
             axis=1,
         )
         self.last_ranking.columns = ["record_id", "label"]
+        # The scores for the included records in the second column.
+        self.last_probabilities = relevance_scores[:, 1]
 
         self.training_set = new_training_set
 
@@ -351,6 +355,7 @@ class ReviewSimulate(BaseReview):
                     self.feature_extraction.name,
                     self.training_set,
                 )
+                state.add_last_probabilities(self.last_probabilities)
 
             # Empty the results table in memory.
             self.results.drop(self.results.index, inplace=True)
