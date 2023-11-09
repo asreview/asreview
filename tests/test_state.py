@@ -381,6 +381,9 @@ def test_add_last_probabilities(tmpdir):
         state.add_last_probabilities(probabilities)
         state_probabilities = state.get_last_probabilities().to_list()
         assert state_probabilities == probabilities
+        state.add_last_probabilities(None)
+        state_probabilities = state.get_last_probabilities().to_list()
+        assert not state_probabilities
 
 
 def test_move_ranking_data_to_results(tmpdir):
