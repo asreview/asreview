@@ -167,6 +167,17 @@ def test_non_tf_models(tmpdir):
         assert settings_metadata["settings"]["model"] == model
 
 
+def test_last_probabilities(tmpdir):
+    asreview_fp = Path(tmpdir, "test.asreview")
+    argv = f"{str(DATA_FP)} -s {asreview_fp}".split()
+    entry_point = SimulateEntryPoint()
+    entry_point.execute(argv)
+
+    with open_state(asreview_fp) as state:
+        last_probabilities = state.get_last_probabilities()
+    assert not last_probabilities.empty
+
+
 def test_number_records_found(tmpdir):
     dataset = "synergy:van_de_Schoot_2018"
     asreview_fp = Path(tmpdir, "test.asreview")
