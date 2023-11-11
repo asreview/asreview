@@ -18,13 +18,14 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
+import { Diversity3, Payment, StarBorder, LibraryBooks } from "@mui/icons-material";
+
 import { ActionsFeedbackBar, PageHeader } from "../../Components";
 import { SelectItem } from "../../ProjectComponents";
 
 import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
 import { ProjectAPI } from "../../api/index.js";
 import "../../App.css";
-import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
 
 const selectWidth = 310;
 
@@ -324,67 +325,59 @@ const ExportPage = (props) => {
                 height="100%" // This ensures the container takes the full height of its parent
               >
                 <Box
-                  border={2}
-                  borderColor="info.main"
                   borderRadius={3}
                   padding={2}
-                  bgcolor="info.lighter"
-                  maxWidth="600px" // or whatever maximum width you prefer
+                  maxWidth="600px"
                 >
                   <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                    Love using ASReview? Here's how you can give back to our
-                    open-source and community-driven project:
+                    Love using ASReview?
                   </Typography>
-
-                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                    - <strong>Cite Us:</strong> If you find ASReview useful for
-                    your research, please consider citing the project: ASReview
-                    LAB developers. (2023). ASReview LAB - A tool for
-                    AI-assisted systematic reviews (v{props.asreview_version}).
-                    Zenodo.
-                    <Link href="https://doi.org/10.5281/zenodo.8297019">
-                      https://doi.org/10.5281/zenodo.8297019
-                    </Link>
-                  </Typography>
-
-                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                    - <strong>Discuss:</strong> Share your insights and join the
-                    conversation on our{" "}
-                    <a
-                      href="https://github.com/asreview/asreview/discussions"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      discussion platform
-                    </a>
-                    .
-                  </Typography>
-
-                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                    - <strong>Donate:</strong> Support our research and
-                    development by donating through the{" "}
-                    <a
-                      href="https://steun.uu.nl/project/asreview"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Utrecht University crowdfunding platform
-                    </a>
-                    .
-                  </Typography>
-
-                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                    - <strong>Become a Contributor:</strong> Help us improve the
-                    code by contributing to our{" "}
-                    <a
-                      href="https://github.com/asreview/asreview"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      GitHub repository
-                    </a>
-                    .
-                  </Typography>
+                  <Box>
+                      <Typography variant="h6" gutterBottom>
+                      </Typography>
+                      <Stack direction="row" spacing={2}>
+                        <Button 
+                          variant="outlined" 
+                          color ="primary" 
+                          component={Link}
+                          target="_blank" 
+                          href="https://asreview.readthedocs.io/en/latest/research.html#cite"
+                          startIcon={<LibraryBooks />}
+                        >
+                          Cite
+                        </Button>
+                        <Button 
+                          variant="outlined" 
+                          color="primary" 
+                          component={Link}
+                          target="_blank" 
+                          href="https://github.com/asreview/asreview"
+                          startIcon={<StarBorder />}
+                        >
+                          Star
+                        </Button>
+                        <Button 
+                          variant="outlined" 
+                          color="primary" 
+                          component={Link}
+                          target="_blank" 
+                          href="https://steun.uu.nl/project/asreview?locale=en"
+                          startIcon={<Payment />}
+                        >
+                          Donate
+                        </Button>
+                          <Button 
+                          variant="outlined" 
+                          color="primary" 
+                          component={Link}
+                          target="_blank" 
+                          href="https://asreview.nl/community"
+                          startIcon={<Diversity3 />}
+                        >
+                          Contribute
+                        </Button>
+                      </Stack>
+                    </Box>
                 </Box>
               </Box>
             </Stack>
