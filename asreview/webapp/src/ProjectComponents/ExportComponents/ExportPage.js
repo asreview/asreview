@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState }  from 'react';
 import { useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
 import { connect } from "react-redux";
@@ -14,18 +14,16 @@ import {
   Select,
   Stack,
   Tooltip,
-  Typography,
+  Typography
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-
 import { Diversity3, Payment, StarBorder, LibraryBooks } from "@mui/icons-material";
-
 import { ActionsFeedbackBar, PageHeader } from "../../Components";
 import { SelectItem } from "../../ProjectComponents";
-
 import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
 import { ProjectAPI } from "../../api/index.js";
 import "../../App.css";
+import CiteDialog from './CiteDialog'; 
 
 const selectWidth = 310;
 
@@ -131,6 +129,12 @@ const ExportPage = (props) => {
 
   const refetchDatasetWriter = () => {
     queryClient.resetQueries("fetchDatasetWriter");
+  };
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const handleOpen = () => {
+    setDialogOpen(true);
   };
 
   return (
@@ -336,16 +340,14 @@ const ExportPage = (props) => {
                       <Typography variant="h6" gutterBottom>
                       </Typography>
                       <Stack direction="row" spacing={2}>
-                        <Button 
+                       <Button 
+                          startIcon={<LibraryBooks />} 
                           variant="outlined" 
-                          color ="primary" 
-                          component={Link}
-                          target="_blank" 
-                          href="https://asreview.readthedocs.io/en/latest/research.html#cite"
-                          startIcon={<LibraryBooks />}
-                        >
-                          Cite
-                        </Button>
+                          color="primary" 
+                          onClick={handleOpen}>Cite</Button>
+                          <CiteDialog isOpen={dialogOpen} onClose={() => setDialogOpen(false)} />
+
+
                         <Button 
                           variant="outlined" 
                           color="primary" 
@@ -398,6 +400,7 @@ const ExportPage = (props) => {
           onClose={resetQueries}
         />
       )}
+
     </Root>
   );
 };
