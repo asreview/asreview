@@ -8,8 +8,8 @@ import {
   ListItem,
   Typography,
 } from "@mui/material";
-import { StyledTextButton } from '../../StyledComponents/StyledButton.js'; 
-import { TypographyH5Medium } from '../../StyledComponents/StyledTypography.js'; 
+import { StyledTextButton } from '../StyledComponents/StyledButton.js'; 
+import { TypographyH5Medium } from '../StyledComponents/StyledTypography.js'; 
 
 const CiteDialog = ({ isOpen, onClose  }) => {
   const [selectedStyle, setSelectedStyle] = useState('APA');

@@ -18,12 +18,11 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Diversity3, Payment, StarBorder, LibraryBooks } from "@mui/icons-material";
-import { ActionsFeedbackBar, PageHeader } from "../../Components";
+import { ActionsFeedbackBar, PageHeader, CiteDialog } from "../../Components";
 import { SelectItem } from "../../ProjectComponents";
 import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
 import { ProjectAPI } from "../../api/index.js";
 import "../../App.css";
-import CiteDialog from './CiteDialog'; 
 
 const selectWidth = 310;
 
