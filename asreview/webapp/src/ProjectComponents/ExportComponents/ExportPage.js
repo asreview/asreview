@@ -14,7 +14,8 @@ import {
   Select,
   Stack,
   Tooltip,
-  Typography
+  Typography,
+  useTheme
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Diversity3, Payment, StarBorder, LibraryBooks } from "@mui/icons-material";
@@ -43,7 +44,16 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
+const StyledActionsBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  height: '100%',
+  flexDirection: 'row', // Always set to row
+}));
+
 const ExportPage = (props) => {
+  const theme = useTheme();
   const { project_id } = useParams();
 
   const queryClient = useQueryClient();
@@ -321,66 +331,58 @@ const ExportPage = (props) => {
                 </Tooltip>
               </Box>
               .
-              <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                height="100%" // This ensures the container takes the full height of its parent
-              >
-                <Box
-                  borderRadius={3}
-                  padding={2}
-                  maxWidth="600px"
-                >
-                  <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                    Love using ASReview?
-                  </Typography>
-                  <Box>
-                      <Typography variant="h6" gutterBottom>
-                      </Typography>
-                      <Stack direction="row" spacing={2}>
-                       <Button 
-                          startIcon={<LibraryBooks />} 
-                          variant="outlined" 
-                          color="primary" 
-                          onClick={handleOpen}>Cite</Button>
-                          <CiteDialog isOpen={dialogOpen} onClose={() => setDialogOpen(false)} />
+                <StyledActionsBox>
+                  <Box borderRadius={3} padding={2} maxWidth="600px">
+                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                      Love using ASReview?
+                    </Typography>
+                    <Stack 
+                      direction={theme.breakpoints.down('sm') ? "column" : "row"} 
+                      spacing={2}
+                    >
+                      <Button 
+                        startIcon={<LibraryBooks />} 
+                        variant="outlined" 
+                        color="primary" 
+                        onClick={handleOpen}
+                      >
+                        Cite
+                      </Button>
+                      <CiteDialog isOpen={dialogOpen} onClose={() => setDialogOpen(false)} />
 
-
-                        <Button 
-                          variant="outlined" 
-                          color="primary" 
-                          component={Link}
-                          target="_blank" 
-                          href="https://github.com/asreview/asreview"
-                          startIcon={<StarBorder />}
-                        >
-                          Star
-                        </Button>
-                        <Button 
-                          variant="outlined" 
-                          color="primary" 
-                          component={Link}
-                          target="_blank" 
-                          href="https://steun.uu.nl/project/asreview?locale=en"
-                          startIcon={<Payment />}
-                        >
-                          Donate
-                        </Button>
-                          <Button 
-                          variant="outlined" 
-                          color="primary" 
-                          component={Link}
-                          target="_blank" 
-                          href="https://asreview.nl/community"
-                          startIcon={<Diversity3 />}
-                        >
-                          Contribute
-                        </Button>
-                      </Stack>
-                    </Box>
-                </Box>
-              </Box>
+                      <Button 
+                        variant="outlined" 
+                        color="primary" 
+                        component={Link}
+                        target="_blank" 
+                        href="https://github.com/asreview/asreview"
+                        startIcon={<StarBorder />}
+                      >
+                        Star
+                      </Button>
+                      <Button 
+                        variant="outlined" 
+                        color="primary" 
+                        component={Link}
+                        target="_blank" 
+                        href="https://steun.uu.nl/project/asreview?locale=en"
+                        startIcon={<Payment />}
+                      >
+                        Donate
+                      </Button>
+                      <Button 
+                        variant="outlined" 
+                        color="primary" 
+                        component={Link}
+                        target="_blank" 
+                        href="https://asreview.nl/community"
+                        startIcon={<Diversity3 />}
+                      >
+                        Contribute
+                      </Button>
+                    </Stack>
+                  </Box>
+                </StyledActionsBox>
             </Stack>
           </Box>
         </Box>
