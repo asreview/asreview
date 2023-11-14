@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = ["Tfidf"]
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 from asreview.models.feature_extraction.base import BaseFeatureExtraction

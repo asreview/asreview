@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = ["RISWriter"]
+
 import pandas as pd
 import rispy
 

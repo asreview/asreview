@@ -13,6 +13,8 @@
 # limitations under the License.
 """Random sampling strategy."""
 
+__all__ = ["RandomQuery"]
+
 import numpy as np
 
 from asreview.models.query.base import BaseQueryStrategy

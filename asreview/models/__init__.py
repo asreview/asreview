@@ -12,6 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = [
+    "LogisticClassifier",
+    "LSTMBaseClassifier",
+    "LSTMPoolClassifier",
+    "NaiveBayesClassifier",
+    "NN2LayerClassifier",
+    "RandomForestClassifier",
+    "SVMClassifier",
+    "get_classifier",
+    "get_classifier_class",
+]
+
 from asreview.models.classifiers.logistic import LogisticClassifier
 from asreview.models.classifiers.lstm_base import LSTMBaseClassifier
 from asreview.models.classifiers.lstm_pool import LSTMPoolClassifier
