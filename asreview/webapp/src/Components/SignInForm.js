@@ -101,6 +101,8 @@ const SignInForm = (props) => {
       <Stack spacing={3}>
         <TextField
           label="Email"
+          name="email"
+          type="email"
           value={email}
           onChange={handleEmailChange}
           variant="outlined"
