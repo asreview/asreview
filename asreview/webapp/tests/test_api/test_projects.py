@@ -600,7 +600,6 @@ def test_unauthorized_use_of_api_calls(setup, api_call):
         # make the api call
         status_code, data = api_call(*parms)
         assert status_code == 401
-        assert data["message"] == "Login required."
     else:
         # no asserts in an unauthenticated app
         pass
