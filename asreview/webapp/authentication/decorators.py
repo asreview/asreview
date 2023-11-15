@@ -31,7 +31,6 @@ def project_authorization(f):
 
     @wraps(f)
     def decorated_function(project_id, *args, **kwargs):
-
         if current_app.config.get("LOGIN_DISABLED", False):
             project_path = get_project_path(project_id)
             if not is_project(project_path):
@@ -40,9 +39,7 @@ def project_authorization(f):
             return f(project, *args, **kwargs)
 
         # find the project
-        project = Project.query.filter(
-            Project.project_id == project_id
-        ).one_or_none()
+        project = Project.query.filter(Project.project_id == project_id).one_or_none()
 
         # raise ProjectNotFoundError if not exists
         if project is None:
@@ -68,13 +65,16 @@ def current_user_projects(f):
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
-
         if current_app.config.get("LOGIN_DISABLED", False):
             projects = get_projects(None)
         else:
             # authenticated with User accounts
-            user_db_projects = list(current_user.projects) + list(current_user.involved_in)
-            projects = get_projects([project.project_path for project in user_db_projects])
+            user_db_projects = list(current_user.projects) + list(
+                current_user.involved_in
+            )
+            projects = get_projects(
+                [project.project_path for project in user_db_projects]
+            )
 
         return f(projects, *args, **kwargs)
 

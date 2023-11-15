@@ -73,7 +73,8 @@ from asreview.utils import asreview_path
 from asreview.utils import list_reader_names
 from asreview.webapp import DB
 from flask_login import login_required
-from asreview.webapp.authentication.decorators import project_authorization, current_user_projects
+from asreview.webapp.authentication.decorators import project_authorization
+from asreview.webapp.authentication.decorators import current_user_projects
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.io import read_data
 
