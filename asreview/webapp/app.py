@@ -14,6 +14,7 @@
 
 import logging
 import os
+import warnings
 from pathlib import Path
 
 try:
@@ -58,7 +59,6 @@ def create_app(
 
     app.config["SECRET_KEY"] = secret_key
     app.config["SALT"] = salt
-    app.config["LOGIN_DISABLED"] = not enable_authentication
 
     app.config.from_prefixed_env()
 
@@ -67,6 +67,17 @@ def create_app(
             Path(config_file_path).absolute(), load=tomllib.load, text=False
         )
 
+    if app.config.get("ENABLE_AUTHENTICATION", None):
+        warnings.warn(
+            "The use of ENABLE_AUTHENTICATION=true is deprecated and "
+            "will be removed in the future. Use LOGIN_DISABLED=false instead."
+        )
+        if "LOGIN_DISABLED" not in app.config:
+            app.config["LOGIN_DISABLED"] = False
+
+    if "LOGIN_DISABLED" not in app.config:
+        app.config["LOGIN_DISABLED"] = not enable_authentication
+
     if origins := app.config.get("ALLOWED_ORIGINS", False):
         CORS(app, origins=origins, supports_credentials=True)
 
@@ -74,7 +85,6 @@ def create_app(
         app.register_blueprint(projects.bp)
 
     if not app.config.get("LOGIN_DISABLED", False):
-
         # config JSON Web Tokens
         login_manager = LoginManager(app)
         login_manager.init_app(app)
