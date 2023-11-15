@@ -6,8 +6,8 @@ from uuid import uuid4
 
 import pytest
 
-from asreview import ASReviewProject
 import asreview.entry_points.auth_tool as tool
+from asreview import ASReviewProject
 from asreview.entry_points.auth_tool import AuthTool
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.utils import asreview_path

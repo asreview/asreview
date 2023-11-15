@@ -1,7 +1,7 @@
 import inspect
 import time
-from typing import Union
 from pathlib import Path
+from typing import Union
 
 import pytest
 from flask.testing import FlaskClient
