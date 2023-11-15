@@ -22,6 +22,7 @@ from flask import jsonify
 from flask import render_template_string
 from flask import request
 from flask_login import current_user
+from flask_login import login_required
 from flask_login import login_user
 from flask_login import logout_user
 from flask_mail import Mail
@@ -32,7 +33,6 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import SQLAlchemyError
 
 from asreview.webapp import DB
-from flask_login import login_required
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 

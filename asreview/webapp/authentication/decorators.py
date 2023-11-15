@@ -16,12 +16,13 @@ from functools import wraps
 
 from flask import current_app
 from flask import jsonify
-from flask import request
 from flask_login import current_user
-from flask_login.config import EXEMPT_METHODS
-from asreview.project import get_projects, ASReviewProject, get_project_path, is_project
 
-
+from asreview.project import ASReviewProject
+from asreview.project import ProjectNotFoundError
+from asreview.project import get_project_path
+from asreview.project import get_projects
+from asreview.project import is_project
 from asreview.webapp.authentication.models import Project
 
 

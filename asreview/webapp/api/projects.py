@@ -26,11 +26,12 @@ import numpy as np
 import pandas as pd
 from flask import Blueprint
 from flask import abort
-from flask import jsonify
 from flask import current_app
+from flask import jsonify
 from flask import request
 from flask import send_file
 from flask_login import current_user
+from flask_login import login_required
 from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
@@ -72,9 +73,8 @@ from asreview.utils import _get_filename_from_url
 from asreview.utils import asreview_path
 from asreview.utils import list_reader_names
 from asreview.webapp import DB
-from flask_login import login_required
-from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.decorators import current_user_projects
+from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.io import read_data
 

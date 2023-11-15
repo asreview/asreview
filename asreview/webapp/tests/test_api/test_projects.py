@@ -3,8 +3,8 @@ import time
 from typing import Union
 
 import pytest
-from flask.testing import FlaskClient
 from flask import current_app
+from flask.testing import FlaskClient
 
 import asreview.webapp.tests.utils.api_utils as au
 import asreview.webapp.tests.utils.crud as crud
