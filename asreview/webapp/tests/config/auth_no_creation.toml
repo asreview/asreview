@@ -2,5 +2,5 @@ TESTING = true
 DEBUG = true
 SECRET_KEY = "my_very_secret_key"
 SECURITY_PASSWORD_SALT = "my_salt"
-AUTHENTICATION_ENABLED = true
+LOGIN_DISABLED = false
 ALLOW_ACCOUNT_CREATION = false
