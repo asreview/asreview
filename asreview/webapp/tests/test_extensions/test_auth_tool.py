@@ -6,6 +6,7 @@ from uuid import uuid4
 
 import pytest
 
+from asreview import ASReviewProject
 import asreview.entry_points.auth_tool as tool
 from asreview.entry_points.auth_tool import AuthTool
 from asreview.state.sql_converter import upgrade_asreview_project_file
@@ -48,12 +49,25 @@ def import_2_unauthenticated_projects(with_upgrade=True):
     files from github and copies them in the asreview folder.
     To use them in tests they need to be upgraded. Both projects
     are returned."""
-    # get 2 unauthenticated projects
-    url1 = misc.retrieve_project_url_github("v0.19")
-    url2 = misc.retrieve_project_url_github("v0.18")
-    # import projects
-    proj1 = misc.copy_github_project_into_asreview_folder(url1)
-    proj2 = misc.copy_github_project_into_asreview_folder(url2)
+
+    asreview_v0_file = (
+        "asreview/webapp/tests/asreview-project-file-archive/"
+        "v0.18/asreview-project-v0-18-startreview.asreview"
+    )
+
+    proj1 = ASReviewProject.load(
+        open(asreview_v0_file, "rb"), asreview_path(), safe_import=True
+    )
+
+    asreview_v0_file = (
+        "asreview/webapp/tests/asreview-project-file-archive/"
+        "v0.19/asreview-project-v0-19-startreview.asreview"
+    )
+
+    proj2 = ASReviewProject.load(
+        open(asreview_v0_file, "rb"), asreview_path(), safe_import=True
+    )
+
     if with_upgrade:
         # update these projects to a 1.x-ish config
         upgrade_asreview_project_file(proj1.project_path)
@@ -189,7 +203,7 @@ def test_auth_tool_add_users_interact(client_auth):
     auth_tool = get_auth_tool_object(Namespace(json=None))
     # build interactive input
     answers = interactive_user_data()
-    with patch('builtins.input', side_effect=answers):
+    with patch("builtins.input", side_effect=answers):
         auth_tool.add_users()
     # assert we now have a users
     assert crud.count_users() == 1
@@ -207,7 +221,7 @@ def test_auth_tool_add_users_interact_incorr_email(client_auth, capsys):
     answers = interactive_user_data()
     # add in a faulty email address
     answers.insert(1, "abcd@")
-    with patch('builtins.input', side_effect=answers):
+    with patch("builtins.input", side_effect=answers):
         auth_tool.add_users()
     _, err = capsys.readouterr()
     assert "Entered email address is not recognized" in err
@@ -227,7 +241,7 @@ def test_auth_tool_add_users_interact_incorr_name(client_auth, capsys):
     answers = interactive_user_data()
     # add in a name that is too short
     answers.insert(2, "ab")
-    with patch('builtins.input', side_effect=answers):
+    with patch("builtins.input", side_effect=answers):
         auth_tool.add_users()
     _, err = capsys.readouterr()
     assert "Full name must contain more than 2" in err
@@ -247,7 +261,7 @@ def test_auth_tool_add_users_interact_incorr_passw(client_auth, capsys):
     answers = interactive_user_data()
     # add in a name that is too short
     answers.insert(4, "1111")
-    with patch('builtins.input', side_effect=answers):
+    with patch("builtins.input", side_effect=answers):
         auth_tool.add_users()
     _, err = capsys.readouterr()
     assert "Use 8 or more characters with a mix" in err
@@ -268,11 +282,9 @@ def test_validity_function_valid(capsys):
     correct = "a"
     hint = "Test hint"
     # run function with patched input
-    with patch('builtins.input', side_effect=[correct]):
+    with patch("builtins.input", side_effect=[correct]):
         # run validity function
-        auth_tool._ensure_valid_value_for(
-            "test", lambda x: x == correct, hint=hint
-        )
+        auth_tool._ensure_valid_value_for("test", lambda x: x == correct, hint=hint)
     out, err = capsys.readouterr()
     assert not bool(out)
     assert not bool(err)
@@ -291,11 +303,9 @@ def test_validity_function_invalid(capsys):
     incorrect = "b"
     hint = "Test hint"
     # run function with patched input
-    with patch('builtins.input', side_effect=[incorrect, correct]):
+    with patch("builtins.input", side_effect=[incorrect, correct]):
         # run validity function
-        auth_tool._ensure_valid_value_for(
-            "test", lambda x: x == correct, hint=hint
-        )
+        auth_tool._ensure_valid_value_for("test", lambda x: x == correct, hint=hint)
     out, err = capsys.readouterr()
     assert not bool(out)
     assert err == hint
@@ -403,10 +413,7 @@ def test_list_projects_with_json(client_no_auth, capsys):
     # create two projects
     _, data1 = au.create_project(client_no_auth, "test1")
     _, data2 = au.create_project(client_no_auth, "test2")
-    data = {
-        data1.get("id"): data1,
-        data2.get("id"): data2
-    }
+    data = {data1.get("id"): data1, data2.get("id"): data2}
     # get auth_tool object
     auth_tool = get_auth_tool_object(Namespace(json=True))
     # run function
@@ -458,8 +465,7 @@ def test_link_project_with_json_string(client_auth, capsys):
     # check database and check if the users own the correct project
     assert crud.count_projects() == 2
     project_dict = {
-        proj["owner_id"]: proj
-        for proj in json.loads(json.loads(json_string))
+        proj["owner_id"]: proj for proj in json.loads(json.loads(json_string))
     }
     for user in [user1, user2]:
         expected_proj = project_dict[user.id]
@@ -483,7 +489,7 @@ def test_link_projects_interactively(client_auth):
     # create AuthTool object
     auth_tool = get_auth_tool_object(Namespace(json=None))
     # run function with patched input
-    with patch('builtins.input', side_effect=[user.id, user.id]):
+    with patch("builtins.input", side_effect=[user.id, user.id]):
         # link project to user
         auth_tool.link_projects()
     # check database again
@@ -509,7 +515,7 @@ def test_link_projects_interactively_with_typo(client_auth):
     # create AuthTool object
     auth_tool = get_auth_tool_object(Namespace(json=None))
     # run function with patched input (there is a wrong id in there)
-    with patch('builtins.input', side_effect=[user.id, str(-5), user.id]):
+    with patch("builtins.input", side_effect=[user.id, str(-5), user.id]):
         # link project to user
         auth_tool.link_projects()
     # check database again
@@ -519,12 +525,7 @@ def test_link_projects_interactively_with_typo(client_auth):
 # Test failure of anything related to projects if a project is older
 # than version 0.x.
 @pytest.mark.parametrize(
-    "method",
-    [
-        "_generate_project_links",
-        "list_projects",
-        "link_projects"
-    ]
+    "method", ["_generate_project_links", "list_projects", "link_projects"]
 )
 def test_projects_with_0x_projects(client_auth, method):
     # import projects
