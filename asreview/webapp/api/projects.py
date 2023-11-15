@@ -122,7 +122,7 @@ def api_get_projects(projects):  # noqa: F401
     for project in projects:
         try:
             project_config = project.config
-            # project_config["owner_id"] = owner_id  # Why is this needed?
+            project_config["owner_id"] = owner_id
 
             # upgrade info of v0 projects
             if project_config["version"].startswith("0"):
@@ -242,7 +242,7 @@ def api_get_project_info(project):  # noqa: F401
         project_config["projectNeedsUpgrade"] = True
 
     if current_app.config.get("LOGIN_DISABLED", False):
-        return jsonify(project_config), 201
+        return jsonify(project_config)
 
     db_project = Project.query.filter(
         Project.project_id == project.config.get("id", 0)
@@ -250,7 +250,7 @@ def api_get_project_info(project):  # noqa: F401
     if db_project:
         project_config["ownerId"] = db_project.owner_id
 
-    return jsonify(project_config), 201
+    return jsonify(project_config)
 
 
 @bp.route("/projects/<project_id>/info", methods=["PUT"])
