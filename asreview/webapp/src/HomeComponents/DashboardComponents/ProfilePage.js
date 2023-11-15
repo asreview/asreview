@@ -211,6 +211,7 @@ const ProfilePage = (props) => {
               <Stack direction="row" spacing={1}>
                 <span>
                   <LoadingButton
+                    id="save"
                     disabled={!formik.isValid}
                     loading={loadingSaveButton}
                     variant="contained"
