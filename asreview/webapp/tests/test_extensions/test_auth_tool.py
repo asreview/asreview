@@ -150,7 +150,6 @@ def test_get_users(client_auth):
     # create 2 users
     user1 = crud.create_user(DB, 1)
     user2 = crud.create_user(DB, 2)
-    print(user1, user2)
     assert crud.count_users() == 2
     # test function
     result = tool.get_users(DB.session)

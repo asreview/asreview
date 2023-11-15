@@ -102,6 +102,8 @@ const SignInForm = (props) => {
         <TextField
           id="email"
           label="Email"
+          name="email"
+          type="email"
           value={email}
           onChange={handleEmailChange}
           variant="outlined"

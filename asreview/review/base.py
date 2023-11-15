@@ -301,11 +301,10 @@ class BaseReview(ABC):
         self.classifier.fit(X_train, y_train)
 
         # Use the query strategy to produce a ranking.
-        ranked_record_ids = self.query_strategy.query(
-            self.X, classifier=self.classifier
+        ranked_record_ids, relevance_scores = self.query_strategy.query(
+            self.X, classifier=self.classifier, return_classifier_scores=True
         )
 
-        # TODO: Also log the probablities.
         # Log the ranking in the state.
         with open_state(self.project, read_only=False) as state:
             state.add_last_ranking(
@@ -316,3 +315,7 @@ class BaseReview(ABC):
                 self.feature_extraction.name,
                 training_set,
             )
+
+            if relevance_scores is not None:
+                # relevance_scores contains scores for 'relevant' in the second column.
+                state.add_last_probabilities(relevance_scores[:, 1])
