@@ -78,7 +78,6 @@ def test_upgrade_an_old_project(setup):
     if current_app_is_authenticated():
         new_project = Project(project_id=project.config.get("id"))
         project = crud.create_project(DB, user, new_project)
-    print(type(project))
     # try to convert
     status_code, data = au.upgrade_project(client, project)
     assert status_code == 200

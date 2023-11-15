@@ -5,6 +5,7 @@ import DashboardPage from "./DashboardPage";
 import {
   Box,
   Checkbox,
+  Divider,
   FormControl,
   FormControlLabel,
   FormHelperText as FHT,
@@ -14,32 +15,33 @@ import {
 } from "@mui/material";
 
 import LoadingButton from "@mui/lab/LoadingButton";
-import {
-  TypographyH5Medium,
-  TypographyH6Medium,
-} from "../../StyledComponents/StyledTypography.js";
+import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
 import { InlineErrorHandler } from "../../Components";
 import { useToggle } from "../../hooks/useToggle";
 
 import { AuthAPI } from "../../api";
+import { passwordValidation } from "../../globals";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
 // VALIDATION SCHEMA
 const SignupSchema = Yup.object().shape({
-  email: Yup.string().email("Invalid email").required("Email is required"),
-  name: Yup.string().required("Full name is required"),
+  email: Yup.string()
+    .email("Invalid email")
+    .required("Email is required")
+    .nullable(),
+  name: Yup.string().required("Full name is required").nullable(),
   affiliation: Yup.string()
     .min(2, "Affiliation must be at least 2 characters long")
     .nullable(),
-  password: Yup.string().matches(
-    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/,
-    "Use 8 or more characters with a mix of letters, numbers & symbols",
-  ),
-  confirmPassword: Yup.string().oneOf(
-    [Yup.ref("password"), null],
-    "Passwords must match",
-  ),
+  oldPassword: Yup.string(),
+  newPassword: passwordValidation(Yup.string()),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref("newPassword")], "Passwords must match")
+    .when("newPassword", {
+      is: (value) => value !== undefined && value.length > 0,
+      then: (schema) => schema.required("Confirmation password is required"),
+    }),
 });
 
 const ProfilePage = (props) => {
@@ -55,6 +57,9 @@ const ProfilePage = (props) => {
     onSuccess: () => {
       navigate("/projects");
     },
+    onError: (err) => {
+      console.log(err);
+    },
   });
 
   const handleSubmit = () => {
@@ -67,7 +72,8 @@ const ProfilePage = (props) => {
     email: "",
     name: "",
     affiliation: "",
-    password: "",
+    oldPassword: "",
+    newPassword: "",
     confirmPassword: "",
     publicAccount: true,
   };
@@ -84,7 +90,7 @@ const ProfilePage = (props) => {
       formik.setFieldValue(
         "affiliation",
         data.message.affiliation || "",
-        false,
+        false
       );
       formik.setFieldValue("public", data.message.public || true);
       // show password field?
@@ -105,35 +111,67 @@ const ProfilePage = (props) => {
     return !showPassword ? "password" : "text";
   };
 
+  const oldPasswordHasValue = () => {
+    return (
+      formik.values.oldPassword === undefined ||
+      formik.values.oldPassword === ""
+    );
+  };
+
+  const passwordFieldOpacity = () => {
+    if (oldPasswordHasValue()) {
+      return 0.3;
+    } else {
+      return 1;
+    }
+  };
+
   const renderPasswordFields = (formik) => {
     return (
       <>
+        <Divider />
         <FormControl>
-          <Stack direction="row" spacing={2}>
+          <Stack direction="column" spacing={2}>
+            <Typography variant="h6">Change Password</Typography>
             <TextField
-              id="password"
-              label="Change Password"
+              id="oldPassword"
+              label="Old Password"
               size="small"
               fullWidth
               type={returnType()}
-              value={formik.values.password}
+              value={formik.values.oldPassword}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
+              autoComplete="off"
+            />
+            <TextField
+              id="newPassword"
+              label="New Password"
+              size="small"
+              fullWidth
+              type={returnType()}
+              value={formik.values.newPassword}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              style={{ opacity: passwordFieldOpacity() }}
+              disabled={oldPasswordHasValue()}
             />
             <TextField
               id="confirmPassword"
-              label="Confirm Password"
+              label="Confirm New Password"
               size="small"
               fullWidth
               type={returnType()}
               value={formik.values.confirmPassword}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
+              style={{ opacity: passwordFieldOpacity() }}
+              disabled={oldPasswordHasValue()}
             />
           </Stack>
         </FormControl>
-        {formik.touched.password && formik.errors.password ? (
-          <FHT error={true}>{formik.errors.password}</FHT>
+        {formik.touched.newPassword && formik.errors.newPassword ? (
+          <FHT error={true}>{formik.errors.newPassword}</FHT>
         ) : null}
         {formik.touched.confirmPassword && formik.errors.confirmPassword ? (
           <FHT error={true}>{formik.errors.confirmPassword}</FHT>
@@ -147,7 +185,7 @@ const ProfilePage = (props) => {
                 onChange={toggleShowPassword}
               />
             }
-            label="Show password"
+            label="Show passwords"
           />
         </FormControl>
       </>
@@ -173,7 +211,8 @@ const ProfilePage = (props) => {
               <Stack direction="row" spacing={1}>
                 <span>
                   <LoadingButton
-                    /*disabled={!formik.isValid}*/
+                    id="save"
+                    disabled={!formik.isValid}
                     loading={loadingSaveButton}
                     variant="contained"
                     onClick={handleSubmit}
@@ -190,9 +229,12 @@ const ProfilePage = (props) => {
           <Box className="main-page-body-wrapper">
             <Stack className="main-page-body" direction={"column"} spacing={3}>
               {showFirstTimeMessage && (
-                <TypographyH6Medium>
+                <Typography variant="h6">
                   Please take a second to review your profile data:
-                </TypographyH6Medium>
+                </Typography>
+              )}
+              {!showFirstTimeMessage && (
+                <Typography variant="h6">User data</Typography>
               )}
               <TextField
                 autoFocus
@@ -232,6 +274,7 @@ const ProfilePage = (props) => {
                 <FHT error={true}>{formik.errors.affiliation}</FHT>
               ) : null}
               {showPasswordFields && renderPasswordFields(formik)}
+
               {false && (
                 <>
                   <FormControlLabel
