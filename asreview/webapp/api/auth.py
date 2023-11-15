@@ -220,6 +220,8 @@ def signup():
                 else:
                     # result is a 201 with message
                     result = (201, f'User "{identifier}" created.')
+            except ValueError as e:
+                result = (400, f"Unable to create your account! Reason: {str(e)}")
             except IntegrityError as e:
                 DB.session.rollback()
                 result = (403, f"Unable to create your account! Reason: {str(e)}")
@@ -382,20 +384,21 @@ def reset_password():
 def update_profile():
     """Update user profile"""
     user = User.query.filter(User.id == current_user.id).one_or_none()
-    print(request.form)
     if user:
         email = request.form.get("email", "").strip()
         name = request.form.get("name", "").strip()
         affiliation = request.form.get("affiliation", "").strip()
-        password = request.form.get("password", None)
+        old_password = request.form.get("old_password", None)
+        new_password = request.form.get("new_password", None)
         public = bool(int(request.form.get("public", "1")))
 
         try:
-            user = user.update_profile(email, name, affiliation, password, public)
+            user = user.update_profile(email, name, affiliation,
+                old_password, new_password, public)
             DB.session.commit()
             result = (200, "User profile updated.")
         except ValueError as e:
-            result = (500, f"Unable to update your profile! Reason: {str(e)}")
+            result = (400, f"Unable to update your profile! Reason: {str(e)}")
         except IntegrityError as e:
             DB.session.rollback()
             result = (500, f"Unable to update your profile! Reason: {str(e)}")

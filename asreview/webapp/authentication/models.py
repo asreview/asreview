@@ -34,7 +34,7 @@ import asreview.utils as utils
 from asreview.webapp import DB
 
 PASSWORD_REGEX = (
-    r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$"  # noqa
+    r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$"  # noqa
 )
 EMAIL_REGEX = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b"
 
@@ -117,12 +117,24 @@ class User(UserMixin, DB.Model):
         self.confirmed = confirmed
         self.public = public
 
-    def update_profile(self, email, name, affiliation, password=None, public=True):
+    def update_profile(self, email, name, affiliation,
+            old_password=None, new_password=None, public=True):
+        
+        # if there is a request to update the password, and the origin
+        # is correct
+        if bool(old_password) and bool(new_password) and \
+            self.origin == "asreview":
+            # verify the old password
+            if not self.verify_password(old_password):
+                raise ValueError("Provided old password is incorrect.")
+            else:
+                # old password is verified. The following line will raise
+                # a ValueError if the new password is wrong
+                self.hashed_password = User.create_password_hash(new_password)
+
         self.email = email
         self.name = name
         self.affiliation = affiliation
-        if self.origin == "asreview" and password is not None:
-            self.hashed_password = User.create_password_hash(password)
         self.public = public
 
         return self
@@ -201,7 +213,7 @@ class User(UserMixin, DB.Model):
         if bool(password) and User.valid_password(password):
             return generate_password_hash(password)
         else:
-            raise ValueError(f'Password "{password}" does not meet requirements')
+            raise ValueError(f'Password "{password}" does not meet requirements.')
 
     def __repr__(self):
         return f"<User {self.email!r}, id: {self.id}>"

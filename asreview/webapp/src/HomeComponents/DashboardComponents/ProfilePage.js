@@ -34,16 +34,18 @@ const SignupSchema = Yup.object().shape({
     .min(2, "Affiliation must be at least 2 characters long")
     .nullable(),
   oldPassword: Yup.string(),
-  newPassword: passwordValidation(Yup.string()).required("Provide a new password, or remove the value in the Old Password field")
-    .when('oldPassword', {
-      is: (password) => password !== undefined && password.length > 0,
-      then: (schema) => schema.required("Provide a new password, or remove the value in the Old Password field")
-    }),
+  newPassword: passwordValidation(Yup.string()),
   confirmPassword: Yup.string()
     .oneOf(
-      [Yup.ref("newPassword"), null],
+      [Yup.ref("newPassword")],
       "Passwords must match",
-    ),
+    )
+    .when(
+      'newPassword', {
+        is: (value) => (value !== undefined && value.length > 0),
+        then: (schema) => schema.required("Confirmation password is required")
+      }
+    )
 });
 
 const ProfilePage = (props) => {
@@ -113,6 +115,18 @@ const ProfilePage = (props) => {
     return !showPassword ? "password" : "text";
   };
 
+  const oldPasswordHasValue = () => {
+    return (formik.values.oldPassword === undefined || formik.values.oldPassword === "")
+  }
+
+  const passwordFieldOpacity = () => {
+    if (oldPasswordHasValue()) {
+      return 0.3;
+    } else {
+      return 1;
+    }
+  }
+
   const renderPasswordFields = (formik) => {
     return (
       <>
@@ -139,6 +153,8 @@ const ProfilePage = (props) => {
               value={formik.values.newPassword}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
+              style={{opacity: passwordFieldOpacity()}}
+              disabled={oldPasswordHasValue()}
             />
             <TextField
               id="confirmPassword"
@@ -149,6 +165,8 @@ const ProfilePage = (props) => {
               value={formik.values.confirmPassword}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
+              style={{opacity: passwordFieldOpacity()}}
+              disabled={oldPasswordHasValue()}
             />
           </Stack>
         </FormControl>
@@ -193,7 +211,7 @@ const ProfilePage = (props) => {
               <Stack direction="row" spacing={1}>
                 <span>
                   <LoadingButton
-                    /*disabled={!formik.isValid}*/
+                    disabled={!formik.isValid}
                     loading={loadingSaveButton}
                     variant="contained"
                     onClick={handleSubmit}
@@ -255,6 +273,9 @@ const ProfilePage = (props) => {
                 <FHT error={true}>{formik.errors.affiliation}</FHT>
               ) : null}
               {showPasswordFields && renderPasswordFields(formik)}
+
+              
+
               {false && (
                 <>
                   <FormControlLabel
