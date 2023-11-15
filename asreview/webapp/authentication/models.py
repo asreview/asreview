@@ -118,12 +118,12 @@ class User(UserMixin, DB.Model):
         self.public = public
 
     def update_profile(self, email, name, affiliation,
-            old_password=None, new_password=None, public=True):
-        
+                       old_password=None, new_password=None, public=True):
+
         # if there is a request to update the password, and the origin
         # is correct
         if bool(old_password) and bool(new_password) and \
-            self.origin == "asreview":
+                self.origin == "asreview":
             # verify the old password
             if not self.verify_password(old_password):
                 raise ValueError("Provided old password is incorrect.")

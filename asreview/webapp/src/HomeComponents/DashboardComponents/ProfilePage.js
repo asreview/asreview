@@ -15,9 +15,7 @@ import {
 } from "@mui/material";
 
 import LoadingButton from "@mui/lab/LoadingButton";
-import {
-  TypographyH5Medium,
-} from "../../StyledComponents/StyledTypography.js";
+import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
 import { InlineErrorHandler } from "../../Components";
 import { useToggle } from "../../hooks/useToggle";
 
@@ -28,7 +26,10 @@ import * as Yup from "yup";
 
 // VALIDATION SCHEMA
 const SignupSchema = Yup.object().shape({
-  email: Yup.string().email("Invalid email").required("Email is required").nullable(),
+  email: Yup.string()
+    .email("Invalid email")
+    .required("Email is required")
+    .nullable(),
   name: Yup.string().required("Full name is required").nullable(),
   affiliation: Yup.string()
     .min(2, "Affiliation must be at least 2 characters long")
@@ -36,16 +37,11 @@ const SignupSchema = Yup.object().shape({
   oldPassword: Yup.string(),
   newPassword: passwordValidation(Yup.string()),
   confirmPassword: Yup.string()
-    .oneOf(
-      [Yup.ref("newPassword")],
-      "Passwords must match",
-    )
-    .when(
-      'newPassword', {
-        is: (value) => (value !== undefined && value.length > 0),
-        then: (schema) => schema.required("Confirmation password is required")
-      }
-    )
+    .oneOf([Yup.ref("newPassword")], "Passwords must match")
+    .when("newPassword", {
+      is: (value) => value !== undefined && value.length > 0,
+      then: (schema) => schema.required("Confirmation password is required"),
+    }),
 });
 
 const ProfilePage = (props) => {
@@ -94,7 +90,7 @@ const ProfilePage = (props) => {
       formik.setFieldValue(
         "affiliation",
         data.message.affiliation || "",
-        false,
+        false
       );
       formik.setFieldValue("public", data.message.public || true);
       // show password field?
@@ -116,8 +112,11 @@ const ProfilePage = (props) => {
   };
 
   const oldPasswordHasValue = () => {
-    return (formik.values.oldPassword === undefined || formik.values.oldPassword === "")
-  }
+    return (
+      formik.values.oldPassword === undefined ||
+      formik.values.oldPassword === ""
+    );
+  };
 
   const passwordFieldOpacity = () => {
     if (oldPasswordHasValue()) {
@@ -125,7 +124,7 @@ const ProfilePage = (props) => {
     } else {
       return 1;
     }
-  }
+  };
 
   const renderPasswordFields = (formik) => {
     return (
@@ -143,6 +142,7 @@ const ProfilePage = (props) => {
               value={formik.values.oldPassword}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
+              autoComplete="off"
             />
             <TextField
               id="newPassword"
@@ -153,7 +153,7 @@ const ProfilePage = (props) => {
               value={formik.values.newPassword}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              style={{opacity: passwordFieldOpacity()}}
+              style={{ opacity: passwordFieldOpacity() }}
               disabled={oldPasswordHasValue()}
             />
             <TextField
@@ -165,7 +165,7 @@ const ProfilePage = (props) => {
               value={formik.values.confirmPassword}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              style={{opacity: passwordFieldOpacity()}}
+              style={{ opacity: passwordFieldOpacity() }}
               disabled={oldPasswordHasValue()}
             />
           </Stack>
@@ -274,8 +274,6 @@ const ProfilePage = (props) => {
                 <FHT error={true}>{formik.errors.affiliation}</FHT>
               ) : null}
               {showPasswordFields && renderPasswordFields(formik)}
-
-              
 
               {false && (
                 <>

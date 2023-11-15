@@ -394,7 +394,7 @@ def update_profile():
 
         try:
             user = user.update_profile(email, name, affiliation,
-                old_password, new_password, public)
+                                       old_password, new_password, public)
             DB.session.commit()
             result = (200, "User profile updated.")
         except ValueError as e:
