@@ -220,6 +220,8 @@ def signup():
                 else:
                     # result is a 201 with message
                     result = (201, f'User "{identifier}" created.')
+            except ValueError as e:
+                result = (400, f"Unable to create your account! Reason: {str(e)}")
             except IntegrityError as e:
                 DB.session.rollback()
                 result = (403, f"Unable to create your account! Reason: {str(e)}")
@@ -386,15 +388,17 @@ def update_profile():
         email = request.form.get("email", "").strip()
         name = request.form.get("name", "").strip()
         affiliation = request.form.get("affiliation", "").strip()
-        password = request.form.get("password", None)
+        old_password = request.form.get("old_password", None)
+        new_password = request.form.get("new_password", None)
         public = bool(int(request.form.get("public", "1")))
 
         try:
-            user = user.update_profile(email, name, affiliation, password, public)
+            user = user.update_profile(email, name, affiliation,
+                                       old_password, new_password, public)
             DB.session.commit()
             result = (200, "User profile updated.")
         except ValueError as e:
-            result = (500, f"Unable to update your profile! Reason: {str(e)}")
+            result = (400, f"Unable to update your profile! Reason: {str(e)}")
         except IntegrityError as e:
             DB.session.rollback()
             result = (500, f"Unable to update your profile! Reason: {str(e)}")
@@ -459,6 +463,8 @@ def oauth_callback():
         (identifier, email, name) = oauth_handler.get_user_credentials(
             provider, code, redirect_uri
         )
+        # make sure identifier is a string
+        identifier = str(identifier)
         # try to find this user
         user = User.query.filter(User.identifier == identifier).one_or_none()
         # flag for response (I'd like to communicate if this user was created)
@@ -480,11 +486,17 @@ def oauth_callback():
                 DB.session.add(user)
                 DB.session.commit()
                 created_account = True
+            except IntegrityError:
+                DB.session.rollback()
+                message = "OAuth: integrity error, verify if you " + \
+                    "already have created an account!"
+                # return this immediately
+                return jsonify({"message": message}), 409
             except SQLAlchemyError:
                 DB.session.rollback()
                 message = "OAuth: unable to create your account!"
                 # return this immediately
-                return jsonify({"data": message}), 500
+                return jsonify({"message": message}), 409
 
         # log in the existing/created user immediately
         logged_in = perform_login_user(user)
@@ -498,7 +510,7 @@ def oauth_callback():
             },
         )
     else:
-        result = (400, {"data": f"OAuth provider {provider} could not be found"})
+        result = (400, {"message": f"OAuth provider {provider} could not be found"})
 
     status, message = result
     response = jsonify(message)
