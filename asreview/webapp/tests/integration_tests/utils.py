@@ -1,9 +1,20 @@
+import time
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
+
+
+def setup_database_session(uri):
+    Session = sessionmaker()
+    engine = create_engine(uri)
+    Session.configure(bind=engine)
+    return Session()
 
 
 def clean_database(session):
@@ -40,6 +51,20 @@ def select_from_dropdown(driver, parent, data_value):
     click_element(driver, element)
     WebDriverWait(driver, 60) \
         .until(EC.invisibility_of_element_located(element))
+
+
+# TODO APPLY THIS FUNCTION
+def fill_text_field_by_id(driver, field_id, value):
+    WebDriverWait(driver, 60) \
+        .until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, f"input#{field_id}")))
+    
+    input_field = driver.find_element(
+        By.CSS_SELECTOR,
+        f"input#{field_id}"
+    )
+    input_field.clear()
+    input_field.send_keys(value)
 
 
 def create_account(driver, base_url, account_data):
@@ -99,6 +124,11 @@ def sign_in(driver, base_url, account_data):
     click_element(driver, "button#sign-in")
 
 
+def sign_out(driver):
+    click_element(driver, "button#profile-popper")
+    click_element(driver, "li#signout")
+
+
 def label_abstract(driver, label):
     # make sure it is capitalized
     label = label.capitalize()
@@ -108,6 +138,8 @@ def label_abstract(driver, label):
     click_element(driver, f"button#{label.lower()}")
 
 
+# TODO: THIS NEEDS REFACTORING, USE LABEL ABSTRACT MAYBE
+# AND MOVE READING TIME TO THAT FUNCTION
 def _label_prior_knowledge_abstract(driver, label=None):
     assert label in ["Yes", "No", None]
     # Use prior label if label is None
@@ -122,7 +154,7 @@ def _label_prior_knowledge_abstract(driver, label=None):
     )
 
 
-def _label_random_prior_knowledge(driver, project_data):
+def _label_random_prior_knowledge(driver, project_data, reading_time):
     # click on randomly adding prior knowledge
     click_element(
         driver,
@@ -131,10 +163,11 @@ def _label_random_prior_knowledge(driver, project_data):
 
     # add random prior knowledge
     for label in project_data["dataset"]["prior_knowledge"]:
+        time.sleep(reading_time)
         _label_prior_knowledge_abstract(driver, label)
 
 
-def _label_searched_prior_knowledge(driver, project_data):
+def _label_searched_prior_knowledge(driver, project_data, reading_time):
     # make the Search choice
     click_element(
         driver,
@@ -156,6 +189,7 @@ def _label_searched_prior_knowledge(driver, project_data):
                 (By.CSS_SELECTOR, "div.search-result")))
 
         # label first abstract
+        time.sleep(reading_time)
         _label_prior_knowledge_abstract(driver, label)
 
         # clear search input
@@ -165,7 +199,7 @@ def _label_searched_prior_knowledge(driver, project_data):
         ).clear()
 
 
-def create_project(driver, base_url, project_data):
+def create_project(driver, base_url, project_data, reading_time=0):
     # browse to signin page
     page = base_url + "/projects"
     browse_to_page(driver, page)
@@ -209,9 +243,9 @@ def create_project(driver, base_url, project_data):
     click_element(driver, "button#add-prior-knowledge")
 
     if project_data["dataset"]["prior_knowledge_method"] == "Random":
-        _label_random_prior_knowledge(driver, project_data)
+        _label_random_prior_knowledge(driver, project_data, reading_time)
     else:
-        _label_searched_prior_knowledge(driver, project_data)
+        _label_searched_prior_knowledge(driver, project_data, reading_time)
 
     # close page 2
     click_element(

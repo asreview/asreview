@@ -149,7 +149,7 @@ const ProfilePopper = (props) => {
       <ClickAwayListener onClickAway={handleClickAway}>
         <Box>
           <Tooltip title="Profile">
-            <ButtonBase onClick={handleClick}>
+            <ButtonBase id="profile-popper" onClick={handleClick}>
               <Avatar
                 alt="user"
                 src={ElasAvatar}
@@ -233,7 +233,7 @@ const ProfilePopper = (props) => {
                   </MenuItem>
                 )}
 
-                <MenuItem onClick={handleSignOut}>
+                <MenuItem id="signout" onClick={handleSignOut}>
                   <ListItemIcon>
                     <Logout fontSize="small" />
                   </ListItemIcon>

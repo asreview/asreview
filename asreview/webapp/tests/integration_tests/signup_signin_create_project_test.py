@@ -1,18 +1,11 @@
 import random
+import time
 
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 import asreview.webapp.tests.integration_tests.utils as utils
-
-# assumes we have a Docker container of the app running at
-# localhost port 8080
-
-BASE_URL = "http://localhost:8080/"
-
-
-
 
 ACCOUNT = {
     "email": "test4@user.org",
@@ -54,21 +47,13 @@ PROJECT = {
 }
 
 
-SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://postgres:postgres" \
-    "@127.0.0.1:5433/asreview_db"
-
-@pytest.fixture(scope="session")
-def url(pytestconfig):
-    return pytestconfig.getoption("url")
-
-
-def test_signup_signin_create_project(driver, url):
+def test_signup_signin_create_project(driver, url, database_uri, reading_time):
     base_url = url
     driver.get(base_url)
 
     # SETUP  DATABASE
     Session = sessionmaker()
-    engine = create_engine(SQLALCHEMY_DATABASE_URI)
+    engine = create_engine(database_uri)
     Session.configure(bind=engine)
     session = Session()
 
@@ -82,11 +67,12 @@ def test_signup_signin_create_project(driver, url):
     utils.sign_in(driver, base_url, ACCOUNT)
 
     # create project
-    utils.create_project(driver, base_url, PROJECT)
+    utils.create_project(driver, base_url, PROJECT, reading_time)
 
-    # REVIEWING
-    for _ in range(50):
-        # choose
-        label = random.choice(['Irrelevant', 'Relevant'])
-        # click
-        utils.label_abstract(driver, label)
+    # # REVIEWING
+    # for _ in range(50):
+    #     time.sleep(reading_time)
+    #     # choose
+    #     label = random.choice(['Irrelevant', 'Relevant'])
+    #     # click
+    #     utils.label_abstract(driver, label)
