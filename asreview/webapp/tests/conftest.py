@@ -22,6 +22,9 @@ from asreview.webapp import DB
 from asreview.webapp.app import create_app
 from asreview.webapp.tests.utils import crud
 
+def pytest_addoption(parser):
+    parser.addoption("--url", action="store", default="http://localhost:3000/")
+
 PROJECTS = [
     {
         "mode": "explore",

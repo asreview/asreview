@@ -5,8 +5,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 
-BASE_URL = "http://localhost:8080"
-
 
 def clean_database(session):
     session.query(Project).delete()
@@ -44,9 +42,9 @@ def select_from_dropdown(driver, parent, data_value):
         .until(EC.invisibility_of_element_located(element))
 
 
-def create_account(driver, account_data):
+def create_account(driver, base_url, account_data):
     # browse to signup page
-    page = BASE_URL + "/signup"
+    page = base_url + "/signup"
     browse_to_page(driver, page)
 
     # link account data to form fields
@@ -74,9 +72,9 @@ def create_account(driver, account_data):
     click_element(driver, "button#create-profile")
 
 
-def sign_in(driver, account_data):
+def sign_in(driver, base_url, account_data):
     # browse to signin page
-    page = BASE_URL + "/signin"
+    page = base_url + "/signin"
     browse_to_page(driver, page)
 
     # compile form data
@@ -167,9 +165,9 @@ def _label_searched_prior_knowledge(driver, project_data):
         ).clear()
 
 
-def create_project(driver, project_data):
+def create_project(driver, base_url, project_data):
     # browse to signin page
-    page = BASE_URL + "/projects"
+    page = base_url + "/projects"
     browse_to_page(driver, page)
 
     # click on the create button when it's available
