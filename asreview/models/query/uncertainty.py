@@ -13,6 +13,8 @@
 # limitations under the License.
 """Uncertainty sampling while saving probabilities."""
 
+__all__ = ["UncertaintyQuery"]
+
 import numpy as np
 
 from asreview.models.query.base import ProbaQueryStrategy
