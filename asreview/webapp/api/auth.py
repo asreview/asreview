@@ -22,6 +22,7 @@ from flask import jsonify
 from flask import render_template_string
 from flask import request
 from flask_login import current_user
+from flask_login import login_required
 from flask_login import login_user
 from flask_login import logout_user
 from flask_mail import Mail
@@ -32,7 +33,6 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import SQLAlchemyError
 
 from asreview.webapp import DB
-from asreview.webapp.authentication.login_required import asreview_login_required
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
@@ -277,7 +277,7 @@ def confirm_account():
 
 
 @bp.route("/get_profile", methods=["GET"])
-@asreview_login_required
+@login_required
 def get_profile():
     user = User.query.filter(User.id == current_user.id).one_or_none()
     if user:
@@ -380,7 +380,7 @@ def reset_password():
 
 
 @bp.route("/update_profile", methods=["POST"])
-@asreview_login_required
+@login_required
 def update_profile():
     """Update user profile"""
     user = User.query.filter(User.id == current_user.id).one_or_none()
@@ -432,7 +432,7 @@ def refresh():
 
 
 @bp.route("/signout", methods=["DELETE"])
-@asreview_login_required
+@login_required
 def signout():
     if current_user:
         identifier = current_user.identifier

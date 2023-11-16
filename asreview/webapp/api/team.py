@@ -1,12 +1,12 @@
 from flask import Blueprint
 from flask import jsonify
 from flask_login import current_user
+from flask_login import login_required
 from sqlalchemy import and_
 from sqlalchemy.exc import SQLAlchemyError
 
 from asreview.project import ASReviewProject
 from asreview.webapp import DB
-from asreview.webapp.authentication.login_required import asreview_login_required
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 
@@ -16,7 +16,7 @@ REQUESTER_FRAUD = {"message": "Request can not made by current user."}
 
 
 @bp.route("/projects/<project_id>/users", methods=["GET"])
-@asreview_login_required
+@login_required
 def users(project_id):
     """Returns all users involved in a project."""
     response = jsonify(REQUESTER_FRAUD), 404
@@ -57,7 +57,7 @@ def users(project_id):
 
 
 @bp.route("/projects/<project_id>/users/<user_id>", methods=["DELETE"])
-@asreview_login_required
+@login_required
 def end_collaboration(project_id, user_id):
     """Project owner removes a collaborator, or collaborator
     removes him/herself."""
@@ -89,7 +89,7 @@ def end_collaboration(project_id, user_id):
 
 
 @bp.route("/invitations", methods=["GET"])
-@asreview_login_required
+@login_required
 def pending_invitations():
     """Returns pending invitations for current user."""
     invitations = []
@@ -114,7 +114,7 @@ def pending_invitations():
 
 
 @bp.route("/invitations/projects/<project_id>/users/<user_id>", methods=["POST"])
-@asreview_login_required
+@login_required
 def invite(project_id, user_id):
     """Project owner invites a user to collaborate on a project"""
     response = jsonify(REQUESTER_FRAUD), 404
@@ -139,7 +139,7 @@ def invite(project_id, user_id):
 
 
 @bp.route("/invitations/projects/<project_id>/accept", methods=["POST"])
-@asreview_login_required
+@login_required
 def accept_invitation(project_id):
     """Invited person accepts an invitation."""
     response = jsonify(REQUESTER_FRAUD), 404
@@ -166,7 +166,7 @@ def accept_invitation(project_id):
 
 
 @bp.route("/invitations/projects/<project_id>/reject", methods=["DELETE"])
-@asreview_login_required
+@login_required
 def reject_invitation(project_id):
     """Invited person rejects an invitation."""
     response = jsonify(REQUESTER_FRAUD), 404
@@ -191,7 +191,7 @@ def reject_invitation(project_id):
 
 
 @bp.route("/invitations/projects/<project_id>/users/<user_id>", methods=["DELETE"])
-@asreview_login_required
+@login_required
 def delete_invitation(project_id, user_id):
     """removes an invitation"""
     response = jsonify(REQUESTER_FRAUD), 404
