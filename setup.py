@@ -175,12 +175,14 @@ setup(
             "asreview=asreview.__main__:main",
         ],
         "asreview.entry_points": [
-            "lab=asreview.entry_points:LABEntryPoint",
-            "web_run_model=asreview.entry_points:WebRunModelEntryPoint",
+            "lab=asreview.webapp.entry_points.lab:lab_entry_point",
             "simulate=asreview.entry_points:SimulateEntryPoint",
             "algorithms=asreview.entry_points:AlgorithmsEntryPoint",
+            "auth-tool=asreview.webapp.entry_points.auth_tool:admin_entry_point",
+        ],
+        "asreview.entry_points_internal": [
+            "web_run_model=asreview.webapp.entry_points.run_model:run_model_entry_point",
             "state-inspect=asreview.entry_points:StateInspectEntryPoint",
-            "auth-tool=asreview.entry_points:AuthTool",
         ],
         "asreview.readers": [
             ".csv = asreview.io:CSVReader",

@@ -22,12 +22,10 @@ from gevent.pywsgi import WSGIServer
 
 from asreview._deprecated import DeprecateAction
 from asreview._deprecated import mark_deprecated_help_strings
-from asreview.entry_points.base import BaseEntryPoint
 from asreview.project import ASReviewProject
 from asreview.project import get_project_path
 from asreview.project import get_projects
 from asreview.webapp.app import create_app
-from asreview.webapp.run_model import _train_model
 
 # Host name
 HOST_NAME = os.getenv("ASREVIEW_HOST")
@@ -66,84 +64,76 @@ def _open_browser(start_url):
     )
 
 
-class LABEntryPoint(BaseEntryPoint):
-    """Entry point to start the ASReview LAB webapp."""
+def lab_entry_point(argv):
+    # check deprecated dev mode
+    _deprecated_dev_mode()
 
-    def execute(self, argv):
-        # check deprecated dev mode
-        _deprecated_dev_mode()
+    parser = _lab_parser()
+    mark_deprecated_help_strings(parser)
+    args = parser.parse_args(argv)
 
-        parser = _lab_parser()
-        mark_deprecated_help_strings(parser)
-        args = parser.parse_args(argv)
+    print(args)
 
-        app = create_app(
-            env="production",
-            config_file=args.flask_config_file,
-            secret_key=args.secret_key,
-            salt=args.salt,
-            enable_authentication=args.enable_authentication,
-        )
-        app.config["PROPAGATE_EXCEPTIONS"] = False
+    app = create_app(
+        env="production",
+        config_file=args.flask_config_file,
+        secret_key=args.secret_key,
+        salt=args.salt,
+        enable_authentication=args.enable_authentication,
+    )
+    app.config["PROPAGATE_EXCEPTIONS"] = False
 
-        # clean all projects
-        # TODO@{Casper}: this needs a little bit
-        # of work, we need to access all sub-folders
-        if args.clean_all_projects:
-            print("Cleaning all project files.")
-            for project in get_projects():
-                project.clean_tmp_files()
-            print("Done")
-            return
+    # clean all projects
+    # TODO@{Casper}: this needs a little bit
+    # of work, we need to access all sub-folders
+    if args.clean_all_projects:
+        print("Cleaning all project files.")
+        for project in get_projects():
+            project.clean_tmp_files()
+        print("Done")
+        return
 
-        # clean project by project_id
-        # TODO@{Casper}: cleaning without a user context
-        # is meaningless -> I think we should remove this
-        # option
-        if args.clean_project is not None:
-            print(f"Cleaning project file '{args.clean_project}'.")
-            ASReviewProject(get_project_path(args.clean_project)).clean_tmp_files()
-            print("Done")
-            return
+    # clean project by project_id
+    # TODO@{Casper}: cleaning without a user context
+    # is meaningless -> I think we should remove this
+    # option
+    if args.clean_project is not None:
+        print(f"Cleaning project file '{args.clean_project}'.")
+        ASReviewProject(get_project_path(args.clean_project)).clean_tmp_files()
+        print("Done")
+        return
 
-        # if port is already taken find another one
-        port = args.port
-        original_port = port
-        while _check_port_in_use(args.host, port) is True:
-            old_port = port
-            port = int(port) + 1
-            if port - original_port >= args.port_retries:
-                raise ConnectionError(
-                    "Could not find an available port \n"
-                    "to launch ASReview LAB. Last port \n"
-                    f"was {str(port)}"
-                )
-            print(f"Port {old_port} is in use.\n* Trying to start at {port}")
+    # if port is already taken find another one
+    port = args.port
+    original_port = port
+    while _check_port_in_use(args.host, port) is True:
+        old_port = port
+        port = int(port) + 1
+        if port - original_port >= args.port_retries:
+            raise ConnectionError(
+                "Could not find an available port \n"
+                "to launch ASReview LAB. Last port \n"
+                f"was {str(port)}"
+            )
+        print(f"Port {old_port} is in use.\n* Trying to start at {port}")
 
-        protocol = "https://" if args.certfile and args.keyfile else "http://"
-        start_url = f"{protocol}{args.host}:{port}/"
+    protocol = "https://" if args.certfile and args.keyfile else "http://"
+    start_url = f"{protocol}{args.host}:{port}/"
 
-        ssl_args = {}
-        if args.keyfile and args.certfile:
-            ssl_args = {"keyfile": args.keyfile, "certfile": args.certfile}
+    ssl_args = {}
+    if args.keyfile and args.certfile:
+        ssl_args = {"keyfile": args.keyfile, "certfile": args.certfile}
 
-        server = WSGIServer((args.host, port), app, **ssl_args)
-        print(f"Serving ASReview LAB at {start_url}")
+    server = WSGIServer((args.host, port), app, **ssl_args)
+    print(f"Serving ASReview LAB at {start_url}")
 
-        if not args.no_browser:
-            _open_browser(start_url)
+    if not args.no_browser:
+        _open_browser(start_url)
 
-        try:
-            server.serve_forever()
-        except KeyboardInterrupt:
-            print("\n\nShutting down server\n\n")
-
-
-class WebRunModelEntryPoint(BaseEntryPoint):
-    description = "Internal use only."
-
-    def execute(self, argv):
-        _train_model(argv)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\n\nShutting down server\n\n")
 
 
 def _lab_parser():
@@ -251,27 +241,4 @@ def _lab_parser():
         help="The full path to a private key file for usage with SSL/TLS.",
     )
 
-    parser.add_argument(
-        "--config_file",
-        type=str,
-        default=None,
-        help="Deprecated, see subcommand simulate.",
-        action=DeprecateAction,
-    )
-
-    parser.add_argument(
-        "--seed",
-        default=None,
-        type=int,
-        help="Deprecated, see subcommand simulate.",
-        action=DeprecateAction,
-    )
-
-    parser.add_argument(
-        "--embedding",
-        type=str,
-        default=None,
-        dest="embedding_fp",
-        help="File path of embedding matrix. Required for LSTM models.",
-    )
     return parser
