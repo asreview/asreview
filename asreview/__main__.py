@@ -14,8 +14,8 @@
 
 """Command Line Interface (CLI) for ASReview project."""
 import argparse
-import sys
 import inspect
+import sys
 from importlib.metadata import metadata
 from itertools import groupby
 
