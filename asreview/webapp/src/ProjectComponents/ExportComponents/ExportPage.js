@@ -141,9 +141,9 @@ const ExportPage = (props) => {
 
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const handleOpen = () => {
-    setDialogOpen(true);
-  };
+ const toggleDialog = () => {
+  setDialogOpen(prev => !prev);
+};
 
   return (
     <Root aria-label="export page">
@@ -329,9 +329,13 @@ const ExportPage = (props) => {
                   </span>
                 </Tooltip>
               </Box>
-              .
                 <StyledActionsBox>
-                  <Box borderRadius={3} padding={2} maxWidth="600px">
+                  <Box 
+                      borderRadius={3} padding={2} 
+                      sx={{ 
+                        maxWidth: { xs: '80%', sm: '40%', md: '30%' }, width: '100%'
+                      }}
+                    >
                     <Typography variant="h6" sx={{ fontWeight: "bold" }}>
                       Love using ASReview?
                     </Typography>
@@ -343,12 +347,11 @@ const ExportPage = (props) => {
                         startIcon={<LibraryBooks />} 
                         variant="outlined" 
                         color="primary" 
-                        onClick={handleOpen}
+                        onClick={toggleDialog}
                       >
                         Cite
                       </Button>
-                      <CiteDialog isOpen={dialogOpen} onClose={() => setDialogOpen(false)} />
-
+                      <CiteDialog isOpen={dialogOpen} onClose={toggleDialog} />
                       <Button 
                         variant="outlined" 
                         color="primary" 

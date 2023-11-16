@@ -45,7 +45,11 @@ const CitationStylesRow = styled('div')(({ theme }) => ({
   },
 }));
 
-
+const mapStateToProps = (state) => {
+  return {
+    asreview_version: state.asreview_version,
+  };
+};
 
 const CiteDialog = ({ isOpen, onClose, mobileScreen, asreview_version }) => {
     const theme = useTheme();
@@ -54,7 +58,7 @@ const CiteDialog = ({ isOpen, onClose, mobileScreen, asreview_version }) => {
 
     const citationStyles = {
   'APA': [
-    `ASReview LAB developers. (2023). ASReview LAB: A tool for AI-assisted systematic reviews [Software v.${asreview_version || 'not specified'}]. Zenodo. https://doi.org/10.5281/zenodo.3345592`,
+    `ASReview LAB developers. (2023). ASReview LAB: A tool for AI-assisted systematic reviews [Software v.${asreview_version}]. Zenodo. https://doi.org/10.5281/zenodo.3345592`,
   ],
   'MLA': [
     `ASReview LAB developers. "ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${asreview_version}]." Zenodo, 2023, https://doi.org/10.5281/zenodo.3345592.`,
@@ -67,11 +71,12 @@ const CiteDialog = ({ isOpen, onClose, mobileScreen, asreview_version }) => {
   ],
   'BibTex': [
     `@software{asreviewlab2023,`,
-    `title={{ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${asreview_version}]}},`,
-    `author={{ASReview LAB developers}},`,
+    `title={ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${asreview_version}]},`,
+    `author={ASReview LAB developers},`,
     `year={2023},`,
     `url={https://doi.org/10.5281/zenodo.3345592},`,
-    `note={Software version: ${asreview_version}}`
+    `note={Software version: ${asreview_version}}`,
+    `}`
   ],
   'RIS': [
     `TY  - COMP`,
@@ -84,9 +89,6 @@ const CiteDialog = ({ isOpen, onClose, mobileScreen, asreview_version }) => {
     `ER  - `
   ]
 };
-
-
-
 
 return (
     <Dialog open={isOpen} onClose={onClose} maxWidth="md" fullWidth fullScreen={mobileScreen}>
@@ -123,12 +125,6 @@ return (
       </StyledDialogContent>
     </Dialog>
   );
-};
-
-const mapStateToProps = (state) => {
-  return {
-    asreview_version: state.asreview_version,
-  };
 };
 
 export default connect(mapStateToProps)(CiteDialog);
