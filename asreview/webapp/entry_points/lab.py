@@ -72,8 +72,6 @@ def lab_entry_point(argv):
     mark_deprecated_help_strings(parser)
     args = parser.parse_args(argv)
 
-    print(args)
-
     app = create_app(
         env="production",
         config_file=args.flask_config_file,
