@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = ["RandomForestClassifier"]
+
 from sklearn.ensemble import RandomForestClassifier as SKRandomForestClassifier
 
 from asreview.models.classifiers.base import BaseTrainClassifier

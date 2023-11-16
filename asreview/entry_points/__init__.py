@@ -12,6 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = [
+    "AlgorithmsEntryPoint",
+    "AuthTool",
+    "BaseEntryPoint",
+    "LABEntryPoint",
+    "SimulateEntryPoint",
+    "StateInspectEntryPoint",
+]
+
 from asreview.entry_points.algorithms import AlgorithmsEntryPoint
 from asreview.entry_points.auth_tool import AuthTool
 from asreview.entry_points.base import BaseEntryPoint

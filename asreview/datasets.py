@@ -12,6 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = [
+    "BaseDataGroup",
+    "BaseDataSet",
+    "BenchmarkDataGroup",
+    "DatasetManager",
+    "DatasetNotFoundError",
+    "NaturePublicationDataGroup",
+    "SynergyDataGroup",
+    "SynergyDataSet",
+]
+
 import json
 import socket
 import tempfile
