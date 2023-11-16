@@ -48,7 +48,7 @@ def run_model_entry_point(argv):
 
         # Check if there are new labeled records to train with
         with open_state(project.project_path) as state:
-            if state.exist_new_labeled_records:
+            if not state.exist_new_labeled_records:
                 return
 
         # Lock so that only one training run is running at the same time.
