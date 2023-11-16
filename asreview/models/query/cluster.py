@@ -33,7 +33,7 @@ class ClusterQuery(ProbaQueryStrategy):
         smaller than the size of the pool, fall back to max sampling.
     update_interval: int
         Update the clustering every x instances.
-    random_state: int, RandomState
+    random_state: int, asreview.utils.SeededRandomState
         State/seed of the RNG.
     """
 
