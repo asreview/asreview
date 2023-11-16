@@ -18,7 +18,7 @@ import {
   useTheme
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Diversity3, Payment, StarBorder, LibraryBooks } from "@mui/icons-material";
+import { Diversity3, Payment, StarBorder, LibraryBooks, Email } from "@mui/icons-material";
 import { ActionsFeedbackBar, PageHeader, CiteDialog } from "../../Components";
 import { SelectItem } from "../../ProjectComponents";
 import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
@@ -369,6 +369,16 @@ const ExportPage = (props) => {
                         startIcon={<Payment />}
                       >
                         Donate
+                      </Button>
+                      <Button 
+                        variant="outlined" 
+                        color="primary" 
+                        component={Link}
+                        target="_blank" 
+                        href="https://asreview.ai/newsletter/subscribe"
+                        startIcon={<Email />}
+                      >
+                        Subscribe
                       </Button>
                       <Button 
                         variant="outlined" 
