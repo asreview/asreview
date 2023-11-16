@@ -365,7 +365,7 @@ const ExportPage = (props) => {
                         color="primary" 
                         component={Link}
                         target="_blank" 
-                        href="https://steun.uu.nl/project/asreview?locale=en"
+                        href="https://asreview.nl/donate"
                         startIcon={<Payment />}
                       >
                         Donate
