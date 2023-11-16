@@ -210,7 +210,7 @@ const ImportDataset = (props) => {
                 Select a dataset from an extension.{" "}
                 <Link
                   underline="none"
-                  href="https://asreview.readthedocs.io/en/latest/extensions/overview_extensions.html"
+                  href="https://asreview.readthedocs.io/en/latest/extensions_dev.html"
                   target="_blank"
                 >
                   Learn more
@@ -224,7 +224,7 @@ const ImportDataset = (props) => {
                 to the benchmark platform.{" "}
                 <Link
                   underline="none"
-                  href="https://github.com/asreview/systematic-review-datasets"
+                  href="https://github.com/asreview/synergy-dataset"
                   target="_blank"
                 >
                   Learn more
