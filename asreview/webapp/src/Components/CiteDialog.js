@@ -77,6 +77,7 @@ const CitationStylesRow = styled('div')(({ theme }) => ({
       'TI  - ASReview LAB: A Tool for AI-Assisted Systematic Reviews',
       'PB  - Zenodo',
       'UR  - https://doi.org/10.5281/zenodo.3345592',
+      'DO  - 10.5281/ZENODO.10084260',
       'ER  - '
     ]
   };
