@@ -1,5 +1,6 @@
 import inspect
 import time
+from pathlib import Path
 from typing import Union
 
 import pytest
@@ -9,10 +10,10 @@ import asreview.webapp.tests.utils.api_utils as au
 import asreview.webapp.tests.utils.crud as crud
 import asreview.webapp.tests.utils.misc as misc
 from asreview.project import ASReviewProject
+from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.tests.utils.misc import current_app_is_authenticated
-from asreview.webapp.tests.utils.misc import retrieve_project_url_github
 
 # NOTE: I don't see a plugin that can be used for testing
 # purposes
@@ -23,7 +24,15 @@ UPLOAD_DATA = [
         + "asreview/master/tests/demo_data/generic_labels.csv"
     },
 ]
-IMPORT_PROJECT_URLS = retrieve_project_url_github()
+
+
+def _asreview_file_archive():
+    return list(
+        Path("asreview", "webapp", "tests", "asreview-project-file-archive").glob(
+            "*/asreview-project-*-startreview.asreview"
+        )
+    )
+
 
 # NOTE: the setup fixture entails: a FlaskClient, 1 user (signed in),
 # and a project of this user OR a project from an unauthenticated app.
@@ -70,9 +79,16 @@ def test_try_upgrade_a_modern_project(setup):
 # Test upgrading a v0.x project
 def test_upgrade_an_old_project(setup):
     client, user, _ = setup
-    # get an old version from github
-    old_project_url = retrieve_project_url_github("v0.19")
-    project = misc.copy_github_project_into_asreview_folder(old_project_url)
+
+    asreview_v0_file = (
+        "asreview/webapp/tests/asreview-project-file-archive/"
+        "v0.19/asreview-project-v0-19-startreview.asreview"
+    )
+
+    project = ASReviewProject.load(
+        open(asreview_v0_file, "rb"), asreview_path(), safe_import=True
+    )
+
     # we need to make sure this new, old-style project can be found
     # under current user if the app is authenticated
     if current_app_is_authenticated():
@@ -85,14 +101,13 @@ def test_upgrade_an_old_project(setup):
 
 
 # Test importing old projects, verify ids
-@pytest.mark.parametrize("url", IMPORT_PROJECT_URLS)
-def test_import_project_files(setup, url):
+@pytest.mark.parametrize("fp", _asreview_file_archive())
+def test_import_project_files(setup, fp):
     client, user, first_project = setup
     # import project
-    status_code, data = au.import_project(client, url)
+    status_code, data = au.import_project(client, fp)
     # get contents asreview folder
     folders = set(misc.get_folders_in_asreview_path())
-    # asserts
     assert len(folders) == 2
     assert status_code == 200
     assert isinstance(data, dict)
