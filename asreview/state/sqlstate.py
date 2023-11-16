@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = ["SQLiteState"]
+
 import json
 import sqlite3
 from datetime import datetime

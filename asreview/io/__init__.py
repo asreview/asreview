@@ -12,6 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = [
+    "CSVReader",
+    "CSVWriter",
+    "ExcelReader",
+    "ExcelWriter",
+    "PaperRecord",
+    "RISReader",
+    "RISWriter",
+    "TSVWriter",
+    "list_readers",
+    "list_writers",
+]
 
 from asreview.io.csv_reader import CSVReader
 from asreview.io.csv_writer import CSVWriter

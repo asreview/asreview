@@ -12,6 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = [
+    "DoubleBalance",
+    "SimpleBalance",
+    "UndersampleBalance",
+    "get_balance_class",
+    "get_balance_model",
+    "list_balance_strategies",
+]
+
 from asreview.models.balance.double import DoubleBalance
 from asreview.models.balance.simple import SimpleBalance
 from asreview.models.balance.triple import TripleBalance

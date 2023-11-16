@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = ["list_classifiers", "get_classifier_class", "get_classifier"]
+
 import logging
 
 from asreview.utils import _entry_points

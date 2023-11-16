@@ -1,3 +1,5 @@
+__all__ = ["AuthTool"]
+
 import argparse
 import json
 import sys

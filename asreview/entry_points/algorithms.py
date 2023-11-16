@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = ["AlgorithmsEntryPoint"]
+
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.models.balance import list_balance_strategies
 from asreview.models.classifiers import list_classifiers
