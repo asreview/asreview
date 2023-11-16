@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = ["RandomForestClassifier"]
+
 from sklearn.ensemble import RandomForestClassifier as SKRandomForestClassifier
 
 from asreview.models.classifiers.base import BaseTrainClassifier
@@ -33,7 +35,7 @@ class RandomForestClassifier(BaseTrainClassifier):
         Number of features in the model.
     class_weight: float, default=1.0
         Class weight of the inclusions.
-    random_state : int or RandomState, default=None
+    random_state : int or asreview.utils.SeededRandomState, default=None
         Controls both the randomness of the bootstrapping of the samples used
         when building trees and the sampling of the features to consider when
         looking for the best split at each node.

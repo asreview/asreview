@@ -1,6 +1,6 @@
 # Building ASReview in Docker containers
 
-This folder contains two recipes to build different versions of the ASReview application in a Docker container. The `simple` folder lists a single Dockerfile that builds a simple, non authenticated version of the ASReview app. If you choose to create this container, and multiple people would like to use it, the app will be globally shared amongst all of them. This version makes more sense as a standalone app on your own computer for individual use.
+This folder contains two recipes to build different versions of the ASReview application in a Docker container. The root folder lists a single Dockerfile that builds a simple, non authenticated version of the ASReview app. If you choose to create this container, and multiple people would like to use it, the app will be globally shared amongst all of them. This version makes more sense as a standalone app on your own computer for individual use.
 
 The `auth_verified` folder creates an authenticated version that allows multiple users to access the app and create their own private projects. It requires users to signup and signin in order to access the app.
 
@@ -12,7 +12,7 @@ Creating the docker container for a simple, non-authenticated version of the app
 # create a volume
 $ docker volume create asreview_simple
 # build the container
-$ docker build  -t asreview -f ./Docker/simple/Dockerfile .
+$ docker build  -t asreview .
 # run container
 $ docker run -d -v asreview_simple_volume:/project_folder -p 8080:5000 asreview
 ```

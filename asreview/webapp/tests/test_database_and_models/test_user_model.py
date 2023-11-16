@@ -134,8 +134,9 @@ def test_add_user_record(setup_teardown):
 
 # Verify we can update a user record
 def test_update_user_record(setup_teardown):
-    user = crud.create_user(DB)
-    old_hashed_password = user.hashed_password
+    user = cp.get_user(1)
+    db_user = crud.create_user(DB, user)
+    old_hashed_password = db_user.hashed_password
 
     new_email = "new_email@asreview.nl"
     new_name = "New Name"
@@ -147,7 +148,8 @@ def test_update_user_record(setup_teardown):
         email=new_email,
         name=new_name,
         affiliation=new_affiliation,
-        password=new_password,
+        old_password=user.password,
+        new_password=new_password,
         public=new_public,
     )
     DB.session.commit()

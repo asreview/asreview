@@ -1,8 +1,6 @@
 import random
 import time
-from io import BytesIO
 from typing import Union
-from urllib.request import urlopen
 
 from flask.testing import FlaskClient
 
@@ -223,12 +221,11 @@ def upgrade_project(client: FlaskClient, project: Union[Project, ASReviewProject
     return process_response(response)
 
 
-def import_project(client: FlaskClient, url: str):
-    with urlopen(url) as project_file:
-        response = client.post(
-            "/api/projects/import_project",
-            data={"file": (BytesIO(project_file.read()), "project.asreview")},
-        )
+def import_project(client: FlaskClient, asreview_file):
+    response = client.post(
+        "/api/projects/import_project",
+        data={"file": (open(asreview_file, "rb"), "project.asreview")},
+    )
     return process_response(response)
 
 

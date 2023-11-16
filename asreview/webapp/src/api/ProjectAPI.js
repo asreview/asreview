@@ -322,7 +322,7 @@ class ProjectAPI {
         url: url,
         data: {},
         withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" },
+        // headers: { "Content-Type": "multipart/form-data" },
       })
         .then((result) => {
           resolve(result["data"]);
@@ -538,7 +538,7 @@ class ProjectAPI {
         method: variables.initial ? "post" : "put",
         url: url,
         data: body,
-        headers: { "Content-Type": "application/json" },
+        // headers: { "Content-Type": "application/json" },
         withCredentials: true,
       })
         .then((result) => {

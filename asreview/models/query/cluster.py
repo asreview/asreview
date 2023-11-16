@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = ["ClusterQuery"]
+
 import numpy as np
 from sklearn.cluster import KMeans
 
@@ -33,7 +35,7 @@ class ClusterQuery(ProbaQueryStrategy):
         smaller than the size of the pool, fall back to max sampling.
     update_interval: int
         Update the clustering every x instances.
-    random_state: int, RandomState
+    random_state: int, asreview.utils.SeededRandomState
         State/seed of the RNG.
     """
 

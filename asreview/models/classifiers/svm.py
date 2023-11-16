@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = ["SVMClassifier"]
+
 from sklearn.svm import SVC
 
 from asreview.models.classifiers.base import BaseTrainClassifier
@@ -35,7 +37,7 @@ class SVMClassifier(BaseTrainClassifier):
         C parameter of the SVM model.
     kernel: str
         SVM kernel type.
-    random_state: int, RandomState
+    random_state: int, asreview.utils.SeededRandomState
         State of the RNG.
     """
 

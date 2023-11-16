@@ -26,4 +26,4 @@ ENV PATH=/root/.local/bin:$PATH
 ENV ASREVIEW_PATH=/project_folder
 EXPOSE 5000
 
-ENTRYPOINT ["asreview", "lab"]
+ENTRYPOINT ["asreview"]

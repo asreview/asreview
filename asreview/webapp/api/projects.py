@@ -32,6 +32,7 @@ from flask import jsonify
 from flask import request
 from flask import send_file
 from flask_login import current_user
+from flask_login import login_required
 from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
@@ -59,10 +60,8 @@ from asreview.models.query import list_query_strategies
 from asreview.project import ASReviewProject
 from asreview.project import ProjectNotFoundError
 from asreview.project import get_project_path
-from asreview.project import get_projects
 from asreview.project import is_v0_project
 from asreview.project import open_state
-from asreview.project import project_from_id
 from asreview.search import SearchError
 from asreview.search import fuzzy_find
 from asreview.settings import ASReviewSettings
@@ -75,9 +74,8 @@ from asreview.utils import _get_filename_from_url
 from asreview.utils import asreview_path
 from asreview.utils import list_reader_names
 from asreview.webapp import DB
-from asreview.webapp.authentication.login_required import app_is_authenticated
-from asreview.webapp.authentication.login_required import asreview_login_required
-from asreview.webapp.authentication.login_required import project_authorization
+from asreview.webapp.authentication.decorators import current_user_projects
+from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.io import read_data
 
@@ -115,34 +113,24 @@ def error_500(e):
 
 # routes
 @bp.route("/projects", methods=["GET"])
-@asreview_login_required
-def api_get_projects():  # noqa: F401
+@login_required
+@current_user_projects
+def api_get_projects(projects):  # noqa: F401
     """"""
     project_info = []
 
-    if app_is_authenticated(current_app):
-        # authenticated with User accounts
-        user_db_projects = list(current_user.projects) + list(current_user.involved_in)
-        project_paths = [project.project_path for project in user_db_projects]
-        owner_ids = [project.owner_id for project in user_db_projects]
-        projects = get_projects(project_paths)
-    else:
-        # force get_projects to list the .asreview folder
-        projects = get_projects(None)
-        owner_ids = [None for p in projects]
-
-    for project, owner_id in zip(projects, owner_ids):
+    # for project, owner_id in zip(projects, owner_ids):
+    for project in projects:
         try:
             project_config = project.config
+
+            if not current_app.config.get("LOGIN_DISABLED", False):
+                project_config["owner_id"] = current_user.id
 
             # upgrade info of v0 projects
             if project_config["version"].startswith("0"):
                 project_config = upgrade_project_config(project_config)
                 project_config["projectNeedsUpgrade"] = True
-
-            # add ownership information if authentication is enabled
-            if app_is_authenticated(current_app):
-                project_config["owner_id"] = owner_id
 
             logging.info("Project found: {}".format(project_config["id"]))
             project_info.append(project_config)
@@ -163,20 +151,14 @@ def api_get_projects():  # noqa: F401
 
 
 @bp.route("/projects/stats", methods=["GET"])
-@asreview_login_required
-def api_get_projects_stats():  # noqa: F401
+@login_required
+@current_user_projects
+def api_get_projects_stats(projects):  # noqa: F401
     """Get dashboard statistics of all projects"""
 
     stats_counter = {"n_in_review": 0, "n_finished": 0, "n_setup": 0}
 
-    if app_is_authenticated(current_app):
-        user_db_projects = list(current_user.projects) + list(current_user.involved_in)
-        project_paths = [project.project_path for project in user_db_projects]
-    else:
-        # force get_projects to list the .asreview folder
-        project_paths = None
-
-    for project in get_projects(project_paths):
+    for project in projects:
         project_config = project.config
 
         # upgrade info of v0 projects
@@ -195,13 +177,11 @@ def api_get_projects_stats():  # noqa: F401
         except Exception:
             stats_counter["n_setup"] += 1
 
-    response = jsonify({"result": stats_counter})
-
-    return response
+    return jsonify({"result": stats_counter})
 
 
 @bp.route("/projects/info", methods=["POST"])
-@asreview_login_required
+@login_required
 def api_init_project():  # noqa: F401
     """Initialize a new project"""
 
@@ -222,20 +202,19 @@ def api_init_project():  # noqa: F401
         project_name=project_title,
     )
 
+    if current_app.config.get("LOGIN_DISABLED", False):
+        return jsonify(project.config), 201
+
     # create a database entry for this project
-    if app_is_authenticated(current_app):
-        current_user.projects.append(Project(project_id=project_id))
-        DB.session.commit()
+    current_user.projects.append(Project(project_id=project_id))
+    DB.session.commit()
 
-    response = jsonify(project.config)
-
-    return response, 201
+    return jsonify(project.config), 201
 
 
 @bp.route("/projects/<project_id>/upgrade_if_old", methods=["GET"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_upgrade_project_if_old(project):
     """Get upgrade project if it is v0.x"""
 
@@ -251,9 +230,8 @@ def api_upgrade_project_if_old(project):
 
 
 @bp.route("/projects/<project_id>/info", methods=["GET"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_get_project_info(project):  # noqa: F401
     """"""
     project_config = project.config
@@ -263,21 +241,21 @@ def api_get_project_info(project):  # noqa: F401
         project_config = upgrade_project_config(project_config)
         project_config["projectNeedsUpgrade"] = True
 
-    # add user_id of owner to response if authenticated
-    if app_is_authenticated(current_app):
-        db_project = Project.query.filter(
-            Project.project_id == project.config.get("id", 0)
-        ).one_or_none()
-        if db_project:
-            project_config["ownerId"] = db_project.owner_id
+    if current_app.config.get("LOGIN_DISABLED", False):
+        return jsonify(project_config)
+
+    db_project = Project.query.filter(
+        Project.project_id == project.config.get("id", 0)
+    ).one_or_none()
+    if db_project:
+        project_config["ownerId"] = db_project.owner_id
 
     return jsonify(project_config)
 
 
 @bp.route("/projects/<project_id>/info", methods=["PUT"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_update_project_info(project):  # noqa: F401
     """Update project info"""
 
@@ -291,7 +269,7 @@ def api_update_project_info(project):  # noqa: F401
 
 
 @bp.route("/datasets", methods=["GET"])
-@asreview_login_required
+@login_required
 def api_demo_data_project():  # noqa: F401
     """"""
 
@@ -302,7 +280,9 @@ def api_demo_data_project():  # noqa: F401
     if subset == "plugin":
         try:
             result_datasets = manager.list(
-                exclude=["builtin", "benchmark", "benchmark-nature"]
+                exclude=[
+                    "builtin", "synergy", "benchmark", "benchmark-nature"
+                ]
             )
 
         except Exception as err:
@@ -329,9 +309,8 @@ def api_demo_data_project():  # noqa: F401
 
 
 @bp.route("/projects/<project_id>/data", methods=["POST", "PUT"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_upload_data_to_project(project):  # noqa: F401
     """"""
 
@@ -465,9 +444,8 @@ def api_upload_data_to_project(project):  # noqa: F401
 
 
 @bp.route("/projects/<project_id>/data", methods=["GET"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_get_project_data(project):  # noqa: F401
     """"""
 
@@ -490,9 +468,8 @@ def api_get_project_data(project):  # noqa: F401
 
 
 @bp.route("/projects/<project_id>/dataset_writer", methods=["GET"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_list_dataset_writers(project):
     """List the name and label of available dataset writer"""
 
@@ -537,9 +514,8 @@ def api_list_dataset_writers(project):
 
 
 @bp.route("/projects/<project_id>/search", methods=["GET"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_search_data(project):  # noqa: F401
     """Search for papers"""
     q = request.args.get("q", default=None, type=str)
@@ -594,9 +570,8 @@ def api_search_data(project):  # noqa: F401
 
 
 @bp.route("/projects/<project_id>/labeled", methods=["GET"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_get_labeled(project):  # noqa: F401
     """Get all papers classified as labeled documents"""
 
@@ -695,9 +670,8 @@ def api_get_labeled(project):  # noqa: F401
 
 
 @bp.route("/projects/<project_id>/labeled_stats", methods=["GET"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_get_labeled_stats(project):  # noqa: F401
     """Get all papers classified as prior documents"""
 
@@ -730,9 +704,8 @@ def api_get_labeled_stats(project):  # noqa: F401
 
 
 @bp.route("/projects/<project_id>/prior_random", methods=["GET"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_random_prior_papers(project):  # noqa: F401
     """Get a selection of random records.
 
@@ -850,7 +823,7 @@ def api_random_prior_papers(project):  # noqa: F401
 
 
 @bp.route("/algorithms", methods=["GET"])
-@asreview_login_required
+@login_required
 def api_list_algorithms():
     """List the names and labels of available algorithms"""
 
@@ -879,9 +852,8 @@ def api_list_algorithms():
 
 
 @bp.route("/projects/<project_id>/algorithms", methods=["GET"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_get_algorithms(project):  # noqa: F401
     default_payload = {
         "model": DEFAULT_MODEL,
@@ -909,9 +881,8 @@ def api_get_algorithms(project):  # noqa: F401
 
 
 @bp.route("/projects/<project_id>/algorithms", methods=["POST"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_set_algorithms(project):  # noqa: F401
     # TODO@{Jonathan} validate model choice on server side
     ml_model = request.form.get("model", None)
@@ -942,9 +913,8 @@ def api_set_algorithms(project):  # noqa: F401
 
 
 @bp.route("/projects/<project_id>/start", methods=["POST"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_start(project):  # noqa: F401
     """Start training of first model or simulation."""
 
@@ -1011,8 +981,6 @@ def api_start(project):  # noqa: F401
                 str(project.project_path),
                 # output the error of the first model
                 "--output_error",
-                # mark the first run for status update
-                "--first_run",
             ]
             subprocess.Popen(run_command)
 
@@ -1026,9 +994,8 @@ def api_start(project):  # noqa: F401
 
 
 @bp.route("/projects/<project_id>/status", methods=["GET"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_get_status(project):  # noqa: F401
     """Check the status of the review"""
 
@@ -1052,9 +1019,8 @@ def api_get_status(project):  # noqa: F401
 
 
 @bp.route("/projects/<project_id>/status", methods=["PUT"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_status_update(project):
     """Update the status of the review.
 
@@ -1103,7 +1069,7 @@ def api_status_update(project):
 
 
 @bp.route("/projects/import_project", methods=["POST"])
-@asreview_login_required
+@login_required
 def api_import_project():
     """Import project"""
 
@@ -1127,13 +1093,22 @@ def api_import_project():
         logging.error(err)
         raise ValueError("Failed to import project.")
 
+    if current_app.config.get("LOGIN_DISABLED", False):
+        return jsonify(project.config)
+
+    # create a database entry for this project
+    current_user.projects.append(
+        Project(project_id=project.config.get("id"))
+    )
+    project.config["owner_id"] = current_user.id
+    DB.session.commit()
+
     return jsonify(project.config)
 
 
 @bp.route("/projects/<project_id>/export_dataset", methods=["GET"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_export_dataset(project):
     """Export dataset with relevant/irrelevant labels"""
 
@@ -1219,9 +1194,8 @@ def api_export_dataset(project):
 
 
 @bp.route("/projects/<project_id>/export_project", methods=["GET"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def export_project(project):
     """Export the project file.
 
@@ -1326,9 +1300,8 @@ def _get_labels(state_obj, priors=False):
 
 
 @bp.route("/projects/<project_id>/progress", methods=["GET"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_get_progress_info(project):  # noqa: F401
     """Get progress statistics of a project"""
 
@@ -1341,9 +1314,8 @@ def api_get_progress_info(project):  # noqa: F401
 
 
 @bp.route("/projects/<project_id>/progress_density", methods=["GET"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_get_progress_density(project):
     """Get progress density of a project"""
 
@@ -1395,9 +1367,8 @@ def api_get_progress_density(project):
 
 
 @bp.route("/projects/<project_id>/progress_recall", methods=["GET"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_get_progress_recall(project):
     """Get cumulative number of inclusions by ASReview/at random"""
 
@@ -1437,9 +1408,8 @@ def api_get_progress_recall(project):
 
 
 @bp.route("/projects/<project_id>/record/<doc_id>", methods=["POST", "PUT"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_classify_instance(project, doc_id):  # noqa: F401
     """Label item
 
@@ -1493,9 +1463,8 @@ def api_classify_instance(project, doc_id):  # noqa: F401
 
 
 @bp.route("/projects/<project_id>/get_document", methods=["GET"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_get_document(project):  # noqa: F401
     """Retrieve documents in order of review.
 
@@ -1543,16 +1512,15 @@ def api_get_document(project):  # noqa: F401
 
 
 @bp.route("/projects/<project_id>/delete", methods=["DELETE"])
-@asreview_login_required
+@login_required
 @project_authorization
-@project_from_id
 def api_delete_project(project):  # noqa: F401
     """"""
 
     if project.project_path.exists() and project.project_path.is_dir():
         try:
             # remove from database if applicable
-            if app_is_authenticated(current_app):
+            if not current_app.config.get("LOGIN_DISABLED", False):
                 project = Project.query.filter(
                     and_(
                         Project.project_id == project.project_id,

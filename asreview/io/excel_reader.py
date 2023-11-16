@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = ["ExcelReader"]
+
 import pandas as pd
 
 from asreview.config import COLUMN_DEFINITIONS
