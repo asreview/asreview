@@ -12,7 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = []
+__all__ = [
+    "n_records",
+    "n_relevant",
+    "n_irrelevant",
+    "n_unlabeled",
+    "n_missing_title",
+    "n_missing_abstract",
+    "title_length",
+    "abstract_length",
+    "n_keywords",
+    "n_duplicates",
+]
 
 import numpy as np
 
