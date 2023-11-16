@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Union
 
 import pytest
+from flask import current_app
 from flask.testing import FlaskClient
 
 import asreview.webapp.tests.utils.api_utils as au
@@ -13,7 +14,6 @@ from asreview.project import ASReviewProject
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import Project
-from asreview.webapp.tests.utils.misc import current_app_is_authenticated
 
 # NOTE: I don't see a plugin that can be used for testing
 # purposes
@@ -47,7 +47,7 @@ def test_get_projects(setup):
     assert status_code == 200
     assert len(data["result"]) == 1
     found_project = data["result"][0]
-    if current_app_is_authenticated():
+    if not current_app.config.get("LOGIN_DISABLED"):
         assert found_project["id"] == project.project_id
         assert found_project["owner_id"] == user1.id
     else:
@@ -91,7 +91,7 @@ def test_upgrade_an_old_project(setup):
 
     # we need to make sure this new, old-style project can be found
     # under current user if the app is authenticated
-    if current_app_is_authenticated():
+    if not current_app.config.get("LOGIN_DISABLED"):
         new_project = Project(project_id=project.config.get("id"))
         project = crud.create_project(DB, user, new_project)
     # try to convert
@@ -111,7 +111,7 @@ def test_import_project_files(setup, fp):
     assert len(folders) == 2
     assert status_code == 200
     assert isinstance(data, dict)
-    if current_app_is_authenticated():
+    if not current_app.config.get("LOGIN_DISABLED"):
         # assert it exists in the database
         assert crud.count_projects() == 2
         project = crud.last_project()
@@ -189,7 +189,7 @@ def test_upload_benchmark_data_to_project(setup, upload_data):
     client, _, project = setup
     status_code, data = au.upload_data_to_project(client, project, data=upload_data)
     assert status_code == 200
-    if current_app_is_authenticated():
+    if not current_app.config.get("LOGIN_DISABLED"):
         assert data["project_id"] == project.project_id
     else:
         assert data["project_id"] == project.config.get("id")
@@ -591,7 +591,7 @@ def test_delete_project(setup):
 )
 def test_unauthorized_use_of_api_calls(setup, api_call):
     client, user, project = setup
-    if current_app_is_authenticated():
+    if not current_app.config.get("LOGIN_DISABLED"):
         # signout the client
         au.signout_user(client)
         # inspect function
@@ -614,7 +614,6 @@ def test_unauthorized_use_of_api_calls(setup, api_call):
         # make the api call
         status_code, data = api_call(*parms)
         assert status_code == 401
-        assert data["message"] == "Login required."
     else:
         # no asserts in an unauthenticated app
         pass

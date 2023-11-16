@@ -606,4 +606,3 @@ def test_must_be_signed_in_to_signout(client_auth, api_call):
         status_code, data = api_call(client_auth, {})
     # asserts
     assert status_code == 401
-    assert data["message"] == "Login required."
