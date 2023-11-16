@@ -1,47 +1,47 @@
-  import React, { useState } from 'react';
-  import { connect } from "react-redux";
-  import {
-    Dialog, 
-    DialogTitle, 
-    DialogContent,
-    Divider,
-    ListItem,
-    Typography,
-    useTheme
-  } from "@mui/material";
-  import { StyledTextButton } from '../StyledComponents/StyledButton.js'; 
-  import { styled } from "@mui/material/styles";
+import React, { useState } from "react";
+import { connect } from "react-redux";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Divider,
+  ListItem,
+  Typography,
+  useTheme,
+} from "@mui/material";
+import { StyledTextButton } from "../StyledComponents/StyledButton.js";
+import { styled } from "@mui/material/styles";
 
 const PREFIX = "CiteDialog";
 
 const StyledDialogContent = styled(DialogContent)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'row',
+  display: "flex",
+  flexDirection: "row",
   backgroundColor: theme.palette.background.paper,
-  [theme.breakpoints.down('sm')]: {
-    flexDirection: 'column',
+  [theme.breakpoints.down("sm")]: {
+    flexDirection: "column",
   },
 }));
 
 const StyledListItem = styled(ListItem)(({ theme, selected }) => ({
-  backgroundColor: selected ? theme.palette.action.selected : 'transparent',
+  backgroundColor: selected ? theme.palette.action.selected : "transparent",
   borderRadius: theme.shape.borderRadius,
-  '&:hover': {
+  "&:hover": {
     backgroundColor: theme.palette.action.hover,
   },
   padding: theme.spacing(0.5),
 }));
 
-const CitationStylesRow = styled('div')(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'row',
-  overflowX: 'auto',
+const CitationStylesRow = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  overflowX: "auto",
   padding: theme.spacing(1),
-  '& > *': {
+  "& > *": {
     marginRight: theme.spacing(1),
   },
-  [theme.breakpoints.up('sm')]: {
-    flexDirection: 'column',
+  [theme.breakpoints.up("sm")]: {
+    flexDirection: "column",
   },
 }));
 
@@ -52,71 +52,91 @@ const mapStateToProps = (state) => {
 };
 
 const CiteDialog = ({ isOpen, onClose, mobileScreen, asreview_version }) => {
-    const theme = useTheme();
-    const [selectedStyle, setSelectedStyle] = useState('APA');
-    const handleStyleClick = (style) => setSelectedStyle(style);
+  const theme = useTheme();
+  const [selectedStyle, setSelectedStyle] = useState("APA");
+  const handleStyleClick = (style) => setSelectedStyle(style);
 
-    const citationStyles = {
-  'APA': [
-    `ASReview LAB developers. (2023). ASReview LAB: A tool for AI-assisted systematic reviews [Software v.${asreview_version}]. Zenodo. https://doi.org/10.5281/zenodo.3345592`,
-  ],
-  'MLA': [
-    `ASReview LAB developers. "ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${asreview_version}]." Zenodo, 2023, https://doi.org/10.5281/zenodo.3345592.`,
-  ],
-  'Chicago': [
-    `ASReview LAB developers. 2023. "ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${asreview_version}]." Zenodo. https://doi.org/10.5281/zenodo.3345592.`,
-  ],
-  'Vancouver': [
-    `ASReview LAB developers. ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${asreview_version}]. Zenodo; 2023. Available from: https://doi.org/10.5281/zenodo.3345592`,
-  ],
-  'BibTex': [
-    `@software{asreviewlab2023,`,
-    `title={ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${asreview_version}]},`,
-    `author={ASReview LAB developers},`,
-    `year={2023},`,
-    `url={https://doi.org/10.5281/zenodo.3345592},`,
-    `note={Software version: ${asreview_version}}`,
-    `}`
-  ],
-  'RIS': [
-    `TY  - COMP`,
-    `AU  - ASReview LAB developers`,
-    `PY  - 2023`,
-    `TI  - ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${asreview_version}]`,
-    `PB  - Zenodo`,
-    `UR  - https://doi.org/10.5281/zenodo.3345592`,
-    `DO  - 10.5281/ZENODO.10084260`,
-    `ER  - `
-  ]
-};
+  const citationStyles = {
+    APA: [
+      `ASReview LAB developers. (2023). ASReview LAB: A tool for AI-assisted systematic reviews [Software v.${asreview_version}]. Zenodo. https://doi.org/10.5281/zenodo.3345592`,
+    ],
+    MLA: [
+      `ASReview LAB developers. "ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${asreview_version}]." Zenodo, 2023, https://doi.org/10.5281/zenodo.3345592.`,
+    ],
+    Chicago: [
+      `ASReview LAB developers. 2023. "ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${asreview_version}]." Zenodo. https://doi.org/10.5281/zenodo.3345592.`,
+    ],
+    Vancouver: [
+      `ASReview LAB developers. ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${asreview_version}]. Zenodo; 2023. Available from: https://doi.org/10.5281/zenodo.3345592`,
+    ],
+    BibTex: [
+      `@software{asreviewlab2023,`,
+      `title={ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${asreview_version}]},`,
+      `author={ASReview LAB developers},`,
+      `year={2023},`,
+      `url={https://doi.org/10.5281/zenodo.3345592},`,
+      `note={Software version: ${asreview_version}}`,
+      `}`,
+    ],
+    RIS: [
+      `TY  - COMP`,
+      `AU  - ASReview LAB developers`,
+      `PY  - 2023`,
+      `TI  - ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${asreview_version}]`,
+      `PB  - Zenodo`,
+      `UR  - https://doi.org/10.5281/zenodo.3345592`,
+      `DO  - 10.5281/ZENODO.10084260`,
+      `ER  - `,
+    ],
+  };
 
-return (
-    <Dialog open={isOpen} onClose={onClose} maxWidth="md" fullWidth fullScreen={mobileScreen}>
-      {!mobileScreen && (
-        <DialogTitle>
-          Citation Styles
-        </DialogTitle>
-      )}
+  return (
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      fullScreen={mobileScreen}
+    >
+      {!mobileScreen && <DialogTitle>Citation Styles</DialogTitle>}
       <Divider />
       <StyledDialogContent className={`${PREFIX}-content`}>
         <CitationStylesRow>
-          {Object.keys(citationStyles).map(style => (
-            <StyledListItem 
-              key={style} 
-              button 
+          {Object.keys(citationStyles).map((style) => (
+            <StyledListItem
+              key={style}
+              button
               onClick={() => handleStyleClick(style)}
-              selected={style === selectedStyle} >
+              selected={style === selectedStyle}
+            >
               <StyledTextButton>{style}</StyledTextButton>
             </StyledListItem>
           ))}
         </CitationStylesRow>
-        <Divider orientation={mobileScreen ? "horizontal" : "vertical"} flexItem />
-        <div style={{ flex: 1, overflow: 'auto', padding: theme.spacing(2), backgroundColor: theme.palette.grey[200], borderRadius: theme.shape.borderRadius }}>
+        <Divider
+          orientation={mobileScreen ? "horizontal" : "vertical"}
+          flexItem
+        />
+        <div
+          style={{
+            flex: 1,
+            overflow: "auto",
+            padding: theme.spacing(2),
+            backgroundColor: theme.palette.grey[200],
+            borderRadius: theme.shape.borderRadius,
+          }}
+        >
           {citationStyles[selectedStyle].map((line, index) => (
-            <div key={index} style={{ margin: mobileScreen ? theme.spacing(1, 0) : theme.spacing(0) }}>
-              <Typography 
-                variant={mobileScreen ? "body2" : "subtitle1"} 
-                sx={{ color: theme.palette.text.secondary }}>
+            <div
+              key={index}
+              style={{
+                margin: mobileScreen ? theme.spacing(1, 0) : theme.spacing(0),
+              }}
+            >
+              <Typography
+                variant={mobileScreen ? "body2" : "subtitle1"}
+                sx={{ color: theme.palette.text.secondary }}
+              >
                 {line}
               </Typography>
             </div>
