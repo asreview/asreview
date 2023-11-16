@@ -181,7 +181,7 @@ setup(
             "auth-tool=asreview.webapp.entry_points.auth_tool:admin_entry_point",
         ],
         "asreview.entry_points_internal": [
-            "web_run_model=asreview.webapp.entry_points.run_model:run_model_entry_point",
+            "web_run_model=asreview.webapp.entry_points.run_model:run_model_entry_point",  # noqa
             "state-inspect=asreview.entry_points:StateInspectEntryPoint",
         ],
         "asreview.readers": [

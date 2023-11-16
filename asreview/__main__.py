@@ -24,7 +24,6 @@ from asreview.utils import _entry_points
 
 
 def _execute_entry_point(entry, args):
-
     if inspect.isclass(entry):
         entry().execute(args)
     else:
@@ -39,21 +38,17 @@ def main():
     if (
         len(sys.argv) > 1
         and not sys.argv[1].startswith("-")
-        and not (sys.argv[1] in base_entries.names
-            or sys.argv[1] in base_entries_internal.names)
+        and not (
+            sys.argv[1] in base_entries.names
+            or sys.argv[1] in base_entries_internal.names
+        )
     ):
         raise ValueError(f"'{sys.argv[1]}' is not a valid subcommand.")
 
-    elif (
-        len(sys.argv) > 1
-        and sys.argv[1] in base_entries.names
-    ):
+    elif len(sys.argv) > 1 and sys.argv[1] in base_entries.names:
         entry = base_entries[sys.argv[1]].load()
         _execute_entry_point(entry, sys.argv[2:])
-    elif (
-        len(sys.argv) > 1
-        and sys.argv[1] in base_entries_internal.names
-    ):
+    elif len(sys.argv) > 1 and sys.argv[1] in base_entries_internal.names:
         entry = base_entries_internal[sys.argv[1]].load()
         _execute_entry_point(entry, sys.argv[2:])
 
@@ -61,9 +56,9 @@ def main():
         description_subcommands = ""
 
         for name, dist_entry_points in groupby(
-            base_entries, lambda e: e.dist.name,
+            base_entries,
+            lambda e: e.dist.name,
         ):
-
             description = metadata(name)["Summary"]
             version = metadata(name)["Version"]
             description_subcommands += f"\n[{name} {version}] - {description}\n"
