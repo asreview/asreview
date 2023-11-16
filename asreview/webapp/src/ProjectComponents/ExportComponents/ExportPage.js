@@ -1,7 +1,6 @@
 import React, { useState }  from 'react';
 import { useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
-import { connect } from "react-redux";
 import {
   Box,
   Button,
@@ -416,10 +415,5 @@ const ExportPage = (props) => {
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    asreview_version: state.asreview_version,
-  };
-};
 
-export default connect(mapStateToProps)(ExportPage);
+export default (ExportPage);
