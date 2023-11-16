@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = ["LABEntryPoint"]
+
 import os
 
 from asreview.webapp.entry_points.lab import lab_entry_point
