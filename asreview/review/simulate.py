@@ -35,11 +35,9 @@ def sample_prior_knowledge(
         The number of positive labels.
     n_prior_excluded: int
         The number of negative labels.
-    random_state : int, RandomState instance or None, optional (default=None)
-        If int, random_state is the seed used by the random number generator;
-        If RandomState instance, random_state is the random number generator;
-        If None, the random number generator is the RandomState instance used
-        by `np.random`.
+    random_state : int, asreview.utils.SeededRandomState instance or None,
+        optional (default=None)
+        Random state or it's seed.
 
     Returns
     -------

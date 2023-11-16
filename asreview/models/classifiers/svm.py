@@ -35,7 +35,7 @@ class SVMClassifier(BaseTrainClassifier):
         C parameter of the SVM model.
     kernel: str
         SVM kernel type.
-    random_state: int, RandomState
+    random_state: int, asreview.utils.SeededRandomState
         State of the RNG.
     """
 
