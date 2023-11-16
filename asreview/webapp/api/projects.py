@@ -984,8 +984,6 @@ def api_start(project):  # noqa: F401
                 str(project.project_path),
                 # output the error of the first model
                 "--output_error",
-                # mark the first run for status update
-                "--first_run",
             ]
             subprocess.Popen(run_command)
 
