@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = ["SearchError", "fuzzy_find"]
+
 import re
 from difflib import SequenceMatcher
 
