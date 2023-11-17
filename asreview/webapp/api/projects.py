@@ -225,17 +225,14 @@ def api_list_data_readers():
         if reader.name not in unique_names:
             unique_names.add(reader.name)
             unique_readers.append(reader)
-    unique_read_formats = list(
-        set(
-            read_format
-            for reader in unique_readers
-            for read_format in reader.read_format
-        )
-    )
-    payload = {"result": {"readers": [], "read_formats": unique_read_formats}}
+    payload = {"result": []}
     for reader in unique_readers:
-        payload["result"]["readers"].append(
-            {"name": reader.name, "read_format": reader.read_format}
+        payload["result"].append(
+            {
+                "name": reader.name,
+                "read_format": reader.read_format,
+                "label": reader.label,
+            }
         )
     return jsonify(payload)
 

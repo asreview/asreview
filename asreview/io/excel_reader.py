@@ -22,6 +22,7 @@ class ExcelReader:
     """Excel file reader."""
 
     name = "xlsx"
+    label = "Excel"
     read_format = [".xlsx"]
     write_format = [".csv", ".tsv", ".xlsx"]
 

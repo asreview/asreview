@@ -21,6 +21,7 @@ class CSVReader:
     """CVS file reader."""
 
     name = "csv"
+    label = "CSV (UTF-8)"
     read_format = [".csv", ".tab", ".tsv"]
     write_format = [".csv", ".tsv", ".xlsx"]
 

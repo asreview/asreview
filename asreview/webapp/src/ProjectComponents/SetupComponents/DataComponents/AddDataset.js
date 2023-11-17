@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import {
   Box,
@@ -46,6 +46,27 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
+function importFormatString(datasetReaders) {
+  if (!datasetReaders) {
+    return "";
+  }
+  let acceptedFormats = new Set([]);
+  datasetReaders.forEach(
+    (reader) => reader.read_format.forEach((item) => acceptedFormats.add(item))
+  );
+  let res = [...acceptedFormats].join(",");
+  return res;
+}
+
+function readerDescriptionString(datasetReaders) {
+  if (!datasetReaders) {
+    return "";
+  }
+  return datasetReaders.map((reader) => 
+    reader.label + " (" + reader.read_format.join(", ") + ")"
+  ).join(", ");
+}
+
 const AddDataset = (props) => {
   const queryClient = useQueryClient();
 
@@ -54,6 +75,14 @@ const AddDataset = (props) => {
   const [url, setURL] = React.useState("");
   const [extension, setExtension] = React.useState(null);
   const [benchmark, setBenchmark] = React.useState(null);
+  const [datasetReaders, setDatasetReaders] = React.useState(null);
+
+  useQuery("fetchDatasetReaders", ProjectAPI.fetchDatasetReaders, {
+    refetchOnWindowFocus: false,
+    onSuccess: (data) => {
+      setDatasetReaders(data.result);
+    },
+  });
 
   const { error, isError, isLoading, mutate, reset } = useMutation(
     ProjectAPI.mutateData,
@@ -177,10 +206,8 @@ const AddDataset = (props) => {
             </FormControl>
             {(datasetSource === "file" || datasetSource === "url") && (
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Supported formats are RIS (<code>.ris</code>, <code>.txt</code>)
-                and tabular datasets (<code>.csv</code>, <code>.tab</code>,{" "}
-                <code>.tsv</code>, <code>.xlsx</code>). The dataset should
-                contain a title and abstract for each record.{" "}
+                Supported formats are {readerDescriptionString(datasetReaders)}.
+                The dataset should contain a title and abstract for each record.{" "}
                 {props.mode !== projectModes.ORACLE
                   ? "The dataset should contain labels for each record. "
                   : ""}
@@ -224,7 +251,7 @@ const AddDataset = (props) => {
             )}
             {datasetSource === "file" && (
               <ImportFromFile
-                acceptFormat=".txt,.tsv,.tab,.csv,.ris,.xlsx"
+                acceptFormat={importFormatString(datasetReaders)}
                 addFileError={error}
                 file={file}
                 setFile={setFile}
