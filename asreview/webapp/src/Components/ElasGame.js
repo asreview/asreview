@@ -151,7 +151,7 @@ const ElasGame = (props) => {
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [handleKeyPress, mode]);
+  }, [handleKeyPress, mode, shuffledOnce]);
 
   useEffect(() => {
     if (cheatMode) {
