@@ -1,5 +1,12 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Grid, Paper, Stack, Box, Switch, FormControlLabel } from "@mui/material";
+import {
+  Grid,
+  Paper,
+  Stack,
+  Box,
+  Switch,
+  FormControlLabel,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import ElasBalloons from "../images/ElasBalloons.svg";
@@ -45,7 +52,7 @@ const images = [
   Elasiscold,
   SantaElas,
   ElasLion,
-  ElasLollypop
+  ElasLollypop,
 ];
 
 const PREFIX = "Game";
@@ -74,7 +81,7 @@ const GameStyle = styled(Box)(({ theme }) => ({
 }));
 
 const ElasGame = (props) => {
-  const [mode, setMode] = useState('simple');
+  const [mode, setMode] = useState("simple");
   const [cheatMode, setCheatMode] = useState(false);
   const [imagesArray, setImagesArray] = useState([]);
   const [paperSelected, setPaperSelected] = useState([]);
@@ -84,8 +91,8 @@ const ElasGame = (props) => {
   const [shuffledOnce, setShuffledOnce] = useState(false);
 
   const toggleMode = () => {
-    setMode(prevMode => prevMode === 'simple' ? 'expert' : 'simple');
-    setShuffledOnce(false)
+    setMode((prevMode) => (prevMode === "simple" ? "expert" : "simple"));
+    setShuffledOnce(false);
   };
 
   // const handleKeyPress = useCallback((event) => {
@@ -94,12 +101,15 @@ const ElasGame = (props) => {
   //   }
   // }, []);
 
-  const handleKeyPress = useCallback((event) => {
-    if (event.key === "c" && cheatMode === false) {
-      setCheatMode(true);
-      setShuffledOnce(true)
-    }
-  }, [cheatMode]);
+  const handleKeyPress = useCallback(
+    (event) => {
+      if (event.key === "c" && cheatMode === false) {
+        setCheatMode(true);
+        setShuffledOnce(true);
+      }
+    },
+    [cheatMode],
+  );
 
   function flipImage(image, index) {
     if (paperSelectedIds?.length === 1 && paperSelectedIds[0] === index) {
@@ -140,11 +150,11 @@ const ElasGame = (props) => {
   }
 
   useEffect(() => {
-    const imagesToUse = mode === 'simple' ? images.slice(0, 8) : images;
+    const imagesToUse = mode === "simple" ? images.slice(0, 8) : images;
     const imagesGenerated = imagesToUse.concat(...imagesToUse);
-    if  (!shuffledOnce) {
-    const shuffledImages = shuffle(imagesGenerated);
-    setImagesArray(shuffledImages);
+    if (!shuffledOnce) {
+      const shuffledImages = shuffle(imagesGenerated);
+      setImagesArray(shuffledImages);
     }
     window.addEventListener("keydown", handleKeyPress);
 
@@ -173,7 +183,7 @@ const ElasGame = (props) => {
       <FormControlLabel
         control={
           <Switch
-            checked={mode === 'expert'}
+            checked={mode === "expert"}
             onChange={toggleMode}
             name="mode"
             color="primary"
@@ -192,7 +202,8 @@ const ElasGame = (props) => {
               direction="column"
               justifyContent="center"
             >
-              {isCardChosen(image, index) || (showingCheatCards && !openCards.includes(image)) ? (
+              {isCardChosen(image, index) ||
+              (showingCheatCards && !openCards.includes(image)) ? (
                 <img src={image} alt="" className={classes.image} />
               ) : (
                 <ElasIcon sx={{ fontSize: 100 }} className={classes.icon} />
