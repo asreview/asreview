@@ -21,6 +21,7 @@ from asreview.io.utils import _standardize_dataframe
 class ExcelReader:
     """Excel file reader."""
 
+    name = "xlsx"
     read_format = [".xlsx"]
     write_format = [".csv", ".tsv", ".xlsx"]
 

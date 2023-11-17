@@ -20,6 +20,7 @@ from asreview.io.utils import _standardize_dataframe
 class CSVReader:
     """CVS file reader."""
 
+    name = "csv"
     read_format = [".csv", ".tab", ".tsv"]
     write_format = [".csv", ".tsv", ".xlsx"]
 

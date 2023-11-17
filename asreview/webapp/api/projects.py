@@ -214,6 +214,32 @@ def api_init_project():  # noqa: F401
     return jsonify(project.config), 201
 
 
+@bp.route("/dataset_readers", methods=["GET"])
+@login_required
+def api_list_data_readers():
+    """Get the list of available data readers and read formats."""
+    readers = list_readers()
+    unique_readers = []
+    unique_names = set([])
+    for reader in readers:
+        if reader.name not in unique_names:
+            unique_names.add(reader.name)
+            unique_readers.append(reader)
+    unique_read_formats = list(
+        set(
+            read_format
+            for reader in unique_readers
+            for read_format in reader.read_format
+        )
+    )
+    payload = {"result": {"readers": [], "read_formats": unique_read_formats}}
+    for reader in unique_readers:
+        payload["result"]["readers"].append(
+            {"name": reader.name, "read_format": reader.read_format}
+        )
+    return jsonify(payload)
+
+
 @bp.route("/projects/<project_id>/upgrade_if_old", methods=["GET"])
 @login_required
 @project_authorization
