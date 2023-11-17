@@ -42,10 +42,12 @@ For scientific use, we encourage users to cite:
 
 - The paper published in `Nature Machine Intelligence <https://www.nature.com/articles/s42256-020-00287-7>`_ to cite the **ASReview project**.
 
-- For citing the software **ASReview LAB**, refer to the `specific release
-  <https://doi.org/10.5281/zenodo.3345592>`_ of the software. The menu on the
-  right (in Zenodo) can be used to find the citation format of prevalence.
-
 - For citing the documentation (or to download the pdf) go to `Zenodo <https://doi.org/10.5281/zenodo.4287119>`_.
 
 - More studies related to the project can be found on `asreview.ai/research <https://asreview.ai/research/>`_.
+
+- For citing the software **ASReview LAB**, refer to the `specific release
+  <https://doi.org/10.5281/zenodo.3345592>`_ of the software, available on the export screen. 
+  
+.. figure:: ../images/cite.png
+   :alt: Cite ASReview LAB
