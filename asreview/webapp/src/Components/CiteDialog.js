@@ -81,7 +81,7 @@ const CiteDialog = ({ isOpen, onClose, mobileScreen, asreview_version }) => {
       `TY  - COMP`,
       `AU  - ASReview LAB developers`,
       `PY  - 2023`,
-      `TI  - ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.1.4]`,
+      `TI  - ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${asreview_version}]`,
       `PB  - Zenodo`,
       `UR  - https://doi.org/10.5281/zenodo.3345592`,
       `DO  - 10.5281/ZENODO.10084260`,
