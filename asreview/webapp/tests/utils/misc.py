@@ -1,32 +1,22 @@
-import io
 import json
 import random
 import re
 from pathlib import Path
 from typing import Union
-from urllib.request import urlopen
 
-import requests
 from flask import current_app
 
-from asreview.project import ASReviewProject
 from asreview.utils import asreview_path
-
-
-def current_app_is_authenticated():
-    return current_app.config.get("AUTHENTICATION_ENABLED")
 
 
 def get_project_id(project):
     """Get a project id from either a Project model
     (authenticated app) or an ASReviewProject object
     (unauthenticated app)."""
-    id = None
-    if current_app_is_authenticated():
-        id = project.project_id
-    else:
-        id = project.config["id"]
-    return id
+    if current_app.config.get("LOGIN_DISABLED"):
+        return project.config["id"]
+
+    return project.project_id
 
 
 def read_project_file(project):
@@ -76,48 +66,6 @@ def choose_project_algorithms():
         "balance_strategy": random.choice(["double", "simple", "undersample"]),
     }
     return data
-
-
-def retrieve_project_url_github(version=None):
-    """Retrieve .asreview file(s) url from asreview-project-files-testing
-    GitHub repository. When version is not None, the function resturns
-    a single URL, otherwise a list containing URLs."""
-
-    repo = "asreview/asreview-project-files-testing"
-    repo_api_url = f"https://api.github.com/repos/{repo}/git/trees/master"
-    repo_url = f"https://github.com/{repo}/blob/master"
-    file_type = "startreview.asreview?raw=true"
-
-    json_file = json.loads(urlopen(repo_api_url).read().decode("utf-8"))["tree"]
-
-    version_tags = []
-    project_urls = []
-
-    for file in json_file:
-        if file["type"] == "tree":
-            version_tags.append(file["path"])
-
-    for tag in version_tags:
-        file_version = f"/{tag}/asreview-project-{tag.replace('.', '-')}-"
-        url = repo_url + file_version + file_type
-
-        if version is None:
-            project_urls.append(url)
-        else:
-            return url
-
-    return project_urls
-
-
-def copy_github_project_into_asreview_folder(url):
-    """This function copies a, on Github stored, ASReview project
-    into the asreview folder."""
-    response = requests.get(url)
-    return ASReviewProject.load(
-        io.BytesIO(response.content),
-        asreview_path(),
-        safe_import=True
-    )
 
 
 def get_folders_in_asreview_path():

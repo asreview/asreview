@@ -51,11 +51,11 @@ REQUIRES = [
     "rispy~=0.7.0",
     "xlrd>=1.0.0",
     "setuptools",
-    "flask>=2.3.0,<3",
+    "flask>=2.3.0",
     "flask_cors",
-    "flask-login",
+    "flask-login>=0.6.3",
     "flask-mail",
-    "Werkzeug>=2.3.2,<3",
+    "Werkzeug>=2.3.2",
     "openpyxl",
     "jsonschema",
     "filelock",
@@ -65,7 +65,6 @@ REQUIRES = [
     "gevent>=20",
     "datahugger>=0.2",
     "synergy_dataset",
-    "psycopg2",
     "sqlalchemy-utils",
 ]
 
@@ -176,12 +175,14 @@ setup(
             "asreview=asreview.__main__:main",
         ],
         "asreview.entry_points": [
-            "lab=asreview.entry_points:LABEntryPoint",
-            "web_run_model=asreview.entry_points:WebRunModelEntryPoint",
+            "lab=asreview.webapp.entry_points.lab:lab_entry_point",
             "simulate=asreview.entry_points:SimulateEntryPoint",
             "algorithms=asreview.entry_points:AlgorithmsEntryPoint",
+            "auth-tool=asreview.webapp.entry_points.auth_tool:admin_entry_point",
+        ],
+        "asreview.entry_points_internal": [
+            "web_run_model=asreview.webapp.entry_points.run_model:run_model_entry_point",  # noqa
             "state-inspect=asreview.entry_points:StateInspectEntryPoint",
-            "auth-tool=asreview.entry_points:AuthTool",
         ],
         "asreview.readers": [
             ".csv = asreview.io:CSVReader",
@@ -200,9 +201,9 @@ setup(
             ".xlsx = asreview.io:ExcelWriter",
         ],
         "asreview.datasets": [
-            "benchmark = asreview.datasets:BenchmarkDataGroup",
             "benchmark-nature = asreview.datasets:NaturePublicationDataGroup",
             "synergy = asreview.datasets:SynergyDataGroup",
+            "benchmark = asreview.datasets:BenchmarkDataGroup",
         ],
         "asreview.models.classifiers": [
             "svm = asreview.models.classifiers:SVMClassifier",

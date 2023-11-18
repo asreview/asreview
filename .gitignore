@@ -154,7 +154,9 @@ Thumbs.db #thumbnail cache on Windows
 logs
 **/*.backup.*
 **/*.back.*
-.env.*
+
+.env.local
+.env.*.local
 
 node_modules
 bower_components
@@ -166,4 +168,4 @@ thumb
 sketch
 notes.md
 
-flask_config.json
+flask_config.*

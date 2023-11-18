@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = ["ASReviewData", "load_data"]
+
 import hashlib
 from io import StringIO
 from pathlib import Path
@@ -507,6 +509,10 @@ class ASReviewData:
             # in case of strings, strip whitespaces and replace empty strings with None
             if is_string_dtype(self.df[pid]) or is_object_dtype(self.df[pid]):
                 s_pid = self.df[pid].str.strip().replace("", None)
+                if pid == "doi":
+                    s_pid = s_pid.str.replace(
+                        r"^https?://(www\.)?doi\.org/", "", regex=True
+                    )
             else:
                 s_pid = self.df[pid]
 

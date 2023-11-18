@@ -176,7 +176,6 @@ def test_login_required(setup_auth, api_call):
         status_code, resp_data = api_call(client, project, user2)
     # all calls must return a 401:
     assert status_code == 401
-    assert resp_data["message"] == "Login required."
 
 
 # ###################

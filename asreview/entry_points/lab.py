@@ -12,21 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.entry_points.base import BaseEntryPoint
-from asreview.webapp.run_model import main as main_run_model
-from asreview.webapp.start_flask import main as main_flask
+__all__ = ["LABEntryPoint"]
+
+import os
+
+from asreview.webapp.entry_points.lab import lab_entry_point
 
 
-class LABEntryPoint(BaseEntryPoint):
+def _deprecated_dev_mode():
+    if os.environ.get("FLASK_DEBUG", "") == "1":
+        print(
+            "\n\n\n!IMPORTANT!\n\n"
+            "asreview lab development mode is deprecated, see:\n"
+            "https://github.com/J535D165/asreview/blob/master/DEVELOPMENT.md"
+            "\n\n\n"
+        )
+        exit(1)
+
+
+class LABEntryPoint(object):
     """Entry point to start the ASReview LAB webapp."""
 
     def execute(self, argv):
+        # check deprecated dev mode
+        _deprecated_dev_mode()
 
-        main_flask(argv)
-
-
-class WebRunModelEntryPoint(BaseEntryPoint):
-    description = "Internal use only."
-
-    def execute(self, argv):
-        main_run_model(argv)
+        lab_entry_point(argv)

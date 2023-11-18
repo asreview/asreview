@@ -15,6 +15,7 @@ RUN apt-get update \
     && apt-get install -y git build-essential libpq-dev\
     && pip3 install --upgrade pip setuptools \
     && pip3 install --user gunicorn \
+    && pip3 install --user psycopg2 \
     && pip3 install --user . \
     && pip3 install --user asreview-datatools asreview-insights asreview-makita asreview-wordcloud
 

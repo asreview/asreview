@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = ["LogisticClassifier"]
+
 import logging
 
 from sklearn.linear_model import LogisticRegression
@@ -33,7 +35,7 @@ class LogisticClassifier(BaseTrainClassifier):
         Parameter inverse to the regularization strength of the model.
     class_weight: float
         Class weight of the inclusions.
-    random_state: int, RandomState
+    random_state: int, asreview.utils.SeededRandomState
         Random state for the model.
     n_jobs: int
         Number of CPU cores used.

@@ -13,6 +13,8 @@
 # limitations under the License.
 """Random sampling strategy."""
 
+__all__ = ["RandomQuery"]
+
 import numpy as np
 
 from asreview.models.query.base import BaseQueryStrategy
@@ -37,7 +39,14 @@ class RandomQuery(BaseQueryStrategy):
         super(RandomQuery, self).__init__()
         self._random_state = get_random_state(random_state)
 
-    def query(self, X, classifier=None, n_instances=None, **kwargs):
+    def query(
+        self,
+        X,
+        classifier=None,
+        n_instances=None,
+        return_classifier_scores=False,
+        **kwargs
+    ):
         if n_instances is None:
             n_instances = X.shape[0]
 
@@ -45,4 +54,7 @@ class RandomQuery(BaseQueryStrategy):
             np.arange(X.shape[0]), n_instances, replace=False
         )
 
-        return query_idx
+        if return_classifier_scores:
+            return query_idx, None
+        else:
+            return query_idx

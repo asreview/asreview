@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = ["list_feature_extraction", "get_feature_class", "get_feature_model"]
+
 from asreview.utils import _entry_points
 
 

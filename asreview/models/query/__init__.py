@@ -12,6 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = [
+    "ClusterQuery",
+    "MaxQuery",
+    "MaxRandomQuery",
+    "MaxUncertaintyQuery",
+    "MixedQuery",
+    "RandomQuery",
+    "UncertaintyQuery",
+    "get_query_class",
+    "get_query_model",
+    "list_query_strategies",
+]
+
 from asreview.models.query.cluster import ClusterQuery
 from asreview.models.query.max import MaxQuery
 from asreview.models.query.mixed import MaxRandomQuery

@@ -138,7 +138,8 @@ class AuthAPI {
 
   static updateProfile(variables) {
     let body = new FormData();
-    body.set("password", variables.password);
+    body.set("old_password", variables.oldPassword);
+    body.set("new_password", variables.newPassword);
     body.set("name", variables.name);
     body.set("affiliation", variables.affiliation);
     body.set("email", variables.email);

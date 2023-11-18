@@ -1,3 +1,3 @@
-from asreview.webapp.start_flask import create_app
+from asreview.webapp.app import create_app
 
 app = create_app()

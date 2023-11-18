@@ -62,23 +62,21 @@ Dataset
 
 .. option:: dataset
 
-    Required. File path or URL to the dataset or one of the benchmark datasets.
+    Required. File path or URL to the dataset or one of the SYNERGY datasets.
 
-You can also use one of the :ref:`benchmark-datasets <data_labeled:fully
-labeled data>` (see `index.csv
-<https://github.com/asreview/systematic-review-datasets/blob/master/index.csv>`_
-for dataset IDs). Use the following command and replace ``DATASET_ID`` by the
+You can also use one of the :ref:`SYNERGY dataset <data_labeled:fully
+labeled data>`. Use the following command and replace ``DATASET_ID`` by the
 dataset ID.
 
 .. code:: bash
 
-    asreview simulate benchmark:DATASET_ID
+    asreview simulate synergy:DATASET_ID
 
 For example:
 
 .. code:: bash
 
-    asreview simulate benchmark:van_de_Schoot_2017 -s myreview.asreview
+    asreview simulate synergy:van_de_schoot_2018 -s myreview.asreview
 
 
 Active learning

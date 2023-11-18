@@ -12,9 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = [
+    "BaseDataGroup",
+    "BaseDataSet",
+    "BenchmarkDataGroup",
+    "DatasetManager",
+    "DatasetNotFoundError",
+    "NaturePublicationDataGroup",
+    "SynergyDataGroup",
+    "SynergyDataSet",
+]
+
 import json
 import socket
 import tempfile
+import warnings
 from abc import ABC
 from abc import abstractmethod
 from pathlib import Path
@@ -737,7 +749,6 @@ class SynergyDataGroup(BaseDataGroup):
 
 class BenchmarkDataGroup(BaseDataGroup):
     """Datasets available in the benchmark platform.
-
     Deprecated
     """
 
@@ -745,6 +756,14 @@ class BenchmarkDataGroup(BaseDataGroup):
     description = "DEPRECATED: Datasets available in the online benchmark platform"
 
     def __init__(self):
+
+        warnings.warn(
+            "The use of 'benchmark' datasets is deprecated, "
+            "use SYNERGY dataset instead. For more information, see "
+            "https://github.com/asreview/synergy-dataset.",
+            category=UserWarning
+        )
+
         meta_file = "https://raw.githubusercontent.com/asreview/systematic-review-datasets/master/index_v1.json"  # noqa
         datasets = _download_from_metadata(meta_file)
 

@@ -4,7 +4,6 @@ from pathlib import Path
 import pytest
 
 from asreview.entry_points.simulate import SimulateEntryPoint
-from asreview.entry_points.simulate import _get_dataset_path_from_args
 from asreview.entry_points.simulate import _simulate_parser
 from asreview.project import ASReviewProject
 from asreview.project import ProjectExistsError
@@ -166,6 +165,17 @@ def test_non_tf_models(tmpdir):
             settings_metadata = json.load(f)
 
         assert settings_metadata["settings"]["model"] == model
+
+
+def test_last_probabilities(tmpdir):
+    asreview_fp = Path(tmpdir, "test.asreview")
+    argv = f"{str(DATA_FP)} -s {asreview_fp}".split()
+    entry_point = SimulateEntryPoint()
+    entry_point.execute(argv)
+
+    with open_state(asreview_fp) as state:
+        last_probabilities = state.get_last_probabilities()
+    assert not last_probabilities.empty
 
 
 def test_number_records_found(tmpdir):
@@ -337,9 +347,3 @@ def test_is_partial_simulation(tmpdir):
     entry_point.execute(argv)
 
     assert _is_partial_simulation(args)  # noqa
-
-
-def test_get_dataset_path_from_args():
-    assert _get_dataset_path_from_args("test") == "test.csv"
-    assert _get_dataset_path_from_args("test.ris") == "test.csv"
-    assert _get_dataset_path_from_args("benchmark:test") == "test.csv"
