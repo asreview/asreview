@@ -134,10 +134,14 @@ def test_init_project_already_exists(tmpdir):
         ASReviewProject.create(project_path)
 
 
-def test_invalid_project_folder():
+def test_invalid_project_folder(tmpdir):
+    project_path = Path(tmpdir, "this_is_not_a_project")
     with pytest.raises(StateNotFoundError):
-        with open_state("this_is_not_a_project") as state:  # noqa
+        with open_state(project_path) as state:  # noqa
             pass
+
+    # there should be no folder called "this_is_not_a_project"
+    assert not Path(project_path).is_dir()
 
 
 def test_state_not_found(tmpdir):

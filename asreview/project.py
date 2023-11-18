@@ -182,7 +182,7 @@ def open_state(asreview_obj, review_id=None, read_only=True):
             project.add_review(review_id)
         else:
             raise StateNotFoundError(
-                "State file does not exist, and in " "read only mode."
+                "State file does not exist, and in read only mode."
             )
         yield state
     finally:
@@ -278,17 +278,16 @@ class ASReviewProject:
             project_fp_lock = Path(self.project_path, PATH_PROJECT_CONFIG_LOCK)
             lock = FileLock(project_fp_lock, timeout=3)
 
-            try:
-                with lock:
-                    # read the file with project info
-                    with open(project_fp, "r") as fp:
-                        config = json.load(fp)
-                        self._config = config
-
-                        return config
-
-            except FileNotFoundError:
+            if not project_fp.exists():
                 raise ProjectNotFoundError(f"Project '{self.project_path}' not found")
+            
+            with lock:
+                # read the file with project info
+                with open(project_fp, "r") as fp:
+                    config = json.load(fp)
+                    self._config = config
+
+                    return config
 
     @config.setter
     def config(self, config):
