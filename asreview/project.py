@@ -280,7 +280,7 @@ class ASReviewProject:
 
             if not project_fp.exists():
                 raise ProjectNotFoundError(f"Project '{self.project_path}' not found")
-            
+
             with lock:
                 # read the file with project info
                 with open(project_fp, "r") as fp:
