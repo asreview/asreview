@@ -79,7 +79,7 @@ def _check_for_update():
             )
 
             time.sleep(5)
-    except Exception as err:
+    except Exception:
         print("Could not check for updates.")
 
 
