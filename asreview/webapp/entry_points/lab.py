@@ -15,6 +15,7 @@ import argparse
 import logging
 import os
 import socket
+import time
 import webbrowser
 from threading import Timer
 
@@ -76,6 +77,8 @@ def _check_for_update():
                 "pip install --upgrade asreview"
                 "\n\n\n"
             )
+
+            time.sleep(5)
     except Exception as err:
         print("Could not check for updates.")
         raise err
