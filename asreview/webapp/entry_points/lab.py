@@ -69,10 +69,10 @@ def _check_for_update():
         r = requests.get("https://pypi.org/pypi/asreview/json")
         r.raise_for_status()
         latest_version = r.json()["info"]["version"]
-        if latest_version != __version__ and "+" not in __version__:
+        if latest_version != __version__ and "+" in __version__:
             print(
                 "\n\n\n"
-                f"ASReview LAB version {latest_version} is available."
+                f"ASReview LAB version {latest_version} is available. "
                 "Please update using:\n"
                 "pip install --upgrade asreview"
                 "\n\n\n"
