@@ -22,29 +22,15 @@ const PREFIX = "CiteDialog";
 const StyledDialogContent = styled(DialogContent)(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
-  backgroundColor: theme.palette.background.paper,
   [theme.breakpoints.down("sm")]: {
     flexDirection: "column",
   },
-}));
-
-const StyledListItem = styled(ListItem)(({ theme, selected }) => ({
-  backgroundColor: selected ? theme.palette.action.selected : "transparent",
-  borderRadius: theme.shape.borderRadius,
-  "&:hover": {
-    backgroundColor: theme.palette.action.hover,
-  },
-  padding: theme.spacing(0.5),
 }));
 
 const CitationStylesRow = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
   overflowX: "auto",
-  padding: theme.spacing(1),
-  "& > *": {
-    marginRight: theme.spacing(1),
-  },
   [theme.breakpoints.up("sm")]: {
     flexDirection: "column",
   },
@@ -116,13 +102,7 @@ const CiteDialog = ({ isOpen, onClose, mobileScreen, asreview_version }) => {
         <ListItemText
           primary={line}
           primaryTypographyProps={{
-            variant: "caption",
             sx: {
-              padding: 0,
-              display: "block",
-              whiteSpace: "pre-line",
-
-              textOverflow: "ellipsis",
               paddingRight: copyButtonSize,
             },
           }}
@@ -144,14 +124,13 @@ const CiteDialog = ({ isOpen, onClose, mobileScreen, asreview_version }) => {
       <StyledDialogContent className={`${PREFIX}-content`}>
         <CitationStylesRow>
           {Object.keys(citationStyles).map((style) => (
-            <StyledListItem
+            <ListItem
               key={style}
-              button
               onClick={() => handleStyleClick(style)}
               selected={style === selectedStyle}
             >
               <StyledTextButton>{style}</StyledTextButton>
-            </StyledListItem>
+            </ListItem>
           ))}
         </CitationStylesRow>
         <Divider
@@ -164,9 +143,8 @@ const CiteDialog = ({ isOpen, onClose, mobileScreen, asreview_version }) => {
             flex: 1,
             position: "relative",
             overflow: "hidden",
-            padding: theme.spacing(1),
+            paddingLeft: theme.spacing(2),
             backgroundColor: theme.palette.grey[200],
-            borderRadius: theme.shape.borderRadius,
           }}
         >
           <List sx={{ overflow: "auto" }}>
@@ -174,7 +152,6 @@ const CiteDialog = ({ isOpen, onClose, mobileScreen, asreview_version }) => {
           </List>
 
           <IconButton
-            size="small"
             onClick={() => copyToClipboard(citationStyles[selectedStyle])}
             sx={{
               position: "absolute",
@@ -182,7 +159,7 @@ const CiteDialog = ({ isOpen, onClose, mobileScreen, asreview_version }) => {
               top: theme.spacing(1),
             }}
           >
-            <ContentCopyIcon fontSize="small" />
+            <ContentCopyIcon />
           </IconButton>
         </Box>
       </StyledDialogContent>
