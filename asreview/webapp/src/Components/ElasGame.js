@@ -95,12 +95,6 @@ const ElasGame = (props) => {
     setShuffledOnce(false);
   };
 
-  // const handleKeyPress = useCallback((event) => {
-  //   if (event.key === "c") {
-  //     setCheatMode((prevCheatMode) => !prevCheatMode);
-  //   }
-  // }, []);
-
   const handleKeyPress = useCallback(
     (event) => {
       if (event.key === "c" && cheatMode === false) {
