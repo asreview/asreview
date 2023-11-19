@@ -10,9 +10,8 @@ const axiosErrorHandler = (error) => {
       api_error["message"] = "Whoops, something went wrong.";
     }
   } else if (error.request) {
-    api_error["code"] = 503;
-    api_error["message"] =
-      "Failed to connect to server. Please restart the software.";
+    console.log(error.request)
+    api_error["message"] = "Error, no response received.";
   } else {
     api_error["message"] = "Unexpected error.";
     console.log(error);

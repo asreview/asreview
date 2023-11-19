@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = ["StateInspectEntryPoint"]
+
 import argparse
 from pathlib import Path
 

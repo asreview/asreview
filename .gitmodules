@@ -1,3 +1,6 @@
 [submodule "tests/citation-file-formatting"]
 	path = tests/citation-file-formatting
 	url = https://github.com/asreview/citation-file-formatting.git
+[submodule "asreview/webapp/tests/asreview-project-file-archive"]
+	path = asreview/webapp/tests/asreview-project-file-archive
+	url = git@github.com:asreview/asreview-project-files-testing.git

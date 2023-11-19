@@ -107,6 +107,21 @@ export const mapDispatchToProps = (dispatch) => {
   };
 };
 
+export const passwordValidation = (yup_string) => {
+  // error messages
+  const getCharacterValidationError = (str) => {
+    return `Your password must have at least 1 ${str} character`;
+  };
+
+  return yup_string
+    // check minimum characters
+    .min(8, "Password must have at least 8 characters")
+    // different error messages for different requirements
+    .matches(/[0-9]/, getCharacterValidationError("digit"))
+    .matches(/[a-z]/, getCharacterValidationError("lowercase"))
+    .matches(/[A-Z]/, getCharacterValidationError("uppercase"))
+};
+
 /**
  * Format date and mode
  */

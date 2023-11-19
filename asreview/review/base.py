@@ -1,3 +1,5 @@
+__all__ = ["BaseReview"]
+
 import logging
 from abc import ABC
 

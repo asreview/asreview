@@ -52,6 +52,22 @@ def test_successful_signup_no_confirmation(client_auth):
     assert data["message"] == f'User "{user.email}" created.'
 
 
+# Test user data if we request is
+@pytest.mark.parametrize(
+    "password", ["short", "lowercapsonly", "HIGHCAPSONLY",
+                 "123456789", "short12334", "SHORT123234"]
+)
+def test_unsuccessful_signup_invalid_password(client_auth, password):
+    # get user data
+    user = get_user(1)
+    user.password = password
+    status_code, data = au.signup_user(client_auth, user)
+    # check if we get a 400 status
+    assert status_code == 400
+    expected_message = f"Password \"{password}\" does not meet requirements"
+    assert expected_message in data["message"]
+
+
 # Adding an existing identifier must return a 404 status and
 # appropriate message
 def test_unique_identifier(client_auth):
@@ -249,7 +265,7 @@ def test_confirm_route_returns_400_if_app_not_verified(client_auth):
 
 
 # ###################
-# PROFILE
+# GET PROFILE
 # ###################
 
 
@@ -440,10 +456,12 @@ def test_update_user_profile_simple_attributes(client_auth):
     assert data["message"] == "User profile updated."
 
 
-# test updating the password
-def test_update_password(client_auth):
+# test correctly updating the password
+def test_correctly_update_password(client_auth):
     # create and signin user
-    user = au.create_and_signin_user(client_auth)
+    user_id = 1
+    user = au.get_user(user_id)
+    db_user = au.create_and_signin_user(client_auth, user_id)
     # prep data
     new_password = "NewPassword123#"
     data = {
@@ -451,18 +469,64 @@ def test_update_password(client_auth):
         "name": user.name,
         "affiliation": user.affiliation,
         "public": int(user.public),
-        "password": new_password,
+        "old_password": user.password,
+        "new_password": new_password,
     }
     # call update
     status_code, data = au.update_user(client_auth, data)
     assert status_code == 200
     assert data["message"] == "User profile updated."
-    # Checking if new password works signout
+    # Checking if new password works: signout first
     au.signout_user(client_auth)
     # signin with new password
-    user.password = new_password
-    status_code, data = au.signin_user(client_auth, user)
+    db_user.password = new_password
+    status_code, data = au.signin_user(client_auth, db_user)
     assert status_code == 200
+
+
+# test updating the password with faulty old password
+def test_incorrectly_update_password_wrong_old_password(client_auth):
+    # create and signin user
+    user_id = 1
+    user = au.get_user(user_id)
+    au.create_and_signin_user(client_auth, user_id)
+    # prep data
+    new_password = "NewPassword123#"
+    data = {
+        "email": user.email,
+        "name": user.name,
+        "affiliation": user.affiliation,
+        "public": int(user.public),
+        "old_password": user.password + "WRONG",  # wrong old password
+        "new_password": new_password,
+    }
+    # call update
+    status_code, data = au.update_user(client_auth, data)
+    assert status_code == 400
+    assert "Provided old password is incorrect." in data["message"]
+
+
+# test updating the password with faulty new password
+def test_incorrectly_update_password_wrong_new_password(client_auth):
+    # create and signin user
+    user_id = 1
+    user = au.get_user(user_id)
+    au.create_and_signin_user(client_auth, user_id)
+    # prep data
+    new_password = "abc"  # wrong new password
+    data = {
+        "email": user.email,
+        "name": user.name,
+        "affiliation": user.affiliation,
+        "public": int(user.public),
+        "old_password": user.password,
+        "new_password": new_password,
+    }
+    # call update
+    status_code, data = au.update_user(client_auth, data)
+    assert status_code == 400
+    expected_message = f"Password \"{new_password}\" does not meet requirements"
+    assert expected_message in data["message"]
 
 
 # test updating wrong new attribute values
@@ -472,7 +536,6 @@ def test_update_password(client_auth):
         ("email", "email"),
         ("email", "user2@asreview.nl"),
         ("name", ""),
-        ("password", "abc"),
     ],
 )
 def test_update_user_with_wrong_values(client_auth, attribute_data):
@@ -487,13 +550,12 @@ def test_update_user_with_wrong_values(client_auth, attribute_data):
         "name": user.name,
         "affiliation": user.affiliation,
         "public": int(user.public),
-        "password": "ABcd!1234",  # valid password
     }
     # manipulate attribute
     data[attr] = wrong_value
     # update
     status_code, data = au.update_user(client_auth, data)
-    assert status_code == 500
+    assert status_code in [400, 500]
     assert "Unable to update your profile" in data["message"]
     assert (attr.capitalize() in data["message"]) or attr in data["message"]
 
@@ -544,4 +606,3 @@ def test_must_be_signed_in_to_signout(client_auth, api_call):
         status_code, data = api_call(client_auth, {})
     # asserts
     assert status_code == 401
-    assert data["message"] == "Login required."

@@ -235,7 +235,7 @@ one could use the User model that can be found in `/asreview/webapp/authenticati
 
 To configure the authentication in more detail we need to create a TOML file that contains all authentication parameters. The parameters in that TOML file will override parameters that were passed in the CLI. Here's an example:
 ```toml
-AUTHENTICATION_ENABLED = true
+LOGIN_DISABLED = false
 SECRET_KEY = "<secret key>"
 SECURITY_PASSWORD_SALT = "<salt>"
 SESSION_COOKIE_SECURE = true
@@ -283,7 +283,7 @@ Store the TOML file on the server and start the ASReview application from the CL
 $ python3 -m asreview lab --flask-configfile=<path-to-TOML-config-file>
 ```
 A number of the keys in the TOML file are standard Flask parameters. The keys that are specific for authenticating ASReview are summarised below:
-*  AUTHENTICATION_ENABLED: if set to `true` the application will start with authentication enabled. If the SQLite database does not exist, one will be created during startup.
+*  LOGIN_DISABLED: if set to `false` the application will start with authentication enabled. If the SQLite database does not exist, one will be created during startup.
 * SECRET_KEY: the secret key is a string that is used to encrypt cookies and is mandatory if authentication is required.
 * SECURITY_PASSWORD_SALT: another string used to hash passwords, also mandatory if authentication is required.
 * ALLOW_ACCOUNT_CREATION: enables account creation by users, either by front- or backend.

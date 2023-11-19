@@ -1,5 +1,3 @@
-__all__ = ["AuthTool"]
-
 import argparse
 import json
 import sys
@@ -12,7 +10,6 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import create_database
 from sqlalchemy_utils import database_exists
 
-from asreview.entry_points.base import BaseEntryPoint
 from asreview.project import ASReviewProject
 from asreview.utils import asreview_path
 from asreview.webapp.authentication.models import Project
@@ -215,7 +212,7 @@ def get_users(session):
     return session.query(User).all()
 
 
-class AuthTool(BaseEntryPoint):
+class AuthTool(object):
     def execute(self, argv):
         parser = auth_parser()
         args = parser.parse_args(argv)

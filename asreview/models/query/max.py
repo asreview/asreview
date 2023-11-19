@@ -13,6 +13,8 @@
 # limitations under the License.
 """Max sampling while saving prediction probabilities."""
 
+__all__ = ["MaxQuery"]
+
 import numpy as np
 
 from asreview.models.query.base import ProbaQueryStrategy
