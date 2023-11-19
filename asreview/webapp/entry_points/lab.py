@@ -81,8 +81,6 @@ def _check_for_update():
             time.sleep(5)
     except Exception as err:
         print("Could not check for updates.")
-        raise err
-        pass
 
 
 def lab_entry_point(argv):
