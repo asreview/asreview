@@ -38,16 +38,12 @@ def _create_inverted_index(match_strings):
     return index
 
 
-def _match_best(keywords, index, match_strings, threshold=0.90):
+def _match_best(keywords, index, match_strings, threshold=0.75):
     n_match = len(match_strings)
     word = re.compile(r"['\w]+")
-    # this is a list containing needles
     key_list = word.findall(keywords.lower())
 
-    # print(index)
-
     ratios = np.zeros(n_match)
-    # for current needle
     for key in key_list:
         cur_ratios = {}
         s = SequenceMatcher()
@@ -57,12 +53,9 @@ def _match_best(keywords, index, match_strings, threshold=0.90):
             ratio = s.quick_ratio()
             if ratio < threshold:
                 continue
-            print(key, token, ratio)
             for idx in index[token]:
                 if ratio > cur_ratios.get(idx, 0.0):
                     cur_ratios[idx] = ratio
-
-        
 
         for idx, rat in cur_ratios.items():
             ratios[idx] += rat
@@ -154,7 +147,6 @@ def fuzzy_find(
     if exclude is None:
         exclude = np.array([], dtype=int)
     for idx in sorted_idx:
-        print("hallo", idx, new_ranking[idx], threshold)
         if (
             (not by_index and as_data.df.index.values[idx] in exclude)
             or by_index
@@ -163,13 +155,9 @@ def fuzzy_find(
             continue
         if len(best_idx) >= max_return:
             break
-        # if len(best_idx) > 0 and new_ranking[idx] < threshold:
-        if new_ranking[idx] < threshold:
+        if len(best_idx) > 0 and new_ranking[idx] < threshold:
             break
         best_idx.append(idx)
-
-    print(best_idx)
-
     fuzz_idx = np.array(best_idx, dtype=int)
     if not by_index:
         fuzz_idx = as_data.df.index.values[fuzz_idx]
