@@ -80,10 +80,14 @@ def test_try_upgrade_a_modern_project(setup):
 def test_upgrade_an_old_project(setup):
     client, user, _ = setup
 
-    asreview_v0_file = (
-        "asreview/webapp/tests/asreview-project-file-archive/"
-        "v0.19/asreview-project-v0-19-startreview.asreview"
+    tests_folder = Path(__file__).parent.parent
+    asreview_v0_file = Path(
+        tests_folder,
+        "asreview-project-file-archive",
+        "v0.19",
+        "asreview-project-v0-19-startreview.asreview"
     )
+
 
     project = ASReviewProject.load(
         open(asreview_v0_file, "rb"), asreview_path(), safe_import=True
