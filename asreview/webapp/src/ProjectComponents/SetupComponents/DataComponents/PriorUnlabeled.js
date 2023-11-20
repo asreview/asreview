@@ -176,6 +176,7 @@ const PriorUnlabeled = (props) => {
             </Typography>
             <Box>
               <Button
+                id="relevant"
                 onClick={() => {
                   mutate({
                     project_id: props.project_id,
@@ -191,6 +192,7 @@ const PriorUnlabeled = (props) => {
                 Yes
               </Button>
               <Button
+                id="irrelevant"
                 onClick={() => {
                   mutate({
                     project_id: props.project_id,

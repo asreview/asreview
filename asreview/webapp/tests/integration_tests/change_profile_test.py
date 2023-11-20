@@ -1,8 +1,3 @@
-import random
-import time
-
-import pytest
-
 import asreview.webapp.tests.integration_tests.utils as utils
 from asreview.webapp.authentication.models import User
 
@@ -48,7 +43,7 @@ def test_change_profile(driver, url, database_uri):
         "name": "Casper Kaandorp",
         "affiliation": "UU",
         "old_password": ACCOUNT["password"],
-        "password": "uuuuUUUU111" 
+        "password": "uuuuUUUU111"
     }
 
     utils.fill_text_field_by_id(driver, "email", new_user_data["email"])
@@ -60,7 +55,6 @@ def test_change_profile(driver, url, database_uri):
     utils.click_element(driver, "button#save")
 
     # assert we have an updated user
-    session = utils.setup_database_session(database_uri)
     assert len(session.query(User).all()) == 1
     user = session.query(User).first()
     assert user.email == new_user_data["email"]
@@ -69,7 +63,7 @@ def test_change_profile(driver, url, database_uri):
 
     # log out
     utils.sign_out(driver)
-    
+
     # log back in with new data
     utils.sign_in(driver, base_url, new_user_data)
 

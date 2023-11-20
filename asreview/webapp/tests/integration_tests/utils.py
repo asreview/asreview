@@ -58,7 +58,7 @@ def fill_text_field_by_id(driver, field_id, value):
     WebDriverWait(driver, 60) \
         .until(EC.presence_of_element_located(
             (By.CSS_SELECTOR, f"input#{field_id}")))
-    
+
     input_field = driver.find_element(
         By.CSS_SELECTOR,
         f"input#{field_id}"
@@ -129,29 +129,24 @@ def sign_out(driver):
     click_element(driver, "li#signout")
 
 
-def label_abstract(driver, label):
-    # make sure it is capitalized
-    label = label.capitalize()
+def label_abstract(driver, label, reading_time=0):
+    # sleep to simulate reading time
+    time.sleep(reading_time)
+    # make sure we're dealing with lowercase characters
+    label = label.lower().strip()
     # check if label is correct
-    assert label in ['Irrelevant', 'Relevant']
+    assert label in ["irrelevant", "relevant"]
     # click appropriate button
-    click_element(driver, f"button#{label.lower()}")
+    click_element(driver, f"button#{label}")
 
 
-# TODO: THIS NEEDS REFACTORING, USE LABEL ABSTRACT MAYBE
-# AND MOVE READING TIME TO THAT FUNCTION
-def _label_prior_knowledge_abstract(driver, label=None):
-    assert label in ["Yes", "No", None]
+def _label_prior_knowledge_abstract(driver, label=None, reading_time=0):
     # Use prior label if label is None
     if label is None:
         # find first element that has class labeled-as
-        prior = driver.find_element(By.CSS_SELECTOR, "div.labeled-as").text
-        label = "No" if "irrelevant" in prior else "Yes"
+        label = driver.find_element(By.CSS_SELECTOR, "div.labeled-as").text
     # proceed with actual labeling
-    click_element(
-        driver,
-        (By.XPATH, f"//button[text()='{label}']")
-    )
+    label_abstract(driver, label, reading_time)
 
 
 def _label_random_prior_knowledge(driver, project_data, reading_time):
@@ -163,8 +158,7 @@ def _label_random_prior_knowledge(driver, project_data, reading_time):
 
     # add random prior knowledge
     for label in project_data["dataset"]["prior_knowledge"]:
-        time.sleep(reading_time)
-        _label_prior_knowledge_abstract(driver, label)
+        _label_prior_knowledge_abstract(driver, label, reading_time)
 
 
 def _label_searched_prior_knowledge(driver, project_data, reading_time):
@@ -174,6 +168,8 @@ def _label_searched_prior_knowledge(driver, project_data, reading_time):
         (By.XPATH, "//span[text()=\"Search\"]")
     )
 
+    # Work the expected search terms, send the strings and wait
+    # for the result before we can label.
     for search_term, label in project_data["dataset"]["prior_knowledge"]:
         # fill out search input
         driver.find_element(
@@ -189,8 +185,7 @@ def _label_searched_prior_knowledge(driver, project_data, reading_time):
                 (By.CSS_SELECTOR, "div.search-result")))
 
         # label first abstract
-        time.sleep(reading_time)
-        _label_prior_knowledge_abstract(driver, label)
+        _label_prior_knowledge_abstract(driver, label, reading_time)
 
         # clear search input
         driver.find_element(

@@ -1,11 +1,7 @@
 import random
-import time
-
-import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 import asreview.webapp.tests.integration_tests.utils as utils
+from asreview.webapp.authentication.models import Project
 
 ACCOUNT = {
     "email": "test4@user.org",
@@ -14,11 +10,6 @@ ACCOUNT = {
     "password": "@Secret1234!"
 }
 
-# mode: "oracle", "explore", "simulate"
-# feature-extraction: # doc2vec, embedding-idf, sbert, embedding-lstm, tfidf
-# classifier: logistic, lstm-base, lstm-pool, nb, nn-2-layer, rf, svm
-# query_strategy: cluster, max, max_random, max_uncertainty, random, uncertainty
-# balance_strategy: double, simple, undersample
 PROJECT = {
     "mode": "explore",
     "title": "Project Title",
@@ -26,18 +17,28 @@ PROJECT = {
     "description": "Project description",
     "dataset": {
         "type": "benchmark",
-        "label": "Donners et al. (2021)",
-        "prior_knowledge_method": "Random",
-        "prior_knowledge": ["Yes", "No", "Yes", "No", "Yes"]
-        # "prior_knowledge_method": "Search",
+        "label": "Appenzeller‐Herzog et al. (2019)",
+
+        # "prior_knowledge_method": "Random",
         # "prior_knowledge": [
-        #     ("medicine", None),
-        #     ("medicine", None),
-        #     ("medicine", None),
-        #     ("medicine", None),
-        #     ("medicine", None)
-        # ]
+        #     "relevant",
+        #     "irrelevant",
+        #     "relevant",
+        #     "irrelevant",
+        #     "relevant"
+        # ],
+
+        "prior_knowledge_method": "Search",
+        "prior_knowledge": [
+            ("hepatolenticular degeneration Wilson Zinc", None),
+            ("hepatolenticular degeneration Wilson ovulatory", None),
+            ("triethylenetetramine dihydrochloride", None),
+            ("disease genetic heterogeneity United Kingdom and Taiwan", None),
+            ("AIM succimer penicillamine", None),
+            ("Early neurological worsening", None)
+        ],
     },
+
     "model": {
         "feature_extraction": "tfidf",
         "classifier": "nb",
@@ -51,14 +52,14 @@ def test_signup_signin_create_project(driver, url, database_uri, reading_time):
     base_url = url
     driver.get(base_url)
 
-    # SETUP  DATABASE
-    Session = sessionmaker()
-    engine = create_engine(database_uri)
-    Session.configure(bind=engine)
-    session = Session()
+    # setup database session
+    session = utils.setup_database_session(database_uri)
 
     # clean database
     utils.clean_database(session)
+
+    # check if we have a no registered projects
+    assert len(session.query(Project).all()) == 0
 
     # create account
     utils.create_account(driver, base_url, ACCOUNT)
@@ -69,10 +70,12 @@ def test_signup_signin_create_project(driver, url, database_uri, reading_time):
     # create project
     utils.create_project(driver, base_url, PROJECT, reading_time)
 
-    # # REVIEWING
-    # for _ in range(50):
-    #     time.sleep(reading_time)
-    #     # choose
-    #     label = random.choice(['Irrelevant', 'Relevant'])
-    #     # click
-    #     utils.label_abstract(driver, label)
+    # check if we have a registered project in the database
+    assert len(session.query(Project).all()) == 1
+
+    # REVIEWING
+    for _ in range(5):
+        # choose
+        label = random.choice(['irrelevant', 'relevant'])
+        # click
+        utils.label_abstract(driver, label, reading_time)

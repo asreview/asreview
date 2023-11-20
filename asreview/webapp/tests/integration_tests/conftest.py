@@ -6,6 +6,7 @@ def pytest_addoption(parser):
     parser.addoption("--database-uri", action="store")
     parser.addoption("--reading-time", action="store", type=int, default=5)
 
+
 @pytest.fixture(scope="session")
 def url(pytestconfig):
     return pytestconfig.getoption("url")
