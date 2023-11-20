@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
 import {
@@ -16,10 +16,15 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-
-import { ActionsFeedbackBar, PageHeader } from "../../Components";
+import {
+  Diversity3,
+  Payment,
+  StarBorder,
+  LibraryBooks,
+  Email,
+} from "@mui/icons-material";
+import { ActionsFeedbackBar, PageHeader, CiteDialog } from "../../Components";
 import { SelectItem } from "../../ProjectComponents";
-
 import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
 import { ProjectAPI } from "../../api/index.js";
 import "../../App.css";
@@ -41,6 +46,14 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.selectHeight}`]: {
     height: 86,
   },
+}));
+
+const StyledActionsBox = styled(Box)(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  height: "100%",
+  flexDirection: "row", // Always set to row
 }));
 
 const ExportPage = (props) => {
@@ -128,6 +141,12 @@ const ExportPage = (props) => {
 
   const refetchDatasetWriter = () => {
     queryClient.resetQueries("fetchDatasetWriter");
+  };
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const toggleDialog = () => {
+    setDialogOpen((prev) => !prev);
   };
 
   return (
@@ -314,6 +333,80 @@ const ExportPage = (props) => {
                   </span>
                 </Tooltip>
               </Box>
+              <StyledActionsBox>
+                <Box
+                  sx={{
+                    maxWidth: { xs: "60%", sm: "40%", md: "30%" },
+                    width: "100%",
+                  }}
+                >
+                  <Typography
+                    variant="h6"
+                    sx={{ textAlign: "center", paddingBottom: "10px" }}
+                  >
+                    Love using ASReview LAB?
+                  </Typography>
+                  <Stack
+                    spacing={2}
+                    sx={{
+                      justifyContent: "center",
+                      width: "164px",
+                      margin: "auto",
+                      textAlign: "center",
+                    }}
+                  >
+                    <Button
+                      startIcon={<LibraryBooks />}
+                      variant="outlined"
+                      color="primary"
+                      onClick={toggleDialog}
+                    >
+                      Cite
+                    </Button>
+                    <CiteDialog isOpen={dialogOpen} onClose={toggleDialog} />
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      component={Link}
+                      target="_blank"
+                      href="https://github.com/asreview/asreview"
+                      startIcon={<StarBorder />}
+                    >
+                      Star
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      component={Link}
+                      target="_blank"
+                      href="https://asreview.nl/donate"
+                      startIcon={<Payment />}
+                    >
+                      Donate
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      component={Link}
+                      target="_blank"
+                      href="https://asreview.ai/newsletter/subscribe"
+                      startIcon={<Email />}
+                    >
+                      Subscribe
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      component={Link}
+                      target="_blank"
+                      href="https://asreview.nl/community"
+                      startIcon={<Diversity3 />}
+                    >
+                      Contribute
+                    </Button>
+                  </Stack>
+                </Box>
+              </StyledActionsBox>
             </Stack>
           </Box>
         </Box>

@@ -116,15 +116,22 @@ Export results
 --------------
 
 You can export the results of your labeling to a RIS, CSV, TSV, or Excel file.
-A file contains all imported data including your decisions. 
+A file contains all imported data including your decisions, or a file with a
+selection of the relevant records only. 
 
-The following variables will be added to your dataset:
+The following variables will be added to your tabular dataset:
 
 - The column titled **included** contains the labels as provided by the user:
   ``0`` = not relevant, ``1`` = relevant and if missing it means the record is
   not seen during the screening process.
 - The column titled **asreview_ranking** contains an identifier to
   preserve the rank ordering as described below.
+- The column **Notes** contain any notes you made during screening. 
+
+For RIS files, the labels **ASReview_relevant**, **ASReview_irrelevant**,
+and **ASReview_not_seen** are stored with the `N1` (Notes) tag. In citation
+managers. like Zotero and Endnote, the labels can be used for making
+selections.
 
 The file is ordered as follows:
 
@@ -150,5 +157,8 @@ To download your results follow these steps:
     A RIS file can only be exported if a RIS file is imported.
 
 
+Love using ASReview? On the Export screen you can get inspired how you can
+give back to our open-source and community-driven project. 
 
-
+.. figure:: ../images/export_screen.png
+   :alt: ASReview LAB Export screen
