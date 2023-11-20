@@ -88,7 +88,6 @@ def test_upgrade_an_old_project(setup):
         "asreview-project-v0-19-startreview.asreview"
     )
 
-
     project = ASReviewProject.load(
         open(asreview_v0_file, "rb"), asreview_path(), safe_import=True
     )
