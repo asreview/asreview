@@ -14,7 +14,6 @@ import {
   Stack,
   Tooltip,
   Typography,
-  useTheme,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import {
@@ -58,7 +57,6 @@ const StyledActionsBox = styled(Box)(({ theme }) => ({
 }));
 
 const ExportPage = (props) => {
-  const theme = useTheme();
   const { project_id } = useParams();
 
   const queryClient = useQueryClient();
@@ -337,19 +335,25 @@ const ExportPage = (props) => {
               </Box>
               <StyledActionsBox>
                 <Box
-                  borderRadius={3}
-                  padding={2}
                   sx={{
-                    maxWidth: { xs: "80%", sm: "40%", md: "30%" },
+                    maxWidth: { xs: "60%", sm: "40%", md: "30%" },
                     width: "100%",
                   }}
                 >
-                  <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                    Love using ASReview?
+                  <Typography
+                    variant="h6"
+                    sx={{ textAlign: "center", paddingBottom: "10px" }}
+                  >
+                    Love using ASReview LAB?
                   </Typography>
                   <Stack
-                    direction={theme.breakpoints.down("sm") ? "column" : "row"}
                     spacing={2}
+                    sx={{
+                      justifyContent: "center",
+                      width: "164px",
+                      margin: "auto",
+                      textAlign: "center",
+                    }}
                   >
                     <Button
                       startIcon={<LibraryBooks />}

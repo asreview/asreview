@@ -10,10 +10,14 @@ import {
   ListItem,
   Snackbar,
   useTheme,
+  Tooltip,
+  Stack,
   Typography,
 } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import { Close } from "@mui/icons-material";
 import { StyledTextButton } from "../StyledComponents/StyledButton.js";
+import { StyledIconButton } from "../StyledComponents/StyledButton.js";
 import { styled } from "@mui/material/styles";
 
 const PREFIX = "CiteDialog";
@@ -97,7 +101,19 @@ const CiteDialog = ({ isOpen, onClose, mobileScreen, asreview_version }) => {
 
   return (
     <Dialog open={isOpen} onClose={onClose} maxWidth="md">
-      {!mobileScreen && <DialogTitle>Citation Styles</DialogTitle>}
+      {!mobileScreen && (
+        <Stack className="dialog-header" direction="row" spacing={1}>
+          <DialogTitle>Cite ASReview LAB</DialogTitle>
+          <Tooltip title="Close">
+            <StyledIconButton
+              className="dialog-header-button right"
+              onClick={onClose}
+            >
+              <Close />
+            </StyledIconButton>
+          </Tooltip>
+        </Stack>
+      )}
       <Divider />
       <StyledDialogContent className={`${PREFIX}-content`}>
         <CitationStylesRow>
