@@ -50,18 +50,23 @@ def import_2_unauthenticated_projects(with_upgrade=True):
     To use them in tests they need to be upgraded. Both projects
     are returned."""
 
-    asreview_v0_file = (
-        "asreview/webapp/tests/asreview-project-file-archive/"
-        "v0.18/asreview-project-v0-18-startreview.asreview"
+    tests_folder = Path(__file__).parent.parent
+    asreview_v0_file = Path(
+        tests_folder,
+        "asreview-project-file-archive",
+        "v0.18",
+        "asreview-project-v0-18-startreview.asreview"
     )
 
     proj1 = ASReviewProject.load(
         open(asreview_v0_file, "rb"), asreview_path(), safe_import=True
     )
 
-    asreview_v0_file = (
-        "asreview/webapp/tests/asreview-project-file-archive/"
-        "v0.19/asreview-project-v0-19-startreview.asreview"
+    asreview_v0_file = Path(
+        tests_folder,
+        "asreview-project-file-archive",
+        "v0.19",
+        "asreview-project-v0-19-startreview.asreview"
     )
 
     proj2 = ASReviewProject.load(
