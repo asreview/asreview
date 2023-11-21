@@ -28,12 +28,16 @@ def test_change_profile(driver, url, database_uri):
     # assert we have a correct user
     assert len(session.query(User).all()) == 1
     user = session.query(User).first()
+    session.close()
     assert user.email == ACCOUNT["email"]
     assert user.name == ACCOUNT["name"]
     assert user.affiliation == ACCOUNT["affiliation"]
 
     # sign in
     utils.sign_in(driver, base_url, ACCOUNT)
+
+    # assert we're on the project dashboard
+    assert utils.page_contains_text(driver, "Projects dashboard")
 
     # go to the profile page
     driver.get(base_url + "/profile")
@@ -54,6 +58,9 @@ def test_change_profile(driver, url, database_uri):
     utils.fill_text_field_by_id(driver, "confirmPassword", new_user_data["password"])
     utils.click_element(driver, "button#save")
 
+    # verify we're on the project dashboard again
+    assert driver.current_url == base_url + "/projects"
+
     # assert we have an updated user
     assert len(session.query(User).all()) == 1
     user = session.query(User).first()
@@ -67,5 +74,8 @@ def test_change_profile(driver, url, database_uri):
     # log back in with new data
     utils.sign_in(driver, base_url, new_user_data)
 
-    # check if we are on landings page
+    # check if we are on the project dashboard
     assert driver.current_url == base_url + "/projects"
+
+    # close driver
+    driver.close()

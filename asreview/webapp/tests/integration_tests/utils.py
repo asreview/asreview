@@ -129,6 +129,14 @@ def sign_out(driver):
     click_element(driver, "li#signout")
 
 
+def page_contains_text(driver, text, css_selector=None):
+    if css_selector is None:
+        css_selector = "body"
+    # find the selector
+    all_text = driver.find_element(By.CSS_SELECTOR, css_selector).text
+    return text in all_text
+
+
 def label_abstract(driver, label, reading_time=0):
     # sleep to simulate reading time
     time.sleep(reading_time)

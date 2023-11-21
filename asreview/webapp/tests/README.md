@@ -6,7 +6,7 @@ This folder contains the test suite of the ASReview app. It is organized in the 
 
 - **data**: Contains project data used in tests.
 
-- **integration_tests**: Forthcoming.
+- **integration_tests**: Contains integration tests. See README.md in this folder.
 
 - **test_api**: Contains API related tests. These tests are independent, unit-like tests.
 

@@ -19,6 +19,7 @@ PROJECT = {
         "type": "benchmark",
         "label": "Appenzeller‐Herzog et al. (2019)",
 
+        # alternative:
         # "prior_knowledge_method": "Random",
         # "prior_knowledge": [
         #     "relevant",
@@ -79,3 +80,6 @@ def test_signup_signin_create_project(driver, url, database_uri, reading_time):
         label = random.choice(['irrelevant', 'relevant'])
         # click
         utils.label_abstract(driver, label, reading_time)
+
+    # close driver
+    driver.close()
