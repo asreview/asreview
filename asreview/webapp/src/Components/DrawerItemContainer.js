@@ -377,7 +377,7 @@ const DrawerItemContainer = (props) => {
         aria-describedby="game-dialog-description"
       >
         <DialogTitle id="game-dialog-title">
-          Elas Adventures Game (Attempts: {attemps})
+          Elas Memory Game
         </DialogTitle>
         <DialogContent>
           <ElasGame addAttempt={addAttempt} />
