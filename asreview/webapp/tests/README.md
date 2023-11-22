@@ -35,7 +35,7 @@ Ideally a test function tests one particular feature and can be executed indepen
 
 ## Running the tests
 
-**Important**: if you run the entire test suite, please make sure you have compiles the app's assets:
+**Important**: if you run the entire test suite, please make sure you have compiled the app's assets:
 
 ```
 python setup.py compile_assets
