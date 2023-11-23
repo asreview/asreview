@@ -1,5 +1,5 @@
-Starting ASReview LAB
-=====================
+Start ASReview LAB
+==================
 
 Once ASReview LAB has been successfully installed on your system, you can
 launch it by entering the following command into your command line interface

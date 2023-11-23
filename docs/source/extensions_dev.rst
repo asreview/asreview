@@ -1,7 +1,7 @@
 .. _develop-extensions:
 
-Creating extensions
-===================
+Create extensions
+=================
 
 ASReview extensions enable you to integrate your programs with the ASReview
 framework seamlessly, by using the Python API. These extensions fall into three

@@ -147,8 +147,8 @@ Under the CLI sub commands of the ASReview application a tool can be found that 
         asreview auth-tool --help    
 
 
-Creating user accounts
-~~~~~~~~~~~~~~~~~~~~~~
+Create user accounts
+~~~~~~~~~~~~~~~~~~~~
 
 The first step is to create user accounts. This can be done interactively or by using a JSON string to bulk insert the accounts. To add user accounts interactively run the following command:
 
@@ -169,8 +169,8 @@ If you would like to bulk insert user accounts use the ``--json`` option:
 
 The JSON string represents a Python list with a dictionary for every user account with the following keys: ``email``, ``name``, ``affiliation`` and ``password``. Note that passwords require at least one symbol. These symbols, such as the exclamation mark, may compromise the integrity of the JSON string.
 
-Preparing the projects
-~~~~~~~~~~~~~~~~~~~~~~
+Prepare the projects
+~~~~~~~~~~~~~~~~~~~~
 
 After creating the user accounts, the existing projects must be stored and linked to a user account in the database. The tool provides the ``list-projects`` command to prepare for this step in case you would like to bulk store all projects. Ignore the following commands if you prefer to store all projects interactively. 
 
@@ -196,8 +196,8 @@ the owner is initially unknown, the ``0`` behind every ``owner_id`` key needs to
         asreview auth-tool list-users --db-path ~/.asreview/asreview.production.sqlite    
 
 
-Inserting and linking the projects into the database
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Insert and link projects to the database
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 Inserting and linking the projects into the database can be done interactively:
