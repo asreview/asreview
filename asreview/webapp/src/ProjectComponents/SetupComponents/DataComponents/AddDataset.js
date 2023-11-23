@@ -46,27 +46,6 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-function importFormatString(datasetReaders) {
-  if (!datasetReaders) {
-    return "";
-  }
-  let acceptedFormats = new Set([]);
-  datasetReaders.forEach(
-    (reader) => reader.read_format.forEach((item) => acceptedFormats.add(item))
-  );
-  let res = [...acceptedFormats].join(",");
-  return res;
-}
-
-function readerDescriptionString(datasetReaders) {
-  if (!datasetReaders) {
-    return "";
-  }
-  return datasetReaders.map((reader) => 
-    reader.label + " (" + reader.read_format.join(", ") + ")"
-  ).join(", ");
-}
-
 const AddDataset = (props) => {
   const queryClient = useQueryClient();
 
@@ -77,12 +56,16 @@ const AddDataset = (props) => {
   const [benchmark, setBenchmark] = React.useState(null);
   const [datasetReaders, setDatasetReaders] = React.useState(null);
 
-  useQuery("fetchDatasetReaders", ProjectAPI.fetchDatasetReaders, {
-    refetchOnWindowFocus: false,
-    onSuccess: (data) => {
-      setDatasetReaders(data.result);
-    },
-  });
+  const { isSuccess: fetchReadersSuccess } = useQuery(
+    "fetchDatasetReaders",
+    ProjectAPI.fetchDatasetReaders,
+    {
+      refetchOnWindowFocus: false,
+      onSuccess: (data) => {
+        setDatasetReaders(data.result);
+      },
+    }
+  );
 
   const { error, isError, isLoading, mutate, reset } = useMutation(
     ProjectAPI.mutateData,
@@ -95,7 +78,7 @@ const AddDataset = (props) => {
         queryClient.invalidateQueries("fetchLabeledStats");
         props.toggleAddDataset();
       },
-    },
+    }
   );
 
   const handleDatasetSource = (event) => {
@@ -206,7 +189,6 @@ const AddDataset = (props) => {
             </FormControl>
             {(datasetSource === "file" || datasetSource === "url") && (
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Supported formats are {readerDescriptionString(datasetReaders)}.
                 The dataset should contain a title and abstract for each record.{" "}
                 {props.mode !== projectModes.ORACLE
                   ? "The dataset should contain labels for each record. "
@@ -249,9 +231,11 @@ const AddDataset = (props) => {
                 </Link>
               </Typography>
             )}
-            {datasetSource === "file" && (
+            {datasetSource === "file" && fetchReadersSuccess && (
               <ImportFromFile
-                acceptFormat={importFormatString(datasetReaders)}
+                acceptFormat={datasetReaders
+                  .map((reader) => reader.extension)
+                  .join(",")}
                 addFileError={error}
                 file={file}
                 setFile={setFile}

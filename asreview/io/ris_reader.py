@@ -27,8 +27,6 @@ from asreview.utils import is_url
 class RISReader:
     """RIS file reader."""
 
-    name = "ris"
-    label = "RIS"
     read_format = [".ris", ".txt"]
     write_format = [".csv", ".tsv", ".xlsx", ".ris"]
 

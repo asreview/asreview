@@ -68,6 +68,7 @@ from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.sql_converter import upgrade_project_config
+from asreview.utils import _entry_points
 from asreview.utils import _get_executable
 from asreview.utils import _get_filename_from_url
 from asreview.utils import asreview_path
@@ -218,20 +219,11 @@ def api_init_project():  # noqa: F401
 @login_required
 def api_list_data_readers():
     """Get the list of available data readers and read formats."""
-    readers = list_readers()
-    unique_readers = []
-    unique_names = set([])
-    for reader in readers:
-        if reader.name not in unique_names:
-            unique_names.add(reader.name)
-            unique_readers.append(reader)
     payload = {"result": []}
-    for reader in unique_readers:
+    for e in _entry_points(group="asreview.readers"):
         payload["result"].append(
             {
-                "name": reader.name,
-                "read_format": reader.read_format,
-                "label": reader.label,
+                "extension": e.name
             }
         )
     return jsonify(payload)
