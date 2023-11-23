@@ -44,7 +44,7 @@ Some advantages:
 
 
 Log-on options
-^^^^^^^^^^^^^^
+--------------
 
 You can sign in using your GitHub, ORCID, or Google account. This provides a
 quick and secure way to access ASReview without the need to create a new
@@ -54,7 +54,7 @@ account.
 	:alt: Sign in with GitHub, ORCID, or Google account
 
 Log in with Email
-^^^^^^^^^^^^^^^^^
+-----------------
 
 If you prefer to use your email address, this option is available as well.
 Enter your email credentials to log in and start using ASReview.
@@ -65,7 +65,7 @@ Upcoming sections will guide you through the necessary steps to configure your s
    :alt: Log in with email
 
 Create Your Profile
-^^^^^^^^^^^^^^^^^^^
+-------------------
 
 After signing in, you'll be prompted to create your profile on the ASReview LAB server. Fill in the required information to proceed to your personalized workspace.
 
