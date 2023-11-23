@@ -1,4 +1,5 @@
 import inspect
+import json
 import time
 from pathlib import Path
 from typing import Union
@@ -227,6 +228,39 @@ def test_update_project_info(setup):
     new_name = "new name"
     new_authors = "new authors"
     new_description = "new description"
+    new_tags = json.dumps([{
+                        "name": "Biomes",
+                        "id": "biomes",
+                        "values": [
+                            {"id": "boreal_forest", "name": "Boreal Forest"},
+                            {"id": "savanna", "name": "Savanna"},
+                            {"id": "mangrove", "name": "Mangrove"},
+                            {"id": "tropical_forest", "name": "Tropical Forest"},
+                        ],
+                    },
+                    {
+                        "name": "Restoration Approaches",
+                        "id": "restoration_approaches",
+                        "values": [
+                            {
+                                "id": "direct_seeding",
+                                "name": "Direct seeding (i.e. spreading/planting seeds)",
+                            },
+                            {
+                                "id": "tree_planting",
+                                "name": "Planting trees (i.e. planting trees as seedlings)",
+                            },
+                            {
+                                "id": "assisted_natural_regeneration",
+                                "name": "Assisted natural regeneration",
+                            },
+                            {
+                                "id": "farmer_managed_natural_regeneration",
+                                "name": "Farmer managed natural regeneration",
+                            },
+                        ],
+                    }])
+
     # request
     status_code, data = au.update_project(
         client,
@@ -235,12 +269,14 @@ def test_update_project_info(setup):
         mode=new_mode,
         authors=new_authors,
         description=new_description,
+        tags=new_tags
     )
     assert status_code == 200
     assert data["authors"] == new_authors
     assert data["description"] == new_description
     assert data["mode"] == new_mode
     assert data["name"] == new_name
+    assert data["tags"] == json.loads(new_tags)
 
 
 # Test search data
@@ -326,7 +362,7 @@ def test_list_algorithms(setup):
         "balance_strategy",
         "classifier",
         "feature_extraction",
-        "query_strategy",
+        "query_strategy"
     ]
     for key in expected_keys:
         assert key in data.keys()
