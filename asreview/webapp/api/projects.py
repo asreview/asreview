@@ -68,6 +68,7 @@ from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.sql_converter import upgrade_project_config
+from asreview.utils import _entry_points
 from asreview.utils import _get_executable
 from asreview.utils import _get_filename_from_url
 from asreview.utils import asreview_path
@@ -212,6 +213,20 @@ def api_init_project():  # noqa: F401
     DB.session.commit()
 
     return jsonify(project.config), 201
+
+
+@bp.route("/dataset_readers", methods=["GET"])
+@login_required
+def api_list_data_readers():
+    """Get the list of available data readers and read formats."""
+    payload = {"result": []}
+    for e in _entry_points(group="asreview.readers"):
+        payload["result"].append(
+            {
+                "extension": e.name
+            }
+        )
+    return jsonify(payload)
 
 
 @bp.route("/projects/<project_id>/upgrade_if_old", methods=["GET"])
