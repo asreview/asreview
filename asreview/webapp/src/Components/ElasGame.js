@@ -173,7 +173,7 @@ const resetGame = () => {
 const checkExpertCompletion = useCallback(() => {
     if (mode === "expert" && expertModeOpenCards.length === imagesArray.length) {
       setIsExpertCompleted(true);
-      setTimeout(() => setIsExpertCompleted(false), 50000);
+      setTimeout(() => setIsExpertCompleted(false), 5000);
     }
   }, [mode, expertModeOpenCards.length, imagesArray.length]); 
   useEffect(() => {
