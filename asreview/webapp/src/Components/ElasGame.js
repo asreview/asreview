@@ -141,28 +141,31 @@ const resetGame = () => {
   setPaperSelected([]);
   setPaperSelectedIds([]);
 
-  // Reset the game state
-  setGameStarted(false);
-
-  // Shuffle the cards for both modes
-  const shuffledSimple = initialShuffle("simple");
-  const shuffledExpert = initialShuffle("expert");
-
-  setShuffledSimpleImages(shuffledSimple);
-  setShuffledExpertImages(shuffledExpert);
-
   // Reset the score and attempts for the current mode
   if (mode === "simple") {
+    // Shuffle only for simple mode
+    const shuffledSimple = initialShuffle("simple");
+    setShuffledSimpleImages(shuffledSimple);
+    setImagesArray(shuffledSimple);
+
+    // Reset simple mode states
     setSimpleModeAttempts(0);
     setSimpleModeMatches(0);
     setSimpleModeOpenCards([]);
-    setImagesArray(shuffledSimple);
   } else {
+    // Shuffle only for expert mode
+    const shuffledExpert = initialShuffle("expert");
+    setShuffledExpertImages(shuffledExpert);
+    setImagesArray(shuffledExpert);
+
+    // Reset expert mode states
     setExpertModeAttempts(0);
     setExpertModeMatches(0);
     setExpertModeOpenCards([]);
-    setImagesArray(shuffledExpert);
   }
+
+  // Reset the game state
+  setGameStarted(false);
 };
 
 
