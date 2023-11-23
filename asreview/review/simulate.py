@@ -76,6 +76,28 @@ def sample_prior_knowledge(
     return init
 
 
+def naive_prior_knowledge(labels):
+    """Select top records until the first 0 and 1 are found.
+
+    Arguments
+    ---------
+    labels: np.ndarray
+        Array of labels, with 1 -> included, 0 -> excluded.
+
+    Returns
+    -------
+    np.ndarray:
+        An array with prior indices from top dataset.
+
+    """
+
+    # retrieve the index of included and excluded papers
+    first_included_idx = np.where(labels == 1)[0].min()
+    first_excluded_idx = np.where(labels == 0)[0].min()
+
+    return np.arange(max(first_included_idx, first_excluded_idx) + 1)
+
+
 class ReviewSimulate(BaseReview):
     """ASReview Simulation mode class.
 
@@ -154,6 +176,9 @@ class ReviewSimulate(BaseReview):
                 start_idx = sample_prior_knowledge(
                     labels, n_prior_included, n_prior_excluded, random_state=init_seed
                 )
+            else:
+                start_idx = naive_prior_knowledge(labels)
+
         super(ReviewSimulate, self).__init__(
             as_data, *args, start_idx=start_idx, **kwargs
         )
