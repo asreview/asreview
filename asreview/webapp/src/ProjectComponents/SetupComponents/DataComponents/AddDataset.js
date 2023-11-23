@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import {
   Box,
@@ -54,6 +54,18 @@ const AddDataset = (props) => {
   const [url, setURL] = React.useState("");
   const [extension, setExtension] = React.useState(null);
   const [benchmark, setBenchmark] = React.useState(null);
+  const [datasetReaders, setDatasetReaders] = React.useState(null);
+
+  const { isSuccess: fetchReadersSuccess } = useQuery(
+    "fetchDatasetReaders",
+    ProjectAPI.fetchDatasetReaders,
+    {
+      refetchOnWindowFocus: false,
+      onSuccess: (data) => {
+        setDatasetReaders(data.result);
+      },
+    }
+  );
 
   const { error, isError, isLoading, mutate, reset } = useMutation(
     ProjectAPI.mutateData,
@@ -66,7 +78,7 @@ const AddDataset = (props) => {
         queryClient.invalidateQueries("fetchLabeledStats");
         props.toggleAddDataset();
       },
-    },
+    }
   );
 
   const handleDatasetSource = (event) => {
@@ -177,10 +189,7 @@ const AddDataset = (props) => {
             </FormControl>
             {(datasetSource === "file" || datasetSource === "url") && (
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Supported formats are RIS (<code>.ris</code>, <code>.txt</code>)
-                and tabular datasets (<code>.csv</code>, <code>.tab</code>,{" "}
-                <code>.tsv</code>, <code>.xlsx</code>). The dataset should
-                contain a title and abstract for each record.{" "}
+                The dataset should contain a title and abstract for each record.{" "}
                 {props.mode !== projectModes.ORACLE
                   ? "The dataset should contain labels for each record. "
                   : ""}
@@ -222,9 +231,11 @@ const AddDataset = (props) => {
                 </Link>
               </Typography>
             )}
-            {datasetSource === "file" && (
+            {datasetSource === "file" && fetchReadersSuccess && (
               <ImportFromFile
-                acceptFormat=".txt,.tsv,.tab,.csv,.ris,.xlsx"
+                acceptFormat={datasetReaders
+                  .map((reader) => reader.extension)
+                  .join(",")}
                 addFileError={error}
                 file={file}
                 setFile={setFile}
