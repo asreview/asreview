@@ -40,7 +40,7 @@ def _create_inverted_index(match_strings):
     return index
 
 
-def _match_best(keywords, index, match_strings, threshold=0.75):
+def _match_best(keywords, index, match_strings, threshold=0.9):
     n_match = len(match_strings)
     word = re.compile(r"['\w]+")
     key_list = word.findall(keywords.lower())

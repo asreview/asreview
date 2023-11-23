@@ -47,7 +47,7 @@ const FinishSetup = (props) => {
         props.handleBack();
         queryClient.resetQueries("fetchProjectStatus");
       },
-    },
+    }
   );
 
   const onClickCloseSetup = async () => {
@@ -55,7 +55,7 @@ const FinishSetup = (props) => {
     console.log("Opening existing project " + props.project_id);
     await queryClient.prefetchQuery(
       ["fetchInfo", { project_id: props.project_id }],
-      ProjectAPI.fetchInfo,
+      ProjectAPI.fetchInfo
     );
     if (props.mode !== projectModes.SIMULATION) {
       navigate(`/projects/${props.project_id}/review`);
@@ -145,7 +145,9 @@ const FinishSetup = (props) => {
                   <TypographySubtitle1Medium>
                     AI is ready to assist you
                   </TypographySubtitle1Medium>
-                  <Button onClick={onClickCloseSetup}>Start Reviewing</Button>
+                  <Button id="start-reviewing" onClick={onClickCloseSetup}>
+                    Start Reviewing
+                  </Button>
                 </Stack>
               </Fade>
             )}

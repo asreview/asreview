@@ -30,6 +30,6 @@ jobs:
           pip install pytest
           pip install pytest-random-order
           pip install --no-cache-dir .
-      - name: Test flask app
+      - name: Test flask web app
         run: |
           pytest --random-order asreview/webapp/tests

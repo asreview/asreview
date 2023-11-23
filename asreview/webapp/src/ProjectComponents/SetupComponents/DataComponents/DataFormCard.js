@@ -116,6 +116,7 @@ const DataFormCard = (props) => {
           <Stack direction="row" sx={{ alignItems: "center" }}>
             {props.added && <Check color="success" sx={{ mr: 1 }} />}
             <Button
+              id={(props.primaryDefault || "add").toLowerCase().replace(/\s+/g, "-")}
               disabled={props.datasetAdded !== undefined && !props.datasetAdded}
               onClick={props.toggleAddCard}
             >
