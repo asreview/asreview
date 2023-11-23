@@ -257,6 +257,7 @@ const SignUpForm = (props) => {
 
                   <Stack className={classes.button} direction="row">
                     <Button
+                      id="sign-in"
                       onClick={handleSignIn}
                       sx={{ textTransform: "none" }}
                     >
@@ -264,6 +265,7 @@ const SignUpForm = (props) => {
                     </Button>
                     <LoadingButton
                       //loading={isLoading}
+                      id="create-profile"
                       variant="contained"
                       color="primary"
                       onClick={handleSubmit}

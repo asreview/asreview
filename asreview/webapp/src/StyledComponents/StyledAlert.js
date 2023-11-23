@@ -10,7 +10,11 @@ export function ExplorationModeRecordAlert(props) {
     >
       Labeled as{" "}
       {
-        <Box sx={{ textDecoration: "underline" }} display="inline">
+        <Box
+          className="labeled-as"
+          sx={{ textDecoration: "underline" }}
+          display="inline"
+        >
           {props.label}
         </Box>
       }{" "}
