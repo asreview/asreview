@@ -45,6 +45,17 @@ follow the guidelines below.
 5. Resize image to **1280x800** maximum and **960x600** minimum.
 6. [OPTIONAL] Use a red box to highlight relevant components.
 
+## Frontend
+
+The user interface is written in [React](https://reactjs.org/). Use [npx]
+(https://www.npmjs.com/package/npx) and Prettier
+(https://prettier.io/docs/en/install.html) to format React/Javascript code.
+Afer installing `npx` and `prettier`, navigate to the folder with the file
+you want to 'prettify' and run:
+
+```
+npx prettier --write .
+```
 
 ## Development workflow for frontend and backend development
 
@@ -81,7 +92,7 @@ cd asreview/webapp
 flask run --debug
 ```
 
-Next, open a new command line interface and navigate to `asreview/webapp`.
+Next, open a second command line interface and navigate to `asreview/webapp`.
 Start the local front end application running on a Node server.
 
 ```sh
@@ -151,7 +162,6 @@ Alternative is to add this `REACT_APP_API_URL` to the `.env.development` file in
 (e.g. `/asreview/webapp/.env.development.local`). More information https://create-react-app.dev/docs/adding-custom-environment-variables/#adding-development-environment-variables-in-env.
 
 ## Testing
-
 
 ### Git Submodules
 Some demo datasets are included as a submodule. Directory [asreview/tests/citation-file-formatting](https://github.com/ottomattas/asreview/tree/development-v1/tests) is cloned from [citation-file-formatting](https://github.com/asreview/citation-file-formatting).
