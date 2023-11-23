@@ -136,23 +136,35 @@ const ElasGame = (props) => {
     });
   };
 
-  const resetGame = () => {
+const resetGame = () => {
+  // Close any open cards
+  setPaperSelected([]);
+  setPaperSelectedIds([]);
+
+  // Reset the game state
+  setGameStarted(false);
+
+  // Shuffle the cards for both modes
+  const shuffledSimple = initialShuffle("simple");
+  const shuffledExpert = initialShuffle("expert");
+
+  setShuffledSimpleImages(shuffledSimple);
+  setShuffledExpertImages(shuffledExpert);
+
+  // Reset the score and attempts for the current mode
+  if (mode === "simple") {
+    setSimpleModeAttempts(0);
+    setSimpleModeMatches(0);
     setSimpleModeOpenCards([]);
+    setImagesArray(shuffledSimple);
+  } else {
+    setExpertModeAttempts(0);
+    setExpertModeMatches(0);
     setExpertModeOpenCards([]);
-    setGameStarted(false);
+    setImagesArray(shuffledExpert);
+  }
+};
 
-    const shuffledSimple = initialShuffle("simple");
-    const shuffledExpert = initialShuffle("expert");
-
-    setShuffledSimpleImages(shuffledSimple);
-    setShuffledExpertImages(shuffledExpert);
-
-    if (mode === "simple") {
-      setImagesArray(shuffledSimple);
-    } else {
-      setImagesArray(shuffledExpert);
-    }
-  };
 
   function updateScoreAndAttempts(isMatch) {
     if (mode === "simple") {
