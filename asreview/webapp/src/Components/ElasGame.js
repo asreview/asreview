@@ -31,6 +31,7 @@ import ElasPlayingTennis from "../images/ElasPlayingTennis.svg";
 import ElasasSuperHero from "../images/ElasasSuperHero.svg";
 import ElasLion from "../images/ElasLion.svg";
 import ElasLollypop from "../images/ElasLollypop.svg";
+import ElasUnicorn from "../images/ElasUnicorn.svg";
 
 import ElasIcon from "../icons/ElasIcon";
 
@@ -38,7 +39,6 @@ const images = [
   ElasConstructionWorkerOrange,
   ElasFireMan,
   ElasWithDuck,
-  ElasBalloons,
   ElasGrad,
   ElasArrowRightAhead,
   ElasPotter,
@@ -55,6 +55,7 @@ const images = [
   SantaElas,
   ElasLion,
   ElasLollypop,
+  ElasUnicorn
 ];
 
 const PREFIX = "Game";
@@ -116,6 +117,7 @@ const ElasGame = (props) => {
   const [expertModeMatches, setExpertModeMatches] = useState(0);
   const [canToggleCheatMode, setCanToggleCheatMode] = useState(true);
   const [imagesArray, setImagesArray] = useState([]);
+  const [isExpertCompleted, setIsExpertCompleted] = useState(false);
 
   const [shuffledSimpleImages, setShuffledSimpleImages] = useState(() =>
     initialShuffle("simple"),
@@ -168,6 +170,19 @@ const resetGame = () => {
   setGameStarted(false);
 };
 
+const checkExpertCompletion = useCallback(() => {
+    if (mode === "expert" && expertModeOpenCards.length === imagesArray.length) {
+      setIsExpertCompleted(true);
+      setTimeout(() => setIsExpertCompleted(false), 50000);
+    }
+  }, [mode, expertModeOpenCards.length, imagesArray.length]); 
+  useEffect(() => {
+    checkExpertCompletion();
+  }, [checkExpertCompletion]);
+
+  const handleCompletionDismiss = () => {
+    setIsExpertCompleted(false);
+  };
 
   function updateScoreAndAttempts(isMatch) {
     if (mode === "simple") {
@@ -280,9 +295,12 @@ const resetGame = () => {
     }
   }, [cheatMode]);
 
+
+
   return (
     <GameStyle>
       <Box
+        onClick={handleCompletionDismiss}
         sx={{
           display: "flex",
           alignItems: "center",
@@ -323,6 +341,30 @@ const resetGame = () => {
           Reset
         </Button>
       </Box>
+
+      {isExpertCompleted && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            bgcolor: 'primary.light',
+            boxShadow: 24,
+            p: 4,
+            textAlign: 'center',
+          }}
+        >
+          <img src={ElasBalloons} alt="Celebration Balloons" 
+            style={{ width: '100%', maxWidth: '50vw', margin: '0 auto', display: 'block' }} 
+            onClick={handleCompletionDismiss}  
+            />
+          <Typography variant="h4" color="primary" gutterBottom>
+            Congratulations! 
+            You've completed the Expert Mode!
+          </Typography>
+        </Box>
+      )}
 
       <Grid container justifyContent="center" spacing={2}>
         {imagesArray?.map((image, index) => (
