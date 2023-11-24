@@ -18,7 +18,6 @@
 import platform
 import re
 import subprocess
-import sys
 from io import open
 from os import path
 from pathlib import Path
