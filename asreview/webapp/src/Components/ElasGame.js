@@ -261,11 +261,9 @@ const checkExpertCompletion = useCallback(() => {
     }
   }, [gameStarted]);
 
-
   const handleKeyPress = useCallback(
     (event) => {
       if (event.key === "c" && !cheatMode && canToggleCheatMode) {
-        
         setCheatMode(true);
         setCanToggleCheatMode(false);
       }
@@ -275,16 +273,13 @@ const checkExpertCompletion = useCallback(() => {
 
 const handleKeyUp = useCallback(
     (event) => {
-        setCanToggleCheatMode(true);
-      console.log(555)})
+        setCanToggleCheatMode(true);})
 
   useEffect(() => {
-    console.log(1)
     window.addEventListener("keydown", handleKeyPress);
     window.addEventListener("keyup", handleKeyUp);
 
     return () => {
-    console.log(2)
       window.removeEventListener("keydown", handleKeyPress);
     };
   }, [handleKeyPress]);
@@ -333,8 +328,8 @@ const handleKeyUp = useCallback(
 
         <Typography variant="h6">
           {mode === "simple"
-            ? `Simple Mode: ${simpleModeMatches} correct out of ${simpleModeAttempts}`
-            : `Expert Mode: ${expertModeMatches} correct out of ${expertModeAttempts}`}
+            ? `Simple Mode: ${simpleModeMatches} correct out of ${simpleModeAttempts} attempts`
+            : `Expert Mode: ${expertModeMatches} correct out of ${expertModeAttempts} attempts`} 
         </Typography>
 
         <Button
