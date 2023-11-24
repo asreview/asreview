@@ -198,16 +198,6 @@ const checkExpertCompletion = useCallback(() => {
     }
   }
 
-  const handleKeyPress = useCallback(
-    (event) => {
-      if (event.key === "c" && !cheatMode && canToggleCheatMode) {
-        setCheatMode(true);
-        setCanToggleCheatMode(false);
-      }
-    },
-    [cheatMode, canToggleCheatMode],
-  );
-
   function flipImage(image, index) {
     const currentModeOpenCards =
       mode === "simple" ? simpleModeOpenCards : expertModeOpenCards;
@@ -271,10 +261,30 @@ const checkExpertCompletion = useCallback(() => {
     }
   }, [gameStarted]);
 
+
+  const handleKeyPress = useCallback(
+    (event) => {
+      if (event.key === "c" && !cheatMode && canToggleCheatMode) {
+        
+        setCheatMode(true);
+        setCanToggleCheatMode(false);
+      }
+    },
+    [cheatMode, canToggleCheatMode],
+  );
+
+const handleKeyUp = useCallback(
+    (event) => {
+        setCanToggleCheatMode(true);
+      console.log(555)})
+
   useEffect(() => {
+    console.log(1)
     window.addEventListener("keydown", handleKeyPress);
+    window.addEventListener("keyup", handleKeyUp);
 
     return () => {
+    console.log(2)
       window.removeEventListener("keydown", handleKeyPress);
     };
   }, [handleKeyPress]);
@@ -282,11 +292,11 @@ const checkExpertCompletion = useCallback(() => {
   useEffect(() => {
     if (cheatMode) {
       setShowingCheatCards(true);
+      setCheatMode(true);
 
       const hideCheatCardsTimeout = setTimeout(() => {
         setShowingCheatCards(false);
         setCheatMode(false);
-        setCanToggleCheatMode(true);
       }, 1000);
 
       return () => {
