@@ -18,7 +18,6 @@
 import platform
 import re
 import subprocess
-import sys
 from io import open
 from os import path
 from pathlib import Path
@@ -66,14 +65,9 @@ REQUIRES = [
     "datahugger>=0.2",
     "synergy_dataset",
     "sqlalchemy-utils",
+    "tomli; python_version < '3.11'",
+    "importlib_metadata; python_version < '3.10'",
 ]
-
-if sys.version_info < (3, 11):
-    REQUIRES += ["tomli"]
-
-
-if sys.version_info < (3, 10):
-    REQUIRES += ["importlib_metadata>=3.6"]
 
 
 DEPS = {
