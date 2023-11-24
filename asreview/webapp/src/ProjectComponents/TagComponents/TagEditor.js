@@ -26,10 +26,6 @@ const Tag = (props) => {
       <TextField
         fullWidth
         id={`project-tag-name-${props.tag.id}`}
-        inputProps={{
-          onFocus: () => props.onFocus(),
-          onBlur: () => props.onBlur(),
-        }}
         label="Tag Name"
         name="tag-name"
         onChange={(event) =>
@@ -43,10 +39,6 @@ const Tag = (props) => {
       <TextField
         fullWidth
         id={`project-tag-id-${props.tag.id}`}
-        inputProps={{
-          onFocus: () => props.onFocus(),
-          onBlur: () => props.onBlur(),
-        }}
         label="Tag Id"
         name="tag-id"
         disabled={true}
@@ -333,10 +325,6 @@ const Category = (props) => {
             <TextField
               fullWidth
               id="tag-category-name"
-              inputProps={{
-                onFocus: () => props.onFocus(),
-                onBlur: () => props.onBlur(),
-              }}
               label="Category Name"
               onChange={(event) =>
                 props.editTagCategory(props.category.id, {
@@ -349,10 +337,6 @@ const Category = (props) => {
             <TextField
               fullWidth
               id="tag-category-id"
-              inputProps={{
-                onFocus: () => props.onFocus(),
-                onBlur: () => props.onBlur(),
-              }}
               label="Category Id"
               disabled={true}
               onChange={(event) =>
@@ -370,8 +354,6 @@ const Category = (props) => {
               tag={t}
               key={t.id}
               editTag={editTag}
-              onBlur={props.onBlur}
-              onFocus={props.onFocus}
             />
           ))}
         </Stack>
@@ -403,7 +385,10 @@ const TagEditor = (props) => {
   };
 
   return (
-    <Accordion elevation={3}>
+    <Accordion elevation={3}
+               onBlur={props.onBlur}
+               onFocus={props.onFocus}
+    >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Typography
           sx={{ width: !props.mobileScreen ? "33%" : "100%", flexShrink: 0 }}
@@ -429,8 +414,6 @@ const TagEditor = (props) => {
             key={c.id}
             editTagCategory={editTagCategory}
             mobileScreen={props.mobileScreen}
-            onFocus={props.onFocus}
-            onBlur={props.onBlur}
           />
         ))}
       </AccordionDetails>
