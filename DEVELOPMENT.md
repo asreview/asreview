@@ -108,11 +108,12 @@ Alternative is to add this `REACT_APP_API_URL` to the `.env.development` file in
 
 ### Git Submodules
 
-The tests of ASReview make use of extra datasets available via submodules. 
+The tests of ASReview make use of extra datasets available via submodules.
 To clone the full repository with submodules in one line, add `--recursive` flag:
 
-  ```git clone --recursive git://github.com/asreview/asreview.git```
-
+```
+git clone --recursive git://github.com/asreview/asreview.git
+```
 
 ## Formatting and linting
 
@@ -134,7 +135,7 @@ isort .
 flake8 .
 ```
 
-For the React application, Prettier is used to format the files. 
+For the React application, Prettier is used to format the files.
 Install prettier by following the instructions at https://prettier.io/docs/en/install.html.
 
 Run the formatter with
