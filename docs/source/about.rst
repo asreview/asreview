@@ -24,18 +24,16 @@ around the world.
 .. youtube:: k-a2SCq-LtA
 
 
-
-
 How to Cite
 -----------
 
 - For scientific use and to refer to the underlying infrastructure, we encourage users to cite the paper published in `Nature Machine Intelligence <https://www.nature.com/articles/s42256-020-00287-7>`_.
 
-- For detailed information about the data storage model, see the `Reproducibility and Data storage Checklist for Active Learning-Aided Systematic Reviews <https://doi.org/10.31234/osf.io/g93zf>`_. 
-
 - For citing the software **ASReview LAB**, refer to the `specific release <https://doi.org/10.5281/zenodo.3345592>`_ of the software. The menu on the right (in Zenodo) can be used to find the citation format of prevalence.
 
 - For citing the documentation (or to download the pdf) go to `Zenodo <https://doi.org/10.5281/zenodo.4287119>`_.
+
+- For detailed information about the data storage model, see the `Reproducibility and Data storage Checklist for Active Learning-Aided Systematic Reviews <https://doi.org/10.31234/osf.io/g93zf>`_. 
 
 - More studies related to the project can be found on `asreview.ai/research <https://asreview.ai/research/>`_.
 
@@ -78,8 +76,6 @@ these steps:
 8. Wait until the warm up of the AI is ready (the software is extracting the features and trains the classifier on the prior knowledge)
 9. Start :doc:`screening` until you reach your `stopping criterion <https://www.github.com/asreview/asreview/discussions/557>`__
 10. At any time, you can export the :term:`dataset` the labeling decisions or the entire :term:`project`.
-
-
 
 
 Quick start
