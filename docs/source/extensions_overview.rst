@@ -1,16 +1,14 @@
-Using Extensions
-================
+Extensions
+==========
 
-ASReview has extensive support for extensions extending the software with new
-models, subcommands, and datasets. They can extend the functionality of
-ASReview LAB, and the
-:doc:`Command Line Interface <cli>`. There are officially
-supported extensions <extensions-official and community maintained extension. A full list of extensions is available on `the Discussion platform <https://github.com/asreview/asreview/discussions/1140>`__. 
-gives an overview of known extensions to ASReview LAB and other useful tools
-in the AI-aided systematic review pipeline.
+ASReview has extensive support for extensions. They can extend the
+functionality of ASReview LAB, and the
+:doc:`Command Line Interface <cli>`. There are :ref:`officially
+supported extensions <extensions-official>` and `community maintained extensions <https://github.com/asreview/asreview/discussions/1140>`_.
 
 Looking to develop your own extension? See :ref:`develop-extensions` for
 detailed instructions.
+
 
 Installation
 ------------
@@ -60,5 +58,12 @@ with ASReview LAB.
     - `ASReview-makita <https://github.com/asreview/asreview-makita>`__: ASReviews' Makita (MAKe IT Automatic) is a workflow generator for simulation studies using the command line interface of ASReview LAB. Makita can be used to simplify your own research by enabling you to effortlessly generate the framework and code for your simulation study.
 
 
+.. _extensions-community:
 
+List of extensions for ASReview LAB
+-----------------------------------
 
+The `List of extensions for ASReview LAB <https://github.com/asreview/asreview/discussions/1140>`__ on the Discussion platform
+gives an overview of known extensions to ASReview LAB and other useful tools
+in the AI-aided systematic review pipeline. These extensions can extend the
+software with new models, subcommands, and datasets.

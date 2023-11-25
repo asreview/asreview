@@ -94,7 +94,7 @@ tips on when to stop with screening.
 
 .. tip::
 
-  The data behind the recall plot can be used to calculate the `knee-algorithm <https://github.com/asreview/asreview/discussions/1115>`_ as a stopping criteria. 
+  The data behind the recall plot can be used to calculate the `knee-algorithm <https://github.com/asreview/asreview/discussions/1115#discussioncomment-2812003>`_ as a stopping criteria. 
 
 
 Mark project as finished
@@ -104,7 +104,7 @@ When you decide to stop screening, you can mark the project as finished. You
 can undo this at any time. To mark your project as finished:
 
 1. :doc:`start`.
-2. Go to the *Projects dashboard* (:samp:`http://localhost:5000/projects`)
+2. Go to the *Projects dashboard* (http://localhost:5000/projects)
 3. Hover the project you want to mark as finished and click on *Options*.
 4. Click on *Mark as finished*.
 
@@ -116,15 +116,22 @@ Export results
 --------------
 
 You can export the results of your labeling to a RIS, CSV, TSV, or Excel file.
-A file contains all imported data including your decisions. 
+A file contains all imported data including your decisions, or a file with a
+selection of the relevant records only. 
 
-The following variables will be added to your dataset:
+The following variables will be added to your tabular dataset:
 
 - The column titled **included** contains the labels as provided by the user:
   ``0`` = not relevant, ``1`` = relevant and if missing it means the record is
   not seen during the screening process.
 - The column titled **asreview_ranking** contains an identifier to
   preserve the rank ordering as described below.
+- The column **Notes** contain any notes you made during screening. 
+
+For RIS files, the labels **ASReview_relevant**, **ASReview_irrelevant**,
+and **ASReview_not_seen** are stored with the `N1` (Notes) tag. In citation
+managers. like Zotero and Endnote, the labels can be used for making
+selections.
 
 The file is ordered as follows:
 
@@ -150,5 +157,8 @@ To download your results follow these steps:
     A RIS file can only be exported if a RIS file is imported.
 
 
+Love using ASReview? On the Export screen you can get inspired how you can
+give back to our open-source and community-driven project. 
 
-
+.. figure:: ../images/export_screen.png
+   :alt: ASReview LAB Export screen

@@ -1,27 +1,21 @@
 Start ASReview LAB
 ==================
 
-Once ASReview LAB has been successfully installed on your system, you can
-launch it by entering the following command into your command line interface
-(CLI):
+After you install ASReview LAB, start the program via the command line to
+start using it.
 
 .. code:: bash
 
-    asreview lab
+	asreview lab
 
-Upon executing this command, ASReview LAB will initiate, and your default web
-browser will automatically open a new tab to the ASReview LAB interface where
-you can begin your systematic review.
-
-.. figure:: ../images/first_time.png
-   :alt: First time opening ASReview LAB
-
+When you are using Windows, open `CMD.exe` and run the command. When you use
+MacOS or Linux, you can open `Terminal` and run the command.
 
 The information in the sections below is more advanced and not needed for the
 majority of the ASReview LAB users.
 
-Command line arguments
-----------------------
+Command line arguments for starting ASReview LAB
+------------------------------------------------
 
 ASReview LAB provides a powerful command line interface for running ASReview
 LAB with other options or even run tasks like simulations. For a list of
@@ -139,17 +133,8 @@ Or the following on Windows operating systems:
 	echo %ASREVIEW_PATH%
 
 
-Run with different port
------------------------
-
-To configure the application to listen on a specific IP
-address and port, use the --ip and --port flags when starting ASReview LAB:
-
-.. code:: bash
-
-    asreview lab --port 5555 --ip xxx.x.x.xx
-
-Replace xxx.x.x.xx with your server's actual IP address or domain name.
+Run ASReview LAB on localhost with a different port
+---------------------------------------------------
 
 By default, ASReview LAB runs on port 5000. If that port is already in use or
 if you want to specify a different port, start ASReview LAB with the following
@@ -164,25 +149,4 @@ For example, start ASReview LAB on port 5001:
 .. code:: bash
 
 	asreview lab --port 5001
-
-.. warning::
-
-    The development server provided by Flask is not suitable for production use. For guidelines on deploying a Flask application in a production environment, refer to the official Flask documentation: `Deploying to Production <https://flask.palletsprojects.com/en/2.0.x/tutorial/deploy/>`__.
-
-
-
-.. _cloud-installation:
-
-Cloud environments
-------------------
-
-For advanced scenarios, such as executing ASReview simulations in cloud
-environments or running them in parallel, consult our specialized `cloud
-usage guide <https://github.com/asreview/cloud-usage>`__. This guide provides
-tailored instructions for a variety of use cases, including simulations on
-cloud platforms such as SURF, Digital Ocean, AWS, Azure, and leveraging
-Kubernetes for large-scale simulation tasks.
-
-
-
 
