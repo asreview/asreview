@@ -1,62 +1,5 @@
 # DEVELOPMENT
 
-## Documentation
-
-### Sphinx docs
-
-Documentation for the ASReview project is available on https://asreview.readthedocs.io/en/latest/.
-The source files are available in the [`docs`](/docs) folder of this repository. The project makes
-use of [Sphinx](https://www.sphinx-doc.org/) to convert the source files and docstrings into HTML
-or PDF files.
-
-Install the dependencies for rendering the documentation with
-
-```
-pip install .[docs]
-```
-
-Navigate into the `docs` folder and render the documentation (the HTML version) with
-
-```
-make html
-```
-
-Open the file `docs/build/html/index.html` in your web browser.
-
-### Broken links
-
-Navigate into the `docs` folder and check for broken links with:
-
-```
-make linkcheck
-```
-
-Extra information: https://www.writethedocs.org/guide/tools/testing/#link-testing
-
-### Screenshots
-
-Screenshots are an important part of the ASReview documentation. When contributing screenshots,
-follow the guidelines below.
-
-1. Open Developers Tools in your browser (e.g. Chrome or Firefox).
-2. Set device dimensions to **1280x800**.
-3. Capture screenshot with internal screenshot tool (preferred, see [example](https://www.deconetwork.com/blog/how-to-take-full-webpage-screenshots-instantly/)).
-4. [OPTIONAL] Crop relevant part. Keep ratio if possible.
-5. Resize image to **1280x800** maximum and **960x600** minimum.
-6. [OPTIONAL] Use a red box to highlight relevant components.
-
-## Frontend
-
-The user interface is written in [React](https://reactjs.org/). Use [npx]
-(https://www.npmjs.com/package/npx) and Prettier
-(https://prettier.io/docs/en/install.html) to format React/Javascript code.
-Afer installing `npx` and `prettier`, navigate to the folder with the file
-you want to 'prettify' and run:
-
-```
-npx prettier --write .
-```
-
 ## Development workflow for frontend and backend development
 
 Most users will only need the first 2 steps: Installation and Setting Up Servers.
@@ -164,17 +107,14 @@ Alternative is to add this `REACT_APP_API_URL` to the `.env.development` file in
 ## Testing
 
 ### Git Submodules
-Some demo datasets are included as a submodule. Directory [asreview/tests/citation-file-formatting](https://github.com/ottomattas/asreview/tree/development-v1/tests) is cloned from [citation-file-formatting](https://github.com/asreview/citation-file-formatting).
 
-Examples:
-- To clone the full repository with submodules in one line, add `--recursive` flag:
+The tests of ASReview make use of extra datasets available via submodules. 
+To clone the full repository with submodules in one line, add `--recursive` flag:
 
   ```git clone --recursive git://github.com/asreview/asreview.git```
 
-- To update the submodule, you would still need to follow the contribution guide in the submodule repository. And then create a PR for the main repository with the updated submodule commit.
 
-
-#### Formatting and linting
+## Formatting and linting
 
 Use `flake8` to lint the Python code and format the code with `black`. Use
 `black[jupyter]` if you are editing the Jupyter notebooks. Use `isort` to
@@ -194,24 +134,56 @@ isort .
 flake8 .
 ```
 
-## Release instructions
+For the React application, Prettier is used to format the files. 
+Install prettier by following the instructions at https://prettier.io/docs/en/install.html.
 
-### Docker
+Run the formatter with
 
-A Docker image is created when a tag or a commit to `master` is pushed.
-The workflow `docker.yml` builds images for platforms `linux/amd64` and `linux/arm64`.
-If, for some reason, the image is not built, you can build manually with the commands below.
-Find the manual instructions at <https://docs.docker.com/docker-hub/> and <https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry>.
-Replace the version numbers below by the version you want to push.
-
-ASReview LAB
 ```
-docker build -t asreview/asreview .
-docker build -t asreview/asreview:1.0 .
-docker push ghcr.io/asreview/asreview
-docker push ghcr.io/asreview/asreview:1.0
+npx prettier --write .
 ```
 
-If you are creating a Docker container that runs the app with a [config file](#full-configuration) do __not forget__ to override the IP-address of the Flask backend. Set the HOST variable to "0.0.0.0" since the default "localhost" can't be reached from outside the container.
+## Documentation
 
-See the `Docker` folder for more information about running the ASReview app in Docker containers.
+### Sphinx docs
+
+Documentation for the ASReview project is available on https://asreview.readthedocs.io/en/latest/.
+The source files are available in the [`docs`](/docs) folder of this repository. The project makes
+use of [Sphinx](https://www.sphinx-doc.org/) to convert the source files and docstrings into HTML
+or PDF files.
+
+Install the dependencies for rendering the documentation with
+
+```
+pip install .[docs]
+```
+
+Navigate into the `docs` folder and render the documentation (the HTML version) with
+
+```
+make html
+```
+
+Open the file `docs/build/html/index.html` in your web browser.
+
+### Broken links
+
+Navigate into the `docs` folder and check for broken links with:
+
+```
+make linkcheck
+```
+
+Extra information: https://www.writethedocs.org/guide/tools/testing/#link-testing
+
+### Screenshots
+
+Screenshots are an important part of the ASReview documentation. When contributing screenshots,
+follow the guidelines below.
+
+1. Open Developers Tools in your browser (e.g. Chrome or Firefox).
+2. Set device dimensions to **1280x800**.
+3. Capture screenshot with internal screenshot tool (preferred, see [example](https://www.deconetwork.com/blog/how-to-take-full-webpage-screenshots-instantly/)).
+4. [OPTIONAL] Crop relevant part. Keep ratio if possible.
+5. Resize image to **1280x800** maximum and **960x600** minimum.
+6. [OPTIONAL] Use a red box to highlight relevant components.
