@@ -104,7 +104,7 @@ When you decide to stop screening, you can mark the project as finished. You
 can undo this at any time. To mark your project as finished:
 
 1. :doc:`start`.
-2. Go to the *Projects dashboard* (:samp:`http://localhost:5000/projects`)
+2. Go to the *Projects dashboard* (http://localhost:5000/projects)
 3. Hover the project you want to mark as finished and click on *Options*.
 4. Click on *Mark as finished*.
 

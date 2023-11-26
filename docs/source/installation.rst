@@ -136,7 +136,7 @@ For a containerized version of ASReview, ensure that Docker is installed on
 your system.
 
 Run the following command to install and start ASReview LAB, accessible at
-:samp:`http://localhost:5000`:
+http://localhost:5000:
 
 .. code:: bash
 
