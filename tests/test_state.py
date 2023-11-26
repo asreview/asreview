@@ -134,10 +134,14 @@ def test_init_project_already_exists(tmpdir):
         ASReviewProject.create(project_path)
 
 
-def test_invalid_project_folder():
+def test_invalid_project_folder(tmpdir):
+    project_path = Path(tmpdir, "this_is_not_a_project")
     with pytest.raises(StateNotFoundError):
-        with open_state("this_is_not_a_project") as state:  # noqa
+        with open_state(project_path) as state:  # noqa
             pass
+
+    # there should be no folder called "this_is_not_a_project"
+    assert not Path(project_path).is_dir()
 
 
 def test_state_not_found(tmpdir):
@@ -381,6 +385,9 @@ def test_add_last_probabilities(tmpdir):
         state.add_last_probabilities(probabilities)
         state_probabilities = state.get_last_probabilities().to_list()
         assert state_probabilities == probabilities
+        state.add_last_probabilities(None)
+        state_probabilities = state.get_last_probabilities().to_list()
+        assert not state_probabilities
 
 
 def test_move_ranking_data_to_results(tmpdir):

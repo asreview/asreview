@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = ["list_balance_strategies", "get_balance_class", "get_balance_model"]
+
 from asreview.utils import _entry_points
 
 

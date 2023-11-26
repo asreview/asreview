@@ -12,6 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+__all__ = [
+    "Doc2Vec",
+    "EmbeddingIdf",
+    "EmbeddingLSTM",
+    "SBERT",
+    "Tfidf",
+    "get_feature_class",
+    "get_feature_model",
+    "list_feature_extraction",
+]
+
 from asreview.models.feature_extraction.doc2vec import Doc2Vec
 from asreview.models.feature_extraction.embedding_idf import EmbeddingIdf
 from asreview.models.feature_extraction.embedding_lstm import EmbeddingLSTM

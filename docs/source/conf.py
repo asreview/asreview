@@ -227,7 +227,7 @@ epub_exclude_files = ["search.html"]
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
-    "numpy": ("http://docs.scipy.org/doc/numpy", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
     "pandas": ("https://pandas.pydata.org/docs/", None),
 }
 
@@ -269,4 +269,15 @@ redirects = {
     "guides/activelearning": "https://asreview.nl/blog/active-learning-explained/",
     "guides/simulation_study_results": "https://asreview.nl/research/",
     "guides/sim_overview": "../simulation_overview.html",
+}
+
+# -- Options for linkcheck ----------------------------------------------------
+
+linkcheck_ignore = [
+    r"http://localhost:\d+[/]*.*"
+]
+
+linkcheck_allowed_redirects = {
+    r"https://doi.org/.*": r"https://.*",
+    r"https://asreview.ai/.*": r"https://asreview.nl/.*"
 }

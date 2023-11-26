@@ -13,6 +13,8 @@
 # limitations under the License.
 """Simulation entry point and utils."""
 
+__all__ = ["SimulateEntryPoint"]
+
 import argparse
 import logging
 import shutil
