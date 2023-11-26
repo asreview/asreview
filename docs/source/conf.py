@@ -270,3 +270,14 @@ redirects = {
     "guides/simulation_study_results": "https://asreview.nl/research/",
     "guides/sim_overview": "../simulation_overview.html",
 }
+
+# -- Options for linkcheck ----------------------------------------------------
+
+linkcheck_ignore = [
+    r"http://localhost:\d+[/]*.*"
+]
+
+linkcheck_allowed_redirects = {
+    r"https://doi.org/.*": r"https://.*",
+    r"https://asreview.ai/.*": r"https://asreview.nl/.*"
+}
