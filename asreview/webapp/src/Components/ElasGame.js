@@ -272,46 +272,46 @@ const handleCompletionDismiss = useCallback(() => {
     }
   }, [gameStarted]);
 
-  const handleKeyPress = useCallback(
-    (event) => {
-      if (event.key === "c" && !cheatMode && canToggleCheatMode) {
-        setCheatMode(true);
-        setCanToggleCheatMode(false);
-      }
-    },
-    [cheatMode, canToggleCheatMode],
-  );
 
-const handleKeyUp = useCallback(
-    (event) => {
-        setCanToggleCheatMode(true);
-      },[])
+const handleKeyPress = useCallback((event) => {
+  if (event.key === "c" && !cheatMode && canToggleCheatMode) {
+    setCheatMode(true);
+    setCanToggleCheatMode(false);
+  }
+}, [cheatMode, canToggleCheatMode, setCheatMode, setCanToggleCheatMode]);
 
-  useEffect(() => {
-    window.addEventListener("keydown", handleKeyPress);
-    window.addEventListener("keyup", handleKeyUp);
+const handleKeyUp = useCallback((event) => {
+  if (event.key === "c") {
+    setCheatMode(false);
+    setCanToggleCheatMode(true);
+  }
+}, [setCheatMode, setCanToggleCheatMode]);
+
+useEffect(() => {
+  window.addEventListener("keydown", handleKeyPress);
+  window.addEventListener("keyup", handleKeyUp);
+
+  return () => {
+    window.removeEventListener("keydown", handleKeyPress);
+    window.removeEventListener("keyup", handleKeyUp);
+  };
+}, [handleKeyPress, handleKeyUp]);
+
+useEffect(() => {
+  if (cheatMode) {
+    setShowingCheatCards(true);
+
+    const hideCheatCardsTimeout = setTimeout(() => {
+      setShowingCheatCards(false);
+      setCheatMode(false);
+    }, 1000);
 
     return () => {
-      window.removeEventListener("keydown", handleKeyPress);
+      clearTimeout(hideCheatCardsTimeout);
+      setShowingCheatCards(false);
     };
-}, [handleKeyPress, handleKeyUp]); 
-
-  useEffect(() => {
-    if (cheatMode) {
-      setShowingCheatCards(true);
-      setCheatMode(true);
-
-      const hideCheatCardsTimeout = setTimeout(() => {
-        setShowingCheatCards(false);
-        setCheatMode(false);
-      }, 1000);
-
-      return () => {
-        clearTimeout(hideCheatCardsTimeout);
-      };
-    }
-  }, [cheatMode]);
-
+  }
+}, [cheatMode]);
 
 
   return (
