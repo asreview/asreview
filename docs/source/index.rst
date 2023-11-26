@@ -72,7 +72,7 @@ feature requests, please submit an issue on `GitHub
     :maxdepth: 1
     :caption: ASReview LAB server
 
-    server_features
+    server_overview
 
     server_configuration
 

@@ -1,7 +1,7 @@
-Features
+Overview
 ========
 
-Authentication in ASReview is designed to provide a secure and personalized
+ASReview LAB Server is designed to provide a secure and personalized
 environment for each user. By setting up authentication, users can manage
 their projects in individual workspaces, ensuring that their work remains
 private and secure. Users are responsible for hosting and managing the server
@@ -68,7 +68,3 @@ Create Your Profile
 -------------------
 
 After signing in, you'll be prompted to create your profile on the ASReview LAB server. Fill in the required information to proceed to your personalized workspace.
-
-[NEEDS SCREENSHOT]
-
-
