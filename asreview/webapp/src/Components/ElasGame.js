@@ -181,9 +181,9 @@ const checkExpertCompletion = useCallback(() => {
     checkExpertCompletion();
   }, [checkExpertCompletion]);
 
-  const handleCompletionDismiss = () => {
-    setIsExpertCompleted(false);
-  };
+const handleCompletionDismiss = useCallback(() => {
+  setIsExpertCompleted(false);
+}, []);
 
   const resetExpertMode = () => {
     setExpertModeOpenCards([]);
@@ -284,7 +284,8 @@ const checkExpertCompletion = useCallback(() => {
 
 const handleKeyUp = useCallback(
     (event) => {
-        setCanToggleCheatMode(true);})
+        setCanToggleCheatMode(true);
+      },[])
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyPress);
@@ -293,7 +294,7 @@ const handleKeyUp = useCallback(
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [handleKeyPress]);
+}, [handleKeyPress, handleKeyUp]); 
 
   useEffect(() => {
     if (cheatMode) {
