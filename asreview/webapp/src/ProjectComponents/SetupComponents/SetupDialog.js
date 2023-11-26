@@ -611,6 +611,7 @@ const SetupDialog = (props) => {
               </Button>
             )}
             <Button
+              id="next"
               disabled={disableNextButton()}
               variant="contained"
               onClick={handleNext}

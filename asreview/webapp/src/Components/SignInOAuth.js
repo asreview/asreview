@@ -64,9 +64,7 @@ const SignInOauth = (props) => {
         }
       })
       .catch((err) => {
-        message = "Did not receive OAuth data from backend";
-        console.error(message, err);
-        setErrorMessage(message);
+        setErrorMessage(err.message);
       });
   };
 

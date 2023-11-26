@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 
 import { InlineErrorHandler } from ".";
-import { WordmarkState } from "../globals";
+import { WordmarkState, passwordValidation } from "../globals";
 import { styled } from "@mui/material/styles";
 import { HelpPrivacyTermsButton } from "../Components";
 import { useToggle } from "../hooks/useToggle";
@@ -70,12 +70,7 @@ const SignupSchema = Yup.object().shape({
   affiliation: Yup.string()
     .min(2, "Affiliation must be at least 2 characters long")
     .required("Affiliation is required"),
-  password: Yup.string()
-    .matches(
-      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/,
-      "Use 8 or more characters with a mix of letters, numbers & symbols"
-    )
-    .required("Password is required"),
+  password: passwordValidation(Yup.string()).required("Password is required"),
   confirmPassword: Yup.string()
     .required("Password confirmation is required")
     .oneOf([Yup.ref("password"), null], "Passwords must match"),
@@ -155,8 +150,10 @@ const SignUpForm = (props) => {
                 >
                   <TextField
                     id="email"
+                    name="email"
                     label="Email"
                     size="small"
+                    type="email"
                     fullWidth
                     value={formik.values.email}
                     onChange={formik.handleChange}
@@ -167,6 +164,7 @@ const SignUpForm = (props) => {
                   ) : null}
                   <TextField
                     id="name"
+                    name="name"
                     label="Full name"
                     size="small"
                     fullWidth
@@ -181,6 +179,7 @@ const SignUpForm = (props) => {
                     id="affiliation"
                     label="Affiliation"
                     size="small"
+                    name="affiliation"
                     fullWidth
                     value={formik.values.affiliation}
                     onChange={formik.handleChange}
@@ -195,6 +194,7 @@ const SignUpForm = (props) => {
                         id="password"
                         label="Password"
                         size="small"
+                        autoComplete="new-password"
                         fullWidth
                         type={returnType()}
                         value={formik.values.password}
@@ -257,6 +257,7 @@ const SignUpForm = (props) => {
 
                   <Stack className={classes.button} direction="row">
                     <Button
+                      id="sign-in"
                       onClick={handleSignIn}
                       sx={{ textTransform: "none" }}
                     >
@@ -264,6 +265,7 @@ const SignUpForm = (props) => {
                     </Button>
                     <LoadingButton
                       //loading={isLoading}
+                      id="create-profile"
                       variant="contained"
                       color="primary"
                       onClick={handleSubmit}

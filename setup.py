@@ -18,7 +18,6 @@
 import platform
 import re
 import subprocess
-import sys
 from io import open
 from os import path
 from pathlib import Path
@@ -66,14 +65,9 @@ REQUIRES = [
     "datahugger>=0.2",
     "synergy_dataset",
     "sqlalchemy-utils",
+    "tomli; python_version < '3.11'",
+    "importlib_metadata; python_version < '3.10'",
 ]
-
-if sys.version_info < (3, 11):
-    REQUIRES += ["tomli"]
-
-
-if sys.version_info < (3, 10):
-    REQUIRES += ["importlib_metadata>=3.6"]
 
 
 DEPS = {
@@ -81,7 +75,12 @@ DEPS = {
     "doc2vec": ["gensim"],
     "tensorflow": ["tensorflow~=2.0"],
     "dev": ["black", "check-manifest", "flake8", "flake8-isort", "isort"],
-    "test": ["coverage", "pytest", "pytest-random-order"],
+    "test": [
+        "coverage",
+        "pytest",
+        "pytest-random-order",
+        "pytest-selenium"
+    ],
     "docs": [
         "ipython",
         "sphinx",
@@ -175,12 +174,14 @@ setup(
             "asreview=asreview.__main__:main",
         ],
         "asreview.entry_points": [
-            "lab=asreview.entry_points:LABEntryPoint",
-            "web_run_model=asreview.entry_points:WebRunModelEntryPoint",
+            "lab=asreview.webapp.entry_points.lab:lab_entry_point",
             "simulate=asreview.entry_points:SimulateEntryPoint",
             "algorithms=asreview.entry_points:AlgorithmsEntryPoint",
+            "auth-tool=asreview.webapp.entry_points.auth_tool:admin_entry_point",
+        ],
+        "asreview.entry_points_internal": [
+            "web_run_model=asreview.webapp.entry_points.run_model:run_model_entry_point",  # noqa
             "state-inspect=asreview.entry_points:StateInspectEntryPoint",
-            "auth-tool=asreview.entry_points:AuthTool",
         ],
         "asreview.readers": [
             ".csv = asreview.io:CSVReader",
