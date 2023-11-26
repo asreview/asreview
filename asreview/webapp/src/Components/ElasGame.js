@@ -174,6 +174,7 @@ const checkExpertCompletion = useCallback(() => {
     if (mode === "expert" && expertModeOpenCards.length === imagesArray.length) {
       setIsExpertCompleted(true);
       setTimeout(() => setIsExpertCompleted(false), 5000);
+      setTimeout(resetExpertMode, 5000);
     }
   }, [mode, expertModeOpenCards.length, imagesArray.length]); 
   useEffect(() => {
@@ -182,6 +183,16 @@ const checkExpertCompletion = useCallback(() => {
 
   const handleCompletionDismiss = () => {
     setIsExpertCompleted(false);
+  };
+
+  const resetExpertMode = () => {
+    setExpertModeOpenCards([]);
+    setExpertModeAttempts(0);
+    setExpertModeMatches(0);
+    setIsExpertCompleted(false);
+    const shuffledExpert = initialShuffle("expert");
+    setShuffledExpertImages(shuffledExpert);
+    setImagesArray(shuffledExpert);
   };
 
   function updateScoreAndAttempts(isMatch) {
