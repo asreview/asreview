@@ -16,10 +16,11 @@ Bare bones authentication
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The most basic configuration of the ASReview application with authentication is
-to run the application from the CLI with the ``--enable-auth`` flag. The application will
-start with authentication enabled and will create a SQLite database if it does
-not exist. The database will be stored in the ASReview projects folder. The
-database contains the user accounts and links them to projects.
+to run the application from the CLI with the ``--enable-auth`` flag. The
+application will start with authentication enabled and will create a SQLite
+database if it does not exist. The database will be stored in the ASReview
+projects folder. The database contains the user accounts and links them to
+projects.
 
 Start the application with authentication enabled:
 
@@ -28,17 +29,17 @@ Start the application with authentication enabled:
     asreview lab --enable-auth --secret-key=<secret key> --salt=<salt>
     
 
-where ``--enable-auth`` forces the application to run in an authenticated mode, 
-``<secret key>`` is a string that is used for encrypting cookies and ``<salt>`` is
-a string that is used to hash passwords. The ``--secret-key`` and ``--salt`` parameters 
-are recommended if authentication is required.
+where ``--enable-auth`` forces the application to run in an authenticated mode,
+``<secret key>`` is a string that is used for encrypting cookies and ``<salt>``
+is a string that is used to hash passwords. The ``--secret-key`` and ``--salt``
+parameters are mandatory if authentication is required.
 
 To create user accounts, one can use the ``add-users`` command of the
 ``auth-tool`` sub command of the ASReview application:
 
 .. code:: bash
 
-    asreview auth-tool add-users --db-path ~/.asreview/asreview.production.sqlite
+    asreview auth-tool add-users
 
 For more information about creating users, see the section
 `Create user accounts <#create-user-accounts>`_ below.
@@ -101,8 +102,8 @@ secure way (https).
             CLIENT_SECRET = "<Google client secret>"
             SCOPE = "profile email"
 
-Store the TOML file on the server and start the ASReview application from the CLI with the
-``--flask-configfile`` parameter:
+Store the TOML file on the server and start the ASReview application from the
+CLI with the ``--flask-configfile`` parameter:
 
 .. code:: bash
 
@@ -141,6 +142,22 @@ that are specific for authenticating ASReview are summarised below:
   sandbox-urls, and thus not to be used in production. Omit this parameter if
   OAuth is unwanted.
 
+The ``SQLALCHEMY_DATABASE_URI`` key is not included in the TOML file. This key
+is used to configure the database connection. The default value is
+``sqlite:///asreview.production.sqlite``. This means that the application will
+use the SQLite database in the ASReview projects folder. If you would like to
+use a different database, you can add the ``SQLALCHEMY_DATABASE_URI`` key to
+the TOML file.
+
+Set the ``SQLALCHEMY_DATABASE_URI`` environment variable to the path of the
+database. For example, to use the SQLite database in the ASReview projects
+folder:
+
+.. code-block::  bash
+
+    FLASK_SQLALCHEMY_DATABASE_URI = "sqlite:///asreview.production.sqlite"
+
+
 Postgresql database
 ~~~~~~~~~~~~~~~~~~~
 
@@ -160,40 +177,17 @@ and an extra step in the configuration file:
     SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://username:password@host:port/database_name"    
 
 
-Convert
-~~~~~~~
+Create user accounts with auth-tool
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Converting an unauthenticated application into an authenticated one requires
-some steps. The first step is to create user accounts. The second step is to
-store the projects and link them to the user accounts.
-
-Start the application with authentication enabled for the first time. This
-ensures the creation of the necessary database. To avoid unwanted user input,
-shutdown the application. To convert the old unauthenticated projects into
-authenticated ones, the following steps should be taken:
-
-1. Create user accounts for people to sign in.
-2. Convert project data and link the projects to the owner's user account.
-
-Under the CLI commands of the ASReview application a tool can be found that
-facilitates these procedures:
-
-.. code-block:: bash
-
-        asreview auth-tool --help    
-
-
-Create user accounts
-~~~~~~~~~~~~~~~~~~~~
-
-Creating user accounts can be done interactively or by using a JSON string to
-bulk insert the accounts. To add user accounts interactively run the following
-command:
+Server administrators can create user accounts with the ``auth-tool`` sub
+command of the ASReview application. The tool can be used to create user
+accounts interactively or by using a JSON string to bulk insert the accounts. To
+add user accounts interactively run the following command:
 
 .. code:: bash
 
-        asreview auth-tool add-users --db-path ~/.asreview/asreview.production.sqlite    
-
+        asreview auth-tool add-users
 
 Note that the absolute path of the sqlite database has to be provided. Also note
 that if your app runs in development mode, use the
@@ -206,7 +200,7 @@ If you would like to bulk insert user accounts use the ``--json`` option:
 
 .. code:: bash
 
-        asreview auth-tool add-users -j "[{\"email\": \"name@email.org\", \"name\": \"Name of User\", \"affiliation\": \"Some Place\", \"password\": \"1234@ABcd\"}]" --db-path ~/.asreview/asreview.production.sqlite    
+        asreview auth-tool add-users -j "[{\"email\": \"name@email.org\", \"name\": \"Name of User\", \"affiliation\": \"Some Place\", \"password\": \"1234@ABcd\"}]"
 
 
 The JSON string represents a Python list with a dictionary for every user
@@ -214,60 +208,80 @@ account with the following keys: ``email``, ``name``, ``affiliation`` and
 ``password``. Note that passwords require at least one symbol. These symbols,
 such as the exclamation mark, may compromise the integrity of the JSON string.
 
-Prepare the projects
-~~~~~~~~~~~~~~~~~~~~
+List projects with auth-tool
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-After creating the user accounts, the existing projects must be stored and
-linked to a user account in the database. The tool provides the
-``list-projects`` command to prepare for this step in case you would like to
-bulk store all projects. Ignore the following commands if you prefer to store
-all projects interactively. 
+The ``auth-tool`` sub command of the ASReview application can be used to list
+projects. 
 
-Without a flag, the command lists all projects:
+Lists all projects with the ``list-projects`` command:
 
 .. code:: bash
 
         asreview auth-tool list-projects    
 
 
-If you add the ``--json`` flag:
+List the projects in JSON format with the ``--json`` flag:
 
 .. code:: bash
 
         asreview auth-tool list-projects --json    
 
+The command returns a convenient JSON string that can be used to bulk insert and
+link projects into the database. The string represents a list containing a
+dictionary for every project. 
 
-the tool returns a convenient JSON string that can be used to bulk insert and
-link projects into the database. The string represents a Python list containing
-a dictionary for every project. Since the ID of the user account of the owner is
-initially unknown, the ``0`` behind every ``owner_id`` key needs to be replaced
-with the appropriate owner ID. That ID number can be found if we list all user
-accounts with the following command:
+List users with auth-tool
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: bash
+The ``auth-tool`` sub command of the ASReview application can be used to list
+users. 
 
-        asreview auth-tool list-users --db-path ~/.asreview/asreview.production.sqlite    
-
-
-Insert and link projects to the database
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-Inserting and linking the projects into the database can be done interactively:
+Lists all users with the ``list-users`` command:
 
 .. code:: bash
 
-        asreview auth-tool link-projects --db-path ~/.asreview/asreview.production.sqlite    
+        asreview auth-tool list-users
+
+
+Migrate projects from unauthenticated to authenticated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+By default, the ASReview application runs in an unauthenticated mode. This means
+that all projects are stored in the same workspace. This is fine for a single
+user, but not for multiple users. If you would like to run the application in an
+authenticated mode, you need to convert the existing projects into authenticated
+ones with user identifiers assigned to each project. If you don't do this, you
+won't see any projects in the authenticated mode.
+
+First, list all users with the ``list-users`` command. Create users if you don't
+have users yet.
+
+.. code:: bash
+
+        asreview auth-tool list-users
+
+List all projects with the ``list-projects`` command. The command returns a
+
+.. code:: bash
+
+        asreview auth-tool list-projects
+
+Migrate the projects into the authenticated database can be done interactively:
+
+.. code:: bash
+
+        asreview auth-tool link-projects
 
 
 The tool will list project by project and asks what the ID of the owner is. That
 ID can be found in the user list below the project information.
 
-One can also insert all project information by using the JSON string that was
-produced in the previous step:
+You can also insert all project information by using the JSON string that was
+produced with the ``list-projects`` command. Add user identifiers to each
+project in the JSON string. For example, if the user ID of the owner is ``15``,
+the JSON string should look like this
 
 .. code:: bash
 
-        asreview auth-tool link-projects --json "[{\"folder\": \"project-id\", \"version\": \"1.1+51.g0ebdb0c.dirty\", \"project_id\": \"project-id\", \"name\": \"project 1\", \"authors\": \"Authors\", \"created\": \"2023-04-12 21:23:28.625859\", \"owner_id\": 15}]" --db-path ~/.asreview/asreview.production.sqlite    
-
- 
+        asreview auth-tool link-projects --json "[{\"folder\": \"project-id\", \"version\": \"1.3\", \"project_id\": \"project-id\", \"name\": \"project 1\", \"authors\": \"Authors\", \"created\": \"2023-04-12 21:23:28.625859\", \"owner_id\": 15}]"
