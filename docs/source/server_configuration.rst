@@ -40,7 +40,7 @@ To create user accounts, one can use the ``add-users`` command of the
     asreview auth-tool add-users
 
 For more information about creating users, see the section
-`Create user accounts <#create-user-accounts>`_ below.
+`Create user accounts <#create-user-accounts-with-auth-tool>`_ below.
 
 Full authentication configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
