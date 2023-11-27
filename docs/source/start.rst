@@ -165,12 +165,6 @@ For example, start ASReview LAB on port 5001:
 
 	asreview lab --port 5001
 
-.. warning::
-
-    The development server provided by Flask is not suitable for production use. For guidelines on deploying a Flask application in a production environment, refer to the official Flask documentation: `Deploying to Production <https://flask.palletsprojects.com/en/2.0.x/tutorial/deploy/>`__.
-
-
-
 .. _cloud-installation:
 
 Cloud environments
@@ -182,7 +176,3 @@ usage guide <https://github.com/asreview/cloud-usage>`__. This guide provides
 tailored instructions for a variety of use cases, including simulations on
 cloud platforms such as SURF, Digital Ocean, AWS, Azure, and leveraging
 Kubernetes for large-scale simulation tasks.
-
-
-
-
