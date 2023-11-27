@@ -2,7 +2,7 @@ import * as React from "react";
 import { Stack } from "@mui/material";
 
 import { StyledTextButton } from "../StyledComponents/StyledButton";
-import { discussionsURL } from "../globals";
+import { discussionsURL, asreviewURL } from "../globals";
 
 export default function HelpPrivacyTermsButton(props) {
   return (
@@ -22,11 +22,13 @@ export default function HelpPrivacyTermsButton(props) {
       >
         Help
       </StyledTextButton>
-      <StyledTextButton size="small" sx={{ color: "text.secondary" }}>
-        Privacy
-      </StyledTextButton>
-      <StyledTextButton size="small" sx={{ color: "text.secondary" }}>
-        Terms
+      <StyledTextButton
+        size="small"
+        href={asreviewURL}
+        target="_blank"
+        sx={{ color: "text.secondary" }}
+      >
+        Free and Open Source
       </StyledTextButton>
     </Stack>
   );
