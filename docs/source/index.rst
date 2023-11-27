@@ -76,13 +76,6 @@ feature requests, please submit an issue on `GitHub
 
     extensions_dev
 
-.. toctree::
-    :maxdepth: 1
-    :caption: ASReview LAB server
-
-    server_features
-
-    server_configuration
 
 .. toctree::
     :maxdepth: 1
