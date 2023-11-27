@@ -11,7 +11,6 @@ accounts to projects. Currently we are using a SQLite database
 (asreview.development.sqlite or asreview.production.sqlite) in the ASReview
 projects folder to store that information.
 
-
 Bare bones authentication
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -27,7 +26,6 @@ Start the application with authentication enabled:
 .. code:: bash
 
     asreview lab --enable-auth --secret-key=<secret key> --salt=<salt>
-    
 
 where ``--enable-auth`` forces the application to run in an authenticated mode,
 ``<secret key>`` is a string that is used for encrypting cookies and ``<salt>``
@@ -57,7 +55,6 @@ new accounts and to allow users to retrieve a new password if they forget it.
 The TOML file also contains the necessary parameters to run the application in a
 secure way (https).
 
-
 .. code-block::  toml
 
     DISABLE_LOGIN = false
@@ -70,7 +67,7 @@ secure way (https).
     ALLOW_ACCOUNT_CREATION = true
     ALLOW_TEAMS = false
     EMAIL_VERIFICATION = false
-    
+
     [EMAIL_CONFIG]
     SERVER = "<smtp-server>"
     PORT = 465
@@ -79,7 +76,7 @@ secure way (https).
     USE_TLS = false
     USE_SSL = true
     REPLY_ADDRESS = "<preferred reply email address>"
-    
+
     [OAUTH]
             [OAUTH.GitHub]
             AUTHORIZATION_URL = "https://github.com/login/oauth/authorize"
@@ -87,14 +84,14 @@ secure way (https).
             CLIENT_ID = "<GitHub client ID>"
             CLIENT_SECRET = "<GitHub client secret>"
             SCOPE = ""
-        
+
             [OAUTH.Orcid]
             AUTHORIZATION_URL = "https://sandbox.orcid.org/oauth/authorize"
             TOKEN_URL = "https://sandbox.orcid.org/oauth/token"
             CLIENT_ID = "<Orcid client ID>"
             CLIENT_SECRET = "<Orcid client secret>"
             SCOPE = "/authenticate"
-    
+
             [OAUTH.Google]
             AUTHORIZATION_URL = "https://accounts.google.com/o/oauth2/auth"
             TOKEN_URL = "https://oauth2.googleapis.com/token"
@@ -108,7 +105,6 @@ CLI with the ``--flask-configfile`` parameter:
 .. code:: bash
 
         asreview lab --flask-configfile=<path-to-TOML-config-file>
-
 
 A number of the keys in the TOML file are standard Flask parameters. The keys
 that are specific for authenticating ASReview are summarised below:
@@ -157,7 +153,6 @@ folder:
 
     FLASK_SQLALCHEMY_DATABASE_URI = "sqlite:///asreview.production.sqlite"
 
-
 Postgresql database
 ~~~~~~~~~~~~~~~~~~~
 
@@ -174,8 +169,7 @@ and an extra step in the configuration file:
 
 .. code-block:: none
 
-    SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://username:password@host:port/database_name"    
-
+    SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://username:password@host:port/database_name"
 
 Create user accounts with auth-tool
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -202,7 +196,6 @@ If you would like to bulk insert user accounts use the ``--json`` option:
 
         asreview auth-tool add-users -j "[{\"email\": \"name@email.org\", \"name\": \"Name of User\", \"affiliation\": \"Some Place\", \"password\": \"1234@ABcd\"}]"
 
-
 The JSON string represents a Python list with a dictionary for every user
 account with the following keys: ``email``, ``name``, ``affiliation`` and
 ``password``. Note that passwords require at least one symbol. These symbols,
@@ -212,37 +205,35 @@ List projects with auth-tool
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``auth-tool`` sub command of the ASReview application can be used to list
-projects. 
+projects.
 
 Lists all projects with the ``list-projects`` command:
 
 .. code:: bash
 
-        asreview auth-tool list-projects    
-
+        asreview auth-tool list-projects
 
 List the projects in JSON format with the ``--json`` flag:
 
 .. code:: bash
 
-        asreview auth-tool list-projects --json    
+        asreview auth-tool list-projects --json
 
 The command returns a convenient JSON string that can be used to bulk insert and
 link projects into the database. The string represents a list containing a
-dictionary for every project. 
+dictionary for every project.
 
 List users with auth-tool
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``auth-tool`` sub command of the ASReview application can be used to list
-users. 
+users.
 
 Lists all users with the ``list-users`` command:
 
 .. code:: bash
 
         asreview auth-tool list-users
-
 
 Migrate projects from unauthenticated to authenticated
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -272,7 +263,6 @@ Migrate the projects into the authenticated database can be done interactively:
 .. code:: bash
 
         asreview auth-tool link-projects
-
 
 The tool will list project by project and asks what the ID of the owner is. That
 ID can be found in the user list below the project information.

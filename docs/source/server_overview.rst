@@ -6,11 +6,10 @@ designed for users who want to use ASReview LAB but without the need to install
 it on their own computer. ASReview LAB Server is a web application that can be
 accessed from any device with a web browser and can be used on desktops,
 laptops, tablets, and mobile devices. ASReview LAB Server enables users to create
-an account or connect via their GitHub, ORCID, or Google accounts. 
+an account or connect via their GitHub, ORCID, or Google accounts.
 
 See the `server configuration details <server_configuration>`_ for more
 information on how to configure your ASReview LAB on your server.
-
 
 .. list-table::
    :header-rows: 1
@@ -40,7 +39,6 @@ information on how to configure your ASReview LAB on your server.
      - ✗
      - ✓ - Coming soon!
 
-
 Accounts
 --------
 
@@ -52,7 +50,7 @@ Log in with GitHub, ORCID, or Google
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ASReview LAB Server provides a easy way to log in with your GitHub, ORCID, or
-Google account. 
+Google account.
 
 .. figure:: ../images/server_signin.png
 	:alt: Sign in with GitHub, ORCID, or Google account
@@ -64,7 +62,7 @@ feature.
 Create account
 ~~~~~~~~~~~~~~
 
-ASReview LAB Server provides a easy way to create an account with your email. 
+ASReview LAB Server provides a easy way to create an account with your email.
 
 .. figure:: ../images/server_email.png
    :alt: Create account with account and password
