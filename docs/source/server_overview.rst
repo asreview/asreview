@@ -1,17 +1,15 @@
 Overview
 ========
 
-ASReview LAB Server is designed to provide a secure and personalized
-environment for each user. By setting up authentication, users can manage
-their projects in individual workspaces, ensuring that their work remains
-private and secure. Users are responsible for hosting and managing the server
-on which ASReview LAB Server runs.
+ASReview LAB Server is a self-hosted, secure version of ASReview LAB. It is
+designed for users who want to use ASReview LAB but without the need to install
+it on their own computer. ASReview LAB Server is a web application that can be
+accessed from any device with a web browser and can be used on desktops,
+laptops, tablets, and mobile devices. ASReview LAB Server enables users to create
+an account or connect via their GitHub, ORCID, or Google accounts. 
 
-Some advantages:
-
-- **User Workspaces**: Each user has their own workspace, which isolates their projects and settings from others.
-- **Project Management**: Authentication allows for a clear association between user accounts and their respective projects.
-- **Data Storage**: User accounts and project information are securely stored within a database.
+See the `server configuration details <server_configuration>`_ for more
+information on how to configure your ASReview LAB on your server.
 
 
 .. list-table::
@@ -32,7 +30,7 @@ Some advantages:
    * - Built-in Authentication
      - ✗
      - ✓
-   * - Log-in with Orcid, Google, GitHub
+   * - Log-in with ORCID, Google, GitHub
      - ✗
      - ✓
    * - Screening on-the-go
@@ -40,31 +38,33 @@ Some advantages:
      - ✓
    * - Collaboration
      - ✗
-     - ✓ - Comming soon!
+     - ✓ - Coming soon!
 
 
-Log-on options
---------------
+Accounts
+--------
 
-You can sign in using your GitHub, ORCID, or Google account. This provides a
-quick and secure way to access ASReview without the need to create a new
-account.
+ASReview LAB provides two options for creating an account: by connecting with
+your GitHub, ORCID, or Google account, or by creating an account. All
+information is stored securely on the ASReview LAB server and fully self-hosted.
+
+Log in with GitHub, ORCID, or Google
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ASReview LAB Server provides a easy way to log in with your GitHub, ORCID, or
+Google account. 
 
 .. figure:: ../images/server_signin.png
 	:alt: Sign in with GitHub, ORCID, or Google account
 
-Log in with Email
------------------
+See the `server configuration details <server_configuration>`_ for more
+information on how to configure your ASReview on your server to enable this
+feature.
 
-If you prefer to use your email address, this option is available as well.
-Enter your email credentials to log in and start using ASReview.
+Create account
+~~~~~~~~~~~~~~
 
-Upcoming sections will guide you through the necessary steps to configure your server for authentication and how to manage your user account effectively.
+ASReview LAB Server provides a easy way to create an account with your email. 
 
 .. figure:: ../images/server_email.png
-   :alt: Log in with email
-
-Create Your Profile
--------------------
-
-After signing in, you'll be prompted to create your profile on the ASReview LAB server. Fill in the required information to proceed to your personalized workspace.
+   :alt: Create account with account and password
