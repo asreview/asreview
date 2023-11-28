@@ -24,20 +24,6 @@ around the world.
 .. youtube:: k-a2SCq-LtA
 
 
-How to Cite
------------
-
-- For scientific use and to refer to the underlying infrastructure, we encourage users to cite the paper published in `Nature Machine Intelligence <https://www.nature.com/articles/s42256-020-00287-7>`_.
-
-- For citing the software **ASReview LAB**, refer to the `specific release <https://doi.org/10.5281/zenodo.3345592>`_ of the software. The menu on the right (in Zenodo) can be used to find the citation format of prevalence.
-
-- For citing the documentation (or to download the pdf) go to `Zenodo <https://doi.org/10.5281/zenodo.4287119>`_.
-
-- For detailed information about the data storage model, see the `Reproducibility and Data storage Checklist for Active Learning-Aided Systematic Reviews <https://doi.org/10.31234/osf.io/g93zf>`_. 
-
-- More studies related to the project can be found on `asreview.ai/research <https://asreview.ai/research/>`_.
-
-
 What is active learning?
 ------------------------
 
@@ -284,6 +270,24 @@ Considerations for a Local Setup
 
         **Important Note on Data Backup**: When using ASReview in a local setup, your project files (``.asreview`` files) are stored on your local machine. To safeguard your work against data loss due to hardware failure or other unforeseen events, we strongly advise regularly exporting your project files and storing them in a secure, backed-up location. This practice ensures that your research can be recovered and continued from the last saved state, maintaining the integrity of your systematic review.
 
+
+How to Cite
+-----------
+
+- For scientific use and to refer to the underlying infrastructure, we encourage users to cite the paper published in `Nature Machine Intelligence <https://www.nature.com/articles/s42256-020-00287-7>`_.
+
+
+- For citing the software **ASReview LAB**, refer to the `specific release
+  <https://doi.org/10.5281/zenodo.3345592>`_ of the software, available on the export screen. 
+  
+.. figure:: ../images/cite.png
+   :alt: Cite ASReview LAB
+
+- For citing the documentation (or to download the pdf) go to `Zenodo <https://doi.org/10.5281/zenodo.4287119>`_.
+
+- For detailed information about the data storage model, see the `Reproducibility and Data storage Checklist for Active Learning-Aided Systematic Reviews <https://doi.org/10.31234/osf.io/g93zf>`_. 
+
+- More studies related to the project can be found on `asreview.ai/research <https://asreview.ai/research/>`_.
 
 Privacy
 -------
