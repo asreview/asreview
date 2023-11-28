@@ -50,3 +50,13 @@ Simulations require :ref:`fully labeled datasets <data_labeled:fully labeled dat
     <https://asreview.ai/blog/the-importance-of-abstracts/>`_). With clean data you
     benefit most from what :doc:`active learning <about>`
     has to offer.
+
+Cloud environments
+------------------
+
+For advanced scenarios, such as executing ASReview simulations in cloud
+environments or running them in parallel, consult our specialized `cloud
+usage guide <https://github.com/asreview/cloud-usage>`__. This guide provides
+tailored instructions for a variety of use cases, including simulations on
+cloud platforms such as SURF, Digital Ocean, AWS, Azure, and leveraging
+Kubernetes for large-scale simulation tasks.
