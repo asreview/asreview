@@ -19,6 +19,9 @@ To import a project:
 4. Click on *Select file* and select a project from your device (with ``.asreview`` extension.
 5. Open the project from the *Projects dashboard*.
 
+
+.. _manage-export:
+
 Export Project
 --------------
 
