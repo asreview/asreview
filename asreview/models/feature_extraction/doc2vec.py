@@ -61,7 +61,7 @@ class Doc2Vec(BaseFeatureExtraction):
     .. note::
 
         This feature extraction technique requires ``gensim`` to be installed.
-        Use ``pip install gensim`` or install all optional ASReview
+        Use ``pip install asreview[gensim]`` or install all optional ASReview
         dependencies with ``pip install asreview[all]``
 
     Arguments
