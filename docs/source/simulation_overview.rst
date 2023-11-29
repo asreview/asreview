@@ -51,6 +51,8 @@ Simulations require :ref:`fully labeled datasets <data_labeled:fully labeled dat
     benefit most from what :doc:`active learning <about>`
     has to offer.
 
+.. _cloud-installation:
+
 Cloud environments
 ------------------
 
