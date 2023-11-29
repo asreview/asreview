@@ -268,7 +268,7 @@ Considerations for a Local Setup
 
 .. tip::
 
-        **Important Note on Data Backup**: When using ASReview in a local setup, your project files (``.asreview`` files) are stored on your local machine. To safeguard your work against data loss due to hardware failure or other unforeseen events, we strongly advise regularly exporting your project files and storing them in a secure, backed-up location. This practice ensures that your research can be recovered and continued from the last saved state, maintaining the integrity of your systematic review.
+        **Important Note on Data Backup**: When using ASReview in a local setup, your files are stored on your local machine. To safeguard your work against data loss due to hardware failure or other unforeseen events, we strongly advise regularly :ref:`exporting<manage-export>` your project files (``.asreview`` files) and storing them in a secure, backed-up location. This practice ensures that your research can be recovered and continued from the last saved state, maintaining the integrity of your systematic review. 
 
 
 Privacy
