@@ -15,8 +15,7 @@ across Windows, macOS, and Linux platforms.
 
 Python
 ------
-ASReview requires Python 3.8 or later. If you do not have Python installed, or
-if you have an earlier version that needs upgrading, follow these
+ASReview requires Python 3.8 or later. Follow these
 step-by-step instructions to install the latest version of `Python <https://www.python.org/downloads/>`__.
 
 To verify your Python installation, open a command prompt or terminal and type
@@ -25,8 +24,7 @@ To verify your Python installation, open a command prompt or terminal and type
 
     python --version
 
-If Python is installed and correctly added to your
-system's PATH, this command will display the installed version.
+This command will display the installed version.
 
 Note that installation steps may differ slightly based on your operating
 system. Ensure you select the option to add Python to your PATH if prompted
@@ -35,7 +33,7 @@ Python from any command line interface.
 
 .. tip::
 
-    If you encounter issues during the installation, refer to the :doc:`Troubleshooting <troubleshooting>` section for guidance on common problems and their solutions.
+    Refer to the :doc:`Troubleshooting <troubleshooting>` section for guidance on common problems and their solutions.
 
 
 Install
@@ -197,7 +195,7 @@ For additional features or personal customization, modify the `Dockerfile` from 
     docker build -t asreview/asreview:custom .
     docker run -p 5000:5000 asreview/asreview:custom lab
 
-If you want to add more extensisons, or build the Docker image yourself, check the file `Dockerfile <https://github.com/ghcr.io/asreview/asreview/tree/master/Dockerfiles>`.
+For adding more extensisons, or build the Docker image yourself, check the file `Dockerfile <https://github.com/ghcr.io/asreview/asreview/tree/master/Dockerfiles>`.
 
 
 

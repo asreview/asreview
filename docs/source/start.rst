@@ -151,9 +151,8 @@ address and port, use the --ip and --port flags when starting ASReview LAB:
 
 Replace xxx.x.x.xx with your server's actual IP address or domain name.
 
-By default, ASReview LAB runs on port 5000. If that port is already in use or
-if you want to specify a different port, start ASReview LAB with the following
-command:
+By default, ASReview LAB runs on port 5000. To specify a different port, start
+ASReview LAB with the following command:
 
 .. code:: bash
 
