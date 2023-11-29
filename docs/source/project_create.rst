@@ -222,7 +222,7 @@ package. Before starting ASReview LAB, first, install *gensim*:
 
 .. code:: bash
 
-    pip install gensim
+    pip install asreview[gensim]
 
 .. note::
 
@@ -249,7 +249,7 @@ The neural nets require `tensorflow <https://www.tensorflow.org/>`_, use
 
 .. code:: bash
 
-    pip install tensorflow
+    pip install asreview[tensorflow]
 
 
 Balancing Strategy
