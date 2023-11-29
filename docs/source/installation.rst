@@ -75,7 +75,7 @@ techniques require TensorFlow. To install TensorFlow, run:
 
 .. code:: bash
 
-    pip install tensorflow 
+    pip install asreview[tensorflow] 
 
 For detailed information about model-specific dependencies, refer to
 the 'Models' section in the :doc:API Reference <api/models>.

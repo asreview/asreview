@@ -249,7 +249,7 @@ The neural nets require `tensorflow <https://www.tensorflow.org/>`_, use
 
 .. code:: bash
 
-    pip install tensorflow
+    pip install asreview[tensorflow]
 
 
 Balancing Strategy
