@@ -233,6 +233,7 @@ const SetupDialog = (props) => {
             </Button>
           )}
           <Button
+            id="next"
             disabled={isStepFailed(activeStep) || !completed[activeStep]}
             variant="contained"
             onClick={handleNext}

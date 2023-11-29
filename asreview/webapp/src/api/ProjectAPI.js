@@ -174,6 +174,20 @@ class ProjectAPI {
     });
   }
 
+  static fetchDatasetReaders({ queryKey }) {
+    const url = api_url + `dataset_readers`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url, { withCredentials: true })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static fetchDatasetWriter({ queryKey }) {
     const { project_id } = queryKey[1];
     const url = api_url + `projects/${project_id}/dataset_writer`;
@@ -530,7 +544,6 @@ class ProjectAPI {
     if (variables.is_prior === 1) {
       body.set("is_prior", 1);
     }
-
     const url =
       api_url + `projects/${variables.project_id}/record/${variables.doc_id}`;
     return new Promise((resolve, reject) => {

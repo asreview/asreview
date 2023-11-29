@@ -15,11 +15,14 @@ import argparse
 import logging
 import os
 import socket
+import time
 import webbrowser
 from threading import Timer
 
+import requests
 from gevent.pywsgi import WSGIServer
 
+from asreview import __version__
 from asreview._deprecated import DeprecateAction
 from asreview._deprecated import mark_deprecated_help_strings
 from asreview.project import ASReviewProject
@@ -47,7 +50,6 @@ def _deprecated_dev_mode():
 
 
 def _check_port_in_use(host, port):
-
     logging.info(f"Checking if host and port are available :: {host}:{port}")
     host = host.replace("https://", "").replace("http://", "")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -55,13 +57,30 @@ def _check_port_in_use(host, port):
 
 
 def _open_browser(start_url):
-
     Timer(1, lambda: webbrowser.open_new(start_url)).start()
 
-    print(
-        "\n\n\n\nIf your browser doesn't open. "
-        f"Navigate to {start_url}\n\n\n\n"
-    )
+    print("\n\n\n\nIf your browser doesn't open. " f"Navigate to {start_url}\n\n\n\n")
+
+
+def _check_for_update():
+    """Check if there is an update available."""
+
+    try:
+        r = requests.get("https://pypi.org/pypi/asreview/json")
+        r.raise_for_status()
+        latest_version = r.json()["info"]["version"]
+        if latest_version != __version__ and "+" not in __version__:
+            print(
+                "\n\n\n"
+                f"ASReview LAB version {latest_version} is available. "
+                "Please update using:\n"
+                "pip install --upgrade asreview"
+                "\n\n\n"
+            )
+
+            time.sleep(5)
+    except Exception:
+        print("Could not check for updates.")
 
 
 def lab_entry_point(argv):
@@ -71,6 +90,10 @@ def lab_entry_point(argv):
     parser = _lab_parser()
     mark_deprecated_help_strings(parser)
     args = parser.parse_args(argv)
+
+    # check for update
+    if not args.skip_update_check:
+        _check_for_update()
 
     app = create_app(
         env="production",
@@ -237,6 +260,13 @@ def _lab_parser():
         default="",
         type=str,
         help="The full path to a private key file for usage with SSL/TLS.",
+    )
+
+    parser.add_argument(
+        "--skip-update-check",
+        dest="skip_update_check",
+        action="store_true",
+        help="Skip checking for updates.",
     )
 
     return parser

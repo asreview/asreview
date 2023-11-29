@@ -6,7 +6,7 @@ This folder contains the test suite of the ASReview app. It is organized in the 
 
 - **data**: Contains project data used in tests.
 
-- **integration_tests**: Forthcoming.
+- **integration_tests**: Contains integration tests. See README.md in this folder.
 
 - **test_api**: Contains API related tests. These tests are independent, unit-like tests.
 
@@ -35,13 +35,13 @@ Ideally a test function tests one particular feature and can be executed indepen
 
 ## Running the tests
 
-**Important**: if you run the entire test stuite, please make sure you have compiles the app's assets:
+**Important**: if you run the entire test suite, please make sure you have compiled the app's assets:
 
 ```
 python setup.py compile_assets
 ```
 
-Please run your tests with the `--random-order` option to ensure test independency. With Pytest you can run all tests within a particular module. For example (running from the asreview root-folder):
+Please run your tests __from the root directory__ with the `--random-order` option to ensure test independency. With Pytest you can run all tests within a particular module. For example:
 
 ```
 pytest --random-order -s -v ./asreview/webapp/tests/test_api/test_projects.py

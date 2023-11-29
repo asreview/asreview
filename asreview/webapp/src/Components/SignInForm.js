@@ -61,7 +61,7 @@ const SignInForm = (props) => {
       onError: (data) => {
         console.error("Signin error", data);
       },
-    },
+    }
   );
 
   const handleSubmit = (e) => {
@@ -100,6 +100,7 @@ const SignInForm = (props) => {
     <>
       <Stack spacing={3}>
         <TextField
+          id="email"
           label="Email"
           name="email"
           type="email"
@@ -111,6 +112,7 @@ const SignInForm = (props) => {
         />
         <FormControl>
           <TextField
+            id="password"
             label="Password"
             value={password}
             onChange={handlePasswordChange}
@@ -122,6 +124,7 @@ const SignInForm = (props) => {
           <FormControlLabel
             control={
               <Checkbox
+                id="show-password"
                 checked={showPassword}
                 onChange={toggleShowPassword}
                 value="showPassword"
@@ -135,18 +138,27 @@ const SignInForm = (props) => {
       {isError && <InlineErrorHandler message={error.message} />}
       <Stack className={classes.button} direction="row">
         {allowAccountCreation && (
-          <Button onClick={handleSignUp} sx={{ textTransform: "none" }}>
+          <Button
+            id="create-profile"
+            onClick={handleSignUp}
+            sx={{ textTransform: "none" }}
+          >
             Create profile
           </Button>
         )}
 
         {hasEmailConfig && (
-          <Button onClick={handleForgotPassword} sx={{ textTransform: "none" }}>
+          <Button
+            id="forgot-password"
+            onClick={handleForgotPassword}
+            sx={{ textTransform: "none" }}
+          >
             Forgot password
           </Button>
         )}
 
         <LoadingButton
+          id="sign-in"
           loading={isLoading}
           variant="contained"
           color="primary"

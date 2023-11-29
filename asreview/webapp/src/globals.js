@@ -15,6 +15,7 @@ export const api_url = base_url + "api/";
 export const auth_url = base_url + "auth/";
 export const collab_url = base_url + "team/";
 
+export const asreviewURL = "https://asreview.nl/";
 export const donateURL = "https://asreview.nl/donate";
 
 export const communityURL = "https://asreview.nl/community";

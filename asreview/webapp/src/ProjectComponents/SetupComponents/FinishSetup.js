@@ -95,7 +95,7 @@ const FinishSetup = (props) => {
         props.handleBack();
         queryClient.resetQueries("fetchProjectStatus");
       },
-    },
+    }
   );
 
   const onClickCloseSetup = async () => {
@@ -103,7 +103,7 @@ const FinishSetup = (props) => {
     console.log("Opening existing project " + props.project_id);
     await queryClient.prefetchQuery(
       ["fetchInfo", { project_id: props.project_id }],
-      ProjectAPI.fetchInfo,
+      ProjectAPI.fetchInfo
     );
     if (info?.mode !== projectModes.SIMULATION) {
       navigate(`/projects/${props.project_id}/review`);
@@ -210,7 +210,7 @@ const FinishSetup = (props) => {
                   </Typography>
                 </Stack>
                 <Box>
-                  <Button onClick={onClickCloseSetup}>Got it</Button>
+                  <Button id="start-reviewing" onClick={onClickCloseSetup}>Got it</Button>
                 </Box>
               </Stack>
             )}

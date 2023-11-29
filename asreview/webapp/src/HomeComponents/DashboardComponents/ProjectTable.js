@@ -603,7 +603,12 @@ const ProjectTable = (props) => {
               <Typography sx={{ color: "text.secondary", marginTop: "64px" }}>
                 Your projects will show up here
               </Typography>
-              <Button onClick={props.handleClickCreate}>Get Started</Button>
+              <Button
+                id="get-started"
+                onClick={props.handleClickCreate}
+              >
+                Get Started
+              </Button>
               <img
                 src={ElasArrowRightAhead}
                 alt="ElasArrowRightAhead"

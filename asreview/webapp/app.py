@@ -151,11 +151,16 @@ def create_app(
         return jsonify(message=str(e.original_exception)), 500
 
     @app.route("/", methods=["GET"])
+    @app.route("/signin", methods=["GET"])
+    @app.route("/signup", methods=["GET"])
     @app.route("/confirm_account", methods=["GET"])
     @app.route("/oauth_callback", methods=["GET"])
+    @app.route("/get_profile", methods=["GET"])
+    @app.route("/update_profile", methods=["GET"])
     @app.route("/projects/", methods=["GET"])
     @app.route("/projects/<project_id>/", methods=["GET"])
     @app.route("/projects/<project_id>/<tab>/", methods=["GET"])
+    @app.route("/forgot_password", methods=["GET"])
     @app.route("/reset_password", methods=["GET"])
     def index():
         return render_template("index.html")

@@ -100,6 +100,7 @@ const ProjectsOverview = (props) => {
         </Stack>
       </Box>
       <Fab
+        id="create-project"
         className="main-page-fab"
         color="primary"
         onClick={handleClickCreate}
