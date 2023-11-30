@@ -222,7 +222,7 @@ package. Before starting ASReview LAB, first, install *gensim*:
 
 .. code:: bash
 
-    pip install gensim
+    pip install asreview[gensim]
 
 .. note::
 

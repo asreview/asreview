@@ -59,8 +59,8 @@ class LSTMPoolClassifier(BaseTrainClassifier):
     .. note::
 
         This model requires ``tensorflow`` to be installed. Use ``pip install
-        tensorflow`` or install all optional ASReview dependencies with ``pip
-        install asreview[all]``
+        asreview[tensorflow]`` or install all optional ASReview dependencies
+        with ``pip install asreview[all]``
 
     Arguments
     ---------
