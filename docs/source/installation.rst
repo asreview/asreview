@@ -2,13 +2,9 @@ Installation
 ============
 
 Welcome to the ASReview installation guide. Set up ASReview on your preferred
-platform and begin your AI-aided systematic review with ease.
-
-For local installation details, see the . For Docker deployment instructions, refer to
-the :ref:`Docker Installation <docker-installation>` section. Consult
-the  section for server
-deployment guidelines. Each installation method offers full feature support
-across Windows, macOS, and Linux platforms.
+platform and begin your AI-aided systematic review with ease. Each
+installation method offers full feature support across Windows, macOS, and
+Linux platforms.
 
 
 .. _python-installation:
@@ -73,7 +69,7 @@ To install all optional dependencies at once, use the following command:
 
 Alternatively, you may install only the specific dependencies required for
 particular models or features. For example, some feature extraction
-techniques require TensorFlow. To install TensorFlow, run:
+techniques require TensorFlow. To install, for example, TensorFlow, run:
 
 .. code:: bash
 
@@ -192,14 +188,18 @@ Customize the image
 ~~~~~~~~~~~~~~~~~~~
 
 
-For additional features or personal customization, modify the `Dockerfile` from the ASReview repository. After making changes, build your custom image and run it:
+For additional features or personal customization, modify the `Dockerfile`
+from the ASReview repository. After making changes, build your custom image
+and run it:
 
 .. code:: bash
 
     docker build -t asreview/asreview:custom .
     docker run -p 5000:5000 asreview/asreview:custom lab
 
-For adding more extensisons, or build the Docker image yourself, check the file `Dockerfile <https://github.com/ghcr.io/asreview/asreview/tree/master/Dockerfiles>`.
+For adding more extensisons, or build the Docker image yourself, check the
+file `Dockerfile
+<https://github.com/ghcr.io/asreview/asreview/tree/master/Dockerfiles>`.
 
 
 
