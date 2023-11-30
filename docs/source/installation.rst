@@ -55,6 +55,10 @@ Once installed, start the application with:
 The ASReview LAB software will start in your web browser. For additional options on starting
 ASReview LAB, refer to :doc:`start`.
 
+.. tip::
+
+        **Important Note on Data Backup**: When using ASReview in a local setup, your files are stored on your local machine. To safeguard your work against data loss due to hardware failure or other unforeseen events, we advise regularly :ref:`exporting<manage-export>` your project files (``.asreview`` files) and storing them in a secure, backed-up location. This practice ensures that your research can be recovered and continued from the last saved state, maintaining the integrity of your systematic review. 
+
 
 Dependencies
 ~~~~~~~~~~~~
