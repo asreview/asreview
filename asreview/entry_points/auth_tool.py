@@ -2,6 +2,7 @@ __all__ = ["AuthTool"]
 
 import argparse
 import json
+import os
 import sys
 from argparse import RawTextHelpFormatter
 from uuid import UUID
@@ -9,8 +10,6 @@ from uuid import UUID
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy_utils import create_database
-from sqlalchemy_utils import database_exists
 
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.project import ASReviewProject
@@ -18,6 +17,9 @@ from asreview.utils import asreview_path
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.models import create_database_and_tables
+
+DEFAULT_DATABASE_URI = \
+    f"sqlite:///{str(asreview_path())}/asreview.production.sqlite"
 
 
 def auth_parser():
@@ -34,75 +36,32 @@ authenticated setup.
 
     sub_parser = parser.add_subparsers(help="The following options are available:")
 
+    # CREATE DB
     create_db_par = sub_parser.add_parser(
         "create-db",
         help="Create the database necessary to authenticate the ASReview app."
     )
 
-    subparser = create_db_par.add_subparsers(dest="db_type", required=True)
-
-    sqlite = subparser.add_parser("sqlite3")
-    sqlite.add_argument(
-        "-p",
-        "--db-path",
+    create_db_par.add_argument(
+        "-d",
+        "--db-uri",
         type=str,
-        help="Absolute path of folder where Sqlite3 database must be created",
-        required=True
-    )
-    sqlite.add_argument(
-        "-n",
-        "--db-name",
-        type=str,
-        default="asreview.sqlite3",
-        help="Name of the Sqlite3 database (used as filename)",
-        required=True
+        default=None,
+        help="URI of database"
     )
 
-    postgres = subparser.add_parser("postgresql")
-    postgres.add_argument(
-        "-n",
-        "--db-name",
-        type=str,
-        help="Name of the PostgreSQL database",
-        default="asreview",
-        required=True,
+    # ADD USERS
+    user_par = sub_parser.add_parser(
+        "add-users",
+        help="Add users into the database."
     )
-    postgres.add_argument(
-        "-u",
-        "--username",
-        type=str,
-        default="root",
-        help="User name if PostgreSQL requires authentication",
-    )
-    postgres.add_argument(
-        "-p",
-        "--password",
-        type=str,
-        help="Password if PostgreSQL requires authentication",
-    )
-    postgres.add_argument(
-        "-H",
-        "--host",
-        type=str,
-        help="Host URL of database",
-        default="127.0.0.1",
-    )
-    postgres.add_argument(
-        "-P",
-        "--port",
-        type=int,
-        help="Port of database",
-        default=5432,
-    )
-
-    user_par = sub_parser.add_parser("add-users", help="Add users into the database.")
 
     user_par.add_argument(
         "-d",
         "--db-uri",
         type=str,
-        help="Absolute path to authentication sqlite3 database.",
-        required=True,
+        default=None,
+        help="URI of database"
     )
 
     user_par.add_argument(
@@ -112,6 +71,7 @@ authenticated setup.
         help="JSON string that contains a list with user account data.",
     )
 
+    # LIST USERS
     list_users_par = sub_parser.add_parser(
         "list-users",
         help="List user accounts.",
@@ -121,14 +81,16 @@ authenticated setup.
         "-d",
         "--db-uri",
         type=str,
-        help="Absolute path to authentication sqlite3 database.",
-        required=True,
+        default=None,
+        help="URI of database"
     )
 
+    # LIST PROJECTS
     list_projects_par = sub_parser.add_parser(
         "list-projects",
         help="List project info from all projects in the ASReview folder.",
     )
+
     list_projects_par.add_argument(
         "-j",
         "--json",
@@ -136,6 +98,7 @@ authenticated setup.
         help="Create JSON string to connect existing projects with users.",
     )
 
+    # LINK PROJECTS TO USERS
     link_par = sub_parser.add_parser(
         "link-projects", help="Link projects to user accounts."
     )
@@ -151,8 +114,8 @@ authenticated setup.
         "-d",
         "--db-uri",
         type=str,
-        help="Absolute path to authentication sqlite3 database.",
-        required=True,
+        default=None,
+        help="URI of database"
     )
 
     return parser
@@ -223,10 +186,15 @@ class AuthTool(BaseEntryPoint):
         self.args = args
         self.argv = argv
 
-        # create a conn object for the database
-        if hasattr(self.args, "db_uri") and self.args.db_uri is not None:
+        # create a conn object for the database if needed (database
+        # is not needed when the only command is "list-projects", all
+        # other commands need a database session)
+        if self.argv != ["list-projects"]:
+            self.uri = getattr(self.args, "db_uri", False) or \
+                os.environ.get("SQLALCHEMY_DATABASE_URI", False) or \
+                DEFAULT_DATABASE_URI
             Session = sessionmaker()
-            engine = create_engine(self.args.db_uri)
+            engine = create_engine(self.uri)
             Session.configure(bind=engine)
             self.session = Session()
 
@@ -242,25 +210,9 @@ class AuthTool(BaseEntryPoint):
             self.link_projects()
 
     def create_database(self):
-        if self.args.db_type == "sqlite3":
-            uri = f"sqlite:///{self.args.db_path}/{self.args.db_name}"
-        elif self.args.db_type == "postgresql":
-            username = self.args.username
-            host = self.args.host
-            port = self.args.port
-            db_name = self.args.db_name
-            password = f":{self.args.password}" if self.args.password else ""
-            uri = f"postgresql+psycopg2://{username}{password}@{host}:{port}/{db_name}"
-
-            # create the database if necessary
-            if not database_exists(uri):
-                create_database(uri)
-        else:
-            # open for more database types
-            uri = ""
-        engine = create_engine(uri)
+        engine = create_engine(self.uri)
         create_database_and_tables(engine)
-        print(f"...Database created, URI: {uri}")
+        print(f"...Database created, URI: {self.uri}")
 
     def add_users(self):
         if self.args.json is not None:
