@@ -50,7 +50,7 @@ class SBERT(BaseFeatureExtraction):
     .. note::
 
         This feature extraction technique requires ``sentence_transformers``
-        to be installed. Use ``pip install sentence_transformers`` or install
+        to be installed. Use ``pip install asreview[sentence_transformers]`` or install
         all optional ASReview dependencies with ``pip install asreview[all]``
         to install the package.
 
