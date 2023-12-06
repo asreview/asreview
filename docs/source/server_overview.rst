@@ -1,5 +1,5 @@
-Overview
-========
+ASReview LAB Server
+===================
 
 ASReview LAB Server is a self-hosted, secure version of ASReview LAB. It is
 designed for users who want to use ASReview LAB but without the need to install
