@@ -8,10 +8,10 @@ import pytest
 
 import asreview.webapp.entry_points.auth_tool as tool
 from asreview import ASReviewProject
-from asreview.webapp.entry_points.auth_tool import AuthTool
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.utils import asreview_path
 from asreview.webapp import DB
+from asreview.webapp.entry_points.auth_tool import AuthTool
 from asreview.webapp.tests.utils import api_utils as au
 from asreview.webapp.tests.utils import config_parser as cp
 from asreview.webapp.tests.utils import crud
