@@ -33,7 +33,7 @@ authenticated setup.
 
     create_db_par = sub_parser.add_parser(
         "create-db",
-        help="Create the database necessary to authenticate the ASReview app."
+        help="Create the database necessary to authenticate the ASReview app.",
     )
 
     subparser = create_db_par.add_subparsers(dest="db_type", required=True)
@@ -44,7 +44,7 @@ authenticated setup.
         "--db-path",
         type=str,
         help="Absolute path of folder where Sqlite3 database must be created",
-        required=True
+        required=True,
     )
     sqlite.add_argument(
         "-n",
@@ -52,7 +52,7 @@ authenticated setup.
         type=str,
         default="asreview.sqlite3",
         help="Name of the Sqlite3 database (used as filename)",
-        required=True
+        required=True,
     )
 
     postgres = subparser.add_parser("postgresql")
@@ -98,7 +98,9 @@ authenticated setup.
         "-d",
         "--db-uri",
         type=str,
-        help="Absolute path to authentication sqlite3 database.",
+        help=("URI of the database. By default, the value is given by the environment "
+              "variable SQLALCHEMY_DATABASE_URI. If not set, the default is "
+              "'asreview.production.sqlite' in the ASReview folder."),
         required=True,
     )
 
@@ -118,7 +120,9 @@ authenticated setup.
         "-d",
         "--db-uri",
         type=str,
-        help="Absolute path to authentication sqlite3 database.",
+        help=("URI of the database. By default, the value is given by the environment "
+              "variable SQLALCHEMY_DATABASE_URI. If not set, the default is "
+              "'asreview.production.sqlite' in the ASReview folder."),
         required=True,
     )
 
@@ -148,7 +152,9 @@ authenticated setup.
         "-d",
         "--db-uri",
         type=str,
-        help="Absolute path to authentication sqlite3 database.",
+        help=("URI of the database. By default, the value is given by the environment "
+              "variable SQLALCHEMY_DATABASE_URI. If not set, the default is "
+              "'asreview.production.sqlite' in the ASReview folder."),
         required=True,
     )
 
