@@ -35,7 +35,7 @@ cd asreview/webapp
 flask run --debug
 ```
 
-Next, open a new command line interface and navigate to `asreview/webapp`.
+Next, open a second command line interface and navigate to `asreview/webapp`.
 Start the local front end application running on a Node server.
 
 ```sh
@@ -106,21 +106,16 @@ Alternative is to add this `REACT_APP_API_URL` to the `.env.development` file in
 
 ## Testing
 
-
 ### Git Submodules
-Some demo datasets are included as a submodule. Directory [asreview/tests/citation-file-formatting](https://github.com/ottomattas/asreview/tree/development-v1/tests) is cloned from [citation-file-formatting](https://github.com/asreview/citation-file-formatting).
 
-Examples:
-- To clone the full repository with submodules in one line, add `--recursive` flag:
+The tests of ASReview make use of extra datasets available via submodules.
+To clone the full repository with submodules in one line, add `--recursive` flag:
 
-  ```git clone --recursive git://github.com/asreview/asreview.git```
+```
+git clone --recursive git://github.com/asreview/asreview.git
+```
 
-- To update the submodule, you would still need to follow the contribution guide in the submodule repository. And then create a PR for the main repository with the updated submodule commit.
-
-
-
-
-#### Formatting and linting
+## Formatting and linting
 
 Use `flake8` to lint the Python code and format the code with `black`. Use
 `black[jupyter]` if you are editing the Jupyter notebooks. Use `isort` to
@@ -140,10 +135,14 @@ isort .
 flake8 .
 ```
 
+For the React application, Prettier is used to format the files.
+Install prettier by following the instructions at https://prettier.io/docs/en/install.html.
 
+Run the formatter with
 
-
-
+```
+npx prettier --write .
+```
 
 ## Documentation
 
@@ -189,201 +188,3 @@ follow the guidelines below.
 4. [OPTIONAL] Crop relevant part. Keep ratio if possible.
 5. Resize image to **1280x800** maximum and **960x600** minimum.
 6. [OPTIONAL] Use a red box to highlight relevant components.
-
-
-
-## Authentication
-
-It is possible to run ASReview with authentication, enabling multiple users to run their
-projects in their own separate workspaces. Authentication requires the storage of user
-accounts and link these accounts to projects. Currently we are using a small SQLite 
-database (asreview.development.sqlite or asreview.production.sqlite) in the ASReview 
-folder to store that information.
-
-Note that it is possible to run the authenticated application with a 
-[PostgreSQL database](https://www.postgresql.org/). Using Postgresql requires 2 extra 
-installation steps:
-1. Install the [psycopg2](https://www.psycopg.org/docs/) package. At the time of this writing
-2 versions of this package exist: `psycopg2` and `psycopg2-binary`. According to the
-[documentation](https://www.psycopg.org/docs/install.html#quick-install) the binary 
-version works on most operating systems.
-2. Use the [configuration file](#full-configuration) to setup the connection 
-between the application and the database.
-
-### Bare bones authentication
-
-Using authentication imposes more configuration. Let's start with running a bare bones
-authenticated version of the application from the CLI:
-```
-$ python3 -m asreview lab --enable-auth --secret-key=<secret key> --salt=<salt>
-```
-where `--enable-auth` forces the application to run in an authenticated mode, 
-`<secret key>` is a string that is used for encrypting cookies and `<salt>` is
-a string that is used to hash passwords.
-
-This bare bones application only allows an administrator to create user accounts by 
-editing the database without the use of the ASReview application! To facilitate this,
-one could use the User model that can be found in `/asreview/webapp/authentication/models.py`. Note that with this simple configuration it is not possible for a user to change forgotten passwords without the assistance of the administrator.
-
-### Full configuration
-
-To configure the authentication in more detail we need to create a TOML file that contains all authentication parameters. The parameters in that TOML file will override parameters that were passed in the CLI. Here's an example:
-```toml
-LOGIN_DISABLED = false
-SECRET_KEY = "<secret key>"
-SECURITY_PASSWORD_SALT = "<salt>"
-SESSION_COOKIE_SECURE = true
-REMEMBER_COOKIE_SECURE = true
-SESSION_COOKIE_SAMESITE = "Lax"
-SQLALCHEMY_TRACK_MODIFICATIONS = true
-ALLOW_ACCOUNT_CREATION = true
-ALLOW_TEAMS = false
-EMAIL_VERIFICATION = false
-
-[EMAIL_CONFIG]
-SERVER = "<smtp-server>"
-PORT = 465
-USERNAME = "<smtp-server-username>"
-PASSWORD = "<smtp-server-password>"
-USE_TLS = false
-USE_SSL = true
-REPLY_ADDRESS = "<preferred reply email address>"
-
-[OAUTH]
-        [OAUTH.GitHub]
-        AUTHORIZATION_URL = "https://github.com/login/oauth/authorize"
-        TOKEN_URL = "https://github.com/login/oauth/access_token"
-        CLIENT_ID = "<GitHub client ID>"
-        CLIENT_SECRET = "<GitHub client secret>"
-        SCOPE = ""
-    
-        [OAUTH.Orcid]
-        AUTHORIZATION_URL = "https://sandbox.orcid.org/oauth/authorize"
-        TOKEN_URL = "https://sandbox.orcid.org/oauth/token"
-        CLIENT_ID = "<Orcid client ID>"
-        CLIENT_SECRET = "<Orcid client secret>"
-        SCOPE = "/authenticate"
-
-        [OAUTH.Google]
-        AUTHORIZATION_URL = "https://accounts.google.com/o/oauth2/auth"
-        TOKEN_URL = "https://oauth2.googleapis.com/token"
-        CLIENT_ID = "<Google client ID>"
-        CLIENT_SECRET = "<Google client secret>"
-        SCOPE = "profile email"
-```
-Store the TOML file on the server and start the ASReview application from the CLI with the
-`--flask-configfile` parameter:
-```
-$ python3 -m asreview lab --flask-configfile=<path-to-TOML-config-file>
-```
-A number of the keys in the TOML file are standard Flask parameters. The keys that are specific for authenticating ASReview are summarised below:
-*  LOGIN_DISABLED: if set to `false` the application will start with authentication enabled. If the SQLite database does not exist, one will be created during startup.
-* SECRET_KEY: the secret key is a string that is used to encrypt cookies and is mandatory if authentication is required.
-* SECURITY_PASSWORD_SALT: another string used to hash passwords, also mandatory if authentication is required.
-* ALLOW_ACCOUNT_CREATION: enables account creation by users, either by front- or backend.
-* EMAIL_VERIFICATION: used in conjunction with ALLOW_ACCOUNT_CREATION. If set to `true` the system sends a verification email after account creation. Only relevant if the account is __not__ created by OAuth. This parameter can be omitted if you don't want verification.
-* EMAIL_CONFIG: configuration of the SMTP email server that is used for email verification. It also allows users to retrieve a new password after forgetting it. Don't forget to enter the reply address (REPLY_ADDRESS) of your system emails. Omit this parameter if system emails for verification and password retrieval are unwanted.
-* OAUTH: an authenticated ASReview application may integrate with the OAuth functionality of Github, Orcid and Google. Provide the necessary OAuth login credentails (for [Github](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app), [Orcid](https://info.orcid.org/documentation/api-tutorials/api-tutorial-get-and-authenticated-orcid-id/) en [Google](https://support.google.com/cloud/answer/6158849?hl=en)). Please note that the AUTHORIZATION_URL and TOKEN_URL of the Orcid entry are sandbox-urls, and thus not to be used in production. Omit this parameter if OAuth is unwanted.
-
-#### Optional config parameters
-
-There are three optional parameters available that control what address the ASReview server listens to, and avoid CORS issues:
-
-```toml
-HOST = "0.0.0.0"
-PORT = 5001
-ALLOWED_ORIGINS = ["http://localhost:3000"]
-```
-The HOST and PORT determine what address the ASReview server listens to. If this deviates from `localhost` and port 5000, and you run the front end separately, make sure the [front end can find the backend](#front-end-development-and-connectioncors-issues). The ALLOWED_ORIGINS key must be set if you run the front end separately. Put in a list all URLs that your front end uses. This can be more than one URL. Failing to do so will certainly lead to CORS issues.
-
-Do you want to use a Postgresql database? Then add the `SQLALCHEMY_DATABASE_URI` key to the config file:
-
-```toml
-SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://username:password@host:port/database_name"
-```
-
-### Converting an unauthenticated application into an authenticated one
-
-Start the application with authentication enabled for the first time. This ensures the creation of the necessary database. To avoid unwanted user input, shutdown the application.
-
-To convert the old unauthenticated projects into authenticated ones, the following steps should be taken:
-
-1. Create user accounts for people to sign in.
-2. Convert project data and link the projects to the owner's user account.
-
-Under the CLI sub commands of the ASReview application a tool can be found that facilitates these procedures:
-
-```
-$ asreview auth-tool --help
-```
-
-All auth-tool sub commands, except for `list-projects`, __require a database uri__. The uri can be passed with the `--db-uri` option. If none is provided, the tool looks for an environment variable `SQLALCHEMY_DATABASE_URI`. If that environment variable can't be found either, the tool defaults to a uri of a SQLite database stored in the ASReview folder with filename `asreview.production.sqlite`.
-
-#### Creating user accounts
-
-The first step is to create user accounts. This can be done interactively or by using a JSON string to bulk insert the accounts. To add user accounts interactively run the following command:
-```
-$ asreview auth-tool add-users
-```
-
-Note that the absolute path of the sqlite database has to be provided. Also note that if your app runs in development mode, use the `asreview.development.sqlite` database instead. The tool will prompt you if you would like to add a user account. Type `Y` to continue and enter an email address, name, affiliation (not required) and a password for every person. Continue to add as many users as you would like.
-
-If you would like to bulk insert user accounts use the `--json` option:
-```
-$ asreview auth-tool add-users -j "[{\"email\": \"name@email.org\", \"name\": \"Name of User\", \"affiliation\": \"Some Place\", \"password\": \"1234@ABcd\"}]"
-```
-The JSON string represents a Python list with a dictionary for every user account with the following keys: `email`, `name`, `affiliation` and `password`. Note that passwords require at least one symbol. These symbols, such as the exclamation mark, may compromise the integrity of the JSON string.
-
-#### Preparing the projects
-
-After creating the user accounts, the existing projects must be stored and linked to a user account in the database. The tool provides the `list-projects` command to prepare for this step in case you would like to bulk store all projects. Ignore the following commands if you prefer to store all projects interactively. 
-
-Without a flag, the command lists all projects:
-```
-$ asreview auth-tool list-projects
-```
-If you add the `--json` flag:
-```
-$ asreview auth-tool list-projects --json
-```
-the tool returns a convenient JSON string that can be used to bulk insert and link projects into the database. The string represents a Python list containing a dictionary for every project. Since the ID of the user account of 
-the owner is initially unknown, the `0` behind every `owner_id` key needs to be replaced with the appropriate owner ID. That ID number can be found if we list all user accounts with the following command:
-```
-$ asreview auth-tool list-users
-```
-
-#### Inserting and linking the projects into the database
-
-Inserting and linking the projects into the database can be done interactively:
-```
-$ asreview auth-tool link-projects
-```
-The tool will list project by project and asks what the ID of the owner is. That ID can be found in the user list below the project information.
-
-One can also insert all project information by using the JSON string that was produced in the previous step:
-```
-$ asreview auth-tool link-projects --json "[{\"folder\": \"project-id\", \"version\": \"1.1+51.g0ebdb0c.dirty\", \"project_id\": \"project-id\", \"name\": \"project 1\", \"authors\": \"Authors\", \"created\": \"2023-04-12 21:23:28.625859\", \"owner_id\": 15}]"
-``` 
-
-
-## Release instructions
-
-### Docker
-
-A Docker image is created when a tag or a commit to `master` is pushed.
-The workflow `docker.yml` builds images for platforms `linux/amd64` and `linux/arm64`.
-If, for some reason, the image is not built, you can build manually with the commands below.
-Find the manual instructions at <https://docs.docker.com/docker-hub/> and <https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry>.
-Replace the version numbers below by the version you want to push.
-
-ASReview LAB
-```
-docker build -t asreview/asreview .
-docker build -t asreview/asreview:1.0 .
-docker push ghcr.io/asreview/asreview
-docker push ghcr.io/asreview/asreview:1.0
-```
-
-If you are creating a Docker container that runs the app with a [config file](#full-configuration) do __not forget__ to override the IP-address of the Flask backend. Set the HOST variable to "0.0.0.0" since the default "localhost" can't be reached from outside the container.
-
-See the `Docker` folder for more information about running the ASReview app in Docker containers.
