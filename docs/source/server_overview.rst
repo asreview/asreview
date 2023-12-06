@@ -66,3 +66,17 @@ ASReview LAB Server provides a easy way to create an account with your email.
 
 .. figure:: ../images/server_email.png
    :alt: Create account with account and password
+
+Installation
+------------
+
+ASReview LAB server is installed in the same way as ASReview LAB. See the
+`installation instructions <installation>`_ for more information.
+
+Optional: If you want to make use of the Postgresql database, you need to
+install the `psycopg2` package. This can be done by running the following
+command:
+
+.. code-block:: bash
+
+    pip install psycopg2
