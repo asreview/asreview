@@ -73,7 +73,7 @@ Installation
 ASReview LAB server is installed in the same way as ASReview LAB. See the
 `installation instructions <installation>`_ for more information.
 
-Optional: If you want to make use of the Postgresql database, you need to
+Optional: If you want to make use of the PostgreSQL database, you need to
 install the `psycopg2` package. This can be done by running the following
 command:
 

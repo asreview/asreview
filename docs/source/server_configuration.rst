@@ -1,4 +1,4 @@
-Server Configuration
+Server configuration
 --------------------
 
 ASReview LAB offers a number of options to run the application on a server. It
@@ -153,10 +153,10 @@ folder:
 
     FLASK_SQLALCHEMY_DATABASE_URI = "sqlite:///asreview.production.sqlite"
 
-Postgresql database
+PostgreSQL database
 ~~~~~~~~~~~~~~~~~~~
 
-You can replace the SQLite database with a `Postgresql database
+You can replace the SQLite database with a `PostgreSQL database
 <https://www.postgresql.org/>`_. This requires an extra step during installation
 and an extra step in the configuration file:
 
