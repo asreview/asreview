@@ -177,7 +177,7 @@ setup(
             "lab=asreview.webapp.entry_points.lab:lab_entry_point",
             "simulate=asreview.entry_points:SimulateEntryPoint",
             "algorithms=asreview.entry_points:AlgorithmsEntryPoint",
-            "auth-tool=asreview.webapp.entry_points.auth_tool:admin_entry_point",
+            "auth-tool=asreview.webapp.entry_points.auth_tool:AuthTool",
         ],
         "asreview.entry_points_internal": [
             "web_run_model=asreview.webapp.entry_points.run_model:run_model_entry_point",  # noqa
