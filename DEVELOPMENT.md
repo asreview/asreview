@@ -192,12 +192,6 @@ follow the guidelines below.
 
 
 
-
-
-
-
-
-
 ## Authentication
 
 It is possible to run ASReview with authentication, enabling multiple users to run their
@@ -207,7 +201,7 @@ database (asreview.development.sqlite or asreview.production.sqlite) in the ASRe
 folder to store that information.
 
 Note that it is possible to run the authenticated application with a 
-[Postgresql database](https://www.postgresql.org/). Using Postgresql requires 2 extra 
+[PostgreSQL database](https://www.postgresql.org/). Using Postgresql requires 2 extra 
 installation steps:
 1. Install the [psycopg2](https://www.psycopg.org/docs/) package. At the time of this writing
 2 versions of this package exist: `psycopg2` and `psycopg2-binary`. According to the
@@ -323,18 +317,20 @@ Under the CLI sub commands of the ASReview application a tool can be found that 
 $ asreview auth-tool --help
 ```
 
+All auth-tool sub commands, except for `list-projects`, __require a database uri__. The uri can be passed with the `--db-uri` option. If none is provided, the tool looks for an environment variable `SQLALCHEMY_DATABASE_URI`. If that environment variable can't be found either, the tool defaults to a uri of a SQLite database stored in the ASReview folder with filename `asreview.production.sqlite`.
+
 #### Creating user accounts
 
 The first step is to create user accounts. This can be done interactively or by using a JSON string to bulk insert the accounts. To add user accounts interactively run the following command:
 ```
-$ asreview auth-tool add-users --db-path ~/.asreview/asreview.production.sqlite
+$ asreview auth-tool add-users
 ```
 
 Note that the absolute path of the sqlite database has to be provided. Also note that if your app runs in development mode, use the `asreview.development.sqlite` database instead. The tool will prompt you if you would like to add a user account. Type `Y` to continue and enter an email address, name, affiliation (not required) and a password for every person. Continue to add as many users as you would like.
 
 If you would like to bulk insert user accounts use the `--json` option:
 ```
-$ asreview auth-tool add-users -j "[{\"email\": \"name@email.org\", \"name\": \"Name of User\", \"affiliation\": \"Some Place\", \"password\": \"1234@ABcd\"}]" --db-path ~/.asreview/asreview.production.sqlite
+$ asreview auth-tool add-users -j "[{\"email\": \"name@email.org\", \"name\": \"Name of User\", \"affiliation\": \"Some Place\", \"password\": \"1234@ABcd\"}]"
 ```
 The JSON string represents a Python list with a dictionary for every user account with the following keys: `email`, `name`, `affiliation` and `password`. Note that passwords require at least one symbol. These symbols, such as the exclamation mark, may compromise the integrity of the JSON string.
 
@@ -353,20 +349,20 @@ $ asreview auth-tool list-projects --json
 the tool returns a convenient JSON string that can be used to bulk insert and link projects into the database. The string represents a Python list containing a dictionary for every project. Since the ID of the user account of 
 the owner is initially unknown, the `0` behind every `owner_id` key needs to be replaced with the appropriate owner ID. That ID number can be found if we list all user accounts with the following command:
 ```
-$ asreview auth-tool list-users --db-path ~/.asreview/asreview.production.sqlite
+$ asreview auth-tool list-users
 ```
 
 #### Inserting and linking the projects into the database
 
 Inserting and linking the projects into the database can be done interactively:
 ```
-$ asreview auth-tool link-projects --db-path ~/.asreview/asreview.production.sqlite
+$ asreview auth-tool link-projects
 ```
 The tool will list project by project and asks what the ID of the owner is. That ID can be found in the user list below the project information.
 
 One can also insert all project information by using the JSON string that was produced in the previous step:
 ```
-$ asreview auth-tool link-projects --json "[{\"folder\": \"project-id\", \"version\": \"1.1+51.g0ebdb0c.dirty\", \"project_id\": \"project-id\", \"name\": \"project 1\", \"authors\": \"Authors\", \"created\": \"2023-04-12 21:23:28.625859\", \"owner_id\": 15}]" --db-path ~/.asreview/asreview.production.sqlite
+$ asreview auth-tool link-projects --json "[{\"folder\": \"project-id\", \"version\": \"1.1+51.g0ebdb0c.dirty\", \"project_id\": \"project-id\", \"name\": \"project 1\", \"authors\": \"Authors\", \"created\": \"2023-04-12 21:23:28.625859\", \"owner_id\": 15}]"
 ``` 
 
 
