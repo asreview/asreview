@@ -74,26 +74,6 @@ const ImportFromFile = (props) => {
   const queryClient = useQueryClient();
   const [file, setFile] = React.useState(null);
 
-  /**
-   * Import a dataset.
-   */
-  const {
-    error: addDatasetError,
-    isError: isAddDatasetError,
-    isLoading: isAddingDataset,
-    mutate: addDataset,
-    reset: resetAddDataset,
-  } = useMutation(ProjectAPI.mutateData, {
-    mutationKey: ["addDataset"],
-    onSuccess: (data) => {
-      props.toggleImportDataset();
-      props.toggleProjectSetup();
-    },
-  });
-
-  /**
-   * Import a project.
-   */
   const {
     error: importProjectError,
     isError: isImportProjectError,
@@ -121,31 +101,18 @@ const ImportFromFile = (props) => {
         setFile(acceptedFiles[0]);
       }
 
-      // set error to state
-      if (isAddDatasetError) {
-        resetAddDataset();
-      } else if (isImportProjectError) {
+      if (isImportProjectError) {
         resetImportProject();
       }
 
-      // import the file
-      if (props.acceptFormat !== ".asreview") {
-        addDataset({
-          project_id: props.project_id,
-          file: acceptedFiles[0],
-        });
-      } else {
-        importProject({
-          file: acceptedFiles[0],
-        });
-      }
+      importProject({
+        file: acceptedFiles[0],
+      });
+
     },
     [
       props.project_id,
       props.acceptFormat,
-      addDataset,
-      isAddDatasetError,
-      resetAddDataset,
       importProject,
       isImportProjectError,
       resetImportProject,
@@ -160,7 +127,7 @@ const ImportFromFile = (props) => {
     isDragReject,
     open,
   } = useDropzone({
-    onDrop: !(isAddingDataset || isImportingProject) ? onDrop : false,
+    onDrop: onDrop,
     multiple: false,
     noClick: true,
     accept: props.acceptFormat,
@@ -176,25 +143,13 @@ const ImportFromFile = (props) => {
     [isDragActive, isDragReject, isDragAccept],
   );
 
-  const returnAcceptFile = () => {
-    if (props.acceptFormat !== ".asreview") {
-      return <Typography>Drag and drop a dataset file to add</Typography>;
-    } else {
-      return (
-        <Typography>
-          Drag and drop a project file (<code>.asreview</code>) to add
-        </Typography>
-      );
-    }
-  };
-
   return (
     <Root>
       <Box {...getRootProps({ style })}>
         <input {...getInputProps()} />
         <Stack className={classes.root} spacing={2}>
           <ButtonBase
-            disabled={isAddingDataset || isImportingProject}
+            disabled={isImportingProject}
             disableRipple
             onClick={open}
           >
@@ -211,24 +166,18 @@ const ImportFromFile = (props) => {
               />
             </Avatar>
           </ButtonBase>
-          {returnAcceptFile()}
+          <Typography>
+          Drag and drop a project file (<code>.asreview</code>) to add
+        </Typography>
           {file && (
             <Typography className={classes.singleLine}>
               File <i>{file?.path}</i> selected.
             </Typography>
           )}
-          {isImportingProject && props.acceptFormat === ".asreview" && (
+          {isImportingProject && (
             <Typography sx={{ color: "text.secondary" }}>
               Importing...
             </Typography>
-          )}
-          {isAddingDataset && props.acceptFormat !== ".asreview" && (
-            <Typography sx={{ color: "text.secondary" }}>Adding...</Typography>
-          )}
-          {isAddDatasetError && (
-            <InlineErrorHandler
-              message={addDatasetError?.message + " Please try again."}
-            />
           )}
           {isImportProjectError && (
             <InlineErrorHandler
@@ -236,7 +185,7 @@ const ImportFromFile = (props) => {
             />
           )}
           <Button
-            disabled={isAddingDataset || isImportingProject}
+            disabled={isImportingProject}
             variant="contained"
             onClick={open}
           >
