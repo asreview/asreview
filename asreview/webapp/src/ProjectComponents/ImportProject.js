@@ -45,7 +45,6 @@ const ImportProject = (props) => {
       </Stack>
       <DialogContent dividers>
         <ImportFromFile
-          acceptFormat=".asreview"
           setFeedbackBar={props.setFeedbackBar}
           toggleImportProject={props.toggleImportProject}
         />

@@ -111,8 +111,6 @@ const ImportFromFile = (props) => {
 
     },
     [
-      props.project_id,
-      props.acceptFormat,
       importProject,
       isImportProjectError,
       resetImportProject,
@@ -130,7 +128,7 @@ const ImportFromFile = (props) => {
     onDrop: onDrop,
     multiple: false,
     noClick: true,
-    accept: props.acceptFormat,
+    accept: ".asreview",
   });
 
   const style = useMemo(
