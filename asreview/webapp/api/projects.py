@@ -1099,7 +1099,7 @@ def api_import_project():
         )
 
         # create a database entry for this project
-        if app_is_authenticated(current_app):
+        if not current_app.config.get("LOGIN_DISABLED", False):
             current_user.projects.append(Project(project_id=project.config.get("id")))
             project.config["owner_id"] = current_user.id
             DB.session.commit()
