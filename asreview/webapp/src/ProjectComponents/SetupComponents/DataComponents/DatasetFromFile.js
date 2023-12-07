@@ -105,12 +105,7 @@ const DatasetFromFile = (props) => {
         file: acceptedFiles[0],
       });
     },
-    [
-      props.project_id,
-      addDataset,
-      isAddDatasetError,
-      resetAddDataset,
-    ]
+    [props.project_id, addDataset, isAddDatasetError, resetAddDataset]
   );
 
   const {
@@ -121,7 +116,7 @@ const DatasetFromFile = (props) => {
     isDragReject,
     open,
   } = useDropzone({
-    onDrop: isAddingDataset ? onDrop : false,
+    onDrop: onDrop,
     multiple: false,
     noClick: true,
     accept: props.acceptFormat,
@@ -142,11 +137,7 @@ const DatasetFromFile = (props) => {
       <Box {...getRootProps({ style })}>
         <input {...getInputProps()} />
         <Stack className={classes.root} spacing={2}>
-          <ButtonBase
-            disabled={isAddingDataset}
-            disableRipple
-            onClick={open}
-          >
+          <ButtonBase disabled={isAddingDataset} disableRipple onClick={open}>
             <Avatar
               sx={{
                 height: "136px",
@@ -174,11 +165,7 @@ const DatasetFromFile = (props) => {
               message={addDatasetError?.message + " Please try again."}
             />
           )}
-          <Button
-            disabled={isAddingDataset}
-            variant="contained"
-            onClick={open}
-          >
+          <Button disabled={isAddingDataset} variant="contained" onClick={open}>
             Select File
           </Button>
         </Stack>
