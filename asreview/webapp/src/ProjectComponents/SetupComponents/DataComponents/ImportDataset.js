@@ -22,9 +22,8 @@ import { Close } from "@mui/icons-material";
 
 import { AppBarWithinDialog } from "../../../Components";
 import { StyledIconButton } from "../../../StyledComponents/StyledButton.js";
-import { DatasetFromEntryPoint, DatasetFromURL } from ".";
+import { DatasetFromFile, DatasetFromEntryPoint, DatasetFromURL } from ".";
 import { InfoCard } from "..";
-import { ImportFromFile } from "../..";
 import { ProjectAPI } from "../../../api/index.js";
 import {
   mapDispatchToProps,
@@ -232,7 +231,7 @@ const ImportDataset = (props) => {
               </Typography>
             )}
             {datasetSource === "file" && (
-              <ImportFromFile
+              <DatasetFromFile
                 acceptFormat=".txt,.tsv,.tab,.csv,.ris,.xlsx"
                 toggleImportDataset={props.toggleImportDataset}
                 toggleProjectSetup={props.toggleProjectSetup}

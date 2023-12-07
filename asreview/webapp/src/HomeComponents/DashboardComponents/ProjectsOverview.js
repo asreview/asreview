@@ -16,7 +16,7 @@ import {
 } from "../../ProjectComponents/SetupComponents";
 import {
   AddPriorKnowledge,
-  ImportDataset,
+  DatasetFromFile,
 } from "../../ProjectComponents/SetupComponents/DataComponents";
 
 import { ProjectAPI } from "../../api/index.js";
@@ -122,7 +122,7 @@ const ProjectsOverview = (props) => {
         mode={selectedMode}
         toggleAddPrior={toggleAddPrior}
       />
-      <ImportDataset
+      <DatasetFromFile
         open={onImportDataset}
         datasetAdded={false}
         mobileScreen={props.mobileScreen}
