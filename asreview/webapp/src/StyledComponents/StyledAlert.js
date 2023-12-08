@@ -8,7 +8,7 @@ export function ExplorationModeRecordAlert(props) {
       className={"fontSize" + props.fontSize?.label}
       sx={{ borderBottomRightRadius: 0, borderBottomLeftRadius: 0 }}
     >
-      Labeled as{" "}
+      Initially labeled as{" "}
       {
         <Box
           className="labeled-as"
@@ -17,7 +17,7 @@ export function ExplorationModeRecordAlert(props) {
         >
           {props.label}
         </Box>
-      }{" "}
+      }{" "}, what would be your decission?
       in the dataset
     </Alert>
   );
