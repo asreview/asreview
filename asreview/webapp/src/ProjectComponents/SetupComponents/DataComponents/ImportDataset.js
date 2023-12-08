@@ -189,7 +189,7 @@ const ImportDataset = (props) => {
                 and tabular datasets (<code>.csv</code>, <code>.tab</code>,{" "}
                 <code>.tsv</code>, <code>.xlsx</code>). The dataset should
                 contain a title and abstract for each record.{" "}
-                {props.mode !== projectModes.ORACLE
+                {props.mode !== projectModes.ORACLE || projectModes.EXPLORATION
                   ? "The dataset should contain labels for each record. "
                   : ""}
                 To optimally benefit from the performance of the active learning

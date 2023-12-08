@@ -131,7 +131,8 @@ const RecordCard = (props) => {
           {/* Previous decision alert */}
           {props.activeRecord._debug_label !== null && (
             <ExplorationModeRecordAlert
-              label={!isDebugInclusion() ? "irrelevant" : "relevant"}
+              label={props.activeRecord._debug_label === -1 ? "not seen" : 
+              !isDebugInclusion() ? "irrelevant" : "relevant"}
               fontSize={props.fontSize}
             />
           )}
