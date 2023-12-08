@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Alert, Box } from "@mui/material";
 
-export function ExplorationModeRecordAlert(props) {
+export function ExplorationModeRecordAlertPrior(props) {
   return (
     <Alert
       severity="info"
@@ -17,7 +17,7 @@ export function ExplorationModeRecordAlert(props) {
         >
           {props.label}
         </Box>
-      }{""}, what would be your decission?
+      }{""}.
     </Alert>
   );
 }
