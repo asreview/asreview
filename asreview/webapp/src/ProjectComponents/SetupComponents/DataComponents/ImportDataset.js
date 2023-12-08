@@ -91,10 +91,10 @@ const ImportDataset = (props) => {
 
   React.useEffect(() => {
     if (props.mode === projectModes.EXPLORATION) {
-      setDatasetSource("benchmark");
+      setDatasetSource("file");
     }
     if (props.mode !== projectModes.EXPLORATION) {
-      setDatasetSource("file");
+      setDatasetSource("benchmark");
     }
   }, [props.mode]);
 
