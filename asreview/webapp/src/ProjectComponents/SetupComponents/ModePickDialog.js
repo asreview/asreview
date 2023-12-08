@@ -40,9 +40,9 @@ const modes = [
   },
   {
     value: projectModes.EXPLORATION,
-    primary: "Exploration",
+    primary: "Validation",
     secondary:
-      "Explore or demonstrate ASReview LAB with a completely labeled dataset",
+      "Validate labels provided by another screener or derived from a LLM, and explore benchmark datasets",
   },
   {
     value: projectModes.SIMULATION,
