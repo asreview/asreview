@@ -350,7 +350,7 @@ const ProjectTable = (props) => {
       return "Oracle";
     }
     if (mode === "explore") {
-      return "Exploration";
+      return "Validation";
     }
     if (mode === "simulate") {
       return "Simulation";
