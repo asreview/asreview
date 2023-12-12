@@ -510,7 +510,7 @@ class ASReviewData:
             if is_string_dtype(self.df[pid]) or is_object_dtype(self.df[pid]):
                 s_pid = self.df[pid].str.strip().replace("", None)
                 if pid == "doi":
-                    s_pid = s_pid.str.replace(
+                    s_pid = s_pid.str.lower().str.replace(
                         r"^https?://(www\.)?doi\.org/", "", regex=True
                     )
             else:
