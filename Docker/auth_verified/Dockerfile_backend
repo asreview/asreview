@@ -25,11 +25,13 @@ FROM python:3.11-slim
 
 # arguments
 ARG EMAIL_PASSWORD
-ARG FRONTEND_EXTERNAL_PORT_ARG
-ARG BACKEND_INTERNAL_PORT_ARG
+ARG FRONTEND_EXTERNAL_PORT
+ARG BACKEND_INTERNAL_PORT
+ARG FRONTEND_DOMAIN
 ARG WORKERS
 ARG SQLALCHEMY_DATABASE_URI
 ARG CREATE_TABLES
+ARG FLASK_MAIL_PASSWORD
 
 # install necessary libs
 RUN apt-get update && apt-get install -y libpq-dev
@@ -40,18 +42,14 @@ COPY --from=builder /root/.local /root/.local
 # copy config TOML file to Image
 COPY ./Docker/auth_verified/flask_config.toml ${WORKDIR}
 
-# the TOML file needs to be configured with the database parameters
-# and email password, we use the sed command to search and insert (replace)
-# necessary parameters
-RUN sed -i "s|--SQLALCHEMY_DATABASE_URI--|${SQLALCHEMY_DATABASE_URI}|g" ./flask_config.toml
-RUN sed -i "s|--EMAIL_PASSWORD--|${EMAIL_PASSWORD}|g" ./flask_config.toml
-RUN sed -i "s|--PORT--|${FRONTEND_EXTERNAL_PORT_ARG}|g" ./flask_config.toml
-
 # set env variables, this is how the TOML config is communicated
 # to the app via Gunicorn
 ENV PATH=/root/.local/bin:$PATH
 ENV ASREVIEW_PATH=/app/project_folder
 ENV FLASK_CONFIGFILE=/app/flask_config.toml
+ENV FLASK_SQLALCHEMY_DATABASE_URI=${SQLALCHEMY_DATABASE_URI}
+ENV FLASK_ALLOWED_ORIGINS="[\"${FRONTEND_DOMAIN}:${FRONTEND_EXTERNAL_PORT}\"]"
+ENV FLASK_MAIL_PASSWORD=${FLASK_MAIL_PASSWORD}
 
 # set the working directory to the app
 WORKDIR /root/.local/lib/python3.11/site-packages/asreview/webapp
@@ -60,7 +58,7 @@ COPY ./Docker/auth_verified/wsgi.py ${WORKDIR}
 
 # create Gunicorn config file
 RUN echo "preload_app = True" > gunicorn.conf.py
-RUN echo "bind = \"0.0.0.0:${BACKEND_INTERNAL_PORT_ARG}\"" >> gunicorn.conf.py
+RUN echo "bind = \"0.0.0.0:${BACKEND_INTERNAL_PORT}\"" >> gunicorn.conf.py
 RUN echo "workers = ${WORKERS}" >> gunicorn.conf.py
 
 # create start script to ensure creating all necessary tables and

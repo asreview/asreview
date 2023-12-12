@@ -68,14 +68,13 @@ secure way (https).
     ALLOW_TEAMS = false
     EMAIL_VERIFICATION = false
 
-    [EMAIL_CONFIG]
-    SERVER = "<smtp-server>"
-    PORT = 465
-    USERNAME = "<smtp-server-username>"
-    PASSWORD = "<smtp-server-password>"
-    USE_TLS = false
-    USE_SSL = true
-    REPLY_ADDRESS = "<preferred reply email address>"
+    MAIL_SERVER = "<smtp-server>"
+    MAIL_PORT = 465
+    MAIL_USERNAME = "<smtp-server-username>"
+    MAIL_PASSWORD = "<smtp-server-password>"
+    MAIL_USE_TLS = false
+    MAIL_USE_SSL = true
+    MAIL_DEFAULT_SENDER = "<preferred reply email address>"
 
     [OAUTH]
             [OAUTH.GitHub]
@@ -107,7 +106,7 @@ CLI with the ``--flask-configfile`` parameter:
         asreview lab --flask-configfile=<path-to-TOML-config-file>
 
 A number of the keys in the TOML file are standard Flask parameters. The keys
-that are specific for authenticating ASReview are summarised below:
+that are specific for authenticating ASReview are summarized below:
 
 - DISABLE_LOGIN: if set to ``false`` the application will start with
   authentication. If the SQLite database does not exist, one will be
@@ -122,10 +121,10 @@ that are specific for authenticating ASReview are summarised below:
   ``true`` the system sends a verification email after account creation. Only
   relevant if the account is __not__ created by OAuth. This parameter can be
   omitted if you don't want verification.
-- EMAIL_CONFIG: configuration of the SMTP email server that is used for email
-  verification. It also allows users to retrieve a new password after forgetting
-  it. Don't forget to enter the reply address (REPLY_ADDRESS) of your system
-  emails. Omit this parameter if system emails for verification and password
+- MAIL_<PAR>: configuration parameters to setup the SMTP email server that is used
+  for email verification. It also allows users to retrieve a new password after forgetting
+  it. Don't forget to enter the reply address (MAIL_DEFAULT_SENDER) of your system
+  emails. Remove these parameters if system emails for verification and password
   retrieval are unwanted.
 - OAUTH: an authenticated ASReview application may integrate with the OAuth
   functionality of Github, Orcid and Google. Provide the necessary OAuth login

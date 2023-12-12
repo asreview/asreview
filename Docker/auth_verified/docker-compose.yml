@@ -24,9 +24,10 @@ services:
       context: ../../
       dockerfile: ./Docker/auth_verified/Dockerfile_backend
       args:
-        FRONTEND_EXTERNAL_PORT_ARG: ${FRONTEND_EXTERNAL_PORT}
-        BACKEND_INTERNAL_PORT_ARG: ${BACKEND_INTERNAL_PORT}
-        EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+        FRONTEND_EXTERNAL_PORT: ${FRONTEND_EXTERNAL_PORT}
+        BACKEND_INTERNAL_PORT: ${BACKEND_INTERNAL_PORT}
+        FRONTEND_DOMAIN: ${FRONTEND_DOMAIN}
+        FLASK_MAIL_PASSWORD: ${FLASK_MAIL_PASSWORD}
         WORKERS: ${WORKERS}
         SQLALCHEMY_DATABASE_URI: "postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@asreview_database:5432/${POSTGRES_DB}"
         CREATE_TABLES: "asreview auth-tool create-db --db-uri=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@asreview_database:5432/${POSTGRES_DB}"

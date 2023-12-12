@@ -1,8 +1,4 @@
-DEBUG = true
-HOST = "0.0.0.0"
-PORT = 5000
-AUTHENTICATION_ENABLED = true
-ALLOWED_ORIGINS = ["http://localhost:--PORT--", "http://127.0.0.1:--PORT--"]
+LOGIN_DISABLED = false
 SECRET_KEY = "my_very_secret_key"
 SECURITY_PASSWORD_SALT = "abCDefGH"
 SESSION_COOKIE_SECURE = true
@@ -10,15 +6,20 @@ REMEMBER_COOKIE_SECURE = true
 SESSION_COOKIE_SAMESITE = "Lax"
 SQLALCHEMY_TRACK_MODIFICATIONS = true
 ALLOW_ACCOUNT_CREATION = true
-ALLOW_TEAMS = false
-EMAIL_VERIFICATION = false
-SQLALCHEMY_DATABASE_URI = "--SQLALCHEMY_DATABASE_URI--"
 
-[EMAIL_CONFIG]
-SERVER = "smtp.sendgrid.net"
-PORT = 465
-USERNAME = "apikey"
-PASSWORD = "--EMAIL_PASSWORD--"
-USE_TLS = false
-USE_SSL = true
-REPLY_ADDRESS = "casper@compunist.nl"
+ALLOW_TEAMS = false
+EMAIL_VERIFICATION = true
+
+# MAIL_SERVER = "smtp.sendgrid.net"
+# MAIL_PORT = 465
+# MAIL_USE_TLS = false
+# MAIL_USE_SSL = true
+# MAIL_USERNAME = "apikey"
+# MAIL_DEFAULT_SENDER = "casper@compunist.nl"
+
+MAIL_SERVER = "smtp.sendgrid.net"
+MAIL_PORT = 465
+MAIL_USERNAME = "apikey"
+MAIL_USE_TLS = false
+MAIL_USE_SSL = true
+MAIL_DEFAULT_SENDER = "casper@compunist.nl"

@@ -28,12 +28,12 @@ If you would like to setup the ASReview application as a shared service, a more 
 For account verification, but also for the forgot-password feature, an email server is required. But maintaining an email server can be demanding. If you would like to avoid it, a third-party service like [SendGrid](https://sendgrid.com/) might be a good alternative. In this recipe we use the SMTP Relay Service from Sendgrid: every email sent by the ASReview application will be relayed by this service. Sendgrid is for free if you don't expect the application to send more than 100 emails per day. Receiving reply emails from end-users is not possible if you use the Relay service, but that might be irrelevant.
 
 In the `auth_verified` folder you find 7 files:
-1. `.env` - An environment variable file for all relevant parameters (ports, database and Gunicorn related parameters)
+1. `.env` - An environment variable file for all relevant (secret) parameters (ports, database, email and Gunicorn related parameters)
 2. `asreview.conf` - a configuration files used by NGINX.
 3. `docker-compose.yml` - the docker compose file that will create the Docker containers.
 4. `Dockerfile_backend` - Dockerfile for the backend, installs all Python related software, including Gunicorn, and starts the backend server.
 5. `Dockerfile_frontend` - Dockerfile for the frontend, installs Node, the React frontend and NGINX and starts the NGINX server.
-6. `flask_config.toml` - the configuration file for the ASReview application. Contains the necessary EMAIL_CONFIG parameters to link the application to the Sendgrid Relay Service.
+6. `flask_config.toml` - the configuration file for the ASReview application. Contains the necessary email configuration parameters to link the application to the Sendgrid Relay Service.
 7. `wsgi.py` - a tiny Python file that serves the backend with Gunicorn.
 
 ### SendGrid
@@ -44,7 +44,7 @@ If you would like to use or try out [SendGrid](https://sendgrid.com/), go to the
 
 The .env file contains all necessary parameters to deploy all containers. All variables that end with the `_PORT` suffix refer to the internal and external network ports of the containers. The prefix of these variable explains for which container they are used. Note that the external port of the frontend container, the container that will be directly used by the end-user, is 8080, and not 80. Change this into 80 if you dont want to use port numbers in the URL of the ASReview web application.
 
-The `EMAIL_PASSWORD` refers to the password provided by the SendGrid Relay service, and the value of the `WORKERS` parameter determines how many instances of the ASReview app Gunicorn will start.
+The `FLASK_MAIL_PASSWORD` refers to the password provided by the SendGrid Relay service, and the value of the `WORKERS` parameter determines how many instances of the ASReview app Gunicorn will start.
 
 All variables that start with the `POSTGRES` postfix are meant for the PostgreSQL database. The `_USER`, `_PASSWORD` variables are self-explanatory. the `_DB` variable determines the name of the database.
 
