@@ -111,7 +111,7 @@ const ElasGame = (props) => {
   // Define initial state
   const initialState = {
     expert: false,
-    cheatMode: 'inactive',
+    cheatMode: false,
     imagesArraySimple: initialShuffle("simple"),
     imagesArrayExpert: initialShuffle("expert"),
     imagesArray: initialShuffle("simple"),
@@ -253,7 +253,7 @@ function isCardChosen(image, index) {
   // Function to handle key press events
   const handleKeyPress = useCallback(
     (event) => {
-      if (event.key === "c" && gameState.cheatMode === "inactive") {
+      if (event.key === "c" ) {
         setGameState((prevState) => ({ ...prevState, cheatMode: "active" }));
       }
     },
@@ -283,6 +283,7 @@ function isCardChosen(image, index) {
       setGameState((prevState) => ({ ...prevState, cheatMode: "inactive" }));
     }
   }, [gameState.cheatMode]);
+
 
   // Render method of the ElasGame component
   return (
