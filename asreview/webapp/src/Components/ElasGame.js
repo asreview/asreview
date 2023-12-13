@@ -257,7 +257,7 @@ function isCardChosen(image, index) {
         setGameState((prevState) => ({ ...prevState, cheatMode: "active" }));
       }
     },
-    [gameState.cheatMode],
+    [],
   );
 
   const handleKeyUp = useCallback((event) => {
