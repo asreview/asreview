@@ -110,12 +110,11 @@ const initialShuffle = (mode) => {
 const ElasGame = (props) => {
   // Define initial state
   const initialState = {
-    mode: "simple",
+    expert: false,
     cheatMode: 'inactive',
-    gameStarted: false,
     imagesArraySimple: initialShuffle("simple"),
     imagesArrayExpert: initialShuffle("expert"),
-    imagesArray: [],
+    imagesArray: initialShuffle("simple"),
     isExpertCompleted: false,
     gameStats: {
       simple: { openCards: [], attempts: 0, matches: 0 },
@@ -124,140 +123,132 @@ const ElasGame = (props) => {
     selectedPapers: { images: [], ids: [] },
   };
 
-const [gameState, setGameState] = useState({
-    ...initialState,
-    imagesArray: initialShuffle("simple"),
-  });
+  const [gameState, setGameState] = useState(initialState);
+
 
   // Resets the game to initial state
 const resetGame = () => {
   setGameState(prevState => {
+    // Determine the current mode
+    const currentMode = prevState.expert ? 'expert' : 'simple';
+    
+    // Reset stats for the current mode
     const resetStats = { openCards: [], attempts: 0, matches: 0 };
     const updatedGameStats = {
       ...prevState.gameStats,
-      [prevState.mode]: resetStats,
+      [currentMode]: resetStats,
     };
+
+    // Shuffle images for the current mode
+    const shuffledImages = initialShuffle(currentMode);
 
     return {
       ...prevState,
       gameStats: updatedGameStats,
       selectedPapers: { images: [], ids: [] },
-      imagesArray: initialShuffle(prevState.mode),
-      isExpertCompleted: false,
+      imagesArray: shuffledImages,
     };
   });
 };
 
+
+
   // Toggles between simple and expert modes
 const toggleMode = () => {
-    setGameState(prevState => {
-      const newMode = prevState.mode === "simple" ? "expert" : "simple";
-      const newImagesArray = newMode === "simple" ? prevState.imagesArraySimple : prevState.imagesArrayExpert;
-      return {
-        ...prevState,
-        mode: newMode,
-        imagesArray: newImagesArray,
-      };
-    });
-  };
+  setGameState(prevState => ({
+    ...prevState,
+    expert: !prevState.expert,
+    imagesArray: !prevState.expert ? prevState.imagesArrayExpert : prevState.imagesArraySimple,
+  }));
+};
 
   const handleCompletionDismiss = useCallback(() => {
     setGameState((prevState) => ({ ...prevState, isExpertCompleted: false }));
   }, []);
 
-  // Function to handle the flip action of a card
-  function flipImage(image, index) {
-    if (
-      gameState.cheatMode === "active" ||
-      gameState.selectedPapers.ids.length >= 2
-    )
-      return;
 
-    const { openCards, attempts, matches } =
-      gameState.gameStats[gameState.mode];
+// Function to handle the flip action of a card
+function flipImage(image, index) {
+  const currentMode = gameState.expert ? 'expert' : 'simple';
+  if (gameState.cheatMode === "active" || gameState.selectedPapers.ids.length >= 2)
+    return;
 
-    // Ignore click if the same card is clicked again or if the card is already matched
-    if (
-      gameState.selectedPapers.ids.includes(index) ||
-      openCards.includes(image)
-    ) {
-      return;
-    }
+  const { openCards, attempts, matches } = gameState.gameStats[currentMode];
 
-    // Add the new card to the selected ones
-    const newSelectedPapers = {
-      images: [...gameState.selectedPapers.images, image],
-      ids: [...gameState.selectedPapers.ids, index],
-    };
-
-    setGameState((prevState) => {
-      return {
-        ...prevState,
-        selectedPapers: newSelectedPapers,
-      };
-    });
-
-    // Check for a match only when two cards are selected
-    if (newSelectedPapers.images.length === 2) {
-      setTimeout(() => {
-        const isMatch =
-          newSelectedPapers.images[0] === newSelectedPapers.images[1];
-
-        // Update score and attempts
-        const updatedGameStats = {
-          ...gameState.gameStats,
-          [gameState.mode]: {
-            openCards: isMatch
-              ? [...openCards, ...newSelectedPapers.images]
-              : openCards,
-            attempts: attempts + 1,
-            matches: isMatch ? matches + 1 : matches,
-          },
-        };
-
-        setGameState((prevState) => {
-          return {
-            ...prevState,
-            gameStats: updatedGameStats,
-            selectedPapers: { images: [], ids: [] },
-          };
-        });
-      }, 700);
-    }
+  // Ignore click if the same card is clicked again or if the card is already matched
+  if (gameState.selectedPapers.ids.includes(index) || openCards.includes(image)) {
+    return;
   }
+
+  // Add the new card to the selected ones
+  const newSelectedPapers = {
+    images: [...gameState.selectedPapers.images, image],
+    ids: [...gameState.selectedPapers.ids, index],
+  };
+
+  setGameState((prevState) => {
+    return {
+      ...prevState,
+      selectedPapers: newSelectedPapers,
+    };
+  });
+
+  // Check for a match only when two cards are selected
+  if (newSelectedPapers.images.length === 2) {
+    setTimeout(() => {
+      const isMatch = newSelectedPapers.images[0] === newSelectedPapers.images[1];
+
+      // Update score and attempts
+      const updatedGameStats = {
+        ...gameState.gameStats,
+        [currentMode]: {
+          openCards: isMatch ? [...openCards, ...newSelectedPapers.images] : openCards,
+          attempts: attempts + 1,
+          matches: isMatch ? matches + 1 : matches,
+        },
+      };
+
+      setGameState((prevState) => {
+        return {
+          ...prevState,
+          gameStats: updatedGameStats,
+          selectedPapers: { images: [], ids: [] },
+        };
+      });
+    }, 700);
+  }
+}
+
 
   // Function to determine if a card is currently chosen
-  function isCardChosen(image, index) {
-    const { openCards } = gameState.gameStats[gameState.mode];
-    const isSelectedNow = gameState.selectedPapers.ids.includes(index);
-    return openCards.includes(image) || isSelectedNow;
-  }
+function isCardChosen(image, index) {
+  const currentMode = gameState.expert ? 'expert' : 'simple';
+  const { openCards } = gameState.gameStats[currentMode];
+  const isSelectedNow = gameState.selectedPapers.ids.includes(index);
+  return openCards.includes(image) || isSelectedNow;
+}
+
 
   // useEffect hooks
   useEffect(() => {
     // Check if the expert mode is completed
-    const { openCards } = gameState.gameStats.expert;
-    if (
-      gameState.mode === "expert" &&
-      openCards.length === gameState.imagesArray.length
-    ) {
+  if (gameState.expert && gameState.gameStats.expert.openCards.length === gameState.imagesArray.length) {
+    setGameState((prevState) => ({
+      ...prevState,
+      isExpertCompleted: true,
+    }));
+
+    const completionTimeout = setTimeout(() => {
       setGameState((prevState) => ({
         ...prevState,
-        isExpertCompleted: true,
+        isExpertCompleted: false,
       }));
+    }, 3000);
 
-      const completionTimeout = setTimeout(() => {
-        setGameState((prevState) => ({
-          ...prevState,
-          isExpertCompleted: false,
-        }));
-      }, 3000);
+    return () => clearTimeout(completionTimeout);
+  }
+}, [gameState.expert, gameState.gameStats.expert, gameState.imagesArray.length]);
 
-      return () => clearTimeout(completionTimeout);
-    }
-  }, [
-    gameState.gameStats.expert, gameState.imagesArray.length, gameState.mode]
-  );
 
   // Function to handle key press events
   const handleKeyPress = useCallback(
@@ -308,7 +299,7 @@ const toggleMode = () => {
         <FormControlLabel
           control={
             <Switch
-              checked={gameState.mode === "expert"}
+              checked={gameState.expert}
               onChange={toggleMode}
               name="mode"
               color="primary"
@@ -318,11 +309,11 @@ const toggleMode = () => {
           label="Expert Mode"
         />
 
-        <Typography variant="h6">
-          {gameState.mode === "simple"
-            ? `Simple Mode: ${gameState.gameStats.simple.matches} correct out of ${gameState.gameStats.simple.attempts} attempts`
-            : `Expert Mode: ${gameState.gameStats.expert.matches} correct out of ${gameState.gameStats.expert.attempts} attempts`}
-        </Typography>
+      <Typography variant="h6">
+            {gameState.expert
+              ? `Expert Mode: ${gameState.gameStats.expert.matches} correct out of ${gameState.gameStats.expert.attempts} attempts`
+              : `Simple Mode: ${gameState.gameStats.simple.matches} correct out of ${gameState.gameStats.simple.attempts} attempts`}
+          </Typography>
 
         <Button
           variant="outlined"
