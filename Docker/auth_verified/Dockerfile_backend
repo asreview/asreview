@@ -32,6 +32,7 @@ ARG WORKERS
 ARG SQLALCHEMY_DATABASE_URI
 ARG CREATE_TABLES
 ARG FLASK_MAIL_PASSWORD
+ARG FLASK_SESSION_COOKIE_SAMESITE
 
 # install necessary libs
 RUN apt-get update && apt-get install -y libpq-dev
@@ -49,6 +50,7 @@ ENV ASREVIEW_PATH=/app/project_folder
 ENV FLASK_CONFIGFILE=/app/flask_config.toml
 ENV FLASK_SQLALCHEMY_DATABASE_URI=${SQLALCHEMY_DATABASE_URI}
 ENV FLASK_ALLOWED_ORIGINS="[\"${FRONTEND_DOMAIN}:${FRONTEND_EXTERNAL_PORT}\"]"
+ENV FLASK_SESSION_COOKIE_SAMESITE=${FLASK_SESSION_COOKIE_SAMESITE}
 ENV FLASK_MAIL_PASSWORD=${FLASK_MAIL_PASSWORD}
 
 # set the working directory to the app
@@ -60,6 +62,7 @@ COPY ./Docker/auth_verified/wsgi.py ${WORKDIR}
 RUN echo "preload_app = True" > gunicorn.conf.py
 RUN echo "bind = \"0.0.0.0:${BACKEND_INTERNAL_PORT}\"" >> gunicorn.conf.py
 RUN echo "workers = ${WORKERS}" >> gunicorn.conf.py
+RUN echo "worker_class = \"sync\""
 
 # create start script to ensure creating all necessary tables and
 # runs the Gunicorn command

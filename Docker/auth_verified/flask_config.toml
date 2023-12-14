@@ -1,25 +1,20 @@
+DEBUG = true
 LOGIN_DISABLED = false
 SECRET_KEY = "my_very_secret_key"
 SECURITY_PASSWORD_SALT = "abCDefGH"
 SESSION_COOKIE_SECURE = true
 REMEMBER_COOKIE_SECURE = true
-SESSION_COOKIE_SAMESITE = "Lax"
 SQLALCHEMY_TRACK_MODIFICATIONS = true
+
 ALLOW_ACCOUNT_CREATION = true
-
 ALLOW_TEAMS = false
-EMAIL_VERIFICATION = true
+EMAIL_VERIFICATION = false
 
+# When using a mail server for email verification:
+# ================================================
 # MAIL_SERVER = "smtp.sendgrid.net"
 # MAIL_PORT = 465
 # MAIL_USE_TLS = false
 # MAIL_USE_SSL = true
 # MAIL_USERNAME = "apikey"
-# MAIL_DEFAULT_SENDER = "casper@compunist.nl"
-
-MAIL_SERVER = "smtp.sendgrid.net"
-MAIL_PORT = 465
-MAIL_USERNAME = "apikey"
-MAIL_USE_TLS = false
-MAIL_USE_SSL = true
-MAIL_DEFAULT_SENDER = "casper@compunist.nl"
+# MAIL_DEFAULT_SENDER = "no_reply@example.org"

@@ -114,8 +114,6 @@ def create_app(
                 "Missing email configuration to facilitate email verification"
             )
 
-        logging.error(app.config)
-
         if not app.config.get("SQLALCHEMY_DATABASE_URI", None):
             uri = os.path.join(asreview_path(), f"asreview.{env}.sqlite")
             app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{uri}"

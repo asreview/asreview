@@ -50,8 +50,6 @@ def send_forgot_password_email(user, request, cur_app):
     if not cur_app.testing:
         # get necessary information out of user object
         name = user.name or "ASReview user"
-        # email config
-        config = cur_app.config.get("EMAIL_CONFIG")
         # get url of front-end
         root_url = request.headers.get("Origin")
         # create url that will be used in the email
@@ -67,8 +65,7 @@ def send_forgot_password_email(user, request, cur_app):
         # create message
         msg = Message(
             "ASReview: forgot password",
-            recipients=[user.email],
-            sender=config.get("REPLY_ADDRESS"),
+            recipients=[user.email]
         )
         msg.body = txt_text
         msg.html = html_text
@@ -81,8 +78,6 @@ def send_confirm_account_email(user, request, cur_app):
     if not cur_app.testing:
         # get necessary information out of user object
         name = user.name or "ASReview user"
-        # email config
-        config = cur_app.config.get("EMAIL_CONFIG")
         # get url of front-end
         root_url = request.headers.get("Origin")
         # create url that will be used in the email
@@ -98,8 +93,7 @@ def send_confirm_account_email(user, request, cur_app):
         # create message
         msg = Message(
             "ASReview: please confirm your account",
-            recipients=[user.email],
-            sender=config.get("REPLY_ADDRESS"),
+            recipients=[user.email]
         )
         msg.body = txt_text
         msg.html = html_text
@@ -130,16 +124,21 @@ def signin():
     else:
         # user exists and is confirmed: verify password
         if user.verify_password(password):
-            logged_in = perform_login_user(user)
-            result = (
-                200,
-                {
-                    "logged_in": logged_in,
-                    "name": user.get_name(),
-                    "id": user.id,
-                    "message": f"User {user.identifier} is logged in."
-                },
-            )
+            if perform_login_user(user):
+                result = (
+                    200,
+                    {
+                        "logged_in": True,
+                        "name": user.get_name(),
+                        "id": user.id,
+                        "message": f"User {user.identifier} is logged in."
+                    },
+                )
+            else:
+                result = (
+                    404,
+                    {"message": "Unable to login user with verified password."}
+                )
         else:
             # password is wrong
             if user.origin == "asreview":
