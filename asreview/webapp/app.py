@@ -64,7 +64,7 @@ def create_app(
 
     # If allowed origins comes as an environment variables, and is a list,
     # then we assume a JSON string.
-    if type(app.config.get("ALLOWED_ORIGINS", False)) == str:
+    if isinstance(app.config.get("ALLOWED_ORIGINS", False)), str):
         app.config["ALLOWED_ORIGINS"] = json.loads(app.config["ALLOWED_ORIGINS"])
 
     if config_file_path := config_file or app.config.get("CONFIGFILE", ""):
