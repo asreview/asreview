@@ -1166,6 +1166,10 @@ def api_export_dataset(project):
         # read the dataset into a ASReview data object
         as_data = read_data(project)
 
+        # Rename 'debug_label' to 'initial_label'
+        if 'debug_label' in as_data.df.columns:
+            as_data.df.rename(columns={'debug_label': 'initial_label'}, inplace=True)
+        
         # Adding Notes from State file to the exported dataset
         # Check if exported_notes column already exists due to multiple screenings
         screening = 0
