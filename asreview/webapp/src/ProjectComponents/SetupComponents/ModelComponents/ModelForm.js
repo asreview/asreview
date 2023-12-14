@@ -9,34 +9,6 @@ import { ModelRequirement, ModelSelect } from "../ModelComponents";
 import { ProjectAPI } from "../../../api/index.js";
 import { defaultAlgorithms, mapStateToProps } from "../../../globals.js";
 
-const requirements = [
-  {
-    value: "tensorflow",
-    link: "https://asreview.readthedocs.io/en/latest/generated/asreview.models.classifiers.NN2LayerClassifier.html#asreview-models-classifiers-nn2layerclassifier",
-  },
-  {
-    value: "gensim",
-    link: "https://asreview.readthedocs.io/en/latest/generated/asreview.models.feature_extraction.Doc2Vec.html#asreview-models-feature-extraction-doc2vec",
-  },
-  {
-    value: "sentence-transformers",
-    link: "https://asreview.readthedocs.io/en/latest/generated/asreview.models.feature_extraction.SBERT.html#asreview-models-feature-extraction-sbert",
-  },
-];
-
-const modelRequirement = (requirement) => {
-  let link = requirements
-    .filter((element) => element.value === requirement)
-    .map((element) => element.link);
-  return (
-    <React.Fragment>
-      requires <code>{requirement}</code> to be installed.{" "}
-      <Link underline="none" href={link} target="_blank">
-        Learn more
-      </Link>{" "}
-    </React.Fragment>
-  );
-};
 
 const PREFIX = "ModelForm";
 
