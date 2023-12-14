@@ -1166,6 +1166,13 @@ def api_export_dataset(project):
         # read the dataset into a ASReview data object
         as_data = read_data(project)
 
+        # Retrieve prior information from state
+        with open_state(project.project_path) as s:
+            priors = s.get_priors()["record_id"].tolist()
+
+        # Add a new column 'is_prior' to the dataset
+        as_data.df['is_prior'] = as_data.df.index.isin(priors).astype(int)
+
         # Adding Notes from State file to the exported dataset
         # Check if exported_notes column already exists due to multiple screenings
         screening = 0
