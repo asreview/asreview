@@ -28,7 +28,7 @@ If you would like to setup the ASReview application as a shared service, a more 
 For account verification, but also for the forgot-password feature, an email server is required. But maintaining an email server can be demanding. If you would like to avoid it, a third-party service like [SendGrid](https://sendgrid.com/) might be a good alternative. In this recipe we use the SMTP Relay Service from Sendgrid: every email sent by the ASReview application will be relayed by this service. Sendgrid is for free if you don't expect the application to send more than 100 emails per day. Receiving reply emails from end-users is not possible if you use the Relay service, but that might be irrelevant.
 
 In the `auth_verified` folder you find 7 files:
-1. `.env` - An environment variable file for all relevant (secret) parameters (ports, domains, database, email and Gunicorn related parameters)
+1. `.env` - An environment variable file for all relevant (secret) parameters (ports, frontend-domain, database, email and Gunicorn related parameters)
 2. `asreview.conf` - a configuration files used by NGINX.
 3. `docker-compose.yml` - the docker compose file that will create the Docker containers.
 4. `Dockerfile_backend` - Dockerfile for the backend, installs all Python related software, including Gunicorn, and starts the backend server.
