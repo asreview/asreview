@@ -107,7 +107,7 @@ const DrawerItemContainer = (props) => {
   const fetchProjectInfo = React.useCallback(async () => {
     const data = await queryClient.fetchQuery(
       ["fetchInfo", { project_id }],
-      ProjectAPI.fetchInfo,
+      ProjectAPI.fetchInfo
     );
     setProjectInfo(data);
   }, [project_id, queryClient]);
@@ -178,17 +178,9 @@ const DrawerItemContainer = (props) => {
   ];
 
   const [openGame, setOpenGame] = React.useState(false);
-  const [attemps, setAttempts] = React.useState(0);
 
   const toggleGame = () => {
-    if (!openGame) {
-      setAttempts(0);
-    }
     setOpenGame(!openGame);
-  };
-
-  const addAttempt = () => {
-    setAttempts(attemps + 1);
   };
 
   const descriptionElementRef = React.useRef(null);
@@ -376,11 +368,9 @@ const DrawerItemContainer = (props) => {
         aria-labelledby="game-dialog-title"
         aria-describedby="game-dialog-description"
       >
-        <DialogTitle id="game-dialog-title">
-          Elas Adventures Game (Attempts: {attemps})
-        </DialogTitle>
+        <DialogTitle id="game-dialog-title">Elas Memory Game</DialogTitle>
         <DialogContent>
-          <ElasGame addAttempt={addAttempt} />
+          <ElasGame />
         </DialogContent>
         <DialogActions>
           <Button onClick={toggleGame}>Take me back</Button>

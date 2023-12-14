@@ -67,9 +67,9 @@ def create_app(
             Path(config_file_path).absolute(), load=tomllib.load, text=False
         )
 
-    if app.config.get("ENABLE_AUTHENTICATION", None):
+    if app.config.get("AUTHENTICATION_ENABLED", None):
         warnings.warn(
-            "The use of ENABLE_AUTHENTICATION=true is deprecated and "
+            "The use of AUTHENTICATION_ENABLED=true is deprecated and "
             "will be removed in the future. Use LOGIN_DISABLED=false instead."
         )
         if "LOGIN_DISABLED" not in app.config:
