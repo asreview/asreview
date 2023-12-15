@@ -100,20 +100,6 @@ def create_app(
         def load_user(user_id):
             return User.query.get(int(user_id))
 
-        # Verify email server has been configured
-        app.config["EMAIL_CONFIG"] = all([
-            app.config.get("MAIL_SERVER", False),
-            app.config.get("MAIL_USERNAME", False),
-            app.config.get("MAIL_PASSWORD", False)
-        ])
-
-        if app.config.get("EMAIL_VERIFICATION", False) and not app.config.get(
-            "EMAIL_CONFIG", False
-        ):
-            raise ValueError(
-                "Missing email configuration to facilitate email verification"
-            )
-
         if not app.config.get("SQLALCHEMY_DATABASE_URI", None):
             uri = os.path.join(asreview_path(), f"asreview.{env}.sqlite")
             app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{uri}"
@@ -195,10 +181,16 @@ def create_app(
                 "ALLOW_ACCOUNT_CREATION", False
             )
             response["allow_teams"] = app.config.get("ALLOW_TEAMS", False)
+
             response["email_verification"] = bool(
                 app.config.get("EMAIL_VERIFICATION", False)
             )
-            response["email_config"] = bool(app.config.get("EMAIL_CONFIG", False))
+
+            response["email_config"] = all([
+                app.config.get("MAIL_SERVER", False),
+                app.config.get("MAIL_USERNAME", False),
+                app.config.get("MAIL_PASSWORD", False)
+            ])
 
             # if oauth config is provided
             if isinstance(app.config.get("OAUTH", False), OAuthHandler):

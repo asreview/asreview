@@ -39,7 +39,7 @@ To create user accounts, one can use the ``add-users`` command of the
 
     asreview auth-tool add-users --db-uri=sqlite:////path/example.sqlite
 
-For more information about creating users, see the section
+For more information about auth-tool and creating users, see the section
 `Create user accounts <#create-user-accounts-with-auth-tool>`_ below.
 
 Full authentication configuration
@@ -182,6 +182,13 @@ Server administrators can create a database for authentication with the
 .. code:: bash
 
         asreview auth-tool create-db --db-uri=sqlite:////path/example.sqlite
+
+Please note that in this example, the --db-uri option is explicitly configured.
+However, it is not mandatory. If access to the authentication database is needed,
+the auth-tool utility first checks whether the --db-uri option has been provided.
+If not, it then examines the presence of the SQLALCHEMY_DATABASE_URI environment variable.
+In the absence of this variable as well, the script defaults to utilizing the database URI
+associated with the standard SQLite database pre-configured in the ASReview folder.
 
 Create user accounts with auth-tool
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

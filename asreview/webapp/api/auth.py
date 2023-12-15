@@ -39,6 +39,14 @@ from asreview.webapp.authentication.oauth_handler import OAuthHandler
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 
+def _has_email_configuration(app):
+    return all([
+        app.config.get("MAIL_SERVER", False),
+        app.config.get("MAIL_USERNAME", False),
+        app.config.get("MAIL_PASSWORD", False)
+    ])
+
+
 def perform_login_user(user):
     """Helper function to login a user"""
     return login_user(user, remember=True, duration=dt.timedelta(days=31))
@@ -301,7 +309,7 @@ def get_profile():
 
 @bp.route("/forgot_password", methods=["POST"])
 def forgot_password():
-    if current_app.config.get("EMAIL_CONFIG", False):
+    if _has_email_configuration(current_app):
         # get email address from request
         email_address = request.form.get("email", "").strip()
 
@@ -342,7 +350,7 @@ def forgot_password():
 @bp.route("/reset_password", methods=["POST"])
 def reset_password():
     """Resests password of user"""
-    if current_app.config.get("EMAIL_CONFIG", False):
+    if _has_email_configuration(current_app):
 
         new_password = request.form.get("password", "").strip()
         token = request.form.get("token", "").strip()
