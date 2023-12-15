@@ -37,9 +37,9 @@ To create user accounts, one can use the ``add-users`` command of the
 
 .. code:: bash
 
-    asreview auth-tool add-users
+    asreview auth-tool add-users --db-uri=sqlite:////path/example.sqlite
 
-For more information about creating users, see the section
+For more information about auth-tool and creating users, see the section
 `Create user accounts <#create-user-accounts-with-auth-tool>`_ below.
 
 Full authentication configuration
@@ -68,14 +68,13 @@ secure way (https).
     ALLOW_TEAMS = false
     EMAIL_VERIFICATION = false
 
-    [EMAIL_CONFIG]
-    SERVER = "<smtp-server>"
-    PORT = 465
-    USERNAME = "<smtp-server-username>"
-    PASSWORD = "<smtp-server-password>"
-    USE_TLS = false
-    USE_SSL = true
-    REPLY_ADDRESS = "<preferred reply email address>"
+    MAIL_SERVER = "<smtp-server>"
+    MAIL_PORT = 465
+    MAIL_USERNAME = "<smtp-server-username>"
+    MAIL_PASSWORD = "<smtp-server-password>"
+    MAIL_USE_TLS = false
+    MAIL_USE_SSL = true
+    MAIL_DEFAULT_SENDER = "<preferred reply email address>"
 
     [OAUTH]
             [OAUTH.GitHub]
@@ -107,7 +106,7 @@ CLI with the ``--flask-configfile`` parameter:
         asreview lab --flask-configfile=<path-to-TOML-config-file>
 
 A number of the keys in the TOML file are standard Flask parameters. The keys
-that are specific for authenticating ASReview are summarised below:
+that are specific for authenticating ASReview are summarized below:
 
 - DISABLE_LOGIN: if set to ``false`` the application will start with
   authentication. If the SQLite database does not exist, one will be
@@ -116,16 +115,19 @@ that are specific for authenticating ASReview are summarised below:
   mandatory if authentication is required.
 - SECURITY_PASSWORD_SALT: another string used to hash passwords, also mandatory
   if authentication is required.
+- SESSION_COOKIE_SAMESITE: Restrict how cookies are sent with requests from external
+  sites. In the example the value is set to "Lax" which is the recommended option. If
+  backend and frontend are served on different domains set to the string "None".
 - ALLOW_ACCOUNT_CREATION: enables account creation by users, either by front- or
   backend.
 - EMAIL_VERIFICATION: used in conjunction with ALLOW_ACCOUNT_CREATION. If set to
   ``true`` the system sends a verification email after account creation. Only
   relevant if the account is __not__ created by OAuth. This parameter can be
   omitted if you don't want verification.
-- EMAIL_CONFIG: configuration of the SMTP email server that is used for email
-  verification. It also allows users to retrieve a new password after forgetting
-  it. Don't forget to enter the reply address (REPLY_ADDRESS) of your system
-  emails. Omit this parameter if system emails for verification and password
+- MAIL_<PAR>: configuration parameters to setup the SMTP email server that is used
+  for email verification. It also allows users to retrieve a new password after forgetting
+  it. Don't forget to enter the reply address (MAIL_DEFAULT_SENDER) of your system
+  emails. Remove these parameters if system emails for verification and password
   retrieval are unwanted.
 - OAUTH: an authenticated ASReview application may integrate with the OAuth
   functionality of Github, Orcid and Google. Provide the necessary OAuth login
@@ -171,30 +173,44 @@ and an extra step in the configuration file:
 
     SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://username:password@host:port/database_name"
 
-Create user accounts with auth-tool
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Create authentication database and tables with auth-tool
 
-Server administrators can create user accounts with the ``auth-tool`` sub
-command of the ASReview application. The tool can be used to create user
-accounts interactively or by using a JSON string to bulk insert the accounts. To
-add user accounts interactively run the following command:
+
+Server administrators can create a database for authentication with the 
+``auth-tool`` sub command of the ASReview application:
 
 .. code:: bash
 
-        asreview auth-tool add-users
+        asreview auth-tool create-db --db-uri=sqlite:////path/example.sqlite
 
-Note that the absolute path of the sqlite database has to be provided. Also note
-that if your app runs in development mode, use the
-``asreview.development.sqlite`` database instead. The tool will prompt you if
-you would like to add a user account. Type ``Y`` to continue and enter an email
-address, name, affiliation (not required) and a password for every person.
+Please note that in this example, the --db-uri option is explicitly configured.
+However, it is not mandatory. If access to the authentication database is needed,
+the auth-tool utility first checks whether the --db-uri option has been provided.
+If not, it then examines the presence of the SQLALCHEMY_DATABASE_URI environment variable.
+In the absence of this variable as well, the script defaults to utilizing the database URI
+associated with the standard SQLite database pre-configured in the ASReview folder.
+
+Create user accounts with auth-tool
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Create user accounts interactively or by using a JSON string to bulk insert the accounts
+with ``add-users``. To add user accounts interactively run the following command:
+
+.. code:: bash
+
+        asreview auth-tool add-users --db-uri=sqlite:////path/example.sqlite
+
+The tool will prompt you if you would like to add a user account. Type ``Y`` to continue
+and enter an email address, name, affiliation (not required) and a password for every person.
 Continue to add as many users as you would like.
 
 If you would like to bulk insert user accounts use the ``--json`` option:
 
 .. code:: bash
 
-        asreview auth-tool add-users -j "[{\"email\": \"name@email.org\", \"name\": \"Name of User\", \"affiliation\": \"Some Place\", \"password\": \"1234@ABcd\"}]"
+        asreview auth-tool add-users \
+                --db-uri=sqlite:////path/example.sqlite \
+                -j "[{\"email\": \"name@email.org\", \"name\": \"Name of User\", \"affiliation\": \"Some Place\", \"password\": \"1234@ABcd\"}]"
 
 The JSON string represents a Python list with a dictionary for every user
 account with the following keys: ``email``, ``name``, ``affiliation`` and
@@ -250,7 +266,7 @@ have users yet.
 
 .. code:: bash
 
-        asreview auth-tool list-users
+        asreview auth-tool list-users --db-uri=sqlite:////path/example.sqlite
 
 List all projects with the ``list-projects`` command. The command returns a
 
@@ -262,7 +278,7 @@ Migrate the projects into the authenticated database can be done interactively:
 
 .. code:: bash
 
-        asreview auth-tool link-projects
+        asreview auth-tool link-projects --db-uri=sqlite:////path/example.sqlite
 
 The tool will list project by project and asks what the ID of the owner is. That
 ID can be found in the user list below the project information.
@@ -274,4 +290,6 @@ the JSON string should look like this
 
 .. code:: bash
 
-        asreview auth-tool link-projects --json "[{\"folder\": \"project-id\", \"version\": \"1.3\", \"project_id\": \"project-id\", \"name\": \"project 1\", \"authors\": \"Authors\", \"created\": \"2023-04-12 21:23:28.625859\", \"owner_id\": 15}]"
+        asreview auth-tool link-projects \
+                --db-uri=sqlite:////path/example.sqlite \
+                --json "[{\"folder\": \"project-id\", \"version\": \"1.3\", \"project_id\": \"project-id\", \"name\": \"project 1\", \"authors\": \"Authors\", \"created\": \"2023-04-12 21:23:28.625859\", \"owner_id\": 15}]"

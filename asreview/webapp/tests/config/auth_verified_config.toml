@@ -6,11 +6,10 @@ LOGIN_DISABLED = false
 ALLOW_ACCOUNT_CREATION = true
 EMAIL_VERIFICATION = true
 
-[EMAIL_CONFIG]
-SERVER = "localhost"
-PORT = 465
-USERNAME = "admin@asreview.nl"
-PASSWORD = "secret_password"
-USE_TLS = false
-USE_SSL = true
-REPLY_ADDRESS = "no_reply@asreview.nl"
+MAIL_SERVER = "localhost"
+MAIL_PORT = 465
+MAIL_USERNAME = "admin@asreview.nl"
+MAIL_PASSWORD = "secret_password"
+MAIL_USE_TLS = false
+MAIL_USE_SSL = true
+MAIL_DEFAULT_SENDER = "no_reply@asreview.nl"
