@@ -1166,10 +1166,6 @@ def api_export_dataset(project):
         # read the dataset into a ASReview data object
         as_data = read_data(project)
 
-        # Retrieve prior information from state
-        with open_state(project.project_path) as s:
-            priors = s.get_priors()["record_id"].tolist()
-
         # Add a new column 'is_prior' to the dataset
         state_df["is_prior"] = state_df.query_strategy.eq("prior").astype(int)
         as_data.df = as_data.df.join(state_df["is_prior"], on="record_id")
