@@ -179,3 +179,17 @@ You can make the text on the review screen smaller or larger.
 2. Click on *Settings* (bottom left).
 3. Go to *Display* and click on *Font size*.
 4. Slide the slider to the desired font size.
+
+ELAS Memory Game
+----------------
+
+If you want a break from screening, you can search for the hidden ELAS memory
+game. 
+
+.. figure:: ../images/game.png
+   :alt: ELAS Memory Game
+
+If you really need a long break, try the expert mode.
+
+.. figure:: ../images/game_expert.png
+   :alt: ELAS Memory Game - expert mode

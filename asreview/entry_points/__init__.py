@@ -14,7 +14,6 @@
 
 __all__ = [
     "AlgorithmsEntryPoint",
-    "AuthTool",
     "BaseEntryPoint",
     "LABEntryPoint",
     "SimulateEntryPoint",
@@ -22,7 +21,6 @@ __all__ = [
 ]
 
 from asreview.entry_points.algorithms import AlgorithmsEntryPoint
-from asreview.entry_points.auth_tool import AuthTool
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.entry_points.lab import LABEntryPoint
 from asreview.entry_points.simulate import SimulateEntryPoint
