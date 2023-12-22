@@ -126,10 +126,12 @@ The following variables will be added to your tabular dataset:
   not seen during the screening process.
 - The column titled **asreview_ranking** contains an identifier to
   preserve the rank ordering as described below.
-- The column **Notes** contain any notes you made during screening. 
+- The column **Notes** contain any notes you made during screening.
+- The column **ASReview_prior** contains a label ``1`` if a record has been used to train the first iteration of the model.
 
-For RIS files, the labels **ASReview_relevant**, **ASReview_irrelevant**,
-and **ASReview_not_seen** are stored with the `N1` (Notes) tag. In citation
+For RIS files, the
+labels **ASReview_relevant**, **ASReview_irrelevant**, **ASReview_not_seen**,
+and **ASReview_prior** are stored with the `N1` (Notes) tag. In citation
 managers. like Zotero and Endnote, the labels can be used for making
 selections.
 
