@@ -84,6 +84,10 @@ class RISWriter:
             }
             rec_copy["notes"].insert(0, dict_note[included])
 
+            # Check if ASReview_prior is True and append a note
+            if rec_copy.get("ASReview_prior", 0) == 1:
+                rec_copy["notes"].insert(0, "ASReview_prior")
+
             # Append the deepcopied and updated record to a new array
             records_new.append(rec_copy)
 
