@@ -1171,7 +1171,7 @@ def api_export_dataset(project):
             # Rename original label column if it exists
             if 'debug_label' in as_data.df.columns:
                 as_data.df.rename(columns={'debug_label': 'label_included'}, inplace=True)
-    
+
             # Rename generated labels column if it exists
             if 'included' in as_data.df.columns:
                 as_data.df.rename(columns={'included': 'label_validated'}, inplace=True)
