@@ -63,6 +63,9 @@ displayed on top of the record indicating whether the record has been labeled
 relevant or irrelevant in the dataset. You can make the same labeling
 decision without the need to be the oracle. 
 
+The labels from the initial dataset are stored in the column **label_included**
+and the labels your assigned are stored in the column **label_validation**. 
+
 .. figure:: ../images/project_screening_exploration.png
    :alt: ASReview Screening
 
