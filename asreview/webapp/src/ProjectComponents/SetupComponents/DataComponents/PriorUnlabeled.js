@@ -15,7 +15,7 @@ import {
 import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../../Components";
-import { ExplorationModeRecordAlert } from "../../../StyledComponents/StyledAlert.js";
+import { ExplorationModeRecordAlertPrior } from "../../../StyledComponents/StyledAlertPrior.js";
 import { ProjectAPI } from "../../../api/index.js";
 import { mapStateToProps, projectModes } from "../../../globals.js";
 
@@ -139,7 +139,7 @@ const PriorUnlabeled = (props) => {
       {!isError && (
         <Card elevation={3} className={classes.root}>
           {props.record._debug_label !== null && (
-            <ExplorationModeRecordAlert
+            <ExplorationModeRecordAlertPrior
               label={!isDebugInclusion() ? "irrelevant" : "relevant"}
             />
           )}

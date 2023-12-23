@@ -42,8 +42,8 @@ export default function ProjectModeSelect(props) {
           </MenuItem>
           <MenuItem value={projectModes.EXPLORATION} divider>
             <SelectItem
-              primary="Exploration"
-              secondary="Explore or demonstrate ASReview LAB with a completely labeled dataset"
+              primary="Validation"
+              secondary="Validate labels provided by another screener or derived from a LLM, and explore benchmark datasets"
             />
           </MenuItem>
           <MenuItem value={projectModes.SIMULATION}>
