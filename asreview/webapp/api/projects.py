@@ -1166,9 +1166,20 @@ def api_export_dataset(project):
         # read the dataset into a ASReview data object
         as_data = read_data(project)
 
-        # Rename 'debug_label' to 'initial_label'
-        if 'debug_label' in as_data.df.columns:
-            as_data.df.rename(columns={'debug_label': 'initial_label'}, inplace=True)
+        # Check project mode and rename columns accordingly for exploration mode
+        if project.config["mode"] == PROJECT_MODE_EXPLORE:
+            # Rename original label column if it exists
+            if 'debug_label' in as_data.df.columns:
+                as_data.df.rename(columns={'debug_label': 'label_included'}, inplace=True)
+    
+            # Rename generated labels column if it exists
+            if 'included' in as_data.df.columns:
+                as_data.df.rename(columns={'included': 'label_validated'}, inplace=True)
+
+        if project.config["mode"] == PROJECT_MODE_SIMULATE:
+            # Rename original label column if it exists
+            if 'debug_label' in as_data.df.columns:
+                as_data.df.rename(columns={'debug_label': 'label_included'}, inplace=True)
 
         # Adding Notes from State file to the exported dataset
         # Check if exported_notes column already exists due to multiple screenings
