@@ -139,8 +139,9 @@ const PriorUnlabeled = (props) => {
       {!isError && (
         <Card elevation={3} className={classes.root}>
           {props.record._debug_label !== null && (
-            <ExplorationModeRecordAlertPrior
-              label={!isDebugInclusion() ? "irrelevant" : "relevant"}
+             <ExplorationModeRecordAlertPrior
+              label={props.record._debug_label === -1 ? "not seen" : 
+             !isDebugInclusion() ? "irrelevant" : "relevant"} 
             />
           )}
           <CardContent className="record-card-content">
