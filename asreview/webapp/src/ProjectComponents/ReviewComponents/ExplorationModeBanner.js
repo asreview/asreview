@@ -15,7 +15,7 @@ const ExplorationModeBanner = (props) => {
         }}
         buttonLabel="Learn more"
         buttonProps={{
-          href: "https://asreview.readthedocs.io/en/latest/lab/exploration.html",
+          href: "https://asreview.readthedocs.io/en/latest/screening.html#screening-in-exploration-mode", 
           target: "_blank",
           sx: { color: "text.secondary" },
         }}
