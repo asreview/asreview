@@ -1204,6 +1204,9 @@ def api_export_dataset(project):
         # read the dataset into a ASReview data object
         as_data = read_data(project)
 
+        # Convert -1 to NaN
+        as_data.df["debug_label"] = as_data.df["debug_label"].replace(-1, np.nan)
+
         # Adding Notes from State file to the exported dataset
         # Check if exported_notes column already exists due to multiple screenings
         screening = 0
