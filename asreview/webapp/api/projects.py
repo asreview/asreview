@@ -1168,12 +1168,16 @@ def api_export_dataset(project):
         as_data = read_data(project)
 
         # Merge labeled labels with as_data.df based on record_id
-        as_data.df = as_data.df.merge(labeled[['record_id', 'label']], on='record_id', how='left')
+        merge_cols = ['record_id', 'label']
+        as_data.df = as_data.df.merge(labeled[merge_cols], on='record_id', how='left')
+
 
         if project.config["mode"] == PROJECT_MODE_EXPLORE:
             # Rename original label column if it exists
             if 'debug_label' in as_data.df.columns:
                 as_data.df.rename(columns={'debug_label': 'label_included'}, inplace=True)
+                as_data.df.rename(
+                    columns={'debug_label': 'label_included'}, inplace=True)
             if 'label' in as_data.df.columns:
                 as_data.df.rename(columns={'label': 'label_validated'}, inplace=True)
 
@@ -1186,7 +1190,8 @@ def api_export_dataset(project):
             as_data.df.rename(columns={'label': 'label_included'}, inplace=True)
 
         # Reorder as_data.df according to the ranking and save the ranking order
-        as_data.df['asreview_ranking'] = as_data.df['record_id'].apply(lambda x: export_order.index(x) if x in export_order else None)
+        ranking_func = lambda x: export_order.index(x) if x in export_order else None
+        as_data.df['asreview_ranking'] = as_data.df['record_id'].apply(ranking_func)
         as_data.df = as_data.df.set_index('record_id').loc[export_order].reset_index()
 
         # Adding Notes from State file to the exported dataset
