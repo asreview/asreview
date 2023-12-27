@@ -52,8 +52,8 @@ values later in the *Details* page.
 Data
 ====
 
-Add a Dataset
--------------
+Add dataset
+-----------
 
 Click on *Add* to select a dataset. The data needs to adhere to a
 :doc:`specific format <data>`. Keep in mind that in
