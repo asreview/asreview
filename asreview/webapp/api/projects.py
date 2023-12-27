@@ -1167,6 +1167,9 @@ def api_export_dataset(project):
         # read the dataset into a ASReview data object
         as_data = read_data(project)
 
+        # Convert -1 to NaN
+        as_data.df["debug_label"] = as_data.df["debug_label"].replace(-1, np.nan)
+
         # Merge labeled labels with as_data.df based on record_id
         merge_cols = ['record_id', 'label']
         as_data.df = as_data.df.merge(labeled[merge_cols], on='record_id', how='left')
