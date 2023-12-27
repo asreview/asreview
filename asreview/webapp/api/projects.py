@@ -818,9 +818,11 @@ def api_random_prior_papers(project):  # noqa: F401
         if len(unlabeled_indices_pool) == 0:
             return jsonify(payload)
         elif n > len(unlabeled_indices_pool):
-            rand_pool_unlabeled = np.random.choice(unlabeled_indices_pool, len(unlabeled_indices_pool), replace=False)
+            rand_pool_unlabeled = np.random.choice(unlabeled_indices_pool, 
+                len(unlabeled_indices_pool), replace=False)
         else:
-            rand_pool_unlabeled = np.random.choice(unlabeled_indices_pool, n, replace=False)
+            rand_pool_unlabeled = np.random.choice(unlabeled_indices_pool, 
+                n, replace=False)
 
         try:
             unlabeled_records = as_data.record(rand_pool_unlabeled)
