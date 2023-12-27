@@ -425,7 +425,7 @@ def api_upload_data_to_project(project):  # noqa: F401
         data = ASReviewData.from_file(data_path_raw)
 
         if data.labels is None:
-            raise ValueError("Import fully labeled dataset.")
+            raise ValueError("Import partly or fully labeled dataset.")
 
         data.df.rename(
             {data.column_spec["included"]: "debug_label"}, axis=1, inplace=True
