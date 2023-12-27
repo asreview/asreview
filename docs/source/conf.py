@@ -254,7 +254,7 @@ redirects = {
     "lab/overview_lab": "../about.html",
     "lab/launch": "../start.html",
     "lab/oracle": "../about.html",
-    "lab/exploration": "../screening.html#screening-in-exploration-mode",
+    "lab/exploration": "../screening.html#screening-in-validation-mode",
     "lab/simulation": "../simulation_overview.html",
     "features/settings": "../screening.html",
     "features/pre_screening": "../project_create.html",
