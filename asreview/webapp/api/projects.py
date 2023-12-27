@@ -819,14 +819,14 @@ def api_random_prior_papers(project):  # noqa: F401
             return jsonify(payload)
         elif n > len(unlabeled_indices_pool):
             rand_pool_unlabeled = np.random.choice(
-                unlabeled_indices_pool, 
-                len(unlabeled_indices_pool), 
+                unlabeled_indices_pool,
+                len(unlabeled_indices_pool),
                 replace=False
             )
         else:
             rand_pool_unlabeled = np.random.choice(
-                unlabeled_indices_pool, 
-                n, 
+                unlabeled_indices_pool,
+                n,
                 replace=False
             )
 
