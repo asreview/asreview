@@ -41,8 +41,8 @@ from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_MODEL
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import PROJECT_MODE_ORACLE
-from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
+from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.data import ASReviewData
 from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
@@ -1174,11 +1174,11 @@ def api_export_dataset(project):
         merge_cols = ['record_id', 'label']
         as_data.df = as_data.df.merge(labeled[merge_cols], on='record_id', how='left')
 
-
         if project.config["mode"] == PROJECT_MODE_EXPLORE:
             # Rename original label column if it exists
             if 'debug_label' in as_data.df.columns:
-                as_data.df.rename(columns={'debug_label': 'label_included'}, inplace=True)
+                as_data.df.rename(
+                    columns={'debug_label': 'label_included'}, inplace=True)
                 as_data.df.rename(
                     columns={'debug_label': 'label_included'}, inplace=True)
             if 'label' in as_data.df.columns:
@@ -1192,9 +1192,12 @@ def api_export_dataset(project):
         if project.config["mode"] == PROJECT_MODE_ORACLE:
             as_data.df.rename(columns={'label': 'label_included'}, inplace=True)
 
-        # Reorder as_data.df according to the ranking and save the ranking order
-        ranking_func = lambda x: export_order.index(x) if x in export_order else None
-        as_data.df['asreview_ranking'] = as_data.df['record_id'].apply(ranking_func)
+        def rank_records(record_id):
+            if record_id in export_order:
+                return export_order.index(record_id)
+            return None
+
+        as_data.df['asreview_ranking'] = as_data.df['record_id'].apply(rank_records)
         as_data.df = as_data.df.set_index('record_id').loc[export_order].reset_index()
 
         # Adding Notes from State file to the exported dataset
