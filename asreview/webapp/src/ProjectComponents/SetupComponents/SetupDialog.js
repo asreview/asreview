@@ -128,7 +128,7 @@ const SetupDialog = (props) => {
 
   // check if prior data is added
   React.useEffect(() => {
-    if (props.project_id !== null && !props.onAddPrior) {
+    if (props.open && props.project_id !== null && !props.onAddPrior) {
       queryClient
         .fetchQuery(
           ["fetchLabeledStats", { project_id: props.project_id }],
@@ -140,7 +140,7 @@ const SetupDialog = (props) => {
           }
         });
     }
-  }, [props.project_id, props.onAddPrior, queryClient]);
+  }, [props.open, props.project_id, props.onAddPrior, queryClient]);
 
   React.useEffect(() => {
     const currentSavingStatus = isMutatingInfo === 1 || isMutatingModel === 1;

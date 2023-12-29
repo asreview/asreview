@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useIsMutating, useMutation } from "react-query";
+import { useIsMutating, useMutation, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import {
   Dialog,
@@ -52,11 +52,23 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 const ImportDataset = (props) => {
+  const queryClient = useQueryClient();
+
+  const [projectInfo, setProjectInfo] = React.useState(null);
   const [datasetSource, setDatasetSource] = React.useState("file");
+
+  const datasetInfo = queryClient.getQueryData([
+    "fetchData",
+    { project_id: props.project_id },
+  ]);
 
   const isAddingDataset = useIsMutating(["addDataset"]);
 
   const isLoading = isAddingDataset !== 0;
+
+  const isDatasetAdded = () => {
+    return datasetInfo !== undefined;
+  };
 
   /**
    * Delete the temporary project.
@@ -79,24 +91,44 @@ const ImportDataset = (props) => {
   };
 
   const handleClose = () => {
-    deleteProject({
-      project_id: props.project_id,
-    });
+    if (!isDatasetAdded()) {
+      // Delete the temporary project when the dialog is closed.
+      deleteProject({
+        project_id: props.project_id,
+      });
+    } else {
+      props.toggleImportDataset();
+    }
   };
 
   const onExited = () => {
-    // reset the data source
+    setProjectInfo(null);
     setDatasetSource("file");
   };
 
+  // fetch project info once the dialog is opened
   React.useEffect(() => {
-    if (props.mode === projectModes.EXPLORATION) {
+    const fetchInfo = async () => {
+      const projectInfo = await queryClient.fetchQuery(
+        ["fetchInfo", { project_id: props.project_id }],
+        ProjectAPI.fetchInfo,
+      );
+      setProjectInfo(projectInfo);
+    };
+    if (props.open && props.project_id !== null) {
+      fetchInfo();
+    }
+  }, [props.open, props.project_id, queryClient]);
+
+  // set the data source to benchmark when exploration mode is selected
+  React.useEffect(() => {
+    if (projectInfo?.mode === projectModes.EXPLORATION) {
       setDatasetSource("benchmark");
     }
-    if (props.mode !== projectModes.EXPLORATION) {
+    if (projectInfo?.mode !== projectModes.EXPLORATION) {
       setDatasetSource("file");
     }
-  }, [props.mode]);
+  }, [projectInfo?.mode]);
 
   return (
     <StyledDialog
@@ -164,7 +196,7 @@ const ImportDataset = (props) => {
                   label="URL or DOI"
                   onChange={handleDatasetSource}
                 />
-                {props.mode === projectModes.ORACLE && (
+                {projectInfo?.mode === projectModes.ORACLE && (
                   <FormControlLabel
                     value="extension"
                     control={<Radio />}
@@ -172,8 +204,8 @@ const ImportDataset = (props) => {
                     onChange={handleDatasetSource}
                   />
                 )}
-                {(props.mode === projectModes.EXPLORATION ||
-                  props.mode === projectModes.SIMULATION) && (
+                {(projectInfo?.mode === projectModes.EXPLORATION ||
+                  projectInfo?.mode === projectModes.SIMULATION) && (
                   <FormControlLabel
                     value="benchmark"
                     control={<Radio />}
@@ -189,7 +221,7 @@ const ImportDataset = (props) => {
                 and tabular datasets (<code>.csv</code>, <code>.tab</code>,{" "}
                 <code>.tsv</code>, <code>.xlsx</code>). The dataset should
                 contain a title and abstract for each record.{" "}
-                {props.mode !== projectModes.ORACLE
+                {projectInfo?.mode !== projectModes.ORACLE
                   ? "The dataset should contain labels for each record. "
                   : ""}
                 To optimally benefit from the performance of the active learning

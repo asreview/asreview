@@ -1,6 +1,4 @@
 import * as React from "react";
-import { useMutation } from "react-query";
-import { connect } from "react-redux";
 import { Box, Fab, Stack } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import {
@@ -19,53 +17,18 @@ import {
   ImportDataset,
 } from "../../ProjectComponents/SetupComponents/DataComponents";
 
-import { ProjectAPI } from "../../api/index.js";
 import { useToggle } from "../../hooks/useToggle";
-import { mapDispatchToProps, projectModes } from "../../globals";
 
 const ProjectsOverview = (props) => {
-  const [onModePick, setOnModePick] = React.useState(false);
-  const [selectedMode, setSelectedMode] = React.useState(projectModes.ORACLE);
-
+  const [onAddPrior, toggleAddPrior] = useToggle();
+  const [onModePick, toggleModePick] = useToggle();
   const [onImportDataset, toggleImportDataset] = useToggle();
   const [onImportProject, toggleImportProject] = useToggle();
-  const [onAddPrior, toggleAddPrior] = useToggle();
 
   const [feedbackBar, setFeedbackBar] = React.useState({
     open: false,
     message: null,
   });
-
-  /**
-   * Initiate a new project.
-   */
-  const { error, isError, isLoading, mutate, reset } = useMutation(
-    ProjectAPI.mutateInitProject,
-    {
-      onSuccess: (data, variables) => {
-        setOnModePick(false);
-        props.setProjectId(data["id"]);
-        toggleImportDataset();
-      },
-    },
-  );
-
-  const handleClickCreate = () => {
-    setOnModePick(true);
-  };
-
-  const handleCloseModePick = (value) => {
-    if (value) {
-      setSelectedMode(value);
-      mutate({
-        mode: value,
-      });
-    } else {
-      if (!isLoading) {
-        setOnModePick(false);
-      }
-    }
-  };
 
   const resetFeedbackBar = () => {
     setFeedbackBar({
@@ -88,7 +51,7 @@ const ProjectsOverview = (props) => {
             projectCheck={props.projectCheck}
             setFeedbackBar={setFeedbackBar}
             setProjectCheck={props.setProjectCheck}
-            handleClickCreate={handleClickCreate}
+            toggleModePick={toggleModePick}
             toggleProjectSetup={props.toggleProjectSetup}
             toggleAcceptanceSetup={props.AcceptanceDialog}
           />
@@ -98,30 +61,26 @@ const ProjectsOverview = (props) => {
         id="create-project"
         className="main-page-fab"
         color="primary"
-        onClick={handleClickCreate}
+        onClick={toggleModePick}
         variant="extended"
       >
         <Add sx={{ mr: 1 }} />
         Create
       </Fab>
       <ModePickDialog
-        error={error}
-        isError={isError}
         open={onModePick}
-        onClose={handleCloseModePick}
-        reset={reset}
+        toggleModePick={toggleModePick}
+        toggleImportDataset={toggleImportDataset}
       />
       <AddPriorKnowledge
         open={onAddPrior}
         mobileScreen={props.mobileScreen}
-        mode={selectedMode}
         toggleAddPrior={toggleAddPrior}
       />
       <ImportDataset
         open={onImportDataset}
         datasetAdded={false}
         mobileScreen={props.mobileScreen}
-        mode={selectedMode}
         toggleImportDataset={toggleImportDataset}
         toggleProjectSetup={props.toggleProjectSetup}
       />
@@ -151,4 +110,4 @@ const ProjectsOverview = (props) => {
   );
 };
 
-export default connect(null, mapDispatchToProps)(ProjectsOverview);
+export default ProjectsOverview;

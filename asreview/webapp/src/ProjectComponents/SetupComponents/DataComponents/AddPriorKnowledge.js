@@ -87,7 +87,7 @@ const AddPriorKnowledge = (props) => {
     ["fetchInfo", { project_id: props.project_id }],
     ProjectAPI.fetchInfo,
     {
-      enabled: props.project_id !== null,
+      enabled: props.open && props.project_id !== null,
       refetchOnWindowFocus: false,
     },
   );
@@ -96,7 +96,7 @@ const AddPriorKnowledge = (props) => {
     ["fetchLabeledStats", { project_id: props.project_id }],
     ProjectAPI.fetchLabeledStats,
     {
-      enabled: props.project_id !== null,
+      enabled: props.open && props.project_id !== null,
       refetchOnWindowFocus: false,
     },
   );
