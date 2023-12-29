@@ -7,9 +7,10 @@ import {
   List,
   ListItem,
   ListItemAvatar,
+  ListItemButton,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Add, Upload } from "@mui/icons-material";
+import { Add } from "@mui/icons-material";
 
 import { InlineErrorHandler } from "../../Components";
 import { SelectItem } from "../../ProjectComponents";
@@ -50,11 +51,6 @@ const modes = [
     secondary:
       "Simulate a review on a completely labeled dataset to see the performance of ASReview LAB",
   },
-  {
-    value: "import",
-    primary: "Import",
-    secondary: "Import an existing project",
-  },
 ];
 
 export default function ModePickDialog(props) {
@@ -83,21 +79,15 @@ export default function ModePickDialog(props) {
       {props.isError && <InlineErrorHandler message={props.error?.message} />}
       <List sx={{ pt: 0 }}>
         {modes.map((mode) => (
-          <ListItem
-            button
-            onClick={() => handleListItemClick(mode.value)}
-            key={mode.value}
-          >
-            <ListItemAvatar>
-              <Avatar className={classes.avatar}>
-                {mode.value !== "import" ? (
+          <ListItem disablePadding key={mode.value}>
+            <ListItemButton onClick={() => handleListItemClick(mode.value)}>
+              <ListItemAvatar>
+                <Avatar className={classes.avatar}>
                   <Add color="primary" />
-                ) : (
-                  <Upload color="primary" />
-                )}
-              </Avatar>
-            </ListItemAvatar>
-            <SelectItem primary={mode.primary} secondary={mode.secondary} />
+                </Avatar>
+              </ListItemAvatar>
+              <SelectItem primary={mode.primary} secondary={mode.secondary} />
+            </ListItemButton>
           </ListItem>
         ))}
       </List>

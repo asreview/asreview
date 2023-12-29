@@ -56,15 +56,10 @@ const ProjectsOverview = (props) => {
 
   const handleCloseModePick = (value) => {
     if (value) {
-      if (value !== "import") {
-        setSelectedMode(value);
-        mutate({
-          mode: value,
-        });
-      } else {
-        setOnModePick(false);
-        toggleImportProject();
-      }
+      setSelectedMode(value);
+      mutate({
+        mode: value,
+      });
     } else {
       if (!isLoading) {
         setOnModePick(false);
@@ -139,10 +134,12 @@ const ProjectsOverview = (props) => {
       <SetupDialog
         mobileScreen={props.mobileScreen}
         onAddPrior={onAddPrior}
+        onImportDataset={onImportDataset}
         open={props.onProjectSetup}
         onClose={props.toggleProjectSetup}
         setFeedbackBar={setFeedbackBar}
         toggleAddPrior={toggleAddPrior}
+        toggleImportDataset={toggleImportDataset}
       />
       <ActionsFeedbackBar
         center
