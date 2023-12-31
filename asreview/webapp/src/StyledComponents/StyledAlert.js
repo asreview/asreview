@@ -17,7 +17,7 @@ export function ExplorationModeRecordAlert(props) {
         >
           {props.label}
         </Box>
-      }, what would be your decission?
+      }, what would be your decision?
     </Alert>
   );
 }

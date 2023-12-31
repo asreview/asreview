@@ -43,7 +43,7 @@ export default function ProjectModeSelect(props) {
           <MenuItem value={projectModes.EXPLORATION} divider>
             <SelectItem
               primary="Validation"
-              secondary="Validate labels provided by another screener or derived from a LLM or AI, and explore benchmark datasets"
+              secondary="Validate labels provided by another screener or derived from an LLM or AI, and explore benchmark datasets"
             />
           </MenuItem>
           <MenuItem value={projectModes.SIMULATION}>
