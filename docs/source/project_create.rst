@@ -27,14 +27,14 @@ Project modes
 -------------
 
 In this step, you have to select a mode. The default is **Oracle**. For a
-description of all modi, see :ref:`data_labeled:Fully, partially and unlabelled data`. 
+description of all modi, see :ref:`data_labeled:Fully, partially, and unlabeled data`. 
 In short, if you want to:
 
 - screen a dataset from scratch -> Oracle mode with unlabeled data;
 - continue screening, for example using a different model -> Oracle mode with partly labeled data;
 - validate labels provided by a another screener or predicted by a Large Language Model (e.g., ChatGPT) -> Validation mode with partly or fully labeled data;
 - learn how the software with active learning works -> Validation mode with fully labeled data;
-- mimic the screening proces in a simultion study -> Simulation mode with fully labeled data.
+- mimic the screening process in a simulation study -> Simulation mode with fully labeled data.
 
 
 .. figure:: ../images/setup_project_modes.png

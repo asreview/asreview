@@ -1,4 +1,4 @@
-Fully, partially and unlabelled data
+Fully, partially, and unlabeled data
 ====================================
 
 Fully and partially labeled datasets serve a special role in the ASReview
@@ -57,7 +57,7 @@ example, the `SAFE procedure <https://www.researchsquare.com/article/rs-2856011/
 .. note::
 
   Merging labeled with unlabeled data should be done outside ASReview LAB, for
-  example, with the `compose <https://github.com/asreview/asreview-datatools>`_ function of Datatools, or via :ref:`data:Citation Managers`.
+  example, with the `compose <https://github.com/asreview/asreview-datatools>`_ function of ASReview Datatools, or via :ref:`data:Citation Managers`.
 
 
 Fully labeled data

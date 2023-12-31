@@ -14,7 +14,7 @@ ASReview LAB implements three different options:
 
 - **Oracle:** Screen textual data in interaction with the active learning model. The reviewer is the 'oracle', making the labeling decisions.
 - **Simulation:** Evaluate the performance of active learning models on fully labeled data.
-- **Validation:** Validate existing labels or engage in a review process without being an oracle.
+- **Validation:** Validate labels provided by another screener or derived from an LLM or AI, and explore benchmark datasets without being an oracle.
 
 
 ASReview LAB is one of the products of the `ASReview research project
