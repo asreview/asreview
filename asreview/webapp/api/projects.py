@@ -813,7 +813,7 @@ def api_random_prior_papers(project):  # noqa: F401
 
     elif subset == "unseen":
         # Fetch records that are unseen
-        unlabeled_indices = as_data.df[as_data.df["debug_label"] == LABEL_NA]\
+        unlabeled_indices = as_data.df[as_data.df["debug_label"] == LABEL_NA] \
                             .index.values
         unlabeled_indices_pool = np.intersect1d(pool, unlabeled_indices)
 
