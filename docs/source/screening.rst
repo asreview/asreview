@@ -72,7 +72,7 @@ screener or an AI model, you have the opportunity to validate, or challenge
 these labels, helping to refine the dataset by correcting any potential
 misclassifications, useful for the quality evaluation of the `SAFE procedure <https://www.researchsquare.com/article/rs-2856011/>`_. 
 
-Additionally, the Validation mode  is useful for educational use. Instructors
+Additionally, the Validation mode is useful for educational use. Instructors
 and learners can utilize this mode to simulate the screening process without
 being the expert decision-maker. This setup is particularly advantageous in
 workshop settings, where participants can engage with the screening process
