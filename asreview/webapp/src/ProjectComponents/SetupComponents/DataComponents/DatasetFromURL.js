@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { InputBase, Paper, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 
 import LoadingButton from "@mui/lab/LoadingButton";
 import InputLabel from "@mui/material/InputLabel";
@@ -37,8 +37,19 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const DatasetFromURL = (props) => {
+  const queryClient = useQueryClient();
+
   const [localURL, setLocalURL] = React.useState("");
   const [remoteURL, setRemoteURL] = React.useState("");
+
+  const datasetInfo = queryClient.getQueryData([
+    "fetchData",
+    { project_id: props.project_id },
+  ]);
+
+  const isDatasetAdded = () => {
+    return datasetInfo !== undefined;
+  };
 
   const { error, isError, isLoading, mutate, data } = useMutation(
     ProjectAPI.mutateData,
@@ -51,8 +62,19 @@ const DatasetFromURL = (props) => {
         }
         // if validate is not set, close the dialog
         if (!variables["validate"]) {
+          if (!isDatasetAdded()) {
+            props.toggleProjectSetup();
+          } else {
+            queryClient.invalidateQueries([
+              "fetchInfo",
+              { project_id: props.project_id },
+            ]);
+            queryClient.invalidateQueries([
+              "fetchData",
+              { project_id: props.project_id },
+            ]);
+          }
           props.toggleImportDataset();
-          props.toggleProjectSetup();
         }
       },
     },

@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import {
   Avatar,
@@ -71,7 +71,18 @@ const rejectStyle = {
 };
 
 const DatasetFromFile = (props) => {
+  const queryClient = useQueryClient();
+
   const [file, setFile] = React.useState(null);
+
+  const datasetInfo = queryClient.getQueryData([
+    "fetchData",
+    { project_id: props.project_id },
+  ]);
+
+  const isDatasetAdded = () => {
+    return datasetInfo !== undefined;
+  };
 
   const {
     error: addDatasetError,
@@ -82,8 +93,19 @@ const DatasetFromFile = (props) => {
   } = useMutation(ProjectAPI.mutateData, {
     mutationKey: ["addDataset"],
     onSuccess: (data) => {
+      if (!isDatasetAdded()) {
+        props.toggleProjectSetup();
+      } else {
+        queryClient.invalidateQueries([
+          "fetchInfo",
+          { project_id: props.project_id },
+        ]);
+        queryClient.invalidateQueries([
+          "fetchData",
+          { project_id: props.project_id },
+        ]);
+      }
       props.toggleImportDataset();
-      props.toggleProjectSetup();
     },
   });
 
@@ -105,7 +127,7 @@ const DatasetFromFile = (props) => {
         file: acceptedFiles[0],
       });
     },
-    [props.project_id, addDataset, isAddDatasetError, resetAddDataset]
+    [props.project_id, addDataset, isAddDatasetError, resetAddDataset],
   );
 
   const {
@@ -129,7 +151,7 @@ const DatasetFromFile = (props) => {
       ...(isDragAccept ? acceptStyle : {}),
       ...(isDragReject ? rejectStyle : {}),
     }),
-    [isDragActive, isDragReject, isDragAccept]
+    [isDragActive, isDragReject, isDragAccept],
   );
 
   return (

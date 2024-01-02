@@ -135,7 +135,7 @@ const ImportDataset = (props) => {
       open={props.open}
       fullScreen={props.mobileScreen}
       fullWidth
-      hideBackdrop={props.datasetAdded}
+      hideBackdrop={isDatasetAdded()}
       maxWidth="md"
       PaperProps={{
         elevation: !props.datasetAdded ? 1 : 0,

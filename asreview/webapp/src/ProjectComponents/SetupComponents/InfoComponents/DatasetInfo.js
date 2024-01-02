@@ -1,16 +1,29 @@
 import * as React from "react";
 
-import { Box, Card, CardContent, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 const PREFIX = "DatasetInfo";
 
 const classes = {
+  button: `${PREFIX}-button`,
   cardOverlay: `${PREFIX}-cardOverlay`,
   singleLine: `${PREFIX}-singleLine`,
 };
 
 const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.button}`]: {
+    display: "flex",
+    justifyContent: "center",
+  },
+
   [`& .${classes.cardOverlay}`]: {
     height: "100%",
     width: "100%",
@@ -83,6 +96,9 @@ const DatasetInfo = (props) => {
                 About {props.data?.n_duplicates}
               </Typography>
             </Stack>
+            <Box className={classes.button}>
+              <Button onClick={props.toggleImportDataset}>Edit</Button>
+            </Box>
           </Stack>
         </CardContent>
       </Card>

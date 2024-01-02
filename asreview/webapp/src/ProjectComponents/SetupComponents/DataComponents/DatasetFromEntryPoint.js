@@ -36,6 +36,15 @@ const DatasetFromEntryPoint = (props) => {
 
   const [expanded, setExpanded] = React.useState(false);
 
+  const datasetInfo = queryClient.getQueryData([
+    "fetchData",
+    { project_id: props.project_id },
+  ]);
+
+  const isDatasetAdded = () => {
+    return datasetInfo !== undefined;
+  };
+
   const {
     data,
     error: fetchDatasetsError,
@@ -54,8 +63,19 @@ const DatasetFromEntryPoint = (props) => {
     {
       mutationKey: ["addDataset"],
       onSuccess: (data) => {
+        if (!isDatasetAdded()) {
+          props.toggleProjectSetup();
+        } else {
+          queryClient.invalidateQueries([
+            "fetchInfo",
+            { project_id: props.project_id },
+          ]);
+          queryClient.invalidateQueries([
+            "fetchData",
+            { project_id: props.project_id },
+          ]);
+        }
         props.toggleImportDataset();
-        props.toggleProjectSetup();
       },
     },
   );

@@ -37,6 +37,7 @@ const InfoForm = ({
   isTitleValidated,
   project_id,
   setTitle,
+  toggleImportDataset,
 }) => {
   const [info, setInfo] = React.useState({
     title: "",
@@ -166,7 +167,11 @@ const InfoForm = ({
               />
             </Grid>
             <Grid item xs={12} sm={4}>
-              <DatasetInfo data={data} info={info} />
+              <DatasetInfo
+                data={data}
+                info={info}
+                toggleImportDataset={toggleImportDataset}
+              />
             </Grid>
           </Grid>
         )}
