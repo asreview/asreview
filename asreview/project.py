@@ -50,6 +50,7 @@ from scipy.sparse import save_npz
 from asreview._version import get_versions
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_EXPLORE
+from asreview.config import PROJECT_MODE_ORACLE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.config import PROJECT_MODES
 from asreview.config import SCHEMA
@@ -345,9 +346,9 @@ class ASReviewProject:
             # save the record ids in the state file
             state.add_record_table(as_data.record_ids)
 
-            # if the data contains labels, add them to the state file
+            # if the data contains labels and oracle mode, add them to the state file
             if (
-                self.config["mode"] == PROJECT_MODE_EXPLORE
+                self.config["mode"] == PROJECT_MODE_ORACLE
                 and as_data.labels is not None
             ):
                 labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
