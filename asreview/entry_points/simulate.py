@@ -28,7 +28,6 @@ from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
-from asreview.data import ASReviewData
 from asreview.data import load_data
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.models.balance.utils import get_balance_model
@@ -80,10 +79,7 @@ class SimulateEntryPoint(BaseEntryPoint):
 
             # collect command line arguments and pass them to the reviewer
             if exist_new_labeled_records:
-                fp_data = Path(
-                    project.project_path, "data", project.config["dataset_path"]
-                )
-                as_data = ASReviewData.from_file(fp_data)
+                as_data = project.read_data()
                 prior_idx = args.prior_idx
 
             classifier_model = get_classifier(settings.model)
