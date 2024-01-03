@@ -147,14 +147,14 @@ const ImportDataset = (props) => {
         <AppBarWithinDialog
           disableStartIcon={isLoading}
           onClickStartIcon={handleClose}
-          startIconIsClose={false}
-          title="Dataset"
+          startIconIsClose
+          title="Import a dataset"
         />
       )}
       {!props.mobileScreen && (
         <Fade in>
           <Stack className="dialog-header" direction="row">
-            <DialogTitle>Import Dataset</DialogTitle>
+            <DialogTitle>Import a dataset</DialogTitle>
             <Stack
               className="dialog-header-button right"
               direction="row"

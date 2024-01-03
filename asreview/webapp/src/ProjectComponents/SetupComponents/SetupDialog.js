@@ -219,7 +219,6 @@ const SetupDialog = (props) => {
           isTitleValidated={isTitleValidated}
           mobileScreen={props.mobileScreen}
           savingState={savingState}
-          title={title}
         />
       )}
       <DialogContent className={classes.content} dividers>

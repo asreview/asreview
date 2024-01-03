@@ -103,7 +103,7 @@ const ModePickDialog = (props) => {
         },
       }}
     >
-      <DialogTitle>Choose project mode</DialogTitle>
+      <DialogTitle>Choose a project mode</DialogTitle>
       <DialogContent>
         <Box className={classes.box}>
           <Typography variant="body2" sx={{ color: "text.secondary" }}>

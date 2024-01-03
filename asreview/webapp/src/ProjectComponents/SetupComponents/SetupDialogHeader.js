@@ -20,7 +20,6 @@ const Root = styled(Stack)(({ theme }) => ({
 
 const SetupDialogHeader = ({
   mobileScreen,
-  title,
   activeStep,
   savingState,
   handleClose,
@@ -30,7 +29,7 @@ const SetupDialogHeader = ({
 
   return (
     <Root className="dialog-header" direction="row">
-      <DialogTitle className={classes.title}>{title}</DialogTitle>
+      <DialogTitle className={classes.title}>Create a project</DialogTitle>
       <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
         {(activeStep === 0 || activeStep === 1) && (
           <SavingStateBox isSaving={savingState} />
