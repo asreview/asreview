@@ -1167,8 +1167,7 @@ def api_export_dataset(project):
         # read the dataset into a ASReview data object
         as_data = read_data(project)
 
-        # Convert -1 to NaN
-        as_data.df["debug_label"] = as_data.df["debug_label"].replace(-1, np.nan)
+        as_data.df["debug_label"] = as_data.df["debug_label"].replace(LABEL_NA, np.nan)
 
         # Merge labeled labels with as_data.df based on record_id
         merge_cols = ['record_id', 'label']
@@ -1177,8 +1176,6 @@ def api_export_dataset(project):
         if project.config["mode"] == PROJECT_MODE_EXPLORE:
             # Rename original label column if it exists
             if 'debug_label' in as_data.df.columns:
-                as_data.df.rename(
-                    columns={'debug_label': 'label_included'}, inplace=True)
                 as_data.df.rename(
                     columns={'debug_label': 'label_included'}, inplace=True)
             if 'label' in as_data.df.columns:
