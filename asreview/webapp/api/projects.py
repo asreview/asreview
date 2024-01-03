@@ -77,7 +77,6 @@ from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
 from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
-from asreview.webapp.io import read_data
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -469,7 +468,7 @@ def api_get_project_data(project):  # noqa: F401
 
     try:
         # get statistics of the dataset
-        as_data = read_data(project)
+        as_data = project.read_data()
 
         statistics = {
             "n_rows": as_data.df.shape[0],
@@ -544,7 +543,7 @@ def api_search_data(project):  # noqa: F401
     payload = {"result": []}
     if q:
         # read the dataset
-        as_data = read_data(project)
+        as_data = project.read_data()
 
         # read record_ids of labels from state
         with open_state(project.project_path) as s:
@@ -660,7 +659,7 @@ def api_get_labeled(project):  # noqa: F401
         next_page = None
         previous_page = None
 
-    records = read_data(project).record(data["record_id"])
+    records = project.read_data().record(data["record_id"])
 
     payload = {
         "count": count,
@@ -739,7 +738,7 @@ def api_random_prior_papers(project):  # noqa: F401
     with open_state(project.project_path) as state:
         pool = state.get_pool().values
 
-    as_data = read_data(project)
+    as_data = project.read_data()
 
     payload = {"result": []}
 
@@ -1164,7 +1163,7 @@ def api_export_dataset(project):
                     writer = c
 
         # read the dataset into a ASReview data object
-        as_data = read_data(project)
+        as_data = project.read_data()
 
         # Adding Notes from State file to the exported dataset
         # Check if exported_notes column already exists due to multiple screenings
@@ -1500,7 +1499,7 @@ def api_get_document(project):  # noqa: F401
     if len(record_ids) > 0:
         new_instance = record_ids[0]
 
-        as_data = read_data(project)
+        as_data = project.read_data()
         record = as_data.record(int(new_instance))
 
         item = {}
