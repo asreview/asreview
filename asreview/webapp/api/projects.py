@@ -40,6 +40,7 @@ from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_MODEL
 from asreview.config import DEFAULT_QUERY_STRATEGY
+from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_ORACLE
 from asreview.config import PROJECT_MODE_SIMULATE
@@ -1189,14 +1190,6 @@ def api_export_dataset(project):
         if project.config["mode"] == PROJECT_MODE_ORACLE:
             as_data.df.rename(columns={'label': 'label_included'}, inplace=True)
 
-        def rank_records(record_id):
-            if record_id in export_order:
-                return export_order.index(record_id)
-            return None
-
-        as_data.df['asreview_ranking'] = as_data.df['record_id'].apply(rank_records)
-        as_data.df = as_data.df.set_index('record_id').loc[export_order].reset_index()
-
         # Adding Notes from State file to the exported dataset
         # Check if exported_notes column already exists due to multiple screenings
         screening = 0
@@ -1223,6 +1216,7 @@ def api_export_dataset(project):
 
         as_data.to_file(
             fp=tmp_path_dataset,
+            ranking=export_order,
             writer=writer,
         )
 
