@@ -61,7 +61,7 @@ const FinishSetup = (props) => {
   });
 
   const {
-    // error: statusError,
+    error: statusError,
     isError: isStatusError,
     isFetching: isFetchingStatus,
   } = useQuery(
@@ -95,7 +95,7 @@ const FinishSetup = (props) => {
         props.handleBack();
         queryClient.resetQueries("fetchProjectStatus");
       },
-    }
+    },
   );
 
   const onClickCloseSetup = async () => {
@@ -103,7 +103,7 @@ const FinishSetup = (props) => {
     console.log("Opening existing project " + props.project_id);
     await queryClient.prefetchQuery(
       ["fetchInfo", { project_id: props.project_id }],
-      ProjectAPI.fetchInfo
+      ProjectAPI.fetchInfo,
     );
     if (info?.mode !== projectModes.SIMULATION) {
       navigate(`/projects/${props.project_id}/review`);
@@ -136,7 +136,7 @@ const FinishSetup = (props) => {
         )}
         {!isFetchingStatus && isStatusError && (
           <Stack className={classes.root} spacing={3}>
-            <InlineErrorHandler message={isStatusError?.message} />
+            <InlineErrorHandler message={statusError?.message} />
             <Button onClick={onClickClearError}>Return to previous step</Button>
           </Stack>
         )}
@@ -210,7 +210,9 @@ const FinishSetup = (props) => {
                   </Typography>
                 </Stack>
                 <Box>
-                  <Button id="start-reviewing" onClick={onClickCloseSetup}>Got it</Button>
+                  <Button id="start-reviewing" onClick={onClickCloseSetup}>
+                    Got it
+                  </Button>
                 </Box>
               </Stack>
             )}
