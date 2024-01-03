@@ -26,7 +26,6 @@ from asreview.models.query import get_query_model
 from asreview.project import ASReviewProject
 from asreview.project import open_state
 from asreview.review.base import BaseReview
-from asreview.webapp.io import read_data
 
 
 def run_model_entry_point(argv):
@@ -60,7 +59,7 @@ def run_model_entry_point(argv):
                 settings = state.settings
 
             reviewer = BaseReview(
-                read_data(project),
+                project.read_data(),
                 project,
                 model=get_classifier(settings.model),
                 query_model=get_query_model(settings.query_strategy),
