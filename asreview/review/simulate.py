@@ -165,6 +165,10 @@ class ReviewSimulate(BaseReview):
         # check for partly labeled data
         labels = as_data.labels
         labeled_idx = np.where((labels == 0) | (labels == 1))[0]
+
+        if len(as_data) == 0:
+            raise ValueError("Supply a dataset with at least one record.")
+
         if len(labeled_idx) != len(labels):
             raise ValueError("Expected fully labeled dataset.")
 
