@@ -37,10 +37,6 @@ from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
-from asreview.config import DEFAULT_BALANCE_STRATEGY
-from asreview.config import DEFAULT_FEATURE_EXTRACTION
-from asreview.config import DEFAULT_MODEL
-from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.data import ASReviewData
@@ -870,12 +866,7 @@ def api_list_algorithms():
 @login_required
 @project_authorization
 def api_get_algorithms(project):  # noqa: F401
-    default_payload = {
-        "model": DEFAULT_MODEL,
-        "feature_extraction": DEFAULT_FEATURE_EXTRACTION,
-        "query_strategy": DEFAULT_QUERY_STRATEGY,
-        "balance_strategy": DEFAULT_BALANCE_STRATEGY,
-    }
+    """Get the algorithms used in the project"""
 
     # check if there were algorithms stored in the state file
     try:
@@ -888,9 +879,9 @@ def api_get_algorithms(project):  # noqa: F401
                     "balance_strategy": state.settings.balance_strategy,
                 }
             else:
-                payload = default_payload
+                payload = None
     except StateNotFoundError:
-        payload = default_payload
+        payload = None
 
     return jsonify(payload)
 

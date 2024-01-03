@@ -9,7 +9,6 @@ import { ModelRequirement, ModelSelect } from "../ModelComponents";
 import { ProjectAPI } from "../../../api/index.js";
 import { defaultAlgorithms, mapStateToProps } from "../../../globals.js";
 
-
 const PREFIX = "ModelForm";
 
 const classes = {
@@ -61,12 +60,16 @@ const ModelForm = (props) => {
     {
       enabled: props.project_id !== null,
       onSuccess: (data) => {
-        setModel({
-          classifier: data["model"],
-          query_strategy: data["query_strategy"],
-          balance_strategy: data["balance_strategy"],
-          feature_extraction: data["feature_extraction"],
-        });
+        if (data !== null) {
+          setModel({
+            classifier: data["model"],
+            query_strategy: data["query_strategy"],
+            balance_strategy: data["balance_strategy"],
+            feature_extraction: data["feature_extraction"],
+          });
+        } else {
+          setModel(defaultAlgorithms);
+        }
       },
       refetchOnWindowFocus: false,
     },

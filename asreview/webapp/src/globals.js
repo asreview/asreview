@@ -62,9 +62,10 @@ export const WordmarkState = () => {
 
 // algorithm settings configs
 export const defaultAlgorithms = {
-  model: "nb",
+  classifier: "nb",
   query_strategy: "max",
   feature_extraction: "tfidf",
+  balance_strategy: "double",
 };
 
 // drawer configs

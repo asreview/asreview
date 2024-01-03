@@ -66,7 +66,11 @@ const SetupDialog = (props) => {
   const [title, setTitle] = React.useState("");
 
   const [activeStep, setActiveStep] = React.useState(0);
-  const [completed, setCompleted] = React.useState({ 0: true, 1: true });
+  const [completed, setCompleted] = React.useState({
+    0: true,
+    1: false,
+    2: false,
+  });
 
   const [savingState, setSavingState] = React.useState(false);
   const timerRef = React.useRef(null);
@@ -80,23 +84,24 @@ const SetupDialog = (props) => {
   const handleClose = () => {
     if (activeStep !== 3) {
       props.onClose();
-      if (props.project_id) {
-        props.setFeedbackBar({
-          open: true,
-          message: `Your project ${title} has been saved as draft`,
-        });
-        queryClient.invalidateQueries("fetchProjects");
-        navigate("/projects");
-      }
     } else {
       console.log("Cannot close when training is in progress");
     }
   };
 
+  const exitingSetup = () => {
+    props.setFeedbackBar({
+      open: true,
+      message: `Your project ${title} has been saved as draft`,
+    });
+    queryClient.invalidateQueries("fetchProjects");
+    navigate("/projects");
+  };
+
   const exitedSetup = () => {
     props.setProjectId(null);
     setActiveStep(0);
-    setCompleted({ 0: true, 1: true });
+    setCompleted({ 0: true, 1: false, 2: false });
   };
 
   const handleNext = () => {
@@ -122,9 +127,37 @@ const SetupDialog = (props) => {
     return step === 0 && title.length < 1;
   };
 
+  const isAllStepsCompleted = () => {
+    return Object.values(completed).every((v) => v === true);
+  };
+
+  const disableNext = () => {
+    return (
+      isStepFailed(activeStep) ||
+      !completed[activeStep] ||
+      (activeStep === 2 && !isAllStepsCompleted())
+    );
+  };
+
   const isTitleValidated = () => {
     return title.length > 0;
   };
+
+  // check if model is configured
+  React.useEffect(() => {
+    if (props.open && props.project_id !== null) {
+      queryClient
+        .fetchQuery(
+          ["fetchModelConfig", { project_id: props.project_id }],
+          ProjectAPI.fetchModelConfig,
+        )
+        .then((data) => {
+          if (data !== null) {
+            setCompleted((c) => ({ ...c, 1: true }));
+          }
+        });
+    }
+  }, [props.open, props.project_id, queryClient]);
 
   // check if prior data is added
   React.useEffect(() => {
@@ -172,6 +205,7 @@ const SetupDialog = (props) => {
       }}
       TransitionComponent={Fade}
       TransitionProps={{
+        onExiting: () => exitingSetup(),
         onExited: () => exitedSetup(),
       }}
     >
@@ -208,6 +242,7 @@ const SetupDialog = (props) => {
               handleComplete={handleComplete}
               setTitle={setTitle}
               isTitleValidated={isTitleValidated()}
+              toggleImportDataset={props.toggleImportDataset}
             />
           )}
           {activeStep === 1 && <ModelForm handleComplete={handleComplete} />}
@@ -234,7 +269,7 @@ const SetupDialog = (props) => {
           )}
           <Button
             id="next"
-            disabled={isStepFailed(activeStep) || !completed[activeStep]}
+            disabled={disableNext()}
             variant="contained"
             onClick={handleNext}
           >
