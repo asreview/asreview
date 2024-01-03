@@ -107,12 +107,12 @@ class SimulateEntryPoint(BaseEntryPoint):
                 "command line interface",
             )
 
-            # Check if dataset is benchmark dataset.
+            # Get a name for the dataset
             if re.match(r"^([a-zA-Z0-9_-]+)\:([a-zA-Z0-9_-]+)$", args.dataset):
                 ds = DatasetManager().find(args.dataset)
                 filename = ds.filename
             else:
-                filename = args.dataset
+                filename = Path(args.dataset).name
 
             as_data = load_data(args.dataset)
             as_data.to_file(Path(fp_tmp_simulation, "data", filename))
