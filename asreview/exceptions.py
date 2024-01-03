@@ -17,3 +17,7 @@ __all__ = ["BadFileFormatError"]
 
 class BadFileFormatError(Exception):
     pass
+
+
+class CacheDataError(Exception):
+    pass
