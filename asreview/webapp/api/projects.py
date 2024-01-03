@@ -40,6 +40,7 @@ from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_MODEL
 from asreview.config import DEFAULT_QUERY_STRATEGY
+from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
@@ -1158,11 +1159,15 @@ def api_export_dataset(project):
             state_df[f"exported_notes_{screening}"], on="record_id"
         )
 
+        # keep labels in exploration mode
+        keep_old_labels = project.config["mode"] == PROJECT_MODE_EXPLORE
+
         as_data.to_file(
             fp=tmp_path_dataset,
             labels=labeled.values.tolist(),
             ranking=export_order,
             writer=writer,
+            keep_old_labels=keep_old_labels,
         )
 
         return send_file(
