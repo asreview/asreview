@@ -57,7 +57,7 @@ these steps:
 3. :doc:`start`
 4. :doc:`project_create`
 5. :ref:`Import your dataset <project_create:Add dataset>`
-6. :ref:`project_create:Select Prior Knowledge`
+6. :ref:`Select Prior Knowledge <project_create:Prior Knowledge>`
 7. Select the four components of the :ref:`Active learning model <project_create:Model>` (feature extractor, classifier, balancing method, query strategy)
 8. Wait until the warm up of the AI is ready (the software is extracting the features and trains the classifier on the prior knowledge)
 9. Start :doc:`screening` until you reach your `stopping criterion <https://www.github.com/asreview/asreview/discussions/557>`__

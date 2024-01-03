@@ -49,8 +49,10 @@ example, the name of the screener), and a description. You can edit these
 values later in the *Details* page.
 
 
-Data
-====
+Data and Prior Knowledge
+========================
+
+In Step 2, you import a dataset and select prior knowledge.
 
 Add dataset
 -----------
@@ -70,7 +72,7 @@ Depending on the :ref:`Project mode <project_create:Project modes>`, you are
 offered different options for adding a dataset:
 
 From File
----------
+~~~~~~~~~
 
 Drag and drop your file or select your file. Click on *Save* on the top right.
 
@@ -83,7 +85,7 @@ Drag and drop your file or select your file. Click on *Save* on the top right.
 
 
 From URL or DOI
----------------
+~~~~~~~~~~~~~~~
 
 Insert a URL to a dataset. For example, use a URL from this
 `dataset repository <https://github.com/asreview/systematic-review-datasets>`__.
@@ -95,13 +97,13 @@ In a DOI points to multiple files, select the file you want to use (e.g.
 Click on *Add* to add the dataset.
 
 From Extension
---------------
+~~~~~~~~~~~~~~
 
 Select a file available via an extension (Oracle and Validation only). Click
 on *Save* on the top right.
 
 Benchmark Datasets
-------------------
+~~~~~~~~~~~~~~~~~~
 
 Select one of the
 :ref:`data_labeled:benchmark datasets` (Simulation and Validation only). Click
@@ -109,10 +111,7 @@ on *Save* on the top right.
 
 
 Prior Knowledge
-===============
-
-Select Prior Knowledge
-----------------------
+---------------
 
 The first iteration of the active learning cycle requires training data,
 referred to as prior knowledge. This knowledge is used by the classifier to
@@ -140,7 +139,7 @@ record, you can click *Close* and go to the next step.
 
 
 Search
-------
+~~~~~~
 
 Let's start with finding a prior relevant document. The most efficient way
 to do this is by searching for a specific document that you already know is
@@ -162,13 +161,22 @@ The prior knowledge will now show up on the right. There are no restrictions
 on the number of records and the software already works with 2 labels (1
 relevant and 1 irrelevant). 
 
-If you are done searching prior knowledge, click *Close*.
+The prior knowledge will now show up on the right. Use the buttons to see all
+prior knowledge or a subset. You can also change the label or remove the
+record from the training set. There are no restrictions on the number of
+records you provide, and the software already works with 2 labeled records
+(1 relevant and 1 irrelevant). After labeling five randomly selected records,
+ASReview LAB will ask you whether you want to stop searching prior knowledge.
+Click on *STOP* and click *Next*.
+
+Inspect the records to be used for training the first iteration of the model,
+and if you are done, click *Close*.
 
 .. figure:: ../images/setup_prior_search_1rel.png
    :alt: ASReview prior knowledge search 1 relevant
 
 Random
-------
+~~~~~~
 
 .. warning::
   Do not use the random option to search for the sparse relevant records!
@@ -192,25 +200,6 @@ record.
 
 .. figure:: ../images/setup_prior_knowledge_random_validate.png
    :alt: ASReview prior knowledge selector
-
-
-Inspect
--------
-
-The prior knowledge will now show up on the right. Use the buttons to see all
-prior knowledge or a subset. You can also change the label or remove the
-record from the training set.
-
-There are no restrictions on the number
-of records you provide, and the software already works with 2 labeled
-records (1 relevant and 1 irrelevant). 
-
-After labeling five randomly selected records, ASReview LAB will ask you
-whether you want to stop searching prior knowledge. Click on *STOP* and
-click *Next*.
-
-Inspect the records to be used for training the first iteration of the model,
-and if you are done, click *Close*.
 
 Model
 =====

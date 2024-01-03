@@ -31,7 +31,7 @@ Unlabeled data
 
 Unlabeled datasets do not contain any labels and can be used in the **Oracle
 mode** to start a review from scratch. Prior knowledge has to be selected in
-the :ref:`Prior Knowledge <project_create:Select Prior Knowledge>` step of the project set-up. 
+the :ref:`Prior Knowledge <project_create:Prior Knowledge>` step of the project set-up. 
 
 Partially labeled data
 ----------------------
@@ -41,7 +41,7 @@ of the records in the dataset and no decision for another subset.
 
 In **Oracle mode**, if labels are available for a part of the dataset, the
 labels will be automatically detected and used for :ref:`Prior Knowledge
-<project_create:Select Prior Knowledge>`. The first iteration of the model
+<project_create:Prior Knowledge>`. The first iteration of the model
 will then be based on these decisions and used to predict relevance scores
 for the unlabeled part of the data. It is usefull when a large number of
 records is needed for training, or when  updating a systematic review, or to
