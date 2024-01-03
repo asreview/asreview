@@ -417,34 +417,7 @@ def api_upload_data_to_project(project):  # noqa: F401
         response = jsonify(message="No file or dataset found to import.")
         return response, 400
 
-    if project_config["mode"] == PROJECT_MODE_EXPLORE:
-        data_path_raw = Path(project.project_path, "data") / filename
-        data_path = data_path_raw.with_suffix(".csv")
-
-        data = ASReviewData.from_file(data_path_raw)
-
-        if data.labels is None:
-            raise ValueError("Import fully labeled dataset.")
-
-        data.df.rename(
-            {data.column_spec["included"]: "debug_label"}, axis=1, inplace=True
-        )
-        data.to_file(data_path)
-
-    elif project_config["mode"] == PROJECT_MODE_SIMULATE:
-        data_path_raw = Path(project.project_path, "data") / filename
-        data_path = data_path_raw.with_suffix(".csv")
-
-        data = ASReviewData.from_file(data_path_raw)
-
-        if data.labels is None:
-            raise ValueError("Import fully labeled dataset.")
-
-        data.df["debug_label"] = data.df[data.column_spec["included"]]
-        data.to_file(data_path)
-
-    else:
-        data_path = Path(project.project_path, "data") / filename
+    data_path = Path(project.project_path, "data") / filename
 
     try:
         # add the file to the project
@@ -562,14 +535,6 @@ def api_search_data(project):  # noqa: F401
             raise ValueError(err) from err
 
         for record in as_data.record(result_idx):
-            debug_label = record.extra_fields.get("debug_label", None)
-            debug_label = int(debug_label) if pd.notnull(debug_label) else None
-
-            if project_mode == PROJECT_MODE_SIMULATE:
-                # ignore existing labels
-                included = -1
-            else:
-                included = int(record.included)
 
             payload["result"].append(
                 {
@@ -578,8 +543,8 @@ def api_search_data(project):  # noqa: F401
                     "abstract": record.abstract,
                     "authors": record.authors,
                     "keywords": record.keywords,
-                    "included": included,
-                    "_debug_label": debug_label,
+                    "included": int(record.included),
+                    "_debug_label": int(record.included),
                 }
             )
 
@@ -743,7 +708,7 @@ def api_random_prior_papers(project):  # noqa: F401
     payload = {"result": []}
 
     if subset in ["relevant", "included"]:
-        rel_indices = as_data.df[as_data.df["debug_label"] == 1].index.values
+        rel_indices = as_data.df[as_data.df["included"] == 1].index.values
         rel_indices_pool = np.intersect1d(pool, rel_indices)
 
         if len(rel_indices_pool) == 0:
@@ -776,7 +741,7 @@ def api_random_prior_papers(project):  # noqa: F401
             )
 
     elif subset in ["irrelevant", "excluded"]:
-        irrel_indices = as_data.df[as_data.df["debug_label"] == 0].index.values
+        irrel_indices = as_data.df[as_data.df["included"] == 0].index.values
         irrel_indices_pool = np.intersect1d(pool, irrel_indices)
 
         if len(irrel_indices_pool) == 0:
@@ -1510,8 +1475,7 @@ def api_get_document(project):  # noqa: F401
         item["url"] = record.url
 
         # return the debug label
-        debug_label = record.extra_fields.get("debug_label", None)
-        item["_debug_label"] = int(debug_label) if pd.notnull(debug_label) else None
+        item["_debug_label"] = record["label"]
 
         item["doc_id"] = new_instance
         pool_empty = False

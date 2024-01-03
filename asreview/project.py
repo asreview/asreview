@@ -49,6 +49,7 @@ from scipy.sparse import save_npz
 
 from asreview._version import get_versions
 from asreview.config import LABEL_NA
+from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.config import PROJECT_MODES
 from asreview.config import SCHEMA
@@ -333,6 +334,12 @@ class ASReviewProject:
         # fill the pool of the first iteration
         fp_data = Path(self.project_path, "data", self.config["dataset_path"])
         as_data = ASReviewData.from_file(fp_data)
+
+        if self.config["mode"] == PROJECT_MODE_SIMULATE and as_data.labels is None:
+            raise ValueError("Import fully labeled dataset")
+
+        if self.config["mode"] == PROJECT_MODE_EXPLORE and as_data.labels is None:
+            raise ValueError("Import partially or fully labeled dataset")
 
         with open_state(self.project_path, read_only=False) as state:
             # save the record ids in the state file
