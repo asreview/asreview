@@ -347,7 +347,7 @@ class ASReviewProject:
 
             # if the data contains labels, add them to the state file
             if (
-                self.config["mode"] != PROJECT_MODE_SIMULATE
+                self.config["mode"] == PROJECT_MODE_EXPLORE
                 and as_data.labels is not None
             ):
                 labeled_indices = np.where(as_data.labels != LABEL_NA)[0]

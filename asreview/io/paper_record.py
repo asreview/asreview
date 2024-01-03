@@ -132,7 +132,7 @@ class PaperRecord:
         Notes of the paper.
     keywords: str, list
         Keywords of the paper.
-    label: int
+    included: int
         Current label of the paper. No label is indicated by
         asreview.config.LABEL_NA (== -1).
     kwargs: dict

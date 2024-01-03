@@ -543,8 +543,8 @@ def api_search_data(project):  # noqa: F401
                     "abstract": record.abstract,
                     "authors": record.authors,
                     "keywords": record.keywords,
-                    "included": int(record.included),
-                    "_debug_label": int(record.included),
+                    "included": -1,
+                    "label_from_dataset": int(record.included),
                 }
             )
 
@@ -708,7 +708,11 @@ def api_random_prior_papers(project):  # noqa: F401
     payload = {"result": []}
 
     if subset in ["relevant", "included"]:
-        rel_indices = as_data.df[as_data.df["included"] == 1].index.values
+
+        if as_data.labels is None:
+            return jsonify(payload)
+
+        rel_indices = as_data.df[as_data.labels == 1].index.values
         rel_indices_pool = np.intersect1d(pool, rel_indices)
 
         if len(rel_indices_pool) == 0:
@@ -736,12 +740,16 @@ def api_random_prior_papers(project):  # noqa: F401
                     "authors": rr.authors,
                     "keywords": rr.keywords,
                     "included": None,
-                    "_debug_label": 1,
+                    "label_from_dataset": 1,
                 }
             )
 
     elif subset in ["irrelevant", "excluded"]:
-        irrel_indices = as_data.df[as_data.df["included"] == 0].index.values
+
+        if as_data.labels is None:
+            return jsonify(payload)
+
+        irrel_indices = as_data.df[as_data.labels == 0].index.values
         irrel_indices_pool = np.intersect1d(pool, irrel_indices)
 
         if len(irrel_indices_pool) == 0:
@@ -770,7 +778,7 @@ def api_random_prior_papers(project):  # noqa: F401
                     "authors": ir.authors,
                     "keywords": ir.keywords,
                     "included": None,
-                    "_debug_label": 0,
+                    "label_from_dataset": 0,
                 }
             )
 
@@ -797,7 +805,7 @@ def api_random_prior_papers(project):  # noqa: F401
                     "authors": r.authors,
                     "keywords": r.keywords,
                     "included": None,
-                    "_debug_label": None,
+                    "label_from_dataset": None,
                 }
             )
 
@@ -1475,7 +1483,7 @@ def api_get_document(project):  # noqa: F401
         item["url"] = record.url
 
         # return the debug label
-        item["_debug_label"] = record["label"]
+        item["label_from_dataset"] = record.included
 
         item["doc_id"] = new_instance
         pool_empty = False
