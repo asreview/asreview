@@ -782,7 +782,7 @@ def api_random_prior_papers(project):  # noqa: F401
 
     elif subset == "unseen":
         # Fetch records that are unseen
-        unlabeled_indices = as_data.df[as_data.df["debug_label"] == LABEL_NA] \
+        unlabeled_indices = as_data.df[as_data.labels == LABEL_NA] \
             .index.values
         unlabeled_indices_pool = np.intersect1d(pool, unlabeled_indices)
 
@@ -816,7 +816,7 @@ def api_random_prior_papers(project):  # noqa: F401
                     "authors": record.authors,
                     "keywords": record.keywords,
                     "included": None,
-                    "_debug_label": -1,
+                    "label_from_dataset": -1,
                 }
             )
     else:
@@ -1174,8 +1174,6 @@ def api_export_dataset(project):
 
         # read the dataset into a ASReview data object
         as_data = project.read_data()
-
-        as_data.df["debug_label"] = as_data.df["debug_label"].replace(LABEL_NA, None)
 
         # Adding Notes from State file to the exported dataset
         # Check if exported_notes column already exists due to multiple screenings

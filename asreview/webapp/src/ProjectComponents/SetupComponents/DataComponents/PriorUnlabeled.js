@@ -141,7 +141,7 @@ const PriorUnlabeled = (props) => {
           {props.record.label_from_dataset !== null && (
             <ExplorationModeRecordAlert
               label={
-                props.record._debug_label === -1
+                props.record.label_from_dataset === -1
                   ? "not seen"
                   : !isDebugInclusion()
                     ? "irrelevant"
