@@ -52,8 +52,6 @@ feature requests, please submit an issue on `GitHub
 
     manage
 
-    extensions_overview
-
 .. toctree::
     :maxdepth: 1
     :caption: Simulation
@@ -86,7 +84,7 @@ feature requests, please submit an issue on `GitHub
 
     example_api_asreview_file
 
-    extensions_dev
+    extensions_overview
 
     reference
 
