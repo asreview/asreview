@@ -77,7 +77,7 @@ def sample_prior_knowledge(
 
 
 def naive_prior_knowledge(labels):
-    """Select top records until the first 0 and 1 are found.
+    """Select records from the dataset as priors in the order they were provided until the first 0 and 1 are encountered
 
     Arguments
     ---------
