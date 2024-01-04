@@ -14,7 +14,8 @@ ASReview LAB implements three different options:
 
 - **Oracle:** Screen textual data in interaction with the active learning model. The reviewer is the 'oracle', making the labeling decisions.
 - **Simulation:** Evaluate the performance of active learning models on fully labeled data.
-- **Exploration:** Explore or demonstrate ASReview LAB with a completely labeled dataset. This mode is suitable for teaching purposes.
+- **Validation:** Validate labels provided by another screener or derived from an LLM or AI, and explore benchmark datasets without being an oracle.
+
 
 ASReview LAB is one of the products of the `ASReview research project
 <https://asreview.ai/about/>`_  initiated at Utrecht University, which has
@@ -56,7 +57,7 @@ these steps:
 3. :doc:`start`
 4. :doc:`project_create`
 5. :ref:`Import your dataset <project_create:Add dataset>`
-6. :ref:`project_create:Select Prior Knowledge`
+6. :ref:`Select Prior Knowledge <project_create:Prior Knowledge>`
 7. Select the four components of the :ref:`Active learning model <project_create:Model>` (feature extractor, classifier, balancing method, query strategy)
 8. Wait until the warm up of the AI is ready (the software is extracting the features and trains the classifier on the prior knowledge)
 9. Start :doc:`screening` until you reach your `stopping criterion <https://github.com/asreview/asreview/discussions/557>`__
@@ -86,11 +87,11 @@ Quick start
 
 4. Click *Create* to create a project
 
-5. Select a mode (Oracle, Exploration, Simulation)
+5. Select a mode (Oracle, Validation, Simulation)
 
 6. Name the project, and if you want, add an author name(s) and type a description
 
-7. Import a dataset you want to review, or select a benchmark dataset (only available for the Exploration and Simulation mode)
+7. Import a dataset you want to review, or select a benchmark dataset (only available for the Validation and Simulation mode)
 
 8. Add prior knowledge. Select at least 1 relevant and 1 irrelevant record to warm up the AI. You can search for a specific record or request random records
 
@@ -174,15 +175,14 @@ encounter as you use ASReview LAB.
     ASReview LAB and can be :term:`imported<import>` back.
 
   Project mode
-    the project mode includes oracle, simulation, and exploration in
+    The project mode includes oracle, simulation, and validation in
     ASReview LAB:
 
     **Oracle** mode is used when a :term:`user` reviews a :term:`dataset`
     systematically with interactive artificial intelligence (AI).
 
-    **Exploration** mode is used when a user explores or demonstrates ASReview
-    LAB with a completely labeled dataset. This mode is suitable for teaching
-    purposes.
+    **Validation** mode is used when a user validates existing labels or
+      engages in a review process without being an oracle
 
     **Simulation** mode is used when a user simulates a review on a completely
     labeled dataset to see the performance of ASReview LAB.
@@ -196,11 +196,11 @@ encounter as you use ASReview LAB.
     :term:`configures the model<Model configuration>` and initiates the first
     iteration of :term:`model<Active learning model>` training.
 
-    **In Review** refers to the fact that in oracle or exploration mode,
+    **In Review** refers to the fact that in oracle or validation mode,
     the user adds labels to :term:`records<record>`, or in simulation mode, the
     simulation is running.
 
-    **Finished** refers to the fact that in oracle or exploration mode, the user
+    **Finished** refers to the fact that in oracle or validation mode, the user
     decides to complete the :term:`reviewing` process or has labeled all the
     records, or in simulation mode, the simulation has been completed.
 
