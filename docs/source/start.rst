@@ -8,8 +8,12 @@ start using it.
 
 	asreview lab
 
-When you are using Windows, open `CMD.exe` and run the command. When you use
-MacOS or Linux, you can open `Terminal` and run the command.
+Upon executing this command, ASReview LAB will initiate, and your default web
+browser will automatically open a new tab to the ASReview LAB interface where
+you can begin your systematic review.
+
+.. figure:: ../images/first_time.png
+   :alt: First time opening ASReview LAB
 
 The information in the sections below is more advanced and not needed for the
 majority of the ASReview LAB users.
