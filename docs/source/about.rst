@@ -51,15 +51,15 @@ Labeling workflow with ASReview
 Start and finish a systematic labeling process with ASReview LAB by following
 these steps:
 
-1. Create a dataset with potentially relevant records you want to screen systematically. Improve the `quality of the data <https://www.asreview.ai/blog/the-importance-of-abstracts>`__ and specify clear reviewing (inclusion/exclusion) criteria
-2. Specify a `stopping criterion <https://www.github.com/asreview/asreview/discussions/557>`__
+1. Create a dataset with potentially relevant records you want to screen systematically. Improve the `quality of the data <https://asreview.ai/blog/the-importance-of-abstracts>`__ and specify clear reviewing (inclusion/exclusion) criteria
+2. Specify a `stopping criterion <https://github.com/asreview/asreview/discussions/557>`__
 3. :doc:`start`
 4. :doc:`project_create`
 5. :ref:`Import your dataset <project_create:Add dataset>`
 6. :ref:`project_create:Select Prior Knowledge`
 7. Select the four components of the :ref:`Active learning model <project_create:Model>` (feature extractor, classifier, balancing method, query strategy)
 8. Wait until the warm up of the AI is ready (the software is extracting the features and trains the classifier on the prior knowledge)
-9. Start :doc:`screening` until you reach your `stopping criterion <https://www.github.com/asreview/asreview/discussions/557>`__
+9. Start :doc:`screening` until you reach your `stopping criterion <https://github.com/asreview/asreview/discussions/557>`__
 10. At any time, you can export the :term:`dataset` the labeling decisions or the entire :term:`project`.
 
 
