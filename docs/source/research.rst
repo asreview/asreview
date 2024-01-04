@@ -42,7 +42,7 @@ For scientific use, we encourage users to cite:
 
 - The paper published in `Nature Machine Intelligence <https://www.nature.com/articles/s42256-020-00287-7>`_ to cite the **ASReview project**.
 
-- For a detailed description of the the data model, see the paper `Reproducibility and Data storage Checklist <https://osf.io/preprints/psyarxiv/g93zf>`__.
+- For a detailed description of the the data model, see the paper `Reproducibility and Data Storage Checklist <https://osf.io/preprints/psyarxiv/g93zf>`__.
 
 - More studies related to the project can be found on `asreview.ai/research <https://asreview.ai/research/>`_.
 
