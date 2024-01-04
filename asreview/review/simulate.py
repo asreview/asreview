@@ -77,7 +77,8 @@ def sample_prior_knowledge(
 
 
 def naive_prior_knowledge(labels):
-    """Select records from the dataset as priors in the order they were provided until the first 0 and 1 are encountered
+    """Select records from the dataset as priors in the order they were
+    provided until the first 0 and 1 are encountered
 
     Arguments
     ---------
