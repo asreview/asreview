@@ -51,8 +51,8 @@ In **Validation mode**, the labels available are presented in the review
 screen along with an indication of their previous labeling status: relevant,
 irrelevant, or unseen. This status is displayed via a color-coded bar above
 each record, and you have the opportunity to refine the dataset by correcting
-any potential misclassifications, usefull for the quality evaluation(see, for
-example, the `SAFE procedure <https://www.researchsquare.com/article/rs-2856011/>`_. 
+any potential misclassifications, useful for the quality evaluation(see, for
+example, the `SAFE procedure <https://www.researchsquare.com/article/rs-2856011/>`_). 
 
 .. note::
 
