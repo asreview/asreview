@@ -25,6 +25,80 @@ import rispy
 from asreview.io.utils import _standardize_dataframe
 from asreview.utils import is_url
 
+ASREVIEW_PARSE_RE = r"\bASReview_\w+\b"
+
+
+def _parse_asreview_data_from_notes(note_list):
+    parse_dict = {
+        "ASReview_relevant": {"included": 1},
+        "ASReview_irrelevant": {"included": 0},
+        "ASReview_not_seen": {"included": -1},
+        "ASReview_prior": {"asreview_prior": 1},
+        "ASReview_validate_relevant": {"asreview_label_to_validate": 1},
+        "ASReview_validate_irrelevant": {"asreview_label_to_validate": 0},
+        "ASReview_validate_not_seen": {"asreview_label_to_validate": -1},
+    }
+
+    # Return {} and an empty list
+    if not isinstance(note_list, list):
+        return {}
+
+    # match all words that start with ASReview and end with a word boundary
+    matches = re.findall(ASREVIEW_PARSE_RE, " ".join(note_list))
+
+    if (
+        ("ASReview_relevant" in matches and "ASReview_irrelevant" in matches)
+        or ("ASReview_relevant" in matches and "ASReview_not_seen" in matches)
+        or ("ASReview_irrelevant" in matches and "ASReview_not_seen" in matches)
+    ):
+        raise ValueError("Cannot have both relevant and irrelevant label.")
+
+    if (
+        (
+            "ASReview_validate_relevant" in matches
+            and "ASReview_validate_irrelevant" in matches
+        )
+        or (
+            "ASReview_validate_relevant" in matches
+            and "ASReview_validate_not_seen" in matches
+        )
+        or (
+            "ASReview_validate_irrelevant" in matches
+            and "ASReview_validate_not_seen" in matches
+        )
+    ):
+        raise ValueError("Cannot have both relevant and irrelevant label.")
+
+    # get the dictionary for each match
+    parsed_values = [parse_dict.get(m, {}) for m in matches]
+    parsed_values = {k: v for d in parsed_values for k, v in d.items()}
+
+    return parsed_values
+
+
+def _remove_asreview_data_from_notes(note_list):
+    """Remove ASReview data from notes.
+
+    Arguments
+    ---------
+    note_list: list
+        A list of notes, coming from the Dataframe's "notes" column.
+
+    Returns
+    -------
+    asreview_new_notes: list
+        A list of updated notes, where ASReview data has been removed.
+    """
+
+    # Return {} and an empty list
+    if not isinstance(note_list, list):
+        return []
+
+    asreview_new_notes = [re.sub(ASREVIEW_PARSE_RE, "", note) for note in note_list]
+    asreview_new_notes[:] = [item for item in asreview_new_notes if item != ""]
+
+    return asreview_new_notes
+
 
 class RISReader:
     """RIS file reader."""
@@ -32,7 +106,8 @@ class RISReader:
     read_format = [".ris", ".txt"]
     write_format = [".csv", ".tsv", ".xlsx", ".ris"]
 
-    def _strip_zotero_p_tags(note_list):
+    @classmethod
+    def _strip_zotero_p_tags(cls, note_list):
         """Converter function for removing the XHTML <p></p> tags from Zotero export.
 
         Arguments
@@ -57,51 +132,6 @@ class RISReader:
             return new_notes
         else:
             return note_list
-
-    def _label_parser(note_list):
-        """Parse "included" and "notes" columns.
-
-        Arguments
-        ---------
-        note_list: list
-            A list of notes, coming from the Dataframe's "notes" column.
-
-        Returns
-        -------
-        asreview_new_notes: list
-            A list of updated notes, where internal label has been added.
-        note_list: list
-            The original note_list, when no labels have been found.
-        1,0,-1: int
-            Labels in case they are still needed from the internal representation.
-        """
-        regex = r"ASReview_relevant|ASReview_irrelevant|ASReview_not_seen"
-
-        # Check whether note_list is actually a list and not NaN
-        # Return -1 and an empty list
-        if not isinstance(note_list, list):
-            return -1, []
-
-        # Create lists of lists for ASReview references
-        asreview_refs = [re.findall(regex, note) for note in note_list]
-        asreview_refs_list = [item for sublist in asreview_refs for item in sublist]
-
-        if len(asreview_refs_list) > 0:
-            # Create lists of lists for notes without references
-            asreview_new_notes = [re.sub(regex, "", note) for note in note_list]
-            # Remove empty elements from list
-            asreview_new_notes[:] = [item for item in asreview_new_notes if item != ""]
-            label = asreview_refs_list[-1]
-
-            # Check for the label and return proper values for internal representation
-            if label == "ASReview_relevant":
-                return 1, asreview_new_notes
-            elif label == "ASReview_irrelevant":
-                return 0, asreview_new_notes
-            elif label == "ASReview_not_seen":
-                return -1, asreview_new_notes
-        else:
-            return -1, note_list
 
     @classmethod
     def read_data(cls, fp):
@@ -164,11 +194,19 @@ class RISReader:
         if "notes" in df:
             # Strip Zotero XHTML <p> tags on "notes"
             df["notes"] = df["notes"].apply(cls._strip_zotero_p_tags)
-            # Split "included" from "notes"
-            df[["included", "notes"]] = pandas.DataFrame(
-                df["notes"].apply(cls._label_parser).tolist(),
-                columns=["included", "notes"],
+
+            # strip ASReview data from notes
+            df = pandas.concat(
+                [
+                    df,
+                    pandas.DataFrame(
+                        df["notes"].apply(_parse_asreview_data_from_notes).tolist(),
+                    ),
+                ],
+                axis=1,
             )
+            df["notes"] = df["notes"].apply(_remove_asreview_data_from_notes)
+
             # Return the standardised dataframe with label and notes separated
             return _standardize_dataframe(df)
         else:
