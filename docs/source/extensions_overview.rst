@@ -60,8 +60,8 @@ with ASReview LAB.
 
 .. _extensions-community:
 
-List of extensions for ASReview LAB
------------------------------------
+Community maintained extensions
+-------------------------------
 
 The `List of extensions for ASReview LAB <https://github.com/asreview/asreview/discussions/1140>`__ on the Discussion platform
 gives an overview of known extensions to ASReview LAB and other useful tools
