@@ -183,6 +183,7 @@ const PriorRandom = (props) => {
                     <Select value={subset} onChange={handleSubsetChange}>
                       <MenuItem value="relevant">relevant</MenuItem>
                       <MenuItem value="irrelevant">irrelevant</MenuItem>
+                      <MenuItem value="unseen">unseen</MenuItem>
                     </Select>
                   </FormControl>
                   <Typography sx={{ color: "text.secondary" }}>

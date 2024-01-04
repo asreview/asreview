@@ -62,29 +62,12 @@ is provided, this is also displayed as a clickable link. Note by
 using ASReview you do *not* automatically have access to full-text and if you do
 not have access you might want to read this `blog post <https://asreview.ai/blog/tools-that-work-well-with-asreview-google-scholar-button/>`__.
 
-**Included** A binary variable indicating the existing labeling decisions with
-``0`` = irrelevant/excluded, and ``1`` = relevant/included. Different column
-names are allowed, see the table. It can be used for:
-
-- **Screening**: In ASReview LAB, if labels are available for a part of the
-  dataset (see :doc:`data_labeled`), the
-  labels will be automatically detected and used for prior knowledge. The first
-  iteration of the model will then be based on these decisions and used to
-  predict relevance scores for the unlabeled part of the data.
-- **Exploration**: You can explore a completely labeled dataset in the Exploration
-  Mode. The relevant/irrelevant label in the dataset will be displayed on each record.
-  This option is useful for training purposes, presentations, and workshops.
-- **Simulation**: In a :doc:`Simulation<simulation_overview/>`,
-  the column containing the labels is used to simulate a systematic review run.
-  Only records containing labels are used for the simulation, unlabeled records are ignored.
-
-.. note::
-
-  Files exported with ASReview LAB contain the column ``included``. When
-  re-importing a partly labeled dataset in RIS file format, the labels
-  stored in the N1 field are used as prior knowledge. When a completely
-  labeled dataset is re-imported it can be used in the Exploration and
-  Simulation mode. 
+**Included** 
+A binary variable indicating the existing labeling decisions with ``0`` =
+irrelevant/excluded, or ``1`` = relevant/included. If no label is present, we
+assume the record is ``unseen``. Different column names are allowed, see the
+table. The behavior of the labels is different for each mode,
+see :doc:`data_labeled`.
 
 
 RIS file format
@@ -101,22 +84,24 @@ reader (`rispy <https://pypi.org/project/rispy/>`__). Successful import/export
 depends on a proper data set structure. The complete list of accepted fields and 
 default mapping can be found on the `rispy GitHub page <https://github.com/MrTango/rispy>`_.
 
+The labels ``ASReview_relevant``, ``ASReview_irrelevant``, and
+``ASReview_not_seen`` are stored with the N1 (Notes) tag, and can be
+re-imported into ASReview LAB. The behavior of the labels is different for
+each mode, see :doc:`data_labeled`.
 
 .. tip:: 
 
   The labels ``ASReview_relevant``, ``ASReview_irrelevant``, and
   ``ASReview_not_seen`` are stored with the N1 (Notes) tag. In citation managers
   Zotero and Endnote the labels can be used for making selections; see the
-  screenshots or watch the `instruction video  <https://www.youtube.com/watch?v=-Rw291AE2OI>`_. 
+  screenshots or watch the `instruction video <https://www.youtube.com/watch?v=-Rw291AE2OI>`_. 
 
 .. note:: 
 
-  When re-importing a partly labeled dataset in the the RIS file format, the
+  When re-importing a partly labeled dataset in the RIS file format, the
   labels stored in the N1 field are used as prior knowledge. When a completely
   labeled dataset is re-imported it can be used in the Exploration and
-  Simulation mode.  
-
-
+  Simulation mode.
 
 .. figure:: ../images/asreview_export_to_zotero_labeled.png
    :alt: Example record with a labeling decision imported to Zotero
