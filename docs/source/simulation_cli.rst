@@ -127,7 +127,7 @@ knowledge is assigned (using ``--n_prior_included 0 --n_prior_excluded 0``),
 the first records from the dataset are employed as priors in the order they
 were provided until the first 0 and 1 are encountered.
 
-The following records are prior knowledge:
+The following options can be used to label prior knowledge:
 
 .. option:: --n_prior_included N_PRIOR_INCLUDED
 
