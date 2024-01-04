@@ -1,14 +1,14 @@
 Extensions
 ==========
 
-ASReview has extensive support for extensions. They can extend the
+ASReview supports for extending the software with new
+models, subcommands, and datasets. They can extend the
 functionality of ASReview LAB, and the
 :doc:`Command Line Interface <cli>`. There are :ref:`officially
 supported extensions <extensions-official>` and `community maintained extensions <https://github.com/asreview/asreview/discussions/1140>`_.
 
 Looking to develop your own extension? See :ref:`develop-extensions` for
 detailed instructions.
-
 
 Installation
 ------------
@@ -65,5 +65,4 @@ List of extensions for ASReview LAB
 
 The `List of extensions for ASReview LAB <https://github.com/asreview/asreview/discussions/1140>`__ on the Discussion platform
 gives an overview of known extensions to ASReview LAB and other useful tools
-in the AI-aided systematic review pipeline. These extensions can extend the
-software with new models, subcommands, and datasets.
+in the AI-aided systematic review pipeline.
