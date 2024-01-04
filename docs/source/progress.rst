@@ -126,6 +126,8 @@ The following variables will be added to your tabular dataset:
   not seen during the screening process.
 - The column titled **asreview_ranking** contains an identifier to
   preserve the rank ordering as described below.
+- The column **label_to_validate** is added in the exploration mode and
+  contains the labels initially present in the data.
 - The column **Notes** contain any notes you made during screening. 
 
 For RIS files, the labels **ASReview_relevant**, **ASReview_irrelevant**,
