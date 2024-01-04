@@ -40,7 +40,8 @@ continues until a new model is trained, and the user can continue screening
 the next record in line (2nd, 3rd, etc.). Therefore, the record shown to the
 user can be the one with the highest relevance score of the second last model
 or the highest-ranked as a result of the latest model until a new model is
-trained. 
+trained. For a detailed description of the the data model, see the paper 
+`Reproducibility and Data Storage Checklist <https://osf.io/preprints/psyarxiv/g93zf>`__. 
 
 As you keep reviewing documents and providing labels, you will probably see
 fewer relevant records. When to stop screening is left to you. See
