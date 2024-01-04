@@ -89,8 +89,19 @@ The labels ``ASReview_relevant``, ``ASReview_irrelevant``, and
 re-imported into ASReview LAB. The behavior of the labels is different for
 each mode, see :doc:`data_labeled`.
 
-An example of a RIS file with labels in the N1 tag can be found
-in the `ASReview GitHub repository <https://github.com/asreview/asreview/blob/master/tests/demo_data/baseline_tag-notes_labels.ris>`_. In citation managers Zotero and Endnote the labels can be used for making selections; see the screenshots or watch the `instruction video  <https://www.youtube.be/-Rw291AE20I>`_. 
+.. tip:: 
+
+  The labels ``ASReview_relevant``, ``ASReview_irrelevant``, and
+  ``ASReview_not_seen`` are stored with the N1 (Notes) tag. In citation managers
+  Zotero and Endnote the labels can be used for making selections; see the
+  screenshots or watch the `instruction video <https://www.youtube.com/watch?v=-Rw291AE2OI>`_. 
+
+.. note:: 
+
+  When re-importing a partly labeled dataset in the RIS file format, the
+  labels stored in the N1 field are used as prior knowledge. When a completely
+  labeled dataset is re-imported it can be used in the Exploration and
+  Simulation mode.
 
 .. figure:: ../images/asreview_export_to_zotero_labeled.png
    :alt: Example record with a labeling decision imported to Zotero

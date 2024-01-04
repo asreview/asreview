@@ -37,13 +37,15 @@ from asreview.utils import is_iterable
 from asreview.utils import is_url
 
 
-def load_data(name, *args, **kwargs):
+def load_data(name, **kwargs):
     """Load data from file, URL, or plugin.
 
     Parameters
     ----------
     name: str, pathlib.Path
         File path, URL, or alias of extension dataset.
+    **kwargs:
+        Keyword arguments passed to the reader.
 
     Returns
     -------
@@ -53,11 +55,11 @@ def load_data(name, *args, **kwargs):
 
     # check is file or URL
     if is_url(name) or Path(name).exists():
-        return ASReviewData.from_file(name, *args, **kwargs)
+        return ASReviewData.from_file(name, **kwargs)
 
     # check if dataset is plugin dataset
     try:
-        return ASReviewData.from_extension(name, *args, **kwargs)
+        return ASReviewData.from_extension(name, **kwargs)
     except DatasetNotFoundError:
         pass
 

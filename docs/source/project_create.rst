@@ -88,7 +88,7 @@ From URL or DOI
 ~~~~~~~~~~~~~~~
 
 Insert a URL to a dataset. For example, use a URL from this
-`dataset repository <https://github.com/asreview/systematic-review-datasets>`__.
+`dataset repository <https://github.com/asreview/synergy-dataset>`__.
 It is also possible to provide a DOI to a data repository (supported for many
 data repositories via `Datahugger <https://github.com/J535D165/datahugger>`__).
 In a DOI points to multiple files, select the file you want to use (e.g.

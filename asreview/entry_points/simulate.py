@@ -17,6 +17,7 @@ __all__ = ["SimulateEntryPoint"]
 
 import argparse
 import logging
+import re
 import shutil
 from pathlib import Path
 
@@ -28,8 +29,8 @@ from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
-from asreview.data import ASReviewData
 from asreview.data import load_data
+from asreview.datasets import DatasetManager
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.models.balance.utils import get_balance_model
 from asreview.models.classifiers import get_classifier
@@ -80,10 +81,7 @@ class SimulateEntryPoint(BaseEntryPoint):
 
             # collect command line arguments and pass them to the reviewer
             if exist_new_labeled_records:
-                fp_data = Path(
-                    project.project_path, "data", project.config["dataset_path"]
-                )
-                as_data = ASReviewData.from_file(fp_data)
+                as_data = project.read_data()
                 prior_idx = args.prior_idx
 
             classifier_model = get_classifier(settings.model)
@@ -97,13 +95,6 @@ class SimulateEntryPoint(BaseEntryPoint):
             if Path(args.state_file).exists():
                 raise ProjectExistsError("Project already exists.")
 
-            as_data = load_data(args.dataset)
-
-            if len(as_data) == 0:
-                raise ValueError(
-                    "Supply at least one dataset" " with at least one record."
-                )
-
             # create a project file
             fp_tmp_simulation = Path(args.state_file).with_suffix(".asreview.tmp")
 
@@ -116,13 +107,18 @@ class SimulateEntryPoint(BaseEntryPoint):
                 "command line interface",
             )
 
-            # Add the dataset to the project file.
-            dataset_path = Path(
-                args.dataset.replace(":", "-")).with_suffix(".csv").name
+            # Get a name for the dataset
+            if re.match(r"^([a-zA-Z0-9_-]+)\:([a-zA-Z0-9_-]+)$", args.dataset):
+                ds = DatasetManager().find(args.dataset)
+                filename = ds.filename
+            else:
+                filename = Path(args.dataset).name
 
-            as_data.to_file(Path(fp_tmp_simulation, "data", dataset_path))
+            as_data = load_data(args.dataset)
+            as_data.to_file(Path(fp_tmp_simulation, "data", filename))
+
             # Update the project.json.
-            project.update_config(dataset_path=dataset_path)
+            project.update_config(dataset_path=filename)
 
             # create a new settings object from arguments
             settings = ASReviewSettings(
@@ -178,25 +174,25 @@ class SimulateEntryPoint(BaseEntryPoint):
                 as_data.texts, args.embedding_fp
             )
 
-        try:
-            # Initialize the review class.
-            reviewer = ReviewSimulate(
-                as_data,
-                project=project,
-                model=classifier_model,
-                query_model=query_model,
-                balance_model=balance_model,
-                feature_model=feature_model,
-                n_papers=args.n_papers,
-                n_instances=args.n_instances,
-                stop_if=args.stop_if,
-                prior_indices=prior_idx,
-                n_prior_included=args.n_prior_included,
-                n_prior_excluded=args.n_prior_excluded,
-                init_seed=args.init_seed,
-                write_interval=args.write_interval,
-            )
+        # Initialize the review class.
+        reviewer = ReviewSimulate(
+            as_data,
+            project=project,
+            model=classifier_model,
+            query_model=query_model,
+            balance_model=balance_model,
+            feature_model=feature_model,
+            n_papers=args.n_papers,
+            n_instances=args.n_instances,
+            stop_if=args.stop_if,
+            prior_indices=prior_idx,
+            n_prior_included=args.n_prior_included,
+            n_prior_excluded=args.n_prior_excluded,
+            init_seed=args.init_seed,
+            write_interval=args.write_interval,
+        )
 
+        try:
             # Start the review process.
             project.update_review(status="review")
 
