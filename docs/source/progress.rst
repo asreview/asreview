@@ -94,7 +94,7 @@ tips on when to stop with screening.
 
 .. tip::
 
-  The data behind the recall plot can be used to calculate the `knee-algorithm <https://github.com/asreview/asreview/discussions/1115#discussioncomment-2812003>`_ as a stopping criteria. 
+  The data behind the recall plot can be used to calculate the `knee-algorithm <https://github.com/asreview/asreview/discussions/1115>`_ as a stopping criteria. 
 
 
 Mark project as finished

@@ -85,7 +85,7 @@ const PriorUnlabeled = (props) => {
                   };
                 }),
               };
-            },
+            }
           );
         } else {
           // update cached data
@@ -112,11 +112,11 @@ const PriorUnlabeled = (props) => {
                   };
                 }),
               };
-            },
+            }
           );
         }
       },
-    },
+    }
   );
 
   const isDebugInclusion = () => {
@@ -140,7 +140,14 @@ const PriorUnlabeled = (props) => {
         <Card elevation={3} className={classes.root}>
           {props.record.label_from_dataset !== null && (
             <ExplorationModeRecordAlert
-              label={!isDebugInclusion() ? "irrelevant" : "relevant"}
+              label={
+                props.record._debug_label === -1
+                  ? "not seen"
+                  : !isDebugInclusion()
+                    ? "irrelevant"
+                    : "relevant"
+              }
+              prior={true}
             />
           )}
           <CardContent className="record-card-content">

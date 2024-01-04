@@ -40,6 +40,7 @@ from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_MODEL
 from asreview.config import DEFAULT_QUERY_STRATEGY
+from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.data.statistics import n_duplicates
@@ -779,6 +780,45 @@ def api_random_prior_papers(project):  # noqa: F401
                 }
             )
 
+    elif subset == "unseen":
+        # Fetch records that are unseen
+        unlabeled_indices = as_data.df[as_data.df["debug_label"] == LABEL_NA] \
+            .index.values
+        unlabeled_indices_pool = np.intersect1d(pool, unlabeled_indices)
+
+        if len(unlabeled_indices_pool) == 0:
+            return jsonify(payload)
+        elif n > len(unlabeled_indices_pool):
+            rand_pool_unlabeled = np.random.choice(
+                unlabeled_indices_pool,
+                len(unlabeled_indices_pool),
+                replace=False
+            )
+        else:
+            rand_pool_unlabeled = np.random.choice(
+                unlabeled_indices_pool,
+                n,
+                replace=False
+            )
+
+        try:
+            unlabeled_records = as_data.record(rand_pool_unlabeled)
+        except Exception as err:
+            logging.error(err)
+            return jsonify(message=f"Failed to load unseen records. {err}"), 500
+
+        for record in unlabeled_records:
+            payload["result"].append(
+                {
+                    "id": int(record.record_id),
+                    "title": record.title,
+                    "abstract": record.abstract,
+                    "authors": record.authors,
+                    "keywords": record.keywords,
+                    "included": None,
+                    "_debug_label": -1,
+                }
+            )
     else:
         if len(pool) == 0:
             return jsonify(payload)
@@ -1134,6 +1174,8 @@ def api_export_dataset(project):
 
         # read the dataset into a ASReview data object
         as_data = project.read_data()
+
+        as_data.df["debug_label"] = as_data.df["debug_label"].replace(LABEL_NA, None)
 
         # Adding Notes from State file to the exported dataset
         # Check if exported_notes column already exists due to multiple screenings

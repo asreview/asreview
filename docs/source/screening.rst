@@ -3,7 +3,7 @@ Screening
 
 .. note::
 
-  Only for Oracle and Exploration projects. Read more about :ref:`project_create:Project modes`.
+  Only for Oracle and Validation. Read more about the options for the Simulation mode in the :doc:`simulation_overview`.
 
 
 Introduction
@@ -40,7 +40,8 @@ continues until a new model is trained, and the user can continue screening
 the next record in line (2nd, 3rd, etc.). Therefore, the record shown to the
 user can be the one with the highest relevance score of the second last model
 or the highest-ranked as a result of the latest model until a new model is
-trained. 
+trained. For a detailed description of the the data model, see the paper 
+`Reproducibility and Data Storage Checklist <https://osf.io/preprints/psyarxiv/g93zf>`__. 
 
 As you keep reviewing documents and providing labels, you will probably see
 fewer relevant records. When to stop screening is left to you. See
@@ -55,16 +56,36 @@ when to stop.
   consult others, and read the full text (in case of reviewing abstracts of
   scientific papers)
 
-Screening in Exploration mode
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Screening in Validation mode
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The Exploration mode is useful for teaching purposes because a blue bar is
-displayed on top of the record indicating whether the record has been labeled
-relevant or irrelevant in the dataset. You can make the same labeling
-decision without the need to be the oracle. 
+The Validation mode (formerly known as Exploration mode) is tailored for
+scenarios where it's necessary to validate existing labels or engage in a
+review process without being an oracle. This mode is especially beneficial
+for validating labels made by a first screener, reviewing labels predicted by
+Large Language Models(LLMs) such as ChatGPT, or for educational and training
+purposes.
 
-.. figure:: ../images/project_screening_exploration.png
-   :alt: ASReview Screening
+In this mode, records are presented along with an indication of their previous
+labeling status: relevant, irrelevant, or unseen. This status is displayed
+via a color-coded bar above each record. If a record was labeled by another
+screener or an AI model, you have the opportunity to validate, or challenge
+these labels, helping to refine the dataset by correcting any potential
+misclassifications, useful for the quality evaluation of the `SAFE procedure <https://www.researchsquare.com/article/rs-2856011/>`_. 
+
+Additionally, the Validation mode is useful for educational use. Instructors
+and learners can utilize this mode to simulate the screening process without
+being the expert decision-maker. This setup is particularly advantageous in
+workshop settings, where participants can engage with the screening process
+using the labeled `SYNERGY datasets <https://github.com/asreview/synergy-dataset>`_. 
+This hands-on experience
+offers valuable insights into the software's functionality and the systematic
+review process without the need to be a content expert. For comprehensive
+online teaching materials and tutorials on using ASReview LAB
+effectively, please visit the `ASReview Academy <https://asreview.github.io/asreview-academy/ASReviewLAB.html>`_. 
+
+.. figure:: ../images/project_screening_validation.png
+   :alt: ASReview Screening in Validation Mode
 
 Autosave
 --------
@@ -121,9 +142,6 @@ metadata of your dataset, ASReview LAB will display the DOI and URL during
 screening. Most of the time, DOIs point to the full-text of a publication. See
 :doc:`datasets <data>` for more information on including DOI and URL values to
 your datasets.
-
-.. figure:: ../images/screening_full_text.png
-   :alt: Digital Object Identifier (DOI)
 
 
 Keyboard shortcuts
