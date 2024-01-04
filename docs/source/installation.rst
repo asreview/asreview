@@ -33,7 +33,7 @@ ASReview LAB, see :doc:`start`.
 
     For users with Apple M1 computers, if you experience problems, follow the
     `instructions
-    <https://github.com/ghcr.io/asreview/asreview/issues/738#issuecomment-919685562>`__.
+    <https://github.com/asreview/asreview/issues/738>`__.
 
 
 Upgrade ASReview
