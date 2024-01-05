@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["RISReader"]
+__all__ = ["RISReader", "RISWriter"]
 
 import io
 import logging
@@ -26,18 +26,18 @@ from asreview.io.utils import _standardize_dataframe
 from asreview.utils import is_url
 
 ASREVIEW_PARSE_RE = r"\bASReview_\w+\b"
+ASREVIEW_PARSE_DICT = {
+    "ASReview_relevant": {"included": 1},
+    "ASReview_irrelevant": {"included": 0},
+    "ASReview_not_seen": {"included": -1},
+    "ASReview_prior": {"asreview_prior": 1},
+    "ASReview_validate_relevant": {"asreview_label_to_validate": 1},
+    "ASReview_validate_irrelevant": {"asreview_label_to_validate": 0},
+    "ASReview_validate_not_seen": {"asreview_label_to_validate": -1},
+}
 
 
 def _parse_asreview_data_from_notes(note_list):
-    parse_dict = {
-        "ASReview_relevant": {"included": 1},
-        "ASReview_irrelevant": {"included": 0},
-        "ASReview_not_seen": {"included": -1},
-        "ASReview_prior": {"asreview_prior": 1},
-        "ASReview_validate_relevant": {"asreview_label_to_validate": 1},
-        "ASReview_validate_irrelevant": {"asreview_label_to_validate": 0},
-        "ASReview_validate_not_seen": {"asreview_label_to_validate": -1},
-    }
 
     # Return {} and an empty list
     if not isinstance(note_list, list):
@@ -70,7 +70,7 @@ def _parse_asreview_data_from_notes(note_list):
         raise ValueError("Cannot have multiple labels to validate for the same record.")
 
     # get the dictionary for each match
-    parsed_values = [parse_dict.get(m, {}) for m in matches]
+    parsed_values = [ASREVIEW_PARSE_DICT.get(m, {}) for m in matches]
     parsed_values = {k: v for d in parsed_values for k, v in d.items()}
 
     return parsed_values
@@ -211,3 +211,83 @@ class RISReader:
         else:
             # Return the standardised dataframe
             return _standardize_dataframe(df)
+
+
+class RISWriter:
+    """RIS file writer."""
+
+    name = "ris"
+    label = "RIS"
+    caution = "Available only if you imported a RIS file when creating the project"
+    write_format = ".ris"
+
+    @classmethod
+    def write_data(cls, df, fp, labels=None, ranking=None):
+        """Export dataset.
+
+        Arguments
+        ---------
+        df: pandas.Dataframe
+            Dataframe of all available record data.
+        fp: str, pathlib.Path
+            File path to the RIS file, if exists.
+        labels: list, numpy.ndarray
+            Current labels will be overwritten by these labels
+            (including unlabelled). No effect if labels is None.
+        ranking: list
+            Reorder the dataframe according to these (internal) indices.
+            Default ordering if ranking is None.
+
+        Returns
+        -------
+        RIS file
+            Dataframe of all available record data.
+        """
+
+        # Turn pandas DataFrame into records (list of dictionaries) for rispy
+        records = df.to_dict("records")
+
+        # Create an array for storing modified records
+        records_new = []
+
+        # Iterate over all available records
+        for rec in records:
+
+            def _notnull(v):
+                if isinstance(v, list):
+                    return False
+                return pandas.notnull(v)
+
+            # Remove all nan values
+            rec_copy = {k: v for k, v in rec.items() if _notnull(v)}
+
+            for m in ["authors", "keywords", "notes"]:  # AU, KW, N1
+                # Check the "authors" - AU
+                try:
+                    rec_copy[m] = eval(rec_copy[m])
+                except Exception:
+                    rec_copy[m] = []
+
+            if "included" not in rec_copy:
+                rec_copy["included"] = -1
+
+            # write the notes with ASReview data
+            for k, v in ASREVIEW_PARSE_DICT.items():
+                for k_df, v_df in v.items():
+                    if k_df in rec_copy:
+                        if rec_copy[k_df] == v_df:
+                            rec_copy["notes"].insert(0, k)
+
+            # Append the deepcopied and updated record to a new array
+            records_new.append(rec_copy)
+
+        # From buffered dataframe
+        if fp is None:
+            # Write the whole content to buffer
+            return rispy.dumps(records_new)
+
+        # From IO dataframe
+        else:
+            # Write the whole content to a file
+            with open(fp, "w", encoding="utf8") as fp:
+                rispy.dump(records_new, fp)
