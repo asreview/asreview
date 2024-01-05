@@ -15,7 +15,6 @@
 __all__ = ["RISReader", "RISWriter"]
 
 import io
-import logging
 import re
 from urllib.request import urlopen
 
@@ -150,7 +149,6 @@ class RISReader:
         bibliography_file.close()
 
         return entries
-
 
     @classmethod
     def read_data(cls, fp):
