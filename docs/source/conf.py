@@ -264,7 +264,7 @@ redirects = {
     "extensions/extension_covid19": "../extensions_overview.html",
     "extensions/extension_visualization": "../extensions_overview.html",
     "extensions/extension_wordcloud": "../extensions_overview.html",
-    "API/extension_dev": "../extensions_dev.html",
+    "API/extension_dev": "../extensions_overview.html",
     "API/reference": "../reference.html",
     "guides/activelearning": "https://asreview.nl/blog/active-learning-explained/",
     "guides/simulation_study_results": "https://asreview.nl/research/",

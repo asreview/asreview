@@ -41,7 +41,7 @@ available interfaces for interacting with the ASReview software:
 * Layer 2: :doc:`cli`
 
     - The Command Line is an interface used to open ASReview LAB, run
-      simulations, and run :doc:`Subcommand extensions <extensions_dev>` for ASReview. This development section documents all available
+      simulations, and run :doc:`Subcommand extensions <extensions_overview>` for ASReview. This development section documents all available
       command line options for both :doc:`ASReview LAB <start>` and :doc:`simulation mode <simulation_cli>`.
 
 * Layer 1: :doc:`reference`
@@ -56,7 +56,7 @@ available interfaces for interacting with the ASReview software:
 Extensions
 ----------
 
-:doc:`The Create an extension <extensions_dev>` section documents the creation
+:doc:`The Create an extension <extensions_overview>` section documents the creation
 of model, subcommand, and dataset extensions for ASReview. More information on
 extensions can be found in the extension
 :doc:`extensions_overview`.
