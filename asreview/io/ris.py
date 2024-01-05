@@ -213,7 +213,6 @@ class RISReader:
             return _standardize_dataframe(df)
 
 
-
 class RISWriter:
     """RIS file writer."""
 
