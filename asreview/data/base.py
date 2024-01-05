@@ -425,7 +425,7 @@ class ASReviewData:
         writer: class
             Writer to export the file.
         keep_old_labels: bool
-            If True, the old labels are kept in a column 'label_to_validate'.
+            If True, the old labels are kept in a column 'asreview_label_to_validate'.
             Default False.
         """
         df = self.to_dataframe(
@@ -463,7 +463,7 @@ class ASReviewData:
             Reorder the dataframe according to these record_ids.
             Default ordering if ranking is None.
         keep_old_labels: bool
-            If True, the old labels are kept in a column 'label_to_validate'.
+            If True, the old labels are kept in a column 'asreview_label_to_validate'.
             Default False.
 
         Returns
@@ -481,7 +481,7 @@ class ASReviewData:
             labeled_values = [x[1] for x in labels]
 
             if keep_old_labels:
-                result_df["label_to_validate"] = result_df[col_label]
+                result_df["asreview_label_to_validate"] = result_df[col_label]
 
             # remove the old results and write the values
             result_df[col_label] = LABEL_NA
