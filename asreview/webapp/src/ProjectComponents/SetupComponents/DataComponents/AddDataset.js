@@ -105,10 +105,10 @@ const AddDataset = (props) => {
 
   React.useEffect(() => {
     if (props.mode === projectModes.EXPLORATION) {
-      setDatasetSource("benchmark");
+      setDatasetSource("file");
     }
     if (props.mode !== projectModes.EXPLORATION) {
-      setDatasetSource("file");
+      setDatasetSource("benchmark");
     }
   }, [props.mode]);
 
@@ -190,7 +190,7 @@ const AddDataset = (props) => {
             {(datasetSource === "file" || datasetSource === "url") && (
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
                 The dataset should contain a title and abstract for each record.{" "}
-                {props.mode !== projectModes.ORACLE
+                {props.mode !== projectModes.ORACLE || projectModes.EXPLORATION
                   ? "The dataset should contain labels for each record. "
                   : ""}
                 To optimally benefit from the performance of the active learning
