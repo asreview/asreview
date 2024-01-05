@@ -424,7 +424,13 @@ def api_upload_data_to_project(project):  # noqa: F401
         project.add_dataset(data_path.name)
 
     # Bad format. TODO{Jonathan} Return informative message with link.
-    except BadFileFormatError as err:
+    except Exception as err:
+
+        try:
+            project.remove_dataset()
+        except Exception:
+            pass
+
         message = f"Failed to import file '{filename}'. {err}"
         return jsonify(message=message), 400
 
