@@ -14,6 +14,7 @@ installation by typing the following in a command prompt (``CMD.exe`` on
 Windows) or terminal (``Terminal`` on MacOS or Linux):
 
 .. code:: bash
+
     python --version
 
 This command will display the installed version.
