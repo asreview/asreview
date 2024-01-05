@@ -1,6 +1,20 @@
 name: test-frontend
 on: [push, pull_request]
 jobs:
+  format-js:
+    name: format-js
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: 'asreview/webapp/package-lock.json'
+    - name: Install Prettier
+      run: npm install --save-dev prettier
+    - name: Check JavaScript code formatting with Prettier
+      run: npx prettier --check .
   compile-and-test:
     strategy:
       matrix:
