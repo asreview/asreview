@@ -9,6 +9,8 @@ Welcome to the ASReview LAB Documentation!
 
     about
 
+    products
+
     research
 
     contribute
@@ -84,7 +86,7 @@ feature requests, please submit an issue on `GitHub
 
     example_api_asreview_file
 
-    extensions_overview
+    extensions_dev
 
     reference
 
