@@ -51,7 +51,7 @@ def _parse_asreview_data_from_notes(note_list):
         or ("ASReview_relevant" in matches and "ASReview_not_seen" in matches)
         or ("ASReview_irrelevant" in matches and "ASReview_not_seen" in matches)
     ):
-        raise ValueError("Cannot have both relevant and irrelevant label.")
+        raise ValueError("Cannot have multiple labels for the same record.")
 
     if (
         (
@@ -67,7 +67,7 @@ def _parse_asreview_data_from_notes(note_list):
             and "ASReview_validate_not_seen" in matches
         )
     ):
-        raise ValueError("Cannot have both relevant and irrelevant label.")
+        raise ValueError("Cannot have multiple labels to validate for the same record.")
 
     # get the dictionary for each match
     parsed_values = [parse_dict.get(m, {}) for m in matches]
