@@ -37,9 +37,9 @@ from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
+from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
-from asreview.data import ASReviewData
 from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
@@ -74,7 +74,6 @@ from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
 from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
-from asreview.webapp.io import read_data
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -411,34 +410,7 @@ def api_upload_data_to_project(project):  # noqa: F401
         response = jsonify(message="No file or dataset found to import.")
         return response, 400
 
-    if project_config["mode"] == PROJECT_MODE_EXPLORE:
-        data_path_raw = Path(project.project_path, "data") / filename
-        data_path = data_path_raw.with_suffix(".csv")
-
-        data = ASReviewData.from_file(data_path_raw)
-
-        if data.labels is None:
-            raise ValueError("Import fully labeled dataset.")
-
-        data.df.rename(
-            {data.column_spec["included"]: "debug_label"}, axis=1, inplace=True
-        )
-        data.to_file(data_path)
-
-    elif project_config["mode"] == PROJECT_MODE_SIMULATE:
-        data_path_raw = Path(project.project_path, "data") / filename
-        data_path = data_path_raw.with_suffix(".csv")
-
-        data = ASReviewData.from_file(data_path_raw)
-
-        if data.labels is None:
-            raise ValueError("Import fully labeled dataset.")
-
-        data.df["debug_label"] = data.df[data.column_spec["included"]]
-        data.to_file(data_path)
-
-    else:
-        data_path = Path(project.project_path, "data") / filename
+    data_path = Path(project.project_path, "data") / filename
 
     try:
         # add the file to the project
@@ -462,7 +434,7 @@ def api_get_project_data(project):  # noqa: F401
 
     try:
         # get statistics of the dataset
-        as_data = read_data(project)
+        as_data = project.read_data()
 
         statistics = {
             "n_rows": as_data.df.shape[0],
@@ -532,12 +504,10 @@ def api_search_data(project):  # noqa: F401
     q = request.args.get("q", default=None, type=str)
     max_results = request.args.get("n_max", default=10, type=int)
 
-    project_mode = project.config["mode"]
-
     payload = {"result": []}
     if q:
         # read the dataset
-        as_data = read_data(project)
+        as_data = project.read_data()
 
         # read record_ids of labels from state
         with open_state(project.project_path) as s:
@@ -556,14 +526,6 @@ def api_search_data(project):  # noqa: F401
             raise ValueError(err) from err
 
         for record in as_data.record(result_idx):
-            debug_label = record.extra_fields.get("debug_label", None)
-            debug_label = int(debug_label) if pd.notnull(debug_label) else None
-
-            if project_mode == PROJECT_MODE_SIMULATE:
-                # ignore existing labels
-                included = -1
-            else:
-                included = int(record.included)
 
             payload["result"].append(
                 {
@@ -572,8 +534,8 @@ def api_search_data(project):  # noqa: F401
                     "abstract": record.abstract,
                     "authors": record.authors,
                     "keywords": record.keywords,
-                    "included": included,
-                    "_debug_label": debug_label,
+                    "included": -1,
+                    "label_from_dataset": int(record.included),
                 }
             )
 
@@ -653,7 +615,7 @@ def api_get_labeled(project):  # noqa: F401
         next_page = None
         previous_page = None
 
-    records = read_data(project).record(data["record_id"])
+    records = project.read_data().record(data["record_id"])
 
     payload = {
         "count": count,
@@ -732,12 +694,16 @@ def api_random_prior_papers(project):  # noqa: F401
     with open_state(project.project_path) as state:
         pool = state.get_pool().values
 
-    as_data = read_data(project)
+    as_data = project.read_data()
 
     payload = {"result": []}
 
     if subset in ["relevant", "included"]:
-        rel_indices = as_data.df[as_data.df["debug_label"] == 1].index.values
+
+        if as_data.labels is None:
+            return jsonify(payload)
+
+        rel_indices = as_data.df[as_data.labels == 1].index.values
         rel_indices_pool = np.intersect1d(pool, rel_indices)
 
         if len(rel_indices_pool) == 0:
@@ -765,12 +731,16 @@ def api_random_prior_papers(project):  # noqa: F401
                     "authors": rr.authors,
                     "keywords": rr.keywords,
                     "included": None,
-                    "_debug_label": 1,
+                    "label_from_dataset": 1,
                 }
             )
 
     elif subset in ["irrelevant", "excluded"]:
-        irrel_indices = as_data.df[as_data.df["debug_label"] == 0].index.values
+
+        if as_data.labels is None:
+            return jsonify(payload)
+
+        irrel_indices = as_data.df[as_data.labels == 0].index.values
         irrel_indices_pool = np.intersect1d(pool, irrel_indices)
 
         if len(irrel_indices_pool) == 0:
@@ -799,10 +769,49 @@ def api_random_prior_papers(project):  # noqa: F401
                     "authors": ir.authors,
                     "keywords": ir.keywords,
                     "included": None,
-                    "_debug_label": 0,
+                    "label_from_dataset": 0,
                 }
             )
 
+    elif subset == "not_seen":
+        # Fetch records that are not seen
+        unlabeled_indices = as_data.df[as_data.labels == LABEL_NA] \
+            .index.values
+        unlabeled_indices_pool = np.intersect1d(pool, unlabeled_indices)
+
+        if len(unlabeled_indices_pool) == 0:
+            return jsonify(payload)
+        elif n > len(unlabeled_indices_pool):
+            rand_pool_unlabeled = np.random.choice(
+                unlabeled_indices_pool,
+                len(unlabeled_indices_pool),
+                replace=False
+            )
+        else:
+            rand_pool_unlabeled = np.random.choice(
+                unlabeled_indices_pool,
+                n,
+                replace=False
+            )
+
+        try:
+            unlabeled_records = as_data.record(rand_pool_unlabeled)
+        except Exception as err:
+            logging.error(err)
+            return jsonify(message=f"Failed to load 'not seen' records. {err}"), 500
+
+        for record in unlabeled_records:
+            payload["result"].append(
+                {
+                    "id": int(record.record_id),
+                    "title": record.title,
+                    "abstract": record.abstract,
+                    "authors": record.authors,
+                    "keywords": record.keywords,
+                    "included": None,
+                    "label_from_dataset": -1,
+                }
+            )
     else:
         if len(pool) == 0:
             return jsonify(payload)
@@ -826,7 +835,7 @@ def api_random_prior_papers(project):  # noqa: F401
                     "authors": r.authors,
                     "keywords": r.keywords,
                     "included": None,
-                    "_debug_label": None,
+                    "label_from_dataset": None,
                 }
             )
 
@@ -1156,7 +1165,13 @@ def api_export_dataset(project):
                     writer = c
 
         # read the dataset into a ASReview data object
-        as_data = read_data(project)
+        as_data = project.read_data()
+
+        # Add a new column 'is_prior' to the dataset
+        state_df["asreview_prior"] = state_df.query_strategy.eq("prior").astype(int)
+        as_data.df = as_data.df.drop("asreview_prior", axis=1).join(
+            state_df["asreview_prior"].astype(int), on="record_id"
+        )
 
         # Adding Notes from State file to the exported dataset
         # Check if exported_notes column already exists due to multiple screenings
@@ -1182,11 +1197,15 @@ def api_export_dataset(project):
             state_df[f"exported_notes_{screening}"], on="record_id"
         )
 
+        # keep labels in exploration mode
+        keep_old_labels = project.config["mode"] == PROJECT_MODE_EXPLORE
+
         as_data.to_file(
             fp=tmp_path_dataset,
             labels=labeled.values.tolist(),
             ranking=export_order,
             writer=writer,
+            keep_old_labels=keep_old_labels,
         )
 
         return send_file(
@@ -1492,7 +1511,7 @@ def api_get_document(project):  # noqa: F401
     if len(record_ids) > 0:
         new_instance = record_ids[0]
 
-        as_data = read_data(project)
+        as_data = project.read_data()
         record = as_data.record(int(new_instance))
 
         item = {}
@@ -1503,8 +1522,7 @@ def api_get_document(project):  # noqa: F401
         item["url"] = record.url
 
         # return the debug label
-        debug_label = record.extra_fields.get("debug_label", None)
-        item["_debug_label"] = int(debug_label) if pd.notnull(debug_label) else None
+        item["label_from_dataset"] = record.included
 
         item["doc_id"] = new_instance
         pool_empty = False

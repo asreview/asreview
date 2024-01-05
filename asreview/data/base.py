@@ -37,13 +37,15 @@ from asreview.utils import is_iterable
 from asreview.utils import is_url
 
 
-def load_data(name, *args, **kwargs):
+def load_data(name, **kwargs):
     """Load data from file, URL, or plugin.
 
     Parameters
     ----------
     name: str, pathlib.Path
         File path, URL, or alias of extension dataset.
+    **kwargs:
+        Keyword arguments passed to the reader.
 
     Returns
     -------
@@ -53,11 +55,11 @@ def load_data(name, *args, **kwargs):
 
     # check is file or URL
     if is_url(name) or Path(name).exists():
-        return ASReviewData.from_file(name, *args, **kwargs)
+        return ASReviewData.from_file(name, **kwargs)
 
     # check if dataset is plugin dataset
     try:
-        return ASReviewData.from_extension(name, *args, **kwargs)
+        return ASReviewData.from_extension(name, **kwargs)
     except DatasetNotFoundError:
         pass
 
@@ -406,7 +408,8 @@ class ASReviewData:
         else:
             return self.df.index.values[prior_indices]
 
-    def to_file(self, fp, labels=None, ranking=None, writer=None):
+    def to_file(
+            self, fp, labels=None, ranking=None, writer=None, keep_old_labels=False):
         """Export data object to file.
 
         RIS, CSV, TSV and Excel are supported file formats at the moment.
@@ -421,8 +424,13 @@ class ASReviewData:
             Optionally, dataframe rows can be reordered.
         writer: class
             Writer to export the file.
+        keep_old_labels: bool
+            If True, the old labels are kept in a column 'asreview_label_to_validate'.
+            Default False.
         """
-        df = self.to_dataframe(labels=labels, ranking=ranking)
+        df = self.to_dataframe(
+            labels=labels, ranking=ranking, keep_old_labels=keep_old_labels
+        )
 
         if writer is not None:
             writer.write_data(df, fp, labels=labels, ranking=ranking)
@@ -443,7 +451,7 @@ class ASReviewData:
             writer = _entry_points(group="asreview.writers")[best_suffix].load()
             writer.write_data(df, fp, labels=labels, ranking=ranking)
 
-    def to_dataframe(self, labels=None, ranking=None):
+    def to_dataframe(self, labels=None, ranking=None, keep_old_labels=False):
         """Create new dataframe with updated label (order).
 
         Arguments
@@ -454,6 +462,9 @@ class ASReviewData:
         ranking: list
             Reorder the dataframe according to these record_ids.
             Default ordering if ranking is None.
+        keep_old_labels: bool
+            If True, the old labels are kept in a column 'asreview_label_to_validate'.
+            Default False.
 
         Returns
         -------
@@ -468,6 +479,9 @@ class ASReviewData:
             # unnest the nested (record_id, label) tuples
             labeled_record_ids = [x[0] for x in labels]
             labeled_values = [x[1] for x in labels]
+
+            if keep_old_labels:
+                result_df["asreview_label_to_validate"] = result_df[col_label]
 
             # remove the old results and write the values
             result_df[col_label] = LABEL_NA
