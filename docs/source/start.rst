@@ -1,8 +1,13 @@
 Start ASReview LAB
 ==================
 
-After you install ASReview LAB, start the program via the command line to
-start using it.
+To start ASReview LAB, users on Windows should open ``CMD.exe`` and run the
+ASReview LAB command. Those on MacOS or Linux need to open ``Terminal`` and
+execute the same command. Detailed step-by-step instructions and screenshots
+are available on our `open-teaching platform
+<https://asreview.github.io/asreview-academy/ASReviewLAB.html>`_.
+
+To start ASReview run:
 
 .. code:: bash
 

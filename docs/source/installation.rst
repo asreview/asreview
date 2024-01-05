@@ -1,16 +1,30 @@
 Installation
 ============
 
+For detailed installation instructions and first-time setup, including
+screenshots, visit our `open-teaching platform
+<https://asreview.github.io/asreview-academy/ASReviewLAB.html>`_.
+
+Install Python
+--------------
+
+ASReview requires Python 3.8 or later. Install Python following these
+`instructions <https://www.python.org/downloads/>`__. Verify your
+installation by typing the following in a command prompt (``CMD.exe`` on
+Windows) or terminal (``Terminal`` on MacOS or Linux):
+
+.. code:: bash
+    python --version
+
+This command will display the installed version.
+
+
 Install ASReview
 ----------------
 
-ASReview software requires an installation of Python 3.8 or later. Detailed
-step-by-step instructions to install Python (and ASReview) are available for
-`Windows <https://asreview.ai/download>`__ and
-`macOS/Linux <https://asreview.ai/download/>`__ users.
-
-Install the ASReview software with Pip by running the following command in the
-`CMD.exe` (Windows) or `Terminal` (MacOS/Linux):
+To install ASReview LAB, users on Windows should open ``CMD.exe``. Those on
+MacOS or Linux need to open ``Terminal``. Install ASReview LAB with Pip by
+running the following command:
 
 .. code:: bash
 
