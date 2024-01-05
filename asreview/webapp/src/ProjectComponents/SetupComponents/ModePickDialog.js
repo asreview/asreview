@@ -48,7 +48,7 @@ const modes = [
   },
   {
     value: projectModes.EXPLORATION,
-    primary: "Exploration",
+    primary: "Validation",
   },
   {
     value: projectModes.SIMULATION,
@@ -107,8 +107,9 @@ const ModePickDialog = (props) => {
       <DialogContent>
         <Box className={classes.box}>
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            Screen an unlabeled dataset with Oracle mode, or explore a fully
-            labeled dataset with Exploration or Simulation mode.{" "}
+            Screen an unlabeled or partially labeled dataset with Oracle mode,
+            or explore a fully labeled dataset with Validation or Simulation
+            mode.{" "}
             <Link
               underline="none"
               href={`https://asreview.readthedocs.io/en/latest/project_create.html#project-modes`}
