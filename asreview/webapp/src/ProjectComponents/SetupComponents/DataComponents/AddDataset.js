@@ -104,11 +104,10 @@ const AddDataset = (props) => {
   };
 
   React.useEffect(() => {
-    if (props.mode === projectModes.EXPLORATION) {
-      setDatasetSource("file");
-    }
-    if (props.mode !== projectModes.EXPLORATION) {
+    if (props.mode === projectModes.SIMULATION) {
       setDatasetSource("benchmark");
+    } else {
+      setDatasetSource("file");
     }
   }, [props.mode]);
 
@@ -231,7 +230,7 @@ const AddDataset = (props) => {
                 </Link>
               </Typography>
             )}
-            {datasetSource === "file" && fetchReadersSuccess && (
+            {datasetSource === "file" && datasetReaders !== null && (
               <ImportFromFile
                 acceptFormat={datasetReaders
                   .map((reader) => reader.extension)

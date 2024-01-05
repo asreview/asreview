@@ -330,10 +330,9 @@ class ASReviewProject:
 
         Add file to data subfolder and fill the pool of iteration 0.
         """
-        self.update_config(dataset_path=file_name)
 
         # fill the pool of the first iteration
-        fp_data = Path(self.project_path, "data", self.config["dataset_path"])
+        fp_data = Path(self.project_path, "data", file_name)
         as_data = ASReviewData.from_file(fp_data)
 
         if self.config["mode"] == PROJECT_MODE_SIMULATE and as_data.labels is None:
@@ -341,6 +340,8 @@ class ASReviewProject:
 
         if self.config["mode"] == PROJECT_MODE_EXPLORE and as_data.labels is None:
             raise ValueError("Import partially or fully labeled dataset")
+
+        self.update_config(dataset_path=file_name)
 
         with open_state(self.project_path, read_only=False) as state:
             # save the record ids in the state file
