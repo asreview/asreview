@@ -15,14 +15,14 @@ should contain a column called "included" or "label" (See :ref:`Data format
 for the records that you haven't screened yet, or which are added to the
 dataset in case of updating a review. For the RIS file format, the labels
 ``ASReview_relevant``, ``ASReview_irrelevant``, and ``ASReview_not_seen``)
-can be stored with the N1(Notes) tag. 
+can be stored with the N1(Notes) tag.
 
 Exported files containing labeling decisions can be re-imported into ASReview
 LAB whereafter all labels are recognized and its behavior is different for
 each mode:
 
-- In **Oracle mode** existing labels are used for prior knowledge. 
-- In **Validation mode** records are presented along with an indication of their previous labeling status: relevant, irrelevant, or unseen. This status is displayed via a color-coded bar above each record.
+- In **Oracle mode** existing labels are used for prior knowledge.
+- In **Validation mode** records are presented along with an indication of their previous labeling status: relevant, irrelevant, or not seen. This status is displayed via a color-coded bar above each record.
 - In **Simulation**  the column containing the labels is used to simulate a systematic review.
 
 
@@ -31,13 +31,13 @@ Unlabeled data
 
 Unlabeled datasets do not contain any labels and can be used in the **Oracle
 mode** to start a review from scratch. Prior knowledge has to be selected in
-the :ref:`Prior Knowledge <project_create:Prior Knowledge>` step of the project set-up. 
+the :ref:`Prior Knowledge <project_create:Prior Knowledge>` step of the project set-up.
 
 Partially labeled data
 ----------------------
 
 Partially labeled datasets are datasets with a labeling decision for a subset
-of the records in the dataset and no decision for another subset. 
+of the records in the dataset and no decision for another subset.
 
 In **Oracle mode**, if labels are available for a part of the dataset, the
 labels will be automatically detected and used for :ref:`Prior Knowledge
@@ -49,10 +49,10 @@ continue the screening process with `model switching <https://doi.org/10.3389/fr
 
 In **Validation mode**, the labels available are presented in the review
 screen along with an indication of their previous labeling status: relevant,
-irrelevant, or unseen. This status is displayed via a color-coded bar above
+irrelevant, or not seen. This status is displayed via a color-coded bar above
 each record, and you have the opportunity to refine the dataset by correcting
 any potential misclassifications, useful for the quality evaluation(see, for
-example, the `SAFE procedure <https://www.researchsquare.com/article/rs-2856011/>`_). 
+example, the `SAFE procedure <https://www.researchsquare.com/article/rs-2856011/>`_).
 
 .. note::
 

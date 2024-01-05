@@ -8,7 +8,7 @@ ASReview LAB is a free (Libre) open-source machine learning tool for screening
 and systematically labeling a large collection of textual data. It's sometimes
 referred to as a tool for title and abstract screening in systematic reviews
 or meta-analyses,  but it can handle any type of textual data that must be
-screened systematically, see the paper published in `Nature Machine Intelligence <https://www.nature.com/articles/s42256-020-00287-7>`_. 
+screened systematically, see the paper published in `Nature Machine Intelligence <https://www.nature.com/articles/s42256-020-00287-7>`_.
 
 ASReview LAB implements three different options:
 
@@ -182,7 +182,7 @@ encounter as you use ASReview LAB.
     systematically with interactive artificial intelligence (AI).
 
     **Validation** mode is used when a user validates existing labels or
-      engages in a review process without being an oracle
+    engages in a review process without being an oracle
 
     **Simulation** mode is used when a user simulates a review on a completely
     labeled dataset to see the performance of ASReview LAB.
