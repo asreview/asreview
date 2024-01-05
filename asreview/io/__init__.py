@@ -30,8 +30,8 @@ from asreview.io.csv_writer import CSVWriter
 from asreview.io.excel_reader import ExcelReader
 from asreview.io.excel_writer import ExcelWriter
 from asreview.io.paper_record import PaperRecord
-from asreview.io.ris_reader import RISReader
-from asreview.io.ris_writer import RISWriter
+from asreview.io.ris import RISReader
+from asreview.io.ris import RISWriter
 from asreview.io.tsv_writer import TSVWriter
 from asreview.io.utils import list_readers
 from asreview.io.utils import list_writers
