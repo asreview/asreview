@@ -121,7 +121,7 @@ const PriorUnlabeled = (props) => {
 
   const isDebugInclusion = () => {
     if (props.record) {
-      return props.record._debug_label === 1;
+      return props.record.label_from_dataset === 1;
     }
   };
 
@@ -138,10 +138,10 @@ const PriorUnlabeled = (props) => {
       )}
       {!isError && (
         <Card elevation={3} className={classes.root}>
-          {props.record._debug_label !== null && (
+          {props.record.label_from_dataset !== null && (
             <ExplorationModeRecordAlert
               label={
-                props.record._debug_label === -1
+                props.record.label_from_dataset === -1
                   ? "not seen"
                   : !isDebugInclusion()
                     ? "irrelevant"

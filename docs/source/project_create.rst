@@ -27,7 +27,7 @@ Project modes
 -------------
 
 In this step, you have to select a mode. The default is **Oracle**. For a
-description of all modi, see :ref:`data_labeled:Fully, partially, and unlabeled data`. 
+description of all modi, see :ref:`data_labeled:Fully, partially, and unlabeled data`.
 In short, if you want to:
 
 - screen a dataset from scratch -> Oracle mode with unlabeled data;
@@ -120,11 +120,11 @@ provide a minimum training data set of size two, with **at least** one
 relevant and one irrelevant labeled record.
 
 .. note::
-  If you use :ref:`data_labeled:Partially labeled data` in the Oracle mode, you can skip this step, because the labels available in the dataset are used for training the first iteration of the model. 
+  If you use :ref:`data_labeled:Partially labeled data` in the Oracle mode, you can skip this step, because the labels available in the dataset are used for training the first iteration of the model.
 
 To facilitate prior selection, it is possible to search within your dataset, or .
 This is especially useful for finding records that are relevant based on
-previous studies or expert consensus. 
+previous studies or expert consensus.
 
 You can also let ASReview LAB present you with random records. This can be
 useful for finding irrelevant records.
@@ -132,7 +132,7 @@ useful for finding irrelevant records.
 The interface works as follows; on the left, you will see methods to find
 records to use as prior knowledge, on the right, you will see your selected
 prior knowledge. If you have **at least** one relevant and one irrelevant
-record, you can click *Close* and go to the next step. 
+record, you can click *Close* and go to the next step.
 
 .. figure:: ../images/setup_prior.png
    :alt: ASReview prior knowledge selector
@@ -159,7 +159,7 @@ use as training data.
 
 The prior knowledge will now show up on the right. There are no restrictions
 on the number of records and the software already works with 2 labels (1
-relevant and 1 irrelevant). 
+relevant and 1 irrelevant).
 
 The prior knowledge will now show up on the right. Use the buttons to see all
 prior knowledge or a subset. You can also change the label or remove the
@@ -194,9 +194,9 @@ irrelevant (or relevant).
    :alt: ASReview prior knowledge random
 
 In the Validation mode when selecting random records, one can choose random
-records from the subset of initially labeled relevant, irrelevant or unseen
+records from the subset of initially labeled relevant, irrelevant or not seen
 records. The initial labels are displayed via a color-coded bar above each
-record. 
+record.
 
 .. figure:: ../images/setup_prior_knowledge_random_validate.png
    :alt: ASReview prior knowledge selector
@@ -207,13 +207,13 @@ Model
 In the next step of the setup, you can select the active learning model. The
 default settings (Naïve Bayes, TF-IDF, Max) have fast and excellent
 performance. Most users can skip this step and click *Next*. More information
-about the active learning process can be found in the blog post `Active learning explained <https://asreview.nl/blog/active-learning-explained/>`_, 
+about the active learning process can be found in the blog post `Active learning explained <https://asreview.nl/blog/active-learning-explained/>`_,
 
 Select model
 ------------
 
 It is possible to change the settings of the Active learning model. There are
-four settings that can be changed in the software: 
+four settings that can be changed in the software:
 
 
 Feature extraction
@@ -240,7 +240,7 @@ package. Before starting ASReview LAB, first, install *gensim*:
 
 Several other feature extractors are available in the software (sentence Bert,
 embedding IDF/LSTM) and more classifiers can be selected via the :doc:`API
-<reference>`, or added via an :ref:`extensions_dev:model extensions`. 
+<reference>`, or added via an :ref:`extensions_dev:model extensions`.
 
 Classifier
 ~~~~~~~~~~
@@ -250,7 +250,7 @@ scores. The default is Naive Bayes. Though relatively simplistic, it seems to
 work quite well on a wide range of datasets. Several other classifiers are
 available in the software (logistic regression, random forest, SVM, LSTM,
 neural net) and more classifiers can be selected via the :doc:`API
-<reference>` or added via an :ref:`extensions_dev:model extensions`. 
+<reference>` or added via an :ref:`extensions_dev:model extensions`.
 
 The neural nets require `tensorflow <https://www.tensorflow.org/>`_, use
 
@@ -293,7 +293,7 @@ extensions`.
 .. warning::
   Selecting *random* means your review will not be accelerated by using ASReview.
 
-Model switching 
+Model switching
 ~~~~~~~~~~~~~~~
 
 During the screening phase, it is not possible to change the model. However,
