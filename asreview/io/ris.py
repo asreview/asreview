@@ -133,6 +133,26 @@ class RISReader:
             return note_list
 
     @classmethod
+    def _read_from_file(cls, fp, encoding="utf8"):
+        with open(fp, "r", encoding=encoding) as bibliography_file:
+            return list(rispy.load(bibliography_file, skip_unknown_tags=True))
+
+    @classmethod
+    def _read_from_url(cls, fp, encoding="utf8"):
+        url_input = urlopen(fp)
+
+        bibliography_file = io.StringIO(
+            url_input.read().decode(encoding)
+        )
+        entries = list(
+            rispy.load(bibliography_file, skip_unknown_tags=True)
+        )
+        bibliography_file.close()
+
+        return entries
+
+
+    @classmethod
     def read_data(cls, fp):
         """Import dataset.
 
@@ -155,36 +175,21 @@ class RISReader:
         """
         encodings = ["utf-8", "utf-8-sig", "ISO-8859-1"]
         entries = None
-        if entries is None:
-            if is_url(fp):
-                url_input = urlopen(fp)
-            for encoding in encodings:
+        for encoding in encodings:
+            try:
                 if is_url(fp):
-                    try:
-                        bibliography_file = io.StringIO(
-                            url_input.read().decode(encoding)
-                        )
-
-                        entries = list(
-                            rispy.load(bibliography_file, skip_unknown_tags=True)
-                        )
-                        bibliography_file.close()
-                        break
-                    except UnicodeDecodeError:
-                        pass
+                    entries = cls._read_from_url(fp, encoding=encoding)
+                    break
                 else:
-                    try:
-                        with open(fp, "r", encoding=encoding) as bibliography_file:
-                            entries = list(
-                                rispy.load(bibliography_file, skip_unknown_tags=True)
-                            )
-                            break
-                    except UnicodeDecodeError:
-                        pass
-                    except IOError as e:
-                        logging.warning(e)
-            if entries is None:
-                raise ValueError("Cannot find proper encoding for data file.")
+                    entries = cls._read_from_file(fp, encoding=encoding)
+                    break
+            except UnicodeDecodeError:
+                continue
+            except Exception as e:
+                raise ValueError(f"Error reading RIS file: {e}")
+
+        if entries is None:
+            raise ValueError("Cannot find proper encoding for data file")
 
         # Turn the entries dictionary into a Pandas dataframe
         df = pandas.DataFrame(entries)
