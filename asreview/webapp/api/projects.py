@@ -417,7 +417,13 @@ def api_upload_data_to_project(project):  # noqa: F401
         project.add_dataset(data_path.name)
 
     # Bad format. TODO{Jonathan} Return informative message with link.
-    except BadFileFormatError as err:
+    except Exception as err:
+
+        try:
+            project.remove_dataset()
+        except Exception:
+            pass
+
         message = f"Failed to import file '{filename}'. {err}"
         return jsonify(message=message), 400
 
@@ -1171,7 +1177,7 @@ def api_export_dataset(project):
         if "asreview_prior" in as_data.df:
             as_data.df.drop("asreview_prior", axis=1, inplace=True)
 
-        state_df["asreview_prior"] = state_df.query_strategy.eq("prior").astype(int)
+        state_df["asreview_prior"] = state_df.query_strategy.eq("prior").astype("Int64")
         as_data.df = as_data.df.join(state_df["asreview_prior"], on="record_id")
 
         # Adding Notes from State file to the exported dataset

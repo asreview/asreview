@@ -476,16 +476,19 @@ class ASReviewData:
 
         # if there are labels, add them to the frame
         if labels is not None:
-            # unnest the nested (record_id, label) tuples
+            # unnest list of nested (record_id, label) tuples
             labeled_record_ids = [x[0] for x in labels]
             labeled_values = [x[1] for x in labels]
 
             if keep_old_labels:
-                result_df["asreview_label_to_validate"] = result_df[col_label]
+                result_df["asreview_label_to_validate"] = \
+                    result_df[col_label].replace(LABEL_NA, None).astype("Int64")
 
             # remove the old results and write the values
             result_df[col_label] = LABEL_NA
             result_df.loc[labeled_record_ids, col_label] = labeled_values
+            result_df[col_label] = result_df[col_label] \
+                .replace(LABEL_NA, None).astype("Int64")
 
         # if there is a ranking, apply this ranking as order
         if ranking is not None:
@@ -493,11 +496,6 @@ class ASReviewData:
             result_df = result_df.loc[ranking]
             # append a column with 1 to n
             result_df["asreview_ranking"] = np.arange(1, len(result_df) + 1)
-
-        # replace labeled NA values by np.nan
-        if col_label in list(result_df):
-            result_df[col_label] = result_df[col_label].astype(object)
-            result_df.loc[result_df[col_label] == LABEL_NA, col_label] = np.nan
 
         return result_df
 
