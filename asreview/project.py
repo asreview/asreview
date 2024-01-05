@@ -335,7 +335,8 @@ class ASReviewProject:
         fp_data = Path(self.project_path, "data", file_name)
         as_data = ASReviewData.from_file(fp_data)
 
-        if self.config["mode"] == PROJECT_MODE_SIMULATE and as_data.labels is None:
+        if self.config["mode"] == PROJECT_MODE_SIMULATE and \
+                (as_data.labels is None or (as_data.labels == LABEL_NA).any()):
             raise ValueError("Import fully labeled dataset")
 
         if self.config["mode"] == PROJECT_MODE_EXPLORE and as_data.labels is None:
