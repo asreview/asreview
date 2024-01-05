@@ -487,7 +487,8 @@ class ASReviewData:
             # remove the old results and write the values
             result_df[col_label] = LABEL_NA
             result_df.loc[labeled_record_ids, col_label] = labeled_values
-            result_df[col_label] = result_df[col_label].replace(LABEL_NA, None).astype("Int64")
+            result_df[col_label] = result_df[col_label] \
+                .replace(LABEL_NA, None).astype("Int64")
 
         # if there is a ranking, apply this ranking as order
         if ranking is not None:
