@@ -1176,10 +1176,11 @@ def api_export_dataset(project):
         as_data = project.read_data()
 
         # Add a new column 'is_prior' to the dataset
+        if "asreview_prior" in as_data.df:
+            as_data.df.drop("asreview_prior", axis=1, inplace=True)
+
         state_df["asreview_prior"] = state_df.query_strategy.eq("prior").astype(int)
-        as_data.df = as_data.df.drop("asreview_prior", axis=1).join(
-            state_df["asreview_prior"].astype(int), on="record_id"
-        )
+        as_data.df = as_data.df.join(state_df["asreview_prior"], on="record_id")
 
         # Adding Notes from State file to the exported dataset
         # Check if exported_notes column already exists due to multiple screenings
