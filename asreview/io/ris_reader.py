@@ -75,7 +75,7 @@ class RISReader:
         1,0,-1: int
             Labels in case they are still needed from the internal representation.
         """
-        regex = r"ASReview_relevant|ASReview_irrelevant|ASReview_not_seen|ASReview_prior"
+        regex = r"ASReview_relevant|ASReview_irrelevant|ASReview_not_seen"
 
         # Check whether note_list is actually a list and not NaN
         # Return -1 and an empty list
@@ -86,29 +86,22 @@ class RISReader:
         asreview_refs = [re.findall(regex, note) for note in note_list]
         asreview_refs_list = [item for sublist in asreview_refs for item in sublist]
 
-        #detect priors
-        asreview_prior = "ASReview_prior" in asreview_refs_list
-
-        label = -1
-
-        if asreview_refs_list:
+        if len(asreview_refs_list) > 0:
             # Create lists of lists for notes without references
             asreview_new_notes = [re.sub(regex, "", note) for note in note_list]
             # Remove empty elements from list
             asreview_new_notes[:] = [item for item in asreview_new_notes if item != ""]
-
-            last_ref = asreview_refs_list[-1]
+            label = asreview_refs_list[-1]
 
             # Check for the label and return proper values for internal representation
-            if last_ref == "ASReview_relevant":
-                label = 1
-            elif last_ref == "ASReview_irrelevant":
-                label = 0
-            elif last_ref == "ASReview_not_seen":
-                label = -1
-
-            return label, asreview_new_notes, asreview_prior
-
+            if label == "ASReview_relevant":
+                return 1, asreview_new_notes
+            elif label == "ASReview_irrelevant":
+                return 0, asreview_new_notes
+            elif label == "ASReview_not_seen":
+                return -1, asreview_new_notes
+        else:
+            return -1, note_list
 
     @classmethod
     def read_data(cls, fp):
@@ -171,12 +164,12 @@ class RISReader:
         if "notes" in df:
             # Strip Zotero XHTML <p> tags on "notes"
             df["notes"] = df["notes"].apply(cls._strip_zotero_p_tags)
-            # Split "included" and "asreview_prior" from "notes"
-            df[["included", "notes", "asreview_prior"]] = pandas.DataFrame(
+            # Split "included" from "notes"
+            df[["included", "notes"]] = pandas.DataFrame(
                 df["notes"].apply(cls._label_parser).tolist(),
-                columns=["included", "notes", "asreview_prior"],    
+                columns=["included", "notes"],
             )
-            # Return the standardised dataframe with label, priors and notes separated
+            # Return the standardised dataframe with label and notes separated
             return _standardize_dataframe(df)
         else:
             # Return the standardised dataframe
