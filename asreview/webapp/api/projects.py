@@ -1179,7 +1179,7 @@ def api_export_dataset(project):
         if "asreview_prior" in as_data.df:
             as_data.df.drop("asreview_prior", axis=1, inplace=True)
 
-        state_df["asreview_prior"] = state_df.query_strategy.eq("prior").astype(int)
+        state_df["asreview_prior"] = state_df.query_strategy.eq("prior").astype("Int64")
         as_data.df = as_data.df.join(state_df["asreview_prior"], on="record_id")
 
         # Adding Notes from State file to the exported dataset
