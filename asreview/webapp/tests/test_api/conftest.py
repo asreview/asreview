@@ -18,7 +18,6 @@ def setup(request):
     # get the client
     client = request.getfixturevalue(request.param)
     # provide a project name
-    project_name = "project_name"
     if request.param == "client_auth":
         # create, signup and signin users
         user1 = au.create_and_signin_user(client, 1)
