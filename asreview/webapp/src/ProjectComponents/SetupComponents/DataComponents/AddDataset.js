@@ -56,7 +56,7 @@ const AddDataset = (props) => {
   const [benchmark, setBenchmark] = React.useState(null);
   const [datasetReaders, setDatasetReaders] = React.useState(null);
 
-  const { isSuccess: fetchReadersSuccess } = useQuery(
+  useQuery(
     "fetchDatasetReaders",
     ProjectAPI.fetchDatasetReaders,
     {
