@@ -23,7 +23,7 @@ def setup(request):
         # create, signup and signin users
         user1 = au.create_and_signin_user(client, 1)
         # create a project for this logged in user
-        au.create_project(client, project_name)
+        au.create_project(client)
         # receive project
         project = user1.projects[0]
     else:
@@ -31,7 +31,7 @@ def setup(request):
         # version of this fixture
         user1 = None
         # create a project
-        au.create_project(client, project_name)
+        au.create_project(client)
         # get all project
         project = get_projects()[0]
     yield client, user1, project
@@ -71,8 +71,7 @@ def setup_auth(client_auth):
     user2 = crud.get_user_by_identifier(user2.identifier)
     user3 = crud.get_user_by_identifier(user3.identifier)
     # create a project for this logged in user
-    project_name = "project_name"
-    au.create_project(client_auth, project_name)
+    au.create_project(client_auth)
     yield client_auth, user1, user2, user3, user1.projects[0]
     # cleanup database and asreview_path
     crud.delete_everything(DB)

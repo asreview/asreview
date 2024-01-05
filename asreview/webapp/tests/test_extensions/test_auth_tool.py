@@ -361,7 +361,7 @@ def test_print_user_without_affiliation(client_auth, capsys):
 # Testing _get_projects
 def test_get_projects(client_no_auth):
     # create a project
-    _, data = au.create_project(client_no_auth, "test")
+    _, data = au.create_project(client_no_auth)
     # get auth_tool object
     auth_tool = get_auth_tool_object(Namespace(json=None))
     # run function
@@ -398,8 +398,8 @@ def test_list_users(client_auth, capsys):
 # Test list projects: no json data
 def test_list_projects_no_json(client_no_auth, capsys):
     # create two projects
-    _, data1 = au.create_project(client_no_auth, "test1")
-    _, data2 = au.create_project(client_no_auth, "test2")
+    _, data1 = au.create_project(client_no_auth)
+    _, data2 = au.create_project(client_no_auth)
     # get auth_tool object
     auth_tool = get_auth_tool_object(Namespace(json=None))
     # run function
@@ -416,8 +416,8 @@ def test_list_projects_no_json(client_no_auth, capsys):
 # Test list projects: output is a json string
 def test_list_projects_with_json(client_no_auth, capsys):
     # create two projects
-    _, data1 = au.create_project(client_no_auth, "test1")
-    _, data2 = au.create_project(client_no_auth, "test2")
+    _, data1 = au.create_project(client_no_auth)
+    _, data2 = au.create_project(client_no_auth)
     data = {data1.get("id"): data1, data2.get("id"): data2}
     # get auth_tool object
     auth_tool = get_auth_tool_object(Namespace(json=True))
