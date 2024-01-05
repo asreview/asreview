@@ -106,8 +106,7 @@ class RISReader:
     read_format = [".ris", ".txt"]
     write_format = [".csv", ".tsv", ".xlsx", ".ris"]
 
-    @classmethod
-    def _strip_zotero_p_tags(cls, note_list):
+    def _strip_zotero_p_tags(note_list):
         """Converter function for removing the XHTML <p></p> tags from Zotero export.
 
         Arguments
