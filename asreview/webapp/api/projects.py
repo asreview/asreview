@@ -780,8 +780,8 @@ def api_random_prior_papers(project):  # noqa: F401
                 }
             )
 
-    elif subset == "unseen":
-        # Fetch records that are unseen
+    elif subset == "not_seen":
+        # Fetch records that are not seen
         unlabeled_indices = as_data.df[as_data.labels == LABEL_NA] \
             .index.values
         unlabeled_indices_pool = np.intersect1d(pool, unlabeled_indices)
@@ -805,7 +805,7 @@ def api_random_prior_papers(project):  # noqa: F401
             unlabeled_records = as_data.record(rand_pool_unlabeled)
         except Exception as err:
             logging.error(err)
-            return jsonify(message=f"Failed to load unseen records. {err}"), 500
+            return jsonify(message=f"Failed to load 'not seen' records. {err}"), 500
 
         for record in unlabeled_records:
             payload["result"].append(
