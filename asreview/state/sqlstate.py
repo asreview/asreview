@@ -60,7 +60,7 @@ SETTINGS_METADATA_KEYS = [
     "software_version",
     "model_has_trained",
 ]
-CURRENT_STATE_VERSION = "2"
+CURRENT_STATE_VERSION = "1.1"
 
 
 class SQLiteState(BaseState):
