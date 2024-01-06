@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import logging
 import os
 import warnings
@@ -54,7 +55,6 @@ def create_app(
         template_folder="build",
     )
 
-    # if app.debug:
     app.config["ALLOWED_ORIGINS"] = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
     app.config["SECRET_KEY"] = secret_key
@@ -62,14 +62,19 @@ def create_app(
 
     app.config.from_prefixed_env()
 
+    # If allowed origins comes as an environment variables, and is a list,
+    # then we assume a JSON string.
+    if isinstance(app.config.get("ALLOWED_ORIGINS", False), str):
+        app.config["ALLOWED_ORIGINS"] = json.loads(app.config["ALLOWED_ORIGINS"])
+
     if config_file_path := config_file or app.config.get("CONFIGFILE", ""):
         app.config.from_file(
             Path(config_file_path).absolute(), load=tomllib.load, text=False
         )
 
-    if app.config.get("ENABLE_AUTHENTICATION", None):
+    if app.config.get("AUTHENTICATION_ENABLED", None):
         warnings.warn(
-            "The use of ENABLE_AUTHENTICATION=true is deprecated and "
+            "The use of AUTHENTICATION_ENABLED=true is deprecated and "
             "will be removed in the future. Use LOGIN_DISABLED=false instead."
         )
         if "LOGIN_DISABLED" not in app.config:
@@ -94,23 +99,6 @@ def create_app(
         @login_manager.user_loader
         def load_user(user_id):
             return User.query.get(int(user_id))
-
-        if app.config.get("EMAIL_VERIFICATION", False) and not app.config.get(
-            "EMAIL_CONFIG", False
-        ):
-            raise ValueError(
-                "Missing email configuration to facilitate email verification"
-            )
-
-        # set email config for Flask-Mail
-        conf = app.config.get("EMAIL_CONFIG", {})
-        app.config["MAIL_SERVER"] = conf.get("SERVER")
-        app.config["MAIL_PORT"] = conf.get("PORT", 465)
-        app.config["MAIL_USERNAME"] = conf.get("USERNAME")
-        app.config["MAIL_PASSWORD"] = conf.get("PASSWORD")
-        app.config["MAIL_USE_TLS"] = conf.get("USE_TLS", False)
-        app.config["MAIL_USE_SSL"] = conf.get("USE_SSL", False)
-        app.config["MAIL_REPLY_ADDRESS"] = conf.get("REPLY_ADDRESS")
 
         if not app.config.get("SQLALCHEMY_DATABASE_URI", None):
             uri = os.path.join(asreview_path(), f"asreview.{env}.sqlite")
@@ -151,11 +139,16 @@ def create_app(
         return jsonify(message=str(e.original_exception)), 500
 
     @app.route("/", methods=["GET"])
+    @app.route("/signin", methods=["GET"])
+    @app.route("/signup", methods=["GET"])
     @app.route("/confirm_account", methods=["GET"])
     @app.route("/oauth_callback", methods=["GET"])
+    @app.route("/get_profile", methods=["GET"])
+    @app.route("/update_profile", methods=["GET"])
     @app.route("/projects/", methods=["GET"])
     @app.route("/projects/<project_id>/", methods=["GET"])
     @app.route("/projects/<project_id>/<tab>/", methods=["GET"])
+    @app.route("/forgot_password", methods=["GET"])
     @app.route("/reset_password", methods=["GET"])
     def index():
         return render_template("index.html")
@@ -188,10 +181,16 @@ def create_app(
                 "ALLOW_ACCOUNT_CREATION", False
             )
             response["allow_teams"] = app.config.get("ALLOW_TEAMS", False)
+
             response["email_verification"] = bool(
                 app.config.get("EMAIL_VERIFICATION", False)
             )
-            response["email_config"] = bool(app.config.get("EMAIL_CONFIG", False))
+
+            response["email_config"] = all([
+                app.config.get("MAIL_SERVER", False),
+                app.config.get("MAIL_USERNAME", False),
+                app.config.get("MAIL_PASSWORD", False)
+            ])
 
             # if oauth config is provided
             if isinstance(app.config.get("OAUTH", False), OAuthHandler):

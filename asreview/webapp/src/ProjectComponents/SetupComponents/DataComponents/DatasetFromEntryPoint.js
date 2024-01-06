@@ -1,11 +1,14 @@
 import React from "react";
-import { useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import { connect } from "react-redux";
 import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../../Components";
 import { EntryPointDataset } from "../DataComponents";
 import { ProjectAPI } from "../../../api/index.js";
+
+import { mapStateToProps } from "../../../globals.js";
 
 const PREFIX = "DatasetFromEntryPoint";
 
@@ -33,6 +36,15 @@ const DatasetFromEntryPoint = (props) => {
 
   const [expanded, setExpanded] = React.useState(false);
 
+  const datasetInfo = queryClient.getQueryData([
+    "fetchData",
+    { project_id: props.project_id },
+  ]);
+
+  const isDatasetAdded = () => {
+    return datasetInfo !== undefined;
+  };
+
   const {
     data,
     error: fetchDatasetsError,
@@ -46,6 +58,42 @@ const DatasetFromEntryPoint = (props) => {
     { refetchOnWindowFocus: false },
   );
 
+  const { error, isError, isLoading, mutate, reset } = useMutation(
+    ProjectAPI.mutateData,
+    {
+      mutationKey: ["addDataset"],
+      onSuccess: (data) => {
+        if (!isDatasetAdded()) {
+          props.toggleProjectSetup();
+        } else {
+          queryClient.invalidateQueries([
+            "fetchInfo",
+            { project_id: props.project_id },
+          ]);
+          queryClient.invalidateQueries([
+            "fetchData",
+            { project_id: props.project_id },
+          ]);
+        }
+        props.toggleImportDataset();
+      },
+    },
+  );
+
+  const addFile = (dataset_id) => {
+    if (props.subset === "plugin") {
+      mutate({
+        project_id: props.project_id,
+        extension: dataset_id,
+      });
+    } else {
+      mutate({
+        project_id: props.project_id,
+        benchmark: dataset_id,
+      });
+    }
+  };
+
   const refetchDatasets = () => {
     queryClient.resetQueries("fetchDatasets");
   };
@@ -54,8 +102,8 @@ const DatasetFromEntryPoint = (props) => {
     if (isFetchDatasetsError) {
       return fetchDatasetsError?.message;
     }
-    if (props.isAddDatasetError) {
-      return props.addDatasetError?.message + " Please try again";
+    if (isError) {
+      return error?.message + " Please try again";
     }
   };
 
@@ -66,11 +114,11 @@ const DatasetFromEntryPoint = (props) => {
           <CircularProgress />
         </Box>
       )}
-      {(isFetchDatasetsError || props.isAddDatasetError) && (
+      {(isFetchDatasetsError || isError) && (
         <InlineErrorHandler
           message={returnError()}
           refetch={refetchDatasets}
-          button={!props.isAddDatasetError}
+          button={!isError}
         />
       )}
       {!isFetchingDatasets && isSuccess && isFetched && (
@@ -88,6 +136,7 @@ const DatasetFromEntryPoint = (props) => {
               <Box>
                 {group.datasets.map((dataset, index) => (
                   <EntryPointDataset
+                    addFile={addFile}
                     authors={formatCitation(dataset.authors, dataset.year)}
                     dataset_id={group.group_id + ":" + dataset.dataset_id}
                     description={
@@ -100,25 +149,15 @@ const DatasetFromEntryPoint = (props) => {
                       dataset.reference.replace(/^(https:\/\/doi\.org\/)/, "")
                     }
                     expanded={expanded}
-                    isAddingDataset={props.isAddingDataset}
-                    isAddDatasetError={props.isAddDatasetError}
+                    isAddingDataset={isLoading}
+                    isAddDatasetError={isError}
                     key={group.group_id + ":" + dataset.dataset_id}
                     license={dataset.license}
                     link={dataset.link}
                     location={group.group_id + ":" + dataset.dataset_id}
                     mobileScreen={props.mobileScreen}
-                    reset={props.reset}
-                    selectedDatasetId={
-                      props.subset === "plugin"
-                        ? props.extension
-                        : props.benchmark
-                    }
+                    reset={reset}
                     setExpanded={setExpanded}
-                    setSelectedDatasetId={
-                      props.subset === "plugin"
-                        ? props.setExtension
-                        : props.setBenchmark
-                    }
                     title={dataset.title}
                   />
                 ))}
@@ -131,4 +170,4 @@ const DatasetFromEntryPoint = (props) => {
   );
 };
 
-export default DatasetFromEntryPoint;
+export default connect(mapStateToProps, null)(DatasetFromEntryPoint);

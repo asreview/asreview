@@ -2,9 +2,7 @@ include versioneer.py
 include asreview/_version.py
 
 prune asreview/webapp/node_modules
-prune asreview/webapp/build
 prune docs/build
 
 global-exclude *.py[ocd]
 global-exclude .DS_Store
-

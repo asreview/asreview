@@ -272,7 +272,9 @@ class SQLiteState(BaseState):
 
     def _is_valid_state(self):
         try:
-            version = check_and_update_version(self.version, CURRENT_STATE_VERSION, self)
+            version = check_and_update_version(
+                self.version, CURRENT_STATE_VERSION, self
+            )
             if version != self.version:
                 self._update_version(version)
         except AttributeError as err:
@@ -281,7 +283,9 @@ class SQLiteState(BaseState):
         con = self.connect_to_sql_wr()
         cur = con.cursor()
         column_names = cur.execute("PRAGMA table_info(results)").fetchall()
-        table_names = cur.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
+        table_names = cur.execute(
+            "SELECT name FROM sqlite_master WHERE type='table';"
+        ).fetchall()
         con.close()
 
         # Check if all required tables are present.
@@ -611,7 +615,9 @@ class SQLiteState(BaseState):
         con.commit()
         con.close()
 
-    def add_labeling_data(self, record_ids, labels, notes=None, tags_list=None, prior=False):
+    def add_labeling_data(
+        self, record_ids, labels, notes=None, tags_list=None, prior=False
+    ):
         """Add the data corresponding to a labeling action to the state file.
 
         Arguments
@@ -685,7 +691,7 @@ class SQLiteState(BaseState):
             # Check that the record_ids are pending.
             if not all(record_id in pending.values for record_id in record_ids):
                 raise ValueError(
-                    "Labeling records, but not all " "record_ids were pending."
+                    "Labeling records, but not all record_ids were pending."
                 )
 
             data = [
@@ -700,7 +706,8 @@ class SQLiteState(BaseState):
             ]
 
             # If not prior, we need to update records.
-            query = "UPDATE results SET label=?, labeling_time=?, notes=?, custom_metadata_json=? WHERE record_id=?"
+            query = ("UPDATE results SET label=?, labeling_time=?, "
+                     "notes=?, custom_metadata_json=? WHERE record_id=?")
 
         # Add the rows to the database.
         con = self._connect_to_sql()
@@ -756,7 +763,8 @@ class SQLiteState(BaseState):
 
         # Change the label.
         cur.execute(
-            "UPDATE results SET label = ?, notes = ?, custom_metadata_json=? WHERE record_id = ?",
+            "UPDATE results SET label = ?, notes = ?, "
+            "custom_metadata_json=? WHERE record_id = ?",
             (label, note, convert_to_custom_metadata_str(tags=tags), record_id),
         )
 

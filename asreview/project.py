@@ -28,6 +28,7 @@ __all__ = [
 import json
 import logging
 import os
+import pickle
 import shutil
 import tempfile
 import time
@@ -40,6 +41,7 @@ from uuid import uuid4
 
 import jsonschema
 import numpy as np
+import pandas as pd
 from filelock import FileLock
 from scipy.sparse import csr_matrix
 from scipy.sparse import load_npz
@@ -47,10 +49,13 @@ from scipy.sparse import save_npz
 
 from asreview._version import get_versions
 from asreview.config import LABEL_NA
+from asreview.config import PROJECT_MODE_EXPLORE
+from asreview.config import PROJECT_MODE_ORACLE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.config import PROJECT_MODES
 from asreview.config import SCHEMA
 from asreview.data import ASReviewData
+from asreview.exceptions import CacheDataError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
 from asreview.utils import asreview_path
@@ -327,19 +332,27 @@ class ASReviewProject:
 
         Add file to data subfolder and fill the pool of iteration 0.
         """
-        self.update_config(dataset_path=file_name)
 
         # fill the pool of the first iteration
-        fp_data = Path(self.project_path, "data", self.config["dataset_path"])
+        fp_data = Path(self.project_path, "data", file_name)
         as_data = ASReviewData.from_file(fp_data)
+
+        if self.config["mode"] == PROJECT_MODE_SIMULATE and \
+                (as_data.labels is None or (as_data.labels == LABEL_NA).any()):
+            raise ValueError("Import fully labeled dataset")
+
+        if self.config["mode"] == PROJECT_MODE_EXPLORE and as_data.labels is None:
+            raise ValueError("Import partially or fully labeled dataset")
+
+        self.update_config(dataset_path=file_name, name=file_name.rsplit(".", 1)[0])
 
         with open_state(self.project_path, read_only=False) as state:
             # save the record ids in the state file
             state.add_record_table(as_data.record_ids)
 
-            # if the data contains labels, add them to the state file
+            # if the data contains labels and oracle mode, add them to the state file
             if (
-                self.config["mode"] != PROJECT_MODE_SIMULATE
+                self.config["mode"] == PROJECT_MODE_ORACLE
                 and as_data.labels is not None
             ):
                 labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
@@ -367,6 +380,69 @@ class ASReviewProject:
             Path(self.project_path, "reviews").iterdir()
         ):
             self.delete_review()
+
+    def _read_data_from_cache(self, version_check=True):
+
+        fp_data = Path(self.project_path, "data", self.config["dataset_path"])
+        fp_data_pickle = Path(fp_data).with_suffix(fp_data.suffix + ".pickle")
+
+        try:
+            with open(fp_data_pickle, "rb") as f_pickle_read:
+                data_obj, data_obj_version = pickle.load(f_pickle_read)
+
+            if not isinstance(data_obj.df, pd.DataFrame):
+                raise ValueError()
+
+            if (not version_check) or (get_versions()["version"] == data_obj_version):
+                return data_obj
+
+        except FileNotFoundError:
+            pass
+        except Exception as err:
+            logging.error(f"Error reading cache file: {err}")
+            try:
+                os.remove(fp_data_pickle)
+            except FileNotFoundError:
+                pass
+
+        raise CacheDataError()
+
+    def read_data(self, use_cache=True, save_cache=True):
+        """Get ASReviewData object from file.
+
+        Parameters
+        ----------
+        use_cache: bool
+            Use the pickle file if available.
+        save_cache: bool
+            Save the file to a pickle file if not available.
+
+        Returns
+        -------
+        ASReviewData:
+            The data object for internal use in ASReview.
+
+        """
+
+        try:
+            fp_data = Path(self.project_path, "data", self.config["dataset_path"])
+        except Exception:
+            raise FileNotFoundError("Dataset not found")
+
+        if use_cache:
+            try:
+                return self._read_data_from_cache(fp_data)
+            except CacheDataError:
+                pass
+
+        data_obj = ASReviewData.from_file(fp_data)
+
+        if save_cache:
+            fp_data_pickle = Path(fp_data).with_suffix(fp_data.suffix + ".pickle")
+            with open(fp_data_pickle, "wb") as f_pickle:
+                pickle.dump((data_obj, get_versions()["version"]), f_pickle)
+
+        return data_obj
 
     def clean_tmp_files(self):
         """Clean temporary files in a project.

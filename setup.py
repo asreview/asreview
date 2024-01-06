@@ -45,17 +45,17 @@ def get_long_description():
 
 REQUIRES = [
     "numpy",
-    "pandas>=1,<3",
+    "pandas>=1.3,<3",
     "scikit-learn",
     "rispy~=0.7.0",
-    "xlrd>=1.0.0",
     "setuptools",
     "flask>=2.3.0",
     "flask_cors",
     "flask-login>=0.6.3",
     "flask-mail",
     "Werkzeug>=2.3.2",
-    "openpyxl",
+    "openpyxl>=3.0.3",
+    "xlsxwriter>=3",
     "jsonschema",
     "filelock",
     "Flask-SQLAlchemy>=3.0.2",
@@ -177,7 +177,7 @@ setup(
             "lab=asreview.webapp.entry_points.lab:lab_entry_point",
             "simulate=asreview.entry_points:SimulateEntryPoint",
             "algorithms=asreview.entry_points:AlgorithmsEntryPoint",
-            "auth-tool=asreview.webapp.entry_points.auth_tool:admin_entry_point",
+            "auth-tool=asreview.webapp.entry_points.auth_tool:AuthTool",
         ],
         "asreview.entry_points_internal": [
             "web_run_model=asreview.webapp.entry_points.run_model:run_model_entry_point",  # noqa

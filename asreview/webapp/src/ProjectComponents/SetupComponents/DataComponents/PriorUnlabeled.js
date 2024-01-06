@@ -85,7 +85,7 @@ const PriorUnlabeled = (props) => {
                   };
                 }),
               };
-            },
+            }
           );
         } else {
           // update cached data
@@ -112,16 +112,16 @@ const PriorUnlabeled = (props) => {
                   };
                 }),
               };
-            },
+            }
           );
         }
       },
-    },
+    }
   );
 
   const isDebugInclusion = () => {
     if (props.record) {
-      return props.record._debug_label === 1;
+      return props.record.label_from_dataset === 1;
     }
   };
 
@@ -138,9 +138,16 @@ const PriorUnlabeled = (props) => {
       )}
       {!isError && (
         <Card elevation={3} className={classes.root}>
-          {props.record._debug_label !== null && (
+          {props.record.label_from_dataset !== null && (
             <ExplorationModeRecordAlert
-              label={!isDebugInclusion() ? "irrelevant" : "relevant"}
+              label={
+                props.record.label_from_dataset === -1
+                  ? "not seen"
+                  : !isDebugInclusion()
+                    ? "irrelevant"
+                    : "relevant"
+              }
+              prior={true}
             />
           )}
           <CardContent className="record-card-content">

@@ -37,13 +37,15 @@ from asreview.utils import is_iterable
 from asreview.utils import is_url
 
 
-def load_data(name, *args, **kwargs):
+def load_data(name, **kwargs):
     """Load data from file, URL, or plugin.
 
     Parameters
     ----------
     name: str, pathlib.Path
         File path, URL, or alias of extension dataset.
+    **kwargs:
+        Keyword arguments passed to the reader.
 
     Returns
     -------
@@ -53,11 +55,11 @@ def load_data(name, *args, **kwargs):
 
     # check is file or URL
     if is_url(name) or Path(name).exists():
-        return ASReviewData.from_file(name, *args, **kwargs)
+        return ASReviewData.from_file(name, **kwargs)
 
     # check if dataset is plugin dataset
     try:
-        return ASReviewData.from_extension(name, *args, **kwargs)
+        return ASReviewData.from_extension(name, **kwargs)
     except DatasetNotFoundError:
         pass
 
@@ -406,7 +408,8 @@ class ASReviewData:
         else:
             return self.df.index.values[prior_indices]
 
-    def to_file(self, fp, labels=None, ranking=None, writer=None):
+    def to_file(
+            self, fp, labels=None, ranking=None, writer=None, keep_old_labels=False):
         """Export data object to file.
 
         RIS, CSV, TSV and Excel are supported file formats at the moment.
@@ -421,8 +424,13 @@ class ASReviewData:
             Optionally, dataframe rows can be reordered.
         writer: class
             Writer to export the file.
+        keep_old_labels: bool
+            If True, the old labels are kept in a column 'asreview_label_to_validate'.
+            Default False.
         """
-        df = self.to_dataframe(labels=labels, ranking=ranking)
+        df = self.to_dataframe(
+            labels=labels, ranking=ranking, keep_old_labels=keep_old_labels
+        )
 
         if writer is not None:
             writer.write_data(df, fp, labels=labels, ranking=ranking)
@@ -443,7 +451,7 @@ class ASReviewData:
             writer = _entry_points(group="asreview.writers")[best_suffix].load()
             writer.write_data(df, fp, labels=labels, ranking=ranking)
 
-    def to_dataframe(self, labels=None, ranking=None):
+    def to_dataframe(self, labels=None, ranking=None, keep_old_labels=False):
         """Create new dataframe with updated label (order).
 
         Arguments
@@ -454,6 +462,9 @@ class ASReviewData:
         ranking: list
             Reorder the dataframe according to these record_ids.
             Default ordering if ranking is None.
+        keep_old_labels: bool
+            If True, the old labels are kept in a column 'asreview_label_to_validate'.
+            Default False.
 
         Returns
         -------
@@ -465,13 +476,19 @@ class ASReviewData:
 
         # if there are labels, add them to the frame
         if labels is not None:
-            # unnest the nested (record_id, label) tuples
+            # unnest list of nested (record_id, label) tuples
             labeled_record_ids = [x[0] for x in labels]
             labeled_values = [x[1] for x in labels]
+
+            if keep_old_labels:
+                result_df["asreview_label_to_validate"] = \
+                    result_df[col_label].replace(LABEL_NA, None).astype("Int64")
 
             # remove the old results and write the values
             result_df[col_label] = LABEL_NA
             result_df.loc[labeled_record_ids, col_label] = labeled_values
+            result_df[col_label] = result_df[col_label] \
+                .replace(LABEL_NA, None).astype("Int64")
 
         # if there is a ranking, apply this ranking as order
         if ranking is not None:
@@ -479,11 +496,6 @@ class ASReviewData:
             result_df = result_df.loc[ranking]
             # append a column with 1 to n
             result_df["asreview_ranking"] = np.arange(1, len(result_df) + 1)
-
-        # replace labeled NA values by np.nan
-        if col_label in list(result_df):
-            result_df[col_label] = result_df[col_label].astype(object)
-            result_df.loc[result_df[col_label] == LABEL_NA, col_label] = np.nan
 
         return result_df
 
@@ -510,7 +522,7 @@ class ASReviewData:
             if is_string_dtype(self.df[pid]) or is_object_dtype(self.df[pid]):
                 s_pid = self.df[pid].str.strip().replace("", None)
                 if pid == "doi":
-                    s_pid = s_pid.str.replace(
+                    s_pid = s_pid.str.lower().str.replace(
                         r"^https?://(www\.)?doi\.org/", "", regex=True
                     )
             else:

@@ -7,6 +7,7 @@ from typing import Union
 import pytest
 from flask import current_app
 from flask.testing import FlaskClient
+from jsonschema.exceptions import ValidationError
 
 import asreview.webapp.tests.utils.api_utils as au
 import asreview.webapp.tests.utils.crud as crud
@@ -15,9 +16,6 @@ from asreview.project import ASReviewProject
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import Project
-from asreview.webapp.tests.utils.misc import current_app_is_authenticated
-from asreview.webapp.tests.utils.misc import retrieve_project_url_github
-from jsonschema.exceptions import ValidationError
 
 # NOTE: I don't see a plugin that can be used for testing
 # purposes
@@ -61,64 +59,62 @@ def test_get_projects(setup):
 # Test create a project
 def test_create_projects(setup):
     client, _, _ = setup
-    project_name = "new_project"
 
-    status_code, data = au.create_project(client, project_name)
+    status_code, data = au.create_project(client)
     assert status_code == 201
-    assert data["name"] == project_name
+    assert data["name"].startswith("explore")
+
 
 # Test create a project with incorrect tags
 def test_create_projects_with_incorrect_tags(setup):
     client, _, _ = setup
     project_name = "new_project"
-    tags = json.dumps([
-        {
-            "foo": "bar"
-        },
-        {
-            "foo1": "bar1"
-        }
-    ])
+    tags = json.dumps([{"foo": "bar"}, {"foo1": "bar1"}])
 
-    with pytest.raises(ValidationError, match=r".*Failed validating .*type.* in schema.*"):
+    with pytest.raises(
+        ValidationError, match=r".*Failed validating .*type.* in schema.*"
+    ):
         au.create_project(client, project_name, tags=json.dumps(tags))
 
+
 # Test create a project with correct tags
-def test_create_projects_with_incorrect_tags(setup):
+def test_create_projects_with_correct_tags(setup):
     client, _, _ = setup
     project_name = "new_project"
-    tags = [{
-                        "name": "Biomes",
-                        "id": "biomes",
-                        "values": [
-                            {"id": "boreal_forest", "name": "Boreal Forest"},
-                            {"id": "savanna", "name": "Savanna"},
-                            {"id": "mangrove", "name": "Mangrove"},
-                            {"id": "tropical_forest", "name": "Tropical Forest"},
-                        ],
-                    },
-                    {
-                        "name": "Restoration Approaches",
-                        "id": "restoration_approaches",
-                        "values": [
-                            {
-                                "id": "direct_seeding",
-                                "name": "Direct seeding (i.e. spreading/planting seeds)",
-                            },
-                            {
-                                "id": "tree_planting",
-                                "name": "Planting trees (i.e. planting trees as seedlings)",
-                            },
-                            {
-                                "id": "assisted_natural_regeneration",
-                                "name": "Assisted natural regeneration",
-                            },
-                            {
-                                "id": "farmer_managed_natural_regeneration",
-                                "name": "Farmer managed natural regeneration",
-                            },
-                        ],
-                    }]
+    tags = [
+        {
+            "name": "Biomes",
+            "id": "biomes",
+            "values": [
+                {"id": "boreal_forest", "name": "Boreal Forest"},
+                {"id": "savanna", "name": "Savanna"},
+                {"id": "mangrove", "name": "Mangrove"},
+                {"id": "tropical_forest", "name": "Tropical Forest"},
+            ],
+        },
+        {
+            "name": "Restoration Approaches",
+            "id": "restoration_approaches",
+            "values": [
+                {
+                    "id": "direct_seeding",
+                    "name": "Direct seeding (i.e. spreading/planting seeds)",
+                },
+                {
+                    "id": "tree_planting",
+                    "name": "Planting trees (i.e. planting trees as seedlings)",
+                },
+                {
+                    "id": "assisted_natural_regeneration",
+                    "name": "Assisted natural regeneration",
+                },
+                {
+                    "id": "farmer_managed_natural_regeneration",
+                    "name": "Farmer managed natural regeneration",
+                },
+            ],
+        },
+    ]
 
     status_code, data = au.create_project(client, project_name, tags=json.dumps(tags))
     assert status_code == 201
@@ -147,7 +143,7 @@ def test_upgrade_an_old_project(setup):
         tests_folder,
         "asreview-project-file-archive",
         "v0.19",
-        "asreview-project-v0-19-startreview.asreview"
+        "asreview-project-v0-19-startreview.asreview",
     )
 
     project = ASReviewProject.load(
@@ -285,57 +281,60 @@ def test_get_dataset_writer(setup):
 def test_update_project_info(setup):
     client, _, project = setup
     # update data
-    new_mode = "oracle"
     new_name = "new name"
     new_authors = "new authors"
     new_description = "new description"
-    new_tags = json.dumps([{
-                        "name": "Biomes",
-                        "id": "biomes",
-                        "values": [
-                            {"id": "boreal_forest", "name": "Boreal Forest"},
-                            {"id": "savanna", "name": "Savanna"},
-                            {"id": "mangrove", "name": "Mangrove"},
-                            {"id": "tropical_forest", "name": "Tropical Forest"},
-                        ],
+    new_tags = json.dumps(
+        [
+            {
+                "name": "Biomes",
+                "id": "biomes",
+                "values": [
+                    {"id": "boreal_forest", "name": "Boreal Forest"},
+                    {"id": "savanna", "name": "Savanna"},
+                    {"id": "mangrove", "name": "Mangrove"},
+                    {"id": "tropical_forest", "name": "Tropical Forest"},
+                ],
+            },
+            {
+                "name": "Restoration Approaches",
+                "id": "restoration_approaches",
+                "values": [
+                    {
+                        "id": "direct_seeding",
+                        "name": "Direct seeding (i.e. spreading/planting seeds)",
                     },
                     {
-                        "name": "Restoration Approaches",
-                        "id": "restoration_approaches",
-                        "values": [
-                            {
-                                "id": "direct_seeding",
-                                "name": "Direct seeding (i.e. spreading/planting seeds)",
-                            },
-                            {
-                                "id": "tree_planting",
-                                "name": "Planting trees (i.e. planting trees as seedlings)",
-                            },
-                            {
-                                "id": "assisted_natural_regeneration",
-                                "name": "Assisted natural regeneration",
-                            },
-                            {
-                                "id": "farmer_managed_natural_regeneration",
-                                "name": "Farmer managed natural regeneration",
-                            },
-                        ],
-                    }])
+                        "id": "tree_planting",
+                        "name": "Planting trees (i.e. planting trees as seedlings)",
+                    },
+                    {
+                        "id": "assisted_natural_regeneration",
+                        "name": "Assisted natural regeneration",
+                    },
+                    {
+                        "id": "farmer_managed_natural_regeneration",
+                        "name": "Farmer managed natural regeneration",
+                    },
+                ],
+            },
+        ]
+    )
 
     # request
     status_code, data = au.update_project(
         client,
         project,
         name=new_name,
-        mode=new_mode,
+        # mode=new_mode,  # from version 2 on, it's no longer possible to update mode
         authors=new_authors,
         description=new_description,
-        tags=new_tags
+        tags=new_tags,
     )
     assert status_code == 200
     assert data["authors"] == new_authors
     assert data["description"] == new_description
-    assert data["mode"] == new_mode
+    assert data["mode"] == "explore"
     assert data["name"] == new_name
     assert data["tags"] == json.loads(new_tags)
 
@@ -423,7 +422,7 @@ def test_list_algorithms(setup):
         "balance_strategy",
         "classifier",
         "feature_extraction",
-        "query_strategy"
+        "query_strategy",
     ]
     for key in expected_keys:
         assert key in data.keys()

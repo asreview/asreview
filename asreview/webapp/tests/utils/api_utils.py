@@ -171,20 +171,12 @@ def get_all_projects(client: FlaskClient):
 
 def create_project(
     client: FlaskClient,
-    project_name: str,
     mode: str = "explore",
-    authors: str = "authors",
-    description: str = "description",
-    tags: str = "[]"
 ):
     response = client.post(
         "/api/projects/info",
         data={
             "mode": mode,
-            "name": project_name,
-            "authors": authors,
-            "description": description,
-            "tags": tags,
         },
     )
     return process_response(response)

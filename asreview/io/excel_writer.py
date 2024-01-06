@@ -44,4 +44,4 @@ class ExcelWriter:
         Excel file
             Dataframe of all available record data.
         """
-        return df.to_excel(fp, index=True)
+        return df.to_excel(fp, index=True, engine="xlsxwriter")

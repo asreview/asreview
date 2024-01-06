@@ -1,11 +1,11 @@
 import * as React from "react";
 import ReactLoading from "react-loading";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import YouTube from "react-youtube";
 
-import { Button, Fade, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../Components";
@@ -40,6 +40,54 @@ const FinishSetup = (props) => {
   const queryClient = useQueryClient();
   const theme = useTheme();
 
+  // State finish setup
+  const [training, setTraining] = React.useState(false);
+
+  const info = queryClient.getQueryData([
+    "fetchInfo",
+    { project_id: props.project_id },
+  ]);
+
+  const {
+    error: trainError,
+    isError: isTrainError,
+    isLoading: isTraining,
+    mutate: train,
+    reset,
+  } = useMutation(ProjectAPI.mutateStartTraining, {
+    onSuccess: () => {
+      setTraining(true);
+    },
+  });
+
+  const {
+    error: statusError,
+    isError: isStatusError,
+    isFetching: isFetchingStatus,
+  } = useQuery(
+    ["fetchProjectStatus", { project_id: props.project_id }],
+    ProjectAPI.fetchProjectStatus,
+    {
+      enabled: isTraining,
+      onSuccess: (data) => {
+        if (data["status"] !== projectStatuses.SETUP) {
+          // model ready
+          console.log("Model ready");
+          setTraining(false);
+        } else {
+          console.log("Not ready yet");
+          // not ready yet
+          setTimeout(
+            () => queryClient.refetchQueries("fetchProjectStatus"),
+            12000,
+          );
+        }
+      },
+      refetchOnWindowFocus: false,
+      retry: false,
+    },
+  );
+
   const { error, isError, mutate } = useMutation(
     ProjectAPI.mutateProjectStatus,
     {
@@ -47,7 +95,7 @@ const FinishSetup = (props) => {
         props.handleBack();
         queryClient.resetQueries("fetchProjectStatus");
       },
-    }
+    },
   );
 
   const onClickCloseSetup = async () => {
@@ -55,9 +103,9 @@ const FinishSetup = (props) => {
     console.log("Opening existing project " + props.project_id);
     await queryClient.prefetchQuery(
       ["fetchInfo", { project_id: props.project_id }],
-      ProjectAPI.fetchInfo
+      ProjectAPI.fetchInfo,
     );
-    if (props.mode !== projectModes.SIMULATION) {
+    if (info?.mode !== projectModes.SIMULATION) {
       navigate(`/projects/${props.project_id}/review`);
     } else {
       navigate(`/projects/${props.project_id}`);
@@ -72,19 +120,23 @@ const FinishSetup = (props) => {
     });
   };
 
+  React.useEffect(() => {
+    train({ project_id: props.project_id });
+  }, [props.project_id, train]);
+
   return (
     <Root>
       <Stack spacing={3}>
-        {props.isStartTrainingError && (
+        {isTrainError && (
           <InlineErrorHandler
-            message={props.startTrainingError?.message}
-            refetch={props.restartTraining}
+            message={trainError?.message}
+            refetch={reset}
             button={true}
           />
         )}
-        {!props.isPreparingProject && props.isProjectReadyError && (
+        {!isFetchingStatus && isStatusError && (
           <Stack className={classes.root} spacing={3}>
-            <InlineErrorHandler message={props.projectReadyError?.message} />
+            <InlineErrorHandler message={statusError?.message} />
             <Button onClick={onClickClearError}>Return to previous step</Button>
           </Stack>
         )}
@@ -97,7 +149,7 @@ const FinishSetup = (props) => {
         )}
       </Stack>
       <Stack spacing={3} className={classes.root}>
-        {!props.isStartTrainingError && !props.isProjectReadyError && (
+        {!isTrainError && !isStatusError && (
           <YouTube
             videoId={YouTubeVideoID}
             opts={{
@@ -109,65 +161,60 @@ const FinishSetup = (props) => {
             }}
           />
         )}
-        {!props.isStartTrainingError &&
-          !props.isProjectReadyError &&
-          !props.trainingFinished && (
-            <Stack className={classes.root} spacing={1}>
-              <Stack className={classes.root}>
-                <TypographySubtitle1Medium>
-                  Warming up the AI
-                </TypographySubtitle1Medium>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: "text.secondary",
-                    width: width < 560 ? "90%" : "65%",
-                  }}
-                >
-                  ASReview LAB is extracting features from the text and training
-                  the classifier with selected prior knowledge. Learn more by
-                  watching the video.
-                </Typography>
-              </Stack>
-              <ReactLoading
-                type="bubbles"
-                color={theme.palette.primary.main}
-                height={60}
-                width={60}
-              />
+        {!isTrainError && !isStatusError && training && (
+          <Stack className={classes.root} spacing={1}>
+            <Stack className={classes.root}>
+              <TypographySubtitle1Medium>
+                Warming up the AI
+              </TypographySubtitle1Medium>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  width: width < 560 ? "90%" : "65%",
+                }}
+              >
+                ASReview LAB is extracting features from the text and training
+                the classifier with selected prior knowledge. Learn more by
+                watching the video.
+              </Typography>
             </Stack>
-          )}
-        {props.trainingFinished && (
-          <Stack spacing={3} className={classes.root}>
-            {props.mode !== projectModes.SIMULATION && (
-              <Fade in>
-                <Stack spacing={3} className={classes.root}>
-                  <TypographySubtitle1Medium>
-                    AI is ready to assist you
-                  </TypographySubtitle1Medium>
-                  <Button id="start-reviewing" onClick={onClickCloseSetup}>
-                    Start Reviewing
-                  </Button>
-                </Stack>
-              </Fade>
+            <ReactLoading
+              type="bubbles"
+              color={theme.palette.primary.main}
+              height={60}
+              width={60}
+            />
+          </Stack>
+        )}
+        {!training && (
+          <Stack spacing={3}>
+            {info?.mode !== projectModes.SIMULATION && (
+              <Stack className={classes.root} spacing={3}>
+                <TypographySubtitle1Medium>
+                  AI is ready to assist you
+                </TypographySubtitle1Medium>
+                <Box>
+                  <Button onClick={onClickCloseSetup}>Start Reviewing</Button>
+                </Box>
+              </Stack>
             )}
-            {props.mode === projectModes.SIMULATION && (
-              <Fade in>
-                <Stack spacing={3} className={classes.root}>
-                  <Stack className={classes.root}>
-                    <TypographySubtitle1Medium>
-                      Your simulation project has been initiated
-                    </TypographySubtitle1Medium>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: "text.secondary" }}
-                    >
-                      It will take some time to complete the simulation
-                    </Typography>
-                  </Stack>
-                  <Button onClick={onClickCloseSetup}>Got it</Button>
+            {info?.mode === projectModes.SIMULATION && (
+              <Stack className={classes.root} spacing={3}>
+                <Stack>
+                  <TypographySubtitle1Medium>
+                    Your simulation project has been initiated
+                  </TypographySubtitle1Medium>
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    It will take some time to complete the simulation
+                  </Typography>
                 </Stack>
-              </Fade>
+                <Box>
+                  <Button id="start-reviewing" onClick={onClickCloseSetup}>
+                    Got it
+                  </Button>
+                </Box>
+              </Stack>
             )}
           </Stack>
         )}

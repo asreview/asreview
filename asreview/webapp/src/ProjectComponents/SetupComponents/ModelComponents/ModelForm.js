@@ -1,54 +1,13 @@
 import * as React from "react";
-import { useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { connect } from "react-redux";
-import {
-  Box,
-  CircularProgress,
-  FormControl,
-  FormHelperText,
-  InputLabel,
-  Link,
-  MenuItem,
-  Select,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Box, CircularProgress, Link, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { InlineErrorHandler } from "../../../Components";
-import { SelectItem } from "../../../ProjectComponents";
-import { InfoCard } from "../../SetupComponents";
+import { CardErrorHandler } from "../../../Components";
+import { ModelRequirement, ModelSelect } from "../ModelComponents";
 import { ProjectAPI } from "../../../api/index.js";
 import { defaultAlgorithms, mapStateToProps } from "../../../globals.js";
-
-const requirements = [
-  {
-    value: "tensorflow",
-    link: "https://asreview.readthedocs.io/en/latest/generated/asreview.models.classifiers.NN2LayerClassifier.html#asreview-models-classifiers-nn2layerclassifier",
-  },
-  {
-    value: "gensim",
-    link: "https://asreview.readthedocs.io/en/latest/generated/asreview.models.feature_extraction.Doc2Vec.html#asreview-models-feature-extraction-doc2vec",
-  },
-  {
-    value: "sentence-transformers",
-    link: "https://asreview.readthedocs.io/en/latest/generated/asreview.models.feature_extraction.SBERT.html#asreview-models-feature-extraction-sbert",
-  },
-];
-
-const modelRequirement = (requirement) => {
-  let link = requirements
-    .filter((element) => element.value === requirement)
-    .map((element) => element.link);
-  return (
-    <React.Fragment>
-      requires <code>{requirement}</code> to be installed.{" "}
-      <Link underline="none" href={link} target="_blank">
-        Learn more
-      </Link>{" "}
-    </React.Fragment>
-  );
-};
 
 const PREFIX = "ModelForm";
 
@@ -69,181 +28,134 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const ModelForm = (props) => {
-  const queryClient = useQueryClient();
+  const [model, setModel] = React.useState({
+    classifier: null,
+    query_strategy: null,
+    balance_strategy: null,
+    feature_extraction: null,
+  });
+
+  /**
+   * Fetch model options
+   */
   const {
     data: modelOptions,
     error: fetchModelOptionsError,
     isError: isFetchModelOptionsError,
-    isFetched: isFetchedModelOptions,
     isFetching: isFetchingModelOptions,
-    isSuccess: isSuccessModelOptions,
   } = useQuery("fetchModelOptions", ProjectAPI.fetchModelOptions, {
     refetchOnWindowFocus: false,
   });
 
+  /**
+   * Fetch model config
+   */
   const {
     error: fetchModelConfigError,
     isError: isFetchModelConfigError,
-    isFetched: isFetchedModelConfig,
     isFetching: isFetchingModelConfig,
-    isSuccess: isSuccessModelConfig,
   } = useQuery(
     ["fetchModelConfig", { project_id: props.project_id }],
     ProjectAPI.fetchModelConfig,
     {
       enabled: props.project_id !== null,
       onSuccess: (data) => {
-        props.setModel({
-          classifier: data["model"],
-          query_strategy: data["query_strategy"],
-          balance_strategy: data["balance_strategy"],
-          feature_extraction: data["feature_extraction"],
-        });
+        if (data !== null) {
+          setModel({
+            classifier: data["model"],
+            query_strategy: data["query_strategy"],
+            balance_strategy: data["balance_strategy"],
+            feature_extraction: data["feature_extraction"],
+          });
+        } else {
+          setModel(defaultAlgorithms);
+        }
       },
       refetchOnWindowFocus: false,
     },
   );
 
+  /**
+   * Mutate model config
+   */
+  const {
+    // error: mutateModelConfigError,
+    // isError: isMutateModelConfigError,
+    // isLoading: isMutatingModelConfig,
+    mutate: mutateModelConfig,
+    // reset,
+  } = useMutation(ProjectAPI.mutateModelConfig, {
+    mutationKey: "mutateModelConfig",
+    onError: () => {
+      props.handleComplete(false);
+    },
+    onSuccess: () => {
+      props.handleComplete(true);
+    },
+  });
+
+  const prepareMutationData = React.useCallback(
+    () => ({
+      project_id: props.project_id,
+      ...model,
+    }),
+    [props.project_id, model],
+  );
+
+  // auto mutate model selection
+  React.useEffect(() => {
+    const { classifier, query_strategy, balance_strategy, feature_extraction } =
+      model;
+
+    if (
+      props.project_id &&
+      classifier &&
+      query_strategy &&
+      balance_strategy &&
+      feature_extraction
+    ) {
+      mutateModelConfig(prepareMutationData());
+    }
+  }, [model, mutateModelConfig, prepareMutationData, props.project_id]);
+
   const handleModel = (event) => {
-    if (event.target.name === "classifier") {
-      if (
-        event.target.value === "lstm-base" ||
-        event.target.value === "lstm-pool"
-      ) {
-        props.setModel({
-          ...props.model,
-          classifier: event.target.value,
-          feature_extraction: "embedding-lstm",
-        });
-      } else {
-        if (props.model?.feature_extraction === "embedding-lstm") {
-          props.setModel({
-            ...props.model,
-            classifier: event.target.value,
-            feature_extraction: defaultAlgorithms["feature_extraction"],
-          });
-        } else {
-          props.setModel({
-            ...props.model,
-            classifier: event.target.value,
-          });
-        }
+    const { name, value } = event.target;
+
+    let updates = { [name]: value };
+
+    if (name === "classifier") {
+      if (["lstm-base", "lstm-pool"].includes(value)) {
+        updates.feature_extraction = "embedding-lstm";
+      } else if (model?.feature_extraction === "embedding-lstm") {
+        updates.feature_extraction = defaultAlgorithms["feature_extraction"];
       }
     }
-    if (event.target.name === "query_strategy") {
-      props.setModel({
-        ...props.model,
-        query_strategy: event.target.value,
-      });
-    }
-    if (event.target.name === "balance_strategy") {
-      props.setModel({
-        ...props.model,
-        balance_strategy: event.target.value,
-      });
-    }
-    if (event.target.name === "feature_extraction") {
-      props.setModel({
-        ...props.model,
-        feature_extraction: event.target.value,
-      });
-    }
-  };
 
-  const returnRequirement = () => {
-    return (
-      <React.Fragment>
-        Some combinations take a long time to warm up. Some classifiers and
-        feature extraction techniques require additional dependencies.{" "}
-        {(props.model?.classifier === "nn-2-layer" ||
-          props.model?.feature_extraction === "embedding-idf" ||
-          props.model?.feature_extraction === "embedding-lstm") && (
-          <React.Fragment>
-            {props.model?.feature_extraction === "tfidf" &&
-              "This combination might crash on some systems with limited memory. "}
-            {props.model?.classifier === "nn-2-layer" &&
-              modelOptions?.classifier
-                .filter((e) => e.name === "nn-2-layer")
-                .map((e) => e.label) + " "}
-            {props.model?.feature_extraction === "embedding-idf" &&
-              modelOptions?.feature_extraction
-                .filter((e) => e.name === "embedding-idf")
-                .map((e) => e.label) + " "}
-            {props.model?.feature_extraction === "embedding-lstm" &&
-              modelOptions?.feature_extraction
-                .filter((e) => e.name === "embedding-lstm")
-                .map((e) => e.label) + " "}
-            {modelRequirement("tensorflow")}
-          </React.Fragment>
-        )}
-        {props.model?.feature_extraction === "doc2vec" && (
-          <React.Fragment>
-            {modelOptions?.feature_extraction
-              .filter((e) => e.name === "doc2vec")
-              .map((e) => e.label)}{" "}
-            {modelRequirement("gensim")}
-          </React.Fragment>
-        )}
-        {props.model?.feature_extraction === "sbert" && (
-          <React.Fragment>
-            {modelOptions?.feature_extraction
-              .filter((e) => e.name === "sbert")
-              .map((e) => e.label)}{" "}
-            {modelRequirement("sentence-transformers")}
-          </React.Fragment>
-        )}
-      </React.Fragment>
-    );
+    setModel((prevModel) => ({
+      ...prevModel,
+      ...updates,
+    }));
   };
 
   const disableClassifierItem = (value) => {
-    return value === "nb" && props.model?.feature_extraction === "doc2vec";
+    return value === "nb" && model?.feature_extraction === "doc2vec";
   };
 
   const disableFeatureExtractionItem = (value) => {
-    return (
-      (value === "doc2vec" && props.model?.classifier === "nb") ||
-      (props.model?.classifier !== "lstm-base" &&
-        props.model?.classifier !== "lstm-pool" &&
-        value === "embedding-lstm") ||
-      ((props.model?.classifier === "lstm-base" ||
-        props.model?.classifier === "lstm-pool") &&
-        value !== "embedding-lstm")
-    );
+    const { classifier } = model || {};
+
+    if (value === "doc2vec" && classifier === "nb") return true;
+    if (value === "embedding-lstm") {
+      if (!["lstm-base", "lstm-pool"].includes(classifier)) return true;
+    } else if (["lstm-base", "lstm-pool"].includes(classifier)) return true;
+
+    return false;
   };
 
   const returnQueryStrategyHelperText = () => {
-    if (props.model?.query_strategy === "random") {
+    if (model?.query_strategy === "random") {
       return "Your review is not accelerated by the model";
     }
-  };
-
-  const returnModelError = () => {
-    if (isFetchModelOptionsError && !isFetchModelConfigError) {
-      return fetchModelOptionsError?.message;
-    }
-    if (isFetchModelConfigError && !isFetchModelOptionsError) {
-      return fetchModelConfigError?.message;
-    }
-    if (isFetchModelOptionsError && isFetchModelConfigError) {
-      return (
-        fetchModelOptionsError?.message + " " + fetchModelConfigError?.message
-      );
-    }
-  };
-
-  const refetchModel = () => {
-    if (isFetchModelOptionsError) {
-      queryClient.resetQueries("fetchModelOptions");
-    }
-    if (isFetchModelConfigError) {
-      queryClient.resetQueries("fetchModelConfig");
-    }
-  };
-
-  const resetMutateModelConfig = () => {
-    queryClient.invalidateQueries("fetchModelConfig");
-    props.reset();
   };
 
   return (
@@ -264,157 +176,61 @@ const ModelForm = (props) => {
           </Link>
         </Typography>
       </Box>
-      {returnRequirement() && <InfoCard info={returnRequirement()} />}
+      <ModelRequirement model={model} modelOptions={modelOptions} />
       <Stack spacing={3} sx={{ mt: 3 }}>
         {(isFetchingModelOptions || isFetchingModelConfig) && (
           <Box className={classes.loading}>
             <CircularProgress />
           </Box>
         )}
-        {!isFetchModelOptionsError &&
-          !isFetchModelConfigError &&
-          !isFetchingModelOptions &&
-          !isFetchingModelConfig &&
-          isFetchedModelOptions &&
-          isFetchedModelConfig &&
-          isSuccessModelOptions &&
-          isSuccessModelConfig && (
-            <Box component="form" noValidate autoComplete="off">
-              <Stack direction="column" spacing={3}>
-                <FormControl fullWidth>
-                  <InputLabel id="feature-extraction-select-label">
-                    Feature extraction technique
-                  </InputLabel>
-                  <Select
-                    id="select-feature-extraction"
-                    name="feature_extraction"
-                    label="Feature extraction technique"
-                    value={props.model?.feature_extraction}
-                    onChange={handleModel}
-                  >
-                    {modelOptions?.feature_extraction.map((value) => {
-                      return (
-                        <MenuItem
-                          key={`result-item-${value.name}`}
-                          checked={
-                            props.model?.feature_extraction === value.name
-                          }
-                          value={value.name}
-                          disabled={disableFeatureExtractionItem(value.name)}
-                        >
-                          <SelectItem
-                            primary={value.label}
-                            secondary={value.description}
-                          />
-                        </MenuItem>
-                      );
-                    })}
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth>
-                  <InputLabel id="classifier-select-label">
-                    Classifier
-                  </InputLabel>
-                  <Select
-                    labelId="select-classifier-label"
-                    id="select-classifier"
-                    name="classifier"
-                    label="Classifier"
-                    value={props.model?.classifier}
-                    onChange={handleModel}
-                  >
-                    {modelOptions?.classifier.map((value) => {
-                      return (
-                        <MenuItem
-                          key={`result-item-${value.name}`}
-                          checked={props.model?.classifier === value.name}
-                          value={value.name}
-                          disabled={disableClassifierItem(value.name)}
-                        >
-                          <SelectItem
-                            primary={value.label}
-                            secondary={value.description}
-                          />
-                        </MenuItem>
-                      );
-                    })}
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth>
-                  <InputLabel id="query-strategy-select-label">
-                    Query strategy
-                  </InputLabel>
-                  <Select
-                    id="select-query-strategy"
-                    name="query_strategy"
-                    label="Query strategy"
-                    value={props.model?.query_strategy}
-                    onChange={handleModel}
-                  >
-                    {modelOptions?.query_strategy.map((value) => {
-                      return (
-                        <MenuItem
-                          key={`result-item-${value.name}`}
-                          checked={props.model?.query_strategy === value.name}
-                          value={value.name}
-                        >
-                          <SelectItem
-                            primary={value.label}
-                            secondary={value.description}
-                          />
-                        </MenuItem>
-                      );
-                    })}
-                  </Select>
-                  <FormHelperText>
-                    {returnQueryStrategyHelperText()}
-                  </FormHelperText>
-                </FormControl>
-                <FormControl fullWidth>
-                  <InputLabel id="balance-strategy-select-label">
-                    Balance strategy
-                  </InputLabel>
-                  <Select
-                    id="select-balance-strategy"
-                    name="balance_strategy"
-                    label="Balance strategy"
-                    value={props.model?.balance_strategy}
-                    onChange={handleModel}
-                  >
-                    {modelOptions?.balance_strategy.map((value) => {
-                      return (
-                        <MenuItem
-                          key={`result-item-${value.name}`}
-                          checked={props.model?.balance_strategy === value.name}
-                          value={value.name}
-                        >
-                          <SelectItem
-                            primary={value.label}
-                            secondary={value.description}
-                          />
-                        </MenuItem>
-                      );
-                    })}
-                  </Select>
-                </FormControl>
-              </Stack>
-            </Box>
-          )}
-        {(isFetchModelOptionsError || isFetchModelConfigError) && (
-          <InlineErrorHandler
-            message={returnModelError()}
-            refetch={refetchModel}
-            button={true}
-          />
-        )}
-        {props.isMutateModelConfigError && (
-          <InlineErrorHandler
-            message={props.mutateModelConfigError?.message}
-            refetch={resetMutateModelConfig}
-            button={true}
-          />
+        {!isFetchingModelOptions && !isFetchingModelConfig && (
+          <Box component="form" noValidate autoComplete="off">
+            <Stack direction="column" spacing={3}>
+              <ModelSelect
+                name="feature_extraction"
+                label="Feature extraction technique"
+                items={modelOptions?.feature_extraction}
+                model={model}
+                handleModel={handleModel}
+                disableItem={disableFeatureExtractionItem}
+              />
+              <ModelSelect
+                name="classifier"
+                label="Classifier"
+                items={modelOptions?.classifier}
+                model={model}
+                handleModel={handleModel}
+                disableItem={disableClassifierItem}
+              />
+              <ModelSelect
+                name="query_strategy"
+                label="Query strategy"
+                items={modelOptions?.query_strategy}
+                model={model}
+                handleModel={handleModel}
+                helperText={returnQueryStrategyHelperText()}
+              />
+              <ModelSelect
+                name="balance_strategy"
+                label="Balance strategy"
+                items={modelOptions?.balance_strategy}
+                model={model}
+                handleModel={handleModel}
+              />
+            </Stack>
+          </Box>
         )}
       </Stack>
+      <CardErrorHandler
+        queryKey={"fetchModelOptions"}
+        error={fetchModelOptionsError}
+        isError={isFetchModelOptionsError}
+      />
+      <CardErrorHandler
+        queryKey={"fetchModelConfig"}
+        error={fetchModelConfigError}
+        isError={isFetchModelConfigError}
+      />
     </Root>
   );
 };

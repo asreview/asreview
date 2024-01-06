@@ -1,5 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
+import { useMutation, useQueryClient } from "react-query";
+import { connect } from "react-redux";
 import {
   Avatar,
   Box,
@@ -12,6 +14,9 @@ import { styled } from "@mui/material/styles";
 import { FileUpload } from "@mui/icons-material";
 
 import { InlineErrorHandler } from "../Components";
+
+import { ProjectAPI } from "../api/index.js";
+import { mapStateToProps } from "../globals.js";
 
 const PREFIX = "ImportFromFile";
 
@@ -65,30 +70,51 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-const ImportFromFile = ({
-  acceptFormat,
-  addFileError,
-  file,
-  setFile,
-  isAddFileError,
-  isAddingFile,
-  reset,
-}) => {
+const ImportFromFile = (props) => {
+  const queryClient = useQueryClient();
+  const [file, setFile] = React.useState(null);
+
+  const {
+    error: importProjectError,
+    isError: isImportProjectError,
+    isLoading: isImportingProject,
+    mutate: importProject,
+    reset: resetImportProject,
+  } = useMutation(ProjectAPI.mutateImportProject, {
+    mutationKey: ["importProject"],
+    onSuccess: (data) => {
+      queryClient.invalidateQueries("fetchProjects");
+      props.toggleImportProject();
+      props.setFeedbackBar({
+        open: data !== undefined,
+        message: `Your project ${data?.name} has been imported`,
+      });
+    },
+  });
+
   const onDrop = useCallback(
     (acceptedFiles) => {
       if (acceptedFiles.length !== 1) {
         console.log("No valid file provided");
         return;
+      } else {
+        setFile(acceptedFiles[0]);
       }
 
-      // set error to state
-      if (isAddFileError) {
-        reset();
+      if (isImportProjectError) {
+        resetImportProject();
       }
-      // set the state such that we ca upload the file
-      setFile(acceptedFiles[0]);
+
+      importProject({
+        file: acceptedFiles[0],
+      });
+
     },
-    [setFile, isAddFileError, reset],
+    [
+      importProject,
+      isImportProjectError,
+      resetImportProject,
+    ],
   );
 
   const {
@@ -99,10 +125,10 @@ const ImportFromFile = ({
     isDragReject,
     open,
   } = useDropzone({
-    onDrop: !isAddingFile ? onDrop : false,
+    onDrop: onDrop,
     multiple: false,
     noClick: true,
-    accept: acceptFormat,
+    accept: ".asreview",
   });
 
   const style = useMemo(
@@ -115,24 +141,16 @@ const ImportFromFile = ({
     [isDragActive, isDragReject, isDragAccept],
   );
 
-  const returnAcceptFile = () => {
-    if (acceptFormat !== ".asreview") {
-      return <Typography>Drag and drop a dataset file to add</Typography>;
-    } else {
-      return (
-        <Typography>
-          Drag and drop a project file (<code>.asreview</code>) to add
-        </Typography>
-      );
-    }
-  };
-
   return (
     <Root>
       <Box {...getRootProps({ style })}>
         <input {...getInputProps()} />
         <Stack className={classes.root} spacing={2}>
-          <ButtonBase disabled={isAddingFile} disableRipple onClick={open}>
+          <ButtonBase
+            disabled={isImportingProject}
+            disableRipple
+            onClick={open}
+          >
             <Avatar
               sx={{
                 height: "136px",
@@ -146,26 +164,29 @@ const ImportFromFile = ({
               />
             </Avatar>
           </ButtonBase>
-          {returnAcceptFile()}
+          <Typography>
+          Drag and drop a project file (<code>.asreview</code>) to add
+        </Typography>
           {file && (
             <Typography className={classes.singleLine}>
               File <i>{file?.path}</i> selected.
             </Typography>
           )}
-          {isAddingFile && acceptFormat === ".asreview" && (
+          {isImportingProject && (
             <Typography sx={{ color: "text.secondary" }}>
               Importing...
             </Typography>
           )}
-          {isAddingFile && acceptFormat !== ".asreview" && (
-            <Typography sx={{ color: "text.secondary" }}>Adding...</Typography>
-          )}
-          {isAddFileError && (
+          {isImportProjectError && (
             <InlineErrorHandler
-              message={addFileError?.message + " Please try again."}
+              message={importProjectError?.message + " Please try again."}
             />
           )}
-          <Button disabled={isAddingFile} variant="contained" onClick={open}>
+          <Button
+            disabled={isImportingProject}
+            variant="contained"
+            onClick={open}
+          >
             Select File
           </Button>
         </Stack>
@@ -174,4 +195,4 @@ const ImportFromFile = ({
   );
 };
 
-export default ImportFromFile;
+export default connect(mapStateToProps, null)(ImportFromFile);

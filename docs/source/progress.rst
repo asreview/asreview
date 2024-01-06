@@ -36,7 +36,7 @@ The summary statistics are counts of the records in your dataset.
 - Labeled records: the number of records that you labeled as relevant or irrelevant, including those you added as prior knowledge.
 - Relevant records: the number of records that you labeled as relevant, including those you added as prior knowledge.
 - Irrelevant records: the number of records that you labeled as irrelevant, including those you added as prior knowledge.
-- Irrelevant since last relevant: the number of irrelevant records you have seen since the last relevant record. 
+- Irrelevant since last relevant: the number of irrelevant records you have seen since the last relevant record.
 
 
 Charts
@@ -69,8 +69,8 @@ The plots can be exported as a figure:
 1. :doc:`start`.
 2. Open or :doc:`project_create`.
 3. Click on Analytics on in the left menu.
-4. Click on the hamburger menu next to the Progress or Recall chart. 
-5. Select *Download SVG* or *PNG* to export a figure, or select *Download CSV* to export the data behind the figure. 
+4. Click on the hamburger menu next to the Progress or Recall chart.
+5. Select *Download SVG* or *PNG* to export a figure, or select *Download CSV* to export the data behind the figure.
 
 
 Stop screening
@@ -86,15 +86,15 @@ tips on when to stop with screening.
 
   The number of *irrelevant records since last relevant* will increase the longer you screen.
 
-.. tip:: 
+.. tip::
 
-  With *Maximum* as :ref:`project_create:Query Strategy`, you will 
+  With *Maximum* as :ref:`project_create:Query Strategy`, you will
   see a decline in the number of relevant items in the plots the longer you screen. This may
-  help to decide when to 'stop screening <https://github.com/asreview/asreview/discussions/557>`_. 
+  help to decide when to 'stop screening <https://github.com/asreview/asreview/discussions/557>`_.
 
 .. tip::
 
-  The data behind the recall plot can be used to calculate the `knee-algorithm <https://github.com/asreview/asreview/discussions/1115#discussioncomment-2812003>`_ as a stopping criteria. 
+  The data behind the recall plot can be used to calculate the `knee-algorithm <https://github.com/asreview/asreview/discussions/1115>`_ as a stopping criteria.
 
 
 Mark project as finished
@@ -117,7 +117,7 @@ Export results
 
 You can export the results of your labeling to a RIS, CSV, TSV, or Excel file.
 A file contains all imported data including your decisions, or a file with a
-selection of the relevant records only. 
+selection of the relevant records only.
 
 The following variables will be added to your tabular dataset:
 
@@ -126,12 +126,18 @@ The following variables will be added to your tabular dataset:
   not seen during the screening process.
 - The column titled **asreview_ranking** contains an identifier to
   preserve the rank ordering as described below.
-- The column **Notes** contain any notes you made during screening. 
+- The column **ASReview_prior** contains a label ``1`` if a record has been
+  used to train the first iteration of the model, a label ``0`` if not used
+  for training, and empty when the record was not seen.
+- The column **asreview_label_to_validate** is added in the exploration mode and
+  contains the labels initially present in the data.
+- The column **Notes** contain any notes you made during screening.
 
-For RIS files, the labels **ASReview_relevant**, **ASReview_irrelevant**,
-and **ASReview_not_seen** are stored with the `N1` (Notes) tag. In citation
-managers. like Zotero and Endnote, the labels can be used for making
-selections.
+For RIS files, the
+labels **ASReview_relevant**, **ASReview_irrelevant**, **ASReview_not_seen**,
+and **ASReview_prior**, **ASReview_validate_relevant/irrelevant/not_seen**
+are stored with the `N1` (Notes) tag. In citation managers like Zotero and
+Endnote, the labels can be used for making selections.
 
 The file is ordered as follows:
 
@@ -158,7 +164,7 @@ To download your results follow these steps:
 
 
 Love using ASReview? On the Export screen you can get inspired how you can
-give back to our open-source and community-driven project. 
+give back to our open-source and community-driven project.
 
 .. figure:: ../images/export_screen.png
    :alt: ASReview LAB Export screen

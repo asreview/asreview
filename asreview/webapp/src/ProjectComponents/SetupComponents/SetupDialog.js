@@ -1,50 +1,36 @@
 import * as React from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useIsMutating, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import {
   Box,
   Button,
-  DialogTitle,
   DialogContent,
   DialogActions,
   Dialog,
   Fade,
-  Stack,
-  Step,
-  StepLabel,
-  Stepper,
-  Tooltip,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Close } from "@mui/icons-material";
 
 import { AppBarWithinDialog } from "../../Components";
-import { FinishSetup, SavingStateBox } from "../SetupComponents";
 import {
-  AddDataset,
-  AddPriorKnowledge,
-  DataForm,
-} from "../SetupComponents/DataComponents";
+  FinishSetup,
+  SetupDialogHeader,
+  SetupStepper,
+} from "../SetupComponents";
+import { DataForm } from "../SetupComponents/DataComponents";
 import { ModelForm } from "../SetupComponents/ModelComponents";
-import { ProjectInfoForm } from "../../ProjectComponents";
-import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
+import { InfoForm } from "../SetupComponents/InfoComponents";
+import { ScreenLanding } from "../SetupComponents/ScreenComponents";
 
 import { ProjectAPI } from "../../api/index.js";
-import {
-  mapStateToProps,
-  mapDispatchToProps,
-  projectModes,
-  projectStatuses,
-} from "../../globals.js";
-import { useToggle } from "../../hooks/useToggle";
+import { mapStateToProps, mapDispatchToProps } from "../../globals.js";
 
 const PREFIX = "SetupDialog";
 
 const classes = {
   content: `${PREFIX}-content`,
-  stepper: `${PREFIX}-stepper`,
   form: `${PREFIX}-form`,
   formWarmup: `${PREFIX}-form-warmup`,
 };
@@ -54,10 +40,6 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
     paddingLeft: 0,
     paddingRight: 0,
     overflowY: "hidden",
-  },
-
-  [`& .${classes.stepper}`]: {
-    padding: 8,
   },
 
   [`& .${classes.form}`]: {
@@ -70,422 +52,148 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   },
 
   [`& .${classes.formWarmup}`]: {
-    alignItems: "center",
+    alignItems: "flex-start",
     display: "flex",
     justifyContent: "center",
+    height: "100%",
   },
 }));
 
 const SetupDialog = (props) => {
-  const steps = ["Project information", "Data", "Model", "Warm up"];
-
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const descriptionElementRef = React.useRef(null);
+
+  // Dialog/Project title
+  const [title, setTitle] = React.useState("");
+
   const [activeStep, setActiveStep] = React.useState(0);
-
-  // State Step 1: Project information
-  const [info, setInfo] = React.useState({
-    mode: projectModes.ORACLE,
-    title: "",
-    authors: "",
-    description: "",
-    tags: [],
-    dataset_path: undefined,
-  });
-  const [disableFetchInfo, setDisableFetchInfo] = React.useState(false); // disable fetch when init a project
-  const [exTitle, setExTitle] = React.useState(""); // for comparison to decide on mutate project id
-  const [textFiledFocused, setTextFieldFocused] = React.useState(null); // for autosave on blur
-
-  // State Step 2: Data
-  const [addDataset, toggleAddDataset] = useToggle();
-  const [addPriorKnowledge, toggleAddPriorKnowledge] = useToggle();
-
-  // State Step 3: Model
-  const [model, setModel] = React.useState({
-    classifier: null,
-    query_strategy: null,
-    balance_strategy: null,
-    feature_extraction: null,
+  const [completed, setCompleted] = React.useState({
+    0: true,
+    1: false,
+    2: false,
+    3: true,
   });
 
-  // State finish setup
-  const [trainingStarted, setTrainingStarted] = React.useState(false);
-  const [trainingFinished, setTrainingFinished] = React.useState(false);
+  const [savingState, setSavingState] = React.useState(false);
+  const timerRef = React.useRef(null);
 
-  /**
-   * Step 1: Project information
-   */
-  const projectHasDataset = () => {
-    return info.dataset_path !== undefined && info.dataset_path !== null;
-  };
-
-  const handleInfoChange = (event) => {
-    if (isInitError && event.target.name === "title") {
-      resetInit();
-    }
-    if (isMutateInfoError && event.target.name === "title") {
-      resetMutateInfo();
-    }
-    if (isDeleteProjectError) {
-      resetDeleteProject();
-    }
-    if (event.target.name === "mode" && projectHasDataset()) {
-      deleteProject({ project_id: props.project_id });
-    }
-    setInfo({
-      ...info,
-      [event.target.name]: event.target.value,
-    });
-  };
-
-  const handleTagChange = (newTags) => {
-    if (isInitError) {
-      resetInit();
-    }
-    if (isMutateInfoError) {
-      resetMutateInfo();
-    }
-    if (isDeleteProjectError) {
-      resetDeleteProject();
-    }
-    setInfo({
-      ...info,
-      tags: newTags,
-    });
-  };
-
-  const {
-    error: initError,
-    isError: isInitError,
-    isLoading: isInitiatingProject,
-    isSuccess: isInitSuccess,
-    mutate: initProject,
-    reset: resetInit,
-  } = useMutation(ProjectAPI.mutateInitProject, {
-    onMutate: () => {
-      setDisableFetchInfo(true);
-    },
-    onSuccess: (data, variables) => {
-      props.setProjectId(data["id"]);
-      setTextFieldFocused(null);
-    },
-  });
-
-  const {
-    error: mutateInfoError,
-    isError: isMutateInfoError,
-    isLoading: isMutatingInfo,
-    mutate: mutateInfo,
-    reset: resetMutateInfo,
-  } = useMutation(ProjectAPI.mutateInfo, {
-    onSuccess: (data, variables) => {
-      // mutate project id when typed title is different from existing title/empty string
-      if (variables.title !== exTitle) {
-        props.setProjectId(data["id"]);
-      }
-      setTextFieldFocused(null);
-    },
-  });
-
-  const { error: fetchInfoError, isError: isFetchInfoError } = useQuery(
-    ["fetchInfo", { project_id: props.project_id }],
-    ProjectAPI.fetchInfo,
-    {
-      enabled: props.project_id !== null && props.open && !disableFetchInfo,
-      onSuccess: (data) => {
-        setInfo({
-          mode: data["mode"],
-          title: data["name"],
-          authors: data["authors"],
-          description: data["description"],
-          tags: data["tags"] || [],
-          dataset_path: data["dataset_path"],
-        });
-        setExTitle(data["name"]);
-        setDisableFetchInfo(true); // avoid getting all the time
-      },
-      refetchOnWindowFocus: false,
-    },
-  );
-
-  const {
-    error: deleteProjectError,
-    isError: isDeleteProjectError,
-    mutate: deleteProject,
-    reset: resetDeleteProject,
-  } = useMutation(ProjectAPI.mutateDeleteProject, {
-    onSuccess: () => {
-      props.setProjectId(null);
-      setTextFieldFocused(null);
-      setInfo((s) => {
-        return {
-          ...s,
-          dataset_path: undefined,
-        };
-      });
-      queryClient.resetQueries("fetchLabeledStats");
-    },
-  });
-
-  const returnInfoError = () => {
-    if (isInitError) {
-      return [isInitError, initError];
-    } else if (isMutateInfoError) {
-      return [isMutateInfoError, mutateInfoError];
-    } else {
-      return [false, null];
-    }
-  };
-
-  // auto mutate info when text field is not focused
-  React.useEffect(() => {
-    if (
-      props.open &&
-      textFiledFocused !== null &&
-      !textFiledFocused &&
-      !(info.title.length < 1) &&
-      !isInitError &&
-      !isMutateInfoError
-    ) {
-      if (!props.project_id && !isInitiatingProject) {
-        initProject({
-          mode: info.mode,
-          title: info.title,
-          authors: info.authors,
-          description: info.description,
-          tags: info.tags,
-        });
-      }
-      if (props.project_id && isInitSuccess) {
-        mutateInfo({
-          project_id: props.project_id,
-          mode: info.mode,
-          title: info.title,
-          authors: info.authors,
-          description: info.description,
-          tags: info.tags,
-        });
-      }
-    }
-  }, [
-    props.open,
-    info,
-    initProject,
-    isInitError,
-    isInitSuccess,
-    isInitiatingProject,
-    isMutateInfoError,
-    mutateInfo,
-    props.project_id,
-    textFiledFocused,
-  ]);
-
-  /**
-   * Step 2: Data
-   */
-  const {
-    data: labeledStats,
-    error: fetchLabeledStatsError,
-    isError: isFetchLabeledStatsError,
-    isFetching: isFetchingLabeledStats,
-  } = useQuery(
-    ["fetchLabeledStats", { project_id: props.project_id }],
-    ProjectAPI.fetchLabeledStats,
-    {
-      enabled:
-        props.project_id !== null && activeStep === 1 && projectHasDataset(),
-      refetchOnWindowFocus: false,
-    },
-  );
-
-  /**
-   * Step3: Model
-   */
-  const {
-    error: mutateModelConfigError,
-    isError: isMutateModelConfigError,
-    isLoading: isMutatingModelConfig,
-    isSuccess: isMutateModelConfigSuccess,
-    mutate: mutateModelConfig,
-    reset: resetMutateModelConfig,
-  } = useMutation(ProjectAPI.mutateModelConfig);
-
-  // auto mutate model selection
-  React.useEffect(() => {
-    if (
-      props.project_id &&
-      model.classifier &&
-      model.query_strategy &&
-      model.balance_strategy &&
-      model.feature_extraction
-    ) {
-      mutateModelConfig({
-        project_id: props.project_id,
-        classifier: model["classifier"],
-        query_strategy: model["query_strategy"],
-        balance_strategy: model["balance_strategy"],
-        feature_extraction: model["feature_extraction"],
-      });
-    }
-  }, [model, mutateModelConfig, props.project_id]);
-
-  /**
-   * Finish setup
-   */
-  const {
-    error: startTrainingError,
-    isError: isStartTrainingError,
-    mutate: startTraining,
-    reset: resetStartTraining,
-  } = useMutation(ProjectAPI.mutateStartTraining, {
-    onSuccess: () => {
-      setTrainingStarted(true);
-    },
-  });
-
-  const {
-    error: projectReadyError,
-    isError: isProjectReadyError,
-    isFetching: isPreparingProject,
-  } = useQuery(
-    ["fetchProjectStatus", { project_id: props.project_id }],
-    ProjectAPI.fetchProjectStatus,
-    {
-      enabled: trainingStarted,
-      onError: () => {
-        setTrainingStarted(false);
-      },
-      onSuccess: (data) => {
-        if (data["status"] !== projectStatuses.SETUP) {
-          // model ready
-          setTrainingStarted(false);
-          setTrainingFinished(true);
-        } else {
-          // not ready yet
-          setTimeout(
-            () => queryClient.invalidateQueries("fetchProjectStatus"),
-            12000,
-          );
-        }
-      },
-      refetchOnWindowFocus: false,
-      retry: false,
-    },
-  );
-
-  const restartTraining = () => {
-    resetStartTraining();
-    startTraining({ project_id: props.project_id });
-  };
+  const isMutatingInfo = useIsMutating(["mutateInfo"]);
+  const isMutatingModel = useIsMutating(["mutateModelConfig"]);
 
   /**
    * Dialog actions
    */
   const handleClose = () => {
-    if (activeStep !== 3) {
-      setTextFieldFocused(null);
-      setExTitle("");
+    if (activeStep !== 4) {
       props.onClose();
-      if (props.project_id) {
-        props.setFeedbackBar({
-          open: true,
-          message: `Your project ${info.title} has been saved as draft`,
-        });
-        queryClient.invalidateQueries("fetchProjects");
-        navigate("/projects");
-      }
     } else {
       console.log("Cannot close when training is in progress");
     }
   };
 
+  const exitingSetup = () => {
+    props.setFeedbackBar({
+      open: true,
+      message: `Your project ${title} has been saved as draft`,
+    });
+    queryClient.invalidateQueries("fetchProjects");
+    navigate("/projects");
+  };
+
   const exitedSetup = () => {
     props.setProjectId(null);
     setActiveStep(0);
-    setInfo({
-      mode: projectModes.ORACLE,
-      title: "",
-      authors: "",
-      description: "",
-      tags: [],
-      dataset_path: undefined,
-    });
-    setModel({
-      classifier: null,
-      query_strategy: null,
-      feature_extraction: null,
-    });
-    setDisableFetchInfo(false);
-    setTrainingStarted(false);
-    setTrainingFinished(false);
-    if (isInitError) {
-      resetInit();
-    }
-    if (isMutateInfoError) {
-      resetMutateInfo();
-    }
-    if (isMutateModelConfigError) {
-      resetMutateModelConfig();
-    }
-  };
-
-  const disableNextButton = () => {
-    if (activeStep === 0) {
-      return isInitError || isMutateInfoError || info.title.length < 1;
-    }
-    if (activeStep === 1) {
-      return (
-        isFetchLabeledStatsError ||
-        !labeledStats?.n_prior_inclusions ||
-        !labeledStats?.n_prior_exclusions
-      );
-    }
-    if (activeStep === 2) {
-      return (
-        !isMutateModelConfigSuccess ||
-        isMutatingModelConfig ||
-        isMutateModelConfigError
-      );
-    }
+    setCompleted({ 0: true, 1: false, 2: false, 3: true });
   };
 
   const handleNext = () => {
-    if (activeStep === 0 && !isInitError && !isMutateInfoError) {
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    }
-    if (activeStep === 1) {
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    }
-    if (activeStep === 2) {
-      startTraining({ project_id: props.project_id });
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    }
+    const newActiveStep = activeStep + 1;
+    setActiveStep(newActiveStep);
   };
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  // saving state box in step 1 & 3
-  const isSaving = () => {
-    return isInitiatingProject || isMutatingInfo || isMutatingModelConfig;
+  const handleStep = (step) => () => {
+    setActiveStep(step);
   };
 
+  const handleComplete = (value) => {
+    const newCompleted = completed;
+    newCompleted[activeStep] = value;
+    setCompleted(newCompleted);
+  };
+
+  const isStepFailed = (step) => {
+    return step === 0 && title.length < 1;
+  };
+
+  const isAllStepsCompleted = () => {
+    return Object.values(completed).every((v) => v === true);
+  };
+
+  const disableNext = () => {
+    return (
+      isStepFailed(activeStep) ||
+      !completed[activeStep] ||
+      (activeStep === 3 && !isAllStepsCompleted())
+    );
+  };
+
+  const isTitleValidated = () => {
+    return title.length > 0;
+  };
+
+  // check if model is configured
   React.useEffect(() => {
-    if (activeStep === 1 && (isInitError || isMutateInfoError)) {
-      handleBack();
+    if (props.open && props.project_id !== null) {
+      queryClient
+        .fetchQuery(
+          ["fetchModelConfig", { project_id: props.project_id }],
+          ProjectAPI.fetchModelConfig,
+        )
+        .then((data) => {
+          if (data !== null) {
+            setCompleted((c) => ({ ...c, 1: true }));
+          }
+        });
     }
-  }, [activeStep, isInitError, isMutateInfoError]);
+  }, [props.open, props.project_id, queryClient]);
+
+  // check if prior data is added
+  React.useEffect(() => {
+    if (props.open && props.project_id !== null && !props.onAddPrior) {
+      queryClient
+        .fetchQuery(
+          ["fetchLabeledStats", { project_id: props.project_id }],
+          ProjectAPI.fetchLabeledStats,
+        )
+        .then((data) => {
+          if (data.n_prior_inclusions !== 0 && data.n_prior_exclusions !== 0) {
+            setCompleted((c) => ({ ...c, 2: true }));
+          }
+        });
+    }
+  }, [props.open, props.project_id, props.onAddPrior, queryClient]);
 
   React.useEffect(() => {
-    if (props.open) {
-      const { current: descriptionElement } = descriptionElementRef;
-      if (descriptionElement !== null) {
-        descriptionElement.focus();
-      }
+    const currentSavingStatus = isMutatingInfo === 1 || isMutatingModel === 1;
+
+    // If the status changes to 'saving', immediately update the state
+    if (currentSavingStatus) {
+      setSavingState(true);
+      if (timerRef.current) clearTimeout(timerRef.current);
+    } else {
+      // If the status changes to 'not saving', delay the update by 1000ms
+      timerRef.current = setTimeout(() => setSavingState(false), 1000);
     }
-  }, [props.open]);
+
+    // Cleanup on unmount or if dependencies change
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [isMutatingInfo, isMutatingModel]);
 
   return (
     <StyledDialog
@@ -497,151 +205,81 @@ const SetupDialog = (props) => {
       PaperProps={{
         sx: { height: !props.mobileScreen ? "calc(100% - 96px)" : "100%" },
       }}
+      TransitionComponent={Fade}
       TransitionProps={{
+        onExiting: () => exitingSetup(),
         onExited: () => exitedSetup(),
       }}
     >
-      {props.mobileScreen && !addDataset && !addPriorKnowledge && (
-        <AppBarWithinDialog
-          onClickStartIcon={handleClose}
-          title="Create a new project"
-        />
+      {props.mobileScreen && (
+        <AppBarWithinDialog onClickStartIcon={handleClose} title={title} />
       )}
-      {!props.mobileScreen && !addDataset && !addPriorKnowledge && (
-        <Fade in={!addDataset}>
-          <Stack className="dialog-header" direction="row">
-            <DialogTitle>Create a new project</DialogTitle>
-            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-              {props.project_id && (activeStep === 0 || activeStep === 2) && (
-                <SavingStateBox isSaving={isSaving()} />
-              )}
-              <Stack
-                className="dialog-header-button right"
-                direction="row"
-                spacing={1}
-              >
-                {activeStep !== 3 && (
-                  <Tooltip title="Save and close">
-                    <StyledIconButton onClick={handleClose}>
-                      <Close />
-                    </StyledIconButton>
-                  </Tooltip>
-                )}
-              </Stack>
-            </Stack>
-          </Stack>
-        </Fade>
-      )}
-      {!addDataset && !addPriorKnowledge && (
-        <Fade in={!addDataset}>
-          <DialogContent className={classes.content} dividers>
-            <Box className={classes.stepper}>
-              <Stepper alternativeLabel activeStep={activeStep}>
-                {steps.map((label, index) => (
-                  <Step key={label}>
-                    <StepLabel>{label}</StepLabel>
-                  </Step>
-                ))}
-              </Stepper>
-            </Box>
-            <Box
-              className={clsx({
-                [classes.form]: true,
-                [classes.formWarmup]: activeStep === 3,
-              })}
-            >
-              {activeStep === 0 && (
-                <ProjectInfoForm
-                  info={info}
-                  deleteProjectError={deleteProjectError}
-                  mutateInfoError={returnInfoError()[1]}
-                  isDeleteProjectError={isDeleteProjectError}
-                  isMutateInfoError={returnInfoError()[0]}
-                  handleInfoChange={handleInfoChange}
-                  handleTagChange={handleTagChange}
-                  datasetAdded={projectHasDataset()}
-                  setTextFieldFocused={setTextFieldFocused}
-                />
-              )}
-              {activeStep === 1 && (
-                <DataForm
-                  datasetAdded={projectHasDataset()}
-                  labeledStats={labeledStats}
-                  toggleAddDataset={toggleAddDataset}
-                  toggleAddPriorKnowledge={toggleAddPriorKnowledge}
-                  fetchInfoError={fetchInfoError}
-                  fetchLabeledStatsError={fetchLabeledStatsError}
-                  isFetchInfoError={isFetchInfoError}
-                  isFetchLabeledStatsError={isFetchLabeledStatsError}
-                  isFetchingLabeledStats={isFetchingLabeledStats}
-                />
-              )}
-              {activeStep === 2 && (
-                <ModelForm
-                  model={model}
-                  setModel={setModel}
-                  isMutateModelConfigError={isMutateModelConfigError}
-                  mutateModelConfigError={mutateModelConfigError}
-                  reset={resetMutateModelConfig}
-                />
-              )}
-              {activeStep === 3 && (
-                <FinishSetup
-                  handleBack={handleBack}
-                  isPreparingProject={isPreparingProject}
-                  isProjectReadyError={isProjectReadyError}
-                  isStartTrainingError={isStartTrainingError}
-                  mode={info.mode}
-                  projectReadyError={projectReadyError}
-                  restartTraining={restartTraining}
-                  startTrainingError={startTrainingError}
-                  trainingFinished={trainingFinished}
-                  toggleProjectSetup={props.onClose}
-                />
-              )}
-            </Box>
-          </DialogContent>
-        </Fade>
-      )}
-
-      {addDataset && (
-        <AddDataset
-          datasetAdded={projectHasDataset()}
+      {!props.mobileScreen && (
+        <SetupDialogHeader
+          activeStep={activeStep}
+          handleClose={handleClose}
+          isTitleValidated={isTitleValidated}
           mobileScreen={props.mobileScreen}
-          mode={info["mode"]}
-          setDisableFetchInfo={setDisableFetchInfo}
-          toggleAddDataset={toggleAddDataset}
+          savingState={savingState}
         />
       )}
-
-      {addPriorKnowledge && (
-        <AddPriorKnowledge
-          mobileScreen={props.mobileScreen}
-          mode={info["mode"]}
-          n_prior={labeledStats?.n_prior}
-          n_prior_exclusions={labeledStats?.n_prior_exclusions}
-          n_prior_inclusions={labeledStats?.n_prior_inclusions}
-          toggleAddPriorKnowledge={toggleAddPriorKnowledge}
-        />
-      )}
-      {!addDataset && !addPriorKnowledge && activeStep !== 3 && (
-        <Fade in={!addDataset}>
-          <DialogActions>
-            {activeStep !== 0 && (
-              <Button disabled={activeStep === 0} onClick={handleBack}>
-                Back
-              </Button>
-            )}
-            <Button
-              id="next"
-              disabled={disableNextButton()}
-              variant="contained"
-              onClick={handleNext}
-            >
-              {activeStep === steps.length - 1 ? "Finish" : "Next"}
+      <DialogContent className={classes.content} dividers>
+        {activeStep !== 4 && (
+          <SetupStepper
+            activeStep={activeStep}
+            handleStep={handleStep}
+            completed={completed}
+            isStepFailed={isStepFailed}
+          />
+        )}
+        <Box
+          className={clsx({
+            [classes.form]: true,
+            [classes.formWarmup]: activeStep === 4,
+          })}
+        >
+          {activeStep === 0 && (
+            <InfoForm
+              handleComplete={handleComplete}
+              setTitle={setTitle}
+              isTitleValidated={isTitleValidated()}
+              toggleImportDataset={props.toggleImportDataset}
+            />
+          )}
+          {activeStep === 1 && <ModelForm handleComplete={handleComplete} />}
+          {activeStep === 2 && (
+            <DataForm
+              handleComplete={handleComplete}
+              toggleAddPrior={props.toggleAddPrior}
+            />
+          )}
+          {activeStep === 3 && (
+            <ScreenLanding handleComplete={handleComplete} />
+          )}
+          {activeStep === 4 && (
+            <FinishSetup
+              handleBack={handleBack}
+              toggleProjectSetup={props.onClose}
+            />
+          )}
+        </Box>
+      </DialogContent>
+      {activeStep !== 4 && (
+        <DialogActions>
+          {activeStep !== 0 && (
+            <Button disabled={activeStep === 0} onClick={handleBack}>
+              Back
             </Button>
-          </DialogActions>
-        </Fade>
+          )}
+          <Button
+            id="next"
+            disabled={disableNext()}
+            variant="contained"
+            onClick={handleNext}
+          >
+            {activeStep === 3 ? "Finish" : "Next"}
+          </Button>
+        </DialogActions>
       )}
     </StyledDialog>
   );

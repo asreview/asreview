@@ -28,7 +28,8 @@ def check_and_update_version(current_version, new_version, state):
             current_version += 1
         except KeyError:
             raise KeyError(
-                f"Migration script from version {current_version} to {current_version + 1} doesn't exist"
+                f"Migration script from version {current_version} "
+                f"to {current_version + 1} doesn't exist"
             )
 
     return current_version

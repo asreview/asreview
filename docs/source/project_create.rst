@@ -5,7 +5,7 @@ Create a project
 To start reviewing a dataset with ASReview LAB, you first need to create a
 project. The project will contain your dataset, settings, labeling decisions,
 and machine learning models. You can choose from three different project
-types: Oracle, Exploration, and Simulation. The project setup consists of
+types: Oracle, Validation, and Simulation. The project setup consists of
 4 steps: Project information, Data, Model, and Warm up. The sections below
 explain each of the steps of the setup.
 
@@ -26,17 +26,16 @@ more information on the input fields. After you complete this step, click
 Project modes
 -------------
 
-In this step, you have to select a mode. The default is **Oracle**. Oracle mode
-is used to screen an unlabeled dataset with the help of AI (it's fine if you
-already have labels, these will used as prior knowledge). The other
-two modes, Simulation and Exploration, require fully labeled datasets. They
-are useful for teaching purposes or studying the performance of active
-learning in a simulation study.
+In this step, you have to select a mode. The default is **Oracle**. For a
+description of all modi, see :ref:`data_labeled:Fully, partially, and unlabeled data`.
+In short, if you want to:
 
-In short:
+- screen a dataset from scratch -> Oracle mode with unlabeled data;
+- continue screening, for example using a different model -> Oracle mode with partly labeled data;
+- validate labels provided by a another screener or predicted by a Large Language Model (e.g., ChatGPT) -> Validation mode with partly or fully labeled data;
+- learn how the software with active learning works -> Validation mode with fully labeled data;
+- mimic the screening process in a simulation study -> Simulation mode with fully labeled data.
 
-- You have an Unlabeled, or :ref:`data_labeled:Partially labeled data` -> Oracle
-- You have a :ref:`data_labeled:Fully labeled data` -> Simulation or Exploration.
 
 .. figure:: ../images/setup_project_modes.png
    :alt: Project modes
@@ -50,37 +49,46 @@ example, the name of the screener), and a description. You can edit these
 values later in the *Details* page.
 
 
-Data
-====
+Data and Prior Knowledge
+========================
 
 In Step 2, you import a dataset and select prior knowledge.
 
-Add Dataset
+Add dataset
 -----------
 
 Click on *Add* to select a dataset. The data needs to adhere to a
-:doc:`specific format <data>`.
-
-Depending on the :ref:`Project mode <project_create:Project modes>`, you are
-offered the following options for adding a dataset. Keep in mind that in Oracle
-mode, your dataset is unlabeled or :ref:`data_labeled:Partially labeled data`. For Exploration and Simulation mode, you need :ref:`data_labeled:Fully labeled
-data`.
+:doc:`specific format <data>`. Keep in mind that in
+Oracle mode, your dataset is unlabeled or :ref:`data_labeled:Partially
+labeled data`; in Validation mode :ref:`data_labeled:Partially labeled data` or
+fully labeled; and for Simulation mode, you need :ref:`data_labeled:Fully
+labeled data`.
 
 .. tip::
 
     You will benefit most from what active learning has to offer with :ref:`data:High-quality data`.
 
+Depending on the :ref:`Project mode <project_create:Project modes>`, you are
+offered different options for adding a dataset:
 
 From File
 ~~~~~~~~~
 
 Drag and drop your file or select your file. Click on *Save* on the top right.
 
+.. note::
+    After adding your dataset, ASReview LAB shows the approximate number of duplicates.
+    This number is based on duplicate titles and abstracts and if available, on the Digital Object Identifier (`DOI <https://www.doi.org/>`_).
+    Removing duplicates can be done via `ASReview Datatools <https://github.com/asreview/asreview-datatools>`_,
+    which also allows using a persistent identifier (PID) other than DOI for
+    identifying and removing duplicates.
+
+
 From URL or DOI
 ~~~~~~~~~~~~~~~
 
 Insert a URL to a dataset. For example, use a URL from this
-`dataset repository <https://github.com/asreview/systematic-review-datasets>`__.
+`dataset repository <https://github.com/asreview/synergy-dataset>`__.
 It is also possible to provide a DOI to a data repository (supported for many
 data repositories via `Datahugger <https://github.com/J535D165/datahugger>`__).
 In a DOI points to multiple files, select the file you want to use (e.g.
@@ -91,29 +99,19 @@ Click on *Add* to add the dataset.
 From Extension
 ~~~~~~~~~~~~~~
 
-Oracle and Exploration only. Select a file available via an extension. Click
+Select a file available via an extension (Oracle and Validation only). Click
 on *Save* on the top right.
 
 Benchmark Datasets
 ~~~~~~~~~~~~~~~~~~
 
-For Simulation and Exploration only. Select one of the
-:ref:`data_labeled:benchmark datasets`. Click
+Select one of the
+:ref:`data_labeled:benchmark datasets` (Simulation and Validation only). Click
 on *Save* on the top right.
 
-.. note::
-    After adding your dataset, ASReview LAB shows the approximate number of duplicates.
-    This number is based on duplicate titles and abstracts and if available, on the Digital Object Identifier (`DOI <https://www.doi.org/>`_).
-    Removing duplicates can be done via `ASReview Datatools <https://github.com/asreview/asreview-datatools>`_,
-    which also allows using a persistent identifier (PID) other than DOI for
-    identifying and removing duplicates.
 
-
-Select Prior Knowledge
-----------------------
-
-.. note::
-  If you use :ref:`data_labeled:Partially labeled data` you can skip this step. 
+Prior Knowledge
+---------------
 
 The first iteration of the active learning cycle requires training data,
 referred to as prior knowledge. This knowledge is used by the classifier to
@@ -121,17 +119,20 @@ create an initial ranking of the unseen records. In this step, you need to
 provide a minimum training data set of size two, with **at least** one
 relevant and one irrelevant labeled record.
 
-To facilitate prior selection, it is possible to search within your dataset.
-This is especially useful for finding records that are relevant based on
-previous studies or expert consensus. 
+.. note::
+  If you use :ref:`data_labeled:Partially labeled data` in the Oracle mode, you can skip this step, because the labels available in the dataset are used for training the first iteration of the model.
 
-You can also let ASReview LAB present you with random documents. This can be
+To facilitate prior selection, it is possible to search within your dataset, or .
+This is especially useful for finding records that are relevant based on
+previous studies or expert consensus.
+
+You can also let ASReview LAB present you with random records. This can be
 useful for finding irrelevant records.
 
 The interface works as follows; on the left, you will see methods to find
 records to use as prior knowledge, on the right, you will see your selected
 prior knowledge. If you have **at least** one relevant and one irrelevant
-record, you can click *Close* and go to the next step. 
+record, you can click *Close* and go to the next step.
 
 .. figure:: ../images/setup_prior.png
    :alt: ASReview prior knowledge selector
@@ -158,9 +159,18 @@ use as training data.
 
 The prior knowledge will now show up on the right. There are no restrictions
 on the number of records and the software already works with 2 labels (1
-relevant and 1 irrelevant). 
+relevant and 1 irrelevant).
 
-If you are done searching prior knowledge, click *Close*.
+The prior knowledge will now show up on the right. Use the buttons to see all
+prior knowledge or a subset. You can also change the label or remove the
+record from the training set. There are no restrictions on the number of
+records you provide, and the software already works with 2 labeled records
+(1 relevant and 1 irrelevant). After labeling five randomly selected records,
+ASReview LAB will ask you whether you want to stop searching prior knowledge.
+Click on *STOP* and click *Next*.
+
+Inspect the records to be used for training the first iteration of the model,
+and if you are done, click *Close*.
 
 .. figure:: ../images/setup_prior_search_1rel.png
    :alt: ASReview prior knowledge search 1 relevant
@@ -183,16 +193,13 @@ irrelevant (or relevant).
 .. figure:: ../images/setup_prior_random_1rel.png
    :alt: ASReview prior knowledge random
 
-The prior knowledge will now show up on the right. Use the buttons to see all
-prior knowledge or irrelevant items. There are no restrictions on the number
-of records you provide, and the software already works with 2 labeled
-records (1 relevant and 1 irrelevant). 
+In the Validation mode when selecting random records, one can choose random
+records from the subset of initially labeled relevant, irrelevant or not seen
+records. The initial labels are displayed via a color-coded bar above each
+record.
 
-After labeling five randomly selected records, ASReview LAB will ask you
-whether you want to stop searching prior knowledge. Click on *STOP* and
-click *Next*.
-
-If you are done, click *Close*.
+.. figure:: ../images/setup_prior_knowledge_random_validate.png
+   :alt: ASReview prior knowledge selector
 
 Model
 =====
@@ -200,13 +207,13 @@ Model
 In the next step of the setup, you can select the active learning model. The
 default settings (Naïve Bayes, TF-IDF, Max) have fast and excellent
 performance. Most users can skip this step and click *Next*. More information
-about the active learning process can be found in the blog post `Active learning explained <https://asreview.nl/blog/active-learning-explained/>`_, 
+about the active learning process can be found in the blog post `Active learning explained <https://asreview.nl/blog/active-learning-explained/>`_,
 
 Select model
 ------------
 
 It is possible to change the settings of the Active learning model. There are
-four settings that can be changed in the software: 
+four settings that can be changed in the software:
 
 
 Feature extraction
@@ -222,7 +229,7 @@ package. Before starting ASReview LAB, first, install *gensim*:
 
 .. code:: bash
 
-    pip install gensim
+    pip install asreview[gensim]
 
 .. note::
 
@@ -233,7 +240,7 @@ package. Before starting ASReview LAB, first, install *gensim*:
 
 Several other feature extractors are available in the software (sentence Bert,
 embedding IDF/LSTM) and more classifiers can be selected via the :doc:`API
-<reference>`, or added via an :ref:`extensions_dev:model extensions`. 
+<reference>`, or added via an :ref:`extensions_dev:model extensions`.
 
 Classifier
 ~~~~~~~~~~
@@ -243,13 +250,13 @@ scores. The default is Naive Bayes. Though relatively simplistic, it seems to
 work quite well on a wide range of datasets. Several other classifiers are
 available in the software (logistic regression, random forest, SVM, LSTM,
 neural net) and more classifiers can be selected via the :doc:`API
-<reference>` or added via an :ref:`extensions_dev:model extensions`. 
+<reference>` or added via an :ref:`extensions_dev:model extensions`.
 
 The neural nets require `tensorflow <https://www.tensorflow.org/>`_, use
 
 .. code:: bash
 
-    pip install tensorflow
+    pip install asreview[tensorflow]
 
 
 Balancing Strategy
@@ -286,7 +293,7 @@ extensions`.
 .. warning::
   Selecting *random* means your review will not be accelerated by using ASReview.
 
-Model switching 
+Model switching
 ~~~~~~~~~~~~~~~
 
 During the screening phase, it is not possible to change the model. However,

@@ -1,4 +1,5 @@
 import * as React from "react";
+
 import { Box, Divider, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -28,7 +29,7 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function PriorLabeled(props) {
+const PriorLabeled = (props) => {
   const [label, setLabel] = React.useState("relevant");
 
   return (
@@ -42,18 +43,18 @@ export default function PriorLabeled(props) {
       >
         <LabelChip
           label={label}
-          setLabel={setLabel}
-          mobileScreen={props.mobileScreen}
           n_prior_exclusions={props.n_prior_exclusions}
           n_prior_inclusions={props.n_prior_inclusions}
+          setLabel={setLabel}
+          mobileScreen={props.mobileScreen}
         />
         <Divider />
         <LabeledRecord
           label={label}
-          is_prior={true}
           n_prior={props.n_prior}
           n_prior_exclusions={props.n_prior_exclusions}
           n_prior_inclusions={props.n_prior_inclusions}
+          is_prior={true}
         />
         {((label === "relevant" && props.n_prior_inclusions === 0) ||
           (label === "irrelevant" && props.n_prior_exclusions === 0)) && (
@@ -73,4 +74,6 @@ export default function PriorLabeled(props) {
       </Box>
     </Root>
   );
-}
+};
+
+export default PriorLabeled;

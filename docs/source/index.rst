@@ -70,6 +70,14 @@ feature requests, please submit an issue on `GitHub
 
 .. toctree::
     :maxdepth: 1
+    :caption: ASReview LAB server
+
+    server_overview
+
+    server_configuration
+
+.. toctree::
+    :maxdepth: 1
     :caption: Development
 
     overview_development

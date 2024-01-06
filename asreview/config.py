@@ -299,7 +299,7 @@ SCHEMA = {
         },
         "tags": {
             "$id": "#/properties/tags",
-            "type": "array",
+            "type": ["array", "null"],
             "title": "The tags schema",
             "description": "The list of tags to show during review.",
             "default": [],

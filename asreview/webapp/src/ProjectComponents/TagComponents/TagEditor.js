@@ -1,4 +1,5 @@
 import React from "react";
+
 import {
   Accordion,
   AccordionDetails,
@@ -15,6 +16,8 @@ import {
   DialogTitle,
 } from "@mui/material";
 
+import { useMutation, useQuery } from "react-query";
+import { ProjectAPI } from "../../api/index.js";
 
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
@@ -50,7 +53,7 @@ const Tag = (props) => {
 
 function nameToId(name) {
   // Generate a suggested ID based on name
-  // since Ids may be used later in data analysis code we suggest simple ascii 
+  // since Ids may be used later in data analysis code we suggest simple ascii
   // with no spaces but this is not required
   return name.toLowerCase().replaceAll(/\s+/g, "_").replaceAll(/[^a-z0-9_]/g, "")
 }
@@ -151,7 +154,7 @@ const AddCategoryDialog = (props) => {
   const addClicked = () => {
     let values = tags.filter((t) => t.id !== "" && t.name !== "")
     values = values.map((t) => {return {id: t.id, name: t.name}});
-    props.handleAdd(id, name, values);      
+    props.handleAdd(id, name, values);
     props.handleClose();
     reset();
   };
@@ -206,7 +209,7 @@ const AddCategoryDialog = (props) => {
               label="Name"
               value={name}
               onChange={(event) => {
-                  setName(event.target.value); 
+                  setName(event.target.value);
                   if(!idEdited) {
                     setId(nameToId(event.target.value))
                   }
@@ -228,7 +231,7 @@ const AddCategoryDialog = (props) => {
         </Stack>
         <Stack spacing={3}>
           <TypographySubtitle1Medium>Tags</TypographySubtitle1Medium>
-          {tags.map((t, index) => 
+          {tags.map((t, index) =>
             <Stack direction="row" spacing={3} key={index}>
             <TextField
               fullWidth
@@ -246,7 +249,7 @@ const AddCategoryDialog = (props) => {
             />
           </Stack>
         )}
-          
+
         </Stack>
         <Stack
           direction="row"
@@ -255,7 +258,7 @@ const AddCategoryDialog = (props) => {
           spacing={2}>
           <Button aria-label="add tag" onClick={addTag}>Add Tag</Button>
         </Stack>
-        
+
         <Typography variant="body2" sx={{ color: "text.secondary" }}>Ids must be unique and can't be changed after creating the category.</Typography>
       </DialogContent>
       <DialogActions>
@@ -367,21 +370,56 @@ const Category = (props) => {
 
 const TagEditor = (props) => {
   const [categoryDialogOpen, setCategoryDialogOpen] = React.useState(false);
+  const [tags, setTags] = React.useState([]);
 
-  let tags = props.tags;
+  /**
+   * Fetch project info
+   */
+  useQuery(
+      ["fetchInfo", { project_id: props.project_id }],
+      ProjectAPI.fetchInfo,
+      {
+      onSuccess: (data) => {
+          setTags((data["tags"] === undefined || data["tags"] === null) ? [] : data["tags"]);
+      },
+      refetchOnWindowFocus: false,
+      },
+  );
+
+
+  /**
+   * Mutate project info
+   */
+  const {
+    isLoading: isMutatingInfo,
+    mutate,
+  } = useMutation(ProjectAPI.mutateInfo, {
+    mutationKey: ["mutateInfo"],
+    onError: () => {
+      // handle the error
+    },
+    onSuccess: (data) => {
+      setTags((data["tags"] === undefined || data["tags"] === null) ? [] : data["tags"]);
+    },
+  });
 
   const editTagCategory = (id, updatedCategory) => {
-    const updatedCategoryIndex = props.tags.findIndex((el) => el.id === id);
+    const updatedCategoryIndex = tags.findIndex((el) => el.id === id);
     if (updatedCategoryIndex >= 0) {
-      props.handleTagChange([
-        ...props.tags.slice(0, updatedCategoryIndex),
+      mutate({tags: [
+        ...tags.slice(0, updatedCategoryIndex),
         updatedCategory,
-        ...props.tags.slice(updatedCategoryIndex + 1),
-      ]);
+        ...tags.slice(updatedCategoryIndex + 1),
+      ],
+      project_id: props.project_id});
     }
   };
   const addTagCategory = (id, name, values) => {
-    props.handleTagChange([...tags, { name: name, values: values, id: id }]);
+    mutate({
+      // add new category to tags
+      tags: [...tags, { name: name, values: values, id: id }],
+      project_id: props.project_id,
+    });
   };
 
   return (
@@ -406,7 +444,7 @@ const TagEditor = (props) => {
           handleClose={() => setCategoryDialogOpen(false)}
           handleAdd={addTagCategory}
           handleAddTags={editTagCategory}
-          categories={props.tags}
+          categories={tags}
         />
         {tags.map((c) => (
           <Category
@@ -418,7 +456,7 @@ const TagEditor = (props) => {
         ))}
       </AccordionDetails>
       <AccordionActions>
-        <Button onClick={() => setCategoryDialogOpen(true)}>
+        <Button onClick={() => setCategoryDialogOpen(true)} disabled={isMutatingInfo}>
           Add Category
         </Button>
       </AccordionActions>
