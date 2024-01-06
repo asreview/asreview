@@ -18,10 +18,10 @@ import shutil
 import subprocess
 import tempfile
 import time
+from itertools import chain
 from pathlib import Path
 from urllib.request import urlretrieve
 from uuid import uuid4
-from itertools import chain
 
 import datahugger
 import numpy as np
@@ -63,12 +63,12 @@ from asreview.project import open_state
 from asreview.search import SearchError
 from asreview.search import fuzzy_find
 from asreview.settings import ASReviewSettings
-from asreview.state.custom_metadata_mapper import extract_tags, get_tag_composite_id
+from asreview.state.custom_metadata_mapper import extract_tags
+from asreview.state.custom_metadata_mapper import get_tag_composite_id
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.sql_converter import upgrade_project_config
-from asreview.state.custom_metadata_mapper import extract_tags
 from asreview.utils import _entry_points
 from asreview.utils import _get_executable
 from asreview.utils import _get_filename_from_url
@@ -273,17 +273,12 @@ def api_get_project_info(project):  # noqa: F401
 def api_update_project_info(project):  # noqa: F401
     """Update project info"""
 
-    if request.form.get("tags", None):
-        tags = json.loads(request.form.get("tags", type=str))
-    else:
-        tags = None
+    update_dict = request.form.to_dict()
 
-    project.update_config(
-        name=request.form["name"],
-        description=request.form["description"],
-        authors=request.form["authors"],
-        tags=tags,
-    )
+    if "tags" in update_dict:
+        update_dict["tags"] = json.loads(update_dict["tags"])
+
+    project.update_config(**update_dict)
 
     return api_get_project_info(project.project_id)
 
@@ -1147,7 +1142,8 @@ def _add_tags_to_export_data(project, export_data, state_df):
     tags_config = project.config.get("tags")
 
     if tags_config is not None:
-        all_tags = [[get_tag_composite_id(group["id"], tag["id"]) for tag in group["values"]] for group in tags_config]
+        all_tags = [[get_tag_composite_id(group["id"], tag["id"])
+                     for tag in group["values"]] for group in tags_config]
         all_tags = list(chain.from_iterable(all_tags))
         used_tags = set(tags_df["tags"].explode().unique())
         unused_tags = [tag for tag in all_tags if tag not in used_tags]

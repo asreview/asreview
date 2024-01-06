@@ -24,6 +24,7 @@ import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
 import { ProjectAPI } from "../../api/index.js";
 import { projectModes, projectStatuses } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
+import { TagEditor } from "../TagComponents";
 
 const Root = styled("div")(({ theme }) => ({}));
 
@@ -218,6 +219,12 @@ const DetailsPage = (props) => {
                   setInfo={setInfo}
                   setDisableSaveButton={setDisableSaveButton}
                   setDisableUndoButton={setDisableUndoButton}
+                />
+                <TagEditor
+                  project_id={project_id}
+                // mobileScreen={props.mobileScreen}
+                // onFocus={onFocus}
+                // onBlur={onBlur}
                 />
               </Grid>
               <Grid item xs={12} sm={4}>
