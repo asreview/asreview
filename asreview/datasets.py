@@ -756,12 +756,11 @@ class BenchmarkDataGroup(BaseDataGroup):
     description = "DEPRECATED: Datasets available in the online benchmark platform"
 
     def __init__(self):
-
         warnings.warn(
             "The use of 'benchmark' datasets is deprecated, "
             "use SYNERGY dataset instead. For more information, see "
             "https://github.com/asreview/synergy-dataset.",
-            category=UserWarning
+            category=UserWarning,
         )
 
         meta_file = "https://raw.githubusercontent.com/asreview/systematic-review-datasets/master/index_v1.json"  # noqa

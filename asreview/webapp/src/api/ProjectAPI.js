@@ -95,7 +95,7 @@ class ProjectAPI {
       body.set("description", variables.description);
     }
 
-    if (variables.tags !== undefined){
+    if (variables.tags !== undefined) {
       body.set("tags", JSON.stringify(variables.tags));
     }
 
@@ -550,9 +550,9 @@ class ProjectAPI {
     body.set("label", variables.label);
     body.set("note", variables.note);
 
-    const tagValues = variables.tagValues
+    const tagValues = variables.tagValues;
     if (tagValues) {
-      if (typeof tagValues === 'object') {
+      if (typeof tagValues === "object") {
         body.set("tags", JSON.stringify(Object.keys(tagValues)));
       } else if (Array.isArray(tagValues)) {
         body.set("tags", JSON.stringify(tagValues));

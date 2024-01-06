@@ -93,8 +93,8 @@ const LabeledRecordCard = (props) => {
                         value.id !== variables.doc_id
                           ? value.note
                           : !variables.note
-                          ? null
-                          : variables.note,
+                            ? null
+                            : variables.note,
                     };
                   }),
                 };
@@ -243,10 +243,10 @@ const LabeledRecordCard = (props) => {
                         ? disableConvertPrior(value.prior)
                           ? "Prior knowledge cannot be converted"
                           : note.editing !== value.id
-                          ? value.included === 1
-                            ? "Convert to irrelevant"
-                            : "Convert to relevant"
-                          : "Save note before converting"
+                            ? value.included === 1
+                              ? "Convert to irrelevant"
+                              : "Convert to relevant"
+                            : "Save note before converting"
                         : "Cannot be converted in simulation mode"
                     }
                   >

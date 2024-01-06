@@ -55,7 +55,7 @@ def import_2_unauthenticated_projects(with_upgrade=True):
         tests_folder,
         "asreview-project-file-archive",
         "v0.18",
-        "asreview-project-v0-18-startreview.asreview"
+        "asreview-project-v0-18-startreview.asreview",
     )
 
     proj1 = ASReviewProject.load(
@@ -66,7 +66,7 @@ def import_2_unauthenticated_projects(with_upgrade=True):
         tests_folder,
         "asreview-project-file-archive",
         "v0.19",
-        "asreview-project-v0-19-startreview.asreview"
+        "asreview-project-v0-19-startreview.asreview",
     )
 
     proj2 = ASReviewProject.load(

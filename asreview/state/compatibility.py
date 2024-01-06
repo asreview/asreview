@@ -11,7 +11,6 @@ def _alter_tag_column(state):
 
 
 def check_and_update_version(current_version, new_version, state):
-
     if current_version == new_version:
         return current_version
 

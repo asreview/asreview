@@ -73,7 +73,6 @@ def test_create_projects_with_incorrect_tags(setup):
     with pytest.raises(
         ValidationError, match=r".*Failed validating .*type.* in schema.*"
     ):
-
         # request
         status_code, data = au.update_project(
             client,

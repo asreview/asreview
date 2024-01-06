@@ -40,11 +40,13 @@ bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 
 def _has_email_configuration(app):
-    return all([
-        app.config.get("MAIL_SERVER", False),
-        app.config.get("MAIL_USERNAME", False),
-        app.config.get("MAIL_PASSWORD", False)
-    ])
+    return all(
+        [
+            app.config.get("MAIL_SERVER", False),
+            app.config.get("MAIL_USERNAME", False),
+            app.config.get("MAIL_PASSWORD", False),
+        ]
+    )
 
 
 def perform_login_user(user):
@@ -73,10 +75,7 @@ def send_forgot_password_email(user, request, cur_app):
         with open(root_path / "templates" / "emails" / "forgot_password.txt", "r") as f:
             txt_text = render_template_string(f.read(), name=name, url=url)
         # create message
-        msg = Message(
-            "ASReview: forgot password",
-            recipients=[user.email]
-        )
+        msg = Message("ASReview: forgot password", recipients=[user.email])
         msg.body = txt_text
         msg.html = html_text
         return mailer.send(msg)
@@ -103,10 +102,7 @@ def send_confirm_account_email(user, request, cur_app):
         with open(root_path / "templates" / "emails" / "confirm_account.txt", "r") as f:
             txt_text = render_template_string(f.read(), name=name, url=url)
         # create message
-        msg = Message(
-            "ASReview: please confirm your account",
-            recipients=[user.email]
-        )
+        msg = Message("ASReview: please confirm your account", recipients=[user.email])
         msg.body = txt_text
         msg.html = html_text
         return mailer.send(msg)
@@ -143,13 +139,13 @@ def signin():
                         "logged_in": True,
                         "name": user.get_name(),
                         "id": user.id,
-                        "message": f"User {user.identifier} is logged in."
+                        "message": f"User {user.identifier} is logged in.",
                     },
                 )
             else:
                 result = (
                     404,
-                    {"message": "Unable to login user with verified password."}
+                    {"message": "Unable to login user with verified password."},
                 )
         else:
             # password is wrong
@@ -277,7 +273,7 @@ def confirm_account():
                 DB.session.rollback()
                 result = (
                     403,
-                    f"Unable to to confirm user {user.identifier}! Reason: {str(e)}"
+                    f"Unable to to confirm user {user.identifier}! Reason: {str(e)}",
                 )
     else:
         result = (400, "The app is not configured to verify accounts.")
@@ -355,7 +351,6 @@ def forgot_password():
 def reset_password():
     """Resests password of user"""
     if _has_email_configuration(current_app):
-
         new_password = request.form.get("password", "").strip()
         token = request.form.get("token", "").strip()
         user_id = request.form.get("user_id", "0").strip()
@@ -364,12 +359,12 @@ def reset_password():
         if not user:
             result = (
                 404,
-                "User not found, try restarting the forgot-password procedure."
+                "User not found, try restarting the forgot-password procedure.",
             )
         elif not user.token_valid(token, max_hours=24):
             result = (
                 404,
-                "Token is invalid or too old, restart the forgot-password procedure."
+                "Token is invalid or too old, restart the forgot-password procedure.",
             )
         else:
             try:
@@ -404,8 +399,9 @@ def update_profile():
         public = bool(int(request.form.get("public", "1")))
 
         try:
-            user = user.update_profile(email, name, affiliation,
-                                       old_password, new_password, public)
+            user = user.update_profile(
+                email, name, affiliation, old_password, new_password, public
+            )
             DB.session.commit()
             result = (200, "User profile updated.")
         except ValueError as e:
@@ -499,8 +495,10 @@ def oauth_callback():
                 created_account = True
             except IntegrityError:
                 DB.session.rollback()
-                message = "OAuth: integrity error, verify if you " + \
-                    "already have created an account!"
+                message = (
+                    "OAuth: integrity error, verify if you "
+                    + "already have created an account!"
+                )
                 # return this immediately
                 return jsonify({"message": message}), 409
             except SQLAlchemyError:

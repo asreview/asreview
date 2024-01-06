@@ -5,7 +5,12 @@ import { styled } from "@mui/material/styles";
 import { StyledStepIcon } from "../../StyledComponents/StyledStepIcon";
 import { StepIcon } from "@mui/material";
 
-const steps = ["Project information", "Model", "Review criteria", "Screen options"];
+const steps = [
+  "Project information",
+  "Model",
+  "Review criteria",
+  "Screen options",
+];
 
 const PREFIX = "SetupStepper";
 

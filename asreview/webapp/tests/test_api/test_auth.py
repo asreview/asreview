@@ -54,8 +54,15 @@ def test_successful_signup_no_confirmation(client_auth):
 
 # Test user data if we request is
 @pytest.mark.parametrize(
-    "password", ["short", "lowercapsonly", "HIGHCAPSONLY",
-                 "123456789", "short12334", "SHORT123234"]
+    "password",
+    [
+        "short",
+        "lowercapsonly",
+        "HIGHCAPSONLY",
+        "123456789",
+        "short12334",
+        "SHORT123234",
+    ],
 )
 def test_unsuccessful_signup_invalid_password(client_auth, password):
     # get user data
@@ -64,7 +71,7 @@ def test_unsuccessful_signup_invalid_password(client_auth, password):
     status_code, data = au.signup_user(client_auth, user)
     # check if we get a 400 status
     assert status_code == 400
-    expected_message = f"Password \"{password}\" does not meet requirements"
+    expected_message = f'Password "{password}" does not meet requirements'
     assert expected_message in data["message"]
 
 
@@ -525,7 +532,7 @@ def test_incorrectly_update_password_wrong_new_password(client_auth):
     # call update
     status_code, data = au.update_user(client_auth, data)
     assert status_code == 400
-    expected_message = f"Password \"{new_password}\" does not meet requirements"
+    expected_message = f'Password "{new_password}" does not meet requirements'
     assert expected_message in data["message"]
 
 

@@ -104,7 +104,7 @@ class Doc2Vec(BaseFeatureExtraction):
         dm_concat=0,
         dm=2,
         dbow_words=0,
-        **kwargs
+        **kwargs,
     ):
         """Initialize the doc2vec model."""
         super(Doc2Vec, self).__init__(*args, **kwargs)

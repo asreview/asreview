@@ -10,7 +10,7 @@ const axiosErrorHandler = (error) => {
       api_error["message"] = "Whoops, something went wrong.";
     }
   } else if (error.request) {
-    console.log(error.request)
+    console.log(error.request);
     api_error["message"] = "Error, no response received.";
   } else {
     api_error["message"] = "Unexpected error.";

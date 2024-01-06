@@ -218,11 +218,7 @@ def api_list_data_readers():
     """Get the list of available data readers and read formats."""
     payload = {"result": []}
     for e in _entry_points(group="asreview.readers"):
-        payload["result"].append(
-            {
-                "extension": e.name
-            }
-        )
+        payload["result"].append({"extension": e.name})
     return jsonify(payload)
 
 
@@ -295,9 +291,7 @@ def api_demo_data_project():  # noqa: F401
     if subset == "plugin":
         try:
             result_datasets = manager.list(
-                exclude=[
-                    "builtin", "synergy", "benchmark", "benchmark-nature"
-                ]
+                exclude=["builtin", "synergy", "benchmark", "benchmark-nature"]
             )
 
         except Exception as err:
@@ -423,7 +417,6 @@ def api_upload_data_to_project(project):  # noqa: F401
 
     # Bad format. TODO{Jonathan} Return informative message with link.
     except Exception as err:
-
         try:
             project.remove_dataset()
         except Exception:
@@ -537,7 +530,6 @@ def api_search_data(project):  # noqa: F401
             raise ValueError(err) from err
 
         for record in as_data.record(result_idx):
-
             payload["result"].append(
                 {
                     "id": int(record.record_id),
@@ -713,7 +705,6 @@ def api_random_prior_papers(project):  # noqa: F401
     payload = {"result": []}
 
     if subset in ["relevant", "included"]:
-
         if as_data.labels is None:
             return jsonify(payload)
 
@@ -750,7 +741,6 @@ def api_random_prior_papers(project):  # noqa: F401
             )
 
     elif subset in ["irrelevant", "excluded"]:
-
         if as_data.labels is None:
             return jsonify(payload)
 
@@ -789,23 +779,18 @@ def api_random_prior_papers(project):  # noqa: F401
 
     elif subset == "not_seen":
         # Fetch records that are not seen
-        unlabeled_indices = as_data.df[as_data.labels == LABEL_NA] \
-            .index.values
+        unlabeled_indices = as_data.df[as_data.labels == LABEL_NA].index.values
         unlabeled_indices_pool = np.intersect1d(pool, unlabeled_indices)
 
         if len(unlabeled_indices_pool) == 0:
             return jsonify(payload)
         elif n > len(unlabeled_indices_pool):
             rand_pool_unlabeled = np.random.choice(
-                unlabeled_indices_pool,
-                len(unlabeled_indices_pool),
-                replace=False
+                unlabeled_indices_pool, len(unlabeled_indices_pool), replace=False
             )
         else:
             rand_pool_unlabeled = np.random.choice(
-                unlabeled_indices_pool,
-                n,
-                replace=False
+                unlabeled_indices_pool, n, replace=False
             )
 
         try:
@@ -1120,9 +1105,7 @@ def api_import_project():
         return jsonify(project.config)
 
     # create a database entry for this project
-    current_user.projects.append(
-        Project(project_id=project.config.get("id"))
-    )
+    current_user.projects.append(Project(project_id=project.config.get("id")))
     project.config["owner_id"] = current_user.id
     DB.session.commit()
 
@@ -1142,8 +1125,10 @@ def _add_tags_to_export_data(project, export_data, state_df):
     tags_config = project.config.get("tags")
 
     if tags_config is not None:
-        all_tags = [[get_tag_composite_id(group["id"], tag["id"])
-                     for tag in group["values"]] for group in tags_config]
+        all_tags = [
+            [get_tag_composite_id(group["id"], tag["id"]) for tag in group["values"]]
+            for group in tags_config
+        ]
         all_tags = list(chain.from_iterable(all_tags))
         used_tags = set(tags_df["tags"].explode().unique())
         unused_tags = [tag for tag in all_tags if tag not in used_tags]

@@ -18,9 +18,9 @@ identifiers:
       open source machine learning framework for efficient
       and transparent systematic reviews. Nat Mach Intell 3,
       125–133 (2021).
-repository-code: 'https://github.com/asreview/asreview'
-url: 'https://asreview.ai'
-repository-artifact: 'https://pypi.org/project/asreview/'
+repository-code: "https://github.com/asreview/asreview"
+url: "https://asreview.ai"
+repository-artifact: "https://pypi.org/project/asreview/"
 abstract: >-
   The Active learning for Systematic Reviews (ASReview)
   project implements learning algorithms that interactively

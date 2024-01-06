@@ -216,7 +216,7 @@ Functions
    query.get_query_class
    query.list_query_strategies
 
-   
+
 .. _ref-balance-strategies:
 
 :mod:`asreview.models.balance`
@@ -379,4 +379,3 @@ Entry points for ASReview LAB.
    entry_points.LABEntryPoint
    entry_points.SimulateEntryPoint
    entry_points.StateInspectEntryPoint
-

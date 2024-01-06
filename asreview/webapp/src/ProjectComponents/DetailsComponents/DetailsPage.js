@@ -222,9 +222,9 @@ const DetailsPage = (props) => {
                 />
                 <TagEditor
                   project_id={project_id}
-                // mobileScreen={props.mobileScreen}
-                // onFocus={onFocus}
-                // onBlur={onBlur}
+                  // mobileScreen={props.mobileScreen}
+                  // onFocus={onFocus}
+                  // onBlur={onBlur}
                 />
               </Grid>
               <Grid item xs={12} sm={4}>

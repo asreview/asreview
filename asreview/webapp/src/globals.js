@@ -4,7 +4,7 @@ import { setProject } from "./redux/actions";
 import ASReviewLAB_black from "./images/asreview_sub_logo_lab_black_transparent.svg";
 import ASReviewLAB_white from "./images/asreview_sub_logo_lab_white_transparent.svg";
 
-// URL of backend is configured in an .env file. By default it's 
+// URL of backend is configured in an .env file. By default it's
 // the same as the front-end URL.
 let b_url = "/";
 if (Boolean(process.env.REACT_APP_API_URL)) {
@@ -115,13 +115,15 @@ export const passwordValidation = (yup_string) => {
     return `Your password must have at least 1 ${str} character`;
   };
 
-  return yup_string
-    // check minimum characters
-    .min(8, "Password must have at least 8 characters")
-    // different error messages for different requirements
-    .matches(/[0-9]/, getCharacterValidationError("digit"))
-    .matches(/[a-z]/, getCharacterValidationError("lowercase"))
-    .matches(/[A-Z]/, getCharacterValidationError("uppercase"))
+  return (
+    yup_string
+      // check minimum characters
+      .min(8, "Password must have at least 8 characters")
+      // different error messages for different requirements
+      .matches(/[0-9]/, getCharacterValidationError("digit"))
+      .matches(/[a-z]/, getCharacterValidationError("lowercase"))
+      .matches(/[A-Z]/, getCharacterValidationError("uppercase"))
+  );
 };
 
 /**
@@ -134,8 +136,6 @@ export const formatDate = (datetime) => {
     dateString.replace(/\s+\S*$/, ",") + dateString.match(/\s+\S*$/);
   return dateDisplay;
 };
-
-
 
 // enums
 export const projectModes = {

@@ -177,8 +177,7 @@ class ASReviewData:
             fn = Path(fp).name
 
         try:
-            reader = _entry_points(
-                group="asreview.readers")[Path(fn).suffix].load()
+            reader = _entry_points(group="asreview.readers")[Path(fn).suffix].load()
         except Exception:
             raise BadFileFormatError(f"Importing file {fp} not possible.")
 
@@ -215,8 +214,7 @@ class ASReviewData:
                 fn = Path(fp).name
 
             try:
-                reader = _entry_points(
-                    group="asreview.readers")[Path(fn).suffix].load()
+                reader = _entry_points(group="asreview.readers")[Path(fn).suffix].load()
             except Exception:
                 raise BadFileFormatError(f"Importing file {fp} not possible.")
 
@@ -409,7 +407,8 @@ class ASReviewData:
             return self.df.index.values[prior_indices]
 
     def to_file(
-            self, fp, labels=None, ranking=None, writer=None, keep_old_labels=False):
+        self, fp, labels=None, ranking=None, writer=None, keep_old_labels=False
+    ):
         """Export data object to file.
 
         RIS, CSV, TSV and Excel are supported file formats at the moment.
@@ -481,14 +480,16 @@ class ASReviewData:
             labeled_values = [x[1] for x in labels]
 
             if keep_old_labels:
-                result_df["asreview_label_to_validate"] = \
+                result_df["asreview_label_to_validate"] = (
                     result_df[col_label].replace(LABEL_NA, None).astype("Int64")
+                )
 
             # remove the old results and write the values
             result_df[col_label] = LABEL_NA
             result_df.loc[labeled_record_ids, col_label] = labeled_values
-            result_df[col_label] = result_df[col_label] \
-                .replace(LABEL_NA, None).astype("Int64")
+            result_df[col_label] = (
+                result_df[col_label].replace(LABEL_NA, None).astype("Int64")
+            )
 
         # if there is a ranking, apply this ranking as order
         if ranking is not None:

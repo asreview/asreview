@@ -82,7 +82,7 @@ const ForgotPassword = (props) => {
       onError: (data) => {
         console.error("Forgot password error", data);
       },
-    }
+    },
   );
 
   const handleSubmit = (event) => {

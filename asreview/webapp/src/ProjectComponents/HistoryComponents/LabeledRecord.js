@@ -168,8 +168,8 @@ const LabeledRecord = (props) => {
                     {isFetchingNextPage
                       ? "Loading more..."
                       : hasNextPage
-                      ? "Load More"
-                      : "Nothing more to load"}
+                        ? "Load More"
+                        : "Nothing more to load"}
                   </Typography>
                 </ButtonBase>
               </InView>
