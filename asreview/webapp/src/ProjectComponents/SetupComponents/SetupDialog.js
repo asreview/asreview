@@ -22,6 +22,7 @@ import {
 import { DataForm } from "../SetupComponents/DataComponents";
 import { ModelForm } from "../SetupComponents/ModelComponents";
 import { InfoForm } from "../SetupComponents/InfoComponents";
+import { ScreenLanding } from "../SetupComponents/ScreenComponents";
 
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps, mapDispatchToProps } from "../../globals.js";
@@ -70,6 +71,7 @@ const SetupDialog = (props) => {
     0: true,
     1: false,
     2: false,
+    3: true,
   });
 
   const [savingState, setSavingState] = React.useState(false);
@@ -82,7 +84,7 @@ const SetupDialog = (props) => {
    * Dialog actions
    */
   const handleClose = () => {
-    if (activeStep !== 3) {
+    if (activeStep !== 4) {
       props.onClose();
     } else {
       console.log("Cannot close when training is in progress");
@@ -101,7 +103,7 @@ const SetupDialog = (props) => {
   const exitedSetup = () => {
     props.setProjectId(null);
     setActiveStep(0);
-    setCompleted({ 0: true, 1: false, 2: false });
+    setCompleted({ 0: true, 1: false, 2: false, 3: true });
   };
 
   const handleNext = () => {
@@ -135,7 +137,7 @@ const SetupDialog = (props) => {
     return (
       isStepFailed(activeStep) ||
       !completed[activeStep] ||
-      (activeStep === 2 && !isAllStepsCompleted())
+      (activeStep === 3 && !isAllStepsCompleted())
     );
   };
 
@@ -222,7 +224,7 @@ const SetupDialog = (props) => {
         />
       )}
       <DialogContent className={classes.content} dividers>
-        {activeStep !== 3 && (
+        {activeStep !== 4 && (
           <SetupStepper
             activeStep={activeStep}
             handleStep={handleStep}
@@ -233,7 +235,7 @@ const SetupDialog = (props) => {
         <Box
           className={clsx({
             [classes.form]: true,
-            [classes.formWarmup]: activeStep === 3,
+            [classes.formWarmup]: activeStep === 4,
           })}
         >
           {activeStep === 0 && (
@@ -252,6 +254,9 @@ const SetupDialog = (props) => {
             />
           )}
           {activeStep === 3 && (
+            <ScreenLanding handleComplete={handleComplete} />
+          )}
+          {activeStep === 4 && (
             <FinishSetup
               handleBack={handleBack}
               toggleProjectSetup={props.onClose}
@@ -259,7 +264,7 @@ const SetupDialog = (props) => {
           )}
         </Box>
       </DialogContent>
-      {activeStep !== 3 && (
+      {activeStep !== 4 && (
         <DialogActions>
           {activeStep !== 0 && (
             <Button disabled={activeStep === 0} onClick={handleBack}>
@@ -272,7 +277,7 @@ const SetupDialog = (props) => {
             variant="contained"
             onClick={handleNext}
           >
-            {activeStep === 2 ? "Finish" : "Next"}
+            {activeStep === 3 ? "Finish" : "Next"}
           </Button>
         </DialogActions>
       )}

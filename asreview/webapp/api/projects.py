@@ -18,6 +18,7 @@ import shutil
 import subprocess
 import tempfile
 import time
+from itertools import chain
 from pathlib import Path
 from urllib.request import urlretrieve
 from uuid import uuid4
@@ -33,6 +34,7 @@ from flask import request
 from flask import send_file
 from flask_login import current_user
 from flask_login import login_required
+from sklearn.preprocessing import MultiLabelBinarizer
 from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
@@ -61,6 +63,8 @@ from asreview.project import open_state
 from asreview.search import SearchError
 from asreview.search import fuzzy_find
 from asreview.settings import ASReviewSettings
+from asreview.state.custom_metadata_mapper import extract_tags
+from asreview.state.custom_metadata_mapper import get_tag_composite_id
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sql_converter import upgrade_asreview_project_file
@@ -269,11 +273,12 @@ def api_get_project_info(project):  # noqa: F401
 def api_update_project_info(project):  # noqa: F401
     """Update project info"""
 
-    project.update_config(
-        name=request.form["name"],
-        description=request.form["description"],
-        authors=request.form["authors"],
-    )
+    update_dict = request.form.to_dict()
+
+    if "tags" in update_dict:
+        update_dict["tags"] = json.loads(update_dict["tags"])
+
+    project.update_config(**update_dict)
 
     return api_get_project_info(project.project_id)
 
@@ -560,7 +565,9 @@ def api_get_labeled(project):  # noqa: F401
     latest_first = request.args.get("latest_first", default=1, type=int)
 
     with open_state(project.project_path) as s:
-        data = s.get_dataset(["record_id", "label", "query_strategy", "notes"])
+        data = s.get_dataset(
+            ["record_id", "label", "query_strategy", "notes", "custom_metadata_json"]
+        )
         data["prior"] = (data["query_strategy"] == "prior").astype(int)
 
     if any(s in subset for s in ["relevant", "included"]):
@@ -641,6 +648,7 @@ def api_get_labeled(project):  # noqa: F401
                 "url": record.url,
                 "included": int(data.loc[i, "label"]),
                 "note": data.loc[i, "notes"],
+                "tags": extract_tags(data.loc[i, "custom_metadata_json"]),
                 "prior": int(data.loc[i, "prior"]),
             }
         )
@@ -1121,6 +1129,38 @@ def api_import_project():
     return jsonify(project.config)
 
 
+def _add_tags_to_export_data(project, export_data, state_df):
+    tags_df = state_df[["custom_metadata_json"]].copy()
+
+    tags_df["tags"] = (
+        tags_df["custom_metadata_json"]
+        .apply(lambda d: extract_tags(d))
+        .apply(lambda d: d if isinstance(d, list) else [])
+    )
+
+    unused_tags = []
+    tags_config = project.config.get("tags")
+
+    if tags_config is not None:
+        all_tags = [[get_tag_composite_id(group["id"], tag["id"])
+                     for tag in group["values"]] for group in tags_config]
+        all_tags = list(chain.from_iterable(all_tags))
+        used_tags = set(tags_df["tags"].explode().unique())
+        unused_tags = [tag for tag in all_tags if tag not in used_tags]
+
+    mlb = MultiLabelBinarizer()
+
+    tags_df = pd.DataFrame(
+        data=mlb.fit_transform(tags_df["tags"]),
+        columns=mlb.classes_,
+        index=tags_df.index,
+    )
+
+    tags_df = tags_df.assign(**{unused_tag: 0 for unused_tag in unused_tags})
+
+    export_data.df = export_data.df.join(tags_df, on="record_id")
+
+
 @bp.route("/projects/<project_id>/export_dataset", methods=["GET"])
 @login_required
 @project_authorization
@@ -1197,6 +1237,8 @@ def api_export_dataset(project):
         as_data.df = as_data.df.join(
             state_df[f"exported_notes_{screening}"], on="record_id"
         )
+
+        _add_tags_to_export_data(project, as_data, state_df)
 
         # keep labels in exploration mode
         keep_old_labels = project.config["mode"] == PROJECT_MODE_EXPLORE
@@ -1447,10 +1489,18 @@ def api_classify_instance(project, doc_id):  # noqa: F401
     """
     # return the combination of document_id and label.
     record_id = int(request.form.get("doc_id"))
+
     label = int(request.form.get("label"))
+
     note = request.form.get("note", type=str)
     if not note:
         note = None
+
+    tags = request.form.get("tags", type=str)
+    if not tags:
+        tags = []
+    else:
+        tags = json.loads(tags)
 
     is_prior = request.form.get("is_prior", default=False)
 
@@ -1461,13 +1511,17 @@ def api_classify_instance(project, doc_id):  # noqa: F401
         with open_state(project.project_path, read_only=False) as state:
             # add the labels as prior data
             state.add_labeling_data(
-                record_ids=[record_id], labels=[label], notes=[note], prior=prior
+                record_ids=[record_id],
+                labels=[label],
+                notes=[note],
+                tags_list=[tags],
+                prior=prior,
             )
 
     elif request.method == "PUT":
         with open_state(project.project_path, read_only=False) as state:
             if label in [0, 1]:
-                state.update_decision(record_id, label, note=note)
+                state.update_decision(record_id, label, note=note, tags=tags)
             elif label == -1:
                 state.delete_record_labeling_data(record_id)
 
