@@ -1104,12 +1104,6 @@ def api_import_project():
             request.files["file"], asreview_path(), safe_import=True
         )
 
-        # create a database entry for this project
-        if not current_app.config.get("LOGIN_DISABLED", False):
-            current_user.projects.append(Project(project_id=project.config.get("id")))
-            project.config["owner_id"] = current_user.id
-            DB.session.commit()
-
     except Exception as err:
         logging.error(err)
         raise ValueError("Failed to import project.")
