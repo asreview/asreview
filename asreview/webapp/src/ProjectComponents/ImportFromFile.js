@@ -108,13 +108,8 @@ const ImportFromFile = (props) => {
       importProject({
         file: acceptedFiles[0],
       });
-
     },
-    [
-      importProject,
-      isImportProjectError,
-      resetImportProject,
-    ],
+    [importProject, isImportProjectError, resetImportProject],
   );
 
   const {
@@ -165,8 +160,8 @@ const ImportFromFile = (props) => {
             </Avatar>
           </ButtonBase>
           <Typography>
-          Drag and drop a project file (<code>.asreview</code>) to add
-        </Typography>
+            Drag and drop a project file (<code>.asreview</code>) to add
+          </Typography>
           {file && (
             <Typography className={classes.singleLine}>
               File <i>{file?.path}</i> selected.

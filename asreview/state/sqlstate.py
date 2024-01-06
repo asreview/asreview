@@ -706,8 +706,10 @@ class SQLiteState(BaseState):
             ]
 
             # If not prior, we need to update records.
-            query = ("UPDATE results SET label=?, labeling_time=?, "
-                     "notes=?, custom_metadata_json=? WHERE record_id=?")
+            query = (
+                "UPDATE results SET label=?, labeling_time=?, "
+                "notes=?, custom_metadata_json=? WHERE record_id=?"
+            )
 
         # Add the rows to the database.
         con = self._connect_to_sql()

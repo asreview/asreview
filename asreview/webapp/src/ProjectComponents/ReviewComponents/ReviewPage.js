@@ -10,7 +10,7 @@ import {
   DecisionUndoBar,
   ExplorationModeBanner,
   RecordCard,
-  TagsTable
+  TagsTable,
 } from "../ReviewComponents";
 
 import { ProjectAPI } from "../../api/index.js";
@@ -288,11 +288,11 @@ const ReviewPage = (props) => {
           />
           {/* Labels table */}
           {Array.isArray(props.tags) && props.tags.length > 0 && (
-              <TagsTable
-                  tags={props.tags}
-                  tagValues={tagValues}
-                  setTagValues={setTagValues}
-              />
+            <TagsTable
+              tags={props.tags}
+              tagValues={tagValues}
+              setTagValues={setTagValues}
+            />
           )}
         </Box>
       </Fade>

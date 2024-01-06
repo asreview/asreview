@@ -337,8 +337,9 @@ class ASReviewProject:
         fp_data = Path(self.project_path, "data", file_name)
         as_data = ASReviewData.from_file(fp_data)
 
-        if self.config["mode"] == PROJECT_MODE_SIMULATE and \
-                (as_data.labels is None or (as_data.labels == LABEL_NA).any()):
+        if self.config["mode"] == PROJECT_MODE_SIMULATE and (
+            as_data.labels is None or (as_data.labels == LABEL_NA).any()
+        ):
             raise ValueError("Import fully labeled dataset")
 
         if self.config["mode"] == PROJECT_MODE_EXPLORE and as_data.labels is None:
@@ -382,7 +383,6 @@ class ASReviewProject:
             self.delete_review()
 
     def _read_data_from_cache(self, version_check=True):
-
         fp_data = Path(self.project_path, "data", self.config["dataset_path"])
         fp_data_pickle = Path(fp_data).with_suffix(fp_data.suffix + ".pickle")
 
@@ -554,7 +554,7 @@ class ASReviewProject:
         review_config = {
             "id": review_id,
             "start_time": str(start_time),
-            "status": status
+            "status": status,
             # "end_time": datetime.now()
         }
 

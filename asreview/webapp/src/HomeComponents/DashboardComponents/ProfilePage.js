@@ -90,7 +90,7 @@ const ProfilePage = (props) => {
       formik.setFieldValue(
         "affiliation",
         data.message.affiliation || "",
-        false
+        false,
       );
       formik.setFieldValue("public", data.message.public || true);
       // show password field?

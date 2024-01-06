@@ -231,12 +231,11 @@ review."""
 
 
 def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
-
     # parse arguments if available
     parser = argparse.ArgumentParser(
         prog=prog,
         description=description,
-        formatter_class=argparse.RawTextHelpFormatter
+        formatter_class=argparse.RawTextHelpFormatter,
     )
 
     # Active learning parameters

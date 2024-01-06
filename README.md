@@ -7,7 +7,7 @@
 ## ASReview: Active learning for Systematic Reviews
 
 [![PyPI version](https://badge.fury.io/py/asreview.svg)](https://badge.fury.io/py/asreview) [![Documentation Status](https://readthedocs.org/projects/asreview/badge/?version=latest)](https://asreview.readthedocs.io/en/latest/?badge=latest) [![DOI](https://zenodo.org/badge/164874894.svg)](https://zenodo.org/badge/latestdoi/164874894)
- [![Downloads](https://static.pepy.tech/badge/asreview)](https://github.com/asreview/asreview#installation) [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4755/badge)](https://bestpractices.coreinfrastructure.org/projects/4755)
+[![Downloads](https://static.pepy.tech/badge/asreview)](https://github.com/asreview/asreview#installation) [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4755/badge)](https://bestpractices.coreinfrastructure.org/projects/4755)
 
 Systematically screening large amounts of textual data is time-consuming and
 often tiresome. The rapidly evolving field of Artificial Intelligence (AI) has
@@ -17,13 +17,13 @@ is screening prioritization via [Active
 Learning](https://asreview.readthedocs.io/en/latest/guides/activelearning.html).
 
 The Active learning for Systematic Reviews (ASReview) project, published in
-[*Nature Machine Intelligence*](https://doi.org/10.1038/s42256-020-00287-7)
+[_Nature Machine Intelligence_](https://doi.org/10.1038/s42256-020-00287-7)
 implements different machine learning algorithms that interactively query the
-researcher. ASReview LAB  is designed to accelerate the step of screening
+researcher. ASReview LAB is designed to accelerate the step of screening
 textual data with a minimum of records to be read by a human with no or very
 few false negatives. ASReview LAB will save time, increase the quality of
 output and strengthen the transparency of work when screening large amounts of
-textual data to retrieve relevant information. Active Learning will support 
+textual data to retrieve relevant information. Active Learning will support
 decision-making in any discipline or industry.
 
 ASReview software implements three different modes:
@@ -38,7 +38,6 @@ ASReview software implements three different modes:
   the performance of active learning models on fully labeled data. Simulations
   can be run in ASReview LAB or via the command line interface with more
   advanced options.
-
 
 ## Installation
 
@@ -63,7 +62,6 @@ To install ASReview LAB with Docker, see [Install with Docker](https://asreview.
 
 [![ASReview LAB explained - animation](https://img.youtube.com/vi/k-a2SCq-LtA/0.jpg)](https://www.youtube.com/watch?v=k-a2SCq-LtA)
 
-
 ## Getting started
 
 [Getting Started with ASReview
@@ -77,8 +75,8 @@ If you wish to cite the underlying methodology of the ASReview software,
 please use the following publication in Nature Machine Intelligence:
 
 > van de Schoot, R., de Bruin, J., Schram, R. et al. An open source machine
-  learning framework for efficient and transparent systematic reviews.
-  Nat Mach Intell 3, 125–133 (2021). https://doi.org/10.1038/s42256-020-00287-7
+> learning framework for efficient and transparent systematic reviews.
+> Nat Mach Intell 3, 125–133 (2021). https://doi.org/10.1038/s42256-020-00287-7
 
 For citing the software, please refer to the specific release of
 the ASReview software on Zenodo https://doi.org/10.5281/zenodo.3345592. The menu on the

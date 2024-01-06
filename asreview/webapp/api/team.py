@@ -75,16 +75,10 @@ def end_collaboration(project_id, user_id):
         try:
             project.collaborators.remove(user)
             DB.session.commit()
-            response = (
-                jsonify({"message": "Collaborator removed from project."}),
-                200
-            )
+            response = (jsonify({"message": "Collaborator removed from project."}), 200)
 
         except SQLAlchemyError:
-            response = (
-                jsonify({"message": "Error removing collaborator."}),
-                404
-            )
+            response = (jsonify({"message": "Error removing collaborator."}), 404)
     return response
 
 
@@ -126,10 +120,7 @@ def invite(project_id, user_id):
         project.pending_invitations.append(user)
         try:
             DB.session.commit()
-            response = (
-                jsonify({"message": f'User "{user.identifier}" invited.'}),
-                200
-            )
+            response = (jsonify({"message": f'User "{user.identifier}" invited.'}), 200)
         except SQLAlchemyError:
             response = (
                 jsonify({"message": f'User "{user.identifier}" not invited.'}),
@@ -155,13 +146,10 @@ def accept_invitation(project_id):
             DB.session.commit()
             response = (
                 jsonify({"message": "User accepted invitation for project."}),
-                200
+                200,
             )
         except SQLAlchemyError:
-            response = (
-                jsonify({"message": "Error accepting invitation."}),
-                404
-            )
+            response = (jsonify({"message": "Error accepting invitation."}), 404)
     return response
 
 
@@ -180,13 +168,10 @@ def reject_invitation(project_id):
             DB.session.commit()
             response = (
                 jsonify({"message": "User rejected invitation for project."}),
-                200
+                200,
             )
         except SQLAlchemyError:
-            response = (
-                jsonify({"message": "Error rejecting invitation."}),
-                404
-            )
+            response = (jsonify({"message": "Error rejecting invitation."}), 404)
     return response
 
 

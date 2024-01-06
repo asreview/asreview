@@ -186,11 +186,13 @@ def create_app(
                 app.config.get("EMAIL_VERIFICATION", False)
             )
 
-            response["email_config"] = all([
-                app.config.get("MAIL_SERVER", False),
-                app.config.get("MAIL_USERNAME", False),
-                app.config.get("MAIL_PASSWORD", False)
-            ])
+            response["email_config"] = all(
+                [
+                    app.config.get("MAIL_SERVER", False),
+                    app.config.get("MAIL_USERNAME", False),
+                    app.config.get("MAIL_PASSWORD", False),
+                ]
+            )
 
             # if oauth config is provided
             if isinstance(app.config.get("OAUTH", False), OAuthHandler):

@@ -176,7 +176,7 @@ and an extra step in the configuration file:
 Create authentication database and tables with auth-tool
 
 
-Server administrators can create a database for authentication with the 
+Server administrators can create a database for authentication with the
 ``auth-tool`` sub command of the ASReview application:
 
 .. code:: bash

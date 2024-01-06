@@ -74,13 +74,8 @@ DEPS = {
     "sbert": ["sentence_transformers"],
     "doc2vec": ["gensim"],
     "tensorflow": ["tensorflow~=2.0"],
-    "dev": ["black", "check-manifest", "flake8", "flake8-isort", "isort"],
-    "test": [
-        "coverage",
-        "pytest",
-        "pytest-random-order",
-        "pytest-selenium"
-    ],
+    "dev": ["ruff", "check-manifest"],
+    "test": ["coverage", "pytest", "pytest-random-order", "pytest-selenium"],
     "docs": [
         "ipython",
         "sphinx",

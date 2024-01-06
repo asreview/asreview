@@ -241,9 +241,7 @@ def _create_lstm_base_model(
     optimizer_fn = _get_optimizer(optimizer, learn_rate)
 
     # Compile model
-    model.compile(
-        loss="binary_crossentropy", optimizer=optimizer_fn, metrics=["acc"]
-    )
+    model.compile(loss="binary_crossentropy", optimizer=optimizer_fn, metrics=["acc"])
 
     if verbose >= 1:
         model.summary(verbose=verbose)

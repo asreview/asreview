@@ -27,21 +27,20 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const ScreenLanding = ({handleComplete, project_id}) => {
-
+const ScreenLanding = ({ handleComplete, project_id }) => {
   return (
     <Root className={classes.root}>
       <Box className={classes.title}>
         <Typography variant="h6">Screen options</Typography>
       </Box>
-    <Box>
-    <TagEditor
-        project_id={project_id}
-        // mobileScreen={props.mobileScreen}
-        // onFocus={onFocus}
-        // onBlur={onBlur}
+      <Box>
+        <TagEditor
+          project_id={project_id}
+          // mobileScreen={props.mobileScreen}
+          // onFocus={onFocus}
+          // onBlur={onBlur}
         />
-    </Box>
+      </Box>
     </Root>
   );
 };

@@ -15,6 +15,7 @@
 __all__ = [
     "DoubleBalance",
     "SimpleBalance",
+    "TripleBalance",
     "UndersampleBalance",
     "get_balance_class",
     "get_balance_model",

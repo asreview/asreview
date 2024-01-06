@@ -6,11 +6,11 @@ build:
     python: "3.9"
 
 sphinx:
-   configuration: docs/source/conf.py
+  configuration: docs/source/conf.py
 
 formats:
-   - pdf
-   - htmlzip
+  - pdf
+  - htmlzip
 
 python:
   install:

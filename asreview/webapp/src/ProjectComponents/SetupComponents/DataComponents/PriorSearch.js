@@ -121,10 +121,7 @@ const PriorSearch = (props) => {
               placeholder="Search"
               sx={{ ml: 1 }}
             />
-            <StyledIconButton
-              id="search"
-              onClick={onClickSearch}
-            >
+            <StyledIconButton id="search" onClick={onClickSearch}>
               <Search />
             </StyledIconButton>
           </Stack>
@@ -149,7 +146,11 @@ const PriorSearch = (props) => {
               !data?.result.filter((record) => record?.included === -1)
                 .length) && (
               <Box className={classes.empty}>
-                <Typography id="no-search-result" variant="body2" sx={{ color: "text.secondary" }}>
+                <Typography
+                  id="no-search-result"
+                  variant="body2"
+                  sx={{ color: "text.secondary" }}
+                >
                   Your search results will show up here
                 </Typography>
               </Box>

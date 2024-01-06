@@ -1,10 +1,9 @@
 ---
 name: "\U0001F680 Feature request"
 about: "I have a suggestion (and may want to implement it \U0001F642)!"
-title: ''
-labels: 'i: enhancement'
+title: ""
+labels: "i: enhancement"
 assignees: J535D165
-
 ---
 
 ## Feature Request

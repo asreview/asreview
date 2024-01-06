@@ -15,7 +15,7 @@ const ExplorationModeBanner = (props) => {
         }}
         buttonLabel="Learn more"
         buttonProps={{
-          href: "https://asreview.readthedocs.io/en/latest/screening.html#screening-in-validation-mode", 
+          href: "https://asreview.readthedocs.io/en/latest/screening.html#screening-in-validation-mode",
           target: "_blank",
           sx: { color: "text.secondary" },
         }}

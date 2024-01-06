@@ -107,7 +107,7 @@ const DrawerItemContainer = (props) => {
   const fetchProjectInfo = React.useCallback(async () => {
     const data = await queryClient.fetchQuery(
       ["fetchInfo", { project_id }],
-      ProjectAPI.fetchInfo
+      ProjectAPI.fetchInfo,
     );
     setProjectInfo(data);
   }, [project_id, queryClient]);

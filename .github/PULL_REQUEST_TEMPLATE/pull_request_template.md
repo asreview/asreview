@@ -2,12 +2,9 @@ Changes proposed in this pull request:
 
 -
 -
--
+- _Add screenshots for proposed visual changes_
 
-*Add screenshots for proposed visual changes*
-
-
-**Checklist**
+  **Checklist**
 
 - [ ] Unit tests are added for new features and bug fixes
 - [ ] Documentation is added for new features
