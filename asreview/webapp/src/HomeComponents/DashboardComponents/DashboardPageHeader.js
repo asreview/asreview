@@ -47,7 +47,7 @@ export default function DashboardPageHeader(props) {
           <Tooltip title="Import project">
             <IconButton
               disableRipple
-              onClick={props.toggleImportDialog}
+              onClick={props.toggleImportProject}
               size={!props.mobileScreen ? "medium" : "small"}
             >
               <Avatar className={classes.headerButton}>

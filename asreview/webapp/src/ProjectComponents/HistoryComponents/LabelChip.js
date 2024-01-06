@@ -1,7 +1,8 @@
 import * as React from "react";
+
 import { Chip, Stack } from "@mui/material";
 
-export default function LabelChip(props) {
+const LabelChip = (props) => {
   const handleClickRelevant = () => {
     props.setLabel("relevant");
   };
@@ -47,4 +48,6 @@ export default function LabelChip(props) {
       />
     </Stack>
   );
-}
+};
+
+export default LabelChip;

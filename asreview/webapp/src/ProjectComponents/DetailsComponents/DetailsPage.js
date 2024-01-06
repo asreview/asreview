@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Fade,
+  Grid,
   IconButton,
   Menu,
   MenuItem,
@@ -16,7 +17,7 @@ import { styled } from "@mui/material/styles";
 import { MoreVert } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
 
-import { ProjectInfoForm, ProjectDeleteDialog } from "../../ProjectComponents";
+import { ProjectInfo, ProjectDeleteDialog } from "../../ProjectComponents";
 import { ActionsFeedbackBar } from "../../Components";
 import { DataForm, ModelForm } from "../DetailsComponents";
 import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
@@ -125,6 +126,10 @@ const DetailsPage = (props) => {
     toggleDeleteDialog();
   };
 
+  const isTitleValidated = () => {
+    return info.title.length > 0;
+  };
+
   return (
     <Root aria-label="details page">
       <Fade in>
@@ -200,26 +205,26 @@ const DetailsPage = (props) => {
 
           {/* Page body */}
           <Box className="main-page-body-wrapper">
-            <Stack
-              className="main-page-body"
-              direction={!props.mobileScreen ? "row" : "column"}
-              spacing={3}
-            >
-              <ProjectInfoForm
-                info={info}
-                mobileScreen={props.mobileScreen}
-                setInfo={setInfo}
-                setDisableSaveButton={setDisableSaveButton}
-                setDisableUndoButton={setDisableUndoButton}
-              />
-              <Stack
-                spacing={3}
-                sx={{ width: !props.mobileScreen ? "40%" : "100%" }}
-              >
-                <DataForm setHistoryFilterQuery={props.setHistoryFilterQuery} />
-                <ModelForm />
-              </Stack>
-            </Stack>
+            <Grid className="main-page-body" container spacing={3}>
+              <Grid item xs={12} sm={8}>
+                <ProjectInfo
+                  info={info}
+                  isTitleValidated={isTitleValidated()}
+                  mobileScreen={props.mobileScreen}
+                  setInfo={setInfo}
+                  setDisableSaveButton={setDisableSaveButton}
+                  setDisableUndoButton={setDisableUndoButton}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <Stack spacing={3}>
+                  <DataForm
+                    setHistoryFilterQuery={props.setHistoryFilterQuery}
+                  />
+                  <ModelForm />
+                </Stack>
+              </Grid>
+            </Grid>
           </Box>
         </Box>
       </Fade>

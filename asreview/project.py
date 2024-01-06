@@ -342,7 +342,7 @@ class ASReviewProject:
         if self.config["mode"] == PROJECT_MODE_EXPLORE and as_data.labels is None:
             raise ValueError("Import partially or fully labeled dataset")
 
-        self.update_config(dataset_path=file_name)
+        self.update_config(dataset_path=file_name, name=file_name.rsplit(".", 1)[0])
 
         with open_state(self.project_path, read_only=False) as state:
             # save the record ids in the state file

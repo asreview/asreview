@@ -13,12 +13,12 @@ import {
 import { styled } from "@mui/material/styles";
 import { FileUpload } from "@mui/icons-material";
 
-import { InlineErrorHandler } from "../Components";
+import { InlineErrorHandler } from "../../../Components";
 
-import { ProjectAPI } from "../api/index.js";
-import { mapStateToProps } from "../globals.js";
+import { ProjectAPI } from "../../../api/index.js";
+import { mapStateToProps } from "../../../globals.js";
 
-const PREFIX = "ImportFromFile";
+const PREFIX = "DatasetFromFile";
 
 const classes = {
   root: `${PREFIX}-root`,
@@ -70,25 +70,42 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-const ImportFromFile = (props) => {
+const DatasetFromFile = (props) => {
   const queryClient = useQueryClient();
+
   const [file, setFile] = React.useState(null);
 
+  const datasetInfo = queryClient.getQueryData([
+    "fetchData",
+    { project_id: props.project_id },
+  ]);
+
+  const isDatasetAdded = () => {
+    return datasetInfo !== undefined;
+  };
+
   const {
-    error: importProjectError,
-    isError: isImportProjectError,
-    isLoading: isImportingProject,
-    mutate: importProject,
-    reset: resetImportProject,
-  } = useMutation(ProjectAPI.mutateImportProject, {
-    mutationKey: ["importProject"],
+    error: addDatasetError,
+    isError: isAddDatasetError,
+    isLoading: isAddingDataset,
+    mutate: addDataset,
+    reset: resetAddDataset,
+  } = useMutation(ProjectAPI.mutateData, {
+    mutationKey: ["addDataset"],
     onSuccess: (data) => {
-      queryClient.invalidateQueries("fetchProjects");
-      props.toggleImportProject();
-      props.setFeedbackBar({
-        open: data !== undefined,
-        message: `Your project ${data?.name} has been imported`,
-      });
+      if (!isDatasetAdded()) {
+        props.toggleProjectSetup();
+      } else {
+        queryClient.invalidateQueries([
+          "fetchInfo",
+          { project_id: props.project_id },
+        ]);
+        queryClient.invalidateQueries([
+          "fetchData",
+          { project_id: props.project_id },
+        ]);
+      }
+      props.toggleImportDataset();
     },
   });
 
@@ -101,20 +118,16 @@ const ImportFromFile = (props) => {
         setFile(acceptedFiles[0]);
       }
 
-      if (isImportProjectError) {
-        resetImportProject();
+      if (isAddDatasetError) {
+        resetAddDataset();
       }
 
-      importProject({
+      addDataset({
+        project_id: props.project_id,
         file: acceptedFiles[0],
       });
-
     },
-    [
-      importProject,
-      isImportProjectError,
-      resetImportProject,
-    ],
+    [props.project_id, addDataset, isAddDatasetError, resetAddDataset],
   );
 
   const {
@@ -128,7 +141,7 @@ const ImportFromFile = (props) => {
     onDrop: onDrop,
     multiple: false,
     noClick: true,
-    accept: ".asreview",
+    accept: props.acceptFormat,
   });
 
   const style = useMemo(
@@ -146,11 +159,7 @@ const ImportFromFile = (props) => {
       <Box {...getRootProps({ style })}>
         <input {...getInputProps()} />
         <Stack className={classes.root} spacing={2}>
-          <ButtonBase
-            disabled={isImportingProject}
-            disableRipple
-            onClick={open}
-          >
+          <ButtonBase disabled={isAddingDataset} disableRipple onClick={open}>
             <Avatar
               sx={{
                 height: "136px",
@@ -164,29 +173,21 @@ const ImportFromFile = (props) => {
               />
             </Avatar>
           </ButtonBase>
-          <Typography>
-          Drag and drop a project file (<code>.asreview</code>) to add
-        </Typography>
+          <Typography>Drag and drop a dataset file to add</Typography>
           {file && (
             <Typography className={classes.singleLine}>
               File <i>{file?.path}</i> selected.
             </Typography>
           )}
-          {isImportingProject && (
-            <Typography sx={{ color: "text.secondary" }}>
-              Importing...
-            </Typography>
+          {isAddingDataset && (
+            <Typography sx={{ color: "text.secondary" }}>Adding...</Typography>
           )}
-          {isImportProjectError && (
+          {isAddDatasetError && (
             <InlineErrorHandler
-              message={importProjectError?.message + " Please try again."}
+              message={addDatasetError?.message + " Please try again."}
             />
           )}
-          <Button
-            disabled={isImportingProject}
-            variant="contained"
-            onClick={open}
-          >
+          <Button disabled={isAddingDataset} variant="contained" onClick={open}>
             Select File
           </Button>
         </Stack>
@@ -195,4 +196,4 @@ const ImportFromFile = (props) => {
   );
 };
 
-export default connect(mapStateToProps, null)(ImportFromFile);
+export default connect(mapStateToProps, null)(DatasetFromFile);

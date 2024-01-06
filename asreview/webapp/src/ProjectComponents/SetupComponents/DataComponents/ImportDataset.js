@@ -1,9 +1,8 @@
 import * as React from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useIsMutating, useMutation, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import {
-  Box,
-  Button,
+  Dialog,
   DialogContent,
   DialogTitle,
   Divider,
@@ -15,25 +14,31 @@ import {
   Radio,
   RadioGroup,
   Stack,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { Close } from "@mui/icons-material";
 
 import { AppBarWithinDialog } from "../../../Components";
-import { DatasetFromEntryPoint, DatasetFromURL } from "../DataComponents";
-import { InfoCard } from "../../SetupComponents";
-import { ImportFromFile } from "../../../ProjectComponents";
+import { StyledIconButton } from "../../../StyledComponents/StyledButton.js";
+import { DatasetFromFile, DatasetFromEntryPoint, DatasetFromURL } from ".";
+import { InfoCard } from "..";
 import { ProjectAPI } from "../../../api/index.js";
-import { mapStateToProps, projectModes } from "../../../globals.js";
+import {
+  mapDispatchToProps,
+  mapStateToProps,
+  projectModes,
+} from "../../../globals.js";
 
-const PREFIX = "AddDataset";
+const PREFIX = "ImportDataset";
 
 const classes = {
   root: `${PREFIX}-root`,
   form: `${PREFIX}-form`,
 };
 
-const Root = styled("div")(({ theme }) => ({
+const StyledDialog = styled(Dialog)(({ theme }) => ({
   overflowY: "hidden",
   [`& .${classes.form}`]: {
     height: "calc(100% - 64px)",
@@ -46,97 +51,121 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const AddDataset = (props) => {
+const ImportDataset = (props) => {
   const queryClient = useQueryClient();
 
+  const [projectInfo, setProjectInfo] = React.useState(null);
   const [datasetSource, setDatasetSource] = React.useState("file");
-  const [file, setFile] = React.useState(null);
-  const [url, setURL] = React.useState("");
-  const [extension, setExtension] = React.useState(null);
-  const [benchmark, setBenchmark] = React.useState(null);
-  const [datasetReaders, setDatasetReaders] = React.useState(null);
 
-  useQuery(
-    "fetchDatasetReaders",
-    ProjectAPI.fetchDatasetReaders,
-    {
-      refetchOnWindowFocus: false,
-      onSuccess: (data) => {
-        setDatasetReaders(data.result);
-      },
-    }
-  );
+  const datasetInfo = queryClient.getQueryData([
+    "fetchData",
+    { project_id: props.project_id },
+  ]);
 
-  const { error, isError, isLoading, mutate, reset } = useMutation(
-    ProjectAPI.mutateData,
-    {
-      onSettled: () => {
-        props.setDisableFetchInfo(false);
-        queryClient.invalidateQueries("fetchInfo");
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries("fetchLabeledStats");
-        props.toggleAddDataset();
-      },
-    }
-  );
+  const isAddingDataset = useIsMutating(["addDataset"]);
+
+  const isLoading = isAddingDataset !== 0;
+
+  const isDatasetAdded = () => {
+    return datasetInfo !== undefined;
+  };
+
+  /**
+   * Delete the temporary project.
+   */
+  const {
+    // TODO{Terry}: add error handling
+    // error: deleteProjectError,
+    // isError: isDeleteProjectError,
+    // isLoading: isDeletingProject,
+    mutate: deleteProject,
+    // reset: resetDeleteProject,
+  } = useMutation(ProjectAPI.mutateDeleteProject, {
+    onSuccess: () => {
+      props.toggleImportDataset();
+    },
+  });
 
   const handleDatasetSource = (event) => {
     setDatasetSource(event.target.value);
-    // clear potential error
-    reset();
   };
-
-  const handleSaveDataset = React.useCallback(() => {
-    mutate({
-      project_id: props.project_id,
-      file: file,
-      url: url,
-      extension: extension,
-      benchmark: benchmark,
-    });
-  }, [benchmark, extension, file, mutate, props.project_id, url]);
 
   const handleClose = () => {
-    props.toggleAddDataset();
-    // clear potential error
-    reset();
+    if (!isDatasetAdded()) {
+      // Delete the temporary project when the dialog is closed.
+      deleteProject({
+        project_id: props.project_id,
+      });
+    } else {
+      props.toggleImportDataset();
+    }
   };
 
+  const onExited = () => {
+    setProjectInfo(null);
+    setDatasetSource("file");
+  };
+
+  // fetch project info once the dialog is opened
   React.useEffect(() => {
-    if (props.mode === projectModes.SIMULATION) {
+    const fetchInfo = async () => {
+      const projectInfo = await queryClient.fetchQuery(
+        ["fetchInfo", { project_id: props.project_id }],
+        ProjectAPI.fetchInfo,
+      );
+      setProjectInfo(projectInfo);
+    };
+    if (props.open && props.project_id !== null) {
+      fetchInfo();
+    }
+  }, [props.open, props.project_id, queryClient]);
+
+  // set the data source to benchmark when exploration mode is selected
+  React.useEffect(() => {
+    if (projectInfo?.mode === projectModes.EXPLORATION) {
       setDatasetSource("benchmark");
-    } else {
+    }
+    if (projectInfo?.mode !== projectModes.EXPLORATION) {
       setDatasetSource("file");
     }
-  }, [props.mode]);
-
-  // auto import once dataset is selected
-  React.useEffect(() => {
-    if (file || extension || benchmark) {
-      handleSaveDataset();
-    }
-  }, [handleSaveDataset, file, benchmark, extension]);
+  }, [projectInfo?.mode]);
 
   return (
-    <Root>
+    <StyledDialog
+      open={props.open}
+      fullScreen={props.mobileScreen}
+      fullWidth
+      hideBackdrop={isDatasetAdded()}
+      maxWidth="md"
+      PaperProps={{
+        elevation: !props.datasetAdded ? 1 : 0,
+        sx: { height: !props.mobileScreen ? "calc(100% - 96px)" : "100%" },
+      }}
+      TransitionProps={{ onExited: onExited }}
+    >
       {props.mobileScreen && (
         <AppBarWithinDialog
           disableStartIcon={isLoading}
           onClickStartIcon={handleClose}
-          startIconIsClose={false}
-          title="Dataset"
+          startIconIsClose
+          title="Import a dataset"
         />
       )}
       {!props.mobileScreen && (
         <Fade in>
           <Stack className="dialog-header" direction="row">
-            <DialogTitle>Dataset</DialogTitle>
-            <Box className="dialog-header-button right">
-              <Button disabled={isLoading} onClick={handleClose}>
-                Close
-              </Button>
-            </Box>
+            <DialogTitle>Import a dataset</DialogTitle>
+            <Stack
+              className="dialog-header-button right"
+              direction="row"
+              spacing={1}
+            >
+              <Tooltip title="Close">
+                <StyledIconButton disabled={isLoading} onClick={handleClose}>
+                  <Close />
+                </StyledIconButton>
+              </Tooltip>
+            </Stack>
           </Stack>
         </Fade>
       )}
@@ -167,7 +196,7 @@ const AddDataset = (props) => {
                   label="URL or DOI"
                   onChange={handleDatasetSource}
                 />
-                {props.mode === projectModes.ORACLE && (
+                {projectInfo?.mode === projectModes.ORACLE && (
                   <FormControlLabel
                     value="extension"
                     control={<Radio />}
@@ -175,8 +204,8 @@ const AddDataset = (props) => {
                     onChange={handleDatasetSource}
                   />
                 )}
-                {(props.mode === projectModes.EXPLORATION ||
-                  props.mode === projectModes.SIMULATION) && (
+                {(projectInfo?.mode === projectModes.EXPLORATION ||
+                  projectInfo?.mode === projectModes.SIMULATION) && (
                   <FormControlLabel
                     value="benchmark"
                     control={<Radio />}
@@ -188,8 +217,11 @@ const AddDataset = (props) => {
             </FormControl>
             {(datasetSource === "file" || datasetSource === "url") && (
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                The dataset should contain a title and abstract for each record.{" "}
-                {props.mode !== projectModes.ORACLE || projectModes.EXPLORATION
+                Supported formats are RIS (<code>.ris</code>, <code>.txt</code>)
+                and tabular datasets (<code>.csv</code>, <code>.tab</code>,{" "}
+                <code>.tsv</code>, <code>.xlsx</code>). The dataset should
+                contain a title and abstract for each record.{" "}
+                {projectInfo?.mode !== projectModes.ORACLE
                   ? "The dataset should contain labels for each record. "
                   : ""}
                 To optimally benefit from the performance of the active learning
@@ -206,10 +238,10 @@ const AddDataset = (props) => {
             )}
             {datasetSource === "extension" && (
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Select a dataset from a custom extension.{" "}
+                Select a dataset from an extension.{" "}
                 <Link
                   underline="none"
-                  href="https://asreview.readthedocs.io/en/latest/extensions_dev.html#create-extensions"
+                  href="https://asreview.readthedocs.io/en/latest/extensions_dev.html"
                   target="_blank"
                 >
                   Learn more
@@ -230,60 +262,40 @@ const AddDataset = (props) => {
                 </Link>
               </Typography>
             )}
-            {datasetSource === "file" && datasetReaders !== null && (
-              <ImportFromFile
-                acceptFormat={datasetReaders
-                  .map((reader) => reader.extension)
-                  .join(",")}
-                addFileError={error}
-                file={file}
-                setFile={setFile}
-                isAddFileError={isError}
-                isAddingFile={isLoading}
-                reset={reset}
+            {datasetSource === "file" && (
+              <DatasetFromFile
+                acceptFormat=".txt,.tsv,.tab,.csv,.ris,.xlsx"
+                toggleImportDataset={props.toggleImportDataset}
+                toggleProjectSetup={props.toggleProjectSetup}
               />
             )}
             {datasetSource === "url" && (
               <DatasetFromURL
-                project_id={props.project_id}
-                addDatasetError={error}
-                handleSaveDataset={handleSaveDataset}
-                url={url}
-                setURL={setURL}
-                isAddDatasetError={isError}
-                isAddingDataset={isLoading}
-                reset={reset}
+                toggleImportDataset={props.toggleImportDataset}
+                toggleProjectSetup={props.toggleProjectSetup}
               />
             )}
             {datasetSource === "extension" && (
               <DatasetFromEntryPoint
                 subset="plugin"
-                addDatasetError={error}
-                extension={extension}
-                setExtension={setExtension}
-                isAddDatasetError={isError}
-                isAddingDataset={isLoading}
                 mobileScreen={props.mobileScreen}
-                reset={reset}
+                toggleImportDataset={props.toggleImportDataset}
+                toggleProjectSetup={props.toggleProjectSetup}
               />
             )}
             {datasetSource === "benchmark" && (
               <DatasetFromEntryPoint
                 subset="benchmark"
-                addDatasetError={error}
-                benchmark={benchmark}
-                setBenchmark={setBenchmark}
-                isAddDatasetError={isError}
-                isAddingDataset={isLoading}
                 mobileScreen={props.mobileScreen}
-                reset={reset}
+                toggleImportDataset={props.toggleImportDataset}
+                toggleProjectSetup={props.toggleProjectSetup}
               />
             )}
           </Stack>
         </DialogContent>
       </Fade>
-    </Root>
+    </StyledDialog>
   );
 };
 
-export default connect(mapStateToProps)(AddDataset);
+export default connect(mapStateToProps, mapDispatchToProps)(ImportDataset);

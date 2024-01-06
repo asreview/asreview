@@ -100,6 +100,7 @@ const LabeledRecord = (props) => {
     },
   );
 
+  // For use on History page ONLY
   React.useEffect(() => {
     setSubset(
       props.filterQuery?.map((element) => {

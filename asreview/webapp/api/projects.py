@@ -17,6 +17,7 @@ import logging
 import shutil
 import subprocess
 import tempfile
+import time
 from pathlib import Path
 from urllib.request import urlretrieve
 from uuid import uuid4
@@ -36,10 +37,6 @@ from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
-from asreview.config import DEFAULT_BALANCE_STRATEGY
-from asreview.config import DEFAULT_FEATURE_EXTRACTION
-from asreview.config import DEFAULT_MODEL
-from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
@@ -185,9 +182,8 @@ def api_init_project():  # noqa: F401
     """Initialize a new project"""
 
     project_mode = request.form["mode"]
-    project_title = request.form["name"]
-    project_description = request.form["description"]
-    project_authors = request.form["authors"]
+    project_title = request.form["mode"] + "_" + time.strftime("%Y%m%d-%H%M%S")
+    # TODO{Terry}: retrieve author from the authenticated profile
 
     # get a unique project id
     project_id = uuid4().hex
@@ -200,8 +196,6 @@ def api_init_project():  # noqa: F401
         project_id=project_id,
         project_mode=project_mode,
         project_name=project_title,
-        project_description=project_description,
-        project_authors=project_authors,
     )
 
     if current_app.config.get("LOGIN_DISABLED", False):
@@ -276,7 +270,6 @@ def api_update_project_info(project):  # noqa: F401
     """Update project info"""
 
     project.update_config(
-        mode=request.form["mode"],
         name=request.form["name"],
         description=request.form["description"],
         authors=request.form["authors"],
@@ -888,12 +881,7 @@ def api_list_algorithms():
 @login_required
 @project_authorization
 def api_get_algorithms(project):  # noqa: F401
-    default_payload = {
-        "model": DEFAULT_MODEL,
-        "feature_extraction": DEFAULT_FEATURE_EXTRACTION,
-        "query_strategy": DEFAULT_QUERY_STRATEGY,
-        "balance_strategy": DEFAULT_BALANCE_STRATEGY,
-    }
+    """Get the algorithms used in the project"""
 
     # check if there were algorithms stored in the state file
     try:
@@ -906,9 +894,9 @@ def api_get_algorithms(project):  # noqa: F401
                     "balance_strategy": state.settings.balance_strategy,
                 }
             else:
-                payload = default_payload
+                payload = None
     except StateNotFoundError:
-        payload = default_payload
+        payload = None
 
     return jsonify(payload)
 
@@ -1113,9 +1101,7 @@ def api_import_project():
 
     try:
         project = ASReviewProject.load(
-            request.files["file"],
-            asreview_path(),
-            safe_import=True
+            request.files["file"], asreview_path(), safe_import=True
         )
 
     except Exception as err:

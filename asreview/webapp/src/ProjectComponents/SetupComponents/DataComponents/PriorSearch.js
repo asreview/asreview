@@ -169,7 +169,6 @@ const PriorSearch = (props) => {
                   <PriorUnlabeled
                     keyword={keyword}
                     record={record}
-                    n_prior={props.n_prior}
                     key={`result-page-${index}`}
                   />
                 ))}
