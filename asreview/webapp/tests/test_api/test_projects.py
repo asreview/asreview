@@ -67,20 +67,24 @@ def test_create_projects(setup):
 
 # Test create a project with incorrect tags
 def test_create_projects_with_incorrect_tags(setup):
-    client, _, _ = setup
-    project_name = "new_project"
+    client, _, project = setup
     tags = json.dumps([{"foo": "bar"}, {"foo1": "bar1"}])
 
     with pytest.raises(
         ValidationError, match=r".*Failed validating .*type.* in schema.*"
     ):
-        au.create_project(client, project_name, tags=json.dumps(tags))
+
+        # request
+        status_code, data = au.update_project(
+            client,
+            project,
+            tags=json.dumps(tags),
+        )
 
 
 # Test create a project with correct tags
 def test_create_projects_with_correct_tags(setup):
-    client, _, _ = setup
-    project_name = "new_project"
+    client, _, project = setup
     tags = [
         {
             "name": "Biomes",
@@ -116,9 +120,14 @@ def test_create_projects_with_correct_tags(setup):
         },
     ]
 
-    status_code, data = au.create_project(client, project_name, tags=json.dumps(tags))
-    assert status_code == 201
-    assert data["name"] == project_name
+    # request
+    status_code, data = au.update_project(
+        client,
+        project,
+        tags=json.dumps(tags),
+    )
+    assert status_code == 200
+    assert data["mode"] == "explore"
     assert data["tags"] == tags
 
 
