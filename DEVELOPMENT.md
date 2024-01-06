@@ -117,22 +117,18 @@ git clone --recursive git://github.com/asreview/asreview.git
 
 ## Formatting and linting
 
-Use `flake8` to lint the Python code and format the code with `black`. Use
-`black[jupyter]` if you are editing the Jupyter notebooks. Use `isort` to
-sort the imports.
-
+Use `ruff` to lint the Python code and `ruff format` to format the code.
 Install the linters and formatters with:
 
 ```sh
-pip install black[jupyter] flake8 flake8-isort isort
+pip install asreview[dev]
 ```
 
 Run the following commands to lint and format:
 
 ```sh
-black .
-isort .
-flake8 .
+ruff .
+ruff format .
 ```
 
 For the React application, Prettier is used to format the files.
@@ -142,6 +138,12 @@ Run the formatter with
 
 ```
 npx prettier --write .
+```
+
+There is also a `pre-commit` available to handle linting and formatting.
+
+```
+pre-commit install
 ```
 
 ## Documentation
