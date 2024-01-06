@@ -42,6 +42,7 @@ const DetailsPage = (props) => {
     title: props.info?.name,
     authors: props.info?.authors,
     description: props.info?.description,
+    tags: props.tags,
   });
 
   const {
@@ -64,6 +65,7 @@ const DetailsPage = (props) => {
             name: variables.title,
             authors: variables.authors,
             description: variables.description,
+            tags: variables.tags,
           };
         },
       );
@@ -87,6 +89,7 @@ const DetailsPage = (props) => {
       title: props.info?.name,
       authors: props.info?.authors,
       description: props.info?.description,
+      tags: props.tags,
     });
     setDisableSaveButton(true);
     setDisableUndoButton(true);
@@ -99,6 +102,7 @@ const DetailsPage = (props) => {
       title: info.title,
       authors: info.authors,
       description: info.description,
+      tags: info.tags,
     });
   };
 

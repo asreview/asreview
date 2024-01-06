@@ -214,6 +214,7 @@ class ASReviewProject:
         project_name=None,
         project_description=None,
         project_authors=None,
+        project_tags=None,
     ):
         """Initialize the necessary files specific to the web app."""
 
@@ -253,6 +254,7 @@ class ASReviewProject:
                 "datetimeCreated": str(datetime.now()),
                 "reviews": [],
                 "feature_matrices": [],
+                "tags": project_tags,
             }
 
             # validate new config before storing

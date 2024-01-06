@@ -1,4 +1,5 @@
 import inspect
+import json
 import time
 from pathlib import Path
 from typing import Union
@@ -14,6 +15,9 @@ from asreview.project import ASReviewProject
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import Project
+from asreview.webapp.tests.utils.misc import current_app_is_authenticated
+from asreview.webapp.tests.utils.misc import retrieve_project_url_github
+from jsonschema.exceptions import ValidationError
 
 # NOTE: I don't see a plugin that can be used for testing
 # purposes
@@ -61,6 +65,64 @@ def test_create_projects(setup):
     status_code, data = au.create_project(client)
     assert status_code == 201
     assert data["name"].startswith("explore")
+
+# Test create a project with incorrect tags
+def test_create_projects_with_incorrect_tags(setup):
+    client, _, _ = setup
+    project_name = "new_project"
+    tags = json.dumps([
+        {
+            "foo": "bar"
+        },
+        {
+            "foo1": "bar1"
+        }
+    ])
+
+    with pytest.raises(ValidationError, match=r".*Failed validating .*type.* in schema.*"):
+        au.create_project(client, project_name, tags=json.dumps(tags))
+
+# Test create a project with correct tags
+def test_create_projects_with_incorrect_tags(setup):
+    client, _, _ = setup
+    project_name = "new_project"
+    tags = [{
+                        "name": "Biomes",
+                        "id": "biomes",
+                        "values": [
+                            {"id": "boreal_forest", "name": "Boreal Forest"},
+                            {"id": "savanna", "name": "Savanna"},
+                            {"id": "mangrove", "name": "Mangrove"},
+                            {"id": "tropical_forest", "name": "Tropical Forest"},
+                        ],
+                    },
+                    {
+                        "name": "Restoration Approaches",
+                        "id": "restoration_approaches",
+                        "values": [
+                            {
+                                "id": "direct_seeding",
+                                "name": "Direct seeding (i.e. spreading/planting seeds)",
+                            },
+                            {
+                                "id": "tree_planting",
+                                "name": "Planting trees (i.e. planting trees as seedlings)",
+                            },
+                            {
+                                "id": "assisted_natural_regeneration",
+                                "name": "Assisted natural regeneration",
+                            },
+                            {
+                                "id": "farmer_managed_natural_regeneration",
+                                "name": "Farmer managed natural regeneration",
+                            },
+                        ],
+                    }]
+
+    status_code, data = au.create_project(client, project_name, tags=json.dumps(tags))
+    assert status_code == 201
+    assert data["name"] == project_name
+    assert data["tags"] == tags
 
 
 # Test upgrading a post v0.x project
@@ -225,6 +287,39 @@ def test_update_project_info(setup):
     new_name = "new name"
     new_authors = "new authors"
     new_description = "new description"
+    new_tags = json.dumps([{
+                        "name": "Biomes",
+                        "id": "biomes",
+                        "values": [
+                            {"id": "boreal_forest", "name": "Boreal Forest"},
+                            {"id": "savanna", "name": "Savanna"},
+                            {"id": "mangrove", "name": "Mangrove"},
+                            {"id": "tropical_forest", "name": "Tropical Forest"},
+                        ],
+                    },
+                    {
+                        "name": "Restoration Approaches",
+                        "id": "restoration_approaches",
+                        "values": [
+                            {
+                                "id": "direct_seeding",
+                                "name": "Direct seeding (i.e. spreading/planting seeds)",
+                            },
+                            {
+                                "id": "tree_planting",
+                                "name": "Planting trees (i.e. planting trees as seedlings)",
+                            },
+                            {
+                                "id": "assisted_natural_regeneration",
+                                "name": "Assisted natural regeneration",
+                            },
+                            {
+                                "id": "farmer_managed_natural_regeneration",
+                                "name": "Farmer managed natural regeneration",
+                            },
+                        ],
+                    }])
+
     # request
     status_code, data = au.update_project(
         client,
@@ -233,12 +328,14 @@ def test_update_project_info(setup):
         # mode=new_mode,  # from version 2 on, it's no longer possible to update mode
         authors=new_authors,
         description=new_description,
+        tags=new_tags
     )
     assert status_code == 200
     assert data["authors"] == new_authors
     assert data["description"] == new_description
     assert data["mode"] == "explore"
     assert data["name"] == new_name
+    assert data["tags"] == json.loads(new_tags)
 
 
 # Test search data
@@ -324,7 +421,7 @@ def test_list_algorithms(setup):
         "balance_strategy",
         "classifier",
         "feature_extraction",
-        "query_strategy",
+        "query_strategy"
     ]
     for key in expected_keys:
         assert key in data.keys()

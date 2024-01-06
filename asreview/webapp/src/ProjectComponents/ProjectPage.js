@@ -82,6 +82,8 @@ const ProjectPage = (props) => {
   // is this user the ownwer of this project
   const [isOwner, setIsOwner] = React.useState(false);
 
+  const [tags, setTags] = React.useState([]);
+
   // History page state
   const [historyLabel, setHistoryLabel] = React.useState("relevant");
   const [historyFilterQuery, setHistoryFilterQuery] = React.useState([]);
@@ -94,6 +96,8 @@ const ProjectPage = (props) => {
       onSuccess: (data) => {
         // set ownership
         setIsOwner(auth?.id === data.ownerId);
+        setTags(data["tags"] ?? []);
+
         if (
           data.reviews[0] === undefined ||
           data["reviews"][0]["status"] === projectStatuses.SETUP
@@ -213,6 +217,7 @@ const ProjectPage = (props) => {
                     fontSize={props.fontSize}
                     undoEnabled={props.undoEnabled}
                     keyPressEnabled={props.keyPressEnabled}
+                    tags={tags}
                   />
                 }
               />
@@ -283,6 +288,7 @@ const ProjectPage = (props) => {
               element={
                 <DetailsPage
                   info={data}
+                  tags={tags}
                   isSimulating={isSimulating}
                   mobileScreen={props.mobileScreen}
                   setHistoryFilterQuery={setHistoryFilterQuery}
