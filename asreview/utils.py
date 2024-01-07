@@ -124,10 +124,15 @@ def _deprecated_kwarg(kwarg_map):
             new_kwargs = {}
             for k, v in kwargs.items():
                 if k in kwarg_map:
-                    warnings.warn(f"Keyword argument '{k}' is deprecated. Use '{kwarg_map[k]}' instead.", DeprecationWarning)  # noqa
+                    warnings.warn(
+                        f"Keyword argument '{k}' is deprecated. Use '{kwarg_map[k]}' instead.",
+                        DeprecationWarning,
+                    )  # noqa
                 new_kwargs[kwarg_map.get(k, k)] = v
             return func(*args, **new_kwargs)
+
         return wrapper
+
     return dec
 
 
@@ -271,7 +276,8 @@ def is_url(url):
     try:
         result = urlparse(url)
         return all(
-            getattr(result, x) not in [b"", ""] for x in ["scheme", "netloc", "path"])
+            getattr(result, x) not in [b"", ""] for x in ["scheme", "netloc", "path"]
+        )
     except Exception:
         return False
 

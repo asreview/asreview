@@ -31,7 +31,7 @@ const EntryPointDataset = (props) => {
       props.reset();
     }
     if (!props.isAddingDataset) {
-      props.setSelectedDatasetId(props.dataset_id);
+      props.addFile(props.dataset_id);
     }
   };
 

@@ -149,5 +149,3 @@ such as EndNote, Mendeley, Refworks and Zotero. All of these are compatible with
 
 \** When exporting from Distiller and if the following error occurs ``Unable to parse string "Yes (include)" at position 0``
 set the ``sort references by`` to ``Authors``. Then the data can be imported in ASReview.
-
-

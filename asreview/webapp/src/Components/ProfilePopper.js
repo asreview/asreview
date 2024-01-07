@@ -103,7 +103,7 @@ const ProfilePopper = (props) => {
                 dispatch(setMyProjects(data.result));
                 // remove project from Dialog table
                 const newProjectList = projectInvitations.filter(
-                  (p) => p.id !== project.id
+                  (p) => p.id !== project.id,
                 );
                 setProjectInvitations(newProjectList);
                 // close modal if there are no more invitations
@@ -130,7 +130,7 @@ const ProfilePopper = (props) => {
           // remove project from Dialog table and close if there are
           // no more invitations
           const newProjectList = projectInvitations.filter(
-            (p) => p.id !== project.id
+            (p) => p.id !== project.id,
           );
           setProjectInvitations(newProjectList);
           // close modal if there are no more invitations

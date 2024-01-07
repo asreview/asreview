@@ -5,17 +5,16 @@ jobs:
     name: lint-python
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-    - name: Install flake8
-      run: |
-        pip install flake8 isort flake8-isort
-    - name: Lint python with flake8
-      run: |
-        flake8 . --max-complexity=10 --statistics
-        isort . --check-only
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install ruff
+        run: |
+          pip install .[dev]
+      - name: Lint Python
+        run: |
+          ruff .
   format-python:
     name: format-python
     runs-on: ubuntu-latest
@@ -37,39 +36,39 @@ jobs:
       matrix:
         python: ["3.8", "3.12"]
     steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: recursive
-    - uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python }}
-    - name: Install packages
-      run: |
-        pip install pytest
-        pip install --no-cache-dir .
-    - name: Run test suite
-      run: |
-        pytest tests/
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install packages
+        run: |
+          pip install pytest
+          pip install --no-cache-dir .
+      - name: Run test suite
+        run: |
+          pytest tests/
   test-full-deps:
     name: test-full-deps
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: recursive
-    - uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-    - name: Install packages
-      run: |
-        pip install pytest
-        pip install --upgrade setuptools>=41.0.0
-        pip install --no-cache-dir .[sbert]
-        pip install --no-cache-dir .[doc2vec]
-        pip install --no-cache-dir .[tensorflow]
-        pip install --no-cache-dir .[dev]
-        pip install --no-cache-dir .[test]
-        pip install --no-cache-dir .
-    - name: Run test suite
-      run: |
-        pytest tests/
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install packages
+        run: |
+          pip install pytest
+          pip install --upgrade setuptools>=41.0.0
+          pip install --no-cache-dir .[sbert]
+          pip install --no-cache-dir .[doc2vec]
+          pip install --no-cache-dir .[tensorflow]
+          pip install --no-cache-dir .[dev]
+          pip install --no-cache-dir .[test]
+          pip install --no-cache-dir .
+      - name: Run test suite
+        run: |
+          pytest tests/

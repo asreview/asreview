@@ -169,3 +169,6 @@ sketch
 notes.md
 
 flask_config.*
+
+*.iml
+.idea

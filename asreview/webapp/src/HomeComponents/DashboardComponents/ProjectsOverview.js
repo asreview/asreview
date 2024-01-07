@@ -6,13 +6,25 @@ import {
   NumberCard,
   ProjectTable,
 } from "../DashboardComponents";
-import { useToggle } from "../../hooks/useToggle";
 import { ActionsFeedbackBar } from "../../Components";
-import { ProjectImportDialog } from "../../ProjectComponents";
-import { SetupDialog } from "../../ProjectComponents/SetupComponents";
+import { ImportProject } from "../../ProjectComponents";
+import {
+  ModePickDialog,
+  SetupDialog,
+} from "../../ProjectComponents/SetupComponents";
+import {
+  AddPriorKnowledge,
+  ImportDataset,
+} from "../../ProjectComponents/SetupComponents/DataComponents";
+
+import { useToggle } from "../../hooks/useToggle";
 
 const ProjectsOverview = (props) => {
-  const [onImportDialog, toggleImportDialog] = useToggle();
+  const [onAddPrior, toggleAddPrior] = useToggle();
+  const [onModePick, toggleModePick] = useToggle();
+  const [onImportDataset, toggleImportDataset] = useToggle();
+  const [onImportProject, toggleImportProject] = useToggle();
+
   const [feedbackBar, setFeedbackBar] = React.useState({
     open: false,
     message: null,
@@ -29,7 +41,7 @@ const ProjectsOverview = (props) => {
     <>
       <DashboardPageHeader
         mobileScreen={props.mobileScreen}
-        toggleImportDialog={toggleImportDialog}
+        toggleImportProject={toggleImportProject}
       />
       <Box className="main-page-body-wrapper">
         <Stack className="main-page-body" spacing={6}>
@@ -39,6 +51,7 @@ const ProjectsOverview = (props) => {
             projectCheck={props.projectCheck}
             setFeedbackBar={setFeedbackBar}
             setProjectCheck={props.setProjectCheck}
+            toggleModePick={toggleModePick}
             toggleProjectSetup={props.toggleProjectSetup}
             toggleAcceptanceSetup={props.AcceptanceDialog}
           />
@@ -48,23 +61,44 @@ const ProjectsOverview = (props) => {
         id="create-project"
         className="main-page-fab"
         color="primary"
-        onClick={props.toggleProjectSetup}
+        onClick={toggleModePick}
         variant="extended"
       >
         <Add sx={{ mr: 1 }} />
         Create
       </Fab>
-      <ProjectImportDialog
+      <ModePickDialog
+        open={onModePick}
+        toggleModePick={toggleModePick}
+        toggleImportDataset={toggleImportDataset}
+      />
+      <AddPriorKnowledge
+        open={onAddPrior}
         mobileScreen={props.mobileScreen}
-        open={onImportDialog}
-        onClose={toggleImportDialog}
+        toggleAddPrior={toggleAddPrior}
+      />
+      <ImportDataset
+        open={onImportDataset}
+        datasetAdded={false}
+        mobileScreen={props.mobileScreen}
+        toggleImportDataset={toggleImportDataset}
+        toggleProjectSetup={props.toggleProjectSetup}
+      />
+      <ImportProject
+        mobileScreen={props.mobileScreen}
+        open={onImportProject}
+        toggleImportProject={toggleImportProject}
         setFeedbackBar={setFeedbackBar}
       />
       <SetupDialog
         mobileScreen={props.mobileScreen}
+        onAddPrior={onAddPrior}
+        onImportDataset={onImportDataset}
         open={props.onProjectSetup}
         onClose={props.toggleProjectSetup}
         setFeedbackBar={setFeedbackBar}
+        toggleAddPrior={toggleAddPrior}
+        toggleImportDataset={toggleImportDataset}
       />
       <ActionsFeedbackBar
         center

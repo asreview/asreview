@@ -162,7 +162,7 @@ def _standardize_dataframe(df, column_def={}):
     # # Create a new index if we haven't found it in the data.
     # else:
     #     df["record_id"] = np.arange(len(df.index))
-    df["record_id"] = np.arange(len(df.index)).astype('int64')
+    df["record_id"] = np.arange(len(df.index)).astype("int64")
 
     # set the index
     df.set_index("record_id", inplace=True)

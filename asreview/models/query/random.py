@@ -45,7 +45,7 @@ class RandomQuery(BaseQueryStrategy):
         classifier=None,
         n_instances=None,
         return_classifier_scores=False,
-        **kwargs
+        **kwargs,
     ):
         if n_instances is None:
             n_instances = X.shape[0]

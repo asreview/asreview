@@ -100,6 +100,7 @@ const LabeledRecord = (props) => {
     },
   );
 
+  // For use on History page ONLY
   React.useEffect(() => {
     setSubset(
       props.filterQuery?.map((element) => {
@@ -167,8 +168,8 @@ const LabeledRecord = (props) => {
                     {isFetchingNextPage
                       ? "Loading more..."
                       : hasNextPage
-                      ? "Load More"
-                      : "Nothing more to load"}
+                        ? "Load More"
+                        : "Nothing more to load"}
                   </Typography>
                 </ButtonBase>
               </InView>

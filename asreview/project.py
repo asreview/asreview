@@ -214,6 +214,7 @@ class ASReviewProject:
         project_name=None,
         project_description=None,
         project_authors=None,
+        project_tags=None,
     ):
         """Initialize the necessary files specific to the web app."""
 
@@ -253,6 +254,7 @@ class ASReviewProject:
                 "datetimeCreated": str(datetime.now()),
                 "reviews": [],
                 "feature_matrices": [],
+                "tags": project_tags,
             }
 
             # validate new config before storing
@@ -330,17 +332,20 @@ class ASReviewProject:
 
         Add file to data subfolder and fill the pool of iteration 0.
         """
-        self.update_config(dataset_path=file_name)
 
         # fill the pool of the first iteration
-        fp_data = Path(self.project_path, "data", self.config["dataset_path"])
+        fp_data = Path(self.project_path, "data", file_name)
         as_data = ASReviewData.from_file(fp_data)
 
-        if self.config["mode"] == PROJECT_MODE_SIMULATE and as_data.labels is None:
+        if self.config["mode"] == PROJECT_MODE_SIMULATE and (
+            as_data.labels is None or (as_data.labels == LABEL_NA).any()
+        ):
             raise ValueError("Import fully labeled dataset")
 
         if self.config["mode"] == PROJECT_MODE_EXPLORE and as_data.labels is None:
             raise ValueError("Import partially or fully labeled dataset")
+
+        self.update_config(dataset_path=file_name, name=file_name.rsplit(".", 1)[0])
 
         with open_state(self.project_path, read_only=False) as state:
             # save the record ids in the state file
@@ -378,7 +383,6 @@ class ASReviewProject:
             self.delete_review()
 
     def _read_data_from_cache(self, version_check=True):
-
         fp_data = Path(self.project_path, "data", self.config["dataset_path"])
         fp_data_pickle = Path(fp_data).with_suffix(fp_data.suffix + ".pickle")
 
@@ -550,7 +554,7 @@ class ASReviewProject:
         review_config = {
             "id": review_id,
             "start_time": str(start_time),
-            "status": status
+            "status": status,
             # "end_time": datetime.now()
         }
 

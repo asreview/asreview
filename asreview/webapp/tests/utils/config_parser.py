@@ -43,7 +43,7 @@ def get_user_data(test_user_id):
         "email": section["email"],
         "name": section["name"],
         "affiliation": section["affiliation"],
-        "password": section["password"]
+        "password": section["password"],
     }
 
 

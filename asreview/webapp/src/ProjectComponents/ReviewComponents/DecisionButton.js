@@ -39,8 +39,8 @@ const DecisionButton = (props) => {
           !props.mobileScreen
             ? "row"
             : !props.previousRecord.show
-            ? "row"
-            : "column"
+              ? "row"
+              : "column"
         }
         spacing={!props.mobileScreen ? 10 : !props.previousRecord.show ? 10 : 2}
       >

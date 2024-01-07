@@ -67,7 +67,7 @@ class MixedQuery(BaseQueryStrategy):
         strategy_2="random",
         mix_ratio=0.95,
         random_state=None,
-        **kwargs
+        **kwargs,
     ):
         """Initialize the Mixed query strategy."""
         super(MixedQuery, self).__init__()
@@ -187,7 +187,7 @@ class MaxRandomQuery(MixedQuery):
             strategy_2="random",
             mix_ratio=mix_ratio,
             random_state=random_state,
-            **kwargs
+            **kwargs,
         )
 
 
@@ -210,5 +210,5 @@ class MaxUncertaintyQuery(MixedQuery):
             strategy_2="uncertainty",
             mix_ratio=mix_ratio,
             random_state=random_state,
-            **kwargs
+            **kwargs,
         )
