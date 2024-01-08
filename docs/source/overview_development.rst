@@ -59,4 +59,4 @@ Extensions
 :doc:`The Create an extension <extensions_dev>` section documents the creation
 of model, subcommand, and dataset extensions for ASReview. More information on
 extensions can be found in the extension
-:doc:`extensions_overview`.
+:doc:`extensions_dev`.
