@@ -80,7 +80,7 @@ class DictState(BaseState):
     read_only = False
 
     def __init__(self, state_fp, *_, **__):
-        super(DictState, self).__init__(state_fp)
+        super().__init__(state_fp)
         self.read_only = False
 
     def __enter__(self):

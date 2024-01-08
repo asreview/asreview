@@ -1,7 +1,6 @@
 __all__ = ["BaseReview"]
 
 import logging
-from abc import ABC
 
 import numpy as np
 import pandas as pd
@@ -17,7 +16,7 @@ from asreview.project import open_state
 from asreview.settings import ASReviewSettings
 
 
-class BaseReview(ABC):
+class BaseReview:
     """Base class for Systematic Review.
 
     Arguments
@@ -61,11 +60,13 @@ class BaseReview(ABC):
         n_papers=None,
         n_instances=DEFAULT_N_INSTANCES,
         stop_if=None,
-        start_idx=[],
+        start_idx=None,
     ):
         """Initialize the reviewer base class, so that everything is ready to
         train a new model."""
-        super(BaseReview, self).__init__()
+        if start_idx is None:
+            start_idx = []
+        super().__init__()
 
         # Set the model.
         self.classifier = model

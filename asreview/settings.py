@@ -90,10 +90,10 @@ class ASReviewSettings:
         n_prior_included=None,
         n_prior_excluded=None,
         as_data=None,
-        model_param={},
-        query_param={},
-        balance_param={},
-        feature_param={},
+        model_param=None,
+        query_param=None,
+        balance_param=None,
+        feature_param=None,
         data_fp=None,
         n_queries=None,
         abstract_only=False,  # deprecated
@@ -101,6 +101,14 @@ class ASReviewSettings:
         n_papers=None,  # deprecated
         data_name=None,  # deprecated
     ):
+        if feature_param is None:
+            feature_param = {}
+        if balance_param is None:
+            balance_param = {}
+        if query_param is None:
+            query_param = {}
+        if model_param is None:
+            model_param = {}
         self.model = model
         self.query_strategy = query_strategy
         self.balance_strategy = balance_strategy
@@ -129,11 +137,11 @@ class ASReviewSettings:
 
     def __setattr__(self, name, value):
         try:
-            super(ASReviewSettings, self).__setattr__(
+            super().__setattr__(
                 name, _map_settings_type(name, value)
             )
         except KeyError:
-            super(ASReviewSettings, self).__setattr__(name, value)
+            super().__setattr__(name, value)
 
     def to_dict(self):
         """Export default settings to dict."""

@@ -43,7 +43,7 @@ class NaiveBayesClassifier(BaseTrainClassifier):
     label = "Naive Bayes"
 
     def __init__(self, alpha=3.822):
-        super(NaiveBayesClassifier, self).__init__()
+        super().__init__()
         self.alpha = alpha
         self._model = MultinomialNB(alpha=alpha)
         logging.debug(self._model)

@@ -200,7 +200,7 @@ class SimulateEntryPoint(BaseEntryPoint):
                 prior_df = s.get_priors()
 
                 print("The following records are prior knowledge:\n")
-                for i, row in prior_df.iterrows():
+                for _i, row in prior_df.iterrows():
                     preview = as_data.record(row["record_id"])
                     print(preview)
 

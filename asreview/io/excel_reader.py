@@ -48,7 +48,7 @@ class ExcelReader:
         best_sheet = None
         sheet_obj_val = -1
         wanted_columns = []
-        for type_name, type_list in COLUMN_DEFINITIONS.items():
+        for _type_name, type_list in COLUMN_DEFINITIONS.items():
             wanted_columns.extend(type_list)
 
         for sheet_name in dfs:

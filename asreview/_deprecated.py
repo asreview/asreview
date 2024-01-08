@@ -22,7 +22,7 @@ def _deprecated_func(msg):
     def dec(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            warnings.warn(msg)
+            warnings.warn(msg, stacklevel=2)
             return func(*args, **kwargs)
 
         return wrapper
@@ -32,7 +32,9 @@ def _deprecated_func(msg):
 
 class DeprecateAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        logging.warning(f"Argument {self.option_strings} is deprecated and is ignored.")
+        logging.warning(
+            f"Argument {self.option_strings} is deprecated and is ignored.",
+            stacklevel=2)
         delattr(namespace, self.dest)
 
 

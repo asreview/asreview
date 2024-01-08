@@ -82,7 +82,7 @@ class SBERT(BaseFeatureExtraction):
         pooling_mode="mean",
         **kwargs,
     ):
-        super(SBERT, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.transformer_model = transformer_model
         self.is_pretrained_sbert = is_pretrained_sbert
         self.pooling_mode = pooling_mode

@@ -103,7 +103,7 @@ class NN2LayerClassifier(BaseTrainClassifier):
         class_weight=30.0,
     ):
         """Initialize the 2-layer neural network model."""
-        super(NN2LayerClassifier, self).__init__()
+        super().__init__()
         self.dense_width = int(dense_width)
         self.optimizer = optimizer
         self.learn_rate = learn_rate

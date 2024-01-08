@@ -9,7 +9,9 @@ exclude = [
     "site-packages",
     "venv",
     "versioneer.py",
-    "docs/source/conf.py"
+    "docs/source/conf.py",
+    "asreview/_version.py",
+    "asreview/state/legacy",
 ]
 
 # Same as Black.
@@ -18,7 +20,7 @@ indent-width = 4
 
 [lint]
 select = ["E", "F", "UP", "I", "B"]
-ignore = []
+ignore = ["B904", "B008"]
 
 [lint.per-file-ignores]
 "asreview/config.py" = ["E501"]

@@ -125,8 +125,10 @@ def _deprecated_kwarg(kwarg_map):
             for k, v in kwargs.items():
                 if k in kwarg_map:
                     warnings.warn(
-                        f"Keyword argument '{k}' is deprecated. Use '{kwarg_map[k]}' instead.",
+                        f"Keyword argument '{k}' is deprecated. "
+                        "Use '{kwarg_map[k]}' instead.",
                         DeprecationWarning,
+                        stacklevel=2,
                     )  # noqa
                 new_kwargs[kwarg_map.get(k, k)] = v
             return func(*args, **new_kwargs)

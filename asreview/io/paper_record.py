@@ -139,7 +139,9 @@ class PaperRecord:
         Any extra keyword arguments will be put in self.extra_fields.
     """
 
-    def __init__(self, record_id, column_spec={}, **kwargs):
+    def __init__(self, record_id, column_spec=None, **kwargs):
+        if column_spec is None:
+            column_spec = {}
         for attr in [
             "title",
             "abstract",

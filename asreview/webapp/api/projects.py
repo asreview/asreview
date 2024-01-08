@@ -370,7 +370,7 @@ def api_upload_data_to_project(project):  # noqa: F401
                     dh = datahugger.info(url)
                     files = dh.files.copy()
 
-                    for i, f in enumerate(files):
+                    for i, _f in enumerate(files):
                         files[i]["disabled"] = (
                             Path(files[i]["name"]).suffix not in reader_keys
                         )

@@ -93,7 +93,7 @@ class SQLiteState(BaseState):
     """
 
     def __init__(self, read_only=True):
-        super(SQLiteState, self).__init__(read_only=read_only)
+        super().__init__(read_only=read_only)
 
     # INTERNAL PATHS AND CONNECTIONS
 
@@ -1055,7 +1055,7 @@ class SQLiteState(BaseState):
             "record_id"
         ]
 
-    def get_priors(self, columns=["record_id"]):
+    def get_priors(self, columns=None):
         """Get the record ids of the priors.
 
         Returns
@@ -1064,6 +1064,8 @@ class SQLiteState(BaseState):
             The record_id's of the priors in the order they were added.
         """
 
+        if columns is None:
+            columns = ["record_id"]
         query_string = "*" if columns is None else ",".join(columns)
 
         con = self._connect_to_sql()

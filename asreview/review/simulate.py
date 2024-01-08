@@ -183,7 +183,7 @@ class ReviewSimulate(BaseReview):
             else:
                 start_idx = naive_prior_knowledge(labels)
 
-        super(ReviewSimulate, self).__init__(
+        super().__init__(
             as_data, *args, start_idx=start_idx, **kwargs
         )
 

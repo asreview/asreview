@@ -52,7 +52,7 @@ class SVMClassifier(BaseTrainClassifier):
         kernel="linear",
         random_state=None,
     ):
-        super(SVMClassifier, self).__init__()
+        super().__init__()
         self.gamma = gamma
         self.class_weight = class_weight
         self.C = C

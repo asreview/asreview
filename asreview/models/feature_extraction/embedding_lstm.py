@@ -88,7 +88,7 @@ class EmbeddingLSTM(BaseFeatureExtraction):
         **kwargs,
     ):
         """Initialize the embedding matrix feature extraction."""
-        super(EmbeddingLSTM, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.embedding = None
         self.num_words = num_words
         self.max_sequence_length = max_sequence_length
@@ -132,7 +132,7 @@ class EmbeddingLSTM(BaseFeatureExtraction):
     def full_hyper_space(self):
         from hyperopt import hp
 
-        hyper_space, hyper_choices = super(EmbeddingLSTM, self).full_hyper_space()
+        hyper_space, hyper_choices = super().full_hyper_space()
         hyper_space.update({"fex_loop_sequences": hp.randint("fex_loop_sequences", 2)})
         return hyper_space, hyper_choices
 
