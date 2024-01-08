@@ -75,7 +75,8 @@ def create_app(
     if app.config.get("AUTHENTICATION_ENABLED", None):
         warnings.warn(
             "The use of AUTHENTICATION_ENABLED=true is deprecated and "
-            "will be removed in the future. Use LOGIN_DISABLED=false instead."
+            "will be removed in the future. Use LOGIN_DISABLED=false instead.",
+            stacklevel=2,
         )
         if "LOGIN_DISABLED" not in app.config:
             app.config["LOGIN_DISABLED"] = False

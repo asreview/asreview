@@ -125,8 +125,10 @@ def _deprecated_kwarg(kwarg_map):
             for k, v in kwargs.items():
                 if k in kwarg_map:
                     warnings.warn(
-                        f"Keyword argument '{k}' is deprecated. Use '{kwarg_map[k]}' instead.",
+                        f"Keyword argument '{k}' is deprecated. "
+                        "Use '{kwarg_map[k]}' instead.",
                         DeprecationWarning,
+                        stacklevel=2,
                     )  # noqa
                 new_kwargs[kwarg_map.get(k, k)] = v
             return func(*args, **new_kwargs)
@@ -214,7 +216,7 @@ def pretty_format(result):
     longest_key = max([len(key) for key in result])
     result_str = ""
     for key, value in result.items():
-        temp_str = "{{key: <{n}}}: {{value}}\n".format(n=longest_key)
+        temp_str = f"{{key: <{longest_key}}}: {{value}}\n"
         result_str += temp_str.format(key=key, value=value)
     return result_str
 

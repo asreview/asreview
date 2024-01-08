@@ -30,7 +30,7 @@ def _deprecated_dev_mode():
         exit(1)
 
 
-class LABEntryPoint(object):
+class LABEntryPoint:
     """Entry point to start the ASReview LAB webapp."""
 
     def execute(self, argv):

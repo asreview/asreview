@@ -67,7 +67,7 @@ class EmbeddingIdf(BaseFeatureExtraction):
 
     def __init__(self, *args, embedding_fp=None, random_state=None, **kwargs):
         """Initialize the Embedding-Idf model."""
-        super(EmbeddingIdf, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.embedding_fp = embedding_fp
         self.embedding = None
         self._random_state = get_random_state(random_state)

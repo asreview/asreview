@@ -92,7 +92,7 @@ def test_n_prior_included(tmpdir):
         project.config["reviews"][0]["id"],
         "settings_metadata.json",
     )
-    with open(settings_path, "r") as f:
+    with open(settings_path) as f:
         settings_metadata = json.load(f)
 
     assert settings_metadata["settings"]["n_prior_included"] == 2
@@ -119,7 +119,7 @@ def test_n_prior_excluded(tmpdir):
         project.config["reviews"][0]["id"],
         "settings_metadata.json",
     )
-    with open(settings_path, "r") as f:
+    with open(settings_path) as f:
         settings_metadata = json.load(f)
 
     assert settings_metadata["settings"]["n_prior_excluded"] == 2
@@ -161,7 +161,7 @@ def test_non_tf_models(tmpdir):
             project.config["reviews"][0]["id"],
             "settings_metadata.json",
         )
-        with open(settings_path, "r") as f:
+        with open(settings_path) as f:
             settings_metadata = json.load(f)
 
         assert settings_metadata["settings"]["model"] == model

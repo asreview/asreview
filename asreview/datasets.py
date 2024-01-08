@@ -82,7 +82,7 @@ class BaseDataSet:
         img_url=None,
         license=None,
         year=None,
-        aliases=[],
+        aliases=None,
         **kwargs,
     ):
         """Base class for metadata of dataset.
@@ -136,6 +136,8 @@ class BaseDataSet:
 
         """
 
+        if aliases is None:
+            aliases = []
         self.dataset_id = dataset_id
         self.filepath = filepath
         self.title = title
@@ -406,7 +408,7 @@ class NaturePublicationDataGroup(BaseDataGroup):
         meta_file = "https://raw.githubusercontent.com/asreview/paper-asreview/master/index_v1.json"  # noqa
         datasets = _download_from_metadata(meta_file)
 
-        super(NaturePublicationDataGroup, self).__init__(*datasets)
+        super().__init__(*datasets)
 
 
 class SynergyDataSet(BaseDataSet):
@@ -744,7 +746,7 @@ class SynergyDataGroup(BaseDataGroup):
 
         datasets = [SynergyDataSet(k, **v) for k, v in synergy_metadata.items()]
 
-        super(SynergyDataGroup, self).__init__(*datasets)
+        super().__init__(*datasets)
 
 
 class BenchmarkDataGroup(BaseDataGroup):
@@ -761,9 +763,10 @@ class BenchmarkDataGroup(BaseDataGroup):
             "use SYNERGY dataset instead. For more information, see "
             "https://github.com/asreview/synergy-dataset.",
             category=UserWarning,
+            stacklevel=2,
         )
 
         meta_file = "https://raw.githubusercontent.com/asreview/systematic-review-datasets/master/index_v1.json"  # noqa
         datasets = _download_from_metadata(meta_file)
 
-        super(BenchmarkDataGroup, self).__init__(*datasets)
+        super().__init__(*datasets)

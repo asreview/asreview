@@ -40,7 +40,7 @@ class UndersampleBalance(BaseBalance):
 
     def __init__(self, ratio=1.0, random_state=None):
         """Initialize the undersampling balance strategy."""
-        super(UndersampleBalance, self).__init__()
+        super().__init__()
         self.ratio = ratio
         self._random_state = get_random_state(random_state)
 

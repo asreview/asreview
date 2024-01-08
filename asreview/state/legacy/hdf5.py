@@ -56,7 +56,7 @@ class HDF5StateLegacy(BaseState):
     version = "1.1"
 
     def __init__(self, state_fp, read_only=False):
-        super(HDF5StateLegacy, self).__init__(state_fp, read_only=read_only)
+        super().__init__(state_fp, read_only=read_only)
 
     def set_labels(self, y):
         if "labels" not in self.f:
