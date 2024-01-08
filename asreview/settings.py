@@ -96,10 +96,6 @@ class ASReviewSettings:
         feature_param=None,
         data_fp=None,
         n_queries=None,
-        abstract_only=False,  # deprecated
-        mode=None,  # deprecated
-        n_papers=None,  # deprecated
-        data_name=None,  # deprecated
     ):
         if feature_param is None:
             feature_param = {}

@@ -1,6 +1,5 @@
 __all__ = ["BaseReview"]
 
-import logging
 
 import numpy as np
 import pandas as pd
@@ -80,9 +79,6 @@ class BaseReview:
         self.n_instances = n_instances
         self.stop_if = stop_if
         self.prior_indices = start_idx
-
-        if n_papers is not None:
-            logging.warning("Argument n_papers is deprecated, ignoring n_papers.")
 
         # Get the known labels.
         self.data_labels = as_data.labels
