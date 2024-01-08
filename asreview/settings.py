@@ -137,9 +137,7 @@ class ASReviewSettings:
 
     def __setattr__(self, name, value):
         try:
-            super().__setattr__(
-                name, _map_settings_type(name, value)
-            )
+            super().__setattr__(name, _map_settings_type(name, value))
         except KeyError:
             super().__setattr__(name, value)
 

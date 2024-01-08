@@ -34,7 +34,8 @@ class DeprecateAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         logging.warning(
             f"Argument {self.option_strings} is deprecated and is ignored.",
-            stacklevel=2)
+            stacklevel=2,
+        )
         delattr(namespace, self.dest)
 
 

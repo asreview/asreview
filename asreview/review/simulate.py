@@ -183,9 +183,7 @@ class ReviewSimulate(BaseReview):
             else:
                 start_idx = naive_prior_knowledge(labels)
 
-        super().__init__(
-            as_data, *args, start_idx=start_idx, **kwargs
-        )
+        super().__init__(as_data, *args, start_idx=start_idx, **kwargs)
 
         # Setup the reviewer attributes that take over the role of state
         # functions.
