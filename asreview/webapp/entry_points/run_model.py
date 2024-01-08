@@ -29,7 +29,6 @@ from asreview.review.base import BaseReview
 
 
 def run_model_entry_point(argv):
-
     # parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("project_path", type=str, help="Project id")
@@ -44,7 +43,6 @@ def run_model_entry_point(argv):
     project = ASReviewProject(args.project_path)
 
     try:
-
         # Check if there are new labeled records to train with
         with open_state(project.project_path) as state:
             if not state.exist_new_labeled_records:
@@ -54,7 +52,6 @@ def run_model_entry_point(argv):
         lock = FileLock(Path(project.project_path, "training.lock"), timeout=0)
 
         with lock:
-
             with open_state(project) as state:
                 settings = state.settings
 

@@ -56,7 +56,7 @@ const App = (props) => {
   const dispatch = useDispatch();
   const authentication = useSelector((state) => state.authentication);
   const allowAccountCreation = useSelector(
-    (state) => state.allow_account_creation
+    (state) => state.allow_account_creation,
   );
   const emailConfig = useSelector((state) => state.email_config);
   const emailVerification = useSelector((state) => state.email_verification);

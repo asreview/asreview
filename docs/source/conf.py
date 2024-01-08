@@ -254,7 +254,7 @@ redirects = {
     "lab/overview_lab": "../about.html",
     "lab/launch": "../start.html",
     "lab/oracle": "../about.html",
-    "lab/exploration": "../about.html",
+    "lab/exploration": "../screening.html#screening-in-validation-mode",
     "lab/simulation": "../simulation_overview.html",
     "features/settings": "../screening.html",
     "features/pre_screening": "../project_create.html",
@@ -273,11 +273,9 @@ redirects = {
 
 # -- Options for linkcheck ----------------------------------------------------
 
-linkcheck_ignore = [
-    r"http://localhost:\d+[/]*.*"
-]
+linkcheck_ignore = [r"http://localhost:\d+[/]*.*"]
 
 linkcheck_allowed_redirects = {
     r"https://doi.org/.*": r"https://.*",
-    r"https://asreview.ai/.*": r"https://asreview.nl/.*"
+    r"https://asreview.ai/.*": r"https://asreview.nl/.*",
 }

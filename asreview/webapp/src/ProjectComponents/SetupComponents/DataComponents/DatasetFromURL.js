@@ -1,7 +1,8 @@
 import React from "react";
+import { connect } from "react-redux";
 import { InputBase, Paper, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 
 import LoadingButton from "@mui/lab/LoadingButton";
 import InputLabel from "@mui/material/InputLabel";
@@ -13,6 +14,7 @@ import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 import { InlineErrorHandler } from "../../../Components";
 import { StyledLoadingButton } from "../../../StyledComponents/StyledButton";
 import { ProjectAPI } from "../../../api/index.js";
+import { mapStateToProps } from "../../../globals.js";
 
 const PREFIX = "DatasetFromURL";
 
@@ -35,42 +37,80 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const DatasetFromURL = (props) => {
+  const queryClient = useQueryClient();
+
   const [localURL, setLocalURL] = React.useState("");
+  const [remoteURL, setRemoteURL] = React.useState("");
+
+  const datasetInfo = queryClient.getQueryData([
+    "fetchData",
+    { project_id: props.project_id },
+  ]);
+
+  const isDatasetAdded = () => {
+    return datasetInfo !== undefined;
+  };
 
   const { error, isError, isLoading, mutate, data } = useMutation(
     ProjectAPI.mutateData,
     {
+      mutationKey: ["addDataset"],
       onSuccess: (data, variables, context) => {
+        // if validate is set and there is only one file, select it
         if (data["files"] && data["files"].length === 1) {
-          props.setURL(data["files"][0]["link"]);
+          setRemoteURL(data["files"][0]["link"]);
+        }
+        // if validate is not set, close the dialog
+        if (!variables["validate"]) {
+          if (!isDatasetAdded()) {
+            props.toggleProjectSetup();
+          } else {
+            queryClient.invalidateQueries([
+              "fetchInfo",
+              { project_id: props.project_id },
+            ]);
+            queryClient.invalidateQueries([
+              "fetchData",
+              { project_id: props.project_id },
+            ]);
+          }
+          props.toggleImportDataset();
         }
       },
     },
   );
 
+  // handle the url input
   const handleURL = (event) => {
     setLocalURL(event.target.value);
   };
 
-  const addURL = (event) => {
+  const validateURL = (event) => {
     // validate the url first
     mutate({ project_id: props.project_id, url: localURL, validate: true });
   };
 
-  const addURLOnEnter = (event) => {
+  const validateURLOnEnter = (event) => {
     if (event.keyCode === 13) {
-      addURL(event);
+      validateURL(event);
     }
   };
 
-  const addFile = (event) => {
-    // upload dataset
-    props.handleSaveDataset();
+  // handle the file selection
+  const handleFileChange = (event) => {
+    setRemoteURL(event.target.value);
   };
 
-  const handleFileChange = (event) => {
-    props.setURL(event.target.value);
+  // add the dataset file to the project
+  const addFile = (event) => {
+    // import dataset
+    mutate({ project_id: props.project_id, url: remoteURL });
   };
+
+  // reset the remote url when the local url changes
+  React.useEffect(() => {
+    setRemoteURL("");
+  }, [localURL]);
 
   return (
     <Root>
@@ -85,19 +125,19 @@ const DatasetFromURL = (props) => {
         >
           <InputBase
             autoFocus
-            disabled={props.isAddingDataset || isLoading}
+            disabled={isLoading}
             fullWidth
             id="url-dataset"
             placeholder="Type a URL or DOI of the dataset"
             value={localURL}
             onChange={handleURL}
-            onKeyDown={addURLOnEnter}
+            onKeyDown={validateURLOnEnter}
             sx={{ ml: 1, flex: 1 }}
           />
           <StyledLoadingButton
-            disabled={!localURL || props.isAddingDataset}
+            disabled={!localURL || isLoading}
             loading={isLoading}
-            onClick={addURL}
+            onClick={validateURL}
             sx={{ minWidth: "32px" }}
           >
             <ArrowForwardOutlinedIcon />
@@ -107,13 +147,13 @@ const DatasetFromURL = (props) => {
         {data && data["files"] && (
           <FormControl
             sx={{ m: 1, minWidth: 120 }}
-            disabled={props.isAddingDataset || data["files"].length === 1}
+            disabled={isLoading || data["files"].length === 1}
           >
             <InputLabel id="select-file-label">Select dataset</InputLabel>
             <Select
               labelId="select-file-label"
               id="select-file"
-              value={props.url}
+              value={remoteURL}
               label="Select dataset"
               onChange={handleFileChange}
             >
@@ -135,8 +175,8 @@ const DatasetFromURL = (props) => {
         {data && data["files"] && (
           <Stack className={classes.root}>
             <LoadingButton
-              disabled={!props.url}
-              loading={props.isAddingDataset || isLoading}
+              disabled={!remoteURL}
+              loading={isLoading}
               onClick={addFile}
             >
               Add
@@ -145,18 +185,11 @@ const DatasetFromURL = (props) => {
         )}
 
         {isError && (
-          <InlineErrorHandler
-            message={error?.message + " Use a valid URL or DOI."}
-          />
-        )}
-        {props.isAddDatasetError && (
-          <InlineErrorHandler
-            message={props.addDatasetError?.message + " Please try again."}
-          />
+          <InlineErrorHandler message={error?.message + " Please try again."} />
         )}
       </Stack>
     </Root>
   );
 };
 
-export default DatasetFromURL;
+export default connect(mapStateToProps)(DatasetFromURL);

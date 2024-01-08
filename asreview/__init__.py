@@ -12,21 +12,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# deprecated in __init__.py, use asreview.models.feature_extraction instead
+from asreview._deprecated import _deprecated_func
 from asreview.data.base import ASReviewData
 from asreview.data.base import load_data
 from asreview.io.utils import list_readers
 from asreview.io.utils import list_writers
+from asreview.models.feature_extraction.embedding_lstm import (
+    load_embedding as _load_embedding,
+)
+
+# NOQA
+from asreview.models.feature_extraction.embedding_lstm import (
+    sample_embedding as _sample_embedding,
+)
+
+# NOQA
+from asreview.models.feature_extraction.embedding_lstm import (
+    text_to_features as _text_to_features,
+)
 from asreview.project import ASReviewProject
 from asreview.project import open_state
 from asreview.utils import asreview_path
 from asreview.utils import get_data_home
 
+# NOQA
 from ._version import get_versions
 
 __version__ = get_versions()["version"]
 del get_versions
 
 __all__ = [
+    "load_data",
     "asreview_path",
     "ASReviewData",
     "ASReviewProject",
@@ -35,12 +52,6 @@ __all__ = [
     "list_writers",
     "open_state",
 ]
-
-# deprecated in __init__.py, use asreview.models.feature_extraction instead
-from asreview._deprecated import _deprecated_func
-from asreview.models.feature_extraction.embedding_lstm import load_embedding as _load_embedding    # NOQA
-from asreview.models.feature_extraction.embedding_lstm import sample_embedding as _sample_embedding    # NOQA
-from asreview.models.feature_extraction.embedding_lstm import text_to_features as _text_to_features    # NOQA
 
 
 @_deprecated_func(

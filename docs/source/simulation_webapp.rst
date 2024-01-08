@@ -8,7 +8,7 @@ straightforward. In this section, some of the differences are highlighted.
 In the step on *Project Information*, select the "Simulation"
 mode (see figure below).
 
-.. figure:: ../images/setup_project_info_simulate.png
+.. figure:: ../images/setup_project_modes.png
    :alt: ASReview LAB simulate option
 
 In the step *Data*, import a :ref:`fully labeled dataset <data_labeled:fully labeled data>`
@@ -22,7 +22,7 @@ irrelevant records. Label some relevant and some irrelevant records.
 .. figure:: ../images/setup_prior_knowledge_random_simulate.png
    :alt: ASReview LAB Prior selection for simulation study
 
-The step *Warm up* is differs slightly from the Oracle and Exploration mode.
+The step *Warm up* is differs slightly from the Oracle and Validation mode.
 This step starts the simulation, after some seconds, it will return "Got it".
 This means, the simulation runs further in the background. You are returned to
 the Analytics page.
@@ -35,4 +35,3 @@ finished yet, you can refresh the page or use the refresh button to follow the
 progress. After a while, the Elas mascot on the left will hold a sign with
 "finished". Your simulation is now finished and you can study the results in
 the analytics page.
-

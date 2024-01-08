@@ -31,7 +31,7 @@ class BaseQueryStrategy(BaseModel):
         classifier=None,
         n_instances=None,
         return_classifier_scores=False,
-        **kwargs
+        **kwargs,
     ):
         """Put records in ranked order.
 

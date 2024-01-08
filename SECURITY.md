@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Version 1 or later of ASReview LAB receives security updates. Version 0.x is not supported. 
+Version 1 or later of ASReview LAB receives security updates. Version 0.x is not supported.
 
 ## Reporting a Vulnerability
 

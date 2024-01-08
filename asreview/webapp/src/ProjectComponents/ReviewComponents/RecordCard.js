@@ -78,7 +78,7 @@ const Root = styled("div")(({ theme }) => ({
 const RecordCard = (props) => {
   const isDebugInclusion = () => {
     if (props.activeRecord) {
-      return props.activeRecord._debug_label === 1;
+      return props.activeRecord.label_from_dataset === 1;
     }
   };
 
@@ -129,9 +129,15 @@ const RecordCard = (props) => {
           aria-label="record loaded"
         >
           {/* Previous decision alert */}
-          {props.activeRecord._debug_label !== null && (
+          {props.activeRecord.label_from_dataset !== null && (
             <ExplorationModeRecordAlert
-              label={!isDebugInclusion() ? "irrelevant" : "relevant"}
+              label={
+                props.activeRecord.label_from_dataset === -1
+                  ? "not seen"
+                  : !isDebugInclusion()
+                    ? "irrelevant"
+                    : "relevant"
+              }
               fontSize={props.fontSize}
             />
           )}

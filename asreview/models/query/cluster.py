@@ -44,7 +44,7 @@ class ClusterQuery(ProbaQueryStrategy):
 
     def __init__(self, cluster_size=350, update_interval=200, random_state=None):
         """Initialize the clustering strategy."""
-        super(ClusterQuery, self).__init__()
+        super().__init__()
         self.cluster_size = cluster_size
         self.update_interval = update_interval
         self.last_update = None

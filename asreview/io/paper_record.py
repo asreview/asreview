@@ -132,14 +132,16 @@ class PaperRecord:
         Notes of the paper.
     keywords: str, list
         Keywords of the paper.
-    label: int
+    included: int
         Current label of the paper. No label is indicated by
         asreview.config.LABEL_NA (== -1).
     kwargs: dict
         Any extra keyword arguments will be put in self.extra_fields.
     """
 
-    def __init__(self, record_id, column_spec={}, **kwargs):
+    def __init__(self, record_id, column_spec=None, **kwargs):
+        if column_spec is None:
+            column_spec = {}
         for attr in [
             "title",
             "abstract",

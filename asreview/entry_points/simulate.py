@@ -200,7 +200,7 @@ class SimulateEntryPoint(BaseEntryPoint):
                 prior_df = s.get_priors()
 
                 print("The following records are prior knowledge:\n")
-                for i, row in prior_df.iterrows():
+                for _i, row in prior_df.iterrows():
                     preview = as_data.record(row["record_id"])
                     print(preview)
 
@@ -231,12 +231,11 @@ review."""
 
 
 def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
-
     # parse arguments if available
     parser = argparse.ArgumentParser(
         prog=prog,
         description=description,
-        formatter_class=argparse.RawTextHelpFormatter
+        formatter_class=argparse.RawTextHelpFormatter,
     )
 
     # Active learning parameters

@@ -3,7 +3,7 @@ name: Docker deployment
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   docker:

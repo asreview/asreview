@@ -80,9 +80,9 @@ class SBERT(BaseFeatureExtraction):
         transformer_model="all-mpnet-base-v2",
         is_pretrained_sbert=True,
         pooling_mode="mean",
-        **kwargs
+        **kwargs,
     ):
-        super(SBERT, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.transformer_model = transformer_model
         self.is_pretrained_sbert = is_pretrained_sbert
         self.pooling_mode = pooling_mode

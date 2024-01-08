@@ -9,9 +9,8 @@ should be expected that only a fraction of the records in the dataset is
 relevant.
 
 Datasets can be unlabeled as well as :ref:`data_labeled:Partially labeled
-data` and :ref:`data_labeled:Fully labeled data`. The latter ones are useful
-in the Simulation and Exploration mode. See :ref:`project_create:Project
-modes` for more information.
+data` and :ref:`data_labeled:Fully labeled data`.
+See :ref:`project_create:Project modes` for more information.
 
 The easiest way to obtain a dataset is via a search engine or with the help of
 a reference manager. See :ref:`data:Compatibility` for reference managers
@@ -150,5 +149,3 @@ such as EndNote, Mendeley, Refworks and Zotero. All of these are compatible with
 
 \** When exporting from Distiller and if the following error occurs ``Unable to parse string "Yes (include)" at position 0``
 set the ``sort references by`` to ``Authors``. Then the data can be imported in ASReview.
-
-

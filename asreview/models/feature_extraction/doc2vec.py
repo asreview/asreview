@@ -104,10 +104,10 @@ class Doc2Vec(BaseFeatureExtraction):
         dm_concat=0,
         dm=2,
         dbow_words=0,
-        **kwargs
+        **kwargs,
     ):
         """Initialize the doc2vec model."""
-        super(Doc2Vec, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.vector_size = int(vector_size)
         self.epochs = int(epochs)
         self.min_count = int(min_count)
@@ -168,7 +168,7 @@ class Doc2Vec(BaseFeatureExtraction):
 
         eps = 1e-7
 
-        hyper_space, hyper_choices = super(Doc2Vec, self).full_hyper_space()
+        hyper_space, hyper_choices = super().full_hyper_space()
         hyper_space.update(
             {
                 "fex_vector_size": hp.quniform("fex_vector_size", 31.5, 127.5 - eps, 8),

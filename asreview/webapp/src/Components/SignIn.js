@@ -55,8 +55,7 @@ const SignIn = () => {
   const oAuthData = useSelector((state) => state.oAuthData);
   const allowAccountCreation =
     useSelector((state) => state.allow_account_creation) || false;
-  const emailConfig =
-    useSelector((state) => state.email_config) || false;
+  const emailConfig = useSelector((state) => state.email_config) || false;
 
   return (
     <Root>

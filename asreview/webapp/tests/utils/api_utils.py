@@ -171,18 +171,12 @@ def get_all_projects(client: FlaskClient):
 
 def create_project(
     client: FlaskClient,
-    project_name: str,
     mode: str = "explore",
-    authors: str = "authors",
-    description: str = "description",
 ):
     response = client.post(
         "/api/projects/info",
         data={
             "mode": mode,
-            "name": project_name,
-            "authors": authors,
-            "description": description,
         },
     )
     return process_response(response)
@@ -203,6 +197,7 @@ def update_project(
     mode: str = "explore",
     authors: str = "authors",
     description: str = "description",
+    tags: str = "[]",
 ):
     response = client.put(
         f"/api/projects/{get_project_id(project)}/info",
@@ -211,6 +206,7 @@ def update_project(
             "name": name,
             "authors": authors,
             "description": description,
+            "tags": tags,
         },
     )
     return process_response(response)

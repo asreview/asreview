@@ -27,7 +27,7 @@ class JSONState(DictState):
     version = "2.1"
 
     def __init__(self, state_fp, read_only=False):
-        super(JSONState, self).__init__(state_fp)
+        super().__init__(state_fp)
         self.read_only = read_only
 
     def save(self):
@@ -62,7 +62,7 @@ class JSONState(DictState):
 
     def restore(self, fp):
         try:
-            with open(fp, "r") as f:
+            with open(fp) as f:
                 self._state_dict = OrderedDict(json.load(f))
             state_version = self._state_dict["version"]
             if state_version != self.version:

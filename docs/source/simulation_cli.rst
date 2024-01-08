@@ -122,7 +122,12 @@ By default, the model initializes with one relevant and one irrelevant record.
 You can set the number of priors by ``--n_prior_included`` and
 ``--n_prior_excluded``. However, if you want to initialize your model with a
 specific set of starting papers, you can use ``--prior_idx`` to select the
-indices of the papers you want to start the simulation with.
+indices of the papers you want to start the simulation with. When no prior
+knowledge is assigned (using ``--n_prior_included 0 --n_prior_excluded 0``),
+the first records from the dataset are employed as priors in the order they
+were provided until the first 0 and 1 are encountered.
+
+The following options can be used to label prior knowledge:
 
 .. option:: --n_prior_included N_PRIOR_INCLUDED
 

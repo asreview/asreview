@@ -38,7 +38,7 @@ T2  - Clin Pharmacokinet
 TI  - Boswellia serrata: an overall assessment of in vitro, preclinical, pharmacokinetic and clinical data
 VL  - 50
 ID  - 369
-ER  - 
+ER  -
 
 TY  - JOUR
 AB  - Ulcerative colitis is a well-known inflammatory bowel disease. Although there are drugs that are effective against this disease, the prevention and attenuation of ulcerative colitis by food rich in functional ingredients without side effects is desired because some drugs have side effects. In this study, we investigated the effects of yuzu (Citrus junos Tanaka), a citrus fruit native to northeast Asia, on a mouse dextran sulfate sodium (DSS)-induced colitis model. Mice given drinking water containing DSS showed significant weight loss, colon shortening, diarrhea, and visible fecal blood. In contrast, mice fed a diet containing 5% yuzu peel for 14 d before receiving DSS showed significant attenuation of these phenotypes. To clarify the mechanism underlying the attenuation, we investigated the anti-inflammatory and antioxidant effects of yuzu peel. We found that yuzu peel extract suppressed tumor necrosis factor-alpha (TNF-alpha) production in lipopolysaccharide (LPS)-stimulated mice and murine macrophage cell line through suppression of nuclear factor-kappaB (NF-kappaB) activation. In addition, we confirmed that yuzu peel extract had a moderate antioxidant effect. These results suggest that yuzu peel attenuates the pathologies of DSS-induced colitis by coordinately suppressing inflammation and oxidative stress against lipids in vivo.
@@ -113,7 +113,7 @@ T2  - J Oleo Sci
 TI  - Yuzu (Citrus junos Tanaka) Peel Attenuates Dextran Sulfate Sodium-induced Murine Experimental Colitis
 VL  - 67
 ID  - 62
-ER  - 
+ER  -
 
 TY  - JOUR
 AB  - Carpolobia lutea G. Don (CL) is used in folk medicine for the treatment of inflammatory disorders. Effort in this study is to evaluate the beneficial effect of the aqueous-methanol extract of leaf of CL in a rat model of acetic acid induced colitis. Male Wistar rats were distributed into 6 groups of 7 rats each; non colitic, untreated colitic and colitic rats treated with graded doses of CL (100-800 mg/kg). Rats were pre-treated for 2 days before colitis induction and thereafter for 7 days post colitic induction. 24 h after the last treatment, animals were sacrificed and colonic inflammation was evaluated both macroscopically and biochemically. Macroscopic damage score, weight/length ratio, myeloperoxidase (MPO) activity and tumor necrotic factor alpha (TNF-alpha) levels, were significantly higher in untreated colitic rats in comparison with non colitic rats (P<0.05). Treatment with CL significantly reduced the macroscopic damage scores, neutrophil infiltration (MPO activity) and TNF-alpha level (P<0.05). In addition, C. lutea significantly prevented depletion of colonic GSH and (SOD) levels (P<0.05). It appears that the beneficial effect of methanol extract of C. lutea leaf observed in this study is dose dependent and is related to its antioxidant and anti-inflammatory activity.
@@ -160,7 +160,7 @@ T2  - Drug Res (Stuttg)
 TI  - Carpolobia lutea G. Don (Polygalaceae) Inhibits Inflammation and Oxidative Stress in an Acetic Acid Induced Model of Rat Colitis
 VL  - 67
 ID  - 131
-ER  - 
+ER  -
 
 TY  - JOUR
 AB  - ETHNOPHARMOCOLOGICAL RELEVANCE: Terminalia catappa Linn (Combretaceae) is a medicinal plant with anti-inflammatory, anti-diarrhoeal and antioxidant properties, frequently found in tropical regions. Considering its characteristics, it could be useful for the treatment of inflammatory bowel disease, which is associated with inflammation, oxidative stress and an immune dysfunction. Thus this study evaluates the immunomodulatory properties and the intestinal anti-inflammatory effect of an ethanolic extract of the stem bark of T. catappa (ETCB) both in vitro (in RAW 264.7 macrophages) and in vivo, in the trinitrobenzenesulfonic acid (TNBS) model of rat colitis. MATERIALS AND METHODS: The phenolic compounds in ETCB were identified and quantified using HPLC-DAD-qTOF-MS. The immunomodulatory activity ETCB was tested in vitro by determining the macrophage production of IL-1beta and nitrites. In vivo studies were performed in the TNBS model of rat colitis. ETCB was given (25, 50 and 100mg/kg/day) orally for two days prior to colitis induction and thereafter for 7 days. Response to treatment was assessed by scoring the gross appearance of the colon, and determining myeloperoxidase activity, gene expression of pro-inflammatory cytokines like TNF-alpha, IL-23 and IL-6, chemokines, inducible nitric oxide synthase and proteins crucial in the maintenance of the intestinal mucosal barrier integrity like mucins (MUC-2, MUC-3) and villin. RESULTS: ETCB was able to inhibit IL-1beta and nitrite production in vitro in RAW 264.7 macrophages. Moreover, treatment of TNBS colitic rats with ETCB resulted in a decreased colonic damage score and weight/length ratio. It also reduced the colonic neutrophil infiltration indicated by a lower myeloperoxidase activity and prevented the depletion of colonic glutathione levels in colitic rats. In addition, treatment with ETCB down-regulated the gene expression of pro-inflammatory mediators (TNF-alpha, IL-23, IL-6 and CINC-1) and iNOS in colitic rats. Moreover, the gene expression of mucosal barrier proteins like MUC-2, MUC-3 and villin were up-regulated in colitic rats treated with ETCB. The dose of ETCB that produced the most significant beneficial effect was 100mg/kg. Regarding the chemical composition of ETCB, 31 phenolic compounds were identified, including ellagic acid, catalagin and gallic acid. CONCLUSION: The beneficial effect of ETCB in the TNBS induced colitis in rats could be related to its antioxidant, immunomodulatory and anti-inflammatory activities, which could be attributed to the phenolic compounds identified.
@@ -237,7 +237,7 @@ T2  - J Ethnopharmacol
 TI  - Antiinflammatory and immunomodulatory activity of an ethanolic extract from the stem bark of Terminalia catappa L. (Combretaceae): In vitro and in vivo evidences
 VL  - 192
 ID  - 135
-ER  - 
+ER  -
 
 TY  - JOUR
 AB  - BACKGROUND: Complementary and alternative medicines (CAM) are widely used by patients with inflammatory bowel disease (IBD). Few data have been published on the impact of CAM on the quality of life (QOL). AIMS: The aim of the study was to describe CAM use in French patients with IBD, identify characteristics associated with CAM use, and assess the impact of CAM on the QOL. METHODS: We conducted an internet survey on CAM through the French IBD patient's association website. Patients had to answer a questionnaire (LimeSurvey application) about sociodemography, IBD treatment, CAM type, socioeconomic data, and QOL using the Short IBD Questionnaire (SIBDQ). Patients noted the impact of CAM on their symptoms and on their QOL on a scale of 0-100. CAM users and nonusers were compared by univariate and multivariate analyses. RESULTS: A total of 936 IBD patients responded and 767 (82.4%) filled up the whole questionnaire: 503 reported CAM use and 172 had never used. The types of CAM reported were diet-based (30.7%), body-based (25.1%), homeopathic or traditional medicine (19.6%), naturopathy (15.2%), and mind-body medicine (9.1%). The gastroenterologist was aware of CAM use in only 46% of patients. CAM users were more likely to have ulcerative colitis [odds ratio (OR)=1.78, P=0.018], clinical remission (OR=1.42, P=0.06), high level of education (OR=1.51, P=0.02), poor observance (OR=1.81, P=0.017), or to have terminated conventional treatment (OR=2.03, P=0.003). CAM users tend to have higher rates of SIBDQ scores, greater than 50 (OR=1.57, P=0.06). Improvement in symptoms and QOL was reported with all CAM types except mind medicine. CONCLUSION: CAM use is widespread among IBD patients. CAM users report improvement in symptoms and QOL, but they tend to stop their conventional treatment. Better information about CAM might improve adherence to conventional treatment.
@@ -297,7 +297,7 @@ T2  - Eur J Gastroenterol Hepatol
 TI  - Impact of complementary and alternative medicine on the quality of life in inflammatory bowel disease: results from a French national survey
 VL  - 26
 ID  - 249
-ER  - 
+ER  -
 
 TY  - JOUR
 AB  - BACKGROUND: Indigo naturalis (IND) is an herbal medicine that has been used as an anti-inflammatory agent to treat diseases including dermatitis and inflammatory bowel disease in China. However, the mechanism by which IND exerts its immunomodulatory effect is not well understood. METHODS: A murine model of dermatitis and inflammatory bowel disease, both induced by oxazolone (OXA), was treated with IND. The severity of dermatitis was evaluated based on ear thickness measurements and histological scoring. The severity of colitis was evaluated by measuring body weight, histological scoring, and endoscopic scoring. The expression of inflammatory cytokines in ear and colon tissue was evaluated using real-time PCR. 16S rRNA DNA sequencing of feces from OXA-induced colitis mice was performed before and after IND treatment. The effects of IND on OXA-induced colitis were also evaluated after depleting the gut flora with antibiotics to test whether alteration of the gut flora by IND influenced the course of intestinal inflammation in this model. RESULTS: IND treatment ameliorated OXA dermatitis with a reduction in IL-4 and eosinophil recruitment. However, OXA colitis was significantly aggravated in spite of a reduction in intestinal IL-13, a pivotal cytokine in the induction of the colitis. It was found that IND dramatically altered the gut flora and IND no longer exacerbated colitis when colitis was induced after gut flora depletion. CONCLUSIONS: Our data suggest that IND could modify the inflammatory immune response in multiple ways, either directly (i.e., modification of the allergic immune cell activity) or indirectly (i.e., alteration of commensal compositions).
@@ -376,5 +376,4 @@ T2  - Int Arch Allergy Immunol
 TI  - Indigo Naturalis Ameliorates Oxazolone-Induced Dermatitis but Aggravates Colitis by Changing the Composition of Gut Microflora
 VL  - 173
 ID  - 99
-ER  - 
-
+ER  -

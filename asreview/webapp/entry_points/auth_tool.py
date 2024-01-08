@@ -18,8 +18,7 @@ from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.models import create_database_and_tables
 
-DEFAULT_DATABASE_URI = \
-    f"sqlite:///{str(asreview_path())}/asreview.production.sqlite"
+DEFAULT_DATABASE_URI = f"sqlite:///{str(asreview_path())}/asreview.production.sqlite"
 
 
 def auth_parser():
@@ -39,7 +38,7 @@ authenticated setup.
     # CREATE DB
     create_db_par = sub_parser.add_parser(
         "create-db",
-        help="Create the database necessary to authenticate the ASReview app."
+        help="Create the database necessary to authenticate the ASReview app.",
     )
 
     create_db_par.add_argument(
@@ -47,25 +46,26 @@ authenticated setup.
         "--db-uri",
         type=str,
         default=None,
-        help=("URI of the database. By default, the value is given by the environment "
-              "variable SQLALCHEMY_DATABASE_URI. If not set, the default is "
-              "'asreview.production.sqlite' in the ASReview folder."),
+        help=(
+            "URI of the database. By default, the value is given by the environment "
+            "variable SQLALCHEMY_DATABASE_URI. If not set, the default is "
+            "'asreview.production.sqlite' in the ASReview folder."
+        ),
     )
 
     # ADD USERS
-    user_par = sub_parser.add_parser(
-        "add-users",
-        help="Add users into the database."
-    )
+    user_par = sub_parser.add_parser("add-users", help="Add users into the database.")
 
     user_par.add_argument(
         "-d",
         "--db-uri",
         type=str,
         default=None,
-        help=("URI of the database. By default, the value is given by the environment "
-              "variable SQLALCHEMY_DATABASE_URI. If not set, the default is "
-              "'asreview.production.sqlite' in the ASReview folder."),
+        help=(
+            "URI of the database. By default, the value is given by the environment "
+            "variable SQLALCHEMY_DATABASE_URI. If not set, the default is "
+            "'asreview.production.sqlite' in the ASReview folder."
+        ),
     )
 
     user_par.add_argument(
@@ -86,9 +86,11 @@ authenticated setup.
         "--db-uri",
         type=str,
         default=None,
-        help=("URI of the database. By default, the value is given by the environment "
-              "variable SQLALCHEMY_DATABASE_URI. If not set, the default is "
-              "'asreview.production.sqlite' in the ASReview folder."),
+        help=(
+            "URI of the database. By default, the value is given by the environment "
+            "variable SQLALCHEMY_DATABASE_URI. If not set, the default is "
+            "'asreview.production.sqlite' in the ASReview folder."
+        ),
     )
 
     # LIST PROJECTS
@@ -121,9 +123,11 @@ authenticated setup.
         "--db-uri",
         type=str,
         default=None,
-        help=("URI of the database. By default, the value is given by the environment "
-              "variable SQLALCHEMY_DATABASE_URI. If not set, the default is "
-              "'asreview.production.sqlite' in the ASReview folder."),
+        help=(
+            "URI of the database. By default, the value is given by the environment "
+            "variable SQLALCHEMY_DATABASE_URI. If not set, the default is "
+            "'asreview.production.sqlite' in the ASReview folder."
+        ),
     )
 
     return parser
@@ -198,9 +202,11 @@ class AuthTool(BaseEntryPoint):
         # is not needed when the only command is "list-projects", all
         # other commands need a database session)
         if self.argv != ["list-projects"]:
-            self.uri = getattr(self.args, "db_uri", False) or \
-                os.environ.get("SQLALCHEMY_DATABASE_URI", False) or \
-                DEFAULT_DATABASE_URI
+            self.uri = (
+                getattr(self.args, "db_uri", False)
+                or os.environ.get("SQLALCHEMY_DATABASE_URI", False)
+                or DEFAULT_DATABASE_URI
+            )
             Session = sessionmaker()
             engine = create_engine(self.uri)
             Session.configure(bind=engine)

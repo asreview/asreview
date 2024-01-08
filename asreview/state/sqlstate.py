@@ -24,6 +24,8 @@ import pandas as pd
 from asreview._version import get_versions
 from asreview.settings import ASReviewSettings
 from asreview.state.base import BaseState
+from asreview.state.compatibility import check_and_update_version
+from asreview.state.custom_metadata_mapper import convert_to_custom_metadata_str
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 
@@ -50,6 +52,7 @@ RESULTS_TABLE_COLUMNS = [
     "training_set",
     "labeling_time",
     "notes",
+    "custom_metadata_json",
 ]
 SETTINGS_METADATA_KEYS = [
     "settings",
@@ -57,6 +60,7 @@ SETTINGS_METADATA_KEYS = [
     "software_version",
     "model_has_trained",
 ]
+CURRENT_STATE_VERSION = "1.1"
 
 
 class SQLiteState(BaseState):
@@ -89,7 +93,7 @@ class SQLiteState(BaseState):
     """
 
     def __init__(self, read_only=True):
-        super(SQLiteState, self).__init__(read_only=read_only)
+        super().__init__(read_only=read_only)
 
     # INTERNAL PATHS AND CONNECTIONS
 
@@ -99,14 +103,34 @@ class SQLiteState(BaseState):
         Returns
         -------
         sqlite3.Connection
-            Connection to the the SQLite database.
+            Connection to the SQLite database.
             The connection is read only if self.read_only is true.
         """
         if self.read_only:
-            con = sqlite3.connect(f"file:{str(self._sql_fp)}?mode=ro", uri=True)
+            con = self.connect_to_sql_r()
         else:
-            con = sqlite3.connect(str(self._sql_fp))
+            con = self.connect_to_sql_wr()
         return con
+
+    def connect_to_sql_r(self):
+        """Get a connection to the SQLite database.
+
+        Returns
+        -------
+        sqlite3.Connection
+            Read only connection to the SQLite database.
+        """
+        return sqlite3.connect(f"file:{str(self._sql_fp)}?mode=ro", uri=True)
+
+    def connect_to_sql_wr(self):
+        """Get a connection to the SQLite database.
+
+        Returns
+        -------
+        sqlite3.Connection
+            Write / read connection to the SQLite database.
+        """
+        return sqlite3.connect(str(self._sql_fp))
 
     @property
     def _sql_fp(self):
@@ -159,7 +183,8 @@ class SQLiteState(BaseState):
                                 feature_extraction TEXT,
                                 training_set INTEGER,
                                 labeling_time INTEGER,
-                                notes TEXT)"""
+                                notes TEXT,
+                                custom_metadata_json TEXT)"""
             )
 
             # Create the record table.
@@ -205,7 +230,7 @@ class SQLiteState(BaseState):
         # content of the settings is added later
         self.settings_metadata = {
             "settings": None,
-            "state_version": "1",
+            "state_version": CURRENT_STATE_VERSION,
             "software_version": get_versions()["version"],
             "model_has_trained": False,
         }
@@ -236,26 +261,26 @@ class SQLiteState(BaseState):
 
         # Cache the settings.
         try:
-            with open(self._settings_metadata_fp, "r") as f:
+            with open(self._settings_metadata_fp) as f:
                 self.settings_metadata = json.load(f)
         except FileNotFoundError:
             raise AttributeError(
                 "'settings_metadata.json' not found in the state file."
             )
 
-        try:
-            if not self._is_valid_version():
-                raise ValueError(
-                    f"State cannot be read: state version {self.version}, "
-                    f"state file version {self.version}."
-                )
-        except AttributeError as err:
-            raise ValueError(f"Unexpected error when opening state file: {err}")
-
         self._is_valid_state()
 
     def _is_valid_state(self):
-        con = self._connect_to_sql()
+        try:
+            version = check_and_update_version(
+                self.version, CURRENT_STATE_VERSION, self
+            )
+            if version != self.version:
+                self._update_version(version)
+        except AttributeError as err:
+            raise ValueError(f"Unexpected error when opening state file: {err}")
+
+        con = self.connect_to_sql_wr()
         cur = con.cursor()
         column_names = cur.execute("PRAGMA table_info(results)").fetchall()
         table_names = cur.execute(
@@ -297,15 +322,15 @@ class SQLiteState(BaseState):
                 f"settings_metadata."
             )
 
+    def _update_version(self, new_version):
+        self.settings_metadata["state_version"] = str(new_version)
+        with open(self._settings_metadata_fp, "w") as f:
+            json.dump(self.settings_metadata, f)
+
     def close(self):
         pass
 
     # PROPERTIES
-
-    def _is_valid_version(self):
-        """Check compatibility of state version."""
-        return self.version[0] == "1"
-
     @property
     def version(self):
         """Version number of the state.
@@ -590,7 +615,9 @@ class SQLiteState(BaseState):
         con.commit()
         con.close()
 
-    def add_labeling_data(self, record_ids, labels, notes=None, prior=False):
+    def add_labeling_data(
+        self, record_ids, labels, notes=None, tags_list=None, prior=False
+    ):
         """Add the data corresponding to a labeling action to the state file.
 
         Arguments
@@ -601,6 +628,8 @@ class SQLiteState(BaseState):
             A list of labels of the labeled records as int.
         notes: list of str/None
             A list of text notes to save with the labeled records.
+        tags_list: list of list
+            A list of tags to save with the labeled records.
         prior: bool
             Whether the added record are prior knowledge.
         """
@@ -613,10 +642,18 @@ class SQLiteState(BaseState):
         if notes is None:
             notes = [None for _ in record_ids]
 
-        lengths = [len(record_ids), len(labels), len(notes)]
+        if tags_list is None:
+            tags_list = [None for _ in record_ids]
+
         # Check that all input data has the same length.
-        if len(set(lengths)) != 1:
+        if len({len(record_ids), len(labels), len(notes), len(tags_list)}) != 1:
             raise ValueError("Input data should be of the same length.")
+
+        custom_metadata_list = [
+            convert_to_custom_metadata_str(tags=tags_list[i])
+            for i, _ in enumerate(record_ids)
+        ]
+
         n_records_labeled = len(record_ids)
 
         pool, _, pending = self.get_pool_labeled_pending()
@@ -638,6 +675,7 @@ class SQLiteState(BaseState):
                     training_sets[i],
                     labeling_times[i],
                     notes[i],
+                    custom_metadata_list[i],
                 )
                 for i in range(n_records_labeled)
             ]
@@ -645,26 +683,32 @@ class SQLiteState(BaseState):
             # If prior, we need to insert new records into the database.
             query = (
                 "INSERT INTO results (record_id, label, query_strategy, "
-                "training_set, labeling_time, notes) "
-                "VALUES (?, ?, ?, ?, ?, ?)"
+                "training_set, labeling_time, notes, custom_metadata_json) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?)"
             )
 
         else:
             # Check that the record_ids are pending.
             if not all(record_id in pending.values for record_id in record_ids):
                 raise ValueError(
-                    "Labeling records, but not all " "record_ids were pending."
+                    "Labeling records, but not all record_ids were pending."
                 )
 
             data = [
-                (int(labels[i]), labeling_times[i], notes[i], int(record_ids[i]))
+                (
+                    int(labels[i]),
+                    labeling_times[i],
+                    notes[i],
+                    custom_metadata_list[i],
+                    int(record_ids[i]),
+                )
                 for i in range(n_records_labeled)
             ]
 
             # If not prior, we need to update records.
             query = (
                 "UPDATE results SET label=?, labeling_time=?, "
-                "notes=? WHERE record_id=?"
+                "notes=?, custom_metadata_json=? WHERE record_id=?"
             )
 
         # Add the rows to the database.
@@ -701,7 +745,7 @@ class SQLiteState(BaseState):
         con.commit()
         con.close()
 
-    def update_decision(self, record_id, label, note=None):
+    def update_decision(self, record_id, label, note=None, tags=None):
         """Change the label of an already labeled record.
 
         Arguments
@@ -712,6 +756,8 @@ class SQLiteState(BaseState):
             New label of the record.
         note: str
             Note to add to the record.
+        tags: list
+            Tags list to add to the record.
         """
 
         con = self._connect_to_sql()
@@ -719,8 +765,9 @@ class SQLiteState(BaseState):
 
         # Change the label.
         cur.execute(
-            "UPDATE results SET label = ?, notes = ? " "WHERE record_id = ?",
-            (label, note, record_id),
+            "UPDATE results SET label = ?, notes = ?, "
+            "custom_metadata_json=? WHERE record_id = ?",
+            (label, note, convert_to_custom_metadata_str(tags=tags), record_id),
         )
 
         # Add the change to the decision changes table.
@@ -1008,7 +1055,7 @@ class SQLiteState(BaseState):
             "record_id"
         ]
 
-    def get_priors(self, columns=["record_id"]):
+    def get_priors(self, columns=None):
         """Get the record ids of the priors.
 
         Returns
@@ -1017,6 +1064,8 @@ class SQLiteState(BaseState):
             The record_id's of the priors in the order they were added.
         """
 
+        if columns is None:
+            columns = ["record_id"]
         query_string = "*" if columns is None else ",".join(columns)
 
         con = self._connect_to_sql()
