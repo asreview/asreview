@@ -239,8 +239,8 @@ package. Before starting ASReview LAB, first, install *gensim*:
   takes place, which makes the modeling quicker.
 
 Several other feature extractors are available in the software (sentence Bert,
-embedding IDF/LSTM) and more classifiers can be selected via the :doc:`API <reference>`, 
-or added via :doc:`extensions_dev`. 
+embedding IDF/LSTM) and more classifiers can be selected via the :doc:`API <reference>`,
+or added via :doc:`extensions_dev`.
 
 
 Classifier
@@ -251,7 +251,7 @@ scores. The default is Naive Bayes. Though relatively simplistic, it seems to
 work quite well on a wide range of datasets. Several other classifiers are
 available in the software (logistic regression, random forest, SVM, LSTM,
 neural net) and more classifiers can be selected via the :doc:`API
-<reference>` or added via :doc:`extensions_dev`. 
+<reference>` or added via :doc:`extensions_dev`.
 
 
 The neural nets require `tensorflow <https://www.tensorflow.org/>`_, use
