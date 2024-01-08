@@ -261,7 +261,7 @@ class SQLiteState(BaseState):
 
         # Cache the settings.
         try:
-            with open(self._settings_metadata_fp, "r") as f:
+            with open(self._settings_metadata_fp) as f:
                 self.settings_metadata = json.load(f)
         except FileNotFoundError:
             raise AttributeError(

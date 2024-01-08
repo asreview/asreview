@@ -132,7 +132,7 @@ class RISReader:
 
     @classmethod
     def _read_from_file(cls, fp, encoding="utf8"):
-        with open(fp, "r", encoding=encoding) as bibliography_file:
+        with open(fp, encoding=encoding) as bibliography_file:
             return list(rispy.load(bibliography_file, skip_unknown_tags=True))
 
     @classmethod

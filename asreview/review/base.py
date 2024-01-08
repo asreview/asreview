@@ -112,10 +112,8 @@ class BaseReview(ABC):
                 # the number of records in the dataset
                 if self.X.shape[0] != len(as_data):
                     raise ValueError(
-                        "Dataset has {} records while feature "
-                        "extractor returns {} records".format(
-                            len(as_data), self.X.shape[0]
-                        )
+                        f"Dataset has {len(as_data)} records while feature "
+                        f"extractor returns {self.X.shape[0]} records"
                     )
 
                 self.project.add_feature_matrix(self.X, self.feature_extraction.name)

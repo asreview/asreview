@@ -22,7 +22,7 @@ def get_project_id(project):
 def read_project_file(project):
     """Loads the data from the project.json file."""
     id = get_project_id(project)
-    with open(asreview_path() / id / "project.json", "r") as f:
+    with open(asreview_path() / id / "project.json") as f:
         data = json.load(f)
         return data
 

@@ -147,7 +147,7 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
         convert_json_settings_metadata(settings_metadata_fp, json_fp)
 
         # Create file for the feature matrix.
-        with open(kwargs_fp, "r") as f:
+        with open(kwargs_fp) as f:
             kwargs_dict = json.load(f)
             feature_extraction_method = kwargs_dict["feature_extraction"]
         feature_matrix_fp = convert_json_feature_matrix(
@@ -157,12 +157,12 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
         # --- Upgrade the project.json file.
 
         # extract the start time from the state json
-        with open(json_fp, "r") as f:
+        with open(json_fp) as f:
             start_time = json.load(f)["time"]["start_time"]
             start_time = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S.%f")
 
         # open the project json and upgrade
-        with open(Path(fp, "project.json"), "r") as f:
+        with open(Path(fp, "project.json")) as f:
             project_config_old = json.load(f)
 
         project_config_new = upgrade_project_config(
@@ -322,7 +322,7 @@ def create_last_ranking_table(sql_fp, pool_fp, kwargs_fp, json_fp):
     with open(pool_fp) as f_pool:
         pool_ranking = json.load(f_pool)
 
-    with open(kwargs_fp, "r") as f_kwargs:
+    with open(kwargs_fp) as f_kwargs:
         kwargs_dict = json.load(f_kwargs)
 
     # Add the record_ids not found in the pool to the end of the ranking.
@@ -500,7 +500,7 @@ def convert_json_results_to_sql(sql_fp, json_fp, labeled_json_fp):
     """Convert the result of a json state file to a sqlite database."""
     with open_state_legacy(json_fp, read_only=True) as sf:
         with sqlite3.connect(sql_fp) as con:
-            with open(labeled_json_fp, "r") as file:
+            with open(labeled_json_fp) as file:
                 labeled_json = json.load(file)
 
             cur = con.cursor()
@@ -662,7 +662,7 @@ def is_converted_project(fp):
     """Check if asreview file has been converter from v0 to v1."""
     # Check if there is a legacy project.json and it has v0.
     try:
-        with open(Path(fp, "legacy", "project.json"), "r") as f:
+        with open(Path(fp, "legacy", "project.json")) as f:
             project_config_old = json.load(f)
     except FileNotFoundError:
         return False
@@ -671,7 +671,7 @@ def is_converted_project(fp):
         return False
 
     # Check if the current project.json has 'state_version' == 1.
-    with open(Path(fp, "project.json"), "r") as f:
+    with open(Path(fp, "project.json")) as f:
         project_config_current = json.load(f)
 
     try:

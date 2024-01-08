@@ -72,7 +72,7 @@ def _convert_types(par_defaults, param):
             )
 
 
-class ASReviewSettings(object):
+class ASReviewSettings:
     """Object to store the configuration of a review session.
 
     The main difference being that it type checks (some)

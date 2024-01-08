@@ -222,7 +222,7 @@ def _embedding_reader(filename, input_queue, block_size=1000):
         Number of lines for each job.
     """
 
-    with open(filename, "r", encoding="utf-8", newline="\n") as f:
+    with open(filename, encoding="utf-8", newline="\n") as f:
         # Throw away the first line, since we don't care about the dimensions.
         f.readline()
 
@@ -404,7 +404,7 @@ def load_embedding(fp, word_index=None, n_jobs=None):
     input_queue = Queue(queue_size)
     output_queue = Queue()
 
-    with open(fp, "r", encoding="utf-8", newline="\n") as f:
+    with open(fp, encoding="utf-8", newline="\n") as f:
         n_words, emb_vec_dim = list(map(int, f.readline().split(" ")))
 
     logging.debug(f"Reading {n_words} vectors with {emb_vec_dim} dimensions.")

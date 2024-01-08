@@ -68,14 +68,14 @@ def test_template_group():
         description = "Template group"
 
         def __init__(self):
-            super(TemplateDataGroup, self).__init__(my_dataset1, my_dataset2)
+            super().__init__(my_dataset1, my_dataset2)
 
     # END
 
     my_group = TemplateDataGroup()
 
-    my_group.find("my_dataset1").title == "My dataset"
-    my_group.find("j535").title == "My second dataset"  # see lowercase alias
+    assert my_group.find("my_dataset1").title == "My dataset"
+    assert my_group.find("j535").title == "My second dataset"  # see lowercase alias
 
 
 @pytest.mark.xfail(raises=TypeError)

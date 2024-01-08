@@ -7,7 +7,7 @@ from asreview.models.feature_extraction.embedding_lstm import load_embedding
 from asreview.models.feature_extraction.embedding_lstm import sample_embedding
 
 
-def random_words(n_words=1000, other_word_dict={}):
+def random_words(n_words=1000, other_word_dict=None):
     """Generator of random (ascii) words.
 
     Parameters
@@ -30,7 +30,11 @@ def random_words(n_words=1000, other_word_dict={}):
         new_word = ""
         for _ in range(n_letters):
             new_word += random.choice(string.ascii_letters)
-        if new_word not in word_dict and new_word not in other_word_dict:
+        if (
+            isinstance(other_word_dict, dict)
+            and new_word not in word_dict
+            and new_word not in other_word_dict
+        ):
             word_dict[new_word] = i
             i += 1
     return list(word_dict)

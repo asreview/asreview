@@ -62,7 +62,7 @@ class JSONState(DictState):
 
     def restore(self, fp):
         try:
-            with open(fp, "r") as f:
+            with open(fp) as f:
                 self._state_dict = OrderedDict(json.load(f))
             state_version = self._state_dict["version"]
             if state_version != self.version:

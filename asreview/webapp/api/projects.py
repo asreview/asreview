@@ -942,7 +942,7 @@ def api_start(project):  # noqa: F401
 
         try:
             datafile = project.config["dataset_path"]
-            logging.info("Project data file found: {}".format(datafile))
+            logging.info(f"Project data file found: {datafile}")
 
             # start simulation
             py_exe = _get_executable()
@@ -1022,7 +1022,7 @@ def api_get_status(project):  # noqa: F401
         error_path = project.project_path / "error.json"
         if error_path.exists():
             logging.error("Error on training")
-            with open(error_path, "r") as f:
+            with open(error_path) as f:
                 error_message = json.load(f)["message"]
 
             raise Exception(error_message)
@@ -1278,7 +1278,7 @@ def _get_stats(project, include_priors=False):
 
         # Check if the v0 project is in review.
         if json_fp.exists():
-            with open(json_fp, "r") as f:
+            with open(json_fp) as f:
                 s = json.load(f)
 
             # Get the labels.

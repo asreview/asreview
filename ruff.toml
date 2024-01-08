@@ -1,0 +1,31 @@
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".venv",
+    ".vscode",
+    "_build",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+    "versioneer.py",
+    "docs/source/conf.py"
+]
+
+# Same as Black.
+line-length = 88
+indent-width = 4
+
+[lint]
+select = ["E", "F", "UP", "I", "B"]
+ignore = []
+
+[lint.per-file-ignores]
+"asreview/config.py" = ["E501"]
+
+[lint.isort]
+force-single-line = true
+
+[format]
+docstring-code-format = true
+docstring-code-line-length = "dynamic"

@@ -290,7 +290,7 @@ class ASReviewProject:
 
             with lock:
                 # read the file with project info
-                with open(project_fp, "r") as fp:
+                with open(project_fp) as fp:
                     config = json.load(fp)
                     self._config = config
 
@@ -679,7 +679,7 @@ class ASReviewProject:
         except zipfile.BadZipFile:
             raise ValueError("File is not an ASReview file.")
 
-        with open(Path(tmpdir, PATH_PROJECT_CONFIG), "r") as f:
+        with open(Path(tmpdir, PATH_PROJECT_CONFIG)) as f:
             project_config = json.load(f)
 
         if safe_import:

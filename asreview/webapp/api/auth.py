@@ -68,11 +68,9 @@ def send_forgot_password_email(user, request, cur_app):
         mailer = Mail(cur_app)
         # open templates as string and render
         root_path = Path(cur_app.root_path)
-        with open(
-            root_path / "templates" / "emails" / "forgot_password.html", "r"
-        ) as f:
+        with open(root_path / "templates" / "emails" / "forgot_password.html") as f:
             html_text = render_template_string(f.read(), name=name, url=url)
-        with open(root_path / "templates" / "emails" / "forgot_password.txt", "r") as f:
+        with open(root_path / "templates" / "emails" / "forgot_password.txt") as f:
             txt_text = render_template_string(f.read(), name=name, url=url)
         # create message
         msg = Message("ASReview: forgot password", recipients=[user.email])
@@ -95,11 +93,9 @@ def send_confirm_account_email(user, request, cur_app):
         mailer = Mail(cur_app)
         # open templates as string and render
         root_path = Path(cur_app.root_path)
-        with open(
-            root_path / "templates" / "emails" / "confirm_account.html", "r"
-        ) as f:
+        with open(root_path / "templates" / "emails" / "confirm_account.html") as f:
             html_text = render_template_string(f.read(), name=name, url=url)
-        with open(root_path / "templates" / "emails" / "confirm_account.txt", "r") as f:
+        with open(root_path / "templates" / "emails" / "confirm_account.txt") as f:
             txt_text = render_template_string(f.read(), name=name, url=url)
         # create message
         msg = Message("ASReview: please confirm your account", recipients=[user.email])
