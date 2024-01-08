@@ -273,11 +273,9 @@ redirects = {
 
 # -- Options for linkcheck ----------------------------------------------------
 
-linkcheck_ignore = [
-    r"http://localhost:\d+[/]*.*"
-]
+linkcheck_ignore = [r"http://localhost:\d+[/]*.*"]
 
 linkcheck_allowed_redirects = {
     r"https://doi.org/.*": r"https://.*",
-    r"https://asreview.ai/.*": r"https://asreview.nl/.*"
+    r"https://asreview.ai/.*": r"https://asreview.nl/.*",
 }

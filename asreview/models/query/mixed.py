@@ -67,10 +67,10 @@ class MixedQuery(BaseQueryStrategy):
         strategy_2="random",
         mix_ratio=0.95,
         random_state=None,
-        **kwargs
+        **kwargs,
     ):
         """Initialize the Mixed query strategy."""
-        super(MixedQuery, self).__init__()
+        super().__init__()
 
         self.strategy_1 = strategy_1
         self.strategy_2 = strategy_2
@@ -182,12 +182,12 @@ class MaxRandomQuery(MixedQuery):
 
     def __init__(self, mix_ratio=0.95, random_state=None, **kwargs):
         """Initialize the Mixed (Maximum and Random) query strategy."""
-        super(MaxRandomQuery, self).__init__(
+        super().__init__(
             strategy_1="max",
             strategy_2="random",
             mix_ratio=mix_ratio,
             random_state=random_state,
-            **kwargs
+            **kwargs,
         )
 
 
@@ -205,10 +205,10 @@ class MaxUncertaintyQuery(MixedQuery):
 
     def __init__(self, mix_ratio=0.95, random_state=None, **kwargs):
         """Initialize the Mixed (Maximum and Uncertainty) query strategy."""
-        super(MaxUncertaintyQuery, self).__init__(
+        super().__init__(
             strategy_1="max",
             strategy_2="uncertainty",
             mix_ratio=mix_ratio,
             random_state=random_state,
-            **kwargs
+            **kwargs,
         )

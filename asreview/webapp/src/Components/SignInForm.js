@@ -61,7 +61,7 @@ const SignInForm = (props) => {
       onError: (data) => {
         console.error("Signin error", data);
       },
-    }
+    },
   );
 
   const handleSubmit = (e) => {

@@ -37,7 +37,6 @@ ASREVIEW_PARSE_DICT = {
 
 
 def _parse_asreview_data_from_notes(note_list):
-
     # Return {} and an empty list
     if not isinstance(note_list, list):
         return {}
@@ -133,19 +132,15 @@ class RISReader:
 
     @classmethod
     def _read_from_file(cls, fp, encoding="utf8"):
-        with open(fp, "r", encoding=encoding) as bibliography_file:
+        with open(fp, encoding=encoding) as bibliography_file:
             return list(rispy.load(bibliography_file, skip_unknown_tags=True))
 
     @classmethod
     def _read_from_url(cls, fp, encoding="utf8"):
         url_input = urlopen(fp)
 
-        bibliography_file = io.StringIO(
-            url_input.read().decode(encoding)
-        )
-        entries = list(
-            rispy.load(bibliography_file, skip_unknown_tags=True)
-        )
+        bibliography_file = io.StringIO(url_input.read().decode(encoding))
+        entries = list(rispy.load(bibliography_file, skip_unknown_tags=True))
         bibliography_file.close()
 
         return entries

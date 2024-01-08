@@ -111,6 +111,7 @@
 .dialog-header {
   align-items: center;
   justify-content: space-between;
+  height: 64px;
 }
 .dialog-header-button {
   align-items: center;
@@ -122,5 +123,5 @@
   padding-left: 48px;
 }
 .dialog-header-button.right {
-  padding-right: 24px;
+  padding-right: 16px;
 }

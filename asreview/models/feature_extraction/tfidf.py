@@ -44,7 +44,7 @@ class Tfidf(BaseFeatureExtraction):
 
     def __init__(self, *args, ngram_max=1, stop_words="english", **kwargs):
         """Initialize tfidf class."""
-        super(Tfidf, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.ngram_max = ngram_max
         self.stop_words = stop_words
         if stop_words is None or stop_words.lower() == "none":
@@ -65,7 +65,7 @@ class Tfidf(BaseFeatureExtraction):
     def full_hyper_space(self):
         from hyperopt import hp
 
-        hyper_space, hyper_choices = super(Tfidf, self).full_hyper_space()
+        hyper_space, hyper_choices = super().full_hyper_space()
         hyper_choices.update({"fex_stop_words": ["english", "none"]})
         hyper_space.update(
             {

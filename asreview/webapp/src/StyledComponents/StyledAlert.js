@@ -17,7 +17,8 @@ export function ExplorationModeRecordAlert(props) {
         >
           {props.label}
         </Box>
-      }{props.prior ? "" : ", what would be your decision?"}
+      }
+      {props.prior ? "" : ", what would be your decision?"}
     </Alert>
   );
 }

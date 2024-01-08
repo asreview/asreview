@@ -4,12 +4,12 @@ Research
 The open source ASReview LAB software is one of the products of the `ASReview
 research project <https://asreview.ai/about/>`_. The ASReview research project
 is a fundamental and applied research project studying the application of AI
-in the field of systematically reviewing large amounts of text data. 
+in the field of systematically reviewing large amounts of text data.
 
- 
+
 
 .. note::
-  
+
   The ASReview project is developed by researchers for researchers, and anyone is welcome to join the community!
 
 There are still 1001 scientific papers that can be published using the
@@ -18,7 +18,7 @@ applying the existing models to new types of datasets (different scientific
 fields, other languages, multilanguage data, text data outside academia,
 large datasets, etcetera), adding new models and testing the performance on
 the available benchmark datasets, adding and testing new stopping rules or
-performance metrics, and so on! 
+performance metrics, and so on!
 
 
 Scientific principles
@@ -50,7 +50,7 @@ For citing the documentation (or to download the pdf) go to `Zenodo <https://doi
 
 For citing the software **ASReview LAB**, refer to the `specific release
 <https://doi.org/10.5281/zenodo.3345592>`_ of the software, available on the
-export screen. 
-  
+export screen.
+
 .. figure:: ../images/cite.png
    :alt: Cite ASReview LAB

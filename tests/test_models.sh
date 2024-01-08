@@ -41,5 +41,3 @@ do
   asreview simulate synergy:${DATASET} -q $fs --seed 535 --init_seed 535 -s ${DATASET}_${fs}.asreview
   asreview plot recall ${DATASET}_${fs}.asreview -o ${DATASET}_${fs}_recall.png
 done
-
-

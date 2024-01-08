@@ -36,7 +36,7 @@ class RandomQuery(BaseQueryStrategy):
     label = "Random"
 
     def __init__(self, random_state=None):
-        super(RandomQuery, self).__init__()
+        super().__init__()
         self._random_state = get_random_state(random_state)
 
     def query(
@@ -45,7 +45,7 @@ class RandomQuery(BaseQueryStrategy):
         classifier=None,
         n_instances=None,
         return_classifier_scores=False,
-        **kwargs
+        **kwargs,
     ):
         if n_instances is None:
             n_instances = X.shape[0]

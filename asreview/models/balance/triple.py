@@ -81,7 +81,7 @@ class TripleBalance(BaseBalance):
     ):
         """Initialize the triple balance strategy."""
 
-        super(TripleBalance, self).__init__()
+        super().__init__()
         self.a = a
         self.alpha = alpha
         self.b = b

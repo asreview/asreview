@@ -35,4 +35,3 @@ finished yet, you can refresh the page or use the refresh button to follow the
 progress. After a while, the Elas mascot on the left will hold a sign with
 "finished". Your simulation is now finished and you can study the results in
 the analytics page.
-

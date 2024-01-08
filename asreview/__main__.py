@@ -83,7 +83,7 @@ def main():
             "-V",
             "--version",
             action="version",
-            version="%(prog)s {version}".format(version=__version__),
+            version=f"%(prog)s {__version__}",
         )
 
         args, _ = parser.parse_known_args()

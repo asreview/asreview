@@ -7,7 +7,7 @@ ACCOUNT = {
     "email": "test4@user.org",
     "name": "Test User",
     "affiliation": "Utrecht University",
-    "password": "@Secret1234!"
+    "password": "@Secret1234!",
 }
 
 PROJECT = {
@@ -18,7 +18,6 @@ PROJECT = {
     "dataset": {
         "type": "benchmark",
         "label": "Appenzeller‐Herzog et al. (2019)",
-
         # alternative:
         # "prior_knowledge_method": "Random",
         # "prior_knowledge": [
@@ -28,7 +27,6 @@ PROJECT = {
         #     "irrelevant",
         #     "relevant"
         # ],
-
         "prior_knowledge_method": "Search",
         "prior_knowledge": [
             ("hepatolenticular degeneration Wilson Zinc", None),
@@ -36,16 +34,15 @@ PROJECT = {
             ("triethylenetetramine dihydrochloride", None),
             ("disease genetic heterogeneity United Kingdom and Taiwan", None),
             ("AIM succimer penicillamine", None),
-            ("Early neurological worsening", None)
+            ("Early neurological worsening", None),
         ],
     },
-
     "model": {
         "feature_extraction": "tfidf",
         "classifier": "nb",
         "query_strategy": "max",
-        "balance_strategy": "double"
-    }
+        "balance_strategy": "double",
+    },
 }
 
 
@@ -77,7 +74,7 @@ def test_signup_signin_create_project(driver, url, database_uri, reading_time):
     # REVIEWING
     for _ in range(5):
         # choose
-        label = random.choice(['irrelevant', 'relevant'])
+        label = random.choice(["irrelevant", "relevant"])
         # click
         utils.label_abstract(driver, label, reading_time)
 

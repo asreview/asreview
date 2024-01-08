@@ -1,7 +1,6 @@
 __all__ = ["BaseReview"]
 
 import logging
-from abc import ABC
 
 import numpy as np
 import pandas as pd
@@ -17,7 +16,7 @@ from asreview.project import open_state
 from asreview.settings import ASReviewSettings
 
 
-class BaseReview(ABC):
+class BaseReview:
     """Base class for Systematic Review.
 
     Arguments
@@ -61,11 +60,13 @@ class BaseReview(ABC):
         n_papers=None,
         n_instances=DEFAULT_N_INSTANCES,
         stop_if=None,
-        start_idx=[],
+        start_idx=None,
     ):
         """Initialize the reviewer base class, so that everything is ready to
         train a new model."""
-        super(BaseReview, self).__init__()
+        if start_idx is None:
+            start_idx = []
+        super().__init__()
 
         # Set the model.
         self.classifier = model
@@ -112,10 +113,8 @@ class BaseReview(ABC):
                 # the number of records in the dataset
                 if self.X.shape[0] != len(as_data):
                     raise ValueError(
-                        "Dataset has {} records while feature "
-                        "extractor returns {} records".format(
-                            len(as_data), self.X.shape[0]
-                        )
+                        f"Dataset has {len(as_data)} records while feature "
+                        f"extractor returns {self.X.shape[0]} records"
                     )
 
                 self.project.add_feature_matrix(self.X, self.feature_extraction.name)
@@ -151,7 +150,7 @@ class BaseReview(ABC):
             query_param=self.query_strategy.param,
             balance_param=self.balance_model.param,
             feature_param=self.feature_extraction.param,
-            **extra_kwargs
+            **extra_kwargs,
         )
 
     def review(self):

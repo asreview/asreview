@@ -88,7 +88,7 @@ class EmbeddingLSTM(BaseFeatureExtraction):
         **kwargs,
     ):
         """Initialize the embedding matrix feature extraction."""
-        super(EmbeddingLSTM, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.embedding = None
         self.num_words = num_words
         self.max_sequence_length = max_sequence_length
@@ -132,7 +132,7 @@ class EmbeddingLSTM(BaseFeatureExtraction):
     def full_hyper_space(self):
         from hyperopt import hp
 
-        hyper_space, hyper_choices = super(EmbeddingLSTM, self).full_hyper_space()
+        hyper_space, hyper_choices = super().full_hyper_space()
         hyper_space.update({"fex_loop_sequences": hp.randint("fex_loop_sequences", 2)})
         return hyper_space, hyper_choices
 
@@ -222,7 +222,7 @@ def _embedding_reader(filename, input_queue, block_size=1000):
         Number of lines for each job.
     """
 
-    with open(filename, "r", encoding="utf-8", newline="\n") as f:
+    with open(filename, encoding="utf-8", newline="\n") as f:
         # Throw away the first line, since we don't care about the dimensions.
         f.readline()
 
@@ -404,7 +404,7 @@ def load_embedding(fp, word_index=None, n_jobs=None):
     input_queue = Queue(queue_size)
     output_queue = Queue()
 
-    with open(fp, "r", encoding="utf-8", newline="\n") as f:
+    with open(fp, encoding="utf-8", newline="\n") as f:
         n_words, emb_vec_dim = list(map(int, f.readline().split(" ")))
 
     logging.debug(f"Reading {n_words} vectors with {emb_vec_dim} dimensions.")

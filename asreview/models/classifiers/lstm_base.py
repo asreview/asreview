@@ -106,7 +106,7 @@ class LSTMBaseClassifier(BaseTrainClassifier):
         class_weight=30.0,
     ):
         """Initialize the LSTM base model"""
-        super(LSTMBaseClassifier, self).__init__()
+        super().__init__()
         self.embedding_matrix = embedding_matrix
         self.backwards = backwards
         self.dropout = dropout
@@ -175,7 +175,7 @@ class LSTMBaseClassifier(BaseTrainClassifier):
 
     @property
     def default_param(self):
-        defaults = super(LSTMBaseClassifier, self).default_param
+        defaults = super().default_param
         defaults.pop("embedding_matrix")
         return defaults
 
@@ -241,9 +241,7 @@ def _create_lstm_base_model(
     optimizer_fn = _get_optimizer(optimizer, learn_rate)
 
     # Compile model
-    model.compile(
-        loss="binary_crossentropy", optimizer=optimizer_fn, metrics=["acc"]
-    )
+    model.compile(loss="binary_crossentropy", optimizer=optimizer_fn, metrics=["acc"])
 
     if verbose >= 1:
         model.summary(verbose=verbose)

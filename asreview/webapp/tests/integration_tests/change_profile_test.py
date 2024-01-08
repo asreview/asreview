@@ -5,7 +5,7 @@ ACCOUNT = {
     "email": "test4@user.org",
     "name": "Test User",
     "affiliation": "Utrecht University",
-    "password": "@Secret1234!"
+    "password": "@Secret1234!",
 }
 
 
@@ -47,7 +47,7 @@ def test_change_profile(driver, url, database_uri):
         "name": "Casper Kaandorp",
         "affiliation": "UU",
         "old_password": ACCOUNT["password"],
-        "password": "uuuuUUUU111"
+        "password": "uuuuUUUU111",
     }
 
     utils.fill_text_field_by_id(driver, "email", new_user_data["email"])

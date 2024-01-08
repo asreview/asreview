@@ -41,7 +41,7 @@ Ideally a test function tests one particular feature and can be executed indepen
 python setup.py compile_assets
 ```
 
-Please run your tests __from the root directory__ with the `--random-order` option to ensure test independency. With Pytest you can run all tests within a particular module. For example:
+Please run your tests **from the root directory** with the `--random-order` option to ensure test independency. With Pytest you can run all tests within a particular module. For example:
 
 ```
 pytest --random-order -s -v ./asreview/webapp/tests/test_api/test_projects.py
