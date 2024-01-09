@@ -30,9 +30,9 @@ from urllib.request import urlopen
 import numpy as np
 
 if sys.version_info >= (3, 10):
-    pass
+    from importlib.metadata import entry_points as _entry_points  # noqa
 else:
-    pass
+    from importlib_metadata import entry_points as _entry_points  # noqa
 
 
 def _unsafe_dict_update(default_dict, override_dict):
