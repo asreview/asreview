@@ -138,8 +138,7 @@ def test_try_upgrade_a_modern_project(setup):
     assert not data["version"].startswith("0")
 
     status_code, data = au.upgrade_project(client, project)
-    assert status_code == 400
-    assert data["message"] == "Can only convert v0.x projects."
+    assert status_code == 200
 
 
 # Test upgrading a v0.x project
@@ -165,8 +164,8 @@ def test_upgrade_an_old_project(setup):
         project = crud.create_project(DB, user, new_project)
     # try to convert
     status_code, data = au.upgrade_project(client, project)
-    assert status_code == 200
-    assert data["success"]
+    assert status_code == 400
+    assert data["message"].startswith("Not possible to upgrade")
 
 
 # Test importing old projects, verify ids
