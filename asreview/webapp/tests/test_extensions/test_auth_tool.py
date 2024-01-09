@@ -8,7 +8,6 @@ import pytest
 
 import asreview.webapp.entry_points.auth_tool as tool
 from asreview import ASReviewProject
-from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.entry_points.auth_tool import AuthTool
@@ -73,10 +72,6 @@ def import_2_unauthenticated_projects(with_upgrade=True):
         open(asreview_v0_file, "rb"), asreview_path(), safe_import=True
     )
 
-    if with_upgrade:
-        # update these projects to a 1.x-ish config
-        upgrade_asreview_project_file(proj1.project_path)
-        upgrade_asreview_project_file(proj2.project_path)
     return proj1, proj2
 
 
