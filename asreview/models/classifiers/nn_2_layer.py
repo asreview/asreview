@@ -18,6 +18,7 @@ import logging
 
 try:
     import tensorflow as tf
+    from tensorflow.keras import optimizers
     from tensorflow.keras import regularizers
     from tensorflow.keras.layers import Dense
     from tensorflow.keras.models import Sequential
@@ -34,7 +35,6 @@ import numpy as np
 import scipy
 
 from asreview.models.classifiers.base import BaseTrainClassifier
-from asreview.models.classifiers.lstm_base import _get_optimizer
 from asreview.models.classifiers.utils import _set_class_weight
 
 
@@ -44,6 +44,21 @@ def _check_tensorflow():
             "Install tensorflow package to use"
             " Fully connected neural network (2 hidden layers)."
         )
+
+
+def _get_optimizer(optimizer, lr_mult=1.0):
+    "Get optimizer with correct learning rate."
+    if optimizer == "sgd":
+        return optimizers.SGD(learning_rate=0.01 * lr_mult)
+    elif optimizer == "rmsprop":
+        return optimizers.RMSprop(learning_rate=0.001 * lr_mult)
+    elif optimizer == "adagrad":
+        return optimizers.Adagrad(learning_rate=0.01 * lr_mult)
+    elif optimizer == "adam":
+        return optimizers.Adam(learning_rate=0.001 * lr_mult)
+    elif optimizer == "nadam":
+        return optimizers.Nadam(learning_rate=0.002 * lr_mult)
+    raise NotImplementedError
 
 
 class NN2LayerClassifier(BaseTrainClassifier):
