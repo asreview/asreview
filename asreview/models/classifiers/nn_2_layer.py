@@ -166,22 +166,6 @@ class NN2LayerClassifier(BaseTrainClassifier):
         neg_pred = 1 - pos_pred
         return np.hstack([neg_pred, pos_pred])
 
-    def full_hyper_space(self):
-        from hyperopt import hp
-
-        hyper_choices = {
-            "mdl_optimizer": ["sgd", "rmsprop", "adagrad", "adam", "nadam"]
-        }
-        hyper_space = {
-            "mdl_dense_width": hp.quniform("mdl_dense_width", 2, 100, 1),
-            "mdl_epochs": hp.quniform("mdl_epochs", 20, 60, 1),
-            "mdl_optimizer": hp.choice("mdl_optimizer", hyper_choices["mdl_optimizer"]),
-            "mdl_learn_rate": hp.lognormal("mdl_learn_rate", 0, 1),
-            "mdl_class_weight": hp.lognormal("mdl_class_weight", 3, 1),
-            "mdl_regularization": hp.lognormal("mdl_regularization", -4, 2),
-        }
-        return hyper_space, hyper_choices
-
 
 def _create_dense_nn_model(
     vector_size=40,

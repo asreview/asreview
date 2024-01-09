@@ -22,8 +22,6 @@ class BaseTrainClassifier(BaseModel):
     Base model, abstract class to be implemented by derived ones.
 
     All the non-abstract methods are okay if they are not implemented.
-    All functions dealing with hyperparameters can be ignore if you don't
-    use hyperopt for hyperparameter tuning.
     There is a distinction between model parameters, which are needed during
     model creation and fit parameters, which are used during the fitting
     process. Fit parameters can be distinct from fit_kwargs (which are passed
@@ -62,14 +60,3 @@ class BaseTrainClassifier(BaseModel):
             columns (class 0, and class 1) and the number of samples rows.
         """
         return self._model.predict_proba(X)
-
-    def full_hyper_space(self):
-        """Get a hyperparameter space to use with hyperopt.
-
-        Returns
-        -------
-        dict, dict
-            Parameter space. Parameter choices; in case of hyperparameters
-            with a list of choices, store the choices there.
-        """
-        return {}, {}

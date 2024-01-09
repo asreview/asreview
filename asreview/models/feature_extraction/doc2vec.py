@@ -162,23 +162,3 @@ class Doc2Vec(BaseFeatureExtraction):
         else:
             X = _transform_text(self.model, corpus)
         return X
-
-    def full_hyper_space(self):
-        from hyperopt import hp
-
-        eps = 1e-7
-
-        hyper_space, hyper_choices = super().full_hyper_space()
-        hyper_space.update(
-            {
-                "fex_vector_size": hp.quniform("fex_vector_size", 31.5, 127.5 - eps, 8),
-                "fex_epochs": hp.quniform("fex_epochs", 20, 50, 1),
-                "fex_min_count": hp.quniform("fex_min_count", 0.5, 2.499999, 1),
-                "fex_window": hp.quniform("fex_window", 4.5, 9.4999999, 1),
-                "fex_dm_concat": hp.randint("fex_dm_concat", 2),
-                "fex_dm": hp.randint("fex_dm", 3),
-                "fex_dbow_words": hp.randint("fex_dbow_words", 2),
-            }
-        )
-
-        return hyper_space, hyper_choices

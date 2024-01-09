@@ -115,17 +115,6 @@ class DoubleBalance(BaseBalance):
         # Return resampled feature matrix and labels.
         return X[all_idx], y[all_idx]
 
-    def full_hyper_space(self):
-        from hyperopt import hp
-
-        parameter_space = {
-            "bal_a": hp.lognormal("bal_a", 0, 1),
-            "bal_alpha": hp.uniform("bal_alpha", 0, 2),
-            "bal_b": hp.uniform("bal_b", 0, 1),
-            # "bal_beta": hp.uniform("bal_beta", 0, 2),
-        }
-        return parameter_space, {}
-
 
 def _one_weight(n_one, n_zero, a, alpha):
     """Get the weight of the ones."""
