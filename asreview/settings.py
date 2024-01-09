@@ -94,8 +94,7 @@ class ASReviewSettings:
         query_param=None,
         balance_param=None,
         feature_param=None,
-        data_fp=None,
-        n_queries=None,
+        **kwargs,
     ):
         if feature_param is None:
             feature_param = {}
