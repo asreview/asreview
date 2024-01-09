@@ -196,7 +196,6 @@ setup(
         "asreview.datasets": [
             "benchmark-nature = asreview.datasets:NaturePublicationDataGroup",
             "synergy = asreview.datasets:SynergyDataGroup",
-            "benchmark = asreview.datasets:BenchmarkDataGroup",
         ],
         "asreview.models.classifiers": [
             "svm = asreview.models.classifiers:SVMClassifier",
@@ -204,8 +203,6 @@ setup(
             "rf = asreview.models.classifiers:RandomForestClassifier",
             "nn-2-layer = asreview.models.classifiers:NN2LayerClassifier",
             "logistic = asreview.models.classifiers:LogisticClassifier",
-            "lstm-base = asreview.models.classifiers:LSTMBaseClassifier",
-            "lstm-pool = asreview.models.classifiers:LSTMPoolClassifier",
         ],
         "asreview.models.feature_extraction": [
             "doc2vec = asreview.models.feature_extraction:Doc2Vec",

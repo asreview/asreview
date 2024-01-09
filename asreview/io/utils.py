@@ -13,7 +13,6 @@
 # limitations under the License.
 
 __all__ = ["list_readers", "list_writers", "get_reader_class", "get_writer_class"]
-
 import logging
 
 import numpy as np
@@ -59,6 +58,61 @@ def convert_keywords(keywords):
         if len(new_split) > len(current_best):
             current_best = new_split
     return current_best
+
+
+def list_readers():
+    """List available dataset reader classes.
+
+    Returns
+    -------
+    list:
+        Classes of available dataset readers in alphabetical order.
+    """
+    return [e.load() for e in _entry_points(group="asreview.readers")]
+
+
+def list_writers():
+    """List available dataset writer classes.
+
+    Returns
+    -------
+    list:
+        Classes of available dataset writers in alphabetical order.
+    """
+    return [e.load() for e in _entry_points(group="asreview.writers")]
+
+
+def get_reader_class(name):
+    """Get class of dataset reader from string.
+
+    Arguments
+    ---------
+    name: str
+        Name of the dataset reader, e.g. '.csv', '.tsv' or '.xlsx'.
+
+    Returns
+    -------
+    class:
+        Class corresponding to the name.
+    """
+    return _entry_points(group="asreview.readers")[name].load()
+
+
+def get_writer_class(name):
+    """Get class of dataset writer from string.
+
+    Arguments
+    ---------
+    name: str
+        Name of the dataset writer, e.g. '.csv', '.tsv' or '.xlsx'.
+
+    Returns
+    -------
+    class:
+        Class corresponding to the name.
+    """
+
+    return _entry_points(group="asreview.writers")[name].load()
 
 
 def _is_record_id_unique(s):
@@ -170,58 +224,3 @@ def _standardize_dataframe(df, column_def=None):
     df.set_index("record_id", inplace=True)
 
     return df, all_column_spec
-
-
-def list_readers():
-    """List available dataset reader classes.
-
-    Returns
-    -------
-    list:
-        Classes of available dataset readers in alphabetical order.
-    """
-    return [e.load() for e in _entry_points(group="asreview.readers")]
-
-
-def list_writers():
-    """List available dataset writer classes.
-
-    Returns
-    -------
-    list:
-        Classes of available dataset writers in alphabetical order.
-    """
-    return [e.load() for e in _entry_points(group="asreview.writers")]
-
-
-def get_reader_class(name):
-    """Get class of dataset reader from string.
-
-    Arguments
-    ---------
-    name: str
-        Name of the dataset reader, e.g. '.csv', '.tsv' or '.xlsx'.
-
-    Returns
-    -------
-    class:
-        Class corresponding to the name.
-    """
-    return _entry_points(group="asreview.readers")[name].load()
-
-
-def get_writer_class(name):
-    """Get class of dataset writer from string.
-
-    Arguments
-    ---------
-    name: str
-        Name of the dataset writer, e.g. '.csv', '.tsv' or '.xlsx'.
-
-    Returns
-    -------
-    class:
-        Class corresponding to the name.
-    """
-
-    return _entry_points(group="asreview.writers")[name].load()

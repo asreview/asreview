@@ -61,18 +61,3 @@ class Tfidf(BaseFeatureExtraction):
     def transform(self, texts):
         X = self._model.transform(texts).tocsr()
         return X
-
-    def full_hyper_space(self):
-        from hyperopt import hp
-
-        hyper_space, hyper_choices = super().full_hyper_space()
-        hyper_choices.update({"fex_stop_words": ["english", "none"]})
-        hyper_space.update(
-            {
-                "fex_ngram_max": hp.uniformint("fex_ngram_max", 1, 3),
-                "fex_stop_words": hp.choice(
-                    "fex_stop_words", hyper_choices["fex_stop_words"]
-                ),
-            }
-        )
-        return hyper_space, hyper_choices

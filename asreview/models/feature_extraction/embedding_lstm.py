@@ -129,13 +129,6 @@ class EmbeddingLSTM(BaseFeatureExtraction):
         embedding = load_embedding(embedding_fp, n_jobs=self.n_jobs)
         return sample_embedding(embedding, self.word_index)
 
-    def full_hyper_space(self):
-        from hyperopt import hp
-
-        hyper_space, hyper_choices = super().full_hyper_space()
-        hyper_space.update({"fex_loop_sequences": hp.randint("fex_loop_sequences", 2)})
-        return hyper_space, hyper_choices
-
 
 EMBEDDING_EN = {
     "url": "https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.en.300.vec.gz",  # noqa

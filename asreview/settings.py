@@ -94,12 +94,7 @@ class ASReviewSettings:
         query_param=None,
         balance_param=None,
         feature_param=None,
-        data_fp=None,
-        n_queries=None,
-        abstract_only=False,  # deprecated
-        mode=None,  # deprecated
-        n_papers=None,  # deprecated
-        data_name=None,  # deprecated
+        **kwargs,
     ):
         if feature_param is None:
             feature_param = {}

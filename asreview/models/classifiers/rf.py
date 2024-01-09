@@ -59,14 +59,3 @@ class RandomForestClassifier(BaseTrainClassifier):
             class_weight=_set_class_weight(class_weight),
             random_state=random_state,
         )
-
-    def full_hyper_space(self):
-        from hyperopt import hp
-
-        hyper_choices = {}
-        hyper_space = {
-            "mdl_n_estimators": hp.quniform("mdl_n_estimators", 10, 100, 1),
-            "mdl_max_features": hp.quniform("mdl_max_features", 6, 10, 1),
-            "mdl_class_weight": hp.lognormal("mdl_class_weight", 0, 1),
-        }
-        return hyper_space, hyper_choices

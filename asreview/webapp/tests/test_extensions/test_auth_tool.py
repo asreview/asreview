@@ -8,7 +8,6 @@ import pytest
 
 import asreview.webapp.entry_points.auth_tool as tool
 from asreview import ASReviewProject
-from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.entry_points.auth_tool import AuthTool
@@ -45,38 +44,34 @@ def interactive_user_data():
 
 
 def import_2_unauthenticated_projects(with_upgrade=True):
-    """This function retrieves 2 zipped project (version 0.x)
+    """This function retrieves 2 zipped project (version 1.x)
     files from github and copies them in the asreview folder.
     To use them in tests they need to be upgraded. Both projects
     are returned."""
 
     tests_folder = Path(__file__).parent.parent
-    asreview_v0_file = Path(
+    asreview_v1_0_file = Path(
         tests_folder,
         "asreview-project-file-archive",
-        "v0.18",
-        "asreview-project-v0-18-startreview.asreview",
+        "v1.0",
+        "asreview-project-v1-0-startreview.asreview",
     )
 
     proj1 = ASReviewProject.load(
-        open(asreview_v0_file, "rb"), asreview_path(), safe_import=True
+        open(asreview_v1_0_file, "rb"), asreview_path(), safe_import=True
     )
 
-    asreview_v0_file = Path(
+    asreview_v1_5_file = Path(
         tests_folder,
         "asreview-project-file-archive",
-        "v0.19",
-        "asreview-project-v0-19-startreview.asreview",
+        "v1.5",
+        "asreview-project-v1-5-startreview.asreview",
     )
 
     proj2 = ASReviewProject.load(
-        open(asreview_v0_file, "rb"), asreview_path(), safe_import=True
+        open(asreview_v1_5_file, "rb"), asreview_path(), safe_import=True
     )
 
-    if with_upgrade:
-        # update these projects to a 1.x-ish config
-        upgrade_asreview_project_file(proj1.project_path)
-        upgrade_asreview_project_file(proj2.project_path)
     return proj1, proj2
 
 
@@ -534,9 +529,20 @@ def test_link_projects_interactively_with_typo(client_auth):
 )
 def test_projects_with_0x_projects(client_auth, method):
     # import projects
-    proj1, proj2 = import_2_unauthenticated_projects(with_upgrade=False)
+    tests_folder = Path(__file__).parent.parent
+    asreview_v0_18_file = Path(
+        tests_folder,
+        "asreview-project-file-archive",
+        "v0.18",
+        "asreview-project-v0-18-startreview.asreview",
+    )
+
+    ASReviewProject.load(
+        open(asreview_v0_18_file, "rb"), asreview_path(), safe_import=True
+    )
+
     # make sure these projects exist
-    assert len(misc.get_folders_in_asreview_path()) == 2
+    assert len(misc.get_folders_in_asreview_path()) == 1
     # create AuthTool object
     auth_tool = get_auth_tool_object(Namespace(json=None))
     # try to link project to user

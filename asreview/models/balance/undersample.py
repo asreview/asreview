@@ -79,11 +79,3 @@ class UndersampleBalance(BaseBalance):
 
         self._random_state.shuffle(shuf_ind)
         return X[shuf_ind], y[shuf_ind]
-
-    def full_hyper_space(self):
-        from hyperopt import hp
-
-        parameter_space = {
-            "bal_ratio": hp.lognormal("bal_ratio", 0, 1),
-        }
-        return parameter_space, {}

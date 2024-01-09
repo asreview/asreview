@@ -67,19 +67,3 @@ class SVMClassifier(BaseTrainClassifier):
             gamma=gamma,
             probability=True,
         )
-
-    def full_hyper_space(self):
-        from hyperopt import hp
-
-        hyper_choices = {
-            "mdl_gamma": ["auto", "scale"],
-            "mdl_kernel": ["linear", "rbf", "poly", "sigmoid"],
-        }
-
-        hyper_space = {
-            "mdl_gamma": hp.choice("mdl_gamma", hyper_choices["mdl_gamma"]),
-            "mdl_kernel": hp.choice("mdl_kernel", hyper_choices["mdl_kernel"]),
-            "mdl_C": hp.lognormal("mdl_C", 0, 2),
-            "mdl_class_weight": hp.lognormal("mdl_class_weight", 0, 1),
-        }
-        return hyper_space, hyper_choices
