@@ -21,7 +21,6 @@ __all__ = [
     "DEFAULT_N_PRIOR_EXCLUDED",
     "DEFAULT_N_PRIOR_INCLUDED",
     "DEFAULT_QUERY_STRATEGY",
-    "KERAS_MODELS",
     "LABEL_NA",
     "PROJECT_MODE_EXPLORE",
     "PROJECT_MODE_ORACLE",
@@ -31,8 +30,6 @@ __all__ = [
 ]
 
 LABEL_NA = -1
-
-KERAS_MODELS = ["lstm_base", "lstm_pool"]
 
 # project types
 PROJECT_MODE_ORACLE = "oracle"

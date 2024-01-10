@@ -19,7 +19,6 @@ import re
 import shutil
 from pathlib import Path
 
-from asreview.compat import convert_id_to_idx
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_MODEL
@@ -49,6 +48,21 @@ def _set_log_verbosity(verbose):
         logging.getLogger().setLevel(logging.INFO)
     elif verbose >= 2:
         logging.getLogger().setLevel(logging.DEBUG)
+
+
+def _convert_id_to_idx(data_obj, record_id):
+    """Convert record_id to row number."""
+
+    inv_record_id = dict(zip(data_obj.df.index.tolist(), range(len(data_obj))))
+
+    result = []
+    for i in record_id:
+        try:
+            result.append(inv_record_id[i])
+        except KeyError:
+            raise KeyError(f"record_id {i} not found in data.")
+
+    return result
 
 
 def cli_simulate(argv):
@@ -137,7 +151,7 @@ def cli_simulate(argv):
 
     prior_idx = args.prior_idx
     if args.prior_record_id is not None and len(args.prior_record_id) > 0:
-        prior_idx = convert_id_to_idx(as_data, args.prior_record_id)
+        prior_idx = _convert_id_to_idx(as_data, args.prior_record_id)
 
     if classifier_model.name.startswith("lstm-"):
         classifier_model.embedding_matrix = feature_model.get_embedding_matrix(
