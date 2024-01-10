@@ -3,11 +3,11 @@ from pathlib import Path
 
 import pytest
 
-from asreview.entry_points.simulate import SimulateEntryPoint
-from asreview.entry_points.simulate import _simulate_parser
 from asreview.project import ASReviewProject
 from asreview.project import ProjectExistsError
 from asreview.project import open_state
+from asreview.simulation.cli import SimulateEntryPoint
+from asreview.simulation.cli import _simulate_parser
 
 ADVANCED_DEPS = {"tensorflow": False}
 
