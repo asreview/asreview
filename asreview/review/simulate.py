@@ -155,34 +155,6 @@ class ReviewSimulate:
                 state.add_record_table(as_data.record_ids)
                 self.record_table = state.get_record_table()
 
-            # Retrieve feature matrix from the project file or create
-            # one from scratch.
-            try:
-                self.X = self.project.get_feature_matrix(self.feature_extraction.name)
-            except FileNotFoundError:
-                self.X = self.feature_extraction.fit_transform(
-                    as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
-                )
-
-                # check if the number of records after the transform equals
-                # the number of records in the dataset
-                if self.X.shape[0] != len(as_data):
-                    raise ValueError(
-                        f"Dataset has {len(as_data)} records while feature "
-                        f"extractor returns {self.X.shape[0]} records"
-                    )
-
-                self.project.add_feature_matrix(self.X, self.feature_extraction.name)
-
-            # Check if the number or records in the feature matrix matches the
-            # length of the dataset.
-            if self.X.shape[0] != len(self.data_labels):
-                raise ValueError(
-                    "The state file does not correspond to the "
-                    "given data file, please use another state "
-                    "file or dataset."
-                )
-
             # Make sure the priors are labeled.
             self._label_priors()
             print(as_data.df)
@@ -262,6 +234,37 @@ class ReviewSimulate:
             feature_param=self.feature_extraction.param,
             **extra_kwargs,
         )
+
+    @property
+    def _feature_matrix(self):
+        if not hasattr(self, "_ReviewSimulate__feature_matrix"):
+            fm = self.feature_extraction.fit_transform(
+                self.as_data.texts,
+                self.as_data.headings,
+                self.as_data.bodies,
+                self.as_data.keywords,
+            )
+
+            if fm.shape[0] != len(self.as_data):
+                raise ValueError(
+                    f"Dataset has {len(self.as_data)} records while feature "
+                    f"extractor returns {fm.shape[0]} records"
+                )
+
+            self.project.add_feature_matrix(fm, self.feature_extraction.name)
+
+            # Check if the number or records in the feature matrix matches the
+            # length of the dataset.
+            if fm.shape[0] != len(self.data_labels):
+                raise ValueError(
+                    "The state file does not correspond to the "
+                    "given data file, please use another state "
+                    "file or dataset."
+                )
+
+            self.__feature_matrix = fm
+
+        return self.__feature_matrix
 
     def _label_priors(self):
         """Make sure all the priors are labeled as well as the pending
@@ -358,14 +361,18 @@ class ReviewSimulate:
         )
         train_idx = np.where(y_sample_input != LABEL_NA)[0]
 
-        X_train, y_train = self.balance_model.sample(self.X, y_sample_input, train_idx)
+        X_train, y_train = self.balance_model.sample(
+            self._feature_matrix, y_sample_input, train_idx
+        )
 
         # Fit the classifier on the trainings data.
         self.classifier.fit(X_train, y_train)
 
         # Use the query strategy to produce a ranking.
         ranked_record_ids, relevance_scores = self.query_strategy.query(
-            self.X, classifier=self.classifier, return_classifier_scores=True
+            self._feature_matrix,
+            classifier=self.classifier,
+            return_classifier_scores=True,
         )
 
         self.last_ranking = pd.concat(
