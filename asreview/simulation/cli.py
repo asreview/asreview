@@ -51,7 +51,7 @@ def _set_log_verbosity(verbose):
         logging.getLogger().setLevel(logging.DEBUG)
 
 
-def simulate(argv):
+def cli_simulate(argv):
     # parse arguments
     parser = _simulate_parser()
     args = parser.parse_args(argv)

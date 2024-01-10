@@ -37,7 +37,7 @@ def _format_algorithm(values, name, description):
     return s
 
 
-class algorithms(argv):  # noqa
+class cli_algorithms(argv):  # noqa
     s = "Available active learning algorithms for ASReview. \n\n"
 
     # feature_extraction

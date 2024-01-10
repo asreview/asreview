@@ -38,7 +38,7 @@ def _parse_state_inspect_args():
     return parser
 
 
-def state_inspect(argv):
+def cli_state_inspect(argv):
     parser = _parse_state_inspect_args()
     args = parser.parse_args(argv)
 
