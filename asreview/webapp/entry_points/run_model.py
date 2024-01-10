@@ -32,7 +32,7 @@ from asreview.project import open_state
 from asreview.review.simulate import Simulate
 
 
-def run_model_start(project, output_error=True):
+def _run_model_start(project, output_error=True):
     project = ASReviewProject(project)
 
     try:
@@ -126,7 +126,7 @@ def run_model_start(project, output_error=True):
         project.update_review(status="review")
 
 
-def simulate_start(project):
+def _simulate_start(project):
     with open_state(project) as state:
         settings = state.settings
         priors = state.get_priors()["record_id"].tolist()
@@ -159,6 +159,6 @@ def main(argv):
     args = parser.parse_args(argv)
 
     if args.project.config["mode"] == PROJECT_MODE_SIMULATE:
-        simulate_start(args.project)
+        _simulate_start(args.project)
     else:
-        run_model_start(args.project, output_error=args.output_error)
+        _run_model_start(args.project, output_error=args.output_error)
