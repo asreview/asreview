@@ -33,8 +33,6 @@ from asreview.simulation import Simulate
 
 
 def _run_model_start(project, output_error=True):
-    project = ASReviewProject(project)
-
     try:
         # Check if there are new labeled records to train with
         with open_state(project.project_path) as state:
