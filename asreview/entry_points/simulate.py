@@ -39,7 +39,7 @@ from asreview.models.query import get_query_model
 from asreview.project import ASReviewProject
 from asreview.project import ProjectExistsError
 from asreview.project import open_state
-from asreview.review.simulate import ReviewSimulate
+from asreview.review.simulate import Simulate
 from asreview.settings import ASReviewSettings
 from asreview.types import type_n_queries
 from asreview.utils import get_random_state
@@ -175,7 +175,7 @@ class SimulateEntryPoint(BaseEntryPoint):
             )
 
         # Initialize the review class.
-        reviewer = ReviewSimulate(
+        reviewer = Simulate(
             as_data,
             project=project,
             classifier=classifier_model,

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["ReviewSimulate"]
+__all__ = ["Simulate"]
 
 from datetime import datetime
 
@@ -50,7 +50,7 @@ def init_results_table():
     )
 
 
-class ReviewSimulate:
+class Simulate:
     """ASReview Simulation mode class.
 
     Arguments
