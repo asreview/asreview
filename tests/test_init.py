@@ -4,7 +4,7 @@ import pytest
 from pandas.testing import assert_frame_equal
 
 from asreview.project import open_state
-from asreview.simulation import simulate
+from asreview.simulation.cli import cli_simulate
 
 DATA_FP = Path("tests", "demo_data", "generic_labels.csv")
 
@@ -34,8 +34,8 @@ def test_init_seed(tmpdir, seed):
     )
 
     # run the simulations
-    simulate(argv1)
-    simulate(argv2)
+    cli_simulate(argv1)
+    cli_simulate(argv2)
 
     # open the state file and extract the priors
     with open_state(project1_fp) as s1:
@@ -57,7 +57,7 @@ def test_no_seed(tmpdir):
             f"{DATA_FP} -s {project_fp} -m nb "
             f"--n_prior_excluded 1 --n_prior_included 1 -n 2".split()
         )
-        simulate(argv)
+        cli_simulate(argv)
 
         # open the state file and extract the priors
         with open_state(project_fp) as s:
@@ -93,8 +93,8 @@ def test_model_seed(tmpdir, seed):
     )
 
     # run the simulations
-    simulate(argv1)
-    simulate(argv2)
+    cli_simulate(argv1)
+    cli_simulate(argv2)
 
     # open the state file and extract the priors
     with open_state(project1_fp) as s1:
