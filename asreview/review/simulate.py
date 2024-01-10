@@ -173,7 +173,7 @@ class Simulate:
 
     @property
     def _feature_matrix(self):
-        if not hasattr(self, "_ReviewSimulate__feature_matrix"):
+        if not hasattr(self, "_Simulate__feature_matrix"):
             fm = self.feature_extraction.fit_transform(
                 self.as_data.texts,
                 self.as_data.headings,
