@@ -138,14 +138,11 @@ class ReviewSimulate:
         self._last_probabilities = None
         self._results = init_results_table()
 
-        # check for partly labeled data
-        labels = as_data.labels
-        labeled_idx = np.where((labels == 0) | (labels == 1))[0]
-
         if len(as_data) == 0:
             raise ValueError("Supply a dataset with at least one record.")
 
-        if len(labeled_idx) != len(labels):
+        labeled_idx = np.where((as_data.labels == 0) | (as_data.labels == 1))[0]
+        if len(labeled_idx) != len(as_data.labels):
             raise ValueError("Expected fully labeled dataset.")
 
         # Get the known labels.
@@ -153,16 +150,8 @@ class ReviewSimulate:
         if self.data_labels is None:
             self.data_labels = np.full(len(as_data), LABEL_NA)
 
-        with open_state(self.project, read_only=False) as s:
-            # If the state is empty, add the settings.
-            if s.is_empty():
-                s.settings = self.settings
-
-            # Add the record table to the state if it is not already there.
-            self.record_table = s.get_record_table()
-            if self.record_table.empty:
-                s.add_record_table(as_data.record_ids)
-                self.record_table = s.get_record_table()
+        with open_state(self.project, read_only=False):
+            pass
 
     @property
     def settings(self):
@@ -261,6 +250,16 @@ class ReviewSimulate:
 
     def review(self):
         with open_state(self.project, read_only=False) as s:
+            # If the state is empty, add the settings.
+            if s.is_empty():
+                s.settings = self.settings
+
+            # Add the record table to the state if it is not already there.
+            self.record_table = s.get_record_table()
+            if self.record_table.empty:
+                s.add_record_table(self.as_data.record_ids)
+                self.record_table = s.get_record_table()
+
             # Make sure the priors are labeled.
             self._label_priors()
 
