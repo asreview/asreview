@@ -175,6 +175,7 @@ setup(
         ],
         "asreview.entry_points_internal": [
             "web_run_model=asreview.webapp.entry_points.run_model:main",
+            "web_run_simulate=asreview.webapp.entry_points.run_model:main_simulate",
             "state-inspect=asreview.entry_points:StateInspectEntryPoint",
         ],
         "asreview.readers": [

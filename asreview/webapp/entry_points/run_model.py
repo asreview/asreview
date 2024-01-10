@@ -28,9 +28,10 @@ from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
 from asreview.project import ASReviewProject
 from asreview.project import open_state
+from asreview.review.simulate import Simulate
 
 
-def run_model_entry_point(project_path, output_error=True):
+def run_model_start(project_path, output_error=True):
     project = ASReviewProject(project_path)
 
     try:
@@ -124,6 +125,38 @@ def run_model_entry_point(project_path, output_error=True):
         project.update_review(status="review")
 
 
+def simulate_start(project_path, prior_idx, write_interval):
+    project = ASReviewProject(project_path)
+
+    with open_state(project_path) as state:
+        settings = state.settings
+        exist_new_labeled_records = state.exist_new_labeled_records
+
+    if exist_new_labeled_records:
+        as_data = project.read_data()
+
+    reviewer = Simulate(
+        as_data,
+        project=project,
+        classifier=get_classifier(settings.model),
+        query_model=get_query_model(settings.query_strategy),
+        balance_model=get_balance_model(settings.balance_strategy),
+        feature_model=get_feature_model(settings.feature_extraction),
+        prior_indices=prior_idx,
+        write_interval=write_interval,
+    )
+
+    try:
+        project.update_review(status="review")
+        reviewer.review()
+
+    except Exception as err:
+        project.set_error(err)
+        raise err
+
+    project.mark_review_finished()
+
+
 def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("project_path", type=str, help="Project id")
@@ -135,4 +168,31 @@ def main(argv):
     )
     args = parser.parse_args(argv)
 
-    run_model_entry_point(args.project_path, output_error=args.output_error)
+    run_model_start(args.project_path, output_error=args.output_error)
+
+
+def main_simulate(argv):
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--prior_idx",
+        default=[],
+        nargs="*",
+        type=int,
+        help="Prior indices by rownumber (0 is first rownumber).",
+    )
+    parser.add_argument(
+        "--project_path",
+        type=str,
+        help="Location to ASReview project file of simulation.",
+    )
+    parser.add_argument(
+        "--write_interval",
+        default=None,
+        type=int,
+        help="The simulation data will be written after each set of this"
+        "many labeled records. By default only writes data at the end"
+        "of the simulation to make it as fast as possible.",
+    )
+    args = parser.parse_args(argv)
+    simulate_start(args.project_path, args.prior_idx, args.write_interval)
