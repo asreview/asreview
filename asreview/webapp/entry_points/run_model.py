@@ -62,7 +62,6 @@ def run_model_entry_point(argv):
                 query_model=get_query_model(settings.query_strategy),
                 balance_model=get_balance_model(settings.balance_strategy),
                 feature_model=get_feature_model(settings.feature_extraction),
-                # random_state = get_random_state(seed)  # todo
             )
 
             reviewer.train()

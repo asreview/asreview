@@ -115,24 +115,20 @@ class ReviewSimulate:
         write_interval=None,
         **kwargs,
     ):
-        # Set the model.
+        self.as_data = as_data
+        self.project = project
         self.classifier = classifier
         self.balance_model = balance_model
         self.query_strategy = query_model
         self.feature_extraction = feature_model
-
-        # Set the settings.
-        self.as_data = as_data
-        self.project = project
         self.n_prior_included = n_prior_included
         self.n_prior_excluded = n_prior_excluded
+        self.prior_indices = prior_indices
         self.n_instances = n_instances
         self.stop_if = stop_if
-
-        self.write_interval = write_interval
-        self.prior_indices = prior_indices
         self.start_idx = start_idx
         self.init_seed = init_seed
+        self.write_interval = write_interval
 
         self._last_ranking = None
         self._last_probabilities = None
@@ -401,7 +397,6 @@ class ReviewSimulate:
         data to the results table."""
 
         labels = self.data_labels[record_ids]
-        labeling_time = datetime.now()
 
         results = []
         for record_id, label in zip(record_ids, labels):
@@ -414,7 +409,7 @@ class ReviewSimulate:
                     "balance_strategy": self.balance_model.name,
                     "feature_extraction": self.feature_extraction.name,
                     "training_set": int(self.training_set),
-                    "labeling_time": str(labeling_time),
+                    "labeling_time": str(datetime.now()),
                     "notes": None,
                 }
             )
