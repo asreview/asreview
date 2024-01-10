@@ -16,31 +16,22 @@ import argparse
 import logging
 from pathlib import Path
 
+import numpy as np
+import pandas as pd
 from filelock import FileLock
 from filelock import Timeout
 
+from asreview.config import LABEL_NA
 from asreview.models.balance import get_balance_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
 from asreview.project import ASReviewProject
 from asreview.project import open_state
-from asreview.review.base import BaseReview
 
 
-def run_model_entry_point(argv):
-    # parse arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument("project_path", type=str, help="Project id")
-    parser.add_argument(
-        "--output_error",
-        dest="output_error",
-        action="store_true",
-        help="Save training error message to file.",
-    )
-    args = parser.parse_args(argv)
-
-    project = ASReviewProject(args.project_path)
+def run_model_entry_point(project_path, output_error=True):
+    project = ASReviewProject(project_path)
 
     try:
         # Check if there are new labeled records to train with
@@ -52,19 +43,73 @@ def run_model_entry_point(argv):
         lock = FileLock(Path(project.project_path, "training.lock"), timeout=0)
 
         with lock:
+            as_data = project.read_data()
+
             with open_state(project) as state:
                 settings = state.settings
 
-            reviewer = BaseReview(
-                project.read_data(),
-                project,
-                model=get_classifier(settings.model),
-                query_model=get_query_model(settings.query_strategy),
-                balance_model=get_balance_model(settings.balance_strategy),
-                feature_model=get_feature_model(settings.feature_extraction),
+            feature_model = get_feature_model(settings.feature_extraction)
+
+            # get the feature matrix
+            try:
+                fm = project.get_feature_matrix(feature_model.name)
+            except FileNotFoundError:
+                fm = feature_model.fit_transform(
+                    as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
+                )
+
+                if fm.shape[0] != len(as_data):
+                    raise ValueError(
+                        f"Dataset has {len(as_data)} records while feature "
+                        f"extractor returns {fm.shape[0]} records"
+                    )
+
+                project.add_feature_matrix(fm, feature_model.name)
+
+            with open_state(project) as state:
+                record_table = state.get_record_table()
+                labeled = state.get_labeled()
+                labels = labeled["label"].to_list()
+                training_set = len(labeled)
+                if not (0 in labels and 1 in labels):
+                    raise ValueError(
+                        "Not both labels available. " "Stopped training the model"
+                    )
+
+            # TODO: Simplify balance model input.
+            # Use the balance model to sample the trainings data.
+            y_sample_input = (
+                pd.DataFrame(record_table)
+                .merge(labeled, how="left", on="record_id")
+                .loc[:, "label"]
+                .fillna(LABEL_NA)
+                .to_numpy()
+            )
+            train_idx = np.where(y_sample_input != LABEL_NA)[0]
+
+            balance_model = get_balance_model(settings.balance_strategy)
+            X_train, y_train = balance_model.sample(fm, y_sample_input, train_idx)
+
+            classifier = get_classifier(settings.model)
+            classifier.fit(X_train, y_train)
+
+            query_strategy = get_query_model(settings.query_strategy)
+            ranked_record_ids, relevance_scores = query_strategy.query(
+                fm, classifier=classifier, return_classifier_scores=True
             )
 
-            reviewer.train()
+            with open_state(project, read_only=False) as state:
+                state.add_last_ranking(
+                    ranked_record_ids,
+                    classifier.name,
+                    query_strategy.name,
+                    balance_model.name,
+                    feature_model.name,
+                    training_set,
+                )
+
+                if relevance_scores is not None:
+                    state.add_last_probabilities(relevance_scores[:, 1])
 
         project.update_review(status="review")
 
@@ -72,8 +117,22 @@ def run_model_entry_point(argv):
         logging.debug("Another iteration is training")
 
     except Exception as err:
-        project.set_error(err, save_error_message=args.output_error)
+        project.set_error(err, save_error_message=output_error)
         raise err
 
     else:
         project.update_review(status="review")
+
+
+def main(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("project_path", type=str, help="Project id")
+    parser.add_argument(
+        "--output_error",
+        dest="output_error",
+        action="store_true",
+        help="Save training error message to file.",
+    )
+    args = parser.parse_args(argv)
+
+    run_model_entry_point(args.project_path, output_error=args.output_error)
