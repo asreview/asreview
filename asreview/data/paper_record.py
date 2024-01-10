@@ -14,59 +14,11 @@
 
 __all__ = ["PaperRecord"]
 
-import os
 
 import pandas as pd
 
 from asreview.config import LABEL_NA
 from asreview.utils import format_to_str
-
-
-def preview_record(record, w_title=80, w_authors=40, automatic_width=False):
-    """Return a single line preview string for record i.
-
-    Arguments
-    ---------
-    record: PaperRecord
-        The paperRecord to preview.
-    w_title: int
-        Width to be allocated for the title of the paper.
-    w_authors: int
-        Width to be allocated for the authors of the paper.
-    automatic_width: bool
-        If true, compute w_title, w_authors from the console width.
-
-    Returns
-    -------
-    str:
-        A string that previews a paper record.
-    """
-    if automatic_width:
-        term_width = os.get_terminal_size().columns
-        width_available = term_width - 7
-        w_title = round((2 / 3) * width_available)
-        w_authors = width_available - w_title
-    title_str = ""
-    author_str = ""
-    heading = record.title
-    if heading is None:
-        heading = record.abstract
-    if heading is not None:
-        if len(heading) > w_title:
-            title_str = heading[: w_title - 2] + ".."
-        else:
-            title_str = heading
-
-    if record.authors is not None:
-        cur_authors = format_to_str(record.authors)
-        if len(cur_authors) > w_authors:
-            author_str = cur_authors[: w_authors - 2] + ".."
-        else:
-            author_str = cur_authors
-    format_str = "{0: <" + str(w_title) + "}   " + "{1: <" + str(w_authors)
-    format_str += "}"
-    prev_str = format_str.format(title_str, author_str)
-    return prev_str
 
 
 def format_record(record, use_cli_colors=True):

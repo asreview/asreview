@@ -17,7 +17,6 @@ __all__ = [
     "CSVWriter",
     "ExcelReader",
     "ExcelWriter",
-    "PaperRecord",
     "RISReader",
     "RISWriter",
     "TSVWriter",
@@ -25,13 +24,12 @@ __all__ = [
     "list_writers",
 ]
 
-from asreview.io.csv_reader import CSVReader
-from asreview.io.csv_writer import CSVWriter
-from asreview.io.excel_reader import ExcelReader
-from asreview.io.excel_writer import ExcelWriter
-from asreview.io.paper_record import PaperRecord
 from asreview.io.ris import RISReader
 from asreview.io.ris import RISWriter
-from asreview.io.tsv_writer import TSVWriter
+from asreview.io.tabular import CSVReader
+from asreview.io.tabular import CSVWriter
+from asreview.io.tabular import ExcelReader
+from asreview.io.tabular import ExcelWriter
+from asreview.io.tabular import TSVWriter
 from asreview.io.utils import list_readers
 from asreview.io.utils import list_writers
