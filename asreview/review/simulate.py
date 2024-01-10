@@ -126,8 +126,17 @@ class ReviewSimulate:
         self.project = project
         self.n_prior_included = n_prior_included
         self.n_prior_excluded = n_prior_excluded
+        self.n_instances = n_instances
+        self.stop_if = stop_if
 
         self.write_interval = write_interval
+        self.prior_indices = prior_indices
+        self.start_idx = start_idx
+        self.init_seed = init_seed
+
+        self._last_ranking = None
+        self._last_probabilities = None
+        self._results = init_results_table()
 
         # check for partly labeled data
         labels = as_data.labels
@@ -139,73 +148,21 @@ class ReviewSimulate:
         if len(labeled_idx) != len(labels):
             raise ValueError("Expected fully labeled dataset.")
 
-        if prior_indices is not None and len(prior_indices) != 0:
-            start_idx = prior_indices
-        else:
-            start_idx = as_data.prior_data_idx
-            if len(start_idx) == 0 and n_prior_included + n_prior_excluded > 0:
-                start_idx = sample_prior_knowledge(
-                    labels, n_prior_included, n_prior_excluded, random_state=init_seed
-                )
-            else:
-                start_idx = naive_prior_knowledge(labels)
-
-        if start_idx is None:
-            start_idx = []
-
-        self.n_instances = n_instances
-        self.stop_if = stop_if
-        self.prior_indices = start_idx
-
         # Get the known labels.
         self.data_labels = as_data.labels
         if self.data_labels is None:
             self.data_labels = np.full(len(as_data), LABEL_NA)
 
-        with open_state(self.project, read_only=False) as state:
+        with open_state(self.project, read_only=False) as s:
             # If the state is empty, add the settings.
-            if state.is_empty():
-                state.settings = self.settings
+            if s.is_empty():
+                s.settings = self.settings
 
             # Add the record table to the state if it is not already there.
-            self.record_table = state.get_record_table()
+            self.record_table = s.get_record_table()
             if self.record_table.empty:
-                state.add_record_table(as_data.record_ids)
-                self.record_table = state.get_record_table()
-
-            # Make sure the priors are labeled.
-            self._label_priors()
-
-            self.last_ranking = None
-            self.last_probabilities = None
-
-            self.labeled = state.get_labeled()
-            self.pool = pd.Series(
-                [
-                    record_id
-                    for record_id in self.record_table
-                    if record_id not in self.labeled["record_id"].values
-                ]
-            )
-            self.training_set = len(self.labeled)
-
-            # Get the number of queries.
-            training_sets = state.get_training_sets()
-            # There is one query per trained model. We subtract 1
-            # for the priors.
-            self.total_queries = len(set(training_sets)) - 1
-
-            # Check that both labels are available.
-            if (0 not in self.labeled["label"].values) or (
-                1 not in self.labeled["label"].values
-            ):
-                raise ValueError(
-                    "Not both labels available Make sure there"
-                    " is an included and excluded record in "
-                    "the priors."
-                )
-
-        self._results = init_results_table()
+                s.add_record_table(as_data.record_ids)
+                self.record_table = s.get_record_table()
 
     @property
     def settings(self):
@@ -263,6 +220,29 @@ class ReviewSimulate:
     def _label_priors(self):
         """Make sure all the priors are labeled as well as the pending
         labels."""
+
+        if self.prior_indices is not None and len(self.prior_indices) != 0:
+            self.start_idx = self.prior_indices
+        else:
+            self.start_idx = self.as_data.prior_data_idx
+            if (
+                len(self.start_idx) == 0
+                and self.n_prior_included + self.n_prior_excluded > 0
+            ):
+                self.start_idx = sample_prior_knowledge(
+                    self.as_data.labels,
+                    self.n_prior_included,
+                    self.n_prior_excluded,
+                    random_state=self.init_seed,
+                )
+            else:
+                self.start_idx = naive_prior_knowledge(self.as_data.labels)
+
+        if self.start_idx is None:
+            self.start_idx = []
+
+        self.prior_indices = self.start_idx
+
         with open_state(self.project, read_only=False) as state:
             # Make sure the prior records are labeled.
             labeled = state.get_labeled()
@@ -281,6 +261,32 @@ class ReviewSimulate:
 
     def review(self):
         with open_state(self.project, read_only=False) as s:
+            # Make sure the priors are labeled.
+            self._label_priors()
+
+            self.labeled = s.get_labeled()
+            self.pool = pd.Series(
+                [
+                    record_id
+                    for record_id in self.record_table
+                    if record_id not in self.labeled["record_id"].values
+                ]
+            )
+            self.training_set = len(self.labeled)
+
+            training_sets = s.get_training_sets()
+            self.total_queries = len(set(training_sets)) - 1
+
+            # Check that both labels are available.
+            if (0 not in self.labeled["label"].values) or (
+                1 not in self.labeled["label"].values
+            ):
+                raise ValueError(
+                    "Not both labels available Make sure there"
+                    " is an included and excluded record in "
+                    "the priors."
+                )
+
             pending = s.get_pending()
             if not pending.empty:
                 self._label(pending)
@@ -369,13 +375,13 @@ class ReviewSimulate:
             return_classifier_scores=True,
         )
 
-        self.last_ranking = pd.concat(
+        self._last_ranking = pd.concat(
             [pd.Series(ranked_record_ids), pd.Series(range(len(ranked_record_ids)))],
             axis=1,
         )
-        self.last_ranking.columns = ["record_id", "label"]
+        self._last_ranking.columns = ["record_id", "label"]
         # The scores for the included records in the second column.
-        self.last_probabilities = relevance_scores[:, 1]
+        self._last_probabilities = relevance_scores[:, 1]
 
         self.training_set = new_training_set
 
@@ -383,8 +389,8 @@ class ReviewSimulate:
         """In simulation mode, the query function should get the n highest
         ranked unlabeled records, without writing the model data to the results
         table. The"""
-        unlabeled_ranking = self.last_ranking[
-            self.last_ranking["record_id"].isin(self.pool)
+        unlabeled_ranking = self._last_ranking[
+            self._last_ranking["record_id"].isin(self.pool)
         ]
 
         self.total_queries += 1
@@ -441,14 +447,14 @@ class ReviewSimulate:
                 state._add_labeling_data_simulation_mode(rows)
 
                 state.add_last_ranking(
-                    self.last_ranking["record_id"].to_numpy(),
+                    self._last_ranking["record_id"].to_numpy(),
                     self.classifier.name,
                     self.query_strategy.name,
                     self.balance_model.name,
                     self.feature_extraction.name,
                     self.training_set,
                 )
-                state.add_last_probabilities(self.last_probabilities)
+                state.add_last_probabilities(self._last_probabilities)
 
             # Empty the results table in memory.
             self._results.drop(self._results.index, inplace=True)
