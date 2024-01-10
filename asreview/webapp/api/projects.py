@@ -913,75 +913,21 @@ def api_set_algorithms(project):  # noqa: F401
 def api_start(project):  # noqa: F401
     """Start training of first model or simulation."""
 
-    # the project is a simulation project
-    if project.config["mode"] == PROJECT_MODE_SIMULATE:
-        # get priors
-        with open_state(project.project_path) as s:
-            priors = s.get_priors()["record_id"].tolist()
+    try:
+        py_exe = _get_executable()
+        run_command = [
+            py_exe,
+            "-m",
+            "asreview",
+            "web_run_model",
+            str(project.project_path),
+        ]
+        subprocess.Popen(run_command)
 
-        logging.info("Start simulation")
-
-        try:
-            datafile = project.config["dataset_path"]
-            logging.info(f"Project data file found: {datafile}")
-
-            # start simulation
-            py_exe = _get_executable()
-            run_command = (
-                [
-                    # get executable
-                    py_exe,
-                    # get module
-                    "-m",
-                    "asreview",
-                    # run simulation via cli
-                    "simulate",
-                    # specify dataset
-                    "",
-                    # specify prior indices
-                    "--prior_idx",
-                ]
-                + list(map(str, priors))
-                + [
-                    # specify state file
-                    "--state_file",
-                    str(project.project_path),
-                    # specify write interval
-                    "--write_interval",
-                    "100",
-                ]
-            )
-            subprocess.Popen(run_command)
-
-        except Exception as err:
-            logging.error(err)
-            message = f"Failed to get data file. {err}"
-            return jsonify(message=message), 400
-
-    # the project is an oracle or explore project
-    else:
-        logging.info("Train first iteration of model")
-        try:
-            # start training the model
-            py_exe = _get_executable()
-            run_command = [
-                # get executable
-                py_exe,
-                # get module
-                "-m",
-                "asreview",
-                # train the model via cli
-                "web_run_model",
-                # specify project id
-                str(project.project_path),
-                # output the error of the first model
-                "--output_error",
-            ]
-            subprocess.Popen(run_command)
-
-        except Exception as err:
-            logging.error(err)
-            return jsonify(message="Failed to train the model."), 500
+    except Exception as err:
+        logging.error(err)
+        message = f"Failed to train the model. {err}"
+        return jsonify(message=message), 400
 
     response = jsonify({"success": True})
 

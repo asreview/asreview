@@ -12,23 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["BaseEntryPoint"]
+__all__ = ["Simulate"]
 
-from abc import ABC
-from abc import abstractclassmethod
-
-
-class BaseEntryPoint(ABC):
-    """Base class for defining entry points."""
-
-    @abstractclassmethod
-    def execute(self, argv):
-        """Perform the functionality of the entry point.
-
-        Arguments
-        ---------
-        argv: list
-            Argument list, with the entry point and program removed.
-            For example, if `asreview plot X` is executed, then argv == ['X'].
-        """
-        raise NotImplementedError
+from asreview.simulation.simulate import Simulate

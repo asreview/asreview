@@ -11,7 +11,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
-from asreview.entry_points.base import BaseEntryPoint
 from asreview.project import ASReviewProject
 from asreview.utils import asreview_path
 from asreview.webapp.authentication.models import Project
@@ -190,7 +189,7 @@ def get_users(session):
     return session.query(User).all()
 
 
-class AuthTool(BaseEntryPoint):
+class AuthTool:
     def execute(self, argv):
         parser = auth_parser()
         args = parser.parse_args(argv)
