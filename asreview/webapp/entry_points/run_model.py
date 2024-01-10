@@ -161,4 +161,4 @@ def main(argv):
     if args.project.config["mode"] == PROJECT_MODE_SIMULATE:
         _simulate_start(args.project)
     else:
-        _run_model_start(args.project, output_error=args.output_error)
+        _run_model_start(args.project)
