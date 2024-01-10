@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["Simulate"]
+__all__ = []
 
 from datetime import datetime
 
@@ -27,9 +27,9 @@ from asreview.models.classifiers import NaiveBayesClassifier
 from asreview.models.feature_extraction.tfidf import Tfidf
 from asreview.models.query.max import MaxQuery
 from asreview.project import open_state
-from asreview.review.prior_knowledge import naive_prior_knowledge
-from asreview.review.prior_knowledge import sample_prior_knowledge
 from asreview.settings import ASReviewSettings
+from asreview.simulation.prior_knowledge import naive_prior_knowledge
+from asreview.simulation.prior_knowledge import sample_prior_knowledge
 
 
 def init_results_table():

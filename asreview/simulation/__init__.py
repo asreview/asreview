@@ -14,4 +14,4 @@
 
 __all__ = ["Simulate"]
 
-from asreview.review.simulate import Simulate
+from asreview.simulation.simulate import Simulate

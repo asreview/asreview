@@ -39,8 +39,8 @@ from asreview.models.query import get_query_model
 from asreview.project import ASReviewProject
 from asreview.project import ProjectExistsError
 from asreview.project import open_state
-from asreview.review.simulate import Simulate
 from asreview.settings import ASReviewSettings
+from asreview.simulation import Simulate
 from asreview.types import type_n_queries
 from asreview.utils import get_random_state
 
