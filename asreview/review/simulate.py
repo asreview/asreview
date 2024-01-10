@@ -32,6 +32,24 @@ from asreview.review.prior_knowledge import sample_prior_knowledge
 from asreview.settings import ASReviewSettings
 
 
+def init_results_table():
+    """Initialize the results table."""
+    return pd.DataFrame(
+        [],
+        columns=[
+            "record_id",
+            "label",
+            "classifier",
+            "query_strategy",
+            "balance_strategy",
+            "feature_extraction",
+            "training_set",
+            "labeling_time",
+            "notes",
+        ],
+    )
+
+
 class ReviewSimulate:
     """ASReview Simulation mode class.
 
@@ -82,7 +100,7 @@ class ReviewSimulate:
         self,
         as_data,
         project,
-        model=NaiveBayesClassifier(),
+        classifier=NaiveBayesClassifier(),
         query_model=MaxQuery(),
         balance_model=SimpleBalance(),
         feature_model=Tfidf(),
@@ -97,6 +115,15 @@ class ReviewSimulate:
         write_interval=None,
         **kwargs,
     ):
+        # Set the model.
+        self.classifier = classifier
+        self.balance_model = balance_model
+        self.query_strategy = query_model
+        self.feature_extraction = feature_model
+
+        # Set the settings.
+        self.as_data = as_data
+        self.project = project
         self.n_prior_included = n_prior_included
         self.n_prior_excluded = n_prior_excluded
 
@@ -126,15 +153,6 @@ class ReviewSimulate:
         if start_idx is None:
             start_idx = []
 
-        # Set the model.
-        self.classifier = model
-        self.balance_model = balance_model
-        self.query_strategy = query_model
-        self.feature_extraction = feature_model
-
-        # Set the settings.
-        self.as_data = as_data
-        self.project = project
         self.n_instances = n_instances
         self.stop_if = stop_if
         self.prior_indices = start_idx
@@ -157,20 +175,9 @@ class ReviewSimulate:
 
             # Make sure the priors are labeled.
             self._label_priors()
-            print(as_data.df)
-            print(state.get_dataset())
 
-        # Setup the reviewer attributes that take over the role of state
-        # functions.
-        with open_state(self.project) as state:
-            # Check if there is already a ranking stored in the state.
-            print(state.model_has_trained)
-            if state.model_has_trained:
-                self.last_ranking = state.get_last_ranking()
-                self.last_probabilities = state.get_last_probabilities()
-            else:
-                self.last_ranking = None
-                self.last_probabilities = None
+            self.last_ranking = None
+            self.last_probabilities = None
 
             self.labeled = state.get_labeled()
             self.pool = pd.Series(
@@ -198,20 +205,7 @@ class ReviewSimulate:
                     "the priors."
                 )
 
-        self.results = pd.DataFrame(
-            [],
-            columns=[
-                "record_id",
-                "label",
-                "classifier",
-                "query_strategy",
-                "balance_strategy",
-                "feature_extraction",
-                "training_set",
-                "labeling_time",
-                "notes",
-            ],
-        )
+        self._results = init_results_table()
 
     @property
     def settings(self):
@@ -420,8 +414,8 @@ class ReviewSimulate:
                 }
             )
 
-        self.results = pd.concat(
-            [self.results, pd.DataFrame(results)], ignore_index=True
+        self._results = pd.concat(
+            [self._results, pd.DataFrame(results)], ignore_index=True
         )
 
         # Add the record ids to the labeled and remove from the pool.
@@ -432,7 +426,7 @@ class ReviewSimulate:
         self.pool = self.pool[~self.pool.isin(record_ids)]
 
         if (self.write_interval is not None) and (
-            len(self.results) >= self.write_interval
+            len(self._results) >= self.write_interval
         ):
             self._write_to_state()
 
@@ -441,8 +435,8 @@ class ReviewSimulate:
     def _write_to_state(self):
         """Write the data that has not yet been written to the state."""
         # Write the data to the state.
-        if len(self.results) > 0:
-            rows = [tuple(self.results.iloc[i]) for i in range(len(self.results))]
+        if len(self._results) > 0:
+            rows = [tuple(self._results.iloc[i]) for i in range(len(self._results))]
             with open_state(self.project, read_only=False) as state:
                 state._add_labeling_data_simulation_mode(rows)
 
@@ -457,4 +451,4 @@ class ReviewSimulate:
                 state.add_last_probabilities(self.last_probabilities)
 
             # Empty the results table in memory.
-            self.results.drop(self.results.index, inplace=True)
+            self._results.drop(self._results.index, inplace=True)
