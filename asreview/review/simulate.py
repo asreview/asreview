@@ -18,87 +18,21 @@ from datetime import datetime
 
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 
+from asreview.config import DEFAULT_N_INSTANCES
+from asreview.config import LABEL_NA
+from asreview.models.balance.simple import SimpleBalance
+from asreview.models.classifiers import NaiveBayesClassifier
+from asreview.models.feature_extraction.tfidf import Tfidf
+from asreview.models.query.max import MaxQuery
 from asreview.project import open_state
-from asreview.review import BaseReview
-from asreview.review.base import LABEL_NA
-from asreview.utils import get_random_state
+from asreview.review.prior_knowledge import naive_prior_knowledge
+from asreview.review.prior_knowledge import sample_prior_knowledge
+from asreview.settings import ASReviewSettings
 
 
-def sample_prior_knowledge(
-    labels, n_prior_included=10, n_prior_excluded=10, random_state=None
-):
-    """Function to sample prelabelled articles.
-
-    Arguments
-    ---------
-    labels: np.ndarray
-        Array of labels, with 1 -> included, 0 -> excluded.
-    n_prior_included: int
-        The number of positive labels.
-    n_prior_excluded: int
-        The number of negative labels.
-    random_state : int, asreview.utils.SeededRandomState instance or None,
-        optional (default=None)
-        Random state or it's seed.
-
-    Returns
-    -------
-    np.ndarray:
-        An array with n_included and n_excluded indices.
-
-    """
-    # set random state
-    r = get_random_state(random_state)
-
-    # retrieve the index of included and excluded papers
-    included_idx = np.where(labels == 1)[0]
-    excluded_idx = np.where(labels == 0)[0]
-
-    if len(included_idx) < n_prior_included:
-        raise ValueError(
-            f"Number of included priors requested ({n_prior_included})"
-            f" is bigger than number of included papers "
-            f"({len(included_idx)})."
-        )
-    if len(excluded_idx) < n_prior_excluded:
-        raise ValueError(
-            f"Number of excluded priors requested ({n_prior_excluded})"
-            f" is bigger than number of excluded papers "
-            f"({len(excluded_idx)})."
-        )
-    # select randomly from included and excluded papers
-    included_indexes_sample = r.choice(included_idx, n_prior_included, replace=False)
-    excluded_indexes_sample = r.choice(excluded_idx, n_prior_excluded, replace=False)
-
-    init = np.append(included_indexes_sample, excluded_indexes_sample)
-
-    return init
-
-
-def naive_prior_knowledge(labels):
-    """Select top records until the first 0 and 1 are found.
-
-    Arguments
-    ---------
-    labels: np.ndarray
-        Array of labels, with 1 -> included, 0 -> excluded.
-
-    Returns
-    -------
-    np.ndarray:
-        An array with prior indices from top dataset.
-
-    """
-
-    # retrieve the index of included and excluded papers
-    first_included_idx = np.where(labels == 1)[0].min()
-    first_excluded_idx = np.where(labels == 0)[0].min()
-
-    return np.arange(max(first_included_idx, first_excluded_idx) + 1)
-
-
-class ReviewSimulate(BaseReview):
+class ReviewSimulate:
     """ASReview Simulation mode class.
 
     Arguments
@@ -144,15 +78,21 @@ class ReviewSimulate(BaseReview):
         state.
     """
 
-    name = "simulate"
-
     def __init__(
         self,
         as_data,
-        *args,
+        project,
+        model=NaiveBayesClassifier(),
+        query_model=MaxQuery(),
+        balance_model=SimpleBalance(),
+        feature_model=Tfidf(),
         n_prior_included=0,
         n_prior_excluded=0,
         prior_indices=None,
+        n_papers=None,
+        n_instances=DEFAULT_N_INSTANCES,
+        stop_if=None,
+        start_idx=None,
         init_seed=None,
         write_interval=None,
         **kwargs,
@@ -183,12 +123,76 @@ class ReviewSimulate(BaseReview):
             else:
                 start_idx = naive_prior_knowledge(labels)
 
-        super().__init__(as_data, *args, start_idx=start_idx, **kwargs)
+        if start_idx is None:
+            start_idx = []
+
+        # Set the model.
+        self.classifier = model
+        self.balance_model = balance_model
+        self.query_strategy = query_model
+        self.feature_extraction = feature_model
+
+        # Set the settings.
+        self.as_data = as_data
+        self.project = project
+        self.n_instances = n_instances
+        self.stop_if = stop_if
+        self.prior_indices = start_idx
+
+        # Get the known labels.
+        self.data_labels = as_data.labels
+        if self.data_labels is None:
+            self.data_labels = np.full(len(as_data), LABEL_NA)
+
+        with open_state(self.project, read_only=False) as state:
+            # If the state is empty, add the settings.
+            if state.is_empty():
+                state.settings = self.settings
+
+            # Add the record table to the state if it is not already there.
+            self.record_table = state.get_record_table()
+            if self.record_table.empty:
+                state.add_record_table(as_data.record_ids)
+                self.record_table = state.get_record_table()
+
+            # Retrieve feature matrix from the project file or create
+            # one from scratch.
+            try:
+                self.X = self.project.get_feature_matrix(self.feature_extraction.name)
+            except FileNotFoundError:
+                self.X = self.feature_extraction.fit_transform(
+                    as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
+                )
+
+                # check if the number of records after the transform equals
+                # the number of records in the dataset
+                if self.X.shape[0] != len(as_data):
+                    raise ValueError(
+                        f"Dataset has {len(as_data)} records while feature "
+                        f"extractor returns {self.X.shape[0]} records"
+                    )
+
+                self.project.add_feature_matrix(self.X, self.feature_extraction.name)
+
+            # Check if the number or records in the feature matrix matches the
+            # length of the dataset.
+            if self.X.shape[0] != len(self.data_labels):
+                raise ValueError(
+                    "The state file does not correspond to the "
+                    "given data file, please use another state "
+                    "file or dataset."
+                )
+
+            # Make sure the priors are labeled.
+            self._label_priors()
+            print(as_data.df)
+            print(state.get_dataset())
 
         # Setup the reviewer attributes that take over the role of state
         # functions.
         with open_state(self.project) as state:
             # Check if there is already a ranking stored in the state.
+            print(state.model_has_trained)
             if state.model_has_trained:
                 self.last_ranking = state.get_last_ranking()
                 self.last_probabilities = state.get_last_probabilities()
@@ -237,6 +241,28 @@ class ReviewSimulate(BaseReview):
             ],
         )
 
+    @property
+    def settings(self):
+        """Get an ASReview settings object"""
+        extra_kwargs = {}
+        if hasattr(self, "n_prior_included"):
+            extra_kwargs["n_prior_included"] = self.n_prior_included
+        if hasattr(self, "n_prior_excluded"):
+            extra_kwargs["n_prior_excluded"] = self.n_prior_excluded
+        return ASReviewSettings(
+            model=self.classifier.name,
+            query_strategy=self.query_strategy.name,
+            balance_strategy=self.balance_model.name,
+            feature_extraction=self.feature_extraction.name,
+            n_instances=self.n_instances,
+            stop_if=self.stop_if,
+            model_param=self.classifier.param,
+            query_param=self.query_strategy.param,
+            balance_param=self.balance_model.param,
+            feature_param=self.feature_extraction.param,
+            **extra_kwargs,
+        )
+
     def _label_priors(self):
         """Make sure all the priors are labeled as well as the pending
         labels."""
@@ -257,7 +283,45 @@ class ReviewSimulate(BaseReview):
             state.add_labeling_data(pending, pending_labels)
 
     def review(self):
-        super().review()
+        with open_state(self.project, read_only=False) as s:
+            pending = s.get_pending()
+            if not pending.empty:
+                self._label(pending)
+
+            labels_prior = s.get_labels()
+
+        # progress bars
+        pbar_rel = tqdm(
+            initial=sum(labels_prior),
+            total=sum(self.as_data.labels),
+            desc="Relevant records found",
+        )
+        pbar_total = tqdm(
+            initial=len(labels_prior),
+            total=len(self.as_data),
+            desc="Records labeled       ",
+        )
+
+        # While the stopping condition has not been met:
+        while not self._stop_review():
+            # Train a new model.
+            self.train()
+
+            # Query for new records to label.
+            record_ids = self._query(self.n_instances)
+
+            # Label the records.
+            labels = self._label(record_ids)
+
+            # monitor progress here
+            pbar_rel.update(sum(labels))
+            pbar_total.update(len(labels))
+
+        else:
+            # write to state when stopped
+            pbar_rel.close()
+            pbar_total.close()
+
         self._write_to_state()
 
     def _stop_review(self):
