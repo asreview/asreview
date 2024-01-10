@@ -75,7 +75,7 @@ Dataset managers
 Reviewer
 ========
 
-.. automodule:: asreview.review
+.. automodule:: asreview.simulate
    :no-members:
    :no-inherited-members:
 
@@ -84,8 +84,7 @@ Reviewer
 .. autosummary::
    :toctree: generated/
 
-   review.BaseReview
-   review.ReviewSimulate
+   review.Simulate
 
 
 .. _ref-models:
