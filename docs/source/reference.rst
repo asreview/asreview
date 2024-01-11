@@ -329,7 +329,6 @@ This module contains the input and output functionality. You can install them as
    io.CSVWriter
    io.ExcelReader
    io.ExcelWriter
-   io.PaperRecord
    io.RISReader
    io.RISWriter
    io.TSVWriter
