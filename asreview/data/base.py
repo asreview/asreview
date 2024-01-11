@@ -25,10 +25,10 @@ from pandas.api.types import is_string_dtype
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
+from asreview.data.paper_record import PaperRecord
 from asreview.datasets import DatasetManager
 from asreview.datasets import DatasetNotFoundError
 from asreview.exceptions import BadFileFormatError
-from asreview.io import PaperRecord
 from asreview.io.utils import convert_keywords
 from asreview.io.utils import type_from_column
 from asreview.utils import _entry_points
