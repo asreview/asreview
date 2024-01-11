@@ -12,9 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["AlgorithmsEntryPoint"]
-
-from asreview.entry_points.base import BaseEntryPoint
 from asreview.models.balance import list_balance_strategies
 from asreview.models.classifiers import list_classifiers
 from asreview.models.feature_extraction import list_feature_extraction
@@ -40,40 +37,35 @@ def _format_algorithm(values, name, description):
     return s
 
 
-class AlgorithmsEntryPoint(BaseEntryPoint):
-    """Entry point to list available algorithms in ASReview LAB."""
+class cli_algorithms(argv):  # noqa
+    s = "Available active learning algorithms for ASReview. \n\n"
 
-    description = "Available active learning algorithms for ASReview."
+    # feature_extraction
+    s += _format_algorithm(
+        values=list_feature_extraction(),
+        name="feature_extraction",
+        description="feature extraction algorithms",
+    )
 
-    def execute(self, argv):
-        s = "Available active learning algorithms for ASReview. \n\n"
+    # classifiers
+    s += _format_algorithm(
+        values=list_classifiers(),
+        name="classifiers",
+        description="classification algorithms",
+    )
 
-        # feature_extraction
-        s += _format_algorithm(
-            values=list_feature_extraction(),
-            name="feature_extraction",
-            description="feature extraction algorithms",
-        )
+    # query_strategies
+    s += _format_algorithm(
+        values=list_query_strategies(),
+        name="query_strategies",
+        description="query strategies",
+    )
 
-        # classifiers
-        s += _format_algorithm(
-            values=list_classifiers(),
-            name="classifiers",
-            description="classification algorithms",
-        )
+    # balance_strategies
+    s += _format_algorithm(
+        values=list_balance_strategies(),
+        name="balance_strategies",
+        description="balance strategies",
+    )
 
-        # query_strategies
-        s += _format_algorithm(
-            values=list_query_strategies(),
-            name="query_strategies",
-            description="query strategies",
-        )
-
-        # balance_strategies
-        s += _format_algorithm(
-            values=list_balance_strategies(),
-            name="balance_strategies",
-            description="balance strategies",
-        )
-
-        print(s)
+    print(s)

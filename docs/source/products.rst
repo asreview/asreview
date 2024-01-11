@@ -1,17 +1,46 @@
-Extensions
-==========
+Products
+========
 
-ASReview has extensive support for extensions. They can extend the
+The following products are available:
+
+ASReview LAB
+------------
+ASReview LAB is an open-source and free-to-use software product resulting from
+an academic collaboration. It enables AI-aided systematic screening of
+textual data, such as in systematic reviews or meta-analyses. It runs in a
+web-browser and is flexible in using many different feature extractors and
+classifiers. For more information about the underlying infrastructure, refer
+to the `Nature Machine Intelligence publication
+<https://www.nature.com/articles/s42256-020-00287-7>`__.
+
+ASReview LAB Server
+-------------------
+`ASReview LAB Server`_ expands upon the capabilities of ASReview LAB by
+offering additional features like authentication and collaborative model
+refinement. It is a self-hosted solution that ensures privacy and is suited
+for teams requiring secure access and collaboration.
+
+Datasets
+--------
+ASReview also provides access to a synergistic collection of datasets, which
+can be utilized for various research purposes. Explore the Synergy dataset at
+our `GitHub datasets repository
+<https://github.com/asreview/synergy-dataset>`__.
+
+Extensions
+----------
+
+ASReview supports for extending the software with new
+models, subcommands, and datasets. They can extend the
 functionality of ASReview LAB, and the
 :doc:`Command Line Interface <cli>`. There are :ref:`officially
 supported extensions <extensions-official>` and `community maintained extensions <https://github.com/asreview/asreview/discussions/1140>`_.
 
-Looking to develop your own extension? See :ref:`develop-extensions` for
+Looking to develop your own extension? See :doc:`extensions_dev` for
 detailed instructions.
 
-
 Installation
-------------
+~~~~~~~~~~~~
 
 Most extensions are installable from PyPI (the same way ASReview LAB is
 installed) or GitHub. It is preferred to follow the installation instructions
@@ -37,7 +66,7 @@ values of the extension.
 .. _extensions-official:
 
 Supported Extensions
---------------------
+~~~~~~~~~~~~~~~~~~~~
 
 The following extensions are officially supported and maintained by the
 maintainers of ASReview LAB. They are extensively tested and integrate well
@@ -60,10 +89,9 @@ with ASReview LAB.
 
 .. _extensions-community:
 
-List of extensions for ASReview LAB
------------------------------------
+Community maintained extensions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The `List of extensions for ASReview LAB <https://github.com/asreview/asreview/discussions/1140>`__ on the Discussion platform
 gives an overview of known extensions to ASReview LAB and other useful tools
-in the AI-aided systematic review pipeline. These extensions can extend the
-software with new models, subcommands, and datasets.
+in the AI-aided systematic review pipeline.

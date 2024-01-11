@@ -98,13 +98,3 @@ class BaseFeatureExtraction(BaseModel):
             Feature matrix representing the texts.
         """
         raise NotImplementedError
-
-    def full_hyper_space(self):
-        from hyperopt import hp
-
-        hyper_choices = {}
-        hyper_space = {
-            "fex_split_ta": hp.randint("fex_split_ta", 2),
-            "fex_use_keywords": hp.randint("fex_use_keywords", 2),
-        }
-        return hyper_space, hyper_choices

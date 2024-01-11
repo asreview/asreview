@@ -9,6 +9,8 @@ Welcome to the ASReview LAB Documentation!
 
     about
 
+    products
+
     research
 
     contribute
@@ -51,8 +53,6 @@ feature requests, please submit an issue on `GitHub
     progress
 
     manage
-
-    extensions_overview
 
 .. toctree::
     :maxdepth: 1

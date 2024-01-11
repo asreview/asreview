@@ -67,13 +67,10 @@ from asreview.state.custom_metadata_mapper import extract_tags
 from asreview.state.custom_metadata_mapper import get_tag_composite_id
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
-from asreview.state.sql_converter import upgrade_asreview_project_file
-from asreview.state.sql_converter import upgrade_project_config
 from asreview.utils import _entry_points
 from asreview.utils import _get_executable
 from asreview.utils import _get_filename_from_url
 from asreview.utils import asreview_path
-from asreview.utils import list_reader_names
 from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
 from asreview.webapp.authentication.decorators import project_authorization
@@ -127,11 +124,6 @@ def api_get_projects(projects):  # noqa: F401
             if not current_app.config.get("LOGIN_DISABLED", False):
                 project_config["owner_id"] = current_user.id
 
-            # upgrade info of v0 projects
-            if project_config["version"].startswith("0"):
-                project_config = upgrade_project_config(project_config)
-                project_config["projectNeedsUpgrade"] = True
-
             logging.info("Project found: {}".format(project_config["id"]))
             project_info.append(project_config)
 
@@ -160,11 +152,6 @@ def api_get_projects_stats(projects):  # noqa: F401
 
     for project in projects:
         project_config = project.config
-
-        # upgrade info of v0 projects
-        if project_config["version"].startswith("0"):
-            project_config = upgrade_project_config(project_config)
-            project_config["projectNeedsUpgrade"] = True
 
         # get dashboard statistics
         try:
@@ -228,12 +215,11 @@ def api_list_data_readers():
 def api_upgrade_project_if_old(project):
     """Get upgrade project if it is v0.x"""
 
-    if not project.config["version"].startswith("0"):
-        response = jsonify(message="Can only convert v0.x projects.")
+    if project.config["version"].startswith("0"):
+        response = jsonify(
+            message="Not possible to upgrade Version 0 projects, see LINK."
+        )
         return response, 400
-
-    # errors are handled by the InternalServerError
-    upgrade_asreview_project_file(project.project_path)
 
     response = jsonify({"success": True})
     return response
@@ -245,11 +231,6 @@ def api_upgrade_project_if_old(project):
 def api_get_project_info(project):  # noqa: F401
     """"""
     project_config = project.config
-
-    # upgrade info of v0 projects
-    if project_config["version"].startswith("0"):
-        project_config = upgrade_project_config(project_config)
-        project_config["projectNeedsUpgrade"] = True
 
     if current_app.config.get("LOGIN_DISABLED", False):
         return jsonify(project_config)
@@ -354,7 +335,7 @@ def api_upload_data_to_project(project):  # noqa: F401
         filename = _get_filename_from_url(url)
 
         if bool(request.form.get("validate", None)):
-            reader_keys = list_reader_names()
+            reader_keys = [e.name for e in _entry_points(group="asreview.readers")]
 
             if (
                 filename
@@ -932,75 +913,21 @@ def api_set_algorithms(project):  # noqa: F401
 def api_start(project):  # noqa: F401
     """Start training of first model or simulation."""
 
-    # the project is a simulation project
-    if project.config["mode"] == PROJECT_MODE_SIMULATE:
-        # get priors
-        with open_state(project.project_path) as s:
-            priors = s.get_priors()["record_id"].tolist()
+    try:
+        py_exe = _get_executable()
+        run_command = [
+            py_exe,
+            "-m",
+            "asreview",
+            "web_run_model",
+            str(project.project_path),
+        ]
+        subprocess.Popen(run_command)
 
-        logging.info("Start simulation")
-
-        try:
-            datafile = project.config["dataset_path"]
-            logging.info(f"Project data file found: {datafile}")
-
-            # start simulation
-            py_exe = _get_executable()
-            run_command = (
-                [
-                    # get executable
-                    py_exe,
-                    # get module
-                    "-m",
-                    "asreview",
-                    # run simulation via cli
-                    "simulate",
-                    # specify dataset
-                    "",
-                    # specify prior indices
-                    "--prior_idx",
-                ]
-                + list(map(str, priors))
-                + [
-                    # specify state file
-                    "--state_file",
-                    str(project.project_path),
-                    # specify write interval
-                    "--write_interval",
-                    "100",
-                ]
-            )
-            subprocess.Popen(run_command)
-
-        except Exception as err:
-            logging.error(err)
-            message = f"Failed to get data file. {err}"
-            return jsonify(message=message), 400
-
-    # the project is an oracle or explore project
-    else:
-        logging.info("Train first iteration of model")
-        try:
-            # start training the model
-            py_exe = _get_executable()
-            run_command = [
-                # get executable
-                py_exe,
-                # get module
-                "-m",
-                "asreview",
-                # train the model via cli
-                "web_run_model",
-                # specify project id
-                str(project.project_path),
-                # output the error of the first model
-                "--output_error",
-            ]
-            subprocess.Popen(run_command)
-
-        except Exception as err:
-            logging.error(err)
-            return jsonify(message="Failed to train the model."), 500
+    except Exception as err:
+        logging.error(err)
+        message = f"Failed to train the model. {err}"
+        return jsonify(message=message), 400
 
     response = jsonify({"success": True})
 

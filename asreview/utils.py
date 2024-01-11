@@ -29,12 +29,10 @@ from urllib.request import urlopen
 
 import numpy as np
 
-from asreview._deprecated import _deprecated_func
-
 if sys.version_info >= (3, 10):
-    from importlib.metadata import entry_points as _entry_points
+    from importlib.metadata import entry_points as _entry_points  # noqa
 else:
-    from importlib_metadata import entry_points as _entry_points
+    from importlib_metadata import entry_points as _entry_points  # noqa
 
 
 def _unsafe_dict_update(default_dict, override_dict):
@@ -230,47 +228,6 @@ def is_iterable(i):
         return True
     except TypeError:
         return False
-
-
-@_deprecated_func(
-    "list_model_names is deprecated, "
-    "use asreview.models.classifiers.list_classifiers instead"
-)
-def list_model_names(group="asreview.models"):
-    # Remove because of bug with unused default value.
-    return list(_entry_points(group=group).names)
-
-
-@_deprecated_kwarg({"entry_name": "group"})
-def list_reader_names(group="asreview.readers"):
-    return list(_entry_points(group=group).names)
-
-
-@_deprecated_kwarg({"entry_name": "group"})
-def list_writer_names(group="asreview.writers"):
-    return list(_entry_points(group=group).names)
-
-
-@_deprecated_func(
-    "get_entry_points is deprecated, "
-    "use _entry_points(group='asreview.entry_points') instead"
-)
-def get_entry_points(entry_name="asreview.entry_points"):
-    """Get the entry points for asreview.
-
-    Parameters
-    ----------
-    entry_name: str
-        Name of the submodule. Default "asreview.entry_points".
-
-    Returns
-    -------
-    dict:
-        Dictionary with the name of the entry point as key
-        and the entry point as value.
-    """
-
-    return {entry.name: entry for entry in _entry_points(group=entry_name)}
 
 
 def is_url(url):

@@ -75,7 +75,7 @@ Dataset managers
 Reviewer
 ========
 
-.. automodule:: asreview.review
+.. automodule:: asreview.simulation
    :no-members:
    :no-inherited-members:
 
@@ -84,8 +84,7 @@ Reviewer
 .. autosummary::
    :toctree: generated/
 
-   review.BaseReview
-   review.ReviewSimulate
+   simulation.Simulate
 
 
 .. _ref-models:
@@ -165,8 +164,6 @@ Classes
    classifiers.RandomForestClassifier
    classifiers.SVMClassifier
    classifiers.LogisticClassifier
-   classifiers.LSTMBaseClassifier
-   classifiers.LSTMPoolClassifier
    classifiers.NN2LayerClassifier
 
 Functions
@@ -357,25 +354,3 @@ Functions
    search.fuzzy_find
    asreview_path
    get_data_home
-
-
-Entry points
-============
-
-Entry points for ASReview LAB.
-
-
-.. automodule:: asreview.entry_points
-    :no-members:
-    :no-inherited-members:
-
-.. currentmodule:: asreview
-
-.. autosummary::
-   :toctree: generated/
-
-   entry_points.BaseEntryPoint
-   entry_points.AlgorithmsEntryPoint
-   entry_points.LABEntryPoint
-   entry_points.SimulateEntryPoint
-   entry_points.StateInspectEntryPoint

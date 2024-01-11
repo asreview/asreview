@@ -2,8 +2,9 @@ Command Line
 ============
 
 ASReview provides a powerful command line interface for running
-tasks :doc:`start` and :doc:`simulation_cli`. Also :doc:`extensions_overview` often
-make use of the command line interface by extending it with subcommands.
+tasks :doc:`start` and :doc:`simulation_cli`. Also :doc:`extensions_dev`
+often make use of the command line interface by extending it with
+subcommands.
 
 The structure of the command line is given by:
 

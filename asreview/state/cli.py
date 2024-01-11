@@ -12,14 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["StateInspectEntryPoint"]
-
 import argparse
 from pathlib import Path
 
 import pandas as pd
 
-from asreview.entry_points.base import BaseEntryPoint
 from asreview.project import get_project_path
 from asreview.project import open_state
 
@@ -41,26 +38,23 @@ def _parse_state_inspect_args():
     return parser
 
 
-class StateInspectEntryPoint(BaseEntryPoint):
-    """Entry point to inspect ASReview LAB review progress."""
+def cli_state_inspect(argv):
+    parser = _parse_state_inspect_args()
+    args = parser.parse_args(argv)
 
-    def execute(self, argv):
-        parser = _parse_state_inspect_args()
-        args = parser.parse_args(argv)
+    if Path(args.project_id).suffix == ".asreview":
+        project_path = args.project_id
+    else:
+        project_path = get_project_path(args.project_id)
 
-        if Path(args.project_id).suffix == ".asreview":
-            project_path = args.project_id
-        else:
-            project_path = get_project_path(args.project_id)
+    with open_state(project_path) as s:
+        conn = s._connect_to_sql()
 
-        with open_state(project_path) as s:
-            conn = s._connect_to_sql()
+    df = pd.read_sql(f"select * from {args.table}", conn)
 
-        df = pd.read_sql(f"select * from {args.table}", conn)
+    if args.table == "results":
+        df["label"] = df["label"].astype(pd.Int64Dtype())
 
-        if args.table == "results":
-            df["label"] = df["label"].astype(pd.Int64Dtype())
-
-        print(f"Table '{args.table}':\n")
-        print(df)
-        print("\n")
+    print(f"Table '{args.table}':\n")
+    print(df)
+    print("\n")

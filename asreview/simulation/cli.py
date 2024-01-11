@@ -13,15 +13,12 @@
 # limitations under the License.
 """Simulation entry point and utils."""
 
-__all__ = ["SimulateEntryPoint"]
-
 import argparse
 import logging
 import re
 import shutil
 from pathlib import Path
 
-from asreview.compat import convert_id_to_idx
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_MODEL
@@ -31,7 +28,6 @@ from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.data import load_data
 from asreview.datasets import DatasetManager
-from asreview.entry_points.base import BaseEntryPoint
 from asreview.models.balance.utils import get_balance_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
@@ -39,8 +35,8 @@ from asreview.models.query import get_query_model
 from asreview.project import ASReviewProject
 from asreview.project import ProjectExistsError
 from asreview.project import open_state
-from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
+from asreview.simulation import Simulate
 from asreview.types import type_n_queries
 from asreview.utils import get_random_state
 
@@ -54,171 +50,158 @@ def _set_log_verbosity(verbose):
         logging.getLogger().setLevel(logging.DEBUG)
 
 
-class SimulateEntryPoint(BaseEntryPoint):
-    """Entry point for simulation with ASReview LAB."""
+def _convert_id_to_idx(data_obj, record_id):
+    """Convert record_id to row number."""
 
-    def execute(self, argv):  # noqa
-        # parse arguments
-        parser = _simulate_parser()
-        args = parser.parse_args(argv)
+    inv_record_id = dict(zip(data_obj.df.index.tolist(), range(len(data_obj))))
 
-        # change the verbosity
-        _set_log_verbosity(args.verbose)
+    result = []
+    for i in record_id:
+        try:
+            result.append(inv_record_id[i])
+        except KeyError:
+            raise KeyError(f"record_id {i} not found in data.")
 
-        # check for state file extension
-        if args.state_file is None:
-            raise ValueError("Specify project file name (with .asreview extension).")
+    return result
 
-        # for webapp
-        if args.dataset == "":
-            project = ASReviewProject(args.state_file)
 
-            with open_state(args.state_file) as state:
-                settings = state.settings
+def cli_simulate(argv):
+    # parse arguments
+    parser = _simulate_parser()
+    args = parser.parse_args(argv)
 
-                # Check if there are new labeled records.
-                exist_new_labeled_records = state.exist_new_labeled_records
+    # change the verbosity
+    _set_log_verbosity(args.verbose)
 
-            # collect command line arguments and pass them to the reviewer
-            if exist_new_labeled_records:
-                as_data = project.read_data()
-                prior_idx = args.prior_idx
+    # check for state file extension
+    if args.state_file is None:
+        raise ValueError("Specify project file name (with .asreview extension).")
 
-            classifier_model = get_classifier(settings.model)
-            query_model = get_query_model(settings.query_strategy)
-            balance_model = get_balance_model(settings.balance_strategy)
-            feature_model = get_feature_model(settings.feature_extraction)
+    # do this check now and again when zipping.
+    if Path(args.state_file).exists():
+        raise ProjectExistsError("Project already exists.")
 
-        # for simulation CLI
-        else:
-            # do this check now and again when zipping.
-            if Path(args.state_file).exists():
-                raise ProjectExistsError("Project already exists.")
+    # create a project file
+    fp_tmp_simulation = Path(args.state_file).with_suffix(".asreview.tmp")
 
-            # create a project file
-            fp_tmp_simulation = Path(args.state_file).with_suffix(".asreview.tmp")
+    project = ASReviewProject.create(
+        fp_tmp_simulation,
+        project_id=Path(args.state_file).stem,
+        project_mode="simulate",
+        project_name=Path(args.state_file).stem,
+        project_description="Simulation created via ASReview via "
+        "command line interface",
+    )
 
-            project = ASReviewProject.create(
-                fp_tmp_simulation,
-                project_id=Path(args.state_file).stem,
-                project_mode="simulate",
-                project_name=Path(args.state_file).stem,
-                project_description="Simulation created via ASReview via "
-                "command line interface",
-            )
+    # Get a name for the dataset
+    if re.match(r"^([a-zA-Z0-9_-]+)\:([a-zA-Z0-9_-]+)$", args.dataset):
+        ds = DatasetManager().find(args.dataset)
+        filename = ds.filename
+    else:
+        filename = Path(args.dataset).name
 
-            # Get a name for the dataset
-            if re.match(r"^([a-zA-Z0-9_-]+)\:([a-zA-Z0-9_-]+)$", args.dataset):
-                ds = DatasetManager().find(args.dataset)
-                filename = ds.filename
-            else:
-                filename = Path(args.dataset).name
+    as_data = load_data(args.dataset)
+    as_data.to_file(Path(fp_tmp_simulation, "data", filename))
 
-            as_data = load_data(args.dataset)
-            as_data.to_file(Path(fp_tmp_simulation, "data", filename))
+    # Update the project.json.
+    project.update_config(dataset_path=filename)
 
-            # Update the project.json.
-            project.update_config(dataset_path=filename)
+    # create a new settings object from arguments
+    settings = ASReviewSettings(
+        model=args.model,
+        n_instances=args.n_instances,
+        stop_if=args.stop_if,
+        n_prior_included=args.n_prior_included,
+        n_prior_excluded=args.n_prior_excluded,
+        query_strategy=args.query_strategy,
+        balance_strategy=args.balance_strategy,
+        feature_extraction=args.feature_extraction,
+    )
+    settings.from_file(args.config_file)
 
-            # create a new settings object from arguments
-            settings = ASReviewSettings(
-                model=args.model,
-                n_instances=args.n_instances,
-                stop_if=args.stop_if,
-                n_prior_included=args.n_prior_included,
-                n_prior_excluded=args.n_prior_excluded,
-                query_strategy=args.query_strategy,
-                balance_strategy=args.balance_strategy,
-                feature_extraction=args.feature_extraction,
-            )
-            settings.from_file(args.config_file)
+    # Initialize models.
+    random_state = get_random_state(args.seed)
+    classifier_model = get_classifier(
+        settings.model, random_state=random_state, **settings.model_param
+    )
+    query_model = get_query_model(
+        settings.query_strategy,
+        random_state=random_state,
+        **settings.query_param,
+    )
+    balance_model = get_balance_model(
+        settings.balance_strategy,
+        random_state=random_state,
+        **settings.balance_param,
+    )
+    feature_model = get_feature_model(
+        settings.feature_extraction,
+        random_state=random_state,
+        **settings.feature_param,
+    )
 
-            # Initialize models.
-            random_state = get_random_state(args.seed)
-            classifier_model = get_classifier(
-                settings.model, random_state=random_state, **settings.model_param
-            )
-            query_model = get_query_model(
-                settings.query_strategy,
-                random_state=random_state,
-                **settings.query_param,
-            )
-            balance_model = get_balance_model(
-                settings.balance_strategy,
-                random_state=random_state,
-                **settings.balance_param,
-            )
-            feature_model = get_feature_model(
-                settings.feature_extraction,
-                random_state=random_state,
-                **settings.feature_param,
-            )
+    # prior knowledge
+    if (
+        args.prior_idx is not None
+        and args.prior_record_id is not None
+        and len(args.prior_idx) > 0
+        and len(args.prior_record_id) > 0
+    ):
+        raise ValueError("Not possible to provide both prior_idx and prior_record_id")
 
-            # prior knowledge
-            if (
-                args.prior_idx is not None
-                and args.prior_record_id is not None
-                and len(args.prior_idx) > 0
-                and len(args.prior_record_id) > 0
-            ):
-                raise ValueError(
-                    "Not possible to provide both prior_idx and prior_record_id"
-                )
+    prior_idx = args.prior_idx
+    if args.prior_record_id is not None and len(args.prior_record_id) > 0:
+        prior_idx = _convert_id_to_idx(as_data, args.prior_record_id)
 
-            prior_idx = args.prior_idx
-            if args.prior_record_id is not None and len(args.prior_record_id) > 0:
-                prior_idx = convert_id_to_idx(as_data, args.prior_record_id)
-
-        if classifier_model.name.startswith("lstm-"):
-            classifier_model.embedding_matrix = feature_model.get_embedding_matrix(
-                as_data.texts, args.embedding_fp
-            )
-
-        # Initialize the review class.
-        reviewer = ReviewSimulate(
-            as_data,
-            project=project,
-            model=classifier_model,
-            query_model=query_model,
-            balance_model=balance_model,
-            feature_model=feature_model,
-            n_papers=args.n_papers,
-            n_instances=args.n_instances,
-            stop_if=args.stop_if,
-            prior_indices=prior_idx,
-            n_prior_included=args.n_prior_included,
-            n_prior_excluded=args.n_prior_excluded,
-            init_seed=args.init_seed,
-            write_interval=args.write_interval,
+    if classifier_model.name.startswith("lstm-"):
+        classifier_model.embedding_matrix = feature_model.get_embedding_matrix(
+            as_data.texts, args.embedding_fp
         )
 
-        try:
-            # Start the review process.
-            project.update_review(status="review")
+    # Initialize the review class.
+    reviewer = Simulate(
+        as_data,
+        project=project,
+        classifier=classifier_model,
+        query_model=query_model,
+        balance_model=balance_model,
+        feature_model=feature_model,
+        n_papers=args.n_papers,
+        n_instances=args.n_instances,
+        stop_if=args.stop_if,
+        prior_indices=prior_idx,
+        n_prior_included=args.n_prior_included,
+        n_prior_excluded=args.n_prior_excluded,
+        init_seed=args.init_seed,
+        write_interval=args.write_interval,
+    )
 
-            with open_state(project, read_only=True) as s:
-                prior_df = s.get_priors()
+    try:
+        # Start the review process.
+        project.update_review(status="review")
 
-                print("The following records are prior knowledge:\n")
-                for _i, row in prior_df.iterrows():
-                    preview = as_data.record(row["record_id"])
-                    print(preview)
+        with open_state(project, read_only=True) as s:
+            prior_df = s.get_priors()
 
-            print("Simulation started\n")
-            reviewer.review()
-        except Exception as err:
-            # save the error to the project
-            project.set_error(err)
+            print("The following records are prior knowledge:\n")
+            for _i, row in prior_df.iterrows():
+                preview = as_data.record(row["record_id"])
+                print(preview)
 
-            raise err
+        print("Simulation started\n")
+        reviewer.review()
+    except Exception as err:
+        # save the error to the project
+        project.set_error(err)
 
-        print("\nSimulation finished")
-        project.mark_review_finished()
+        raise err
 
-        # create .ASReview file out of simulation folder
-        if args.dataset != "":
-            project.export(args.state_file)
-            shutil.rmtree(fp_tmp_simulation)
+    print("\nSimulation finished")
+    project.mark_review_finished()
+
+    # create .ASReview file out of simulation folder
+    project.export(args.state_file)
+    shutil.rmtree(fp_tmp_simulation)
 
 
 DESCRIPTION_SIMULATE = """

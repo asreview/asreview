@@ -38,17 +38,6 @@ if HOST_NAME is None:
 PORT_NUMBER = 5000
 
 
-def _deprecated_dev_mode():
-    if os.environ.get("FLASK_DEBUG", "") == "1":
-        print(
-            "\n\n\n!IMPORTANT!\n\n"
-            "asreview lab development mode is deprecated, see:\n"
-            "https://github.com/J535D165/asreview/blob/master/DEVELOPMENT.md"
-            "\n\n\n"
-        )
-        exit(1)
-
-
 def _check_port_in_use(host, port):
     logging.info(f"Checking if host and port are available :: {host}:{port}")
     host = host.replace("https://", "").replace("http://", "")
@@ -84,9 +73,6 @@ def _check_for_update():
 
 
 def lab_entry_point(argv):
-    # check deprecated dev mode
-    _deprecated_dev_mode()
-
     parser = _lab_parser()
     mark_deprecated_help_strings(parser)
     args = parser.parse_args(argv)
