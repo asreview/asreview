@@ -132,7 +132,7 @@ def _is_record_id_int(s):
         raise ValueError("Column 'record_id' should contain integer values.")
 
 
-def _standardize_dataframe(df, column_def=None):
+def _standardize_dataframe(df):
     """Create a ASReview readable dataframe.
 
     The main purpose is to rename columns with slightly different names;
@@ -149,8 +149,6 @@ def _standardize_dataframe(df, column_def=None):
     pd.DataFrame:
         Cleaned dataframe with proper column names.
     """
-    if column_def is None:
-        column_def = {}
     all_column_spec = {}
 
     # remove whitespace from colnames
@@ -159,12 +157,6 @@ def _standardize_dataframe(df, column_def=None):
     # map columns on column specification
     col_names = list(df)
     for column_name in col_names:
-        # First try the custom column definitions if supplied.
-        data_type = type_from_column(column_name, column_def)
-        if data_type is not None:
-            all_column_spec[data_type] = column_name
-            continue
-        # Then try the standard specifications in ASReview.
         data_type = type_from_column(column_name, COLUMN_DEFINITIONS)
         if data_type is not None:
             all_column_spec[data_type] = column_name
@@ -180,17 +172,6 @@ def _standardize_dataframe(df, column_def=None):
     if "title" not in col_names:
         logging.warning("Unable to detect titles in dataset.")
 
-    # Replace NA values with empty strings.
-    for col in ["title", "abstract", "authors", "keywords", "notes"]:
-        try:
-            df[all_column_spec[col]] = np.where(
-                pd.isnull(df[all_column_spec[col]]),
-                "",
-                df[all_column_spec[col]].astype(str),
-            )
-        except KeyError:
-            pass
-
     # Convert labels to integers.
     if "included" in col_names:
         try:
@@ -201,23 +182,11 @@ def _standardize_dataframe(df, column_def=None):
             pass
         except ValueError:
             logging.warning(
-                "Failed to parse label column name, no labels will" " be present."
+                "Failed to parse label column name, no labels will be present."
             )
             df.rename(columns={"label": "included"})
             all_column_spec.pop("included")
 
-    # TODO: Make sure 'record_id' column in original dataset does not get overwritten.
-    # # If the we have a record_id (for example from an ASReview export) use it.
-    # if "record_id" in list(df):
-    #
-    #     # validate record_id column
-    #     _is_record_id_notnull(df["record_id"])
-    #     _is_record_id_unique(df["record_id"])
-    #     _is_record_id_int(df["record_id"])
-    #
-    # # Create a new index if we haven't found it in the data.
-    # else:
-    #     df["record_id"] = np.arange(len(df.index))
     df["record_id"] = np.arange(len(df.index)).astype("int64")
 
     # set the index

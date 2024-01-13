@@ -60,7 +60,7 @@ class CSVWriter:
     write_format = ".csv"
 
     @classmethod
-    def write_data(cls, df, fp, sep=",", labels=None, ranking=None):
+    def write_data(cls, df, fp, sep=","):
         """Export dataset.
 
         Arguments
@@ -71,12 +71,6 @@ class CSVWriter:
             Filepath or None for buffer.
         sep: str
             Seperator of the file.
-        labels: list, numpy.ndarray
-            Current labels will be overwritten by these labels
-            (including unlabelled). No effect if labels is None.
-        ranking: list
-            Reorder the dataframe according to these (internal) indices.
-            Default ordering if ranking is None.
 
         Returns
         -------
@@ -135,7 +129,7 @@ class ExcelWriter:
     write_format = ".xlsx"
 
     @classmethod
-    def write_data(cls, df, fp, labels=None, ranking=None):
+    def write_data(cls, df, fp):
         """Export dataset.
 
         Arguments
@@ -144,12 +138,6 @@ class ExcelWriter:
             Dataframe of all available record data.
         fp: str, NoneType
             Filepath or None for buffer.
-        labels: list, numpy.ndarray
-            Current labels will be overwritten by these labels
-            (including unlabelled). No effect if labels is None.
-        ranking: list
-            Reorder the dataframe according to these (internal) indices.
-            Default ordering if ranking is None.
 
         Returns
         -------
@@ -167,7 +155,7 @@ class TSVWriter:
     write_format = ".tsv"
 
     @classmethod
-    def write_data(cls, df, fp, sep="\t", labels=None, ranking=None):
+    def write_data(cls, df, fp, sep="\t"):
         """Export dataset.
 
         Arguments
@@ -178,12 +166,6 @@ class TSVWriter:
             Filepath or None for buffer.
         sep: str
             Seperator of the file.
-        labels: list, numpy.ndarray
-            Current labels will be overwritten by these labels
-            (including unlabelled). No effect if labels is None.
-        ranking: list
-            Reorder the dataframe according to these (internal) indices.
-            Default ordering if ranking is None.
 
         Returns
         -------

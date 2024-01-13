@@ -38,6 +38,7 @@ from asreview.project import open_state
 from asreview.settings import ASReviewSettings
 from asreview.simulation import Simulate
 from asreview.types import type_n_queries
+from asreview.utils import format_to_str
 from asreview.utils import get_random_state
 
 
@@ -63,6 +64,52 @@ def _convert_id_to_idx(data_obj, record_id):
             raise KeyError(f"record_id {i} not found in data.")
 
     return result
+
+
+def _print_record(record, use_cli_colors=True):
+    """Format one record for displaying in the CLI.
+
+    Arguments
+    ---------
+    record: PaperRecord
+        The paperRecord to format.
+    use_cli_colors: bool
+        Some terminals support colors, set to True to use them.
+
+    Returns
+    -------
+    str:
+        A string including title, abstracts and authors.
+    """
+    if record.title is not None:
+        title = record.title
+        if use_cli_colors:
+            title = "\033[95m" + title + "\033[0m"
+        title += "\n"
+    else:
+        title = ""
+
+    if record.authors is not None and len(record.authors) > 0:
+        authors = format_to_str(record.authors) + "\n"
+    else:
+        authors = ""
+
+    if record.abstract is not None and len(record.abstract) > 0:
+        abstract = record.abstract
+        abstract = "\n" + abstract + "\n"
+    else:
+        abstract = ""
+
+    if record.included == 0:
+        label = "IRRELEVANT"
+    elif record.included == 1:
+        label = "RELEVANT"
+    else:
+        label = ""
+
+    header = f"---{record.record_id}---{label}---"
+
+    print(f"\n{header:-<60}\n{title}{authors}{abstract}")
 
 
 def cli_simulate(argv):
@@ -184,9 +231,8 @@ def cli_simulate(argv):
             prior_df = s.get_priors()
 
             print("The following records are prior knowledge:\n")
-            for _i, row in prior_df.iterrows():
-                preview = as_data.record(row["record_id"])
-                print(preview)
+            for _, row in prior_df.iterrows():
+                _print_record(as_data.record(row["record_id"]))
 
         print("Simulation started\n")
         reviewer.review()

@@ -15,58 +15,10 @@
 __all__ = ["PaperRecord"]
 
 
-import pandas as pd
-
-from asreview.config import LABEL_NA
-from asreview.utils import format_to_str
+from dataclasses import dataclass
 
 
-def format_record(record, use_cli_colors=True):
-    """Format one record for displaying in the CLI.
-
-    Arguments
-    ---------
-    record: PaperRecord
-        The paperRecord to format.
-    use_cli_colors: bool
-        Some terminals support colors, set to True to use them.
-
-    Returns
-    -------
-    str:
-        A string including title, abstracts and authors.
-    """
-    if record.title is not None:
-        title = record.title
-        if use_cli_colors:
-            title = "\033[95m" + title + "\033[0m"
-        title += "\n"
-    else:
-        title = ""
-
-    if record.authors is not None and len(record.authors) > 0:
-        authors = format_to_str(record.authors) + "\n"
-    else:
-        authors = ""
-
-    if record.abstract is not None and len(record.abstract) > 0:
-        abstract = record.abstract
-        abstract = "\n" + abstract + "\n"
-    else:
-        abstract = ""
-
-    if record.included == 0:
-        label = "IRRELEVANT"
-    elif record.included == 1:
-        label = "RELEVANT"
-    else:
-        label = ""
-
-    header = f"---{record.record_id}---{label}---"
-
-    return f"\n{header:-<60}\n{title}{authors}{abstract}"
-
-
+@dataclass
 class PaperRecord:
     """A single record from a paper in a systematic review.
 
@@ -91,73 +43,73 @@ class PaperRecord:
         Any extra keyword arguments will be put in self.extra_fields.
     """
 
-    def __init__(self, record_id, column_spec=None, **kwargs):
-        if column_spec is None:
-            column_spec = {}
-        for attr in [
-            "title",
-            "abstract",
-            "authors",
-            "notes",
-            "keywords",
-            "doi",
-            "url",
-            "included",
-        ]:
-            if attr in column_spec:
-                col = column_spec[attr]
-            elif attr in kwargs:
-                col = attr
-            else:
-                col = None
+    # def __init__(self, record_id, column_spec=None, **kwargs):
+    #     if column_spec is None:
+    #         column_spec = {}
+    #     for attr in [
+    #         "title",
+    #         "abstract",
+    #         "authors",
+    #         "notes",
+    #         "keywords",
+    #         "doi",
+    #         "url",
+    #         "included",
+    #     ]:
+    #         if attr in column_spec:
+    #             col = column_spec[attr]
+    #         elif attr in kwargs:
+    #             col = attr
+    #         else:
+    #             col = None
 
-            attr_val = kwargs.pop(col, None)
-            if attr_val is not None and pd.isna(attr_val):
-                attr_val = None
-            setattr(self, attr, attr_val)
+    #         attr_val = kwargs.pop(col, None)
+    #         if attr_val is not None and pd.isna(attr_val):
+    #             attr_val = None
+    #         setattr(self, attr, attr_val)
 
-        self.record_id = record_id
-        if self.included is None:
-            self.included = LABEL_NA
-        else:
-            self.included = int(self.included)
+    #     self.record_id = record_id
+    #     if self.included is None:
+    #         self.included = LABEL_NA
+    #     else:
+    #         self.included = int(self.included)
 
-        self.extra_fields = kwargs
+    #     self.extra_fields = kwargs
 
-        for attr, val in self.extra_fields.items():
-            if not isinstance(val, list) and pd.isna(val):
-                self.extra_fields[attr] = None
+    #     for attr, val in self.extra_fields.items():
+    #         if not isinstance(val, list) and pd.isna(val):
+    #             self.extra_fields[attr] = None
 
-    def __str__(self):
-        return format_record(self)
+    # def __str__(self):
+    #     return format_record(self)
 
-    @property
-    def text(self):
-        """Create a single string from title + abstract.
+    # @property
+    # def text(self):
+    #     """Create a single string from title + abstract.
 
-        Returns
-        -------
-        str:
-            Concatenated string from title + abstract.
-        """
-        title = self.title
-        abstract = self.abstract
-        if title is None:
-            title = ""
-        if abstract is None:
-            abstract = ""
-        return title + " " + abstract
+    #     Returns
+    #     -------
+    #     str:
+    #         Concatenated string from title + abstract.
+    #     """
+    #     title = self.title
+    #     abstract = self.abstract
+    #     if title is None:
+    #         title = ""
+    #     if abstract is None:
+    #         abstract = ""
+    #     return title + " " + abstract
 
-    @property
-    def heading(self):
-        """Return the title of the paper."""
-        if self.title is None:
-            return ""
-        return self.title
+    # @property
+    # def heading(self):
+    #     """Return the title of the paper."""
+    #     if self.title is None:
+    #         return ""
+    #     return self.title
 
-    @property
-    def body(self):
-        """Return the abstract of the paper."""
-        if self.abstract is None:
-            return ""
-        return self.abstract
+    # @property
+    # def body(self):
+    #     """Return the abstract of the paper."""
+    #     if self.abstract is None:
+    #         return ""
+    #     return self.abstract

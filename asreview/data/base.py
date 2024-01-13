@@ -14,7 +14,6 @@
 
 __all__ = ["ASReviewData", "load_data"]
 
-import hashlib
 from io import StringIO
 from pathlib import Path
 
@@ -133,24 +132,6 @@ class ASReviewData:
             return 0
         return len(self.df.index)
 
-    def hash(self):
-        """Compute a hash from the dataset.
-
-        Returns
-        -------
-        str:
-            SHA1 hash, computed from the titles/abstracts of the dataframe.
-        """
-        if (
-            len(self.df.index) < 1000 and self.bodies is not None
-        ) or self.texts is None:
-            texts = " ".join(self.bodies)
-        else:
-            texts = " ".join(self.texts)
-        return hashlib.sha1(
-            " ".join(texts).encode(encoding="UTF-8", errors="ignore")
-        ).hexdigest()
-
     @classmethod
     def from_file(cls, fp, reader=None):
         """Create instance from supported file format.
@@ -222,16 +203,13 @@ class ASReviewData:
 
         return cls(df, column_spec=column_spec)
 
-    def record(self, i, by_index=True):
+    def record(self, i):
         """Create a record from an index.
 
         Arguments
         ---------
         i: int, iterable
             Index of the record, or list of indices.
-        by_index: bool
-            If True, take the i-th value as used internally by the review.
-            If False, take the record with record_id==i.
 
         Returns
         -------
@@ -244,22 +222,14 @@ class ASReviewData:
         else:
             index_list = i
 
-        if by_index:
-            records = [
-                PaperRecord(
-                    **self.df.iloc[j],
-                    column_spec=self.column_spec,
-                    record_id=self.df.index.values[j],
-                )
-                for j in index_list
-            ]
-        else:
-            records = [
-                PaperRecord(
-                    **self.df.loc[j, :], record_id=j, column_spec=self.column_spec
-                )
-                for j in index_list
-            ]
+        records = [
+            PaperRecord(
+                **self.df.iloc[j],
+                column_spec=self.column_spec,
+                record_id=self.df.index.values[j],
+            )
+            for j in index_list
+        ]
 
         if is_iterable(i):
             return records

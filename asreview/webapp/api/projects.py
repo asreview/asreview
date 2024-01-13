@@ -422,8 +422,7 @@ def api_get_project_data(project):  # noqa: F401
         as_data = project.read_data()
 
         statistics = {
-            "n_rows": as_data.df.shape[0],
-            "n_cols": as_data.df.shape[1],
+            "n_rows": len(as_data),
             "n_duplicates": n_duplicates(as_data),
             "filename": Path(project.config["dataset_path"]).stem,
         }
@@ -505,7 +504,6 @@ def api_search_data(project):  # noqa: F401
                 q,
                 max_return=max_results,
                 exclude=labeled_record_ids,
-                by_index=True,
             )
         except SearchError as err:
             raise ValueError(err) from err

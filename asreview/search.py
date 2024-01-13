@@ -113,7 +113,11 @@ def _match_string(as_data):
 
 
 def fuzzy_find(
-    as_data, keywords, threshold=60, max_return=10, exclude=None, by_index=True
+    as_data,
+    keywords,
+    threshold=60,
+    max_return=10,
+    exclude=None,
 ):
     """Find a record using keywords.
 
@@ -134,9 +138,6 @@ def fuzzy_find(
     exclude: list, numpy.ndarray
         List of indices that should be excluded in the search. You would
         put papers that were already labeled here for example.
-    by_index: bool
-        If True, use internal indexing.
-        If False, use record ids for indexing.
 
     Returns
     -------
@@ -149,11 +150,7 @@ def fuzzy_find(
     if exclude is None:
         exclude = np.array([], dtype=int)
     for idx in sorted_idx:
-        if (
-            (not by_index and as_data.df.index.values[idx] in exclude)
-            or by_index
-            and idx in exclude
-        ):
+        if idx in exclude:
             continue
         if len(best_idx) >= max_return:
             break
@@ -161,6 +158,4 @@ def fuzzy_find(
             break
         best_idx.append(idx)
     fuzz_idx = np.array(best_idx, dtype=int)
-    if not by_index:
-        fuzz_idx = as_data.df.index.values[fuzz_idx]
     return fuzz_idx.tolist()

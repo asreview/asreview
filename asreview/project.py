@@ -435,14 +435,14 @@ class ASReviewProject:
             except CacheDataError:
                 pass
 
-        data_obj = ASReviewData.from_file(fp_data)
+        as_data = ASReviewData.from_file(fp_data)
 
         if save_cache:
             fp_data_pickle = Path(fp_data).with_suffix(fp_data.suffix + ".pickle")
             with open(fp_data_pickle, "wb") as f_pickle:
-                pickle.dump((data_obj, get_versions()["version"]), f_pickle)
+                pickle.dump((as_data, get_versions()["version"]), f_pickle)
 
-        return data_obj
+        return as_data
 
     def clean_tmp_files(self):
         """Clean temporary files in a project.

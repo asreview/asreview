@@ -18,7 +18,7 @@ import io
 import re
 from urllib.request import urlopen
 
-import pandas
+import pandas as pd
 import rispy
 
 from asreview.io.utils import _standardize_dataframe
@@ -158,7 +158,7 @@ class RISReader:
 
         Returns
         -------
-        pandas.DataFrame:
+        pd.DataFrame:
             Dataframe with entries.
 
         Raises
@@ -185,7 +185,7 @@ class RISReader:
             raise ValueError("Cannot find proper encoding for data file")
 
         # Turn the entries dictionary into a Pandas dataframe
-        df = pandas.DataFrame(entries)
+        df = pd.DataFrame(entries)
 
         # Check if "notes" column is present
         if "notes" in df:
@@ -193,10 +193,10 @@ class RISReader:
             df["notes"] = df["notes"].apply(cls._strip_zotero_p_tags)
 
             # strip ASReview data from notes
-            df = pandas.concat(
+            df = pd.concat(
                 [
                     df,
-                    pandas.DataFrame(
+                    pd.DataFrame(
                         df["notes"].apply(_parse_asreview_data_from_notes).tolist(),
                     ),
                 ],
@@ -220,21 +220,15 @@ class RISWriter:
     write_format = ".ris"
 
     @classmethod
-    def write_data(cls, df, fp, labels=None, ranking=None):
+    def write_data(cls, df, fp):
         """Export dataset.
 
         Arguments
         ---------
-        df: pandas.Dataframe
+        df: pd.Dataframe
             Dataframe of all available record data.
         fp: str, pathlib.Path
             File path to the RIS file, if exists.
-        labels: list, numpy.ndarray
-            Current labels will be overwritten by these labels
-            (including unlabelled). No effect if labels is None.
-        ranking: list
-            Reorder the dataframe according to these (internal) indices.
-            Default ordering if ranking is None.
 
         Returns
         -------
@@ -254,7 +248,7 @@ class RISWriter:
             def _notnull(v):
                 if isinstance(v, list):
                     return False
-                return pandas.notnull(v)
+                return pd.notnull(v)
 
             # Remove all nan values
             rec_copy = {k: v for k, v in rec.items() if _notnull(v)}
