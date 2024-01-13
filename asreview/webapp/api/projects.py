@@ -671,151 +671,46 @@ def api_random_prior_papers(project):  # noqa: F401
     the already labeled items.
     """
 
-    # get the number of records to return
     n = request.args.get("n", default=5, type=int)
-    # get the subset of records to return (for exploration and simulation mode)
     subset = request.args.get("subset", default=None, type=str)
+
+    if subset == "relevant":
+        label = 1
+    elif subset == "irrelevant":
+        label = 0
+    elif subset == "not_seen":
+        label = LABEL_NA
+    else:
+        label = None
+
+    as_data = project.read_data()
+
+    if subset in ["relevant", "irrelevant"] and as_data.labels is None:
+        indices = []
+    elif subset in ["relevant", "irrelevant", "not_seen"]:
+        indices = as_data.df[as_data.labels == label].index.values
+    else:
+        indices = as_data.df.index.values
 
     with open_state(project.project_path) as state:
         pool = state.get_pool().values
 
-    as_data = project.read_data()
+    pool = np.intersect1d(pool, indices)
+    rand_pool = np.random.choice(pool, min(len(pool), n), replace=False)
 
     payload = {"result": []}
-
-    if subset in ["relevant", "included"]:
-        if as_data.labels is None:
-            return jsonify(payload)
-
-        rel_indices = as_data.df[as_data.labels == 1].index.values
-        rel_indices_pool = np.intersect1d(pool, rel_indices)
-
-        if len(rel_indices_pool) == 0:
-            return jsonify(payload)
-        elif n > len(rel_indices_pool):
-            rand_pool_relevant = np.random.choice(
-                rel_indices_pool, len(rel_indices_pool), replace=False
-            )
-        else:
-            rand_pool = np.random.choice(pool, n, replace=False)
-            rand_pool_relevant = np.random.choice(rel_indices_pool, n, replace=False)
-
-        try:
-            relevant_records = as_data.record(rand_pool_relevant)
-        except Exception as err:
-            logging.error(err)
-            return jsonify(message=f"Failed to load random records. {err}"), 500
-
-        for rr in relevant_records:
-            payload["result"].append(
-                {
-                    "id": int(rr.record_id),
-                    "title": rr.title,
-                    "abstract": rr.abstract,
-                    "authors": rr.authors,
-                    "keywords": rr.keywords,
-                    "included": None,
-                    "label_from_dataset": 1,
-                }
-            )
-
-    elif subset in ["irrelevant", "excluded"]:
-        if as_data.labels is None:
-            return jsonify(payload)
-
-        irrel_indices = as_data.df[as_data.labels == 0].index.values
-        irrel_indices_pool = np.intersect1d(pool, irrel_indices)
-
-        if len(irrel_indices_pool) == 0:
-            return jsonify(payload)
-        elif n > len(irrel_indices_pool):
-            rand_pool_irrelevant = np.random.choice(
-                irrel_indices_pool, len(irrel_indices_pool), replace=False
-            )
-        else:
-            rand_pool_irrelevant = np.random.choice(
-                irrel_indices_pool, n, replace=False
-            )
-
-        try:
-            irrelevant_records = as_data.record(rand_pool_irrelevant)
-        except Exception as err:
-            logging.error(err)
-            return jsonify(message=f"Failed to load random records. {err}"), 500
-
-        for ir in irrelevant_records:
-            payload["result"].append(
-                {
-                    "id": int(ir.record_id),
-                    "title": ir.title,
-                    "abstract": ir.abstract,
-                    "authors": ir.authors,
-                    "keywords": ir.keywords,
-                    "included": None,
-                    "label_from_dataset": 0,
-                }
-            )
-
-    elif subset == "not_seen":
-        # Fetch records that are not seen
-        unlabeled_indices = as_data.df[as_data.labels == LABEL_NA].index.values
-        unlabeled_indices_pool = np.intersect1d(pool, unlabeled_indices)
-
-        if len(unlabeled_indices_pool) == 0:
-            return jsonify(payload)
-        elif n > len(unlabeled_indices_pool):
-            rand_pool_unlabeled = np.random.choice(
-                unlabeled_indices_pool, len(unlabeled_indices_pool), replace=False
-            )
-        else:
-            rand_pool_unlabeled = np.random.choice(
-                unlabeled_indices_pool, n, replace=False
-            )
-
-        try:
-            unlabeled_records = as_data.record(rand_pool_unlabeled)
-        except Exception as err:
-            logging.error(err)
-            return jsonify(message=f"Failed to load 'not seen' records. {err}"), 500
-
-        for record in unlabeled_records:
-            payload["result"].append(
-                {
-                    "id": int(record.record_id),
-                    "title": record.title,
-                    "abstract": record.abstract,
-                    "authors": record.authors,
-                    "keywords": record.keywords,
-                    "included": None,
-                    "label_from_dataset": -1,
-                }
-            )
-    else:
-        if len(pool) == 0:
-            return jsonify(payload)
-        elif n > len(pool):
-            rand_pool = np.random.choice(pool, len(pool), replace=False)
-        else:
-            rand_pool = np.random.choice(pool, n, replace=False)
-
-        try:
-            records = as_data.record(rand_pool)
-        except Exception as err:
-            logging.error(err)
-            return jsonify(message=f"Failed to load random records. {err}"), 500
-
-        for r in records:
-            payload["result"].append(
-                {
-                    "id": int(r.record_id),
-                    "title": r.title,
-                    "abstract": r.abstract,
-                    "authors": r.authors,
-                    "keywords": r.keywords,
-                    "included": None,
-                    "label_from_dataset": None,
-                }
-            )
+    for r in as_data.record(rand_pool):
+        payload["result"].append(
+            {
+                "id": int(r.record_id),
+                "title": r.title,
+                "abstract": r.abstract,
+                "authors": r.authors,
+                "keywords": r.keywords,
+                "included": None,
+                "label_from_dataset": label,
+            }
+        )
 
     return jsonify(payload)
 
