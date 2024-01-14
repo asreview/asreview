@@ -148,8 +148,6 @@ def test_deduplication():
     )
 
     # test whether .drop_duplicates() drops the duplicated records correctly
-    print(d_dups.drop_duplicates())
-    print(d_nodups.df.index.name)
     pd.testing.assert_frame_equal(d_dups.drop_duplicates().df, d_nodups.df)
 
 
