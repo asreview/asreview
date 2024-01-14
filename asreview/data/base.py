@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["ASReviewData", "load_data"]
+__all__ = ["ASReviewData", "load_data", "Record"]
 
+from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
 
@@ -24,7 +25,6 @@ from pandas.api.types import is_string_dtype
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
-from asreview.data.paper_record import PaperRecord
 from asreview.datasets import DatasetManager
 from asreview.datasets import DatasetNotFoundError
 from asreview.exceptions import BadFileFormatError
@@ -64,6 +64,52 @@ def load_data(name, **kwargs):
 
     # Could not find dataset, return None.
     raise FileNotFoundError(f"File, URL, or dataset does not exist: '{name}'")
+
+
+@dataclass
+class Record:
+    """A record from the dataset.
+
+    The record contains only fields that are relevant for the
+    systematic review. Other fields are stored not included.
+
+    Arguments
+    ---------
+    record_id: int
+        Identifier for this record.
+    title: str
+        Title of the record.
+    abstract: str
+        Abstract of the record.
+    authors: str
+        Authors of the record.
+    notes: str
+        Notes of the record.
+    keywords: str
+        Keywords of the record.
+    included: int
+        Label of the record.
+    type_of_reference: str
+        Type of reference.
+    year: int
+        Year of publication.
+    doi: str
+        DOI of the record.
+    url: str
+        URL of the record.
+    """
+
+    record_id: int
+    title: str = None
+    abstract: str = None
+    authors: str = None
+    notes: str = None
+    keywords: str = None
+    included: int = None
+    type_of_reference: str = None
+    year: int = None
+    doi: str = None
+    url: str = None
 
 
 class ASReviewData:
@@ -124,8 +170,8 @@ class ASReviewData:
         else:
             self.column_spec = column_spec
 
-        if "included" not in self.column_spec:
-            self.column_spec["included"] = "included"
+        # if "included" not in self.column_spec:
+        #     self.column_spec["included"] = "included"
 
     def __len__(self):
         if self.df is None:
@@ -163,6 +209,7 @@ class ASReviewData:
             raise BadFileFormatError(f"Importing file {fp} not possible.")
 
         df, column_spec = reader.read_data(fp)
+        print("read", column_spec)
 
         return cls(df, column_spec=column_spec)
 
@@ -213,7 +260,7 @@ class ASReviewData:
 
         Returns
         -------
-        PaperRecord
+        Record
             The corresponding record if i was an integer, or a list of records
             if i was an iterable.
         """
@@ -222,11 +269,15 @@ class ASReviewData:
         else:
             index_list = i
 
+        column_spec_inv = {v: k for k, v in self.column_spec.items()}
+
         records = [
-            PaperRecord(
-                **self.df.iloc[j],
-                column_spec=self.column_spec,
+            Record(
                 record_id=self.df.index.values[j],
+                **self.df.rename(column_spec_inv, axis=1)[self.column_spec.keys()]
+                .iloc[j]
+                .replace(np.nan, None)
+                .to_dict(),
             )
             for j in index_list
         ]
@@ -246,11 +297,12 @@ class ASReviewData:
         if self.abstract is None:
             return self.title
 
-        cur_texts = np.array(
-            [self.title[i] + " " + self.abstract[i] for i in range(len(self))],
-            dtype=object,
-        )
-        return cur_texts
+        s_title = pd.Series(self.title)
+        s_abstract = pd.Series(self.abstract)
+
+        cur_texts = (s_title + " " + s_abstract).str.strip()
+
+        return cur_texts.values
 
     @property
     def headings(self):
@@ -259,7 +311,7 @@ class ASReviewData:
     @property
     def title(self):
         try:
-            return self.df[self.column_spec["title"]].values
+            return self.df[self.column_spec["title"]].fillna("").values
         except KeyError:
             return None
 
@@ -270,7 +322,7 @@ class ASReviewData:
     @property
     def abstract(self):
         try:
-            return self.df[self.column_spec["abstract"]].values
+            return self.df[self.column_spec["abstract"]].fillna("").values
         except KeyError:
             return None
 
@@ -402,7 +454,7 @@ class ASReviewData:
         )
 
         if writer is not None:
-            writer.write_data(df, fp, labels=labels, ranking=ranking)
+            writer().write_data(df, fp, labels=labels, ranking=ranking)
         else:
             best_suffix = None
 
@@ -418,7 +470,7 @@ class ASReviewData:
                 )
 
             writer = _entry_points(group="asreview.writers")[best_suffix].load()
-            writer.write_data(df, fp, labels=labels, ranking=ranking)
+            writer.write_data(df, fp)
 
     def to_dataframe(self, labels=None, ranking=None, keep_old_labels=False):
         """Create new dataframe with updated label (order).

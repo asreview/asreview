@@ -99,7 +99,7 @@ def test_reader(test_file, n_lines, ignore_col):
 def test_asreview_labels_ris(record_i, included):
     fp = Path("tests", "demo_data", "baseline_tag-notes_labels.ris")
     as_data = ASReviewData.from_file(fp)
-    assert as_data.record(record_i, by_index=True).included == included
+    assert as_data.record(record_i).included == included
 
 
 def test_multiline_tags_ris():
@@ -113,28 +113,28 @@ def test_nan_values_ris():
     as_data = ASReviewData.from_file(fp)
 
     # Check missing titles
-    assert as_data.record(1, by_index=True).title == ""
-    assert as_data.record(3, by_index=True).title == ""
+    assert as_data.record(1).title is None
+    assert as_data.record(3).title is None
 
     # Check missing abstracts
-    assert as_data.record(0, by_index=True).abstract == ""
-    assert as_data.record(2, by_index=True).abstract == ""
+    assert as_data.record(0).abstract is None
+    assert as_data.record(2).abstract is None
 
     # Check missing authors
-    assert as_data.record(0, by_index=True).authors is None
-    assert as_data.record(2, by_index=True).authors is None
+    assert as_data.record(0).authors is None
+    assert as_data.record(2).authors is None
 
     # Check missing keywords
-    assert as_data.record(0, by_index=True).keywords is None
-    assert as_data.record(2, by_index=True).keywords is None
+    assert as_data.record(0).keywords is None
+    assert as_data.record(2).keywords is None
 
     # Check missing notes
-    assert as_data.record(0, by_index=True).notes is None
-    assert as_data.record(2, by_index=True).notes is None
+    assert as_data.record(0).notes is None
+    assert as_data.record(2).notes is None
 
     # check missing doi
-    assert as_data.record(0, by_index=True).doi is None
-    assert as_data.record(2, by_index=True).doi is None
+    assert as_data.record(0).doi is None
+    assert as_data.record(2).doi is None
 
 
 def test_nan_values_csv():
@@ -142,24 +142,24 @@ def test_nan_values_csv():
     as_data = ASReviewData.from_file(fp)
 
     # Check missing titles
-    assert as_data.record(1, by_index=True).title == ""
-    assert as_data.record(3, by_index=True).title == ""
+    assert as_data.record(1).title is None
+    assert as_data.record(3).title is None
 
     # Check missing abstracts
-    assert as_data.record(0, by_index=True).abstract == ""
-    assert as_data.record(2, by_index=True).abstract == ""
+    assert as_data.record(0).abstract is None
+    assert as_data.record(2).abstract is None
 
     # Check missing authors
-    assert as_data.record(0, by_index=True).authors is None
-    assert as_data.record(2, by_index=True).authors is None
+    assert as_data.record(0).authors is None
+    assert as_data.record(2).authors is None
 
     # Check missing keywords
-    assert as_data.record(0, by_index=True).keywords is None
-    assert as_data.record(2, by_index=True).keywords is None
+    assert as_data.record(0).keywords is None
+    assert as_data.record(2).keywords is None
 
     # Check missing doi
-    assert as_data.record(0, by_index=True).doi is None
-    assert as_data.record(2, by_index=True).doi is None
+    assert as_data.record(0).doi is None
+    assert as_data.record(2).doi is None
 
 
 def test_write_data(tmpdir):

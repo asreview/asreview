@@ -71,8 +71,8 @@ def _print_record(record, use_cli_colors=True):
 
     Arguments
     ---------
-    record: PaperRecord
-        The paperRecord to format.
+    record: Record
+        The record to format.
     use_cli_colors: bool
         Some terminals support colors, set to True to use them.
 
