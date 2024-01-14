@@ -15,4 +15,4 @@
 __all__ = ["ASReviewData", "load_data"]
 
 from asreview.data.base import ASReviewData
-from asreview.data.base import load_data
+from asreview.data.loader import load_data

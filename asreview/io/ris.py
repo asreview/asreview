@@ -21,7 +21,7 @@ from urllib.request import urlopen
 import pandas as pd
 import rispy
 
-from asreview.io.utils import _standardize_dataframe
+from asreview.data.base import ASReviewData
 from asreview.utils import is_url
 
 ASREVIEW_PARSE_RE = r"\bASReview_\w+\b"
@@ -203,12 +203,13 @@ class RISReader:
                 axis=1,
             )
             df["notes"] = df["notes"].apply(_remove_asreview_data_from_notes)
+            print(df["notes"])
 
             # Return the standardised dataframe with label and notes separated
-            return _standardize_dataframe(df)
+            return ASReviewData(df)
         else:
             # Return the standardised dataframe
-            return _standardize_dataframe(df)
+            return ASReviewData(df)
 
 
 class RISWriter:
@@ -246,19 +247,12 @@ class RISWriter:
         for rec in records:
 
             def _notnull(v):
-                if isinstance(v, list):
-                    return False
+                if isinstance(v, list) and v:
+                    return True
                 return pd.notnull(v)
 
             # Remove all nan values
             rec_copy = {k: v for k, v in rec.items() if _notnull(v)}
-
-            for m in ["authors", "keywords", "notes"]:  # AU, KW, N1
-                # Check the "authors" - AU
-                try:
-                    rec_copy[m] = eval(rec_copy[m])
-                except Exception:
-                    rec_copy[m] = []
 
             if "included" not in rec_copy:
                 rec_copy["included"] = -1
@@ -272,6 +266,8 @@ class RISWriter:
 
             # Append the deepcopied and updated record to a new array
             records_new.append(rec_copy)
+
+        print(records_new)
 
         # From buffered dataframe
         if fp is None:

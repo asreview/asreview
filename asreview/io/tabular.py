@@ -18,7 +18,7 @@ __all__ = ["CSVReader"]
 import pandas as pd
 
 from asreview.config import COLUMN_DEFINITIONS
-from asreview.io.utils import _standardize_dataframe
+from asreview.data.base import ASReviewData
 
 
 class CSVReader:
@@ -44,7 +44,7 @@ class CSVReader:
         for encoding in ["utf-8", "ISO-8859-1"]:
             try:
                 df = pd.read_csv(fp, sep=None, encoding=encoding, engine="python")
-                return _standardize_dataframe(df)
+                return ASReviewData(df)
             except UnicodeDecodeError:
                 # if unicode error, go to next encoding
                 continue
@@ -118,7 +118,7 @@ class ExcelReader:
                 sheet_obj_val = obj_val
                 best_sheet = sheet_name
 
-        return _standardize_dataframe(dfs[best_sheet])
+        return ASReviewData(dfs[best_sheet])
 
 
 class ExcelWriter:

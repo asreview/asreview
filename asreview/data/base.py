@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["ASReviewData", "load_data", "Record"]
+__all__ = ["ASReviewData", "Record"]
 
+import logging
 from dataclasses import dataclass
-from io import StringIO
 from pathlib import Path
 
 import numpy as np
@@ -25,45 +25,45 @@ from pandas.api.types import is_string_dtype
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
-from asreview.datasets import DatasetManager
-from asreview.datasets import DatasetNotFoundError
 from asreview.exceptions import BadFileFormatError
-from asreview.io.utils import convert_keywords
-from asreview.io.utils import type_from_column
 from asreview.utils import _entry_points
-from asreview.utils import _get_filename_from_url
 from asreview.utils import is_iterable
-from asreview.utils import is_url
 
 
-def load_data(name, **kwargs):
-    """Load data from file, URL, or plugin.
+def _type_from_column(col_name, col_definitions):
+    """Transform a column name to its standardized form.
 
-    Parameters
-    ----------
-    name: str, pathlib.Path
-        File path, URL, or alias of extension dataset.
-    **kwargs:
-        Keyword arguments passed to the reader.
+    Arguments
+    ---------
+    col_name: str
+        Name of the column in the dataframe.
+    col_definitions: dict
+        Dictionary of {standardized_name: [list of possible names]}.
+        Ex. {"title": ["title", "primary_title"],
+            "authors": ["authors", "author names", "first_authors"]}
 
     Returns
     -------
-    asreview.ASReviewData:
-        Inititalized ASReview data object.
+    str:
+        The standardized name. If it wasn't found, return None.
     """
+    for name, definition in col_definitions.items():
+        if col_name.lower() in definition:
+            return name
+    return None
 
-    # check is file or URL
-    if is_url(name) or Path(name).exists():
-        return ASReviewData.from_file(name, **kwargs)
 
-    # check if dataset is plugin dataset
-    try:
-        return ASReviewData.from_extension(name, **kwargs)
-    except DatasetNotFoundError:
-        pass
+def _convert_keywords(keywords):
+    """Split keywords separated by commas etc to lists."""
+    if not isinstance(keywords, str):
+        return keywords
 
-    # Could not find dataset, return None.
-    raise FileNotFoundError(f"File, URL, or dataset does not exist: '{name}'")
+    current_best = [keywords]
+    for splitter in [", ", "; ", ": ", ";", ":"]:
+        new_split = keywords.split(splitter)
+        if len(new_split) > len(current_best):
+            current_best = new_split
+    return current_best
 
 
 @dataclass
@@ -157,98 +157,44 @@ class ASReviewData:
 
     def __init__(self, df=None, column_spec=None):
         self.df = df
-        self.prior_idx = np.array([], dtype=int)
-        self.max_idx = max(df.index.values) + 1
+        self.column_spec = column_spec
 
-        # Infer column specifications if it is not given.
         if column_spec is None:
-            self.column_spec = {}
-            for col_name in list(df):
-                data_type = type_from_column(col_name, COLUMN_DEFINITIONS)
-                if data_type is not None:
-                    self.column_spec[data_type] = col_name
-        else:
-            self.column_spec = column_spec
+            self._get_column_spec_df()
 
-        # if "included" not in self.column_spec:
-        #     self.column_spec["included"] = "included"
+        self.df.columns = self.df.columns.str.strip()
+
+        # Convert labels to integers.
+        if self.column_spec and "included" in list(self.column_spec):
+            col = self.column_spec["included"]
+            self.df[col] = self.df[col].fillna(LABEL_NA).astype(object)
+
+        self.df["record_id"] = np.arange(len(self.df.index)).astype("int64")
+        self.df.set_index("record_id", inplace=True)
+
+        # Check if we either have abstracts or titles.
+        if "abstract" not in list(self.column_spec) and "title" not in list(
+            self.column_spec
+        ):
+            raise BadFileFormatError(
+                "File supplied without 'abstract' or 'title'" " fields."
+            )
+        if "abstract" not in list(self.column_spec):
+            logging.warning("Unable to detect abstracts in dataset.")
+        if "title" not in list(self.column_spec):
+            logging.warning("Unable to detect titles in dataset.")
+
+    def _get_column_spec_df(self):
+        self.column_spec = {}
+        for col_name in list(self.df):
+            data_type = _type_from_column(col_name, COLUMN_DEFINITIONS)
+            if data_type is not None:
+                self.column_spec[data_type] = col_name
 
     def __len__(self):
         if self.df is None:
             return 0
         return len(self.df.index)
-
-    @classmethod
-    def from_file(cls, fp, reader=None):
-        """Create instance from supported file format.
-
-        It works in two ways; either manual control where the conversion
-        functions are supplied or automatic, where it searches in the entry
-        points for the right conversion functions.
-
-        Arguments
-        ---------
-        fp: str, pathlib.Path
-            Read the data from this file or url.
-        reader: class
-            Reader to import the file.
-        """
-
-        if reader is not None:
-            return cls(reader.read_data(fp))
-
-        # get the filename from a url else file path
-        if is_url(fp):
-            fn = _get_filename_from_url(fp)
-        else:
-            fn = Path(fp).name
-
-        try:
-            reader = _entry_points(group="asreview.readers")[Path(fn).suffix].load()
-        except Exception:
-            raise BadFileFormatError(f"Importing file {fp} not possible.")
-
-        df, column_spec = reader.read_data(fp)
-        print("read", column_spec)
-
-        return cls(df, column_spec=column_spec)
-
-    @classmethod
-    def from_extension(cls, name, reader=None):
-        """Load a dataset from extension.
-
-        Arguments
-        ---------
-        fp: str, pathlib.Path
-            Read the data from this file or url.
-        reader: class
-            Reader to import the file.
-        """
-
-        dataset = DatasetManager().find(name)
-
-        if dataset.filepath:
-            fp = dataset.filepath
-        else:
-            # build dataset to temporary file
-            reader = dataset.reader()
-            fp = StringIO(dataset.to_file())
-
-        if reader is None:
-            # get the filename from a url else file path
-            if is_url(fp):
-                fn = _get_filename_from_url(fp)
-            else:
-                fn = Path(fp).name
-
-            try:
-                reader = _entry_points(group="asreview.readers")[Path(fn).suffix].load()
-            except Exception:
-                raise BadFileFormatError(f"Importing file {fp} not possible.")
-
-        df, column_spec = reader.read_data(fp)
-
-        return cls(df, column_spec=column_spec)
 
     def record(self, i):
         """Create a record from an index.
@@ -336,7 +282,7 @@ class ASReviewData:
     @property
     def keywords(self):
         try:
-            return self.df[self.column_spec["keywords"]].apply(convert_keywords).values
+            return self.df[self.column_spec["keywords"]].apply(_convert_keywords).values
         except KeyError:
             return None
 
@@ -369,27 +315,8 @@ class ASReviewData:
             return self.df[name].values
 
     @property
-    def prior_data_idx(self):
-        "Get prior_included, prior_excluded from dataset."
-        convert_array = np.full(self.max_idx, 999999999)
-        convert_array[self.df.index.values] = np.arange(len(self.df.index))
-        return convert_array[self.prior_idx]
-
-    @property
     def included(self):
         return self.labels
-
-    @included.setter
-    def included(self, labels):
-        self.labels = labels
-
-    @property  # pending deprecation
-    def final_included(self):
-        return self.labels
-
-    @final_included.setter  # pending deprecation
-    def final_included(self, labels):
-        self.labels = labels
 
     @property
     def labels(self):
@@ -493,10 +420,10 @@ class ASReviewData:
             Dataframe of all available record data.
         """
         result_df = pd.DataFrame.copy(self.df)
-        col_label = self.column_spec["included"]
 
         # if there are labels, add them to the frame
-        if labels is not None:
+        if "included" in self.column_spec and labels is not None:
+            col_label = self.column_spec["included"]
             # unnest list of nested (record_id, label) tuples
             labeled_record_ids = [x[0] for x in labels]
             labeled_values = [x[1] for x in labels]
@@ -604,4 +531,4 @@ class ASReviewData:
         if inplace:
             self.df = df
             return
-        return df
+        return ASReviewData(df, self.column_spec)

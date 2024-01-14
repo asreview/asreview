@@ -5,7 +5,8 @@ import pandas as pd
 from pytest import mark
 
 import asreview
-from asreview.data.base import ASReviewData
+from asreview import ASReviewData
+from asreview import load_data
 from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
 from asreview.search import fuzzy_find
@@ -31,7 +32,7 @@ def exists(url):
 )
 def test_fuzzy_finder(keywords, paper_id):
     fp = Path("tests", "demo_data", "embase.csv")
-    as_data = asreview.ASReviewData.from_file(fp)
+    as_data = asreview.load_data(fp)
 
     assert fuzzy_find(as_data, keywords)[0] == paper_id
 
@@ -53,13 +54,13 @@ def test_datasets(data_name):
 
 
 def test_duplicate_count():
-    d = ASReviewData.from_file(Path("tests", "demo_data", "duplicate_records.csv"))
+    d = load_data(Path("tests", "demo_data", "duplicate_records.csv"))
 
     assert n_duplicates(d) == 2
 
 
 def test_deduplication():
-    d_dups = ASReviewData.from_file(Path("tests", "demo_data", "duplicate_records.csv"))
+    d_dups = load_data(Path("tests", "demo_data", "duplicate_records.csv"))
 
     s_dups_bool = pd.Series(
         [
@@ -86,7 +87,20 @@ def test_deduplication():
     d_nodups = ASReviewData(
         pd.DataFrame(
             {
-                "title": ["a", "b", "d", "e", "f", "g", "h", "i", "", "", "   ", "   "],
+                "title": [
+                    "a",
+                    "b",
+                    "d",
+                    "e",
+                    "f",
+                    "g",
+                    "h",
+                    "i",
+                    None,
+                    None,
+                    "   ",
+                    "   ",
+                ],
                 "abstract": [
                     "lorem",
                     "lorem",
@@ -96,8 +110,8 @@ def test_deduplication():
                     "lorem",
                     "lorem",
                     "lorem",
-                    "",
-                    "",
+                    None,
+                    None,
                     "   ",
                     "   ",
                 ],
@@ -134,7 +148,9 @@ def test_deduplication():
     )
 
     # test whether .drop_duplicates() drops the duplicated records correctly
-    pd.testing.assert_frame_equal(d_dups.drop_duplicates(), d_nodups.df)
+    print(d_dups.drop_duplicates())
+    print(d_nodups.df.index.name)
+    pd.testing.assert_frame_equal(d_dups.drop_duplicates().df, d_nodups.df)
 
 
 def test_duplicated():

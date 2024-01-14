@@ -47,7 +47,6 @@ DEFAULT_N_PRIOR_INCLUDED = 1
 DEFAULT_N_PRIOR_EXCLUDED = 1
 
 COLUMN_DEFINITIONS = {
-    # included
     "included": [
         "final_included",
         "label",
@@ -57,13 +56,6 @@ COLUMN_DEFINITIONS = {
         "included",
         "included_flag",
         "include",
-    ],
-    # abstract included (pending deprecation)
-    "abstract_included": [
-        "abstract_included",
-        "included_abstract",
-        "included_after_abstract",
-        "label_abstract_screening",
     ],
     "title": ["title", "primary_title"],
     "authors": ["authors", "author names", "first_authors"],

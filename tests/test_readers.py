@@ -3,7 +3,7 @@ from pathlib import Path
 import rispy
 from pytest import mark
 
-from asreview import ASReviewData
+from asreview import load_data
 from asreview.utils import is_url
 
 
@@ -34,7 +34,7 @@ def test_reader(test_file, n_lines, ignore_col):
     else:
         fp = Path("tests", "demo_data", test_file)
 
-    as_data = ASReviewData.from_file(fp)
+    as_data = load_data(fp)
     assert len(as_data) == n_lines
 
     cols = ["title", "abstract", "authors", "keywords"]
@@ -98,7 +98,7 @@ def test_reader(test_file, n_lines, ignore_col):
 )
 def test_asreview_labels_ris(record_i, included):
     fp = Path("tests", "demo_data", "baseline_tag-notes_labels.ris")
-    as_data = ASReviewData.from_file(fp)
+    as_data = load_data(fp)
     assert as_data.record(record_i).included == included
 
 
@@ -110,7 +110,7 @@ def test_multiline_tags_ris():
 
 def test_nan_values_ris():
     fp = Path("tests", "demo_data", "baseline_empty_values.ris")
-    as_data = ASReviewData.from_file(fp)
+    as_data = load_data(fp)
 
     # Check missing titles
     assert as_data.record(1).title is None
@@ -139,7 +139,7 @@ def test_nan_values_ris():
 
 def test_nan_values_csv():
     fp = Path("tests", "demo_data", "missing_values.csv")
-    as_data = ASReviewData.from_file(fp)
+    as_data = load_data(fp)
 
     # Check missing titles
     assert as_data.record(1).title is None
@@ -165,11 +165,11 @@ def test_nan_values_csv():
 def test_write_data(tmpdir):
     fp_in = Path("tests", "demo_data", "generic_labels.csv")
     fp_out = Path(tmpdir, "generic_out.csv")
-    asr_data = ASReviewData.from_file(fp_in)
+    asr_data = load_data(fp_in)
     asr_data.to_file(fp_out, labels=[[0, 0], [2, 1], [3, 1]])
 
     tmp_csv_fp_out = Path(tmpdir, "tmp_generic_labels.csv")
     asr_data.to_file(tmp_csv_fp_out)
-    asr_data_diff = ASReviewData.from_file(tmp_csv_fp_out)
+    asr_data_diff = load_data(tmp_csv_fp_out)
     # Check if export file includes labels [1,0]
     assert list(asr_data.labels) == list(asr_data_diff.labels)
