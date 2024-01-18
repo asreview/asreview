@@ -46,13 +46,3 @@ def test_asreview_ris(test_file, tmpdir):
 
     # Check if input file matches the export file
     assert list(asr_data.title) == list(asr_data_diff.title)
-
-
-def test_write_numpy_arrays():
-    # This test should catch cases where two numpy arrays
-    # are to be evaluated in boolean context. Error is as follows:
-    # "The truth value of an array with more than one element is ambiguous.
-    # Use a.any() or a.all()"
-    ###
-    # For ris writer, a relevant bug was fixed with commit 70d9497
-    pass
