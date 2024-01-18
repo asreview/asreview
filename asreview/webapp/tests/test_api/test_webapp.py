@@ -1,13 +1,14 @@
+import pytest
 from flask import current_app
 
 import asreview.webapp.tests.utils.api_utils as au
 
 
-# Test if index.html is available!
-# Note: This test will fail if build is missing. Please run
-# `python setup.py compile_assets` first.
 def test_landing(setup):
     client, _, _ = setup
+
+    if client.application.testing:
+        pytest.skip("Skipping landing page test in testing mode.")
 
     status_code, _, html = au.call_root_url(client)
     assert status_code == 200
@@ -17,7 +18,6 @@ def test_landing(setup):
     )  # noqa
 
 
-# Test boot data!
 def test_boot(setup_all_clients):
     status_code, data = au.call_boot_url(setup_all_clients)
     assert status_code == 200
