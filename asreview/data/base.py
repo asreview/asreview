@@ -381,7 +381,7 @@ class ASReviewData:
         )
 
         if writer is not None:
-            writer().write_data(df, fp, labels=labels, ranking=ranking)
+            writer().write_data(df, fp)
         else:
             best_suffix = None
 

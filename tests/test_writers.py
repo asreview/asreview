@@ -23,13 +23,11 @@ def test_asreview_labels_ris(test_file, tmpdir):
 def test_asreview_notes_ris(test_file, tmpdir):
     fp_in = Path("tests", "demo_data", test_file)
     asr_data = load_data(fp_in)
-    print(asr_data.df["notes"])
 
     tmp_ris_fp_out = Path(tmpdir, "tmp_notes.ris")
     asr_data.to_file(tmp_ris_fp_out)
 
     asr_data_diff = load_data(tmp_ris_fp_out)
-    print(asr_data_diff.df["notes"])
 
     # Check if input file matches the export file
     assert list(asr_data.title) == list(asr_data_diff.title)

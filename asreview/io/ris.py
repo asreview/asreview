@@ -14,6 +14,7 @@
 
 __all__ = ["RISReader", "RISWriter"]
 
+import copy
 import io
 import re
 from urllib.request import urlopen
@@ -203,7 +204,6 @@ class RISReader:
                 axis=1,
             )
             df["notes"] = df["notes"].apply(_remove_asreview_data_from_notes)
-            print(df["notes"])
 
             # Return the standardised dataframe with label and notes separated
             return ASReviewData(df)
@@ -238,7 +238,7 @@ class RISWriter:
         """
 
         # Turn pandas DataFrame into records (list of dictionaries) for rispy
-        records = df.to_dict("records")
+        records = copy.deepcopy(df.to_dict("records"))
 
         # Create an array for storing modified records
         records_new = []
@@ -260,14 +260,14 @@ class RISWriter:
             # write the notes with ASReview data
             for k, v in ASREVIEW_PARSE_DICT.items():
                 for k_df, v_df in v.items():
-                    if k_df in rec_copy:
-                        if rec_copy[k_df] == v_df:
+                    if k_df in rec_copy and rec_copy[k_df] == v_df:
+                        if "notes" in rec_copy:
                             rec_copy["notes"].insert(0, k)
+                        else:
+                            rec_copy["notes"] = []
 
             # Append the deepcopied and updated record to a new array
             records_new.append(rec_copy)
-
-        print(records_new)
 
         # From buffered dataframe
         if fp is None:
