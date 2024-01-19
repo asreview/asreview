@@ -167,7 +167,7 @@ class ASReviewData:
         # Convert labels to integers.
         if self.column_spec and "included" in list(self.column_spec):
             col = self.column_spec["included"]
-            self.df[col] = self.df[col].fillna(LABEL_NA).astype(object)
+            self.df[col] = self.df[col].fillna(LABEL_NA).astype(int)
 
         self.df["record_id"] = np.arange(len(self.df.index)).astype("int64")
         self.df.set_index("record_id", inplace=True)
