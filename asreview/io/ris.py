@@ -264,7 +264,7 @@ class RISWriter:
                         if "notes" in rec_copy:
                             rec_copy["notes"].insert(0, k)
                         else:
-                            rec_copy["notes"] = []
+                            rec_copy["notes"] = [k]
 
             # Append the deepcopied and updated record to a new array
             records_new.append(rec_copy)
