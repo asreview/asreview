@@ -68,6 +68,7 @@ COLUMN_DEFINITIONS = {
         "custom metadata json",
         "custom_metadata_json",
     ],
+    "is_prior": ["asreview_prior", "is_prior"],
 }
 
 # the schema describes the content of the ASReview project file.

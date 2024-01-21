@@ -301,7 +301,7 @@ def api_demo_data_project():  # noqa: F401
 @bp.route("/projects/<project_id>/data", methods=["POST", "PUT"])
 @login_required
 @project_authorization
-def api_upload_data_to_project(project):  # noqa: F401
+def api_upload_dataset_to_project(project):  # noqa: F401
     """"""
 
     # get the project config to modify behavior of dataset

@@ -26,7 +26,7 @@ from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
-from asreview.data import load_data
+from asreview.data import load_dataset
 from asreview.datasets import DatasetManager
 from asreview.models.balance.utils import get_balance_model
 from asreview.models.classifiers import get_classifier
@@ -147,7 +147,7 @@ def cli_simulate(argv):
     else:
         filename = Path(args.dataset).name
 
-    as_data = load_data(args.dataset)
+    as_data = load_dataset(args.dataset)
     as_data.to_file(Path(fp_tmp_simulation, "data", filename))
 
     # Update the project.json.

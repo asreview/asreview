@@ -47,7 +47,7 @@ from scipy.sparse import csr_matrix
 from scipy.sparse import load_npz
 from scipy.sparse import save_npz
 
-from asreview import load_data
+from asreview import load_dataset
 from asreview._version import get_versions
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_EXPLORE
@@ -335,7 +335,7 @@ class ASReviewProject:
 
         # fill the pool of the first iteration
         fp_data = Path(self.project_path, "data", file_name)
-        as_data = load_data(fp_data)
+        as_data = load_dataset(fp_data)
 
         if self.config["mode"] == PROJECT_MODE_SIMULATE and (
             as_data.labels is None or (as_data.labels == LABEL_NA).any()
@@ -435,7 +435,7 @@ class ASReviewProject:
             except CacheDataError:
                 pass
 
-        as_data = load_data(fp_data)
+        as_data = load_dataset(fp_data)
 
         if save_cache:
             fp_data_pickle = Path(fp_data).with_suffix(fp_data.suffix + ".pickle")

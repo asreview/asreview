@@ -127,7 +127,7 @@ def fuzzy_find(
 
     Arguments
     ---------
-    as_data: asreview.data.ASReviewData
+    as_data: asreview.ASReviewData
         ASReview data object to search
     keywords: str
         A string of keywords together, can be a combination.

@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from asreview import load_data
+from asreview import load_dataset
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.feature_extraction import list_feature_extraction
 
@@ -41,7 +41,7 @@ def test_features(feature_extraction, split_ta):
     embedding_fp = os.path.join("tests", "demo_data", "generic.vec")
     data_fp = os.path.join("tests", "demo_data", "generic.csv")
 
-    as_data = load_data(data_fp)
+    as_data = load_dataset(data_fp)
     texts = as_data.texts
     if feature_extraction.startswith("embedding-"):
         model = get_feature_model(

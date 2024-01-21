@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["ASReviewData", "load_data"]
+__all__ = ["ASReviewData", "load_dataset"]
 
 from asreview.data.base import ASReviewData
-from asreview.data.loader import load_data
+from asreview.data.loader import load_dataset

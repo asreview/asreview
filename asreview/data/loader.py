@@ -76,7 +76,7 @@ def _from_extension(name, reader=None):
     return reader.read_data(fp)
 
 
-def load_data(name, **kwargs):
+def load_dataset(name, **kwargs):
     """Load data from file, URL, or plugin.
 
     Parameters
@@ -104,3 +104,27 @@ def load_data(name, **kwargs):
 
     # Could not find dataset, return None.
     raise FileNotFoundError(f"File, URL, or dataset does not exist: '{name}'")
+
+
+def load_data(name, **kwargs):
+    """Deprecated, use asreview.load_dataset instead.
+
+    Parameters
+    ----------
+    name: str, pathlib.Path
+        File path, URL, or alias of extension dataset.
+    **kwargs:
+        Keyword arguments passed to the reader.
+
+    Returns
+    -------
+    asreview.ASReviewData:
+        Inititalized ASReview data object.
+    """
+
+    UserWarning(
+        "'load_data' is deprecated and will be removed in the future. "
+        "Use 'load_dataset' instead."
+    )
+
+    return load_dataset(name, **kwargs)

@@ -97,6 +97,8 @@ class Record:
         DOI of the record.
     url: str
         URL of the record.
+    is_prior: bool
+        Whether the record is a prior record.
     """
 
     record_id: int
@@ -105,11 +107,12 @@ class Record:
     authors: str = None
     notes: str = None
     keywords: str = None
-    included: int = None
     type_of_reference: str = None
     year: int = None
     doi: str = None
     url: str = None
+    included: int = None
+    is_prior: bool = False
 
 
 class ASReviewData:
@@ -334,26 +337,17 @@ class ASReviewData:
         except KeyError:
             self.df["included"] = labels
 
-    def prior_labels(self, state, by_index=True):
+    def is_prior(self):
         """Get the labels that are marked as 'prior'.
-
-        state: BaseState
-            Open state that contains the label information.
-        by_index: bool
-            If True, return internal indexing.
-            If False, return record_ids for indexing.
 
         Returns
         -------
         numpy.ndarray
-            Array of indices that have the 'prior' property.
+            Array of bools that have the 'prior' property.
         """
-        prior_indices = state.get_priors()["record_id"].to_list()
 
-        if by_index:
-            return np.array(prior_indices, dtype=int)
-        else:
-            return self.df.index.values[prior_indices]
+        column = self.column_spec["is_prior"]
+        return self.df[column] == 1
 
     def to_file(
         self, fp, labels=None, ranking=None, writer=None, keep_old_labels=False

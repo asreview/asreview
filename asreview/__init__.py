@@ -14,7 +14,7 @@
 
 # deprecated in __init__.py, use asreview.models.feature_extraction instead
 from asreview.data.base import ASReviewData
-from asreview.data.loader import load_data
+from asreview.data.loader import load_dataset
 from asreview.io.utils import list_readers
 from asreview.io.utils import list_writers
 from asreview.project import ASReviewProject
@@ -29,7 +29,7 @@ __version__ = get_versions()["version"]
 del get_versions
 
 __all__ = [
-    "load_data",
+    "load_dataset",
     "asreview_path",
     "ASReviewData",
     "ASReviewProject",
