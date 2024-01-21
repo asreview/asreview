@@ -88,7 +88,7 @@ def load_dataset(name, **kwargs):
 
     Returns
     -------
-    asreview.ASReviewData:
+    asreview.Dataset:
         Inititalized ASReview data object.
     """
 
@@ -118,7 +118,7 @@ def load_data(name, **kwargs):
 
     Returns
     -------
-    asreview.ASReviewData:
+    asreview.Dataset:
         Inititalized ASReview data object.
     """
 

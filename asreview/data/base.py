@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["ASReviewData", "Record"]
+__all__ = ["Dataset", "Record"]
 
 import logging
 from dataclasses import dataclass
@@ -115,8 +115,8 @@ class Record:
     is_prior: bool = False
 
 
-class ASReviewData:
-    """Data object to the dataset with texts, labels, DOIs etc.
+class Dataset:
+    """Dataset object to the dataset with texts, labels, DOIs etc.
 
     Arguments
     ---------
@@ -525,4 +525,4 @@ class ASReviewData:
         if inplace:
             self.df = df
             return
-        return ASReviewData(df, self.column_spec)
+        return Dataset(df, self.column_spec)

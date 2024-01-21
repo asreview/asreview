@@ -21,7 +21,7 @@ Read data
    :toctree: generated/
 
    load_data
-   ASReviewData
+   Dataset
 
 
 Statistics

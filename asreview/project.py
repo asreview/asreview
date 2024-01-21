@@ -408,7 +408,7 @@ class ASReviewProject:
         raise CacheDataError()
 
     def read_data(self, use_cache=True, save_cache=True):
-        """Get ASReviewData object from file.
+        """Get Dataset object from file.
 
         Parameters
         ----------
@@ -419,7 +419,7 @@ class ASReviewProject:
 
         Returns
         -------
-        ASReviewData:
+        Dataset:
             The data object for internal use in ASReview.
 
         """

@@ -22,7 +22,7 @@ from urllib.request import urlopen
 import pandas as pd
 import rispy
 
-from asreview.data.base import ASReviewData
+from asreview.data.base import Dataset
 from asreview.utils import is_url
 
 ASREVIEW_PARSE_RE = r"\bASReview_\w+\b"
@@ -206,10 +206,10 @@ class RISReader:
             df["notes"] = df["notes"].apply(_remove_asreview_data_from_notes)
 
             # Return the standardised dataframe with label and notes separated
-            return ASReviewData(df)
+            return Dataset(df)
         else:
             # Return the standardised dataframe
-            return ASReviewData(df)
+            return Dataset(df)
 
 
 class RISWriter:

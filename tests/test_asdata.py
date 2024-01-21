@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 
-from asreview import ASReviewData
+import asreview as asr
 from asreview import load_dataset
 
 
@@ -47,7 +47,7 @@ def test_asdata_init():
     # data via pandas
     df = pd.read_csv(data_fp)
     df.index.name = "record_id"
-    as_data_init = ASReviewData(df)
+    as_data_init = asr.Dataset(df)
 
     # data via classmethod
     as_data = load_dataset(data_fp)

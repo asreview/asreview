@@ -55,7 +55,7 @@ class Simulate:
 
     Arguments
     ---------
-    as_data: asreview.ASReviewData
+    as_data: asreview.Dataset
         The data object which contains the text, labels, etc.
     model: BaseModel
         Initialized model to fit the data during active learning.
