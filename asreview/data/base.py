@@ -222,7 +222,7 @@ class Dataset:
 
         records = [
             Record(
-                record_id=self.df.index.values[j],
+                record_id=int(self.df.index.values[j]),
                 **self.df.rename(column_spec_inv, axis=1)[self.column_spec.keys()]
                 .iloc[j]
                 .replace(np.nan, None)
