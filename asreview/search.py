@@ -18,6 +18,7 @@ import re
 from difflib import SequenceMatcher
 
 import numpy as np
+import pandas as pd
 
 from asreview.utils import format_to_str
 
@@ -40,32 +41,7 @@ def _create_inverted_index(match_strings):
     return index
 
 
-def _match_best(keywords, index, match_strings, threshold=0.9):
-    n_match = len(match_strings)
-    word = re.compile(r"['\w]+")
-    key_list = word.findall(keywords.lower())
-
-    ratios = np.zeros(n_match)
-    for key in key_list:
-        cur_ratios = {}
-        s = SequenceMatcher()
-        s.set_seq2(key)
-        for token in index:
-            s.set_seq1(token)
-            ratio = s.quick_ratio()
-            if ratio < threshold:
-                continue
-            for idx in index[token]:
-                if ratio > cur_ratios.get(idx, 0.0):
-                    cur_ratios[idx] = ratio
-
-        for idx, rat in cur_ratios.items():
-            ratios[idx] += rat
-
-    return (100 * ratios) / len(key_list)
-
-
-def _get_fuzzy_scores(keywords, match_strings):
+def _get_fuzzy_scores(keywords, match_strings, threshold=0.9):
     """Rank a list of strings, depending on a set of keywords.
 
     Arguments
@@ -81,35 +57,29 @@ def _get_fuzzy_scores(keywords, match_strings):
         Array of scores ordered in the same way as the str_list input.
     """
     inv_index = _create_inverted_index(match_strings)
-    return _match_best(keywords, inv_index, match_strings)
 
+    n_match = len(match_strings)
+    word = re.compile(r"['\w]+")
+    key_list = word.findall(keywords.lower())
 
-def _match_string(as_data):
-    match_str = np.full(len(as_data), "x", dtype=object)
+    ratios = np.zeros(n_match)
+    for key in key_list:
+        cur_ratios = {}
+        s = SequenceMatcher()
+        s.set_seq2(key)
+        for token in inv_index:
+            s.set_seq1(token)
+            ratio = s.quick_ratio()
+            if ratio < threshold:
+                continue
+            for idx in inv_index[token]:
+                if ratio > cur_ratios.get(idx, 0.0):
+                    cur_ratios[idx] = ratio
 
-    all_titles = as_data.title
-    all_authors = as_data.authors
-    all_keywords = as_data.keywords
+        for idx, rat in cur_ratios.items():
+            ratios[idx] += rat
 
-    if all_titles is None:
-        raise SearchError("Cannot search dataset without titles.")
-
-    for i in range(len(as_data)):
-        match_list = []
-
-        # add titles
-        match_list.append(all_titles[i])
-
-        # add authors if present
-        if all_authors is not None:
-            match_list.append(format_to_str(all_authors[i]))
-
-        # add keywords if present
-        if all_keywords is not None:
-            match_list.append(format_to_str(all_keywords[i]))
-
-        match_str[i,] = " ".join(match_list)
-    return match_str
+    return (100 * ratios) / len(key_list)
 
 
 def fuzzy_find(
@@ -144,7 +114,17 @@ def fuzzy_find(
     list
         Sorted list of indexes that match best the keywords.
     """
-    new_ranking = _get_fuzzy_scores(keywords, _match_string(as_data))
+
+    if as_data.title is None:
+        raise SearchError("Cannot search dataset without titles.")
+
+    all_strings = (
+        pd.Series(as_data.title).fillna("")
+        + pd.Series(as_data.authors).map(format_to_str)
+        + pd.Series(as_data.keywords).map(format_to_str)
+    ).values
+
+    new_ranking = _get_fuzzy_scores(keywords, all_strings)
     sorted_idx = np.argsort(-new_ranking)
     best_idx = []
     if exclude is None:

@@ -200,14 +200,12 @@ def get_data_home(data_home=None):
 
 def format_to_str(obj):
     """Create string from object, concatenate if list."""
-    if obj is None:
-        return ""
-    res = ""
     if isinstance(obj, list):
-        res = " ".join(obj)
+        return " ".join(obj)
+    elif obj is None or np.isnan(obj):
+        return ""
     else:
-        res = obj
-    return res
+        return str(obj)
 
 
 def pretty_format(result):
