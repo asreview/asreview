@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["SearchError", "fuzzy_find"]
+__all__ = ["fuzzy_find"]
 
 import re
 from difflib import SequenceMatcher
@@ -21,10 +21,6 @@ import numpy as np
 import pandas as pd
 
 from asreview.utils import format_to_str
-
-
-class SearchError(Exception):
-    pass
 
 
 def _create_inverted_index(match_strings):
@@ -116,7 +112,7 @@ def fuzzy_find(
     """
 
     if as_data.title is None:
-        raise SearchError("Cannot search dataset without titles.")
+        raise ValueError("Cannot search dataset without titles.")
 
     all_strings = pd.Series(as_data.title).fillna("")
 

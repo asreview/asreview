@@ -79,7 +79,7 @@ const PriorUnlabeled = (props) => {
                   return {
                     ...record,
                     included:
-                      record.id === variables.record_id
+                      record.record_id === variables.record_id
                         ? variables.label
                         : record.included,
                   };
@@ -106,7 +106,7 @@ const PriorUnlabeled = (props) => {
                   return {
                     ...record,
                     included:
-                      record.id === variables.record_id
+                      record.record_id === variables.record_id
                         ? variables.label
                         : record.included,
                   };
@@ -155,14 +155,14 @@ const PriorUnlabeled = (props) => {
               {props.record.title ? props.record.title : "No title available"}
             </Typography>
             <TruncateMarkup
-              lines={props.record.id === recordReadMore ? Infinity : 6}
+              lines={props.record.record_id === recordReadMore ? Infinity : 6}
               ellipsis={
                 <span>
                   ...{" "}
                   <Link
                     component="button"
                     underline="none"
-                    onClick={() => setRecordReadMore(props.record.id)}
+                    onClick={() => setRecordReadMore(props.record.record_id)}
                   >
                     read more
                   </Link>
@@ -187,7 +187,7 @@ const PriorUnlabeled = (props) => {
                 onClick={() => {
                   mutate({
                     project_id: props.project_id,
-                    record_id: props.record.id,
+                    record_id: props.record.record_id,
                     label: 1,
                     note: "",
                     initial: true,
@@ -203,7 +203,7 @@ const PriorUnlabeled = (props) => {
                 onClick={() => {
                   mutate({
                     project_id: props.project_id,
-                    record_id: props.record.id,
+                    record_id: props.record.record_id,
                     label: 0,
                     note: "",
                     initial: true,

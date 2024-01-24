@@ -32,7 +32,7 @@ const RecordCardNote = (props) => {
     if (props.note?.data !== prevNote) {
       props.mutate({
         project_id: project_id,
-        record_id: props.record.id,
+        record_id: props.record.record_id,
         label: props.record.included,
         note: props.note?.data,
         initial: false,
