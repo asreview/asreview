@@ -278,7 +278,7 @@ def label_random_project_data_record(
     _, data = get_prior_random_project_data(client, project)
     # select a specific record
     record = random.choice(data["result"])
-    record_id = record["id"]
+    record_id = record["record_id"]
     return label_project_record(client, project, record_id, label, note="")
 
 
