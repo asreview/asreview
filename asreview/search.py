@@ -120,7 +120,9 @@ def fuzzy_find(
 
     all_strings = (
         pd.Series(as_data.title).fillna("")
+        + " "
         + pd.Series(as_data.authors).map(format_to_str)
+        + " "
         + pd.Series(as_data.keywords).map(format_to_str)
     ).values
 

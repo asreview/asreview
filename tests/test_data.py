@@ -16,7 +16,7 @@ def exists(url):
 
 
 @mark.parametrize(
-    "keywords,paper_id",
+    "keywords,record_id",
     [
         ("bronchogenic duplication cyst", 0),
         ("diagnositc accuracy microscopy female priority", 1),
@@ -29,11 +29,11 @@ def exists(url):
         ("Cancer case computer contrast pancreatomy Yamada", 2),
     ],
 )
-def test_fuzzy_finder(keywords, paper_id):
+def test_fuzzy_finder(keywords, record_id):
     fp = Path("tests", "demo_data", "embase.csv")
     as_data = load_dataset(fp)
 
-    assert fuzzy_find(as_data, keywords)[0] == paper_id
+    assert fuzzy_find(as_data, keywords)[0] == record_id
 
 
 @mark.parametrize(

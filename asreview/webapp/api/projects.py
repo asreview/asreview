@@ -702,7 +702,7 @@ def api_random_prior_papers(project):  # noqa: F401
     for r in as_data.record(rand_pool):
         payload["result"].append(
             {
-                "id": int(r.record_id),
+                "id": r.record_id,
                 "title": r.title,
                 "abstract": r.abstract,
                 "authors": r.authors,
