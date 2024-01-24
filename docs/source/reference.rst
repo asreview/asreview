@@ -14,8 +14,8 @@ Data and datasets
 
 .. currentmodule:: asreview
 
-Read data
----------
+Dataset object
+--------------
 
 .. autosummary::
    :toctree: generated/
@@ -23,6 +23,25 @@ Read data
    load_dataset
    Dataset
 
+
+Readers and writers
+-------------------
+
+Functions and classes for file reading and writing.
+
+.. autosummary::
+   :toctree: generated/
+
+   data.list_readers
+   data.list_writers
+
+   data.CSVReader
+   data.CSVWriter
+   data.ExcelReader
+   data.ExcelWriter
+   data.RISReader
+   data.RISWriter
+   data.TSVWriter
 
 Statistics
 ----------
@@ -301,37 +320,6 @@ Utils
    project.is_project
    project.is_v0_project
 
-
-Readers and writers
-===================
-
-This module contains the input and output functionality. You can install them as extensions.
-
-
-.. currentmodule:: asreview
-
-.. autosummary::
-   :toctree: generated/
-
-   asreview.list_readers
-   asreview.list_writers
-
-.. automodule:: asreview.io
-    :no-members:
-    :no-inherited-members:
-
-.. currentmodule:: asreview
-
-.. autosummary::
-   :toctree: generated/
-
-   io.CSVReader
-   io.CSVWriter
-   io.ExcelReader
-   io.ExcelWriter
-   io.RISReader
-   io.RISWriter
-   io.TSVWriter
 
 Misc
 ====
