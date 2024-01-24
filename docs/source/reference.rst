@@ -20,7 +20,7 @@ Read data
 .. autosummary::
    :toctree: generated/
 
-   load_data
+   load_dataset
    Dataset
 
 
