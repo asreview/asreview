@@ -34,7 +34,7 @@ from urllib.request import urlretrieve
 
 import synergy_dataset as sd
 
-from asreview.data import CSVReader
+from asreview.data.tabular import CSVReader
 from asreview.utils import _entry_points
 from asreview.utils import _get_filename_from_url
 from asreview.utils import is_iterable
