@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["list_readers", "list_writers", "get_reader_class", "get_writer_class"]
+__all__ = ["list_readers", "list_writers"]
 
 
 from asreview.utils import _entry_points
@@ -38,36 +38,3 @@ def list_writers():
         Classes of available dataset writers in alphabetical order.
     """
     return [e.load() for e in _entry_points(group="asreview.writers")]
-
-
-def get_reader_class(name):
-    """Get class of dataset reader from string.
-
-    Arguments
-    ---------
-    name: str
-        Name of the dataset reader, e.g. '.csv', '.tsv' or '.xlsx'.
-
-    Returns
-    -------
-    class:
-        Class corresponding to the name.
-    """
-    return _entry_points(group="asreview.readers")[name].load()
-
-
-def get_writer_class(name):
-    """Get class of dataset writer from string.
-
-    Arguments
-    ---------
-    name: str
-        Name of the dataset writer, e.g. '.csv', '.tsv' or '.xlsx'.
-
-    Returns
-    -------
-    class:
-        Class corresponding to the name.
-    """
-
-    return _entry_points(group="asreview.writers")[name].load()

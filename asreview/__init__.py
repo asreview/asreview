@@ -15,8 +15,8 @@
 # deprecated in __init__.py, use asreview.models.feature_extraction instead
 from asreview.data.base import Dataset
 from asreview.data.loader import load_dataset
-from asreview.io.utils import list_readers
-from asreview.io.utils import list_writers
+from asreview.data.utils import list_readers
+from asreview.data.utils import list_writers
 from asreview.project import ASReviewProject
 from asreview.project import open_state
 from asreview.utils import asreview_path

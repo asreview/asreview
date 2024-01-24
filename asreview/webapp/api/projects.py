@@ -43,11 +43,11 @@ from werkzeug.utils import secure_filename
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
+from asreview.data import list_readers
+from asreview.data import list_writers
 from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
-from asreview.io import list_readers
-from asreview.io import list_writers
 from asreview.models.balance import get_balance_model
 from asreview.models.balance import list_balance_strategies
 from asreview.models.classifiers import get_classifier
