@@ -118,15 +118,15 @@ def fuzzy_find(
     if as_data.title is None:
         raise SearchError("Cannot search dataset without titles.")
 
-    all_strings = (
-        pd.Series(as_data.title).fillna("")
-        + " "
-        + pd.Series(as_data.authors).map(format_to_str)
-        + " "
-        + pd.Series(as_data.keywords).map(format_to_str)
-    ).values
+    all_strings = pd.Series(as_data.title).fillna("")
 
-    new_ranking = _get_fuzzy_scores(keywords, all_strings)
+    if as_data.authors is not None:
+        all_strings += " " + pd.Series(as_data.authors).map(format_to_str).fillna("")
+
+    if as_data.keywords is not None:
+        all_strings += " " + pd.Series(as_data.keywords).map(format_to_str).fillna("")
+
+    new_ranking = _get_fuzzy_scores(keywords, all_strings.values)
     sorted_idx = np.argsort(-new_ranking)
     best_idx = []
     if exclude is None:

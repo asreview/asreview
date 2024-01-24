@@ -79,7 +79,7 @@ const PriorUnlabeled = (props) => {
                   return {
                     ...record,
                     included:
-                      record.id === variables.doc_id
+                      record.id === variables.record_id
                         ? variables.label
                         : record.included,
                   };
@@ -106,7 +106,7 @@ const PriorUnlabeled = (props) => {
                   return {
                     ...record,
                     included:
-                      record.id === variables.doc_id
+                      record.id === variables.record_id
                         ? variables.label
                         : record.included,
                   };
@@ -187,7 +187,7 @@ const PriorUnlabeled = (props) => {
                 onClick={() => {
                   mutate({
                     project_id: props.project_id,
-                    doc_id: props.record.id,
+                    record_id: props.record.id,
                     label: 1,
                     note: "",
                     initial: true,
@@ -203,7 +203,7 @@ const PriorUnlabeled = (props) => {
                 onClick={() => {
                   mutate({
                     project_id: props.project_id,
-                    doc_id: props.record.id,
+                    record_id: props.record.id,
                     label: 0,
                     note: "",
                     initial: true,

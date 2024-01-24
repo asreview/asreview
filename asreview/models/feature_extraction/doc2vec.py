@@ -42,8 +42,8 @@ def _train_model(corpus, *args, **kwargs):
 
 def _transform_text(model, corpus):
     X = []
-    for doc_id in range(len(corpus)):
-        doc_vec = model.infer_vector(corpus[doc_id].words)
+    for record_id in range(len(corpus)):
+        doc_vec = model.infer_vector(corpus[record_id].words)
         X.append(doc_vec)
     return np.array(X)
 

@@ -1280,10 +1280,10 @@ def api_get_progress_recall(project):
     return jsonify(payload)
 
 
-@bp.route("/projects/<project_id>/record/<doc_id>", methods=["POST", "PUT"])
+@bp.route("/projects/<project_id>/record/<record_id>", methods=["POST", "PUT"])
 @login_required
 @project_authorization
-def api_classify_instance(project, doc_id):  # noqa: F401
+def api_classify_instance(project, record_id):  # noqa: F401
     """Label item
 
     This request handles the document identifier and the corresponding label.
@@ -1293,7 +1293,7 @@ def api_classify_instance(project, doc_id):  # noqa: F401
     in the background.
     """
     # return the combination of document_id and label.
-    record_id = int(request.form.get("doc_id"))
+    record_id = int(request.form.get("record_id"))
 
     label = int(request.form.get("label"))
 
@@ -1373,6 +1373,7 @@ def api_get_document(project):  # noqa: F401
 
         as_data = project.read_data()
         record = as_data.record(int(new_instance))
+        print(record)
 
         item = {}
         item["title"] = record.title
@@ -1384,7 +1385,7 @@ def api_get_document(project):  # noqa: F401
         # return the debug label
         item["label_from_dataset"] = record.included
 
-        item["doc_id"] = new_instance
+        item["record_id"] = new_instance
         pool_empty = False
     else:
         # end of pool
