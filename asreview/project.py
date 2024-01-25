@@ -16,7 +16,6 @@ __all__ = [
     "ProjectError",
     "ProjectExistsError",
     "ProjectNotFoundError",
-    "open_state",
     "Project",
     "get_project_path",
     "project_from_id",
@@ -33,7 +32,6 @@ import shutil
 import tempfile
 import time
 import zipfile
-from contextlib import contextmanager
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
@@ -56,7 +54,6 @@ from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.config import PROJECT_MODES
 from asreview.config import SCHEMA
 from asreview.exceptions import CacheDataError
-from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
 from asreview.utils import asreview_path
 
@@ -137,66 +134,6 @@ def is_v0_project(project_path):
     """Check if a project file is of a ASReview version 0 project."""
 
     return not Path(project_path, "reviews").exists()
-
-
-@contextmanager
-def open_state(asreview_obj, review_id=None, read_only=True):
-    """Initialize a state class instance from a project folder.
-
-    Arguments
-    ---------
-    asreview_obj: str/pathlike/Project
-
-        Filepath to the (unzipped) project folder or Project object.
-    review_id: str
-        Identifier of the review from which the state will be instantiated.
-        If none is given, the first review in the reviews folder will be taken.
-    read_only: bool
-        Whether to open in read_only mode.
-
-    Returns
-    -------
-    SQLiteState
-    """
-
-    # Unzip the ASReview data if needed.
-    if isinstance(asreview_obj, Project):
-        project = asreview_obj
-    elif zipfile.is_zipfile(asreview_obj) and Path(asreview_obj).suffix == ".asreview":
-        if not read_only:
-            raise ValueError("ASReview files do not support not read only files.")
-
-        # work from a temp dir
-        tmpdir = tempfile.TemporaryDirectory()
-        project = Project.load(asreview_obj, tmpdir.name)
-    else:
-        project = Project(asreview_obj)
-
-    # init state class
-    state = SQLiteState(read_only=read_only)
-
-    try:
-        if len(project.reviews) > 0:
-            if review_id is None:
-                review_id = project.config["reviews"][0]["id"]
-            logging.debug(f"Opening review {review_id}.")
-            state._restore(project.project_path, review_id)
-        elif len(project.reviews) == 0 and not read_only:
-            review_id = uuid4().hex
-            logging.debug(f"Create new review (state) with id {review_id}.")
-            state._create_new_state_file(project.project_path, review_id)
-            project.add_review(review_id)
-        else:
-            raise StateNotFoundError(
-                "State file does not exist, and in read only mode."
-            )
-        yield state
-    finally:
-        try:
-            state.close()
-        except AttributeError:
-            # file seems to be closed, do nothing
-            pass
 
 
 class Project:
@@ -348,7 +285,13 @@ class Project:
 
         self.update_config(dataset_path=file_name, name=file_name.rsplit(".", 1)[0])
 
-        with open_state(self.project_path, read_only=False) as state:
+        state = SQLiteState(read_only=False)
+
+        try:
+            review_id = uuid4().hex
+            state._create_new_state_file(self.project_path, review_id)
+            self.add_review(review_id)
+
             # save the record ids in the state file
             state.add_record_table(as_data.record_ids)
 
@@ -368,6 +311,11 @@ class Project:
                     notes=[None for _ in labeled_record_ids],
                     prior=True,
                 )
+        finally:
+            try:
+                state.close()
+            except AttributeError:
+                pass
 
     def remove_dataset(self):
         """Remove dataset from project."""

@@ -61,9 +61,9 @@ from asreview.models.query import list_query_strategies
 from asreview.project import ProjectNotFoundError
 from asreview.project import get_project_path
 from asreview.project import is_v0_project
-from asreview.project import open_state
 from asreview.search import fuzzy_find
 from asreview.settings import ASReviewSettings
+from asreview.state.contextmanager import open_state
 from asreview.state.custom_metadata_mapper import extract_tags
 from asreview.state.custom_metadata_mapper import get_tag_composite_id
 from asreview.state.errors import StateError
