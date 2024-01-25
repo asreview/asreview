@@ -148,10 +148,7 @@ Classes
 
    feature_extraction.base.BaseFeatureExtraction
    feature_extraction.Tfidf
-   feature_extraction.Doc2Vec
-   feature_extraction.EmbeddingIdf
-   feature_extraction.EmbeddingLSTM
-   feature_extraction.SBERT
+
 
 Functions
 
@@ -183,7 +180,6 @@ Classes
    classifiers.RandomForestClassifier
    classifiers.SVMClassifier
    classifiers.LogisticClassifier
-   classifiers.NN2LayerClassifier
 
 Functions
 

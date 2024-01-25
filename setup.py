@@ -70,9 +70,6 @@ REQUIRES = [
 
 
 DEPS = {
-    "sbert": ["sentence_transformers"],
-    "doc2vec": ["gensim"],
-    "tensorflow": ["tensorflow~=2.0"],
     "dev": ["ruff", "check-manifest"],
     "test": ["coverage", "pytest", "pytest-random-order", "pytest-selenium"],
     "docs": [
@@ -84,8 +81,6 @@ DEPS = {
         "nbsphinx",
     ],
 }
-DEPS["all"] = DEPS["sbert"] + DEPS["doc2vec"]
-DEPS["all"] += DEPS["tensorflow"]
 
 
 class CompileAssets(Command):
