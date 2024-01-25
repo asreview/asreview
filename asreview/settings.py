@@ -24,7 +24,6 @@ from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
 from asreview.types import type_n_queries
-from asreview.utils import pretty_format
 
 SETTINGS_TYPE_DICT = {
     "model": str,
@@ -70,6 +69,15 @@ def _convert_types(par_defaults, param):
                 f"Parameter {par} does not have a default.\n"
                 f"Defaults: {par_defaults}."
             )
+
+
+def _pretty_format(result):
+    longest_key = max([len(key) for key in result])
+    result_str = ""
+    for key, value in result.items():
+        temp_str = f"{{key: <{longest_key}}}: {{value}}\n"
+        result_str += temp_str.format(key=key, value=value)
+    return result_str
 
 
 class ASReviewSettings:
@@ -128,7 +136,7 @@ class ASReviewSettings:
         self.feature_param = feature_param
 
     def __str__(self):
-        return pretty_format(self.to_dict())
+        return _pretty_format(self.to_dict())
 
     def __setattr__(self, name, value):
         try:
