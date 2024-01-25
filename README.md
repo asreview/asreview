@@ -28,13 +28,13 @@ decision-making in any discipline or industry.
 
 ASReview software implements three different modes:
 
-- **Oracle** :crystal_ball: Screen textual data in
+- **Oracle** Screen textual data in
   interaction with the active learning model. The reviewer is the 'oracle',
   making the labeling decisions.
-- **Exploration** :triangular_ruler: Explore or
+- **Exploration** Explore or
   demonstrate ASReview LAB with a completely labeled dataset. This mode is
   suitable for teaching purposes.
-- **Simulation** :chart_with_upwards_trend: Evaluate
+- **Simulation** Evaluate
   the performance of active learning models on fully labeled data. Simulations
   can be run in ASReview LAB or via the command line interface with more
   advanced options.
