@@ -14,14 +14,15 @@
 
 __all__ = ["RISReader", "RISWriter"]
 
+import copy
 import io
 import re
 from urllib.request import urlopen
 
-import pandas
+import pandas as pd
 import rispy
 
-from asreview.io.utils import _standardize_dataframe
+from asreview.data.base import Dataset
 from asreview.utils import is_url
 
 ASREVIEW_PARSE_RE = r"\bASReview_\w+\b"
@@ -158,7 +159,7 @@ class RISReader:
 
         Returns
         -------
-        pandas.DataFrame:
+        pd.DataFrame:
             Dataframe with entries.
 
         Raises
@@ -185,7 +186,7 @@ class RISReader:
             raise ValueError("Cannot find proper encoding for data file")
 
         # Turn the entries dictionary into a Pandas dataframe
-        df = pandas.DataFrame(entries)
+        df = pd.DataFrame(entries)
 
         # Check if "notes" column is present
         if "notes" in df:
@@ -193,10 +194,10 @@ class RISReader:
             df["notes"] = df["notes"].apply(cls._strip_zotero_p_tags)
 
             # strip ASReview data from notes
-            df = pandas.concat(
+            df = pd.concat(
                 [
                     df,
-                    pandas.DataFrame(
+                    pd.DataFrame(
                         df["notes"].apply(_parse_asreview_data_from_notes).tolist(),
                     ),
                 ],
@@ -205,10 +206,10 @@ class RISReader:
             df["notes"] = df["notes"].apply(_remove_asreview_data_from_notes)
 
             # Return the standardised dataframe with label and notes separated
-            return _standardize_dataframe(df)
+            return Dataset(df)
         else:
             # Return the standardised dataframe
-            return _standardize_dataframe(df)
+            return Dataset(df)
 
 
 class RISWriter:
@@ -220,21 +221,15 @@ class RISWriter:
     write_format = ".ris"
 
     @classmethod
-    def write_data(cls, df, fp, labels=None, ranking=None):
+    def write_data(cls, df, fp):
         """Export dataset.
 
         Arguments
         ---------
-        df: pandas.Dataframe
+        df: pd.Dataframe
             Dataframe of all available record data.
         fp: str, pathlib.Path
             File path to the RIS file, if exists.
-        labels: list, numpy.ndarray
-            Current labels will be overwritten by these labels
-            (including unlabelled). No effect if labels is None.
-        ranking: list
-            Reorder the dataframe according to these (internal) indices.
-            Default ordering if ranking is None.
 
         Returns
         -------
@@ -243,7 +238,7 @@ class RISWriter:
         """
 
         # Turn pandas DataFrame into records (list of dictionaries) for rispy
-        records = df.to_dict("records")
+        records = copy.deepcopy(df.to_dict("records"))
 
         # Create an array for storing modified records
         records_new = []
@@ -252,19 +247,12 @@ class RISWriter:
         for rec in records:
 
             def _notnull(v):
-                if isinstance(v, list):
-                    return False
-                return pandas.notnull(v)
+                if isinstance(v, list) and v:
+                    return True
+                return pd.notnull(v)
 
             # Remove all nan values
             rec_copy = {k: v for k, v in rec.items() if _notnull(v)}
-
-            for m in ["authors", "keywords", "notes"]:  # AU, KW, N1
-                # Check the "authors" - AU
-                try:
-                    rec_copy[m] = eval(rec_copy[m])
-                except Exception:
-                    rec_copy[m] = []
 
             if "included" not in rec_copy:
                 rec_copy["included"] = -1
@@ -272,9 +260,11 @@ class RISWriter:
             # write the notes with ASReview data
             for k, v in ASREVIEW_PARSE_DICT.items():
                 for k_df, v_df in v.items():
-                    if k_df in rec_copy:
-                        if rec_copy[k_df] == v_df:
+                    if k_df in rec_copy and rec_copy[k_df] == v_df:
+                        if "notes" in rec_copy:
                             rec_copy["notes"].insert(0, k)
+                        else:
+                            rec_copy["notes"] = [k]
 
             # Append the deepcopied and updated record to a new array
             records_new.append(rec_copy)

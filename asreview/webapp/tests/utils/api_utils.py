@@ -278,21 +278,21 @@ def label_random_project_data_record(
     _, data = get_prior_random_project_data(client, project)
     # select a specific record
     record = random.choice(data["result"])
-    doc_id = record["id"]
-    return label_project_record(client, project, doc_id, label, note="")
+    record_id = record["record_id"]
+    return label_project_record(client, project, record_id, label, note="")
 
 
 def label_project_record(
     client: FlaskClient,
     project: Union[Project, ASReviewProject],
-    doc_id: int,
+    record_id: int,
     label: str,
     prior: int = 1,
     note: str = "",
 ):
     response = client.post(
-        f"/api/projects/{get_project_id(project)}/record/{doc_id}",
-        data={"doc_id": doc_id, "label": label, "is_prior": prior, "note": note},
+        f"/api/projects/{get_project_id(project)}/record/{record_id}",
+        data={"record_id": record_id, "label": label, "is_prior": prior, "note": note},
     )
     return process_response(response)
 
@@ -300,14 +300,14 @@ def label_project_record(
 def update_label_project_record(
     client: FlaskClient,
     project: Union[Project, ASReviewProject],
-    doc_id: int,
+    record_id: int,
     label: str,
     prior: int = 1,
     note: str = "",
 ):
     response = client.put(
-        f"/api/projects/{get_project_id(project)}/record/{doc_id}",
-        data={"doc_id": doc_id, "label": label, "is_prior": prior, "note": note},
+        f"/api/projects/{get_project_id(project)}/record/{record_id}",
+        data={"record_id": record_id, "label": label, "is_prior": prior, "note": note},
     )
     return process_response(response)
 

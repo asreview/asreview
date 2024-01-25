@@ -4,8 +4,8 @@ from pathlib import Path
 import pandas as pd
 from pytest import mark
 
-import asreview
-from asreview.data.base import ASReviewData
+import asreview as asr
+from asreview import load_dataset
 from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
 from asreview.search import fuzzy_find
@@ -16,7 +16,7 @@ def exists(url):
 
 
 @mark.parametrize(
-    "keywords,paper_id",
+    "keywords,record_id",
     [
         ("bronchogenic duplication cyst", 0),
         ("diagnositc accuracy microscopy female priority", 1),
@@ -29,11 +29,11 @@ def exists(url):
         ("Cancer case computer contrast pancreatomy Yamada", 2),
     ],
 )
-def test_fuzzy_finder(keywords, paper_id):
+def test_fuzzy_finder(keywords, record_id):
     fp = Path("tests", "demo_data", "embase.csv")
-    as_data = asreview.ASReviewData.from_file(fp)
+    as_data = load_dataset(fp)
 
-    assert fuzzy_find(as_data, keywords)[0] == paper_id
+    assert fuzzy_find(as_data, keywords)[0] == record_id
 
 
 @mark.parametrize(
@@ -53,13 +53,13 @@ def test_datasets(data_name):
 
 
 def test_duplicate_count():
-    d = ASReviewData.from_file(Path("tests", "demo_data", "duplicate_records.csv"))
+    d = load_dataset(Path("tests", "demo_data", "duplicate_records.csv"))
 
     assert n_duplicates(d) == 2
 
 
 def test_deduplication():
-    d_dups = ASReviewData.from_file(Path("tests", "demo_data", "duplicate_records.csv"))
+    d_dups = load_dataset(Path("tests", "demo_data", "duplicate_records.csv"))
 
     s_dups_bool = pd.Series(
         [
@@ -83,10 +83,23 @@ def test_deduplication():
     # test whether .duplicated() provides correct boolean series for duplicates
     pd.testing.assert_series_equal(d_dups.duplicated(), s_dups_bool, check_index=False)
 
-    d_nodups = ASReviewData(
+    d_nodups = asr.Dataset(
         pd.DataFrame(
             {
-                "title": ["a", "b", "d", "e", "f", "g", "h", "i", "", "", "   ", "   "],
+                "title": [
+                    "a",
+                    "b",
+                    "d",
+                    "e",
+                    "f",
+                    "g",
+                    "h",
+                    "i",
+                    None,
+                    None,
+                    "   ",
+                    "   ",
+                ],
                 "abstract": [
                     "lorem",
                     "lorem",
@@ -96,8 +109,8 @@ def test_deduplication():
                     "lorem",
                     "lorem",
                     "lorem",
-                    "",
-                    "",
+                    None,
+                    None,
                     "   ",
                     "   ",
                 ],
@@ -134,12 +147,12 @@ def test_deduplication():
     )
 
     # test whether .drop_duplicates() drops the duplicated records correctly
-    pd.testing.assert_frame_equal(d_dups.drop_duplicates(), d_nodups.df)
+    pd.testing.assert_frame_equal(d_dups.drop_duplicates().df, d_nodups.df)
 
 
 def test_duplicated():
-    # Create an instance of ASReviewData
-    instance = ASReviewData(
+    # Create an instance of Dataset
+    instance = asr.Dataset(
         pd.DataFrame(
             {
                 "doi": [

@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 from scipy.sparse import csr_matrix
 
-from asreview import ASReviewData
+from asreview import load_dataset
 from asreview.project import ASReviewProject
 from asreview.project import ProjectExistsError
 from asreview.project import open_state
@@ -352,7 +352,7 @@ def test_get_record_table():
 
 def test_record_table(tmpdir):
     data_fp = Path("tests", "demo_data", "record_id.csv")
-    as_data = ASReviewData.from_file(data_fp)
+    as_data = load_dataset(data_fp)
 
     project_path = Path(tmpdir, "test.asreview")
     ASReviewProject.create(project_path)

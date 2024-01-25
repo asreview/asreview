@@ -1,11 +1,13 @@
 ﻿TY  - GEN
 TI  - Record which is labeled "relevant" by the researcher using ASReview.
 N1  - ASReview_relevant
+N1  - ASReview_prior
 ER  -
 
 TY  - GEN
 TI  - Record which is labeled "irrelevant" by the researcher using ASReview.
 N1  - ASReview_irrelevant
+N1  - ASReview_prior
 ER  -
 
 TY  - GEN

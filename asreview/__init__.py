@@ -13,10 +13,10 @@
 # limitations under the License.
 
 # deprecated in __init__.py, use asreview.models.feature_extraction instead
-from asreview.data.base import ASReviewData
-from asreview.data.base import load_data
-from asreview.io.utils import list_readers
-from asreview.io.utils import list_writers
+from asreview.data.base import Dataset
+from asreview.data.loader import load_dataset
+from asreview.data.utils import list_readers
+from asreview.data.utils import list_writers
 from asreview.project import ASReviewProject
 from asreview.project import open_state
 from asreview.utils import asreview_path
@@ -29,9 +29,9 @@ __version__ = get_versions()["version"]
 del get_versions
 
 __all__ = [
-    "load_data",
+    "load_dataset",
     "asreview_path",
-    "ASReviewData",
+    "Dataset",
     "ASReviewProject",
     "get_data_home",
     "list_readers",

@@ -611,7 +611,7 @@ def test_retrieve_document_for_review(setup):
     assert isinstance(data, dict)
     assert not data["pool_empty"]
     assert isinstance(data["result"], dict)
-    assert isinstance(data["result"]["doc_id"], int)
+    assert isinstance(data["result"]["record_id"], int)
 
 
 # Test label a document after the model has been started
@@ -622,10 +622,10 @@ def test_label_a_document_with_running_model(setup):
     # get a document
     _, data = au.get_project_current_document(client, project)
     # get id
-    doc_id = data["result"]["doc_id"]
+    record_id = data["result"]["record_id"]
     # label it
     status_code, data = au.label_project_record(
-        client, project, doc_id, label=1, prior=0, note="note"
+        client, project, record_id, label=1, prior=0, note="note"
     )
     assert status_code == 200
     assert data["success"]
@@ -640,12 +640,12 @@ def test_update_label_of_document_with_running_model(setup):
     # get a document
     _, data = au.get_project_current_document(client, project)
     # get id
-    doc_id = data["result"]["doc_id"]
+    record_id = data["result"]["record_id"]
     # label it
-    au.label_project_record(client, project, doc_id, label=1, prior=0, note="note")
+    au.label_project_record(client, project, record_id, label=1, prior=0, note="note")
     # change label
     status_code, data = au.update_label_project_record(
-        client, project, doc_id, label=0, prior=0, note="changed note"
+        client, project, record_id, label=0, prior=0, note="changed note"
     )
     assert status_code == 200
     assert data["success"]

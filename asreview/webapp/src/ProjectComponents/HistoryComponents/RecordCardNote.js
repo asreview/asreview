@@ -21,10 +21,10 @@ const Root = styled("div")(({ theme }) => ({}));
 const RecordCardNote = (props) => {
   const { project_id } = useParams();
 
-  const handleClickEditNote = (prevNote, doc_id) => {
+  const handleClickEditNote = (prevNote, record_id) => {
     props.setNote({
       data: prevNote,
-      editing: doc_id,
+      editing: record_id,
     });
   };
 
@@ -32,7 +32,7 @@ const RecordCardNote = (props) => {
     if (props.note?.data !== prevNote) {
       props.mutate({
         project_id: project_id,
-        doc_id: props.record.id,
+        record_id: props.record.record_id,
         label: props.record.included,
         note: props.note?.data,
         initial: false,

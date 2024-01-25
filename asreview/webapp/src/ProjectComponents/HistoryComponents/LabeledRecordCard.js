@@ -86,11 +86,11 @@ const LabeledRecordCard = (props) => {
                     return {
                       ...value,
                       included:
-                        value.id !== variables.doc_id
+                        value.id !== variables.record_id
                           ? value.included
                           : variables.label,
                       note:
-                        value.id !== variables.doc_id
+                        value.id !== variables.record_id
                           ? value.note
                           : !variables.note
                             ? null
@@ -102,10 +102,10 @@ const LabeledRecordCard = (props) => {
             };
           },
         );
-        if (variables.doc_id === recordReadMore) {
+        if (variables.record_id === recordReadMore) {
           setRecordReadMore(null);
         }
-        if (variables.doc_id === note.editing) {
+        if (variables.record_id === note.editing) {
           setNote({
             data: null,
             editing: null,
@@ -121,7 +121,7 @@ const LabeledRecordCard = (props) => {
   const handleClickLabelConvert = (value) => {
     mutate({
       project_id: returnProjectId(),
-      doc_id: value.id,
+      record_id: value.id,
       label: value.included === 1 ? 0 : 1,
       note: !value.note ? "" : value.note,
       initial: false,
@@ -132,7 +132,7 @@ const LabeledRecordCard = (props) => {
   const handleClickRemoveLabel = (value) => {
     mutate({
       project_id: returnProjectId(),
-      doc_id: value.id,
+      record_id: value.id,
       label: -1,
       note: !value.note ? "" : value.note,
       initial: false,
@@ -140,17 +140,17 @@ const LabeledRecordCard = (props) => {
     });
   };
 
-  const handleClickAddNote = (doc_id) => {
+  const handleClickAddNote = (record_id) => {
     setNote((s) => {
       return {
         ...s,
-        editing: doc_id,
+        editing: record_id,
       };
     });
   };
 
-  const disableAddNoteButton = (doc_id) => {
-    return doc_id !== note.editing && note.editing !== null;
+  const disableAddNoteButton = (record_id) => {
+    return record_id !== note.editing && note.editing !== null;
   };
 
   // only on history page
