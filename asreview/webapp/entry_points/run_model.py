@@ -28,8 +28,8 @@ from asreview.models.balance import get_balance_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
-from asreview.project import open_state
 from asreview.simulation import Simulate
+from asreview.state.contextmanager import open_state
 
 
 def _run_model_start(project, output_error=True):

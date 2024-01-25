@@ -5,9 +5,9 @@ import pytest
 
 import asreview as asr
 from asreview.project import ProjectExistsError
-from asreview.project import open_state
 from asreview.simulation.cli import _simulate_parser
 from asreview.simulation.cli import cli_simulate
+from asreview.state.contextmanager import open_state
 
 ADVANCED_DEPS = {"tensorflow": False}
 

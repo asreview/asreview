@@ -8,9 +8,9 @@ from scipy.sparse import csr_matrix
 import asreview as asr
 from asreview import load_dataset
 from asreview.project import ProjectExistsError
-from asreview.project import open_state
 from asreview.settings import ASReviewSettings
 from asreview.state import SQLiteState
+from asreview.state.contextmanager import open_state
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import RESULTS_TABLE_COLUMNS
 
