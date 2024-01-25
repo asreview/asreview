@@ -285,8 +285,7 @@ Load, interact, and extract information from project files and states (the
    :toctree: generated/
 
 Project
-
----------------
+-------
 
 .. autosummary::
    :toctree: generated/

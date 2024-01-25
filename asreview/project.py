@@ -110,17 +110,16 @@ def project_from_id(f):
 def get_projects(project_paths=None):
     """Get the ASReview projects at the given paths.
 
-        Arguments
-        ---------
-        project_paths : list[Path], optional
-            List of paths to projects. By default all the projects in the asreview
-            folder are used, by default None
+    Arguments
+    ---------
+    project_paths : list[Path], optional
+        List of paths to projects. By default all the projects in the asreview
+        folder are used, by default None
 
-        Returns
-        -------
-        list[Project
-    ]
-            Projects at the given project paths.
+    Returns
+    -------
+    list[Project]
+        Projects at the given project paths.
     """
     if project_paths is None:
         project_paths = [path for path in asreview_path().iterdir() if path.is_dir()]
@@ -144,21 +143,20 @@ def is_v0_project(project_path):
 def open_state(asreview_obj, review_id=None, read_only=True):
     """Initialize a state class instance from a project folder.
 
-       Arguments
-       ---------
-       asreview_obj: str/pathlike/Project
+    Arguments
+    ---------
+    asreview_obj: str/pathlike/Project
 
-           Filepath to the (unzipped) project folder or Project
-    object.
-       review_id: str
-           Identifier of the review from which the state will be instantiated.
-           If none is given, the first review in the reviews folder will be taken.
-       read_only: bool
-           Whether to open in read_only mode.
+        Filepath to the (unzipped) project folder or Project object.
+    review_id: str
+        Identifier of the review from which the state will be instantiated.
+        If none is given, the first review in the reviews folder will be taken.
+    read_only: bool
+        Whether to open in read_only mode.
 
-       Returns
-       -------
-       SQLiteState
+    Returns
+    -------
+    SQLiteState
     """
 
     # Unzip the ASReview data if needed.
