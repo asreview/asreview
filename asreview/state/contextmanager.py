@@ -28,21 +28,20 @@ from asreview.state.sqlstate import SQLiteState
 def open_state(asreview_obj, review_id=None, read_only=True):
     """Initialize a state class instance from a project folder.
 
-       Arguments
-       ---------
-       asreview_obj: str/pathlike/Project
+    Arguments
+    ---------
+    asreview_obj: str/pathlike/Project
 
-           Filepath to the (unzipped) project folder or Project
-    object.
-       review_id: str
-           Identifier of the review from which the state will be instantiated.
-           If none is given, the first review in the reviews folder will be taken.
-       read_only: bool
-           Whether to open in read_only mode.
+        Filepath to the (unzipped) project folder or Project object.
+    review_id: str
+        Identifier of the review from which the state will be instantiated.
+        If none is given, the first review in the reviews folder will be taken.
+    read_only: bool
+        Whether to open in read_only mode.
 
-       Returns
-       -------
-       SQLiteState
+    Returns
+    -------
+    SQLiteState
     """
 
     # Unzip the ASReview data if needed.
