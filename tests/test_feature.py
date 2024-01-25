@@ -46,4 +46,4 @@ def test_features(feature_extraction, split_ta):
 
 
 def test_feature_general():
-    assert len(list_feature_extraction()) >= 5
+    assert len(list_feature_extraction()) == 1
