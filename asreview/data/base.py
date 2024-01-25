@@ -343,7 +343,7 @@ class Dataset:
         Returns
         -------
         numpy.ndarray
-            Array of bools that have the 'prior' property.
+            Array of booleans that have the 'prior' property.
         """
 
         column = self.column_spec["is_prior"]
