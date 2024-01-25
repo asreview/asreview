@@ -18,10 +18,8 @@ __all__ = [
     "get_random_state",
 ]
 
-import functools
 import os
 import sys
-import warnings
 from pathlib import Path
 from urllib.error import HTTPError
 from urllib.parse import urlparse
@@ -33,107 +31,6 @@ if sys.version_info >= (3, 10):
     from importlib.metadata import entry_points as _entry_points  # noqa
 else:
     from importlib_metadata import entry_points as _entry_points  # noqa
-
-
-def _unsafe_dict_update(default_dict, override_dict):
-    """
-    Using defaults and an overriding dictionary, create a new dictionary.
-    This new dictionary has the same values as the default dictionary and
-    the same types. Thus, if there are values that are in the overriding
-    dictionary, but not in the original, they will be ignored.
-
-    Arguments
-    ---------
-    default_dict: dict
-        Starting dictionary with defaults.
-    override_dict: dict
-        Dictionary with custom values (such as model parameters).
-
-    Returns
-    -------
-    dict
-        Merged dictionary.
-    """
-    new_dict = default_dict
-    for key in override_dict:
-        if key not in default_dict:
-            print(f"Warning: key {key} is being ignored.")
-
-    for key in new_dict:
-        if key in override_dict:
-            str_val = override_dict[key]
-            if isinstance(new_dict[key], bool):
-                new_dict[key] = str_val in ["True", "true", "T", "t", True]
-            else:
-                try:
-                    new_dict[key] = type(new_dict[key])(str_val)
-                except TypeError:
-                    raise TypeError(f"Error at {key}")
-    return new_dict
-
-
-def _safe_dict_update(default_dict, override_dict):
-    """
-    Using defaults and an overriding dictionary, create a new dictionary.
-    This new dictionary has the same values as the default dictionary.
-    Thus, if there are values that are in the overriding
-    dictionary, but not in the original, they will be ignored.
-    In contrast to the unsafe version, the type should be supplied in the
-    default dictionary: key: (value, type).
-
-    Arguments
-    ---------
-    default_dict: dict
-        Starting dictionary with defaults.
-    override_dict: dict
-        Dictionary with custom values (such as model parameters).
-
-    Returns
-    -------
-    dict
-        Merged dictionary.
-    """
-    new_dict = {}
-    for key in default_dict:
-        new_dict[key] = default_dict[key][0]
-
-    for key in override_dict:
-        if key not in default_dict:
-            print(f"Warning: key {key} is being ignored.")
-
-    for key in new_dict:
-        if key in override_dict:
-            str_val = override_dict[key]
-            type_val = default_dict[key][1]
-            if type_val == bool:
-                new_dict[key] = str_val in ["True", "true", "T", "t"]
-            else:
-                try:
-                    new_dict[key] = type_val(str_val)
-                except TypeError:
-                    raise TypeError(f"Error at {key}")
-    return new_dict
-
-
-def _deprecated_kwarg(kwarg_map):
-    def dec(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            new_kwargs = {}
-            for k, v in kwargs.items():
-                if k in kwarg_map:
-                    warnings.warn(
-                        f"Keyword argument '{k}' is deprecated. "
-                        "Use '{kwarg_map[k]}' instead.",
-                        DeprecationWarning,
-                        stacklevel=2,
-                    )  # noqa
-                new_kwargs[kwarg_map.get(k, k)] = v
-            return func(*args, **new_kwargs)
-
-        return wrapper
-
-    return dec
 
 
 def _get_filename_from_url(url):
@@ -209,15 +106,6 @@ def format_to_str(obj):
         return ""
     else:
         return str(obj)
-
-
-def pretty_format(result):
-    longest_key = max([len(key) for key in result])
-    result_str = ""
-    for key, value in result.items():
-        temp_str = f"{{key: <{longest_key}}}: {{value}}\n"
-        result_str += temp_str.format(key=key, value=value)
-    return result_str
 
 
 def is_iterable(i):
@@ -300,9 +188,3 @@ class SeededRandomState(np.random.RandomState):
         # you can get the seed by `random_state.get_state()[1][0]`.
         super().__init__(random_state.get_state()[1][0])
         self.seed = seed
-
-
-def _get_executable():
-    """Get the Python executable"""
-
-    return sys.executable if sys.executable else "python"

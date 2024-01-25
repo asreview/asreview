@@ -16,6 +16,7 @@ import json
 import logging
 import shutil
 import subprocess
+import sys
 import tempfile
 import time
 from dataclasses import asdict
@@ -68,7 +69,6 @@ from asreview.state.custom_metadata_mapper import get_tag_composite_id
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.utils import _entry_points
-from asreview.utils import _get_executable
 from asreview.utils import _get_filename_from_url
 from asreview.utils import asreview_path
 from asreview.webapp import DB
@@ -787,9 +787,8 @@ def api_start(project):  # noqa: F401
     """Start training of first model or simulation."""
 
     try:
-        py_exe = _get_executable()
         run_command = [
-            py_exe,
+            sys.executable if sys.executable else "python",
             "-m",
             "asreview",
             "web_run_model",
@@ -1314,7 +1313,7 @@ def api_classify_instance(project, record_id):  # noqa: F401
         # retrain model
         subprocess.Popen(
             [
-                _get_executable(),
+                sys.executable if sys.executable else "python",
                 "-m",
                 "asreview",
                 "web_run_model",
