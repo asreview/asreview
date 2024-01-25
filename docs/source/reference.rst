@@ -284,13 +284,15 @@ Load, interact, and extract information from project files and states (the
 .. autosummary::
    :toctree: generated/
 
-ASReviewProject
+Project
+
 ---------------
 
 .. autosummary::
    :toctree: generated/
 
-   ASReviewProject
+   Project
+
 
 State
 -----

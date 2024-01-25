@@ -17,7 +17,7 @@ __all__ = [
     "ProjectExistsError",
     "ProjectNotFoundError",
     "open_state",
-    "ASReviewProject",
+    "Project",
     "get_project_path",
     "project_from_id",
     "get_projects",
@@ -101,7 +101,7 @@ def project_from_id(f):
         project_path = get_project_path(project_id)
         if not is_project(project_path):
             raise ProjectNotFoundError(f"Project '{project_id}' not found")
-        project = ASReviewProject(project_path, project_id=project_id)
+        project = Project(project_path, project_id=project_id)
         return f(project, *args, **kwargs)
 
     return decorated_function
@@ -110,21 +110,22 @@ def project_from_id(f):
 def get_projects(project_paths=None):
     """Get the ASReview projects at the given paths.
 
-    Arguments
-    ---------
-    project_paths : list[Path], optional
-        List of paths to projects. By default all the projects in the asreview
-        folder are used, by default None
+        Arguments
+        ---------
+        project_paths : list[Path], optional
+            List of paths to projects. By default all the projects in the asreview
+            folder are used, by default None
 
-    Returns
-    -------
-    list[ASReviewProject]
-        Projects at the given project paths.
+        Returns
+        -------
+        list[Project
+    ]
+            Projects at the given project paths.
     """
     if project_paths is None:
         project_paths = [path for path in asreview_path().iterdir() if path.is_dir()]
 
-    return [ASReviewProject(project_path) for project_path in project_paths]
+    return [Project(project_path) for project_path in project_paths]
 
 
 def is_project(project_path):
@@ -143,23 +144,25 @@ def is_v0_project(project_path):
 def open_state(asreview_obj, review_id=None, read_only=True):
     """Initialize a state class instance from a project folder.
 
-    Arguments
-    ---------
-    asreview_obj: str/pathlike/ASReviewProject
-        Filepath to the (unzipped) project folder or ASReviewProject object.
-    review_id: str
-        Identifier of the review from which the state will be instantiated.
-        If none is given, the first review in the reviews folder will be taken.
-    read_only: bool
-        Whether to open in read_only mode.
+       Arguments
+       ---------
+       asreview_obj: str/pathlike/Project
 
-    Returns
-    -------
-    SQLiteState
+           Filepath to the (unzipped) project folder or Project
+    object.
+       review_id: str
+           Identifier of the review from which the state will be instantiated.
+           If none is given, the first review in the reviews folder will be taken.
+       read_only: bool
+           Whether to open in read_only mode.
+
+       Returns
+       -------
+       SQLiteState
     """
 
     # Unzip the ASReview data if needed.
-    if isinstance(asreview_obj, ASReviewProject):
+    if isinstance(asreview_obj, Project):
         project = asreview_obj
     elif zipfile.is_zipfile(asreview_obj) and Path(asreview_obj).suffix == ".asreview":
         if not read_only:
@@ -167,9 +170,9 @@ def open_state(asreview_obj, review_id=None, read_only=True):
 
         # work from a temp dir
         tmpdir = tempfile.TemporaryDirectory()
-        project = ASReviewProject.load(asreview_obj, tmpdir.name)
+        project = Project.load(asreview_obj, tmpdir.name)
     else:
-        project = ASReviewProject(asreview_obj)
+        project = Project(asreview_obj)
 
     # init state class
     state = SQLiteState(read_only=read_only)
@@ -198,7 +201,7 @@ def open_state(asreview_obj, review_id=None, read_only=True):
             pass
 
 
-class ASReviewProject:
+class Project:
     """Project class for ASReview project files."""
 
     def __init__(self, project_path, project_id=None):

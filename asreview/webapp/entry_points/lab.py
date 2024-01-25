@@ -22,10 +22,10 @@ from threading import Timer
 import requests
 from gevent.pywsgi import WSGIServer
 
+import asreview as asr
 from asreview import __version__
 from asreview._deprecated import DeprecateAction
 from asreview._deprecated import mark_deprecated_help_strings
-from asreview.project import ASReviewProject
 from asreview.project import get_project_path
 from asreview.project import get_projects
 from asreview.webapp.app import create_app
@@ -106,7 +106,7 @@ def lab_entry_point(argv):
     # option
     if args.clean_project is not None:
         print(f"Cleaning project file '{args.clean_project}'.")
-        ASReviewProject(get_project_path(args.clean_project)).clean_tmp_files()
+        asr.Project(get_project_path(args.clean_project)).clean_tmp_files()
         print("Done")
         return
 

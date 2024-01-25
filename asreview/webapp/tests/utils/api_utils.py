@@ -4,9 +4,9 @@ from typing import Union
 
 from flask.testing import FlaskClient
 
+import asreview as asr
 import asreview.webapp.tests.utils.crud as crud
 import asreview.webapp.tests.utils.misc as misc
-from asreview.project import ASReviewProject
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.tests.utils.config_parser import all_users
 from asreview.webapp.tests.utils.config_parser import get_user
@@ -192,7 +192,7 @@ def create_project_from_dict(client: FlaskClient, data: dict):
 
 def update_project(
     client: FlaskClient,
-    project: Union[Project, ASReviewProject],
+    project: Union[Project, asr.Project],
     name: str = "name",
     mode: str = "explore",
     authors: str = "authors",
@@ -212,7 +212,7 @@ def update_project(
     return process_response(response)
 
 
-def upgrade_project(client: FlaskClient, project: Union[Project, ASReviewProject]):
+def upgrade_project(client: FlaskClient, project: Union[Project, asr.Project]):
     response = client.get(f"/api/projects/{get_project_id(project)}/upgrade_if_old")
     return process_response(response)
 
@@ -236,7 +236,7 @@ def get_demo_data(client: FlaskClient, subset: str):
 
 
 def upload_data_to_project(
-    client: FlaskClient, project: Union[Project, ASReviewProject], data: dict
+    client: FlaskClient, project: Union[Project, asr.Project], data: dict
 ):
     response = client.post(
         f"/api/projects/{get_project_id(project)}/data",
@@ -245,34 +245,34 @@ def upload_data_to_project(
     return process_response(response)
 
 
-def get_project_data(client: FlaskClient, project: Union[Project, ASReviewProject]):
+def get_project_data(client: FlaskClient, project: Union[Project, asr.Project]):
     response = client.get(f"/api/projects/{get_project_id(project)}/data")
     return process_response(response)
 
 
 def get_project_dataset_writer(
-    client: FlaskClient, project: Union[Project, ASReviewProject]
+    client: FlaskClient, project: Union[Project, asr.Project]
 ):
     response = client.get(f"/api/projects/{get_project_id(project)}/dataset_writer")
     return process_response(response)
 
 
 def search_project_data(
-    client: FlaskClient, project: Union[Project, ASReviewProject], query: str
+    client: FlaskClient, project: Union[Project, asr.Project], query: str
 ):
     response = client.get(f"/api/projects/{get_project_id(project)}/search?q={query}")
     return process_response(response)
 
 
 def get_prior_random_project_data(
-    client: FlaskClient, project: Union[Project, ASReviewProject]
+    client: FlaskClient, project: Union[Project, asr.Project]
 ):
     response = client.get(f"/api/projects/{get_project_id(project)}/prior_random")
     return process_response(response)
 
 
 def label_random_project_data_record(
-    client: FlaskClient, project: Union[Project, ASReviewProject], label: int
+    client: FlaskClient, project: Union[Project, asr.Project], label: int
 ):
     # get random data
     _, data = get_prior_random_project_data(client, project)
@@ -284,7 +284,7 @@ def label_random_project_data_record(
 
 def label_project_record(
     client: FlaskClient,
-    project: Union[Project, ASReviewProject],
+    project: Union[Project, asr.Project],
     record_id: int,
     label: str,
     prior: int = 1,
@@ -299,7 +299,7 @@ def label_project_record(
 
 def update_label_project_record(
     client: FlaskClient,
-    project: Union[Project, ASReviewProject],
+    project: Union[Project, asr.Project],
     record_id: int,
     label: str,
     prior: int = 1,
@@ -312,15 +312,13 @@ def update_label_project_record(
     return process_response(response)
 
 
-def get_labeled_project_data(
-    client: FlaskClient, project: Union[Project, ASReviewProject]
-):
+def get_labeled_project_data(client: FlaskClient, project: Union[Project, asr.Project]):
     response = client.get(f"/api/projects/{get_project_id(project)}/labeled")
     return process_response(response)
 
 
 def get_labeled_project_data_stats(
-    client: FlaskClient, project: Union[Project, ASReviewProject]
+    client: FlaskClient, project: Union[Project, asr.Project]
 ):
     response = client.get(f"/api/projects/{get_project_id(project)}/labeled_stats")
     return process_response(response)
@@ -332,7 +330,7 @@ def get_project_algorithms_options(client: FlaskClient):
 
 
 def set_project_algorithms(
-    client: FlaskClient, project: Union[Project, ASReviewProject], data: dict
+    client: FlaskClient, project: Union[Project, asr.Project], data: dict
 ):
     response = client.post(
         f"/api/projects/{get_project_id(project)}/algorithms", data=data
@@ -340,27 +338,23 @@ def set_project_algorithms(
     return process_response(response)
 
 
-def get_project_algorithms(
-    client: FlaskClient, project: Union[Project, ASReviewProject]
-):
+def get_project_algorithms(client: FlaskClient, project: Union[Project, asr.Project]):
     response = client.get(f"/api/projects/{get_project_id(project)}/algorithms")
     return process_response(response)
 
 
-def start_project_algorithms(
-    client: FlaskClient, project: Union[Project, ASReviewProject]
-):
+def start_project_algorithms(client: FlaskClient, project: Union[Project, asr.Project]):
     response = client.post(f"/api/projects/{get_project_id(project)}/start")
     return process_response(response)
 
 
-def get_project_status(client: FlaskClient, project: Union[Project, ASReviewProject]):
+def get_project_status(client: FlaskClient, project: Union[Project, asr.Project]):
     response = client.get(f"/api/projects/{get_project_id(project)}/status")
     return process_response(response)
 
 
 def set_project_status(
-    client: FlaskClient, project: Union[Project, ASReviewProject], status: str
+    client: FlaskClient, project: Union[Project, asr.Project], status: str
 ):
     response = client.put(
         f"/api/projects/{get_project_id(project)}/status", data={"status": status}
@@ -369,7 +363,7 @@ def set_project_status(
 
 
 def export_project_dataset(
-    client: FlaskClient, project: Union[Project, ASReviewProject], format: str
+    client: FlaskClient, project: Union[Project, asr.Project], format: str
 ):
     id = get_project_id(project)
     response = client.get(f"/api/projects/{id}/export_dataset?file_format={format}")
@@ -378,7 +372,7 @@ def export_project_dataset(
 
 def export_project(
     client: FlaskClient,
-    project: Union[Project, ASReviewProject],
+    project: Union[Project, asr.Project],
 ):
     response = client.get(f"/api/projects/{get_project_id(project)}/export_project")
     return process_response(response)
@@ -386,7 +380,7 @@ def export_project(
 
 def get_project_progress(
     client: FlaskClient,
-    project: Union[Project, ASReviewProject],
+    project: Union[Project, asr.Project],
 ):
     response = client.get(f"/api/projects/{get_project_id(project)}/progress")
     return process_response(response)
@@ -394,7 +388,7 @@ def get_project_progress(
 
 def get_project_progress_density(
     client: FlaskClient,
-    project: Union[Project, ASReviewProject],
+    project: Union[Project, asr.Project],
 ):
     response = client.get(f"/api/projects/{get_project_id(project)}/progress_density")
     return process_response(response)
@@ -402,7 +396,7 @@ def get_project_progress_density(
 
 def get_project_progress_recall(
     client: FlaskClient,
-    project: Union[Project, ASReviewProject],
+    project: Union[Project, asr.Project],
 ):
     response = client.get(f"/api/projects/{get_project_id(project)}/progress_recall")
     return process_response(response)
@@ -410,7 +404,7 @@ def get_project_progress_recall(
 
 def get_project_current_document(
     client: FlaskClient,
-    project: Union[Project, ASReviewProject],
+    project: Union[Project, asr.Project],
 ):
     response = client.get(f"/api/projects/{get_project_id(project)}/get_document")
     return process_response(response)
@@ -418,7 +412,7 @@ def get_project_current_document(
 
 def delete_project(
     client: FlaskClient,
-    project: Union[Project, ASReviewProject],
+    project: Union[Project, asr.Project],
 ):
     response = client.delete(f"/api/projects/{get_project_id(project)}/delete")
     return process_response(response)

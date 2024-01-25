@@ -6,8 +6,8 @@ from uuid import uuid4
 
 import pytest
 
+import asreview as asr
 import asreview.webapp.entry_points.auth_tool as tool
-from asreview import ASReviewProject
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.entry_points.auth_tool import AuthTool
@@ -57,7 +57,7 @@ def import_2_unauthenticated_projects(with_upgrade=True):
         "asreview-project-v1-0-startreview.asreview",
     )
 
-    proj1 = ASReviewProject.load(
+    proj1 = asr.Project.load(
         open(asreview_v1_0_file, "rb"), asreview_path(), safe_import=True
     )
 
@@ -68,7 +68,7 @@ def import_2_unauthenticated_projects(with_upgrade=True):
         "asreview-project-v1-5-startreview.asreview",
     )
 
-    proj2 = ASReviewProject.load(
+    proj2 = asr.Project.load(
         open(asreview_v1_5_file, "rb"), asreview_path(), safe_import=True
     )
 
@@ -537,9 +537,7 @@ def test_projects_with_0x_projects(client_auth, method):
         "asreview-project-v0-18-startreview.asreview",
     )
 
-    ASReviewProject.load(
-        open(asreview_v0_18_file, "rb"), asreview_path(), safe_import=True
-    )
+    asr.Project.load(open(asreview_v0_18_file, "rb"), asreview_path(), safe_import=True)
 
     # make sure these projects exist
     assert len(misc.get_folders_in_asreview_path()) == 1
