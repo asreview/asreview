@@ -11,7 +11,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
-from asreview.project import ASReviewProject
+import asreview as asr
 from asreview.utils import asreview_path
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
@@ -299,7 +299,7 @@ class AuthTool:
         projects = [f for f in asreview_path().glob("*") if f.is_dir()]
         result = []
         for folder in projects:
-            project = ASReviewProject(folder)
+            project = asr.Project(folder)
 
             # Raise a RuntimeError if the project version is too low.
             if project.config.get("version").startswith("0."):

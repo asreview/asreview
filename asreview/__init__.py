@@ -17,7 +17,7 @@ from asreview.data.base import Dataset
 from asreview.data.loader import load_dataset
 from asreview.data.utils import list_readers
 from asreview.data.utils import list_writers
-from asreview.project import ASReviewProject
+from asreview.project import Project
 from asreview.project import open_state
 from asreview.utils import asreview_path
 from asreview.utils import get_data_home
@@ -32,7 +32,7 @@ __all__ = [
     "load_dataset",
     "asreview_path",
     "Dataset",
-    "ASReviewProject",
+    "Project",
     "get_data_home",
     "list_readers",
     "list_writers",

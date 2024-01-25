@@ -11,8 +11,9 @@ from asreview.utils import asreview_path
 
 def get_project_id(project):
     """Get a project id from either a Project model
-    (authenticated app) or an ASReviewProject object
-    (unauthenticated app)."""
+       (authenticated app) or an asr.Project
+    object
+       (unauthenticated app)."""
     if current_app.config.get("LOGIN_DISABLED"):
         return project.config["id"]
 

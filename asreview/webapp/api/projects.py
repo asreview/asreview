@@ -41,6 +41,7 @@ from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
+import asreview as asr
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
@@ -57,7 +58,6 @@ from asreview.models.feature_extraction import get_feature_model
 from asreview.models.feature_extraction import list_feature_extraction
 from asreview.models.query import get_query_model
 from asreview.models.query import list_query_strategies
-from asreview.project import ASReviewProject
 from asreview.project import ProjectNotFoundError
 from asreview.project import get_project_path
 from asreview.project import is_v0_project
@@ -182,7 +182,7 @@ def api_init_project():  # noqa: F401
     # get path of this project
     project_path = get_project_path(project_id)
 
-    project = ASReviewProject.create(
+    project = asr.Project.create(
         project_path,
         project_id=project_id,
         project_mode=project_mode,
@@ -892,7 +892,7 @@ def api_import_project():
         return response, 400
 
     try:
-        project = ASReviewProject.load(
+        project = asr.Project.load(
             request.files["file"], asreview_path(), safe_import=True
         )
 

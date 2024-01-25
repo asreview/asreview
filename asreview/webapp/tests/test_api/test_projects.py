@@ -9,10 +9,10 @@ from flask import current_app
 from flask.testing import FlaskClient
 from jsonschema.exceptions import ValidationError
 
+import asreview as asr
 import asreview.webapp.tests.utils.api_utils as au
 import asreview.webapp.tests.utils.crud as crud
 import asreview.webapp.tests.utils.misc as misc
-from asreview.project import ASReviewProject
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import Project
@@ -153,7 +153,7 @@ def test_upgrade_an_old_project(setup):
         "asreview-project-v0-19-startreview.asreview",
     )
 
-    project = ASReviewProject.load(
+    project = asr.Project.load(
         open(asreview_v0_file, "rb"), asreview_path(), safe_import=True
     )
 
@@ -708,7 +708,7 @@ def test_unauthorized_use_of_api_calls(setup, api_call):
             annotation = sig.parameters[par].annotation
             if annotation == FlaskClient:
                 parms.append(client)
-            elif annotation == Union[Project, ASReviewProject]:
+            elif annotation == Union[Project, asr.Project]:
                 parms.append(project)
             elif annotation == int:
                 parms.append(1)

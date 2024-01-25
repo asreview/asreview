@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from asreview.project import ASReviewProject
+import asreview as asr
 from asreview.project import ProjectExistsError
 from asreview.project import open_state
 from asreview.simulation.cli import _simulate_parser
@@ -48,7 +48,7 @@ def test_simulate_review_finished(tmpdir):
     cli_simulate(f"{DATA_FP} -s {asreview_fp}".split())
 
     Path(tmpdir, "test").mkdir(parents=True)
-    project = ASReviewProject.load(asreview_fp, Path(tmpdir, "test"))
+    project = asr.Project.load(asreview_fp, Path(tmpdir, "test"))
 
     assert project.config["reviews"][0]["status"] == "finished"
 
@@ -80,7 +80,7 @@ def test_n_prior_included(tmpdir):
     assert sum(prior_included) == 2
 
     Path(tmpdir, "test").mkdir(parents=True)
-    project = ASReviewProject.load(asreview_fp, Path(tmpdir, "test"))
+    project = asr.Project.load(asreview_fp, Path(tmpdir, "test"))
 
     settings_path = Path(
         project.project_path,
@@ -106,7 +106,7 @@ def test_n_prior_excluded(tmpdir):
     assert sum(prior_excluded) == 2
 
     Path(tmpdir, "test").mkdir(parents=True)
-    project = ASReviewProject.load(asreview_fp, Path(tmpdir, "test"))
+    project = asr.Project.load(asreview_fp, Path(tmpdir, "test"))
 
     settings_path = Path(
         project.project_path,
@@ -146,7 +146,7 @@ def test_non_tf_models(tmpdir):
         assert all(classifiers[default_n_priors:] == model)
 
         Path(tmpdir, f"test_{model}").mkdir(parents=True)
-        project = ASReviewProject.load(asreview_fp, Path(tmpdir, f"test_{model}"))
+        project = asr.Project.load(asreview_fp, Path(tmpdir, f"test_{model}"))
 
         settings_path = Path(
             project.project_path,

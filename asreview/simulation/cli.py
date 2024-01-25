@@ -32,7 +32,7 @@ from asreview.models.balance.utils import get_balance_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
-from asreview.project import ASReviewProject
+from asreview.project import Project
 from asreview.project import ProjectExistsError
 from asreview.project import open_state
 from asreview.settings import ASReviewSettings
@@ -131,7 +131,7 @@ def cli_simulate(argv):
     # create a project file
     fp_tmp_simulation = Path(args.state_file).with_suffix(".asreview.tmp")
 
-    project = ASReviewProject.create(
+    project = Project.create(
         fp_tmp_simulation,
         project_id=Path(args.state_file).stem,
         project_mode="simulate",
