@@ -213,7 +213,6 @@ class Simulate:
                 self.start_idx is None
                 or (isinstance(self.start_idx, list) and len(self.start_idx) == 0)
             ) and self.n_prior_included + self.n_prior_excluded > 0:
-                print("treuueee")
                 self.start_idx = sample_prior_knowledge(
                     self.as_data.labels,
                     self.n_prior_included,
