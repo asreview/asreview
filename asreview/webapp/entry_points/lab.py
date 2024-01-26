@@ -15,7 +15,6 @@ import argparse
 import logging
 import os
 import socket
-import time
 import webbrowser
 from threading import Timer
 
@@ -23,7 +22,6 @@ import requests
 from gevent.pywsgi import WSGIServer
 
 import asreview as asr
-from asreview import __version__
 from asreview._deprecated import DeprecateAction
 from asreview._deprecated import mark_deprecated_help_strings
 from asreview.project import get_project_path
@@ -48,8 +46,6 @@ def _check_port_in_use(host, port):
 def _open_browser(start_url):
     Timer(1, lambda: webbrowser.open_new(start_url)).start()
 
-    print("\n\n\n\nIf your browser doesn't open. " f"Navigate to {start_url}\n\n\n\n")
-
 
 def _check_for_update():
     """Check if there is an update available."""
@@ -58,28 +54,18 @@ def _check_for_update():
         r = requests.get("https://pypi.org/pypi/asreview/json")
         r.raise_for_status()
         latest_version = r.json()["info"]["version"]
-        if latest_version != __version__ and "+" not in __version__:
-            print(
-                "\n\n\n"
-                f"ASReview LAB version {latest_version} is available. "
-                "Please update using:\n"
-                "pip install --upgrade asreview"
-                "\n\n\n"
-            )
+        if latest_version != asr.__version__ and "+" not in asr.__version__:
+            return True, latest_version
 
-            time.sleep(5)
+        return False, latest_version
     except Exception:
-        print("Could not check for updates.")
+        pass
 
 
 def lab_entry_point(argv):
     parser = _lab_parser()
     mark_deprecated_help_strings(parser)
     args = parser.parse_args(argv)
-
-    # check for update
-    if not args.skip_update_check:
-        _check_for_update()
 
     app = create_app(
         env="production",
@@ -114,7 +100,6 @@ def lab_entry_point(argv):
     port = args.port
     original_port = port
     while _check_port_in_use(args.host, port) is True:
-        old_port = port
         port = int(port) + 1
         if port - original_port >= args.port_retries:
             raise ConnectionError(
@@ -122,7 +107,6 @@ def lab_entry_point(argv):
                 "to launch ASReview LAB. Last port \n"
                 f"was {str(port)}"
             )
-        print(f"Port {old_port} is in use.\n* Trying to start at {port}")
 
     protocol = "https://" if args.certfile and args.keyfile else "http://"
     start_url = f"{protocol}{args.host}:{port}/"
@@ -132,10 +116,45 @@ def lab_entry_point(argv):
         ssl_args = {"keyfile": args.keyfile, "certfile": args.certfile}
 
     server = WSGIServer((args.host, port), app, **ssl_args)
-    print(f"Serving ASReview LAB at {start_url}")
 
+    print("\n\nASReview LAB is starting up \u001b[31m<3\u001b[0m\n\n")
+    print("\033[1mInformation about your application\033[0m\n")
+
+    host_str = f"\033[1mURL:\033[0m {start_url}"
+    if original_port != port:
+        host_str += (
+            f" \u001b[48;5;11m[Port {original_port} was already in use]\u001b[0m"
+        )
+
+    version_str = f"\033[1mVersion:\033[0m {asr.__version__}"
+    update_available = False
+    if not args.skip_update_check:
+        update_available, latest_version = _check_for_update()
+        if update_available:
+            version_str += (
+                " \u001b[48;5;202m[Update available"
+                f": {asr.__version__} -> {latest_version}]\u001b[0m"
+            )
+
+    print(host_str)
+    print(version_str)
+    print(f"\033[1mLocal projects folder:\033[0m {asr.asreview_path()}")
+
+    if update_available:
+        print(
+            "\n\n\033[1mUpdate for ASReview LAB is available!\033[0m\n"
+            "Run `pip install --upgrade asreview` to update."
+        )
+
+    print(
+        "\n\nMake regular backups of the ASReview"
+        " projects folder to prevent data loss."
+    )
     if not args.no_browser:
         _open_browser(start_url)
+        print(f"If your browser doesn't open, navigate to {start_url}.\n\n\n")
+
+    print("Press Ctrl+C to exit.\n\n")
 
     try:
         server.serve_forever()
