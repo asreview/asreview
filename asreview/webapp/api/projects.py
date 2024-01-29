@@ -758,23 +758,29 @@ def api_get_algorithms(project):  # noqa: F401
 @login_required
 @project_authorization
 def api_set_algorithms(project):  # noqa: F401
-    # TODO@{Jonathan} validate model choice on server side
-    ml_classifier = request.form.get("classifier", None)
-    ml_query_strategy = request.form.get("query_strategy", None)
-    ml_balance_strategy = request.form.get("balance_strategy", None)
-    ml_feature_extraction = request.form.get("feature_extraction", None)
+    """Set the algorithms used in the project"""
+    s_classifier = request.form.get("classifier", None)
+    s_query_strategy = request.form.get("query_strategy", None)
+    s_balance_strategy = request.form.get("balance_strategy", None)
+    s_feature_extraction = request.form.get("feature_extraction", None)
 
-    # create a new settings object from arguments
-    # only used if state file is not present
+    try:
+        classifier = get_classifier(s_classifier)
+        query_strategy = get_query_model(s_query_strategy)
+        balance_strategy = get_balance_model(s_balance_strategy)
+        feature_extraction = get_feature_model(s_feature_extraction)
+    except KeyError as err:
+        return jsonify(message=f"Model component not found {err}"), 400
+
     asreview_settings = ASReviewSettings(
-        model=ml_classifier,
-        query_strategy=ml_query_strategy,
-        balance_strategy=ml_balance_strategy,
-        feature_extraction=ml_feature_extraction,
-        model_param=get_classifier(ml_classifier).param,
-        query_param=get_query_model(ml_query_strategy).param,
-        balance_param=get_balance_model(ml_balance_strategy).param,
-        feature_param=get_feature_model(ml_feature_extraction).param,
+        model=s_classifier,
+        query_strategy=s_query_strategy,
+        balance_strategy=s_balance_strategy,
+        feature_extraction=s_feature_extraction,
+        model_param=classifier.param,
+        query_param=query_strategy.param,
+        balance_param=balance_strategy.param,
+        feature_param=feature_extraction.param,
     )
 
     # save the new settings to the state file

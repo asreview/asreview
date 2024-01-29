@@ -51,6 +51,7 @@ const DEFAULT_MODELS = [
   {
     name: "tfidf-nb-max-double",
     title: "Model AlwaysGood",
+    requires: "asreview-supermodels",
     description:
       "Features extracted with TF-IDF and classified with Naive Bayes. The best prediction is shown first.",
   },
@@ -61,8 +62,9 @@ const DEFAULT_MODELS = [
       "Features extracted with a multilangual algorithm and classified with Naive Bayes. The best prediction is shown first.",
   },
   {
-    name: "tfidf-rf-max-double",
+    name: "sbert-rf-max-double",
     title: "Model Xtreme",
+    requires: "asreview-supermodels",
     description:
       "Features extracted with a state-of-the-art LLM and classified with transformer model. The best prediction is shown first.",
   },
@@ -92,6 +94,36 @@ const getFullModelName = (model) => {
   }
 };
 
+const isModelAvailable = (name, model_options) => {
+  if (model_options === undefined) {
+    return false;
+  }
+
+  let parts = name.split("-");
+  let model = {
+    feature_extraction: parts[0],
+    classifier: parts[1],
+    query_strategy: parts[2],
+    balance_strategy: parts[3],
+  };
+
+  let available = true;
+  Object.keys(model).forEach((key) => {
+    if (
+      model_options[key] === undefined ||
+      !model_options[key]
+        .map(function (el) {
+          return el.name;
+        })
+        .includes(model[key])
+    ) {
+      available = false;
+    }
+  });
+
+  return available;
+};
+
 const ModelForm = (props) => {
   const [modelState, setModelState] = React.useState({
     custom: false,
@@ -119,17 +151,19 @@ const ModelForm = (props) => {
       enabled: props.project_id !== null,
       onSuccess: (data) => {
         setModelState({
-          custom: getFullModelName(data) === "custom",
-          model: data,
+          ...modelState,
+          ...{
+            ["custom"]: getFullModelName(data) === "custom",
+            ["model"]: data,
+          },
         });
       },
       refetchOnWindowFocus: false,
     },
   );
 
-  const { mutate: mutateModelConfig } = useMutation(
-    ProjectAPI.mutateModelConfig,
-    {
+  const { mutate: mutateModelConfig, isError: isMutateModelConfigError } =
+    useMutation(ProjectAPI.mutateModelConfig, {
       mutationKey: "mutateModelConfig",
       onError: () => {
         props.handleComplete(false);
@@ -137,8 +171,7 @@ const ModelForm = (props) => {
       onSuccess: () => {
         props.handleComplete(true);
       },
-    },
-  );
+    });
 
   const prepareMutationData = React.useCallback(
     () => ({
@@ -244,7 +277,19 @@ const ModelForm = (props) => {
                     divider
                   >
                     <SelectItem
-                      primary={value.title}
+                      primary={
+                        value.requires !== undefined &&
+                        !isModelAvailable(value.name, modelOptions) ? (
+                          <Box>
+                            {value.title}{" "}
+                            <span style={{ color: "red" }}>
+                              (requires {value.requires})
+                            </span>
+                          </Box>
+                        ) : (
+                          value.title
+                        )
+                      }
                       secondary={value.description}
                     />
                   </MenuItem>
@@ -311,6 +356,20 @@ const ModelForm = (props) => {
         error={fetchModelConfigError}
         isError={isFetchModelConfigError}
       />
+      {isMutateModelConfigError && (
+        <Typography sx={{ color: "error.main", paddingTop: 2 }}>
+          Super models extension wasn't installed. Please install the{" "}
+          <Link
+            underline="none"
+            href={`https://asreview.readthedocs.io/en/latest/guide/installation.html#installing-the-super-models`}
+            target="_blank"
+          >
+            {" "}
+            super models
+          </Link>{" "}
+          extension to use this model.
+        </Typography>
+      )}
     </Root>
   );
 };
