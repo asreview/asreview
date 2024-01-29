@@ -18,7 +18,11 @@ import { styled } from "@mui/material/styles";
 import { CardErrorHandler } from "../../../Components";
 import { ModelRequirement, ModelSelect } from "../ModelComponents";
 import { ProjectAPI } from "../../../api/index.js";
-import { defaultAlgorithms, mapStateToProps } from "../../../globals.js";
+import {
+  defaultAlgorithms,
+  fontSizeOptions,
+  mapStateToProps,
+} from "../../../globals.js";
 import { SelectItem } from "../../../ProjectComponents";
 
 const PREFIX = "ModelForm";
@@ -92,36 +96,6 @@ const getFullModelName = (model) => {
   } else {
     return "custom";
   }
-};
-
-const isModelAvailable = (name, model_options) => {
-  if (model_options === undefined) {
-    return false;
-  }
-
-  let parts = name.split("-");
-  let model = {
-    feature_extraction: parts[0],
-    classifier: parts[1],
-    query_strategy: parts[2],
-    balance_strategy: parts[3],
-  };
-
-  let available = true;
-  Object.keys(model).forEach((key) => {
-    if (
-      model_options[key] === undefined ||
-      !model_options[key]
-        .map(function (el) {
-          return el.name;
-        })
-        .includes(model[key])
-    ) {
-      available = false;
-    }
-  });
-
-  return available;
 };
 
 const ModelForm = (props) => {
@@ -251,6 +225,7 @@ const ModelForm = (props) => {
               disabled={props.disableModeSelect}
               fullWidth
               variant={!props.disableModeSelect ? "outlined" : "filled"}
+              error={isMutateModelConfigError}
             >
               <InputLabel id="model-select-label">Model</InputLabel>
               <Select
@@ -278,17 +253,12 @@ const ModelForm = (props) => {
                   >
                     <SelectItem
                       primary={
-                        value.requires !== undefined &&
-                        !isModelAvailable(value.name, modelOptions) ? (
-                          <Box>
-                            {value.title}{" "}
-                            <span style={{ color: "red" }}>
-                              (requires {value.requires})
-                            </span>
+                        <Box>
+                          {value.title}{" "}
+                          <Box sx={{ color: "blue", display: "inline" }}>
+                            (requires {value.requires})
                           </Box>
-                        ) : (
-                          value.title
-                        )
+                        </Box>
                       }
                       secondary={value.description}
                     />
@@ -302,6 +272,20 @@ const ModelForm = (props) => {
                   />
                 </MenuItem>
               </Select>
+              {isMutateModelConfigError && (
+                <FormHelperText style={{ fontSize: "16px" }}>
+                  Super models extension isn't installed. Please install the{" "}
+                  <Link
+                    underline="none"
+                    href={`https://asreview.readthedocs.io/en/latest/guide/installation.html#installing-the-super-models`}
+                    target="_blank"
+                  >
+                    {" "}
+                    super models
+                  </Link>{" "}
+                  extension to use this model.
+                </FormHelperText>
+              )}
             </FormControl>
 
             {modelState.custom && (
@@ -356,20 +340,6 @@ const ModelForm = (props) => {
         error={fetchModelConfigError}
         isError={isFetchModelConfigError}
       />
-      {isMutateModelConfigError && (
-        <Typography sx={{ color: "error.main", paddingTop: 2 }}>
-          Super models extension wasn't installed. Please install the{" "}
-          <Link
-            underline="none"
-            href={`https://asreview.readthedocs.io/en/latest/guide/installation.html#installing-the-super-models`}
-            target="_blank"
-          >
-            {" "}
-            super models
-          </Link>{" "}
-          extension to use this model.
-        </Typography>
-      )}
     </Root>
   );
 };
