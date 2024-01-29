@@ -316,7 +316,7 @@ class ProjectAPI {
 
   static mutateModelConfig(variables) {
     let body = new FormData();
-    body.set("model", variables.classifier);
+    body.set("classifier", variables.classifier);
     body.set("query_strategy", variables.query_strategy);
     body.set("balance_strategy", variables.balance_strategy);
     body.set("feature_extraction", variables.feature_extraction);

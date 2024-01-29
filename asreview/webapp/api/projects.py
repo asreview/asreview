@@ -730,22 +730,28 @@ def api_list_algorithms():
 def api_get_algorithms(project):  # noqa: F401
     """Get the algorithms used in the project"""
 
-    # check if there were algorithms stored in the state file
     try:
         with open_state(project.project_path) as state:
             if state.settings is not None:
-                payload = {
-                    "model": state.settings.model,
-                    "feature_extraction": state.settings.feature_extraction,
-                    "query_strategy": state.settings.query_strategy,
-                    "balance_strategy": state.settings.balance_strategy,
-                }
-            else:
-                payload = None
+                return jsonify(
+                    {
+                        "classifier": state.settings.model,
+                        "feature_extraction": state.settings.feature_extraction,
+                        "query_strategy": state.settings.query_strategy,
+                        "balance_strategy": state.settings.balance_strategy,
+                    }
+                )
     except StateNotFoundError:
-        payload = None
+        pass
 
-    return jsonify(payload)
+    return jsonify(
+        {
+            "classifier": "nb",
+            "feature_extraction": "tfidf",
+            "query_strategy": "max",
+            "balance_strategy": "double",
+        }
+    )
 
 
 @bp.route("/projects/<project_id>/algorithms", methods=["POST"])
@@ -753,7 +759,7 @@ def api_get_algorithms(project):  # noqa: F401
 @project_authorization
 def api_set_algorithms(project):  # noqa: F401
     # TODO@{Jonathan} validate model choice on server side
-    ml_model = request.form.get("model", None)
+    ml_classifier = request.form.get("classifier", None)
     ml_query_strategy = request.form.get("query_strategy", None)
     ml_balance_strategy = request.form.get("balance_strategy", None)
     ml_feature_extraction = request.form.get("feature_extraction", None)
@@ -761,11 +767,11 @@ def api_set_algorithms(project):  # noqa: F401
     # create a new settings object from arguments
     # only used if state file is not present
     asreview_settings = ASReviewSettings(
-        model=ml_model,
+        model=ml_classifier,
         query_strategy=ml_query_strategy,
         balance_strategy=ml_balance_strategy,
         feature_extraction=ml_feature_extraction,
-        model_param=get_classifier(ml_model).param,
+        model_param=get_classifier(ml_classifier).param,
         query_param=get_query_model(ml_query_strategy).param,
         balance_param=get_balance_model(ml_balance_strategy).param,
         feature_param=get_feature_model(ml_feature_extraction).param,

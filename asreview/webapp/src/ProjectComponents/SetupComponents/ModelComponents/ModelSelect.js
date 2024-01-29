@@ -7,6 +7,20 @@ import {
   MenuItem,
 } from "@mui/material";
 import { SelectItem } from "../../../ProjectComponents";
+import { styled } from "@mui/material/styles";
+
+const PREFIX = "ModelSelect";
+
+const classes = {
+  formItem: `${PREFIX}-form-item`,
+};
+
+const MenuItemStyled = styled(MenuItem)(({ theme }) => ({
+  [`& .${classes.formItem}`]: {
+    paddingTop: 16,
+    backgroundColor: "#FF0000",
+  },
+}));
 
 const ModelSelect = ({
   name,
@@ -17,7 +31,7 @@ const ModelSelect = ({
   disableItem,
   helperText,
 }) => (
-  <FormControl fullWidth>
+  <FormControl>
     <InputLabel id={`${name}-select-label`}>{label}</InputLabel>
     <Select
       id={`select-${name}`}
@@ -27,14 +41,14 @@ const ModelSelect = ({
       onChange={handleModel}
     >
       {items.map((value) => (
-        <MenuItem
+        <MenuItemStyled
           key={`result-item-${value.name}`}
           checked={model?.[name] === value.name}
           value={value.name}
           disabled={disableItem ? disableItem(value.name) : false}
         >
           <SelectItem primary={value.label} secondary={value.description} />
-        </MenuItem>
+        </MenuItemStyled>
       ))}
     </Select>
     <FormHelperText>{helperText}</FormHelperText>
