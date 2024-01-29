@@ -11,11 +11,15 @@ import {
   DialogTitle,
   FormControlLabel,
   Link,
+  List,
   Radio,
   RadioGroup,
   Typography,
+  Stack,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
 
 import { InlineErrorHandler } from "../../Components";
 import { ProjectAPI } from "../../api";
@@ -24,46 +28,55 @@ import { mapDispatchToProps, projectModes } from "../../globals";
 const PREFIX = "ModePickDialog";
 
 const classes = {
-  avatar: `${PREFIX}-avatar`,
   box: `${PREFIX}-box`,
+  radioGroup: `${PREFIX}-radio-group`,
 };
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
-  [`& .${classes.avatar}`]: {
-    backgroundColor: [
-      theme.palette.mode === "dark"
-        ? theme.palette.grey[900]
-        : theme.palette.grey[100],
-    ],
-  },
-  [`& .${classes.box}`]: {
-    paddingBottom: 24,
+  [`& .${classes.box}`]: {},
+  [`& .${classes.radioGroup}`]: {
+    paddingTop: "20px",
   },
 }));
 
-const modes = [
-  {
-    value: projectModes.ORACLE,
-    primary: "Oracle",
-  },
-  {
-    value: projectModes.EXPLORATION,
-    primary: "Validation",
-  },
-  {
-    value: projectModes.SIMULATION,
-    primary: "Simulation",
-  },
-];
+const SelectItem = ({
+  primary,
+  secondary,
+  unlabeled,
+  partiallyLabeled,
+  fullyLabeled,
+}) => (
+  <Box>
+    <Typography sx={{ fontWeight: "bold" }}>{primary}</Typography>
+    <Typography variant="body2" sx={{ color: "text.secondary" }}>
+      {secondary}
+    </Typography>
+    <Stack direction="row" alignItems="center" gap={1}>
+      {unlabeled ? <CheckIcon /> : <CloseIcon />}
+      <Typography variant="body2" sx={{ color: "text.secondary" }}>
+        {"Unlabeled dataset"}
+      </Typography>
+    </Stack>
+    <Stack direction="row" alignItems="center" gap={1}>
+      {partiallyLabeled ? <CheckIcon /> : <CloseIcon />}
+      <Typography variant="body2" sx={{ color: "text.secondary" }}>
+        {"Partially labeled dataset"}
+      </Typography>
+    </Stack>
+    <Stack direction="row" alignItems="center" gap={1}>
+      {fullyLabeled ? <CheckIcon /> : <CloseIcon />}
+      <Typography variant="body2" sx={{ color: "text.secondary" }}>
+        {"Fully labeled dataset or built-in SYNERGY dataset"}
+      </Typography>
+    </Stack>
+  </Box>
+);
 
 const ModePickDialog = (props) => {
   const { open, setProjectId, toggleModePick, toggleImportDataset } = props;
 
   const [mode, setMode] = React.useState(projectModes.ORACLE);
 
-  /**
-   * Initiate a new project.
-   */
   const { error, isError, isLoading, mutate, reset } = useMutation(
     ProjectAPI.mutateInitProject,
     {
@@ -79,7 +92,7 @@ const ModePickDialog = (props) => {
     setMode(event.target.value);
   };
 
-  const handleClickContinue = () => {
+  const handleClickNext = () => {
     mutate({
       mode: mode,
     });
@@ -93,19 +106,19 @@ const ModePickDialog = (props) => {
 
   return (
     <StyledDialog
-      maxWidth="xs"
+      maxWidth="sm"
       onClose={handleClickCancel}
       open={open}
       TransitionProps={{
         onExited: () => {
           setMode(projectModes.ORACLE);
-          reset(); // reset the error of init project
+          reset();
         },
       }}
     >
-      <DialogTitle>Choose a project mode</DialogTitle>
+      <DialogTitle>Choose type of project</DialogTitle>
       <DialogContent>
-        <Box className={classes.box}>
+        {/* <Box className={classes.box}>
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
             Screen an unlabeled or partially labeled dataset with Oracle mode,
             or explore a fully labeled dataset with Validation or Simulation
@@ -118,7 +131,7 @@ const ModePickDialog = (props) => {
               Learn more
             </Link>
           </Typography>
-        </Box>
+        </Box> */}
         {isError && <InlineErrorHandler message={error?.message} />}
         <RadioGroup
           aria-label="project-mode"
@@ -126,21 +139,60 @@ const ModePickDialog = (props) => {
           value={mode}
           onChange={handleModeChange}
         >
-          {modes.map((mode) => (
-            <FormControlLabel
-              key={mode.value}
-              value={mode.value}
-              control={<Radio />}
-              label={mode.primary}
-            />
-          ))}
+          <FormControlLabel
+            key={projectModes.ORACLE}
+            value={projectModes.ORACLE}
+            control={<Radio />}
+            label={
+              <SelectItem
+                primary={"Oracle"}
+                secondary={
+                  "Review with the help of time-saving Artificial Intelligence"
+                }
+                unlabeled={true}
+                partiallyLabeled={true}
+              />
+            }
+            className={classes.radioGroup}
+          />
+          <FormControlLabel
+            key={projectModes.EXPLORATION}
+            value={projectModes.EXPLORATION}
+            control={<Radio />}
+            label={
+              <SelectItem
+                primary={"Validation"}
+                secondary={
+                  "Validate labels provided by another screener or derived from an LLM or AI"
+                }
+                fullyLabeled={true}
+                partiallyLabeled={true}
+              />
+            }
+            className={classes.radioGroup}
+          />
+          <FormControlLabel
+            key={projectModes.SIMULATION}
+            value={projectModes.SIMULATION}
+            control={<Radio />}
+            label={
+              <SelectItem
+                primary={"Simulation"}
+                secondary={
+                  "Simulate a review to evaluate the performance of ASReview LAB"
+                }
+                fullyLabeled={true}
+              />
+            }
+            className={classes.radioGroup}
+          />
         </RadioGroup>
       </DialogContent>
       <DialogActions>
         <Button autoFocus onClick={handleClickCancel}>
           Cancel
         </Button>
-        <Button onClick={handleClickContinue}>Continue</Button>
+        <Button onClick={handleClickNext}>Next</Button>
       </DialogActions>
     </StyledDialog>
   );
