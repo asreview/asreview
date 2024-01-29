@@ -20,6 +20,7 @@ from threading import Timer
 
 import requests
 from gevent.pywsgi import WSGIServer
+from rich.console import Console
 
 import asreview as asr
 from asreview._deprecated import DeprecateAction
@@ -117,49 +118,49 @@ def lab_entry_point(argv):
 
     server = WSGIServer((args.host, port), app, **ssl_args)
 
-    print("\n\nASReview LAB is starting up \u001b[31m<3\u001b[0m\n\n")
-    print("\033[1mInformation about your application\033[0m\n")
+    console = Console()
 
-    host_str = f"\033[1mURL:\033[0m {start_url}"
+    console.print("\n\nASReview LAB is starting up [red]<3[/red]\n\n")
+    console.print("[bold]Information about your application[/bold]\n")
+
+    host_str = f"[bold]URL:[/bold] {start_url}"
     if original_port != port:
-        host_str += (
-            f" \u001b[48;5;11m[Port {original_port} was already in use]\u001b[0m"
-        )
+        host_str += f" [yellow][Port {original_port} was already in use][/yellow]"
 
-    version_str = f"\033[1mVersion:\033[0m {asr.__version__}"
+    version_str = f"[bold]Version:[/bold] {asr.__version__}"
     update_available = False
     if not args.skip_update_check:
         update_available, latest_version = _check_for_update()
-        if update_available:
+        if not update_available:
             version_str += (
-                " \u001b[48;5;202m[Update available"
-                f": {asr.__version__} -> {latest_version}]\u001b[0m"
+                " [red][Update available"
+                f": {asr.__version__} -> {latest_version}][/red]"
             )
 
-    print(host_str)
-    print(version_str)
-    print(f"\033[1mLocal projects folder:\033[0m {asr.asreview_path()}")
+    console.print(host_str)
+    console.print(version_str, highlight=False)
+    console.print(f"[bold]Local projects folder:[/bold] {asr.asreview_path()}")
 
     if update_available:
-        print(
-            "\n\n\033[1mUpdate for ASReview LAB is available!\033[0m\n"
+        console.print(
+            "\n\n[bold]Update for ASReview LAB is available![/bold]\n"
             "Run `pip install --upgrade asreview` to update."
         )
 
-    print(
+    console.print(
         "\n\nMake regular backups of the ASReview"
         " projects folder to prevent data loss."
     )
     if not args.no_browser:
         _open_browser(start_url)
-        print(f"If your browser doesn't open, navigate to {start_url}.\n\n\n")
+        console.print(f"If your browser doesn't open, navigate to {start_url}.\n\n\n")
 
-    print("Press Ctrl+C to exit.\n\n")
+    console.print("Press [bold]Ctrl+C[/bold] to exit.\n\n")
 
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        print("\n\nShutting down server\n\n")
+        console.print("\n\nShutting down server\n\n")
 
 
 def _lab_parser():
