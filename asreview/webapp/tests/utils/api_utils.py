@@ -375,7 +375,8 @@ def export_project(
     project: Union[Project, asr.Project],
 ):
     response = client.get(f"/api/projects/{get_project_id(project)}/export_project")
-    return process_response(response)
+
+    return response
 
 
 def get_project_progress(

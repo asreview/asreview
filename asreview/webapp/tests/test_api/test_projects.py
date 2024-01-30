@@ -537,8 +537,10 @@ def test_export_project(setup):
     au.label_random_project_data_record(client, project, 1)
     au.label_random_project_data_record(client, project, 0)
     # request
-    status_code, _ = au.export_project(client, project)
-    assert status_code == 200
+    response = au.export_project(client, project)
+
+    print(response.data)
+    assert response.status_code == 200
 
 
 # Test setting the project status
