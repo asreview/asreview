@@ -35,7 +35,10 @@ const classes = {
 const StyledDialog = styled(Dialog)(({ theme }) => ({
   [`& .${classes.box}`]: {},
   [`& .${classes.radioGroup}`]: {
-    paddingTop: "20px",
+    padding: "20px 6px 20px 6px",
+    margin: "6px 0px 6px 0px",
+    border: "2px solid #e0e0e0",
+    borderRadius: "4px",
   },
 }));
 
@@ -51,22 +54,28 @@ const SelectItem = ({
     <Typography variant="body2" sx={{ color: "text.secondary" }}>
       {secondary}
     </Typography>
+    <Typography
+      variant="body2"
+      sx={{ color: "text.secondary", paddingTop: "8px" }}
+    >
+      {"Type(s) of datasets:"}
+    </Typography>
     <Stack direction="row" alignItems="center" gap={1}>
       {unlabeled ? <CheckIcon /> : <CloseIcon />}
       <Typography variant="body2" sx={{ color: "text.secondary" }}>
-        {"Unlabeled dataset"}
+        {"Unlabeled"}
       </Typography>
     </Stack>
     <Stack direction="row" alignItems="center" gap={1}>
       {partiallyLabeled ? <CheckIcon /> : <CloseIcon />}
       <Typography variant="body2" sx={{ color: "text.secondary" }}>
-        {"Partially labeled dataset"}
+        {"Partially labeled"}
       </Typography>
     </Stack>
     <Stack direction="row" alignItems="center" gap={1}>
       {fullyLabeled ? <CheckIcon /> : <CloseIcon />}
       <Typography variant="body2" sx={{ color: "text.secondary" }}>
-        {"Fully labeled dataset or built-in SYNERGY dataset"}
+        {"Fully labeled or built-in SYNERGY dataset"}
       </Typography>
     </Stack>
   </Box>
