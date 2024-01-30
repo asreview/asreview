@@ -153,7 +153,7 @@ def lab_entry_point(argv):
     )
     if not args.no_browser:
         _open_browser(start_url)
-        console.print(f"If your browser doesn't open, navigate to {start_url}.\n\n\n")
+        console.print(f"\nIf your browser doesn't open, navigate to {start_url}.\n\n\n")
 
     console.print("Press [bold]Ctrl+C[/bold] to exit.\n\n")
 
