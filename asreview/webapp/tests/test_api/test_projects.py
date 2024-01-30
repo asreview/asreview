@@ -262,6 +262,11 @@ def test_upload_benchmark_data_to_project(setup, upload_data):
     else:
         assert data["project_id"] == project.config.get("id")
 
+    pickle_path = project.project_path / "tmp" / "data.pickle"
+    assert not pickle_path.exists()
+    asr.Project(project.project_path).read_data()
+    assert pickle_path.exists()
+
 
 # Test getting the data after an upload
 @pytest.mark.parametrize("upload_data", UPLOAD_DATA)
