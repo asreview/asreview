@@ -10,8 +10,6 @@ import {
   DialogContent,
   DialogTitle,
   FormControlLabel,
-  Link,
-  List,
   Radio,
   RadioGroup,
   Typography,
