@@ -539,8 +539,13 @@ def test_export_project(setup):
     # request
     response = au.export_project(client, project)
 
-    print(response.data)
+    # get the file names in the project
+    tree = misc.get_zip_file_names(response.data)
+
+    # get the file names
     assert response.status_code == 200
+    assert "project.json" in tree
+    assert "tmp/data.pickle" not in tree
 
 
 # Test setting the project status

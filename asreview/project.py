@@ -333,7 +333,7 @@ class Project:
             self.delete_review()
 
     def _read_data_from_cache(self, version_check=True):
-        fp_data_pickle = Path(self.project_path, "tmp").with_suffix("data.pickle")
+        fp_data_pickle = Path(self.project_path, "tmp", "data.pickle")
 
         try:
             with open(fp_data_pickle, "rb") as f_pickle_read:
@@ -387,7 +387,8 @@ class Project:
             raise FileNotFoundError("Dataset not found")
 
         if save_cache:
-            fp_data_pickle = Path(self.project_path, "tmp").with_suffix("data.pickle")
+            Path(self.project_path, "tmp").mkdir(exist_ok=True)
+            fp_data_pickle = Path(self.project_path, "tmp", "data.pickle")
             with open(fp_data_pickle, "wb") as f_pickle:
                 pickle.dump((as_data, get_versions()["version"]), f_pickle)
 
