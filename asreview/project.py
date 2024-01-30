@@ -320,7 +320,7 @@ class Project:
     def remove_dataset(self):
         """Remove dataset from project."""
         # reset dataset_path
-        self.update_config(dataset_path=None, datasets=None)
+        self.update_config(dataset_path=None)
 
         # remove datasets from project
         shutil.rmtree(Path(self.project_path, "data"))
