@@ -324,6 +324,7 @@ class Project:
 
         # remove datasets from project
         shutil.rmtree(Path(self.project_path, "data"))
+        self.clean_tmp_files()
 
         # remove state file if present
         if Path(self.project_path, "reviews").is_dir() and any(
@@ -332,8 +333,7 @@ class Project:
             self.delete_review()
 
     def _read_data_from_cache(self, version_check=True):
-        fp_data = Path(self.project_path, "data", self.config["dataset_path"])
-        fp_data_pickle = Path(fp_data).with_suffix(fp_data.suffix + ".pickle")
+        fp_data_pickle = Path(self.project_path, "tmp", "data.pickle")
 
         try:
             with open(fp_data_pickle, "rb") as f_pickle_read:
@@ -373,21 +373,22 @@ class Project:
 
         """
 
-        try:
-            fp_data = Path(self.project_path, "data", self.config["dataset_path"])
-        except Exception:
-            raise FileNotFoundError("Dataset not found")
-
         if use_cache:
             try:
-                return self._read_data_from_cache(fp_data)
+                return self._read_data_from_cache()
             except CacheDataError:
                 pass
 
-        as_data = load_dataset(fp_data)
+        try:
+            as_data = load_dataset(
+                Path(self.project_path, "data", self.config["dataset_path"])
+            )
+        except Exception:
+            raise FileNotFoundError("Dataset not found")
 
         if save_cache:
-            fp_data_pickle = Path(fp_data).with_suffix(fp_data.suffix + ".pickle")
+            Path(self.project_path, "tmp").mkdir(exist_ok=True)
+            fp_data_pickle = Path(self.project_path, "tmp", "data.pickle")
             with open(fp_data_pickle, "wb") as f_pickle:
                 pickle.dump((as_data, get_versions()["version"]), f_pickle)
 
@@ -402,12 +403,10 @@ class Project:
             The id of the current project.
         """
 
-        # clean pickle files
-        for f_pickle in self.project_path.rglob("*.pickle"):
-            try:
-                os.remove(f_pickle)
-            except OSError as e:
-                print(f"Error: {f_pickle} : {e.strerror}")
+        try:
+            os.remove(Path(self.project_path, "tmp"))
+        except OSError as e:
+            print(f"Error: {e.strerror}")
 
     @property
     def feature_matrices(self):
@@ -597,7 +596,7 @@ class Project:
         shutil.copytree(
             self.project_path,
             export_fp_tmp,
-            ignore=shutil.ignore_patterns("*.pickle", "*.lock"),
+            ignore=shutil.ignore_patterns("tmp", "*.lock"),
         )
 
         # create the archive

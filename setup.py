@@ -56,6 +56,7 @@ REQUIRES = [
     "Flask-SQLAlchemy>=3.0.2",
     "requests",
     "tqdm",
+    "rich",
     "gevent>=20",
     "datahugger>=0.2",
     "synergy_dataset",
