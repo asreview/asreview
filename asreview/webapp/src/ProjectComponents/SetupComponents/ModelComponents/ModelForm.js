@@ -16,13 +16,9 @@ import {
 import { styled } from "@mui/material/styles";
 
 import { CardErrorHandler } from "../../../Components";
-import { ModelRequirement, ModelSelect } from "../ModelComponents";
+import { ModelSelect } from "../ModelComponents";
 import { ProjectAPI } from "../../../api/index.js";
-import {
-  defaultAlgorithms,
-  fontSizeOptions,
-  mapStateToProps,
-} from "../../../globals.js";
+import { defaultAlgorithms, mapStateToProps } from "../../../globals.js";
 import { SelectItem } from "../../../ProjectComponents";
 
 const PREFIX = "ModelForm";
@@ -55,7 +51,6 @@ const DEFAULT_MODELS = [
   {
     name: "tfidf-nb-max-double",
     title: "Model AlwaysGood",
-    requires: "asreview-supermodels",
     description:
       "Features extracted with TF-IDF and classified with Naive Bayes. The best prediction is shown first.",
   },
@@ -255,9 +250,11 @@ const ModelForm = (props) => {
                       primary={
                         <Box>
                           {value.title}{" "}
-                          <Box sx={{ color: "blue", display: "inline" }}>
-                            (requires {value.requires})
-                          </Box>
+                          {value.requires && (
+                            <Box sx={{ color: "blue", display: "inline" }}>
+                              (requires {value.requires})
+                            </Box>
+                          )}
                         </Box>
                       }
                       secondary={value.description}
