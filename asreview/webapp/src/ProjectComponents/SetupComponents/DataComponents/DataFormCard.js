@@ -1,4 +1,6 @@
 import * as React from "react";
+import { useNavigate } from "react-router-dom";
+
 import {
   Box,
   Button,
@@ -9,6 +11,7 @@ import {
 } from "@mui/material";
 import { Check } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
+import { historyFilterOptions } from "../../../globals.js";
 
 const PREFIX = "DataFormCard";
 
@@ -46,7 +49,26 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const DataFormCard = (props) => {
+const DataFormCard = ({
+  project_id,
+  added,
+  datasetAdded,
+  primaryDefault,
+  secondaryDefault,
+  setHistoryFilterQuery,
+  secondaryAdded,
+  toggleAddCard,
+  editable = true,
+}) => {
+  const navigate = useNavigate();
+
+  const handleClickViewPrior = () => {
+    navigate(`/projects/${project_id}/history`);
+    setHistoryFilterQuery([
+      historyFilterOptions.find((e) => e.value === "prior"),
+    ]);
+  };
+
   return (
     <Root>
       <Card
@@ -73,38 +95,41 @@ const DataFormCard = (props) => {
                 fontWeight: (theme) => theme.typography.fontWeightMedium,
               }}
             >
-              {props.primaryDefault}
+              {primaryDefault}
             </Typography>
-            {!props.added && (
+            {!added && (
               <Typography
                 variant="body2"
                 className={classes.singleLine}
                 sx={{ color: "text.secondary" }}
               >
-                {props.secondaryDefault}
+                {secondaryDefault}
               </Typography>
             )}
-            {props.added && (
+            {added && (
               <Typography
                 variant="body2"
                 className={classes.singleLine}
                 sx={{ color: "text.secondary" }}
               >
-                {props.secondaryAdded}
+                {secondaryAdded}
               </Typography>
             )}
           </Stack>
           <Stack direction="row" sx={{ alignItems: "center" }}>
-            {props.added && <Check color="success" sx={{ mr: 1 }} />}
-            <Button
-              id={(props.primaryDefault || "add")
-                .toLowerCase()
-                .replace(/\s+/g, "-")}
-              disabled={props.datasetAdded !== undefined && !props.datasetAdded}
-              onClick={props.toggleAddCard}
-            >
-              {!props.added ? "Add" : "Edit"}
-            </Button>
+            {added && <Check color="success" sx={{ mr: 1 }} />}
+            {editable && (
+              <Button
+                id={(primaryDefault || "add")
+                  .toLowerCase()
+                  .replace(/\s+/g, "-")}
+                disabled={datasetAdded !== undefined && !datasetAdded}
+                onClick={toggleAddCard}
+              >
+                {!added ? "Add" : "Edit"}
+              </Button>
+            )}
+            {!editable && <Button onClick={handleClickViewPrior}>View</Button>}
           </Stack>
         </CardContent>
       </Card>

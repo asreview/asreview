@@ -22,7 +22,15 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const ProjectInfo = (props) => {
+const ProjectInfo = ({
+  info,
+  setTextFieldFocused,
+  isTitleValidated,
+  setInfo,
+  setDisableSaveButton,
+  setDisableUndoButton,
+  editable = true,
+}) => {
   const { project_id } = useParams();
 
   const isProjectSetup = () => {
@@ -33,7 +41,7 @@ const ProjectInfo = (props) => {
     if (!isProjectSetup()) {
       // do nothing
     } else {
-      props.setTextFieldFocused(true);
+      setTextFieldFocused(true);
     }
   };
 
@@ -41,26 +49,26 @@ const ProjectInfo = (props) => {
     if (!isProjectSetup()) {
       // do nothing
     } else {
-      props.setTextFieldFocused(false);
+      setTextFieldFocused(false);
     }
   };
 
   const handleInfoChange = (event) => {
     if (!isProjectSetup()) {
-      props.setInfo({
-        ...props.info,
+      setInfo({
+        ...info,
         [event.target.name]: event.target.value,
       });
       if (event.target.name === "title" && !event.target.value) {
-        props.setDisableSaveButton(true);
-      } else if (props.info?.title) {
-        props.setDisableSaveButton(false);
+        setDisableSaveButton(true);
+      } else if (info?.title) {
+        setDisableSaveButton(false);
       } else {
         // do nothing
       }
-      props.setDisableUndoButton(false);
+      setDisableUndoButton(false);
     } else {
-      props.handleInfoChange(event);
+      handleInfoChange(event);
     }
   };
 
@@ -85,12 +93,12 @@ const ProjectInfo = (props) => {
               disableHoverListener
               title="Your project needs a title"
               arrow
-              open={!props.isTitleValidated}
+              open={!isTitleValidated}
               placement="top-start"
             >
               <TextField
                 autoFocus
-                error={!props.isTitleValidated}
+                error={!isTitleValidated}
                 fullWidth
                 id="project-title"
                 inputProps={{
@@ -104,7 +112,8 @@ const ProjectInfo = (props) => {
                 name="title"
                 onChange={handleInfoChange}
                 required
-                value={props.info?.title}
+                value={info?.title}
+                disabled={!editable}
               />
             </Tooltip>
             <TextField
@@ -117,7 +126,8 @@ const ProjectInfo = (props) => {
               label="Author(s)"
               name="authors"
               onChange={handleInfoChange}
-              value={props.info?.authors}
+              value={info?.authors}
+              disabled={!editable}
             />
             <TextField
               fullWidth
@@ -131,7 +141,8 @@ const ProjectInfo = (props) => {
               minRows={8}
               name="description"
               onChange={handleInfoChange}
-              value={props.info?.description}
+              value={info?.description}
+              disabled={!editable}
             />
           </Stack>
         </Box>

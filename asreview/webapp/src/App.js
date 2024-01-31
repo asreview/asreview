@@ -77,7 +77,19 @@ const App = (props) => {
 
   // Dialog state
   const [onSettings, toggleSettings] = useToggle();
-  const [onProjectSetup, toggleProjectSetup] = useToggle();
+
+  const [projectSetup, setProjectSetup] = React.useState({
+    open: false,
+    project_id: null,
+  });
+
+  const toggleProjectSetup = (project_id) => {
+    setProjectSetup({
+      open: !projectSetup.open,
+      project_id: project_id,
+    });
+  };
+
   const [projectCheck, setProjectCheck] = React.useState({
     open: false,
     issue: null,
@@ -206,7 +218,7 @@ const App = (props) => {
               <HomePage
                 mobileScreen={mobileScreen}
                 onNavDrawer={onNavDrawer}
-                onProjectSetup={onProjectSetup}
+                projectSetup={projectSetup}
                 projectCheck={projectCheck}
                 setProjectCheck={setProjectCheck}
                 toggleProjectSetup={toggleProjectSetup}

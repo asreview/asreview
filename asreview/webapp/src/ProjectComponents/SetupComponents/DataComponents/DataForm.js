@@ -27,18 +27,24 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const DataForm = (props) => {
+const DataForm = ({
+  project_id,
+  handleComplete,
+  toggleAddPrior,
+  setHistoryFilterQuery,
+  editable = true,
+}) => {
   const { data, error, isError, isFetching, refetch } = useQuery(
-    ["fetchLabeledStats", { project_id: props.project_id }],
+    ["fetchLabeledStats", { project_id: project_id }],
     ProjectAPI.fetchLabeledStats,
     {
-      enabled: props.project_id !== null,
+      enabled: project_id !== null,
       refetchOnWindowFocus: false,
       onSuccess: (data) => {
         if (data.n_prior_inclusions !== 0 && data.n_prior_exclusions !== 0) {
-          props.handleComplete(true);
+          handleComplete(true);
         } else {
-          props.handleComplete(false);
+          handleComplete(false);
         }
       },
     },
@@ -69,11 +75,14 @@ const DataForm = (props) => {
       {!isFetching && !isError && (
         <Stack direction="column" spacing={3}>
           <DataFormCard
+            project_id={project_id}
             added={priorAdded()}
             primaryDefault="Add prior knowledge"
             secondaryDefault="Label at least 1 relevant and 1 irrelevant record to warm up the AI"
             secondaryAdded={`${data?.n_prior_inclusions} relevant and ${data?.n_prior_exclusions} irrelevant records`}
-            toggleAddCard={props.toggleAddPrior}
+            toggleAddCard={toggleAddPrior}
+            setHistoryFilterQuery={setHistoryFilterQuery}
+            editable={editable}
           />
         </Stack>
       )}

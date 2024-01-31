@@ -309,7 +309,7 @@ const ProjectTable = (props) => {
       // set project id
       props.setProjectId(project["id"]);
       // open project setup dialog
-      props.toggleProjectSetup();
+      props.toggleProjectSetup(project["id"]);
       // clear potential setup error
       if (
         project["reviews"][0] !== undefined &&

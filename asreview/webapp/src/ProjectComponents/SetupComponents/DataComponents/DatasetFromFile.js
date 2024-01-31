@@ -94,7 +94,7 @@ const DatasetFromFile = (props) => {
     mutationKey: ["addDataset"],
     onSuccess: (data) => {
       if (!isDatasetAdded()) {
-        props.toggleProjectSetup();
+        props.toggleProjectSetup(props.project_id);
       } else {
         queryClient.invalidateQueries([
           "fetchInfo",

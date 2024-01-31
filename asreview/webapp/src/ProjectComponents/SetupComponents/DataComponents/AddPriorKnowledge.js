@@ -27,6 +27,8 @@ import { PriorLabeled, PriorRandom, PriorSearch } from "../DataComponents";
 import { ProjectAPI } from "../../../api/index.js";
 import { useToggle } from "../../../hooks/useToggle";
 import { mapStateToProps } from "../../../globals.js";
+import { useContext } from "react";
+import { ProjectContext } from "../../../ProjectContext.js";
 
 const PREFIX = "AddPriorKnowledge";
 
@@ -82,6 +84,8 @@ const AddPriorKnowledge = (props) => {
 
   const [search, toggleSearch] = useToggle();
   const [random, toggleRandom] = useToggle();
+
+  console.log("AddPriorKnowledge.js: props.project_id: ", props.project_id);
 
   const { data: info } = useQuery(
     ["fetchInfo", { project_id: props.project_id }],
@@ -146,114 +150,117 @@ const AddPriorKnowledge = (props) => {
       }}
       TransitionComponent={Fade}
     >
-      {props.mobileScreen && (
-        <AppBarWithinDialog
-          onClickStartIcon={handleClickClose}
-          startIconIsClose={false}
-          title="Prior knowledge"
-        />
-      )}
-      {!props.mobileScreen && (
-        <Stack className="dialog-header" direction="row">
-          <DialogTitle>Prior knowledge</DialogTitle>
-          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-            {isEnoughPriorKnowledge() && (
-              <Typography variant="body2" sx={{ color: "secondary.main" }}>
-                Enough prior knowledge. Click CLOSE to move on to the next step.
-              </Typography>
-            )}
-            {data?.n_prior !== 0 && <SavingStateBox isSaving={savingState} />}
-            <Box className="dialog-header-button right">
-              <Button
-                variant={!isEnoughPriorKnowledge() ? "text" : "contained"}
-                onClick={handleClickClose}
-              >
-                Close
-              </Button>
-            </Box>
-          </Stack>
-        </Stack>
-      )}
-      <DialogContent className={classes.form}>
-        <Stack className={classes.layout}>
-          <Card
-            elevation={0}
-            square
-            variant="outlined"
-            className={classes.unlabeled}
-          >
-            {!search && !random && (
-              <Stack className={classes.method} spacing={2}>
-                <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                  Label at least 1 relevant and 1 irrelevant record to warm up
-                  the AI.{" "}
-                  <Link
-                    underline="none"
-                    href="https://asreview.readthedocs.io/en/latest/project_create.html#select-prior-knowledge"
-                    target="_blank"
-                  >
-                    Learn more
-                  </Link>
+      <ProjectContext.Provider value={props.project_id}>
+        {props.mobileScreen && (
+          <AppBarWithinDialog
+            onClickStartIcon={handleClickClose}
+            startIconIsClose={false}
+            title="Prior knowledge"
+          />
+        )}
+        {!props.mobileScreen && (
+          <Stack className="dialog-header" direction="row">
+            <DialogTitle>Prior knowledge</DialogTitle>
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+              {isEnoughPriorKnowledge() && (
+                <Typography variant="body2" sx={{ color: "secondary.main" }}>
+                  Enough prior knowledge. Click CLOSE to move on to the next
+                  step.
                 </Typography>
-                <InfoCard info="Editing prior knowledge does not train the model" />
-                <Typography
-                  variant="subtitle1"
-                  sx={{ color: "text.secondary" }}
+              )}
+              {data?.n_prior !== 0 && <SavingStateBox isSaving={savingState} />}
+              <Box className="dialog-header-button right">
+                <Button
+                  variant={!isEnoughPriorKnowledge() ? "text" : "contained"}
+                  onClick={handleClickClose}
                 >
-                  Select a way to add prior knowledge:
-                </Typography>
-                <List>
-                  <ListItem disablePadding divider>
-                    <Tooltip title="Search for specific records in the dataset">
-                      <ListItemButton onClick={toggleSearch}>
-                        <ListItemText primary="Search" />
-                        <AddIcon color="primary" />
-                      </ListItemButton>
-                    </Tooltip>
-                  </ListItem>
-                  <ListItem disablePadding divider>
-                    <Tooltip title="Get random records from the dataset">
-                      <ListItemButton onClick={toggleRandom}>
-                        <ListItemText primary="Random" />
-                        <AddIcon color="primary" />
-                      </ListItemButton>
-                    </Tooltip>
-                  </ListItem>
-                </List>
-              </Stack>
-            )}
-            {search && !random && (
-              <PriorSearch
+                  Close
+                </Button>
+              </Box>
+            </Stack>
+          </Stack>
+        )}
+        <DialogContent className={classes.form}>
+          <Stack className={classes.layout}>
+            <Card
+              elevation={0}
+              square
+              variant="outlined"
+              className={classes.unlabeled}
+            >
+              {!search && !random && (
+                <Stack className={classes.method} spacing={2}>
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    Label at least 1 relevant and 1 irrelevant record to warm up
+                    the AI.{" "}
+                    <Link
+                      underline="none"
+                      href="https://asreview.readthedocs.io/en/latest/project_create.html#select-prior-knowledge"
+                      target="_blank"
+                    >
+                      Learn more
+                    </Link>
+                  </Typography>
+                  <InfoCard info="Editing prior knowledge does not train the model" />
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ color: "text.secondary" }}
+                  >
+                    Select a way to add prior knowledge:
+                  </Typography>
+                  <List>
+                    <ListItem disablePadding divider>
+                      <Tooltip title="Search for specific records in the dataset">
+                        <ListItemButton onClick={toggleSearch}>
+                          <ListItemText primary="Search" />
+                          <AddIcon color="primary" />
+                        </ListItemButton>
+                      </Tooltip>
+                    </ListItem>
+                    <ListItem disablePadding divider>
+                      <Tooltip title="Get random records from the dataset">
+                        <ListItemButton onClick={toggleRandom}>
+                          <ListItemText primary="Random" />
+                          <AddIcon color="primary" />
+                        </ListItemButton>
+                      </Tooltip>
+                    </ListItem>
+                  </List>
+                </Stack>
+              )}
+              {search && !random && (
+                <PriorSearch
+                  n_prior={data?.n_prior}
+                  toggleSearch={toggleSearch}
+                />
+              )}
+              {!search && random && (
+                <PriorRandom
+                  mode={info?.mode}
+                  n_prior_exclusions={data?.n_prior_exclusions}
+                  toggleRandom={toggleRandom}
+                  toggleSearch={toggleSearch}
+                />
+              )}
+            </Card>
+            <Card
+              elevation={0}
+              square
+              variant="outlined"
+              className={classes.unlabeled}
+            >
+              <PriorLabeled
+                mobileScreen={props.mobileScreen}
                 n_prior={data?.n_prior}
-                toggleSearch={toggleSearch}
-              />
-            )}
-            {!search && random && (
-              <PriorRandom
-                mode={info?.mode}
                 n_prior_exclusions={data?.n_prior_exclusions}
-                toggleRandom={toggleRandom}
-                toggleSearch={toggleSearch}
+                n_prior_inclusions={data?.n_prior_inclusions}
               />
-            )}
-          </Card>
-          <Card
-            elevation={0}
-            square
-            variant="outlined"
-            className={classes.unlabeled}
-          >
-            <PriorLabeled
-              mobileScreen={props.mobileScreen}
-              n_prior={data?.n_prior}
-              n_prior_exclusions={data?.n_prior_exclusions}
-              n_prior_inclusions={data?.n_prior_inclusions}
-            />
-          </Card>
-        </Stack>
-      </DialogContent>
+            </Card>
+          </Stack>
+        </DialogContent>
+      </ProjectContext.Provider>
     </StyledDialog>
   );
 };
 
-export default connect(mapStateToProps)(AddPriorKnowledge);
+export default AddPriorKnowledge;

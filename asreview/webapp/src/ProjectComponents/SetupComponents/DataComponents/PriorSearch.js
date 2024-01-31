@@ -22,6 +22,9 @@ import { ProjectAPI } from "../../../api/index.js";
 import { mapStateToProps } from "../../../globals.js";
 import { useToggle } from "../../../hooks/useToggle";
 
+import { ProjectContext } from "../../../ProjectContext.js";
+import { useContext } from "react";
+
 const PREFIX = "PriorSearch";
 
 const classes = {
@@ -70,12 +73,14 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const PriorSearch = (props) => {
+  const project_id = useContext(ProjectContext);
+
   const queryClient = useQueryClient();
   const [keyword, setKeyword] = React.useState("");
   const [clickSearch, onClickSearch] = useToggle();
 
   const { data, error, isError, isFetched, isFetching, isSuccess } = useQuery(
-    ["fetchPriorSearch", { project_id: props.project_id, keyword: keyword }],
+    ["fetchPriorSearch", { project_id: project_id, keyword: keyword }],
     ProjectAPI.fetchPriorSearch,
     {
       enabled: clickSearch,
@@ -181,4 +186,4 @@ const PriorSearch = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(PriorSearch);
+export default PriorSearch;

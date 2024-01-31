@@ -26,6 +26,8 @@ import { ScreenLanding } from "../SetupComponents/ScreenComponents";
 
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps, mapDispatchToProps } from "../../globals.js";
+import { useContext } from "react";
+import { ProjectContext } from "../../ProjectContext.js";
 
 const PREFIX = "SetupDialog";
 
@@ -59,7 +61,17 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-const SetupDialog = (props) => {
+const SetupDialog = ({
+  project_id,
+  onClose,
+  setFeedbackBar,
+  open,
+  mobileScreen,
+  onAddPrior,
+  setProjectId,
+  toggleImportDataset,
+  toggleAddPrior,
+}) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -85,14 +97,14 @@ const SetupDialog = (props) => {
    */
   const handleClose = () => {
     if (activeStep !== 4) {
-      props.onClose();
+      onClose();
     } else {
       console.log("Cannot close when training is in progress");
     }
   };
 
   const exitingSetup = () => {
-    props.setFeedbackBar({
+    setFeedbackBar({
       open: true,
       message: `Your project ${title} has been saved as draft`,
     });
@@ -101,7 +113,7 @@ const SetupDialog = (props) => {
   };
 
   const exitedSetup = () => {
-    props.setProjectId(null);
+    setProjectId(null);
     setActiveStep(0);
     setCompleted({ 0: true, 1: false, 2: false, 3: true });
   };
@@ -147,10 +159,10 @@ const SetupDialog = (props) => {
 
   // check if model is configured
   React.useEffect(() => {
-    if (props.open && props.project_id !== null) {
+    if (open && project_id !== null) {
       queryClient
         .fetchQuery(
-          ["fetchModelConfig", { project_id: props.project_id }],
+          ["fetchModelConfig", { project_id: project_id }],
           ProjectAPI.fetchModelConfig,
         )
         .then((data) => {
@@ -159,14 +171,14 @@ const SetupDialog = (props) => {
           }
         });
     }
-  }, [props.open, props.project_id, queryClient]);
+  }, [open, project_id, queryClient]);
 
   // check if prior data is added
   React.useEffect(() => {
-    if (props.open && props.project_id !== null && !props.onAddPrior) {
+    if (open && project_id !== null && !onAddPrior) {
       queryClient
         .fetchQuery(
-          ["fetchLabeledStats", { project_id: props.project_id }],
+          ["fetchLabeledStats", { project_id: project_id }],
           ProjectAPI.fetchLabeledStats,
         )
         .then((data) => {
@@ -175,7 +187,7 @@ const SetupDialog = (props) => {
           }
         });
     }
-  }, [props.open, props.project_id, props.onAddPrior, queryClient]);
+  }, [open, project_id, onAddPrior, queryClient]);
 
   React.useEffect(() => {
     const currentSavingStatus = isMutatingInfo === 1 || isMutatingModel === 1;
@@ -198,12 +210,12 @@ const SetupDialog = (props) => {
   return (
     <StyledDialog
       aria-label="project setup"
-      open={props.open}
-      fullScreen={props.mobileScreen}
+      open={open}
+      fullScreen={mobileScreen}
       fullWidth
       maxWidth="md"
       PaperProps={{
-        sx: { height: !props.mobileScreen ? "calc(100% - 96px)" : "100%" },
+        sx: { height: !mobileScreen ? "calc(100% - 96px)" : "100%" },
       }}
       TransitionComponent={Fade}
       TransitionProps={{
@@ -211,78 +223,80 @@ const SetupDialog = (props) => {
         onExited: () => exitedSetup(),
       }}
     >
-      {props.mobileScreen && (
-        <AppBarWithinDialog onClickStartIcon={handleClose} title={title} />
-      )}
-      {!props.mobileScreen && (
-        <SetupDialogHeader
-          activeStep={activeStep}
-          handleClose={handleClose}
-          isTitleValidated={isTitleValidated}
-          mobileScreen={props.mobileScreen}
-          savingState={savingState}
-        />
-      )}
-      <DialogContent className={classes.content} dividers>
-        {activeStep !== 4 && (
-          <SetupStepper
+      <ProjectContext.Provider value={project_id}>
+        {mobileScreen && (
+          <AppBarWithinDialog onClickStartIcon={handleClose} title={title} />
+        )}
+        {!mobileScreen && (
+          <SetupDialogHeader
             activeStep={activeStep}
-            handleStep={handleStep}
-            completed={completed}
-            isStepFailed={isStepFailed}
+            handleClose={handleClose}
+            isTitleValidated={isTitleValidated}
+            mobileScreen={mobileScreen}
+            savingState={savingState}
           />
         )}
-        <Box
-          className={clsx({
-            [classes.form]: true,
-            [classes.formWarmup]: activeStep === 4,
-          })}
-        >
-          {activeStep === 0 && (
-            <InfoForm
-              handleComplete={handleComplete}
-              setTitle={setTitle}
-              isTitleValidated={isTitleValidated()}
-              toggleImportDataset={props.toggleImportDataset}
+        <DialogContent className={classes.content} dividers>
+          {activeStep !== 4 && (
+            <SetupStepper
+              activeStep={activeStep}
+              handleStep={handleStep}
+              completed={completed}
+              isStepFailed={isStepFailed}
             />
           )}
-          {activeStep === 1 && <ModelForm handleComplete={handleComplete} />}
-          {activeStep === 2 && (
-            <DataForm
-              handleComplete={handleComplete}
-              toggleAddPrior={props.toggleAddPrior}
-            />
-          )}
-          {activeStep === 3 && (
-            <ScreenLanding handleComplete={handleComplete} />
-          )}
-          {activeStep === 4 && (
-            <FinishSetup
-              handleBack={handleBack}
-              toggleProjectSetup={props.onClose}
-            />
-          )}
-        </Box>
-      </DialogContent>
-      {activeStep !== 4 && (
-        <DialogActions>
-          {activeStep !== 0 && (
-            <Button disabled={activeStep === 0} onClick={handleBack}>
-              Back
-            </Button>
-          )}
-          <Button
-            id="next"
-            disabled={disableNext()}
-            variant="contained"
-            onClick={handleNext}
+          <Box
+            className={clsx({
+              [classes.form]: true,
+              [classes.formWarmup]: activeStep === 4,
+            })}
           >
-            {activeStep === 3 ? "Finish" : "Next"}
-          </Button>
-        </DialogActions>
-      )}
+            {activeStep === 0 && (
+              <InfoForm
+                handleComplete={handleComplete}
+                setTitle={setTitle}
+                isTitleValidated={isTitleValidated()}
+                toggleImportDataset={toggleImportDataset}
+              />
+            )}
+            {activeStep === 1 && <ModelForm handleComplete={handleComplete} />}
+            {activeStep === 2 && (
+              <DataForm
+                handleComplete={handleComplete}
+                toggleAddPrior={toggleAddPrior}
+              />
+            )}
+            {activeStep === 3 && (
+              <ScreenLanding handleComplete={handleComplete} />
+            )}
+            {activeStep === 4 && (
+              <FinishSetup
+                handleBack={handleBack}
+                toggleProjectSetup={onClose}
+              />
+            )}
+          </Box>
+        </DialogContent>
+        {activeStep !== 4 && (
+          <DialogActions>
+            {activeStep !== 0 && (
+              <Button disabled={activeStep === 0} onClick={handleBack}>
+                Back
+              </Button>
+            )}
+            <Button
+              id="next"
+              disabled={disableNext()}
+              variant="contained"
+              onClick={handleNext}
+            >
+              {activeStep === 3 ? "Finish" : "Next"}
+            </Button>
+          </DialogActions>
+        )}
+      </ProjectContext.Provider>
     </StyledDialog>
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(SetupDialog);
+export default SetupDialog;

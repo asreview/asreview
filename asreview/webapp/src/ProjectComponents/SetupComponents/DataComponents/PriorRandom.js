@@ -24,6 +24,9 @@ import { ProjectAPI } from "../../../api/index.js";
 import { mapStateToProps, projectModes } from "../../../globals.js";
 import { useToggle } from "../../../hooks/useToggle";
 
+import { ProjectContext } from "../../../ProjectContext.js";
+import { useContext } from "react";
+
 const PREFIX = "PriorRandom";
 
 const classes = {
@@ -79,6 +82,10 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const PriorRandom = (props) => {
+  const project_id = useContext(ProjectContext);
+
+  console.log("PriorRandom.js: project_id: ", project_id);
+
   const queryClient = useQueryClient();
   const [reminder, toggleReminder] = useToggle();
   const [refresh, setRefresh] = React.useState(true);
@@ -89,7 +96,7 @@ const PriorRandom = (props) => {
     [
       "fetchPriorRandom",
       {
-        project_id: props.project_id,
+        project_id: project_id,
         n: nRecords,
         subset: props.mode !== projectModes.ORACLE ? subset : null,
       },
@@ -257,4 +264,4 @@ const PriorRandom = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(PriorRandom);
+export default PriorRandom;

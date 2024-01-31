@@ -63,7 +63,7 @@ const DatasetFromURL = (props) => {
         // if validate is not set, close the dialog
         if (!variables["validate"]) {
           if (!isDatasetAdded()) {
-            props.toggleProjectSetup();
+            props.toggleProjectSetup(props.project_id);
           } else {
             queryClient.invalidateQueries([
               "fetchInfo",

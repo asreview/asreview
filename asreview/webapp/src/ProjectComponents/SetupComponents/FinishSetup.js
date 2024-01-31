@@ -18,6 +18,9 @@ import {
   projectStatuses,
 } from "../../globals.js";
 
+import { ProjectContext } from "../../ProjectContext.js";
+import { useContext } from "react";
+
 let width = window.screen.width;
 
 const YouTubeVideoID = "k-a2SCq-LtA";
@@ -36,6 +39,8 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const FinishSetup = (props) => {
+  const project_id = useContext(ProjectContext);
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const theme = useTheme();
@@ -45,7 +50,7 @@ const FinishSetup = (props) => {
 
   const info = queryClient.getQueryData([
     "fetchInfo",
-    { project_id: props.project_id },
+    { project_id: project_id },
   ]);
 
   const {
@@ -65,7 +70,7 @@ const FinishSetup = (props) => {
     isError: isStatusError,
     isFetching: isFetchingStatus,
   } = useQuery(
-    ["fetchProjectStatus", { project_id: props.project_id }],
+    ["fetchProjectStatus", { project_id: project_id }],
     ProjectAPI.fetchProjectStatus,
     {
       enabled: isTraining,
@@ -99,30 +104,30 @@ const FinishSetup = (props) => {
   );
 
   const onClickCloseSetup = async () => {
-    props.toggleProjectSetup();
-    console.log("Opening existing project " + props.project_id);
+    props.toggleProjectSetup(project_id);
+    console.log("Opening existing project " + project_id);
     await queryClient.prefetchQuery(
-      ["fetchInfo", { project_id: props.project_id }],
+      ["fetchInfo", { project_id: project_id }],
       ProjectAPI.fetchInfo,
     );
     if (info?.mode !== projectModes.SIMULATION) {
-      navigate(`/projects/${props.project_id}/review`);
+      navigate(`/projects/${project_id}/review`);
     } else {
-      navigate(`/projects/${props.project_id}`);
+      navigate(`/projects/${project_id}`);
     }
     props.setProjectId(null);
   };
 
   const onClickClearError = () => {
     mutate({
-      project_id: props.project_id,
+      project_id: project_id,
       status: projectStatuses.SETUP,
     });
   };
 
   React.useEffect(() => {
-    train({ project_id: props.project_id });
-  }, [props.project_id, train]);
+    train({ project_id: project_id });
+  }, [project_id, train]);
 
   return (
     <Root>

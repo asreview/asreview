@@ -20,6 +20,8 @@ import { ModelSelect } from "../ModelComponents";
 import { ProjectAPI } from "../../../api/index.js";
 import { defaultAlgorithms, mapStateToProps } from "../../../globals.js";
 import { SelectItem } from "../../../ProjectComponents";
+import { useContext } from "react";
+import { ProjectContext } from "../../../ProjectContext.js";
 
 const PREFIX = "ModelForm";
 
@@ -93,7 +95,9 @@ const getFullModelName = (model) => {
   }
 };
 
-const ModelForm = (props) => {
+const ModelForm = ({ handleComplete, editable = true }) => {
+  const project_id = useContext(ProjectContext);
+
   const [modelState, setModelState] = React.useState({
     custom: false,
     isChanged: false,
@@ -114,10 +118,10 @@ const ModelForm = (props) => {
     isError: isFetchModelConfigError,
     isFetching: isFetchingModelConfig,
   } = useQuery(
-    ["fetchModelConfig", { project_id: props.project_id }],
+    ["fetchModelConfig", { project_id: project_id }],
     ProjectAPI.fetchModelConfig,
     {
-      enabled: props.project_id !== null,
+      enabled: project_id !== null,
       onSuccess: (data) => {
         setModelState({
           ...modelState,
@@ -135,19 +139,19 @@ const ModelForm = (props) => {
     useMutation(ProjectAPI.mutateModelConfig, {
       mutationKey: "mutateModelConfig",
       onError: () => {
-        props.handleComplete(false);
+        handleComplete(false);
       },
       onSuccess: () => {
-        props.handleComplete(true);
+        handleComplete(true);
       },
     });
 
   const prepareMutationData = React.useCallback(
     () => ({
-      project_id: props.project_id,
+      project_id: project_id,
       ...modelState.model,
     }),
-    [props.project_id, modelState],
+    [project_id, modelState],
   );
 
   const handleModelCustom = (event) => {
@@ -217,9 +221,9 @@ const ModelForm = (props) => {
         {!isFetchingModelOptions && !isFetchingModelConfig && (
           <Box component="form" noValidate autoComplete="off">
             <FormControl
-              disabled={props.disableModeSelect}
+              disabled={!editable}
               fullWidth
-              variant={!props.disableModeSelect ? "outlined" : "filled"}
+              variant={editable ? "outlined" : "filled"}
               error={isMutateModelConfigError}
             >
               <InputLabel id="model-select-label">Model</InputLabel>
@@ -227,8 +231,8 @@ const ModelForm = (props) => {
                 labelId="model-select-label"
                 id="model-select"
                 // inputProps={{
-                //   onFocus: () => props.onFocus(),
-                //   onBlur: () => props.onBlur(),
+                //   onFocus: () => onFocus(),
+                //   onBlur: () => onBlur(),
                 // }}
                 name="model"
                 label="Model"
@@ -341,4 +345,4 @@ const ModelForm = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(ModelForm);
+export default ModelForm;

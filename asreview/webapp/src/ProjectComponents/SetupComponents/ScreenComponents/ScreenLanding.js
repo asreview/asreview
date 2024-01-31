@@ -6,6 +6,8 @@ import { Box, Typography, styled } from "@mui/material";
 import { TagEditor } from "../../TagComponents";
 
 import { mapStateToProps } from "../../../globals.js";
+import { useContext } from "react";
+import { ProjectContext } from "../../../ProjectContext.js";
 
 const PREFIX = "ScreenLanding";
 
@@ -27,7 +29,8 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const ScreenLanding = ({ handleComplete, project_id }) => {
+const ScreenLanding = ({ handleComplete }) => {
+  const project_id = useContext(ProjectContext);
   return (
     <Root className={classes.root}>
       <Box className={classes.title}>
@@ -45,4 +48,4 @@ const ScreenLanding = ({ handleComplete, project_id }) => {
   );
 };
 
-export default connect(mapStateToProps)(ScreenLanding);
+export default ScreenLanding;

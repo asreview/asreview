@@ -37,6 +37,11 @@ const ProjectsOverview = (props) => {
     });
   };
 
+  console.log(
+    "ProjectsOverview.js: props.projectSetup.project_id: ",
+    props.projectSetup.project_id,
+  );
+
   return (
     <>
       <DashboardPageHeader
@@ -73,6 +78,7 @@ const ProjectsOverview = (props) => {
         toggleImportDataset={toggleImportDataset}
       />
       <AddPriorKnowledge
+        project_id={props.projectSetup.project_id}
         open={onAddPrior}
         mobileScreen={props.mobileScreen}
         toggleAddPrior={toggleAddPrior}
@@ -91,10 +97,11 @@ const ProjectsOverview = (props) => {
         setFeedbackBar={setFeedbackBar}
       />
       <SetupDialog
+        project_id={props.projectSetup.project_id}
         mobileScreen={props.mobileScreen}
         onAddPrior={onAddPrior}
         onImportDataset={onImportDataset}
-        open={props.onProjectSetup}
+        open={props.projectSetup.open}
         onClose={props.toggleProjectSetup}
         setFeedbackBar={setFeedbackBar}
         toggleAddPrior={toggleAddPrior}

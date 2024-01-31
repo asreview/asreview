@@ -5,7 +5,6 @@ import {
   Box,
   Button,
   Fade,
-  Grid,
   IconButton,
   Menu,
   MenuItem,
@@ -19,12 +18,14 @@ import LoadingButton from "@mui/lab/LoadingButton";
 
 import { ProjectInfo, ProjectDeleteDialog } from "../../ProjectComponents";
 import { ActionsFeedbackBar } from "../../Components";
-import { DataForm, ModelForm } from "../DetailsComponents";
+import { ScreenLanding } from "../SetupComponents/ScreenComponents";
+import { ModelForm } from "../SetupComponents/ModelComponents";
+import { DataForm } from "../SetupComponents/DataComponents";
+
 import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
 import { ProjectAPI } from "../../api/index.js";
 import { projectModes, projectStatuses } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
-import { TagEditor } from "../TagComponents";
 
 const Root = styled("div")(({ theme }) => ({}));
 
@@ -209,33 +210,25 @@ const DetailsPage = (props) => {
           </Box>
 
           {/* Page body */}
-          <Box className="main-page-body-wrapper">
-            <Grid className="main-page-body" container spacing={3}>
-              <Grid item xs={12} sm={8}>
-                <ProjectInfo
-                  info={info}
-                  isTitleValidated={isTitleValidated()}
-                  mobileScreen={props.mobileScreen}
-                  setInfo={setInfo}
-                  setDisableSaveButton={setDisableSaveButton}
-                  setDisableUndoButton={setDisableUndoButton}
-                />
-                <TagEditor
-                  project_id={project_id}
-                  // mobileScreen={props.mobileScreen}
-                  // onFocus={onFocus}
-                  // onBlur={onBlur}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Stack spacing={3}>
-                  <DataForm
-                    setHistoryFilterQuery={props.setHistoryFilterQuery}
-                  />
-                  <ModelForm />
-                </Stack>
-              </Grid>
-            </Grid>
+          <Box>
+            <ProjectInfo
+              info={info}
+              isTitleValidated={isTitleValidated()}
+              mobileScreen={props.mobileScreen}
+              setInfo={setInfo}
+              setDisableSaveButton={setDisableSaveButton}
+              setDisableUndoButton={setDisableUndoButton}
+              editable={false}
+            />
+
+            <DataForm
+              project_id={project_id}
+              editable={false}
+              setHistoryFilterQuery={props.setHistoryFilterQuery}
+            />
+            <ModelForm editable={false} />
+
+            <ScreenLanding />
           </Box>
         </Box>
       </Fade>

@@ -11,6 +11,8 @@ import { ProjectInfo } from "../../../ProjectComponents";
 
 import { ProjectAPI } from "../../../api";
 import { mapStateToProps } from "../../../globals.js";
+import { useContext } from "react";
+import { ProjectContext } from "../../../ProjectContext.js";
 
 const PREFIX = "InfoForm";
 
@@ -35,10 +37,11 @@ const Root = styled("div")(({ theme }) => ({
 const InfoForm = ({
   handleComplete,
   isTitleValidated,
-  project_id,
   setTitle,
   toggleImportDataset,
 }) => {
+  const project_id = useContext(ProjectContext);
+
   const [info, setInfo] = React.useState({
     title: "",
     authors: "",
@@ -196,4 +199,4 @@ const InfoForm = ({
   );
 };
 
-export default connect(mapStateToProps)(InfoForm);
+export default InfoForm;
