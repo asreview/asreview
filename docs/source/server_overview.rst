@@ -8,7 +8,7 @@ from any device with a web browser and can be used on desktops, laptops,
 tablets, and mobile devices. ASReview LAB Server enables users to create an
 account or connect via their GitHub, ORCID, or Google accounts.
 
-See the `server configuration details <server_configuration>`_ for more
+See the :doc:`server_configuration` details for more
 information on how to configure your ASReview LAB on your server.
 
 Features
@@ -27,7 +27,7 @@ Google account.
 .. figure:: ../images/server_signin.png
 	:alt: Sign in with GitHub, ORCID, or Google account
 
-See the `server configuration details <server_configuration>`_ for more
+See the :doc:`server_configuration` details for more
 information on how to configure your ASReview on your server to enable this
 feature.
 
@@ -43,8 +43,8 @@ Installation
 ------------
 
 ASReview LAB server is installed in the same way as ASReview LAB. See the
-`installation instructions <installation>`_ for more information. See
-`server configuration <server_configuration>`_ for more information on
+:doc:`installation` instructions for more information. See
+:doc:`server_configuration` for more information on
 how to configure authentication on your ASReview LAB server.
 
 Optional: If you want to make use of the PostgreSQL database, you need to
