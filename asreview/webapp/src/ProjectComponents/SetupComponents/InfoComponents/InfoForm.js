@@ -37,7 +37,6 @@ const Root = styled("div")(({ theme }) => ({
 const InfoForm = ({
   handleComplete,
   isTitleValidated,
-  setTitle,
   toggleImportDataset,
 }) => {
   const project_id = useContext(ProjectContext);
@@ -81,7 +80,6 @@ const InfoForm = ({
     {
       enabled: project_id !== null,
       onSuccess: (data) => {
-        setTitle(data["name"]);
         setInfo({
           title: data["name"],
           authors: data["authors"] ? data["authors"] : "",
@@ -114,9 +112,6 @@ const InfoForm = ({
   });
 
   const handleInfoChange = (event) => {
-    if (event.target.name === "title") {
-      setTitle(event.target.value);
-    }
     setInfo({
       ...info,
       [event.target.name]: event.target.value,
