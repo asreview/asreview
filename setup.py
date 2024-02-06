@@ -75,7 +75,7 @@ DEPS = {
     "docs": [
         "ipython",
         "sphinx",
-        "sphinx_rtd_theme",
+        "pydata-sphinx-theme",
         "sphinx-reredirects",
         "sphinxcontrib-youtube",
         "nbsphinx",
