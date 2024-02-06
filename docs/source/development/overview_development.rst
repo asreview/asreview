@@ -17,7 +17,7 @@ available interfaces for interacting with the ASReview software:
   Source file of image can be found at
   https://github.com/asreview/asreview-artwork/tree/master/LayerOverview
 
-.. figure:: ../figures/asreview_layers_light_no_BG.png
+.. figure:: ../../figures/asreview_layers_light_no_BG.png
    :alt: ASReview API
 
 
@@ -26,11 +26,11 @@ available interfaces for interacting with the ASReview software:
     - ASReview is currently in development. For information on ASReview CLOUD,
       be sure visit our communication channels.
 
-* Layer 4: :doc:`ASReview LAB <project_create>`
+* Layer 4: :doc:`ASReview LAB <../lab/project_create>`
 
     - ASReview LAB is the user friendly webapp and all underlying
       interfaces. Documentation on LAB
-      can be found in the :doc:`ASReview LAB section <project_create>`.
+      can be found in the :doc:`ASReview LAB section <../lab/project_create>`.
 
 * Layer 3: REST API
 
@@ -42,7 +42,7 @@ available interfaces for interacting with the ASReview software:
 
     - The Command Line is an interface used to open ASReview LAB, run
       simulations, and run :doc:`Subcommand extensions <extensions_dev>` for ASReview. This development section documents all available
-      command line options for both :doc:`ASReview LAB <start>` and :doc:`simulation mode <simulation_cli>`.
+      command line options for both :doc:`ASReview LAB <../lab/start>` and :doc:`simulation mode <../lab/simulation_cli>`.
 
 * Layer 1: :doc:`reference`
 
@@ -51,7 +51,7 @@ available interfaces for interacting with the ASReview software:
       This reference contains extensive documentation on all functions, classes,
       and modules found in ASReview.
 
-    - An outline for usage can be found in :doc:`../simulation_api_example` and :doc:`example_api_asreview_file`.
+    - An outline for usage can be found in :doc:`../lab/simulation_api_example` and :doc:`example_api_asreview_file`.
 
 Extensions
 ----------

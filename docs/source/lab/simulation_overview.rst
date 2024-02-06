@@ -3,7 +3,7 @@ Overview
 
 ASReview LAB offers three different solutions to run simulations with the:
 
-- :ref:`Webapp (the frontend) <simulation_webapp:simulate via the webapp>`
+- :ref:`Webapp (the frontend) <lab/simulation_webapp:simulate via the webapp>`
 - :doc:`Command line interface <simulation_cli>`
 - :doc:`Python API <simulation_api_example>`
 
@@ -20,7 +20,8 @@ Why run a simulation?
 ---------------------
 
 Simulating with ASReview LAB has multiple purposes. First, the performance of
-one or multiple models can be measured by different metrics (see :ref:`Analyzing results <simulation_results:Analyzing results>`). A convenient one
+one or multiple models can be measured by different metrics (see
+:ref:`Analyzing results <lab/simulation_results:Analyzing results>`). A convenient one
 is that you can investigate the amount of work you could have saved by using
 active learning compared to your manual screening process.
 
@@ -41,7 +42,12 @@ inspection
 Datasets for simulation
 -----------------------
 
-Simulations require :ref:`fully labeled datasets <data_labeled:fully labeled data>` (labels: ``0`` = irrelevant, ``1`` = relevant). Such a dataset can be the result of an earlier study. ASReview offers also fully labeled datasets via the `SYNERGY dataset <https://github.com/asreview/synergy-dataset>`_. These datasets are available via the user interface in the *Data* step of the setup and in the command line with the prefix `synergy:` (e.g. `synergy:van_de_schoot_2018`).
+Simulations require :ref:`fully labeled datasets <lab/data_labeled:fully labeled data>`
+(labels: ``0`` = irrelevant, ``1`` = relevant). Such a dataset can be the result of an
+earlier study. ASReview offers also fully labeled datasets via the
+`SYNERGY dataset <https://github.com/asreview/synergy-dataset>`_. These datasets are
+available via the user interface in the *Data* step of the setup and in the command
+line with the prefix `synergy:` (e.g. `synergy:van_de_schoot_2018`).
 
 .. tip::
 

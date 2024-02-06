@@ -31,7 +31,7 @@ Unlabeled data
 
 Unlabeled datasets do not contain any labels and can be used in the **Oracle
 mode** to start a review from scratch. Prior knowledge has to be selected in
-the :ref:`Prior Knowledge <project_create:Prior Knowledge>` step of the project set-up.
+the :ref:`Prior Knowledge <lab/project_create:Prior Knowledge>` step of the project set-up.
 
 Partially labeled data
 ----------------------
@@ -41,7 +41,7 @@ of the records in the dataset and no decision for another subset.
 
 In **Oracle mode**, if labels are available for a part of the dataset, the
 labels will be automatically detected and used for :ref:`Prior Knowledge
-<project_create:Prior Knowledge>`. The first iteration of the model
+<lab/project_create:Prior Knowledge>`. The first iteration of the model
 will then be based on these decisions and used to predict relevance scores
 for the unlabeled part of the data. It is usefull when a large number of
 records is needed for training, or when  updating a systematic review, or to
@@ -57,7 +57,8 @@ example, the `SAFE procedure <https://www.researchsquare.com/article/rs-2856011/
 .. note::
 
   Merging labeled with unlabeled data should be done outside ASReview LAB, for
-  example, with the `compose <https://github.com/asreview/asreview-datatools>`_ function of ASReview Datatools, or via :ref:`data:Citation Managers`.
+  example, with the `compose <https://github.com/asreview/asreview-datatools>`_
+  function of ASReview Datatools, or via :ref:`lab/data:Citation Managers`.
 
 
 Fully labeled data
@@ -89,7 +90,7 @@ In ASReview LAB, these datasets are found under "Benchmark Datasets"; only
 available for the Validation and Simulation modi.
 
 The Benchmark Datasets are directly available in the software. During the
-:ref:`project_create:Add Dataset` step of the project setup, there is a panel
+:ref:`lab/project_create:Add Dataset` step of the project setup, there is a panel
 with all the datasets. The datasets can be selected and used directly.
 Benchmark datasets are also available via the :doc:`simulation_cli`. Use the prefix
 ``synergy:`` followed by the identifier of the dataset (see `Synergy Dataset <https://github.com/asreview/synergy-dataset>`_

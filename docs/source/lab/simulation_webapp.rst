@@ -11,7 +11,7 @@ mode (see figure below).
 .. figure:: ../../images/setup_project_modes.png
    :alt: ASReview LAB simulate option
 
-In the step *Data*, import a :ref:`fully labeled dataset <data_labeled:fully labeled data>`
+In the step *Data*, import a :ref:`fully labeled dataset <lab/data_labeled:fully labeled data>`
 or use one of the benchmark datasets.
 
 Selecting prior knowledge is relatively easy. In case you know relevant

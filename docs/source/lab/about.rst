@@ -12,9 +12,17 @@ screened systematically, see the paper published in `Nature Machine Intelligence
 
 ASReview LAB implements three different options:
 
-- **Oracle:** Screen textual data in interaction with the active learning model. The reviewer is the 'oracle', making the labeling decisions.
-- **Simulation:** Evaluate the performance of active learning models on fully labeled data.
-- **Validation:** Validate labels provided by another screener or derived from an LLM or AI, and explore benchmark datasets without being an oracle.
++----------------+------------------------------------------------------------------------------------------------------------------+
+| Mode           | Description                                                                                                      |
++================+==================================================================================================================+
+| **Oracle**     | Screen textual data in interaction with the active learning model. The reviewer is the 'oracle', making the      |
+|                | labeling decisions.                                                                                              |
++----------------+------------------------------------------------------------------------------------------------------------------+
+| **Simulation** | Evaluate the performance of active learning models on fully labeled data.                                        |
++----------------+------------------------------------------------------------------------------------------------------------------+
+| **Validation** | Validate labels provided by another screener or derived from an LLM or AI, and explore benchmark datasets        |
+|                | without being an oracle.                                                                                         |
++----------------+------------------------------------------------------------------------------------------------------------------+
 
 
 ASReview LAB is one of the products of the `ASReview research project
@@ -56,9 +64,9 @@ these steps:
 2. Specify a `stopping criterion <https://github.com/asreview/asreview/discussions/557>`__
 3. :doc:`start`
 4. :doc:`project_create`
-5. :ref:`Import your dataset <project_create:Add dataset>`
-6. :ref:`Select Prior Knowledge <project_create:Prior Knowledge>`
-7. Select the four components of the :ref:`Active learning model <project_create:Model>` (feature extractor, classifier, balancing method, query strategy)
+5. :ref:`Import your dataset <lab/project_create:Add dataset>`
+6. :ref:`Select Prior Knowledge <lab/project_create:Prior Knowledge>`
+7. Select the four components of the :ref:`Active learning model <lab/project_create:Model>` (feature extractor, classifier, balancing method, query strategy)
 8. Wait until the warm up of the AI is ready (the software is extracting the features and trains the classifier on the prior knowledge)
 9. Start :doc:`screening` until you reach your `stopping criterion <https://github.com/asreview/asreview/discussions/557>`__
 10. At any time, you can export the :term:`dataset` the labeling decisions or the entire :term:`project`.

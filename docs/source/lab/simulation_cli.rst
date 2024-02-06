@@ -16,7 +16,7 @@ The simulation command line tool can be accessed directly like:
 	asreview simulate MY_DATASET.csv -s MY_SIMULATION.asreview
 
 This performs a simulation with the default active learning model, where
-``MY_DATASET.csv`` is the path to the :ref:`data_labeled:Fully labeled data`
+``MY_DATASET.csv`` is the path to the :ref:`lab/data_labeled:Fully labeled data`
 you want to simulate. The result of the simulation is stored, after a
 successful simulation, at ``MY_SIMULATION.asreview`` where ``MY_SIMULATION``
 is the filename you prefer and the extension is ``.asreview``
@@ -64,7 +64,7 @@ Dataset
 
     Required. File path or URL to the dataset or one of the SYNERGY datasets.
 
-You can also use one of the :ref:`SYNERGY dataset <data_labeled:fully
+You can also use one of the :ref:`SYNERGY dataset <lab/data_labeled:fully
 labeled data>`. Use the following command and replace ``DATASET_ID`` by the
 dataset ID.
 
@@ -185,16 +185,16 @@ The command line interface provides an easy way to get an overview of all
 available active learning model elements (classifiers, query strategies,
 balance strategies, and feature extraction algorithms) and their names for
 command line usage in ASReview LAB. It also includes models added
-via :doc:`extensions_dev`. The following command lists
+via :doc:`../development/extensions_dev`. The following command lists
 the available models:
 
 .. code:: bash
 
     asreview algorithms
 
-See :doc:`extensions_dev` for more information on developing new models
+See :doc:`../development/extensions_dev` for more information on developing new models
 and install them via extensions.
 
 Some models require additional dependencies to be installed. Use
 :code:`pip install asreview[all]` to install all additional dependencies
-at once or check the installation instruction in the :doc:`reference`.
+at once or check the installation instruction in the :doc:`../development/reference`.

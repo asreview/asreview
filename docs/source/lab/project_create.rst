@@ -27,7 +27,7 @@ Project modes
 -------------
 
 In this step, you have to select a mode. The default is **Oracle**. For a
-description of all modi, see :ref:`data_labeled:Fully, partially, and unlabeled data`.
+description of all modi, see :ref:`lab/data_labeled:Fully, partially, and unlabeled data`.
 In short, if you want to:
 
 - screen a dataset from scratch -> Oracle mode with unlabeled data;
@@ -59,16 +59,16 @@ Add dataset
 
 Click on *Add* to select a dataset. The data needs to adhere to a
 :doc:`specific format <data>`. Keep in mind that in
-Oracle mode, your dataset is unlabeled or :ref:`data_labeled:Partially
-labeled data`; in Validation mode :ref:`data_labeled:Partially labeled data` or
-fully labeled; and for Simulation mode, you need :ref:`data_labeled:Fully
+Oracle mode, your dataset is unlabeled or :ref:`lab/data_labeled:Partially
+labeled data`; in Validation mode :ref:`lab/data_labeled:Partially labeled data` or
+fully labeled; and for Simulation mode, you need :ref:`lab/data_labeled:Fully
 labeled data`.
 
 .. tip::
 
-    You will benefit most from what active learning has to offer with :ref:`data:High-quality data`.
+    You will benefit most from what active learning has to offer with :ref:`lab/data:High-quality data`.
 
-Depending on the :ref:`Project mode <project_create:Project modes>`, you are
+Depending on the :ref:`Project mode <lab/project_create:Project modes>`, you are
 offered different options for adding a dataset:
 
 From File
@@ -106,7 +106,7 @@ Benchmark Datasets
 ~~~~~~~~~~~~~~~~~~
 
 Select one of the
-:ref:`data_labeled:benchmark datasets` (Simulation and Validation only). Click
+:ref:`lab/data_labeled:benchmark datasets` (Simulation and Validation only). Click
 on *Save* on the top right.
 
 
@@ -120,7 +120,7 @@ provide a minimum training data set of size two, with **at least** one
 relevant and one irrelevant labeled record.
 
 .. note::
-  If you use :ref:`data_labeled:Partially labeled data` in the Oracle mode, you can skip this step, because the labels available in the dataset are used for training the first iteration of the model.
+  If you use :ref:`lab/data_labeled:Partially labeled data` in the Oracle mode, you can skip this step, because the labels available in the dataset are used for training the first iteration of the model.
 
 To facilitate prior selection, it is possible to search within your dataset, or .
 This is especially useful for finding records that are relevant based on
@@ -239,8 +239,8 @@ package. Before starting ASReview LAB, first, install *gensim*:
   takes place, which makes the modeling quicker.
 
 Several other feature extractors are available in the software (sentence Bert,
-embedding IDF/LSTM) and more classifiers can be selected via the :doc:`API <reference>`,
-or added via :doc:`extensions_dev`.
+embedding IDF/LSTM) and more classifiers can be selected via the :doc:`../development/reference`,
+or added via :doc:`../development/extensions_dev`.
 
 
 Classifier
@@ -250,8 +250,8 @@ The classifier is the machine learning model used to compute the relevance
 scores. The default is Naive Bayes. Though relatively simplistic, it seems to
 work quite well on a wide range of datasets. Several other classifiers are
 available in the software (logistic regression, random forest, SVM, LSTM,
-neural net) and more classifiers can be selected via the :doc:`API
-<reference>` or added via :doc:`extensions_dev`.
+neural net) and more classifiers can be selected via the
+:doc:`../development/reference` or added via :doc:`../development/extensions_dev`.
 
 
 The neural nets require `tensorflow <https://www.tensorflow.org/>`_, use
@@ -275,7 +275,7 @@ and depends on the number of records in the available training data, the total
 number of records in the dataset, and the ratio between relevant and
 irrelevant records in the available training data. No balancing or
 undersampling are the other options. Other strategies can be selected via the
-:doc:`API <reference>` or added via :doc:`extensions_dev`.
+:doc:`../development/reference` or added via :doc:`../development/extensions_dev`.
 
 
 Query Strategy
@@ -289,7 +289,8 @@ to be relevant is shown first. When mixed is selected, the next document will
 be selected certainty-based 95% of the time, and uncertainty based or randomly
 chosen otherwise. When random is selected, documents are shown in a random
 order (ignoring the model output completely). Other strategies can be selected
-via the :doc:`API <reference>` or added via :doc:`extensions_dev`.
+via the :doc:`../development/reference` or added via
+:doc:`../development/extensions_dev`.
 
 .. warning::
   Selecting *random* means your review will not be accelerated by using ASReview.
@@ -326,7 +327,7 @@ initialized, you can start reviewing.
   In Simulation mode, this step starts the simulation. As simulations usually
   take longer to complete, the simulation will run in the background. After a
   couple of seconds, you will see a message and a button "Got it". You will
-  navigate to the :ref:`progress:Analytics` page, where you can follow the
+  navigate to the :ref:`lab/progress:Analytics` page, where you can follow the
   progress (see *Refresh* button on the top right)
 
 .. figure:: ../../images/setup_warmup.png

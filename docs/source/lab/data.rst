@@ -8,12 +8,12 @@ systematically using predetermined inclusion and exclusion criteria. Also, it
 should be expected that only a fraction of the records in the dataset is
 relevant.
 
-Datasets can be unlabeled as well as :ref:`data_labeled:Partially labeled
-data` and :ref:`data_labeled:Fully labeled data`.
-See :ref:`project_create:Project modes` for more information.
+Datasets can be unlabeled as well as :ref:`lab/data_labeled:Partially labeled
+data` and :ref:`lab/data_labeled:Fully labeled data`.
+See :ref:`lab/project_create:Project modes` for more information.
 
 The easiest way to obtain a dataset is via a search engine or with the help of
-a reference manager. See :ref:`data:Compatibility` for reference managers
+a reference manager. See :ref:`lab/data:Compatibility` for reference managers
 export formats supported by ASReview. For more information about the format of
 the dataset, see :doc:`data_format`.
 
@@ -103,7 +103,7 @@ acceptance in ASReview:
 
 -  ✅ = The data can be exported from the search engine and imported in ASReview.
 -  N/A = This format does not exist.
--  X = Not supported, (see :ref:`data_format:Data format` for other options).
+-  X = Not supported, (see :ref:`lab/data_format:Data format` for other options).
 
 \* Make sure to uncheck all inclusion options (e.g., "URL") when exporting from Ovid.
 

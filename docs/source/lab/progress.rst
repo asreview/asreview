@@ -88,7 +88,7 @@ tips on when to stop with screening.
 
 .. tip::
 
-  With *Maximum* as :ref:`project_create:Query Strategy`, you will
+  With *Maximum* as :ref:`lab/project_create:Query Strategy`, you will
   see a decline in the number of relevant items in the plots the longer you screen. This may
   help to decide when to 'stop screening <https://github.com/asreview/asreview/discussions/557>`_.
 

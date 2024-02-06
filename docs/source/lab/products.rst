@@ -33,10 +33,10 @@ Extensions
 ASReview supports for extending the software with new
 models, subcommands, and datasets. They can extend the
 functionality of ASReview LAB, and the
-:doc:`Command Line Interface <cli>`. There are :ref:`officially
+:doc:`Command Line Interface <../development/cli>`. There are :ref:`officially
 supported extensions <extensions-official>` and `community maintained extensions <https://github.com/asreview/asreview/discussions/1140>`_.
 
-Looking to develop your own extension? See :doc:`extensions_dev` for
+Looking to develop your own extension? See :doc:`../development/extensions_dev` for
 detailed instructions.
 
 Installation
