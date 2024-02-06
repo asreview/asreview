@@ -13,8 +13,6 @@
 # limitations under the License.
 
 __all__ = [
-    "Dataset",
-    "load_dataset",
     "CSVReader",
     "CSVWriter",
     "ExcelReader",
@@ -26,8 +24,6 @@ __all__ = [
     "list_writers",
 ]
 
-from asreview.data.base import Dataset
-from asreview.data.loader import load_dataset
 from asreview.data.ris import RISReader
 from asreview.data.ris import RISWriter
 from asreview.data.tabular import CSVReader
