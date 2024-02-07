@@ -239,8 +239,8 @@ package. Before starting ASReview LAB, first, install *gensim*:
   takes place, which makes the modeling quicker.
 
 Several other feature extractors are available in the software (sentence Bert,
-embedding IDF/LSTM) and more classifiers can be selected via the :doc:`../development/reference`,
-or added via :doc:`../development/extensions_dev`.
+embedding IDF/LSTM) and more classifiers can be selected via the :doc:`../technical/reference`,
+or added via :doc:`../technical/extensions_dev`.
 
 
 Classifier
@@ -251,7 +251,7 @@ scores. The default is Naive Bayes. Though relatively simplistic, it seems to
 work quite well on a wide range of datasets. Several other classifiers are
 available in the software (logistic regression, random forest, SVM, LSTM,
 neural net) and more classifiers can be selected via the
-:doc:`../development/reference` or added via :doc:`../development/extensions_dev`.
+:doc:`../technical/reference` or added via :doc:`../technical/extensions_dev`.
 
 
 The neural nets require `tensorflow <https://www.tensorflow.org/>`_, use
@@ -275,7 +275,7 @@ and depends on the number of records in the available training data, the total
 number of records in the dataset, and the ratio between relevant and
 irrelevant records in the available training data. No balancing or
 undersampling are the other options. Other strategies can be selected via the
-:doc:`../development/reference` or added via :doc:`../development/extensions_dev`.
+:doc:`../technical/reference` or added via :doc:`../technical/extensions_dev`.
 
 
 Query Strategy
@@ -289,8 +289,8 @@ to be relevant is shown first. When mixed is selected, the next document will
 be selected certainty-based 95% of the time, and uncertainty based or randomly
 chosen otherwise. When random is selected, documents are shown in a random
 order (ignoring the model output completely). Other strategies can be selected
-via the :doc:`../development/reference` or added via
-:doc:`../development/extensions_dev`.
+via the :doc:`../technical/reference` or added via
+:doc:`../technical/extensions_dev`.
 
 .. warning::
   Selecting *random* means your review will not be accelerated by using ASReview.

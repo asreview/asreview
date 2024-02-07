@@ -1,4 +1,4 @@
-ASReview LAB User Guide
+ASReview LAB user guide
 =======================
 
 ASReview LAB is a web-based application for the ASReview systematic review
@@ -25,7 +25,7 @@ systematic reviews.
 
 
 .. toctree::
-    :caption: Install and Start
+    :caption: Install and start
     :maxdepth: 2
 
     installation
@@ -43,7 +43,7 @@ systematic reviews.
 
 
 .. toctree::
-    :caption: Screening and Projects
+    :caption: Screening and projects
     :maxdepth: 2
 
     project_create

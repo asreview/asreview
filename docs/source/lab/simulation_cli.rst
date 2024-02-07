@@ -185,16 +185,16 @@ The command line interface provides an easy way to get an overview of all
 available active learning model elements (classifiers, query strategies,
 balance strategies, and feature extraction algorithms) and their names for
 command line usage in ASReview LAB. It also includes models added
-via :doc:`../development/extensions_dev`. The following command lists
+via :doc:`../technical/extensions_dev`. The following command lists
 the available models:
 
 .. code:: bash
 
     asreview algorithms
 
-See :doc:`../development/extensions_dev` for more information on developing new models
+See :doc:`../technical/extensions_dev` for more information on developing new models
 and install them via extensions.
 
 Some models require additional dependencies to be installed. Use
 :code:`pip install asreview[all]` to install all additional dependencies
-at once or check the installation instruction in the :doc:`../development/reference`.
+at once or check the installation instruction in the :doc:`../technical/reference`.

@@ -1,18 +1,6 @@
-.. _api_ref:
+Models reference
+================
 
-=============
-API Reference
-=============
-
-
-.. automodule:: asreview
-   :members:
-   :undoc-members:
-   :inherited-members:
-
-
-Models
-------
 
 Feature extraction
 ~~~~~~~~~~~~~~~~~~
@@ -45,31 +33,6 @@ Balance strategies
 ~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: asreview.models.balance
-   :members:
-   :undoc-members:
-   :inherited-members:
-
-State files
------------
-
-.. automodule:: asreview.state
-   :members:
-   :undoc-members:
-   :inherited-members:
-
-Simulation
-----------
-
-.. automodule:: asreview.simulation
-   :members:
-   :undoc-members:
-   :inherited-members:
-
-
-Data
-----
-
-.. automodule:: asreview.data
    :members:
    :undoc-members:
    :inherited-members:

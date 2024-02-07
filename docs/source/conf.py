@@ -80,6 +80,11 @@ extensions = [
     "sphinxcontrib.youtube",
     "nbsphinx",
     "IPython.sphinxext.ipython_console_highlighting",
+    "myst_parser",
+    "sphinx_design",
+    # custom extentions
+    "_extension.gallery_directive",
+
 ]
 autosectionlabel_prefix_document = True
 
@@ -92,8 +97,7 @@ templates_path = ["_templates"]
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-# source_suffix = ['.rst']
-source_suffix = [".rst"]
+source_suffix = [".rst", ".md"]
 
 # The master toctree document.
 master_doc = "index"
@@ -112,6 +116,13 @@ exclude_patterns = ["build", "**.ipynb_checkpoints"]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
+
+# -- MyST options ------------------------------------------------------------
+
+# This allows us to use ::: to denote directives, useful for admonitions
+myst_enable_extensions = ["colon_fence", "substitution"]
+myst_heading_anchors = 2
+myst_substitutions = {"rtd": "[Read the Docs](https://readthedocs.org/)"}
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -158,7 +169,7 @@ html_theme_options = {
          "announcement": "ASReview LAB 2.0 is now available! <a href='https://asreview.nl/download'>Try it out</a>.",
     "use_edit_page_button": True,
     "navbar_align": "left",
-    "navbar_center": ["version-switcher", "navbar-nav"],
+    "navbar_center": ["navbar-nav"],
     "footer_start": ["copyright"],
     "footer_center": ["sphinx-version"],
 
@@ -208,7 +219,6 @@ html_context = {
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = "ASReviewdoc"
-
 
 # -- Options for LaTeX output ------------------------------------------------
 

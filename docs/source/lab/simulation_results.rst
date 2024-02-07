@@ -6,7 +6,7 @@ After a simulation, the results are stored in the ASReview project file
 (extension `.asreview`). This file contains a large number of variables and
 logs on the simulation. The data can be extracted from the project file via
 the API or with one of the available extensions. See
-:doc:`these examples on the Project API <../development/example_api_asreview_file>`
+:doc:`these examples on the Project API <../technical/example_api_asreview_file>`
 for more information about opening the project file.
 
 One readily available extension for analyzing the results of a simulation is
