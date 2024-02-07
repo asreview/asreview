@@ -85,23 +85,23 @@ Active learning
 .. option:: -e, --feature_extraction FEATURE_EXTRACTION
 
     The default is TF-IDF (:code:`tfidf`). More options and details are listed
-    in :ref:`ref-feature-extraction`.
+    in :mod:`asreview.models.feature_extraction`.
 
 .. option:: -m, --model MODEL
 
     The default is Naive Bayes (:code:`nb`). More options and details are listed
-    in :ref:`ref-classifiers`.
+    in :mod:`asreview.models.classifiers`.
 
 .. option:: -q, --query_strategy QUERY_STRATEGY
 
     The default is Maximum (:code:`max`). More options and details are listed
-    in :ref:`ref-query-strategies`.
+    in :mod:`asreview.models.query`.
 
 .. option:: -b, --balance_strategy BALANCE_STRATEGY
 
     The default is :code:`double`. The balancing strategy is used to deal with
     the sparsity of relevant records. More options and details are listed
-    in :ref:`ref-balance-strategies`
+    in :mod:`asreview.models.balance`
 
 .. option:: --seed SEED
 
@@ -197,5 +197,4 @@ and install them via extensions.
 
 Some models require additional dependencies to be installed. Use
 :code:`pip install asreview[all]` to install all additional dependencies
-at once or check the installation instruction in section :ref:`ref-models`
-of the :doc:`reference`.
+at once or check the installation instruction in the :doc:`reference`.

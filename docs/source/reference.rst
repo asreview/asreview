@@ -6,134 +6,17 @@ API Reference
 
 
 .. automodule:: asreview
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
 
-Data and datasets
-=================
-
-.. automodule:: asreview.data
-
-.. currentmodule:: asreview
-
-Dataset object
---------------
-
-.. autosummary::
-   :toctree: generated/
-
-   load_dataset
-   Dataset
-
-
-Readers and writers
--------------------
-
-Functions and classes for file reading and writing.
-
-.. autosummary::
-   :toctree: generated/
-
-   data.list_readers
-   data.list_writers
-
-   data.CSVReader
-   data.CSVWriter
-   data.ExcelReader
-   data.ExcelWriter
-   data.RISReader
-   data.RISWriter
-   data.TSVWriter
-
-Statistics
-----------
-
-.. autosummary::
-   :toctree: generated/
-
-   data.statistics.abstract_length
-   data.statistics.n_duplicates
-   data.statistics.n_irrelevant
-   data.statistics.n_keywords
-   data.statistics.n_missing_abstract
-   data.statistics.n_missing_title
-   data.statistics.n_records
-   data.statistics.n_relevant
-   data.statistics.n_unlabeled
-   data.statistics.title_length
-
-
-Datasets
---------
-
-Available datasets
-~~~~~~~~~~~~~~~~~~
-
-.. automodule:: asreview.datasets
-   :no-members:
-   :no-inherited-members:
-
-.. currentmodule:: asreview
-
-
-.. autosummary::
-   :toctree: generated/
-
-   asreview.datasets.SynergyDataGroup
-   asreview.datasets.NaturePublicationDataGroup
-
-Dataset managers
-~~~~~~~~~~~~~~~~
-
-.. autosummary::
-   :toctree: generated/
-
-   asreview.datasets.BaseDataSet
-   asreview.datasets.BaseDataGroup
-   asreview.datasets.DatasetManager
-
-
-Reviewer
-========
-
-.. automodule:: asreview.simulation
-   :no-members:
-   :no-inherited-members:
-
-.. currentmodule:: asreview
-
-.. autosummary::
-   :toctree: generated/
-
-   simulation.Simulate
-
-
-.. _ref-models:
 
 Models
-======
+------
 
-This section provides an overview of the available models for active learning
-in ASReview. For command line usage, use the name (``example``) given behind
-the model description (or see the name property of the model). Some models
-require additional dependencies, see the model class for more information and
-instructions.
-
-.. automodule:: asreview.models
-    :no-members:
-    :no-inherited-members:
-
-.. currentmodule:: asreview
-
-Base class
-
-.. autosummary::
-   :toctree: generated/
-
-   models.base.BaseModel
-
-.. _ref-feature-extraction:
-
-:mod:`asreview.models.feature_extraction`
------------------------------------------
+Feature extraction
+~~~~~~~~~~~~~~~~~~
 
 .. automodule:: asreview.models.feature_extraction
    :no-members:
@@ -159,16 +42,16 @@ Functions
    feature_extraction.get_feature_class
    feature_extraction.list_feature_extraction
 
-.. _ref-classifiers:
 
-:mod:`asreview.models.classifiers`
-----------------------------------
+Classifiers
+~~~~~~~~~~~
 
 .. automodule:: asreview.models.classifiers
-    :no-members:
-    :no-inherited-members:
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
 
-.. currentmodule:: asreview.models
 
 Classes
 
@@ -197,143 +80,47 @@ Functions
 :mod:`asreview.models.query`
 ----------------------------
 
+
 .. automodule:: asreview.models.query
-   :no-members:
-   :no-inherited-members:
-
-.. currentmodule:: asreview.models
-
-Classes
-
-.. autosummary::
-   :toctree: generated/
-
-   query.base.BaseQueryStrategy
-   query.base.ProbaQueryStrategy
-   query.MaxQuery
-   query.MixedQuery
-   query.MaxRandomQuery
-   query.MaxUncertaintyQuery
-   query.UncertaintyQuery
-   query.RandomQuery
-   query.ClusterQuery
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
 
 
-Functions
-
-.. autosummary::
-   :toctree: generated/
-
-   query.get_query_model
-   query.get_query_class
-   query.list_query_strategies
-
-
-.. _ref-balance-strategies:
-
-:mod:`asreview.models.balance`
-------------------------------
+Balance strategies
+~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: asreview.models.balance
-    :no-members:
-    :no-inherited-members:
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
 
-.. currentmodule:: asreview.models
-
-Classes
-
-.. autosummary::
-   :toctree: generated/
-
-   balance.base.BaseBalance
-   balance.SimpleBalance
-   balance.DoubleBalance
-   balance.TripleBalance
-   balance.UndersampleBalance
-
-
-Functions
-
-.. autosummary::
-   :toctree: generated/
-
-   balance.get_balance_model
-   balance.get_balance_class
-   balance.list_balance_strategies
-
-
-
-
-
-Projects and States
-===================
-
-Load, interact, and extract information from project files and states (the
-"diary" of the review).
-
-.. automodule:: asreview.project
-   :no-members:
-   :no-inherited-members:
-
-.. currentmodule:: asreview
-
-.. autosummary::
-   :toctree: generated/
-
-ASReviewProject
----------------
-
-.. autosummary::
-   :toctree: generated/
-
-   ASReviewProject
-
-State
------
+State files
+-----------
 
 .. automodule:: asreview.state
-   :no-members:
-   :no-inherited-members:
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
 
-.. currentmodule:: asreview
+Simulation
+----------
 
-.. autosummary::
-   :toctree: generated/
-
-   open_state
-   state.SQLiteState
-
-
-Utils
------
-
-.. autosummary::
-   :toctree: generated/
-
-   project.get_project_path
-   project.project_from_id
-   project.get_projects
-   project.is_project
-   project.is_v0_project
+.. automodule:: asreview.simulation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:
 
 
-Misc
-====
+Data
+----
 
-.. currentmodule:: asreview
-
-Classes
-
-.. autosummary::
-   :toctree: generated/
-
-   asreview.settings.ASReviewSettings
-
-Functions
-
-.. autosummary::
-   :toctree: generated/
-
-   search.fuzzy_find
-   asreview_path
-   get_data_home
+.. automodule:: asreview.data
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :inherited-members:

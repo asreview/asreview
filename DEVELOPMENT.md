@@ -47,6 +47,12 @@ The webbrowser opens at `localhost:3000`. Every time you edit one of the
 webapp related Python or Javascript files, the application will automatically
 refresh in the browser.
 
+#### Visual Studio Code task
+
+Users of Visual Studio Code can set up servers easily by configuring a task.
+The [GitHub gist](https://gist.github.com/J535D165/9dd94fec840115c844059658904f7607)
+contains a task `startASReviewDevServer` that starts up the development servers.
+
 ### Authentication
 
 When using or developing the authenticated version of ASReview, extra steps

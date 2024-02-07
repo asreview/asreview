@@ -16,7 +16,6 @@
 
 # Always prefer setuptools over distutils
 import platform
-import re
 import subprocess
 from os import path
 from pathlib import Path
@@ -35,9 +34,6 @@ def get_long_description():
     # Get the long description from the README file
     with open(path.join(here, "README.md"), encoding="utf-8") as f:
         long_description = f.read()
-
-    # remove emoji
-    long_description = re.sub(r"\:[a-z_]+\:", "", long_description)
 
     return long_description
 
@@ -60,6 +56,7 @@ REQUIRES = [
     "Flask-SQLAlchemy>=3.0.2",
     "requests",
     "tqdm",
+    "rich",
     "gevent>=20",
     "datahugger>=0.2",
     "synergy_dataset",

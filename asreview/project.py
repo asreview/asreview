@@ -16,8 +16,7 @@ __all__ = [
     "ProjectError",
     "ProjectExistsError",
     "ProjectNotFoundError",
-    "open_state",
-    "ASReviewProject",
+    "Project",
     "get_project_path",
     "project_from_id",
     "get_projects",
@@ -33,7 +32,6 @@ import shutil
 import tempfile
 import time
 import zipfile
-from contextlib import contextmanager
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
@@ -56,7 +54,6 @@ from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.config import PROJECT_MODES
 from asreview.config import SCHEMA
 from asreview.exceptions import CacheDataError
-from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
 from asreview.utils import asreview_path
 
@@ -101,7 +98,7 @@ def project_from_id(f):
         project_path = get_project_path(project_id)
         if not is_project(project_path):
             raise ProjectNotFoundError(f"Project '{project_id}' not found")
-        project = ASReviewProject(project_path, project_id=project_id)
+        project = Project(project_path, project_id=project_id)
         return f(project, *args, **kwargs)
 
     return decorated_function
@@ -118,13 +115,13 @@ def get_projects(project_paths=None):
 
     Returns
     -------
-    list[ASReviewProject]
+    list[Project]
         Projects at the given project paths.
     """
     if project_paths is None:
         project_paths = [path for path in asreview_path().iterdir() if path.is_dir()]
 
-    return [ASReviewProject(project_path) for project_path in project_paths]
+    return [Project(project_path) for project_path in project_paths]
 
 
 def is_project(project_path):
@@ -139,66 +136,7 @@ def is_v0_project(project_path):
     return not Path(project_path, "reviews").exists()
 
 
-@contextmanager
-def open_state(asreview_obj, review_id=None, read_only=True):
-    """Initialize a state class instance from a project folder.
-
-    Arguments
-    ---------
-    asreview_obj: str/pathlike/ASReviewProject
-        Filepath to the (unzipped) project folder or ASReviewProject object.
-    review_id: str
-        Identifier of the review from which the state will be instantiated.
-        If none is given, the first review in the reviews folder will be taken.
-    read_only: bool
-        Whether to open in read_only mode.
-
-    Returns
-    -------
-    SQLiteState
-    """
-
-    # Unzip the ASReview data if needed.
-    if isinstance(asreview_obj, ASReviewProject):
-        project = asreview_obj
-    elif zipfile.is_zipfile(asreview_obj) and Path(asreview_obj).suffix == ".asreview":
-        if not read_only:
-            raise ValueError("ASReview files do not support not read only files.")
-
-        # work from a temp dir
-        tmpdir = tempfile.TemporaryDirectory()
-        project = ASReviewProject.load(asreview_obj, tmpdir.name)
-    else:
-        project = ASReviewProject(asreview_obj)
-
-    # init state class
-    state = SQLiteState(read_only=read_only)
-
-    try:
-        if len(project.reviews) > 0:
-            if review_id is None:
-                review_id = project.config["reviews"][0]["id"]
-            logging.debug(f"Opening review {review_id}.")
-            state._restore(project.project_path, review_id)
-        elif len(project.reviews) == 0 and not read_only:
-            review_id = uuid4().hex
-            logging.debug(f"Create new review (state) with id {review_id}.")
-            state._create_new_state_file(project.project_path, review_id)
-            project.add_review(review_id)
-        else:
-            raise StateNotFoundError(
-                "State file does not exist, and in read only mode."
-            )
-        yield state
-    finally:
-        try:
-            state.close()
-        except AttributeError:
-            # file seems to be closed, do nothing
-            pass
-
-
-class ASReviewProject:
+class Project:
     """Project class for ASReview project files."""
 
     def __init__(self, project_path, project_id=None):
@@ -347,7 +285,13 @@ class ASReviewProject:
 
         self.update_config(dataset_path=file_name, name=file_name.rsplit(".", 1)[0])
 
-        with open_state(self.project_path, read_only=False) as state:
+        state = SQLiteState(read_only=False)
+
+        try:
+            review_id = uuid4().hex
+            state._create_new_state_file(self.project_path, review_id)
+            self.add_review(review_id)
+
             # save the record ids in the state file
             state.add_record_table(as_data.record_ids)
 
@@ -367,6 +311,11 @@ class ASReviewProject:
                     notes=[None for _ in labeled_record_ids],
                     prior=True,
                 )
+        finally:
+            try:
+                state.close()
+            except AttributeError:
+                pass
 
     def remove_dataset(self):
         """Remove dataset from project."""
@@ -375,6 +324,7 @@ class ASReviewProject:
 
         # remove datasets from project
         shutil.rmtree(Path(self.project_path, "data"))
+        self.clean_tmp_files()
 
         # remove state file if present
         if Path(self.project_path, "reviews").is_dir() and any(
@@ -383,8 +333,7 @@ class ASReviewProject:
             self.delete_review()
 
     def _read_data_from_cache(self, version_check=True):
-        fp_data = Path(self.project_path, "data", self.config["dataset_path"])
-        fp_data_pickle = Path(fp_data).with_suffix(fp_data.suffix + ".pickle")
+        fp_data_pickle = Path(self.project_path, "tmp", "data.pickle")
 
         try:
             with open(fp_data_pickle, "rb") as f_pickle_read:
@@ -424,21 +373,22 @@ class ASReviewProject:
 
         """
 
-        try:
-            fp_data = Path(self.project_path, "data", self.config["dataset_path"])
-        except Exception:
-            raise FileNotFoundError("Dataset not found")
-
         if use_cache:
             try:
-                return self._read_data_from_cache(fp_data)
+                return self._read_data_from_cache()
             except CacheDataError:
                 pass
 
-        as_data = load_dataset(fp_data)
+        try:
+            as_data = load_dataset(
+                Path(self.project_path, "data", self.config["dataset_path"])
+            )
+        except Exception:
+            raise FileNotFoundError("Dataset not found")
 
         if save_cache:
-            fp_data_pickle = Path(fp_data).with_suffix(fp_data.suffix + ".pickle")
+            Path(self.project_path, "tmp").mkdir(exist_ok=True)
+            fp_data_pickle = Path(self.project_path, "tmp", "data.pickle")
             with open(fp_data_pickle, "wb") as f_pickle:
                 pickle.dump((as_data, get_versions()["version"]), f_pickle)
 
@@ -453,12 +403,10 @@ class ASReviewProject:
             The id of the current project.
         """
 
-        # clean pickle files
-        for f_pickle in self.project_path.rglob("*.pickle"):
-            try:
-                os.remove(f_pickle)
-            except OSError as e:
-                print(f"Error: {f_pickle} : {e.strerror}")
+        try:
+            os.remove(Path(self.project_path, "tmp"))
+        except OSError as e:
+            print(f"Error: {e.strerror}")
 
     @property
     def feature_matrices(self):
@@ -648,7 +596,7 @@ class ASReviewProject:
         shutil.copytree(
             self.project_path,
             export_fp_tmp,
-            ignore=shutil.ignore_patterns("*.pickle", "*.lock"),
+            ignore=shutil.ignore_patterns("tmp", "*.lock"),
         )
 
         # create the archive

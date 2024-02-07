@@ -19,6 +19,7 @@ import re
 import shutil
 from pathlib import Path
 
+from asreview import load_dataset
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_MODEL
@@ -26,17 +27,16 @@ from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
-from asreview.data import load_dataset
 from asreview.datasets import DatasetManager
 from asreview.models.balance.utils import get_balance_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
-from asreview.project import ASReviewProject
+from asreview.project import Project
 from asreview.project import ProjectExistsError
-from asreview.project import open_state
 from asreview.settings import ASReviewSettings
 from asreview.simulation import Simulate
+from asreview.state.contextmanager import open_state
 from asreview.types import type_n_queries
 from asreview.utils import format_to_str
 from asreview.utils import get_random_state
@@ -131,7 +131,7 @@ def cli_simulate(argv):
     # create a project file
     fp_tmp_simulation = Path(args.state_file).with_suffix(".asreview.tmp")
 
-    project = ASReviewProject.create(
+    project = Project.create(
         fp_tmp_simulation,
         project_id=Path(args.state_file).stem,
         project_mode="simulate",

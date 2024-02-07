@@ -5,7 +5,7 @@ from flask_login import login_required
 from sqlalchemy import and_
 from sqlalchemy.exc import SQLAlchemyError
 
-from asreview.project import ASReviewProject
+import asreview as asr
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
@@ -91,7 +91,7 @@ def pending_invitations():
         # get path of project
         path = p.project_path
         # get object to get name
-        asreview_object = ASReviewProject(path)
+        asreview_object = asr.Project(path)
         # append info
         invitations.append(
             {

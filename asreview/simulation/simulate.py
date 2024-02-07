@@ -26,10 +26,10 @@ from asreview.models.balance.simple import SimpleBalance
 from asreview.models.classifiers import NaiveBayesClassifier
 from asreview.models.feature_extraction.tfidf import Tfidf
 from asreview.models.query.max import MaxQuery
-from asreview.project import open_state
 from asreview.settings import ASReviewSettings
 from asreview.simulation.prior_knowledge import naive_prior_knowledge
 from asreview.simulation.prior_knowledge import sample_prior_knowledge
+from asreview.state.contextmanager import open_state
 
 
 def init_results_table():

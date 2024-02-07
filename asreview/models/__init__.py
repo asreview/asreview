@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = []
+__all__ = ["balance", "classifiers", "feature_extraction", "query"]
 
 """Active learning model components.
 
