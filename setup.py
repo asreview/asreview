@@ -75,10 +75,12 @@ DEPS = {
     "docs": [
         "ipython",
         "sphinx",
-        "sphinx_rtd_theme",
+        "pydata-sphinx-theme",
         "sphinx-reredirects",
         "sphinxcontrib-youtube",
         "nbsphinx",
+        "sphinx-design",
+        "myst-parser",
     ],
 }
 DEPS["all"] = DEPS["sbert"] + DEPS["doc2vec"]

@@ -80,6 +80,11 @@ extensions = [
     "sphinxcontrib.youtube",
     "nbsphinx",
     "IPython.sphinxext.ipython_console_highlighting",
+    "myst_parser",
+    "sphinx_design",
+    # custom extentions
+    "_extension.gallery_directive",
+
 ]
 autosectionlabel_prefix_document = True
 
@@ -92,8 +97,7 @@ templates_path = ["_templates"]
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-# source_suffix = ['.rst']
-source_suffix = [".rst"]
+source_suffix = [".rst", ".md"]
 
 # The master toctree document.
 master_doc = "index"
@@ -113,27 +117,92 @@ exclude_patterns = ["build", "**.ipynb_checkpoints"]
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
 
+# -- MyST options ------------------------------------------------------------
+
+# This allows us to use ::: to denote directives, useful for admonitions
+myst_enable_extensions = ["colon_fence", "substitution"]
+myst_heading_anchors = 2
+myst_substitutions = {"rtd": "[Read the Docs](https://readthedocs.org/)"}
+
 
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
+html_theme = "pydata_sphinx_theme"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
 
-html_static_path = ["_static"]
+html_theme_options = {
+    "external_links": [
+        {
+            "url": "https://github.com/asreview/asreview/releases",
+            "name": "Changelog",
+        },
+        {
+            "url": "https://asreview.ai",
+            "name": "asreview.ai",
+        },
+        {
+            "url": "https://asreview.nl/donate",
+            "name": "Donate to ASReview",
+        },
+        {
+            "url": "https://uu.nl",
+            "name": "Utrecht University",
+        }
+    ],
+   "logo": {
+      "image_light": "https://raw.githubusercontent.com/asreview/asreview-artwork/master/LogoASReview/SVG/GitHub_Repo_Card_Transparent.svg",
+      "image_dark": "https://raw.githubusercontent.com/asreview/asreview-artwork/master/LogoASReview/SVG/GitHub_Repo_Card_Transparent.svg",
+   },
+      "favicons": [
+      {
+         "rel": "icon",
+         "sizes": "16x16",
+         "href": "https://github.com/asreview/asreview/blob/d8923df792eaee8d0997782e667c2340dc81ddfc/asreview/webapp/public/favicon.png?raw=true",
+      }],
+         "announcement": "ASReview LAB 2.0 is now available! <a href='https://asreview.nl/download'>Try it out</a>.",
+    "use_edit_page_button": True,
+    "navbar_align": "left",
+    "navbar_center": ["navbar-nav"],
+    "footer_start": ["copyright"],
+    "footer_center": ["sphinx-version"],
+
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/asreview/asreview",
+            "icon": "fa-brands fa-github",
+        },
+        {
+            "name": "PyPI",
+            "url": "https://pypi.org/project/asreview/",
+            "icon": "fa-custom fa-pypi",
+        },
+
+   ]
+
+}
+
+html_context = {
+    "github_user": "asreview",
+    "github_repo": "asreview",
+    "github_version": "main",
+    "doc_path": "docs/source",
+}
+
+# html_static_path = ["_static"]
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_css_files = ["css/asreviewtheme.css"]
+# html_css_files = ["css/asreviewtheme.css"]
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
@@ -150,7 +219,6 @@ html_css_files = ["css/asreviewtheme.css"]
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = "ASReviewdoc"
-
 
 # -- Options for LaTeX output ------------------------------------------------
 
