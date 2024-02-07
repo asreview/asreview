@@ -22,6 +22,13 @@ from asreview.state.contextmanager import open_state
 from asreview.utils import asreview_path
 from asreview.utils import get_data_home
 
+try:
+    from asreview._version import __version__
+    from asreview._version import __version_tuple__
+except ImportError:
+    __version__ = "0.0.0"
+    __version_tuple__ = (0, 0, 0)
+
 __all__ = [
     "load_dataset",
     "asreview_path",

@@ -21,13 +21,17 @@ from pathlib import Path
 
 import pandas as pd
 
-from asreview._version import get_versions
 from asreview.settings import ASReviewSettings
 from asreview.state.base import BaseState
 from asreview.state.compatibility import check_and_update_version
 from asreview.state.custom_metadata_mapper import convert_to_custom_metadata_str
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
+
+try:
+    from asreview._version import __version__
+except ImportError:
+    __version__ = "0.0.0"
 
 REQUIRED_TABLES = [
     # the table with the labeling decisions and models trained
@@ -231,7 +235,7 @@ class SQLiteState(BaseState):
         self.settings_metadata = {
             "settings": None,
             "state_version": CURRENT_STATE_VERSION,
-            "software_version": get_versions()["version"],
+            "software_version": __version__,
             "model_has_trained": False,
         }
 
