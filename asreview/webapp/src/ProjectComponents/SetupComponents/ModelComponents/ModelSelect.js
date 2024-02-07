@@ -30,6 +30,7 @@ const ModelSelect = ({
   handleModel,
   disableItem,
   helperText,
+  editable = true,
 }) => (
   <FormControl>
     <InputLabel id={`${name}-select-label`}>{label}</InputLabel>
@@ -39,6 +40,7 @@ const ModelSelect = ({
       label={label}
       value={model?.[name]}
       onChange={handleModel}
+      disabled={!editable}
     >
       {items.map((value) => (
         <MenuItemStyled

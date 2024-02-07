@@ -25,8 +25,6 @@ import { InfoForm } from "../SetupComponents/InfoComponents";
 import { ScreenLanding } from "../SetupComponents/ScreenComponents";
 
 import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps, mapDispatchToProps } from "../../globals.js";
-import { useContext } from "react";
 import { ProjectContext } from "../../ProjectContext.js";
 
 const PREFIX = "SetupDialog";

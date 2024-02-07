@@ -4,10 +4,13 @@ import { connect } from "react-redux";
 import { Box, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
+import { useContext } from "react";
+
 import { InlineErrorHandler } from "../../../Components";
 import { DataFormCard } from "../DataComponents";
 import { ProjectAPI } from "../../../api/index.js";
 import { mapStateToProps } from "../../../globals.js";
+import { ProjectContext } from "../../../ProjectContext.js";
 
 const PREFIX = "DataForm";
 
@@ -28,12 +31,13 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const DataForm = ({
-  project_id,
-  handleComplete,
-  toggleAddPrior,
+  // handleComplete,
+  // toggleAddPrior,
   setHistoryFilterQuery,
   editable = true,
 }) => {
+  const project_id = useContext(ProjectContext);
+
   const { data, error, isError, isFetching, refetch } = useQuery(
     ["fetchLabeledStats", { project_id: project_id }],
     ProjectAPI.fetchLabeledStats,
@@ -41,11 +45,11 @@ const DataForm = ({
       enabled: project_id !== null,
       refetchOnWindowFocus: false,
       onSuccess: (data) => {
-        if (data.n_prior_inclusions !== 0 && data.n_prior_exclusions !== 0) {
-          handleComplete(true);
-        } else {
-          handleComplete(false);
-        }
+        // if (data.n_prior_inclusions !== 0 && data.n_prior_exclusions !== 0) {
+        //   handleComplete(true);
+        // } else {
+        //   handleComplete(false);
+        // }
       },
     },
   );
@@ -80,7 +84,7 @@ const DataForm = ({
             primaryDefault="Add prior knowledge"
             secondaryDefault="Label at least 1 relevant and 1 irrelevant record to warm up the AI"
             secondaryAdded={`${data?.n_prior_inclusions} relevant and ${data?.n_prior_exclusions} irrelevant records`}
-            toggleAddCard={toggleAddPrior}
+            // toggleAddCard={toggleAddPrior}
             setHistoryFilterQuery={setHistoryFilterQuery}
             editable={editable}
           />

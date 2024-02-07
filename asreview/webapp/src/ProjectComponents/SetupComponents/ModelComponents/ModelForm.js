@@ -295,6 +295,7 @@ const ModelForm = ({ handleComplete, editable = true }) => {
                     items={modelOptions?.feature_extraction}
                     model={modelState.model}
                     handleModel={handleModelCustom}
+                    editable={editable}
                   />
                   <ModelSelect
                     name="classifier"
@@ -302,6 +303,7 @@ const ModelForm = ({ handleComplete, editable = true }) => {
                     items={modelOptions?.classifier}
                     model={modelState.model}
                     handleModel={handleModelCustom}
+                    editable={editable}
                   />
                   <ModelSelect
                     name="query_strategy"
@@ -314,6 +316,7 @@ const ModelForm = ({ handleComplete, editable = true }) => {
                         ? "Your review is not accelerated by the model"
                         : undefined
                     }
+                    editable={editable}
                   />
                   <ModelSelect
                     name="balance_strategy"
@@ -321,6 +324,7 @@ const ModelForm = ({ handleComplete, editable = true }) => {
                     items={modelOptions?.balance_strategy}
                     model={modelState.model}
                     handleModel={handleModelCustom}
+                    editable={editable}
                   />
                 </Stack>
               </Box>

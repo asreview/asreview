@@ -1,11 +1,9 @@
 import * as React from "react";
-import { connect } from "react-redux";
 
 import { Box, Typography, styled } from "@mui/material";
 
 import { TagEditor } from "../../TagComponents";
 
-import { mapStateToProps } from "../../../globals.js";
 import { useContext } from "react";
 import { ProjectContext } from "../../../ProjectContext.js";
 
@@ -31,6 +29,7 @@ const Root = styled("div")(({ theme }) => ({
 
 const ScreenLanding = ({ handleComplete }) => {
   const project_id = useContext(ProjectContext);
+  console.log("ScreenLanding", project_id);
   return (
     <Root className={classes.root}>
       <Box className={classes.title}>

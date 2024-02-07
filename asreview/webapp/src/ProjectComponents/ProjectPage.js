@@ -287,6 +287,7 @@ const ProjectPage = (props) => {
               path="details"
               element={
                 <DetailsPage
+                  project_id={project_id}
                   info={data}
                   tags={tags}
                   isSimulating={isSimulating}

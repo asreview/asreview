@@ -26,12 +26,16 @@ import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
 import { ProjectAPI } from "../../api/index.js";
 import { projectModes, projectStatuses } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
+import { ProjectContext } from "../../ProjectContext.js";
 
 const Root = styled("div")(({ theme }) => ({}));
 
 const DetailsPage = (props) => {
   const { project_id } = useParams();
   const queryClient = useQueryClient();
+
+  console.log("DetailsPage", project_id);
+  console.log("DetailsPage", props.info);
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const onOptions = Boolean(anchorEl);
@@ -136,6 +140,9 @@ const DetailsPage = (props) => {
     return info.title.length > 0;
   };
 
+  // React.useEffect(() => {
+  // }, [props.info]);
+
   return (
     <Root aria-label="details page">
       <Fade in>
@@ -152,32 +159,7 @@ const DetailsPage = (props) => {
               {props.mobileScreen && (
                 <Typography variant="h6">Details</Typography>
               )}
-              <Stack direction="row" spacing={1}>
-                <Button
-                  disabled={disableUndoButton}
-                  onClick={handleClickUndoChanges}
-                  size={!props.mobileScreen ? "medium" : "small"}
-                >
-                  Undo Changes
-                </Button>
-                <Tooltip
-                  disableFocusListener={!props.isSimulating}
-                  disableHoverListener={!props.isSimulating}
-                  disableTouchListener={!props.isSimulating}
-                  title="Save after simulation is finished"
-                >
-                  <span>
-                    <LoadingButton
-                      disabled={disableSaveButton || props.isSimulating}
-                      loading={isMutatingInfo}
-                      variant="contained"
-                      onClick={handleClickSave}
-                      size={!props.mobileScreen ? "medium" : "small"}
-                    >
-                      Save
-                    </LoadingButton>
-                  </span>
-                </Tooltip>
+              {/* <Stack direction="row" spacing={1}>
                 <Box>
                   <Tooltip title="Options">
                     <IconButton
@@ -205,30 +187,47 @@ const DetailsPage = (props) => {
                     <MenuItem onClick={handleClickDelete}>Delete</MenuItem>
                   </Menu>
                 </Box>
-              </Stack>
+              </Stack> */}
             </Box>
           </Box>
 
           {/* Page body */}
           <Box>
-            <ProjectInfo
-              info={info}
-              isTitleValidated={isTitleValidated()}
-              mobileScreen={props.mobileScreen}
-              setInfo={setInfo}
-              setDisableSaveButton={setDisableSaveButton}
-              setDisableUndoButton={setDisableUndoButton}
-              editable={false}
-            />
+            <ProjectContext.Provider value={project_id}>
+              <ProjectInfo
+                info={info}
+                isTitleValidated={isTitleValidated()}
+                mobileScreen={props.mobileScreen}
+                setInfo={setInfo}
+                setDisableSaveButton={setDisableSaveButton}
+                setDisableUndoButton={setDisableUndoButton}
+                editable={false}
+              />
+              <DataForm
+                editable={false}
+                setHistoryFilterQuery={props.setHistoryFilterQuery}
+              />
+              <ModelForm editable={false} />
+              <ScreenLanding />
+            </ProjectContext.Provider>
 
-            <DataForm
-              project_id={project_id}
-              editable={false}
-              setHistoryFilterQuery={props.setHistoryFilterQuery}
-            />
-            <ModelForm editable={false} />
-
-            <ScreenLanding />
+            {/* Add delete project button */}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginTop: 2,
+              }}
+            >
+              <LoadingButton
+                variant="contained"
+                color="error"
+                onClick={handleClickDelete}
+                loading={isMutatingInfo}
+              >
+                Delete project
+              </LoadingButton>
+            </Box>
           </Box>
         </Box>
       </Fade>
