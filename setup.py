@@ -17,69 +17,10 @@
 # Always prefer setuptools over distutils
 import platform
 import subprocess
-from os import path
 from pathlib import Path
 
 from setuptools import Command
-from setuptools import find_packages
 from setuptools import setup
-
-import versioneer
-
-
-def get_long_description():
-    """Get project description based on README."""
-    here = path.abspath(path.dirname(__file__))
-
-    # Get the long description from the README file
-    with open(path.join(here, "README.md"), encoding="utf-8") as f:
-        long_description = f.read()
-
-    return long_description
-
-
-REQUIRES = [
-    "numpy",
-    "pandas>=1.3,<3",
-    "scikit-learn",
-    "rispy~=0.7.0",
-    "setuptools",
-    "flask>=2.3.0",
-    "flask_cors",
-    "flask-login>=0.6.3",
-    "flask-mail",
-    "Werkzeug>=2.3.2",
-    "openpyxl>=3.0.3",
-    "xlsxwriter>=3",
-    "jsonschema",
-    "filelock",
-    "Flask-SQLAlchemy>=3.0.2",
-    "requests",
-    "tqdm",
-    "rich",
-    "gevent>=20",
-    "datahugger>=0.2",
-    "synergy_dataset",
-    "sqlalchemy-utils",
-    "tomli; python_version < '3.11'",
-    "importlib_metadata; python_version < '3.10'",
-]
-
-
-DEPS = {
-    "dev": ["ruff", "check-manifest"],
-    "test": ["coverage", "pytest", "pytest-random-order", "pytest-selenium"],
-    "docs": [
-        "ipython",
-        "sphinx",
-        "pydata-sphinx-theme",
-        "sphinx-reredirects",
-        "sphinxcontrib-youtube",
-        "nbsphinx",
-        "sphinx-design",
-        "myst-parser",
-    ],
-}
 
 
 class CompileAssets(Command):
@@ -117,106 +58,11 @@ class CompileAssets(Command):
 
 
 def get_cmdclass():
-    cmdclass = versioneer.get_cmdclass()
+    cmdclass = {}
     cmdclass["compile_assets"] = CompileAssets
     return cmdclass
 
 
 setup(
-    name="asreview",
-    version=versioneer.get_version(),
     cmdclass=get_cmdclass(),
-    description="ASReview LAB - A tool for AI-assisted systematic reviews",
-    long_description=get_long_description(),
-    long_description_content_type="text/markdown",
-    url="https://github.com/asreview/asreview",
-    author="ASReview LAB developers",
-    author_email="asreview@uu.nl",
-    classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "License :: OSI Approved :: Apache Software License",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-        "Topic :: Scientific/Engineering :: Artificial Intelligence",
-        "Topic :: Scientific/Engineering :: Information Analysis",
-        "Topic :: Text Processing :: General",
-        "Framework :: Flask",
-    ],
-    keywords=["systematic review", "machine-learning"],
-    packages=find_packages(exclude=["contrib", "docs", "tests"]),
-    package_data={
-        "asreview": [
-            "webapp/build/*",
-            "webapp/build/static/*/*",
-            "webapp/templates/emails/*",
-        ]
-    },
-    python_requires="~=3.8",
-    install_requires=REQUIRES,
-    extras_require=DEPS,
-    entry_points={
-        "console_scripts": [
-            "asreview=asreview.__main__:main",
-        ],
-        "asreview.entry_points": [
-            "lab=asreview.webapp.entry_points.lab:lab_entry_point",
-            "simulate=asreview.entry_points:SimulateEntryPoint",
-            "algorithms=asreview.entry_points:AlgorithmsEntryPoint",
-            "auth-tool=asreview.webapp.entry_points.auth_tool:AuthTool",
-        ],
-        "asreview.entry_points_internal": [
-            "web_run_model=asreview.webapp.entry_points.run_model:main",
-            "state-inspect=asreview.entry_points:StateInspectEntryPoint",
-        ],
-        "asreview.readers": [
-            ".csv = asreview.data:CSVReader",
-            ".tab = asreview.data:CSVReader",
-            ".tsv = asreview.data:CSVReader",
-            ".ris = asreview.data:RISReader",
-            ".txt = asreview.data:RISReader",
-            ".xlsx = asreview.data:ExcelReader",
-        ],
-        "asreview.writers": [
-            ".csv = asreview.data:CSVWriter",
-            ".tab = asreview.data:TSVWriter",
-            ".tsv = asreview.data:TSVWriter",
-            ".ris = asreview.data:RISWriter",
-            ".txt = asreview.data:RISWriter",
-            ".xlsx = asreview.data:ExcelWriter",
-        ],
-        "asreview.datasets": [
-            "benchmark-nature = asreview.datasets:NaturePublicationDataGroup",
-            "synergy = asreview.datasets:SynergyDataGroup",
-        ],
-        "asreview.models.classifiers": [
-            "svm = asreview.models.classifiers:SVMClassifier",
-            "nb = asreview.models.classifiers:NaiveBayesClassifier",
-            "rf = asreview.models.classifiers:RandomForestClassifier",
-            "logistic = asreview.models.classifiers:LogisticClassifier",
-        ],
-        "asreview.models.feature_extraction": [
-            "tfidf = asreview.models.feature_extraction:Tfidf",
-        ],
-        "asreview.models.balance": [
-            "simple = asreview.models.balance:SimpleBalance",
-            "double = asreview.models.balance:DoubleBalance",
-            # "triple = asreview.models.balance:TripleBalance",  # Broken, only via API
-            "undersample = asreview.models.balance:UndersampleBalance",
-        ],
-        "asreview.models.query": [
-            "max = asreview.models.query.max:MaxQuery",
-            "random = asreview.models.query.random:RandomQuery",
-            "uncertainty = asreview.models.query.uncertainty:UncertaintyQuery",
-            "cluster = asreview.models.query.cluster:ClusterQuery",
-            "max_random = asreview.models.query.mixed:MaxRandomQuery",
-            "max_uncertainty = asreview.models.query.mixed:MaxUncertaintyQuery",
-        ],
-    },
-    project_urls={
-        "Bug Reports": "https://github.com/asreview/asreview/issues",
-        "Source": "https://github.com/asreview/asreview/",
-    },
 )
