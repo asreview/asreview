@@ -124,7 +124,7 @@ double = "asreview.models.balance:DoubleBalance"
 undersample = "asreview.models.balance:UndersampleBalance"
 
 [project.entry-points."asreview.models.query"]
-max = "asreview.models.query.max:MaxQuery"
+max = "asreview.models.query.max_prob:MaxQuery"
 random = "asreview.models.query.random:RandomQuery"
 uncertainty = "asreview.models.query.uncertainty:UncertaintyQuery"
 cluster = "asreview.models.query.cluster:ClusterQuery"
