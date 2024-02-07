@@ -50,28 +50,28 @@ const Root = styled("div")(({ theme }) => ({
 const DEFAULT_MODELS = [
   {
     name: "tfidf-nb-max-double",
-    title: "Model AlwaysGood",
+    title: "Model tfidf-nb-max-double",
     description:
-      "Features extracted with TF-IDF and classified with Naive Bayes. The best prediction is shown first.",
+      "Features model tfidf-nb-max-double. The best prediction is shown first.",
   },
   {
-    name: "tfidf-nb-max-simple",
-    title: "Model MultiLang",
+    name: "tfidf-rf-max-double",
+    title: "Model tfidf-rf-max-double",
     description:
-      "Features extracted with a multilangual algorithm and classified with Naive Bayes. The best prediction is shown first.",
+      "Features model tfidf-rf-max-double. The best prediction is shown first.",
   },
   {
-    name: "sbert-rf-max-double",
-    title: "Model Xtreme",
-    requires: "asreview-supermodels",
+    name: "sbert-nn-max-double",
+    title: "Model sbert-nn-max-double",
+    requires: "asreview-extra-models",
     description:
-      "Features extracted with a state-of-the-art LLM and classified with transformer model. The best prediction is shown first.",
+      "Features model sbert-nn-max-double. The best prediction is shown first.",
   },
   {
-    name: "tfidf-rf-max-simple",
-    title: "Model Random",
+    name: "tfidf-nb-random-double",
+    title: "Model tfidf-nb-random-double",
     description:
-      "Screen record randomly. Exported records are ranked according to AlwaysGood model.",
+      "Screen records randomly. Exported records are ranked according to tfidf-nb-max-double model.",
   },
 ];
 
@@ -120,11 +120,9 @@ const ModelForm = (props) => {
       enabled: props.project_id !== null,
       onSuccess: (data) => {
         setModelState({
-          ...modelState,
-          ...{
-            ["custom"]: getFullModelName(data) === "custom",
-            ["model"]: data,
-          },
+          custom: getFullModelName(data) === "custom",
+          isChanged: modelState.isChanged,
+          model: data,
         });
       },
       refetchOnWindowFocus: false,
@@ -153,11 +151,9 @@ const ModelForm = (props) => {
   const handleModelCustom = (event) => {
     const { name, value } = event.target;
     setModelState({
-      ...modelState,
-      ...{
-        model: { ...modelState.model, ...{ [name]: value } },
-        isChanged: true,
-      },
+      custom: modelState.custom,
+      isChanged: true,
+      model: { ...modelState.model, ...{ [name]: value } },
     });
   };
 
@@ -166,8 +162,9 @@ const ModelForm = (props) => {
 
     if (value === "custom") {
       setModelState({
-        ...modelState,
-        ...{ ["custom"]: true, ["isChanged"]: true },
+        custom: true,
+        isChanged: true,
+        model: modelState.model,
       });
     } else {
       let parts = value.split("-");
@@ -188,7 +185,7 @@ const ModelForm = (props) => {
     if (modelState.isChanged) {
       mutateModelConfig(prepareMutationData());
     }
-  }, [modelState]);
+  }, [modelState, mutateModelConfig, prepareMutationData]);
 
   return (
     <Root>
