@@ -46,7 +46,7 @@ classifiers = [
     "Topic :: Text Processing :: General",
     "Framework :: Flask",
 ]
-license = {text = "MIT"}
+license = {text = "Apache 2.0"}
 dependencies = [
     "numpy",
     "pandas>=1.3,<3",
@@ -131,8 +131,6 @@ cluster = "asreview.models.query.cluster:ClusterQuery"
 max_random = "asreview.models.query.mixed:MaxRandomQuery"
 max_uncertainty = "asreview.models.query.mixed:MaxUncertaintyQuery"
 
-
-
 [project.optional-dependencies]
 lint = ["ruff", "check-manifest"]
 test = [
@@ -150,6 +148,11 @@ docs = [
     "nbsphinx",
     "sphinx-design",
     "myst-parser",
+]
+dev = [
+    "asreview[lint]",
+    "asreview[test]",
+    "asreview[docs]"
 ]
 
 [project.urls]
@@ -190,3 +193,6 @@ line-length = 88
 indent-width = 4
 docstring-code-format = true
 docstring-code-line-length = "dynamic"
+
+[tool.pytest.ini_options]
+addopts = "--ignore=asreview/webapp/tests/integration_tests"
