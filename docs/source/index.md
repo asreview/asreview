@@ -7,9 +7,9 @@ myst:
 html_theme.sidebar_secondary.remove: true
 ---
 
-# The ASReview LAB documentation: Active learning for Systematic Reviews
+# The ASReview LAB documentation
 
-Welcome to the ASReview LAB Documentation!
+Join the movement towards fast, open, and transparent systematic reviews.
 
 ```{gallery-grid}
 :grid-columns: 1 2 2 3
@@ -21,7 +21,7 @@ Welcome to the ASReview LAB Documentation!
 - header: "{fas}`circle-half-stroke;pst-color-primary` Customizable interface"
   content: "Users can screen with light and dark themes and change text size."
 - header: "{fas}`lightbulb;pst-color-primary` Simulate and validate"
-  content: "Rich options to simulate performance or validate another reviewer or AI/LLM."
+  content: "Rich options to simulate performance or validate another reviewer, AI, or LLM."
   link: "lab/simulation_overview.html"
 - header: "{fas}`microchip;pst-color-primary` CLI and API"
   content: "Extensive command line interface and application programming interface."
@@ -29,6 +29,12 @@ Welcome to the ASReview LAB Documentation!
 - header: "{fas}`users;pst-color-primary` Community"
   content: "In the active comunity, ASReview users and developers can share ideas and ask question."
   link: "https://github.com/asreview/asreview/discussions"
+```
+
+## ASReview LAB explained in 2 minutes
+
+```{youtube} k-a2SCq-LtA
+:align: center
 ```
 
 ## ASReview LAB user guide
