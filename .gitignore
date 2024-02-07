@@ -172,3 +172,5 @@ flask_config.*
 
 *.iml
 .idea
+
+asreview/_version.py

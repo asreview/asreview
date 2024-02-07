@@ -24,7 +24,7 @@ const requirement = (requirement) => {
 
   return (
     <>
-      requires <code>{requirement}</code> to be installed.{" "}
+      requires <code>asreview-ai-models</code> to be installed.{" "}
       <Link underline="none" href={link} target="_blank">
         Learn more
       </Link>{" "}

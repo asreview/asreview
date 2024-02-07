@@ -46,7 +46,6 @@ from scipy.sparse import load_npz
 from scipy.sparse import save_npz
 
 from asreview import load_dataset
-from asreview._version import get_versions
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_ORACLE
@@ -56,6 +55,11 @@ from asreview.config import SCHEMA
 from asreview.exceptions import CacheDataError
 from asreview.state.sqlstate import SQLiteState
 from asreview.utils import asreview_path
+
+try:
+    from asreview._version import __version__
+except ImportError:
+    __version__ = "0.0.0"
 
 PATH_PROJECT_CONFIG = "project.json"
 PATH_PROJECT_CONFIG_LOCK = "project.json.lock"
@@ -182,7 +186,7 @@ class Project:
             Path(project_path, "reviews").mkdir(exist_ok=True)
 
             config = {
-                "version": get_versions()["version"],
+                "version": __version__,
                 "id": project_id,
                 "mode": project_mode,
                 "name": project_name,
@@ -342,7 +346,7 @@ class Project:
             if not isinstance(data_obj.df, pd.DataFrame):
                 raise ValueError()
 
-            if (not version_check) or (get_versions()["version"] == data_obj_version):
+            if (not version_check) or (__version__ == data_obj_version):
                 return data_obj
 
         except FileNotFoundError:
@@ -390,7 +394,7 @@ class Project:
             Path(self.project_path, "tmp").mkdir(exist_ok=True)
             fp_data_pickle = Path(self.project_path, "tmp", "data.pickle")
             with open(fp_data_pickle, "wb") as f_pickle:
-                pickle.dump((as_data, get_versions()["version"]), f_pickle)
+                pickle.dump((as_data, __version__), f_pickle)
 
         return as_data
 

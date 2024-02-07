@@ -49,10 +49,6 @@ jobs:
         run: |
           pip install pytest
           pip install --upgrade setuptools>=41.0.0
-          pip install --no-cache-dir .[sbert]
-          pip install --no-cache-dir .[doc2vec]
-          pip install --no-cache-dir .[tensorflow]
-          pip install --no-cache-dir .[dev]
           pip install --no-cache-dir .[test]
           pip install --no-cache-dir .
       - name: Run test suite

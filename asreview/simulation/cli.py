@@ -19,6 +19,7 @@ import re
 import shutil
 from pathlib import Path
 
+from asreview import load_dataset
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_MODEL
@@ -26,7 +27,6 @@ from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
-from asreview.data import load_dataset
 from asreview.datasets import DatasetManager
 from asreview.models.balance.utils import get_balance_model
 from asreview.models.classifiers import get_classifier

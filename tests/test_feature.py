@@ -6,26 +6,14 @@ from asreview import load_dataset
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.feature_extraction import list_feature_extraction
 
-ADVANCED_DEPS = {"tensorflow": False}
-
-REQUIRES_EXTRA_DEPS = ["doc2vec", "embedding-idf", "sbert"]
-
-try:
-    import tensorflow  # noqa
-
-    ADVANCED_DEPS["tensorflow"] = True
-except ImportError:
-    pass
+REQUIRES_AI_MODEL_DEP = ["doc2vec", "embedding-idf", "sbert"]
 
 
 @pytest.mark.parametrize(
     "feature_extraction",
     [
-        "doc2vec",
-        "embedding-idf",
-        #  "sbert",
         "tfidf",
-    ],
+    ],  # + REQUIRES_AI_MODEL_DEP
 )
 @pytest.mark.parametrize(
     "split_ta",
@@ -35,7 +23,7 @@ except ImportError:
     ],
 )
 def test_features(feature_extraction, split_ta):
-    if feature_extraction in REQUIRES_EXTRA_DEPS and not ADVANCED_DEPS["tensorflow"]:
+    if feature_extraction in REQUIRES_AI_MODEL_DEP:
         pytest.skip()
 
     embedding_fp = os.path.join("tests", "demo_data", "generic.vec")
@@ -58,4 +46,4 @@ def test_features(feature_extraction, split_ta):
 
 
 def test_feature_general():
-    assert len(list_feature_extraction()) >= 5
+    assert len(list_feature_extraction()) == 1
