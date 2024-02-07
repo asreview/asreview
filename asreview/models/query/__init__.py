@@ -26,7 +26,7 @@ __all__ = [
 ]
 
 from asreview.models.query.cluster import ClusterQuery
-from asreview.models.query.max import MaxQuery
+from asreview.models.query.max_prob import MaxQuery
 from asreview.models.query.mixed import MaxRandomQuery
 from asreview.models.query.mixed import MaxUncertaintyQuery
 from asreview.models.query.mixed import MixedQuery
