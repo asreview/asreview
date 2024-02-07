@@ -79,6 +79,8 @@ DEPS = {
         "sphinx-reredirects",
         "sphinxcontrib-youtube",
         "nbsphinx",
+        "sphinx-design",
+        "myst-parser",
     ],
 }
 DEPS["all"] = DEPS["sbert"] + DEPS["doc2vec"]
