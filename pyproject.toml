@@ -1,0 +1,198 @@
+
+[build-system]
+build-backend = 'setuptools.build_meta'
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+
+[tool.setuptools]
+packages = ["asreview"]
+
+[tool.setuptools.package-data]
+asreview = [
+    "webapp/build/*",
+    "webapp/build/static/*/*",
+]
+
+[tool.setuptools.exclude-package-data]
+asreview = [
+    ".gitignore",
+    "docs",
+    "asreview/webapp/node_modules",
+    "build",
+    "*.tests.*",
+]
+
+
+[tool.setuptools_scm]
+write_to = "asreview/_version.py"
+
+[project]
+name = "asreview"
+description = "ASReview LAB - A tool for AI-assisted systematic reviews"
+authors = [
+    { name = "ASReview LAB developers", email = "asreview@uu.nl" }
+]
+keywords=["systematic review", "machine-learning"]
+readme = "README.md"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Text Processing :: General",
+    "Framework :: Flask",
+]
+license = {text = "Apache 2.0"}
+dependencies = [
+    "numpy",
+    "pandas>=1.3,<3",
+    "scikit-learn",
+    "rispy~=0.7.0",
+    "setuptools",
+    "flask>=2.3.0",
+    "flask_cors",
+    "flask-login>=0.6.3",
+    "flask-mail",
+    "Werkzeug>=2.3.2",
+    "openpyxl>=3.0.3",
+    "xlsxwriter>=3",
+    "jsonschema",
+    "filelock",
+    "Flask-SQLAlchemy>=3.0.2",
+    "requests",
+    "tqdm",
+    "rich",
+    "gevent>=20",
+    "datahugger>=0.2",
+    "synergy_dataset",
+    "sqlalchemy-utils",
+    "tomli; python_version < '3.11'",
+    "importlib_metadata; python_version < '3.10'"
+]
+dynamic = ["version"]
+requires-python = ">=3.8"
+
+[project.scripts]
+asreview = "asreview.__main__:main"
+
+[project.entry-points."asreview.entry_points"]
+lab = "asreview.webapp.entry_points.lab:lab_entry_point"
+simulate = "asreview.entry_points:SimulateEntryPoint"
+algorithms = "asreview.entry_points:AlgorithmsEntryPoint"
+auth-tool = "asreview.webapp.entry_points.auth_tool:AuthTool"
+
+[project.entry-points."asreview.entry_points_internal"]
+web_run_model = "asreview.webapp.entry_points.run_model:main"
+state-inspect = "asreview.entry_points:StateInspectEntryPoint"
+
+[project.entry-points."asreview.readers"]
+".csv" = "asreview.data:CSVReader"
+".tab" = "asreview.data:CSVReader"
+".tsv" = "asreview.data:CSVReader"
+".ris" = "asreview.data:RISReader"
+".txt" = "asreview.data:RISReader"
+".xlsx" = "asreview.data:ExcelReader"
+
+[project.entry-points."asreview.writers"]
+".csv" = "asreview.data:CSVWriter"
+".tab" = "asreview.data:TSVWriter"
+".tsv" = "asreview.data:TSVWriter"
+".ris" = "asreview.data:RISWriter"
+".txt" = "asreview.data:RISWriter"
+".xlsx" = "asreview.data:ExcelWriter"
+
+[project.entry-points."asreview.datasets"]
+benchmark-nature = "asreview.datasets:NaturePublicationDataGroup"
+synergy = "asreview.datasets:SynergyDataGroup"
+
+[project.entry-points."asreview.models.classifiers"]
+svm = "asreview.models.classifiers:SVMClassifier"
+nb = "asreview.models.classifiers:NaiveBayesClassifier"
+rf = "asreview.models.classifiers:RandomForestClassifier"
+logistic = "asreview.models.classifiers:LogisticClassifier"
+
+[project.entry-points."asreview.models.feature_extraction"]
+tfidf = "asreview.models.feature_extraction:Tfidf"
+
+[project.entry-points."asreview.models.balance"]
+simple = "asreview.models.balance:SimpleBalance"
+double = "asreview.models.balance:DoubleBalance"
+undersample = "asreview.models.balance:UndersampleBalance"
+
+[project.entry-points."asreview.models.query"]
+max = "asreview.models.query.max_prob:MaxQuery"
+random = "asreview.models.query.random:RandomQuery"
+uncertainty = "asreview.models.query.uncertainty:UncertaintyQuery"
+cluster = "asreview.models.query.cluster:ClusterQuery"
+max_random = "asreview.models.query.mixed:MaxRandomQuery"
+max_uncertainty = "asreview.models.query.mixed:MaxUncertaintyQuery"
+
+[project.optional-dependencies]
+lint = ["ruff", "check-manifest"]
+test = [
+    "coverage",
+    "pytest",
+    "pytest-random-order",
+    "pytest-selenium"
+]
+docs = [
+    "ipython",
+    "sphinx",
+    "pydata-sphinx-theme",
+    "sphinx-reredirects",
+    "sphinxcontrib-youtube",
+    "nbsphinx",
+    "sphinx-design",
+    "myst-parser",
+]
+dev = [
+    "asreview[lint]",
+    "asreview[test]",
+    "asreview[docs]"
+]
+
+[project.urls]
+"Bug Tracker" = "https://github.com/asreview/asreview/issues"
+Documentation = "https://asreview.readthedocs.io/en/stable//"
+Downloads = "https://github.com/asreview/asreview/releases"
+Homepage = "https://asreview.ai/"
+"Release Notes" = "https://github.com/asreview/asreview/releases"
+"Slack Chat" = "https://asreviewcommunity.slack.com"
+"Source Code" = "https://github.com/asreview/asreview"
+YouTube = "https://www.youtube.com/@ASReview"
+
+[tool.ruff]
+select = ["E", "F", "UP", "I", "B"]
+ignore = ["B904", "B008"]
+exclude = [
+    ".venv",
+    ".vscode",
+    "_build",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+    "versioneer.py",
+    "docs/source/conf.py",
+    "asreview/_version.py",
+]
+
+[tool.ruff.per-file-ignores]
+"asreview/config.py" = ["E501"]
+
+[tool.ruff.isort]
+force-single-line = true
+
+[ruff.format]
+line-length = 88
+indent-width = 4
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+
+[tool.pytest.ini_options]
+addopts = "--ignore=asreview/webapp/tests/integration_tests"
