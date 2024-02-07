@@ -15,7 +15,6 @@
 __all__ = [
     "LogisticClassifier",
     "NaiveBayesClassifier",
-    "NN2LayerClassifier",
     "RandomForestClassifier",
     "SVMClassifier",
     "get_classifier",
@@ -25,7 +24,6 @@ __all__ = [
 
 from asreview.models.classifiers.logistic import LogisticClassifier
 from asreview.models.classifiers.nb import NaiveBayesClassifier
-from asreview.models.classifiers.nn_2_layer import NN2LayerClassifier
 from asreview.models.classifiers.rf import RandomForestClassifier
 from asreview.models.classifiers.svm import SVMClassifier
 from asreview.models.classifiers.utils import get_classifier

@@ -67,9 +67,6 @@ REQUIRES = [
 
 
 DEPS = {
-    "sbert": ["sentence_transformers"],
-    "doc2vec": ["gensim"],
-    "tensorflow": ["tensorflow~=2.0"],
     "dev": ["ruff", "check-manifest"],
     "test": ["coverage", "pytest", "pytest-random-order", "pytest-selenium"],
     "docs": [
@@ -83,8 +80,6 @@ DEPS = {
         "myst-parser",
     ],
 }
-DEPS["all"] = DEPS["sbert"] + DEPS["doc2vec"]
-DEPS["all"] += DEPS["tensorflow"]
 
 
 class CompileAssets(Command):
@@ -200,14 +195,9 @@ setup(
             "svm = asreview.models.classifiers:SVMClassifier",
             "nb = asreview.models.classifiers:NaiveBayesClassifier",
             "rf = asreview.models.classifiers:RandomForestClassifier",
-            "nn-2-layer = asreview.models.classifiers:NN2LayerClassifier",
             "logistic = asreview.models.classifiers:LogisticClassifier",
         ],
         "asreview.models.feature_extraction": [
-            "doc2vec = asreview.models.feature_extraction:Doc2Vec",
-            "embedding-idf = asreview.models.feature_extraction:EmbeddingIdf",
-            "embedding-lstm = asreview.models.feature_extraction:EmbeddingLSTM",
-            "sbert = asreview.models.feature_extraction:SBERT",
             "tfidf = asreview.models.feature_extraction:Tfidf",
         ],
         "asreview.models.balance": [

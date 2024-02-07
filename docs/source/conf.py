@@ -29,20 +29,7 @@ sys.path.insert(0, os.path.abspath(".."))
 
 
 # -- Mock
-autodoc_mock_imports = [
-    "tensorflow",
-    "tensorflow.keras",
-    "tensorflow.keras.wrappers.scikit_learn",
-    "tensorflow.keras.models",
-    "tensorflow.keras.models.layers",
-    "tensorflow.keras.optimizers",
-    "tensorflow.keras.constraints",
-    "gensim",
-    "gensim.utils",
-    "gensim.models.doc2vec",
-    "sentence_transformers",
-    "sentence_transformers.SentenceTransformer",
-]
+autodoc_mock_imports = []
 
 
 # -- Project information -----------------------------------------------------
