@@ -1,8 +1,11 @@
 import * as React from "react";
 import { useParams } from "react-router-dom";
+import { useMutation, useQuery } from "react-query";
 import clsx from "clsx";
 import { Box, Stack, TextField, Tooltip } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { ProjectAPI } from "../api";
+import { CardErrorHandler } from "../Components";
 
 import { TypographySubtitle1Medium } from "../StyledComponents/StyledTypography.js";
 
@@ -22,16 +25,11 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const ProjectInfo = ({
-  info,
-  setTextFieldFocused,
-  isTitleValidated,
-  setInfo,
-  setDisableSaveButton,
-  setDisableUndoButton,
-  editable = true,
-}) => {
+const ProjectInfo = ({ handleComplete, editable = true }) => {
   const { project_id } = useParams();
+
+  const [textFiledFocused, setTextFieldFocused] = React.useState(null); // for autosave on blur
+  const [info, setInfo] = React.useState(null);
 
   const isProjectSetup = () => {
     return !project_id;
@@ -59,18 +57,87 @@ const ProjectInfo = ({
         ...info,
         [event.target.name]: event.target.value,
       });
-      if (event.target.name === "title" && !event.target.value) {
-        setDisableSaveButton(true);
-      } else if (info?.title) {
-        setDisableSaveButton(false);
-      } else {
-        // do nothing
-      }
-      setDisableUndoButton(false);
+      // if (event.target.name === "title" && !event.target.value) {
+      //   setDisableSaveButton(true);
+      // } else if (info?.title) {
+      //   setDisableSaveButton(false);
+      // } else {
+      //   // do nothing
+      // }
+      // setDisableUndoButton(false);
     } else {
       handleInfoChange(event);
     }
   };
+
+  /**
+   * Fetch project info
+   */
+  const { error: fetchInfoError, isError: isFetchInfoError } = useQuery(
+    ["fetchInfo", { project_id: project_id }],
+    ProjectAPI.fetchInfo,
+    {
+      enabled: project_id !== null,
+      onSuccess: (data) => {
+        setInfo({
+          title: data["name"],
+          authors: data["authors"] ? data["authors"] : "",
+          description: data["description"] ? data["description"] : "",
+          dataset_path: data.dataset_path,
+        });
+      },
+      refetchOnWindowFocus: false,
+    },
+  );
+
+  /**
+   * Mutate project info
+   */
+  const {
+    error: mutateInfoError,
+    isError: isMutateInfoError,
+    // {TODO} isLoading: isMutatingInfo,
+    mutate,
+    reset,
+  } = useMutation(ProjectAPI.mutateInfo, {
+    mutationKey: ["mutateInfo"],
+    onError: () => {
+      handleComplete(false);
+    },
+    onSuccess: () => {
+      setTextFieldFocused(null);
+      handleComplete(true);
+    },
+  });
+
+  // const handleInfoChange = (event) => {
+  //   setInfo({
+  //     ...info,
+  //     [event.target.name]: event.target.value,
+  //   });
+  // };
+
+  const isValidTtitle = () => {
+    return info?.title.length > 0;
+  };
+
+  // auto mutate info when text field is not focused
+  React.useEffect(() => {
+    if (
+      project_id !== null &&
+      textFiledFocused !== null &&
+      !textFiledFocused &&
+      !(info.title.length < 1) &&
+      !isMutateInfoError
+    ) {
+      mutate({
+        project_id: project_id,
+        title: info.title,
+        authors: info.authors,
+        description: info.description,
+      });
+    }
+  }, [info, isMutateInfoError, mutate, project_id, textFiledFocused]);
 
   return (
     <Root className={classes.root}>
@@ -93,12 +160,12 @@ const ProjectInfo = ({
               disableHoverListener
               title="Your project needs a title"
               arrow
-              open={!isTitleValidated}
+              open={!isValidTtitle}
               placement="top-start"
             >
               <TextField
                 autoFocus
-                error={!isTitleValidated}
+                error={!isValidTtitle}
                 fullWidth
                 id="project-title"
                 inputProps={{
@@ -146,6 +213,12 @@ const ProjectInfo = ({
             />
           </Stack>
         </Box>
+
+        <CardErrorHandler
+          queryKey={"fetchInfo"}
+          error={fetchInfoError}
+          isError={isFetchInfoError}
+        />
       </Stack>
     </Root>
   );

@@ -11,6 +11,9 @@ import {
   Stack,
   Tooltip,
   Typography,
+  FormGroup,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { MoreVert } from "@mui/icons-material";
@@ -37,107 +40,21 @@ const DetailsPage = (props) => {
   console.log("DetailsPage", project_id);
   console.log("DetailsPage", props.info);
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const onOptions = Boolean(anchorEl);
-
   const [onDeleteDialog, toggleDeleteDialog] = useToggle();
-  const [disableSaveButton, setDisableSaveButton] = React.useState(true);
-  const [disableUndoButton, setDisableUndoButton] = React.useState(true);
-  const [info, setInfo] = React.useState({
-    mode: props.info?.mode,
-    title: props.info?.name,
-    authors: props.info?.authors,
-    description: props.info?.description,
-    tags: props.tags,
-  });
 
-  const {
-    error: mutateInfoError,
-    isError: isMutateInfoError,
-    isLoading: isMutatingInfo,
-    isSuccess: isMutateInfoSuccess,
-    mutate: mutateInfo,
-    reset: resetMutateInfo,
-  } = useMutation(ProjectAPI.mutateInfo, {
-    onSuccess: (data, variables) => {
-      setDisableSaveButton(true);
-      setDisableUndoButton(true);
-      // update cached data
-      queryClient.setQueryData(
-        ["fetchInfo", { project_id: variables.project_id }],
-        (prev) => {
-          return {
-            ...prev,
-            name: variables.title,
-            authors: variables.authors,
-            description: variables.description,
-            tags: variables.tags,
-          };
-        },
-      );
-    },
-  });
-
-  const {
-    error: mutateStatusError,
-    isError: isMutateStatusError,
-    mutate: mutateStatus,
-    reset: resetMutateStatus,
-  } = useMutation(ProjectAPI.mutateProjectStatus, {
-    onSuccess: () => {
-      queryClient.invalidateQueries("fetchInfo");
-    },
-  });
-
-  const handleClickUndoChanges = () => {
-    setInfo({
-      ...info,
-      title: props.info?.name,
-      authors: props.info?.authors,
-      description: props.info?.description,
-      tags: props.tags,
-    });
-    setDisableSaveButton(true);
-    setDisableUndoButton(true);
-  };
-
-  const handleClickSave = () => {
-    mutateInfo({
-      project_id,
-      mode: info.mode,
-      title: info.title,
-      authors: info.authors,
-      description: info.description,
-      tags: info.tags,
-    });
-  };
+  const handleChangeStatus = (event) => {};
 
   const handleClickOptions = (event) => {
-    setAnchorEl(event.currentTarget);
+    // setAnchorEl(event.currentTarget);
   };
 
   const handleCloseOptions = () => {
-    setAnchorEl(null);
-  };
-
-  const handleChangeStatus = () => {
-    handleCloseOptions();
-    mutateStatus({
-      project_id,
-      status:
-        props.info?.reviews[0].status === projectStatuses.REVIEW
-          ? projectStatuses.FINISHED
-          : projectStatuses.REVIEW,
-    });
+    // setAnchorEl(null);
   };
 
   const handleClickDelete = () => {
     handleCloseOptions();
     toggleDeleteDialog();
-  };
-
-  const isTitleValidated = () => {
-    return info.title.length > 0;
   };
 
   // React.useEffect(() => {
@@ -159,75 +76,50 @@ const DetailsPage = (props) => {
               {props.mobileScreen && (
                 <Typography variant="h6">Details</Typography>
               )}
-              {/* <Stack direction="row" spacing={1}>
-                <Box>
-                  <Tooltip title="Options">
-                    <IconButton
-                      onClick={handleClickOptions}
-                      size={!props.mobileScreen ? "medium" : "small"}
-                    >
-                      <MoreVert
-                        fontSize={!props.mobileScreen ? "medium" : "small"}
-                      />
-                    </IconButton>
-                  </Tooltip>
-                  <Menu
-                    anchorEl={anchorEl}
-                    open={onOptions}
-                    onClose={handleCloseOptions}
-                  >
-                    {info.mode !== projectModes.SIMULATION && (
-                      <MenuItem onClick={handleChangeStatus}>
-                        {props.info?.reviews[0].status ===
-                        projectStatuses.REVIEW
-                          ? "Mark as finished"
-                          : "Mark as in review"}
-                      </MenuItem>
-                    )}
-                    <MenuItem onClick={handleClickDelete}>Delete</MenuItem>
-                  </Menu>
-                </Box>
-              </Stack> */}
             </Box>
           </Box>
 
           {/* Page body */}
           <Box>
             <ProjectContext.Provider value={project_id}>
-              <ProjectInfo
-                info={info}
-                isTitleValidated={isTitleValidated()}
-                mobileScreen={props.mobileScreen}
-                setInfo={setInfo}
-                setDisableSaveButton={setDisableSaveButton}
-                setDisableUndoButton={setDisableUndoButton}
-                editable={false}
-              />
+              <ProjectInfo mobileScreen={props.mobileScreen} editable={true} />
               <DataForm
                 editable={false}
                 setHistoryFilterQuery={props.setHistoryFilterQuery}
               />
-              <ModelForm editable={false} />
+              <ModelForm editable={true} />
               <ScreenLanding />
-            </ProjectContext.Provider>
 
-            {/* Add delete project button */}
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-                marginTop: 2,
-              }}
-            >
-              <LoadingButton
-                variant="contained"
-                color="error"
-                onClick={handleClickDelete}
-                loading={isMutatingInfo}
-              >
-                Delete project
-              </LoadingButton>
-            </Box>
+              <Box>
+                <Typography variant="h6">Project status</Typography>
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        defaultChecked={
+                          props.info?.reviews[0].status ===
+                          projectStatuses.REVIEW
+                        }
+                        onClick={handleChangeStatus}
+                      />
+                    }
+                    label="Mark the project as finished. This disables new label actions. Can be reverted."
+                  />
+                </FormGroup>
+              </Box>
+
+              {/* Add delete project button */}
+              <Box>
+                <Typography variant="h6">Danger zone</Typography>
+                <LoadingButton
+                  variant="contained"
+                  color="error"
+                  onClick={handleClickDelete}
+                >
+                  Delete project
+                </LoadingButton>
+              </Box>
+            </ProjectContext.Provider>
           </Box>
         </Box>
       </Fade>
@@ -237,25 +129,6 @@ const DetailsPage = (props) => {
         projectTitle={props.info?.name}
         project_id={project_id}
       />
-      <ActionsFeedbackBar
-        feedback="Changes saved"
-        open={isMutateInfoSuccess}
-        onClose={resetMutateInfo}
-      />
-      {isMutateInfoError && (
-        <ActionsFeedbackBar
-          feedback={mutateInfoError?.message + " Please try again."}
-          open={isMutateInfoError}
-          onClose={resetMutateInfo}
-        />
-      )}
-      {isMutateStatusError && (
-        <ActionsFeedbackBar
-          feedback={mutateStatusError?.message + " Please try again."}
-          open={isMutateStatusError}
-          onClose={resetMutateStatus}
-        />
-      )}
     </Root>
   );
 };

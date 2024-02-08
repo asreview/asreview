@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useQuery } from "react-query";
 
 import {
   Box,
@@ -7,7 +8,13 @@ import {
   CardContent,
   Stack,
   Typography,
+  CircularProgress,
 } from "@mui/material";
+import { CardErrorHandler } from "../../../Components";
+import { ProjectAPI } from "../../../api";
+
+import { useContext } from "react";
+import { ProjectContext } from "../../../ProjectContext.js";
 import { styled } from "@mui/material/styles";
 
 const PREFIX = "DatasetInfo";
@@ -43,6 +50,22 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const DatasetInfo = (props) => {
+  const project_id = useContext(ProjectContext);
+
+  const {
+    data,
+    error: fetchDataError,
+    isError: isFetchDataError,
+    isFetching: isFetchingData,
+  } = useQuery(
+    ["fetchData", { project_id: project_id }],
+    ProjectAPI.fetchData,
+    {
+      enabled: project_id !== null,
+      refetchOnWindowFocus: false,
+    },
+  );
+
   return (
     <Root>
       <Card
@@ -69,7 +92,7 @@ const DatasetInfo = (props) => {
                 Dataset filename
               </Typography>
               <Typography variant="body2" className={classes.singleLine}>
-                {props.info?.dataset_path}
+                {/* {props.info?.dataset_path} */}
               </Typography>
             </Stack>
             <Stack>
@@ -81,7 +104,7 @@ const DatasetInfo = (props) => {
                 Records
               </Typography>
               <Typography variant="body2" className={classes.singleLine}>
-                {props.data?.n_rows}
+                {data?.n_rows}
               </Typography>
             </Stack>
             <Stack>
@@ -93,13 +116,24 @@ const DatasetInfo = (props) => {
                 Duplicates
               </Typography>
               <Typography variant="body2" className={classes.singleLine}>
-                About {props.data?.n_duplicates}
+                About {data?.n_duplicates}
               </Typography>
             </Stack>
             <Box className={classes.button}>
               <Button onClick={props.toggleImportDataset}>Edit</Button>
             </Box>
           </Stack>
+
+          {isFetchingData && (
+            <Box className="main-page-body-wrapper">
+              <CircularProgress />
+            </Box>
+          )}
+          <CardErrorHandler
+            queryKey={"fetchData"}
+            error={fetchDataError}
+            isError={isFetchDataError}
+          />
         </CardContent>
       </Card>
     </Root>

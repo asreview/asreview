@@ -12,6 +12,12 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -95,14 +101,17 @@ const getFullModelName = (model) => {
   }
 };
 
-const ModelForm = ({ handleComplete, editable = true }) => {
+const ModelForm = ({ editable = true, showWarning = true }) => {
   const project_id = useContext(ProjectContext);
 
   const [modelState, setModelState] = React.useState({
     custom: false,
     isChanged: false,
+    warningActive: false,
     model: defaultAlgorithms,
   });
+
+  const [mutateWarning, setMutateWarning] = React.useState(false);
 
   const {
     data: modelOptions,
@@ -137,10 +146,10 @@ const ModelForm = ({ handleComplete, editable = true }) => {
     useMutation(ProjectAPI.mutateModelConfig, {
       mutationKey: "mutateModelConfig",
       onError: () => {
-        handleComplete(false);
+        // pass
       },
       onSuccess: () => {
-        handleComplete(true);
+        // pass
       },
     });
 
@@ -161,28 +170,32 @@ const ModelForm = ({ handleComplete, editable = true }) => {
     });
   };
 
-  const handleModelDropdown = (event) => {
+  const handleModelDropdownChange = (event) => {
     const { value } = event.target;
 
-    if (value === "custom") {
-      setModelState({
-        custom: true,
-        isChanged: true,
-        model: modelState.model,
-      });
-    } else {
-      let parts = value.split("-");
-      setModelState({
-        custom: false,
-        isChanged: true,
-        model: {
-          feature_extraction: parts[0],
-          classifier: parts[1],
-          query_strategy: parts[2],
-          balance_strategy: parts[3],
-        },
-      });
+    if (showWarning) {
+      setMutateWarning(true);
     }
+
+    // if (value === "custom") {
+    //   setModelState({
+    //     custom: true,
+    //     isChanged: true,
+    //     model: modelState.model,
+    //   });
+    // } else {
+    //   let parts = value.split("-");
+    //   setModelState({
+    //     custom: false,
+    //     isChanged: true,
+    //     model: {
+    //       feature_extraction: parts[0],
+    //       classifier: parts[1],
+    //       query_strategy: parts[2],
+    //       balance_strategy: parts[3],
+    //     },
+    //   });
+    // }
   };
 
   React.useEffect(() => {
@@ -238,7 +251,7 @@ const ModelForm = ({ handleComplete, editable = true }) => {
                     ? "custom"
                     : getFullModelName(modelState.model)
                 }
-                onChange={handleModelDropdown}
+                onChange={handleModelDropdownChange}
               >
                 {/* iterater over the default models */}
                 {DEFAULT_MODELS.map((value) => (
@@ -332,6 +345,34 @@ const ModelForm = ({ handleComplete, editable = true }) => {
           </Box>
         )}
       </Stack>
+      <Dialog
+        open={mutateWarning}
+        onClose={() => setMutateWarning(false)}
+        aria-labelledby="mutate-warning-dialog-title"
+        aria-describedby="mutate-warning-dialog-description"
+      >
+        <DialogTitle id="mutate-warning-dialog-title">{"Warning"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="mutate-warning-dialog-description">
+            You are about to change the model. When you start screening, a model
+            will be trained based on the current settings. Are you sure you want
+            to continue?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setMutateWarning(false)} color="primary">
+            Cancel
+          </Button>
+          <Button
+            onClick={() => setMutateWarning(false)}
+            color="primary"
+            autoFocus
+          >
+            Continue
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <CardErrorHandler
         queryKey={"fetchModelOptions"}
         error={fetchModelOptionsError}

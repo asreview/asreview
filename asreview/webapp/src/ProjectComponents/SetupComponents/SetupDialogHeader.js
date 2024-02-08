@@ -23,7 +23,6 @@ const SetupDialogHeader = ({
   activeStep,
   savingState,
   handleClose,
-  isTitleValidated,
 }) => {
   if (mobileScreen) return null; // Nothing to display if mobile screen
 
@@ -40,18 +39,9 @@ const SetupDialogHeader = ({
           spacing={1}
         >
           {activeStep !== 3 && (
-            <Tooltip
-              title={
-                isTitleValidated()
-                  ? "Save and close"
-                  : "Disabled as some form fields have errors"
-              }
-            >
+            <Tooltip title={"Save and close"}>
               <span>
-                <StyledIconButton
-                  disabled={!isTitleValidated()}
-                  onClick={handleClose}
-                >
+                <StyledIconButton onClick={handleClose}>
                   <Close />
                 </StyledIconButton>
               </span>
