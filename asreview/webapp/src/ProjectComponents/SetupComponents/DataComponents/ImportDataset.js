@@ -123,10 +123,10 @@ const ImportDataset = (props) => {
   // set the data source to benchmark when exploration mode is selected
   React.useEffect(() => {
     if (projectInfo?.mode === projectModes.EXPLORATION) {
-      setDatasetSource("benchmark");
+      setDatasetSource("file");
     }
     if (projectInfo?.mode !== projectModes.EXPLORATION) {
-      setDatasetSource("file");
+      setDatasetSource("benchmark");
     }
   }, [projectInfo?.mode]);
 
