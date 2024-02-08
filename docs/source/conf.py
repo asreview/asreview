@@ -139,8 +139,8 @@ html_theme_options = {
             "name": "Donate to ASReview",
         },
         {
-            "url": "https://uu.nl",
-            "name": "Utrecht University",
+            "url": "https://www.uu.nl/en/research/ai-labs/disc-ai-lab",
+            "name": "AI-Lab at Utrecht University",
         }
     ],
    "logo": {
