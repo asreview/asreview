@@ -236,7 +236,6 @@ const App = (props) => {
                 keyPressEnabled={keyPressEnabled}
                 projectCheck={projectCheck}
                 setProjectCheck={setProjectCheck}
-                toggleProjectSetup={toggleProjectSetup}
               />
             }
           />

@@ -36,7 +36,7 @@ const classes = {
   formWarmup: `${PREFIX}-form-warmup`,
 };
 
-const StyledDialog = styled(Dialog)(({ theme }) => ({
+const StyledSetupDialog = styled(Dialog)(({ theme }) => ({
   [`& .${classes.content}`]: {
     paddingLeft: 0,
     paddingRight: 0,
@@ -51,25 +51,14 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
       padding: "32px 24px 48px 24px",
     },
   },
-
-  // [`& .${classes.formWarmup}`]: {
-  //   alignItems: "flex-start",
-  //   display: "flex",
-  //   justifyContent: "center",
-  //   height: "100%",
-  // },
 }));
 
 const SetupDialog = ({
   project_id,
+  open,
   onClose,
   setFeedbackBar,
-  open,
   mobileScreen,
-  onAddPrior,
-  setProjectId,
-  toggleImportDataset,
-  toggleAddPrior,
 }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -78,7 +67,7 @@ const SetupDialog = ({
   const [completed, setCompleted] = React.useState({
     0: true,
     1: true,
-    2: false,
+    2: true,
     3: true,
   });
 
@@ -106,7 +95,6 @@ const SetupDialog = ({
 
   const exitedSetup = () => {
     setActiveStep(0);
-    setCompleted({ 0: true, 1: true, 2: false, 3: true });
   };
 
   const handleNext = () => {
@@ -143,43 +131,25 @@ const SetupDialog = ({
     setActiveStep(step);
   };
 
-  const handleComplete = (value) => {
-    const newCompleted = completed;
-    newCompleted[activeStep] = value;
-    setCompleted(newCompleted);
-  };
-
   const isStepFailed = (step) => {
     return false;
   };
 
-  // const isAllStepsCompleted = () => {
-  //   return Object.values(completed).every((v) => v === true);
-  // };
-
-  // const disableNext = () => {
-  //   return (
-  //     isStepFailed(activeStep) ||
-  //     !completed[activeStep] ||
-  //     (activeStep === 3 && !isAllStepsCompleted())
-  //   );
-  // };
-
-  // check if prior data is added
-  React.useEffect(() => {
-    if (open && project_id !== null && !onAddPrior) {
-      queryClient
-        .fetchQuery(
-          ["fetchLabeledStats", { project_id: project_id }],
-          ProjectAPI.fetchLabeledStats,
-        )
-        .then((data) => {
-          if (data.n_prior_inclusions !== 0 && data.n_prior_exclusions !== 0) {
-            setCompleted((c) => ({ ...c, 2: true }));
-          }
-        });
-    }
-  }, [open, project_id, onAddPrior, queryClient]);
+  // // check if prior data is added
+  // React.useEffect(() => {
+  //   if (open && project_id !== null && !onAddPrior) {
+  //     queryClient
+  //       .fetchQuery(
+  //         ["fetchLabeledStats", { project_id: project_id }],
+  //         ProjectAPI.fetchLabeledStats,
+  //       )
+  //       .then((data) => {
+  //         if (data.n_prior_inclusions !== 0 && data.n_prior_exclusions !== 0) {
+  //           setCompleted((c) => ({ ...c, 2: true }));
+  //         }
+  //       });
+  //   }
+  // }, [open, project_id, onAddPrior, queryClient]);
 
   React.useEffect(() => {
     const currentSavingStatus = isMutatingInfo === 1 || isMutatingModel === 1;
@@ -200,7 +170,7 @@ const SetupDialog = ({
   }, [isMutatingInfo, isMutatingModel]);
 
   return (
-    <StyledDialog
+    <StyledSetupDialog
       aria-label="project setup"
       open={open}
       fullScreen={mobileScreen}
@@ -209,6 +179,7 @@ const SetupDialog = ({
       PaperProps={{
         sx: { height: !mobileScreen ? "calc(100% - 96px)" : "100%" },
       }}
+      onClose={handleClose}
       TransitionComponent={Fade}
       TransitionProps={{
         onExiting: () => exitingSetup(),
@@ -236,28 +207,10 @@ const SetupDialog = ({
               [classes.form]: true,
             })}
           >
-            {activeStep === 0 && (
-              <InfoForm
-                handleComplete={handleComplete}
-                toggleImportDataset={toggleImportDataset}
-              />
-            )}
+            {activeStep === 0 && <InfoForm />}
             {activeStep === 1 && <ModelForm />}
-            {activeStep === 2 && (
-              <DataForm
-                handleComplete={handleComplete}
-                toggleAddPrior={toggleAddPrior}
-              />
-            )}
+            {activeStep === 2 && <DataForm />}
             {activeStep === 3 && <ScreenLanding />}
-
-            {/*
-            {activeStep === 4 && (
-              <FinishSetup
-                handleBack={handleBack}
-                toggleProjectSetup={onClose}
-              />
-            )} */}
           </Box>
         </DialogContent>
         <DialogActions>
@@ -272,7 +225,7 @@ const SetupDialog = ({
           </Button>
         </DialogActions>
       </ProjectContext.Provider>
-    </StyledDialog>
+    </StyledSetupDialog>
   );
 };
 

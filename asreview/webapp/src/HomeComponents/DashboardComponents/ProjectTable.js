@@ -22,6 +22,7 @@ import { styled } from "@mui/material/styles";
 import { BoxErrorHandler, DialogErrorHandler } from "../../Components";
 import { ProjectDeleteDialog } from "../../ProjectComponents";
 import { ProjectCheckDialog, TableRowButton } from "../DashboardComponents";
+import { SetupDialog } from "../../ProjectComponents/SetupComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { useRowsPerPage } from "../../hooks/SettingsHooks";
 import { useToggle } from "../../hooks/useToggle";
@@ -132,6 +133,10 @@ const ProjectTable = (props) => {
   const [hoverRowTitle, setHoverRowTitle] = React.useState(null);
   const [hoverIsOwner, setHoverIsOwner] = React.useState(false);
   const [rowsPerPage, handleRowsPerPage] = useRowsPerPage();
+  const [setupDialogState, setSetupDialogState] = React.useState({
+    open: false,
+    project_id: null,
+  });
 
   /**
    * Dialog state
@@ -306,17 +311,21 @@ const ProjectTable = (props) => {
       project["reviews"][0]["status"] === projectStatuses.SETUP ||
       project["reviews"][0]["status"] === projectStatuses.ERROR
     ) {
-      // set project id
-      props.setProjectId(project["id"]);
-      // open project setup dialog
-      props.toggleProjectSetup(project["id"]);
-      // clear potential setup error
-      if (
-        project["reviews"][0] !== undefined &&
-        project["reviews"][0]["status"] === projectStatuses.ERROR
-      ) {
-        clearSetupError(project);
-      }
+      // // set project id
+      // props.setProjectId(project["id"]);
+      // // open project setup dialog
+      // props.toggleProjectSetup(project["id"]);
+      // // clear potential setup error
+      // if (
+      //   project["reviews"][0] !== undefined &&
+      //   project["reviews"][0]["status"] === projectStatuses.ERROR
+      // ) {
+      //   clearSetupError(project);
+      // }
+      setSetupDialogState({
+        open: true,
+        project_id: project["id"],
+      });
     } else if (!project["projectNeedsUpgrade"]) {
       // open project page
       navigate(`/projects/${project["id"]}/${path}`);
@@ -635,6 +644,15 @@ const ProjectTable = (props) => {
             onRowsPerPageChange={setRowsPerPage}
           />
         )}
+      <SetupDialog
+        project_id={setupDialogState.project_id}
+        mobileScreen={props.mobileScreen}
+        open={setupDialogState.open}
+        onClose={() => {
+          setSetupDialogState({ open: false, project_id: null });
+        }}
+        setFeedbackBar={props.setFeedbackBar}
+      />
       <ProjectCheckDialog
         projectCheck={props.projectCheck}
         setProjectCheck={props.setProjectCheck}

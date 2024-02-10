@@ -28,6 +28,13 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.root}`]: {
     alignItems: "center",
   },
+
+  // [`& .${classes.formWarmup}`]: {
+  //   alignItems: "flex-start",
+  //   display: "flex",
+  //   justifyContent: "center",
+  //   height: "100%",
+  // },
 }));
 
 const FinishSetup = ({ project_id, handleBack }) => {

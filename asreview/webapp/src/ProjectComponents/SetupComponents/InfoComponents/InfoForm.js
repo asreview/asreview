@@ -25,7 +25,7 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const InfoForm = ({ handleComplete, toggleImportDataset, editable = true }) => {
+const InfoForm = ({ handleComplete, editable = true }) => {
   return (
     <Root className={classes.root}>
       <Box className={classes.title}>
@@ -36,7 +36,7 @@ const InfoForm = ({ handleComplete, toggleImportDataset, editable = true }) => {
           <ProjectInfo handleComplete={handleComplete} editable={editable} />
         </Grid>
         <Grid item xs={12} sm={4}>
-          <DatasetInfo toggleImportDataset={toggleImportDataset} />
+          <DatasetInfo />
         </Grid>
       </Grid>
     </Root>

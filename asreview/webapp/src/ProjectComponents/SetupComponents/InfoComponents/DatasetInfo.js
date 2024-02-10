@@ -119,9 +119,6 @@ const DatasetInfo = (props) => {
                 About {data?.n_duplicates}
               </Typography>
             </Stack>
-            <Box className={classes.button}>
-              <Button onClick={props.toggleImportDataset}>Edit</Button>
-            </Box>
           </Stack>
 
           {isFetchingData && (

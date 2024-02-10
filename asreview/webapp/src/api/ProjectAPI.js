@@ -83,6 +83,21 @@ class ProjectAPI {
     });
   }
 
+  static fetchTraining({ queryKey }) {
+    const { project_id } = queryKey[1];
+    const url = api_url + `projects/${project_id}/training`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url, { withCredentials: true })
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static mutateInfo(variables) {
     let body = new FormData();
     if (variables.title !== undefined) {

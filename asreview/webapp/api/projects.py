@@ -28,6 +28,7 @@ from uuid import uuid4
 import datahugger
 import numpy as np
 import pandas as pd
+from filelock import FileLock
 from flask import Blueprint
 from flask import abort
 from flask import current_app
@@ -1377,6 +1378,16 @@ def api_classify_instance(project, record_id):  # noqa: F401
     response = jsonify({"success": True})
 
     return response
+
+
+@bp.route("/projects/<project_id>/training", methods=["GET"])
+@login_required
+@project_authorization
+def api_is_training(project):  # noqa: F401
+    """Is the model training."""
+
+    lock = FileLock(Path(project.project_path, "training.lock"), timeout=0)
+    return jsonify({"is_training": lock.acquired()})
 
 
 @bp.route("/projects/<project_id>/get_document", methods=["GET"])

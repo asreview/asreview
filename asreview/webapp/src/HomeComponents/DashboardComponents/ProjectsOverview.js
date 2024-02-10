@@ -96,17 +96,15 @@ const ProjectsOverview = (props) => {
         toggleImportProject={toggleImportProject}
         setFeedbackBar={setFeedbackBar}
       />
-      <SetupDialog
+      {/* <SetupDialog
         project_id={props.projectSetup.project_id}
         mobileScreen={props.mobileScreen}
-        onAddPrior={onAddPrior}
-        onImportDataset={onImportDataset}
         open={props.projectSetup.open}
         onClose={props.toggleProjectSetup}
         setFeedbackBar={setFeedbackBar}
         toggleAddPrior={toggleAddPrior}
         toggleImportDataset={toggleImportDataset}
-      />
+      /> */}
       <ActionsFeedbackBar
         center
         onClose={resetFeedbackBar}
