@@ -19,11 +19,69 @@ import {
 
 import { useToggle } from "../../hooks/useToggle";
 
-const ProjectsOverview = (props) => {
-  const [onAddPrior, toggleAddPrior] = useToggle();
-  const [onModePick, toggleModePick] = useToggle();
-  const [onImportDataset, toggleImportDataset] = useToggle();
+const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
   const [onImportProject, toggleImportProject] = useToggle();
+
+  const [onAddPrior, toggleAddPrior] = useToggle();
+
+  const [onCreateProject, setCreateProject] = React.useState({
+    mode: false,
+    data: false,
+    setup: false,
+    project_id: null,
+  });
+
+  const openModePick = () => {
+    setCreateProject({
+      mode: true,
+      data: false,
+      setup: false,
+      project_id: null,
+    });
+  };
+
+  const closeModePick = () => {
+    setCreateProject({
+      ...onCreateProject,
+      mode: false,
+    });
+  };
+
+  const closeModePickAndOpenData = () => {
+    setCreateProject({
+      mode: false,
+      data: true,
+      setup: false,
+      project_id: null,
+    });
+  };
+
+  const closeDataPick = () => {
+    setCreateProject({
+      mode: false,
+      data: false,
+      setup: false,
+      project_id: null,
+    });
+  };
+
+  const closeDataPickAndOpenSetup = (project_id) => {
+    setCreateProject({
+      mode: false,
+      data: false,
+      setup: true,
+      project_id: project_id,
+    });
+  };
+
+  const closeProjectSetup = () => {
+    setCreateProject({
+      mode: false,
+      data: false,
+      setup: false,
+      project_id: null,
+    });
+  };
 
   const [feedbackBar, setFeedbackBar] = React.useState({
     open: false,
@@ -37,28 +95,20 @@ const ProjectsOverview = (props) => {
     });
   };
 
-  console.log(
-    "ProjectsOverview.js: props.projectSetup.project_id: ",
-    props.projectSetup.project_id,
-  );
-
   return (
     <>
       <DashboardPageHeader
-        mobileScreen={props.mobileScreen}
+        mobileScreen={mobileScreen}
         toggleImportProject={toggleImportProject}
       />
       <Box className="main-page-body-wrapper">
         <Stack className="main-page-body" spacing={6}>
-          <NumberCard mobileScreen={props.mobileScreen} />
+          <NumberCard mobileScreen={mobileScreen} />
           <ProjectTable
-            onNavDrawer={props.onNavDrawer}
-            projectCheck={props.projectCheck}
+            projectCheck={projectCheck}
             setFeedbackBar={setFeedbackBar}
-            setProjectCheck={props.setProjectCheck}
-            toggleModePick={toggleModePick}
-            toggleProjectSetup={props.toggleProjectSetup}
-            toggleAcceptanceSetup={props.AcceptanceDialog}
+            setProjectCheck={setProjectCheck}
+            toggleModePick={openModePick}
           />
         </Stack>
       </Box>
@@ -66,45 +116,43 @@ const ProjectsOverview = (props) => {
         id="create-project"
         className="main-page-fab"
         color="primary"
-        onClick={toggleModePick}
+        onClick={openModePick}
         variant="extended"
       >
         <Add sx={{ mr: 1 }} />
         Create
       </Fab>
       <ModePickDialog
-        open={onModePick}
-        toggleModePick={toggleModePick}
-        toggleImportDataset={toggleImportDataset}
+        open={onCreateProject.mode}
+        closeModePick={closeModePick}
+        closeModePickAndOpenData={closeModePickAndOpenData}
       />
-      <AddPriorKnowledge
-        project_id={props.projectSetup.project_id}
+      {/* <AddPriorKnowledge
+        project_id={projectSetup.project_id}
         open={onAddPrior}
-        mobileScreen={props.mobileScreen}
+        mobileScreen={mobileScreen}
         toggleAddPrior={toggleAddPrior}
-      />
+      /> */}
       <ImportDataset
-        open={onImportDataset}
+        open={onCreateProject.data}
         datasetAdded={false}
-        mobileScreen={props.mobileScreen}
-        toggleImportDataset={toggleImportDataset}
-        toggleProjectSetup={props.toggleProjectSetup}
+        mobileScreen={mobileScreen}
+        closeDataPick={closeDataPick}
+        closeDataPickAndOpenSetup={closeDataPickAndOpenSetup}
+      />
+      <SetupDialog
+        project_id={onCreateProject.project_id}
+        mobileScreen={mobileScreen}
+        open={onCreateProject.setup}
+        onClose={closeProjectSetup}
+        setFeedbackBar={setFeedbackBar}
       />
       <ImportProject
-        mobileScreen={props.mobileScreen}
+        mobileScreen={mobileScreen}
         open={onImportProject}
         toggleImportProject={toggleImportProject}
         setFeedbackBar={setFeedbackBar}
       />
-      {/* <SetupDialog
-        project_id={props.projectSetup.project_id}
-        mobileScreen={props.mobileScreen}
-        open={props.projectSetup.open}
-        onClose={props.toggleProjectSetup}
-        setFeedbackBar={setFeedbackBar}
-        toggleAddPrior={toggleAddPrior}
-        toggleImportDataset={toggleImportDataset}
-      /> */}
       <ActionsFeedbackBar
         center
         onClose={resetFeedbackBar}

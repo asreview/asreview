@@ -63,19 +63,19 @@ const DatasetFromEntryPoint = (props) => {
     {
       mutationKey: ["addDataset"],
       onSuccess: (data) => {
-        if (!isDatasetAdded()) {
-          props.toggleProjectSetup(props.project_id);
-        } else {
-          queryClient.invalidateQueries([
-            "fetchInfo",
-            { project_id: props.project_id },
-          ]);
-          queryClient.invalidateQueries([
-            "fetchData",
-            { project_id: props.project_id },
-          ]);
-        }
-        props.toggleImportDataset();
+        // if (!isDatasetAdded()) {
+        //   props.toggleProjectSetup(props.project_id);
+        // } else {
+        //   queryClient.invalidateQueries([
+        //     "fetchInfo",
+        //     { project_id: props.project_id },
+        //   ]);
+        //   queryClient.invalidateQueries([
+        //     "fetchData",
+        //     { project_id: props.project_id },
+        //   ]);
+        // }
+        props.closeDataPickAndOpenSetup(props.project_id);
       },
     },
   );

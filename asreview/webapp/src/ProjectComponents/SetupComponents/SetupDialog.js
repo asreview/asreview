@@ -135,22 +135,6 @@ const SetupDialog = ({
     return false;
   };
 
-  // // check if prior data is added
-  // React.useEffect(() => {
-  //   if (open && project_id !== null && !onAddPrior) {
-  //     queryClient
-  //       .fetchQuery(
-  //         ["fetchLabeledStats", { project_id: project_id }],
-  //         ProjectAPI.fetchLabeledStats,
-  //       )
-  //       .then((data) => {
-  //         if (data.n_prior_inclusions !== 0 && data.n_prior_exclusions !== 0) {
-  //           setCompleted((c) => ({ ...c, 2: true }));
-  //         }
-  //       });
-  //   }
-  // }, [open, project_id, onAddPrior, queryClient]);
-
   React.useEffect(() => {
     const currentSavingStatus = isMutatingInfo === 1 || isMutatingModel === 1;
 

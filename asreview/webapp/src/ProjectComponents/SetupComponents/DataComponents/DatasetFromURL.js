@@ -60,23 +60,23 @@ const DatasetFromURL = (props) => {
         if (data["files"] && data["files"].length === 1) {
           setRemoteURL(data["files"][0]["link"]);
         }
-        // if validate is not set, close the dialog
-        if (!variables["validate"]) {
-          if (!isDatasetAdded()) {
-            props.toggleProjectSetup(props.project_id);
-          } else {
-            queryClient.invalidateQueries([
-              "fetchInfo",
-              { project_id: props.project_id },
-            ]);
-            queryClient.invalidateQueries([
-              "fetchData",
-              { project_id: props.project_id },
-            ]);
-          }
-          props.toggleImportDataset();
-        }
+        // // if validate is not set, close the dialog
+        // if (!variables["validate"]) {
+        //   if (!isDatasetAdded()) {
+        //     props.toggleProjectSetup(props.project_id);
+        //   } else {
+        //     queryClient.invalidateQueries([
+        //       "fetchInfo",
+        //       { project_id: props.project_id },
+        //     ]);
+        //     queryClient.invalidateQueries([
+        //       "fetchData",
+        //       { project_id: props.project_id },
+        //     ]);
+        //   }
+        props.closeDataPickAndOpenSetup(props.project_id);
       },
+      // },
     },
   );
 

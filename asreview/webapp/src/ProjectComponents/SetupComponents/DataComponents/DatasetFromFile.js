@@ -80,10 +80,6 @@ const DatasetFromFile = (props) => {
     { project_id: props.project_id },
   ]);
 
-  const isDatasetAdded = () => {
-    return datasetInfo !== undefined;
-  };
-
   const {
     error: addDatasetError,
     isError: isAddDatasetError,
@@ -93,19 +89,7 @@ const DatasetFromFile = (props) => {
   } = useMutation(ProjectAPI.mutateData, {
     mutationKey: ["addDataset"],
     onSuccess: (data) => {
-      if (!isDatasetAdded()) {
-        props.toggleProjectSetup(props.project_id);
-      } else {
-        queryClient.invalidateQueries([
-          "fetchInfo",
-          { project_id: props.project_id },
-        ]);
-        queryClient.invalidateQueries([
-          "fetchData",
-          { project_id: props.project_id },
-        ]);
-      }
-      props.toggleImportDataset();
+      props.closeDataPickAndOpenSetup(props.project_id);
     },
   });
 

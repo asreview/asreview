@@ -82,7 +82,7 @@ const ImportDataset = (props) => {
     // reset: resetDeleteProject,
   } = useMutation(ProjectAPI.mutateDeleteProject, {
     onSuccess: () => {
-      props.toggleImportDataset();
+      props.closeDataPick();
     },
   });
 
@@ -97,7 +97,7 @@ const ImportDataset = (props) => {
         project_id: props.project_id,
       });
     } else {
-      props.toggleImportDataset();
+      props.closeDataPick();
     }
   };
 
@@ -122,10 +122,10 @@ const ImportDataset = (props) => {
 
   // set the data source to benchmark when exploration mode is selected
   React.useEffect(() => {
-    if (projectInfo?.mode === projectModes.EXPLORATION) {
+    if (projectInfo?.mode === projectModes.SIMULATION) {
       setDatasetSource("benchmark");
     }
-    if (projectInfo?.mode !== projectModes.EXPLORATION) {
+    if (projectInfo?.mode !== projectModes.SIMULATION) {
       setDatasetSource("file");
     }
   }, [projectInfo?.mode]);
@@ -265,30 +265,26 @@ const ImportDataset = (props) => {
             {datasetSource === "file" && (
               <DatasetFromFile
                 acceptFormat=".txt,.tsv,.tab,.csv,.ris,.xlsx"
-                toggleImportDataset={props.toggleImportDataset}
-                toggleProjectSetup={props.toggleProjectSetup}
+                closeDataPickAndOpenSetup={props.closeDataPickAndOpenSetup}
               />
             )}
             {datasetSource === "url" && (
               <DatasetFromURL
-                toggleImportDataset={props.toggleImportDataset}
-                toggleProjectSetup={props.toggleProjectSetup}
+                closeDataPickAndOpenSetup={props.closeDataPickAndOpenSetup}
               />
             )}
             {datasetSource === "extension" && (
               <DatasetFromEntryPoint
                 subset="plugin"
                 mobileScreen={props.mobileScreen}
-                toggleImportDataset={props.toggleImportDataset}
-                toggleProjectSetup={props.toggleProjectSetup}
+                closeDataPickAndOpenSetup={props.closeDataPickAndOpenSetup}
               />
             )}
             {datasetSource === "benchmark" && (
               <DatasetFromEntryPoint
                 subset="benchmark"
                 mobileScreen={props.mobileScreen}
-                toggleImportDataset={props.toggleImportDataset}
-                toggleProjectSetup={props.toggleProjectSetup}
+                closeDataPickAndOpenSetup={props.closeDataPickAndOpenSetup}
               />
             )}
           </Stack>

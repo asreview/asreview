@@ -56,9 +56,12 @@ const modes = [
   },
 ];
 
-const ModePickDialog = (props) => {
-  const { open, setProjectId, toggleModePick, toggleImportDataset } = props;
-
+const ModePickDialog = ({
+  open,
+  setProjectId,
+  closeModePick,
+  closeModePickAndOpenData,
+}) => {
   const [mode, setMode] = React.useState(projectModes.ORACLE);
 
   /**
@@ -69,8 +72,7 @@ const ModePickDialog = (props) => {
     {
       onSuccess: (data) => {
         setProjectId(data["id"]);
-        toggleModePick();
-        toggleImportDataset();
+        closeModePickAndOpenData();
       },
     },
   );
@@ -87,7 +89,7 @@ const ModePickDialog = (props) => {
 
   const handleClickCancel = () => {
     if (!isLoading) {
-      toggleModePick();
+      closeModePick();
     }
   };
 
