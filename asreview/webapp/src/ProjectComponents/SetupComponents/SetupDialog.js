@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useIsMutating, useQueryClient } from "react-query";
+import { useIsMutating, useQueryClient, useMutation } from "react-query";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
@@ -26,6 +26,7 @@ import { ScreenLanding } from "../SetupComponents/ScreenComponents";
 
 import { ProjectAPI } from "../../api/index.js";
 import { ProjectContext } from "../../ProjectContext.js";
+import { projectStatuses } from "../../globals.js";
 
 const PREFIX = "SetupDialog";
 
@@ -51,12 +52,12 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
     },
   },
 
-  [`& .${classes.formWarmup}`]: {
-    alignItems: "flex-start",
-    display: "flex",
-    justifyContent: "center",
-    height: "100%",
-  },
+  // [`& .${classes.formWarmup}`]: {
+  //   alignItems: "flex-start",
+  //   display: "flex",
+  //   justifyContent: "center",
+  //   height: "100%",
+  // },
 }));
 
 const SetupDialog = ({
@@ -73,13 +74,10 @@ const SetupDialog = ({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // Dialog/Project title
-  const [title, setTitle] = React.useState("");
-
   const [activeStep, setActiveStep] = React.useState(0);
   const [completed, setCompleted] = React.useState({
     0: true,
-    1: false,
+    1: true,
     2: false,
     3: true,
   });
@@ -94,35 +92,51 @@ const SetupDialog = ({
    * Dialog actions
    */
   const handleClose = () => {
-    if (activeStep !== 4) {
-      onClose();
-    } else {
-      console.log("Cannot close when training is in progress");
-    }
+    onClose();
   };
 
   const exitingSetup = () => {
     setFeedbackBar({
       open: true,
-      message: `Your project ${title} has been saved as draft`,
+      message: `Your project has been saved as draft`,
     });
     queryClient.invalidateQueries("fetchProjects");
     navigate("/projects");
   };
 
   const exitedSetup = () => {
-    setProjectId(null);
     setActiveStep(0);
-    setCompleted({ 0: true, 1: false, 2: false, 3: true });
+    setCompleted({ 0: true, 1: true, 2: false, 3: true });
   };
 
   const handleNext = () => {
-    const newActiveStep = activeStep + 1;
-    setActiveStep(newActiveStep);
+    setActiveStep(activeStep + 1);
+  };
+
+  const { error, isError, mutate, reset } = useMutation(
+    ProjectAPI.mutateReviewStatus,
+    {
+      mutationKey: ["mutateReviewStatus"],
+      onError: () => {
+        // console.log("error updating status")
+      },
+      onSuccess: () => {
+        onClose();
+        navigate(`/projects/${project_id}/review`);
+      },
+    },
+  );
+
+  const handleFinish = () => {
+    mutate({
+      project_id,
+      status: projectStatuses.REVIEW,
+      trigger_model: true,
+    });
   };
 
   const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    setActiveStep(activeStep - 1);
   };
 
   const handleStep = (step) => () => {
@@ -136,40 +150,20 @@ const SetupDialog = ({
   };
 
   const isStepFailed = (step) => {
-    return step === 0 && title.length < 1;
+    return false;
   };
 
-  const isAllStepsCompleted = () => {
-    return Object.values(completed).every((v) => v === true);
-  };
+  // const isAllStepsCompleted = () => {
+  //   return Object.values(completed).every((v) => v === true);
+  // };
 
-  const disableNext = () => {
-    return (
-      isStepFailed(activeStep) ||
-      !completed[activeStep] ||
-      (activeStep === 3 && !isAllStepsCompleted())
-    );
-  };
-
-  const isTitleValidated = () => {
-    return title.length > 0;
-  };
-
-  // check if model is configured
-  React.useEffect(() => {
-    if (open && project_id !== null) {
-      queryClient
-        .fetchQuery(
-          ["fetchModelConfig", { project_id: project_id }],
-          ProjectAPI.fetchModelConfig,
-        )
-        .then((data) => {
-          if (data !== null) {
-            setCompleted((c) => ({ ...c, 1: true }));
-          }
-        });
-    }
-  }, [open, project_id, queryClient]);
+  // const disableNext = () => {
+  //   return (
+  //     isStepFailed(activeStep) ||
+  //     !completed[activeStep] ||
+  //     (activeStep === 3 && !isAllStepsCompleted())
+  //   );
+  // };
 
   // check if prior data is added
   React.useEffect(() => {
@@ -222,76 +216,61 @@ const SetupDialog = ({
       }}
     >
       <ProjectContext.Provider value={project_id}>
-        {mobileScreen && (
-          <AppBarWithinDialog onClickStartIcon={handleClose} title={title} />
-        )}
+        {mobileScreen && <AppBarWithinDialog onClickStartIcon={handleClose} />}
         {!mobileScreen && (
           <SetupDialogHeader
-            activeStep={activeStep}
             handleClose={handleClose}
-            isTitleValidated={isTitleValidated}
             mobileScreen={mobileScreen}
             savingState={savingState}
           />
         )}
         <DialogContent className={classes.content} dividers>
-          {activeStep !== 4 && (
-            <SetupStepper
-              activeStep={activeStep}
-              handleStep={handleStep}
-              completed={completed}
-              isStepFailed={isStepFailed}
-            />
-          )}
+          <SetupStepper
+            activeStep={activeStep}
+            handleStep={handleStep}
+            completed={completed}
+            isStepFailed={isStepFailed}
+          />
           <Box
             className={clsx({
               [classes.form]: true,
-              [classes.formWarmup]: activeStep === 4,
             })}
           >
             {activeStep === 0 && (
               <InfoForm
                 handleComplete={handleComplete}
-                setTitle={setTitle}
-                isTitleValidated={isTitleValidated()}
                 toggleImportDataset={toggleImportDataset}
               />
             )}
-            {activeStep === 1 && <ModelForm handleComplete={handleComplete} />}
+            {activeStep === 1 && <ModelForm />}
             {activeStep === 2 && (
               <DataForm
                 handleComplete={handleComplete}
                 toggleAddPrior={toggleAddPrior}
               />
             )}
-            {activeStep === 3 && (
-              <ScreenLanding handleComplete={handleComplete} />
-            )}
+            {activeStep === 3 && <ScreenLanding />}
+
+            {/*
             {activeStep === 4 && (
               <FinishSetup
                 handleBack={handleBack}
                 toggleProjectSetup={onClose}
               />
-            )}
+            )} */}
           </Box>
         </DialogContent>
-        {activeStep !== 4 && (
-          <DialogActions>
-            {activeStep !== 0 && (
-              <Button disabled={activeStep === 0} onClick={handleBack}>
-                Back
-              </Button>
-            )}
-            <Button
-              id="next"
-              disabled={disableNext()}
-              variant="contained"
-              onClick={handleNext}
-            >
-              {activeStep === 3 ? "Finish" : "Next"}
-            </Button>
-          </DialogActions>
-        )}
+        <DialogActions>
+          {activeStep > 0 && <Button onClick={handleBack}>Back</Button>}
+          <Button
+            id="next"
+            // disabled={disableNext()}
+            variant="contained"
+            onClick={activeStep === 3 ? handleFinish : handleNext}
+          >
+            {activeStep === 3 ? "Finish" : "Next"}
+          </Button>
+        </DialogActions>
       </ProjectContext.Provider>
     </StyledDialog>
   );

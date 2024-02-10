@@ -1,11 +1,12 @@
 import * as React from "react";
-import { useParams } from "react-router-dom";
+import { useContext } from "react";
 import { useMutation, useQuery } from "react-query";
 import clsx from "clsx";
 import { Box, Stack, TextField, Tooltip } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { ProjectAPI } from "../api";
 import { CardErrorHandler } from "../Components";
+import { ProjectContext } from "../ProjectContext";
 
 import { TypographySubtitle1Medium } from "../StyledComponents/StyledTypography.js";
 
@@ -26,10 +27,14 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const ProjectInfo = ({ handleComplete, editable = true }) => {
-  const { project_id } = useParams();
+  const project_id = useContext(ProjectContext);
 
   const [textFiledFocused, setTextFieldFocused] = React.useState(null); // for autosave on blur
-  const [info, setInfo] = React.useState(null);
+  const [info, setInfo] = React.useState({
+    title: "",
+    authors: "",
+    description: "",
+  });
 
   const isProjectSetup = () => {
     return !project_id;
@@ -57,14 +62,6 @@ const ProjectInfo = ({ handleComplete, editable = true }) => {
         ...info,
         [event.target.name]: event.target.value,
       });
-      // if (event.target.name === "title" && !event.target.value) {
-      //   setDisableSaveButton(true);
-      // } else if (info?.title) {
-      //   setDisableSaveButton(false);
-      // } else {
-      //   // do nothing
-      // }
-      // setDisableUndoButton(false);
     } else {
       handleInfoChange(event);
     }
@@ -98,7 +95,6 @@ const ProjectInfo = ({ handleComplete, editable = true }) => {
     isError: isMutateInfoError,
     // {TODO} isLoading: isMutatingInfo,
     mutate,
-    reset,
   } = useMutation(ProjectAPI.mutateInfo, {
     mutationKey: ["mutateInfo"],
     onError: () => {
@@ -110,13 +106,6 @@ const ProjectInfo = ({ handleComplete, editable = true }) => {
     },
   });
 
-  // const handleInfoChange = (event) => {
-  //   setInfo({
-  //     ...info,
-  //     [event.target.name]: event.target.value,
-  //   });
-  // };
-
   const isValidTtitle = () => {
     return info?.title.length > 0;
   };
@@ -124,10 +113,9 @@ const ProjectInfo = ({ handleComplete, editable = true }) => {
   // auto mutate info when text field is not focused
   React.useEffect(() => {
     if (
-      project_id !== null &&
       textFiledFocused !== null &&
       !textFiledFocused &&
-      !(info.title.length < 1) &&
+      isValidTtitle() &&
       !isMutateInfoError
     ) {
       mutate({

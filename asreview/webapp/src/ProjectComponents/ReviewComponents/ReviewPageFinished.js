@@ -51,7 +51,7 @@ const ReviewPageFinished = (props) => {
   const [recordEmpty, setRecordEmpty] = React.useState(false);
 
   const { error, isError, mutate, reset } = useMutation(
-    ProjectAPI.mutateProjectStatus,
+    ProjectAPI.mutateReviewStatus,
     {
       onSuccess: () => {
         queryClient.invalidateQueries("fetchInfo");

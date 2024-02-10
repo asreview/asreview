@@ -372,11 +372,12 @@ class ProjectAPI {
     });
   }
 
-  static mutateProjectStatus(variables) {
+  static mutateReviewStatus(variables) {
     let body = new FormData();
     body.set("status", variables.status);
+    body.set("trigger_model", variables.trigger_model);
 
-    const url = api_url + `projects/${variables.project_id}/status`;
+    const url = api_url + `projects/${variables.project_id}/reviews/0`;
     return new Promise((resolve, reject) => {
       axios({
         method: "put",

@@ -843,10 +843,31 @@ def api_get_status(project):  # noqa: F401
     return response
 
 
-@bp.route("/projects/<project_id>/status", methods=["PUT"])
+@bp.route("/projects/<project_id>/reviews", methods=["GET"])
 @login_required
 @project_authorization
-def api_status_update(project):
+def api_get_reviews(project):  # noqa: F401
+    """Check the status of the review"""
+
+    return jsonify({"data": project.config["reviews"]})
+
+
+@bp.route("/projects/<project_id>/reviews/<int:review_id>", methods=["GET"])
+@login_required
+@project_authorization
+def api_get_review(project, review_id):  # noqa: F401
+    """Check the status of the review"""
+
+    data = project.config["reviews"][review_id]
+    data["mode"] = project.config["mode"]
+
+    return jsonify({"data": data})
+
+
+@bp.route("/projects/<project_id>/reviews/<int:review_id>", methods=["PUT"])
+@login_required
+@project_authorization
+def api_update_review_status(project, review_id):
     """Update the status of the review.
 
     The following status updates are allowed for
@@ -864,8 +885,9 @@ def api_status_update(project):
     """
 
     status = request.form.get("status", type=str)
+    trigger_model = request.form.get("trigger_model", type=bool, default=False)
 
-    current_status = project.config["reviews"][0]["status"]
+    current_status = project.config["reviews"][review_id]["status"]
     mode = project.config["mode"]
 
     if current_status == "error" and status == "setup":
@@ -878,7 +900,26 @@ def api_status_update(project):
     if mode == PROJECT_MODE_SIMULATE:
         raise ValueError("Not possible to update status of simulation project.")
     else:
-        if current_status == "review" and status == "finished":
+        if current_status == "setup" and status == "review":
+            project.update_review(status=status)
+
+            if trigger_model:
+                try:
+                    subprocess.Popen(
+                        [
+                            sys.executable if sys.executable else "python",
+                            "-m",
+                            "asreview",
+                            "web_run_model",
+                            str(project.project_path),
+                        ]
+                    )
+
+                except Exception as err:
+                    logging.error(err)
+                    message = f"Failed to train the model. {err}"
+                    return jsonify(message=message), 400
+        elif current_status == "review" and status == "finished":
             project.update_review(status=status)
         elif current_status == "finished" and status == "review":
             project.update_review(status=status)
@@ -1346,8 +1387,13 @@ def api_get_document(project):  # noqa: F401
     with open_state(project.project_path, read_only=False) as state:
         _, _, pending = state.get_pool_labeled_pending()
 
+    try:
+        rank_n_1 = state.query_top_ranked(1)
+    except StateError:
+        return jsonify({"result": None, "pool_empty": False, "has_ranking": False})
+
     # check if there is a pending record else query for a new record
-    record_ids = state.query_top_ranked(1) if pending.empty else pending.to_list()
+    record_ids = rank_n_1 if pending.empty else pending.to_list()
 
     if len(record_ids) > 0:
         as_data = project.read_data()
@@ -1360,7 +1406,7 @@ def api_get_document(project):  # noqa: F401
         item = None
         pool_empty = True
 
-    return jsonify({"result": item, "pool_empty": pool_empty})
+    return jsonify({"result": item, "pool_empty": pool_empty, "has_ranking": True})
 
 
 @bp.route("/projects/<project_id>/delete", methods=["DELETE"])

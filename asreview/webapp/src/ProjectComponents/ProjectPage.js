@@ -205,35 +205,22 @@ const ProjectPage = (props) => {
           )}
 
           {/* Review */}
-          {isSuccess &&
-            !data?.projectNeedsUpgrade &&
-            data?.reviews[0].status === projectStatuses.REVIEW && (
-              <Route
-                path="review"
-                element={
-                  <ReviewPage
-                    mobileScreen={props.mobileScreen}
-                    projectMode={data?.mode}
-                    fontSize={props.fontSize}
-                    undoEnabled={props.undoEnabled}
-                    keyPressEnabled={props.keyPressEnabled}
-                    tags={tags}
-                  />
-                }
-              />
-            )}
-
-          {/* Review finished */}
-          {isSuccess &&
-            !data?.projectNeedsUpgrade &&
-            data?.reviews[0].status === projectStatuses.FINISHED && (
-              <Route
-                path="review"
-                element={
-                  <ReviewPageFinished mobileScreen={props.mobileScreen} />
-                }
-              />
-            )}
+          {isSuccess && !data?.projectNeedsUpgrade && (
+            <Route
+              path="review"
+              element={
+                <ReviewPage
+                  project_id={project_id}
+                  mobileScreen={props.mobileScreen}
+                  projectMode={data?.mode}
+                  fontSize={props.fontSize}
+                  undoEnabled={props.undoEnabled}
+                  keyPressEnabled={props.keyPressEnabled}
+                  tags={tags}
+                />
+              }
+            />
+          )}
 
           {/* History */}
           {isSuccess && !data?.projectNeedsUpgrade && (

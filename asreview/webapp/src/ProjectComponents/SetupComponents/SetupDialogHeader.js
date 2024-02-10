@@ -18,35 +18,26 @@ const Root = styled(Stack)(({ theme }) => ({
   },
 }));
 
-const SetupDialogHeader = ({
-  mobileScreen,
-  activeStep,
-  savingState,
-  handleClose,
-}) => {
+const SetupDialogHeader = ({ mobileScreen, savingState, handleClose }) => {
   if (mobileScreen) return null; // Nothing to display if mobile screen
 
   return (
     <Root className="dialog-header" direction="row">
-      <DialogTitle className={classes.title}>Create a project</DialogTitle>
+      <DialogTitle className={classes.title}>Configure project</DialogTitle>
       <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-        {(activeStep === 0 || activeStep === 1) && (
-          <SavingStateBox isSaving={savingState} />
-        )}
+        <SavingStateBox isSaving={savingState} />
         <Stack
           className="dialog-header-button right"
           direction="row"
           spacing={1}
         >
-          {activeStep !== 3 && (
-            <Tooltip title={"Save and close"}>
-              <span>
-                <StyledIconButton onClick={handleClose}>
-                  <Close />
-                </StyledIconButton>
-              </span>
-            </Tooltip>
-          )}
+          <Tooltip title={"Save and close"}>
+            <span>
+              <StyledIconButton onClick={handleClose}>
+                <Close />
+              </StyledIconButton>
+            </span>
+          </Tooltip>
         </Stack>
       </Stack>
     </Root>

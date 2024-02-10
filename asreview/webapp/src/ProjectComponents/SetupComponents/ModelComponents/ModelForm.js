@@ -101,17 +101,22 @@ const getFullModelName = (model) => {
   }
 };
 
-const ModelForm = ({ editable = true, showWarning = true }) => {
+const ModelForm = ({
+  editable = true,
+  showWarning = false,
+  trainNewModel = false,
+}) => {
   const project_id = useContext(ProjectContext);
 
   const [modelState, setModelState] = React.useState({
     custom: false,
     isChanged: false,
-    warningActive: false,
+    warning: {
+      active: false,
+      value: null,
+    },
     model: defaultAlgorithms,
   });
-
-  const [mutateWarning, setMutateWarning] = React.useState(false);
 
   const {
     data: modelOptions,
@@ -136,6 +141,7 @@ const ModelForm = ({ editable = true, showWarning = true }) => {
           custom: getFullModelName(data) === "custom",
           isChanged: modelState.isChanged,
           model: data,
+          warning: { ...modelState.warning },
         });
       },
       refetchOnWindowFocus: false,
@@ -157,6 +163,7 @@ const ModelForm = ({ editable = true, showWarning = true }) => {
     () => ({
       project_id: project_id,
       ...modelState.model,
+      trainNewModel: trainNewModel,
     }),
     [project_id, modelState],
   );
@@ -167,6 +174,51 @@ const ModelForm = ({ editable = true, showWarning = true }) => {
       custom: modelState.custom,
       isChanged: true,
       model: { ...modelState.model, ...{ [name]: value } },
+      warning: { ...modelState.warning },
+    });
+  };
+
+  const acceptModelChange = ({ value }) => {
+    const changeValue = value === undefined ? modelState.warning.value : value;
+
+    if (changeValue === "custom") {
+      setModelState({
+        custom: true,
+        isChanged: true,
+        model: modelState.model,
+        warning: {
+          active: false,
+          value: null,
+        },
+      });
+    } else {
+      let parts = changeValue.split("-");
+      setModelState({
+        custom: false,
+        isChanged: true,
+        model: {
+          feature_extraction: parts[0],
+          classifier: parts[1],
+          query_strategy: parts[2],
+          balance_strategy: parts[3],
+        },
+        warning: {
+          active: false,
+          value: null,
+        },
+      });
+    }
+  };
+
+  const cancelWarning = () => {
+    setModelState({
+      custom: modelState.custom,
+      isChanged: modelState.isChanged,
+      model: modelState.model,
+      warning: {
+        active: false,
+        value: null,
+      },
     });
   };
 
@@ -174,28 +226,18 @@ const ModelForm = ({ editable = true, showWarning = true }) => {
     const { value } = event.target;
 
     if (showWarning) {
-      setMutateWarning(true);
+      setModelState({
+        custom: modelState.custom,
+        isChanged: modelState.isChanged,
+        model: modelState.model,
+        warning: {
+          active: true,
+          value: value,
+        },
+      });
+    } else {
+      acceptModelChange({ value });
     }
-
-    // if (value === "custom") {
-    //   setModelState({
-    //     custom: true,
-    //     isChanged: true,
-    //     model: modelState.model,
-    //   });
-    // } else {
-    //   let parts = value.split("-");
-    //   setModelState({
-    //     custom: false,
-    //     isChanged: true,
-    //     model: {
-    //       feature_extraction: parts[0],
-    //       classifier: parts[1],
-    //       query_strategy: parts[2],
-    //       balance_strategy: parts[3],
-    //     },
-    //   });
-    // }
   };
 
   React.useEffect(() => {
@@ -346,28 +388,26 @@ const ModelForm = ({ editable = true, showWarning = true }) => {
         )}
       </Stack>
       <Dialog
-        open={mutateWarning}
-        onClose={() => setMutateWarning(false)}
+        open={modelState.warning.active}
+        onClose={cancelWarning}
         aria-labelledby="mutate-warning-dialog-title"
         aria-describedby="mutate-warning-dialog-description"
       >
-        <DialogTitle id="mutate-warning-dialog-title">{"Warning"}</DialogTitle>
+        <DialogTitle id="mutate-warning-dialog-title">
+          Change the model?
+        </DialogTitle>
         <DialogContent>
           <DialogContentText id="mutate-warning-dialog-description">
-            You are about to change the model. When you start screening, a model
-            will be trained based on the current settings. Are you sure you want
-            to continue?
+            You are about to change the model. When you continue screening, a
+            model will be trained based on the new settings. Are you sure you
+            want to continue?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setMutateWarning(false)} color="primary">
+          <Button onClick={cancelWarning} color="primary">
             Cancel
           </Button>
-          <Button
-            onClick={() => setMutateWarning(false)}
-            color="primary"
-            autoFocus
-          >
+          <Button onClick={acceptModelChange} color="primary" autoFocus>
             Continue
           </Button>
         </DialogActions>

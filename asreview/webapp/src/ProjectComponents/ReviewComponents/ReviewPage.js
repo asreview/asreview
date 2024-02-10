@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { useParams } from "react-router-dom";
+import { useParams, Route } from "react-router-dom";
 import { Box, Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -13,21 +13,27 @@ import {
   TagsTable,
 } from "../ReviewComponents";
 
+import { ReviewPageFinished } from "../../ProjectComponents/ReviewComponents";
+
 import { ProjectAPI } from "../../api/index.js";
 import { useKeyPress } from "../../hooks/useKeyPress";
 
 import "./ReviewPage.css";
+import FinishSetup from "../SetupComponents/FinishSetup.js";
 
 const Root = styled("div")(({ theme }) => ({
   height: "100%",
 }));
 
-const ReviewPage = (props) => {
+const ReviewPageRecord = (props) => {
   const { project_id } = useParams();
   const queryClient = useQueryClient();
 
   const [explorationMode, setExplorationMode] = React.useState(false);
-  const [activeRecord, setActiveRecord] = React.useState(null);
+  const [activeRecord, setActiveRecord] = React.useState(
+    props.record["result"],
+  );
+  const [isTraining, setIsTraining] = React.useState(true);
   const [previousRecord, setPreviousRecord] = React.useState({
     record: null,
     label: null,
@@ -62,20 +68,12 @@ const ReviewPage = (props) => {
     return union.size === keys1.length && union.size === keys2.length;
   };
 
-  const recordQuery = useQuery(
-    ["fetchRecord", { project_id }],
-    ProjectAPI.fetchRecord,
-    {
-      refetchOnWindowFocus: false,
-      onSuccess: (data) => {
-        if (data["pool_empty"]) {
-          queryClient.invalidateQueries("fetchInfo");
-        } else {
-          setActiveRecord(data["result"]);
-        }
-      },
+  useQuery(["fetchRecord", { project_id }], ProjectAPI.fetchRecord, {
+    refetchOnWindowFocus: false,
+    onSuccess: (data) => {
+      setActiveRecord(data["result"]);
     },
-  );
+  });
 
   const { error, isError, isLoading, mutate, reset } = useMutation(
     ProjectAPI.mutateClassification,
@@ -178,16 +176,16 @@ const ReviewPage = (props) => {
     );
   };
 
-  const skipClassification = () => {
-    setActiveRecord(recordQuery.data["result"]);
-    resetPreviousRecord();
-    resetNote();
-    resetTagValues();
-  };
+  // const skipClassification = () => {
+  //   setActiveRecord(recordQuery.data["result"]);
+  //   resetPreviousRecord();
+  //   resetNote();
+  //   resetTagValues();
+  // };
 
   const makeDecision = (label) => {
     if (!needsClassification(label)) {
-      skipClassification();
+      // skipClassification();
     } else {
       mutate({
         project_id: project_id,
@@ -268,8 +266,8 @@ const ReviewPage = (props) => {
             {/* Article card */}
             <RecordCard
               disableButton={disableButton}
-              error={recordQuery.error}
-              isError={recordQuery.isError}
+              // error={recordQuery.error}
+              // isError={recordQuery.isError}
               activeRecord={activeRecord}
               recordNote={recordNote}
               setRecordNote={setRecordNote}
@@ -310,6 +308,61 @@ const ReviewPage = (props) => {
           open={isError}
           onClose={reset}
         />
+      )}
+    </Root>
+  );
+};
+
+const ReviewPage = ({
+  project_id,
+  mobileScreen,
+  projectMode,
+  fontSize,
+  undoEnabled,
+  keyPressEnabled,
+  tags,
+}) => {
+  const [record, setRecord] = React.useState(null);
+
+  const queryClient = useQueryClient();
+
+  /* fetch the record and check if the project is training */
+  const { error, isError, isSuccess } = useQuery(
+    ["fetchRecord", { project_id }],
+    ProjectAPI.fetchRecord,
+    {
+      refetchOnWindowFocus: false,
+      retry: false,
+      onSuccess: (data) => {
+        setRecord(data);
+        if (!data["has_ranking"]) {
+          setTimeout(() => queryClient.refetchQueries("fetchRecord"), 3000);
+        }
+      },
+    },
+  );
+
+  return (
+    <Root aria-label="review page">
+      {record !== null && !record?.has_ranking && !record?.pool_empty && (
+        <FinishSetup project_id={project_id} />
+      )}
+
+      {record !== null && record?.has_ranking && !record?.pool_empty && (
+        <ReviewPageRecord
+          record={record}
+          projectMode={projectMode}
+          mobileScreen={mobileScreen}
+          fontSize={fontSize}
+          undoEnabled={undoEnabled}
+          keyPressEnabled={keyPressEnabled}
+          tags={tags}
+        />
+      )}
+
+      {/* Review finished */}
+      {record !== null && record?.has_ranking && record?.pool_empty && (
+        <ReviewPageFinished mobileScreen={mobileScreen} />
       )}
     </Root>
   );
