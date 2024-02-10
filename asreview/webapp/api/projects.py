@@ -769,7 +769,7 @@ def api_set_algorithms(project):  # noqa: F401
         query_strategy = get_query_model(s_query_strategy)
         balance_strategy = get_balance_model(s_balance_strategy)
         feature_extraction = get_feature_model(s_feature_extraction)
-    except KeyError as err:
+    except (KeyError, AttributeError) as err:
         return jsonify(message=f"Model component not found {err}"), 400
 
     asreview_settings = ASReviewSettings(
