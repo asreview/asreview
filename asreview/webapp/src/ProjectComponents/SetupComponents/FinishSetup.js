@@ -38,77 +38,7 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const FinishSetup = ({ project_id, handleBack }) => {
-  // const queryClient = useQueryClient();
   const theme = useTheme();
-
-  // // State finish setup
-  // const [training, setTraining] = React.useState(false);
-
-  // const info = queryClient.getQueryData([
-  //   "fetchInfo",
-  //   { project_id: project_id },
-  // ]);
-
-  // const {
-  //   error: trainError,
-  //   isError: isTrainError,
-  //   isLoading: isTraining,
-  //   mutate: train,
-  //   reset,
-  // } = useMutation(ProjectAPI.mutateStartTraining, {
-  //   onSuccess: () => {
-  //     setTraining(true);
-  //   },
-  // });
-
-  // const {
-  //   error: statusError,
-  //   isError: isStatusError,
-  //   isFetching: isFetchingStatus,
-  // } = useQuery(
-  //   ["fetchProjectStatus", { project_id: project_id }],
-  //   ProjectAPI.fetchProjectStatus,
-  //   {
-  //     enabled: isTraining,
-  //     onSuccess: (data) => {
-  //       if (data["status"] !== projectStatuses.SETUP) {
-  //         // model ready
-  //         console.log("Model ready");
-  //         setTraining(false);
-  //       } else {
-  //         console.log("Not ready yet");
-  //         // not ready yet
-  //         setTimeout(
-  //           () => queryClient.refetchQueries("fetchProjectStatus"),
-  //           12000,
-  //         );
-  //       }
-  //     },
-  //     refetchOnWindowFocus: false,
-  //     retry: false,
-  //   },
-  // );
-
-  // const { error, isError, mutate } = useMutation(
-  //   ProjectAPI.mutateReviewStatus,
-  //   {
-  //     onSuccess: () => {
-  //       // handleBack();
-  //       queryClient.resetQueries("fetchProjectStatus");
-  //     },
-  //   },
-  // );
-
-  // // const onClickClearError = () => {
-  // //   mutate({
-  // //     project_id: project_id,
-  // //     status: projectStatuses.SETUP,
-  // //   });
-  // // };
-
-  // React.useEffect(() => {
-  //   train({ project_id: project_id });
-  // }, [project_id, train]);
 
   return (
     <Root>

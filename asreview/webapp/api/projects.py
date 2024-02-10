@@ -889,50 +889,41 @@ def api_update_review_status(project, review_id):
     trigger_model = request.form.get("trigger_model", type=bool, default=False)
 
     current_status = project.config["reviews"][review_id]["status"]
-    mode = project.config["mode"]
 
     if current_status == "error" and status == "setup":
         project.remove_error(status=status)
+        return jsonify({"success": True})
 
-        response = jsonify({"success": True})
+    if current_status == "setup" and status == "review":
+        project.update_review(status=status)
 
-        return response
+        if trigger_model:
+            try:
+                subprocess.Popen(
+                    [
+                        sys.executable if sys.executable else "python",
+                        "-m",
+                        "asreview",
+                        "web_run_model",
+                        str(project.project_path),
+                    ]
+                )
 
-    if mode == PROJECT_MODE_SIMULATE:
-        raise ValueError("Not possible to update status of simulation project.")
+            except Exception as err:
+                logging.error(err)
+                message = f"Failed to train the model. {err}"
+                return jsonify(message=message), 400
+    elif current_status == "review" and status == "finished":
+        project.update_review(status=status)
+    elif current_status == "finished" and status == "review":
+        project.update_review(status=status)
+        # ideally, also check here for empty pool
     else:
-        if current_status == "setup" and status == "review":
-            project.update_review(status=status)
+        raise ValueError(
+            f"Not possible to update status from {current_status} to {status}"
+        )
 
-            if trigger_model:
-                try:
-                    subprocess.Popen(
-                        [
-                            sys.executable if sys.executable else "python",
-                            "-m",
-                            "asreview",
-                            "web_run_model",
-                            str(project.project_path),
-                        ]
-                    )
-
-                except Exception as err:
-                    logging.error(err)
-                    message = f"Failed to train the model. {err}"
-                    return jsonify(message=message), 400
-        elif current_status == "review" and status == "finished":
-            project.update_review(status=status)
-        elif current_status == "finished" and status == "review":
-            project.update_review(status=status)
-            # ideally, also check here for empty pool
-        else:
-            raise ValueError(
-                f"Not possible to update status from {current_status} to {status}"
-            )
-
-        response = jsonify({"success": True})
-
-        return response
+    return jsonify({"success": True})
 
 
 @bp.route("/projects/import_project", methods=["POST"])
