@@ -399,6 +399,7 @@ const TagEditor = (props) => {
     ["fetchInfo", { project_id: props.project_id }],
     ProjectAPI.fetchInfo,
     {
+      enabled: props.project_id !== null,
       onSuccess: (data) => {
         setTags(
           data["tags"] === undefined || data["tags"] === null

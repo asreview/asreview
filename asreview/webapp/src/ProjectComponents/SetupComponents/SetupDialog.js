@@ -70,7 +70,7 @@ const StyledSetupDialogHeader = styled(Stack)(({ theme }) => ({
   },
 }));
 
-const SetupDialogHeader = ({ mobileScreen, savingState, handleClose }) => {
+const SetupDialogHeader = ({ mobileScreen, savingState, onClose }) => {
   if (mobileScreen) return null; // Nothing to display if mobile screen
 
   return (
@@ -87,7 +87,7 @@ const SetupDialogHeader = ({ mobileScreen, savingState, handleClose }) => {
         >
           <Tooltip title={"Save and close"}>
             <span>
-              <StyledIconButton onClick={handleClose}>
+              <StyledIconButton onClick={onClose}>
                 <Close />
               </StyledIconButton>
             </span>
@@ -98,13 +98,9 @@ const SetupDialogHeader = ({ mobileScreen, savingState, handleClose }) => {
   );
 };
 
-const SetupDialog = ({
-  project_id,
-  open,
-  onClose,
-  setFeedbackBar,
-  mobileScreen,
-}) => {
+const SetupDialogContent = ({ project_id, onClose, mobileScreen }) => {
+  console.log("SetupDialogContent", project_id);
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -126,39 +122,23 @@ const SetupDialog = ({
   /**
    * Dialog actions
    */
-  const handleClose = () => {
-    onClose();
-  };
-
-  const exitingSetup = () => {
-    setFeedbackBar({
-      open: true,
-      message: `Your project has been saved as draft`,
-    });
-    queryClient.invalidateQueries("fetchProjects");
-    navigate("/projects");
-  };
-
-  const exitedSetup = () => {
-    setActiveStep(0);
-  };
 
   const handleNext = () => {
     setActiveStep(activeStep + 1);
   };
 
-  const [info, setInfo] = React.useState({});
-
-  const { isSuccess: isInfoSuccess } = useQuery(
-    ["fetchInfo", { project_id: project_id }],
-    ProjectAPI.fetchInfo,
-    {
-      onSuccess: (data) => {
-        console.log("fetchInfo success");
-        setInfo(data);
-      },
-    },
-  );
+  const fetchProjectInfoAndRedirect = React.useCallback(async () => {
+    const data = await queryClient.fetchQuery(
+      ["fetchInfo", { project_id }],
+      ProjectAPI.fetchInfo,
+    );
+    onClose();
+    if (data["mode"] === projectModes.SIMULATION) {
+      navigate(`/projects/${project_id}`);
+    } else {
+      navigate(`/projects/${project_id}/review`);
+    }
+  }, [project_id, queryClient, navigate, onClose]);
 
   const { mutate } = useMutation(ProjectAPI.mutateReviewStatus, {
     mutationKey: ["mutateReviewStatus"],
@@ -166,17 +146,11 @@ const SetupDialog = ({
       console.log("error updating status");
     },
     onSuccess: () => {
-      onClose();
-      if (info["mode"] === projectModes.SIMULATION) {
-        navigate(`/projects/${project_id}`);
-      } else {
-        navigate(`/projects/${project_id}/review`);
-      }
+      fetchProjectInfoAndRedirect();
     },
   });
 
   const handleFinish = () => {
-    console.log("handleFinish");
     mutate({
       project_id,
       status: projectStatuses.REVIEW,
@@ -215,6 +189,75 @@ const SetupDialog = ({
   }, [isMutatingInfo, isMutatingModel]);
 
   return (
+    <ProjectContext.Provider value={project_id}>
+      {mobileScreen && <AppBarWithinDialog onClickStartIcon={onClose} />}
+      {!mobileScreen && (
+        <SetupDialogHeader
+          onClose={onClose}
+          mobileScreen={mobileScreen}
+          savingState={savingState}
+        />
+      )}
+      <DialogContent className={classes.content} dividers>
+        <SetupStepper
+          activeStep={activeStep}
+          handleStep={handleStep}
+          completed={completed}
+          isStepFailed={isStepFailed}
+        />
+        <Box
+          className={clsx({
+            [classes.form]: true,
+          })}
+        >
+          {activeStep === 0 && <InfoForm />}
+          {activeStep === 1 && <ModelForm />}
+          {activeStep === 2 && <DataForm />}
+          {activeStep === 3 && <ScreenLanding />}
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        {activeStep > 0 && <Button onClick={handleBack}>Back</Button>}
+        <Button
+          id="next"
+          // disabled={disableNext()}
+          variant="contained"
+          onClick={activeStep === 3 ? handleFinish : handleNext}
+        >
+          {activeStep === 3 ? "Finish" : "Next"}
+        </Button>
+      </DialogActions>
+    </ProjectContext.Provider>
+  );
+};
+
+const SetupDialog = ({
+  project_id,
+  open,
+  onClose,
+  setFeedbackBar,
+  mobileScreen,
+}) => {
+  console.log("SetupDialog", project_id, open);
+
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  const exitingSetup = () => {
+    queryClient.invalidateQueries("fetchProjects");
+    // navigate("/projects");
+  };
+
+  const exitedSetup = () => {
+    setFeedbackBar({
+      open: true,
+      message: `Your project has been saved as draft`,
+    });
+
+    // setActiveStep(0);
+  };
+
+  return (
     <StyledSetupDialog
       aria-label="project setup"
       open={open}
@@ -224,52 +267,17 @@ const SetupDialog = ({
       PaperProps={{
         sx: { height: !mobileScreen ? "calc(100% - 96px)" : "100%" },
       }}
-      onClose={handleClose}
-      TransitionComponent={Fade}
+      onClose={onClose}
       TransitionProps={{
         onExiting: () => exitingSetup(),
         onExited: () => exitedSetup(),
       }}
     >
-      <ProjectContext.Provider value={project_id}>
-        {mobileScreen && <AppBarWithinDialog onClickStartIcon={handleClose} />}
-        {!mobileScreen && (
-          <SetupDialogHeader
-            handleClose={handleClose}
-            mobileScreen={mobileScreen}
-            savingState={savingState}
-          />
-        )}
-        <DialogContent className={classes.content} dividers>
-          <SetupStepper
-            activeStep={activeStep}
-            handleStep={handleStep}
-            completed={completed}
-            isStepFailed={isStepFailed}
-          />
-          <Box
-            className={clsx({
-              [classes.form]: true,
-            })}
-          >
-            {activeStep === 0 && <InfoForm />}
-            {activeStep === 1 && <ModelForm />}
-            {activeStep === 2 && <DataForm />}
-            {activeStep === 3 && <ScreenLanding />}
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          {activeStep > 0 && <Button onClick={handleBack}>Back</Button>}
-          <Button
-            id="next"
-            // disabled={disableNext()}
-            variant="contained"
-            onClick={activeStep === 3 ? handleFinish : handleNext}
-          >
-            {activeStep === 3 ? "Finish" : "Next"}
-          </Button>
-        </DialogActions>
-      </ProjectContext.Provider>
+      <SetupDialogContent
+        project_id={project_id}
+        onClose={onClose}
+        mobileScreen={mobileScreen}
+      />
     </StyledSetupDialog>
   );
 };
