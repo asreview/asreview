@@ -1,6 +1,10 @@
 import * as React from "react";
-import { useIsMutating, useQueryClient, useMutation } from "react-query";
-import { connect } from "react-redux";
+import {
+  useIsMutating,
+  useQueryClient,
+  useMutation,
+  useQuery,
+} from "react-query";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import {
@@ -10,15 +14,18 @@ import {
   DialogActions,
   Dialog,
   Fade,
+  DialogTitle,
+  Stack,
+  Tooltip,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import Close from "@mui/icons-material/Close";
+
+import { SavingStateBox } from "../SetupComponents";
+import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
 
 import { AppBarWithinDialog } from "../../Components";
-import {
-  FinishSetup,
-  SetupDialogHeader,
-  SetupStepper,
-} from "../SetupComponents";
+import { SetupStepper } from "../SetupComponents";
 import { DataForm } from "../SetupComponents/DataComponents";
 import { ModelForm } from "../SetupComponents/ModelComponents";
 import { InfoForm } from "../SetupComponents/InfoComponents";
@@ -26,7 +33,7 @@ import { ScreenLanding } from "../SetupComponents/ScreenComponents";
 
 import { ProjectAPI } from "../../api/index.js";
 import { ProjectContext } from "../../ProjectContext.js";
-import { projectStatuses } from "../../globals.js";
+import { projectModes, projectStatuses } from "../../globals.js";
 
 const PREFIX = "SetupDialog";
 
@@ -53,6 +60,44 @@ const StyledSetupDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
+const classesHeader = {
+  title: `${PREFIX}-header-title`,
+};
+
+const StyledSetupDialogHeader = styled(Stack)(({ theme }) => ({
+  [`& .${classesHeader.title}`]: {
+    height: "64px",
+  },
+}));
+
+const SetupDialogHeader = ({ mobileScreen, savingState, handleClose }) => {
+  if (mobileScreen) return null; // Nothing to display if mobile screen
+
+  return (
+    <StyledSetupDialogHeader className="dialog-header" direction="row">
+      <DialogTitle className={classesHeader.title}>
+        Configure project
+      </DialogTitle>
+      <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+        <SavingStateBox isSaving={savingState} />
+        <Stack
+          className="dialog-header-button right"
+          direction="row"
+          spacing={1}
+        >
+          <Tooltip title={"Save and close"}>
+            <span>
+              <StyledIconButton onClick={handleClose}>
+                <Close />
+              </StyledIconButton>
+            </span>
+          </Tooltip>
+        </Stack>
+      </Stack>
+    </StyledSetupDialogHeader>
+  );
+};
+
 const SetupDialog = ({
   project_id,
   open,
@@ -63,6 +108,7 @@ const SetupDialog = ({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  const [mode, setMode] = React.useState(null);
   const [activeStep, setActiveStep] = React.useState(0);
   const [completed, setCompleted] = React.useState({
     0: true,
@@ -101,21 +147,36 @@ const SetupDialog = ({
     setActiveStep(activeStep + 1);
   };
 
-  const { error, isError, mutate, reset } = useMutation(
-    ProjectAPI.mutateReviewStatus,
+  const [info, setInfo] = React.useState({});
+
+  const { isSuccess: isInfoSuccess } = useQuery(
+    ["fetchInfo", { project_id: project_id }],
+    ProjectAPI.fetchInfo,
     {
-      mutationKey: ["mutateReviewStatus"],
-      onError: () => {
-        // console.log("error updating status")
-      },
-      onSuccess: () => {
-        onClose();
-        navigate(`/projects/${project_id}/review`);
+      onSuccess: (data) => {
+        console.log("fetchInfo success");
+        setInfo(data);
       },
     },
   );
 
+  const { mutate } = useMutation(ProjectAPI.mutateReviewStatus, {
+    mutationKey: ["mutateReviewStatus"],
+    onError: () => {
+      console.log("error updating status");
+    },
+    onSuccess: () => {
+      onClose();
+      if (info["mode"] === projectModes.SIMULATION) {
+        navigate(`/projects/${project_id}`);
+      } else {
+        navigate(`/projects/${project_id}/review`);
+      }
+    },
+  });
+
   const handleFinish = () => {
+    console.log("handleFinish");
     mutate({
       project_id,
       status: projectStatuses.REVIEW,

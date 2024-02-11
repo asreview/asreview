@@ -1,17 +1,10 @@
 import * as React from "react";
 import ReactLoading from "react-loading";
-import { useMutation, useQuery, useQueryClient } from "react-query";
-import { connect } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import YouTube from "react-youtube";
 
-import { Button, Stack, Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
-import { InlineErrorHandler } from "../../Components";
 import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography";
-import { ProjectAPI } from "../../api";
-import { projectModes, projectStatuses } from "../../globals.js";
 
 let width = window.screen.width;
 
