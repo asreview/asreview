@@ -35,7 +35,7 @@ const SetupStepper = ({ activeStep, handleStep, completed, isStepFailed }) => {
             <Step
               className={classes.step}
               key={label}
-              completed={completed[index]}
+              completed={index < activeStep}
             >
               <StepButton
                 color="inherit"
@@ -52,15 +52,15 @@ const SetupStepper = ({ activeStep, handleStep, completed, isStepFailed }) => {
                 })}
               >
                 <StepLabel
-                  StepIconComponent={
-                    isError || (completed[index] && activeStep !== index)
-                      ? StepIcon
-                      : StyledStepIcon
-                  }
+                  // StepIconComponent={
+                  //   isError || (index < activeStep && activeStep !== index)
+                  //     ? StepIcon
+                  //     : StyledStepIcon
+                  // }
                   StepIconProps={{
                     sx: { width: isError ? "22px" : "19.5px", height: "22px" },
                   }}
-                  {...(isError ? { error: true } : {})}
+                  // {...(isError ? { error: true } : {})}
                 >
                   {label}
                 </StepLabel>

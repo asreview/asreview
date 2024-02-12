@@ -21,7 +21,6 @@ import {
 import { styled } from "@mui/material/styles";
 import Close from "@mui/icons-material/Close";
 
-import { SavingStateBox } from "../SetupComponents";
 import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
 
 import { AppBarWithinDialog } from "../../Components";
@@ -70,7 +69,7 @@ const StyledSetupDialogHeader = styled(Stack)(({ theme }) => ({
   },
 }));
 
-const SetupDialogHeader = ({ mobileScreen, savingState, onClose }) => {
+const SetupDialogHeader = ({ mobileScreen, onClose }) => {
   if (mobileScreen) return null; // Nothing to display if mobile screen
 
   return (
@@ -79,18 +78,15 @@ const SetupDialogHeader = ({ mobileScreen, savingState, onClose }) => {
         Configure project
       </DialogTitle>
       <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-        <SavingStateBox isSaving={savingState} />
         <Stack
           className="dialog-header-button right"
           direction="row"
           spacing={1}
         >
-          <Tooltip title={"Save and close"}>
-            <span>
-              <StyledIconButton onClick={onClose}>
-                <Close />
-              </StyledIconButton>
-            </span>
+          <Tooltip title={"Close"}>
+            <StyledIconButton onClick={onClose}>
+              <Close />
+            </StyledIconButton>
           </Tooltip>
         </Stack>
       </Stack>
@@ -102,20 +98,7 @@ const SetupDialogContent = ({ project_id, onClose, mobileScreen }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const [mode, setMode] = React.useState(null);
   const [activeStep, setActiveStep] = React.useState(0);
-  const [completed, setCompleted] = React.useState({
-    0: true,
-    1: true,
-    2: true,
-    3: true,
-  });
-
-  const [savingState, setSavingState] = React.useState(false);
-  const timerRef = React.useRef(null);
-
-  const isMutatingInfo = useIsMutating(["mutateInfo"]);
-  const isMutatingModel = useIsMutating(["mutateModelConfig"]);
 
   /**
    * Dialog actions
@@ -168,39 +151,16 @@ const SetupDialogContent = ({ project_id, onClose, mobileScreen }) => {
     return false;
   };
 
-  React.useEffect(() => {
-    const currentSavingStatus = isMutatingInfo === 1 || isMutatingModel === 1;
-
-    // If the status changes to 'saving', immediately update the state
-    if (currentSavingStatus) {
-      setSavingState(true);
-      if (timerRef.current) clearTimeout(timerRef.current);
-    } else {
-      // If the status changes to 'not saving', delay the update by 1000ms
-      timerRef.current = setTimeout(() => setSavingState(false), 1000);
-    }
-
-    // Cleanup on unmount or if dependencies change
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, [isMutatingInfo, isMutatingModel]);
-
   return (
     <ProjectContext.Provider value={project_id}>
       {mobileScreen && <AppBarWithinDialog onClickStartIcon={onClose} />}
       {!mobileScreen && (
-        <SetupDialogHeader
-          onClose={onClose}
-          mobileScreen={mobileScreen}
-          savingState={savingState}
-        />
+        <SetupDialogHeader onClose={onClose} mobileScreen={mobileScreen} />
       )}
       <DialogContent className={classes.content} dividers>
         <SetupStepper
           activeStep={activeStep}
           handleStep={handleStep}
-          completed={completed}
           isStepFailed={isStepFailed}
         />
         <Box
@@ -248,8 +208,6 @@ const SetupDialog = ({
       open: true,
       message: `Your project has been saved as draft`,
     });
-
-    // setActiveStep(0);
   };
 
   return (

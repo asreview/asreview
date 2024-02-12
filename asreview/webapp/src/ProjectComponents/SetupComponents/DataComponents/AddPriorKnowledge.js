@@ -22,7 +22,7 @@ import { styled } from "@mui/material/styles";
 import AddIcon from "@mui/icons-material/Add";
 
 import { AppBarWithinDialog } from "../../../Components";
-import { InfoCard, SavingStateBox } from "../../SetupComponents";
+import { InfoCard } from "../../SetupComponents";
 import { PriorLabeled, PriorRandom, PriorSearch } from "../DataComponents";
 import { ProjectAPI } from "../../../api/index.js";
 import { useToggle } from "../../../hooks/useToggle";
@@ -168,7 +168,7 @@ const AddPriorKnowledge = (props) => {
                   step.
                 </Typography>
               )}
-              {data?.n_prior !== 0 && <SavingStateBox isSaving={savingState} />}
+              {/* {data?.n_prior !== 0 && <SavingStateBox isSaving={savingState} />} */}
               <Box className="dialog-header-button right">
                 <Button
                   variant={!isEnoughPriorKnowledge() ? "text" : "contained"}
