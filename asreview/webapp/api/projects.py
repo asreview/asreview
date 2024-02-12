@@ -1191,9 +1191,8 @@ def _get_labels(state_obj, priors=False):
     # if less labels than records, fill with 0
     if len(labels) < n_records:
         labels += [0] * (n_records - len(labels))
-        labels = pd.Series(labels)
 
-    return labels
+    return pd.Series(labels)
 
 
 @bp.route("/projects/<project_id>/progress", methods=["GET"])

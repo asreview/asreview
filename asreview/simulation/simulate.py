@@ -109,7 +109,7 @@ class Simulate:
         prior_indices=None,
         n_papers=None,
         n_instances=DEFAULT_N_INSTANCES,
-        stop_if=None,
+        stop_if="min",
         start_idx=None,
         init_seed=None,
         write_interval=None,
