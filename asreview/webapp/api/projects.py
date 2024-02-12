@@ -175,16 +175,13 @@ def api_init_project():  # noqa: F401
 
     project_mode = request.form["mode"]
     project_title = request.form["mode"] + "_" + time.strftime("%Y%m%d-%H%M%S")
-    # TODO{Terry}: retrieve author from the authenticated profile
+    # TODO: retrieve author from the authenticated profile
 
     # get a unique project id
     project_id = uuid4().hex
 
-    # get path of this project
-    project_path = get_project_path(project_id)
-
     project = asr.Project.create(
-        project_path,
+        get_project_path(project_id),
         project_id=project_id,
         project_mode=project_mode,
         project_name=project_title,
@@ -255,6 +252,10 @@ def api_update_project_info(project):  # noqa: F401
 
     if "tags" in update_dict:
         update_dict["tags"] = json.loads(update_dict["tags"])
+
+    if "name" in update_dict:
+        if len(update_dict["name"]) == 0:
+            raise ValueError("Project title should be at least 1 character")
 
     project.update_config(**update_dict)
 

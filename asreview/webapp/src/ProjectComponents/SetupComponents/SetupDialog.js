@@ -99,8 +99,6 @@ const SetupDialogHeader = ({ mobileScreen, savingState, onClose }) => {
 };
 
 const SetupDialogContent = ({ project_id, onClose, mobileScreen }) => {
-  console.log("SetupDialogContent", project_id);
-
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -219,8 +217,7 @@ const SetupDialogContent = ({ project_id, onClose, mobileScreen }) => {
       <DialogActions>
         {activeStep > 0 && <Button onClick={handleBack}>Back</Button>}
         <Button
-          id="next"
-          // disabled={disableNext()}
+          id="next-setup-button"
           variant="contained"
           onClick={activeStep === 3 ? handleFinish : handleNext}
         >
@@ -238,8 +235,6 @@ const SetupDialog = ({
   setFeedbackBar,
   mobileScreen,
 }) => {
-  console.log("SetupDialog", project_id, open);
-
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 

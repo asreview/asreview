@@ -11,10 +11,11 @@ import {
 import { styled } from "@mui/material/styles";
 import LoadingButton from "@mui/lab/LoadingButton";
 
-import { ProjectInfo, ProjectDeleteDialog } from "../../ProjectComponents";
+import { ProjectDeleteDialog } from "../../ProjectComponents";
 import { ScreenLanding } from "../SetupComponents/ScreenComponents";
 import { ModelForm } from "../SetupComponents/ModelComponents";
 import { DataForm } from "../SetupComponents/DataComponents";
+import { InfoForm } from "../SetupComponents/InfoComponents";
 
 import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
 import { projectStatuses } from "../../globals.js";
@@ -51,7 +52,7 @@ const DetailsPage = (props) => {
         </Box>
         <ProjectContext.Provider value={project_id}>
           <Box sx={{ padding: "12px 0px" }}>
-            <ProjectInfo mobileScreen={props.mobileScreen} editable={true} />
+            <InfoForm editable={true} />
           </Box>
           <Box sx={{ padding: "12px 0px" }}>
             <DataForm
