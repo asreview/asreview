@@ -353,13 +353,17 @@ class ProjectAPI {
     });
   }
 
-  static mutateStartTraining(variables) {
-    const url = api_url + `projects/${variables.project_id}/start`;
+  static mutateTraining(variables) {
+    const url = api_url + `projects/${variables.project_id}/train`;
+
+    let data = new FormData();
+    data.set("ranking", variables.ranking);
+
     return new Promise((resolve, reject) => {
       axios({
         method: "post",
         url: url,
-        data: {},
+        data: data,
         withCredentials: true,
         // headers: { "Content-Type": "multipart/form-data" },
       })

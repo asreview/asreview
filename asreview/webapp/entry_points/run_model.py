@@ -48,9 +48,16 @@ def _run_model_start(project, output_error=True):
             with open_state(project) as state:
                 settings = state.settings
 
-            feature_model = get_feature_model(settings.feature_extraction)
+                # check for 1s and 0s in the labels
+                record_table = state.get_record_table()
+                labeled = state.get_labeled()
+                labels = labeled["label"].to_list()
+                training_set = len(labeled)
+                if not (0 in labels and 1 in labels):
+                    return
 
             # get the feature matrix
+            feature_model = get_feature_model(settings.feature_extraction)
             try:
                 fm = project.get_feature_matrix(feature_model.name)
             except FileNotFoundError:
@@ -65,16 +72,6 @@ def _run_model_start(project, output_error=True):
                     )
 
                 project.add_feature_matrix(fm, feature_model.name)
-
-            with open_state(project) as state:
-                record_table = state.get_record_table()
-                labeled = state.get_labeled()
-                labels = labeled["label"].to_list()
-                training_set = len(labeled)
-                if not (0 in labels and 1 in labels):
-                    raise ValueError(
-                        "Not both labels available. " "Stopped training the model"
-                    )
 
             # TODO: Simplify balance model input.
             # Use the balance model to sample the trainings data.

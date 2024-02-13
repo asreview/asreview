@@ -756,7 +756,7 @@ def api_get_algorithms(project):  # noqa: F401
     )
 
 
-@bp.route("/projects/<project_id>/algorithms", methods=["POST"])
+@bp.route("/projects/<project_id>/algorithms", methods=["POST", "PUT"])
 @login_required
 @project_authorization
 def api_set_algorithms(project):  # noqa: F401
@@ -789,16 +789,31 @@ def api_set_algorithms(project):  # noqa: F401
     with open_state(project.project_path, read_only=False) as state:
         state.settings = asreview_settings
 
-    response = jsonify({"success": True})
-
-    return response
+    return jsonify({"success": True})
 
 
-@bp.route("/projects/<project_id>/start", methods=["POST"])
+@bp.route("/projects/<project_id>/train", methods=["POST"])
 @login_required
 @project_authorization
-def api_start(project):  # noqa: F401
+def api_train(project):  # noqa: F401
     """Start training of first model or simulation."""
+
+    ranking = request.form.get("ranking", type=str, default=None)
+
+    if ranking in ["random", "top-down"]:
+        with open_state(project.project_path, read_only=False) as state:
+            if ranking == "random":
+                records = state.get_record_table().sample(frac=1)
+            elif ranking == "top-down":
+                records = state.get_record_table()
+
+            print(records)
+
+            state.add_last_ranking(
+                records.values, ranking, ranking, ranking, ranking, -1
+            )
+
+        return jsonify({"success": True})
 
     try:
         run_command = [
@@ -815,9 +830,7 @@ def api_start(project):  # noqa: F401
         message = f"Failed to train the model. {err}"
         return jsonify(message=message), 400
 
-    response = jsonify({"success": True})
-
-    return response
+    return jsonify({"success": True})
 
 
 @bp.route("/projects/<project_id>/status", methods=["GET"])
@@ -1386,13 +1399,15 @@ def api_is_training(project):  # noqa: F401
 @project_authorization
 def api_get_document(project):  # noqa: F401
     """Retrieve record in order of review."""
+
+    with open_state(project.project_path) as state:
+        try:
+            rank_n_1 = state.query_top_ranked(1)
+        except StateError:
+            return jsonify({"result": None, "pool_empty": False, "has_ranking": False})
+
     with open_state(project.project_path, read_only=False) as state:
         _, _, pending = state.get_pool_labeled_pending()
-
-    try:
-        rank_n_1 = state.query_top_ranked(1)
-    except StateError:
-        return jsonify({"result": None, "pool_empty": False, "has_ranking": False})
 
     # check if there is a pending record else query for a new record
     record_ids = rank_n_1 if pending.empty else pending.to_list()

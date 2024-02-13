@@ -1,7 +1,10 @@
 import * as React from "react";
 import ReactLoading from "react-loading";
+import { useMutation, useQuery } from "react-query";
+import { ProjectAPI } from "../../api";
+import { queryClient, useQueryClient } from "react-query";
 
-import { Stack, Typography } from "@mui/material";
+import { Button, Stack, Typography } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
 import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography";
@@ -30,8 +33,34 @@ const Root = styled("div")(({ theme }) => ({
   // },
 }));
 
-const FinishSetup = ({ project_id, handleBack }) => {
+const FinishSetup = ({ project_id, refetch }) => {
   const theme = useTheme();
+
+  // const { data: status, isError: isStatusError, error: statusError } = useQuery(
+  //   ["project", project_id],
+  //   () => ProjectAPI.getProjectStatus(project_id),
+  //   {
+  //     enabled: !!project_id,
+  //   }
+  // );
+
+  // mutate and start new training
+  const { mutate: startTraining, isLoading: isTraining } = useMutation(
+    ProjectAPI.mutateTraining,
+    {
+      onSuccess: () => {
+        refetch();
+      },
+    },
+  );
+
+  const skipTraining = (method) => {
+    if (method === "random") {
+      startTraining({ project_id: project_id, ranking: "random" });
+    } else if (method === "top-down") {
+      startTraining({ project_id: project_id, ranking: "top-down" });
+    }
+  };
 
   return (
     <Root>
@@ -98,30 +127,18 @@ const FinishSetup = ({ project_id, handleBack }) => {
             width={60}
           />
         </Stack>
-        {/* )} */}
-        {/* {!training && (
-          <Stack spacing={3}>
-            {info?.mode !== projectModes.SIMULATION && (
-              <Stack className={classes.root} spacing={3}>
-                <TypographySubtitle1Medium>
-                  AI is ready to assist you
-                </TypographySubtitle1Medium>
-              </Stack>
-            )}
-            {info?.mode === projectModes.SIMULATION && (
-              <Stack className={classes.root} spacing={3}>
-                <Stack>
-                  <TypographySubtitle1Medium>
-                    Your simulation project has been initiated
-                  </TypographySubtitle1Medium>
-                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                    It will take some time to complete the simulation
-                  </Typography>
-                </Stack>
-              </Stack>
-            )}
-          </Stack>
-        )} */}
+
+        {/* Button to skip this and start reviewing */}
+        <Typography>
+          Don't want to wait till training the model is ready? Click here How do
+          you want to screen the papers?
+        </Typography>
+        <Button onClick={() => skipTraining("random")} disabled={isTraining}>
+          Random
+        </Button>
+        <Button onClick={() => skipTraining("top-down")} disabled={isTraining}>
+          Top down
+        </Button>
       </Stack>
     </Root>
   );

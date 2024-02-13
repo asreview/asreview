@@ -327,16 +327,17 @@ const ReviewPage = ({
   const queryClient = useQueryClient();
 
   /* fetch the record and check if the project is training */
-  const { error, isError, isSuccess } = useQuery(
+  const { error, isError, isSuccess, refetch } = useQuery(
     ["fetchRecord", { project_id }],
     ProjectAPI.fetchRecord,
     {
       refetchOnWindowFocus: false,
       retry: false,
       onSuccess: (data) => {
-        setRecord(data);
         if (!data["has_ranking"]) {
-          setTimeout(() => queryClient.refetchQueries("fetchRecord"), 3000);
+          setTimeout(() => queryClient.refetchQueries("fetchRecord"), 6000);
+        } else {
+          setRecord(data);
         }
       },
     },
@@ -344,8 +345,8 @@ const ReviewPage = ({
 
   return (
     <Root aria-label="review page">
-      {record !== null && !record?.has_ranking && !record?.pool_empty && (
-        <FinishSetup project_id={project_id} />
+      {record === null && !record?.has_ranking && !record?.pool_empty && (
+        <FinishSetup project_id={project_id} refetch={refetch} />
       )}
 
       {record !== null && record?.has_ranking && !record?.pool_empty && (
