@@ -81,13 +81,13 @@ asreview = "asreview.__main__:main"
 
 [project.entry-points."asreview.entry_points"]
 lab = "asreview.webapp.entry_points.lab:lab_entry_point"
-simulate = "asreview.entry_points:SimulateEntryPoint"
-algorithms = "asreview.entry_points:AlgorithmsEntryPoint"
 auth-tool = "asreview.webapp.entry_points.auth_tool:AuthTool"
+simulate = "asreview.simulation.cli:cli_simulate"
+algorithms = "asreview.simulation.algorithms:cli_algorithms"
 
 [project.entry-points."asreview.entry_points_internal"]
 web_run_model = "asreview.webapp.entry_points.run_model:main"
-state-inspect = "asreview.entry_points:StateInspectEntryPoint"
+state-inspect = "asreview.state.cli:cli_state_inspect"
 
 [project.entry-points."asreview.readers"]
 ".csv" = "asreview.data:CSVReader"
