@@ -1171,7 +1171,7 @@ def _get_stats(project, include_priors=False):
                 else:
                     labels = s.get_labels(priors=include_priors)
 
-                n_records = len(s.get_record_table())
+                n_records = s.n_records
 
         # No state file found or not init.
         except (StateNotFoundError, StateError):
