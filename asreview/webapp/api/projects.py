@@ -1400,30 +1400,36 @@ def api_is_training(project):  # noqa: F401
 def api_get_document(project):  # noqa: F401
     """Retrieve record in order of review."""
 
-    with open_state(project.project_path) as state:
-        try:
-            rank_n_1 = state.query_top_ranked(1)
-        except StateError:
-            return jsonify({"result": None, "pool_empty": False, "has_ranking": False})
-
     with open_state(project.project_path, read_only=False) as state:
-        _, _, pending = state.get_pool_labeled_pending()
+        pending = state.get_pending()
+
+        if pending.empty:
+            try:
+                rank_n_1 = state.get_top_ranked(1)
+
+                # there is a ranking, but pool is empty
+                if rank_n_1 == []:
+                    project.update_review(status="finished")
+                    return jsonify(
+                        {"result": None, "pool_empty": True, "has_ranking": False}
+                    )
+
+            except StateError:
+                # there is no ranking and get_top_ranked raises an error
+                return jsonify(
+                    {"result": None, "pool_empty": False, "has_ranking": False}
+                )
+
+        rank_n_1 = state.query_top_ranked(1)
 
     # check if there is a pending record else query for a new record
     record_ids = rank_n_1 if pending.empty else pending.to_list()
 
-    if len(record_ids) > 0:
-        as_data = project.read_data()
-        item = asdict(as_data.record(record_ids[0]))
-        item["label_from_dataset"] = item["included"]
-        pool_empty = False
-    else:
-        # end of pool
-        project.update_review(status="finished")
-        item = None
-        pool_empty = True
+    as_data = project.read_data()
+    item = asdict(as_data.record(record_ids[0]))
+    item["label_from_dataset"] = item["included"]
 
-    return jsonify({"result": item, "pool_empty": pool_empty, "has_ranking": True})
+    return jsonify({"result": item, "pool_empty": False, "has_ranking": True})
 
 
 @bp.route("/projects/<project_id>/delete", methods=["DELETE"])

@@ -900,7 +900,28 @@ class SQLiteState(BaseState):
             con.commit()
             con.close()
         else:
-            raise StateError("Save trained model data " "before using this function.")
+            raise StateError("Save trained model data before using this function.")
+
+    def get_top_ranked(self, n):
+        """Get the top ranked records from the ranking table.
+
+        Get the top n instances from the pool according to the last ranking.
+        Add the model data to the results table.
+
+        Arguments
+        ---------
+        n: int
+            Number of instances.
+
+        Returns
+        -------
+        list
+            List of record_ids of the top n ranked records.
+        """
+        if self.model_has_trained:
+            return self.get_pool()[:n].to_list()
+        else:
+            raise StateError("Save trained model data before using this function.")
 
     def query_top_ranked(self, n):
         """Get the top ranked records from the ranking table.
@@ -923,7 +944,7 @@ class SQLiteState(BaseState):
             top_n_records = pool[:n].to_list()
             self._move_ranking_data_to_results(top_n_records)
         else:
-            raise StateError("Save trained model data " "before using this function.")
+            raise StateError("Save trained model data before using this function.")
 
         return top_n_records
 

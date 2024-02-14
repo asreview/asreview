@@ -333,38 +333,48 @@ const ReviewPage = ({
     {
       refetchOnWindowFocus: false,
       retry: false,
+      refetchInterval: 4000,
+      refetchIntervalInBackground: true,
+      // enabled only during the training phase
+      enabled:
+        record === null ||
+        (record?.result === null &&
+          !record?.has_ranking &&
+          !record?.pool_empty),
       onSuccess: (data) => {
-        if (!data["has_ranking"]) {
-          setTimeout(() => queryClient.refetchQueries("fetchRecord"), 6000);
-        } else {
-          setRecord(data);
-        }
+        setRecord(data);
       },
     },
   );
 
   return (
     <Root aria-label="review page">
-      {record === null && !record?.has_ranking && !record?.pool_empty && (
-        <FinishSetup project_id={project_id} refetch={refetch} />
-      )}
+      {record?.result === null &&
+        !record?.has_ranking &&
+        !record?.pool_empty && (
+          <FinishSetup project_id={project_id} refetch={refetch} />
+        )}
 
-      {record !== null && record?.has_ranking && !record?.pool_empty && (
-        <ReviewPageRecord
-          record={record}
-          projectMode={projectMode}
-          mobileScreen={mobileScreen}
-          fontSize={fontSize}
-          undoEnabled={undoEnabled}
-          keyPressEnabled={keyPressEnabled}
-          tags={tags}
-        />
-      )}
+      {record?.result !== null &&
+        record?.has_ranking &&
+        !record?.pool_empty && (
+          <ReviewPageRecord
+            record={record}
+            projectMode={projectMode}
+            mobileScreen={mobileScreen}
+            fontSize={fontSize}
+            undoEnabled={undoEnabled}
+            keyPressEnabled={keyPressEnabled}
+            tags={tags}
+          />
+        )}
 
       {/* Review finished */}
-      {record !== null && record?.has_ranking && record?.pool_empty && (
-        <ReviewPageFinished mobileScreen={mobileScreen} />
-      )}
+      {record?.result === null &&
+        !record?.has_ranking &&
+        record?.pool_empty && (
+          <ReviewPageFinished mobileScreen={mobileScreen} />
+        )}
     </Root>
   );
 };
