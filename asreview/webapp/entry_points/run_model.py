@@ -108,17 +108,12 @@ def _run_model_start(project, output_error=True):
                 if relevance_scores is not None:
                     state.add_last_probabilities(relevance_scores[:, 1])
 
-        project.update_review(status="review")
-
     except Timeout:
         logging.debug("Another iteration is training")
 
     except Exception as err:
         project.set_error(err, save_error_message=output_error)
         raise err
-
-    else:
-        project.update_review(status="review")
 
 
 def _simulate_start(project):
@@ -138,7 +133,6 @@ def _simulate_start(project):
     )
 
     try:
-        project.update_review(status="review")
         reviewer.review()
 
     except Exception as err:
