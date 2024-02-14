@@ -4,10 +4,20 @@ import { useMutation, useQuery } from "react-query";
 import { ProjectAPI } from "../../api";
 import { queryClient, useQueryClient } from "react-query";
 
-import { Button, Stack, Typography } from "@mui/material";
+import {
+  Button,
+  Stack,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+} from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
 import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography";
+import { useToggle } from "../../hooks/useToggle";
 
 let width = window.screen.width;
 
@@ -21,28 +31,22 @@ const classes = {
 
 const Root = styled("div")(({ theme }) => ({
   display: "flex",
+
   [`& .${classes.root}`]: {
     alignItems: "center",
   },
-
-  // [`& .${classes.formWarmup}`]: {
-  //   alignItems: "flex-start",
-  //   display: "flex",
-  //   justifyContent: "center",
-  //   height: "100%",
-  // },
+  [`& .${classes.formWarmup}`]: {
+    alignItems: "flex-start",
+    display: "flex",
+    justifyContent: "center",
+    height: "100%",
+  },
 }));
 
 const FinishSetup = ({ project_id, refetch }) => {
   const theme = useTheme();
 
-  // const { data: status, isError: isStatusError, error: statusError } = useQuery(
-  //   ["project", project_id],
-  //   () => ProjectAPI.getProjectStatus(project_id),
-  //   {
-  //     enabled: !!project_id,
-  //   }
-  // );
+  const [openSkipTraining, toggleSkipTraining] = useToggle();
 
   // mutate and start new training
   const { mutate: startTraining, isLoading: isTraining } = useMutation(
@@ -129,17 +133,38 @@ const FinishSetup = ({ project_id, refetch }) => {
         </Stack>
 
         {/* Button to skip this and start reviewing */}
-        <Typography>
-          Don't want to wait till training the model is ready? Click here How do
-          you want to screen the papers?
-        </Typography>
-        <Button onClick={() => skipTraining("random")} disabled={isTraining}>
-          Random
-        </Button>
-        <Button onClick={() => skipTraining("top-down")} disabled={isTraining}>
-          Top down
+        <Button onClick={toggleSkipTraining} disabled={isTraining}>
+          I can't wait
         </Button>
       </Stack>
+      <Dialog
+        open={openSkipTraining}
+        onClose={toggleSkipTraining}
+        aria-labelledby="skip-training-dialog"
+      >
+        <DialogTitle id="skip-training-dialog">
+          Review already? Let's get started!
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Do you want to review already? Your model will be trained in the
+            background. Once the model is finished training, you see better
+            results. Choose one of the following options to start reviewing:
+          </DialogContentText>
+          <Button onClick={() => skipTraining("random")} disabled={isTraining}>
+            Random
+          </Button>
+          <Button
+            onClick={() => skipTraining("top-down")}
+            disabled={isTraining}
+          >
+            Top down
+          </Button>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={toggleSkipTraining}>Cancel</Button>
+        </DialogActions>
+      </Dialog>
     </Root>
   );
 };
