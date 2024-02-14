@@ -273,7 +273,7 @@ const DrawerItemContainer = (props) => {
                     .filter((element) => {
                       return projectInfo?.mode !== projectModes.SIMULATION
                         ? element
-                        : element.path !== "review";
+                        : element.path !== projectStatuses.REVIEW;
                     })
                     .map((element, index) => {
                       return (
