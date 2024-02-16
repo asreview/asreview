@@ -6,8 +6,8 @@ import { styled } from "@mui/material/styles";
 
 import { ActionsFeedbackBar } from "../../Components";
 
-import { ProjectAPI } from "../../api/index.js";
-import { projectStatuses } from "../../globals.js";
+import { ProjectAPI } from "../../api";
+import { projectStatuses } from "../../globals";
 import ElasFinished from "../../images/ElasFinished.svg";
 
 const PREFIX = "ReviewPageFinished";

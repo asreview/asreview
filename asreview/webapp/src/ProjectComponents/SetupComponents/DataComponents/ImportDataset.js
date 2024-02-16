@@ -21,15 +21,15 @@ import { styled } from "@mui/material/styles";
 import { Close } from "@mui/icons-material";
 
 import { AppBarWithinDialog } from "../../../Components";
-import { StyledIconButton } from "../../../StyledComponents/StyledButton.js";
+import { StyledIconButton } from "../../../StyledComponents/StyledButton";
 import { DatasetFromFile, DatasetFromEntryPoint, DatasetFromURL } from ".";
 import { InfoCard } from "..";
-import { ProjectAPI } from "../../../api/index.js";
+import { ProjectAPI } from "../../../api";
 import {
   mapDispatchToProps,
   mapStateToProps,
   projectModes,
-} from "../../../globals.js";
+} from "../../../globals";
 
 const PREFIX = "ImportDataset";
 

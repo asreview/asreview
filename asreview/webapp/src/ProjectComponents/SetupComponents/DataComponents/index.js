@@ -1,4 +1,4 @@
-export { default as DataForm } from "./DataForm";
+export { default as DataForm } from "../PriorComponents/PriorForm";
 export { default as DataFormCard } from "./DataFormCard";
 export { default as DatasetFromEntryPoint } from "./DatasetFromEntryPoint";
 export { default as DatasetFromFile } from "./DatasetFromFile";

@@ -15,8 +15,8 @@ import { FileUpload } from "@mui/icons-material";
 
 import { InlineErrorHandler } from "../Components";
 
-import { ProjectAPI } from "../api/index.js";
-import { mapStateToProps } from "../globals.js";
+import { ProjectAPI } from "../api";
+import { mapStateToProps } from "../globals";
 
 const PREFIX = "ImportFromFile";
 

@@ -14,15 +14,14 @@ import {
 import { styled } from "@mui/material/styles";
 import { ArrowBack, Search } from "@mui/icons-material";
 
-import { InfoCard } from "../index.js";
-import { InlineErrorHandler } from "../../../Components/index.js";
-import { PriorUnlabeled } from "../PriorComponents/index.js";
-import { StyledIconButton } from "../../../StyledComponents/StyledButton.js";
-import { ProjectAPI } from "../../../api/index.js";
-import { mapStateToProps } from "../../../globals.js";
-import { useToggle } from "../../../hooks/useToggle.js";
+import { InfoCard } from "..";
+import { InlineErrorHandler } from "../../../Components";
+import { PriorUnlabeled } from "../PriorComponents";
+import { StyledIconButton } from "../../../StyledComponents/StyledButton";
+import { ProjectAPI } from "../../../api";
+import { useToggle } from "../../../hooks/useToggle";
 
-import { ProjectContext } from "../../../ProjectContext.js";
+import { ProjectContext } from "../../../ProjectContext";
 import { useContext } from "react";
 
 const PREFIX = "PriorSearch";

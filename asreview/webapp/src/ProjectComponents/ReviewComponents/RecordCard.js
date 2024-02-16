@@ -18,8 +18,8 @@ import { Link } from "@mui/icons-material";
 import { BoxErrorHandler } from "../../Components";
 import { DOIIcon } from "../../icons";
 import { NoteSheet } from "../ReviewComponents";
-import { ExplorationModeRecordAlert } from "../../StyledComponents/StyledAlert.js";
-import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
+import { ExplorationModeRecordAlert } from "../../StyledComponents/StyledAlert";
+import { StyledIconButton } from "../../StyledComponents/StyledButton";
 
 const PREFIX = "RecordCard";
 

@@ -33,10 +33,10 @@ import {
   BoxErrorHandler,
   OpenInNewIconStyled,
 } from "../Components";
-import { StyledIconButton } from "../StyledComponents/StyledButton.js";
+import { StyledIconButton } from "../StyledComponents/StyledButton";
 
-import { UtilsAPI } from "../api/index.js";
-import { feedbackURL } from "../globals.js";
+import { UtilsAPI } from "../api";
+import { feedbackURL } from "../globals";
 import { toggleHelpDialog } from "../redux/actions";
 
 const mapStateToProps = (state) => {

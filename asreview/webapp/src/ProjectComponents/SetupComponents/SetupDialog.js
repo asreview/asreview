@@ -21,7 +21,7 @@ import {
 import { styled } from "@mui/material/styles";
 import Close from "@mui/icons-material/Close";
 
-import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
+import { StyledIconButton } from "../../StyledComponents/StyledButton";
 
 import { AppBarWithinDialog } from "../../Components";
 import { SetupStepper } from "../SetupComponents";
@@ -30,9 +30,9 @@ import { ModelForm } from "../SetupComponents/ModelComponents";
 import { InfoForm } from "../SetupComponents/InfoComponents";
 import { ScreenLanding } from "../SetupComponents/ScreenComponents";
 
-import { ProjectAPI } from "../../api/index.js";
-import { ProjectContext } from "../../ProjectContext.js";
-import { projectModes, projectStatuses } from "../../globals.js";
+import { ProjectAPI } from "../../api";
+import { ProjectContext } from "../../ProjectContext";
+import { projectModes, projectStatuses } from "../../globals";
 
 const PREFIX = "SetupDialog";
 

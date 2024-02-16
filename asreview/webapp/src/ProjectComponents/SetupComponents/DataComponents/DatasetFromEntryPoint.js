@@ -6,9 +6,9 @@ import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../../Components";
 import { EntryPointDataset } from "../DataComponents";
-import { ProjectAPI } from "../../../api/index.js";
+import { ProjectAPI } from "../../../api";
 
-import { mapStateToProps } from "../../../globals.js";
+import { mapStateToProps } from "../../../globals";
 
 const PREFIX = "DatasetFromEntryPoint";
 

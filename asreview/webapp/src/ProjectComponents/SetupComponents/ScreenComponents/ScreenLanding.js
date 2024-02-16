@@ -5,7 +5,7 @@ import { Box, Typography, styled } from "@mui/material";
 import { TagEditor } from "../../TagComponents";
 
 import { useContext } from "react";
-import { ProjectContext } from "../../../ProjectContext.js";
+import { ProjectContext } from "../../../ProjectContext";
 
 const PREFIX = "ScreenLanding";
 

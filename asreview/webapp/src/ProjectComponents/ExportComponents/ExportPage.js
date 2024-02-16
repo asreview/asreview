@@ -25,8 +25,8 @@ import {
 } from "@mui/icons-material";
 import { ActionsFeedbackBar, PageHeader, CiteDialog } from "../../Components";
 import { SelectItem } from "../../ProjectComponents";
-import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
-import { ProjectAPI } from "../../api/index.js";
+import { MouseOverPopover } from "../../StyledComponents/StyledPopover";
+import { ProjectAPI } from "../../api";
 import "../../App.css";
 
 const selectWidth = 310;

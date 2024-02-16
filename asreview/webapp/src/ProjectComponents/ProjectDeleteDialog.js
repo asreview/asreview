@@ -13,7 +13,7 @@ import {
   Typography,
   TextField,
 } from "@mui/material";
-import { TeamAPI, ProjectAPI } from "../api/index.js";
+import { TeamAPI, ProjectAPI } from "../api";
 import { setMyProjects } from "../redux/actions";
 import useAuth from "../hooks/useAuth";
 

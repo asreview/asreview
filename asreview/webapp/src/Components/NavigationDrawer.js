@@ -16,7 +16,7 @@ import { DrawerItemContainer, Header } from "../Components";
 
 import ASReviewLAB_black from "../images/asreview_sub_logo_lab_black_transparent.svg";
 import ASReviewLAB_white from "../images/asreview_sub_logo_lab_white_transparent.svg";
-import { drawerWidth } from "../globals.js";
+import { drawerWidth } from "../globals";
 import { toggleHelpDialog } from "../redux/actions";
 
 const Root = styled("div")(({ theme }) => ({}));

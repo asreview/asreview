@@ -21,17 +21,13 @@ import {
 import { styled } from "@mui/material/styles";
 import AddIcon from "@mui/icons-material/Add";
 
-import { AppBarWithinDialog } from "../../../Components/index.js";
-import { InfoCard } from "../index.js";
-import {
-  PriorLabeled,
-  PriorRandom,
-  PriorSearch,
-} from "../PriorComponents/index.js";
-import { ProjectAPI } from "../../../api/index.js";
-import { useToggle } from "../../../hooks/useToggle.js";
+import { AppBarWithinDialog } from "../../../Components";
+import { InfoCard } from "..";
+import { PriorLabeled, PriorRandom, PriorSearch } from "../PriorComponents";
+import { ProjectAPI } from "../../../api";
+import { useToggle } from "../../../hooks/useToggle";
 import { useContext } from "react";
-import { ProjectContext } from "../../../ProjectContext.js";
+import { ProjectContext } from "../../../ProjectContext";
 
 const PREFIX = "AddPriorKnowledge";
 

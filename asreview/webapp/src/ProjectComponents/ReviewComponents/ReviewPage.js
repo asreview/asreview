@@ -15,11 +15,11 @@ import {
 
 import { ReviewPageFinished } from "../../ProjectComponents/ReviewComponents";
 
-import { ProjectAPI } from "../../api/index.js";
+import { ProjectAPI } from "../../api";
 import { useKeyPress } from "../../hooks/useKeyPress";
 
 import "./ReviewPage.css";
-import FinishSetup from "../SetupComponents/FinishSetup.js";
+import FinishSetup from "../SetupComponents/FinishSetup";
 
 const Root = styled("div")(({ theme }) => ({
   height: "100%",

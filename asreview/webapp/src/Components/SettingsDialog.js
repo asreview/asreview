@@ -26,11 +26,11 @@ import { styled } from "@mui/material/styles";
 import { ArrowBack, Close, InfoOutlined } from "@mui/icons-material";
 
 import { AppBarWithinDialog, OpenInNewIconStyled } from "../Components";
-import { StyledIconButton } from "../StyledComponents/StyledButton.js";
+import { StyledIconButton } from "../StyledComponents/StyledButton";
 
-import { BaseAPI } from "../api/index.js";
+import { BaseAPI } from "../api";
 import { useToggle } from "../hooks/useToggle";
-import { fontSizeOptions, donateURL } from "../globals.js";
+import { fontSizeOptions, donateURL } from "../globals";
 
 const mapStateToProps = (state) => {
   return {

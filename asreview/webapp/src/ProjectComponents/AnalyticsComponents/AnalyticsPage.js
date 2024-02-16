@@ -30,10 +30,10 @@ import {
   ProgressDensityChart,
   ProgressRecallChart,
 } from "../AnalyticsComponents";
-import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
+import { TypographyH5Medium } from "../../StyledComponents/StyledTypography";
 
-import { ProjectAPI } from "../../api/index.js";
-import { projectModes } from "../../globals.js";
+import { ProjectAPI } from "../../api";
+import { projectModes } from "../../globals";
 
 const Root = styled("div")(({ theme }) => ({}));
 

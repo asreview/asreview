@@ -23,13 +23,13 @@ import { styled } from "@mui/material/styles";
 import { Diversity3, Help, Payment, Settings } from "@mui/icons-material";
 
 import { DrawerItem, ElasGame } from "../Components";
-import { ProjectAPI } from "../api/index.js";
+import { ProjectAPI } from "../api";
 import {
   communityURL,
   donateURL,
   projectModes,
   projectStatuses,
-} from "../globals.js";
+} from "../globals";
 import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
 import InReview from "../images/ElasHoldingSIGNS_InReview.svg";
 import SetUp from "../images/ElasHoldingSIGNS_SetUp.svg";

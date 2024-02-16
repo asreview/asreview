@@ -8,9 +8,9 @@ import { useContext } from "react";
 
 import { InlineErrorHandler } from "../../../Components";
 import { DataFormCard } from "../DataComponents";
-import { ProjectAPI } from "../../../api/index.js";
-import { mapStateToProps } from "../../../globals.js";
-import { ProjectContext } from "../../../ProjectContext.js";
+import { ProjectAPI } from "../../../api";
+import { mapStateToProps } from "../../../globals";
+import { ProjectContext } from "../../../ProjectContext";
 
 const PREFIX = "DataForm";
 

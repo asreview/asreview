@@ -17,11 +17,11 @@ import {
 } from "@mui/material";
 
 import { useMutation, useQuery } from "react-query";
-import { ProjectAPI } from "../../api/index.js";
+import { ProjectAPI } from "../../api";
 
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
+import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography";
 
 const Tag = (props) => {
   return (

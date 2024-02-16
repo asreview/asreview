@@ -1,8 +1,7 @@
 import * as React from "react";
 import ReactLoading from "react-loading";
-import { useMutation, useQuery } from "react-query";
+import { useMutation } from "react-query";
 import { ProjectAPI } from "../../api";
-import { queryClient, useQueryClient } from "react-query";
 
 import {
   Button,

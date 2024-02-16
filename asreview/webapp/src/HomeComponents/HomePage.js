@@ -10,7 +10,7 @@ import {
 } from "../HomeComponents/DashboardComponents";
 import RouteNotFound from "../RouteNotFound";
 
-import { drawerWidth } from "../globals.js";
+import { drawerWidth } from "../globals";
 
 const PREFIX = "HomePage";
 

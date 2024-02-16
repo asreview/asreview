@@ -14,7 +14,7 @@ import { CardErrorHandler } from "../../../Components";
 import { ProjectAPI } from "../../../api";
 
 import { useContext } from "react";
-import { ProjectContext } from "../../../ProjectContext.js";
+import { ProjectContext } from "../../../ProjectContext";
 import { styled } from "@mui/material/styles";
 
 const PREFIX = "DatasetInfo";

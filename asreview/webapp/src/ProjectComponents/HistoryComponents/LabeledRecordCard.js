@@ -26,9 +26,9 @@ import {
 
 import { InlineErrorHandler } from "../../Components";
 import { RecordCardNote } from "../HistoryComponents";
-import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
-import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps, projectModes } from "../../globals.js";
+import { StyledIconButton } from "../../StyledComponents/StyledButton";
+import { ProjectAPI } from "../../api";
+import { mapStateToProps, projectModes } from "../../globals";
 import { DOIIcon } from "../../icons";
 
 const PREFIX = "LabeledRecordCard";

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
-import { TeamAPI } from "../../api/index.js";
+import { TeamAPI } from "../../api";
 import List from "@mui/material/List";
 import { Add } from "@mui/icons-material";
 import TextField from "@mui/material/TextField";

@@ -27,14 +27,14 @@ import {
 } from "../ProjectComponents/ReviewComponents";
 import RouteNotFound from "../RouteNotFound";
 
-import { ProjectAPI } from "../api/index.js";
+import { ProjectAPI } from "../api";
 import {
   checkIfSimulationFinishedDuration,
   drawerWidth,
   mapDispatchToProps,
   projectModes,
   projectStatuses,
-} from "../globals.js";
+} from "../globals";
 import useAuth from "../hooks/useAuth";
 
 const PREFIX = "ProjectPage";

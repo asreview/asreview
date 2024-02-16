@@ -23,7 +23,7 @@ import { BoxErrorHandler, DialogErrorHandler } from "../../Components";
 import { ProjectDeleteDialog } from "../../ProjectComponents";
 import { ProjectCheckDialog, TableRowButton } from "../DashboardComponents";
 import { SetupDialog } from "../../ProjectComponents/SetupComponents";
-import { ProjectAPI } from "../../api/index.js";
+import { ProjectAPI } from "../../api";
 import { useRowsPerPage } from "../../hooks/SettingsHooks";
 import { useToggle } from "../../hooks/useToggle";
 import ElasArrowRightAhead from "../../images/ElasArrowRightAhead.svg";

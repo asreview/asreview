@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { TeamAPI } from "../../api/index.js";
+import { TeamAPI } from "../../api";
 import useAuth from "../../hooks/useAuth";
 import { Box, Button, Stack } from "@mui/material";
 import { InlineErrorHandler } from "../../Components";

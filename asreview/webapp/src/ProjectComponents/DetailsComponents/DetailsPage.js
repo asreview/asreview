@@ -17,10 +17,10 @@ import { ModelForm } from "../SetupComponents/ModelComponents";
 import { DataForm } from "../SetupComponents/DataComponents";
 import { InfoForm } from "../SetupComponents/InfoComponents";
 
-import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
-import { projectStatuses } from "../../globals.js";
+import { TypographyH5Medium } from "../../StyledComponents/StyledTypography";
+import { projectStatuses } from "../../globals";
 import { useToggle } from "../../hooks/useToggle";
-import { ProjectContext } from "../../ProjectContext.js";
+import { ProjectContext } from "../../ProjectContext";
 
 const Root = styled("div")(({ theme }) => ({}));
 

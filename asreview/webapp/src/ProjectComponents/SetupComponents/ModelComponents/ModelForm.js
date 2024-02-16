@@ -23,11 +23,11 @@ import { styled } from "@mui/material/styles";
 
 import { CardErrorHandler } from "../../../Components";
 import { ModelSelect } from "../ModelComponents";
-import { ProjectAPI } from "../../../api/index.js";
-import { defaultAlgorithms, mapStateToProps } from "../../../globals.js";
+import { ProjectAPI } from "../../../api";
+import { defaultAlgorithms, mapStateToProps } from "../../../globals";
 import { SelectItem } from "../../../ProjectComponents";
 import { useContext } from "react";
-import { ProjectContext } from "../../../ProjectContext.js";
+import { ProjectContext } from "../../../ProjectContext";
 
 const PREFIX = "ModelForm";
 

@@ -4,7 +4,7 @@ import { styled } from "@mui/material/styles";
 import {
   decisionUndoBarDuration,
   decisionUndoBarMarginBottom,
-} from "../../globals.js";
+} from "../../globals";
 
 const PREFIX = "DecisionUndoBar";
 

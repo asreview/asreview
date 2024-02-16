@@ -2,9 +2,6 @@ import React from "react";
 import { Stepper, Step, StepButton, StepLabel } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { StyledStepIcon } from "../../StyledComponents/StyledStepIcon";
-import { StepIcon } from "@mui/material";
-
 const steps = [
   "Project information",
   "Model",

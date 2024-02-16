@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 
 import LoadingButton from "@mui/lab/LoadingButton";
-import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
+import { TypographyH5Medium } from "../../StyledComponents/StyledTypography";
 import { InlineErrorHandler } from "../../Components";
 import { useToggle } from "../../hooks/useToggle";
 

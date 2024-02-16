@@ -16,15 +16,15 @@ import {
 import { styled } from "@mui/material/styles";
 import { ArrowBack } from "@mui/icons-material";
 
-import { InfoCard } from "../index.js";
-import { InlineErrorHandler } from "../../../Components/index.js";
+import { InfoCard } from "..";
+import { InlineErrorHandler } from "../../../Components";
 import { EnoughPriorBanner, PriorUnlabeled } from "../PriorComponents";
-import { StyledIconButton } from "../../../StyledComponents/StyledButton.js";
+import { StyledIconButton } from "../../../StyledComponents/StyledButton";
 import { ProjectAPI } from "../../../api";
-import { mapStateToProps, projectModes } from "../../../globals.js";
-import { useToggle } from "../../../hooks/useToggle.js";
+import { mapStateToProps, projectModes } from "../../../globals";
+import { useToggle } from "../../../hooks/useToggle";
 
-import { ProjectContext } from "../../../ProjectContext.js";
+import { ProjectContext } from "../../../ProjectContext";
 import { useContext } from "react";
 
 const PREFIX = "PriorRandom";

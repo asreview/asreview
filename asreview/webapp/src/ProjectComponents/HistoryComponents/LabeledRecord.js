@@ -17,8 +17,8 @@ import { styled } from "@mui/material/styles";
 
 import { BoxErrorHandler } from "../../Components";
 import { LabeledRecordCard } from "../HistoryComponents";
-import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps } from "../../globals.js";
+import { ProjectAPI } from "../../api";
+import { mapStateToProps } from "../../globals";
 
 let height = window.screen.height;
 

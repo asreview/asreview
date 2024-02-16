@@ -10,7 +10,7 @@ import Snackbar from "@mui/material/Snackbar";
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import "./App.css";
 
-import { BaseAPI } from "./api/index.js";
+import { BaseAPI } from "./api";
 import { setBootData, setOAuthServices } from "./redux/actions";
 
 import {

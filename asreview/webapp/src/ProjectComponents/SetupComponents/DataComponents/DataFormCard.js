@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { Check } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
-import { historyFilterOptions } from "../../../globals.js";
+import { historyFilterOptions } from "../../../globals";
 
 const PREFIX = "DataFormCard";
 

@@ -14,12 +14,12 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { InlineErrorHandler } from "../../../Components/index.js";
-import { ExplorationModeRecordAlert } from "../../../StyledComponents/StyledAlert.js";
-import { ProjectAPI } from "../../../api/index.js";
-import { mapStateToProps, projectModes } from "../../../globals.js";
+import { InlineErrorHandler } from "../../../Components";
+import { ExplorationModeRecordAlert } from "../../../StyledComponents/StyledAlert";
+import { ProjectAPI } from "../../../api";
+import { mapStateToProps, projectModes } from "../../../globals";
 
-import { ProjectContext } from "../../../ProjectContext.js";
+import { ProjectContext } from "../../../ProjectContext";
 import { useContext } from "react";
 
 const PREFIX = "PriorUnlabeled";

@@ -13,8 +13,8 @@ import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 
 import { InlineErrorHandler } from "../../../Components";
 import { StyledLoadingButton } from "../../../StyledComponents/StyledButton";
-import { ProjectAPI } from "../../../api/index.js";
-import { mapStateToProps } from "../../../globals.js";
+import { ProjectAPI } from "../../../api";
+import { mapStateToProps } from "../../../globals";
 
 const PREFIX = "DatasetFromURL";
 
