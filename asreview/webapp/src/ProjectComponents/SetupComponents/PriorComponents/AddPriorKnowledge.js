@@ -74,7 +74,7 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-const AddPriorKnowledge = (props) => {
+const AddPriorKnowledge = ({ open, toggleAddPrior, mobileScreen }) => {
   const project_id = useContext(ProjectContext);
 
   const isMutatingPrior = useIsMutating(["mutatePriorKnowledge"]);
@@ -86,13 +86,11 @@ const AddPriorKnowledge = (props) => {
   const [search, toggleSearch] = useToggle();
   const [random, toggleRandom] = useToggle();
 
-  console.log("AddPriorKnowledge.js:project_id: ", project_id);
-
   const { data: info } = useQuery(
     ["fetchInfo", { project_id: project_id }],
     ProjectAPI.fetchInfo,
     {
-      enabled: props.open && project_id !== null,
+      enabled: open && project_id !== null,
       refetchOnWindowFocus: false,
     },
   );
@@ -101,17 +99,13 @@ const AddPriorKnowledge = (props) => {
     ["fetchLabeledStats", { project_id: project_id }],
     ProjectAPI.fetchLabeledStats,
     {
-      enabled: props.open && project_id !== null,
+      enabled: open && project_id !== null,
       refetchOnWindowFocus: false,
     },
   );
 
-  const isEnoughPriorKnowledge = () => {
-    return data?.n_prior_exclusions > 4 && data?.n_prior_inclusions > 4;
-  };
-
   const handleClickClose = () => {
-    props.toggleAddPrior();
+    toggleAddPrior();
     if (random) {
       toggleRandom();
     }
@@ -142,39 +136,34 @@ const AddPriorKnowledge = (props) => {
   return (
     <StyledDialog
       hideBackdrop
-      open={props.open}
-      fullScreen={props.mobileScreen}
+      open={open}
+      fullScreen={mobileScreen}
       fullWidth
       maxWidth="md"
       PaperProps={{
-        sx: { height: !props.mobileScreen ? "calc(100% - 96px)" : "100%" },
+        sx: { height: !mobileScreen ? "calc(100% - 96px)" : "100%" },
       }}
       TransitionComponent={Fade}
     >
-      {props.mobileScreen && (
+      {mobileScreen && (
         <AppBarWithinDialog
           onClickStartIcon={handleClickClose}
           startIconIsClose={false}
           title="Prior knowledge"
         />
       )}
-      {!props.mobileScreen && (
+      {!mobileScreen && (
         <Stack className="dialog-header" direction="row">
           <DialogTitle>Prior knowledge</DialogTitle>
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-            {isEnoughPriorKnowledge() && (
+            {data?.n_prior_exclusions > 4 && data?.n_prior_inclusions > 4 && (
               <Typography variant="body2" sx={{ color: "secondary.main" }}>
                 Enough prior knowledge. Click CLOSE to move on to the next step.
               </Typography>
             )}
             {/* {data?.n_prior !== 0 && <SavingStateBox isSaving={savingState} />} */}
             <Box className="dialog-header-button right">
-              <Button
-                variant={!isEnoughPriorKnowledge() ? "text" : "contained"}
-                onClick={handleClickClose}
-              >
-                Close
-              </Button>
+              <Button onClick={handleClickClose}>Close</Button>
             </Box>
           </Stack>
         </Stack>
@@ -249,7 +238,7 @@ const AddPriorKnowledge = (props) => {
             className={classes.unlabeled}
           >
             <PriorLabeled
-              mobileScreen={props.mobileScreen}
+              mobileScreen={mobileScreen}
               n_prior={data?.n_prior}
               n_prior_exclusions={data?.n_prior_exclusions}
               n_prior_inclusions={data?.n_prior_inclusions}

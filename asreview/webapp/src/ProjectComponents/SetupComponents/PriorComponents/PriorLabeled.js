@@ -4,6 +4,8 @@ import { Box, Divider, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { LabelChip, LabeledRecord } from "../../HistoryComponents";
+import { ProjectContext } from "../../../ProjectContext";
+import { useContext } from "react";
 
 const PREFIX = "PriorLabeled";
 
@@ -30,6 +32,8 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const PriorLabeled = (props) => {
+  const project_id = useContext(ProjectContext);
+
   const [label, setLabel] = React.useState("relevant");
 
   return (
@@ -50,6 +54,7 @@ const PriorLabeled = (props) => {
         />
         <Divider />
         <LabeledRecord
+          project_id={project_id}
           label={label}
           n_prior={props.n_prior}
           n_prior_exclusions={props.n_prior_exclusions}

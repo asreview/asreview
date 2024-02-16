@@ -84,8 +84,6 @@ const Root = styled("div")(({ theme }) => ({
 const PriorRandom = (props) => {
   const project_id = useContext(ProjectContext);
 
-  console.log("PriorRandom.js: project_id: ", project_id);
-
   const queryClient = useQueryClient();
   const [reminder, toggleReminder] = useToggle();
   const [refresh, setRefresh] = React.useState(true);

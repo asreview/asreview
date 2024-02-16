@@ -1,5 +1,7 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "react-query";
+import { useContext } from "react";
 
 import {
   Box,
@@ -12,8 +14,12 @@ import {
 import { Check } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { historyFilterOptions } from "../../../globals";
+import { AddPriorKnowledge } from "../PriorComponents";
+import { useToggle } from "../../../hooks/useToggle";
+import { ProjectAPI } from "../../../api";
+import { ProjectContext } from "../../../ProjectContext";
 
-const PREFIX = "DataFormCard";
+const PREFIX = "PriorSelector";
 
 const classes = {
   cardContent: `${PREFIX}-card-content`,
@@ -49,24 +55,42 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const DataFormCard = ({
-  project_id,
-  added,
-  datasetAdded,
-  primaryDefault,
-  secondaryDefault,
+const PriorSelector = ({
   setHistoryFilterQuery,
-  secondaryAdded,
-  toggleAddCard,
+  mobileScreen,
   editable = true,
 }) => {
+  const project_id = useContext(ProjectContext);
+
   const navigate = useNavigate();
+
+  const [onAddPrior, toggleAddPrior] = useToggle();
 
   const handleClickViewPrior = () => {
     navigate(`/projects/${project_id}/history`);
     setHistoryFilterQuery([
       historyFilterOptions.find((e) => e.value === "prior"),
     ]);
+  };
+
+  const { data, error, isError, isFetching, refetch } = useQuery(
+    ["fetchLabeledStats", { project_id: project_id }],
+    ProjectAPI.fetchLabeledStats,
+    {
+      enabled: project_id !== null,
+      refetchOnWindowFocus: false,
+      onSuccess: (data) => {
+        // if (data.n_prior_inclusions !== 0 && data.n_prior_exclusions !== 0) {
+        //   handleComplete(true);
+        // } else {
+        //   handleComplete(false);
+        // }
+      },
+    },
+  );
+
+  const priorAdded = () => {
+    return data?.n_inclusions !== 0 && data?.n_exclusions !== 0;
   };
 
   return (
@@ -95,46 +119,51 @@ const DataFormCard = ({
                 fontWeight: (theme) => theme.typography.fontWeightMedium,
               }}
             >
-              {primaryDefault}
+              Add prior knowledge
             </Typography>
-            {!added && (
+            {(data?.n_inclusions === 0 || data?.n_exclusions === 0) && (
               <Typography
                 variant="body2"
                 className={classes.singleLine}
                 sx={{ color: "text.secondary" }}
               >
-                {secondaryDefault}
+                Label at least 1 relevant and 1 irrelevant record to warm up the
+                AI
               </Typography>
             )}
-            {added && (
+            {data?.n_inclusions !== 0 && data?.n_exclusions !== 0 && (
               <Typography
                 variant="body2"
                 className={classes.singleLine}
                 sx={{ color: "text.secondary" }}
               >
-                {secondaryAdded}
+                {`${data?.n_prior_inclusions} relevant and ${data?.n_prior_exclusions} irrelevant records`}
               </Typography>
             )}
           </Stack>
           <Stack direction="row" sx={{ alignItems: "center" }}>
-            {added && <Check color="success" sx={{ mr: 1 }} />}
+            {data?.n_inclusions !== 0 && data?.n_exclusions !== 0 && (
+              <Check color="success" sx={{ mr: 1 }} />
+            )}
             {editable && (
-              <Button
-                id={(primaryDefault || "add")
-                  .toLowerCase()
-                  .replace(/\s+/g, "-")}
-                disabled={datasetAdded !== undefined && !datasetAdded}
-                onClick={toggleAddCard}
-              >
-                {!added ? "Add" : "Edit"}
+              <Button id={"add-prior"} onClick={toggleAddPrior}>
+                {data?.n_inclusions === 0 || data?.n_exclusions === 0
+                  ? "Add"
+                  : "Edit"}
               </Button>
             )}
             {!editable && <Button onClick={handleClickViewPrior}>View</Button>}
           </Stack>
         </CardContent>
+
+        <AddPriorKnowledge
+          open={onAddPrior}
+          mobileScreen={mobileScreen}
+          toggleAddPrior={toggleAddPrior}
+        />
       </Card>
     </Root>
   );
 };
 
-export default DataFormCard;
+export default PriorSelector;

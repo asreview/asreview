@@ -1,5 +1,5 @@
-export { default as DataForm } from "../PriorComponents/PriorForm";
-export { default as DataFormCard } from "./DataFormCard";
+export { default as PriorForm } from "../PriorComponents/PriorForm";
+export { default as PriorSelector } from "../PriorComponents/PriorSelector";
 export { default as DatasetFromEntryPoint } from "./DatasetFromEntryPoint";
 export { default as DatasetFromFile } from "./DatasetFromFile";
 export { default as DatasetFromURL } from "./DatasetFromURL";

@@ -25,7 +25,7 @@ import { StyledIconButton } from "../../StyledComponents/StyledButton";
 
 import { AppBarWithinDialog } from "../../Components";
 import { SetupStepper } from "../SetupComponents";
-import { DataForm } from "../SetupComponents/DataComponents";
+import { PriorForm } from "../SetupComponents/DataComponents";
 import { ModelForm } from "../SetupComponents/ModelComponents";
 import { InfoForm } from "../SetupComponents/InfoComponents";
 import { ScreenLanding } from "../SetupComponents/ScreenComponents";
@@ -170,7 +170,7 @@ const SetupDialogContent = ({ project_id, onClose, mobileScreen }) => {
         >
           {activeStep === 0 && <InfoForm />}
           {activeStep === 1 && <ModelForm />}
-          {activeStep === 2 && <DataForm />}
+          {activeStep === 2 && <PriorForm />}
           {activeStep === 3 && <ScreenLanding />}
         </Box>
       </DialogContent>

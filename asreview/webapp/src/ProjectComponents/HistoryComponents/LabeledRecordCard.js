@@ -49,7 +49,6 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const LabeledRecordCard = (props) => {
-  const { project_id } = useParams();
   const queryClient = useQueryClient();
 
   const [recordReadMore, setRecordReadMore] = React.useState(null);
@@ -57,10 +56,6 @@ const LabeledRecordCard = (props) => {
     data: null,
     editing: null,
   });
-
-  const returnProjectId = () => {
-    return !project_id ? props.project_id : project_id;
-  };
 
   const { error, isError, isLoading, mutate, reset } = useMutation(
     ProjectAPI.mutateClassification,
@@ -72,7 +67,7 @@ const LabeledRecordCard = (props) => {
           [
             "fetchLabeledRecord",
             {
-              project_id: returnProjectId(),
+              project_id: props.project_id,
               subset: props.returnSubset(),
             },
           ],
@@ -86,11 +81,11 @@ const LabeledRecordCard = (props) => {
                     return {
                       ...value,
                       included:
-                        value.id !== variables.record_id
+                        value.record_id !== variables.record_id
                           ? value.included
                           : variables.label,
                       note:
-                        value.id !== variables.record_id
+                        value.record_id !== variables.record_id
                           ? value.note
                           : !variables.note
                             ? null
@@ -120,8 +115,8 @@ const LabeledRecordCard = (props) => {
 
   const handleClickLabelConvert = (value) => {
     mutate({
-      project_id: returnProjectId(),
-      record_id: value.id,
+      project_id: props.project_id,
+      record_id: value.record_id,
       label: value.included === 1 ? 0 : 1,
       note: !value.note ? "" : value.note,
       initial: false,
@@ -131,8 +126,8 @@ const LabeledRecordCard = (props) => {
 
   const handleClickRemoveLabel = (value) => {
     mutate({
-      project_id: returnProjectId(),
-      record_id: value.id,
+      project_id: props.project_id,
+      record_id: value.record_id,
       label: -1,
       note: !value.note ? "" : value.note,
       initial: false,
@@ -178,7 +173,11 @@ const LabeledRecordCard = (props) => {
           props.page.result
             .filter((value) => value.included !== -1)
             .map((value) => (
-              <Card elevation={3} className={classes.root} key={value.id}>
+              <Card
+                elevation={3}
+                className={classes.root}
+                key={value.record_id}
+              >
                 <CardContent className="record-card-content">
                   <Stack spacing={1}>
                     <Typography variant="h6">
@@ -214,14 +213,14 @@ const LabeledRecordCard = (props) => {
                       </Stack>
                     )}
                     <TruncateMarkup
-                      lines={value.id === recordReadMore ? Infinity : 6}
+                      lines={value.record_id === recordReadMore ? Infinity : 6}
                       ellipsis={
                         <span>
                           ...{" "}
                           <Link
                             component="button"
                             underline="none"
-                            onClick={() => setRecordReadMore(value.id)}
+                            onClick={() => setRecordReadMore(value.record_id)}
                           >
                             read more
                           </Link>
@@ -242,7 +241,7 @@ const LabeledRecordCard = (props) => {
                       !isSimulationProject()
                         ? disableConvertPrior(value.prior)
                           ? "Prior knowledge cannot be converted"
-                          : note.editing !== value.id
+                          : note.editing !== value.record_id
                             ? value.included === 1
                               ? "Convert to irrelevant"
                               : "Convert to relevant"
@@ -256,7 +255,7 @@ const LabeledRecordCard = (props) => {
                           isSimulationProject() ||
                           disableConvertPrior(value.prior) ||
                           isLoading ||
-                          note.editing === value.id
+                          note.editing === value.record_id
                         }
                         onClick={() => {
                           handleClickLabelConvert(value);
@@ -297,11 +296,11 @@ const LabeledRecordCard = (props) => {
                   )}
                   {!props.is_prior &&
                     !value.note &&
-                    value.id !== note.editing && (
+                    value.record_id !== note.editing && (
                       <Tooltip
                         title={
                           !props.isSimulating
-                            ? !disableAddNoteButton(value.id)
+                            ? !disableAddNoteButton(value.record_id)
                               ? ""
                               : "Save another note before adding"
                             : "Add note after simulation is finished"
@@ -311,9 +310,9 @@ const LabeledRecordCard = (props) => {
                           <Button
                             disabled={
                               props.isSimulating ||
-                              disableAddNoteButton(value.id)
+                              disableAddNoteButton(value.record_id)
                             }
-                            onClick={() => handleClickAddNote(value.id)}
+                            onClick={() => handleClickAddNote(value.record_id)}
                             size={!props.mobileScreen ? "medium" : "small"}
                           >
                             Add note
@@ -338,4 +337,4 @@ const LabeledRecordCard = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(LabeledRecordCard);
+export default LabeledRecordCard;

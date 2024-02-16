@@ -20,8 +20,6 @@ import { useToggle } from "../../hooks/useToggle";
 const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
   const [onImportProject, toggleImportProject] = useToggle();
 
-  const [onAddPrior, toggleAddPrior] = useToggle();
-
   const [onCreateProject, setCreateProject] = React.useState({
     mode: false,
     data: false,
@@ -124,11 +122,6 @@ const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
         open={onCreateProject.mode}
         closeModePick={closeModePick}
         closeModePickAndOpenData={closeModePickAndOpenData}
-      />
-      <AddPriorKnowledge
-        open={onAddPrior}
-        mobileScreen={mobileScreen}
-        toggleAddPrior={toggleAddPrior}
       />
       <ImportDataset
         open={onCreateProject.data}
