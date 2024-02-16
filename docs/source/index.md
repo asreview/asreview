@@ -16,7 +16,7 @@ Join the movement towards fast, open, and transparent systematic reviews.
 
 - header: "{fas}`bolt;pst-color-primary` Fast screening"
   content: "Powerful and customizable AI to screen large volumes of text. Time saving up to 95%."
-- header: "{fas}`arrows-rotate;pst-color-primary` Systematic and interactive"
+  link: "https://doi.org/10.1038/s42256-020-00287-7"
   content: "Screen systematically and interactively with the AI to find all relevant texts."
 - header: "{fas}`circle-half-stroke;pst-color-primary` Customizable interface"
   content: "Users can screen with light and dark themes and change text size."
