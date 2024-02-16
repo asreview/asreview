@@ -15,21 +15,21 @@ Join the movement towards fast, open, and transparent systematic reviews.
 :grid-columns: 1 2 2 3
 
 - header: "{fas}`bolt;pst-color-primary` Fast screening"
-  content: "Powerful and customizable AI to screen large volumes of text. Time saving up to 95%."
+  content: "Powerful and customizable AI to screen large volumes of text, achieving up to 95% time savings."
   link: "https://doi.org/10.1038/s42256-020-00287-7"
 - header: "{fas}`eye;pst-color-primary` Transparant and reproducible"
   content: "Engage in a fully open and transparent interaction with the AI where you are the oracle."
   link: "https://osf.io/preprints/psyarxiv/g93zf"
 - header: "{fas}`circle-half-stroke;pst-color-primary` Customizable interface"
-  content: "Users can screen with light and dark themes and change text size."
+  content: "Customize your review environment, offering light and dark modes, adding tags and AI-aided highlighting."
 - header: "{fas}`lightbulb;pst-color-primary` Simulate and validate"
-  content: "Rich options to simulate performance or validate another reviewer, AI, or LLM."
+  content: "Utilize the robust simulation tool to predict AI performance and validate your, another reviewer’s or LLM findings"
   link: "lab/simulation_overview.html"
 - header: "{fas}`microchip;pst-color-primary` CLI and API"
-  content: "Extensive command line interface and application programming interface."
+  content: "Access extensive command-line options and API integration for advanced customization."
   link: "technical/index.html"
 - header: "{fas}`users;pst-color-primary` Community"
-  content: "In the active comunity, ASReview users and developers can share ideas and ask question."
+  content: "Join a community where open discussions and shared insights contribute to the continuous improvement."
   link: "https://github.com/asreview/asreview/discussions"
 ```
 
