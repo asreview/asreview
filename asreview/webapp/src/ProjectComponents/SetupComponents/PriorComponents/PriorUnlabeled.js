@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { InlineErrorHandler } from "../../../Components";
+import { InlineErrorHandler } from "../../../Components/index.js";
 import { ExplorationModeRecordAlert } from "../../../StyledComponents/StyledAlert.js";
 import { ProjectAPI } from "../../../api/index.js";
 import { mapStateToProps, projectModes } from "../../../globals.js";

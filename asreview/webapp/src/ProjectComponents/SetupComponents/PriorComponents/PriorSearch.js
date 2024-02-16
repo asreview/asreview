@@ -14,13 +14,13 @@ import {
 import { styled } from "@mui/material/styles";
 import { ArrowBack, Search } from "@mui/icons-material";
 
-import { InfoCard } from "../../SetupComponents";
-import { InlineErrorHandler } from "../../../Components";
-import { PriorUnlabeled } from "../DataComponents";
-import { StyledIconButton } from "../../../StyledComponents/StyledButton";
+import { InfoCard } from "../index.js";
+import { InlineErrorHandler } from "../../../Components/index.js";
+import { PriorUnlabeled } from "../PriorComponents/index.js";
+import { StyledIconButton } from "../../../StyledComponents/StyledButton.js";
 import { ProjectAPI } from "../../../api/index.js";
 import { mapStateToProps } from "../../../globals.js";
-import { useToggle } from "../../../hooks/useToggle";
+import { useToggle } from "../../../hooks/useToggle.js";
 
 import { ProjectContext } from "../../../ProjectContext.js";
 import { useContext } from "react";

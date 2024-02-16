@@ -12,10 +12,8 @@ import {
   ModePickDialog,
   SetupDialog,
 } from "../../ProjectComponents/SetupComponents";
-import {
-  AddPriorKnowledge,
-  ImportDataset,
-} from "../../ProjectComponents/SetupComponents/DataComponents";
+import { AddPriorKnowledge } from "../../ProjectComponents/SetupComponents/PriorComponents";
+import { ImportDataset } from "../../ProjectComponents/SetupComponents/DataComponents";
 
 import { useToggle } from "../../hooks/useToggle";
 
@@ -127,12 +125,11 @@ const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
         closeModePick={closeModePick}
         closeModePickAndOpenData={closeModePickAndOpenData}
       />
-      {/* <AddPriorKnowledge
-        project_id={projectSetup.project_id}
+      <AddPriorKnowledge
         open={onAddPrior}
         mobileScreen={mobileScreen}
         toggleAddPrior={toggleAddPrior}
-      /> */}
+      />
       <ImportDataset
         open={onCreateProject.data}
         datasetAdded={false}
