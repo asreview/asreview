@@ -227,6 +227,7 @@ const ProjectPage = (props) => {
               path="history"
               element={
                 <HistoryPage
+                  project_id={project_id}
                   filterQuery={historyFilterQuery}
                   label={historyLabel}
                   isSimulating={isSimulating}

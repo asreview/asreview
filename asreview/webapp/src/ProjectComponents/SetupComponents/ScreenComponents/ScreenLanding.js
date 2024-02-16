@@ -29,7 +29,6 @@ const Root = styled("div")(({ theme }) => ({
 
 const ScreenLanding = ({ handleComplete }) => {
   const project_id = useContext(ProjectContext);
-  console.log("ScreenLanding", project_id);
   return (
     <Root className={classes.root}>
       <Box className={classes.title}>

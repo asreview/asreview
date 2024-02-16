@@ -43,6 +43,7 @@ const HistoryPage = (props) => {
           <Box className="main-page-body-wrapper">
             <Box className={`${classes.cardWrapper} main-page-body`}>
               <LabeledRecord
+                project_id={props.project_id}
                 label={props.label}
                 filterQuery={props.filterQuery}
                 isSimulating={props.isSimulating}
