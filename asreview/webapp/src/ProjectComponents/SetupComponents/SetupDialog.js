@@ -68,7 +68,7 @@ const SetupDialogHeader = ({ mobileScreen, onClose }) => {
   return (
     <StyledSetupDialogHeader className="dialog-header" direction="row">
       <DialogTitle className={classesHeader.title}>
-        Configure project
+        Optional details
       </DialogTitle>
       <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
         <Stack
