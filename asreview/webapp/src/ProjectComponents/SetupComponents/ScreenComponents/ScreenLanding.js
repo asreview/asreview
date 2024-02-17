@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { Box, Typography, styled } from "@mui/material";
 
-import { TagEditor } from "../../TagComponents";
+import { TagEditor } from "./TagComponents";
 
 import { useContext } from "react";
 import { ProjectContext } from "../../../ProjectContext";

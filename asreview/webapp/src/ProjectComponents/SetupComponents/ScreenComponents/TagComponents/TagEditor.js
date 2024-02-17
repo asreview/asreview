@@ -16,12 +16,12 @@ import {
   DialogTitle,
 } from "@mui/material";
 
-import { useMutation, useQuery } from "react-query";
-import { ProjectAPI } from "../../api";
-
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography";
+import { useMutation, useQuery } from "react-query";
+import { ProjectAPI } from "../../../../api";
+
+import { TypographySubtitle1Medium } from "../../../../StyledComponents/StyledTypography";
 
 const Tag = (props) => {
   return (
