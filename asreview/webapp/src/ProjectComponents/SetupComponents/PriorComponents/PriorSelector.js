@@ -37,15 +37,6 @@ const Root = styled("div")(({ theme }) => ({
     position: "relative",
   },
 
-  [`& .${classes.cardOverlay}`]: {
-    height: "100%",
-    width: "100%",
-    left: 0,
-    pointerEvents: "none",
-    position: "absolute",
-    zIndex: 1,
-  },
-
   [`& .${classes.singleLine}`]: {
     display: "-webkit-box",
     WebkitBoxOrient: "vertical",
@@ -73,44 +64,19 @@ const PriorSelector = ({
     ]);
   };
 
-  const { data, error, isError, isFetching, refetch } = useQuery(
+  const { data } = useQuery(
     ["fetchLabeledStats", { project_id: project_id }],
     ProjectAPI.fetchLabeledStats,
     {
       enabled: project_id !== null,
       refetchOnWindowFocus: false,
-      onSuccess: (data) => {
-        // if (data.n_prior_inclusions !== 0 && data.n_prior_exclusions !== 0) {
-        //   handleComplete(true);
-        // } else {
-        //   handleComplete(false);
-        // }
-      },
     },
   );
 
-  const priorAdded = () => {
-    return data?.n_inclusions !== 0 && data?.n_exclusions !== 0;
-  };
-
   return (
     <Root>
-      <Card
-        elevation={0}
-        sx={{
-          bgcolor: (theme) =>
-            theme.palette.mode === "dark" ? "background.paper" : "grey.100",
-        }}
-      >
+      <Card>
         <CardContent className={classes.cardContent}>
-          <Box
-            className={classes.cardOverlay}
-            sx={{
-              bgcolor: (theme) => {
-                return "transparent";
-              },
-            }}
-          />
           <Stack spacing={1}>
             <Typography
               variant="subtitle1"

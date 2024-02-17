@@ -10,7 +10,7 @@ import {
   Stack,
   Typography,
   AccordionActions,
-  Paper,
+  Card,
   Dialog,
   DialogActions,
   DialogContent,
@@ -455,7 +455,7 @@ const TagEditor = (props) => {
   };
 
   return (
-    <Paper sx={{ padding: "18px" }}>
+    <Card sx={{ padding: "18px" }}>
       <Typography>Tags</Typography>
       <Typography variant="body2" sx={{ color: "text.secondary" }}>
         Tags provide additional context for your review. They are not used by
@@ -489,7 +489,7 @@ const TagEditor = (props) => {
           Add Category
         </Button>
       </AccordionActions>
-    </Paper>
+    </Card>
   );
 };
 
