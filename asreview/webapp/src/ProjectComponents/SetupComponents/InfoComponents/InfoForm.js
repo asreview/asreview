@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useContext } from "react";
 import { useMutation, useQuery } from "react-query";
-import clsx from "clsx";
 import {
   Box,
   Button,
@@ -46,14 +45,6 @@ const InfoForm = ({ integrated, handleNext, editable = true }) => {
 
   const [info, setInfo] = React.useState(null);
 
-  // const isProjectSetup = () => {
-  //   return !project_id;
-  // };
-
-  const onFocus = () => {};
-
-  const onBlur = () => {};
-
   const handleInfoChange = (event) => {
     setInfo({
       ...info,
@@ -92,7 +83,7 @@ const InfoForm = ({ integrated, handleNext, editable = true }) => {
 
   const {
     error: mutateInfoError,
-    isError: isMutateInfoError,
+    // isError: isMutateInfoError,
     isLoading: isMutatingInfo,
     mutate,
   } = useMutation(ProjectAPI.mutateInfo, {

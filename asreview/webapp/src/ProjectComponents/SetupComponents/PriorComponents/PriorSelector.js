@@ -3,14 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "react-query";
 import { useContext } from "react";
 
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Button, Card, CardContent, Stack, Typography } from "@mui/material";
 import { Check } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { historyFilterOptions } from "../../../globals";
