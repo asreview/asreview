@@ -6,8 +6,8 @@ from uuid import uuid4
 
 import pytest
 
+import asreview as asr
 import asreview.webapp.entry_points.auth_tool as tool
-from asreview import ASReviewProject
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.entry_points.auth_tool import AuthTool
@@ -57,7 +57,7 @@ def import_2_unauthenticated_projects(with_upgrade=True):
         "asreview-project-v1-0-startreview.asreview",
     )
 
-    proj1 = ASReviewProject.load(
+    proj1 = asr.Project.load(
         open(asreview_v1_0_file, "rb"), asreview_path(), safe_import=True
     )
 
@@ -68,7 +68,7 @@ def import_2_unauthenticated_projects(with_upgrade=True):
         "asreview-project-v1-5-startreview.asreview",
     )
 
-    proj2 = ASReviewProject.load(
+    proj2 = asr.Project.load(
         open(asreview_v1_5_file, "rb"), asreview_path(), safe_import=True
     )
 
@@ -356,7 +356,7 @@ def test_print_user_without_affiliation(client_auth, capsys):
 # Testing _get_projects
 def test_get_projects(client_no_auth):
     # create a project
-    _, data = au.create_project(client_no_auth)
+    r = au.create_project(client_no_auth)
     # get auth_tool object
     auth_tool = get_auth_tool_object(Namespace(json=None))
     # run function
@@ -364,12 +364,12 @@ def test_get_projects(client_no_auth):
     assert isinstance(result, list)
     assert len(result) == 1
     result = result[0]
-    assert result["folder"] == data["id"]
-    assert result["version"] == data["version"]
-    assert result["project_id"] == data["id"]
-    assert result["name"] == data["name"]
-    assert result["authors"] == data["authors"]
-    assert result["created"] == data["datetimeCreated"]
+    assert result["folder"] == r.json["id"]
+    assert result["version"] == r.json["version"]
+    assert result["project_id"] == r.json["id"]
+    assert result["name"] == r.json["name"]
+    assert result["authors"] == r.json["authors"]
+    assert result["created"] == r.json["datetimeCreated"]
     assert result["owner_id"] == 0
 
 
@@ -393,8 +393,8 @@ def test_list_users(client_auth, capsys):
 # Test list projects: no json data
 def test_list_projects_no_json(client_no_auth, capsys):
     # create two projects
-    _, data1 = au.create_project(client_no_auth)
-    _, data2 = au.create_project(client_no_auth)
+    r1 = au.create_project(client_no_auth)
+    r2 = au.create_project(client_no_auth)
     # get auth_tool object
     auth_tool = get_auth_tool_object(Namespace(json=None))
     # run function
@@ -402,18 +402,18 @@ def test_list_projects_no_json(client_no_auth, capsys):
     out, _ = capsys.readouterr()
     # we have already tested _print_project, so I will keep
     # it short
-    assert f"* {data1['id']}" in out
-    assert f"* {data2['id']}" in out
-    assert f"name: {data1['name']}" in out
-    assert f"name: {data2['name']}" in out
+    assert f"* {r1.json['id']}" in out
+    assert f"* {r2.json['id']}" in out
+    assert f"name: {r1.json['name']}" in out
+    assert f"name: {r2.json['name']}" in out
 
 
 # Test list projects: output is a json string
 def test_list_projects_with_json(client_no_auth, capsys):
     # create two projects
-    _, data1 = au.create_project(client_no_auth)
-    _, data2 = au.create_project(client_no_auth)
-    data = {data1.get("id"): data1, data2.get("id"): data2}
+    r1 = au.create_project(client_no_auth)
+    r2 = au.create_project(client_no_auth)
+    data = {r1.json.get("id"): r1.json, r2.json.get("id"): r2.json}
     # get auth_tool object
     auth_tool = get_auth_tool_object(Namespace(json=True))
     # run function
@@ -537,9 +537,7 @@ def test_projects_with_0x_projects(client_auth, method):
         "asreview-project-v0-18-startreview.asreview",
     )
 
-    ASReviewProject.load(
-        open(asreview_v0_18_file, "rb"), asreview_path(), safe_import=True
-    )
+    asr.Project.load(open(asreview_v0_18_file, "rb"), asreview_path(), safe_import=True)
 
     # make sure these projects exist
     assert len(misc.get_folders_in_asreview_path()) == 1

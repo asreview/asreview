@@ -191,7 +191,7 @@ const ReviewPage = (props) => {
     } else {
       mutate({
         project_id: project_id,
-        doc_id: activeRecord.doc_id,
+        record_id: activeRecord.record_id,
         label: label,
         note: recordNote.data,
         tagValues: tagValues,

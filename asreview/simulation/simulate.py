@@ -25,11 +25,11 @@ from asreview.config import LABEL_NA
 from asreview.models.balance.simple import SimpleBalance
 from asreview.models.classifiers import NaiveBayesClassifier
 from asreview.models.feature_extraction.tfidf import Tfidf
-from asreview.models.query.max import MaxQuery
-from asreview.project import open_state
+from asreview.models.query.max_prob import MaxQuery
 from asreview.settings import ASReviewSettings
 from asreview.simulation.prior_knowledge import naive_prior_knowledge
 from asreview.simulation.prior_knowledge import sample_prior_knowledge
+from asreview.state.contextmanager import open_state
 
 
 def init_results_table():
@@ -55,7 +55,7 @@ class Simulate:
 
     Arguments
     ---------
-    as_data: asreview.ASReviewData
+    as_data: asreview.Dataset
         The data object which contains the text, labels, etc.
     model: BaseModel
         Initialized model to fit the data during active learning.
@@ -209,11 +209,10 @@ class Simulate:
         if self.prior_indices is not None and len(self.prior_indices) != 0:
             self.start_idx = self.prior_indices
         else:
-            self.start_idx = self.as_data.prior_data_idx
             if (
-                len(self.start_idx) == 0
-                and self.n_prior_included + self.n_prior_excluded > 0
-            ):
+                self.start_idx is None
+                or (isinstance(self.start_idx, list) and len(self.start_idx) == 0)
+            ) and self.n_prior_included + self.n_prior_excluded > 0:
                 self.start_idx = sample_prior_knowledge(
                     self.as_data.labels,
                     self.n_prior_included,

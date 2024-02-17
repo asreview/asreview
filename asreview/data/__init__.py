@@ -12,7 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["ASReviewData", "load_data"]
+__all__ = [
+    "CSVReader",
+    "CSVWriter",
+    "ExcelReader",
+    "ExcelWriter",
+    "RISReader",
+    "RISWriter",
+    "TSVWriter",
+    "list_readers",
+    "list_writers",
+]
 
-from asreview.data.base import ASReviewData
-from asreview.data.base import load_data
+from asreview.data.ris import RISReader
+from asreview.data.ris import RISWriter
+from asreview.data.tabular import CSVReader
+from asreview.data.tabular import CSVWriter
+from asreview.data.tabular import ExcelReader
+from asreview.data.tabular import ExcelWriter
+from asreview.data.tabular import TSVWriter
+from asreview.data.utils import list_readers
+from asreview.data.utils import list_writers

@@ -546,7 +546,7 @@ class ProjectAPI {
 
   static mutateClassification(variables) {
     let body = new FormData();
-    body.set("doc_id", variables.doc_id);
+    body.set("record_id", variables.record_id);
     body.set("label", variables.label);
     body.set("note", variables.note);
 
@@ -564,7 +564,8 @@ class ProjectAPI {
       body.set("is_prior", 1);
     }
     const url =
-      api_url + `projects/${variables.project_id}/record/${variables.doc_id}`;
+      api_url +
+      `projects/${variables.project_id}/record/${variables.record_id}`;
     return new Promise((resolve, reject) => {
       axios({
         method: variables.initial ? "post" : "put",
@@ -576,7 +577,7 @@ class ProjectAPI {
         .then((result) => {
           resolve(result);
           console.log(
-            `${variables.project_id} - add item ${variables.doc_id} to ${
+            `${variables.project_id} - add item ${variables.record_id} to ${
               variables.label === 1 ? "inclusions" : "exclusions"
             }`,
           );

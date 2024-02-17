@@ -19,6 +19,7 @@ import re
 import shutil
 from pathlib import Path
 
+from asreview import load_dataset
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_MODEL
@@ -26,18 +27,18 @@ from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
-from asreview.data import load_data
 from asreview.datasets import DatasetManager
 from asreview.models.balance.utils import get_balance_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
-from asreview.project import ASReviewProject
+from asreview.project import Project
 from asreview.project import ProjectExistsError
-from asreview.project import open_state
 from asreview.settings import ASReviewSettings
 from asreview.simulation import Simulate
+from asreview.state.contextmanager import open_state
 from asreview.types import type_n_queries
+from asreview.utils import format_to_str
 from asreview.utils import get_random_state
 
 
@@ -65,6 +66,52 @@ def _convert_id_to_idx(data_obj, record_id):
     return result
 
 
+def _print_record(record, use_cli_colors=True):
+    """Format one record for displaying in the CLI.
+
+    Arguments
+    ---------
+    record: Record
+        The record to format.
+    use_cli_colors: bool
+        Some terminals support colors, set to True to use them.
+
+    Returns
+    -------
+    str:
+        A string including title, abstracts and authors.
+    """
+    if record.title is not None:
+        title = record.title
+        if use_cli_colors:
+            title = "\033[95m" + title + "\033[0m"
+        title += "\n"
+    else:
+        title = ""
+
+    if record.authors is not None and len(record.authors) > 0:
+        authors = format_to_str(record.authors) + "\n"
+    else:
+        authors = ""
+
+    if record.abstract is not None and len(record.abstract) > 0:
+        abstract = record.abstract
+        abstract = "\n" + abstract + "\n"
+    else:
+        abstract = ""
+
+    if record.included == 0:
+        label = "IRRELEVANT"
+    elif record.included == 1:
+        label = "RELEVANT"
+    else:
+        label = ""
+
+    header = f"---{record.record_id}---{label}---"
+
+    print(f"\n{header:-<60}\n{title}{authors}{abstract}")
+
+
 def cli_simulate(argv):
     # parse arguments
     parser = _simulate_parser()
@@ -84,7 +131,7 @@ def cli_simulate(argv):
     # create a project file
     fp_tmp_simulation = Path(args.state_file).with_suffix(".asreview.tmp")
 
-    project = ASReviewProject.create(
+    project = Project.create(
         fp_tmp_simulation,
         project_id=Path(args.state_file).stem,
         project_mode="simulate",
@@ -100,7 +147,7 @@ def cli_simulate(argv):
     else:
         filename = Path(args.dataset).name
 
-    as_data = load_data(args.dataset)
+    as_data = load_dataset(args.dataset)
     as_data.to_file(Path(fp_tmp_simulation, "data", filename))
 
     # Update the project.json.
@@ -184,9 +231,8 @@ def cli_simulate(argv):
             prior_df = s.get_priors()
 
             print("The following records are prior knowledge:\n")
-            for _i, row in prior_df.iterrows():
-                preview = as_data.record(row["record_id"])
-                print(preview)
+            for _, row in prior_df.iterrows():
+                _print_record(as_data.record(row["record_id"]))
 
         print("Simulation started\n")
         reviewer.review()

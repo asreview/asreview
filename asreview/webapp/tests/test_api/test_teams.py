@@ -12,9 +12,9 @@ import asreview.webapp.tests.utils.api_utils as au
 def test_user1_sends_invitation(setup_auth):
     client, _, user2, _, project = setup_auth
     # invite
-    status_code, resp_data = au.invite(client, project, user2)
-    assert status_code == 200
-    assert resp_data["message"] == 'User "user2@asreview.nl" invited.'
+    r = au.invite(client, project, user2)
+    assert r.status_code == 200
+    assert r.json["message"] == 'User "user2@asreview.nl" invited.'
 
 
 # Testing listing invitations
@@ -27,9 +27,9 @@ def test_user2_list_invitations(setup_auth):
     # signin user 2
     au.signin_user(client, user2)
     # get all invitations
-    status_code, resp_data = au.list_invitations(client)
-    invitations = resp_data["invited_for_projects"]
-    assert status_code == 200
+    r = au.list_invitations(client)
+    invitations = r.json["invited_for_projects"]
+    assert r.status_code == 200
     assert len(invitations) == 1
     assert invitations[0]["project_id"] == project.project_id
     assert invitations[0]["owner_id"] == user1.id
@@ -45,9 +45,9 @@ def test_user2_accept_invitation(setup_auth):
     # signin user 2
     au.signin_user(client, user2)
     # accept invitation
-    status_code, resp_data = au.accept_invitation(client, project)
-    assert status_code == 200
-    assert resp_data["message"] == "User accepted invitation for project."
+    r = au.accept_invitation(client, project)
+    assert r.status_code == 200
+    assert r.json["message"] == "User accepted invitation for project."
 
 
 # Test rejecting invitation
@@ -60,9 +60,9 @@ def test_user2_rejects_invitation(setup_auth):
     # signin user 2
     au.signin_user(client, user2)
     # reject invitation
-    status_code, resp_data = au.reject_invitation(client, project)
-    assert status_code == 200
-    assert resp_data["message"] == "User rejected invitation for project."
+    r = au.reject_invitation(client, project)
+    assert r.status_code == 200
+    assert r.json["message"] == "User rejected invitation for project."
 
 
 # Test owner removes invitation
@@ -71,9 +71,9 @@ def test_owner_deletes_invitation(setup_auth):
     # invite
     au.invite(client, project, user2)
     # remove invitation
-    status_code, resp_data = au.delete_invitation(client, project, user2)
-    assert status_code == 200
-    assert resp_data["message"] == "Owner deleted invitation."
+    r = au.delete_invitation(client, project, user2)
+    assert r.status_code == 200
+    assert r.json["message"] == "Owner deleted invitation."
 
 
 # Test owner views collaboration team
@@ -82,10 +82,10 @@ def test_view_collaboration_team_with_pending_invitation(setup_auth):
     # invite
     au.invite(client, project, user2)
     # checks team
-    status_code, resp_data = au.list_collaborators(client, project)
-    assert status_code == 200
-    assert resp_data["collaborators"] == []
-    assert resp_data["invitations"] == [user2.id]
+    r = au.list_collaborators(client, project)
+    assert r.status_code == 200
+    assert r.json["collaborators"] == []
+    assert r.json["invitations"] == [user2.id]
 
 
 # Test owner views collaboration team
@@ -103,10 +103,10 @@ def test_view_collaboration_team_with_accepted_invitation(setup_auth):
     # user 1 signs up
     au.signin_user(client, user1)
     # checks team
-    status_code, resp_data = au.list_collaborators(client, project)
-    assert status_code == 200
-    assert resp_data["collaborators"] == [user2.id]
-    assert resp_data["invitations"] == []
+    r = au.list_collaborators(client, project)
+    assert r.status_code == 200
+    assert r.json["collaborators"] == [user2.id]
+    assert r.json["invitations"] == []
 
 
 # Test owner removes collaboration
@@ -124,9 +124,9 @@ def test_owner_deletes_collaboration(setup_auth):
     # user 1 signs up
     au.signin_user(client, user1)
     # remove from team
-    status_code, resp_data = au.delete_collaboration(client, project, user2)
-    assert status_code == 200
-    assert resp_data["message"] == "Collaborator removed from project."
+    r = au.delete_collaboration(client, project, user2)
+    assert r.status_code == 200
+    assert r.json["message"] == "Collaborator removed from project."
 
 
 # Test collaborator withdraws from collaboration
@@ -141,9 +141,9 @@ def test_collaborator_withdrawal(setup_auth):
     # accept invitation and signs out
     au.accept_invitation(client, project)
     # withdrawal
-    status_code, resp_data = au.delete_collaboration(client, project, user2)
-    assert status_code == 200
-    assert resp_data["message"] == "Collaborator removed from project."
+    r = au.delete_collaboration(client, project, user2)
+    assert r.status_code == 200
+    assert r.json["message"] == "Collaborator removed from project."
 
 
 # ###################
@@ -169,13 +169,13 @@ def test_login_required(setup_auth, api_call):
     au.signout_user(client)
     number_of_params = len(getfullargspec(api_call).args)
     if number_of_params == 1:
-        status_code, resp_data = api_call(client)
+        r = api_call(client)
     elif number_of_params == 2:
-        status_code, resp_data = api_call(client, project)
+        r = api_call(client, project)
     elif number_of_params == 3:
-        status_code, resp_data = api_call(client, project, user2)
+        r = api_call(client, project, user2)
     # all calls must return a 401:
-    assert status_code == 401
+    assert r.status_code == 401
 
 
 # ###################
@@ -193,9 +193,9 @@ def test_user3_cant_see_other_invites(setup_auth):
     # signin user 3 (not invited)
     au.signin_user(client, user3)
     # get all invitations
-    status_code, resp_data = au.list_invitations(client)
-    assert status_code == 200
-    assert resp_data["invited_for_projects"] == []
+    r = au.list_invitations(client)
+    assert r.status_code == 200
+    assert r.json["invited_for_projects"] == []
 
 
 # Test user3 can't accept invite to user 2
@@ -207,9 +207,9 @@ def test_user3_cant_reject_invite_of_user_2(setup_auth):
     au.signout_user(client)
     # signin user 3 (not invited)
     au.signin_user(client, user3)
-    status_code, resp_data = au.accept_invitation(client, project)
-    assert status_code == 404
-    assert resp_data["message"] == "Request can not made by current user."
+    r = au.accept_invitation(client, project)
+    assert r.status_code == 404
+    assert r.json["message"] == "Request can not made by current user."
 
 
 # Test user3 can't reject invite to user 2
@@ -221,9 +221,9 @@ def test_user3_cant_accept_invite_of_user_2(setup_auth):
     au.signout_user(client)
     # signin user 3 (not invited)
     au.signin_user(client, user3)
-    status_code, resp_data = au.reject_invitation(client, project)
-    assert status_code == 404
-    assert resp_data["message"] == "Request can not made by current user."
+    r = au.reject_invitation(client, project)
+    assert r.status_code == 404
+    assert r.json["message"] == "Request can not made by current user."
 
 
 # Test user3 can't delete invitation
@@ -236,9 +236,9 @@ def test_user3_cant_delete_invitation(setup_auth):
     # signin user 3 (not invited)
     au.signin_user(client, user3)
     # remove invitation
-    status_code, resp_data = au.delete_invitation(client, project, user2)
-    assert status_code == 404
-    assert resp_data["message"] == "Request can not made by current user."
+    r = au.delete_invitation(client, project, user2)
+    assert r.status_code == 404
+    assert r.json["message"] == "Request can not made by current user."
 
 
 # Test user3 can't see collaboration team of user 1
@@ -251,9 +251,9 @@ def test_user3_cant_see_collaboration_team(setup_auth):
     # signin user 3 (not invited)
     au.signin_user(client, user3)
     # check team
-    status_code, resp_data = au.list_collaborators(client, project)
-    assert status_code == 404
-    assert resp_data["message"] == "Request can not made by current user."
+    r = au.list_collaborators(client, project)
+    assert r.status_code == 404
+    assert r.json["message"] == "Request can not made by current user."
 
 
 # Test user3 can't remove collaboration
@@ -271,6 +271,6 @@ def test_user3_cant_delete_collaboration(setup_auth):
     # user 3 signs up
     au.signin_user(client, user3)
     # remove from team
-    status_code, resp_data = au.delete_collaboration(client, project, user2)
-    assert status_code == 404
-    assert resp_data["message"] == "Request can not made by current user."
+    r = au.delete_collaboration(client, project, user2)
+    assert r.status_code == 404
+    assert r.json["message"] == "Request can not made by current user."

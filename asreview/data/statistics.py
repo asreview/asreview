@@ -33,8 +33,8 @@ def n_records(data):
 
     Arguments
     ---------
-    data: asreview.data.ASReviewData
-        An ASReviewData object with the records.
+    data: asreview.Dataset
+        An Dataset object with the records.
 
     Return
     ------
@@ -49,8 +49,8 @@ def n_relevant(data):
 
     Arguments
     ---------
-    data: asreview.data.ASReviewData
-        An ASReviewData object with the records.
+    data: asreview.Dataset
+        An Dataset object with the records.
 
     Return
     ------
@@ -67,8 +67,8 @@ def n_irrelevant(data):
 
     Arguments
     ---------
-    data: asreview.data.ASReviewData
-        An ASReviewData object with the records.
+    data: asreview.Dataset
+        An Dataset object with the records.
 
     Return
     ------
@@ -85,8 +85,8 @@ def n_unlabeled(data):
 
     Arguments
     ---------
-    data: asreview.data.ASReviewData
-        An ASReviewData object with the records.
+    data: asreview.Dataset
+        An Dataset object with the records.
 
     Return
     ------
@@ -103,8 +103,8 @@ def n_missing_title(data):
 
     Arguments
     ---------
-    data: asreview.data.ASReviewData
-        An ASReviewData object with the records.
+    data: asreview.Dataset
+        An Dataset object with the records.
 
     Return
     ------
@@ -131,8 +131,8 @@ def n_missing_abstract(data):
 
     Arguments
     ---------
-    data: asreview.data.ASReviewData
-        An ASReviewData object with the records.
+    data: asreview.Dataset
+        An Dataset object with the records.
 
     Return
     ------
@@ -161,8 +161,8 @@ def title_length(data):
 
     Arguments
     ---------
-    data: asreview.data.ASReviewData
-        An ASReviewData object with the records.
+    data: asreview.Dataset
+        An Dataset object with the records.
 
     Return
     ------
@@ -182,8 +182,8 @@ def abstract_length(data):
 
     Arguments
     ---------
-    data: asreview.data.ASReviewData
-        An ASReviewData object with the records.
+    data: asreview.Dataset
+        An Dataset object with the records.
 
     Return
     ------
@@ -203,8 +203,8 @@ def n_keywords(data):
 
     Arguments
     ---------
-    data: asreview.data.ASReviewData
-        An ASReviewData object with the records.
+    data: asreview.Dataset
+        An Dataset object with the records.
 
     Return
     ------
@@ -224,8 +224,8 @@ def n_duplicates(data, pid="doi"):
 
     Arguments
     ---------
-    data: asreview.data.ASReviewData
-        An ASReviewData object with the records.
+    data: asreview.Dataset
+        An Dataset object with the records.
     pid: string
         Which persistent identifier (PID) to use for deduplication.
         Default is 'doi'.

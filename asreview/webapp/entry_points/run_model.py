@@ -21,15 +21,15 @@ import pandas as pd
 from filelock import FileLock
 from filelock import Timeout
 
+import asreview as asr
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.models.balance import get_balance_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
-from asreview.project import ASReviewProject
-from asreview.project import open_state
 from asreview.simulation import Simulate
+from asreview.state.contextmanager import open_state
 
 
 def _run_model_start(project, output_error=True):
@@ -153,7 +153,7 @@ def _simulate_start(project):
 
 def main(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument("project", type=ASReviewProject, help="Project path")
+    parser.add_argument("project", type=asr.Project, help="Project path")
     args = parser.parse_args(argv)
 
     if args.project.config["mode"] == PROJECT_MODE_SIMULATE:

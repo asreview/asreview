@@ -3,8 +3,8 @@ from pathlib import Path
 import pytest
 from pandas.testing import assert_frame_equal
 
-from asreview.project import open_state
 from asreview.simulation.cli import cli_simulate
+from asreview.state.contextmanager import open_state
 
 DATA_FP = Path("tests", "demo_data", "generic_labels.csv")
 

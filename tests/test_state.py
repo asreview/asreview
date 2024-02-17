@@ -5,12 +5,12 @@ import pandas as pd
 import pytest
 from scipy.sparse import csr_matrix
 
-from asreview import ASReviewData
-from asreview.project import ASReviewProject
+import asreview as asr
+from asreview import load_dataset
 from asreview.project import ProjectExistsError
-from asreview.project import open_state
 from asreview.settings import ASReviewSettings
 from asreview.state import SQLiteState
+from asreview.state.contextmanager import open_state
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import RESULTS_TABLE_COLUMNS
 
@@ -117,7 +117,7 @@ TEST_POOL_START = [157, 301, 536, 567, 416, 171, 659, 335, 329, 428]
 
 def test_init_project_folder(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
-    project = ASReviewProject.create(project_path)
+    project = asr.Project.create(project_path)
 
     assert Path(project_path, "project.json").is_file()
     assert Path(project_path, "data").is_dir()
@@ -129,9 +129,9 @@ def test_init_project_folder(tmpdir):
 
 def test_init_project_already_exists(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
-    ASReviewProject.create(project_path)
+    asr.Project.create(project_path)
     with pytest.raises(ProjectExistsError):
-        ASReviewProject.create(project_path)
+        asr.Project.create(project_path)
 
 
 def test_invalid_project_folder(tmpdir):
@@ -146,7 +146,7 @@ def test_invalid_project_folder(tmpdir):
 
 def test_state_not_found(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
-    ASReviewProject.create(project_path)
+    asr.Project.create(project_path)
     with pytest.raises(StateNotFoundError):
         with open_state(project_path) as state:  # noqa
             pass
@@ -190,7 +190,7 @@ def test_n_priors():
 
 def test_create_new_state_file(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
-    ASReviewProject.create(project_path)
+    asr.Project.create(project_path)
     with open_state(project_path, read_only=False) as state:
         state._is_valid_state()
 
@@ -234,7 +234,7 @@ def test_get_dataset_drop_pending(tmpdir):
     record_table = range(1, 11)
     test_ranking = range(10, 0, -1)
     project_path = Path(tmpdir, "test.asreview")
-    ASReviewProject.create(project_path)
+    asr.Project.create(project_path)
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(record_table)
         state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
@@ -328,13 +328,13 @@ def test_get_labeling_times():
 
 def test_create_empty_state(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
-    ASReviewProject.create(project_path)
+    asr.Project.create(project_path)
     with open_state(project_path, read_only=False) as state:
         assert state.is_empty()
 
 
 def test_get_feature_matrix():
-    project = ASReviewProject(TEST_STATE_FP)
+    project = asr.Project(TEST_STATE_FP)
 
     assert len(project.feature_matrices) == 1
 
@@ -352,10 +352,10 @@ def test_get_record_table():
 
 def test_record_table(tmpdir):
     data_fp = Path("tests", "demo_data", "record_id.csv")
-    as_data = ASReviewData.from_file(data_fp)
+    as_data = load_dataset(data_fp)
 
     project_path = Path(tmpdir, "test.asreview")
-    ASReviewProject.create(project_path)
+    asr.Project.create(project_path)
 
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(as_data.record_ids)
@@ -379,7 +379,7 @@ def test_add_last_probabilities_fail():
 
 def test_add_last_probabilities(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
-    ASReviewProject.create(project_path)
+    asr.Project.create(project_path)
     probabilities = [float(num) for num in range(50)]
     with open_state(project_path, read_only=False) as state:
         state.add_last_probabilities(probabilities)
@@ -392,7 +392,7 @@ def test_add_last_probabilities(tmpdir):
 
 def test_move_ranking_data_to_results(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
-    ASReviewProject.create(project_path)
+    asr.Project.create(project_path)
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(TEST_RECORD_TABLE)
         state.add_last_ranking(
@@ -409,7 +409,7 @@ def test_move_ranking_data_to_results(tmpdir):
 def test_query_top_ranked(tmpdir):
     test_ranking = [2, 1, 0] + list(range(3, len(TEST_RECORD_TABLE)))
     project_path = Path(tmpdir, "test.asreview")
-    ASReviewProject.create(project_path)
+    asr.Project.create(project_path)
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(TEST_RECORD_TABLE)
         state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
@@ -428,7 +428,7 @@ def test_query_top_ranked(tmpdir):
 def test_add_labeling_data(tmpdir):
     test_ranking = list(range(len(TEST_RECORD_TABLE)))
     project_path = Path(tmpdir, "test.asreview")
-    ASReviewProject.create(project_path)
+    asr.Project.create(project_path)
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(TEST_RECORD_TABLE)
         state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
@@ -472,7 +472,7 @@ def test_pool_labeled_pending(tmpdir):
     record_table = range(1, 11)
     test_ranking = range(10, 0, -1)
     project_path = Path(tmpdir, "test.asreview")
-    ASReviewProject.create(project_path)
+    asr.Project.create(project_path)
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(record_table)
         state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
@@ -515,7 +515,7 @@ def test_exist_new_labeled_records(tmpdir):
     record_table = range(1, 11)
     test_ranking = range(10, 0, -1)
     project_path = Path(tmpdir, "test.asreview")
-    ASReviewProject.create(project_path)
+    asr.Project.create(project_path)
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(record_table)
 
@@ -532,7 +532,7 @@ def test_exist_new_labeled_records(tmpdir):
 
 def test_add_note(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
-    ASReviewProject.create(project_path)
+    asr.Project.create(project_path)
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(TEST_RECORD_TABLE)
         state.add_labeling_data(
@@ -548,7 +548,7 @@ def test_add_note(tmpdir):
 
 def test_update_decision(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
-    ASReviewProject.create(project_path)
+    asr.Project.create(project_path)
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(TEST_RECORD_TABLE)
         state.add_labeling_data(TEST_RECORD_IDS[:3], TEST_LABELS[:3], prior=True)
@@ -586,7 +586,7 @@ def test_get_pool_labeled():
 
 def test_last_ranking(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
-    ASReviewProject.create(project_path)
+    asr.Project.create(project_path)
 
     record_ids = [1, 2, 3, 4, 5, 6]
     ranking = [1, 3, 4, 6, 2, 5]
@@ -646,7 +646,7 @@ def test_get_labeled():
 def test_add_extra_column(tmpdir):
     """Check if state still works with extra colums added to tables."""
     project_path = Path(tmpdir, "test.asreview")
-    ASReviewProject.create(project_path)
+    asr.Project.create(project_path)
 
     with open_state(project_path, read_only=False) as state:
         con = state._connect_to_sql()

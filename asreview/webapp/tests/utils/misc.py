@@ -1,6 +1,8 @@
+import io
 import json
 import random
 import re
+import zipfile
 from pathlib import Path
 from typing import Union
 
@@ -11,8 +13,9 @@ from asreview.utils import asreview_path
 
 def get_project_id(project):
     """Get a project id from either a Project model
-    (authenticated app) or an ASReviewProject object
-    (unauthenticated app)."""
+       (authenticated app) or an asr.Project
+    object
+       (unauthenticated app)."""
     if current_app.config.get("LOGIN_DISABLED"):
         return project.config["id"]
 
@@ -72,3 +75,10 @@ def get_folders_in_asreview_path():
     """This function returns the amount of folders located
     in the asreview folder."""
     return [f for f in asreview_path().glob("*") if f.is_dir()]
+
+
+def get_zip_file_names(flask_response_data):
+    asreview_project_zip = io.BytesIO(flask_response_data)
+
+    zip_file = zipfile.ZipFile(asreview_project_zip)
+    return zip_file.namelist()

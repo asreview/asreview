@@ -16,8 +16,10 @@ import json
 import logging
 import shutil
 import subprocess
+import sys
 import tempfile
 import time
+from dataclasses import asdict
 from itertools import chain
 from pathlib import Path
 from urllib.request import urlretrieve
@@ -39,14 +41,15 @@ from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
+import asreview as asr
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
+from asreview.data import list_readers
+from asreview.data import list_writers
 from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
-from asreview.io import list_readers
-from asreview.io import list_writers
 from asreview.models.balance import get_balance_model
 from asreview.models.balance import list_balance_strategies
 from asreview.models.classifiers import get_classifier
@@ -55,20 +58,17 @@ from asreview.models.feature_extraction import get_feature_model
 from asreview.models.feature_extraction import list_feature_extraction
 from asreview.models.query import get_query_model
 from asreview.models.query import list_query_strategies
-from asreview.project import ASReviewProject
 from asreview.project import ProjectNotFoundError
 from asreview.project import get_project_path
 from asreview.project import is_v0_project
-from asreview.project import open_state
-from asreview.search import SearchError
 from asreview.search import fuzzy_find
 from asreview.settings import ASReviewSettings
+from asreview.state.contextmanager import open_state
 from asreview.state.custom_metadata_mapper import extract_tags
 from asreview.state.custom_metadata_mapper import get_tag_composite_id
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.utils import _entry_points
-from asreview.utils import _get_executable
 from asreview.utils import _get_filename_from_url
 from asreview.utils import asreview_path
 from asreview.webapp import DB
@@ -182,7 +182,7 @@ def api_init_project():  # noqa: F401
     # get path of this project
     project_path = get_project_path(project_id)
 
-    project = ASReviewProject.create(
+    project = asr.Project.create(
         project_path,
         project_id=project_id,
         project_mode=project_mode,
@@ -301,7 +301,7 @@ def api_demo_data_project():  # noqa: F401
 @bp.route("/projects/<project_id>/data", methods=["POST", "PUT"])
 @login_required
 @project_authorization
-def api_upload_data_to_project(project):  # noqa: F401
+def api_upload_dataset_to_project(project):  # noqa: F401
     """"""
 
     # get the project config to modify behavior of dataset
@@ -422,8 +422,7 @@ def api_get_project_data(project):  # noqa: F401
         as_data = project.read_data()
 
         statistics = {
-            "n_rows": as_data.df.shape[0],
-            "n_cols": as_data.df.shape[1],
+            "n_rows": len(as_data),
             "n_duplicates": n_duplicates(as_data),
             "filename": Path(project.config["dataset_path"]).stem,
         }
@@ -489,41 +488,29 @@ def api_search_data(project):  # noqa: F401
     q = request.args.get("q", default=None, type=str)
     max_results = request.args.get("n_max", default=10, type=int)
 
-    payload = {"result": []}
-    if q:
-        # read the dataset
-        as_data = project.read_data()
+    if not q:
+        return jsonify({"result": []})
 
-        # read record_ids of labels from state
-        with open_state(project.project_path) as s:
-            labeled_record_ids = s.get_dataset(["record_id"])["record_id"].to_list()
+    as_data = project.read_data()
 
-        try:
-            # search for the keywords
-            result_idx = fuzzy_find(
-                as_data,
-                q,
-                max_return=max_results,
-                exclude=labeled_record_ids,
-                by_index=True,
-            )
-        except SearchError as err:
-            raise ValueError(err) from err
+    with open_state(project.project_path) as s:
+        labeled_record_ids = s.get_labeled()["record_id"].to_list()
 
-        for record in as_data.record(result_idx):
-            payload["result"].append(
-                {
-                    "id": int(record.record_id),
-                    "title": record.title,
-                    "abstract": record.abstract,
-                    "authors": record.authors,
-                    "keywords": record.keywords,
-                    "included": -1,
-                    "label_from_dataset": int(record.included),
-                }
-            )
+    result_ids = fuzzy_find(
+        as_data,
+        q,
+        max_return=max_results,
+        exclude=labeled_record_ids,
+    )
 
-    return jsonify(payload)
+    result = []
+    for record in as_data.record(result_ids):
+        record_d = asdict(record)
+        record_d["included"] = -1
+        record_d["label_from_dataset"] = record.included
+        result.append(record_d)
+
+    return jsonify({"result": result})
 
 
 @bp.route("/projects/<project_id>/labeled", methods=["GET"])
@@ -538,29 +525,29 @@ def api_get_labeled(project):  # noqa: F401
     latest_first = request.args.get("latest_first", default=1, type=int)
 
     with open_state(project.project_path) as s:
-        data = s.get_dataset(
+        state_data = s.get_dataset(
             ["record_id", "label", "query_strategy", "notes", "custom_metadata_json"]
         )
-        data["prior"] = (data["query_strategy"] == "prior").astype(int)
+        state_data["prior"] = (state_data["query_strategy"] == "prior").astype(int)
 
     if any(s in subset for s in ["relevant", "included"]):
-        data = data[data["label"] == 1]
+        state_data = state_data[state_data["label"] == 1]
     elif any(s in subset for s in ["irrelevant", "excluded"]):
-        data = data[data["label"] == 0]
+        state_data = state_data[state_data["label"] == 0]
     else:
-        data = data[~data["label"].isnull()]
+        state_data = state_data[~state_data["label"].isnull()]
 
     if "note" in subset:
-        data = data[~data["notes"].isnull()]
+        state_data = state_data[~state_data["notes"].isnull()]
 
     if "prior" in subset:
-        data = data[data["prior"] == 1]
+        state_data = state_data[state_data["prior"] == 1]
 
     if latest_first == 1:
-        data = data.iloc[::-1]
+        state_data = state_data.iloc[::-1]
 
     # count labeled records and max pages
-    count = len(data)
+    count = len(state_data)
     if count == 0:
         payload = {
             "count": 0,
@@ -583,7 +570,7 @@ def api_get_labeled(project):  # noqa: F401
         if page <= max_page:
             idx_start = page * per_page - per_page
             idx_end = page * per_page
-            data = data.iloc[idx_start:idx_end, :].copy()
+            state_data = state_data.iloc[idx_start:idx_end, :].copy()
         else:
             return abort(404)
 
@@ -601,32 +588,30 @@ def api_get_labeled(project):  # noqa: F401
         next_page = None
         previous_page = None
 
-    records = project.read_data().record(data["record_id"])
+    records = project.read_data().record(state_data["record_id"])
 
-    payload = {
-        "count": count,
-        "next_page": next_page,
-        "previous_page": previous_page,
-        "result": [],
-    }
-    for i, record in zip(data.index.tolist(), records):
-        payload["result"].append(
-            {
-                "id": int(record.record_id),
-                "title": record.title,
-                "abstract": record.abstract,
-                "authors": record.authors,
-                "keywords": record.keywords,
-                "doi": record.doi,
-                "url": record.url,
-                "included": int(data.loc[i, "label"]),
-                "note": data.loc[i, "notes"],
-                "tags": extract_tags(data.loc[i, "custom_metadata_json"]),
-                "prior": int(data.loc[i, "prior"]),
-            }
-        )
+    result = []
+    for i, record in zip(state_data.index.tolist(), records):
+        # add variables from record
+        record_d = asdict(record)
+        record_d["label_from_dataset"] = record.included
 
-    return jsonify(payload)
+        # add variables from state
+        record_d["included"] = int(state_data.loc[i, "label"])
+        record_d["note"] = state_data.loc[i, "notes"]
+        record_d["tags"] = extract_tags(state_data.loc[i, "custom_metadata_json"])
+        record_d["prior"] = int(state_data.loc[i, "prior"])
+
+        result.append(record_d)
+
+    return jsonify(
+        {
+            "count": count,
+            "next_page": next_page,
+            "previous_page": previous_page,
+            "result": result,
+        }
+    )
 
 
 @bp.route("/projects/<project_id>/labeled_stats", methods=["GET"])
@@ -673,151 +658,39 @@ def api_random_prior_papers(project):  # noqa: F401
     the already labeled items.
     """
 
-    # get the number of records to return
     n = request.args.get("n", default=5, type=int)
-    # get the subset of records to return (for exploration and simulation mode)
     subset = request.args.get("subset", default=None, type=str)
+
+    if subset == "relevant":
+        label = 1
+    elif subset == "irrelevant":
+        label = 0
+    elif subset == "not_seen":
+        label = LABEL_NA
+    else:
+        label = None
+
+    as_data = project.read_data()
+
+    if subset in ["relevant", "irrelevant"] and as_data.labels is None:
+        indices = []
+    elif subset in ["relevant", "irrelevant", "not_seen"]:
+        indices = as_data.df[as_data.labels == label].index.values
+    else:
+        indices = as_data.df.index.values
 
     with open_state(project.project_path) as state:
         pool = state.get_pool().values
 
-    as_data = project.read_data()
+    pool = np.intersect1d(pool, indices)
+    rand_pool = np.random.choice(pool, min(len(pool), n), replace=False)
 
     payload = {"result": []}
-
-    if subset in ["relevant", "included"]:
-        if as_data.labels is None:
-            return jsonify(payload)
-
-        rel_indices = as_data.df[as_data.labels == 1].index.values
-        rel_indices_pool = np.intersect1d(pool, rel_indices)
-
-        if len(rel_indices_pool) == 0:
-            return jsonify(payload)
-        elif n > len(rel_indices_pool):
-            rand_pool_relevant = np.random.choice(
-                rel_indices_pool, len(rel_indices_pool), replace=False
-            )
-        else:
-            rand_pool = np.random.choice(pool, n, replace=False)
-            rand_pool_relevant = np.random.choice(rel_indices_pool, n, replace=False)
-
-        try:
-            relevant_records = as_data.record(rand_pool_relevant)
-        except Exception as err:
-            logging.error(err)
-            return jsonify(message=f"Failed to load random records. {err}"), 500
-
-        for rr in relevant_records:
-            payload["result"].append(
-                {
-                    "id": int(rr.record_id),
-                    "title": rr.title,
-                    "abstract": rr.abstract,
-                    "authors": rr.authors,
-                    "keywords": rr.keywords,
-                    "included": None,
-                    "label_from_dataset": 1,
-                }
-            )
-
-    elif subset in ["irrelevant", "excluded"]:
-        if as_data.labels is None:
-            return jsonify(payload)
-
-        irrel_indices = as_data.df[as_data.labels == 0].index.values
-        irrel_indices_pool = np.intersect1d(pool, irrel_indices)
-
-        if len(irrel_indices_pool) == 0:
-            return jsonify(payload)
-        elif n > len(irrel_indices_pool):
-            rand_pool_irrelevant = np.random.choice(
-                irrel_indices_pool, len(irrel_indices_pool), replace=False
-            )
-        else:
-            rand_pool_irrelevant = np.random.choice(
-                irrel_indices_pool, n, replace=False
-            )
-
-        try:
-            irrelevant_records = as_data.record(rand_pool_irrelevant)
-        except Exception as err:
-            logging.error(err)
-            return jsonify(message=f"Failed to load random records. {err}"), 500
-
-        for ir in irrelevant_records:
-            payload["result"].append(
-                {
-                    "id": int(ir.record_id),
-                    "title": ir.title,
-                    "abstract": ir.abstract,
-                    "authors": ir.authors,
-                    "keywords": ir.keywords,
-                    "included": None,
-                    "label_from_dataset": 0,
-                }
-            )
-
-    elif subset == "not_seen":
-        # Fetch records that are not seen
-        unlabeled_indices = as_data.df[as_data.labels == LABEL_NA].index.values
-        unlabeled_indices_pool = np.intersect1d(pool, unlabeled_indices)
-
-        if len(unlabeled_indices_pool) == 0:
-            return jsonify(payload)
-        elif n > len(unlabeled_indices_pool):
-            rand_pool_unlabeled = np.random.choice(
-                unlabeled_indices_pool, len(unlabeled_indices_pool), replace=False
-            )
-        else:
-            rand_pool_unlabeled = np.random.choice(
-                unlabeled_indices_pool, n, replace=False
-            )
-
-        try:
-            unlabeled_records = as_data.record(rand_pool_unlabeled)
-        except Exception as err:
-            logging.error(err)
-            return jsonify(message=f"Failed to load 'not seen' records. {err}"), 500
-
-        for record in unlabeled_records:
-            payload["result"].append(
-                {
-                    "id": int(record.record_id),
-                    "title": record.title,
-                    "abstract": record.abstract,
-                    "authors": record.authors,
-                    "keywords": record.keywords,
-                    "included": None,
-                    "label_from_dataset": -1,
-                }
-            )
-    else:
-        if len(pool) == 0:
-            return jsonify(payload)
-        elif n > len(pool):
-            rand_pool = np.random.choice(pool, len(pool), replace=False)
-        else:
-            rand_pool = np.random.choice(pool, n, replace=False)
-
-        try:
-            records = as_data.record(rand_pool)
-        except Exception as err:
-            logging.error(err)
-            return jsonify(message=f"Failed to load random records. {err}"), 500
-
-        for r in records:
-            payload["result"].append(
-                {
-                    "id": int(r.record_id),
-                    "title": r.title,
-                    "abstract": r.abstract,
-                    "authors": r.authors,
-                    "keywords": r.keywords,
-                    "included": None,
-                    "label_from_dataset": None,
-                }
-            )
+    for record in as_data.record(rand_pool):
+        record_d = asdict(record)
+        record_d["included"] = None
+        record_d["label_from_dataset"] = record.included
+        payload["result"].append(record_d)
 
     return jsonify(payload)
 
@@ -914,9 +787,8 @@ def api_start(project):  # noqa: F401
     """Start training of first model or simulation."""
 
     try:
-        py_exe = _get_executable()
         run_command = [
-            py_exe,
+            sys.executable if sys.executable else "python",
             "-m",
             "asreview",
             "web_run_model",
@@ -1020,7 +892,7 @@ def api_import_project():
         return response, 400
 
     try:
-        project = ASReviewProject.load(
+        project = asr.Project.load(
             request.files["file"], asreview_path(), safe_import=True
         )
 
@@ -1387,10 +1259,10 @@ def api_get_progress_recall(project):
     return jsonify(payload)
 
 
-@bp.route("/projects/<project_id>/record/<doc_id>", methods=["POST", "PUT"])
+@bp.route("/projects/<project_id>/record/<record_id>", methods=["POST", "PUT"])
 @login_required
 @project_authorization
-def api_classify_instance(project, doc_id):  # noqa: F401
+def api_classify_instance(project, record_id):  # noqa: F401
     """Label item
 
     This request handles the document identifier and the corresponding label.
@@ -1400,7 +1272,7 @@ def api_classify_instance(project, doc_id):  # noqa: F401
     in the background.
     """
     # return the combination of document_id and label.
-    record_id = int(request.form.get("doc_id"))
+    record_id = int(request.form.get("record_id"))
 
     label = int(request.form.get("label"))
 
@@ -1441,7 +1313,7 @@ def api_classify_instance(project, doc_id):  # noqa: F401
         # retrain model
         subprocess.Popen(
             [
-                _get_executable(),
+                sys.executable if sys.executable else "python",
                 "-m",
                 "asreview",
                 "web_run_model",
@@ -1458,40 +1330,17 @@ def api_classify_instance(project, doc_id):  # noqa: F401
 @login_required
 @project_authorization
 def api_get_document(project):  # noqa: F401
-    """Retrieve documents in order of review.
-
-    After these documents were retrieved, the queue on the client side is
-    updated.
-    This request can get triggered after each document classification.
-    Although it might be better to call this function after 20 requests on the
-    client side.
-    """
+    """Retrieve record in order of review."""
     with open_state(project.project_path, read_only=False) as state:
-        # First check if there is a pending record.
         _, _, pending = state.get_pool_labeled_pending()
-        if not pending.empty:
-            record_ids = pending.to_list()
-        # Else query for a new record.
-        else:
-            record_ids = state.query_top_ranked(1)
+
+    # check if there is a pending record else query for a new record
+    record_ids = state.query_top_ranked(1) if pending.empty else pending.to_list()
 
     if len(record_ids) > 0:
-        new_instance = record_ids[0]
-
         as_data = project.read_data()
-        record = as_data.record(int(new_instance))
-
-        item = {}
-        item["title"] = record.title
-        item["authors"] = record.authors
-        item["abstract"] = record.abstract
-        item["doi"] = record.doi
-        item["url"] = record.url
-
-        # return the debug label
-        item["label_from_dataset"] = record.included
-
-        item["doc_id"] = new_instance
+        item = asdict(as_data.record(record_ids[0]))
+        item["label_from_dataset"] = item["included"]
         pool_empty = False
     else:
         # end of pool
