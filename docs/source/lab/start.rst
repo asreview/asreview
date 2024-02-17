@@ -17,7 +17,7 @@ Upon executing this command, ASReview LAB will initiate, and your default web
 browser will automatically open a new tab to the ASReview LAB interface where
 you can begin your systematic review.
 
-.. figure:: ../images/first_time.png
+.. figure:: ../../images/first_time.png
    :alt: First time opening ASReview LAB
 
 The information in the sections below is more advanced and not needed for the
