@@ -4,11 +4,13 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Box,
   Button,
   TextField,
   Stack,
   Typography,
   AccordionActions,
+  Paper,
   Dialog,
   DialogActions,
   DialogContent,
@@ -453,19 +455,13 @@ const TagEditor = (props) => {
   };
 
   return (
-    <Accordion elevation={3} onBlur={props.onBlur} onFocus={props.onFocus}>
-      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography
-          sx={{ width: !props.mobileScreen ? "33%" : "100%", flexShrink: 0 }}
-        >
-          Tags
-        </Typography>
-        <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          Tags provide additional context for your review. They are not used by
-          the machine learning algorithms.
-        </Typography>
-      </AccordionSummary>
-      <AccordionDetails>
+    <Paper sx={{ padding: "18px" }}>
+      <Typography>Tags</Typography>
+      <Typography variant="body2" sx={{ color: "text.secondary" }}>
+        Tags provide additional context for your review. They are not used by
+        the machine learning algorithms.
+      </Typography>
+      <Box sx={{ padding: "12px" }}>
         <TypographySubtitle1Medium>Categories</TypographySubtitle1Medium>
         <AddCategoryDialog
           title="Add Category"
@@ -484,7 +480,7 @@ const TagEditor = (props) => {
             mobileScreen={props.mobileScreen}
           />
         ))}
-      </AccordionDetails>
+      </Box>
       <AccordionActions>
         <Button
           onClick={() => setCategoryDialogOpen(true)}
@@ -493,7 +489,7 @@ const TagEditor = (props) => {
           Add Category
         </Button>
       </AccordionActions>
-    </Accordion>
+    </Paper>
   );
 };
 
