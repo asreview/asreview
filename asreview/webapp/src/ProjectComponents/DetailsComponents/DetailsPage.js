@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
 import {
   Box,
+  Container,
   Typography,
   FormGroup,
   FormControlLabel,
@@ -37,19 +38,14 @@ const DetailsPage = (props) => {
 
   return (
     <Root aria-label="details page">
-      <Box
-        className="main-page-sticky-header-wrapper"
-        sx={{
-          background: (theme) => theme.palette.background.paper,
-          margin: "24px",
-        }}
-      >
-        <Box className="main-page-sticky-header with-button">
-          {!props.mobileScreen && (
-            <TypographyH5Medium>Details</TypographyH5Medium>
-          )}
-          {props.mobileScreen && <Typography variant="h6">Details</Typography>}
-        </Box>
+      <Box className="main-page-sticky-header with-button">
+        {!props.mobileScreen && (
+          <TypographyH5Medium>Details</TypographyH5Medium>
+        )}
+        {props.mobileScreen && <Typography variant="h6">Details</Typography>}
+      </Box>
+
+      <Container maxWidth="md">
         <ProjectContext.Provider value={project_id}>
           <Box sx={{ padding: "12px 0px" }}>
             <InfoForm editable={true} />
@@ -96,7 +92,7 @@ const DetailsPage = (props) => {
             </LoadingButton>
           </Box>
         </ProjectContext.Provider>
-      </Box>
+      </Container>
       <ProjectDeleteDialog
         onDeleteDialog={onDeleteDialog}
         toggleDeleteDialog={toggleDeleteDialog}
