@@ -37,18 +37,11 @@ import { projectModes, projectStatuses } from "../../globals";
 const PREFIX = "SetupDialog";
 
 const classes = {
-  content: `${PREFIX}-content`,
   form: `${PREFIX}-form`,
   formWarmup: `${PREFIX}-form-warmup`,
 };
 
 const StyledSetupDialog = styled(Dialog)(({ theme }) => ({
-  [`& .${classes.content}`]: {
-    paddingLeft: 0,
-    paddingRight: 0,
-    overflowY: "hidden",
-  },
-
   [`& .${classes.form}`]: {
     height: "calc(100% - 60px)",
     overflowY: "scroll",
@@ -133,9 +126,9 @@ const SetupDialogContent = ({ project_id, onClose, mobileScreen }) => {
 
   const handleFinish = () => {
     mutate({
-      project_id,
+      project_id: project_id,
       status: projectStatuses.REVIEW,
-      trigger_model: true,
+      tigger_model: true,
     });
   };
 
@@ -157,33 +150,54 @@ const SetupDialogContent = ({ project_id, onClose, mobileScreen }) => {
       {!mobileScreen && (
         <SetupDialogHeader onClose={onClose} mobileScreen={mobileScreen} />
       )}
-      <DialogContent className={classes.content} dividers>
-        <SetupStepper
-          activeStep={activeStep}
-          handleStep={handleStep}
-          isStepFailed={isStepFailed}
-        />
-        <Box
-          className={clsx({
-            [classes.form]: true,
-          })}
-        >
-          {activeStep === 0 && <InfoForm />}
-          {activeStep === 1 && <ModelForm />}
-          {activeStep === 2 && <PriorForm />}
-          {activeStep === 3 && <ScreenLanding />}
-        </Box>
-      </DialogContent>
-      <DialogActions>
-        {activeStep > 0 && <Button onClick={handleBack}>Back</Button>}
-        <Button
-          id="next-setup-button"
-          variant="contained"
-          onClick={activeStep === 3 ? handleFinish : handleNext}
-        >
-          {activeStep === 3 ? "Finish" : "Next"}
-        </Button>
-      </DialogActions>
+      <SetupStepper
+        activeStep={activeStep}
+        handleStep={handleStep}
+        isStepFailed={isStepFailed}
+      />
+      {activeStep === 0 && (
+        <InfoForm integrated={true} handleNext={handleNext} />
+      )}
+
+      {activeStep === 1 && (
+        <>
+          <DialogContent dividers>
+            <ModelForm />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleBack}>Back</Button>
+            <Button id="next-setup-button" onClick={handleNext}>
+              Next
+            </Button>
+          </DialogActions>
+        </>
+      )}
+      {activeStep === 2 && (
+        <>
+          <DialogContent dividers>
+            <PriorForm />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleBack}>Back</Button>
+            <Button id="next-setup-button" onClick={handleNext}>
+              Next
+            </Button>
+          </DialogActions>
+        </>
+      )}
+      {activeStep === 3 && (
+        <>
+          <DialogContent dividers>
+            <ScreenLanding />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleBack}>Back</Button>
+            <Button id="next-setup-button" onClick={handleFinish}>
+              Finish
+            </Button>
+          </DialogActions>
+        </>
+      )}
     </ProjectContext.Provider>
   );
 };
@@ -196,7 +210,6 @@ const SetupDialog = ({
   mobileScreen,
 }) => {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
 
   const exitingSetup = () => {
     queryClient.invalidateQueries("fetchProjects");

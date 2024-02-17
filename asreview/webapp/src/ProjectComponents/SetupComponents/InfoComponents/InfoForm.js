@@ -5,6 +5,8 @@ import clsx from "clsx";
 import {
   Box,
   Button,
+  DialogActions,
+  DialogContent,
   Stack,
   TextField,
   Tooltip,
@@ -39,14 +41,10 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const InfoForm = ({ editable = true }) => {
+const InfoForm = ({ integrated, handleNext, editable = true }) => {
   const project_id = useContext(ProjectContext);
 
-  const [info, setInfo] = React.useState({
-    title: "",
-    authors: "",
-    description: "",
-  });
+  const [info, setInfo] = React.useState(null);
 
   // const isProjectSetup = () => {
   //   return !project_id;
@@ -63,10 +61,20 @@ const InfoForm = ({ editable = true }) => {
     });
   };
 
-  /**
-   * Fetch project info
-   */
-  const { error: fetchInfoError, isError: isFetchInfoError } = useQuery(
+  const saveInfo = () => {
+    mutate({
+      project_id: project_id,
+      title: info.title,
+      authors: info.authors,
+      description: info.description,
+    });
+  };
+
+  const {
+    data: infoData,
+    error: fetchInfoError,
+    isError: isFetchInfoError,
+  } = useQuery(
     ["fetchInfo", { project_id: project_id }],
     ProjectAPI.fetchInfo,
     {
@@ -82,112 +90,118 @@ const InfoForm = ({ editable = true }) => {
     },
   );
 
-  /**
-   * Mutate project info
-   */
   const {
     error: mutateInfoError,
     isError: isMutateInfoError,
-    // {TODO} isLoading: isMutatingInfo,
+    isLoading: isMutatingInfo,
     mutate,
   } = useMutation(ProjectAPI.mutateInfo, {
     mutationKey: ["mutateInfo"],
-    onError: () => {
-      // handleComplete(false);
-    },
+    onError: () => {},
     onSuccess: () => {
-      // setTextFieldFocused(null);
+      if (integrated) {
+        handleNext();
+      }
     },
   });
 
-  return (
-    <Root className={classes.root}>
-      <Box className={classes.title}>
-        <Typography variant="h6">Project Information</Typography>
-      </Box>
-      <Stack spacing={3}>
-        <Box>
-          <Stack direction="column" spacing={3}>
-            <Tooltip
-              disableHoverListener
-              title="Your project needs a title"
-              arrow
-              open={info?.title.length === 0}
-              placement="top-start"
-            >
+  const isChanged = () => {
+    return (
+      infoData !== undefined &&
+      info !== null &&
+      (infoData?.name !== info.title ||
+        infoData?.authors !== info.authors ||
+        infoData?.description !== info.description)
+    );
+  };
+
+  const infoFormBody = () => {
+    return (
+      <Root className={classes.root}>
+        <Box className={classes.title}>
+          <Typography variant="h6">Project Information</Typography>
+        </Box>
+        <Stack spacing={3}>
+          <>
+            <Stack direction="column" spacing={3}>
+              <Tooltip
+                disableHoverListener
+                title="Your project needs a title"
+                arrow
+                open={info?.title.length === 0}
+                placement="top-start"
+              >
+                <TextField
+                  autoFocus
+                  error={mutateInfoError}
+                  fullWidth
+                  id="project-title"
+                  InputLabelProps={{
+                    required: true,
+                  }}
+                  label="Title"
+                  name="title"
+                  onChange={handleInfoChange}
+                  required
+                  value={info?.title || ""}
+                  disabled={!editable}
+                />
+              </Tooltip>
               <TextField
-                autoFocus
-                error={mutateInfoError}
                 fullWidth
-                id="project-title"
-                inputProps={{
-                  onFocus: () => onFocus(),
-                }}
-                InputLabelProps={{
-                  required: true,
-                }}
-                label="Title"
-                name="title"
+                id="project-author"
+                label="Author(s)"
+                name="authors"
                 onChange={handleInfoChange}
-                required
-                value={info?.title}
+                value={info?.authors || ""}
                 disabled={!editable}
               />
-            </Tooltip>
-            <TextField
-              fullWidth
-              id="project-author"
-              inputProps={{
-                onFocus: () => onFocus(),
-                onBlur: () => onBlur(),
-              }}
-              label="Author(s)"
-              name="authors"
-              onChange={handleInfoChange}
-              value={info?.authors}
-              disabled={!editable}
-            />
-            <TextField
-              fullWidth
-              id="project-description"
-              inputProps={{
-                onFocus: () => onFocus(),
-                onBlur: () => onBlur(),
-              }}
-              label="Description"
-              multiline
-              minRows={8}
-              name="description"
-              onChange={handleInfoChange}
-              value={info?.description}
-              disabled={!editable}
-            />
+              <TextField
+                fullWidth
+                id="project-description"
+                label="Description"
+                multiline
+                minRows={8}
+                name="description"
+                onChange={handleInfoChange}
+                value={info?.description || ""}
+                disabled={!editable}
+              />
+              {!integrated && (
+                <Button onClick={saveInfo} disabled={!isChanged() || !editable}>
+                  Save
+                </Button>
+              )}
+            </Stack>
+          </>
 
-            {/* add save button */}
-            <Button
-              onClick={() => {
-                mutate({
-                  project_id: project_id,
-                  title: info.title,
-                  authors: info.authors,
-                  description: info.description,
-                });
-              }}
-              disabled={!editable}
-            >
+          <CardErrorHandler
+            queryKey={"fetchInfo"}
+            error={fetchInfoError}
+            isError={isFetchInfoError}
+          />
+        </Stack>
+      </Root>
+    );
+  };
+
+  if (integrated) {
+    return (
+      <>
+        <DialogContent dividers>{infoFormBody()}</DialogContent>
+        <DialogActions>
+          {isChanged() && (
+            <Button onClick={saveInfo} disabled={isMutatingInfo}>
               Save
             </Button>
-          </Stack>
-        </Box>
-
-        <CardErrorHandler
-          queryKey={"fetchInfo"}
-          error={fetchInfoError}
-          isError={isFetchInfoError}
-        />
-      </Stack>
-    </Root>
-  );
+          )}
+          {!isChanged() && <Button onClick={handleNext}>Next</Button>}
+        </DialogActions>
+      </>
+    );
+  } else {
+    return infoFormBody();
+  }
 };
 
 export default InfoForm;
