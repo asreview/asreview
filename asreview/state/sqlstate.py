@@ -923,7 +923,7 @@ class SQLiteState(BaseState):
         else:
             raise StateError("Save trained model data before using this function.")
 
-    def query_top_ranked(self, n):
+    def query_top_ranked(self, n, return_all=False):
         """Get the top ranked records from the ranking table.
 
         Get the top n instances from the pool according to the last ranking.
@@ -1309,7 +1309,7 @@ class SQLiteState(BaseState):
         con.close()
         return df
 
-    def get_pending(self):
+    def get_pending(self, return_all=False):
         """Get the record_ids of the records pending a labeling decision.
 
         If you only want the pending records, this is more efficient
@@ -1322,9 +1322,16 @@ class SQLiteState(BaseState):
             pending.
         """
         con = self._connect_to_sql()
-        query = """SELECT record_id FROM results WHERE label is null"""
+        if return_all:
+            query = """SELECT * FROM results WHERE label is null"""
+        else:
+            query = """SELECT record_id FROM results WHERE label is null"""
         df = pd.read_sql_query(query, con)
         con.close()
+
+        if return_all:
+            return df
+
         return df["record_id"]
 
     def get_pool_labeled_pending(self):

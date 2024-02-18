@@ -1401,7 +1401,7 @@ def api_get_document(project):  # noqa: F401
     """Retrieve record in order of review."""
 
     with open_state(project.project_path, read_only=False) as state:
-        pending = state.get_pending()
+        pending = state.get_pending(return_all=True)
 
         if pending.empty:
             try:
@@ -1420,14 +1420,13 @@ def api_get_document(project):  # noqa: F401
                     {"result": None, "pool_empty": False, "has_ranking": False}
                 )
 
-        rank_n_1 = state.query_top_ranked(1)
-
-    # check if there is a pending record else query for a new record
-    record_ids = rank_n_1 if pending.empty else pending.to_list()
+            state.query_top_ranked(1)
+            pending = state.get_pending(return_all=True)
 
     as_data = project.read_data()
-    item = asdict(as_data.record(record_ids[0]))
+    item = asdict(as_data.record(pending["record_id"].iloc[0]))
     item["label_from_dataset"] = item["included"]
+    item["state"] = pending.iloc[0].to_dict()
 
     return jsonify({"result": item, "pool_empty": False, "has_ranking": True})
 

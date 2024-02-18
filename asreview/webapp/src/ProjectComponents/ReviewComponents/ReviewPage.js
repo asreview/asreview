@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { useParams, Route } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Box, Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -19,7 +19,7 @@ import { ProjectAPI } from "../../api";
 import { useKeyPress } from "../../hooks/useKeyPress";
 
 import "./ReviewPage.css";
-import FinishSetup from "../SetupComponents/FinishSetup";
+import FinishSetup from "./ReviewPageTraining";
 
 const Root = styled("div")(({ theme }) => ({
   height: "100%",
@@ -33,7 +33,6 @@ const ReviewPageRecord = (props) => {
   const [activeRecord, setActiveRecord] = React.useState(
     props.record["result"],
   );
-  const [isTraining, setIsTraining] = React.useState(true);
   const [previousRecord, setPreviousRecord] = React.useState({
     record: null,
     label: null,
@@ -266,8 +265,8 @@ const ReviewPageRecord = (props) => {
             {/* Article card */}
             <RecordCard
               disableButton={disableButton}
-              // error={recordQuery.error}
-              // isError={recordQuery.isError}
+              error={error}
+              isError={isError}
               activeRecord={activeRecord}
               recordNote={recordNote}
               setRecordNote={setRecordNote}
@@ -324,10 +323,8 @@ const ReviewPage = ({
 }) => {
   const [record, setRecord] = React.useState(null);
 
-  const queryClient = useQueryClient();
-
   /* fetch the record and check if the project is training */
-  const { error, isError, isSuccess, refetch } = useQuery(
+  const { refetch } = useQuery(
     ["fetchRecord", { project_id }],
     ProjectAPI.fetchRecord,
     {
