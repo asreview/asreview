@@ -55,9 +55,9 @@ const InfoForm = ({ integrated, handleNext, editable = true }) => {
   const saveInfo = () => {
     mutate({
       project_id: project_id,
-      title: info.title,
-      authors: info.authors,
-      description: info.description,
+      title: info.title || "",
+      authors: info.authors || "",
+      description: info.description || "",
     });
   };
 
@@ -73,8 +73,8 @@ const InfoForm = ({ integrated, handleNext, editable = true }) => {
       onSuccess: (data) => {
         setInfo({
           title: data["name"],
-          authors: data["authors"] ? data["authors"] : "",
-          description: data["description"] ? data["description"] : "",
+          authors: data["authors"],
+          description: data["description"],
         });
       },
       refetchOnWindowFocus: false,
