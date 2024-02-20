@@ -28,7 +28,6 @@ from uuid import uuid4
 import datahugger
 import numpy as np
 import pandas as pd
-from filelock import FileLock
 from flask import Blueprint
 from flask import abort
 from flask import current_app
@@ -69,6 +68,7 @@ from asreview.state.custom_metadata_mapper import extract_tags
 from asreview.state.custom_metadata_mapper import get_tag_composite_id
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
+from asreview.state.utils import _fill_last_ranking
 from asreview.utils import _entry_points
 from asreview.utils import _get_filename_from_url
 from asreview.utils import asreview_path
@@ -76,6 +76,7 @@ from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
 from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
+from asreview.webapp.entry_points.run_model import has_prior_knowledge
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -798,21 +799,8 @@ def api_set_algorithms(project):  # noqa: F401
 def api_train(project):  # noqa: F401
     """Start training of first model or simulation."""
 
-    ranking = request.form.get("ranking", type=str, default=None)
-
-    if ranking in ["random", "top-down"]:
-        with open_state(project.project_path, read_only=False) as state:
-            if ranking == "random":
-                records = state.get_record_table().sample(frac=1)
-            elif ranking == "top-down":
-                records = state.get_record_table()
-
-            print(records)
-
-            state.add_last_ranking(
-                records.values, ranking, ranking, ranking, ranking, -1
-            )
-
+    if ranking := request.form.get("ranking", type=str, default=None):
+        _fill_last_ranking(project, ranking)
         return jsonify({"success": True})
 
     try:
@@ -909,9 +897,10 @@ def api_update_review_status(project, review_id):
         return jsonify({"success": True})
 
     if current_status == "setup" and status == "review":
-        project.update_review(status=status)
+        if not (pk := has_prior_knowledge(project)):
+            _fill_last_ranking(project, "random")
 
-        if trigger_model:
+        if trigger_model and pk:
             try:
                 subprocess.Popen(
                     [
@@ -927,6 +916,9 @@ def api_update_review_status(project, review_id):
                 logging.error(err)
                 message = f"Failed to train the model. {err}"
                 return jsonify(message=message), 400
+
+        project.update_review(status=status)
+
     elif current_status == "review" and status == "finished":
         project.update_review(status=status)
     elif current_status == "finished" and status == "review":
@@ -1382,16 +1374,6 @@ def api_classify_instance(project, record_id):  # noqa: F401
     response = jsonify({"success": True})
 
     return response
-
-
-@bp.route("/projects/<project_id>/training", methods=["GET"])
-@login_required
-@project_authorization
-def api_is_training(project):  # noqa: F401
-    """Is the model training."""
-
-    lock = FileLock(Path(project.project_path, "training.lock"), timeout=0)
-    return jsonify({"is_training": lock.acquired()})
 
 
 @bp.route("/projects/<project_id>/get_document", methods=["GET"])
