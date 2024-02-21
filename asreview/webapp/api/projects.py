@@ -169,6 +169,32 @@ def api_get_projects_stats(projects):  # noqa: F401
     return jsonify({"result": stats_counter})
 
 
+@bp.route("/projects/create", methods=["POST"])
+@login_required
+def api_create_project():  # noqa: F401
+    """Create a new project"""
+
+    project_id = uuid4().hex
+
+    project = asr.Project.create(
+        get_project_path(project_id),
+        project_id=project_id,
+        project_mode=request.form["mode"],
+        project_name=request.form["mode"] + "_" + time.strftime("%Y%m%d-%H%M%S"),
+    )
+
+    api_upload_dataset_to_project(project_id)
+
+    if current_app.config.get("LOGIN_DISABLED", False):
+        return jsonify(project.config), 201
+
+    # create a database entry for this project
+    current_user.projects.append(Project(project_id=project_id))
+    DB.session.commit()
+
+    return jsonify(project.config), 201
+
+
 @bp.route("/projects/info", methods=["POST"])
 @login_required
 def api_init_project():  # noqa: F401
@@ -306,6 +332,8 @@ def api_demo_data_project():  # noqa: F401
 @project_authorization
 def api_upload_dataset_to_project(project):  # noqa: F401
     """"""
+
+    print(request.form, request.files)
 
     # get the project config to modify behavior of dataset
     project_config = project.config

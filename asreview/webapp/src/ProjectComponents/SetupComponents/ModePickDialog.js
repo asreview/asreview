@@ -1,7 +1,5 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import { useMutation } from "react-query";
-import { connect } from "react-redux";
 import {
   Box,
   Button,
@@ -19,8 +17,6 @@ import { styled } from "@mui/material/styles";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 
-import { InlineErrorHandler } from "../../Components";
-import { ProjectAPI } from "../../api";
 import { mapDispatchToProps, projectModes } from "../../globals";
 
 const PREFIX = "ModePickDialog";
@@ -79,69 +75,30 @@ const SelectItem = ({
   </Box>
 );
 
-const ModePickDialog = ({
-  open,
-  setProjectId,
-  closeModePick,
-  closeModePickAndOpenData,
-}) => {
+const ModePickDialog = ({ open, closeModePick, closeModePickAndOpenData }) => {
   const [mode, setMode] = React.useState(projectModes.ORACLE);
-
-  const { error, isError, isLoading, mutate, reset } = useMutation(
-    ProjectAPI.mutateInitProject,
-    {
-      onSuccess: (data) => {
-        setProjectId(data["id"]);
-        closeModePickAndOpenData();
-      },
-    },
-  );
 
   const handleModeChange = (event) => {
     setMode(event.target.value);
   };
 
   const handleClickNext = () => {
-    mutate({
-      mode: mode,
-    });
-  };
-
-  const handleClickCancel = () => {
-    if (!isLoading) {
-      closeModePick();
-    }
+    closeModePickAndOpenData(mode);
   };
 
   return (
     <StyledDialog
       maxWidth="sm"
-      onClose={handleClickCancel}
+      onClose={closeModePick}
       open={open}
       TransitionProps={{
         onExited: () => {
           setMode(projectModes.ORACLE);
-          reset();
         },
       }}
     >
       <DialogTitle>Choose type of project</DialogTitle>
       <DialogContent>
-        {/* <Box className={classes.box}>
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            Screen an unlabeled or partially labeled dataset with Oracle mode,
-            or explore a fully labeled dataset with Validation or Simulation
-            mode.{" "}
-            <Link
-              underline="none"
-              href={`https://asreview.readthedocs.io/en/latest/project_create.html#project-modes`}
-              target="_blank"
-            >
-              Learn more
-            </Link>
-          </Typography>
-        </Box> */}
-        {isError && <InlineErrorHandler message={error?.message} />}
         <RadioGroup
           aria-label="project-mode"
           name="mode"
@@ -198,7 +155,7 @@ const ModePickDialog = ({
         </RadioGroup>
       </DialogContent>
       <DialogActions>
-        <Button autoFocus onClick={handleClickCancel}>
+        <Button autoFocus onClick={closeModePick}>
           Cancel
         </Button>
         <Button onClick={handleClickNext}>Next</Button>
@@ -207,8 +164,4 @@ const ModePickDialog = ({
   );
 };
 
-export default connect(null, mapDispatchToProps)(ModePickDialog);
-
-ModePickDialog.propTypes = {
-  open: PropTypes.bool.isRequired,
-};
+export default ModePickDialog;

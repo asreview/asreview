@@ -49,9 +49,7 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const DatasetInfo = (props) => {
-  const project_id = useContext(ProjectContext);
-
+const DatasetInfo = ({ project_id, dataset_path }) => {
   const {
     data,
     error: fetchDataError,
@@ -61,7 +59,6 @@ const DatasetInfo = (props) => {
     ["fetchData", { project_id: project_id }],
     ProjectAPI.fetchData,
     {
-      enabled: project_id !== null,
       refetchOnWindowFocus: false,
     },
   );
@@ -92,7 +89,7 @@ const DatasetInfo = (props) => {
                 Dataset filename
               </Typography>
               <Typography variant="body2" className={classes.singleLine}>
-                {/* {props.info?.dataset_path} */}
+                {dataset_path}
               </Typography>
             </Stack>
             <Stack>

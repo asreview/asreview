@@ -1,7 +1,7 @@
 import React from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
-import { Box, CircularProgress, Stack, Typography } from "@mui/material";
+import { Box, CircularProgress, Stack, Typography, Link } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../../Components";
@@ -109,6 +109,33 @@ const DatasetFromEntryPoint = (props) => {
 
   return (
     <Root>
+      {props.datasetSource === "extension" && (
+        <Typography variant="body2" sx={{ color: "text.secondary" }}>
+          Select a dataset from an extension.{" "}
+          <Link
+            underline="none"
+            href="https://asreview.readthedocs.io/en/latest/extensions_dev.html"
+            target="_blank"
+          >
+            Learn more
+          </Link>
+        </Typography>
+      )}
+      {props.datasetSource === "benchmark" && (
+        <Typography variant="body2" sx={{ color: "text.secondary" }}>
+          The benchmark datasets were manually labeled and can be used to
+          explore or demonstrate ASReview LAB. You can donate your dataset to
+          the benchmark platform.{" "}
+          <Link
+            underline="none"
+            href="https://github.com/asreview/synergy-dataset"
+            target="_blank"
+          >
+            Learn more
+          </Link>
+        </Typography>
+      )}
+
       {isFetchingDatasets && (
         <Box className={classes.loading}>
           <CircularProgress />

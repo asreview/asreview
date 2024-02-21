@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient, useQuery } from "react-query";
 import { connect } from "react-redux";
 import {
   Avatar,
@@ -9,6 +9,8 @@ import {
   ButtonBase,
   Stack,
   Typography,
+  Link,
+  CircularProgress,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FileUpload } from "@mui/icons-material";
@@ -16,7 +18,7 @@ import { FileUpload } from "@mui/icons-material";
 import { InlineErrorHandler } from "../../../Components";
 
 import { ProjectAPI } from "../../../api";
-import { mapStateToProps } from "../../../globals";
+import { mapStateToProps, projectModes } from "../../../globals";
 
 const PREFIX = "DatasetFromFile";
 
@@ -26,36 +28,36 @@ const classes = {
 };
 
 const Root = styled("div")(({ theme }) => ({
-  height: "100%",
-  width: "100%",
+  // height: "100%",
+  // width: "100%",
   [`& .${classes.root}`]: {
-    display: "flex",
-    alignItems: "center",
+    // display: "flex",
+    // alignItems: "center",
   },
 
   [`& .${classes.singleLine}`]: {
-    display: "-webkit-box",
-    WebkitBoxOrient: "vertical",
-    WebkitLineClamp: 1,
-    whiteSpace: "pre-line",
-    overflow: "hidden",
+    // display: "-webkit-box",
+    // WebkitBoxOrient: "vertical",
+    // WebkitLineClamp: 1,
+    // whiteSpace: "pre-line",
+    // overflow: "hidden",
   },
 }));
 
 const baseStyle = {
-  height: "100%",
-  flex: 1,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: "80px 20px 80px 20px",
-  borderWidth: 2,
-  borderRadius: 2,
-  borderColor: "#eeeeee",
-  borderStyle: "dashed",
-  outline: "none",
-  transition: "border .24s ease-in-out",
+  // height: "100%",
+  // flex: 1,
+  // display: "flex",
+  // flexDirection: "column",
+  // alignItems: "center",
+  // justifyContent: "center",
+  // padding: "80px 20px 80px 20px",
+  // borderWidth: 2,
+  // borderRadius: 2,
+  // borderColor: "#eeeeee",
+  // borderStyle: "dashed",
+  // outline: "none",
+  // transition: "border .24s ease-in-out",
 };
 
 const activeStyle = {
@@ -70,26 +72,25 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-const DatasetFromFile = (props) => {
-  const queryClient = useQueryClient();
-
+const DatasetFromFile = ({ project_id, mode, setDataset }) => {
   const [file, setFile] = React.useState(null);
-
-  const datasetInfo = queryClient.getQueryData([
-    "fetchData",
-    { project_id: props.project_id },
-  ]);
+  const [acceptedFileTypes, setAcceptedFileTypes] = React.useState("");
 
   const {
-    error: addDatasetError,
-    isError: isAddDatasetError,
-    isLoading: isAddingDataset,
+    data: projectData,
+    error: createProjectError,
+    isError: isCreatingProjectError,
+    isLoading: isCreatingProject,
     mutate: addDataset,
     reset: resetAddDataset,
-  } = useMutation(ProjectAPI.mutateData, {
+  } = useMutation(ProjectAPI.createProject, {
     mutationKey: ["addDataset"],
     onSuccess: (data) => {
-      props.closeDataPickAndOpenSetup(props.project_id);
+      console.log("Project created", data);
+
+      setDataset(data);
+      // display info about the dataset
+      // closeDataPickAndOpenSetup(project_id);
     },
   });
 
@@ -102,16 +103,16 @@ const DatasetFromFile = (props) => {
         setFile(acceptedFiles[0]);
       }
 
-      if (isAddDatasetError) {
+      if (isCreatingProjectError) {
         resetAddDataset();
       }
 
       addDataset({
-        project_id: props.project_id,
+        mode: mode,
         file: acceptedFiles[0],
       });
     },
-    [props.project_id, addDataset, isAddDatasetError, resetAddDataset],
+    [addDataset, isCreatingProjectError, resetAddDataset],
   );
 
   const {
@@ -125,7 +126,7 @@ const DatasetFromFile = (props) => {
     onDrop: onDrop,
     multiple: false,
     noClick: true,
-    accept: props.acceptFormat,
+    accept: acceptedFileTypes,
   });
 
   const style = useMemo(
@@ -138,12 +139,45 @@ const DatasetFromFile = (props) => {
     [isDragActive, isDragReject, isDragAccept],
   );
 
+  const {
+    data: readers,
+    error: fetchReadersError,
+    isError: isFetchReadersError,
+    isFetching: isFetchingReaders,
+  } = useQuery(
+    ["fetchDatasetReaders", { project_id: project_id }],
+    ProjectAPI.fetchDatasetReaders,
+    {
+      refetchOnWindowFocus: false,
+      onSuccess: (data) => {
+        let readerString = "";
+        data["result"].forEach((reader) => {
+          readerString += reader.extension + ",";
+        });
+
+        setAcceptedFileTypes(readerString);
+      },
+    },
+  );
+
   return (
     <Root>
+      <Typography variant="body2" sx={{ color: "text.secondary" }}>
+        To optimally benefit from the performance of the active learning model,
+        it is highly recommended to add a dataset without duplicate records and
+        complete records.{" "}
+        <Link
+          underline="none"
+          href="https://asreview.readthedocs.io/en/latest/intro/datasets.html"
+          target="_blank"
+        >
+          Learn more
+        </Link>
+      </Typography>
       <Box {...getRootProps({ style })}>
         <input {...getInputProps()} />
         <Stack className={classes.root} spacing={2}>
-          <ButtonBase disabled={isAddingDataset} disableRipple onClick={open}>
+          <ButtonBase disabled={isCreatingProject} disableRipple onClick={open}>
             <Avatar
               sx={{
                 height: "136px",
@@ -158,22 +192,21 @@ const DatasetFromFile = (props) => {
             </Avatar>
           </ButtonBase>
           <Typography>Drag and drop a dataset file to add</Typography>
-          {file && (
-            <Typography className={classes.singleLine}>
-              File <i>{file?.path}</i> selected.
+          <Typography variant="secondary">Or click to select a file</Typography>
+          <Typography variant="secondary">
+            Accepted files: {acceptedFileTypes}
+          </Typography>
+          {mode !== projectModes.ORACLE && (
+            <Typography variant="secondary">
+              "The dataset should contain labels for each record. "
             </Typography>
           )}
-          {isAddingDataset && (
-            <Typography sx={{ color: "text.secondary" }}>Adding...</Typography>
-          )}
-          {isAddDatasetError && (
+          {isCreatingProject && <CircularProgress />}
+          {isCreatingProjectError && (
             <InlineErrorHandler
-              message={addDatasetError?.message + " Please try again."}
+              message={createProjectError?.message + " Please try again."}
             />
           )}
-          <Button disabled={isAddingDataset} variant="contained" onClick={open}>
-            Select File
-          </Button>
         </Stack>
       </Box>
     </Root>

@@ -43,12 +43,13 @@ const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
     });
   };
 
-  const closeModePickAndOpenData = () => {
+  const closeModePickAndOpenData = (mode_id) => {
     setCreateProject({
       mode: false,
       data: true,
       setup: false,
-      project_id: null,
+      // project_id: null,
+      mode_id: mode_id,
     });
   };
 
@@ -57,7 +58,7 @@ const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
       mode: false,
       data: false,
       setup: false,
-      project_id: null,
+      // project_id: null,
     });
   };
 
@@ -75,7 +76,7 @@ const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
       mode: false,
       data: false,
       setup: false,
-      project_id: null,
+      // project_id: null,
     });
   };
 
@@ -125,7 +126,7 @@ const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
       />
       <ImportDataset
         open={onCreateProject.data}
-        datasetAdded={false}
+        mode={onCreateProject.mode_id}
         mobileScreen={mobileScreen}
         closeDataPick={closeDataPick}
         closeDataPickAndOpenSetup={closeDataPickAndOpenSetup}

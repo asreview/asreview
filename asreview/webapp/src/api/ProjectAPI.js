@@ -53,6 +53,42 @@ class ProjectAPI {
     });
   }
 
+  static createProject(variables) {
+    let body = new FormData();
+    body.set("mode", variables.mode);
+
+    if (variables.file) {
+      body.append("file", variables.file);
+    }
+    if (variables.url) {
+      body.append("url", variables.url);
+      if (variables.validate) {
+        body.append("validate", variables.validate);
+      }
+    }
+    if (variables.extension) {
+      body.append("plugin", variables.extension);
+    }
+    if (variables.benchmark) {
+      body.append("benchmark", variables.benchmark);
+    }
+
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "post",
+        url: api_url + `projects/create`,
+        data: body,
+        withCredentials: true,
+      })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static fetchUpgradeProjectIfOld({ queryKey }) {
     const { project_id } = queryKey[1];
     const url = api_url + `projects/${project_id}/upgrade_if_old`;

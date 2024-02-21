@@ -1,8 +1,16 @@
 import * as React from "react";
-import { useIsMutating, useMutation, useQueryClient } from "react-query";
-import { connect } from "react-redux";
 import {
+  useIsMutating,
+  useMutation,
+  useQueryClient,
+  useQuery,
+} from "react-query";
+import { connect } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import {
+  Button,
   Dialog,
+  DialogActions,
   DialogContent,
   DialogTitle,
   Divider,
@@ -29,7 +37,9 @@ import {
   mapDispatchToProps,
   mapStateToProps,
   projectModes,
+  projectStatuses,
 } from "../../../globals";
+import DatasetInfo from "./DatasetInfo";
 
 const PREFIX = "ImportDataset";
 
@@ -39,257 +49,179 @@ const classes = {
 };
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
-  overflowY: "hidden",
+  // overflowY: "hidden",
   [`& .${classes.form}`]: {
-    height: "calc(100% - 64px)",
-    overflowY: "scroll",
-    padding: "24px 48px 48px 48px",
-    [theme.breakpoints.down("md")]: {
-      height: "calc(100% - 56px)",
-      padding: "32px 24px 48px 24px",
-    },
+    // height: "calc(100% - 64px)",
+    // overflowY: "scroll",
+    // padding: "24px 48px 48px 48px",
+    // [theme.breakpoints.down("md")]: {
+    //   height: "calc(100% - 56px)",
+    //   padding: "32px 24px 48px 24px",
+    // },
   },
 }));
 
-const ImportDataset = (props) => {
-  const queryClient = useQueryClient();
+const ImportDataset = ({
+  open,
+  mode,
+  closeDataPickAndOpenSetup,
+  mobileScreen,
+  closeDataPick,
+}) => {
+  const navigate = useNavigate();
 
-  const [projectInfo, setProjectInfo] = React.useState(null);
-  const [datasetSource, setDatasetSource] = React.useState("file");
+  const [dataset, setDataset] = React.useState(null);
+  const [uploadSource, setUploadSource] = React.useState("file");
 
-  const datasetInfo = queryClient.getQueryData([
-    "fetchData",
-    { project_id: props.project_id },
-  ]);
-
-  const isAddingDataset = useIsMutating(["addDataset"]);
-
-  const isLoading = isAddingDataset !== 0;
-
-  const isDatasetAdded = () => {
-    return datasetInfo !== undefined;
-  };
-
-  /**
-   * Delete the temporary project.
-   */
-  const {
-    // TODO{Terry}: add error handling
-    // error: deleteProjectError,
-    // isError: isDeleteProjectError,
-    // isLoading: isDeletingProject,
-    mutate: deleteProject,
-    // reset: resetDeleteProject,
-  } = useMutation(ProjectAPI.mutateDeleteProject, {
-    onSuccess: () => {
-      props.closeDataPick();
-    },
-  });
-
-  const handleDatasetSource = (event) => {
-    setDatasetSource(event.target.value);
+  const handleUploadSource = (event) => {
+    setUploadSource(event.target.value);
   };
 
   const handleClose = () => {
-    if (!isDatasetAdded()) {
-      // Delete the temporary project when the dialog is closed.
-      deleteProject({
-        project_id: props.project_id,
-      });
-    } else {
-      props.closeDataPick();
-    }
+    closeDataPick();
   };
 
-  const onExited = () => {
-    setProjectInfo(null);
-    setDatasetSource("file");
-  };
+  const editDataset = () => {};
 
-  // fetch project info once the dialog is opened
-  React.useEffect(() => {
-    const fetchInfo = async () => {
-      const projectInfo = await queryClient.fetchQuery(
-        ["fetchInfo", { project_id: props.project_id }],
-        ProjectAPI.fetchInfo,
-      );
-      setProjectInfo(projectInfo);
-    };
-    if (props.open && props.project_id !== null) {
-      fetchInfo();
-    }
-  }, [props.open, props.project_id, queryClient]);
-
-  // set the data source to benchmark when exploration mode is selected
-  React.useEffect(() => {
-    if (projectInfo?.mode === projectModes.SIMULATION) {
-      setDatasetSource("benchmark");
-    }
-    if (projectInfo?.mode !== projectModes.SIMULATION) {
-      setDatasetSource("file");
-    }
-  }, [projectInfo?.mode]);
+  const { mutate: setStatusStatus } = useMutation(
+    ProjectAPI.mutateReviewStatus,
+    {
+      mutationKey: ["mutateReviewStatus"],
+      onError: () => {
+        console.log("error updating status");
+      },
+      onSuccess: () => {
+        if (mode === projectModes.SIMULATION) {
+          navigate(`/projects/${dataset.id}`);
+        } else {
+          navigate(`/projects/${dataset.id}/review`);
+        }
+      },
+    },
+  );
 
   return (
     <StyledDialog
-      open={props.open}
-      fullScreen={props.mobileScreen}
+      open={open}
+      fullScreen={mobileScreen}
       fullWidth
-      hideBackdrop={isDatasetAdded()}
+      close={handleClose}
       maxWidth="md"
-      PaperProps={{
-        elevation: !props.datasetAdded ? 1 : 0,
-        sx: { height: !props.mobileScreen ? "calc(100% - 96px)" : "100%" },
-      }}
-      TransitionProps={{ onExited: onExited }}
+      // PaperProps={{
+      //   sx: { height: !mobileScreen ? "calc(100% - 96px)" : "100%" },
+      // }}
     >
-      {props.mobileScreen && (
+      {mobileScreen && (
         <AppBarWithinDialog
-          disableStartIcon={isLoading}
+          // disableStartIcon={isLoading}
           onClickStartIcon={handleClose}
           startIconIsClose
           title="Import a dataset"
         />
       )}
-      {!props.mobileScreen && (
-        <Fade in>
-          <Stack className="dialog-header" direction="row">
-            <DialogTitle>Import a dataset</DialogTitle>
-            <Stack
-              className="dialog-header-button right"
-              direction="row"
-              spacing={1}
-            >
-              <Tooltip title="Close">
-                <StyledIconButton disabled={isLoading} onClick={handleClose}>
-                  <Close />
-                </StyledIconButton>
-              </Tooltip>
-            </Stack>
-          </Stack>
-        </Fade>
-      )}
-      <Divider />
-      <Fade in>
-        <DialogContent className={classes.form}>
+      {!mobileScreen && <DialogTitle>Import a dataset</DialogTitle>}
+      <DialogContent className={classes.form}>
+        {dataset && (
+          <>
+            <DatasetInfo
+              project_id={dataset.id}
+              dataset_path={dataset.dataset_path}
+            />
+            <Button onClick={editDataset}>Edit</Button>
+          </>
+        )}
+
+        {!dataset && (
           <Stack spacing={3}>
-            {props.datasetAdded && (
-              <InfoCard info="Editing dataset removes the added prior knowledge" />
-            )}
-            <FormControl disabled={isLoading} component="fieldset">
+            <FormControl component="fieldset">
               <FormLabel component="legend">Add a dataset from</FormLabel>
               <RadioGroup
                 row
                 aria-label="dataset source"
                 name="row-radio-buttons-group"
-                value={datasetSource}
+                value={uploadSource}
               >
                 <FormControlLabel
                   value="file"
                   control={<Radio />}
                   label="File"
-                  onChange={handleDatasetSource}
+                  onChange={handleUploadSource}
                 />
                 <FormControlLabel
                   value="url"
                   control={<Radio />}
                   label="URL or DOI"
-                  onChange={handleDatasetSource}
+                  onChange={handleUploadSource}
                 />
-                {projectInfo?.mode === projectModes.ORACLE && (
+                {mode === projectModes.ORACLE && (
                   <FormControlLabel
                     value="extension"
                     control={<Radio />}
                     label="Extension"
-                    onChange={handleDatasetSource}
+                    onChange={handleUploadSource}
                   />
                 )}
-                {(projectInfo?.mode === projectModes.EXPLORATION ||
-                  projectInfo?.mode === projectModes.SIMULATION) && (
+                {(mode === projectModes.EXPLORATION ||
+                  mode === projectModes.SIMULATION) && (
                   <FormControlLabel
                     value="benchmark"
                     control={<Radio />}
                     label="Benchmark datasets"
-                    onChange={handleDatasetSource}
+                    onChange={handleUploadSource}
                   />
                 )}
               </RadioGroup>
             </FormControl>
-            {(datasetSource === "file" || datasetSource === "url") && (
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Supported formats are RIS (<code>.ris</code>, <code>.txt</code>)
-                and tabular datasets (<code>.csv</code>, <code>.tab</code>,{" "}
-                <code>.tsv</code>, <code>.xlsx</code>). The dataset should
-                contain a title and abstract for each record.{" "}
-                {projectInfo?.mode !== projectModes.ORACLE
-                  ? "The dataset should contain labels for each record. "
-                  : ""}
-                To optimally benefit from the performance of the active learning
-                model, it is highly recommended to add a dataset without
-                duplicate records and complete records.{" "}
-                <Link
-                  underline="none"
-                  href="https://asreview.readthedocs.io/en/latest/intro/datasets.html"
-                  target="_blank"
-                >
-                  Learn more
-                </Link>
-              </Typography>
+            {uploadSource === "file" && (
+              <DatasetFromFile mode={mode} setDataset={setDataset} />
             )}
-            {datasetSource === "extension" && (
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Select a dataset from an extension.{" "}
-                <Link
-                  underline="none"
-                  href="https://asreview.readthedocs.io/en/latest/extensions_dev.html"
-                  target="_blank"
-                >
-                  Learn more
-                </Link>
-              </Typography>
-            )}
-            {datasetSource === "benchmark" && (
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                The benchmark datasets were manually labeled and can be used to
-                explore or demonstrate ASReview LAB. You can donate your dataset
-                to the benchmark platform.{" "}
-                <Link
-                  underline="none"
-                  href="https://github.com/asreview/synergy-dataset"
-                  target="_blank"
-                >
-                  Learn more
-                </Link>
-              </Typography>
-            )}
-            {datasetSource === "file" && (
-              <DatasetFromFile
-                acceptFormat=".txt,.tsv,.tab,.csv,.ris,.xlsx"
-                closeDataPickAndOpenSetup={props.closeDataPickAndOpenSetup}
-              />
-            )}
-            {datasetSource === "url" && (
+            {uploadSource === "url" && (
               <DatasetFromURL
-                closeDataPickAndOpenSetup={props.closeDataPickAndOpenSetup}
+                mode={mode}
+                closeDataPickAndOpenSetup={closeDataPickAndOpenSetup}
               />
             )}
-            {datasetSource === "extension" && (
+            {uploadSource === "extension" && (
               <DatasetFromEntryPoint
+                uploadSource={uploadSource}
                 subset="plugin"
-                mobileScreen={props.mobileScreen}
-                closeDataPickAndOpenSetup={props.closeDataPickAndOpenSetup}
+                mobileScreen={mobileScreen}
+                closeDataPickAndOpenSetup={closeDataPickAndOpenSetup}
               />
             )}
-            {datasetSource === "benchmark" && (
+            {uploadSource === "benchmark" && (
               <DatasetFromEntryPoint
+                uploadSource={uploadSource}
                 subset="benchmark"
-                mobileScreen={props.mobileScreen}
-                closeDataPickAndOpenSetup={props.closeDataPickAndOpenSetup}
+                mobileScreen={mobileScreen}
+                closeDataPickAndOpenSetup={closeDataPickAndOpenSetup}
               />
             )}
           </Stack>
-        </DialogContent>
-      </Fade>
+        )}
+      </DialogContent>
+
+      {dataset && (
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setStatusStatus({
+                project_id: dataset.id,
+                status: projectStatuses.REVIEW,
+              });
+            }}
+            // disabled={isLoading}
+          >
+            Screen
+          </Button>
+          <Button
+            onClick={closeDataPickAndOpenSetup}
+            // disabled={isLoading}
+          >
+            Configure
+          </Button>
+        </DialogActions>
+      )}
     </StyledDialog>
   );
 };
