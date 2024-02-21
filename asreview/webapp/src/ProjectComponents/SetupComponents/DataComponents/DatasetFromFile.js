@@ -28,36 +28,36 @@ const classes = {
 };
 
 const Root = styled("div")(({ theme }) => ({
-  // height: "100%",
-  // width: "100%",
+  height: "100%",
+  width: "100%",
   [`& .${classes.root}`]: {
-    // display: "flex",
-    // alignItems: "center",
+    display: "flex",
+    alignItems: "center",
   },
 
   [`& .${classes.singleLine}`]: {
-    // display: "-webkit-box",
-    // WebkitBoxOrient: "vertical",
-    // WebkitLineClamp: 1,
-    // whiteSpace: "pre-line",
-    // overflow: "hidden",
+    display: "-webkit-box",
+    WebkitBoxOrient: "vertical",
+    WebkitLineClamp: 1,
+    whiteSpace: "pre-line",
+    overflow: "hidden",
   },
 }));
 
 const baseStyle = {
-  // height: "100%",
-  // flex: 1,
-  // display: "flex",
-  // flexDirection: "column",
-  // alignItems: "center",
-  // justifyContent: "center",
-  // padding: "80px 20px 80px 20px",
-  // borderWidth: 2,
-  // borderRadius: 2,
-  // borderColor: "#eeeeee",
-  // borderStyle: "dashed",
-  // outline: "none",
-  // transition: "border .24s ease-in-out",
+  height: "100%",
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "80px 20px 80px 20px",
+  borderWidth: 2,
+  borderRadius: 2,
+  borderColor: "#eeeeee",
+  borderStyle: "dashed",
+  outline: "none",
+  transition: "border .24s ease-in-out",
 };
 
 const activeStyle = {
@@ -77,7 +77,6 @@ const DatasetFromFile = ({ project_id, mode, setDataset }) => {
   const [acceptedFileTypes, setAcceptedFileTypes] = React.useState("");
 
   const {
-    data: projectData,
     error: createProjectError,
     isError: isCreatingProjectError,
     isLoading: isCreatingProject,
@@ -86,11 +85,7 @@ const DatasetFromFile = ({ project_id, mode, setDataset }) => {
   } = useMutation(ProjectAPI.createProject, {
     mutationKey: ["addDataset"],
     onSuccess: (data) => {
-      console.log("Project created", data);
-
       setDataset(data);
-      // display info about the dataset
-      // closeDataPickAndOpenSetup(project_id);
     },
   });
 

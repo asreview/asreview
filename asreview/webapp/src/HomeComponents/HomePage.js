@@ -52,7 +52,7 @@ const HomePage = (props) => {
         <Routes>
           {/* Projects dashboard */}
           <Route
-            path="projects"
+            path="projects&subset=:mode"
             element={
               <ProjectsOverview
                 mobileScreen={props.mobileScreen}
@@ -73,7 +73,11 @@ const HomePage = (props) => {
             }
           />
           {/* Redirect root to projects */}
-          <Route path="/" element={<Navigate to="/projects" />} />
+          <Route path="/" element={<Navigate to="/projects&subset=oracle" />} />
+          <Route
+            path="/projects"
+            element={<Navigate to="/projects&subset=oracle" />}
+          />
           {/* Not found */}
           <Route path="*" element={<RouteNotFound />} />
         </Routes>

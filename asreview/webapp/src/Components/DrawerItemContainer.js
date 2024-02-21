@@ -133,16 +133,6 @@ const DrawerItemContainer = (props) => {
   };
 
   /**
-   * Drawer items on home page
-   * Any change here requires change in DrawerItem
-   */
-  const drawerItemsHomePage = [
-    {
-      path: "/projects",
-      label: "Projects",
-    },
-  ];
-  /**
    * Drawer items on project page
    * Any change here requires change in DrawerItem
    */
@@ -206,24 +196,34 @@ const DrawerItemContainer = (props) => {
       {/* Top Section: Home page drawer */}
       <Routes>
         <Route
-          path="*"
+          path="/projects&subset=:subset"
           element={
-            <Fade in>
-              <div className={classes.topSection}>
-                {drawerItemsHomePage.map((element, index) => {
-                  return (
-                    <DrawerItem
-                      key={index}
-                      path={element.path}
-                      label={element.label}
-                      mobileScreen={props.mobileScreen}
-                      onNavDrawer={props.onNavDrawer}
-                      toggleNavDrawer={props.toggleNavDrawer}
-                    />
-                  );
-                })}
-              </div>
-            </Fade>
+            <div className={classes.topSection}>
+              <DrawerItem
+                key={"projects-reviews"}
+                path={"/projects&subset=oracle"}
+                label={"Reviews"}
+                mobileScreen={props.mobileScreen}
+                onNavDrawer={props.onNavDrawer}
+                toggleNavDrawer={props.toggleNavDrawer}
+              />
+              <DrawerItem
+                key={"projects-validations"}
+                path={"/projects&subset=explore"}
+                label={"Validations"}
+                mobileScreen={props.mobileScreen}
+                onNavDrawer={props.onNavDrawer}
+                toggleNavDrawer={props.toggleNavDrawer}
+              />
+              <DrawerItem
+                key={"projects-simulations"}
+                path={"/projects&subset=simulate"}
+                label={"Simulations"}
+                mobileScreen={props.mobileScreen}
+                onNavDrawer={props.onNavDrawer}
+                toggleNavDrawer={props.toggleNavDrawer}
+              />
+            </div>
           }
         />
 

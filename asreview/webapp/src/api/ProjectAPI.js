@@ -5,10 +5,14 @@ import qs from "qs";
 
 class ProjectAPI {
   static fetchProjects({ queryKey }) {
+    const { subset } = queryKey[1];
     const url = api_url + `projects`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url, { withCredentials: true })
+        .get(url, {
+          params: { subset: subset },
+          withCredentials: true,
+        })
         .then((result) => {
           resolve(result["data"]);
         })

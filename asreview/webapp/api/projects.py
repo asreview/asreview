@@ -116,12 +116,18 @@ def error_500(e):
 @current_user_projects
 def api_get_projects(projects):  # noqa: F401
     """"""
+
+    mode = request.args.get("subset", None)
+
     project_info = []
 
     # for project, owner_id in zip(projects, owner_ids):
     for project in projects:
         try:
             project_config = project.config
+
+            if mode is not None and project_config["mode"] != mode:
+                continue
 
             if not current_app.config.get("LOGIN_DISABLED", False):
                 project_config["owner_id"] = current_user.id

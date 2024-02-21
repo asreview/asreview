@@ -112,7 +112,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
 const columns = [
   { id: "name", label: "Project", width: "55%" },
   { id: "created_at_unix", label: "Date", width: "15%" },
-  { id: "mode", label: "Mode", width: "15%" },
+  // { id: "mode", label: "Mode", width: "15%" },
   { id: "status", label: "Status", width: "15%" },
 ];
 
@@ -158,7 +158,7 @@ const ProjectTable = (props) => {
    * Fetch projects and check if simulation running in the background
    */
   const { error, isError, isFetched, isFetching, isSuccess } = useQuery(
-    "fetchProjects",
+    ["fetchProjects", { subset: props.mode }],
     ProjectAPI.fetchProjects,
     {
       onError: () => {
@@ -311,17 +311,6 @@ const ProjectTable = (props) => {
       project["reviews"][0]["status"] === projectStatuses.SETUP ||
       project["reviews"][0]["status"] === projectStatuses.ERROR
     ) {
-      // // set project id
-      // props.setProjectId(project["id"]);
-      // // open project setup dialog
-      // props.toggleProjectSetup(project["id"]);
-      // // clear potential setup error
-      // if (
-      //   project["reviews"][0] !== undefined &&
-      //   project["reviews"][0]["status"] === projectStatuses.ERROR
-      // ) {
-      //   clearSetupError(project);
-      // }
       setSetupDialogState({
         open: true,
         project_id: project["id"],
@@ -352,18 +341,6 @@ const ProjectTable = (props) => {
 
   const hoverOffProject = () => {
     setHoverRowId(null);
-  };
-
-  const formatMode = (mode) => {
-    if (mode === "oracle" || !mode) {
-      return "Oracle";
-    }
-    if (mode === "explore") {
-      return "Validation";
-    }
-    if (mode === "simulate") {
-      return "Simulation";
-    }
   };
 
   /**
@@ -571,15 +548,6 @@ const ProjectTable = (props) => {
                           {formatDate(row["created_at_unix"])}
                         </Typography>
                       </TableCell>
-                      <TableCell>
-                        <Typography
-                          className={classes.tableCell}
-                          variant="subtitle1"
-                          noWrap
-                        >
-                          {formatMode(row["mode"])}
-                        </Typography>
-                      </TableCell>
                       <TableCell className={classes.tableCell}>
                         <Chip
                           size="small"
@@ -610,10 +578,15 @@ const ProjectTable = (props) => {
               }}
             >
               <Typography sx={{ color: "text.secondary", marginTop: "64px" }}>
-                Your projects will show up here
+                Start your first {props.mode} project
               </Typography>
-              <Button id="get-started" onClick={props.toggleModePick}>
-                Get Started
+              <Button
+                id="get-started"
+                onClick={() => {
+                  props.openDataPick(props.mode);
+                }}
+              >
+                Start
               </Button>
               <img
                 src={ElasArrowRightAhead}
@@ -634,7 +607,7 @@ const ProjectTable = (props) => {
         isSuccess &&
         myProjects.length !== 0 && (
           <TablePagination
-            rowsPerPageOptions={[5, 10, 15]}
+            rowsPerPageOptions={[15, 30, 100]}
             component="div"
             count={myProjects.length}
             rowsPerPage={rowsPerPage}

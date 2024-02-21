@@ -19,41 +19,59 @@ const classes = {
 };
 
 const Root = styled("div")(({ theme }) => ({
-  background: theme.palette.background.paper,
+  height: "40%",
   [`& .${classes.headerButton}`]: {
     backgroundColor: [
       theme.palette.mode === "dark"
         ? theme.palette.grey[900]
         : theme.palette.grey[100],
     ],
-    [theme.breakpoints.down("md")]: {
-      width: 24,
-      height: 24,
-    },
+    // [theme.breakpoints.down("md")]: {
+    //   width: 24,
+    //   height: 24,
+    // },
   },
 }));
 
-export default function DashboardPageHeader(props) {
+export default function DashboardPageHeader({
+  mobileScreen,
+  toggleImportProject,
+  mode,
+}) {
   return (
     <Root className="main-page-sticky-header-wrapper">
       <Box className="main-page-sticky-header with-button">
-        {!props.mobileScreen && (
-          <TypographyH5Medium>Projects dashboard</TypographyH5Medium>
+        {mobileScreen && (
+          <TypographyH5Medium>{mode} projects</TypographyH5Medium>
         )}
-        {props.mobileScreen && (
-          <Typography variant="h6">Projects dashboard</Typography>
+        {/* {(!mobileScreen && mode === "simulate") && (
+          <>
+          <Typography variant="h3">Simulate the performance</Typography>
+          <Typography variant="h6">1. Get a fully labeled dataset</Typography>
+          <Typography variant="h6">2. Start a simulation and hold tight</Typography>
+          </>
+        )}
+        {(!mobileScreen && mode !== "simulate") && (
+          <>
+          <Typography variant="h4">{mode} projects</Typography>
+          </>
+        )} */}
+        {!mobileScreen && (
+          <>
+            <Typography variant="h4">{mode} projects</Typography>
+          </>
         )}
         <Stack direction="row" spacing={1}>
           <Tooltip title="Import project">
             <IconButton
               disableRipple
-              onClick={props.toggleImportProject}
-              size={!props.mobileScreen ? "medium" : "small"}
+              onClick={toggleImportProject}
+              size={!mobileScreen ? "medium" : "small"}
             >
               <Avatar className={classes.headerButton}>
                 <Upload
                   color="primary"
-                  fontSize={!props.mobileScreen ? "medium" : "small"}
+                  fontSize={!mobileScreen ? "medium" : "small"}
                 />
               </Avatar>
             </IconButton>

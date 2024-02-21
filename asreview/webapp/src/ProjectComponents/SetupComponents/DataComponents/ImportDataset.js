@@ -77,10 +77,6 @@ const ImportDataset = ({
     setUploadSource(event.target.value);
   };
 
-  const handleClose = () => {
-    closeDataPick();
-  };
-
   const editDataset = () => {};
 
   const { mutate: setStatusStatus } = useMutation(
@@ -105,7 +101,7 @@ const ImportDataset = ({
       open={open}
       fullScreen={mobileScreen}
       fullWidth
-      close={handleClose}
+      onClose={closeDataPick}
       maxWidth="md"
       // PaperProps={{
       //   sx: { height: !mobileScreen ? "calc(100% - 96px)" : "100%" },
@@ -114,7 +110,7 @@ const ImportDataset = ({
       {mobileScreen && (
         <AppBarWithinDialog
           // disableStartIcon={isLoading}
-          onClickStartIcon={handleClose}
+          onClickStartIcon={closeDataPick}
           startIconIsClose
           title="Import a dataset"
         />
@@ -176,10 +172,7 @@ const ImportDataset = ({
               <DatasetFromFile mode={mode} setDataset={setDataset} />
             )}
             {uploadSource === "url" && (
-              <DatasetFromURL
-                mode={mode}
-                closeDataPickAndOpenSetup={closeDataPickAndOpenSetup}
-              />
+              <DatasetFromURL mode={mode} setDataset={setDataset} />
             )}
             {uploadSource === "extension" && (
               <DatasetFromEntryPoint
@@ -215,10 +208,23 @@ const ImportDataset = ({
             Screen
           </Button>
           <Button
-            onClick={closeDataPickAndOpenSetup}
+            onClick={() => {
+              closeDataPickAndOpenSetup(dataset.id);
+            }}
             // disabled={isLoading}
           >
             Configure
+          </Button>
+        </DialogActions>
+      )}
+
+      {!dataset && (
+        <DialogActions>
+          <Button
+            onClick={closeDataPick}
+            // disabled={isLoading}
+          >
+            Cancel
           </Button>
         </DialogActions>
       )}

@@ -1,24 +1,19 @@
 import * as React from "react";
 import { Box, Fab, Stack } from "@mui/material";
 import { Add } from "@mui/icons-material";
-import {
-  DashboardPageHeader,
-  NumberCard,
-  ProjectTable,
-} from "../DashboardComponents";
+import { useParams } from "react-router-dom";
+import { DashboardPageHeader, ProjectTable } from "../DashboardComponents";
 import { ActionsFeedbackBar } from "../../Components";
 import { ImportProject } from "../../ProjectComponents";
-import {
-  ModePickDialog,
-  SetupDialog,
-} from "../../ProjectComponents/SetupComponents";
-import { AddPriorKnowledge } from "../../ProjectComponents/SetupComponents/PriorComponents";
+import { SetupDialog } from "../../ProjectComponents/SetupComponents";
 import { ImportDataset } from "../../ProjectComponents/SetupComponents/DataComponents";
 
 import { useToggle } from "../../hooks/useToggle";
 
 const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
   const [onImportProject, toggleImportProject] = useToggle();
+
+  const { mode } = useParams();
 
   const [onCreateProject, setCreateProject] = React.useState({
     mode: false,
@@ -27,28 +22,37 @@ const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
     project_id: null,
   });
 
-  const openModePick = () => {
-    setCreateProject({
-      mode: true,
-      data: false,
-      setup: false,
-      project_id: null,
-    });
-  };
+  // const openModePick = () => {
+  //   setCreateProject({
+  //     mode: true,
+  //     data: false,
+  //     setup: false,
+  //     project_id: null,
+  //   });
+  // };
 
-  const closeModePick = () => {
-    setCreateProject({
-      ...onCreateProject,
-      mode: false,
-    });
-  };
+  // const closeModePick = () => {
+  //   setCreateProject({
+  //     ...onCreateProject,
+  //     mode: false,
+  //   });
+  // };
 
-  const closeModePickAndOpenData = (mode_id) => {
+  // const closeModePickAndOpenData = (mode_id) => {
+  //   setCreateProject({
+  //     mode: false,
+  //     data: true,
+  //     setup: false,
+  //     // project_id: null,
+  //     mode_id: mode_id,
+  //   });
+  // };
+
+  const openDataPick = (mode_id) => {
     setCreateProject({
       mode: false,
       data: true,
       setup: false,
-      // project_id: null,
       mode_id: mode_id,
     });
   };
@@ -76,7 +80,6 @@ const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
       mode: false,
       data: false,
       setup: false,
-      // project_id: null,
     });
   };
 
@@ -95,17 +98,19 @@ const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
   return (
     <>
       <DashboardPageHeader
+        mode={mode}
         mobileScreen={mobileScreen}
         toggleImportProject={toggleImportProject}
       />
       <Box className="main-page-body-wrapper">
         <Stack className="main-page-body" spacing={6}>
-          <NumberCard mobileScreen={mobileScreen} />
+          {/* <NumberCard mobileScreen={mobileScreen} /> */}
           <ProjectTable
+            mode={mode}
             projectCheck={projectCheck}
             setFeedbackBar={setFeedbackBar}
             setProjectCheck={setProjectCheck}
-            toggleModePick={openModePick}
+            openDataPick={openDataPick}
           />
         </Stack>
       </Box>
@@ -113,17 +118,19 @@ const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
         id="create-project"
         className="main-page-fab"
         color="primary"
-        onClick={openModePick}
+        onClick={() => {
+          openDataPick(mode);
+        }}
         variant="extended"
       >
         <Add sx={{ mr: 1 }} />
-        Create
+        {mode}
       </Fab>
-      <ModePickDialog
+      {/* <ModePickDialog
         open={onCreateProject.mode}
         closeModePick={closeModePick}
         closeModePickAndOpenData={closeModePickAndOpenData}
-      />
+      /> */}
       <ImportDataset
         open={onCreateProject.data}
         mode={onCreateProject.mode_id}
