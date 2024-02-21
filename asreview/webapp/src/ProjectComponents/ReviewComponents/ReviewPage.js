@@ -175,16 +175,16 @@ const ReviewPageRecord = (props) => {
     );
   };
 
-  // const skipClassification = () => {
-  //   setActiveRecord(recordQuery.data["result"]);
-  //   resetPreviousRecord();
-  //   resetNote();
-  //   resetTagValues();
-  // };
+  const skipClassification = () => {
+    // setActiveRecord(recordQuery.data["result"]);
+    resetPreviousRecord();
+    resetNote();
+    resetTagValues();
+  };
 
   const makeDecision = (label) => {
     if (!needsClassification(label)) {
-      // skipClassification();
+      skipClassification();
     } else {
       mutate({
         project_id: project_id,

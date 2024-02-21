@@ -13,14 +13,12 @@ import {
   DialogContentText,
   DialogActions,
   Fade,
-  Link,
+  // Link,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
 import { useToggle } from "../../hooks/useToggle";
 import ElasPad from "../../images/ElasPad.svg";
-
-let width = window.screen.width;
 
 // const YouTubeVideoID = "k-a2SCq-LtA";
 
