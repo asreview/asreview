@@ -176,22 +176,18 @@ const ImportDataset = ({
             )}
             {uploadSource === "extension" && (
               <DatasetFromEntryPoint
-                uploadSource={uploadSource}
                 subset="plugin"
                 mode={mode}
                 setDataset={setDataset}
                 mobileScreen={mobileScreen}
-                closeDataPickAndOpenSetup={closeDataPickAndOpenSetup}
               />
             )}
             {uploadSource === "benchmark" && (
               <DatasetFromEntryPoint
-                uploadSource={uploadSource}
+                subset="benchmark"
                 mode={mode}
                 setDataset={setDataset}
-                subset="benchmark"
                 mobileScreen={mobileScreen}
-                closeDataPickAndOpenSetup={closeDataPickAndOpenSetup}
               />
             )}
           </Stack>

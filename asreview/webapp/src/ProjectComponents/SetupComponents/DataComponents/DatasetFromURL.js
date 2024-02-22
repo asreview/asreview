@@ -36,7 +36,12 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const DatasetFromURL = (props) => {
+const DatasetFromURL = ({
+  project_id,
+  closeDataPickAndOpenSetup,
+  addDataset,
+  mode,
+}) => {
   const queryClient = useQueryClient();
 
   const [localURL, setLocalURL] = React.useState("");
@@ -44,7 +49,7 @@ const DatasetFromURL = (props) => {
 
   const datasetInfo = queryClient.getQueryData([
     "fetchData",
-    { project_id: props.project_id },
+    { project_id: project_id },
   ]);
 
   const isDatasetAdded = () => {
@@ -63,18 +68,18 @@ const DatasetFromURL = (props) => {
         // // if validate is not set, close the dialog
         // if (!variables["validate"]) {
         //   if (!isDatasetAdded()) {
-        //     props.toggleProjectSetup(props.project_id);
+        //     toggleProjectSetup(project_id);
         //   } else {
         //     queryClient.invalidateQueries([
         //       "fetchInfo",
-        //       { project_id: props.project_id },
+        //       { project_id: project_id },
         //     ]);
         //     queryClient.invalidateQueries([
         //       "fetchData",
-        //       { project_id: props.project_id },
+        //       { project_id: project_id },
         //     ]);
         //   }
-        props.closeDataPickAndOpenSetup(props.project_id);
+        closeDataPickAndOpenSetup(project_id);
       },
       // },
     },
@@ -87,7 +92,7 @@ const DatasetFromURL = (props) => {
 
   const validateURL = (event) => {
     // validate the url first
-    mutate({ project_id: props.project_id, url: localURL, validate: true });
+    mutate({ project_id: project_id, url: localURL, validate: true });
   };
 
   const validateURLOnEnter = (event) => {
@@ -104,7 +109,7 @@ const DatasetFromURL = (props) => {
   // add the dataset file to the project
   const addFile = (event) => {
     // import dataset
-    mutate({ project_id: props.project_id, url: remoteURL });
+    mutate({ project_id: project_id, url: remoteURL });
   };
 
   // reset the remote url when the local url changes
@@ -119,7 +124,7 @@ const DatasetFromURL = (props) => {
         tabular datasets (<code>.csv</code>, <code>.tab</code>,{" "}
         <code>.tsv</code>, <code>.xlsx</code>). The dataset should contain a
         title and abstract for each record.{" "}
-        {props.mode !== projectModes.ORACLE
+        {mode !== projectModes.ORACLE
           ? "The dataset should contain labels for each record. "
           : ""}
         To optimally benefit from the performance of the active learning model,

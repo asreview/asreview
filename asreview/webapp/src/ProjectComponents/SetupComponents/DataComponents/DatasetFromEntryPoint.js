@@ -22,12 +22,18 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const DatasetFromEntryPoint = (props) => {
+const DatasetFromEntryPoint = ({
+  subset,
+  mobileScreen,
+  setDataset,
+  mode,
+  datasetSource,
+}) => {
   const queryClient = useQueryClient();
 
   // const datasetInfo = queryClient.getQueryData([
   //   "fetchData",
-  //   { project_id: props.project_id },
+  //   { project_id: project_id },
   // ]);
 
   // const isDatasetAdded = () => {
@@ -42,7 +48,7 @@ const DatasetFromEntryPoint = (props) => {
     isFetching: isFetchingDatasets,
     isSuccess,
   } = useQuery(
-    ["fetchDatasets", { subset: props.subset }],
+    ["fetchDatasets", { subset: subset }],
     ProjectAPI.fetchDatasets,
     { refetchOnWindowFocus: false },
   );
@@ -52,33 +58,20 @@ const DatasetFromEntryPoint = (props) => {
     {
       mutationKey: ["addDataset"],
       onSuccess: (data) => {
-        props.setDataset(data);
-        // if (!isDatasetAdded()) {
-        //   props.toggleProjectSetup(props.project_id);
-        // } else {
-        //   queryClient.invalidateQueries([
-        //     "fetchInfo",
-        //     { project_id: props.project_id },
-        //   ]);
-        //   queryClient.invalidateQueries([
-        //     "fetchData",
-        //     { project_id: props.project_id },
-        //   ]);
-        // }
-        // props.closeDataPickAndOpenSetup(props.project_id);
+        setDataset(data);
       },
     },
   );
 
   const addFile = (dataset_id) => {
-    if (props.subset === "plugin") {
+    if (subset === "plugin") {
       mutate({
-        mode: props.mode,
+        mode: mode,
         extension: dataset_id,
       });
     } else {
       mutate({
-        mode: props.mode,
+        mode: mode,
         benchmark: dataset_id,
       });
     }
@@ -99,7 +92,7 @@ const DatasetFromEntryPoint = (props) => {
 
   return (
     <Root>
-      {props.datasetSource === "extension" && (
+      {datasetSource === "extension" && (
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
           Select a dataset from an extension.{" "}
           <Link
@@ -111,7 +104,7 @@ const DatasetFromEntryPoint = (props) => {
           </Link>
         </Typography>
       )}
-      {props.datasetSource === "benchmark" && (
+      {datasetSource === "benchmark" && (
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
           The benchmark datasets were manually labeled and can be used to
           explore or demonstrate ASReview LAB. You can donate your dataset to
@@ -156,10 +149,10 @@ const DatasetFromEntryPoint = (props) => {
                     addFile={addFile}
                     dataset={dataset}
                     dataset_id={group.group_id + ":" + dataset.dataset_id}
-                    subset={props.subset}
+                    subset={subset}
                     isAddingDataset={isLoading}
                     isAddingDatasetError={isError}
-                    mobileScreen={props.mobileScreen}
+                    mobileScreen={mobileScreen}
                     reset={reset}
                   />
                 ))}
