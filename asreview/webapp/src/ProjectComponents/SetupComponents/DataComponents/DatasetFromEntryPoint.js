@@ -25,14 +25,14 @@ const Root = styled("div")(({ theme }) => ({
 const DatasetFromEntryPoint = (props) => {
   const queryClient = useQueryClient();
 
-  const datasetInfo = queryClient.getQueryData([
-    "fetchData",
-    { project_id: props.project_id },
-  ]);
+  // const datasetInfo = queryClient.getQueryData([
+  //   "fetchData",
+  //   { project_id: props.project_id },
+  // ]);
 
-  const isDatasetAdded = () => {
-    return datasetInfo !== undefined;
-  };
+  // const isDatasetAdded = () => {
+  //   return datasetInfo !== undefined;
+  // };
 
   const {
     data,
@@ -48,10 +48,11 @@ const DatasetFromEntryPoint = (props) => {
   );
 
   const { error, isError, isLoading, mutate, reset } = useMutation(
-    ProjectAPI.mutateData,
+    ProjectAPI.createProject,
     {
       mutationKey: ["addDataset"],
       onSuccess: (data) => {
+        props.setDataset(data);
         // if (!isDatasetAdded()) {
         //   props.toggleProjectSetup(props.project_id);
         // } else {
@@ -64,7 +65,7 @@ const DatasetFromEntryPoint = (props) => {
         //     { project_id: props.project_id },
         //   ]);
         // }
-        props.closeDataPickAndOpenSetup(props.project_id);
+        // props.closeDataPickAndOpenSetup(props.project_id);
       },
     },
   );
@@ -72,12 +73,12 @@ const DatasetFromEntryPoint = (props) => {
   const addFile = (dataset_id) => {
     if (props.subset === "plugin") {
       mutate({
-        project_id: props.project_id,
+        mode: props.mode,
         extension: dataset_id,
       });
     } else {
       mutate({
-        project_id: props.project_id,
+        mode: props.mode,
         benchmark: dataset_id,
       });
     }
