@@ -22,19 +22,8 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const formatCitation = (authors, year) => {
-  if (Array.isArray(authors)) {
-    var first_author = authors[0].split(",")[0];
-    return first_author + " et al. (" + year + ")";
-  } else {
-    return authors + " (" + year + ")";
-  }
-};
-
 const DatasetFromEntryPoint = (props) => {
   const queryClient = useQueryClient();
-
-  const [expanded, setExpanded] = React.useState(false);
 
   const datasetInfo = queryClient.getQueryData([
     "fetchData",
@@ -164,28 +153,13 @@ const DatasetFromEntryPoint = (props) => {
                 {group.datasets.map((dataset, index) => (
                   <EntryPointDataset
                     addFile={addFile}
-                    authors={formatCitation(dataset.authors, dataset.year)}
+                    dataset={dataset}
                     dataset_id={group.group_id + ":" + dataset.dataset_id}
-                    description={
-                      props.subset === "plugin"
-                        ? dataset.description
-                        : dataset.topic
-                    }
-                    doi={
-                      dataset.reference &&
-                      dataset.reference.replace(/^(https:\/\/doi\.org\/)/, "")
-                    }
-                    expanded={expanded}
+                    subset={props.subset}
                     isAddingDataset={isLoading}
-                    isAddDatasetError={isError}
-                    key={group.group_id + ":" + dataset.dataset_id}
-                    license={dataset.license}
-                    link={dataset.link}
-                    location={group.group_id + ":" + dataset.dataset_id}
+                    isAddingDatasetError={isError}
                     mobileScreen={props.mobileScreen}
                     reset={reset}
-                    setExpanded={setExpanded}
-                    title={dataset.title}
                   />
                 ))}
               </Box>
