@@ -58,28 +58,36 @@ const Root = styled("div")(({ theme }) => ({
 const DEFAULT_MODELS = [
   {
     name: "tfidf-nb-max-double",
-    title: "Model tfidf-nb-max-double",
+    title: "Model Always Good",
     description:
-      "Features model tfidf-nb-max-double. The best prediction is shown first.",
+      "A classic combination that has proven to work well in the ASReview context, as shown in many simulations. It especially handles the starting phase of the systematic review well, being able to handle little amounts of data.",
   },
   {
-    name: "tfidf-rf-max-double",
-    title: "Model tfidf-rf-max-double",
+    name: "onehot-logistic-max-double",
+    title: "Model One Word",
     description:
-      "Features model tfidf-rf-max-double. The best prediction is shown first.",
+      "A model that excels in finding specific words, providing good performance in finding the last remaining relevant documents.",
   },
   {
-    name: "sbert-nn-max-double",
-    title: "Model sbert-nn-max-double",
-    requires: "asreview-extra-models",
+    name: "labse-logistic-max-double",
+    title: "Model Multi Language",
+    requires: "asreview-nemo",
     description:
-      "Features model sbert-nn-max-double. The best prediction is shown first.",
+      "A multilingual feature extractor for systematic review datasets in multiple languages (LaBSE x Logistic Regression).",
   },
   {
-    name: "tfidf-nb-random-double",
-    title: "Model tfidf-nb-random-double",
+    name: "sbert-xgboost-max-double",
+    title: "Model Context",
+    requires: "asreview-nemo",
     description:
-      "Screen records randomly. Exported records are ranked according to tfidf-nb-max-double model.",
+      "A powerful pretrained model based on the transformer infrastructure used in the latest AI models. Combined with a proven implementation of a gradient boosting classifier (SBert x XGBoost).",
+  },
+  {
+    name: "doc2vec-dynamic_nn-max-double",
+    title: "Model Neural",
+    requires: "asreview-nemo",
+    description:
+      "A classifier and feature extractor combination both based on neural network architectures. Long training time and needs more data, but unrivaled performance in the final screening stages (Wide-Doc2Vec x Dynamic Neural Network).",
   },
 ];
 
@@ -327,14 +335,15 @@ const ModelForm = ({
               </Select>
               {isMutateModelConfigError && (
                 <FormHelperText style={{ fontSize: "16px" }}>
-                  Super models extension isn't installed. Please install the{" "}
+                  ASReview NEMO (New Exciting MOdels) extension isn't installed.
+                  Please install the{" "}
                   <Link
                     underline="none"
-                    href={`https://asreview.readthedocs.io/en/latest/guide/installation.html#installing-the-super-models`}
+                    href={`https://asreview.readthedocs.io/en/latest/guide/installation.html#installing-nemo-models`}
                     target="_blank"
                   >
                     {" "}
-                    super models
+                    NEMO models
                   </Link>{" "}
                   extension to use this model.
                 </FormHelperText>
