@@ -76,7 +76,7 @@ const DEFAULT_MODELS = [
       "A multilingual feature extractor for systematic review datasets in multiple languages (LaBSE x Logistic Regression).",
   },
   {
-    name: "sbert-xgboost-max-double",
+    name: "sbert-rf-max-double",
     title: "Model Context",
     requires: "asreview-nemo",
     description:
