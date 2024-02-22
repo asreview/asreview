@@ -297,7 +297,11 @@ const DrawerItemContainer = (props) => {
       <div className={classes.bottomSection}>
         <Divider />
         {donateURL !== undefined && (
-          <Tooltip disableHoverListener={props.onNavDrawer} title="Donate">
+          <Tooltip
+            disableHoverListener={props.onNavDrawer}
+            title="Donate"
+            placement="right"
+          >
             <ListItemButton
               component={"a"}
               color="inherit"
@@ -312,7 +316,11 @@ const DrawerItemContainer = (props) => {
           </Tooltip>
         )}
         {communityURL !== undefined && (
-          <Tooltip disableHoverListener={props.onNavDrawer} title="Community">
+          <Tooltip
+            disableHoverListener={props.onNavDrawer}
+            title="Community"
+            placement="right"
+          >
             <ListItemButton
               component={"a"}
               color="inherit"
@@ -326,7 +334,11 @@ const DrawerItemContainer = (props) => {
             </ListItemButton>
           </Tooltip>
         )}
-        <Tooltip disableHoverListener={props.onNavDrawer} title="Settings">
+        <Tooltip
+          disableHoverListener={props.onNavDrawer}
+          title="Settings"
+          placement="right"
+        >
           <ListItemButton
             onClick={() => {
               if (props.mobileScreen) {
@@ -341,7 +353,11 @@ const DrawerItemContainer = (props) => {
             <ListItemText primary="Settings" />
           </ListItemButton>
         </Tooltip>
-        <Tooltip disableHoverListener={props.onNavDrawer} title="Help">
+        <Tooltip
+          disableHoverListener={props.onNavDrawer}
+          title="Help"
+          placement="right"
+        >
           <ListItemButton
             onClick={() => {
               if (props.mobileScreen) {

@@ -106,7 +106,11 @@ const DrawerItem = (props) => {
 
   return (
     <Root>
-      <Tooltip disableHoverListener={props.onNavDrawer} title={props.label}>
+      <Tooltip
+        disableHoverListener={props.onNavDrawer}
+        title={props.label}
+        placement="right"
+      >
         <ListItemButton
           selected={returnSelectedState()}
           onClick={() => {
