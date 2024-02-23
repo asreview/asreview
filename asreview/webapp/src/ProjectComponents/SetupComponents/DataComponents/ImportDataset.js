@@ -103,9 +103,20 @@ const ImportDataset = ({
       fullWidth
       onClose={closeDataPick}
       maxWidth="md"
-      // PaperProps={{
-      //   sx: { height: !mobileScreen ? "calc(100% - 96px)" : "100%" },
-      // }}
+      PaperProps={{
+        sx: { height: !mobileScreen ? "calc(100% - 96px)" : "100%" },
+      }}
+      TransitionProps={{
+        onEnter: () => {
+          if (mode === projectModes.SIMULATION) {
+            setUploadSource("benchmark");
+          }
+        },
+        onExit: () => {
+          setUploadSource("file");
+          setDataset(null);
+        },
+      }}
     >
       {mobileScreen && (
         <AppBarWithinDialog
