@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useQuery } from "react-query";
+import { useQuery, useMutation } from "react-query";
 
 import {
   Box,
@@ -19,37 +19,11 @@ import { styled } from "@mui/material/styles";
 
 const PREFIX = "DatasetInfo";
 
-const classes = {
-  button: `${PREFIX}-button`,
-  cardOverlay: `${PREFIX}-cardOverlay`,
-  singleLine: `${PREFIX}-singleLine`,
-};
+const classes = {};
 
-const Root = styled("div")(({ theme }) => ({
-  [`& .${classes.button}`]: {
-    display: "flex",
-    justifyContent: "center",
-  },
+const Root = styled("div")(({ theme }) => ({}));
 
-  [`& .${classes.cardOverlay}`]: {
-    height: "100%",
-    width: "100%",
-    left: 0,
-    pointerEvents: "none",
-    position: "absolute",
-    zIndex: 1,
-  },
-
-  [`& .${classes.singleLine}`]: {
-    display: "-webkit-box",
-    WebkitBoxOrient: "vertical",
-    WebkitLineClamp: 2,
-    whiteSpace: "pre-line",
-    overflow: "hidden",
-  },
-}));
-
-const DatasetInfo = ({ project_id, dataset_path }) => {
+const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
   const {
     data,
     error: fetchDataError,
@@ -63,10 +37,20 @@ const DatasetInfo = ({ project_id, dataset_path }) => {
     },
   );
 
+  const { mutate: deleteProject } = useMutation(
+    ProjectAPI.mutateDeleteProject,
+    {
+      mutationKey: ["mutateDeleteProject"],
+      onSuccess: () => {
+        setDataset(null);
+      },
+    },
+  );
+
   return (
     <Root>
       <Card
-        elevation={0}
+        elevation={3}
         sx={{
           bgcolor: (theme) =>
             theme.palette.mode === "dark" ? "background.paper" : "grey.100",
@@ -81,38 +65,22 @@ const DatasetInfo = ({ project_id, dataset_path }) => {
           />
           <Stack spacing={2}>
             <Stack>
-              <Typography
-                variant="body2"
-                className={classes.singleLine}
-                sx={{ color: "text.secondary" }}
-              >
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
                 Dataset filename
               </Typography>
-              <Typography variant="body2" className={classes.singleLine}>
-                {dataset_path}
-              </Typography>
+              <Typography variant="body2">{dataset_path}</Typography>
             </Stack>
             <Stack>
-              <Typography
-                variant="body2"
-                className={classes.singleLine}
-                sx={{ color: "text.secondary" }}
-              >
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
                 Records
               </Typography>
-              <Typography variant="body2" className={classes.singleLine}>
-                {data?.n_rows}
-              </Typography>
+              <Typography variant="body2">{data?.n_rows}</Typography>
             </Stack>
             <Stack>
-              <Typography
-                variant="body2"
-                className={classes.singleLine}
-                sx={{ color: "text.secondary" }}
-              >
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
                 Duplicates
               </Typography>
-              <Typography variant="body2" className={classes.singleLine}>
+              <Typography variant="body2">
                 About {data?.n_duplicates}
               </Typography>
             </Stack>
@@ -128,6 +96,16 @@ const DatasetInfo = ({ project_id, dataset_path }) => {
             error={fetchDataError}
             isError={isFetchDataError}
           />
+
+          <Button
+            sx={{ m: 2, display: "inline", float: "right" }}
+            color="warning"
+            onClick={() => {
+              deleteProject({ project_id: project_id });
+            }}
+          >
+            Change dataset
+          </Button>
         </CardContent>
       </Card>
     </Root>

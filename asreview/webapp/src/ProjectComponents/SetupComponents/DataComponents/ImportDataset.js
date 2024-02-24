@@ -77,8 +77,6 @@ const ImportDataset = ({
     setUploadSource(event.target.value);
   };
 
-  const editDataset = () => {};
-
   const { mutate: setStatusStatus } = useMutation(
     ProjectAPI.mutateReviewStatus,
     {
@@ -129,13 +127,11 @@ const ImportDataset = ({
       {!mobileScreen && <DialogTitle>Import a dataset</DialogTitle>}
       <DialogContent className={classes.form}>
         {dataset && (
-          <>
-            <DatasetInfo
-              project_id={dataset.id}
-              dataset_path={dataset.dataset_path}
-            />
-            <Button onClick={editDataset}>Edit</Button>
-          </>
+          <DatasetInfo
+            project_id={dataset.id}
+            dataset_path={dataset.dataset_path}
+            setDataset={setDataset}
+          />
         )}
 
         {!dataset && (

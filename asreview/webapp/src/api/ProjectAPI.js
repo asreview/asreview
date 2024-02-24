@@ -238,6 +238,21 @@ class ProjectAPI {
     });
   }
 
+  static resolveURL({ queryKey }) {
+    const { url } = queryKey[1];
+    const resolve_url = api_url + `datasets/resolve_url`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(resolve_url, { url: url, withCredentials: true })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static fetchDatasetReaders({ queryKey }) {
     const url = api_url + `dataset_readers`;
     return new Promise((resolve, reject) => {

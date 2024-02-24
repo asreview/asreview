@@ -15,6 +15,7 @@ import { InlineErrorHandler } from "../../../Components";
 import { StyledLoadingButton } from "../../../StyledComponents/StyledButton";
 import { ProjectAPI } from "../../../api";
 import { mapStateToProps, projectModes } from "../../../globals";
+import { AddToDrive } from "@mui/icons-material";
 
 const PREFIX = "DatasetFromURL";
 
@@ -36,50 +37,50 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const DatasetFromURL = ({
-  project_id,
-  closeDataPickAndOpenSetup,
-  addDataset,
-  mode,
-}) => {
-  const queryClient = useQueryClient();
-
+const DatasetFromURL = ({ mode, addDataset }) => {
   const [localURL, setLocalURL] = React.useState("");
-  const [remoteURL, setRemoteURL] = React.useState("");
+  const [resolvedURL, setResolvedURL] = React.useState("");
 
-  const datasetInfo = queryClient.getQueryData([
-    "fetchData",
-    { project_id: project_id },
-  ]);
+  const [data, setData] = React.useState(null);
 
-  const isDatasetAdded = () => {
-    return datasetInfo !== undefined;
-  };
+  const { mutate: mutateResolve } = useMutation(ProjectAPI.resolveURL, {
+    mutationKey: ["resolveURL"],
+    onSuccess: (data) => {
+      if (data["files"] && data["files"].length === 1) {
+        mutate({ mode: mode, url: data["files"][0]["link"] });
+      } else {
+      }
 
-  const { error, isError, isLoading, mutate, data } = useMutation(
-    ProjectAPI.mutateData,
+      console.log(data);
+    },
+  });
+
+  const { error, isError, isLoading, mutate } = useMutation(
+    ProjectAPI.createProject,
     {
       mutationKey: ["addDataset"],
       onSuccess: (data, variables, context) => {
-        // if validate is set and there is only one file, select it
+        console.log(data);
+        console.log(variables);
+
         if (data["files"] && data["files"].length === 1) {
-          setRemoteURL(data["files"][0]["link"]);
+          // setResolvedURL(data["files"][0]["link"]);
         }
-        // // if validate is not set, close the dialog
-        // if (!variables["validate"]) {
-        //   if (!isDatasetAdded()) {
-        //     toggleProjectSetup(project_id);
-        //   } else {
-        //     queryClient.invalidateQueries([
-        //       "fetchInfo",
-        //       { project_id: project_id },
-        //     ]);
-        //     queryClient.invalidateQueries([
-        //       "fetchData",
-        //       { project_id: project_id },
-        //     ]);
-        //   }
-        closeDataPickAndOpenSetup(project_id);
+        // if validate is not set, close the dialog
+        if (!variables["validate"]) {
+          //   if (!isDatasetAdded()) {
+          //     toggleProjectSetup(project_id);
+          //   } else {
+          //     queryClient.invalidateQueries([
+          //       "fetchInfo",
+          //       { project_id: project_id },
+          //     ]);
+          //     queryClient.invalidateQueries([
+          //       "fetchData",
+          //       { project_id: project_id },
+          //     ]);
+          addDataset(data);
+        }
       },
       // },
     },
@@ -90,31 +91,30 @@ const DatasetFromURL = ({
     setLocalURL(event.target.value);
   };
 
-  const validateURL = (event) => {
-    // validate the url first
-    mutate({ project_id: project_id, url: localURL, validate: true });
+  const resolveURL = (event) => {
+    mutateResolve({ url: localURL });
   };
 
   const validateURLOnEnter = (event) => {
     if (event.keyCode === 13) {
-      validateURL(event);
+      resolveURL(event);
     }
   };
 
   // handle the file selection
   const handleFileChange = (event) => {
-    setRemoteURL(event.target.value);
+    setResolvedURL(event.target.value);
   };
 
   // add the dataset file to the project
   const addFile = (event) => {
     // import dataset
-    mutate({ project_id: project_id, url: remoteURL });
+    mutate({ mode: mode, url: resolvedURL });
   };
 
   // reset the remote url when the local url changes
   React.useEffect(() => {
-    setRemoteURL("");
+    setResolvedURL("");
   }, [localURL]);
 
   return (
@@ -161,7 +161,7 @@ const DatasetFromURL = ({
           <StyledLoadingButton
             disabled={!localURL || isLoading}
             loading={isLoading}
-            onClick={validateURL}
+            onClick={resolveURL}
             sx={{ minWidth: "32px" }}
           >
             <ArrowForwardOutlinedIcon />
@@ -177,7 +177,7 @@ const DatasetFromURL = ({
             <Select
               labelId="select-file-label"
               id="select-file"
-              value={remoteURL}
+              value={resolvedURL}
               label="Select dataset"
               onChange={handleFileChange}
             >
@@ -199,7 +199,7 @@ const DatasetFromURL = ({
         {data && data["files"] && (
           <Stack className={classes.root}>
             <LoadingButton
-              disabled={!remoteURL}
+              disabled={!resolvedURL}
               loading={isLoading}
               onClick={addFile}
             >
