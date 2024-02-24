@@ -140,6 +140,7 @@ const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
       />
       <SetupDialog
         project_id={onCreateProject.project_id}
+        mode={mode}
         mobileScreen={mobileScreen}
         open={onCreateProject.setup}
         onClose={closeProjectSetup}

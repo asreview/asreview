@@ -55,7 +55,7 @@ const StyledSetupDialogHeader = styled(Stack)(({ theme }) => ({
 }));
 
 const SetupDialogHeader = ({ mobileScreen, onClose }) => {
-  if (mobileScreen) return null; // Nothing to display if mobile screen
+  if (mobileScreen) return null;
 
   return (
     <StyledSetupDialogHeader className="dialog-header" direction="row">
@@ -79,32 +79,9 @@ const SetupDialogHeader = ({ mobileScreen, onClose }) => {
   );
 };
 
-const SetupDialogContent = ({ project_id, onClose, mobileScreen }) => {
+const SetupDialogContent = ({ project_id, mode, onClose, mobileScreen }) => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
   const [activeStep, setActiveStep] = React.useState(0);
-
-  /**
-   * Dialog actions
-   */
-
-  const handleNext = () => {
-    setActiveStep(activeStep + 1);
-  };
-
-  const fetchProjectInfoAndRedirect = React.useCallback(async () => {
-    const data = await queryClient.fetchQuery(
-      ["fetchInfo", { project_id }],
-      ProjectAPI.fetchInfo,
-    );
-    onClose();
-    if (data["mode"] === projectModes.SIMULATION) {
-      navigate(`/projects/${project_id}`);
-    } else {
-      navigate(`/projects/${project_id}/review`);
-    }
-  }, [project_id, queryClient, navigate, onClose]);
 
   const { mutate } = useMutation(ProjectAPI.mutateReviewStatus, {
     mutationKey: ["mutateReviewStatus"],
@@ -112,16 +89,16 @@ const SetupDialogContent = ({ project_id, onClose, mobileScreen }) => {
       console.log("error updating status");
     },
     onSuccess: () => {
-      fetchProjectInfoAndRedirect();
+      if (mode === projectModes.SIMULATION) {
+        navigate(`/projects/${project_id}`);
+      } else {
+        navigate(`/projects/${project_id}/review`);
+      }
     },
   });
 
-  const handleFinish = () => {
-    mutate({
-      project_id: project_id,
-      status: projectStatuses.REVIEW,
-      tigger_model: true,
-    });
+  const handleNext = () => {
+    setActiveStep(activeStep + 1);
   };
 
   const handleBack = () => {
@@ -132,8 +109,12 @@ const SetupDialogContent = ({ project_id, onClose, mobileScreen }) => {
     setActiveStep(step);
   };
 
-  const isStepFailed = (step) => {
-    return false;
+  const handleFinish = () => {
+    mutate({
+      project_id: project_id,
+      status: projectStatuses.REVIEW,
+      tigger_model: true,
+    });
   };
 
   return (
@@ -142,11 +123,7 @@ const SetupDialogContent = ({ project_id, onClose, mobileScreen }) => {
       {!mobileScreen && (
         <SetupDialogHeader onClose={onClose} mobileScreen={mobileScreen} />
       )}
-      <SetupStepper
-        activeStep={activeStep}
-        handleStep={handleStep}
-        isStepFailed={isStepFailed}
-      />
+      <SetupStepper activeStep={activeStep} handleStep={handleStep} />
       {activeStep === 0 && (
         <InfoForm integrated={true} handleNext={handleNext} />
       )}
@@ -184,8 +161,8 @@ const SetupDialogContent = ({ project_id, onClose, mobileScreen }) => {
           </DialogContent>
           <DialogActions>
             <Button onClick={handleBack}>Back</Button>
-            <Button id="next-setup-button" onClick={handleFinish}>
-              Finish
+            <Button id="finish-setup-button" onClick={handleFinish}>
+              {mode === projectModes.SIMULATION ? "Simulate" : "Screen"}
             </Button>
           </DialogActions>
         </>
@@ -196,6 +173,7 @@ const SetupDialogContent = ({ project_id, onClose, mobileScreen }) => {
 
 const SetupDialog = ({
   project_id,
+  mode,
   open,
   onClose,
   setFeedbackBar,
@@ -233,6 +211,7 @@ const SetupDialog = ({
     >
       <SetupDialogContent
         project_id={project_id}
+        mode={mode}
         onClose={onClose}
         mobileScreen={mobileScreen}
       />

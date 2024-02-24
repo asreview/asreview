@@ -8,7 +8,7 @@ const steps = [
   "Screen options",
 ];
 
-const SetupStepper = ({ activeStep, handleStep, completed, isStepFailed }) => {
+const SetupStepper = ({ activeStep, handleStep }) => {
   return (
     <Stepper
       alternativeLabel
@@ -16,7 +16,6 @@ const SetupStepper = ({ activeStep, handleStep, completed, isStepFailed }) => {
       sx={{ padding: "12px 6px 24px 6px" }}
     >
       {steps.map((label, index) => {
-        const isError = isStepFailed(index);
         return (
           <Step key={label} completed={index < activeStep}>
             <StepButton
@@ -35,7 +34,7 @@ const SetupStepper = ({ activeStep, handleStep, completed, isStepFailed }) => {
             >
               <StepLabel
                 StepIconProps={{
-                  sx: { width: isError ? "22px" : "19.5px", height: "22px" },
+                  sx: { width: "19.5px", height: "22px" },
                 }}
               >
                 {label}

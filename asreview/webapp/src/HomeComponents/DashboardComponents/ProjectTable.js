@@ -619,6 +619,7 @@ const ProjectTable = (props) => {
         )}
       <SetupDialog
         project_id={setupDialogState.project_id}
+        mode={props.mode}
         mobileScreen={props.mobileScreen}
         open={setupDialogState.open}
         onClose={() => {
