@@ -212,7 +212,7 @@ const ImportDataset = ({
             }}
             // disabled={isLoading}
           >
-            Screen
+            {mode === projectModes.SIMULATION ? "Simulate" : "Screen"}
           </Button>
           <Button
             onClick={() => {
