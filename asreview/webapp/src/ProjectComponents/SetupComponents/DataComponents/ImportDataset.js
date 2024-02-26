@@ -30,7 +30,7 @@ import { Close } from "@mui/icons-material";
 
 import { AppBarWithinDialog } from "../../../Components";
 import { StyledIconButton } from "../../../StyledComponents/StyledButton";
-import { DatasetFromFile, DatasetFromEntryPoint, DatasetFromURL } from ".";
+import { DatasetFromFile, DatasetFromEntryPoint, DatasetFromURI } from ".";
 import { InfoCard } from "..";
 import { ProjectAPI } from "../../../api";
 import {
@@ -179,7 +179,7 @@ const ImportDataset = ({
               <DatasetFromFile mode={mode} setDataset={setDataset} />
             )}
             {uploadSource === "url" && (
-              <DatasetFromURL mode={mode} setDataset={setDataset} />
+              <DatasetFromURI mode={mode} setDataset={setDataset} />
             )}
             {uploadSource === "extension" && (
               <DatasetFromEntryPoint

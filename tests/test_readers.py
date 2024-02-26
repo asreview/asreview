@@ -1,4 +1,5 @@
 from pathlib import Path
+from urllib.request import urlretrieve
 
 import rispy
 from pytest import mark
@@ -188,3 +189,11 @@ def test_write_data(tmpdir):
     asr_data_diff = load_dataset(tmp_csv_fp_out)
     # Check if export file includes labels [1,0]
     assert list(asr_data.labels) == list(asr_data_diff.labels)
+
+
+def test_load_dataset_from_url(tmpdir):
+    url = "https://zenodo.org/api/records/1162952/files/Hall.csv/content"
+
+    urlretrieve(url, tmpdir / "Hall.csv")
+    as_data = load_dataset(tmpdir / "Hall.csv")
+    assert len(as_data) == 8911

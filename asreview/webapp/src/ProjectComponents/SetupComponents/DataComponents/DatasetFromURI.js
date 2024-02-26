@@ -17,7 +17,7 @@ import { ProjectAPI } from "../../../api";
 import { mapStateToProps, projectModes } from "../../../globals";
 import { AddToDrive } from "@mui/icons-material";
 
-const PREFIX = "DatasetFromURL";
+const PREFIX = "DatasetFromURI";
 
 const classes = {
   root: `${PREFIX}-root`,
@@ -37,85 +37,62 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const DatasetFromURL = ({ mode, addDataset }) => {
-  const [localURL, setLocalURL] = React.useState("");
-  const [resolvedURL, setResolvedURL] = React.useState("");
-
+const DatasetFromURI = ({ mode, setDataset }) => {
+  const [localURI, setURI] = React.useState("");
   const [data, setData] = React.useState(null);
+  const [selectedFile, setSelectedFile] = React.useState("");
 
-  const { mutate: mutateResolve } = useMutation(ProjectAPI.resolveURL, {
-    mutationKey: ["resolveURL"],
-    onSuccess: (data) => {
-      if (data["files"] && data["files"].length === 1) {
-        mutate({ mode: mode, url: data["files"][0]["link"] });
-      } else {
-      }
-
-      console.log(data);
-    },
-  });
-
-  const { error, isError, isLoading, mutate } = useMutation(
-    ProjectAPI.createProject,
+  const { isLoading: isResolving, mutate: mutateResolve } = useMutation(
+    ProjectAPI.resolveURI,
     {
-      mutationKey: ["addDataset"],
-      onSuccess: (data, variables, context) => {
-        console.log(data);
-        console.log(variables);
-
+      mutationKey: ["resolveURI"],
+      onSuccess: (data) => {
         if (data["files"] && data["files"].length === 1) {
-          // setResolvedURL(data["files"][0]["link"]);
-        }
-        // if validate is not set, close the dialog
-        if (!variables["validate"]) {
-          //   if (!isDatasetAdded()) {
-          //     toggleProjectSetup(project_id);
-          //   } else {
-          //     queryClient.invalidateQueries([
-          //       "fetchInfo",
-          //       { project_id: project_id },
-          //     ]);
-          //     queryClient.invalidateQueries([
-          //       "fetchData",
-          //       { project_id: project_id },
-          //     ]);
-          addDataset(data);
+          createProject({ mode: mode, url: data["files"][0]["link"] });
+        } else {
+          setData(data["files"]);
         }
       },
-      // },
     },
   );
 
-  // handle the url input
+  const {
+    error,
+    isError,
+    isLoading,
+    mutate: createProject,
+  } = useMutation(ProjectAPI.createProject, {
+    mutationKey: ["createProject"],
+    onSuccess: (data) => {
+      setDataset(data);
+    },
+  });
+
   const handleURL = (event) => {
-    setLocalURL(event.target.value);
+    setURI(event.target.value);
   };
 
-  const resolveURL = (event) => {
-    mutateResolve({ url: localURL });
+  const resolveURI = (event) => {
+    mutateResolve({ uri: localURI });
   };
 
   const validateURLOnEnter = (event) => {
     if (event.keyCode === 13) {
-      resolveURL(event);
+      resolveURI(event);
     }
   };
 
-  // handle the file selection
   const handleFileChange = (event) => {
-    setResolvedURL(event.target.value);
+    setSelectedFile(event.target.value);
   };
 
-  // add the dataset file to the project
-  const addFile = (event) => {
-    // import dataset
-    mutate({ mode: mode, url: resolvedURL });
+  const addFile = () => {
+    createProject({
+      mode: mode,
+      url: data[selectedFile].link,
+      filename: data[selectedFile].name,
+    });
   };
-
-  // reset the remote url when the local url changes
-  React.useEffect(() => {
-    setResolvedURL("");
-  }, [localURL]);
 
   return (
     <Root>
@@ -149,63 +126,58 @@ const DatasetFromURL = ({ mode, addDataset }) => {
         >
           <InputBase
             autoFocus
-            disabled={isLoading}
+            disabled={isResolving || isLoading}
             fullWidth
             id="url-dataset"
             placeholder="Type a URL or DOI of the dataset"
-            value={localURL}
+            value={localURI}
             onChange={handleURL}
             onKeyDown={validateURLOnEnter}
             sx={{ ml: 1, flex: 1 }}
           />
           <StyledLoadingButton
-            disabled={!localURL || isLoading}
-            loading={isLoading}
-            onClick={resolveURL}
+            disabled={isResolving || isLoading}
+            loading={isResolving || isLoading}
+            onClick={resolveURI}
             sx={{ minWidth: "32px" }}
           >
             <ArrowForwardOutlinedIcon />
           </StyledLoadingButton>
         </Paper>
 
-        {data && data["files"] && (
-          <FormControl
-            sx={{ m: 1, minWidth: 120 }}
-            disabled={isLoading || data["files"].length === 1}
-          >
-            <InputLabel id="select-file-label">Select dataset</InputLabel>
-            <Select
-              labelId="select-file-label"
-              id="select-file"
-              value={resolvedURL}
-              label="Select dataset"
-              onChange={handleFileChange}
+        {data && (
+          <>
+            <FormControl
+              sx={{ m: 1, minWidth: 120 }}
+              disabled={isLoading || data.length === 1}
             >
-              {data["files"].map((val, id) => {
-                return (
-                  <MenuItem
-                    key={val["name"]}
-                    value={val["link"]}
-                    disabled={val["disabled"]}
-                  >
-                    {val["name"]}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-          </FormControl>
-        )}
-
-        {data && data["files"] && (
-          <Stack className={classes.root}>
-            <LoadingButton
-              disabled={!resolvedURL}
-              loading={isLoading}
-              onClick={addFile}
-            >
-              Add
-            </LoadingButton>
-          </Stack>
+              <InputLabel id="select-file-label">Select dataset</InputLabel>
+              <Select
+                labelId="select-file-label"
+                id="select-file"
+                value={selectedFile}
+                label="Select dataset"
+                onChange={handleFileChange}
+              >
+                {data.map((val, i) => {
+                  return (
+                    <MenuItem key={i} value={i} disabled={val["disabled"]}>
+                      {val["name"]}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+            <Stack className={classes.root}>
+              <LoadingButton
+                // disabled={}
+                loading={isLoading}
+                onClick={addFile}
+              >
+                Add
+              </LoadingButton>
+            </Stack>
+          </>
         )}
 
         {isError && (
@@ -216,4 +188,4 @@ const DatasetFromURL = ({ mode, addDataset }) => {
   );
 };
 
-export default connect(mapStateToProps)(DatasetFromURL);
+export default connect(mapStateToProps)(DatasetFromURI);

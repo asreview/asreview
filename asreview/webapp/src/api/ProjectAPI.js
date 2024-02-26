@@ -66,8 +66,8 @@ class ProjectAPI {
     }
     if (variables.url) {
       body.append("url", variables.url);
-      if (variables.validate) {
-        body.append("validate", variables.validate);
+      if (variables.filename) {
+        body.append("filename", variables.filename);
       }
     }
     if (variables.extension) {
@@ -188,41 +188,6 @@ class ProjectAPI {
     });
   }
 
-  static mutateData(variables) {
-    let body = new FormData();
-    if (variables.file) {
-      body.append("file", variables.file);
-    }
-    if (variables.url) {
-      body.append("url", variables.url);
-      if (variables.validate) {
-        body.append("validate", variables.validate);
-      }
-    }
-    if (variables.extension) {
-      body.append("plugin", variables.extension);
-    }
-    if (variables.benchmark) {
-      body.append("benchmark", variables.benchmark);
-    }
-
-    const url = api_url + `projects/${variables.project_id}/data`;
-    return new Promise((resolve, reject) => {
-      axios({
-        method: "post",
-        url: url,
-        data: body,
-        withCredentials: true,
-      })
-        .then((result) => {
-          resolve(result["data"]);
-        })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
   static fetchData({ queryKey }) {
     const { project_id } = queryKey[1];
     const url = api_url + `projects/${project_id}/data`;
@@ -238,12 +203,12 @@ class ProjectAPI {
     });
   }
 
-  static resolveURL({ queryKey }) {
-    const { url } = queryKey[1];
-    const resolve_url = api_url + `datasets/resolve_url`;
+  static resolveURI({ uri }) {
+    console.log(uri);
+    const resolve_uri = api_url + `resolve_uri?uri=${uri}`;
     return new Promise((resolve, reject) => {
       axios
-        .get(resolve_url, { url: url, withCredentials: true })
+        .get(resolve_uri, { withCredentials: true })
         .then((result) => {
           resolve(result["data"]);
         })

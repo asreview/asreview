@@ -189,7 +189,62 @@ def api_create_project():  # noqa: F401
         project_name=request.form["mode"] + "_" + time.strftime("%Y%m%d-%H%M%S"),
     )
 
-    api_upload_dataset_to_project(project_id)
+    # get the project config to modify behavior of dataset
+    project_config = project.config
+
+    # remove old dataset if present
+    if "dataset_path" in project_config and project_config["dataset_path"] is not None:
+        logging.warning("Removing old dataset and adding new dataset.")
+        project.remove_dataset()
+
+    # create dataset folder if not present
+    Path(project.project_path, "data").mkdir(exist_ok=True)
+
+    if request.form.get("plugin", None):
+        ds = DatasetManager().find(request.form["plugin"])
+        filename = ds.filename
+        ds.to_file(Path(project.project_path, "data", filename))
+
+    elif request.form.get("benchmark", None):
+        ds = DatasetManager().find(request.form["benchmark"])
+        filename = ds.filename
+        ds.to_file(Path(project.project_path, "data", filename))
+
+    elif url := request.form.get("url", None):
+        if request.form.get("filename", None):
+            filename = request.form["filename"]
+        else:
+            filename = _get_filename_from_url(url)
+
+        try:
+            urlretrieve(url, Path(project.project_path, "data") / filename)
+        except Exception:
+            return jsonify(message=f"Can't retrieve data from URL {url}."), 400
+
+    elif "file" in request.files:
+        try:
+            filename = secure_filename(request.files["file"].filename)
+            fp_data = Path(project.project_path, "data") / filename
+
+            request.files["file"].save(str(fp_data))
+
+        except Exception as err:
+            return jsonify(message=f"Failed to import file '{filename}'. {err}"), 400
+    else:
+        return jsonify(message="No file or dataset found to import."), 400
+
+    data_path = Path(project.project_path, "data") / filename
+
+    try:
+        project.add_dataset(data_path.name)
+
+    except Exception as err:
+        try:
+            project.remove_dataset()
+        except Exception:
+            pass
+
+        return jsonify(message=f"Failed to import file '{filename}'. {err}"), 400
 
     if current_app.config.get("LOGIN_DISABLED", False):
         return jsonify(project.config), 201
@@ -324,128 +379,9 @@ def api_demo_data_project():  # noqa: F401
             return jsonify(message="Failed to load benchmark datasets."), 500
 
     else:
-        response = jsonify(message="demo-data-loading-failed")
+        return jsonify(message="demo-data-loading-failed"), 400
 
-        return response, 400
-
-    payload = {"result": result_datasets}
-    response = jsonify(payload)
-    return response
-
-
-@bp.route("/projects/<project_id>/data", methods=["POST", "PUT"])
-@login_required
-@project_authorization
-def api_upload_dataset_to_project(project):  # noqa: F401
-    """"""
-
-    print(request.form, request.files)
-
-    # get the project config to modify behavior of dataset
-    project_config = project.config
-
-    # remove old dataset if present
-    if "dataset_path" in project_config and project_config["dataset_path"] is not None:
-        logging.warning("Removing old dataset and adding new dataset.")
-        project.remove_dataset()
-
-    # create dataset folder if not present
-    Path(project.project_path, "data").mkdir(exist_ok=True)
-
-    if request.form.get("plugin", None):
-        ds = DatasetManager().find(request.form["plugin"])
-        filename = ds.filename
-        ds.to_file(Path(project.project_path, "data", filename))
-
-    elif request.form.get("benchmark", None):
-        ds = DatasetManager().find(request.form["benchmark"])
-        filename = ds.filename
-        ds.to_file(Path(project.project_path, "data", filename))
-
-    elif request.form.get("url", None):
-        url = request.form.get("url")
-
-        # check if url value is actually DOI without netloc
-        if url.startswith("10."):
-            url = f"https://doi.org/{url}"
-
-        filename = _get_filename_from_url(url)
-
-        if bool(request.form.get("validate", None)):
-            reader_keys = [e.name for e in _entry_points(group="asreview.readers")]
-
-            if (
-                filename
-                and Path(filename).suffix
-                and Path(filename).suffix in reader_keys
-            ):
-                return jsonify(files=[{"link": url, "name": filename}]), 201
-            elif filename and not Path(filename).suffix:
-                raise BadFileFormatError("Can't determine file format.")
-            else:
-                try:
-                    # get file list from datahugger
-                    dh = datahugger.info(url)
-                    files = dh.files.copy()
-
-                    for i, _f in enumerate(files):
-                        files[i]["disabled"] = (
-                            Path(files[i]["name"]).suffix not in reader_keys
-                        )
-
-                    return jsonify(files=files), 201
-                except Exception:
-                    raise BadFileFormatError("Can't retrieve files.")
-
-        try:
-            urlretrieve(url, Path(project.project_path, "data") / filename)
-        except Exception as err:
-            logging.error(err)
-            message = f"Can't retrieve data from URL {url}."
-
-            return jsonify(message=message), 400
-
-    elif "file" in request.files:
-        data_file = request.files["file"]
-
-        # check the file is file is in a correct format
-        # check_dataset(data_file)
-        try:
-            filename = secure_filename(data_file.filename)
-            fp_data = Path(project.project_path, "data") / filename
-
-            # save the file
-            data_file.save(str(fp_data))
-
-        except Exception as err:
-            logging.error(err)
-
-            response = jsonify(message=f"Failed to import file '{filename}'. {err}")
-
-            return response, 400
-    else:
-        response = jsonify(message="No file or dataset found to import.")
-        return response, 400
-
-    data_path = Path(project.project_path, "data") / filename
-
-    try:
-        # add the file to the project
-        project.add_dataset(data_path.name)
-
-    # Bad format. TODO{Jonathan} Return informative message with link.
-    except Exception as err:
-        try:
-            project.remove_dataset()
-        except Exception:
-            pass
-
-        message = f"Failed to import file '{filename}'. {err}"
-        return jsonify(message=message), 400
-
-    response = jsonify({"project_id": project.project_id})
-
-    return response
+    return jsonify({"result": result_datasets})
 
 
 @bp.route("/projects/<project_id>/data", methods=["GET"])
@@ -1480,3 +1416,34 @@ def api_delete_project(project):  # noqa: F401
         response = jsonify({"success": True})
 
         return response
+
+
+@bp.route("/resolve_uri", methods=["GET"])
+@login_required
+def api_resolve_uri():  # noqa: F401
+    """Resolve the uri of the dataset upload"""
+
+    uri = request.args.get("uri")
+
+    if uri and uri.startswith("10."):
+        uri = f"https://doi.org/{uri}"
+
+    filename = _get_filename_from_url(uri)
+
+    reader_keys = [e.name for e in _entry_points(group="asreview.readers")]
+
+    if filename and Path(filename).suffix and Path(filename).suffix in reader_keys:
+        return jsonify(files=[{"link": uri, "name": filename}]), 201
+    elif filename and not Path(filename).suffix:
+        raise BadFileFormatError("Can't determine file format.")
+    else:
+        try:
+            dh = datahugger.info(uri)
+            files = dh.files.copy()
+
+            for i, _f in enumerate(files):
+                files[i]["disabled"] = Path(files[i]["name"]).suffix not in reader_keys
+
+            return jsonify(files=files), 201
+        except Exception:
+            raise BadFileFormatError("Can't retrieve files.")
