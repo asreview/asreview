@@ -1,6 +1,5 @@
 import * as React from "react";
-import { useIsMutating, useQuery } from "react-query";
-import { connect } from "react-redux";
+import { useQuery } from "react-query";
 import {
   Box,
   Button,
