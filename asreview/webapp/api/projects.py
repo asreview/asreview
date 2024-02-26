@@ -867,10 +867,12 @@ def api_update_review_status(project, review_id):
         return jsonify({"success": True})
 
     if current_status == "setup" and status == "review":
-        if not (pk := has_prior_knowledge(project)):
+        is_simulation = project.config["mode"] == PROJECT_MODE_SIMULATE
+
+        if not (pk := has_prior_knowledge(project)) and not is_simulation:
             _fill_last_ranking(project, "random")
 
-        if trigger_model and pk:
+        if trigger_model and (pk or is_simulation):
             try:
                 subprocess.Popen(
                     [
@@ -883,9 +885,7 @@ def api_update_review_status(project, review_id):
                 )
 
             except Exception as err:
-                logging.error(err)
-                message = f"Failed to train the model. {err}"
-                return jsonify(message=message), 400
+                return jsonify(message=f"Failed to train the model. {err}"), 400
 
         project.update_review(status=status)
 

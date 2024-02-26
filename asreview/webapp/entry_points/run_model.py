@@ -116,6 +116,8 @@ def _simulate_start(project):
     with open_state(project) as state:
         settings = state.settings
         priors = state.get_priors()["record_id"].tolist()
+        print(state.settings)
+        print(priors)
 
     reviewer = Simulate(
         project.read_data(),
@@ -142,6 +144,8 @@ def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("project", type=asr.Project, help="Project path")
     args = parser.parse_args(argv)
+
+    print(args.project.config)
 
     if args.project.config["mode"] == PROJECT_MODE_SIMULATE:
         _simulate_start(args.project)
