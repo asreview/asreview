@@ -1,10 +1,5 @@
 import * as React from "react";
-import {
-  useIsMutating,
-  useMutation,
-  useQueryClient,
-  useQuery,
-} from "react-query";
+import { useMutation } from "react-query";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -13,25 +8,17 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Divider,
-  Fade,
   FormControl,
   FormControlLabel,
   FormLabel,
-  Link,
   Radio,
   RadioGroup,
   Stack,
-  Tooltip,
-  Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Close } from "@mui/icons-material";
 
 import { AppBarWithinDialog } from "../../../Components";
-import { StyledIconButton } from "../../../StyledComponents/StyledButton";
 import { DatasetFromFile, DatasetFromEntryPoint, DatasetFromURI } from ".";
-import { InfoCard } from "..";
 import { ProjectAPI } from "../../../api";
 import {
   mapDispatchToProps,

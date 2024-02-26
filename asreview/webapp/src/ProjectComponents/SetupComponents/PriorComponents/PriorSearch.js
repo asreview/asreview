@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { connect } from "react-redux";
 import {
   Box,
   CircularProgress,

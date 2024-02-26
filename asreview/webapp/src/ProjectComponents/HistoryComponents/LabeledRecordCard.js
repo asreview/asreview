@@ -1,7 +1,5 @@
 import * as React from "react";
 import { useMutation, useQueryClient } from "react-query";
-import { connect } from "react-redux";
-import { useParams } from "react-router-dom";
 import TruncateMarkup from "react-truncate-markup";
 import {
   Box,
@@ -28,7 +26,7 @@ import { InlineErrorHandler } from "../../Components";
 import { RecordCardNote } from "../HistoryComponents";
 import { StyledIconButton } from "../../StyledComponents/StyledButton";
 import { ProjectAPI } from "../../api";
-import { mapStateToProps, projectModes } from "../../globals";
+import { projectModes } from "../../globals";
 import { DOIIcon } from "../../icons";
 
 const PREFIX = "LabeledRecordCard";

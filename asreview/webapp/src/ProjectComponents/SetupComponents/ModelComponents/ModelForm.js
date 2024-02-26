@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useMutation, useQuery } from "react-query";
-import { connect } from "react-redux";
 import {
   Box,
   CircularProgress,
@@ -24,7 +23,7 @@ import { styled } from "@mui/material/styles";
 import { CardErrorHandler } from "../../../Components";
 import { ModelSelect } from "../ModelComponents";
 import { ProjectAPI } from "../../../api";
-import { defaultAlgorithms, mapStateToProps } from "../../../globals";
+import { defaultAlgorithms } from "../../../globals";
 import { SelectItem } from "../../../ProjectComponents";
 import { useContext } from "react";
 import { ProjectContext } from "../../../ProjectContext";
@@ -167,7 +166,7 @@ const ModelForm = ({
       ...modelState.model,
       trainNewModel: trainNewModel,
     }),
-    [project_id, modelState],
+    [project_id, modelState, trainNewModel],
   );
 
   const handleModelCustom = (event) => {

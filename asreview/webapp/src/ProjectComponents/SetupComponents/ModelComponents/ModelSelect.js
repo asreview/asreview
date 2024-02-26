@@ -7,7 +7,6 @@ import {
   MenuItem,
 } from "@mui/material";
 import { SelectItem } from "../../../ProjectComponents";
-import { styled } from "@mui/material/styles";
 
 const ModelSelect = ({
   name,

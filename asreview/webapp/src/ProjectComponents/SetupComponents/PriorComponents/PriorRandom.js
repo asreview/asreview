@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { connect } from "react-redux";
 import {
   Box,
   CircularProgress,
@@ -21,7 +20,7 @@ import { InlineErrorHandler } from "../../../Components";
 import { EnoughPriorBanner, PriorUnlabeled } from "../PriorComponents";
 import { StyledIconButton } from "../../../StyledComponents/StyledButton";
 import { ProjectAPI } from "../../../api";
-import { mapStateToProps, projectModes } from "../../../globals";
+import { projectModes } from "../../../globals";
 import { useToggle } from "../../../hooks/useToggle";
 
 import { ProjectContext } from "../../../ProjectContext";

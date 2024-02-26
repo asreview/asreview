@@ -1,5 +1,4 @@
 import React from "react";
-import { connect } from "react-redux";
 import { useMutation, useQueryClient } from "react-query";
 import TruncateMarkup from "react-truncate-markup";
 import {
@@ -17,7 +16,7 @@ import { styled } from "@mui/material/styles";
 import { InlineErrorHandler } from "../../../Components";
 import { ExplorationModeRecordAlert } from "../../../StyledComponents/StyledAlert";
 import { ProjectAPI } from "../../../api";
-import { mapStateToProps, projectModes } from "../../../globals";
+import { projectModes } from "../../../globals";
 
 import { ProjectContext } from "../../../ProjectContext";
 import { useContext } from "react";

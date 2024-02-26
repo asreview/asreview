@@ -1,9 +1,7 @@
 import React from "react";
 import clsx from "clsx";
-import { connect } from "react-redux";
 import { InView } from "react-intersection-observer";
 import { useInfiniteQuery } from "react-query";
-import { useParams } from "react-router-dom";
 import {
   Box,
   ButtonBase,

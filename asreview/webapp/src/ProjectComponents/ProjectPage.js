@@ -21,10 +21,7 @@ import { HistoryPage } from "../ProjectComponents/HistoryComponents";
 import { ExportPage } from "../ProjectComponents/ExportComponents";
 import { TeamPage } from "./TeamComponents";
 
-import {
-  ReviewPage,
-  ReviewPageFinished,
-} from "../ProjectComponents/ReviewComponents";
+import { ReviewPage } from "../ProjectComponents/ReviewComponents";
 import RouteNotFound from "../RouteNotFound";
 
 import { ProjectAPI } from "../api";
