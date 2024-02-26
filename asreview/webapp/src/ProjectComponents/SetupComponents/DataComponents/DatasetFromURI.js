@@ -1,8 +1,8 @@
 import React from "react";
 import { connect } from "react-redux";
-import { InputBase, Paper, Stack, Typography, Link } from "@mui/material";
+import { InputBase, Paper, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation } from "react-query";
 
 import LoadingButton from "@mui/lab/LoadingButton";
 import InputLabel from "@mui/material/InputLabel";
@@ -14,8 +14,7 @@ import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 import { InlineErrorHandler } from "../../../Components";
 import { StyledLoadingButton } from "../../../StyledComponents/StyledButton";
 import { ProjectAPI } from "../../../api";
-import { mapStateToProps, projectModes } from "../../../globals";
-import { AddToDrive } from "@mui/icons-material";
+import { mapStateToProps } from "../../../globals";
 
 const PREFIX = "DatasetFromURI";
 

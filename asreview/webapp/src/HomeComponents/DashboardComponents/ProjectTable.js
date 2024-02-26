@@ -305,13 +305,6 @@ const ProjectTable = (props) => {
     });
   };
 
-  const clearSetupError = (project) => {
-    mutateStatus({
-      project_id: project["id"],
-      status: projectStatuses.SETUP,
-    });
-  };
-
   const openProject = (project, path) => {
     if (
       project["reviews"][0] === undefined ||

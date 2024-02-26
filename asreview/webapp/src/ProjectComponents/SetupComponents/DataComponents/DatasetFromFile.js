@@ -1,15 +1,13 @@
 import React, { useCallback, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
-import { useMutation, useQueryClient, useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { connect } from "react-redux";
 import {
   Avatar,
   Box,
-  Button,
   ButtonBase,
   Stack,
   Typography,
-  Link,
   CircularProgress,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -73,9 +71,6 @@ const rejectStyle = {
 };
 
 const DatasetFromFile = ({ project_id, mode, setDataset }) => {
-  const [file, setFile] = React.useState(null);
-  const [acceptedFileTypes, setAcceptedFileTypes] = React.useState("");
-
   const {
     error: createProjectError,
     isError: isCreatingProjectError,
@@ -94,8 +89,6 @@ const DatasetFromFile = ({ project_id, mode, setDataset }) => {
       if (acceptedFiles.length !== 1) {
         console.log("No valid file provided");
         return;
-      } else {
-        setFile(acceptedFiles[0]);
       }
 
       if (isCreatingProjectError) {
@@ -107,8 +100,26 @@ const DatasetFromFile = ({ project_id, mode, setDataset }) => {
         file: acceptedFiles[0],
       });
     },
-    [addDataset, isCreatingProjectError, resetAddDataset],
+    [addDataset, mode, isCreatingProjectError, resetAddDataset],
   );
+
+  const {
+    data: readers,
+    // error: fetchReadersError,
+    // isError: isFetchReadersError,
+    // isFetching: isFetchingReaders,
+  } = useQuery(
+    ["fetchDatasetReaders", { project_id: project_id }],
+    ProjectAPI.fetchDatasetReaders,
+    {
+      refetchOnWindowFocus: false,
+    },
+  );
+
+  let acceptedFileTypes = "";
+  readers?.result.forEach((reader) => {
+    acceptedFileTypes += reader.extension + ",";
+  });
 
   const {
     getRootProps,
@@ -132,27 +143,6 @@ const DatasetFromFile = ({ project_id, mode, setDataset }) => {
       ...(isDragReject ? rejectStyle : {}),
     }),
     [isDragActive, isDragReject, isDragAccept],
-  );
-
-  const {
-    data: readers,
-    error: fetchReadersError,
-    isError: isFetchReadersError,
-    isFetching: isFetchingReaders,
-  } = useQuery(
-    ["fetchDatasetReaders", { project_id: project_id }],
-    ProjectAPI.fetchDatasetReaders,
-    {
-      refetchOnWindowFocus: false,
-      onSuccess: (data) => {
-        let readerString = "";
-        data["result"].forEach((reader) => {
-          readerString += reader.extension + ",";
-        });
-
-        setAcceptedFileTypes(readerString);
-      },
-    },
   );
 
   return (

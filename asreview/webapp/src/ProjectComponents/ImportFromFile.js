@@ -2,14 +2,7 @@ import React, { useCallback, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
 import { useMutation, useQueryClient } from "react-query";
 import { connect } from "react-redux";
-import {
-  Avatar,
-  Box,
-  Button,
-  ButtonBase,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Avatar, Box, ButtonBase, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FileUpload } from "@mui/icons-material";
 
