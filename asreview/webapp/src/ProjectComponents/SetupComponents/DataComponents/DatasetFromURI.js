@@ -96,25 +96,6 @@ const DatasetFromURI = ({ mode, setDataset }) => {
 
   return (
     <Root>
-      <Typography variant="body2" sx={{ color: "text.secondary" }}>
-        Supported formats are RIS (<code>.ris</code>, <code>.txt</code>) and
-        tabular datasets (<code>.csv</code>, <code>.tab</code>,{" "}
-        <code>.tsv</code>, <code>.xlsx</code>). The dataset should contain a
-        title and abstract for each record.{" "}
-        {mode !== projectModes.ORACLE
-          ? "The dataset should contain labels for each record. "
-          : ""}
-        To optimally benefit from the performance of the active learning model,
-        it is highly recommended to add a dataset without duplicate records and
-        complete records.{" "}
-        <Link
-          underline="none"
-          href="https://asreview.readthedocs.io/en/latest/intro/datasets.html"
-          target="_blank"
-        >
-          Learn more
-        </Link>
-      </Typography>
       <Stack spacing={3}>
         <Paper
           className={classes.input}

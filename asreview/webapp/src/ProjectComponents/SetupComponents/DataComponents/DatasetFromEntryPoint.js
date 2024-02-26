@@ -31,15 +31,6 @@ const DatasetFromEntryPoint = ({
 }) => {
   const queryClient = useQueryClient();
 
-  // const datasetInfo = queryClient.getQueryData([
-  //   "fetchData",
-  //   { project_id: project_id },
-  // ]);
-
-  // const isDatasetAdded = () => {
-  //   return datasetInfo !== undefined;
-  // };
-
   const {
     data,
     error: fetchDatasetsError,
@@ -131,7 +122,12 @@ const DatasetFromEntryPoint = ({
           button={!isError}
         />
       )}
-      {!isFetchingDatasets && isSuccess && isFetched && (
+
+      {isSuccess && isFetched && data["result"]?.length === 0 && (
+        <Typography>No dataset extensions installed.</Typography>
+      )}
+
+      {data && (
         <Stack spacing={2}>
           {data?.result.map((group, index) => (
             <Stack spacing={2} key={index}>
@@ -161,6 +157,7 @@ const DatasetFromEntryPoint = ({
             </Stack>
           ))}
         </Stack>
+        // )};
       )}
     </Root>
   );

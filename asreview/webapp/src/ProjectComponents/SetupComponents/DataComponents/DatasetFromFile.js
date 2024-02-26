@@ -157,18 +157,6 @@ const DatasetFromFile = ({ project_id, mode, setDataset }) => {
 
   return (
     <Root>
-      <Typography variant="body2" sx={{ color: "text.secondary" }}>
-        To optimally benefit from the performance of the active learning model,
-        it is highly recommended to add a dataset without duplicate records and
-        complete records.{" "}
-        <Link
-          underline="none"
-          href="https://asreview.readthedocs.io/en/latest/intro/datasets.html"
-          target="_blank"
-        >
-          Learn more
-        </Link>
-      </Typography>
       <Box {...getRootProps({ style })}>
         <input {...getInputProps()} />
         <Stack className={classes.root} spacing={2}>
