@@ -77,11 +77,8 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 const AddPriorKnowledge = ({ open, toggleAddPrior, mobileScreen }) => {
   const project_id = useContext(ProjectContext);
 
-  const isMutatingPrior = useIsMutating(["mutatePriorKnowledge"]);
-  const isMutatingLabeled = useIsMutating(["mutateLabeledPriorKnowledge"]);
-
-  const [savingState, setSavingState] = React.useState(false);
-  const timerRef = React.useRef(null);
+  // const isMutatingPrior = useIsMutating(["mutatePriorKnowledge"]);
+  // const isMutatingLabeled = useIsMutating(["mutateLabeledPriorKnowledge"]);
 
   const [search, toggleSearch] = useToggle();
   const [random, toggleRandom] = useToggle();
@@ -114,25 +111,6 @@ const AddPriorKnowledge = ({ open, toggleAddPrior, mobileScreen }) => {
     }
   };
 
-  React.useEffect(() => {
-    const currentSavingStatus =
-      isMutatingPrior === 1 || isMutatingLabeled === 1;
-
-    // If the status changes to 'saving', immediately update the state
-    if (currentSavingStatus) {
-      setSavingState(true);
-      if (timerRef.current) clearTimeout(timerRef.current);
-    } else {
-      // If the status changes to 'not saving', delay the update by 1000ms
-      timerRef.current = setTimeout(() => setSavingState(false), 1000);
-    }
-
-    // Cleanup on unmount or if dependencies change
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, [isMutatingPrior, isMutatingLabeled]);
-
   return (
     <StyledDialog
       hideBackdrop
@@ -161,7 +139,6 @@ const AddPriorKnowledge = ({ open, toggleAddPrior, mobileScreen }) => {
                 Enough prior knowledge. Click CLOSE to move on to the next step.
               </Typography>
             )}
-            {/* {data?.n_prior !== 0 && <SavingStateBox isSaving={savingState} />} */}
             <Box className="dialog-header-button right">
               <Button onClick={handleClickClose}>Close</Button>
             </Box>
