@@ -159,12 +159,6 @@ const ModelForm = ({
   const { mutate: mutateModelConfig, isError: isMutateModelConfigError } =
     useMutation(ProjectAPI.mutateModelConfig, {
       mutationKey: "mutateModelConfig",
-      onError: () => {
-        // pass
-      },
-      onSuccess: () => {
-        // pass
-      },
     });
 
   const prepareMutationData = React.useCallback(

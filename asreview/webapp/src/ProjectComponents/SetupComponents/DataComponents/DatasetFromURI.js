@@ -71,7 +71,7 @@ const DatasetFromURI = ({ mode, setDataset }) => {
     setURI(event.target.value);
   };
 
-  const resolveURI = (event) => {
+  const resolveURI = () => {
     mutateResolve({ uri: localURI });
   };
 

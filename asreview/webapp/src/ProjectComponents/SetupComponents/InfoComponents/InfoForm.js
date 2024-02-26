@@ -88,7 +88,6 @@ const InfoForm = ({ integrated, handleNext, editable = true }) => {
     mutate,
   } = useMutation(ProjectAPI.mutateInfo, {
     mutationKey: ["mutateInfo"],
-    onError: () => {},
     onSuccess: () => {
       if (integrated) {
         handleNext();

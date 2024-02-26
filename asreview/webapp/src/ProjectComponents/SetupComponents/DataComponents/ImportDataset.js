@@ -77,22 +77,16 @@ const ImportDataset = ({
     setUploadSource(event.target.value);
   };
 
-  const { mutate: setStatusStatus } = useMutation(
-    ProjectAPI.mutateReviewStatus,
-    {
-      mutationKey: ["mutateReviewStatus"],
-      onError: () => {
-        console.log("error updating status");
-      },
-      onSuccess: () => {
-        if (mode === projectModes.SIMULATION) {
-          navigate(`/projects/${dataset.id}`);
-        } else {
-          navigate(`/projects/${dataset.id}/review`);
-        }
-      },
+  const { mutate: setStatus } = useMutation(ProjectAPI.mutateReviewStatus, {
+    mutationKey: ["mutateReviewStatus"],
+    onSuccess: () => {
+      if (mode === projectModes.SIMULATION) {
+        navigate(`/projects/${dataset.id}`);
+      } else {
+        navigate(`/projects/${dataset.id}/review`);
+      }
     },
-  );
+  });
 
   return (
     <StyledDialog
@@ -205,7 +199,7 @@ const ImportDataset = ({
         <DialogActions>
           <Button
             onClick={() => {
-              setStatusStatus({
+              setStatus({
                 project_id: dataset.id,
                 status: projectStatuses.REVIEW,
               });

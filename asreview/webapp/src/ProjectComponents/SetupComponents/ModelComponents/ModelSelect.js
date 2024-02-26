@@ -9,19 +9,6 @@ import {
 import { SelectItem } from "../../../ProjectComponents";
 import { styled } from "@mui/material/styles";
 
-const PREFIX = "ModelSelect";
-
-const classes = {
-  formItem: `${PREFIX}-form-item`,
-};
-
-const MenuItemStyled = styled(MenuItem)(({ theme }) => ({
-  [`& .${classes.formItem}`]: {
-    paddingTop: 16,
-    backgroundColor: "#FF0000",
-  },
-}));
-
 const ModelSelect = ({
   name,
   label,
@@ -43,14 +30,14 @@ const ModelSelect = ({
       disabled={!editable}
     >
       {items.map((value) => (
-        <MenuItemStyled
+        <MenuItem
           key={`result-item-${value.name}`}
           checked={model?.[name] === value.name}
           value={value.name}
           disabled={disableItem ? disableItem(value.name) : false}
         >
           <SelectItem primary={value.label} secondary={value.description} />
-        </MenuItemStyled>
+        </MenuItem>
       ))}
     </Select>
     <FormHelperText>{helperText}</FormHelperText>

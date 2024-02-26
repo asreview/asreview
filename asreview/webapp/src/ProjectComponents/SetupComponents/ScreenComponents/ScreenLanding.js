@@ -27,7 +27,7 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const ScreenLanding = ({ handleComplete }) => {
+const ScreenLanding = ({ mobileScreen }) => {
   const project_id = useContext(ProjectContext);
   return (
     <Root className={classes.root}>
@@ -37,7 +37,7 @@ const ScreenLanding = ({ handleComplete }) => {
       <Box>
         <TagEditor
           project_id={project_id}
-          // mobileScreen={props.mobileScreen}
+          mobileScreen={mobileScreen}
           // onFocus={onFocus}
           // onBlur={onBlur}
         />

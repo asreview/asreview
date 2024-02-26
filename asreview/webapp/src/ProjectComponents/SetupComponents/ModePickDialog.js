@@ -1,44 +1,15 @@
 import * as React from "react";
-import PropTypes from "prop-types";
 import {
-  Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  Typography,
-  Stack,
   List,
   ListItem,
   ListItemText,
   ListItemButton,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import CheckIcon from "@mui/icons-material/Check";
-import CloseIcon from "@mui/icons-material/Close";
-
-import { mapDispatchToProps, projectModes } from "../../globals";
-
-const PREFIX = "ModePickDialog";
-
-const classes = {
-  box: `${PREFIX}-box`,
-  radioGroup: `${PREFIX}-radio-group`,
-};
-
-// const StyledDialog = styled(Dialog)(({ theme }) => ({
-//   [`& .${classes.box}`]: {},
-//   [`& .${classes.radioGroup}`]: {
-//     padding: "20px 6px 20px 6px",
-//     margin: "6px 0px 6px 0px",
-//     border: "2px solid #e0e0e0",
-//     borderRadius: "4px",
-//   },
-// }));
 
 const ModePickDialog = ({ open, closeModePick, closeModePickAndOpenData }) => {
   return (

@@ -8,17 +8,11 @@ const PREFIX = "PriorForm";
 
 const classes = {
   title: `${PREFIX}-title`,
-  loading: `${PREFIX}-loading`,
 };
 
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.title}`]: {
     paddingBottom: 24,
-  },
-
-  [`& .${classes.loading}`]: {
-    display: "flex",
-    justifyContent: "center",
   },
 }));
 
