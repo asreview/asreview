@@ -160,7 +160,7 @@ const ImportFromFile = (props) => {
             </Avatar>
           </ButtonBase>
           <Typography>
-            Drag and drop a project file (<code>.asreview</code>) to add
+            Click or Drag and drop a ASReview file (<code>.asreview</code>)
           </Typography>
           {file && (
             <Typography className={classes.singleLine}>
@@ -177,13 +177,6 @@ const ImportFromFile = (props) => {
               message={importProjectError?.message + " Please try again."}
             />
           )}
-          <Button
-            disabled={isImportingProject}
-            variant="contained"
-            onClick={open}
-          >
-            Select File
-          </Button>
         </Stack>
       </Box>
     </Root>

@@ -116,6 +116,12 @@ const columns = [
   { id: "status", label: "Status", width: "15%" },
 ];
 
+const modeLabelMap = {
+  simulate: "Simulate",
+  oracle: "Review",
+  explore: "Validate",
+};
+
 const ProjectTable = (props) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -124,6 +130,7 @@ const ProjectTable = (props) => {
   const dispatch = useDispatch();
   const { auth } = useAuth();
 
+  const modeLabel = modeLabelMap[props.mode];
   /**
    * Project table state
    */
@@ -578,7 +585,7 @@ const ProjectTable = (props) => {
               }}
             >
               <Typography sx={{ color: "text.secondary", marginTop: "64px" }}>
-                Start your first {props.mode} project
+                Start your first {modeLabel.toLowerCase()} project
               </Typography>
               <Button
                 id="get-started"

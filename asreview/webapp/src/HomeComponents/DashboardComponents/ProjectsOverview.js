@@ -15,6 +15,12 @@ const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
 
   const { mode } = useParams();
 
+  const modeLabel = {
+    simulate: "Simulate",
+    oracle: "Review",
+    explore: "Validate",
+  };
+
   const [onCreateProject, setCreateProject] = React.useState({
     mode: false,
     data: false,
@@ -124,7 +130,7 @@ const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
         variant="extended"
       >
         <Add sx={{ mr: 1 }} />
-        {mode}
+        {modeLabel[mode]}
       </Fab>
       {/* <ModePickDialog
         open={onCreateProject.mode}

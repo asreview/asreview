@@ -33,16 +33,24 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
+const modeLabelMap = {
+  simulate: "Simulation",
+  oracle: "Review",
+  explore: "Validation",
+};
+
 export default function DashboardPageHeader({
   mobileScreen,
   toggleImportProject,
   mode,
 }) {
+  const modeLabel = modeLabelMap[mode];
+
   return (
     <Root className="main-page-sticky-header-wrapper">
       <Box className="main-page-sticky-header with-button">
         {mobileScreen && (
-          <TypographyH5Medium>{mode} projects</TypographyH5Medium>
+          <TypographyH5Medium>{modeLabel} projects</TypographyH5Medium>
         )}
         {/* {(!mobileScreen && mode === "simulate") && (
           <>
@@ -58,7 +66,7 @@ export default function DashboardPageHeader({
         )} */}
         {!mobileScreen && (
           <>
-            <Typography variant="h4">{mode} projects</Typography>
+            <Typography variant="h4">{modeLabel} projects</Typography>
           </>
         )}
         <Stack direction="row" spacing={1}>
