@@ -154,6 +154,7 @@ const DatasetFromEntryPoint = ({
                     isAddingDatasetError={isError}
                     mobileScreen={mobileScreen}
                     reset={reset}
+                    key={group.group_id + ":" + dataset.dataset_id}
                   />
                 ))}
               </Box>
