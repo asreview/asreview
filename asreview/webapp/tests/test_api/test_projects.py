@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Union
 
 import pytest
-from flask import current_app
 from flask.testing import FlaskClient
 from jsonschema.exceptions import ValidationError
 
@@ -13,6 +12,7 @@ import asreview as asr
 import asreview.webapp.tests.utils.api_utils as au
 import asreview.webapp.tests.utils.crud as crud
 import asreview.webapp.tests.utils.misc as misc
+from asreview.project import get_projects
 from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import Project
@@ -36,38 +36,31 @@ def _asreview_file_archive():
     )
 
 
-# NOTE: the setup fixture entails: a FlaskClient, 1 user (signed in),
-# and a project of this user OR a project from an unauthenticated app.
-# The fixture is parametrized! It runs the authenticated app and the
-# unauthenticated app.
-
-
 # Test getting all projects
-def test_get_projects(setup):
-    client, user1, project = setup
+def test_get_projects(client, user, project):
     r = au.get_all_projects(client)
     assert r.status_code == 200
     assert len(r.json["result"]) == 1
     found_project = r.json["result"][0]
-    if not current_app.config.get("LOGIN_DISABLED"):
+    if not client.application.config.get("LOGIN_DISABLED"):
         assert found_project["id"] == project.project_id
-        assert found_project["owner_id"] == user1.id
+        assert found_project["owner_id"] == user.id
     else:
         assert found_project["id"] == project.config["id"]
 
 
 # Test create a project
-def test_create_projects(setup):
-    client, _, _ = setup
+def test_create_projects(client, user):
+    if not client.application.config["LOGIN_DISABLED"]:
+        au.create_and_signin_user(client, 1)
 
-    r = au.create_project(client)
+    r = au.create_project(client, "explore", benchmark="synergy:van_der_Valk_2021")
     assert r.status_code == 201
-    assert r.json["name"].startswith("explore")
+    assert r.json["name"].startswith("van_der_Valk_2021")
 
 
 # Test create a project with incorrect tags
-def test_create_projects_with_incorrect_tags(setup):
-    client, _, project = setup
+def test_create_projects_with_incorrect_tags(client, project):
     tags = json.dumps([{"foo": "bar"}, {"foo1": "bar1"}])
 
     with pytest.raises(
@@ -82,8 +75,7 @@ def test_create_projects_with_incorrect_tags(setup):
 
 
 # Test create a project with correct tags
-def test_create_projects_with_correct_tags(setup):
-    client, _, project = setup
+def test_create_projects_with_correct_tags(client, project):
     tags = [
         {
             "name": "Biomes",
@@ -131,9 +123,7 @@ def test_create_projects_with_correct_tags(setup):
 
 
 # Test upgrading a post v0.x project
-def test_try_upgrade_a_modern_project(setup):
-    client, _, project = setup
-    # verify version
+def test_try_upgrade_a_modern_project(client, project):
     data = misc.read_project_file(project)
     assert not data["version"].startswith("0")
 
@@ -142,9 +132,7 @@ def test_try_upgrade_a_modern_project(setup):
 
 
 # Test upgrading a v0.x project
-def test_upgrade_an_old_project(setup):
-    client, user, _ = setup
-
+def test_upgrade_an_old_project(client, user):
     tests_folder = Path(__file__).parent.parent
     asreview_v0_file = Path(
         tests_folder,
@@ -159,7 +147,7 @@ def test_upgrade_an_old_project(setup):
 
     # we need to make sure this new, old-style project can be found
     # under current user if the app is authenticated
-    if not current_app.config.get("LOGIN_DISABLED"):
+    if not client.application.config.get("LOGIN_DISABLED"):
         new_project = Project(project_id=project.config.get("id"))
         project = crud.create_project(DB, user, new_project)
     # try to convert
@@ -170,34 +158,32 @@ def test_upgrade_an_old_project(setup):
 
 # Test importing old projects, verify ids
 @pytest.mark.parametrize("fp", _asreview_file_archive())
-def test_import_project_files(setup, fp):
-    client, user, first_project = setup
-    # import project
+def test_import_project_files(client, user, project, fp):
     r = au.import_project(client, fp)
     # get contents asreview folder
     folders = set(misc.get_folders_in_asreview_path())
     assert len(folders) == 2
     assert r.status_code == 200
     assert isinstance(r.json, dict)
-    if not current_app.config.get("LOGIN_DISABLED"):
+
+    if not client.application.config.get("LOGIN_DISABLED"):
         # assert it exists in the database
         assert crud.count_projects() == 2
         project = crud.last_project()
-        assert r.json["id"] != first_project.project_id
         assert r.json["id"] == project.project_id
         # assert the owner is current user
         assert r.json["owner_id"] == user.id
     else:
-        assert r.json["id"] != first_project.config.get("id")
+        assert r.json["id"] != project.config.get("id")
     # in auth/non-auth the project folder must exist in the asreview folder
     assert r.json["id"] in set([f.stem for f in folders])
 
 
 # Test get stats in setup state
-def test_get_projects_stats_setup_stage(setup):
-    client, _, _ = setup
+def test_get_projects_stats_setup_stage(client, project):
     r = au.get_project_stats(client)
     assert r.status_code == 200
+    assert project is not None
     assert isinstance(r.json["result"], dict)
     assert r.json["result"]["n_in_review"] == 0
     assert r.json["result"]["n_finished"] == 0
@@ -205,11 +191,8 @@ def test_get_projects_stats_setup_stage(setup):
 
 
 # Test get stats in review state
-def test_get_projects_stats_review_stage(setup):
-    client, _, project = setup
-    # start the show
-    au.upload_label_set_and_start_model(client, project, UPLOAD_DATA[0])
-    # get stats
+def test_get_projects_stats_review_stage(client, project):
+    au.upload_label_set_and_start_model(client, project)
     r = au.get_project_stats(client)
     assert r.status_code == 200
     assert isinstance(r.json["result"], dict)
@@ -219,10 +202,8 @@ def test_get_projects_stats_review_stage(setup):
 
 
 # Test get stats in finished state
-def test_get_projects_stats_finished_stage(setup):
-    client, _, project = setup
-    # start the show
-    au.upload_label_set_and_start_model(client, project, UPLOAD_DATA[0])
+def test_get_projects_stats_finished_stage(client, project):
+    au.upload_label_set_and_start_model(client, project)
     # manually finish the project
     au.set_project_status(client, project, "finished")
     # get stats
@@ -236,16 +217,14 @@ def test_get_projects_stats_finished_stage(setup):
 
 # Test known demo data
 @pytest.mark.parametrize("subset", ["plugin", "benchmark"])
-def test_demo_data_project(setup, subset):
-    client, _, _ = setup
+def test_demo_data_project(client, user, subset):
     r = au.get_demo_data(client, subset)
     assert r.status_code == 200
     assert isinstance(r.json["result"], list)
 
 
 # Test unknown demo data
-def test_unknown_demo_data_project(setup):
-    client, _, _ = setup
+def test_unknown_demo_data_project(client, user):
     r = au.get_demo_data(client, "abcdefg")
     assert r.status_code == 400
     assert r.json["message"] == "demo-data-loading-failed"
@@ -253,14 +232,14 @@ def test_unknown_demo_data_project(setup):
 
 # Test uploading benchmark data to a project
 @pytest.mark.parametrize("upload_data", UPLOAD_DATA)
-def test_upload_benchmark_data_to_project(setup, upload_data):
-    client, _, project = setup
-    r = au.upload_data_to_project(client, project, data=upload_data)
-    assert r.status_code == 200
-    if not current_app.config.get("LOGIN_DISABLED"):
-        assert r.json["project_id"] == project.project_id
+def test_upload_benchmark_data_to_project(client, user, upload_data):
+    r = au.create_project(client, **upload_data)
+    project = user.projects[0] if user is not None else get_projects()[0]
+    assert r.status_code == 201
+    if not client.application.config.get("LOGIN_DISABLED"):
+        assert r.json["id"] == project.project_id
     else:
-        assert r.json["project_id"] == project.config.get("id")
+        assert r.json["id"] == project.config.get("id")
 
     pickle_path = project.project_path / "tmp" / "data.pickle"
     assert not pickle_path.exists()
@@ -270,29 +249,24 @@ def test_upload_benchmark_data_to_project(setup, upload_data):
 
 # Test getting the data after an upload
 @pytest.mark.parametrize("upload_data", UPLOAD_DATA)
-def test_get_project_data(setup, upload_data):
-    client, _, project = setup
-    au.upload_data_to_project(client, project, data=upload_data)
+def test_get_project_data(client, user, upload_data):
+    r = au.create_project(client, **upload_data)
+    project = user.projects[0] if user is not None else get_projects()[0]
+
     r = au.get_project_data(client, project)
     assert r.status_code == 200
     assert r.json["filename"] == misc.extract_filename_stem(upload_data)
 
 
 # Test get dataset writer
-def test_get_dataset_writer(setup):
-    client, _, project = setup
-    # upload data
-    au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
-    # get dataset writer
+def test_get_dataset_writer(client, project):
     r = au.get_project_dataset_writer(client, project)
     assert r.status_code == 200
     assert isinstance(r.json["result"], list)
 
 
 # Test updating a project
-def test_update_project_info(setup):
-    client, _, project = setup
-    # update data
+def test_update_project_info(client, project):
     new_name = "new name"
     new_authors = "new authors"
     new_description = "new description"
@@ -351,12 +325,7 @@ def test_update_project_info(setup):
     assert r.json["tags"] == json.loads(new_tags)
 
 
-# Test search data
-def test_search_data(setup):
-    client, _, project = setup
-    # upload dataset
-    au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
-    # search
+def test_search_data(client, project):
     r = au.search_project_data(client, project, query="Software&n_max=10")
     assert r.status_code == 200
     assert "result" in r.json
@@ -365,10 +334,7 @@ def test_search_data(setup):
 
 
 # Test get a selection of random papers to find exclusions
-def test_random_prior_papers(setup):
-    client, _, project = setup
-    # upload dataset
-    au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
+def test_random_prior_papers(client, project):
     # get random selection
     r = au.get_prior_random_project_data(client, project)
     assert r.status_code == 200
@@ -379,21 +345,14 @@ def test_random_prior_papers(setup):
 
 # Test labeling of prior data
 @pytest.mark.parametrize("label", [0, 1])
-def test_label_item(setup, label):
-    client, _, project = setup
-    # upload dataset
-    au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
-    # label
+def test_label_item(client, project, label):
     r = au.label_random_project_data_record(client, project, label)
     assert r.status_code == 200
     assert r.json["success"]
 
 
 # Test getting labeled records
-def test_get_labeled_project_data(setup):
-    client, _, project = setup
-    # upload dataset
-    au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
+def test_get_labeled_project_data(client, project):
     # label a random record
     au.label_random_project_data_record(client, project, 1)
     # collect labeled records
@@ -405,10 +364,7 @@ def test_get_labeled_project_data(setup):
 
 
 # Test getting labeled records stats
-def test_get_labeled_stats(setup):
-    client, _, project = setup
-    # upload dataset
-    au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
+def test_get_labeled_stats(client, project):
     # label 2 random records
     au.label_random_project_data_record(client, project, 1)
     au.label_random_project_data_record(client, project, 0)
@@ -424,8 +380,7 @@ def test_get_labeled_stats(setup):
 
 
 # Test listing the available algorithms
-def test_list_algorithms(setup):
-    client, _, _ = setup
+def test_list_algorithms(client, user):
     r = au.get_project_algorithms_options(client)
     assert r.status_code == 200
     expected_keys = [
@@ -443,17 +398,15 @@ def test_list_algorithms(setup):
 
 
 # Test setting the algorithms
-def test_set_project_algorithms(setup):
-    client, _, project = setup
+def test_set_project_algorithms(client, project):
     data = misc.choose_project_algorithms()
+
     r = au.set_project_algorithms(client, project, data=data)
     assert r.status_code == 200
     assert r.json["success"]
 
 
-# Test getting the project algorithms
-def test_get_project_algorithms(setup):
-    client, _, project = setup
+def test_get_project_algorithms(client, project):
     data_algorithms = misc.choose_project_algorithms()
     au.set_project_algorithms(client, project, data=data_algorithms)
     # get the project algorithms
@@ -461,23 +414,19 @@ def test_get_project_algorithms(setup):
     assert r.status_code == 200
     assert r.json["balance_strategy"] == r.json["balance_strategy"]
     assert r.json["feature_extraction"] == r.json["feature_extraction"]
-    assert r.json["model"] == r.json["model"]
+    assert r.json["classifier"] == r.json["classifier"]
     assert r.json["query_strategy"] == r.json["query_strategy"]
 
 
 # Test starting the model
-def test_start_and_model_ready(setup):
-    client, _, project = setup
-    # upload dataset
-    au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
+def test_start_and_model_ready(client, project):
     # label 2 random records
     au.label_random_project_data_record(client, project, 1)
     au.label_random_project_data_record(client, project, 0)
     # select a model
     data = misc.choose_project_algorithms()
     au.set_project_algorithms(client, project, data=data)
-    # start the model
-    r = au.start_project_algorithms(client, project)
+    r = au.set_project_status(client, project, status="review", trigger_model=True)
     assert r.status_code == 200
     assert r.json["success"]
     # make sure model is done
@@ -488,18 +437,14 @@ def test_start_and_model_ready(setup):
 @pytest.mark.parametrize(
     ("state_name", "expected_state"),
     [
-        ("creation", None),
         ("setup", "setup"),
         ("review", "review"),
         ("finish", "finished"),
     ],
 )
-def test_status_project(setup, state_name, expected_state):
-    client, _, project = setup
+def test_status_project(client, project, state_name, expected_state):
     # call these progression steps
     if state_name in ["setup", "review", "finish"]:
-        # upload dataset
-        au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
         # label 2 records
         au.label_random_project_data_record(client, project, 1)
         au.label_random_project_data_record(client, project, 0)
@@ -508,7 +453,7 @@ def test_status_project(setup, state_name, expected_state):
         au.set_project_algorithms(client, project, data=data)
     if state_name in ["review", "finish"]:
         # start the model
-        au.start_project_algorithms(client, project)
+        au.set_project_status(client, project, status="review", trigger_model=True)
         time.sleep(15)
     if state_name == "finish":
         # mark project as finished
@@ -521,22 +466,16 @@ def test_status_project(setup, state_name, expected_state):
 
 # Test exporting the results
 @pytest.mark.parametrize("format", ["csv", "tsv", "xlsx"])
-def test_export_result(setup, format):
-    client, _, project = setup
-    # upload dataset
-    au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
+def test_export_result(client, project, format):
     au.label_random_project_data_record(client, project, 1)
     au.label_random_project_data_record(client, project, 0)
-    # request
+
     r = au.export_project_dataset(client, project, format)
     assert r.status_code == 200
 
 
 # Test exporting the entire project
-def test_export_project(setup):
-    client, _, project = setup
-    # upload dataset
-    au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
+def test_export_project(client, project):
     au.label_random_project_data_record(client, project, 1)
     au.label_random_project_data_record(client, project, 0)
     # request
@@ -553,10 +492,8 @@ def test_export_project(setup):
 
 # Test setting the project status
 @pytest.mark.parametrize("status", ["review", "finished"])
-def test_set_project_status(setup, status):
-    client, _, project = setup
-    # start the show
-    au.upload_label_set_and_start_model(client, project, UPLOAD_DATA[0])
+def test_set_project_status(client, project, status):
+    au.upload_label_set_and_start_model(client, project)
     # when setting the status to "review", the project must have another
     # status then "review"
     if status == "review":
@@ -568,10 +505,7 @@ def test_set_project_status(setup, status):
 
 
 # Test get progress info
-def test_get_progress_info(setup):
-    client, _, project = setup
-    # upload dataset
-    au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
+def test_get_progress_info(client, project):
     # label 2 random records
     au.label_random_project_data_record(client, project, 1)
     au.label_random_project_data_record(client, project, 0)
@@ -585,11 +519,7 @@ def test_get_progress_info(setup):
 
 
 # Test get progress density on the article
-def test_get_progress_density(setup):
-    client, _, project = setup
-    # upload dataset
-    au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
-    # request progress density
+def test_get_progress_density(client, project):
     r = au.get_project_progress_density(client, project)
     assert r.status_code == 200
     assert isinstance(r.json, dict)
@@ -598,11 +528,7 @@ def test_get_progress_density(setup):
 
 
 # Test progress recall
-def test_get_progress_recall(setup):
-    client, _, project = setup
-    # upload dataset
-    au.upload_data_to_project(client, project, data=UPLOAD_DATA[0])
-    # get recall
+def test_get_progress_recall(client, project):
     r = au.get_project_progress_recall(client, project)
     assert r.status_code == 200
     assert isinstance(r.json, dict)
@@ -611,12 +537,11 @@ def test_get_progress_recall(setup):
 
 
 # Test retrieve documents in order to review
-def test_retrieve_document_for_review(setup):
-    client, _, project = setup
-    # start the show
-    au.upload_label_set_and_start_model(client, project, UPLOAD_DATA[0])
-    # get a document
+def test_retrieve_document_for_review(client, project):
+    au.upload_label_set_and_start_model(client, project)
     r = au.get_project_current_document(client, project)
+
+    print(r.json)
     assert r.status_code == 200
     assert isinstance(r.json, dict)
     assert not r.json["pool_empty"]
@@ -625,17 +550,13 @@ def test_retrieve_document_for_review(setup):
 
 
 # Test label a document after the model has been started
-def test_label_a_document_with_running_model(setup):
-    client, _, project = setup
-    # start the show
-    au.upload_label_set_and_start_model(client, project, UPLOAD_DATA[0])
+def test_label_a_document_with_running_model(client, user, project):
+    au.upload_label_set_and_start_model(client, project)
     # get a document
     r = au.get_project_current_document(client, project)
-    # get id
-    record_id = r.json["result"]["record_id"]
     # label it
     r = au.label_project_record(
-        client, project, record_id, label=1, prior=0, note="note"
+        client, project, r.json["result"]["record_id"], label=1, prior=0, note="note"
     )
     assert r.status_code == 200
     assert r.json["success"]
@@ -643,11 +564,8 @@ def test_label_a_document_with_running_model(setup):
 
 
 # Test update label of a document after the model has been started
-def test_update_label_of_document_with_running_model(setup):
-    client, _, project = setup
-    # start the show
-    au.upload_label_set_and_start_model(client, project, UPLOAD_DATA[0])
-    # get a document
+def test_update_label_of_document_with_running_model(client, project):
+    au.upload_label_set_and_start_model(client, project)
     r = au.get_project_current_document(client, project)
     # get id
     record_id = r.json["result"]["record_id"]
@@ -663,9 +581,7 @@ def test_update_label_of_document_with_running_model(setup):
 
 
 # Test deleting a project
-def test_delete_project(setup):
-    client, _, project = setup
-    # delete project
+def test_delete_project(client, project):
     r = au.delete_project(client, project)
     assert r.status_code == 200
     assert r.json["success"]
@@ -676,12 +592,10 @@ def test_delete_project(setup):
     [
         au.get_all_projects,
         au.create_project,
-        au.create_project_from_dict,
         au.update_project,
         au.upgrade_project,
         au.get_project_stats,
         au.get_demo_data,
-        au.upload_data_to_project,
         au.get_project_data,
         au.get_project_dataset_writer,
         au.search_project_data,
@@ -693,9 +607,8 @@ def test_delete_project(setup):
         au.get_project_algorithms_options,
         au.set_project_algorithms,
         au.get_project_algorithms,
-        au.start_project_algorithms,
-        au.get_project_status,
         au.set_project_status,
+        au.get_project_status,
         au.export_project_dataset,
         au.export_project,
         au.get_project_progress,
@@ -705,9 +618,8 @@ def test_delete_project(setup):
         au.delete_project,
     ],
 )
-def test_unauthorized_use_of_api_calls(setup, api_call):
-    client, user, project = setup
-    if not current_app.config.get("LOGIN_DISABLED"):
+def test_unauthorized_use_of_api_calls(client, project, api_call):
+    if not client.application.config.get("LOGIN_DISABLED"):
         # signout the client
         au.signout_user(client)
         # inspect function

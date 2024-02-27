@@ -161,23 +161,13 @@ def get_all_projects(client: FlaskClient):
     return response
 
 
-def create_project(
-    client: FlaskClient,
-    mode: str = "explore",
-):
+def create_project(client: FlaskClient, mode: str = "explore", **kwargs):
     response = client.post(
-        "/api/projects/info",
+        "/api/projects/create",
         data={
             "mode": mode,
+            **kwargs,
         },
-    )
-    return response
-
-
-def create_project_from_dict(client: FlaskClient, data: dict):
-    response = client.post(
-        "/api/projects/info",
-        data=data,
     )
     return response
 
@@ -335,21 +325,20 @@ def get_project_algorithms(client: FlaskClient, project: Union[Project, asr.Proj
     return response
 
 
-def start_project_algorithms(client: FlaskClient, project: Union[Project, asr.Project]):
-    response = client.post(f"/api/projects/{get_project_id(project)}/start")
-    return response
-
-
 def get_project_status(client: FlaskClient, project: Union[Project, asr.Project]):
     response = client.get(f"/api/projects/{get_project_id(project)}/status")
     return response
 
 
 def set_project_status(
-    client: FlaskClient, project: Union[Project, asr.Project], status: str
+    client: FlaskClient,
+    project: Union[Project, asr.Project],
+    status: str,
+    trigger_model: bool = False,
 ):
     response = client.put(
-        f"/api/projects/{get_project_id(project)}/status", data={"status": status}
+        f"/api/projects/{get_project_id(project)}/reviews/0",
+        data={"status": status, "trigger_model": trigger_model},
     )
     return response
 
@@ -429,11 +418,9 @@ def create_and_signin_user(client, test_user_id=1):
     return stored_user
 
 
-def upload_label_set_and_start_model(client, project, dataset):
+def upload_label_set_and_start_model(client, project):
     """Uploads a dataset to a created project and adds and starts
     a random model."""
-    # upload dataset
-    upload_data_to_project(client, project, data=dataset)
     # label 2 random records
     label_random_project_data_record(client, project, 1)
     label_random_project_data_record(client, project, 0)
@@ -441,6 +428,6 @@ def upload_label_set_and_start_model(client, project, dataset):
     model_data = misc.choose_project_algorithms()
     set_project_algorithms(client, project, data=model_data)
     # start the model
-    start_project_algorithms(client, project)
+    set_project_status(client, project, status="review", trigger_model=True)
     # make sure model is done
     time.sleep(10)

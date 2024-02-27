@@ -58,10 +58,10 @@ def extract_filename_stem(upload_data):
 def choose_project_algorithms():
     """Randomly chooses a model plus the appropriate feature
     extraction, query strategy and balance strategy."""
-    model = random.choice(["svm", "nb", "logistic"])
+    classifier = random.choice(["svm", "nb", "logistic"])
     feature_extraction = random.choice(["tfidf"])
     data = {
-        "model": model,
+        "classifier": classifier,
         "feature_extraction": feature_extraction,
         "query_strategy": random.choice(
             ["cluster", "max", "max_random", "max_uncertainty", "random", "uncertainty"]
