@@ -409,13 +409,13 @@ def test_list_projects_no_json(client_no_auth, capsys):
 
 # Test list projects: output is a json string
 def test_list_projects_with_json(client_no_auth, capsys):
-    # create two projects
-    r1 = au.create_project(client_no_auth, benchmark="synergy:van_der_Valk_2021")
-    r2 = au.create_project(client_no_auth, benchmark="synergy:van_der_Valk_2021")
-    data = {r1.json.get("id"): r1.json, r2.json.get("id"): r2.json}
-    # get auth_tool object
-    auth_tool = get_auth_tool_object(Namespace(json=True))
-    # run function
+    with capsys.disabled():
+        r1 = au.create_project(client_no_auth, benchmark="synergy:van_der_Valk_2021")
+        r2 = au.create_project(client_no_auth, benchmark="synergy:van_der_Valk_2021")
+        data = {r1.json.get("id"): r1.json, r2.json.get("id"): r2.json}
+        # get auth_tool object
+        auth_tool = get_auth_tool_object(Namespace(json=True))
+
     auth_tool.list_projects()
     out, _ = capsys.readouterr()
     # this loads the out json string into a list of dicts
@@ -440,18 +440,19 @@ def test_list_projects_with_json(client_no_auth, capsys):
 # asreview folder and upgraded. This is done without the help of
 # the API, ensuring they can't be linked to a User account.
 def test_link_project_with_json_string(client_auth, capsys):
-    # import projects
-    proj1, proj2 = import_2_unauthenticated_projects()
-    # create 2 users
-    user1 = crud.create_user(DB, 1)
-    user2 = crud.create_user(DB, 2)
-    # check database
-    assert crud.count_users() == 2
-    assert crud.count_projects() == 0
-    # check if we have 2 folders in asreview path
-    assert len(misc.get_folders_in_asreview_path()) == 2
-    # get from the auth tool a json string
-    auth_tool = get_auth_tool_object(Namespace(json=True))
+    with capsys.disabled():
+        import_2_unauthenticated_projects()
+        # create 2 users
+        user1 = crud.create_user(DB, 1)
+        user2 = crud.create_user(DB, 2)
+        # check database
+        assert crud.count_users() == 2
+        assert crud.count_projects() == 0
+        # check if we have 2 folders in asreview path
+        assert len(misc.get_folders_in_asreview_path()) == 2
+        # get from the auth tool a json string
+        auth_tool = get_auth_tool_object(Namespace(json=True))
+
     auth_tool.list_projects()
     out, _ = capsys.readouterr()
     # we replace the owner ids with the ids of the users
