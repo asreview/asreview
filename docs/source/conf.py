@@ -71,7 +71,6 @@ extensions = [
     "sphinx_design",
     # custom extentions
     "_extension.gallery_directive",
-
 ]
 autosectionlabel_prefix_document = True
 
@@ -141,25 +140,25 @@ html_theme_options = {
         {
             "url": "https://www.uu.nl/en/research/ai-labs/disc-ai-lab",
             "name": "AI-Lab at Utrecht University",
+        },
+    ],
+    "logo": {
+        "image_light": "https://raw.githubusercontent.com/asreview/asreview-artwork/master/LogoASReview/SVG/GitHub_Repo_Card_Transparent.svg",
+        "image_dark": "https://raw.githubusercontent.com/asreview/asreview-artwork/master/LogoASReview/SVG/GitHub_Repo_Card_Transparent.svg",
+    },
+    "favicons": [
+        {
+            "rel": "icon",
+            "sizes": "16x16",
+            "href": "https://github.com/asreview/asreview/blob/d8923df792eaee8d0997782e667c2340dc81ddfc/asreview/webapp/public/favicon.png?raw=true",
         }
     ],
-   "logo": {
-      "image_light": "https://raw.githubusercontent.com/asreview/asreview-artwork/master/LogoASReview/SVG/GitHub_Repo_Card_Transparent.svg",
-      "image_dark": "https://raw.githubusercontent.com/asreview/asreview-artwork/master/LogoASReview/SVG/GitHub_Repo_Card_Transparent.svg",
-   },
-      "favicons": [
-      {
-         "rel": "icon",
-         "sizes": "16x16",
-         "href": "https://github.com/asreview/asreview/blob/d8923df792eaee8d0997782e667c2340dc81ddfc/asreview/webapp/public/favicon.png?raw=true",
-      }],
-         "announcement": "ASReview LAB 2.0 is now available! <a href='https://asreview.nl/download'>Try it out</a>.",
+    "announcement": "ASReview LAB 2.0 is now available! <a href='https://asreview.nl/download'>Try it out</a>.",
     "use_edit_page_button": True,
     "navbar_align": "left",
     "navbar_center": ["navbar-nav"],
     "footer_start": ["copyright"],
     "footer_center": ["sphinx-version"],
-
     "icon_links": [
         {
             "name": "GitHub",
@@ -171,9 +170,7 @@ html_theme_options = {
             "url": "https://pypi.org/project/asreview/",
             "icon": "fa-custom fa-pypi",
         },
-
-   ]
-
+    ],
 }
 
 html_context = {

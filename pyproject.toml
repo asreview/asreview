@@ -165,7 +165,7 @@ Homepage = "https://asreview.ai/"
 "Source Code" = "https://github.com/asreview/asreview"
 YouTube = "https://www.youtube.com/@ASReview"
 
-[tool.ruff]
+[ruff.lint]
 select = ["E", "F", "UP", "I", "B"]
 ignore = ["B904", "B008"]
 exclude = [
@@ -181,16 +181,16 @@ exclude = [
     "docs/source/conf.py",
     "asreview/_version.py",
 ]
+line-length = 88
+indent-width = 4
 
-[tool.ruff.per-file-ignores]
+[ruff.per-file-ignores]
 "asreview/config.py" = ["E501"]
 
-[tool.ruff.isort]
+[ruff.lint.isort]
 force-single-line = true
 
 [ruff.format]
-line-length = 88
-indent-width = 4
 docstring-code-format = true
 docstring-code-line-length = "dynamic"
 
