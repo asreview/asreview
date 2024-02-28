@@ -27,9 +27,8 @@ jobs:
           python setup.py compile_assets
       - name: Install pytest and package
         run: |
-          pip install pytest
-          pip install pytest-random-order
+          pip install pytest pytest-random-order pytest-xdist
           pip install --no-cache-dir .
       - name: Test flask web app
         run: |
-          pytest --random-order asreview/webapp/tests
+          pytest --random-order -n 6 asreview/webapp/tests
