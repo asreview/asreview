@@ -2,21 +2,14 @@ import React, { useCallback, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
 import { useMutation, useQueryClient } from "react-query";
 import { connect } from "react-redux";
-import {
-  Avatar,
-  Box,
-  Button,
-  ButtonBase,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Avatar, Box, ButtonBase, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FileUpload } from "@mui/icons-material";
 
-import { InlineErrorHandler } from "../Components";
+import { InlineErrorHandler } from "Components";
 
-import { ProjectAPI } from "../api/index.js";
-import { mapStateToProps } from "../globals.js";
+import { ProjectAPI } from "api";
+import { mapStateToProps } from "globals.js";
 
 const PREFIX = "ImportFromFile";
 
@@ -160,7 +153,7 @@ const ImportFromFile = (props) => {
             </Avatar>
           </ButtonBase>
           <Typography>
-            Drag and drop a project file (<code>.asreview</code>) to add
+            Click or Drag and drop a ASReview file (<code>.asreview</code>)
           </Typography>
           {file && (
             <Typography className={classes.singleLine}>
@@ -177,13 +170,6 @@ const ImportFromFile = (props) => {
               message={importProjectError?.message + " Please try again."}
             />
           )}
-          <Button
-            disabled={isImportingProject}
-            variant="contained"
-            onClick={open}
-          >
-            Select File
-          </Button>
         </Stack>
       </Box>
     </Root>

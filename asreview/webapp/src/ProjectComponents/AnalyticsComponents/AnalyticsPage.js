@@ -22,18 +22,18 @@ import {
 import { styled } from "@mui/material/styles";
 import { Share } from "@mui/icons-material";
 
-import { PageHeader } from "../../Components";
+import { PageHeader } from "Components";
 import {
   NumberCard,
   ShareFabAction,
   ProgressChart,
   ProgressDensityChart,
   ProgressRecallChart,
-} from "../AnalyticsComponents";
-import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
+} from "ProjectComponents/AnalyticsComponents";
+import { TypographyH5Medium } from "StyledComponents/StyledTypography";
 
-import { ProjectAPI } from "../../api/index.js";
-import { projectModes } from "../../globals.js";
+import { ProjectAPI } from "api";
+import { projectModes } from "globals.js";
 
 const Root = styled("div")(({ theme }) => ({}));
 

@@ -15,11 +15,11 @@ import {
 import { styled } from "@mui/material/styles";
 import { Link } from "@mui/icons-material";
 
-import { BoxErrorHandler } from "../../Components";
-import { DOIIcon } from "../../icons";
-import { NoteSheet } from "../ReviewComponents";
-import { ExplorationModeRecordAlert } from "../../StyledComponents/StyledAlert.js";
-import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
+import { BoxErrorHandler } from "Components";
+import { DOIIcon } from "icons";
+import { NoteSheet, RecordTrainingInfo } from ".";
+import { ExplorationModeRecordAlert } from "StyledComponents/StyledAlert";
+import { StyledIconButton } from "StyledComponents/StyledButton";
 
 const PREFIX = "RecordCard";
 
@@ -147,37 +147,44 @@ const RecordCard = (props) => {
             aria-label="record title abstract"
           >
             <Stack spacing={1}>
-              {/* Show the title */}
-              <Typography
-                component="div"
-                className={classes.title}
-                variant={!props.mobileScreen ? "h5" : "h6"}
-                sx={{
-                  fontWeight: (theme) => theme.typography.fontWeightRegular,
-                }}
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="baseline"
+                spacing={1}
               >
-                {/* No title, inplace text */}
-                {(props.activeRecord.title === "" ||
-                  props.activeRecord.title === null) && (
-                  <Box
-                    className={"fontSize" + props.fontSize.label}
-                    fontStyle="italic"
-                  >
-                    No title available
-                  </Box>
-                )}
+                {/* Show the title */}
+                <Typography
+                  component="div"
+                  className={classes.title}
+                  variant={!props.mobileScreen ? "h5" : "h6"}
+                  sx={{
+                    fontWeight: (theme) => theme.typography.fontWeightRegular,
+                  }}
+                >
+                  {/* No title, inplace text */}
+                  {(props.activeRecord.title === "" ||
+                    props.activeRecord.title === null) && (
+                    <Box
+                      className={"fontSize" + props.fontSize.label}
+                      fontStyle="italic"
+                    >
+                      No title available
+                    </Box>
+                  )}
 
-                {/* Show the title if available */}
-                {!(
-                  props.activeRecord.title === "" ||
-                  props.activeRecord.title === null
-                ) && (
-                  <Box className={"fontSize" + props.fontSize.label}>
-                    {props.activeRecord.title}
-                  </Box>
-                )}
-              </Typography>
-
+                  {/* Show the title if available */}
+                  {!(
+                    props.activeRecord.title === "" ||
+                    props.activeRecord.title === null
+                  ) && (
+                    <Box className={"fontSize" + props.fontSize.label}>
+                      {props.activeRecord.title}
+                    </Box>
+                  )}
+                </Typography>
+                <RecordTrainingInfo state={props.activeRecord.state} />
+              </Stack>
               <Stack direction="row" spacing={1}>
                 {/* Show DOI if available */}
                 {!(

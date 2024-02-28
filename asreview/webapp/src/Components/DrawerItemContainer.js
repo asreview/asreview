@@ -22,17 +22,17 @@ import {
 import { styled } from "@mui/material/styles";
 import { Diversity3, Help, Payment, Settings } from "@mui/icons-material";
 
-import { DrawerItem, ElasGame } from "../Components";
-import { ProjectAPI } from "../api/index.js";
+import { DrawerItem, ElasGame } from "Components";
+import { ProjectAPI } from "api";
 import {
   communityURL,
   donateURL,
   projectModes,
   projectStatuses,
-} from "../globals.js";
-import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
-import InReview from "../images/ElasHoldingSIGNS_InReview.svg";
-import SetUp from "../images/ElasHoldingSIGNS_SetUp.svg";
+} from "globals.js";
+import Finished from "images/ElasHoldingSIGNS_Finished.svg";
+import InReview from "images/ElasHoldingSIGNS_InReview.svg";
+import SetUp from "images/ElasHoldingSIGNS_SetUp.svg";
 
 const PREFIX = "DrawerItemContainer";
 
@@ -133,16 +133,6 @@ const DrawerItemContainer = (props) => {
   };
 
   /**
-   * Drawer items on home page
-   * Any change here requires change in DrawerItem
-   */
-  const drawerItemsHomePage = [
-    {
-      path: "/projects",
-      label: "Projects",
-    },
-  ];
-  /**
    * Drawer items on project page
    * Any change here requires change in DrawerItem
    */
@@ -206,24 +196,34 @@ const DrawerItemContainer = (props) => {
       {/* Top Section: Home page drawer */}
       <Routes>
         <Route
-          path="*"
+          path="/projects&subset=:subset"
           element={
-            <Fade in>
-              <div className={classes.topSection}>
-                {drawerItemsHomePage.map((element, index) => {
-                  return (
-                    <DrawerItem
-                      key={index}
-                      path={element.path}
-                      label={element.label}
-                      mobileScreen={props.mobileScreen}
-                      onNavDrawer={props.onNavDrawer}
-                      toggleNavDrawer={props.toggleNavDrawer}
-                    />
-                  );
-                })}
-              </div>
-            </Fade>
+            <div className={classes.topSection}>
+              <DrawerItem
+                key={"projects-reviews"}
+                path={"/projects&subset=oracle"}
+                label={"Reviews"}
+                mobileScreen={props.mobileScreen}
+                onNavDrawer={props.onNavDrawer}
+                toggleNavDrawer={props.toggleNavDrawer}
+              />
+              <DrawerItem
+                key={"projects-validations"}
+                path={"/projects&subset=explore"}
+                label={"Validations"}
+                mobileScreen={props.mobileScreen}
+                onNavDrawer={props.onNavDrawer}
+                toggleNavDrawer={props.toggleNavDrawer}
+              />
+              <DrawerItem
+                key={"projects-simulations"}
+                path={"/projects&subset=simulate"}
+                label={"Simulations"}
+                mobileScreen={props.mobileScreen}
+                onNavDrawer={props.onNavDrawer}
+                toggleNavDrawer={props.toggleNavDrawer}
+              />
+            </div>
           }
         />
 
@@ -273,7 +273,7 @@ const DrawerItemContainer = (props) => {
                     .filter((element) => {
                       return projectInfo?.mode !== projectModes.SIMULATION
                         ? element
-                        : element.path !== "review";
+                        : element.path !== projectStatuses.REVIEW;
                     })
                     .map((element, index) => {
                       return (
@@ -297,7 +297,11 @@ const DrawerItemContainer = (props) => {
       <div className={classes.bottomSection}>
         <Divider />
         {donateURL !== undefined && (
-          <Tooltip disableHoverListener={props.onNavDrawer} title="Donate">
+          <Tooltip
+            disableHoverListener={props.onNavDrawer}
+            title="Donate"
+            placement="right"
+          >
             <ListItemButton
               component={"a"}
               color="inherit"
@@ -312,7 +316,11 @@ const DrawerItemContainer = (props) => {
           </Tooltip>
         )}
         {communityURL !== undefined && (
-          <Tooltip disableHoverListener={props.onNavDrawer} title="Community">
+          <Tooltip
+            disableHoverListener={props.onNavDrawer}
+            title="Community"
+            placement="right"
+          >
             <ListItemButton
               component={"a"}
               color="inherit"
@@ -326,7 +334,11 @@ const DrawerItemContainer = (props) => {
             </ListItemButton>
           </Tooltip>
         )}
-        <Tooltip disableHoverListener={props.onNavDrawer} title="Settings">
+        <Tooltip
+          disableHoverListener={props.onNavDrawer}
+          title="Settings"
+          placement="right"
+        >
           <ListItemButton
             onClick={() => {
               if (props.mobileScreen) {
@@ -341,7 +353,11 @@ const DrawerItemContainer = (props) => {
             <ListItemText primary="Settings" />
           </ListItemButton>
         </Tooltip>
-        <Tooltip disableHoverListener={props.onNavDrawer} title="Help">
+        <Tooltip
+          disableHoverListener={props.onNavDrawer}
+          title="Help"
+          placement="right"
+        >
           <ListItemButton
             onClick={() => {
               if (props.mobileScreen) {

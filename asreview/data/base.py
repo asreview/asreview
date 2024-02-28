@@ -170,6 +170,16 @@ class Dataset:
         # Convert labels to integers.
         if self.column_spec and "included" in list(self.column_spec):
             col = self.column_spec["included"]
+
+            if self.df[col].dtype in ["str", "object"]:
+                self.df[col] = (
+                    self.df[col]
+                    .str.lower()
+                    .replace(
+                        {"": None, "0": 0, "1": 1, "yes": 1, "no": 0, "y": 1, "n": 0}
+                    )
+                )
+
             self.df[col] = self.df[col].fillna(LABEL_NA).astype(int)
 
         self.df["record_id"] = np.arange(len(self.df.index)).astype("int64")

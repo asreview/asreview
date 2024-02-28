@@ -1,7 +1,7 @@
 import React from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { InlineErrorHandler } from ".";
-import { AuthAPI } from "../api/index.js";
+import { AuthAPI } from "api";
 
 let requestedAPI = false;
 

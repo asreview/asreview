@@ -15,9 +15,9 @@ import {
 import LoadingButton from "@mui/lab/LoadingButton";
 import { styled } from "@mui/material/styles";
 
-import { WordmarkState } from "../globals";
+import { WordmarkState } from "globals.js";
 import { InlineErrorHandler } from ".";
-import AuthAPI from "../api/AuthAPI";
+import AuthAPI from "api/AuthAPI";
 
 const PREFIX = "SignInForm";
 

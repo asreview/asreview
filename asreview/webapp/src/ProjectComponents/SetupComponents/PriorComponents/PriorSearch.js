@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { connect } from "react-redux";
 import {
   Box,
   CircularProgress,
@@ -14,13 +13,15 @@ import {
 import { styled } from "@mui/material/styles";
 import { ArrowBack, Search } from "@mui/icons-material";
 
-import { InfoCard } from "../../SetupComponents";
-import { InlineErrorHandler } from "../../../Components";
-import { PriorUnlabeled } from "../DataComponents";
-import { StyledIconButton } from "../../../StyledComponents/StyledButton";
-import { ProjectAPI } from "../../../api/index.js";
-import { mapStateToProps } from "../../../globals.js";
-import { useToggle } from "../../../hooks/useToggle";
+import { InfoCard } from "ProjectComponents/SetupComponents";
+import { InlineErrorHandler } from "Components";
+import { PriorUnlabeled } from ".";
+import { StyledIconButton } from "StyledComponents/StyledButton";
+import { ProjectAPI } from "api";
+import { useToggle } from "hooks/useToggle";
+
+import { ProjectContext } from "ProjectContext";
+import { useContext } from "react";
 
 const PREFIX = "PriorSearch";
 
@@ -70,12 +71,14 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const PriorSearch = (props) => {
+  const project_id = useContext(ProjectContext);
+
   const queryClient = useQueryClient();
   const [keyword, setKeyword] = React.useState("");
   const [clickSearch, onClickSearch] = useToggle();
 
   const { data, error, isError, isFetched, isFetching, isSuccess } = useQuery(
-    ["fetchPriorSearch", { project_id: props.project_id, keyword: keyword }],
+    ["fetchPriorSearch", { project_id: project_id, keyword: keyword }],
     ProjectAPI.fetchPriorSearch,
     {
       enabled: clickSearch,
@@ -181,4 +184,4 @@ const PriorSearch = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(PriorSearch);
+export default PriorSearch;

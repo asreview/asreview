@@ -1,19 +1,39 @@
 import * as React from "react";
 import { useMutation, useQuery } from "react-query";
-import { connect } from "react-redux";
-import { Box, CircularProgress, Link, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  Link,
+  Stack,
+  Typography,
+  FormControl,
+  FormHelperText,
+  InputLabel,
+  MenuItem,
+  Select,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { CardErrorHandler } from "../../../Components";
-import { ModelRequirement, ModelSelect } from "../ModelComponents";
-import { ProjectAPI } from "../../../api/index.js";
-import { defaultAlgorithms, mapStateToProps } from "../../../globals.js";
+import { CardErrorHandler } from "Components";
+import { ModelSelect } from ".";
+import { ProjectAPI } from "api";
+import { defaultAlgorithms } from "globals.js";
+import { SelectItem } from "ProjectComponents";
+import { useContext } from "react";
+import { ProjectContext } from "ProjectContext";
 
 const PREFIX = "ModelForm";
 
 const classes = {
   title: `${PREFIX}-title`,
   loading: `${PREFIX}-loading`,
+  custom: `${PREFIX}-custom`,
 };
 
 const Root = styled("div")(({ theme }) => ({
@@ -25,19 +45,86 @@ const Root = styled("div")(({ theme }) => ({
     display: "flex",
     justifyContent: "center",
   },
+
+  [`& .${classes.custom}`]: {
+    paddingTop: 16,
+    // add grey.100 background color
+    bgcolor: (theme) =>
+      theme.palette.mode === "dark" ? "background.paper" : "grey.100",
+  },
 }));
 
-const ModelForm = (props) => {
-  const [model, setModel] = React.useState({
-    classifier: null,
-    query_strategy: null,
-    balance_strategy: null,
-    feature_extraction: null,
+const DEFAULT_MODELS = [
+  {
+    name: "tfidf-nb-max-double",
+    title: "Model Always Good",
+    description:
+      "A classic combination that has proven to work well in the ASReview context, as shown in many simulations. It especially handles the starting phase of the systematic review well, being able to handle little amounts of data.",
+  },
+  {
+    name: "onehot-logistic-max-double",
+    title: "Model One Word",
+    description:
+      "A model that excels in finding specific words, providing good performance in finding the last remaining relevant documents.",
+  },
+  {
+    name: "labse-logistic-max-double",
+    title: "Model Multi Language",
+    requires: "asreview-nemo",
+    description:
+      "A multilingual feature extractor for systematic review datasets in multiple languages (LaBSE x Logistic Regression).",
+  },
+  {
+    name: "sbert-rf-max-double",
+    title: "Model Context",
+    requires: "asreview-nemo",
+    description:
+      "A powerful pretrained model based on the transformer infrastructure used in the latest AI models. Combined with a proven implementation of a gradient boosting classifier (SBert x XGBoost).",
+  },
+  {
+    name: "doc2vec-dynamic_nn-max-double",
+    title: "Model Neural",
+    requires: "asreview-nemo",
+    description:
+      "A classifier and feature extractor combination both based on neural network architectures. Long training time and needs more data, but unrivaled performance in the final screening stages (Wide-Doc2Vec x Dynamic Neural Network).",
+  },
+];
+
+const getFullModelName = (model) => {
+  let name =
+    model.feature_extraction +
+    "-" +
+    model.classifier +
+    "-" +
+    model.query_strategy +
+    "-" +
+    model.balance_strategy;
+  let defaultModel = DEFAULT_MODELS.filter((e) => e.name === name);
+
+  if (defaultModel.length === 1) {
+    return defaultModel[0].name;
+  } else {
+    return "custom";
+  }
+};
+
+const ModelForm = ({
+  editable = true,
+  showWarning = false,
+  trainNewModel = false,
+}) => {
+  const project_id = useContext(ProjectContext);
+
+  const [modelState, setModelState] = React.useState({
+    custom: false,
+    isChanged: false,
+    warning: {
+      active: false,
+      value: null,
+    },
+    model: defaultAlgorithms,
   });
 
-  /**
-   * Fetch model options
-   */
   const {
     data: modelOptions,
     error: fetchModelOptionsError,
@@ -47,116 +134,118 @@ const ModelForm = (props) => {
     refetchOnWindowFocus: false,
   });
 
-  /**
-   * Fetch model config
-   */
   const {
     error: fetchModelConfigError,
     isError: isFetchModelConfigError,
     isFetching: isFetchingModelConfig,
   } = useQuery(
-    ["fetchModelConfig", { project_id: props.project_id }],
+    ["fetchModelConfig", { project_id: project_id }],
     ProjectAPI.fetchModelConfig,
     {
-      enabled: props.project_id !== null,
+      enabled: project_id !== null,
       onSuccess: (data) => {
-        if (data !== null) {
-          setModel({
-            classifier: data["model"],
-            query_strategy: data["query_strategy"],
-            balance_strategy: data["balance_strategy"],
-            feature_extraction: data["feature_extraction"],
-          });
-        } else {
-          setModel(defaultAlgorithms);
-        }
+        setModelState({
+          custom: getFullModelName(data) === "custom",
+          isChanged: modelState.isChanged,
+          model: data,
+          warning: { ...modelState.warning },
+        });
       },
       refetchOnWindowFocus: false,
     },
   );
 
-  /**
-   * Mutate model config
-   */
-  const {
-    // error: mutateModelConfigError,
-    // isError: isMutateModelConfigError,
-    // isLoading: isMutatingModelConfig,
-    mutate: mutateModelConfig,
-    // reset,
-  } = useMutation(ProjectAPI.mutateModelConfig, {
-    mutationKey: "mutateModelConfig",
-    onError: () => {
-      props.handleComplete(false);
-    },
-    onSuccess: () => {
-      props.handleComplete(true);
-    },
-  });
+  const { mutate: mutateModelConfig, isError: isMutateModelConfigError } =
+    useMutation(ProjectAPI.mutateModelConfig, {
+      mutationKey: "mutateModelConfig",
+    });
 
   const prepareMutationData = React.useCallback(
     () => ({
-      project_id: props.project_id,
-      ...model,
+      project_id: project_id,
+      ...modelState.model,
+      trainNewModel: trainNewModel,
     }),
-    [props.project_id, model],
+    [project_id, modelState, trainNewModel],
   );
 
-  // auto mutate model selection
-  React.useEffect(() => {
-    const { classifier, query_strategy, balance_strategy, feature_extraction } =
-      model;
+  const handleModelCustom = (event) => {
+    const { name, value } = event.target;
+    setModelState({
+      custom: modelState.custom,
+      isChanged: true,
+      model: { ...modelState.model, ...{ [name]: value } },
+      warning: { ...modelState.warning },
+    });
+  };
 
-    if (
-      props.project_id &&
-      classifier &&
-      query_strategy &&
-      balance_strategy &&
-      feature_extraction
-    ) {
+  const acceptModelChange = ({ value }) => {
+    const changeValue = value === undefined ? modelState.warning.value : value;
+
+    if (changeValue === "custom") {
+      setModelState({
+        custom: true,
+        isChanged: true,
+        model: modelState.model,
+        warning: {
+          active: false,
+          value: null,
+        },
+      });
+    } else {
+      let parts = changeValue.split("-");
+      setModelState({
+        custom: false,
+        isChanged: true,
+        model: {
+          feature_extraction: parts[0],
+          classifier: parts[1],
+          query_strategy: parts[2],
+          balance_strategy: parts[3],
+        },
+        warning: {
+          active: false,
+          value: null,
+        },
+      });
+    }
+  };
+
+  const cancelWarning = () => {
+    setModelState({
+      custom: modelState.custom,
+      isChanged: modelState.isChanged,
+      model: modelState.model,
+      warning: {
+        active: false,
+        value: null,
+      },
+    });
+  };
+
+  const handleModelDropdownChange = (event) => {
+    const { value } = event.target;
+
+    if (showWarning) {
+      setModelState({
+        custom: modelState.custom,
+        isChanged: modelState.isChanged,
+        model: modelState.model,
+        warning: {
+          active: true,
+          value: value,
+        },
+      });
+    } else {
+      acceptModelChange({ value });
+    }
+  };
+
+  React.useEffect(() => {
+    if (modelState.isChanged) {
       mutateModelConfig(prepareMutationData());
     }
-  }, [model, mutateModelConfig, prepareMutationData, props.project_id]);
-
-  const handleModel = (event) => {
-    const { name, value } = event.target;
-
-    let updates = { [name]: value };
-
-    if (name === "classifier") {
-      if (["lstm-base", "lstm-pool"].includes(value)) {
-        updates.feature_extraction = "embedding-lstm";
-      } else if (model?.feature_extraction === "embedding-lstm") {
-        updates.feature_extraction = defaultAlgorithms["feature_extraction"];
-      }
-    }
-
-    setModel((prevModel) => ({
-      ...prevModel,
-      ...updates,
-    }));
-  };
-
-  const disableClassifierItem = (value) => {
-    return value === "nb" && model?.feature_extraction === "doc2vec";
-  };
-
-  const disableFeatureExtractionItem = (value) => {
-    const { classifier } = model || {};
-
-    if (value === "doc2vec" && classifier === "nb") return true;
-    if (value === "embedding-lstm") {
-      if (!["lstm-base", "lstm-pool"].includes(classifier)) return true;
-    } else if (["lstm-base", "lstm-pool"].includes(classifier)) return true;
-
-    return false;
-  };
-
-  const returnQueryStrategyHelperText = () => {
-    if (model?.query_strategy === "random") {
-      return "Your review is not accelerated by the model";
-    }
-  };
+  }, [modelState, mutateModelConfig, prepareMutationData]);
 
   return (
     <Root>
@@ -166,7 +255,7 @@ const ModelForm = (props) => {
           An active learning model consists of a feature extraction technique, a
           classifier, a query strategy, and a balance strategy. The default
           setup (TF-IDF, Naive Bayes, Maximum, Dynamic resampling) overall has
-          fast and excellent performance.{" "}
+          great time saving.{" "}
           <Link
             underline="none"
             href={`https://asreview.nl/blog/active-learning-explained/`}
@@ -176,7 +265,6 @@ const ModelForm = (props) => {
           </Link>
         </Typography>
       </Box>
-      <ModelRequirement model={model} modelOptions={modelOptions} />
       <Stack spacing={3} sx={{ mt: 3 }}>
         {(isFetchingModelOptions || isFetchingModelConfig) && (
           <Box className={classes.loading}>
@@ -185,42 +273,148 @@ const ModelForm = (props) => {
         )}
         {!isFetchingModelOptions && !isFetchingModelConfig && (
           <Box component="form" noValidate autoComplete="off">
-            <Stack direction="column" spacing={3}>
-              <ModelSelect
-                name="feature_extraction"
-                label="Feature extraction technique"
-                items={modelOptions?.feature_extraction}
-                model={model}
-                handleModel={handleModel}
-                disableItem={disableFeatureExtractionItem}
-              />
-              <ModelSelect
-                name="classifier"
-                label="Classifier"
-                items={modelOptions?.classifier}
-                model={model}
-                handleModel={handleModel}
-                disableItem={disableClassifierItem}
-              />
-              <ModelSelect
-                name="query_strategy"
-                label="Query strategy"
-                items={modelOptions?.query_strategy}
-                model={model}
-                handleModel={handleModel}
-                helperText={returnQueryStrategyHelperText()}
-              />
-              <ModelSelect
-                name="balance_strategy"
-                label="Balance strategy"
-                items={modelOptions?.balance_strategy}
-                model={model}
-                handleModel={handleModel}
-              />
-            </Stack>
+            <FormControl
+              disabled={!editable}
+              fullWidth
+              variant={editable ? "outlined" : "filled"}
+              error={isMutateModelConfigError}
+            >
+              <InputLabel id="model-select-label">Model</InputLabel>
+              <Select
+                labelId="model-select-label"
+                id="model-select"
+                // inputProps={{
+                //   onFocus: () => onFocus(),
+                //   onBlur: () => onBlur(),
+                // }}
+                name="model"
+                label="Model"
+                value={
+                  modelState.custom
+                    ? "custom"
+                    : getFullModelName(modelState.model)
+                }
+                onChange={handleModelDropdownChange}
+              >
+                {/* iterater over the default models */}
+                {DEFAULT_MODELS.map((value) => (
+                  <MenuItem
+                    value={value.name}
+                    key={`result-item-${value.name}`}
+                    divider
+                  >
+                    <SelectItem
+                      primary={
+                        <Box>
+                          {value.title}{" "}
+                          {value.requires && (
+                            <Box sx={{ color: "blue", display: "inline" }}>
+                              (requires {value.requires})
+                            </Box>
+                          )}
+                        </Box>
+                      }
+                      secondary={value.description}
+                    />
+                  </MenuItem>
+                ))}
+
+                <MenuItem value={"custom"}>
+                  <SelectItem
+                    primary="Custom"
+                    secondary="Built the model yourself by picking a feature extractor, classifier, query strategy, and balance strategy."
+                  />
+                </MenuItem>
+              </Select>
+              {isMutateModelConfigError && (
+                <FormHelperText style={{ fontSize: "16px" }}>
+                  ASReview NEMO (New Exciting MOdels) extension isn't installed.
+                  Please install the{" "}
+                  <Link
+                    underline="none"
+                    href={`https://asreview.readthedocs.io/en/latest/guide/installation.html#installing-nemo-models`}
+                    target="_blank"
+                  >
+                    {" "}
+                    NEMO models
+                  </Link>{" "}
+                  extension to use this model.
+                </FormHelperText>
+              )}
+            </FormControl>
+
+            {modelState.custom && (
+              <Box className={classes.custom}>
+                <Stack direction="column" spacing={3}>
+                  <ModelSelect
+                    name="feature_extraction"
+                    label="Feature extraction technique"
+                    items={modelOptions?.feature_extraction}
+                    model={modelState.model}
+                    handleModel={handleModelCustom}
+                    editable={editable}
+                  />
+                  <ModelSelect
+                    name="classifier"
+                    label="Classifier"
+                    items={modelOptions?.classifier}
+                    model={modelState.model}
+                    handleModel={handleModelCustom}
+                    editable={editable}
+                  />
+                  <ModelSelect
+                    name="query_strategy"
+                    label="Query strategy"
+                    items={modelOptions?.query_strategy}
+                    model={modelState.model}
+                    handleModel={handleModelCustom}
+                    helperText={
+                      modelState.model?.query_strategy === "random"
+                        ? "Your review is not accelerated by the model"
+                        : undefined
+                    }
+                    editable={editable}
+                  />
+                  <ModelSelect
+                    name="balance_strategy"
+                    label="Balance strategy"
+                    items={modelOptions?.balance_strategy}
+                    model={modelState.model}
+                    handleModel={handleModelCustom}
+                    editable={editable}
+                  />
+                </Stack>
+              </Box>
+            )}
           </Box>
         )}
       </Stack>
+      <Dialog
+        open={modelState.warning.active}
+        onClose={cancelWarning}
+        aria-labelledby="mutate-warning-dialog-title"
+        aria-describedby="mutate-warning-dialog-description"
+      >
+        <DialogTitle id="mutate-warning-dialog-title">
+          Change the model?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="mutate-warning-dialog-description">
+            You are about to change the model. When you continue screening, a
+            model will be trained based on the new settings. Are you sure you
+            want to continue?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={cancelWarning} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={acceptModelChange} color="primary" autoFocus>
+            Continue
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <CardErrorHandler
         queryKey={"fetchModelOptions"}
         error={fetchModelOptionsError}
@@ -235,4 +429,4 @@ const ModelForm = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(ModelForm);
+export default ModelForm;

@@ -17,7 +17,6 @@ import logging
 from pathlib import Path
 
 import numpy as np
-import pandas as pd
 from filelock import FileLock
 from filelock import Timeout
 
@@ -32,54 +31,48 @@ from asreview.simulation import Simulate
 from asreview.state.contextmanager import open_state
 
 
-def _run_model_start(project, output_error=True):
-    try:
-        # Check if there are new labeled records to train with
-        with open_state(project.project_path) as state:
-            if not state.exist_new_labeled_records:
-                return
+def has_prior_knowledge(project):
+    with open_state(project) as s:
+        labels = s.get_labeled()["label"].to_list()
+        return 0 in labels and 1 in labels
 
+
+def _has_new_records(project):
+    with open_state(project) as s:
+        return s.exist_new_labeled_records
+
+
+def _run_model_start(project, output_error=True):
+    # Check if there are new labeled records to train with
+    if not _has_new_records(project):
+        return
+
+    try:
         # Lock so that only one training run is running at the same time.
         lock = FileLock(Path(project.project_path, "training.lock"), timeout=0)
 
         with lock:
-            as_data = project.read_data()
-
             with open_state(project) as state:
                 settings = state.settings
 
-            feature_model = get_feature_model(settings.feature_extraction)
+                labeled = state.get_labeled()
 
             # get the feature matrix
+            feature_model = get_feature_model(settings.feature_extraction)
             try:
                 fm = project.get_feature_matrix(feature_model.name)
             except FileNotFoundError:
+                as_data = project.read_data()
                 fm = feature_model.fit_transform(
                     as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
                 )
-
-                if fm.shape[0] != len(as_data):
-                    raise ValueError(
-                        f"Dataset has {len(as_data)} records while feature "
-                        f"extractor returns {fm.shape[0]} records"
-                    )
-
                 project.add_feature_matrix(fm, feature_model.name)
-
-            with open_state(project) as state:
-                record_table = state.get_record_table()
-                labeled = state.get_labeled()
-                labels = labeled["label"].to_list()
-                training_set = len(labeled)
-                if not (0 in labels and 1 in labels):
-                    raise ValueError(
-                        "Not both labels available. " "Stopped training the model"
-                    )
 
             # TODO: Simplify balance model input.
             # Use the balance model to sample the trainings data.
             y_sample_input = (
-                pd.DataFrame(record_table)
+                state.get_record_table()
+                .to_frame()
                 .merge(labeled, how="left", on="record_id")
                 .loc[:, "label"]
                 .fillna(LABEL_NA)
@@ -105,13 +98,11 @@ def _run_model_start(project, output_error=True):
                     query_strategy.name,
                     balance_model.name,
                     feature_model.name,
-                    training_set,
+                    len(labeled),
                 )
 
                 if relevance_scores is not None:
                     state.add_last_probabilities(relevance_scores[:, 1])
-
-        project.update_review(status="review")
 
     except Timeout:
         logging.debug("Another iteration is training")
@@ -120,14 +111,13 @@ def _run_model_start(project, output_error=True):
         project.set_error(err, save_error_message=output_error)
         raise err
 
-    else:
-        project.update_review(status="review")
-
 
 def _simulate_start(project):
     with open_state(project) as state:
         settings = state.settings
         priors = state.get_priors()["record_id"].tolist()
+        print(state.settings)
+        print(priors)
 
     reviewer = Simulate(
         project.read_data(),
@@ -141,7 +131,6 @@ def _simulate_start(project):
     )
 
     try:
-        project.update_review(status="review")
         reviewer.review()
 
     except Exception as err:
@@ -155,6 +144,8 @@ def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("project", type=asr.Project, help="Project path")
     args = parser.parse_args(argv)
+
+    print(args.project.config)
 
     if args.project.config["mode"] == PROJECT_MODE_SIMULATE:
         _simulate_start(args.project)

@@ -1,5 +1,5 @@
 import { useTheme } from "@mui/material/styles";
-import { setProject } from "./redux/actions";
+import { setProject } from "redux/actions";
 
 import ASReviewLAB_black from "./images/asreview_sub_logo_lab_black_transparent.svg";
 import ASReviewLAB_white from "./images/asreview_sub_logo_lab_white_transparent.svg";

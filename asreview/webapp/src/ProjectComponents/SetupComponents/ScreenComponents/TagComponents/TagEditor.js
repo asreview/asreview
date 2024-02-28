@@ -4,11 +4,13 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Box,
   Button,
   TextField,
   Stack,
   Typography,
   AccordionActions,
+  Card,
   Dialog,
   DialogActions,
   DialogContent,
@@ -16,12 +18,12 @@ import {
   DialogTitle,
 } from "@mui/material";
 
-import { useMutation, useQuery } from "react-query";
-import { ProjectAPI } from "../../api/index.js";
-
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
+import { useMutation, useQuery } from "react-query";
+import { ProjectAPI } from "api";
+
+import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
 const Tag = (props) => {
   return (
@@ -117,9 +119,7 @@ const AddTagDialog = (props) => {
               id="tag-id"
               label="Id"
               helperText={
-                duplicatedId
-                  ? "Tag Ids must be unique within the category"
-                  : " "
+                duplicatedId ? "Tag Ids must be unique within the group" : " "
               }
               value={id}
               onChange={(event) => editId(event.target.value)}
@@ -146,7 +146,7 @@ function idsUnique(items) {
   return idSet.size === idList.length;
 }
 
-const AddCategoryDialog = (props) => {
+const AddGroupDialog = (props) => {
   const emptyTag = { id: "", name: "", idEdited: false };
 
   const [name, setName] = React.useState("");
@@ -202,7 +202,7 @@ const AddCategoryDialog = (props) => {
     setTags([...tags, { id: "", name: "", idEdited: false }]);
   };
 
-  const duplicatedCategoryId = props.categories.some((c) => c.id === id);
+  const duplicatedGroupId = props.groups.some((c) => c.id === id);
 
   const tagsUnique = idsUnique(tags);
 
@@ -214,13 +214,11 @@ const AddCategoryDialog = (props) => {
       <DialogContent>
         <DialogContentText>{props.contentText}</DialogContentText>
         <Stack spacing={3}>
-          <TypographySubtitle1Medium>
-            Category Details
-          </TypographySubtitle1Medium>
+          <TypographySubtitle1Medium>Group Details</TypographySubtitle1Medium>
           <Stack direction="row" spacing={3}>
             <TextField
               fullWidth
-              id="category-name"
+              id="group-name"
               label="Name"
               value={name}
               onChange={(event) => {
@@ -233,16 +231,14 @@ const AddCategoryDialog = (props) => {
             />
             <TextField
               fullWidth
-              id="category-id"
+              id="group-id"
               label="Id"
               value={id}
               onChange={(event) => {
                 setId(event.target.value);
                 setIdEdited(true);
               }}
-              helperText={
-                duplicatedCategoryId ? "Category Ids must be unique" : " "
-              }
+              helperText={duplicatedGroupId ? "Group Ids must be unique" : " "}
             />
           </Stack>
         </Stack>
@@ -279,7 +275,7 @@ const AddCategoryDialog = (props) => {
         </Stack>
 
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          Ids must be unique and can't be changed after creating the category.
+          Ids must be unique and can't be changed after creating the group.
         </Typography>
       </DialogContent>
       <DialogActions>
@@ -288,33 +284,31 @@ const AddCategoryDialog = (props) => {
           onClick={addClicked}
           disabled={name === "" || id === "" || !tagsValid || !tagsUnique}
         >
-          Create Category
+          Create Group
         </Button>
       </DialogActions>
     </Dialog>
   );
 };
 
-const Category = (props) => {
+const Group = (props) => {
   const [newTagDialogOpen, setNewTagDialogOpen] = React.useState(false);
 
   const addTag = (id, name) => {
-    props.editTagCategory(props.category.id, {
-      ...props.category,
-      values: [...props.category.values, { id: id, name: name }],
+    props.editTagGroup(props.group.id, {
+      ...props.group,
+      values: [...props.group.values, { id: id, name: name }],
     });
   };
 
   const editTag = (id, updatedTag) => {
-    const updatedTagIndex = props.category.values.findIndex(
-      (el) => el.id === id,
-    );
-    props.editTagCategory(props.category.id, {
-      ...props.category,
+    const updatedTagIndex = props.group.values.findIndex((el) => el.id === id);
+    props.editTagGroup(props.group.id, {
+      ...props.group,
       values: [
-        ...props.category.values.slice(0, updatedTagIndex),
+        ...props.group.values.slice(0, updatedTagIndex),
         updatedTag,
-        ...props.category.values.slice(updatedTagIndex + 1),
+        ...props.group.values.slice(updatedTagIndex + 1),
       ],
     });
   };
@@ -329,10 +323,10 @@ const Category = (props) => {
           <Typography
             sx={{ width: !props.mobileScreen ? "33%" : "100%", flexShrink: 0 }}
           >
-            {props.category.name}
+            {props.group.name}
           </Typography>
           <Typography sx={{ color: "text.secondary" }}>
-            {props.category.values.map((t) => t.name).join(", ")}
+            {props.group.values.map((t) => t.name).join(", ")}
           </Typography>
         </Stack>
       </AccordionSummary>
@@ -343,7 +337,7 @@ const Category = (props) => {
           open={newTagDialogOpen}
           handleClose={() => setNewTagDialogOpen(false)}
           handleAdd={addTag}
-          tags={props.category.values}
+          tags={props.group.values}
         />
 
         <Stack spacing={3}>
@@ -351,32 +345,32 @@ const Category = (props) => {
           <Stack direction="row" spacing={3}>
             <TextField
               fullWidth
-              id="tag-category-name"
-              label="Category Name"
+              id="tag-group-name"
+              label="Group Name"
               onChange={(event) =>
-                props.editTagCategory(props.category.id, {
-                  ...props.category,
+                props.editTagGroup(props.group.id, {
+                  ...props.group,
                   name: event.target.value,
                 })
               }
-              value={props.category.name}
+              value={props.group.name}
             />
             <TextField
               fullWidth
-              id="tag-category-id"
-              label="Category Id"
+              id="tag-group-id"
+              label="Group Id"
               disabled={true}
               onChange={(event) =>
-                props.editTagCategory(props.category.id, {
-                  ...props.category,
+                props.editTagGroup(props.group.id, {
+                  ...props.group,
                   id: event.target.value,
                 })
               }
-              value={props.category.id}
+              value={props.group.id}
             />
           </Stack>
           <TypographySubtitle1Medium>Tags</TypographySubtitle1Medium>
-          {props.category.values.map((t) => (
+          {props.group.values.map((t) => (
             <Tag tag={t} key={t.id} editTag={editTag} />
           ))}
         </Stack>
@@ -389,7 +383,7 @@ const Category = (props) => {
 };
 
 const TagEditor = (props) => {
-  const [categoryDialogOpen, setCategoryDialogOpen] = React.useState(false);
+  const [groupDialogOpen, setGroupDialogOpen] = React.useState(false);
   const [tags, setTags] = React.useState([]);
 
   /**
@@ -399,6 +393,7 @@ const TagEditor = (props) => {
     ["fetchInfo", { project_id: props.project_id }],
     ProjectAPI.fetchInfo,
     {
+      enabled: props.project_id !== null,
       onSuccess: (data) => {
         setTags(
           data["tags"] === undefined || data["tags"] === null
@@ -430,69 +425,71 @@ const TagEditor = (props) => {
     },
   );
 
-  const editTagCategory = (id, updatedCategory) => {
-    const updatedCategoryIndex = tags.findIndex((el) => el.id === id);
-    if (updatedCategoryIndex >= 0) {
+  const editTagGroup = (id, updatedGroup) => {
+    const updatedGroupIndex = tags.findIndex((el) => el.id === id);
+    if (updatedGroupIndex >= 0) {
       mutate({
         tags: [
-          ...tags.slice(0, updatedCategoryIndex),
-          updatedCategory,
-          ...tags.slice(updatedCategoryIndex + 1),
+          ...tags.slice(0, updatedGroupIndex),
+          updatedGroup,
+          ...tags.slice(updatedGroupIndex + 1),
         ],
         project_id: props.project_id,
       });
     }
   };
-  const addTagCategory = (id, name, values) => {
+  const addTagGroup = (id, name, values) => {
     mutate({
-      // add new category to tags
+      // add new group to tags
       tags: [...tags, { name: name, values: values, id: id }],
       project_id: props.project_id,
     });
   };
 
   return (
-    <Accordion elevation={3} onBlur={props.onBlur} onFocus={props.onFocus}>
-      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography
-          sx={{ width: !props.mobileScreen ? "33%" : "100%", flexShrink: 0 }}
-        >
-          Tags
-        </Typography>
-        <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          Tags provide additional context for your review. They are not used by
-          the machine learning algorithms.
-        </Typography>
-      </AccordionSummary>
-      <AccordionDetails>
-        <TypographySubtitle1Medium>Categories</TypographySubtitle1Medium>
-        <AddCategoryDialog
-          title="Add Category"
-          text="Create a tag category. The ids can't be changed after creation."
-          open={categoryDialogOpen}
-          handleClose={() => setCategoryDialogOpen(false)}
-          handleAdd={addTagCategory}
-          handleAddTags={editTagCategory}
-          categories={tags}
+    <Card sx={{ padding: "24px" }}>
+      <Typography
+        variant="subtitle1"
+        sx={{
+          fontWeight: (theme) => theme.typography.fontWeightMedium,
+        }}
+      >
+        Tags
+      </Typography>
+      <Typography variant="body2" sx={{ color: "text.secondary" }}>
+        Tags and tag groups are used to label records with additional
+        information. Tags are not used by the machine learning algorithms.
+      </Typography>
+      <Box sx={{ padding: "12px" }}>
+        {tags.length !== 0 && (
+          <TypographySubtitle1Medium>Tag groups</TypographySubtitle1Medium>
+        )}
+        <AddGroupDialog
+          title="Add Tag Group"
+          open={groupDialogOpen}
+          handleClose={() => setGroupDialogOpen(false)}
+          handleAdd={addTagGroup}
+          handleAddTags={editTagGroup}
+          groups={tags}
         />
         {tags.map((c) => (
-          <Category
-            category={c}
+          <Group
+            group={c}
             key={c.id}
-            editTagCategory={editTagCategory}
+            editTagGroup={editTagGroup}
             mobileScreen={props.mobileScreen}
           />
         ))}
-      </AccordionDetails>
+      </Box>
       <AccordionActions>
         <Button
-          onClick={() => setCategoryDialogOpen(true)}
+          onClick={() => setGroupDialogOpen(true)}
           disabled={isMutatingInfo}
         >
-          Add Category
+          Add Tag Group
         </Button>
       </AccordionActions>
-    </Accordion>
+    </Card>
   );
 };
 

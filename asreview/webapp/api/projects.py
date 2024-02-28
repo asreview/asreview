@@ -68,6 +68,7 @@ from asreview.state.custom_metadata_mapper import extract_tags
 from asreview.state.custom_metadata_mapper import get_tag_composite_id
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
+from asreview.state.utils import _fill_last_ranking
 from asreview.utils import _entry_points
 from asreview.utils import _get_filename_from_url
 from asreview.utils import asreview_path
@@ -75,6 +76,7 @@ from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
 from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
+from asreview.webapp.entry_points.run_model import has_prior_knowledge
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -114,12 +116,18 @@ def error_500(e):
 @current_user_projects
 def api_get_projects(projects):  # noqa: F401
     """"""
+
+    mode = request.args.get("subset", None)
+
     project_info = []
 
     # for project, owner_id in zip(projects, owner_ids):
     for project in projects:
         try:
             project_config = project.config
+
+            if mode is not None and project_config["mode"] != mode:
+                continue
 
             if not current_app.config.get("LOGIN_DISABLED", False):
                 project_config["owner_id"] = current_user.id
@@ -167,6 +175,87 @@ def api_get_projects_stats(projects):  # noqa: F401
     return jsonify({"result": stats_counter})
 
 
+@bp.route("/projects/create", methods=["POST"])
+@login_required
+def api_create_project():  # noqa: F401
+    """Create a new project"""
+
+    project_id = uuid4().hex
+
+    project = asr.Project.create(
+        get_project_path(project_id),
+        project_id=project_id,
+        project_mode=request.form["mode"],
+        project_name=request.form["mode"] + "_" + time.strftime("%Y%m%d-%H%M%S"),
+    )
+
+    # get the project config to modify behavior of dataset
+    project_config = project.config
+
+    # remove old dataset if present
+    if "dataset_path" in project_config and project_config["dataset_path"] is not None:
+        logging.warning("Removing old dataset and adding new dataset.")
+        project.remove_dataset()
+
+    # create dataset folder if not present
+    Path(project.project_path, "data").mkdir(exist_ok=True)
+
+    if request.form.get("plugin", None):
+        ds = DatasetManager().find(request.form["plugin"])
+        filename = ds.filename
+        ds.to_file(Path(project.project_path, "data", filename))
+
+    elif request.form.get("benchmark", None):
+        ds = DatasetManager().find(request.form["benchmark"])
+        filename = ds.filename
+        ds.to_file(Path(project.project_path, "data", filename))
+
+    elif url := request.form.get("url", None):
+        if request.form.get("filename", None):
+            filename = request.form["filename"]
+        else:
+            filename = _get_filename_from_url(url)
+
+        try:
+            urlretrieve(url, Path(project.project_path, "data") / filename)
+        except Exception:
+            return jsonify(message=f"Can't retrieve data from URL {url}."), 400
+
+    elif "file" in request.files:
+        try:
+            filename = secure_filename(request.files["file"].filename)
+            fp_data = Path(project.project_path, "data") / filename
+
+            request.files["file"].save(str(fp_data))
+
+        except Exception as err:
+            return jsonify(message=f"Failed to import file '{filename}'. {err}"), 400
+    else:
+        return jsonify(message="No file or dataset found to import."), 400
+
+    data_path = Path(project.project_path, "data") / filename
+
+    try:
+        project.add_dataset(data_path.name)
+
+    except Exception as err:
+        try:
+            project.remove_dataset()
+        except Exception:
+            pass
+
+        return jsonify(message=f"Failed to import file '{filename}'. {err}"), 400
+
+    if current_app.config.get("LOGIN_DISABLED", False):
+        return jsonify(project.config), 201
+
+    # create a database entry for this project
+    current_user.projects.append(Project(project_id=project_id))
+    DB.session.commit()
+
+    return jsonify(project.config), 201
+
+
 @bp.route("/projects/info", methods=["POST"])
 @login_required
 def api_init_project():  # noqa: F401
@@ -174,16 +263,13 @@ def api_init_project():  # noqa: F401
 
     project_mode = request.form["mode"]
     project_title = request.form["mode"] + "_" + time.strftime("%Y%m%d-%H%M%S")
-    # TODO{Terry}: retrieve author from the authenticated profile
+    # TODO: retrieve author from the authenticated profile
 
     # get a unique project id
     project_id = uuid4().hex
 
-    # get path of this project
-    project_path = get_project_path(project_id)
-
     project = asr.Project.create(
-        project_path,
+        get_project_path(project_id),
         project_id=project_id,
         project_mode=project_mode,
         project_name=project_title,
@@ -255,6 +341,10 @@ def api_update_project_info(project):  # noqa: F401
     if "tags" in update_dict:
         update_dict["tags"] = json.loads(update_dict["tags"])
 
+    if "name" in update_dict:
+        if len(update_dict["name"]) == 0:
+            raise ValueError("Project title should be at least 1 character")
+
     project.update_config(**update_dict)
 
     return api_get_project_info(project.project_id)
@@ -289,126 +379,9 @@ def api_demo_data_project():  # noqa: F401
             return jsonify(message="Failed to load benchmark datasets."), 500
 
     else:
-        response = jsonify(message="demo-data-loading-failed")
+        return jsonify(message="demo-data-loading-failed"), 400
 
-        return response, 400
-
-    payload = {"result": result_datasets}
-    response = jsonify(payload)
-    return response
-
-
-@bp.route("/projects/<project_id>/data", methods=["POST", "PUT"])
-@login_required
-@project_authorization
-def api_upload_dataset_to_project(project):  # noqa: F401
-    """"""
-
-    # get the project config to modify behavior of dataset
-    project_config = project.config
-
-    # remove old dataset if present
-    if "dataset_path" in project_config and project_config["dataset_path"] is not None:
-        logging.warning("Removing old dataset and adding new dataset.")
-        project.remove_dataset()
-
-    # create dataset folder if not present
-    Path(project.project_path, "data").mkdir(exist_ok=True)
-
-    if request.form.get("plugin", None):
-        ds = DatasetManager().find(request.form["plugin"])
-        filename = ds.filename
-        ds.to_file(Path(project.project_path, "data", filename))
-
-    elif request.form.get("benchmark", None):
-        ds = DatasetManager().find(request.form["benchmark"])
-        filename = ds.filename
-        ds.to_file(Path(project.project_path, "data", filename))
-
-    elif request.form.get("url", None):
-        url = request.form.get("url")
-
-        # check if url value is actually DOI without netloc
-        if url.startswith("10."):
-            url = f"https://doi.org/{url}"
-
-        filename = _get_filename_from_url(url)
-
-        if bool(request.form.get("validate", None)):
-            reader_keys = [e.name for e in _entry_points(group="asreview.readers")]
-
-            if (
-                filename
-                and Path(filename).suffix
-                and Path(filename).suffix in reader_keys
-            ):
-                return jsonify(files=[{"link": url, "name": filename}]), 201
-            elif filename and not Path(filename).suffix:
-                raise BadFileFormatError("Can't determine file format.")
-            else:
-                try:
-                    # get file list from datahugger
-                    dh = datahugger.info(url)
-                    files = dh.files.copy()
-
-                    for i, _f in enumerate(files):
-                        files[i]["disabled"] = (
-                            Path(files[i]["name"]).suffix not in reader_keys
-                        )
-
-                    return jsonify(files=files), 201
-                except Exception:
-                    raise BadFileFormatError("Can't retrieve files.")
-
-        try:
-            urlretrieve(url, Path(project.project_path, "data") / filename)
-        except Exception as err:
-            logging.error(err)
-            message = f"Can't retrieve data from URL {url}."
-
-            return jsonify(message=message), 400
-
-    elif "file" in request.files:
-        data_file = request.files["file"]
-
-        # check the file is file is in a correct format
-        # check_dataset(data_file)
-        try:
-            filename = secure_filename(data_file.filename)
-            fp_data = Path(project.project_path, "data") / filename
-
-            # save the file
-            data_file.save(str(fp_data))
-
-        except Exception as err:
-            logging.error(err)
-
-            response = jsonify(message=f"Failed to import file '{filename}'. {err}")
-
-            return response, 400
-    else:
-        response = jsonify(message="No file or dataset found to import.")
-        return response, 400
-
-    data_path = Path(project.project_path, "data") / filename
-
-    try:
-        # add the file to the project
-        project.add_dataset(data_path.name)
-
-    # Bad format. TODO{Jonathan} Return informative message with link.
-    except Exception as err:
-        try:
-            project.remove_dataset()
-        except Exception:
-            pass
-
-        message = f"Failed to import file '{filename}'. {err}"
-        return jsonify(message=message), 400
-
-    response = jsonify({"project_id": project.project_id})
-
-    return response
+    return jsonify({"result": result_datasets})
 
 
 @bp.route("/projects/<project_id>/data", methods=["GET"])
@@ -730,61 +703,75 @@ def api_list_algorithms():
 def api_get_algorithms(project):  # noqa: F401
     """Get the algorithms used in the project"""
 
-    # check if there were algorithms stored in the state file
     try:
         with open_state(project.project_path) as state:
             if state.settings is not None:
-                payload = {
-                    "model": state.settings.model,
-                    "feature_extraction": state.settings.feature_extraction,
-                    "query_strategy": state.settings.query_strategy,
-                    "balance_strategy": state.settings.balance_strategy,
-                }
-            else:
-                payload = None
+                return jsonify(
+                    {
+                        "classifier": state.settings.model,
+                        "feature_extraction": state.settings.feature_extraction,
+                        "query_strategy": state.settings.query_strategy,
+                        "balance_strategy": state.settings.balance_strategy,
+                    }
+                )
     except StateNotFoundError:
-        payload = None
+        pass
 
-    return jsonify(payload)
+    return jsonify(
+        {
+            "classifier": "nb",
+            "feature_extraction": "tfidf",
+            "query_strategy": "max",
+            "balance_strategy": "double",
+        }
+    )
 
 
-@bp.route("/projects/<project_id>/algorithms", methods=["POST"])
+@bp.route("/projects/<project_id>/algorithms", methods=["POST", "PUT"])
 @login_required
 @project_authorization
 def api_set_algorithms(project):  # noqa: F401
-    # TODO@{Jonathan} validate model choice on server side
-    ml_model = request.form.get("model", None)
-    ml_query_strategy = request.form.get("query_strategy", None)
-    ml_balance_strategy = request.form.get("balance_strategy", None)
-    ml_feature_extraction = request.form.get("feature_extraction", None)
+    """Set the algorithms used in the project"""
+    s_classifier = request.form.get("classifier", None)
+    s_query_strategy = request.form.get("query_strategy", None)
+    s_balance_strategy = request.form.get("balance_strategy", None)
+    s_feature_extraction = request.form.get("feature_extraction", None)
 
-    # create a new settings object from arguments
-    # only used if state file is not present
+    try:
+        classifier = get_classifier(s_classifier)
+        query_strategy = get_query_model(s_query_strategy)
+        balance_strategy = get_balance_model(s_balance_strategy)
+        feature_extraction = get_feature_model(s_feature_extraction)
+    except (KeyError, AttributeError) as err:
+        return jsonify(message=f"Model component not found {err}"), 400
+
     asreview_settings = ASReviewSettings(
-        model=ml_model,
-        query_strategy=ml_query_strategy,
-        balance_strategy=ml_balance_strategy,
-        feature_extraction=ml_feature_extraction,
-        model_param=get_classifier(ml_model).param,
-        query_param=get_query_model(ml_query_strategy).param,
-        balance_param=get_balance_model(ml_balance_strategy).param,
-        feature_param=get_feature_model(ml_feature_extraction).param,
+        model=s_classifier,
+        query_strategy=s_query_strategy,
+        balance_strategy=s_balance_strategy,
+        feature_extraction=s_feature_extraction,
+        model_param=classifier.param,
+        query_param=query_strategy.param,
+        balance_param=balance_strategy.param,
+        feature_param=feature_extraction.param,
     )
 
     # save the new settings to the state file
     with open_state(project.project_path, read_only=False) as state:
         state.settings = asreview_settings
 
-    response = jsonify({"success": True})
-
-    return response
+    return jsonify({"success": True})
 
 
-@bp.route("/projects/<project_id>/start", methods=["POST"])
+@bp.route("/projects/<project_id>/train", methods=["POST"])
 @login_required
 @project_authorization
-def api_start(project):  # noqa: F401
+def api_train(project):  # noqa: F401
     """Start training of first model or simulation."""
+
+    if ranking := request.form.get("ranking", type=str, default=None):
+        _fill_last_ranking(project, ranking)
+        return jsonify({"success": True})
 
     try:
         run_command = [
@@ -801,9 +788,7 @@ def api_start(project):  # noqa: F401
         message = f"Failed to train the model. {err}"
         return jsonify(message=message), 400
 
-    response = jsonify({"success": True})
-
-    return response
+    return jsonify({"success": True})
 
 
 @bp.route("/projects/<project_id>/status", methods=["GET"])
@@ -831,10 +816,31 @@ def api_get_status(project):  # noqa: F401
     return response
 
 
-@bp.route("/projects/<project_id>/status", methods=["PUT"])
+@bp.route("/projects/<project_id>/reviews", methods=["GET"])
 @login_required
 @project_authorization
-def api_status_update(project):
+def api_get_reviews(project):  # noqa: F401
+    """Check the status of the review"""
+
+    return jsonify({"data": project.config["reviews"]})
+
+
+@bp.route("/projects/<project_id>/reviews/<int:review_id>", methods=["GET"])
+@login_required
+@project_authorization
+def api_get_review(project, review_id):  # noqa: F401
+    """Check the status of the review"""
+
+    data = project.config["reviews"][review_id]
+    data["mode"] = project.config["mode"]
+
+    return jsonify({"data": data})
+
+
+@bp.route("/projects/<project_id>/reviews/<int:review_id>", methods=["PUT"])
+@login_required
+@project_authorization
+def api_update_review_status(project, review_id):
     """Update the status of the review.
 
     The following status updates are allowed for
@@ -852,33 +858,48 @@ def api_status_update(project):
     """
 
     status = request.form.get("status", type=str)
+    trigger_model = request.form.get("trigger_model", type=bool, default=False)
 
-    current_status = project.config["reviews"][0]["status"]
-    mode = project.config["mode"]
+    current_status = project.config["reviews"][review_id]["status"]
 
     if current_status == "error" and status == "setup":
         project.remove_error(status=status)
+        return jsonify({"success": True})
 
-        response = jsonify({"success": True})
+    if current_status == "setup" and status == "review":
+        is_simulation = project.config["mode"] == PROJECT_MODE_SIMULATE
 
-        return response
+        if not (pk := has_prior_knowledge(project)) and not is_simulation:
+            _fill_last_ranking(project, "random")
 
-    if mode == PROJECT_MODE_SIMULATE:
-        raise ValueError("Not possible to update status of simulation project.")
+        if trigger_model and (pk or is_simulation):
+            try:
+                subprocess.Popen(
+                    [
+                        sys.executable if sys.executable else "python",
+                        "-m",
+                        "asreview",
+                        "web_run_model",
+                        str(project.project_path),
+                    ]
+                )
+
+            except Exception as err:
+                return jsonify(message=f"Failed to train the model. {err}"), 400
+
+        project.update_review(status=status)
+
+    elif current_status == "review" and status == "finished":
+        project.update_review(status=status)
+    elif current_status == "finished" and status == "review":
+        project.update_review(status=status)
+        # ideally, also check here for empty pool
     else:
-        if current_status == "review" and status == "finished":
-            project.update_review(status=status)
-        elif current_status == "finished" and status == "review":
-            project.update_review(status=status)
-            # ideally, also check here for empty pool
-        else:
-            raise ValueError(
-                f"Not possible to update status from {current_status} to {status}"
-            )
+        raise ValueError(
+            f"Not possible to update status from {current_status} to {status}"
+        )
 
-        response = jsonify({"success": True})
-
-        return response
+    return jsonify({"success": True})
 
 
 @bp.route("/projects/import_project", methods=["POST"])
@@ -1112,7 +1133,7 @@ def _get_stats(project, include_priors=False):
                 else:
                     labels = s.get_labels(priors=include_priors)
 
-                n_records = len(s.get_record_table())
+                n_records = s.n_records
 
         # No state file found or not init.
         except (StateNotFoundError, StateError):
@@ -1146,9 +1167,8 @@ def _get_labels(state_obj, priors=False):
     # if less labels than records, fill with 0
     if len(labels) < n_records:
         labels += [0] * (n_records - len(labels))
-        labels = pd.Series(labels)
 
-    return labels
+    return pd.Series(labels)
 
 
 @bp.route("/projects/<project_id>/progress", methods=["GET"])
@@ -1331,24 +1351,36 @@ def api_classify_instance(project, record_id):  # noqa: F401
 @project_authorization
 def api_get_document(project):  # noqa: F401
     """Retrieve record in order of review."""
+
     with open_state(project.project_path, read_only=False) as state:
-        _, _, pending = state.get_pool_labeled_pending()
+        pending = state.get_pending(return_all=True)
 
-    # check if there is a pending record else query for a new record
-    record_ids = state.query_top_ranked(1) if pending.empty else pending.to_list()
+        if pending.empty:
+            try:
+                rank_n_1 = state.get_top_ranked(1)
 
-    if len(record_ids) > 0:
-        as_data = project.read_data()
-        item = asdict(as_data.record(record_ids[0]))
-        item["label_from_dataset"] = item["included"]
-        pool_empty = False
-    else:
-        # end of pool
-        project.update_review(status="finished")
-        item = None
-        pool_empty = True
+                # there is a ranking, but pool is empty
+                if rank_n_1 == []:
+                    project.update_review(status="finished")
+                    return jsonify(
+                        {"result": None, "pool_empty": True, "has_ranking": False}
+                    )
 
-    return jsonify({"result": item, "pool_empty": pool_empty})
+            except StateError:
+                # there is no ranking and get_top_ranked raises an error
+                return jsonify(
+                    {"result": None, "pool_empty": False, "has_ranking": False}
+                )
+
+            state.query_top_ranked(1)
+            pending = state.get_pending(return_all=True)
+
+    as_data = project.read_data()
+    item = asdict(as_data.record(pending["record_id"].iloc[0]))
+    item["label_from_dataset"] = item["included"]
+    item["state"] = pending.iloc[0].to_dict()
+
+    return jsonify({"result": item, "pool_empty": False, "has_ranking": True})
 
 
 @bp.route("/projects/<project_id>/delete", methods=["DELETE"])
@@ -1384,3 +1416,34 @@ def api_delete_project(project):  # noqa: F401
         response = jsonify({"success": True})
 
         return response
+
+
+@bp.route("/resolve_uri", methods=["GET"])
+@login_required
+def api_resolve_uri():  # noqa: F401
+    """Resolve the uri of the dataset upload"""
+
+    uri = request.args.get("uri")
+
+    if uri and uri.startswith("10."):
+        uri = f"https://doi.org/{uri}"
+
+    filename = _get_filename_from_url(uri)
+
+    reader_keys = [e.name for e in _entry_points(group="asreview.readers")]
+
+    if filename and Path(filename).suffix and Path(filename).suffix in reader_keys:
+        return jsonify(files=[{"link": uri, "name": filename}]), 201
+    elif filename and not Path(filename).suffix:
+        raise BadFileFormatError("Can't determine file format.")
+    else:
+        try:
+            dh = datahugger.info(uri)
+            files = dh.files.copy()
+
+            for i, _f in enumerate(files):
+                files[i]["disabled"] = Path(files[i]["name"]).suffix not in reader_keys
+
+            return jsonify(files=files), 201
+        except Exception:
+            raise BadFileFormatError("Can't retrieve files.")

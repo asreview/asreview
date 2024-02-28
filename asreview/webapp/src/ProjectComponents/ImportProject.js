@@ -10,7 +10,7 @@ import {
 import { Close } from "@mui/icons-material";
 
 import { ImportFromFile } from ".";
-import { StyledIconButton } from "../StyledComponents/StyledButton.js";
+import { StyledIconButton } from "StyledComponents/StyledButton";
 
 const ImportProject = (props) => {
   const isImportingProject = useIsMutating(["importProject"]);

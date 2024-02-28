@@ -4,13 +4,10 @@ import clsx from "clsx";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import {
-  ProfilePage,
-  ProjectsOverview,
-} from "../HomeComponents/DashboardComponents";
-import RouteNotFound from "../RouteNotFound";
+import { ProfilePage, ProjectsOverview } from "./DashboardComponents";
+import RouteNotFound from "RouteNotFound";
 
-import { drawerWidth } from "../globals.js";
+import { drawerWidth } from "globals.js";
 
 const PREFIX = "HomePage";
 
@@ -52,15 +49,13 @@ const HomePage = (props) => {
         <Routes>
           {/* Projects dashboard */}
           <Route
-            path="projects"
+            path="projects&subset=:mode"
             element={
               <ProjectsOverview
                 mobileScreen={props.mobileScreen}
                 onNavDrawer={props.onNavDrawer}
-                onProjectSetup={props.onProjectSetup}
                 projectCheck={props.projectCheck}
                 setProjectCheck={props.setProjectCheck}
-                toggleProjectSetup={props.toggleProjectSetup}
               />
             }
           />
@@ -75,7 +70,11 @@ const HomePage = (props) => {
             }
           />
           {/* Redirect root to projects */}
-          <Route path="/" element={<Navigate to="/projects" />} />
+          <Route path="/" element={<Navigate to="/projects&subset=oracle" />} />
+          <Route
+            path="/projects"
+            element={<Navigate to="/projects&subset=oracle" />}
+          />
           {/* Not found */}
           <Route path="*" element={<RouteNotFound />} />
         </Routes>

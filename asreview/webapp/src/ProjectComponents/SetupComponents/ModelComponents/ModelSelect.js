@@ -6,7 +6,7 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import { SelectItem } from "../../../ProjectComponents";
+import { SelectItem } from "ProjectComponents";
 
 const ModelSelect = ({
   name,
@@ -16,8 +16,9 @@ const ModelSelect = ({
   handleModel,
   disableItem,
   helperText,
+  editable = true,
 }) => (
-  <FormControl fullWidth>
+  <FormControl>
     <InputLabel id={`${name}-select-label`}>{label}</InputLabel>
     <Select
       id={`select-${name}`}
@@ -25,6 +26,7 @@ const ModelSelect = ({
       label={label}
       value={model?.[name]}
       onChange={handleModel}
+      disabled={!editable}
     >
       {items.map((value) => (
         <MenuItem

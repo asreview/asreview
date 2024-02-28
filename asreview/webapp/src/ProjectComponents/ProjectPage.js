@@ -14,28 +14,25 @@ import clsx from "clsx";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { DialogErrorHandler } from "../Components";
-import { AnalyticsPage } from "../ProjectComponents/AnalyticsComponents";
-import { DetailsPage } from "../ProjectComponents/DetailsComponents";
-import { HistoryPage } from "../ProjectComponents/HistoryComponents";
-import { ExportPage } from "../ProjectComponents/ExportComponents";
-import { TeamPage } from "./TeamComponents";
+import { DialogErrorHandler } from "Components";
+import { AnalyticsPage } from "ProjectComponents/AnalyticsComponents";
+import { DetailsPage } from "ProjectComponents/DetailsComponents";
+import { HistoryPage } from "ProjectComponents/HistoryComponents";
+import { ExportPage } from "ProjectComponents/ExportComponents";
+import { TeamPage } from "ProjectComponents/TeamComponents";
 
-import {
-  ReviewPage,
-  ReviewPageFinished,
-} from "../ProjectComponents/ReviewComponents";
-import RouteNotFound from "../RouteNotFound";
+import { ReviewPage } from "ProjectComponents/ReviewComponents";
+import RouteNotFound from "RouteNotFound";
 
-import { ProjectAPI } from "../api/index.js";
+import { ProjectAPI } from "api";
 import {
   checkIfSimulationFinishedDuration,
   drawerWidth,
   mapDispatchToProps,
   projectModes,
   projectStatuses,
-} from "../globals.js";
-import useAuth from "../hooks/useAuth";
+} from "globals.js";
+import useAuth from "hooks/useAuth";
 
 const PREFIX = "ProjectPage";
 
@@ -106,7 +103,6 @@ const ProjectPage = (props) => {
           props.setProjectId(project_id);
           // open project setup dialog
           navigate("/projects");
-          props.toggleProjectSetup();
         } else if (!data["projectNeedsUpgrade"]) {
           // open project page
           console.log("Opening project " + project_id);
@@ -147,7 +143,7 @@ const ProjectPage = (props) => {
       {
         enabled: isSimulating,
         onSuccess: (data) => {
-          if (data["status"] === "finished") {
+          if (data["status"] === projectStatuses.FINISHED) {
             // refresh analytics
             refetchAnalytics();
             // simulation finished
@@ -205,35 +201,22 @@ const ProjectPage = (props) => {
           )}
 
           {/* Review */}
-          {isSuccess &&
-            !data?.projectNeedsUpgrade &&
-            data?.reviews[0].status === projectStatuses.REVIEW && (
-              <Route
-                path="review"
-                element={
-                  <ReviewPage
-                    mobileScreen={props.mobileScreen}
-                    projectMode={data?.mode}
-                    fontSize={props.fontSize}
-                    undoEnabled={props.undoEnabled}
-                    keyPressEnabled={props.keyPressEnabled}
-                    tags={tags}
-                  />
-                }
-              />
-            )}
-
-          {/* Review finished */}
-          {isSuccess &&
-            !data?.projectNeedsUpgrade &&
-            data?.reviews[0].status === projectStatuses.FINISHED && (
-              <Route
-                path="review"
-                element={
-                  <ReviewPageFinished mobileScreen={props.mobileScreen} />
-                }
-              />
-            )}
+          {isSuccess && !data?.projectNeedsUpgrade && (
+            <Route
+              path="review"
+              element={
+                <ReviewPage
+                  project_id={project_id}
+                  mobileScreen={props.mobileScreen}
+                  projectMode={data?.mode}
+                  fontSize={props.fontSize}
+                  undoEnabled={props.undoEnabled}
+                  keyPressEnabled={props.keyPressEnabled}
+                  tags={tags}
+                />
+              }
+            />
+          )}
 
           {/* History */}
           {isSuccess && !data?.projectNeedsUpgrade && (
@@ -241,6 +224,7 @@ const ProjectPage = (props) => {
               path="history"
               element={
                 <HistoryPage
+                  project_id={project_id}
                   filterQuery={historyFilterQuery}
                   label={historyLabel}
                   isSimulating={isSimulating}
@@ -287,6 +271,7 @@ const ProjectPage = (props) => {
               path="details"
               element={
                 <DetailsPage
+                  project_id={project_id}
                   info={data}
                   tags={tags}
                   isSimulating={isSimulating}

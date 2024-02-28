@@ -12,13 +12,13 @@ import {
 import { styled, useTheme } from "@mui/material/styles";
 import { HelpOutline } from "@mui/icons-material";
 
-import { CardErrorHandler } from "../../Components";
-import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
+import { CardErrorHandler } from "Components";
+import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
-import tooltipRelevantLight from "../../images/progress_relevant_light.png";
-import tooltipRelevantDark from "../../images/progress_relevant_dark.png";
-import tooltipIrrelevantLight from "../../images/progress_irrelevant_light.png";
-import tooltipIrrelevantDark from "../../images/progress_irrelevant_dark.png";
+import tooltipRelevantLight from "images/progress_relevant_light.png";
+import tooltipRelevantDark from "images/progress_relevant_dark.png";
+import tooltipIrrelevantLight from "images/progress_irrelevant_light.png";
+import tooltipIrrelevantDark from "images/progress_irrelevant_dark.png";
 
 import "./AnalyticsPage.css";
 

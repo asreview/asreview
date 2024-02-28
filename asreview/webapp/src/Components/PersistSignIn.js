@@ -1,9 +1,9 @@
 import * as React from "react";
 import { useQuery } from "react-query";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
+import useAuth from "hooks/useAuth";
 
-import { AuthAPI } from "../api";
+import { AuthAPI } from "api";
 
 const PersistSignIn = () => {
   const location = useLocation();

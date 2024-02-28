@@ -19,22 +19,23 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { BoxErrorHandler, DialogErrorHandler } from "../../Components";
-import { ProjectDeleteDialog } from "../../ProjectComponents";
-import { ProjectCheckDialog, TableRowButton } from "../DashboardComponents";
-import { ProjectAPI } from "../../api/index.js";
-import { useRowsPerPage } from "../../hooks/SettingsHooks";
-import { useToggle } from "../../hooks/useToggle";
-import ElasArrowRightAhead from "../../images/ElasArrowRightAhead.svg";
+import { BoxErrorHandler, DialogErrorHandler } from "Components";
+import { ProjectDeleteDialog } from "ProjectComponents";
+import { ProjectCheckDialog, TableRowButton } from ".";
+import { SetupDialog } from "ProjectComponents/SetupComponents";
+import { ProjectAPI } from "api";
+import { useRowsPerPage } from "hooks/SettingsHooks";
+import { useToggle } from "hooks/useToggle";
+import ElasArrowRightAhead from "images/ElasArrowRightAhead.svg";
 import {
   checkIfSimulationFinishedDuration,
   mapDispatchToProps,
   projectModes,
   projectStatuses,
   formatDate,
-} from "../../globals";
-import useAuth from "../../hooks/useAuth";
-import { setMyProjects } from "../../redux/actions";
+} from "globals.js";
+import useAuth from "hooks/useAuth";
+import { setMyProjects } from "redux/actions";
 
 const PREFIX = "ProjectTable";
 
@@ -111,9 +112,15 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
 const columns = [
   { id: "name", label: "Project", width: "55%" },
   { id: "created_at_unix", label: "Date", width: "15%" },
-  { id: "mode", label: "Mode", width: "15%" },
+  // { id: "mode", label: "Mode", width: "15%" },
   { id: "status", label: "Status", width: "15%" },
 ];
+
+const modeLabelMap = {
+  simulate: "Simulate",
+  oracle: "Review",
+  explore: "Validate",
+};
 
 const ProjectTable = (props) => {
   const navigate = useNavigate();
@@ -123,6 +130,7 @@ const ProjectTable = (props) => {
   const dispatch = useDispatch();
   const { auth } = useAuth();
 
+  const modeLabel = modeLabelMap[props.mode];
   /**
    * Project table state
    */
@@ -132,6 +140,10 @@ const ProjectTable = (props) => {
   const [hoverRowTitle, setHoverRowTitle] = React.useState(null);
   const [hoverIsOwner, setHoverIsOwner] = React.useState(false);
   const [rowsPerPage, handleRowsPerPage] = useRowsPerPage();
+  const [setupDialogState, setSetupDialogState] = React.useState({
+    open: false,
+    project_id: null,
+  });
 
   /**
    * Dialog state
@@ -153,7 +165,7 @@ const ProjectTable = (props) => {
    * Fetch projects and check if simulation running in the background
    */
   const { error, isError, isFetched, isFetching, isSuccess } = useQuery(
-    "fetchProjects",
+    ["fetchProjects", { subset: props.mode }],
     ProjectAPI.fetchProjects,
     {
       onError: () => {
@@ -293,30 +305,16 @@ const ProjectTable = (props) => {
     });
   };
 
-  const clearSetupError = (project) => {
-    mutateStatus({
-      project_id: project["id"],
-      status: projectStatuses.SETUP,
-    });
-  };
-
   const openProject = (project, path) => {
     if (
       project["reviews"][0] === undefined ||
       project["reviews"][0]["status"] === projectStatuses.SETUP ||
       project["reviews"][0]["status"] === projectStatuses.ERROR
     ) {
-      // set project id
-      props.setProjectId(project["id"]);
-      // open project setup dialog
-      props.toggleProjectSetup();
-      // clear potential setup error
-      if (
-        project["reviews"][0] !== undefined &&
-        project["reviews"][0]["status"] === projectStatuses.ERROR
-      ) {
-        clearSetupError(project);
-      }
+      setSetupDialogState({
+        open: true,
+        project_id: project["id"],
+      });
     } else if (!project["projectNeedsUpgrade"]) {
       // open project page
       navigate(`/projects/${project["id"]}/${path}`);
@@ -343,18 +341,6 @@ const ProjectTable = (props) => {
 
   const hoverOffProject = () => {
     setHoverRowId(null);
-  };
-
-  const formatMode = (mode) => {
-    if (mode === "oracle" || !mode) {
-      return "Oracle";
-    }
-    if (mode === "explore") {
-      return "Validation";
-    }
-    if (mode === "simulate") {
-      return "Simulation";
-    }
   };
 
   /**
@@ -562,15 +548,6 @@ const ProjectTable = (props) => {
                           {formatDate(row["created_at_unix"])}
                         </Typography>
                       </TableCell>
-                      <TableCell>
-                        <Typography
-                          className={classes.tableCell}
-                          variant="subtitle1"
-                          noWrap
-                        >
-                          {formatMode(row["mode"])}
-                        </Typography>
-                      </TableCell>
                       <TableCell className={classes.tableCell}>
                         <Chip
                           size="small"
@@ -601,10 +578,15 @@ const ProjectTable = (props) => {
               }}
             >
               <Typography sx={{ color: "text.secondary", marginTop: "64px" }}>
-                Your projects will show up here
+                Start your first {modeLabel.toLowerCase()} project
               </Typography>
-              <Button id="get-started" onClick={props.toggleModePick}>
-                Get Started
+              <Button
+                id="get-started"
+                onClick={() => {
+                  props.openDataPick(props.mode);
+                }}
+              >
+                Start
               </Button>
               <img
                 src={ElasArrowRightAhead}
@@ -625,7 +607,7 @@ const ProjectTable = (props) => {
         isSuccess &&
         myProjects.length !== 0 && (
           <TablePagination
-            rowsPerPageOptions={[5, 10, 15]}
+            rowsPerPageOptions={[15, 30, 100]}
             component="div"
             count={myProjects.length}
             rowsPerPage={rowsPerPage}
@@ -635,6 +617,16 @@ const ProjectTable = (props) => {
             onRowsPerPageChange={setRowsPerPage}
           />
         )}
+      <SetupDialog
+        project_id={setupDialogState.project_id}
+        mode={props.mode}
+        mobileScreen={props.mobileScreen}
+        open={setupDialogState.open}
+        onClose={() => {
+          setSetupDialogState({ open: false, project_id: null });
+        }}
+        setFeedbackBar={props.setFeedbackBar}
+      />
       <ProjectCheckDialog
         projectCheck={props.projectCheck}
         setProjectCheck={props.setProjectCheck}

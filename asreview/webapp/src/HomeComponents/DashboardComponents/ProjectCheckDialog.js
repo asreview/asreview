@@ -14,8 +14,8 @@ import {
   Stack,
 } from "@mui/material";
 
-import { InlineErrorHandler } from "../../Components";
-import { ProjectAPI } from "../../api/index.js";
+import { InlineErrorHandler } from "Components";
+import { ProjectAPI } from "api";
 
 const ProjectCheckDialog = (props) => {
   const navigate = useNavigate();

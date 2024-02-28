@@ -12,12 +12,12 @@ import {
 import { styled, useTheme } from "@mui/material/styles";
 import { Menu } from "@mui/icons-material";
 
-import { DrawerItemContainer, Header } from "../Components";
+import { DrawerItemContainer, Header } from "Components";
 
-import ASReviewLAB_black from "../images/asreview_sub_logo_lab_black_transparent.svg";
-import ASReviewLAB_white from "../images/asreview_sub_logo_lab_white_transparent.svg";
-import { drawerWidth } from "../globals.js";
-import { toggleHelpDialog } from "../redux/actions";
+import ASReviewLAB_black from "images/asreview_sub_logo_lab_black_transparent.svg";
+import ASReviewLAB_white from "images/asreview_sub_logo_lab_white_transparent.svg";
+import { drawerWidth } from "globals.js";
+import { toggleHelpDialog } from "redux/actions";
 
 const Root = styled("div")(({ theme }) => ({}));
 

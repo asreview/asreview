@@ -1,9 +1,7 @@
 import React from "react";
 import clsx from "clsx";
-import { connect } from "react-redux";
 import { InView } from "react-intersection-observer";
 import { useInfiniteQuery } from "react-query";
-import { useParams } from "react-router-dom";
 import {
   Box,
   ButtonBase,
@@ -15,10 +13,9 @@ import {
 import { grey } from "@mui/material/colors";
 import { styled } from "@mui/material/styles";
 
-import { BoxErrorHandler } from "../../Components";
-import { LabeledRecordCard } from "../HistoryComponents";
-import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps } from "../../globals.js";
+import { BoxErrorHandler } from "Components";
+import { LabeledRecordCard } from ".";
+import { ProjectAPI } from "api";
 
 let height = window.screen.height;
 
@@ -57,8 +54,6 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const LabeledRecord = (props) => {
-  const { project_id } = useParams();
-
   const [subset, setSubset] = React.useState(null);
 
   const returnSubset = () => {
@@ -88,7 +83,7 @@ const LabeledRecord = (props) => {
     [
       "fetchLabeledRecord",
       {
-        project_id: !project_id ? props.project_id : project_id,
+        project_id: props.project_id,
         subset: returnSubset(),
       },
     ],
@@ -145,6 +140,7 @@ const LabeledRecord = (props) => {
               {isFetched &&
                 data.pages.map((page, index) => (
                   <LabeledRecordCard
+                    project_id={props.project_id}
                     page={page}
                     key={`result-page-${index}`}
                     is_prior={props.is_prior}
@@ -180,4 +176,4 @@ const LabeledRecord = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(LabeledRecord);
+export default LabeledRecord;

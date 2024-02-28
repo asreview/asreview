@@ -32,12 +32,12 @@ import {
   AppBarWithinDialog,
   BoxErrorHandler,
   OpenInNewIconStyled,
-} from "../Components";
-import { StyledIconButton } from "../StyledComponents/StyledButton.js";
+} from "Components";
+import { StyledIconButton } from "StyledComponents/StyledButton";
 
-import { UtilsAPI } from "../api/index.js";
-import { feedbackURL } from "../globals.js";
-import { toggleHelpDialog } from "../redux/actions";
+import { UtilsAPI } from "api";
+import { feedbackURL } from "globals.js";
+import { toggleHelpDialog } from "redux/actions";
 
 const mapStateToProps = (state) => {
   return {

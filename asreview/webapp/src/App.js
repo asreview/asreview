@@ -10,8 +10,8 @@ import Snackbar from "@mui/material/Snackbar";
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import "./App.css";
 
-import { BaseAPI } from "./api/index.js";
-import { setBootData, setOAuthServices } from "./redux/actions";
+import { BaseAPI } from "api";
+import { setBootData, setOAuthServices } from "redux/actions";
 
 import {
   ConfirmAccount,
@@ -25,16 +25,16 @@ import {
   SignIn,
   SignInOAuthCallback,
   SignUpForm,
-} from "./Components";
+} from "Components";
 import { HomePage } from "./HomeComponents";
-import { ProjectPage } from "./ProjectComponents";
+import { ProjectPage } from "ProjectComponents";
 import {
   useDarkMode,
   useFontSize,
   useKeyPressEnabled,
   useUndoEnabled,
-} from "./hooks/SettingsHooks";
-import { useToggle } from "./hooks/useToggle";
+} from "hooks/SettingsHooks";
+import { useToggle } from "hooks/useToggle";
 
 // Ensure that on localhost we use 'localhost' instead of '127.0.0.1'
 const currentDomain = window.location.href;
@@ -77,7 +77,7 @@ const App = (props) => {
 
   // Dialog state
   const [onSettings, toggleSettings] = useToggle();
-  const [onProjectSetup, toggleProjectSetup] = useToggle();
+
   const [projectCheck, setProjectCheck] = React.useState({
     open: false,
     issue: null,
@@ -206,10 +206,8 @@ const App = (props) => {
               <HomePage
                 mobileScreen={mobileScreen}
                 onNavDrawer={onNavDrawer}
-                onProjectSetup={onProjectSetup}
                 projectCheck={projectCheck}
                 setProjectCheck={setProjectCheck}
-                toggleProjectSetup={toggleProjectSetup}
               />
             }
           />
@@ -224,7 +222,6 @@ const App = (props) => {
                 keyPressEnabled={keyPressEnabled}
                 projectCheck={projectCheck}
                 setProjectCheck={setProjectCheck}
-                toggleProjectSetup={toggleProjectSetup}
               />
             }
           />

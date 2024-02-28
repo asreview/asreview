@@ -2,7 +2,7 @@ import * as React from "react";
 import { Box, Divider, Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { PageHeader } from "../../Components";
+import { PageHeader } from "Components";
 import { Filter, LabelChip, LabeledRecord } from "../HistoryComponents";
 
 const PREFIX = "HistoryPage";
@@ -43,6 +43,7 @@ const HistoryPage = (props) => {
           <Box className="main-page-body-wrapper">
             <Box className={`${classes.cardWrapper} main-page-body`}>
               <LabeledRecord
+                project_id={props.project_id}
                 label={props.label}
                 filterQuery={props.filterQuery}
                 isSimulating={props.isSimulating}

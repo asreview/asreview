@@ -1,5 +1,5 @@
 import { axiosErrorHandler } from "./axiosErrorHandler";
-import { auth_url } from "../globals.js";
+import { auth_url } from "globals.js";
 import axios from "axios";
 
 class AuthAPI {

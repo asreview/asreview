@@ -16,8 +16,8 @@ import {
 } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { Close } from "@mui/icons-material";
-import { StyledTextButton } from "../StyledComponents/StyledButton.js";
-import { StyledIconButton } from "../StyledComponents/StyledButton.js";
+import { StyledTextButton } from "StyledComponents/StyledButton";
+import { StyledIconButton } from "StyledComponents/StyledButton";
 import { styled } from "@mui/material/styles";
 
 const PREFIX = "CiteDialog";

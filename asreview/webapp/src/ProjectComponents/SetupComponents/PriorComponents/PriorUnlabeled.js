@@ -1,5 +1,4 @@
 import React from "react";
-import { connect } from "react-redux";
 import { useMutation, useQueryClient } from "react-query";
 import TruncateMarkup from "react-truncate-markup";
 import {
@@ -14,10 +13,13 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { InlineErrorHandler } from "../../../Components";
-import { ExplorationModeRecordAlert } from "../../../StyledComponents/StyledAlert.js";
-import { ProjectAPI } from "../../../api/index.js";
-import { mapStateToProps, projectModes } from "../../../globals.js";
+import { InlineErrorHandler } from "Components";
+import { ExplorationModeRecordAlert } from "StyledComponents/StyledAlert";
+import { ProjectAPI } from "api";
+import { projectModes } from "globals.js";
+
+import { ProjectContext } from "ProjectContext";
+import { useContext } from "react";
 
 const PREFIX = "PriorUnlabeled";
 
@@ -38,6 +40,8 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const PriorUnlabeled = (props) => {
+  const project_id = useContext(ProjectContext);
+
   const queryClient = useQueryClient();
   const [recordReadMore, setRecordReadMore] = React.useState(null);
 
@@ -68,7 +72,7 @@ const PriorUnlabeled = (props) => {
             [
               "fetchPriorSearch",
               {
-                project_id: props.project_id,
+                project_id: project_id,
                 keyword: props.keyword,
               },
             ],
@@ -93,7 +97,7 @@ const PriorUnlabeled = (props) => {
             [
               "fetchPriorRandom",
               {
-                project_id: props.project_id,
+                project_id: project_id,
                 n: props.nRecords,
                 subset:
                   props.mode !== projectModes.ORACLE ? props.subset : null,
@@ -186,7 +190,7 @@ const PriorUnlabeled = (props) => {
                 id="relevant"
                 onClick={() => {
                   mutate({
-                    project_id: props.project_id,
+                    project_id: project_id,
                     record_id: props.record.record_id,
                     label: 1,
                     note: "",
@@ -202,7 +206,7 @@ const PriorUnlabeled = (props) => {
                 id="irrelevant"
                 onClick={() => {
                   mutate({
-                    project_id: props.project_id,
+                    project_id: project_id,
                     record_id: props.record.record_id,
                     label: 0,
                     note: "",
@@ -222,4 +226,4 @@ const PriorUnlabeled = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(PriorUnlabeled);
+export default PriorUnlabeled;

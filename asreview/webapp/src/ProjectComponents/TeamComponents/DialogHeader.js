@@ -1,6 +1,6 @@
 import { DialogTitle, Stack, Tooltip } from "@mui/material";
 import { Close } from "@mui/icons-material";
-import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
+import { StyledIconButton } from "StyledComponents/StyledButton";
 
 const DialogHeader = (props) => {
   return (

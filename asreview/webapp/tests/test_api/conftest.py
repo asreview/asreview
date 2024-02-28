@@ -1,42 +1,9 @@
 import pytest
 
 import asreview.webapp.tests.utils.api_utils as au
-from asreview.project import get_projects
 from asreview.webapp import DB
 from asreview.webapp.tests.utils import crud
 from asreview.webapp.tests.utils.config_parser import get_user
-
-
-@pytest.fixture(params=["client_auth", "client_no_auth"])
-def setup(request):
-    """Setup and teardown fixture that will run each test with
-    an authenticated version and unauthenticated version of the
-    app. In the authenticated version the fixture yields a Flask
-    client, a signed-in user plus a project belongoing to this user.
-    In the unauthenticated version, the fixture yields a Flask
-    client, and a project."""
-    # get the client
-    client = request.getfixturevalue(request.param)
-    # provide a project name
-    if request.param == "client_auth":
-        # create, signup and signin users
-        user1 = au.create_and_signin_user(client, 1)
-        # create a project for this logged in user
-        au.create_project(client)
-        # receive project
-        project = user1.projects[0]
-    else:
-        # this has to be created to match the authenticated
-        # version of this fixture
-        user1 = None
-        # create a project
-        au.create_project(client)
-        # get all project
-        project = get_projects()[0]
-    yield client, user1, project
-    if request.param == "client_auth":
-        # cleanup database and asreview_path
-        crud.delete_everything(DB)
 
 
 @pytest.fixture(
@@ -70,7 +37,7 @@ def setup_auth(client_auth):
     user2 = crud.get_user_by_identifier(user2.identifier)
     user3 = crud.get_user_by_identifier(user3.identifier)
     # create a project for this logged in user
-    au.create_project(client_auth)
+    au.create_project(client_auth, "explore", benchmark="synergy:van_der_Valk_2021")
     yield client_auth, user1, user2, user3, user1.projects[0]
     # cleanup database and asreview_path
     crud.delete_everything(DB)

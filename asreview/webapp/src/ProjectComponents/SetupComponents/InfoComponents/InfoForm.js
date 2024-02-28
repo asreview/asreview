@@ -1,16 +1,20 @@
 import * as React from "react";
-import { connect } from "react-redux";
+import { useContext } from "react";
 import { useMutation, useQuery } from "react-query";
-
-import { Box, CircularProgress, Grid, Typography, styled } from "@mui/material";
-
-import { CardErrorHandler } from "../../../Components";
-import { InlineErrorHandler } from "../../../Components";
-import { DatasetInfo } from "../InfoComponents";
-import { ProjectInfo } from "../../../ProjectComponents";
-
-import { ProjectAPI } from "../../../api";
-import { mapStateToProps } from "../../../globals.js";
+import {
+  Box,
+  Button,
+  DialogActions,
+  DialogContent,
+  Stack,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { ProjectAPI } from "api";
+import { CardErrorHandler } from "Components";
+import { ProjectContext } from "ProjectContext";
 
 const PREFIX = "InfoForm";
 
@@ -18,6 +22,7 @@ const classes = {
   root: `${PREFIX}-root`,
   title: `${PREFIX}-title`,
   error: `${PREFIX}-error`,
+  textField: `${PREFIX}-textField`,
 };
 
 const Root = styled("div")(({ theme }) => ({
@@ -30,170 +35,163 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.error}`]: {
     marginBottom: 16,
   },
+  [`& .${classes.textField}`]: {
+    marginTop: 0,
+  },
 }));
 
-const InfoForm = ({
-  handleComplete,
-  isTitleValidated,
-  project_id,
-  setTitle,
-  toggleImportDataset,
-}) => {
-  const [info, setInfo] = React.useState({
-    title: "",
-    authors: "",
-    description: "",
-    dataset_path: undefined,
-  });
+const InfoForm = ({ integrated, handleNext, editable = true }) => {
+  const project_id = useContext(ProjectContext);
 
-  const [textFiledFocused, setTextFieldFocused] = React.useState(null); // for autosave on blur
-
-  /**
-   * Fetch dataset info
-   */
-  const {
-    data,
-    error: fetchDataError,
-    isError: isFetchDataError,
-    isFetching: isFetchingData,
-  } = useQuery(
-    ["fetchData", { project_id: project_id }],
-    ProjectAPI.fetchData,
-    {
-      enabled: project_id !== null,
-      refetchOnWindowFocus: false,
-    },
-  );
-
-  /**
-   * Fetch project info
-   */
-  const {
-    error: fetchInfoError,
-    isError: isFetchInfoError,
-    isFetching: isFetchingInfo,
-  } = useQuery(
-    ["fetchInfo", { project_id: project_id }],
-    ProjectAPI.fetchInfo,
-    {
-      enabled: project_id !== null,
-      onSuccess: (data) => {
-        setTitle(data["name"]);
-        setInfo({
-          title: data["name"],
-          authors: data["authors"] ? data["authors"] : "",
-          description: data["description"] ? data["description"] : "",
-          dataset_path: data.dataset_path,
-        });
-      },
-      refetchOnWindowFocus: false,
-    },
-  );
-
-  /**
-   * Mutate project info
-   */
-  const {
-    error: mutateInfoError,
-    isError: isMutateInfoError,
-    // {TODO} isLoading: isMutatingInfo,
-    mutate,
-    reset,
-  } = useMutation(ProjectAPI.mutateInfo, {
-    mutationKey: ["mutateInfo"],
-    onError: () => {
-      handleComplete(false);
-    },
-    onSuccess: () => {
-      setTextFieldFocused(null);
-      handleComplete(true);
-    },
-  });
+  const [info, setInfo] = React.useState(null);
 
   const handleInfoChange = (event) => {
-    if (event.target.name === "title") {
-      setTitle(event.target.value);
-    }
     setInfo({
       ...info,
       [event.target.name]: event.target.value,
     });
   };
 
-  // auto mutate info when text field is not focused
-  React.useEffect(() => {
-    if (
-      project_id !== null &&
-      textFiledFocused !== null &&
-      !textFiledFocused &&
-      !(info.title.length < 1) &&
-      !isMutateInfoError
-    ) {
-      mutate({
-        project_id: project_id,
-        title: info.title,
-        authors: info.authors,
-        description: info.description,
-      });
-    }
-  }, [info, isMutateInfoError, mutate, project_id, textFiledFocused]);
+  const saveInfo = () => {
+    mutate({
+      project_id: project_id,
+      title: info.title || "",
+      authors: info.authors || "",
+      description: info.description || "",
+    });
+  };
 
-  return (
-    <Root className={classes.root}>
-      <Box className={classes.title}>
-        <Typography variant="h6">Project Information</Typography>
-      </Box>
-      {isMutateInfoError && (
-        <Box className={classes.error}>
-          <InlineErrorHandler
-            message={mutateInfoError?.message}
-            refetch={reset}
-            button
-          />
-        </Box>
-      )}
-
-      {!isFetchingData &&
-        !isFetchingInfo &&
-        !isFetchDataError &&
-        !isFetchInfoError && (
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={8}>
-              <ProjectInfo
-                info={info}
-                isTitleValidated={isTitleValidated}
-                handleInfoChange={handleInfoChange}
-                setTextFieldFocused={setTextFieldFocused}
-              />
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <DatasetInfo
-                data={data}
-                info={info}
-                toggleImportDataset={toggleImportDataset}
-              />
-            </Grid>
-          </Grid>
-        )}
-
-      {(isFetchingData || isFetchingInfo) && (
-        <Box className="main-page-body-wrapper">
-          <CircularProgress />
-        </Box>
-      )}
-      <CardErrorHandler
-        queryKey={"fetchData"}
-        error={fetchDataError}
-        isError={isFetchDataError}
-      />
-
-      <CardErrorHandler
-        queryKey={"fetchInfo"}
-        error={fetchInfoError}
-        isError={isFetchInfoError}
-      />
-    </Root>
+  const {
+    data: infoData,
+    error: fetchInfoError,
+    isError: isFetchInfoError,
+  } = useQuery(
+    ["fetchInfo", { project_id: project_id }],
+    ProjectAPI.fetchInfo,
+    {
+      enabled: project_id !== null,
+      onSuccess: (data) => {
+        setInfo({
+          title: data["name"],
+          authors: data["authors"],
+          description: data["description"],
+        });
+      },
+      refetchOnWindowFocus: false,
+    },
   );
+
+  const {
+    error: mutateInfoError,
+    // isError: isMutateInfoError,
+    isLoading: isMutatingInfo,
+    mutate,
+  } = useMutation(ProjectAPI.mutateInfo, {
+    mutationKey: ["mutateInfo"],
+    onSuccess: () => {
+      if (integrated) {
+        handleNext();
+      }
+    },
+  });
+
+  const isChanged = () => {
+    return (
+      infoData !== undefined &&
+      info !== null &&
+      (infoData?.name !== info.title ||
+        infoData?.authors !== info.authors ||
+        infoData?.description !== info.description)
+    );
+  };
+
+  const infoFormBody = () => {
+    return (
+      <Root className={classes.root}>
+        <Box className={classes.title}>
+          <Typography variant="h6">Project Information</Typography>
+        </Box>
+        <Stack spacing={3}>
+          <>
+            <Stack direction="column" spacing={3}>
+              <Tooltip
+                disableHoverListener
+                title="Your project needs a title"
+                arrow
+                open={info?.title.length === 0}
+                placement="top-start"
+              >
+                <TextField
+                  autoFocus
+                  error={mutateInfoError}
+                  fullWidth
+                  id="project-title"
+                  InputLabelProps={{
+                    required: true,
+                  }}
+                  label="Title"
+                  name="title"
+                  onChange={handleInfoChange}
+                  required
+                  value={info?.title || ""}
+                  disabled={!editable}
+                />
+              </Tooltip>
+              <TextField
+                fullWidth
+                id="project-author"
+                label="Author(s)"
+                name="authors"
+                onChange={handleInfoChange}
+                value={info?.authors || ""}
+                disabled={!editable}
+              />
+              <TextField
+                fullWidth
+                id="project-description"
+                label="Description"
+                multiline
+                minRows={8}
+                name="description"
+                onChange={handleInfoChange}
+                value={info?.description || ""}
+                disabled={!editable}
+              />
+              {!integrated && (
+                <Button onClick={saveInfo} disabled={!isChanged() || !editable}>
+                  Save
+                </Button>
+              )}
+            </Stack>
+          </>
+
+          <CardErrorHandler
+            queryKey={"fetchInfo"}
+            error={fetchInfoError}
+            isError={isFetchInfoError}
+          />
+        </Stack>
+      </Root>
+    );
+  };
+
+  if (integrated) {
+    return (
+      <>
+        <DialogContent dividers>{infoFormBody()}</DialogContent>
+        <DialogActions>
+          {isChanged() && (
+            <Button onClick={saveInfo} disabled={isMutatingInfo}>
+              Save
+            </Button>
+          )}
+          {!isChanged() && <Button onClick={handleNext}>Next</Button>}
+        </DialogActions>
+      </>
+    );
+  } else {
+    return infoFormBody();
+  }
 };
 
-export default connect(mapStateToProps)(InfoForm);
+export default InfoForm;

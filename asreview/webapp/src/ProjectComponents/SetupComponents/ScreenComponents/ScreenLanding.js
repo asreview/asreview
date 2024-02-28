@@ -1,11 +1,11 @@
 import * as React from "react";
-import { connect } from "react-redux";
 
 import { Box, Typography, styled } from "@mui/material";
 
-import { TagEditor } from "../../TagComponents";
+import { TagEditor } from "./TagComponents";
 
-import { mapStateToProps } from "../../../globals.js";
+import { useContext } from "react";
+import { ProjectContext } from "ProjectContext";
 
 const PREFIX = "ScreenLanding";
 
@@ -27,7 +27,8 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const ScreenLanding = ({ handleComplete, project_id }) => {
+const ScreenLanding = ({ mobileScreen }) => {
+  const project_id = useContext(ProjectContext);
   return (
     <Root className={classes.root}>
       <Box className={classes.title}>
@@ -36,7 +37,7 @@ const ScreenLanding = ({ handleComplete, project_id }) => {
       <Box>
         <TagEditor
           project_id={project_id}
-          // mobileScreen={props.mobileScreen}
+          mobileScreen={mobileScreen}
           // onFocus={onFocus}
           // onBlur={onBlur}
         />
@@ -45,4 +46,4 @@ const ScreenLanding = ({ handleComplete, project_id }) => {
   );
 };
 
-export default connect(mapStateToProps)(ScreenLanding);
+export default ScreenLanding;

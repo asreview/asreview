@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { connect } from "react-redux";
 import {
   Box,
   CircularProgress,
@@ -16,13 +15,16 @@ import {
 import { styled } from "@mui/material/styles";
 import { ArrowBack } from "@mui/icons-material";
 
-import { InfoCard } from "../../SetupComponents";
-import { InlineErrorHandler } from "../../../Components";
-import { EnoughPriorBanner, PriorUnlabeled } from "../DataComponents";
-import { StyledIconButton } from "../../../StyledComponents/StyledButton";
-import { ProjectAPI } from "../../../api/index.js";
-import { mapStateToProps, projectModes } from "../../../globals.js";
-import { useToggle } from "../../../hooks/useToggle";
+import { InfoCard } from "ProjectComponents/SetupComponents";
+import { InlineErrorHandler } from "Components";
+import { EnoughPriorBanner, PriorUnlabeled } from ".";
+import { StyledIconButton } from "StyledComponents/StyledButton";
+import { ProjectAPI } from "api";
+import { projectModes } from "globals.js";
+import { useToggle } from "hooks/useToggle";
+
+import { ProjectContext } from "ProjectContext";
+import { useContext } from "react";
 
 const PREFIX = "PriorRandom";
 
@@ -79,6 +81,8 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const PriorRandom = (props) => {
+  const project_id = useContext(ProjectContext);
+
   const queryClient = useQueryClient();
   const [reminder, toggleReminder] = useToggle();
   const [refresh, setRefresh] = React.useState(true);
@@ -89,7 +93,7 @@ const PriorRandom = (props) => {
     [
       "fetchPriorRandom",
       {
-        project_id: props.project_id,
+        project_id: project_id,
         n: nRecords,
         subset: props.mode !== projectModes.ORACLE ? subset : null,
       },
@@ -257,4 +261,4 @@ const PriorRandom = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(PriorRandom);
+export default PriorRandom;

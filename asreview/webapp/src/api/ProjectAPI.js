@@ -1,14 +1,18 @@
 import { axiosErrorHandler } from "./axiosErrorHandler";
-import { api_url } from "../globals.js";
+import { api_url } from "globals.js";
 import axios from "axios";
 import qs from "qs";
 
 class ProjectAPI {
   static fetchProjects({ queryKey }) {
+    const { subset } = queryKey[1];
     const url = api_url + `projects`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url, { withCredentials: true })
+        .get(url, {
+          params: { subset: subset },
+          withCredentials: true,
+        })
         .then((result) => {
           resolve(result["data"]);
         })
@@ -53,6 +57,42 @@ class ProjectAPI {
     });
   }
 
+  static createProject(variables) {
+    let body = new FormData();
+    body.set("mode", variables.mode);
+
+    if (variables.file) {
+      body.append("file", variables.file);
+    }
+    if (variables.url) {
+      body.append("url", variables.url);
+      if (variables.filename) {
+        body.append("filename", variables.filename);
+      }
+    }
+    if (variables.extension) {
+      body.append("plugin", variables.extension);
+    }
+    if (variables.benchmark) {
+      body.append("benchmark", variables.benchmark);
+    }
+
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "post",
+        url: api_url + `projects/create`,
+        data: body,
+        withCredentials: true,
+      })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static fetchUpgradeProjectIfOld({ queryKey }) {
     const { project_id } = queryKey[1];
     const url = api_url + `projects/${project_id}/upgrade_if_old`;
@@ -83,11 +123,25 @@ class ProjectAPI {
     });
   }
 
+  static fetchTraining({ queryKey }) {
+    const { project_id } = queryKey[1];
+    const url = api_url + `projects/${project_id}/training`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url, { withCredentials: true })
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static mutateInfo(variables) {
     let body = new FormData();
-    if (variables.title !== undefined) {
-      body.set("name", variables.title);
-    }
+    body.set("name", variables.title);
+
     if (variables.authors !== undefined) {
       body.set("authors", variables.authors);
     }
@@ -134,32 +188,12 @@ class ProjectAPI {
     });
   }
 
-  static mutateData(variables) {
-    let body = new FormData();
-    if (variables.file) {
-      body.append("file", variables.file);
-    }
-    if (variables.url) {
-      body.append("url", variables.url);
-      if (variables.validate) {
-        body.append("validate", variables.validate);
-      }
-    }
-    if (variables.extension) {
-      body.append("plugin", variables.extension);
-    }
-    if (variables.benchmark) {
-      body.append("benchmark", variables.benchmark);
-    }
-
-    const url = api_url + `projects/${variables.project_id}/data`;
+  static fetchData({ queryKey }) {
+    const { project_id } = queryKey[1];
+    const url = api_url + `projects/${project_id}/data`;
     return new Promise((resolve, reject) => {
-      axios({
-        method: "post",
-        url: url,
-        data: body,
-        withCredentials: true,
-      })
+      axios
+        .get(url, { withCredentials: true })
         .then((result) => {
           resolve(result["data"]);
         })
@@ -169,12 +203,12 @@ class ProjectAPI {
     });
   }
 
-  static fetchData({ queryKey }) {
-    const { project_id } = queryKey[1];
-    const url = api_url + `projects/${project_id}/data`;
+  static resolveURI({ uri }) {
+    console.log(uri);
+    const resolve_uri = api_url + `resolve_uri?uri=${uri}`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url, { withCredentials: true })
+        .get(resolve_uri, { withCredentials: true })
         .then((result) => {
           resolve(result["data"]);
         })
@@ -316,7 +350,7 @@ class ProjectAPI {
 
   static mutateModelConfig(variables) {
     let body = new FormData();
-    body.set("model", variables.classifier);
+    body.set("classifier", variables.classifier);
     body.set("query_strategy", variables.query_strategy);
     body.set("balance_strategy", variables.balance_strategy);
     body.set("feature_extraction", variables.feature_extraction);
@@ -338,13 +372,17 @@ class ProjectAPI {
     });
   }
 
-  static mutateStartTraining(variables) {
-    const url = api_url + `projects/${variables.project_id}/start`;
+  static mutateTraining(variables) {
+    const url = api_url + `projects/${variables.project_id}/train`;
+
+    let data = new FormData();
+    data.set("ranking", variables.ranking);
+
     return new Promise((resolve, reject) => {
       axios({
         method: "post",
         url: url,
-        data: {},
+        data: data,
         withCredentials: true,
         // headers: { "Content-Type": "multipart/form-data" },
       })
@@ -372,11 +410,12 @@ class ProjectAPI {
     });
   }
 
-  static mutateProjectStatus(variables) {
+  static mutateReviewStatus(variables) {
     let body = new FormData();
     body.set("status", variables.status);
+    body.set("trigger_model", variables.trigger_model);
 
-    const url = api_url + `projects/${variables.project_id}/status`;
+    const url = api_url + `projects/${variables.project_id}/reviews/0`;
     return new Promise((resolve, reject) => {
       axios({
         method: "put",

@@ -12,29 +12,29 @@ import {
 import { styled } from "@mui/material/styles";
 
 // Importing image
-import ElasBalloons from "../images/ElasBalloons.svg";
-import ElasPotter from "../images/ElasPotter.svg";
-import ElasArrowRightAhead from "../images/ElasArrowRightAhead.svg";
-import ElasConstructionWorkerOrange from "../images/ElasConstructionWorkerOrange.svg";
-import ElasArrowLeft from "../images/ElasArrowLeft.svg";
-import ElasGrad from "../images/ElasGrad.svg";
-import ElasWithDuck from "../images/ElasWithDuck.svg";
-import ElasFireMan from "../images/ElasFireMan.svg";
-import ElasPad from "../images/ElasPad.svg";
-import ElasFinished from "../images/ElasFinished.svg";
-import ElasRelevanceRanking from "../images/ElasRelevanceRanking.svg";
-import ElasConstructionWorkerYellow from "../images/ElasConstructionWorkerYellow.svg";
-import SantaElas from "../images/SantaElas.svg";
-import ElasPlayingRugby from "../images/ElasPlayingRugby.svg";
-import ElasPlayingTennis from "../images/ElasPlayingTennis.svg";
-import ElasasSuperHero from "../images/ElasSuperHero.svg";
-import ElasLion from "../images/ElasLion.svg";
-import ElasLollypop from "../images/ElasLollypop.svg";
-import ElasUnicorn from "../images/ElasUnicorn.svg";
-import ElasWinter from "../images/ElasWinter.svg";
-import ElasAvatar from "../images/ElasAvatar.svg";
+import ElasBalloons from "images/ElasBalloons.svg";
+import ElasPotter from "images/ElasPotter.svg";
+import ElasArrowRightAhead from "images/ElasArrowRightAhead.svg";
+import ElasConstructionWorkerOrange from "images/ElasConstructionWorkerOrange.svg";
+import ElasArrowLeft from "images/ElasArrowLeft.svg";
+import ElasGrad from "images/ElasGrad.svg";
+import ElasWithDuck from "images/ElasWithDuck.svg";
+import ElasFireMan from "images/ElasFireMan.svg";
+import ElasPad from "images/ElasPad.svg";
+import ElasFinished from "images/ElasFinished.svg";
+import ElasRelevanceRanking from "images/ElasRelevanceRanking.svg";
+import ElasConstructionWorkerYellow from "images/ElasConstructionWorkerYellow.svg";
+import SantaElas from "images/SantaElas.svg";
+import ElasPlayingRugby from "images/ElasPlayingRugby.svg";
+import ElasPlayingTennis from "images/ElasPlayingTennis.svg";
+import ElasasSuperHero from "images/ElasSuperHero.svg";
+import ElasLion from "images/ElasLion.svg";
+import ElasLollypop from "images/ElasLollypop.svg";
+import ElasUnicorn from "images/ElasUnicorn.svg";
+import ElasWinter from "images/ElasWinter.svg";
+import ElasAvatar from "images/ElasAvatar.svg";
 
-import ElasIcon from "../icons/ElasIcon";
+import ElasIcon from "icons/ElasIcon";
 
 const images = [
   ElasConstructionWorkerOrange,

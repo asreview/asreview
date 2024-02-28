@@ -19,85 +19,111 @@ const DOILink = (doi) => {
   }
 };
 
-const EntryPointDataset = (props) => {
+const EntryPointDataset = ({
+  addFile,
+  dataset,
+  dataset_id,
+  subset,
+  isAddingDataset,
+  isAddingDatasetError,
+  mobileScreen,
+  reset,
+}) => {
+  const [expanded, setExpanded] = React.useState(false);
+
   const handleAccordion = (dataset_id) => (event, isExpanded) => {
-    if (!props.isAddingDataset) {
-      props.setExpanded(isExpanded ? dataset_id : false);
+    if (!isAddingDataset) {
+      setExpanded(isExpanded ? dataset_id : false);
     }
   };
 
   const handleAdd = () => {
-    if (props.isAddDatasetError) {
-      props.reset();
+    if (isAddingDatasetError) {
+      reset();
     }
-    if (!props.isAddingDataset) {
-      props.addFile(props.dataset_id);
+    if (!isAddingDataset) {
+      addFile(dataset_id);
+    }
+  };
+
+  const formatCitation = (authors, year) => {
+    if (Array.isArray(authors)) {
+      var first_author = authors[0].split(",")[0];
+      return first_author + " et al. (" + year + ")";
+    } else {
+      return authors + " (" + year + ")";
     }
   };
 
   return (
     <Accordion
       elevation={3}
-      expanded={props.expanded === props.dataset_id}
-      onChange={handleAccordion(props.dataset_id)}
+      expanded={expanded === dataset_id}
+      onChange={handleAccordion(dataset_id)}
     >
       <AccordionSummary expandIcon={<ExpandMore />}>
         <Stack
-          direction={!props.mobileScreen ? "row" : "column"}
+          direction={!mobileScreen ? "row" : "column"}
           sx={{ width: "100%" }}
         >
           <Typography
-            sx={{ width: !props.mobileScreen ? "33%" : "100%", flexShrink: 0 }}
+            sx={{ width: !mobileScreen ? "33%" : "100%", flexShrink: 0 }}
           >
-            {props.authors}
+            {formatCitation(dataset.authors, dataset.year)}
           </Typography>
           <Typography sx={{ color: "text.secondary" }}>
-            {props.description}
+            {subset === "plugin" ? dataset.description : dataset.topic}
           </Typography>
         </Stack>
       </AccordionSummary>
       <AccordionDetails>
         <Stack spacing={1}>
-          <Typography>{props.title}</Typography>
-          {props.doi && (
+          <Typography>{dataset.title}</Typography>
+          {dataset.reference && (
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
               Publication:{" "}
               <Link
-                href={props.doi && DOILink(props.doi)}
+                href={
+                  dataset.reference &&
+                  DOILink(
+                    dataset.reference.replace(/^(https:\/\/doi\.org\/)/, ""),
+                  )
+                }
                 underline="none"
                 target="_blank"
                 rel="noreferrer"
               >
-                {props.doi}
+                {dataset.reference &&
+                  dataset.reference.replace(/^(https:\/\/doi\.org\/)/, "")}
               </Link>
             </Typography>
           )}
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
             Dataset:{" "}
             <Link
-              href={props.link}
+              href={dataset.link}
               underline="none"
               target="_blank"
               rel="noreferrer"
             >
-              {props.link}
+              {dataset.link}
             </Link>
           </Typography>
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
             License:{" "}
             <Link
-              href={props.link}
+              href={dataset.link}
               underline="none"
               target="_blank"
               rel="noreferrer"
             >
-              {props.license}
+              {dataset.license}
             </Link>
           </Typography>
         </Stack>
       </AccordionDetails>
       <AccordionActions>
-        <LoadingButton loading={props.isAddingDataset} onClick={handleAdd}>
+        <LoadingButton loading={isAddingDataset} onClick={handleAdd}>
           Add
         </LoadingButton>
       </AccordionActions>

@@ -3,8 +3,8 @@ import Chart from "react-apexcharts";
 import { Card, CardContent, Stack, Typography } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
-import { CardErrorHandler } from "../../Components";
-import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
+import { CardErrorHandler } from "Components";
+import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
 const PREFIX = "ProgressRecallChart";
 

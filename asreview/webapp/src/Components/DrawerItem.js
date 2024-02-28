@@ -71,7 +71,12 @@ const DrawerItem = (props) => {
 
   const returnIconState = () => {
     // home page navigation
-    if (!project_id && props.label === "Projects") {
+    if (
+      !project_id &&
+      (props.label === "Reviews" ||
+        props.label === "Validations" ||
+        props.label === "Simulations")
+    ) {
       return <Dashboard color={returnIconColor()} />;
     }
 
@@ -101,7 +106,11 @@ const DrawerItem = (props) => {
 
   return (
     <Root>
-      <Tooltip disableHoverListener={props.onNavDrawer} title={props.label}>
+      <Tooltip
+        disableHoverListener={props.onNavDrawer}
+        title={props.label}
+        placement="right"
+      >
         <ListItemButton
           selected={returnSelectedState()}
           onClick={() => {

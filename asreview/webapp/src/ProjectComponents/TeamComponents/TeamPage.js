@@ -2,7 +2,7 @@ import * as React from "react";
 import { Box, Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { PageHeader } from "../../Components";
+import { PageHeader } from "Components";
 import { EndCollaboration, InvitationContents } from ".";
 
 const PREFIX = "TeamPage";

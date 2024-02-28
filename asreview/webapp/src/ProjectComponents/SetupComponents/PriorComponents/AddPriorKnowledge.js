@@ -1,6 +1,5 @@
 import * as React from "react";
-import { useIsMutating, useQuery } from "react-query";
-import { connect } from "react-redux";
+import { useQuery } from "react-query";
 import {
   Box,
   Button,
@@ -21,12 +20,13 @@ import {
 import { styled } from "@mui/material/styles";
 import AddIcon from "@mui/icons-material/Add";
 
-import { AppBarWithinDialog } from "../../../Components";
-import { InfoCard, SavingStateBox } from "../../SetupComponents";
-import { PriorLabeled, PriorRandom, PriorSearch } from "../DataComponents";
-import { ProjectAPI } from "../../../api/index.js";
-import { useToggle } from "../../../hooks/useToggle";
-import { mapStateToProps } from "../../../globals.js";
+import { AppBarWithinDialog } from "Components";
+import { InfoCard } from "ProjectComponents/SetupComponents";
+import { PriorLabeled, PriorRandom, PriorSearch } from ".";
+import { ProjectAPI } from "api";
+import { useToggle } from "hooks/useToggle";
+import { useContext } from "react";
+import { ProjectContext } from "ProjectContext";
 
 const PREFIX = "AddPriorKnowledge";
 
@@ -73,40 +73,35 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-const AddPriorKnowledge = (props) => {
-  const isMutatingPrior = useIsMutating(["mutatePriorKnowledge"]);
-  const isMutatingLabeled = useIsMutating(["mutateLabeledPriorKnowledge"]);
+const AddPriorKnowledge = ({ open, toggleAddPrior, mobileScreen }) => {
+  const project_id = useContext(ProjectContext);
 
-  const [savingState, setSavingState] = React.useState(false);
-  const timerRef = React.useRef(null);
+  // const isMutatingPrior = useIsMutating(["mutatePriorKnowledge"]);
+  // const isMutatingLabeled = useIsMutating(["mutateLabeledPriorKnowledge"]);
 
   const [search, toggleSearch] = useToggle();
   const [random, toggleRandom] = useToggle();
 
   const { data: info } = useQuery(
-    ["fetchInfo", { project_id: props.project_id }],
+    ["fetchInfo", { project_id: project_id }],
     ProjectAPI.fetchInfo,
     {
-      enabled: props.open && props.project_id !== null,
+      enabled: open && project_id !== null,
       refetchOnWindowFocus: false,
     },
   );
 
   const { data } = useQuery(
-    ["fetchLabeledStats", { project_id: props.project_id }],
+    ["fetchLabeledStats", { project_id: project_id }],
     ProjectAPI.fetchLabeledStats,
     {
-      enabled: props.open && props.project_id !== null,
+      enabled: open && project_id !== null,
       refetchOnWindowFocus: false,
     },
   );
 
-  const isEnoughPriorKnowledge = () => {
-    return data?.n_prior_exclusions > 4 && data?.n_prior_inclusions > 4;
-  };
-
   const handleClickClose = () => {
-    props.toggleAddPrior();
+    toggleAddPrior();
     if (random) {
       toggleRandom();
     }
@@ -115,61 +110,36 @@ const AddPriorKnowledge = (props) => {
     }
   };
 
-  React.useEffect(() => {
-    const currentSavingStatus =
-      isMutatingPrior === 1 || isMutatingLabeled === 1;
-
-    // If the status changes to 'saving', immediately update the state
-    if (currentSavingStatus) {
-      setSavingState(true);
-      if (timerRef.current) clearTimeout(timerRef.current);
-    } else {
-      // If the status changes to 'not saving', delay the update by 1000ms
-      timerRef.current = setTimeout(() => setSavingState(false), 1000);
-    }
-
-    // Cleanup on unmount or if dependencies change
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, [isMutatingPrior, isMutatingLabeled]);
-
   return (
     <StyledDialog
       hideBackdrop
-      open={props.open}
-      fullScreen={props.mobileScreen}
+      open={open}
+      fullScreen={mobileScreen}
       fullWidth
       maxWidth="md"
       PaperProps={{
-        sx: { height: !props.mobileScreen ? "calc(100% - 96px)" : "100%" },
+        sx: { height: !mobileScreen ? "calc(100% - 96px)" : "100%" },
       }}
       TransitionComponent={Fade}
     >
-      {props.mobileScreen && (
+      {mobileScreen && (
         <AppBarWithinDialog
           onClickStartIcon={handleClickClose}
           startIconIsClose={false}
           title="Prior knowledge"
         />
       )}
-      {!props.mobileScreen && (
+      {!mobileScreen && (
         <Stack className="dialog-header" direction="row">
           <DialogTitle>Prior knowledge</DialogTitle>
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-            {isEnoughPriorKnowledge() && (
+            {data?.n_prior_exclusions > 4 && data?.n_prior_inclusions > 4 && (
               <Typography variant="body2" sx={{ color: "secondary.main" }}>
                 Enough prior knowledge. Click CLOSE to move on to the next step.
               </Typography>
             )}
-            {data?.n_prior !== 0 && <SavingStateBox isSaving={savingState} />}
             <Box className="dialog-header-button right">
-              <Button
-                variant={!isEnoughPriorKnowledge() ? "text" : "contained"}
-                onClick={handleClickClose}
-              >
-                Close
-              </Button>
+              <Button onClick={handleClickClose}>Close</Button>
             </Box>
           </Stack>
         </Stack>
@@ -244,7 +214,7 @@ const AddPriorKnowledge = (props) => {
             className={classes.unlabeled}
           >
             <PriorLabeled
-              mobileScreen={props.mobileScreen}
+              mobileScreen={mobileScreen}
               n_prior={data?.n_prior}
               n_prior_exclusions={data?.n_prior_exclusions}
               n_prior_inclusions={data?.n_prior_inclusions}
@@ -256,4 +226,4 @@ const AddPriorKnowledge = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(AddPriorKnowledge);
+export default AddPriorKnowledge;

@@ -5,9 +5,9 @@ import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { IconButton, Stack, Typography } from "@mui/material";
 import { GitHub, Google } from "@mui/icons-material";
-import { Orcid } from "../icons";
-import AuthAPI from "../api/AuthAPI";
-import useAuth from "../hooks/useAuth";
+import { Orcid } from "icons";
+import AuthAPI from "api/AuthAPI";
+import useAuth from "hooks/useAuth";
 import { InlineErrorHandler } from ".";
 import OauthPopup from "react-oauth-popup";
 

@@ -5,9 +5,9 @@ import { AppBar, Box, ButtonBase, Toolbar, IconButton } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Menu } from "@mui/icons-material";
 
-import { ProfilePopper } from "../Components";
+import { ProfilePopper } from "Components";
 
-import { WordmarkState } from "../globals";
+import { WordmarkState } from "globals.js";
 
 const PREFIX = "Header";
 

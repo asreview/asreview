@@ -4,9 +4,7 @@ from flask import current_app
 import asreview.webapp.tests.utils.api_utils as au
 
 
-def test_landing(setup):
-    client, _, _ = setup
-
+def test_landing(client):
     if client.application.testing:
         pytest.skip("Skipping landing page test in testing mode.")
 

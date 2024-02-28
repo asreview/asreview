@@ -4,11 +4,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button, Fade, Link, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { ActionsFeedbackBar } from "../../Components";
+import { ActionsFeedbackBar } from "Components";
 
-import { ProjectAPI } from "../../api/index.js";
-import { projectStatuses } from "../../globals.js";
-import ElasFinished from "../../images/ElasFinished.svg";
+import { ProjectAPI } from "api";
+import { projectStatuses } from "globals.js";
+import ElasFinished from "images/ElasFinished.svg";
 
 const PREFIX = "ReviewPageFinished";
 
@@ -51,7 +51,7 @@ const ReviewPageFinished = (props) => {
   const [recordEmpty, setRecordEmpty] = React.useState(false);
 
   const { error, isError, mutate, reset } = useMutation(
-    ProjectAPI.mutateProjectStatus,
+    ProjectAPI.mutateReviewStatus,
     {
       onSuccess: () => {
         queryClient.invalidateQueries("fetchInfo");

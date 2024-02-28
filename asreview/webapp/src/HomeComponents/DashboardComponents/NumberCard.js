@@ -4,8 +4,8 @@ import { useQuery } from "react-query";
 import { Card, CardContent, Grid, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { CardErrorHandler } from "../../Components";
-import { ProjectAPI } from "../../api/index.js";
+import { CardErrorHandler } from "Components";
+import { ProjectAPI } from "api";
 
 import "./DashboardPage.css";
 

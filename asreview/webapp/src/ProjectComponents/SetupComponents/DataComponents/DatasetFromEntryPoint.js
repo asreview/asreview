@@ -1,14 +1,14 @@
 import React from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
-import { Box, CircularProgress, Stack, Typography } from "@mui/material";
+import { Box, CircularProgress, Stack, Typography, Link } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { InlineErrorHandler } from "../../../Components";
-import { EntryPointDataset } from "../DataComponents";
-import { ProjectAPI } from "../../../api/index.js";
+import { InlineErrorHandler } from "Components";
+import { EntryPointDataset } from ".";
+import { ProjectAPI } from "api";
 
-import { mapStateToProps } from "../../../globals.js";
+import { mapStateToProps } from "globals.js";
 
 const PREFIX = "DatasetFromEntryPoint";
 
@@ -22,28 +22,14 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const formatCitation = (authors, year) => {
-  if (Array.isArray(authors)) {
-    var first_author = authors[0].split(",")[0];
-    return first_author + " et al. (" + year + ")";
-  } else {
-    return authors + " (" + year + ")";
-  }
-};
-
-const DatasetFromEntryPoint = (props) => {
+const DatasetFromEntryPoint = ({
+  subset,
+  mobileScreen,
+  setDataset,
+  mode,
+  datasetSource,
+}) => {
   const queryClient = useQueryClient();
-
-  const [expanded, setExpanded] = React.useState(false);
-
-  const datasetInfo = queryClient.getQueryData([
-    "fetchData",
-    { project_id: props.project_id },
-  ]);
-
-  const isDatasetAdded = () => {
-    return datasetInfo !== undefined;
-  };
 
   const {
     data,
@@ -53,42 +39,30 @@ const DatasetFromEntryPoint = (props) => {
     isFetching: isFetchingDatasets,
     isSuccess,
   } = useQuery(
-    ["fetchDatasets", { subset: props.subset }],
+    ["fetchDatasets", { subset: subset }],
     ProjectAPI.fetchDatasets,
     { refetchOnWindowFocus: false },
   );
 
   const { error, isError, isLoading, mutate, reset } = useMutation(
-    ProjectAPI.mutateData,
+    ProjectAPI.createProject,
     {
       mutationKey: ["addDataset"],
       onSuccess: (data) => {
-        if (!isDatasetAdded()) {
-          props.toggleProjectSetup();
-        } else {
-          queryClient.invalidateQueries([
-            "fetchInfo",
-            { project_id: props.project_id },
-          ]);
-          queryClient.invalidateQueries([
-            "fetchData",
-            { project_id: props.project_id },
-          ]);
-        }
-        props.toggleImportDataset();
+        setDataset(data);
       },
     },
   );
 
   const addFile = (dataset_id) => {
-    if (props.subset === "plugin") {
+    if (subset === "plugin") {
       mutate({
-        project_id: props.project_id,
+        mode: mode,
         extension: dataset_id,
       });
     } else {
       mutate({
-        project_id: props.project_id,
+        mode: mode,
         benchmark: dataset_id,
       });
     }
@@ -109,6 +83,33 @@ const DatasetFromEntryPoint = (props) => {
 
   return (
     <Root>
+      {datasetSource === "extension" && (
+        <Typography variant="body2" sx={{ color: "text.secondary" }}>
+          Select a dataset from an extension.{" "}
+          <Link
+            underline="none"
+            href="https://asreview.readthedocs.io/en/latest/extensions_dev.html"
+            target="_blank"
+          >
+            Learn more
+          </Link>
+        </Typography>
+      )}
+      {datasetSource === "benchmark" && (
+        <Typography variant="body2" sx={{ color: "text.secondary" }}>
+          The benchmark datasets were manually labeled and can be used to
+          explore or demonstrate ASReview LAB. You can donate your dataset to
+          the benchmark platform.{" "}
+          <Link
+            underline="none"
+            href="https://github.com/asreview/synergy-dataset"
+            target="_blank"
+          >
+            Learn more
+          </Link>
+        </Typography>
+      )}
+
       {isFetchingDatasets && (
         <Box className={classes.loading}>
           <CircularProgress />
@@ -121,7 +122,12 @@ const DatasetFromEntryPoint = (props) => {
           button={!isError}
         />
       )}
-      {!isFetchingDatasets && isSuccess && isFetched && (
+
+      {isSuccess && isFetched && data["result"]?.length === 0 && (
+        <Typography>No dataset extensions installed.</Typography>
+      )}
+
+      {data && (
         <Stack spacing={2}>
           {data?.result.map((group, index) => (
             <Stack spacing={2} key={index}>
@@ -137,34 +143,21 @@ const DatasetFromEntryPoint = (props) => {
                 {group.datasets.map((dataset, index) => (
                   <EntryPointDataset
                     addFile={addFile}
-                    authors={formatCitation(dataset.authors, dataset.year)}
+                    dataset={dataset}
                     dataset_id={group.group_id + ":" + dataset.dataset_id}
-                    description={
-                      props.subset === "plugin"
-                        ? dataset.description
-                        : dataset.topic
-                    }
-                    doi={
-                      dataset.reference &&
-                      dataset.reference.replace(/^(https:\/\/doi\.org\/)/, "")
-                    }
-                    expanded={expanded}
+                    subset={subset}
                     isAddingDataset={isLoading}
-                    isAddDatasetError={isError}
-                    key={group.group_id + ":" + dataset.dataset_id}
-                    license={dataset.license}
-                    link={dataset.link}
-                    location={group.group_id + ":" + dataset.dataset_id}
-                    mobileScreen={props.mobileScreen}
+                    isAddingDatasetError={isError}
+                    mobileScreen={mobileScreen}
                     reset={reset}
-                    setExpanded={setExpanded}
-                    title={dataset.title}
+                    key={group.group_id + ":" + dataset.dataset_id}
                   />
                 ))}
               </Box>
             </Stack>
           ))}
         </Stack>
+        // )};
       )}
     </Root>
   );

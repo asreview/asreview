@@ -1,22 +1,22 @@
 import React, { useCallback, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { connect } from "react-redux";
 import {
   Avatar,
   Box,
-  Button,
   ButtonBase,
   Stack,
   Typography,
+  CircularProgress,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FileUpload } from "@mui/icons-material";
 
-import { InlineErrorHandler } from "../../../Components";
+import { InlineErrorHandler } from "Components";
 
-import { ProjectAPI } from "../../../api/index.js";
-import { mapStateToProps } from "../../../globals.js";
+import { ProjectAPI } from "api";
+import { mapStateToProps, projectModes } from "globals.js";
 
 const PREFIX = "DatasetFromFile";
 
@@ -70,42 +70,17 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-const DatasetFromFile = (props) => {
-  const queryClient = useQueryClient();
-
-  const [file, setFile] = React.useState(null);
-
-  const datasetInfo = queryClient.getQueryData([
-    "fetchData",
-    { project_id: props.project_id },
-  ]);
-
-  const isDatasetAdded = () => {
-    return datasetInfo !== undefined;
-  };
-
+const DatasetFromFile = ({ project_id, mode, setDataset }) => {
   const {
-    error: addDatasetError,
-    isError: isAddDatasetError,
-    isLoading: isAddingDataset,
+    error: createProjectError,
+    isError: isCreatingProjectError,
+    isLoading: isCreatingProject,
     mutate: addDataset,
     reset: resetAddDataset,
-  } = useMutation(ProjectAPI.mutateData, {
+  } = useMutation(ProjectAPI.createProject, {
     mutationKey: ["addDataset"],
     onSuccess: (data) => {
-      if (!isDatasetAdded()) {
-        props.toggleProjectSetup();
-      } else {
-        queryClient.invalidateQueries([
-          "fetchInfo",
-          { project_id: props.project_id },
-        ]);
-        queryClient.invalidateQueries([
-          "fetchData",
-          { project_id: props.project_id },
-        ]);
-      }
-      props.toggleImportDataset();
+      setDataset(data);
     },
   });
 
@@ -114,21 +89,37 @@ const DatasetFromFile = (props) => {
       if (acceptedFiles.length !== 1) {
         console.log("No valid file provided");
         return;
-      } else {
-        setFile(acceptedFiles[0]);
       }
 
-      if (isAddDatasetError) {
+      if (isCreatingProjectError) {
         resetAddDataset();
       }
 
       addDataset({
-        project_id: props.project_id,
+        mode: mode,
         file: acceptedFiles[0],
       });
     },
-    [props.project_id, addDataset, isAddDatasetError, resetAddDataset],
+    [addDataset, mode, isCreatingProjectError, resetAddDataset],
   );
+
+  const {
+    data: readers,
+    // error: fetchReadersError,
+    // isError: isFetchReadersError,
+    // isFetching: isFetchingReaders,
+  } = useQuery(
+    ["fetchDatasetReaders", { project_id: project_id }],
+    ProjectAPI.fetchDatasetReaders,
+    {
+      refetchOnWindowFocus: false,
+    },
+  );
+
+  let acceptedFileTypes = "";
+  readers?.result.forEach((reader) => {
+    acceptedFileTypes += reader.extension + ",";
+  });
 
   const {
     getRootProps,
@@ -141,7 +132,7 @@ const DatasetFromFile = (props) => {
     onDrop: onDrop,
     multiple: false,
     noClick: true,
-    accept: props.acceptFormat,
+    accept: acceptedFileTypes,
   });
 
   const style = useMemo(
@@ -159,7 +150,7 @@ const DatasetFromFile = (props) => {
       <Box {...getRootProps({ style })}>
         <input {...getInputProps()} />
         <Stack className={classes.root} spacing={2}>
-          <ButtonBase disabled={isAddingDataset} disableRipple onClick={open}>
+          <ButtonBase disabled={isCreatingProject} disableRipple onClick={open}>
             <Avatar
               sx={{
                 height: "136px",
@@ -174,22 +165,21 @@ const DatasetFromFile = (props) => {
             </Avatar>
           </ButtonBase>
           <Typography>Drag and drop a dataset file to add</Typography>
-          {file && (
-            <Typography className={classes.singleLine}>
-              File <i>{file?.path}</i> selected.
+          <Typography variant="secondary">Or click to select a file</Typography>
+          <Typography variant="secondary">
+            Accepted files: {acceptedFileTypes}
+          </Typography>
+          {mode !== projectModes.ORACLE && (
+            <Typography variant="secondary">
+              "The dataset should contain labels for each record. "
             </Typography>
           )}
-          {isAddingDataset && (
-            <Typography sx={{ color: "text.secondary" }}>Adding...</Typography>
-          )}
-          {isAddDatasetError && (
+          {isCreatingProject && <CircularProgress />}
+          {isCreatingProjectError && (
             <InlineErrorHandler
-              message={addDatasetError?.message + " Please try again."}
+              message={createProjectError?.message + " Please try again."}
             />
           )}
-          <Button disabled={isAddingDataset} variant="contained" onClick={open}>
-            Select File
-          </Button>
         </Stack>
       </Box>
     </Root>
