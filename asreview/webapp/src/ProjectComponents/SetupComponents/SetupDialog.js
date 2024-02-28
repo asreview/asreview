@@ -13,18 +13,18 @@ import {
 import { styled } from "@mui/material/styles";
 import Close from "@mui/icons-material/Close";
 
-import { StyledIconButton } from "../../StyledComponents/StyledButton";
+import { StyledIconButton } from "StyledComponents/StyledButton";
 
-import { AppBarWithinDialog } from "../../Components";
-import { SetupStepper } from "../SetupComponents";
-import { PriorForm } from "../SetupComponents/DataComponents";
-import { ModelForm } from "../SetupComponents/ModelComponents";
-import { InfoForm } from "../SetupComponents/InfoComponents";
-import { ScreenLanding } from "../SetupComponents/ScreenComponents";
+import { SetupStepper } from ".";
+import { AppBarWithinDialog } from "Components";
+import { PriorForm } from "./PriorComponents";
+import { ModelForm } from "./ModelComponents";
+import { InfoForm } from "./InfoComponents";
+import { ScreenLanding } from "./ScreenComponents";
 
-import { ProjectAPI } from "../../api";
-import { ProjectContext } from "../../ProjectContext";
-import { projectModes, projectStatuses } from "../../globals";
+import { ProjectAPI } from "api";
+import { ProjectContext } from "ProjectContext";
+import { projectModes, projectStatuses } from "globals.js";
 
 const PREFIX = "SetupDialog";
 

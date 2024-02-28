@@ -6,11 +6,11 @@ import { useContext } from "react";
 import { Button, Card, CardContent, Stack, Typography } from "@mui/material";
 import { Check } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
-import { historyFilterOptions } from "../../../globals";
-import { AddPriorKnowledge } from "../PriorComponents";
-import { useToggle } from "../../../hooks/useToggle";
-import { ProjectAPI } from "../../../api";
-import { ProjectContext } from "../../../ProjectContext";
+import { historyFilterOptions } from "globals.js";
+import { AddPriorKnowledge } from ".";
+import { useToggle } from "hooks/useToggle";
+import { ProjectAPI } from "api";
+import { ProjectContext } from "ProjectContext";
 
 const PREFIX = "PriorSelector";
 

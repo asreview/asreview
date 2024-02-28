@@ -6,7 +6,7 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import { SelectItem } from "../../../ProjectComponents";
+import { SelectItem } from "ProjectComponents";
 
 const ModelSelect = ({
   name,

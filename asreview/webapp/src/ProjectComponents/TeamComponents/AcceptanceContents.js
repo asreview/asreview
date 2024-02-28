@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { formatDate } from "../../globals";
+import { formatDate } from "globals.js";
 
 const PREFIX = "ProjectTable";
 

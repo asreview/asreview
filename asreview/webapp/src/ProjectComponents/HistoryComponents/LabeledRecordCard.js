@@ -22,12 +22,12 @@ import {
   FavoriteBorder,
 } from "@mui/icons-material";
 
-import { InlineErrorHandler } from "../../Components";
-import { RecordCardNote } from "../HistoryComponents";
-import { StyledIconButton } from "../../StyledComponents/StyledButton";
-import { ProjectAPI } from "../../api";
-import { projectModes } from "../../globals";
-import { DOIIcon } from "../../icons";
+import { InlineErrorHandler } from "Components";
+import { RecordCardNote } from ".";
+import { StyledIconButton } from "StyledComponents/StyledButton";
+import { ProjectAPI } from "api";
+import { projectModes } from "globals.js";
+import { DOIIcon } from "icons";
 
 const PREFIX = "LabeledRecordCard";
 

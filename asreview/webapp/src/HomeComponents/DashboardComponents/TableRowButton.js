@@ -9,7 +9,7 @@ import {
   MoreVert,
   PersonOff,
 } from "@mui/icons-material";
-import { projectStatuses } from "../../globals";
+import { projectStatuses } from "globals.js";
 
 const PREFIX = "TableRowButton";
 

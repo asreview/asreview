@@ -4,11 +4,11 @@ import { connect } from "react-redux";
 import { Box, CircularProgress, Stack, Typography, Link } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { InlineErrorHandler } from "../../../Components";
-import { EntryPointDataset } from "../DataComponents";
-import { ProjectAPI } from "../../../api";
+import { InlineErrorHandler } from "Components";
+import { EntryPointDataset } from ".";
+import { ProjectAPI } from "api";
 
-import { mapStateToProps } from "../../../globals";
+import { mapStateToProps } from "globals.js";
 
 const PREFIX = "DatasetFromEntryPoint";
 

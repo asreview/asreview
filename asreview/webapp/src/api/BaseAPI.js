@@ -1,5 +1,5 @@
 import { axiosErrorHandler } from "./axiosErrorHandler";
-import { base_url } from "../globals";
+import { base_url } from "globals.js";
 import axios from "axios";
 
 class BaseAPI {

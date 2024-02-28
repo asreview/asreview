@@ -23,16 +23,16 @@ import MailIcon from "@mui/icons-material/Mail";
 import { styled } from "@mui/material/styles";
 import { Logout, GroupAdd, Person } from "@mui/icons-material";
 
-import { StyledMenuItem } from "../StyledComponents/StyledMenuItem";
-import { TypographySubtitle1Medium } from "../StyledComponents/StyledTypography";
+import { StyledMenuItem } from "StyledComponents/StyledMenuItem";
+import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
-import { AuthAPI, TeamAPI, ProjectAPI } from "../api";
-import useAuth from "../hooks/useAuth";
-import ElasAvatar from "../images/ElasAvatar.svg";
+import { AuthAPI, TeamAPI, ProjectAPI } from "api";
+import useAuth from "hooks/useAuth";
+import ElasAvatar from "images/ElasAvatar.svg";
 
-import { AcceptanceDialog } from "../ProjectComponents/TeamComponents";
-import { useToggle } from "../hooks/useToggle";
-import { setMyProjects } from "../redux/actions";
+import { AcceptanceDialog } from "ProjectComponents/TeamComponents";
+import { useToggle } from "hooks/useToggle";
+import { setMyProjects } from "redux/actions";
 
 const Root = styled("div")(({ theme }) => ({}));
 

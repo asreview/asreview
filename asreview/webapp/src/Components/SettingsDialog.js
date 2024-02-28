@@ -25,12 +25,12 @@ import {
 import { styled } from "@mui/material/styles";
 import { ArrowBack, Close, InfoOutlined } from "@mui/icons-material";
 
-import { AppBarWithinDialog, OpenInNewIconStyled } from "../Components";
-import { StyledIconButton } from "../StyledComponents/StyledButton";
+import { AppBarWithinDialog, OpenInNewIconStyled } from "Components";
+import { StyledIconButton } from "StyledComponents/StyledButton";
 
-import { BaseAPI } from "../api";
-import { useToggle } from "../hooks/useToggle";
-import { fontSizeOptions, donateURL } from "../globals";
+import { BaseAPI } from "api";
+import { useToggle } from "hooks/useToggle";
+import { fontSizeOptions, donateURL } from "globals.js";
 
 const mapStateToProps = (state) => {
   return {

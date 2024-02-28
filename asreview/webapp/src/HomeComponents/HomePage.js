@@ -4,13 +4,10 @@ import clsx from "clsx";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import {
-  ProfilePage,
-  ProjectsOverview,
-} from "../HomeComponents/DashboardComponents";
-import RouteNotFound from "../RouteNotFound";
+import { ProfilePage, ProjectsOverview } from "./DashboardComponents";
+import RouteNotFound from "RouteNotFound";
 
-import { drawerWidth } from "../globals";
+import { drawerWidth } from "globals.js";
 
 const PREFIX = "HomePage";
 

@@ -1,8 +1,8 @@
 import * as React from "react";
 import { Stack } from "@mui/material";
 
-import { StyledTextButton } from "../StyledComponents/StyledButton";
-import { discussionsURL, asreviewURL } from "../globals";
+import { StyledTextButton } from "StyledComponents/StyledButton";
+import { discussionsURL, asreviewURL } from "globals.js";
 
 export default function HelpPrivacyTermsButton(props) {
   return (

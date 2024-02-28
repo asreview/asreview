@@ -6,10 +6,10 @@ import { Avatar, Box, ButtonBase, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FileUpload } from "@mui/icons-material";
 
-import { InlineErrorHandler } from "../Components";
+import { InlineErrorHandler } from "Components";
 
-import { ProjectAPI } from "../api";
-import { mapStateToProps } from "../globals";
+import { ProjectAPI } from "api";
+import { mapStateToProps } from "globals.js";
 
 const PREFIX = "ImportFromFile";
 

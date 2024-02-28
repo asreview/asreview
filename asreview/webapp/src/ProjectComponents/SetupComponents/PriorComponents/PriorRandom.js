@@ -15,15 +15,15 @@ import {
 import { styled } from "@mui/material/styles";
 import { ArrowBack } from "@mui/icons-material";
 
-import { InfoCard } from "..";
-import { InlineErrorHandler } from "../../../Components";
-import { EnoughPriorBanner, PriorUnlabeled } from "../PriorComponents";
-import { StyledIconButton } from "../../../StyledComponents/StyledButton";
-import { ProjectAPI } from "../../../api";
-import { projectModes } from "../../../globals";
-import { useToggle } from "../../../hooks/useToggle";
+import { InfoCard } from "ProjectComponents/SetupComponents";
+import { InlineErrorHandler } from "Components";
+import { EnoughPriorBanner, PriorUnlabeled } from ".";
+import { StyledIconButton } from "StyledComponents/StyledButton";
+import { ProjectAPI } from "api";
+import { projectModes } from "globals.js";
+import { useToggle } from "hooks/useToggle";
 
-import { ProjectContext } from "../../../ProjectContext";
+import { ProjectContext } from "ProjectContext";
 import { useContext } from "react";
 
 const PREFIX = "PriorRandom";

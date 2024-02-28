@@ -13,12 +13,12 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { InlineErrorHandler } from "../../../Components";
-import { ExplorationModeRecordAlert } from "../../../StyledComponents/StyledAlert";
-import { ProjectAPI } from "../../../api";
-import { projectModes } from "../../../globals";
+import { InlineErrorHandler } from "Components";
+import { ExplorationModeRecordAlert } from "StyledComponents/StyledAlert";
+import { ProjectAPI } from "api";
+import { projectModes } from "globals.js";
 
-import { ProjectContext } from "../../../ProjectContext";
+import { ProjectContext } from "ProjectContext";
 import { useContext } from "react";
 
 const PREFIX = "PriorUnlabeled";

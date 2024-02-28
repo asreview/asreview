@@ -17,15 +17,15 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { AppBarWithinDialog } from "../../../Components";
+import { AppBarWithinDialog } from "Components";
 import { DatasetFromFile, DatasetFromEntryPoint, DatasetFromURI } from ".";
-import { ProjectAPI } from "../../../api";
+import { ProjectAPI } from "api";
 import {
   mapDispatchToProps,
   mapStateToProps,
   projectModes,
   projectStatuses,
-} from "../../../globals";
+} from "globals.js";
 import DatasetInfo from "./DatasetInfo";
 
 const PREFIX = "ImportDataset";

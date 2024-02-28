@@ -2,7 +2,7 @@ import * as React from "react";
 import { Box, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { PriorSelector } from "../DataComponents";
+import { PriorSelector } from ".";
 
 const PREFIX = "PriorForm";
 

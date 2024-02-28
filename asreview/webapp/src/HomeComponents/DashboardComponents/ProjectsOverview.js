@@ -2,13 +2,13 @@ import * as React from "react";
 import { Box, Fab, Stack } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { useParams } from "react-router-dom";
-import { DashboardPageHeader, ProjectTable } from "../DashboardComponents";
-import { ActionsFeedbackBar } from "../../Components";
-import { ImportProject } from "../../ProjectComponents";
-import { SetupDialog } from "../../ProjectComponents/SetupComponents";
-import { ImportDataset } from "../../ProjectComponents/SetupComponents/DataComponents";
+import { DashboardPageHeader, ProjectTable } from ".";
+import { ActionsFeedbackBar } from "Components";
+import { ImportProject } from "ProjectComponents";
+import { SetupDialog } from "ProjectComponents/SetupComponents";
+import { ImportDataset } from "ProjectComponents/SetupComponents/DataComponents";
 
-import { useToggle } from "../../hooks/useToggle";
+import { useToggle } from "hooks/useToggle";
 
 const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
   const [onImportProject, toggleImportProject] = useToggle();

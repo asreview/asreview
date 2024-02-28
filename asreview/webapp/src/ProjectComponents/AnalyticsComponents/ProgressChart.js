@@ -3,7 +3,7 @@ import Chart from "react-apexcharts";
 import { Card, CardContent } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
-import { projectModes } from "../../globals";
+import { projectModes } from "globals.js";
 
 const PREFIX = "ProgressChart";
 

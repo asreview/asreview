@@ -1,7 +1,7 @@
 import * as React from "react";
 import ReactLoading from "react-loading";
 import { useMutation } from "react-query";
-import { ProjectAPI } from "../../api";
+import { ProjectAPI } from "api";
 
 import {
   Button,
@@ -17,8 +17,8 @@ import {
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
-import { useToggle } from "../../hooks/useToggle";
-import ElasPad from "../../images/ElasPad.svg";
+import { useToggle } from "hooks/useToggle";
+import ElasPad from "images/ElasPad.svg";
 
 // const YouTubeVideoID = "k-a2SCq-LtA";
 

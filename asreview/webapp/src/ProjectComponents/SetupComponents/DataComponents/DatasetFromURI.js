@@ -11,10 +11,10 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 
-import { InlineErrorHandler } from "../../../Components";
-import { StyledLoadingButton } from "../../../StyledComponents/StyledButton";
-import { ProjectAPI } from "../../../api";
-import { mapStateToProps } from "../../../globals";
+import { InlineErrorHandler } from "Components";
+import { StyledLoadingButton } from "StyledComponents/StyledButton";
+import { ProjectAPI } from "api";
+import { mapStateToProps } from "globals.js";
 
 const PREFIX = "DatasetFromURI";
 

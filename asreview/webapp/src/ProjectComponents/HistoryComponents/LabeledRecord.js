@@ -13,9 +13,9 @@ import {
 import { grey } from "@mui/material/colors";
 import { styled } from "@mui/material/styles";
 
-import { BoxErrorHandler } from "../../Components";
-import { LabeledRecordCard } from "../HistoryComponents";
-import { ProjectAPI } from "../../api";
+import { BoxErrorHandler } from "Components";
+import { LabeledRecordCard } from ".";
+import { ProjectAPI } from "api";
 
 let height = window.screen.height;
 

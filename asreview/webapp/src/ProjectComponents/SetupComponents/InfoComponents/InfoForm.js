@@ -12,9 +12,9 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { ProjectAPI } from "../../../api";
-import { CardErrorHandler } from "../../../Components";
-import { ProjectContext } from "../../../ProjectContext";
+import { ProjectAPI } from "api";
+import { CardErrorHandler } from "Components";
+import { ProjectContext } from "ProjectContext";
 
 const PREFIX = "InfoForm";
 

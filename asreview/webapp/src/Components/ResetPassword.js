@@ -17,9 +17,9 @@ import {
 import { InlineErrorHandler } from ".";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { styled } from "@mui/material/styles";
-import AuthAPI from "../api/AuthAPI";
-import { WordmarkState } from "../globals";
-import { useToggle } from "../hooks/useToggle";
+import AuthAPI from "api/AuthAPI";
+import { WordmarkState } from "globals.js";
+import { useToggle } from "hooks/useToggle";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 

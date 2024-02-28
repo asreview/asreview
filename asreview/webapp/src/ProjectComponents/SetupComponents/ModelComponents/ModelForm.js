@@ -20,13 +20,13 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { CardErrorHandler } from "../../../Components";
-import { ModelSelect } from "../ModelComponents";
-import { ProjectAPI } from "../../../api";
-import { defaultAlgorithms } from "../../../globals";
-import { SelectItem } from "../../../ProjectComponents";
+import { CardErrorHandler } from "Components";
+import { ModelSelect } from ".";
+import { ProjectAPI } from "api";
+import { defaultAlgorithms } from "globals.js";
+import { SelectItem } from "ProjectComponents";
 import { useContext } from "react";
-import { ProjectContext } from "../../../ProjectContext";
+import { ProjectContext } from "ProjectContext";
 
 const PREFIX = "ModelForm";
 

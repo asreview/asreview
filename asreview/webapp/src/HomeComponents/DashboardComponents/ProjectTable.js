@@ -19,23 +19,23 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { BoxErrorHandler, DialogErrorHandler } from "../../Components";
-import { ProjectDeleteDialog } from "../../ProjectComponents";
-import { ProjectCheckDialog, TableRowButton } from "../DashboardComponents";
-import { SetupDialog } from "../../ProjectComponents/SetupComponents";
-import { ProjectAPI } from "../../api";
-import { useRowsPerPage } from "../../hooks/SettingsHooks";
-import { useToggle } from "../../hooks/useToggle";
-import ElasArrowRightAhead from "../../images/ElasArrowRightAhead.svg";
+import { BoxErrorHandler, DialogErrorHandler } from "Components";
+import { ProjectDeleteDialog } from "ProjectComponents";
+import { ProjectCheckDialog, TableRowButton } from ".";
+import { SetupDialog } from "ProjectComponents/SetupComponents";
+import { ProjectAPI } from "api";
+import { useRowsPerPage } from "hooks/SettingsHooks";
+import { useToggle } from "hooks/useToggle";
+import ElasArrowRightAhead from "images/ElasArrowRightAhead.svg";
 import {
   checkIfSimulationFinishedDuration,
   mapDispatchToProps,
   projectModes,
   projectStatuses,
   formatDate,
-} from "../../globals";
-import useAuth from "../../hooks/useAuth";
-import { setMyProjects } from "../../redux/actions";
+} from "globals.js";
+import useAuth from "hooks/useAuth";
+import { setMyProjects } from "redux/actions";
 
 const PREFIX = "ProjectTable";
 

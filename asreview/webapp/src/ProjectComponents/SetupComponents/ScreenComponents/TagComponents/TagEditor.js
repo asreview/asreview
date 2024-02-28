@@ -21,9 +21,9 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import { useMutation, useQuery } from "react-query";
-import { ProjectAPI } from "../../../../api";
+import { ProjectAPI } from "api";
 
-import { TypographySubtitle1Medium } from "../../../../StyledComponents/StyledTypography";
+import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
 const Tag = (props) => {
   return (

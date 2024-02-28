@@ -3,9 +3,9 @@ import { useSelector } from "react-redux";
 import { Box, Card, CardContent, Fade, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { HelpPrivacyTermsButton, SignInForm } from "../Components";
+import { HelpPrivacyTermsButton, SignInForm } from "Components";
 
-import { WordmarkState } from "../globals";
+import { WordmarkState } from "globals.js";
 import SignInOAuth from "./SignInOAuth";
 
 const PREFIX = "SignInForm";

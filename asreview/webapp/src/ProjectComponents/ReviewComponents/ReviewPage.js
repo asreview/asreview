@@ -4,19 +4,18 @@ import { useParams } from "react-router-dom";
 import { Box, Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { ActionsFeedbackBar } from "../../Components";
+import { ActionsFeedbackBar } from "Components";
 import {
   DecisionButton,
   DecisionUndoBar,
   ExplorationModeBanner,
   RecordCard,
   TagsTable,
-} from "../ReviewComponents";
+  ReviewPageFinished,
+} from ".";
 
-import { ReviewPageFinished } from "../../ProjectComponents/ReviewComponents";
-
-import { ProjectAPI } from "../../api";
-import { useKeyPress } from "../../hooks/useKeyPress";
+import { ProjectAPI } from "api";
+import { useKeyPress } from "hooks/useKeyPress";
 
 import "./ReviewPage.css";
 import FinishSetup from "./ReviewPageTraining";

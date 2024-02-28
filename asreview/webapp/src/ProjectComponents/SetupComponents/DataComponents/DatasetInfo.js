@@ -10,8 +10,8 @@ import {
   Typography,
   CircularProgress,
 } from "@mui/material";
-import { CardErrorHandler } from "../../../Components";
-import { ProjectAPI } from "../../../api";
+import { CardErrorHandler } from "Components";
+import { ProjectAPI } from "api";
 
 import { styled } from "@mui/material/styles";
 

@@ -1,8 +1,8 @@
 import * as React from "react";
 import { Box, Typography } from "@mui/material";
 
-import { TypographyH5Medium } from "../StyledComponents/StyledTypography";
-import "../App.css";
+import { TypographyH5Medium } from "StyledComponents/StyledTypography";
+import "App.css";
 
 export default function PageHeader(props) {
   return (

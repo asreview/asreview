@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import ElasAvatar from "../../images/ElasAvatar.svg";
+import ElasAvatar from "images/ElasAvatar.svg";
 
 const Root = styled("div")(({ theme }) => ({}));
 

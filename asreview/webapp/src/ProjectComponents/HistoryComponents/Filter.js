@@ -3,7 +3,7 @@ import { Autocomplete, IconButton, InputBase, Popper } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FilterList } from "@mui/icons-material";
 
-import { historyFilterOptions } from "../../globals";
+import { historyFilterOptions } from "globals.js";
 
 const PREFIX = "Filter";
 

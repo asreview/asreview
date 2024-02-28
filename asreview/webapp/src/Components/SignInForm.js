@@ -12,9 +12,9 @@ import {
 } from "@mui/material";
 import { InlineErrorHandler } from ".";
 
-import AuthAPI from "../api/AuthAPI";
-import useAuth from "../hooks/useAuth";
-import { useToggle } from "../hooks/useToggle";
+import AuthAPI from "api/AuthAPI";
+import useAuth from "hooks/useAuth";
+import { useToggle } from "hooks/useToggle";
 
 const SignInForm = (props) => {
   const classes = props.classes;

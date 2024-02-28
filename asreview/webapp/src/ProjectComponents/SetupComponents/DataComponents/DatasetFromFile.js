@@ -13,10 +13,10 @@ import {
 import { styled } from "@mui/material/styles";
 import { FileUpload } from "@mui/icons-material";
 
-import { InlineErrorHandler } from "../../../Components";
+import { InlineErrorHandler } from "Components";
 
-import { ProjectAPI } from "../../../api";
-import { mapStateToProps, projectModes } from "../../../globals";
+import { ProjectAPI } from "api";
+import { mapStateToProps, projectModes } from "globals.js";
 
 const PREFIX = "DatasetFromFile";
 

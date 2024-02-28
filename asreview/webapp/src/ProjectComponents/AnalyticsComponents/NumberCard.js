@@ -3,7 +3,7 @@ import NumberFormat from "react-number-format";
 import { Card, CardContent, Grid, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { CardErrorHandler } from "../../Components";
+import { CardErrorHandler } from "Components";
 
 const Root = styled("div")(({ theme }) => ({
   position: "relative",

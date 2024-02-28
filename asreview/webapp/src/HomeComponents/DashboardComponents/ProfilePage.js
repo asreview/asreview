@@ -15,12 +15,12 @@ import {
 } from "@mui/material";
 
 import LoadingButton from "@mui/lab/LoadingButton";
-import { TypographyH5Medium } from "../../StyledComponents/StyledTypography";
-import { InlineErrorHandler } from "../../Components";
-import { useToggle } from "../../hooks/useToggle";
+import { TypographyH5Medium } from "StyledComponents/StyledTypography";
+import { InlineErrorHandler } from "Components";
+import { useToggle } from "hooks/useToggle";
 
-import { AuthAPI } from "../../api";
-import { passwordValidation } from "../../globals";
+import { AuthAPI } from "api";
+import { passwordValidation } from "globals.js";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 

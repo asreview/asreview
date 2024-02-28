@@ -23,11 +23,11 @@ import {
   LibraryBooks,
   Email,
 } from "@mui/icons-material";
-import { ActionsFeedbackBar, PageHeader, CiteDialog } from "../../Components";
-import { SelectItem } from "../../ProjectComponents";
-import { MouseOverPopover } from "../../StyledComponents/StyledPopover";
-import { ProjectAPI } from "../../api";
-import "../../App.css";
+import { ActionsFeedbackBar, PageHeader, CiteDialog } from "Components";
+import { SelectItem } from "ProjectComponents";
+import { MouseOverPopover } from "StyledComponents/StyledPopover";
+import { ProjectAPI } from "api";
+import "App.css";
 
 const selectWidth = 310;
 

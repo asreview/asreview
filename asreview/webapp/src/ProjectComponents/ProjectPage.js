@@ -14,25 +14,25 @@ import clsx from "clsx";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { DialogErrorHandler } from "../Components";
-import { AnalyticsPage } from "../ProjectComponents/AnalyticsComponents";
-import { DetailsPage } from "../ProjectComponents/DetailsComponents";
-import { HistoryPage } from "../ProjectComponents/HistoryComponents";
-import { ExportPage } from "../ProjectComponents/ExportComponents";
-import { TeamPage } from "./TeamComponents";
+import { DialogErrorHandler } from "Components";
+import { AnalyticsPage } from "ProjectComponents/AnalyticsComponents";
+import { DetailsPage } from "ProjectComponents/DetailsComponents";
+import { HistoryPage } from "ProjectComponents/HistoryComponents";
+import { ExportPage } from "ProjectComponents/ExportComponents";
+import { TeamPage } from "ProjectComponents/TeamComponents";
 
-import { ReviewPage } from "../ProjectComponents/ReviewComponents";
-import RouteNotFound from "../RouteNotFound";
+import { ReviewPage } from "ProjectComponents/ReviewComponents";
+import RouteNotFound from "RouteNotFound";
 
-import { ProjectAPI } from "../api";
+import { ProjectAPI } from "api";
 import {
   checkIfSimulationFinishedDuration,
   drawerWidth,
   mapDispatchToProps,
   projectModes,
   projectStatuses,
-} from "../globals";
-import useAuth from "../hooks/useAuth";
+} from "globals.js";
+import useAuth from "hooks/useAuth";
 
 const PREFIX = "ProjectPage";
 

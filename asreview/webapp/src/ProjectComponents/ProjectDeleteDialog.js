@@ -13,9 +13,9 @@ import {
   Typography,
   TextField,
 } from "@mui/material";
-import { TeamAPI, ProjectAPI } from "../api";
-import { setMyProjects } from "../redux/actions";
-import useAuth from "../hooks/useAuth";
+import { TeamAPI, ProjectAPI } from "api";
+import { setMyProjects } from "redux/actions";
+import useAuth from "hooks/useAuth";
 
 const ProjectDeleteDialog = (props) => {
   const navigate = useNavigate();

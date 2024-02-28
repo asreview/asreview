@@ -11,16 +11,16 @@ import {
 import { styled } from "@mui/material/styles";
 import LoadingButton from "@mui/lab/LoadingButton";
 
-import { ProjectDeleteDialog } from "../../ProjectComponents";
-import { ScreenLanding } from "../SetupComponents/ScreenComponents";
-import { ModelForm } from "../SetupComponents/ModelComponents";
-import { PriorForm } from "../SetupComponents/DataComponents";
-import { InfoForm } from "../SetupComponents/InfoComponents";
+import { ProjectDeleteDialog } from "ProjectComponents";
+import { ScreenLanding } from "ProjectComponents/SetupComponents/ScreenComponents";
+import { ModelForm } from "ProjectComponents/SetupComponents/ModelComponents";
+import { PriorForm } from "ProjectComponents/SetupComponents/PriorComponents";
+import { InfoForm } from "ProjectComponents/SetupComponents/InfoComponents";
 
-import { TypographyH5Medium } from "../../StyledComponents/StyledTypography";
-import { projectStatuses } from "../../globals";
-import { useToggle } from "../../hooks/useToggle";
-import { ProjectContext } from "../../ProjectContext";
+import { TypographyH5Medium } from "StyledComponents/StyledTypography";
+import { projectStatuses } from "globals.js";
+import { useToggle } from "hooks/useToggle";
+import { ProjectContext } from "ProjectContext";
 
 const Root = styled("div")(({ theme }) => ({}));
 

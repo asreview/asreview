@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { fontSizeOptions, getDesignTokens } from "../globals";
+import { fontSizeOptions, getDesignTokens } from "globals.js";
 
 const useRowsPerPage = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);

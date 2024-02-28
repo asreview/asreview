@@ -3,8 +3,8 @@ import * as React from "react";
 import { Box, Divider, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { LabelChip, LabeledRecord } from "../../HistoryComponents";
-import { ProjectContext } from "../../../ProjectContext";
+import { LabelChip, LabeledRecord } from "ProjectComponents/HistoryComponents";
+import { ProjectContext } from "ProjectContext";
 import { useContext } from "react";
 
 const PREFIX = "PriorLabeled";

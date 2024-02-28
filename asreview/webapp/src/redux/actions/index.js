@@ -6,7 +6,7 @@ import {
   SET_BOOT_DATA,
   SET_PROJECT,
   TOGGLE_HELP_DIALOG,
-} from "../../constants/action-types";
+} from "constants/action-types";
 
 // note: I am not too sure about these functions, they
 // shield the dispatch type from the developer, but

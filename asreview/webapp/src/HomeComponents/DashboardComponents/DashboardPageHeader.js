@@ -10,7 +10,7 @@ import {
 import { styled } from "@mui/material/styles";
 import { Upload } from "@mui/icons-material";
 
-import { TypographyH5Medium } from "../../StyledComponents/StyledTypography";
+import { TypographyH5Medium } from "StyledComponents/StyledTypography";
 
 const PREFIX = "DashboardPageHeader";
 

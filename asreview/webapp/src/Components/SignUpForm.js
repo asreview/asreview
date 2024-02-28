@@ -18,11 +18,11 @@ import {
 } from "@mui/material";
 
 import { InlineErrorHandler } from ".";
-import { WordmarkState, passwordValidation } from "../globals";
+import { WordmarkState, passwordValidation } from "globals.js";
 import { styled } from "@mui/material/styles";
-import { HelpPrivacyTermsButton } from "../Components";
-import { useToggle } from "../hooks/useToggle";
-import BaseAPI from "../api/AuthAPI";
+import { HelpPrivacyTermsButton } from "Components";
+import { useToggle } from "hooks/useToggle";
+import BaseAPI from "api/AuthAPI";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 

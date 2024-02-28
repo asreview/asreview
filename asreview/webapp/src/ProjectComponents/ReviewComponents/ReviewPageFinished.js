@@ -4,11 +4,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button, Fade, Link, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { ActionsFeedbackBar } from "../../Components";
+import { ActionsFeedbackBar } from "Components";
 
-import { ProjectAPI } from "../../api";
-import { projectStatuses } from "../../globals";
-import ElasFinished from "../../images/ElasFinished.svg";
+import { ProjectAPI } from "api";
+import { projectStatuses } from "globals.js";
+import ElasFinished from "images/ElasFinished.svg";
 
 const PREFIX = "ReviewPageFinished";
 
