@@ -10,6 +10,7 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
+  Fade,
   List,
   ListItem,
   ListItemButton,
@@ -94,6 +95,21 @@ const StyledList = styled(List)(({ theme }) => ({
   },
 }));
 
+const returnElasState = (info) => {
+  if (
+    info?.reviews[0] === undefined ||
+    info?.reviews[0].status === projectStatuses.SETUP
+  ) {
+    return SetUp;
+  }
+  if (info?.reviews[0].status === projectStatuses.REVIEW) {
+    return InReview;
+  }
+  if (info?.reviews[0].status === projectStatuses.FINISHED) {
+    return Finished;
+  }
+};
+
 const ProjectItemList = ({
   project_id,
   mobileScreen,
@@ -108,37 +124,18 @@ const ProjectItemList = ({
     setOpenGame(!openGame);
   };
 
-  const returnElasState = () => {
-    // setup
-    if (
-      projectInfo?.reviews[0] === undefined ||
-      projectInfo?.reviews[0].status === projectStatuses.SETUP
-    ) {
-      return SetUp;
-    }
-
-    // review
-    if (projectInfo?.reviews[0].status === projectStatuses.REVIEW) {
-      return InReview;
-    }
-
-    // finished
-    if (projectInfo?.reviews[0].status === projectStatuses.FINISHED) {
-      return Finished;
-    }
-  };
-
   const { data: projectInfo } = useQuery(
     ["fetchInfo", { project_id: project_id }],
     ProjectAPI.fetchInfo,
     {
-      enabled: project_id !== undefined,
       refetchOnWindowFocus: false,
     },
   );
 
+  const elasImage = returnElasState(projectInfo);
+
   return (
-    <div className={classes.topSection}>
+    <Box className={classes.topSection}>
       <DrawerItem
         mobileScreen={mobileScreen}
         label="Projects"
@@ -150,24 +147,26 @@ const ProjectItemList = ({
         <ListItem className={classes.projectInfo}>
           <Box
             component="img"
-            src={returnElasState()}
+            src={elasImage}
             alt="ElasState"
             className={classes.stateElas}
             onClick={toggleGame}
           />
 
-          <Box className={classes.yourProject}>
-            <Typography variant="subtitle2">
-              Your {projectInfo?.mode} project
-            </Typography>
-            <Typography
-              className={classes.projectTitle}
-              variant="body2"
-              color="textSecondary"
-            >
-              {projectInfo?.name}
-            </Typography>
-          </Box>
+          {onNavDrawer && (
+            <Box className={classes.yourProject}>
+              <Typography variant="subtitle2">
+                Your {projectInfo?.mode} project
+              </Typography>
+              <Typography
+                className={classes.projectTitle}
+                variant="body2"
+                color="textSecondary"
+              >
+                {projectInfo?.name}
+              </Typography>
+            </Box>
+          )}
         </ListItem>
       )}
 
@@ -246,7 +245,7 @@ const ProjectItemList = ({
           <Button onClick={toggleGame}>Take me back</Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </Box>
   );
 };
 
