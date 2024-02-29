@@ -110,6 +110,12 @@ const returnElasState = (info) => {
   }
 };
 
+const ProjectModeMapping = {
+  oracle: "Review",
+  explore: "Validation",
+  simulate: "Simulation",
+};
+
 const ProjectItemList = ({
   project_id,
   mobileScreen,
@@ -139,7 +145,7 @@ const ProjectItemList = ({
       <DrawerItem
         mobileScreen={mobileScreen}
         label="Projects"
-        path="/projects"
+        path={"/projects&subset=" + projectInfo?.mode}
         onNavDrawer={onNavDrawer}
         toggleNavDrawer={toggleNavDrawer}
       />
@@ -153,10 +159,10 @@ const ProjectItemList = ({
             onClick={toggleGame}
           />
 
-          {onNavDrawer && (
+          <Fade in={onNavDrawer} unmountOnExit>
             <Box className={classes.yourProject}>
               <Typography variant="subtitle2">
-                Your {projectInfo?.mode} project
+                Your {ProjectModeMapping[projectInfo?.mode]} project
               </Typography>
               <Typography
                 className={classes.projectTitle}
@@ -166,7 +172,7 @@ const ProjectItemList = ({
                 {projectInfo?.name}
               </Typography>
             </Box>
-          )}
+          </Fade>
         </ListItem>
       )}
 
