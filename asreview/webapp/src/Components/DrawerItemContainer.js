@@ -1,15 +1,15 @@
 import React from "react";
-import { useIsFetching, useQueryClient } from "react-query";
+import { useQuery } from "react-query";
 import { useSelector } from "react-redux";
 import { Route, Routes, useParams } from "react-router-dom";
 import {
+  Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Divider,
-  Fade,
   List,
   ListItem,
   ListItemButton,
@@ -94,23 +94,19 @@ const StyledList = styled(List)(({ theme }) => ({
   },
 }));
 
-const DrawerItemContainer = (props) => {
-  const { project_id } = useParams();
+const ProjectItemList = ({
+  project_id,
+  mobileScreen,
+  onNavDrawer,
+  toggleNavDrawer,
+}) => {
   const authentication = useSelector((state) => state.authentication);
   const allowTeams = useSelector((state) => state.allow_teams);
-  const queryClient = useQueryClient();
+  const [openGame, setOpenGame] = React.useState(false);
 
-  const isFetchingInfo = useIsFetching("fetchInfo");
-
-  const [projectInfo, setProjectInfo] = React.useState(null);
-
-  const fetchProjectInfo = React.useCallback(async () => {
-    const data = await queryClient.fetchQuery(
-      ["fetchInfo", { project_id }],
-      ProjectAPI.fetchInfo,
-    );
-    setProjectInfo(data);
-  }, [project_id, queryClient]);
+  const toggleGame = () => {
+    setOpenGame(!openGame);
+  };
 
   const returnElasState = () => {
     // setup
@@ -132,64 +128,130 @@ const DrawerItemContainer = (props) => {
     }
   };
 
-  /**
-   * Drawer items on project page
-   * Any change here requires change in DrawerItem
-   */
-  const drawerItemsProjectPage = [
+  const { data: projectInfo } = useQuery(
+    ["fetchInfo", { project_id: project_id }],
+    ProjectAPI.fetchInfo,
     {
-      path: "",
-      label: "Analytics",
+      enabled: project_id !== undefined,
+      refetchOnWindowFocus: false,
     },
-    {
-      path: "review",
-      label: "Review",
-    },
-    {
-      path: "history",
-      label: "History",
-    },
-    ...(authentication && allowTeams
-      ? [
-          {
-            path: "team",
-            label: "Team",
-          },
-        ]
-      : []),
-    {
-      path: "export",
-      label: "Export",
-    },
-    {
-      path: "details",
-      label: "Details",
-    },
-  ];
+  );
 
-  const [openGame, setOpenGame] = React.useState(false);
+  return (
+    <div className={classes.topSection}>
+      <DrawerItem
+        mobileScreen={mobileScreen}
+        label="Projects"
+        path="/projects"
+        onNavDrawer={onNavDrawer}
+        toggleNavDrawer={toggleNavDrawer}
+      />
+      {projectInfo && (
+        <ListItem className={classes.projectInfo}>
+          <Box
+            component="img"
+            src={returnElasState()}
+            alt="ElasState"
+            className={classes.stateElas}
+            onClick={toggleGame}
+          />
 
-  const toggleGame = () => {
-    setOpenGame(!openGame);
-  };
+          <Box className={classes.yourProject}>
+            <Typography variant="subtitle2">
+              Your {projectInfo?.mode} project
+            </Typography>
+            <Typography
+              className={classes.projectTitle}
+              variant="body2"
+              color="textSecondary"
+            >
+              {projectInfo?.name}
+            </Typography>
+          </Box>
+        </ListItem>
+      )}
 
-  const descriptionElementRef = React.useRef(null);
-  React.useEffect(() => {
-    if (openGame) {
-      const { current: descriptionElement } = descriptionElementRef;
-      if (descriptionElement !== null) {
-        descriptionElement.focus();
-      }
-    }
-  }, [openGame]);
+      <DrawerItem
+        key={"project-analytics"}
+        path={`/projects/${project_id}/`}
+        label={"Analytics"}
+        mobileScreen={mobileScreen}
+        onNavDrawer={onNavDrawer}
+        toggleNavDrawer={toggleNavDrawer}
+      />
 
-  React.useEffect(() => {
-    if (project_id && isFetchingInfo) {
-      fetchProjectInfo();
-    } else {
-      setProjectInfo(null);
-    }
-  }, [fetchProjectInfo, project_id, isFetchingInfo]);
+      {projectInfo?.mode !== projectModes.SIMULATION && (
+        <DrawerItem
+          key={"project-review"}
+          path={`/projects/${project_id}/review`}
+          label={"Review"}
+          mobileScreen={mobileScreen}
+          onNavDrawer={onNavDrawer}
+          toggleNavDrawer={toggleNavDrawer}
+        />
+      )}
+      <DrawerItem
+        key={"project-history"}
+        path={`/projects/${project_id}/history`}
+        label={"History"}
+        mobileScreen={mobileScreen}
+        onNavDrawer={onNavDrawer}
+        toggleNavDrawer={toggleNavDrawer}
+      />
+
+      {authentication && allowTeams && (
+        <DrawerItem
+          key={"project-team"}
+          path={`/projects/${project_id}/team`}
+          label={"Team"}
+          mobileScreen={mobileScreen}
+          onNavDrawer={onNavDrawer}
+          toggleNavDrawer={toggleNavDrawer}
+        />
+      )}
+
+      <DrawerItem
+        key={"project-export"}
+        path={`/projects/${project_id}/export`}
+        label={"Export"}
+        mobileScreen={mobileScreen}
+        onNavDrawer={onNavDrawer}
+        toggleNavDrawer={toggleNavDrawer}
+      />
+
+      <DrawerItem
+        key={"project-details"}
+        path={`/projects/${project_id}/details`}
+        label={"Details"}
+        mobileScreen={mobileScreen}
+        onNavDrawer={onNavDrawer}
+        toggleNavDrawer={toggleNavDrawer}
+      />
+
+      {/* Game */}
+      <Dialog
+        open={openGame}
+        onClose={toggleGame}
+        scroll={"paper"}
+        fullWidth={true}
+        maxWidth={"lg"}
+        aria-labelledby="game-dialog-title"
+        aria-describedby="game-dialog-description"
+      >
+        <DialogTitle id="game-dialog-title">Elas Memory Game</DialogTitle>
+        <DialogContent>
+          <ElasGame />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={toggleGame}>Take me back</Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+};
+
+const DrawerItemContainer = (props) => {
+  const { project_id } = useParams();
 
   return (
     <StyledList aria-label="drawer item container">
@@ -231,64 +293,12 @@ const DrawerItemContainer = (props) => {
         <Route
           path="projects/:project_id/*"
           element={
-            <Fade in>
-              <div className={classes.topSection}>
-                <DrawerItem
-                  mobileScreen={props.mobileScreen}
-                  label="Projects"
-                  path="/projects"
-                  onNavDrawer={props.onNavDrawer}
-                  toggleNavDrawer={props.toggleNavDrawer}
-                />
-                {projectInfo && (
-                  <ListItem
-                    className={classes.projectInfo}
-                    onClick={toggleGame}
-                  >
-                    <img
-                      src={returnElasState()}
-                      alt="ElasState"
-                      className={classes.stateElas}
-                    />
-
-                    <Fade in={props.onNavDrawer} unmountOnExit>
-                      <div className={classes.yourProject}>
-                        <Typography variant="subtitle2">
-                          Your project
-                        </Typography>
-                        <Typography
-                          className={classes.projectTitle}
-                          variant="body2"
-                          color="textSecondary"
-                        >
-                          {projectInfo ? projectInfo.name : "Null"}
-                        </Typography>
-                      </div>
-                    </Fade>
-                  </ListItem>
-                )}
-
-                {projectInfo &&
-                  drawerItemsProjectPage
-                    .filter((element) => {
-                      return projectInfo?.mode !== projectModes.SIMULATION
-                        ? element
-                        : element.path !== projectStatuses.REVIEW;
-                    })
-                    .map((element, index) => {
-                      return (
-                        <DrawerItem
-                          key={index}
-                          path={element.path}
-                          label={element.label}
-                          mobileScreen={props.mobileScreen}
-                          onNavDrawer={props.onNavDrawer}
-                          toggleNavDrawer={props.toggleNavDrawer}
-                        />
-                      );
-                    })}
-              </div>
-            </Fade>
+            <ProjectItemList
+              project_id={project_id}
+              mobileScreen={props.mobileScreen}
+              onNavDrawer={props.onNavDrawer}
+              toggleNavDrawer={props.toggleNavDrawer}
+            />
           }
         />
       </Routes>
@@ -373,25 +383,6 @@ const DrawerItemContainer = (props) => {
           </ListItemButton>
         </Tooltip>
       </div>
-
-      {/* Game */}
-      <Dialog
-        open={openGame}
-        onClose={toggleGame}
-        scroll={"paper"}
-        fullWidth={true}
-        maxWidth={"lg"}
-        aria-labelledby="game-dialog-title"
-        aria-describedby="game-dialog-description"
-      >
-        <DialogTitle id="game-dialog-title">Elas Memory Game</DialogTitle>
-        <DialogContent>
-          <ElasGame />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={toggleGame}>Take me back</Button>
-        </DialogActions>
-      </Dialog>
     </StyledList>
   );
 };
