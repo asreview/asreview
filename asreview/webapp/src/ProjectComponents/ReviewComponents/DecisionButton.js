@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Fab, Stack } from "@mui/material";
+import { Box, Fab, Stack, Tooltip } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Favorite, FavoriteBorder } from "@mui/icons-material";
 import "./ReviewPage.css";
@@ -45,29 +45,49 @@ const DecisionButton = (props) => {
         spacing={!props.mobileScreen ? 10 : !props.previousRecord.show ? 10 : 2}
       >
         <Box>
-          <Fab
-            id="irrelevant"
-            disabled={props.disableButton()}
-            onClick={() => props.makeDecision(0)}
-            size={props.mobileScreen ? "small" : "large"}
-            variant="extended"
+          <Tooltip
+            open={props.labelFromDataset === 0}
+            title="Label in dataset is irrelevant"
+            placement="top"
+            disableFocusListener
+            disableHoverListener
+            disableTouchListener
+            arrow
           >
-            <FavoriteBorder className={classes.extendedFab} />
-            {irrelevantLabel}
-          </Fab>
+            <Fab
+              id="irrelevant"
+              disabled={props.disableButton()}
+              onClick={() => props.makeDecision(0)}
+              size={props.mobileScreen ? "small" : "large"}
+              variant="extended"
+            >
+              <FavoriteBorder className={classes.extendedFab} />
+              {irrelevantLabel}
+            </Fab>
+          </Tooltip>
         </Box>
         <Box>
-          <Fab
-            id="relevant"
-            onClick={() => props.makeDecision(1)}
-            color="primary"
-            disabled={props.disableButton()}
-            size={props.mobileScreen ? "small" : "large"}
-            variant="extended"
+          <Tooltip
+            open={props.labelFromDataset === 1}
+            title="Label in dataset is relevant"
+            placement="top"
+            disableFocusListener
+            disableHoverListener
+            disableTouchListener
+            arrow
           >
-            <Favorite className={classes.extendedFab} />
-            {relevantLabel}
-          </Fab>
+            <Fab
+              id="relevant"
+              onClick={() => props.makeDecision(1)}
+              color="primary"
+              disabled={props.disableButton()}
+              size={props.mobileScreen ? "small" : "large"}
+              variant="extended"
+            >
+              <Favorite className={classes.extendedFab} />
+              {relevantLabel}
+            </Fab>
+          </Tooltip>
         </Box>
       </Stack>
     </Root>

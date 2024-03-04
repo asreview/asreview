@@ -256,11 +256,11 @@ const ReviewPageRecord = (props) => {
       <Fade in>
         <Box className="review-page-body-wrapper">
           <Box className="review-page-body">
-            {/* Banner Exploration Mode */}
+            {/* Banner Exploration Mode
             <ExplorationModeBanner
               explorationMode={explorationMode}
               setExplorationMode={setExplorationMode}
-            />
+            /> */}
             {/* Article card */}
             <RecordCard
               disableButton={disableButton}
@@ -279,6 +279,7 @@ const ReviewPageRecord = (props) => {
           <DecisionButton
             disableButton={disableButton}
             makeDecision={makeDecision}
+            labelFromDataset={activeRecord?.label_from_dataset}
             mobileScreen={props.mobileScreen}
             previousRecord={previousRecord}
           />

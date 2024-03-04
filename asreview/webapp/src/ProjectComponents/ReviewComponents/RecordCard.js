@@ -128,7 +128,7 @@ const RecordCard = (props) => {
           className={classes.loadedCard}
           aria-label="record loaded"
         >
-          {/* Previous decision alert */}
+          {/* Previous decision alert
           {props.activeRecord.label_from_dataset !== null && (
             <ExplorationModeRecordAlert
               label={
@@ -140,7 +140,7 @@ const RecordCard = (props) => {
               }
               fontSize={props.fontSize}
             />
-          )}
+          )} */}
 
           <CardContent
             className={`${classes.titleAbstract} record-card-content`}

@@ -2,6 +2,7 @@ import React from "react";
 import { useMutation, useQueryClient } from "react-query";
 import TruncateMarkup from "react-truncate-markup";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -142,7 +143,7 @@ const PriorUnlabeled = (props) => {
       )}
       {!isError && (
         <Card elevation={3} className={classes.root}>
-          {props.record.label_from_dataset !== null && (
+          {/* {props.mode !== projectModes.ORACLE && props.record.label_from_dataset !== null && (
             <ExplorationModeRecordAlert
               label={
                 props.record.label_from_dataset === -1
@@ -153,7 +154,7 @@ const PriorUnlabeled = (props) => {
               }
               prior={true}
             />
-          )}
+          )} */}
           <CardContent className="record-card-content">
             <Typography gutterBottom variant="h6">
               {props.record.title ? props.record.title : "No title available"}
@@ -181,6 +182,15 @@ const PriorUnlabeled = (props) => {
             </TruncateMarkup>
           </CardContent>
           <Divider />
+
+          <Alert severity="info" sx={{ margin: "0.5rem 1rem" }}>
+            {props.record.label_from_dataset === -1
+              ? "No label in dataset"
+              : !isDebugInclusion()
+                ? "Label in dataset is irrelevant"
+                : "Label in dataset is relevant"}
+          </Alert>
+
           <CardActions sx={{ justifyContent: "space-between" }}>
             <Typography variant="body2" sx={{ ml: 1 }}>
               Is this record relevant?
