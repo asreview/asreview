@@ -6,8 +6,6 @@ import { AuthProvider } from "context/AuthProvider";
 import store from "redux/store";
 import App from "App";
 
-// render(<App />, document.getElementById("root"))
-
 render(
   <React.StrictMode>
     <Provider store={store}>
@@ -19,7 +17,6 @@ render(
         </AuthProvider>
       </BrowserRouter>
     </Provider>
-    ,
   </React.StrictMode>,
   document.getElementById("root"),
 );

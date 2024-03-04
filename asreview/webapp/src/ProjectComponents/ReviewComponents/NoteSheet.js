@@ -1,15 +1,6 @@
 import React from "react";
-import {
-  Box,
-  Card,
-  CardContent,
-  IconButton,
-  Stack,
-  TextField,
-  Tooltip,
-} from "@mui/material";
+import { Box, Stack, TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { KeyboardArrowDown } from "@mui/icons-material";
 
 const PREFIX = "NoteSheet";
 
@@ -19,68 +10,47 @@ const classes = {
 };
 
 const Root = styled("div")({
-  [`& .${classes.textfield}`]: {
-    paddingLeft: 16,
-    paddingRight: 16,
-  },
-  [`& .${classes.button}`]: {
-    display: "flex",
-    justifyContent: "flex-end",
-    paddingRight: 16,
-  },
+  // [`& .${classes.textfield}`]: {
+  //   paddingLeft: 16,
+  //   paddingRight: 16,
+  // },
+  // [`& .${classes.button}`]: {
+  //   display: "flex",
+  //   justifyContent: "flex-end",
+  //   paddingRight: 16,
+  // },
 });
 
-const NoteSheet = (props) => {
-  const handleNote = (event) => {
-    props.setRecordNote((s) => {
-      return {
-        ...s,
-        data: event.target.value,
-      };
-    });
-  };
+const NoteSheet = ({ note, setNote }) => {
+  const [showNoteChange, setShowNoteChange] = React.useState(false);
 
-  const handleClickCollapseNote = () => {
-    props.setRecordNote((s) => {
-      return {
-        ...s,
-        expand: false,
-      };
-    });
+  const handleNote = (event) => {
+    setNote(event.target.value);
+    setShowNoteChange(true);
   };
 
   return (
-    <Root>
-      <Card variant="outlined">
-        <CardContent>
-          <Stack spacing={1}>
-            <Box className={classes.button}>
-              <Tooltip title="Collapse">
-                <IconButton onClick={handleClickCollapseNote}>
-                  <KeyboardArrowDown />
-                </IconButton>
-              </Tooltip>
-            </Box>
-            <Box className={classes.textfield}>
-              <TextField
-                autoComplete="off"
-                id="multiline-note"
-                label="Note"
-                autoFocus={props.noteFieldAutoFocus()}
-                fullWidth
-                helperText="Save the note by labeling the record as relevant or irrelevant"
-                multiline
-                onChange={handleNote}
-                placeholder="Write something..."
-                rows={4}
-                value={props.note ? props.note : ""}
-                variant="outlined"
-              />
-            </Box>
-          </Stack>
-        </CardContent>
-      </Card>
-    </Root>
+    <Box>
+      <Stack spacing={1}>
+        <Box className={classes.textfield}>
+          <TextField
+            autoComplete="off"
+            id="record-note"
+            label="Note"
+            // autoFocus={noteFieldAutoFocus()}
+            fullWidth
+            helperText={
+              showNoteChange && "Note is saved when label decision is made."
+            }
+            multiline
+            onChange={handleNote}
+            placeholder="Write a note for this record..."
+            rows={4}
+            value={note ? note : ""}
+          />
+        </Box>
+      </Stack>
+    </Box>
   );
 };
 

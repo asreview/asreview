@@ -19,20 +19,20 @@ const classes = {
 };
 
 const Root = styled("div")(({ theme }) => ({
-  display: "flex",
-  flex: "1 0 auto",
-  margin: "auto",
-  maxWidth: 960,
-  padding: "108px 0px 32px 0px",
-  height: "100%",
+  // display: "flex",
+  // flex: "1 0 auto",
+  // margin: "auto",
+  // maxWidth: 960,
+  // padding: "108px 0px 32px 0px",
+  // height: "100%",
 
-  [`& .${classes.groupCard}`]: {
-    borderRadius: 16,
-    marginBottom: "16px",
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
-  },
+  // [`& .${classes.groupCard}`]: {
+  //   borderRadius: 16,
+  //   marginBottom: "16px",
+  //   display: "flex",
+  //   flexDirection: "column",
+  //   width: "100%",
+  // },
 
   [`& .${classes.title}`]: {
     lineHeight: 1.2,
@@ -59,20 +59,18 @@ const TagsTable = (props) => {
       );
     }
 
-    console.log(tagValues);
-
     props.setTagValues(tagValues);
   };
 
   const isChecked = (groupId, tagId) => {
-    return props.tagValues.hasOwnProperty(getTagCompositeId(groupId, tagId));
+    // return props.tagValues.hasOwnProperty(getTagCompositeId(groupId, tagId));
   };
 
   return (
     <Root>
       <Box>
         {props.tags.map((group) => (
-          <Card elevation={2} className={classes.groupCard} key={group.id}>
+          <Card elevation={0} key={group.id}>
             <CardContent>
               <Typography variant="h6">{group.name}</Typography>
               <FormGroup row={true}>

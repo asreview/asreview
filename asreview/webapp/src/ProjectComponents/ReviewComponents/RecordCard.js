@@ -18,7 +18,7 @@ import { Link } from "@mui/icons-material";
 
 import { BoxErrorHandler } from "Components";
 import { DOIIcon } from "icons";
-import { NoteSheet, RecordTrainingInfo } from ".";
+import { NoteSheet, RecordTrainingInfo, DecisionButton } from ".";
 import { ExplorationModeRecordAlert } from "StyledComponents/StyledAlert";
 import { StyledIconButton } from "StyledComponents/StyledButton";
 
@@ -77,33 +77,9 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const RecordCard = (props) => {
-  const isDebugInclusion = () => {
-    if (props.activeRecord) {
-      return props.activeRecord.label_from_dataset === 1;
-    }
-  };
   const isNotTrained =
     props.activeRecord?.query_strategy === "top-down" ||
     props.activeRecord?.query_strategy === "random";
-
-  const expandNoteSheet = () => {
-    props.setRecordNote((s) => {
-      return {
-        ...s,
-        expand: true,
-        shrink: false,
-      };
-    });
-  };
-
-  const shrinkNoteSheet = () => {
-    props.setRecordNote((s) => {
-      return {
-        ...s,
-        shrink: true,
-      };
-    });
-  };
 
   return (
     <Root aria-label="record card">
@@ -173,7 +149,6 @@ const RecordCard = (props) => {
                     </Box>
                   )}
 
-                  {/* Show the title if available */}
                   {!(
                     props.activeRecord.title === "" ||
                     props.activeRecord.title === null
@@ -186,7 +161,6 @@ const RecordCard = (props) => {
                 <RecordTrainingInfo state={props.activeRecord.state} />
               </Stack>
               <Stack direction="row" spacing={1}>
-                {/* Show DOI if available */}
                 {!(
                   props.activeRecord.doi === undefined ||
                   props.activeRecord.doi === null
@@ -201,7 +175,6 @@ const RecordCard = (props) => {
                   </StyledIconButton>
                 )}
 
-                {/* Show URL if available */}
                 {!(
                   props.activeRecord.url === undefined ||
                   props.activeRecord.url === null
@@ -218,7 +191,6 @@ const RecordCard = (props) => {
                   </Tooltip>
                 )}
               </Stack>
-              {/* Show the abstract */}
               <Typography
                 component="div"
                 className={
@@ -228,13 +200,11 @@ const RecordCard = (props) => {
                 paragraph
                 sx={{ color: "text.secondary" }}
               >
-                {/* No abstract, inplace text */}
                 {(props.activeRecord.abstract === "" ||
                   props.activeRecord.abstract === null) && (
                   <Box fontStyle="italic">No abstract available</Box>
                 )}
 
-                {/* Show the abstract if available */}
                 {!(
                   props.activeRecord.abstract === "" ||
                   props.activeRecord.abstract === null
@@ -242,38 +212,17 @@ const RecordCard = (props) => {
               </Typography>
             </Stack>
           </CardContent>
-
-          <Slide
-            direction="up"
-            in={props.recordNote.expand}
-            onExited={shrinkNoteSheet}
-            mountOnEnter
-            unmountOnExit
-          >
-            <Box>
-              <NoteSheet
-                note={props.recordNote.data}
-                noteFieldAutoFocus={props.noteFieldAutoFocus}
-                previousRecord={props.previousRecord}
-                setRecordNote={props.setRecordNote}
-              />
-            </Box>
-          </Slide>
-
-          {props.recordNote.shrink && (
-            <CardActions className={classes.note}>
-              <Button
-                disabled={props.disableButton()}
-                onClick={expandNoteSheet}
-                aria-label="add note"
-              >
-                {(props.previousRecord.show && props.previousRecord.note) ||
-                props.recordNote.data
-                  ? "Edit Note"
-                  : "Add Note"}
-              </Button>
-            </CardActions>
-          )}
+          <DecisionButton
+            // disableButton={props.disableButton}
+            makeDecision={props.makeDecision}
+            labelFromDataset={props.activeRecord?.label_from_dataset}
+            mobileScreen={props.mobileScreen}
+            // previousRecord={props.previousRecord}
+            tags={props.tags}
+            // tagValues={props.tagValues}
+            // setTagValues={props.setTagValues}
+            keyPressEnabled={props.keyPressEnabled}
+          />
         </Card>
       )}
     </Root>

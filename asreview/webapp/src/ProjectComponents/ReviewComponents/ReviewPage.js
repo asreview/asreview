@@ -15,13 +15,13 @@ import {
 } from ".";
 
 import { ProjectAPI } from "api";
-import { useKeyPress } from "hooks/useKeyPress";
+// import { useKeyPress } from "hooks/useKeyPress";
 
 import "./ReviewPage.css";
 import FinishSetup from "./ReviewPageTraining";
 
 const Root = styled("div")(({ theme }) => ({
-  height: "100%",
+  // height: "100%",
 }));
 
 const ReviewPageRecord = (props) => {
@@ -32,39 +32,34 @@ const ReviewPageRecord = (props) => {
   const [activeRecord, setActiveRecord] = React.useState(
     props.record["result"],
   );
-  const [previousRecord, setPreviousRecord] = React.useState({
-    record: null,
-    label: null,
-    note: null,
-    tagValues: null,
-    show: false,
-  });
-  const [recordNote, setRecordNote] = React.useState({
-    expand: false,
-    shrink: true, // for smooth transition
-    data: "",
-  });
+  // const [previousRecord, setPreviousRecord] = React.useState({
+  //   record: null,
+  //   label: null,
+  //   note: null,
+  //   tagValues: null,
+  //   show: false,
+  // });
+  // const [recordNote, setRecordNote] = React.useState({
+  //   expand: false,
+  //   shrink: true, // for smooth transition
+  //   data: "",
+  // });
   const [tagValues, setTagValues] = React.useState({});
-  const [undoState, setUndoState] = React.useState({
-    open: false,
-    message: null,
-  });
+  // const [undoState, setUndoState] = React.useState({
+  //   open: false,
+  //   message: null,
+  // });
 
-  const relevantPress = useKeyPress("r");
-  const irrelevantPress = useKeyPress("i");
-  const undoPress = useKeyPress("u");
-  const notePress = useKeyPress("n");
+  // const tagValuesEqual = (tagValues1, tagValues2) => {
+  //   if (tagValues1 === null || tagValues2 === null) {
+  //     return tagValues1 === null && tagValues2 === null;
+  //   }
 
-  const tagValuesEqual = (tagValues1, tagValues2) => {
-    if (tagValues1 === null || tagValues2 === null) {
-      return tagValues1 === null && tagValues2 === null;
-    }
-
-    const keys1 = Object.keys(tagValues1);
-    const keys2 = Object.keys(tagValues2);
-    const union = new Set(keys1.concat(keys2));
-    return union.size === keys1.length && union.size === keys2.length;
-  };
+  //   const keys1 = Object.keys(tagValues1);
+  //   const keys2 = Object.keys(tagValues2);
+  //   const union = new Set(keys1.concat(keys2));
+  //   return union.size === keys1.length && union.size === keys2.length;
+  // };
 
   useQuery(["fetchRecord", { project_id }], ProjectAPI.fetchRecord, {
     refetchOnWindowFocus: false,
@@ -76,180 +71,164 @@ const ReviewPageRecord = (props) => {
   const { error, isError, isLoading, mutate, reset } = useMutation(
     ProjectAPI.mutateClassification,
     {
-      onMutate: (variables) => {
-        closeUndoBar(); // hide potentially active undo bar
-        setPreviousRecord({
-          record: activeRecord,
-          label: variables.label,
-          note: variables.note,
-          tagValues: variables.tagValues,
-          show: false,
-        });
-      },
-      onSuccess: (data, variables) => {
+      onSuccess: () => {
         setActiveRecord(null);
-        resetNote();
-        resetTagValues();
         queryClient.invalidateQueries("fetchRecord");
-        showUndoBarIfNeeded(variables.label, variables.initial);
       },
     },
   );
 
-  /**
-   * Previous record config
-   */
-  const loadPreviousRecord = () => {
-    setPreviousRecord((s) => {
-      return {
-        ...s,
-        show: true,
-      };
-    });
-    setActiveRecord(previousRecord.record);
-    setRecordNote((s) => {
-      return {
-        ...s,
-        data: previousRecord.note,
-      };
-    });
-    setTagValues(previousRecord.tagValues);
-  };
+  // /**
+  //  * Previous record config
+  //  */
+  // const loadPreviousRecord = () => {
+  //   setPreviousRecord((s) => {
+  //     return {
+  //       ...s,
+  //       show: true,
+  //     };
+  //   });
+  //   setActiveRecord(previousRecord.record);
+  //   setRecordNote((s) => {
+  //     return {
+  //       ...s,
+  //       data: previousRecord.note,
+  //     };
+  //   });
+  //   setTagValues(previousRecord.tagValues);
+  // };
 
-  const resetPreviousRecord = () => {
-    setPreviousRecord({
-      record: null,
-      label: null,
-      note: null,
-      tagValues: null,
-      show: false,
-    });
-  };
+  // const resetPreviousRecord = () => {
+  //   setPreviousRecord({
+  //     record: null,
+  //     label: null,
+  //     note: null,
+  //     tagValues: null,
+  //     show: false,
+  //   });
+  // };
 
-  /**
-   * Undo bar config
-   */
-  const showUndoBar = (message) => {
-    setUndoState({
-      open: true,
-      message: message,
-    });
-  };
+  // /**
+  //  * Undo bar config
+  //  */
+  // const showUndoBar = (message) => {
+  //   setUndoState({
+  //     open: true,
+  //     message: message,
+  //   });
+  // };
 
-  const showUndoBarIfNeeded = (label, initial) => {
-    if (props.undoEnabled) {
-      const mark = label === 0 ? "irrelevant" : "relevant";
-      const message = initial ? `Label saved as ${mark}` : "Changes saved";
-      showUndoBar(message);
-    }
-  };
+  // const showUndoBarIfNeeded = (label, initial) => {
+  //   if (props.undoEnabled) {
+  //     const mark = label === 0 ? "irrelevant" : "relevant";
+  //     const message = initial ? `Label saved as ${mark}` : "Changes saved";
+  //     showUndoBar(message);
+  //   }
+  // };
 
-  const closeUndoBar = () => {
-    setUndoState({
-      open: false,
-      message: null,
-    });
-  };
+  // const closeUndoBar = () => {
+  //   setUndoState({
+  //     open: false,
+  //     message: null,
+  //   });
+  // };
 
-  const undoDecision = () => {
-    closeUndoBar();
-    loadPreviousRecord();
-  };
+  // const undoDecision = () => {
+  //   closeUndoBar();
+  //   loadPreviousRecord();
+  // };
 
   /**
    * Decision button config
    */
-  const disableButton = () => {
-    return !activeRecord || isLoading;
-  };
+  // const disableButton = () => {
+  //   return !activeRecord || isLoading;
+  // };
 
-  const needsClassification = (label) => {
-    if (!previousRecord.show) {
-      return true;
-    }
-    return (
-      label !== previousRecord.label ||
-      recordNote.data !== previousRecord.note ||
-      !tagValuesEqual(tagValues, previousRecord.tagValues)
-    );
-  };
+  // const needsClassification = (label) => {
+  //   if (!previousRecord.show) {
+  //     return true;
+  //   }
+  //   return (
+  //     label !== previousRecord.label ||
+  //     recordNote.data !== previousRecord.note ||
+  //     !tagValuesEqual(tagValues, previousRecord.tagValues)
+  //   );
+  // };
 
-  const skipClassification = () => {
-    // setActiveRecord(recordQuery.data["result"]);
-    resetPreviousRecord();
-    resetNote();
-    resetTagValues();
-  };
+  // const skipClassification = () => {
+  //   // setActiveRecord(recordQuery.data["result"]);
+  //   resetPreviousRecord();
+  //   resetNote();
+  //   resetTagValues();
+  // };
 
   const makeDecision = (label) => {
-    if (!needsClassification(label)) {
-      skipClassification();
-    } else {
-      mutate({
-        project_id: project_id,
-        record_id: activeRecord.record_id,
-        label: label,
-        note: recordNote.data,
-        tagValues: tagValues,
-        initial: !previousRecord.show,
-      });
-    }
+    // if (!needsClassification(label)) {
+    //   skipClassification();
+    // } else {
+    mutate({
+      project_id: project_id,
+      record_id: activeRecord.record_id,
+      label: label,
+      // note: recordNote.data,
+      tagValues: tagValues,
+      // initial: !previousRecord.show,
+    });
+    // }
   };
 
-  /**
-   * Note field config
-   */
-  const resetNote = () => {
-    setRecordNote({
-      expand: false,
-      shrink: true,
-      data: "",
-    });
-  };
+  // const resetNote = () => {
+  //   setRecordNote({
+  //     expand: false,
+  //     shrink: true,
+  //     data: "",
+  //   });
+  // };
 
   const resetTagValues = () => {
     setTagValues({});
   };
 
-  const noteFieldAutoFocus = () => {
-    return !notePress;
-  };
+  // const noteFieldAutoFocus = () => {
+  //   return !notePress;
+  // };
 
-  /**
-   * Display banner when in Exploration Mode
-   */
-  React.useEffect(() => {
-    if (props.projectMode === "explore") {
-      setExplorationMode(true);
-    }
-  }, [props.projectMode]);
+  // /**
+  //  * Display banner when in Exploration Mode
+  //  */
+  // React.useEffect(() => {
+  //   if (props.projectMode === "explore") {
+  //     setExplorationMode(true);
+  //   }
+  // }, [props.projectMode]);
 
-  /**
-   * Use keyboard shortcuts
-   */
-  React.useEffect(() => {
-    if (props.keyPressEnabled && !recordNote.expand) {
-      if (relevantPress && activeRecord) {
-        makeDecision(1);
-      }
-      if (irrelevantPress && activeRecord) {
-        makeDecision(0);
-      }
-      if (undoPress && activeRecord && undoState.open && props.undoEnabled) {
-        undoDecision();
-      }
-      if (notePress && activeRecord) {
-        setRecordNote((s) => {
-          return {
-            ...s,
-            expand: true,
-            shrink: false,
-          };
-        });
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [relevantPress, irrelevantPress, undoPress, notePress]);
+  // /**
+  //  * Use keyboard shortcuts
+  //  */
+
+  // const relevantPress = useKeyPress("r");
+  // const irrelevantPress = useKeyPress("i");
+  // // const undoPress = useKeyPress("u");
+  // const notePress = useKeyPress("n");
+
+  // React.useEffect(() => {
+  //   if (props.keyPressEnabled) {
+  //     if (relevantPress) {
+  //       makeDecision(1);
+  //     }
+  //     if (irrelevantPress) {
+  //       makeDecision(0);
+  //     }
+  //     if (notePress) {
+  //       // setRecordNote({
+  //       //   expand: true,
+  //       //   shrink: false,
+  //       //   data: recordNote.data,
+  //       // });
+  //     }
+  //   }
+  // }, [relevantPress, irrelevantPress, notePress]);
 
   return (
     <Root aria-label="review page">
@@ -263,43 +242,32 @@ const ReviewPageRecord = (props) => {
             /> */}
             {/* Article card */}
             <RecordCard
-              disableButton={disableButton}
+              // disableButton={disableButton}
               error={error}
               isError={isError}
               activeRecord={activeRecord}
-              recordNote={recordNote}
-              setRecordNote={setRecordNote}
+              makeDecision={makeDecision}
+              // recordNote={recordNote}
+              // setRecordNote={setRecordNote}
               fontSize={props.fontSize}
               mobileScreen={props.mobileScreen}
-              noteFieldAutoFocus={noteFieldAutoFocus}
-              previousRecord={previousRecord}
-            />
-          </Box>
-          {/* Decision button */}
-          <DecisionButton
-            disableButton={disableButton}
-            makeDecision={makeDecision}
-            labelFromDataset={activeRecord?.label_from_dataset}
-            mobileScreen={props.mobileScreen}
-            previousRecord={previousRecord}
-          />
-          {/* Labels table */}
-          {Array.isArray(props.tags) && props.tags.length > 0 && (
-            <TagsTable
+              // noteFieldAutoFocus={noteFieldAutoFocus}
+              // previousRecord={previousRecord}
+              keyPressEnabled={props.keyPressEnabled}
               tags={props.tags}
               tagValues={tagValues}
               setTagValues={setTagValues}
             />
-          )}
+          </Box>
         </Box>
       </Fade>
       {/* Decision undo bar */}
-      <DecisionUndoBar
+      {/* <DecisionUndoBar
         disableButton={disableButton}
         state={undoState}
         undo={undoDecision}
         close={closeUndoBar}
-      />
+      /> */}
       {/* Error handler */}
       {isError && (
         <ActionsFeedbackBar

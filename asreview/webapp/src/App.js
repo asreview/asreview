@@ -259,7 +259,6 @@ const App = (props) => {
             )}
           </div>
 
-          {/* Notifications */}
           <Snackbar
             open={notification.open}
             autoHideDuration={6000}
@@ -274,7 +273,6 @@ const App = (props) => {
             </Alert>
           </Snackbar>
 
-          {/* Dialogs */}
           <SettingsDialog
             mobileScreen={mobileScreen}
             onSettings={onSettings}
