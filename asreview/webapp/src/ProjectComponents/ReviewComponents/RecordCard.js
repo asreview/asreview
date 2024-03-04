@@ -1,6 +1,7 @@
 import React from "react";
 import clsx from "clsx";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -81,6 +82,9 @@ const RecordCard = (props) => {
       return props.activeRecord.label_from_dataset === 1;
     }
   };
+  const isNotTrained =
+    props.activeRecord?.query_strategy === "top-down" ||
+    props.activeRecord?.query_strategy === "random";
 
   const expandNoteSheet = () => {
     props.setRecordNote((s) => {
@@ -128,19 +132,15 @@ const RecordCard = (props) => {
           className={classes.loadedCard}
           aria-label="record loaded"
         >
-          {/* Previous decision alert
-          {props.activeRecord.label_from_dataset !== null && (
-            <ExplorationModeRecordAlert
-              label={
-                props.activeRecord.label_from_dataset === -1
-                  ? "not seen"
-                  : !isDebugInclusion()
-                    ? "irrelevant"
-                    : "relevant"
-              }
-              fontSize={props.fontSize}
-            />
-          )} */}
+          {isNotTrained && (
+            <Alert
+              severity="warning"
+              className="record-card-alert"
+              sx={{ borderRadius: 0 }}
+            >
+              This record is not presented by the model
+            </Alert>
+          )}
 
           <CardContent
             className={`${classes.titleAbstract} record-card-content`}
@@ -263,9 +263,7 @@ const RecordCard = (props) => {
           {props.recordNote.shrink && (
             <CardActions className={classes.note}>
               <Button
-                className={"fontSize" + props.fontSize.label}
                 disabled={props.disableButton()}
-                size="small"
                 onClick={expandNoteSheet}
                 aria-label="add note"
               >
