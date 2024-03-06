@@ -128,8 +128,7 @@ const RecordCard = (props) => {
           className={classes.loadedCard}
           aria-label="record loaded"
         >
-          {/* Previous decision alert */}
-          {props.activeRecord.label_from_dataset !== null && (
+          {props.explorationMode && (
             <ExplorationModeRecordAlert
               label={props.activeRecord.label_from_dataset === -1 ? "not seen" :
               !isDebugInclusion() ? "irrelevant" : "relevant"}
