@@ -9,9 +9,11 @@ import {
   Button,
   Divider,
   CardContent,
+  Typography,
+  IconButton,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Favorite, FavoriteBorder } from "@mui/icons-material";
+import { Edit, Favorite, FavoriteBorder, Expand } from "@mui/icons-material";
 import "./ReviewPage.css";
 import { useKeyPress } from "hooks/useKeyPress";
 import { useToggle } from "hooks/useToggle";
@@ -179,6 +181,20 @@ const DecisionButton = (props) => {
 
       <Divider />
       <CardActions>
+        <IconButton
+          onClick={toggleShowNotes}
+          primary={showNotes}
+          aria-label="add note"
+        >
+          <Edit />
+        </IconButton>
+        <IconButton onClick={toggleShowTags} aria-label="add tags">
+          <Expand />
+        </IconButton>
+
+        <Typography>
+          Is this record relevant to your review question?
+        </Typography>
         <Button
           id="relevant"
           onClick={() => props.makeDecision(1)}

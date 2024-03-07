@@ -3,12 +3,9 @@ import clsx from "clsx";
 import {
   Alert,
   Box,
-  Button,
   Card,
-  CardActions,
   CardContent,
   CircularProgress,
-  Slide,
   Stack,
   Tooltip,
   Typography,
@@ -18,7 +15,7 @@ import { Link } from "@mui/icons-material";
 
 import { BoxErrorHandler } from "Components";
 import { DOIIcon } from "icons";
-import { NoteSheet, RecordTrainingInfo, DecisionButton } from ".";
+import { RecordTrainingInfo, DecisionButton } from ".";
 import { ExplorationModeRecordAlert } from "StyledComponents/StyledAlert";
 import { StyledIconButton } from "StyledComponents/StyledButton";
 
@@ -78,24 +75,15 @@ const Root = styled("div")(({ theme }) => ({
 
 const RecordCard = (props) => {
   const isNotTrained =
-    props.activeRecord?.query_strategy === "top-down" ||
-    props.activeRecord?.query_strategy === "random";
+    props.activeRecord?.state.query_strategy === "top-down" ||
+    props.activeRecord?.state.query_strategy === "random";
 
   return (
     <Root aria-label="record card">
-      {!props.isError && !props.activeRecord && (
-        <Card
-          elevation={2}
-          className={clsx(classes.loadedCard, classes.loadingCard)}
-        >
-          <CardContent aria-label="record loading">
-            <CircularProgress />
-          </CardContent>
-        </Card>
-      )}
+      {!props.isError && !props.activeRecord && <CircularProgress />}
       {props.isError && (
         <Card
-          elevation={2}
+          elevation={props.mobileScreen ? 0 : 2}
           className={clsx(classes.loadedCard, classes.loadingCard)}
           aria-label="record loaded failure"
         >
@@ -104,7 +92,7 @@ const RecordCard = (props) => {
       )}
       {props.activeRecord && (
         <Card
-          elevation={2}
+          elevation={props.mobileScreen ? 0 : 2}
           className={classes.loadedCard}
           aria-label="record loaded"
         >
@@ -213,14 +201,10 @@ const RecordCard = (props) => {
             </Stack>
           </CardContent>
           <DecisionButton
-            // disableButton={props.disableButton}
             makeDecision={props.makeDecision}
             labelFromDataset={props.activeRecord?.label_from_dataset}
             mobileScreen={props.mobileScreen}
-            // previousRecord={props.previousRecord}
             tags={props.tags}
-            // tagValues={props.tagValues}
-            // setTagValues={props.setTagValues}
             keyPressEnabled={props.keyPressEnabled}
           />
         </Card>
