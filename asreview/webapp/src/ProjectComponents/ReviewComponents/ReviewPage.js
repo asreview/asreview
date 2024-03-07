@@ -251,6 +251,7 @@ const ReviewPage = (props) => {
               mobileScreen={props.mobileScreen}
               noteFieldAutoFocus={noteFieldAutoFocus}
               previousRecord={previousRecord}
+              explorationMode={explorationMode}
             />
           </Box>
           {/* Decision button */}
