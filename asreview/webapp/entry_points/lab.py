@@ -20,7 +20,7 @@ import webbrowser
 from threading import Timer
 
 import requests
-from gevent.pywsgi import WSGIServer
+import waitress
 
 from asreview import __version__
 from asreview._deprecated import DeprecateAction
@@ -30,12 +30,14 @@ from asreview.project import get_project_path
 from asreview.project import get_projects
 from asreview.webapp.app import create_app
 
-# Host name
-HOST_NAME = os.getenv("ASREVIEW_HOST")
-if HOST_NAME is None:
-    HOST_NAME = "localhost"
+try:
+    from gevent.pywsgi import WSGIServer
+except ImportError:
+    WSGIServer = None
 
-PORT_NUMBER = 5000
+# Host name
+HOST_NAME = os.getenv("ASREVIEW_HOST", "localhost")
+PORT_NUMBER = os.getenv("ASREVIEW_PORT", 5000)
 
 
 def _deprecated_dev_mode():
@@ -95,14 +97,30 @@ def lab_entry_point(argv):
     if not args.skip_update_check:
         _check_for_update()
 
-    app = create_app(
-        env="production",
-        config_file=args.flask_config_file,
-        secret_key=args.secret_key,
-        salt=args.salt,
-        enable_authentication=args.enable_authentication,
-    )
+    app = create_app(asreview_config=args.asreview_config)
+
+    # if args.asreview_config is not None:
+    #     app.config.from_toml(args.asreview_config)
+
+    # if args.secret_key:
+    #     app.config["SECRET_KEY"] = args.secret_key
+
+    # if args.salt:
+    #     app.config["SALT"] = args.salt
+
+
+
+    # app.config.from_mapping(
+    #     {
+    #         "CONFIGFILE":None,
+    #     "SECRET_KEY":args.secret_key,
+    #     "SALT":args.salt,
+    #     # "LOGIN_DISABLED":not args.enable_authentication,
+    # }
+    # )
     app.config["PROPAGATE_EXCEPTIONS"] = False
+
+    print(app.config)
 
     # clean all projects
     # TODO@{Casper}: this needs a little bit
@@ -138,21 +156,46 @@ def lab_entry_point(argv):
             )
         print(f"Port {old_port} is in use.\n* Trying to start at {port}")
 
-    protocol = "https://" if args.certfile and args.keyfile else "http://"
-    start_url = f"{protocol}{args.host}:{port}/"
+    # deprecated, remove in version 2.0
+    if args.certfile or args.keyfile:
+        print(
+            "SSL/TLS is deprecated for the built-in server and will be removed. "
+            "Use a dedicated WSGI server (e.g. gUnicorn) instead to make use of TLS. "
+            "See https://flask.palletsprojects.com/en/3.0.x/deploying/\n\n"
+        )
 
-    ssl_args = {}
-    if args.keyfile and args.certfile:
-        ssl_args = {"keyfile": args.keyfile, "certfile": args.certfile}
+        if WSGIServer is None:
+            raise ImportError(
+                "The gevent package is required for SSL/TLS support. "
+                "Please install gevent first."
+            )
 
-    server = WSGIServer((args.host, port), app, **ssl_args)
+        protocol = "https://" if args.certfile and args.keyfile else "http://"
+        start_url = f"{protocol}{args.host}:{port}/"
+
+        ssl_args = {}
+        if args.keyfile and args.certfile:
+            ssl_args = {"keyfile": args.keyfile, "certfile": args.certfile}
+
+        server = WSGIServer((args.host, port), app, **ssl_args)
+        print(f"Serving ASReview LAB at {start_url}")
+
+        if not args.no_browser:
+            _open_browser(start_url)
+
+        try:
+            server.serve_forever()
+        except KeyboardInterrupt:
+            print("\n\nShutting down server\n\n")
+
+    start_url = f"http://{args.host}:{port}/"
+
     print(f"Serving ASReview LAB at {start_url}")
-
     if not args.no_browser:
         _open_browser(start_url)
 
     try:
-        server.serve_forever()
+        waitress.serve(app, host=args.host, port=port)
     except KeyboardInterrupt:
         print("\n\nShutting down server\n\n")
 
@@ -225,10 +268,10 @@ def _lab_parser():
     )
 
     parser.add_argument(
-        "--flask-configfile",
-        dest="flask_config_file",
+        "--config", "--flask-configfile",
+        dest="asreview_config",
         type=str,
-        help="Full path to a TOML file containing Flask parameters"
+        help="Full path to a TOML file containing ASReview parameters"
         "for authentication.",
     )
 
@@ -252,14 +295,18 @@ def _lab_parser():
         "--certfile",
         default="",
         type=str,
-        help="The full path to an SSL/TLS certificate file.",
+        help="The full path to an SSL/TLS certificate file. "
+        "Use dedicated WSGI server (e.g. gUnicorn) instead to make use of TLS. "
+        "See https://flask.palletsprojects.com/en/3.0.x/deploying/",
     )
 
     parser.add_argument(
         "--keyfile",
         default="",
         type=str,
-        help="The full path to a private key file for usage with SSL/TLS.",
+        help="The full path to a private key file for usage with SSL/TLS. "
+        "Use dedicated WSGI server (e.g. gUnicorn) instead to make use of TLS. "
+        "See https://flask.palletsprojects.com/en/3.0.x/deploying/",
     )
 
     parser.add_argument(

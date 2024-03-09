@@ -41,13 +41,19 @@ from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
 
-def create_app(
-    env="development",
-    config_file=None,
-    secret_key=None,
-    salt=None,
-    enable_authentication=False,
-):
+def create_app():
+    """Create a new ASReview webapp.
+
+    For use with WSGI servers, such as gunicorn:
+
+        > gunicorn -w 4 -b "127.0.0.1:5006" "asreview.webapp.app:create_app()"
+
+    Returns
+    -------
+    Flask:
+        The ASReview webapp.
+    """
+
     app = Flask(
         __name__,
         instance_relative_config=True,
@@ -55,36 +61,18 @@ def create_app(
         template_folder="build",
     )
 
-    app.config["ALLOWED_ORIGINS"] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    app.config.from_prefixed_env()  # deprecated, remove in version 2.0
+    app.config.from_prefixed_env("ASREVIEW_LAB")
 
-    app.config["SECRET_KEY"] = secret_key
-    app.config["SALT"] = salt
+    # load config from file
+    if config_fp := app.config.get("CONFIG_PATH", None):
+        app.config.from_file(Path(config_fp).absolute(), load=tomllib.load, text=False)
 
-    app.config.from_prefixed_env()
+    # if there are no cors and config is in debug mode, add default cors
+    if app.debug and not app.config.get("CORS_ORIGINS", None):
+        app.config["CORS_ORIGINS"] = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
-    # If allowed origins comes as an environment variables, and is a list,
-    # then we assume a JSON string.
-    if isinstance(app.config.get("ALLOWED_ORIGINS", False), str):
-        app.config["ALLOWED_ORIGINS"] = json.loads(app.config["ALLOWED_ORIGINS"])
-
-    if config_file_path := config_file or app.config.get("CONFIGFILE", ""):
-        app.config.from_file(
-            Path(config_file_path).absolute(), load=tomllib.load, text=False
-        )
-
-    if app.config.get("AUTHENTICATION_ENABLED", None):
-        warnings.warn(
-            "The use of AUTHENTICATION_ENABLED=true is deprecated and "
-            "will be removed in the future. Use LOGIN_DISABLED=false instead."
-        )
-        if "LOGIN_DISABLED" not in app.config:
-            app.config["LOGIN_DISABLED"] = False
-
-    if "LOGIN_DISABLED" not in app.config:
-        app.config["LOGIN_DISABLED"] = not enable_authentication
-
-    if origins := app.config.get("ALLOWED_ORIGINS", False):
-        CORS(app, origins=origins, supports_credentials=True)
+    CORS(app, supports_credentials=True)
 
     with app.app_context():
         app.register_blueprint(projects.bp)
@@ -101,6 +89,7 @@ def create_app(
             return User.query.get(int(user_id))
 
         if not app.config.get("SQLALCHEMY_DATABASE_URI", None):
+            env = "development" if app.debug else "production"
             uri = os.path.join(asreview_path(), f"asreview.{env}.sqlite")
             app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{uri}"
 
@@ -186,11 +175,13 @@ def create_app(
                 app.config.get("EMAIL_VERIFICATION", False)
             )
 
-            response["email_config"] = all([
-                app.config.get("MAIL_SERVER", False),
-                app.config.get("MAIL_USERNAME", False),
-                app.config.get("MAIL_PASSWORD", False)
-            ])
+            response["email_config"] = all(
+                [
+                    app.config.get("MAIL_SERVER", False),
+                    app.config.get("MAIL_USERNAME", False),
+                    app.config.get("MAIL_PASSWORD", False),
+                ]
+            )
 
             # if oauth config is provided
             if isinstance(app.config.get("OAUTH", False), OAuthHandler):
@@ -199,4 +190,5 @@ def create_app(
 
         return jsonify(response)
 
+    print(app.config)
     return app
