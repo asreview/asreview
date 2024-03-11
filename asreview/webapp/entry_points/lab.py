@@ -164,7 +164,7 @@ def lab_entry_point(argv):
     # deprecated, remove in version 2.0
     if args.certfile or args.keyfile:
         print(
-            "SSL/TLS is deprecated for the built-in server and will be removed in version 2. "
+            "SSL/TLS is deprecated for the built-in server and will be removed in v2"
             "Use a dedicated WSGI server (e.g. gUnicorn) instead to make use of TLS. "
             "See https://flask.palletsprojects.com/en/3.0.x/deploying/\n\n"
         )
@@ -270,10 +270,10 @@ def _lab_parser():
     )
 
     parser.add_argument(
-        "--config-path", "--flask-configfile",
+        "--config-path",
+        "--flask-configfile",
         type=Path,
-        help="Path to a TOML file containing ASReview parameters"
-        "for authentication.",
+        help="Path to a TOML file containing ASReview parameters" "for authentication.",
     )
 
     parser.add_argument(
