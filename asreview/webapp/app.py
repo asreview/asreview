@@ -88,6 +88,7 @@ def create_app(config_path=None):
 
         if not app.config.get("SQLALCHEMY_DATABASE_URI", None):
             env = "development" if app.debug else "production"
+            env = "test" if app.testing else env
             uri = os.path.join(asreview_path(), f"asreview.{env}.sqlite")
             app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{uri}"
 
