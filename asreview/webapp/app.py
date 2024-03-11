@@ -63,7 +63,7 @@ def create_app(config_path=None):
     app.config.from_prefixed_env("ASREVIEW_LAB")
 
     # deprecated, remove in version 2.0
-    if app.config.get(["CONFIGFILE"], None):
+    if app.config.get("CONFIGFILE", None):
         app.config["CONFIG_PATH"] = app.config["CONFIGFILE"]
 
     # load config from file
