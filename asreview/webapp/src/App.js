@@ -60,6 +60,7 @@ const App = (props) => {
   );
   const emailConfig = useSelector((state) => state.email_config);
   const emailVerification = useSelector((state) => state.email_verification);
+  const loginInfo = useSelector((state) => state.login_info);
 
   // Snackbar Notification (taking care of self closing
   // notifications visible on the lower left side)
@@ -237,6 +238,16 @@ const App = (props) => {
           <CssBaseline />
 
           <div aria-label="nav and main content">
+            {(typeof loginInfo === 'string') && (loginInfo.length > 0) && (
+              <Alert
+                severity="info"
+                variant="standard"
+                sx={{padding: "2px", paddingLeft: "6px", margin: 0, borderRadius: 0}}
+              >
+                {loginInfo}
+              </Alert>
+            )}
+
             {appReady === false && (
               <Box
                 display="flex"
@@ -247,6 +258,7 @@ const App = (props) => {
                 <CircularProgress />
               </Box>
             )}
+
             {appReady === true && authentication === false && (
               <Routes>{render_routes()}</Routes>
             )}
