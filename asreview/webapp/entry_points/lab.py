@@ -17,8 +17,8 @@ import os
 import socket
 import time
 import webbrowser
-from threading import Timer
 from pathlib import Path
+from threading import Timer
 
 import requests
 import waitress
@@ -104,11 +104,7 @@ def lab_entry_point(argv):
     Two examples of how to set the secret key for secure sessions:
     >>> ASREVIEW_LAB_SECRET_KEY="my-secret" asreview lab
     >>> asreview lab --secret-key "my-secret"
-
-
     """
-
-
     # check deprecated dev mode
     _deprecated_dev_mode()
 
@@ -213,7 +209,7 @@ def _lab_parser():
     # parse arguments if available
     parser = argparse.ArgumentParser(
         prog="lab",
-        description="""ASReview LAB - Active learning for Systematic Reviews.""",  # noqa
+        description="ASReview LAB - Active learning for Systematic Reviews.",
         formatter_class=argparse.RawTextHelpFormatter,
     )
 
