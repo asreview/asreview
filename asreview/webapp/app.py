@@ -165,12 +165,10 @@ def create_app(
         """Get the boot info."""
 
         authenticated = not app.config.get("LOGIN_DISABLED", False)
-        login_info = app.config.get("LOGIN_INFO", False)
-
         response = {
             "authentication": authenticated,
             "version": asreview_version,
-            "login_info": login_info,
+            "login_info": app.config.get("LOGIN_INFO", None),
         }
 
         if authenticated:
