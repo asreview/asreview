@@ -99,11 +99,11 @@ secure way (https).
             SCOPE = "profile email"
 
 Store the TOML file on the server and start the ASReview application from the
-CLI with the ``--flask-configfile`` parameter:
+CLI with the ``--config-path`` parameter:
 
 .. code:: bash
 
-        asreview lab --flask-configfile=<path-to-TOML-config-file>
+        asreview lab --config-path=<path-to-TOML-config-file>
 
 A number of the keys in the TOML file are standard Flask parameters. The keys
 that are specific for authenticating ASReview are summarized below:
@@ -146,14 +146,6 @@ is used to configure the database connection. The default value is
 use the SQLite database in the ASReview projects folder. If you would like to
 use a different database, you can add the ``SQLALCHEMY_DATABASE_URI`` key to
 the TOML file.
-
-Set the ``SQLALCHEMY_DATABASE_URI`` environment variable to the path of the
-database. For example, to use the SQLite database in the ASReview projects
-folder:
-
-.. code-block::  bash
-
-    FLASK_SQLALCHEMY_DATABASE_URI = "sqlite:///asreview.production.sqlite"
 
 
 Full configuration
