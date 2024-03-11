@@ -37,8 +37,8 @@ except ImportError:
     WSGIServer = None
 
 # Host name
-HOST_NAME = os.getenv("ASREVIEW_HOST", "localhost")
-PORT_NUMBER = os.getenv("ASREVIEW_PORT", 5000)
+HOST_NAME = os.getenv("ASREVIEW_LAB_HOST", "localhost")
+PORT_NUMBER = os.getenv("ASREVIEW_LAB_PORT", 5000)
 
 
 def _deprecated_dev_mode():
