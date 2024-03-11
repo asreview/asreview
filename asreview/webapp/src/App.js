@@ -238,11 +238,16 @@ const App = (props) => {
           <CssBaseline />
 
           <div aria-label="nav and main content">
-            {(typeof loginInfo === 'string') && (loginInfo.length > 0) && (
+            {typeof loginInfo === "string" && loginInfo.length > 0 && (
               <Alert
                 severity="info"
                 variant="standard"
-                sx={{padding: "2px", paddingLeft: "6px", margin: 0, borderRadius: 0}}
+                sx={{
+                  padding: "2px",
+                  paddingLeft: "6px",
+                  margin: 0,
+                  borderRadius: 0,
+                }}
               >
                 {loginInfo}
               </Alert>
