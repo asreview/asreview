@@ -18,6 +18,7 @@ import socket
 import time
 import webbrowser
 from threading import Timer
+from pathlib import Path
 
 import requests
 import waitress
@@ -86,6 +87,28 @@ def _check_for_update():
 
 
 def lab_entry_point(argv):
+    """Entry point for the ASReview LAB webapp.
+
+    This function is called when the `asreview lab` command is used.
+
+    Arguments
+    ---------
+    argv: list
+        Command line arguments.
+
+    Examples
+    --------
+    >>> lab_entry_point(["--port", "5000"])
+    Serving ASReview LAB at http://localhost:5000/
+
+    Two examples of how to set the secret key for secure sessions:
+    >>> ASREVIEW_LAB_SECRET_KEY="my-secret" asreview lab
+    >>> asreview lab --secret-key "my-secret"
+
+
+    """
+
+
     # check deprecated dev mode
     _deprecated_dev_mode()
 
@@ -97,30 +120,16 @@ def lab_entry_point(argv):
     if not args.skip_update_check:
         _check_for_update()
 
-    app = create_app(asreview_config=args.asreview_config)
+    app = create_app(config_path=args.config_path)
 
-    # if args.asreview_config is not None:
-    #     app.config.from_toml(args.asreview_config)
+    # override config with command line arguments
+    if args.secret_key:
+        app.config["SECRET_KEY"] = args.secret_key
 
-    # if args.secret_key:
-    #     app.config["SECRET_KEY"] = args.secret_key
+    if args.salt:
+        app.config["SALT"] = args.salt
 
-    # if args.salt:
-    #     app.config["SALT"] = args.salt
-
-
-
-    # app.config.from_mapping(
-    #     {
-    #         "CONFIGFILE":None,
-    #     "SECRET_KEY":args.secret_key,
-    #     "SALT":args.salt,
-    #     # "LOGIN_DISABLED":not args.enable_authentication,
-    # }
-    # )
-    app.config["PROPAGATE_EXCEPTIONS"] = False
-
-    print(app.config)
+    app.config["LOGIN_DISABLED"] = args.login_disabled
 
     # clean all projects
     # TODO@{Casper}: this needs a little bit
@@ -211,7 +220,6 @@ def _lab_parser():
     parser.add_argument(
         "--clean-project",
         dest="clean_project",
-        default=None,
         type=str,
         help="Safe cleanup of temporary files in project.",
     )
@@ -219,7 +227,6 @@ def _lab_parser():
     parser.add_argument(
         "--clean-all-projects",
         dest="clean_all_projects",
-        default=None,
         action="store_true",
         help="Safe cleanup of temporary files in all projects.",
     )
@@ -248,29 +255,28 @@ def _lab_parser():
 
     parser.add_argument(
         "--enable-auth",
-        dest="enable_authentication",
-        action="store_true",
+        dest="login_disabled",
+        default=True,
+        action="store_false",
         help="Enable authentication.",
     )
 
     parser.add_argument(
         "--secret-key",
-        default=None,
         type=str,
         help="Secret key for authentication.",
     )
 
     parser.add_argument(
         "--salt",
-        default=None,
         type=str,
         help="When using authentication, a salt code is needed for hasing passwords.",
     )
 
     parser.add_argument(
         "--config", "--flask-configfile",
-        dest="asreview_config",
-        type=str,
+        dest="config_path",
+        type=Path,
         help="Full path to a TOML file containing ASReview parameters"
         "for authentication.",
     )

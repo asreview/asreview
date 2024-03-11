@@ -41,7 +41,7 @@ from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
 
-def create_app():
+def create_app(config_path=None):
     """Create a new ASReview webapp.
 
     For use with WSGI servers, such as gunicorn:
@@ -65,7 +65,7 @@ def create_app():
     app.config.from_prefixed_env("ASREVIEW_LAB")
 
     # load config from file
-    if config_fp := app.config.get("CONFIG_PATH", None):
+    if config_fp := (config_path or app.config.get("CONFIG_PATH", None)):
         app.config.from_file(Path(config_fp).absolute(), load=tomllib.load, text=False)
 
     # if there are no cors and config is in debug mode, add default cors
@@ -190,5 +190,4 @@ def create_app():
 
         return jsonify(response)
 
-    print(app.config)
     return app
