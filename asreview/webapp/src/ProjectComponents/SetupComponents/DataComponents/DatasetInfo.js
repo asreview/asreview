@@ -15,6 +15,9 @@ import { ProjectAPI } from "api";
 
 import { styled } from "@mui/material/styles";
 
+// import {Chart, PieController, ArcElement, Tooltip, Legend} from "chart.js"
+// Chart.register(PieController, ArcElement, Tooltip, Legend);
+
 const classes = {};
 
 const Root = styled("div")(({ theme }) => ({}));
@@ -43,6 +46,34 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
     },
   );
 
+  // React.useEffect(() => {
+  //   const chart_data = {
+  //     labels: ['Duplicates', 'Unique records'],
+  //     datasets: [{
+  //     // data: [data?.n_duplicates, data?.n_rows-data?.n_duplicates],
+  //     data: [50, 50],
+  //     backgroundColor: ['#FF6384', '#FFCE56'],
+  //     hoverBackgroundColor: ['#FF6384', '#FFCE56'],
+  //     }],
+  //   };
+  
+  //   const config = {
+  //     type: 'pie',
+  //     data: chart_data,
+  //     options: {
+  //       plugins: {
+  //         legend: true,
+  //         tooltip: false,
+  //       },
+  //     },
+  //   };
+  
+  //   // Create the chart
+  //   const myPieChart = new Chart(document.getElementById('duplicates_chart'), config);
+  // }, []);
+
+
+
   return (
     <Root>
       <Card
@@ -66,12 +97,14 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
               </Typography>
               <Typography variant="body2">{dataset_path}</Typography>
             </Stack>
+
             <Stack>
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
                 Records
               </Typography>
               <Typography variant="body2">{data?.n_rows}</Typography>
             </Stack>
+
             <Stack>
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
                 Duplicates
@@ -79,8 +112,37 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
               <Typography variant="body2">
                 About {data?.n_duplicates}
               </Typography>
-            </Stack>
+              </Stack>
+              <Stack>
+              <Typography variant="body2" sx={{ color: "text.secondary"}}>
+                Duplicates percentage
+              </Typography>
+              <Typography>
+              {(Math.round((data?.n_duplicates/data?.n_rows*100)*100)/100).toFixed(2)}%
+              </Typography>
+              </Stack>
+
+              <Stack>
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                Missing titles
+              </Typography>
+              <Typography variant="body2">
+                {data?.n_missing_title}
+              </Typography>
+              </Stack>
+
+              <Stack>
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                Missing abstracts
+              </Typography>
+              <Typography variant="body2">
+                {data?.n_missing_abstract}
+              </Typography>
+              </Stack>
+
           </Stack>
+
+          {/* <canvas id='duplicates_chart'></canvas> */}
 
           {isFetchingData && (
             <Box className="main-page-body-wrapper">
