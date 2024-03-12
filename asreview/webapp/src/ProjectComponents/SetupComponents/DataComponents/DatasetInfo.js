@@ -110,15 +110,7 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
                 Duplicates
               </Typography>
               <Typography variant="body2">
-                About {data?.n_duplicates}
-              </Typography>
-              </Stack>
-              <Stack>
-              <Typography variant="body2" sx={{ color: "text.secondary"}}>
-                Duplicates percentage
-              </Typography>
-              <Typography>
-              {(Math.round((data?.n_duplicates/data?.n_rows*100)*100)/100).toFixed(2)}%
+                About {data?.n_duplicates} ({(Math.round((data?.n_duplicates/data?.n_rows*100)*100)/100).toFixed(2)}%)
               </Typography>
               </Stack>
 
