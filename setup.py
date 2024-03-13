@@ -61,7 +61,7 @@ REQUIRES = [
     "Flask-SQLAlchemy>=3.0.2",
     "requests",
     "tqdm",
-    "gevent>=20",
+    "waitress",
     "datahugger>=0.2",
     "synergy_dataset",
     "sqlalchemy-utils",
