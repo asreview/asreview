@@ -163,11 +163,6 @@ def create_app(config_path=None):
         }
 
         if authenticated:
-            # if recaptcha config is provided for account creation
-            if app.config.get("RE_CAPTCHA_V3", False):
-                response["recaptchav3_key"] = app.config["RE_CAPTCHA_V3"].get(
-                    "KEY", False
-                )
 
             response["allow_account_creation"] = app.config.get(
                 "ALLOW_ACCOUNT_CREATION", False
