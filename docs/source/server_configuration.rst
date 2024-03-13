@@ -99,11 +99,11 @@ secure way (https).
             SCOPE = "profile email"
 
 Store the TOML file on the server and start the ASReview application from the
-CLI with the ``--flask-configfile`` parameter:
+CLI with the ``--config-path`` parameter:
 
 .. code:: bash
 
-        asreview lab --flask-configfile=<path-to-TOML-config-file>
+        asreview lab --config-path=<path-to-TOML-config-file>
 
 A number of the keys in the TOML file are standard Flask parameters. The keys
 that are specific for authenticating ASReview are summarized below:
@@ -147,13 +147,45 @@ use the SQLite database in the ASReview projects folder. If you would like to
 use a different database, you can add the ``SQLALCHEMY_DATABASE_URI`` key to
 the TOML file.
 
-Set the ``SQLALCHEMY_DATABASE_URI`` environment variable to the path of the
-database. For example, to use the SQLite database in the ASReview projects
-folder:
 
-.. code-block::  bash
+Full configuration
+~~~~~~~~~~~~~~~~~~~
 
-    FLASK_SQLALCHEMY_DATABASE_URI = "sqlite:///asreview.production.sqlite"
+ASReview LAB settings
+
+- `ASREVIEW_LAB_CONFIG_PATH` - Path to ASReview LAB config TOML file with ASReview LAB configuration.
+- `ASRVIEW_LAB_*` - All ASReview LAB settings are prefixed with `ASREVIEW_LAB_`. They include all settings from https://flask.palletsprojects.com/en/3.0.x/config/#builtin-configuration-values. Most important the secret key for ASReview LAB `ASREVIEW_LAB_SECRET_KEY`.
+
+Login configuration
+
+- `ASREVIEW_LAB_LOGIN_DISABLED` - If true, login is disabled and no password is required to use ASReview LAB.
+- `ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI` - Database URI for ASReview LAB.
+
+Account creation configuration
+- `ASRVIEW_LAB_ALLOW_ACCOUNT_CREATION` - If true, account creation is enabled.
+- `ASREVIEW_LAB_SECURITY_PASSWORD_SALT` - Salt for password hashing.
+- `ASREVIEW_LAB_RE_CAPTCHA_V3` - If true, reCAPTCHA v3 is enabled for account creation.
+
+OAuth configuration
+- `ASREVIEW_LAB_OATH` - OAuth configuration for ASReview LAB. It is a dictionary with the following keys: `GitHub`, `Orcid` and `Google`. Each of these keys is a dictionary with the following keys: `AUTHORIZATION_URL`, `TOKEN_URL`, `CLIENT_ID`, `CLIENT_SECRET` and `SCOPE`.
+
+Cookie configuration
+
+- `ASREVIEW_LAB_REMEMBER_COOKIE_*` - Login related config from https://flask-login.readthedocs.io/en/latest/#cookie-settings.
+
+Mail configuration
+
+- `ASRVIEW_LAB_EMAIL_VERIFICATION` - If true, email verification is required for new accounts.
+- `ASREVIEW_LAB_MAIL_*` - Mail related config from https://pythonhosted.org/Flask-Mail/#configuring-flask-mail
+
+Teams configuration
+
+- `ASREVIEW_LAB_ALLOW_TEAMS`` - If true, teams are enabled and users can create teams.
+
+CORS configuration
+
+- `ASREVIEW_LAB_CORS_*`` - Cors config avialable in https://flask-cors.readthedocs.io/en/latest/configuration.html except from ASREVIEW_LAB_CORS_SUPPORTS_CREDENTIALS which is always true. ASREVIEW_LAB_CORS_ORIGINS is used to link backend to frontend on different host and port.
+
 
 PostgreSQL database
 ~~~~~~~~~~~~~~~~~~~
@@ -176,7 +208,7 @@ and an extra step in the configuration file:
 Create authentication database and tables with auth-tool
 
 
-Server administrators can create a database for authentication with the 
+Server administrators can create a database for authentication with the
 ``auth-tool`` sub command of the ASReview application:
 
 .. code:: bash
