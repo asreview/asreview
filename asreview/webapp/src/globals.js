@@ -4,7 +4,6 @@ import { setProject } from "./redux/actions";
 import ASReviewLAB_black from "./images/asreview_sub_logo_lab_black_transparent.svg";
 import ASReviewLAB_white from "./images/asreview_sub_logo_lab_white_transparent.svg";
 
-export const base_url = window.api_url;
 export const api_url = window.api_url + "api/";
 export const auth_url = window.api_url + "auth/";
 export const collab_url = window.api_url + "team/";
