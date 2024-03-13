@@ -1,10 +1,10 @@
 import { axiosErrorHandler } from "./axiosErrorHandler";
-import { base_url } from "../globals.js";
 import axios from "axios";
 
 class BaseAPI {
   static boot = ({ queryKey }) => {
-    const url = base_url + `boot`;
+    const url = window.api_url + `boot`;
+
     return new Promise((resolve, reject) => {
       axios
         .get(url)
