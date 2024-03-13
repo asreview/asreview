@@ -49,6 +49,7 @@ function rootReducer(state = initialState, action) {
       return Object.assign({}, state, {
         asreview_version: action.data.version,
         authentication: action.data.authentication,
+        login_info: action.data.login_info,
         status: action.data.status,
         email_verification: Boolean(action.data.email_verification),
         email_config: Boolean(action.data.email_config),
