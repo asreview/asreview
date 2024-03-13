@@ -143,7 +143,7 @@ def create_app(config_path=None):
     @app.route("/forgot_password", methods=["GET"])
     @app.route("/reset_password", methods=["GET"])
     def index():
-        return render_template("index.html")
+        return render_template("index.html", api_url=app.config.get("API_URL", "/"))
 
     @app.route("/favicon.ico")
     def send_favicon():
