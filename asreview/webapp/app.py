@@ -160,6 +160,7 @@ def create_app(config_path=None):
         response = {
             "authentication": authenticated,
             "version": asreview_version,
+            "login_info": app.config.get("LOGIN_INFO", None),
         }
 
         if authenticated:
