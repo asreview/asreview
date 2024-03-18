@@ -30,11 +30,6 @@ from asreview.project import get_project_path
 from asreview.project import get_projects
 from asreview.webapp.app import create_app
 
-try:
-    from gevent.pywsgi import WSGIServer
-except ImportError:
-    WSGIServer = None
-
 # Host name
 HOST_NAME = os.getenv("ASREVIEW_LAB_HOST", "localhost")
 PORT_NUMBER = os.getenv("ASREVIEW_LAB_PORT", 5000)
