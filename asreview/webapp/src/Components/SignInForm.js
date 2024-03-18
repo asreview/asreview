@@ -109,6 +109,7 @@ const SignInForm = (props) => {
           variant="outlined"
           fullWidth
           autoFocus
+          autoComplete="email"
         />
         <FormControl>
           <TextField
@@ -120,6 +121,7 @@ const SignInForm = (props) => {
             variant="outlined"
             fullWidth
             type={returnType()}
+            autoComplete="current-password"
           />
           <FormControlLabel
             control={
