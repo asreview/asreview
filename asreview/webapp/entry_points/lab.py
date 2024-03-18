@@ -16,10 +16,11 @@ import logging
 import os
 import socket
 import webbrowser
+from pathlib import Path
 from threading import Timer
 
 import requests
-from gevent.pywsgi import WSGIServer
+import waitress
 from rich.console import Console
 
 import asreview as asr
@@ -29,12 +30,14 @@ from asreview.project import get_project_path
 from asreview.project import get_projects
 from asreview.webapp.app import create_app
 
-# Host name
-HOST_NAME = os.getenv("ASREVIEW_HOST")
-if HOST_NAME is None:
-    HOST_NAME = "localhost"
+try:
+    from gevent.pywsgi import WSGIServer
+except ImportError:
+    WSGIServer = None
 
-PORT_NUMBER = 5000
+# Host name
+HOST_NAME = os.getenv("ASREVIEW_LAB_HOST", "localhost")
+PORT_NUMBER = os.getenv("ASREVIEW_LAB_PORT", 5000)
 
 
 def _check_port_in_use(host, port):
@@ -64,18 +67,43 @@ def _check_for_update():
 
 
 def lab_entry_point(argv):
+    """Entry point for the ASReview LAB webapp.
+
+    This function is called when the `asreview lab` command is used.
+
+    Arguments
+    ---------
+    argv: list
+        Command line arguments.
+
+    Examples
+    --------
+    >>> lab_entry_point(["--port", "5000"])
+    Serving ASReview LAB at http://localhost:5000/
+
+    Two examples of how to set the secret key for secure sessions:
+    >>> ASREVIEW_LAB_SECRET_KEY="my-secret" asreview lab
+    >>> asreview lab --secret-key "my-secret"
+    """
+
     parser = _lab_parser()
     mark_deprecated_help_strings(parser)
     args = parser.parse_args(argv)
 
-    app = create_app(
-        env="production",
-        config_file=args.flask_config_file,
-        secret_key=args.secret_key,
-        salt=args.salt,
-        enable_authentication=args.enable_authentication,
-    )
-    app.config["PROPAGATE_EXCEPTIONS"] = False
+    # check for update
+    if not args.skip_update_check:
+        _check_for_update()
+
+    app = create_app(config_path=args.config_path)
+
+    # override config with command line arguments
+    if args.secret_key:
+        app.config["SECRET_KEY"] = args.secret_key
+
+    if args.salt:
+        app.config["SALT"] = args.salt
+
+    app.config["LOGIN_DISABLED"] = args.login_disabled
 
     # clean all projects
     # TODO@{Casper}: this needs a little bit
@@ -112,14 +140,7 @@ def lab_entry_point(argv):
     protocol = "https://" if args.certfile and args.keyfile else "http://"
     start_url = f"{protocol}{args.host}:{port}/"
 
-    ssl_args = {}
-    if args.keyfile and args.certfile:
-        ssl_args = {"keyfile": args.keyfile, "certfile": args.certfile}
-
-    server = WSGIServer((args.host, port), app, **ssl_args)
-
     console = Console()
-
     console.print("\n\nASReview LAB is starting up [red]<3[/red]\n\n")
     console.print("[bold]Information about your application[/bold]\n")
 
@@ -158,7 +179,7 @@ def lab_entry_point(argv):
     console.print("Press [bold]Ctrl+C[/bold] to exit.\n\n")
 
     try:
-        server.serve_forever()
+        waitress.serve(app, host=args.host, port=port)
     except KeyboardInterrupt:
         console.print("\n\nShutting down server\n\n")
 
@@ -167,14 +188,13 @@ def _lab_parser():
     # parse arguments if available
     parser = argparse.ArgumentParser(
         prog="lab",
-        description="""ASReview LAB - Active learning for Systematic Reviews.""",  # noqa
+        description="ASReview LAB - Active learning for Systematic Reviews.",
         formatter_class=argparse.RawTextHelpFormatter,
     )
 
     parser.add_argument(
         "--clean-project",
         dest="clean_project",
-        default=None,
         type=str,
         help="Safe cleanup of temporary files in project.",
     )
@@ -182,7 +202,6 @@ def _lab_parser():
     parser.add_argument(
         "--clean-all-projects",
         dest="clean_all_projects",
-        default=None,
         action="store_true",
         help="Safe cleanup of temporary files in all projects.",
     )
@@ -211,31 +230,29 @@ def _lab_parser():
 
     parser.add_argument(
         "--enable-auth",
-        dest="enable_authentication",
-        action="store_true",
+        dest="login_disabled",
+        default=True,
+        action="store_false",
         help="Enable authentication.",
     )
 
     parser.add_argument(
         "--secret-key",
-        default=None,
         type=str,
         help="Secret key for authentication.",
     )
 
     parser.add_argument(
         "--salt",
-        default=None,
         type=str,
         help="When using authentication, a salt code is needed for hasing passwords.",
     )
 
     parser.add_argument(
+        "--config-path",
         "--flask-configfile",
-        dest="flask_config_file",
-        type=str,
-        help="Full path to a TOML file containing Flask parameters"
-        "for authentication.",
+        type=Path,
+        help="Path to a TOML file containing ASReview parameters" "for authentication.",
     )
 
     parser.add_argument(
@@ -258,14 +275,18 @@ def _lab_parser():
         "--certfile",
         default="",
         type=str,
-        help="The full path to an SSL/TLS certificate file.",
+        help="The full path to an SSL/TLS certificate file. "
+        "Use dedicated WSGI server (e.g. gUnicorn) instead to make use of TLS. "
+        "See https://flask.palletsprojects.com/en/3.0.x/deploying/",
     )
 
     parser.add_argument(
         "--keyfile",
         default="",
         type=str,
-        help="The full path to a private key file for usage with SSL/TLS.",
+        help="The full path to a private key file for usage with SSL/TLS. "
+        "Use dedicated WSGI server (e.g. gUnicorn) instead to make use of TLS. "
+        "See https://flask.palletsprojects.com/en/3.0.x/deploying/",
     )
 
     parser.add_argument(
