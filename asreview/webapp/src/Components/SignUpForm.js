@@ -139,11 +139,7 @@ const SignUpForm = (props) => {
                   alt="ASReview LAB"
                 />
                 <Typography variant="h5">Create your profile</Typography>
-                <Stack
-                  spacing={3}
-                  component="form"
-                  noValidate
-                >
+                <Stack spacing={3} component="form" noValidate>
                   <TextField
                     id="email"
                     name="email"
