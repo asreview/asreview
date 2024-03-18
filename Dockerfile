@@ -6,9 +6,10 @@ WORKDIR /app
 # git is used by versioneer to define the project version
 COPY . /app
 RUN apt-get update \
-    && apt-get install -y git npm libpq-dev\
+    && apt-get install -y git npm build-essential libpq-dev\
     && pip3 install --upgrade pip setuptools \
     && python3 setup.py compile_assets \
+    && pip3 install --user gunicorn psycopg2
     && pip3 install --user . \
     && pip3 install --user asreview-datatools asreview-insights asreview-makita asreview-wordcloud
 
