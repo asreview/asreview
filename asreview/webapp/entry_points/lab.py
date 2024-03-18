@@ -99,8 +99,9 @@ def lab_entry_point(argv):
         app.config["SALT"] = args.salt
 
     # by default, the application is authenticated but lab is not
-    app.config["LOGIN_DISABLED"] = app.config.get("LOGIN_DISABLED", True) \
-        and args.login_disabled is not False
+    app.config["LOGIN_DISABLED"] = (
+        app.config.get("LOGIN_DISABLED", True) and args.login_disabled is not False
+    )
 
     # clean all projects
     # TODO@{Casper}: this needs a little bit
