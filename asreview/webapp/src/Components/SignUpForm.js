@@ -15,6 +15,7 @@ import {
   Stack,
   TextField,
   Typography,
+  Divider,
 } from "@mui/material";
 
 import { InlineErrorHandler } from ".";
@@ -82,11 +83,7 @@ const SignUpForm = (props) => {
   // be called when the form is submitted
   const navigate = useNavigate();
 
-  const [showPassword, toggleShowPassword] = useToggle();
-
-  const returnType = () => {
-    return !showPassword ? "password" : "text";
-  };
+  const [showPassword, toggleShowPassword] = useToggle(false);
 
   const initialValues = {
     email: "",
@@ -146,7 +143,6 @@ const SignUpForm = (props) => {
                   spacing={3}
                   component="form"
                   noValidate
-                  autoComplete="off"
                 >
                   <TextField
                     id="email"
@@ -154,6 +150,7 @@ const SignUpForm = (props) => {
                     label="Email"
                     size="small"
                     type="email"
+                    autoComplete="email"
                     fullWidth
                     value={formik.values.email}
                     onChange={formik.handleChange}
@@ -161,32 +158,6 @@ const SignUpForm = (props) => {
                   />
                   {formik.touched.email && formik.errors.email ? (
                     <FHT error={true}>{formik.errors.email}</FHT>
-                  ) : null}
-                  <TextField
-                    id="name"
-                    name="name"
-                    label="Full name"
-                    size="small"
-                    fullWidth
-                    value={formik.values.name}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                  />
-                  {formik.touched.name && formik.errors.name ? (
-                    <FHT error={true}>{formik.errors.name}</FHT>
-                  ) : null}
-                  <TextField
-                    id="affiliation"
-                    label="Affiliation"
-                    size="small"
-                    name="affiliation"
-                    fullWidth
-                    value={formik.values.affiliation}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                  />
-                  {formik.touched.affiliation && formik.errors.affiliation ? (
-                    <FHT error={true}>{formik.errors.affiliation}</FHT>
                   ) : null}
                   <FormControl>
                     <Stack direction="row" spacing={2}>
@@ -196,7 +167,7 @@ const SignUpForm = (props) => {
                         size="small"
                         autoComplete="new-password"
                         fullWidth
-                        type={returnType()}
+                        type={showPassword ? "text" : "password"}
                         value={formik.values.password}
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
@@ -205,8 +176,9 @@ const SignUpForm = (props) => {
                         id="confirmPassword"
                         label="Confirm Password"
                         size="small"
+                        autoComplete="new-password"
                         fullWidth
-                        type={returnType()}
+                        type={showPassword ? "text" : "password"}
                         onKeyDown={handleEnterKey}
                         value={formik.values.confirmPassword}
                         onChange={formik.handleChange}
@@ -254,7 +226,35 @@ const SignUpForm = (props) => {
                     )}
                   </FormControl>
                   {isError && <InlineErrorHandler message={error.message} />}
-
+                  <Divider />
+                  <TextField
+                    id="name"
+                    name="name"
+                    label="Full name"
+                    size="small"
+                    autoComplete="name"
+                    fullWidth
+                    value={formik.values.name}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  />
+                  {formik.touched.name && formik.errors.name ? (
+                    <FHT error={true}>{formik.errors.name}</FHT>
+                  ) : null}
+                  <TextField
+                    id="affiliation"
+                    label="Affiliation"
+                    size="small"
+                    name="affiliation"
+                    autoComplete="organization"
+                    fullWidth
+                    value={formik.values.affiliation}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  />
+                  {formik.touched.affiliation && formik.errors.affiliation ? (
+                    <FHT error={true}>{formik.errors.affiliation}</FHT>
+                  ) : null}
                   <Stack className={classes.button} direction="row">
                     <Button
                       id="sign-in"
