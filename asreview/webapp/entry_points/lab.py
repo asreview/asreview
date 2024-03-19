@@ -177,7 +177,7 @@ def lab_entry_point(argv):
     console.print("Press [bold]Ctrl+C[/bold] to exit.\n\n")
 
     try:
-        waitress.serve(app, host=args.host, port=port)
+        waitress.serve(app, host=args.host, port=port, threads=6)
     except KeyboardInterrupt:
         console.print("\n\nShutting down server\n\n")
 
