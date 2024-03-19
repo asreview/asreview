@@ -135,6 +135,7 @@ def create_app(config_path=None):
     @app.route("/signup", methods=["GET"])
     @app.route("/confirm_account", methods=["GET"])
     @app.route("/oauth_callback", methods=["GET"])
+    @app.route("/profile", methods=["GET"])
     @app.route("/get_profile", methods=["GET"])
     @app.route("/update_profile", methods=["GET"])
     @app.route("/projects/", methods=["GET"])
@@ -142,7 +143,7 @@ def create_app(config_path=None):
     @app.route("/projects/<project_id>/<tab>/", methods=["GET"])
     @app.route("/forgot_password", methods=["GET"])
     @app.route("/reset_password", methods=["GET"])
-    def index():
+    def index(**kwargs):
         return render_template("index.html", api_url=app.config.get("API_URL", "/"))
 
     @app.route("/favicon.ico")
