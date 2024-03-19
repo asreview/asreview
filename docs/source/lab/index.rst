@@ -1,5 +1,5 @@
-User guide
-==========
+ASReview LAB user guide
+=======================
 
 ASReview LAB is a web-based application for the ASReview systematic review
 software. It is designed to make the process of systematic reviewing more

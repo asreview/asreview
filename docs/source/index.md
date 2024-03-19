@@ -41,7 +41,6 @@ Join the movement towards fast, open, and transparent systematic reviews.
 
 ## ASReview LAB user guide
 
- From setup to advanced features, find everything you need to master the platform.
 
 ```{toctree}
 :maxdepth: 2
@@ -51,7 +50,7 @@ lab/index
 
 ## ASReview LAB Server
 
-Gain full control and customization with ASReview LAB Server config
+All documentation for the ASReview LAB Server
 
 ```{toctree}
 :maxdepth: 2

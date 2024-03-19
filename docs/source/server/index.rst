@@ -1,5 +1,5 @@
-Server configuration
-====================
+ASReview LAB Server
+===================
 
 .. toctree::
     :maxdepth: 2
