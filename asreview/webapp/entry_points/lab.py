@@ -202,7 +202,7 @@ def lab_entry_point(argv):
         _open_browser(start_url)
 
     try:
-        waitress.serve(app, host=args.host, port=port)
+        waitress.serve(app, host=args.host, port=port, threads=6)
     except KeyboardInterrupt:
         print("\n\nShutting down server\n\n")
 
