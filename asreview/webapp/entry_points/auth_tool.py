@@ -47,8 +47,8 @@ authenticated setup.
         default=None,
         help=(
             "URI of the database. By default, the value is given by the environment "
-            "variable SQLALCHEMY_DATABASE_URI. If not set, the default is "
-            "'asreview.production.sqlite' in the ASReview folder."
+            "variable ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI. If not set, the default "
+            "is 'asreview.production.sqlite' in the ASReview folder."
         ),
     )
 
@@ -62,8 +62,8 @@ authenticated setup.
         default=None,
         help=(
             "URI of the database. By default, the value is given by the environment "
-            "variable SQLALCHEMY_DATABASE_URI. If not set, the default is "
-            "'asreview.production.sqlite' in the ASReview folder."
+            "variable ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI. If not set, the default "
+            "is 'asreview.production.sqlite' in the ASReview folder."
         ),
     )
 
@@ -87,8 +87,8 @@ authenticated setup.
         default=None,
         help=(
             "URI of the database. By default, the value is given by the environment "
-            "variable SQLALCHEMY_DATABASE_URI. If not set, the default is "
-            "'asreview.production.sqlite' in the ASReview folder."
+            "variable ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI. If not set, the default "
+            "is 'asreview.production.sqlite' in the ASReview folder."
         ),
     )
 
@@ -124,8 +124,8 @@ authenticated setup.
         default=None,
         help=(
             "URI of the database. By default, the value is given by the environment "
-            "variable SQLALCHEMY_DATABASE_URI. If not set, the default is "
-            "'asreview.production.sqlite' in the ASReview folder."
+            "variable ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI. If not set, the default "
+            "is 'asreview.production.sqlite' in the ASReview folder."
         ),
     )
 
@@ -204,6 +204,7 @@ class AuthTool:
             self.uri = (
                 getattr(self.args, "db_uri", False)
                 or os.environ.get("SQLALCHEMY_DATABASE_URI", False)
+                or os.environ.get("ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI", False)
                 or DEFAULT_DATABASE_URI
             )
             Session = sessionmaker()
