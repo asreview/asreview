@@ -13,16 +13,19 @@ import {
 import { CardErrorHandler } from "Components";
 import { ProjectAPI } from "api";
 
-import { styled } from "@mui/material/styles";
+import { styled, useTheme } from "@mui/material/styles";
 
-// import {Chart, PieController, ArcElement, Tooltip, Legend} from "chart.js"
-// Chart.register(PieController, ArcElement, Tooltip, Legend);
+import Chart from "react-apexcharts";
+
+import { projectModes } from "globals.js";
+
 
 const classes = {};
 
 const Root = styled("div")(({ theme }) => ({}));
 
-const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
+
+const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
   const {
     data,
     error: fetchDataError,
@@ -46,33 +49,390 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
     },
   );
 
-  // React.useEffect(() => {
-  //   const chart_data = {
-  //     labels: ['Duplicates', 'Unique records'],
-  //     datasets: [{
-  //     // data: [data?.n_duplicates, data?.n_rows-data?.n_duplicates],
-  //     data: [50, 50],
-  //     backgroundColor: ['#FF6384', '#FFCE56'],
-  //     hoverBackgroundColor: ['#FF6384', '#FFCE56'],
-  //     }],
-  //   };
-  
-  //   const config = {
-  //     type: 'pie',
-  //     data: chart_data,
-  //     options: {
-  //       plugins: {
-  //         legend: true,
-  //         tooltip: false,
-  //       },
-  //     },
-  //   };
-  
-  //   // Create the chart
-  //   const myPieChart = new Chart(document.getElementById('duplicates_chart'), config);
-  // }, []);
+  const theme = useTheme();
+  const n_papers = data?.n_rows;
+  const n_included = data?.n_relevant;
+  const n_excluded = data?.n_irrelevant;
+  const n_duplicates = data?.n_duplicates;
+  const n_unique = n_papers - n_duplicates;
+  const n_missing_title = data?.n_missing_title;
+  const n_has_title = n_papers - n_missing_title;
+  const n_missing_abstract = data?.n_missing_abstract;
+  const n_has_abstract = n_papers - n_missing_abstract;
 
+  const formattedTotal = React.useCallback(() => {
+    if (props.mode !== projectModes.SIMULATION || !props.isSimulating) {
+      return n_papers ? n_papers.toLocaleString("en-US") : 0;
+    } else {
+      return (
+        Math.round(((n_included + n_excluded) / n_papers) * 10000) / 100 + "%"
+      );
+    }
+  }, [props.isSimulating, props.mode, n_included, n_excluded, n_papers]);
 
+  const seriesArray = React.useCallback(() => {
+    if (n_papers) {
+      return [
+        Math.round(((n_unique) / n_papers) * 10000) / 100,
+        Math.round((n_duplicates / n_papers) * 10000) / 100,
+      ];
+    } else {
+      return [];
+    }
+  }, [n_unique, n_duplicates, n_papers]);
+
+  const seriesArray2 = React.useCallback(() => {
+    if (n_papers) {
+      return [
+        Math.round(((n_has_title) / n_papers) * 10000) / 100,
+        Math.round((n_missing_title / n_papers) * 10000) / 100,
+      ];
+    } else {
+      return [];
+    }
+  }, [n_has_title, n_missing_title, n_papers]);
+
+  const seriesArray3 = React.useCallback(() => {
+    if (n_papers) {
+      return [
+        Math.round(((n_has_abstract) / n_papers) * 10000) / 100,
+        Math.round((n_missing_abstract / n_papers) * 10000) / 100,
+      ];
+    } else {
+      return [];
+    }
+  }, [n_has_abstract, n_missing_abstract, n_papers]);
+
+  const optionsChart = React.useCallback(() => {
+  return {
+    chart: {
+      animations: {
+        enabled: false,
+      },
+      background: "transparent",
+      id: "ASReviewLABprogressChart",
+      type: "radialBar",
+    },
+    plotOptions: {
+      radialBar: {
+        hollow: {
+          margin: 15,
+          size: "60%",
+        },
+        dataLabels: {
+          name: {
+            fontSize: "22px",
+          },
+          value: {
+            fontSize: !props.mobileScreen
+              ? theme.typography.h5.fontSize
+              : theme.typography.h6.fontSize,
+            fontFamily: !props.mobileScreen
+              ? theme.typography.h5.fontFamily
+              : theme.typography.h6.fontFamily,
+            fontWeight: theme.typography.fontWeightBold,
+          },
+          total: {
+            show: true,
+            label:
+              props.mode !== projectModes.SIMULATION || !props.isSimulating
+                ? "Total records"
+                : "Simulation progress",
+            fontSize: !props.mobileScreen
+              ? theme.typography.subtitle1.fontSize
+              : theme.typography.subtitle2.fontSize,
+            fontFamily: !props.mobileScreen
+              ? theme.typography.subtitle1.fontFamily
+              : theme.typography.subtitle2.fontFamily,
+            color: theme.palette.text.secondary,
+            formatter: formattedTotal,
+          },
+        },
+      },
+    },
+    colors: [
+      theme.palette.mode === "light"
+        ? theme.palette.secondary.light
+        : theme.palette.secondary.main,
+      theme.palette.mode === "light"
+        ? theme.palette.primary.light
+        : theme.palette.primary.main,
+    ],
+    dataLabels: {
+      enabled: false,
+    },
+    labels: ["Unique", "Duplicate"],
+    legend: {
+      show: true,
+      position: "bottom",
+      fontSize: !props.mobileScreen ? "14px" : "12px",
+      fontFamily: theme.typography.subtitle2.fontFamily,
+      fontWeight: theme.typography.subtitle2.fontWeight,
+      labels: {
+        colors: theme.palette.text.secondary,
+      },
+      markers: {
+        width: 8,
+        height: 8,
+        offsetX: -4,
+      },
+      itemMargin: {
+        horizontal: 16,
+      },
+    },
+    fill: {
+      type: "gradient",
+      gradient: {
+        shade: "light",
+        type: "horizontal",
+        shadeIntensity: 0,
+        inverseColors: true,
+        opacityFrom: 0.7,
+        opacityTo: 0.9,
+        stops: [0, 100],
+      },
+    },
+    markers: {
+      size: 0,
+    },
+    noData: {
+      text: "No data available",
+    },
+    stroke: {
+      lineCap: "round",
+    },
+    theme: {
+      mode: theme.palette.mode,
+    },
+  };
+});
+
+const optionsChart2 = React.useCallback(() => {
+  return {
+    chart: {
+      animations: {
+        enabled: false,
+      },
+      background: "transparent",
+      id: "ASReviewLABprogressChart",
+      type: "radialBar",
+    },
+    plotOptions: {
+      radialBar: {
+        hollow: {
+          margin: 15,
+          size: "60%",
+        },
+        dataLabels: {
+          name: {
+            fontSize: "22px",
+          },
+          value: {
+            fontSize: !props.mobileScreen
+              ? theme.typography.h5.fontSize
+              : theme.typography.h6.fontSize,
+            fontFamily: !props.mobileScreen
+              ? theme.typography.h5.fontFamily
+              : theme.typography.h6.fontFamily,
+            fontWeight: theme.typography.fontWeightBold,
+          },
+          total: {
+            show: true,
+            label:
+              props.mode !== projectModes.SIMULATION || !props.isSimulating
+                ? "Total records"
+                : "Simulation progress",
+            fontSize: !props.mobileScreen
+              ? theme.typography.subtitle1.fontSize
+              : theme.typography.subtitle2.fontSize,
+            fontFamily: !props.mobileScreen
+              ? theme.typography.subtitle1.fontFamily
+              : theme.typography.subtitle2.fontFamily,
+            color: theme.palette.text.secondary,
+            formatter: formattedTotal,
+          },
+        },
+      },
+    },
+    colors: [
+      theme.palette.mode === "light"
+        ? theme.palette.secondary.light
+        : theme.palette.secondary.main,
+      theme.palette.mode === "light"
+        ? theme.palette.primary.light
+        : theme.palette.primary.main,
+    ],
+    dataLabels: {
+      enabled: false,
+    },
+    labels: ["Has title", "No title"],
+    legend: {
+      show: true,
+      position: "bottom",
+      fontSize: !props.mobileScreen ? "14px" : "12px",
+      fontFamily: theme.typography.subtitle2.fontFamily,
+      fontWeight: theme.typography.subtitle2.fontWeight,
+      labels: {
+        colors: theme.palette.text.secondary,
+      },
+      markers: {
+        width: 8,
+        height: 8,
+        offsetX: -4,
+      },
+      itemMargin: {
+        horizontal: 16,
+      },
+    },
+    fill: {
+      type: "gradient",
+      gradient: {
+        shade: "light",
+        type: "horizontal",
+        shadeIntensity: 0,
+        inverseColors: true,
+        opacityFrom: 0.7,
+        opacityTo: 0.9,
+        stops: [0, 100],
+      },
+    },
+    markers: {
+      size: 0,
+    },
+    noData: {
+      text: "No data available",
+    },
+    stroke: {
+      lineCap: "round",
+    },
+    theme: {
+      mode: theme.palette.mode,
+    },
+  };
+});
+
+const optionsChart3 = React.useCallback(() => {
+  return {
+    chart: {
+      animations: {
+        enabled: false,
+      },
+      background: "transparent",
+      id: "ASReviewLABprogressChart",
+      type: "radialBar",
+    },
+    plotOptions: {
+      radialBar: {
+        hollow: {
+          margin: 15,
+          size: "60%",
+        },
+        dataLabels: {
+          name: {
+            fontSize: "22px",
+          },
+          value: {
+            fontSize: !props.mobileScreen
+              ? theme.typography.h5.fontSize
+              : theme.typography.h6.fontSize,
+            fontFamily: !props.mobileScreen
+              ? theme.typography.h5.fontFamily
+              : theme.typography.h6.fontFamily,
+            fontWeight: theme.typography.fontWeightBold,
+          },
+          total: {
+            show: true,
+            label:
+              props.mode !== projectModes.SIMULATION || !props.isSimulating
+                ? "Total records"
+                : "Simulation progress",
+            fontSize: !props.mobileScreen
+              ? theme.typography.subtitle1.fontSize
+              : theme.typography.subtitle2.fontSize,
+            fontFamily: !props.mobileScreen
+              ? theme.typography.subtitle1.fontFamily
+              : theme.typography.subtitle2.fontFamily,
+            color: theme.palette.text.secondary,
+            formatter: formattedTotal,
+          },
+        },
+      },
+    },
+    colors: [
+      theme.palette.mode === "light"
+        ? theme.palette.secondary.light
+        : theme.palette.secondary.main,
+      theme.palette.mode === "light"
+        ? theme.palette.primary.light
+        : theme.palette.primary.main,
+    ],
+    dataLabels: {
+      enabled: false,
+    },
+    labels: ["Has abstract", "No abstract"],
+    legend: {
+      show: true,
+      position: "bottom",
+      fontSize: !props.mobileScreen ? "14px" : "12px",
+      fontFamily: theme.typography.subtitle2.fontFamily,
+      fontWeight: theme.typography.subtitle2.fontWeight,
+      labels: {
+        colors: theme.palette.text.secondary,
+      },
+      markers: {
+        width: 8,
+        height: 8,
+        offsetX: -4,
+      },
+      itemMargin: {
+        horizontal: 16,
+      },
+    },
+    fill: {
+      type: "gradient",
+      gradient: {
+        shade: "light",
+        type: "horizontal",
+        shadeIntensity: 0,
+        inverseColors: true,
+        opacityFrom: 0.7,
+        opacityTo: 0.9,
+        stops: [0, 100],
+      },
+    },
+    markers: {
+      size: 0,
+    },
+    noData: {
+      text: "No data available",
+    },
+    stroke: {
+      lineCap: "round",
+    },
+    theme: {
+      mode: theme.palette.mode,
+    },
+  };
+});
+
+  const [series, setSeries] = React.useState(seriesArray());
+  const [options, setOptions] = React.useState({});
+  const [options2, setOptions2] = React.useState({});
+  const [series2, setSeries2] = React.useState(seriesArray2());
+  const [options3, setOptions3] = React.useState({});
+  const [series3, setSeries3] = React.useState(seriesArray3());
+
+  React.useEffect(() => {
+    setSeries(seriesArray());
+    setOptions(optionsChart());
+
+    setSeries2(seriesArray2());
+    setOptions2(optionsChart2());
+
+    setSeries3(seriesArray3());
+    setOptions3(optionsChart3());
+    
+  }, [seriesArray, optionsChart, seriesArray2, optionsChart2, seriesArray3, optionsChart3]);
 
   return (
     <Root>
@@ -132,9 +492,33 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
               </Typography>
               </Stack>
 
-          </Stack>
+            <Box style={{display: 'flex', justifyContent: 'space-between'}}>
+              <Chart
+          options={options}
+          series={series}
+          type="radialBar"
+          height={350}
+          style={{flex: 1}}
+        />
 
-          {/* <canvas id='duplicates_chart'></canvas> */}
+<Chart
+          options={options2}
+          series={series2}
+          type="radialBar"
+          height={350}
+          style={{flex: 1}}
+        />
+
+<Chart
+          options={options3}
+          series={series3}
+          type="radialBar"
+          height={350}
+          style={{flex: 1}}
+        />
+        </Box>
+
+          </Stack>
 
           {isFetchingData && (
             <Box className="main-page-body-wrapper">
