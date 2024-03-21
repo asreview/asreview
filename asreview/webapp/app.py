@@ -139,7 +139,17 @@ def create_app(config_path=None):
     @app.route("/forgot_password", methods=["GET"])
     @app.route("/reset_password", methods=["GET"])
     def index(**kwargs):
-        return render_template("index.html", api_url=app.config.get("API_URL", "/"))
+        return render_template(
+            "index.html",
+            api_url=app.config.get("API_URL", "/"),
+            asreview_version=asreview_version,
+            authentication=not app.config.get("LOGIN_DISABLED", False),
+            login_info=app.config.get("LOGIN_INFO", None),
+            allow_account_creation=app.config.get("ALLOW_ACCOUNT_CREATION", True),
+            allow_teams=app.config.get("ALLOW_TEAMS", False),
+            email_config=app.config.get("EMAIL_CONFIG", False),
+            oauth=app.config.get("OAUTH", {}),
+        )
 
     @app.route("/favicon.ico")
     def send_favicon():
@@ -147,40 +157,23 @@ def create_app(config_path=None):
             "build", "favicon.ico", mimetype="image/vnd.microsoft.icon"
         )
 
-    @app.route("/boot", methods=["GET"])
-    def api_boot():
-        """Get the boot info."""
+    # @app.route("/boot", methods=["GET"])
+    # def api_boot():
+    #     """Get the boot info."""
 
-        authenticated = not app.config.get("LOGIN_DISABLED", False)
-        response = {
-            "authentication": authenticated,
-            "version": asreview_version,
-            "login_info": app.config.get("LOGIN_INFO", None),
-        }
+    #     #     response["email_config"] = all(
+    #     #         [
+    #     #             app.config.get("MAIL_SERVER", False),
+    #     #             app.config.get("MAIL_USERNAME", False),
+    #     #             app.config.get("MAIL_PASSWORD", False),
+    #     #         ]
+    #     #     )
 
-        if authenticated:
-            response["allow_account_creation"] = app.config.get(
-                "ALLOW_ACCOUNT_CREATION", False
-            )
-            response["allow_teams"] = app.config.get("ALLOW_TEAMS", False)
+    #         # if oauth config is provided
+    #         if isinstance(app.config.get("OAUTH", False), OAuthHandler):
+    #             if params := app.config.get("OAUTH").front_end_params():
+    #                 response["oauth"] = params
 
-            response["email_verification"] = bool(
-                app.config.get("EMAIL_VERIFICATION", False)
-            )
-
-            response["email_config"] = all(
-                [
-                    app.config.get("MAIL_SERVER", False),
-                    app.config.get("MAIL_USERNAME", False),
-                    app.config.get("MAIL_PASSWORD", False),
-                ]
-            )
-
-            # if oauth config is provided
-            if isinstance(app.config.get("OAUTH", False), OAuthHandler):
-                if params := app.config.get("OAUTH").front_end_params():
-                    response["oauth"] = params
-
-        return jsonify(response)
+    #     return jsonify(response)
 
     return app

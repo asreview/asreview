@@ -77,9 +77,10 @@ const SignIn = () => {
                   allowAccountCreation={allowAccountCreation}
                   emailConfig={emailConfig}
                 />
-                {Object.keys(oAuthData.services).length > 0 && (
-                  <SignInOAuth classes={classes} oAuthData={oAuthData} />
-                )}
+                {oAuthData?.services &&
+                  Object.keys(oAuthData.services).length > 0 && (
+                    <SignInOAuth classes={classes} oAuthData={oAuthData} />
+                  )}
               </Stack>
             </CardContent>
           </Card>
