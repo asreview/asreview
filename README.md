@@ -4,10 +4,16 @@
   </a>
 </p>
 
-## ASReview: Active learning for Systematic Reviews
+<br/><br/>
+<br>
+<p align="center">
+  <a href="https://asreview.nl/download"><img src="https://img.shields.io/badge/Installation-FFCD00?style=for-the-badge&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgLTk2MCA5NjAgOTYwIiB3aWR0aD0iMjQiPjxwYXRoIGQ9Ik00ODAtMzIwIDI4MC01MjBsNTYtNTggMTA0IDEwNHYtMzI2aDgwdjMyNmwxMDQtMTA0IDU2IDU4LTIwMCAyMDBaTTI0MC0xNjBxLTMzIDAtNTYuNS0yMy41VDE2MC0yNDB2LTEyMGg4MHYxMjBoNDgwdi0xMjBoODB2MTIwcTAgMzMtMjMuNSA1Ni41VDcyMC0xNjBIMjQwWiIvPjwvc3ZnPg=="/></a>
+  <a href="https://asreview.readthedocs.org"><img src="https://img.shields.io/badge/Documentation-FFCD00?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgLTk2MCA5NjAgOTYwIiB3aWR0aD0iMjQiPjxwYXRoIGQ9Ik0zMjAtMjQwaDMyMHYtODBIMzIwdjgwWm0wLTE2MGgzMjB2LTgwSDMyMHY4MFpNMjQwLTgwcS0zMyAwLTU2LjUtMjMuNVQxNjAtMTYwdi02NDBxMC0zMyAyMy41LTU2LjVUMjQwLTg4MGgzMjBsMjQwIDI0MHY0ODBxMCAzMy0yMy41IDU2LjVUNzIwLTgwSDI0MFptMjgwLTUyMHYtMjAwSDI0MHY2NDBoNDgwdi00NDBINTIwWk0yNDAtODAwdjIwMC0yMDAgNjQwLTY0MFoiLz48L3N2Zz4="/></a>
+  <a href="https://asreview.app"><img src="https://img.shields.io/badge/Live_Demo-C00A35?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgLTk2MCA5NjAgOTYwIiB3aWR0aD0iMjQiPjxwYXRoIGQ9Ik0yMDAtMTIwcS0zMyAwLTU2LjUtMjMuNVQxMjAtMjAwdi01NjBxMC0zMyAyMy41LTU2LjVUMjAwLTg0MGg1NjBxMzMgMCA1Ni41IDIzLjVUODQwLTc2MHY1NjBxMCAzMy0yMy41IDU2LjVUNzYwLTEyMEg2MDB2LTgwaDE2MHYtNDgwSDIwMHY0ODBoMTYwdjgwSDIwMFptMjQwIDB2LTI0NmwtNjQgNjQtNTYtNTggMTYwLTE2MCAxNjAgMTYwLTU2IDU4LTY0LTY0djI0NmgtODBaIi8+PC9zdmc+&logoColor=white"/></a>
+</p>
+</br>
 
-[![PyPI version](https://badge.fury.io/py/asreview.svg)](https://badge.fury.io/py/asreview) [![Documentation Status](https://readthedocs.org/projects/asreview/badge/?version=latest)](https://asreview.readthedocs.io/en/latest/?badge=latest) [![DOI](https://zenodo.org/badge/164874894.svg)](https://zenodo.org/badge/latestdoi/164874894)
-[![Downloads](https://static.pepy.tech/badge/asreview)](https://github.com/asreview/asreview#installation) [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4755/badge)](https://bestpractices.coreinfrastructure.org/projects/4755)
+## ASReview: Active learning for Systematic Reviews
 
 Systematically screening large amounts of textual data is time-consuming and
 often tiresome. The rapidly evolving field of Artificial Intelligence (AI) has
@@ -101,6 +107,9 @@ contact with the team are:
 - FAQ - [ASReview Discussions](https://github.com/asreview/asreview/discussions?discussions_q=sort%3Atop)
 - Donation - [asreview.ai/donate](https://asreview.ai/donate)
 - Contact - [asreview@uu.nl](mailto:asreview@uu.nl)
+
+[![PyPI version](https://badge.fury.io/py/asreview.svg)](https://badge.fury.io/py/asreview) [![DOI](https://zenodo.org/badge/164874894.svg)](https://zenodo.org/badge/latestdoi/164874894)
+[![Downloads](https://static.pepy.tech/badge/asreview)](https://github.com/asreview/asreview#installation) [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4755/badge)](https://bestpractices.coreinfrastructure.org/projects/4755)
 
 ## License
 
