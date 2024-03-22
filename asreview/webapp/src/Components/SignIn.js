@@ -7,6 +7,7 @@ import { HelpPrivacyTermsButton, SignInForm } from "../Components";
 
 import { WordmarkState } from "../globals";
 import SignInOAuth from "./SignInOAuth";
+import Alert from "./Alert";
 
 const PREFIX = "SignInForm";
 
@@ -55,39 +56,44 @@ const SignIn = () => {
   const oAuthData = useSelector((state) => state.oAuthData);
   const allowAccountCreation =
     useSelector((state) => state.allow_account_creation) || false;
-  const emailConfig =
-    useSelector((state) => state.email_config) || false;
+  const emailConfig = useSelector((state) => state.email_config) || false;
+  const loginInfo = useSelector((state) => state.login_info);
 
   return (
-    <Root>
-      <Fade in>
-        <Box>
-          <Card className={classes.card} variant="outlined">
-            <CardContent className={classes.cardContent}>
-              <Stack spacing={3}>
-                <Stack className={classes.header} spacing={2}>
-                  <img
-                    className={classes.logo}
-                    src={WordmarkState()}
-                    alt="ASReview LAB"
+    <>
+      {typeof loginInfo === "string" && loginInfo.length > 0 && (
+        <Alert>{loginInfo}</Alert>
+      )}
+      <Root>
+        <Fade in>
+          <Box>
+            <Card className={classes.card} variant="outlined">
+              <CardContent className={classes.cardContent}>
+                <Stack spacing={3}>
+                  <Stack className={classes.header} spacing={2}>
+                    <img
+                      className={classes.logo}
+                      src={WordmarkState()}
+                      alt="ASReview LAB"
+                    />
+                    <Typography variant="h5">Sign in</Typography>
+                  </Stack>
+                  <SignInForm
+                    classes={classes}
+                    allowAccountCreation={allowAccountCreation}
+                    emailConfig={emailConfig}
                   />
-                  <Typography variant="h5">Sign in</Typography>
+                  {Object.keys(oAuthData.services).length > 0 && (
+                    <SignInOAuth classes={classes} oAuthData={oAuthData} />
+                  )}
                 </Stack>
-                <SignInForm
-                  classes={classes}
-                  allowAccountCreation={allowAccountCreation}
-                  emailConfig={emailConfig}
-                />
-                {Object.keys(oAuthData.services).length > 0 && (
-                  <SignInOAuth classes={classes} oAuthData={oAuthData} />
-                )}
-              </Stack>
-            </CardContent>
-          </Card>
-          <HelpPrivacyTermsButton />
-        </Box>
-      </Fade>
-    </Root>
+              </CardContent>
+            </Card>
+            <HelpPrivacyTermsButton />
+          </Box>
+        </Fade>
+      </Root>
+    </>
   );
 };
 
