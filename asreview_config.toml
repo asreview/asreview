@@ -1,0 +1,27 @@
+DEBUG = true
+LOGIN_DISABLED = false
+SECRET_KEY = "my_very_secret_key"
+SECURITY_PASSWORD_SALT = "abCDefGH"
+SQLALCHEMY_TRACK_MODIFICATIONS = true
+# LOGIN_INFO = "Radio Bergeijk"
+API_URL = "http://localhost:5000"
+
+# If you serve your app over https, set these
+# cookie-parameters to true
+# ===========================================
+SESSION_COOKIE_SECURE = false
+REMEMBER_COOKIE_SECURE = false
+
+ALLOW_ACCOUNT_CREATION = true
+ALLOW_TEAMS = false
+EMAIL_VERIFICATION = false
+
+# When using a (SendGrid) mail server for email
+# verification and forgotten passwords:
+# =============================================
+# MAIL_SERVER = "smtp.sendgrid.net"
+# MAIL_PORT = 465
+# MAIL_USE_TLS = false
+# MAIL_USE_SSL = true
+# MAIL_USERNAME = "apikey"
+# MAIL_DEFAULT_SENDER = "no_reply@example.org"
