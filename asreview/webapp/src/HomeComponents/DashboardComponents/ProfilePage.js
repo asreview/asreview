@@ -29,7 +29,7 @@ const SignupSchema = Yup.object().shape({
   email: Yup.string()
     .email("Invalid email")
     .required("Email is required")
-    .nullable(true),
+    .nullable(),
   name: Yup.string().required("Full name is required").nullable(),
   affiliation: Yup.string()
     .min(2, "Affiliation must be at least 2 characters long").nullable(),
