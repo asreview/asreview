@@ -13,6 +13,7 @@
 # limitations under the License.
 
 """Command Line Interface (CLI) for ASReview project."""
+
 import argparse
 import inspect
 import sys
