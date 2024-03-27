@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "react-query";
 import {
@@ -63,7 +62,6 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const ForgotPassword = (props) => {
-  const emailConfig = useSelector((state) => state.email_config) || false;
   const [email, setEmail] = React.useState("");
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -113,18 +111,18 @@ const ForgotPassword = (props) => {
                     alt="ASReview LAB"
                   />
                   <Typography variant="h5">Forgot your password?</Typography>
-                  {emailConfig && (
+                  {window.emailConfig && (
                     <p>
                       Enter your email address, click on the submit button and
                       an email will be sent to you. Check your spam or bulk
                       folder if you don't get an email.
                     </p>
                   )}
-                  {!emailConfig && (
+                  {!window.emailConfig && (
                     <p>Contact your ASReview-app administrator</p>
                   )}
                 </Stack>
-                {emailConfig && (
+                {window.emailConfig && (
                   <>
                     <Stack spacing={3}>
                       <TextField

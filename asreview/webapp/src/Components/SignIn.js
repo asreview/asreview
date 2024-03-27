@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useSelector } from "react-redux";
 import { Box, Card, CardContent, Fade, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -51,12 +50,7 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const SignIn = () => {
-  const oAuthData = useSelector((state) => state.oAuthData);
-  const allowAccountCreation =
-    useSelector((state) => state.allow_account_creation) || false;
-  const emailConfig = useSelector((state) => state.email_config) || false;
-
+const SignIn = ({ allowAccountCreation, emailConfig, oAuthData }) => {
   return (
     <Root>
       <Fade in>

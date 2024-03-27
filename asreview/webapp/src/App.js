@@ -46,13 +46,6 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 const queryClient = new QueryClient();
 
 const App = () => {
-  const authentication = window.authentication;
-  console.log(authentication);
-  const allowAccountCreation = window.allow_account_creation;
-  const emailConfig = window.email_config;
-  const emailVerification = window.email_verification;
-  const loginInfo = window.login_info;
-
   // Snackbar Notification (taking care of self closing
   // notifications visible on the lower left side)
   const [notification, setNotification] = React.useState({
@@ -94,32 +87,38 @@ const App = () => {
   const render_sign_routes = () => {
     return (
       <>
-        {allowAccountCreation && (
+        {window.allowAccountCreation && (
           <Route
             path="/signup"
             element={
               <SignUpForm
                 mobileScreen={mobileScreen}
-                showNotification={emailVerification && showNotification}
+                showNotification={window.emailVerification && showNotification}
               />
             }
           />
         )}
         <Route
           path="/signin"
-          element={<SignIn mobileScreen={mobileScreen} />}
+          element={
+            <SignIn
+              oAuthData={window.oAuthData}
+              allowAccountCreation={window.allowAccountCreation}
+              emailConfig={window.emailConfig}
+            />
+          }
         />
         <Route
           path="/oauth_callback"
           element={<SignInOAuthCallback mobileScreen={mobileScreen} />}
         />
-        {emailVerification && (
+        {window.emailVerification && (
           <Route
             path="/confirm_account"
             element={<ConfirmAccount showNotification={showNotification} />}
           />
         )}
-        {emailConfig && (
+        {window.emailConfig && (
           <>
             <Route
               path="/forgot_password"
@@ -152,7 +151,7 @@ const App = () => {
         <Route
           path="*"
           element={
-            <RequireAuth enforce_authentication={authentication}>
+            <RequireAuth enforce_authentication={window.authentication}>
               <NavigationDrawer
                 mobileScreen={mobileScreen}
                 onNavDrawer={onNavDrawer}
@@ -199,24 +198,25 @@ const App = () => {
           <CssBaseline />
 
           <div aria-label="nav and main content">
-            {typeof loginInfo === "string" && loginInfo.length > 0 && (
-              <Alert
-                severity="info"
-                variant="standard"
-                sx={{
-                  padding: "2px",
-                  paddingLeft: "6px",
-                  margin: 0,
-                  borderRadius: 0,
-                }}
-              >
-                {loginInfo}
-              </Alert>
-            )}
+            {typeof window.loginInfo === "string" &&
+              window.loginInfo.length > 0 && (
+                <Alert
+                  severity="info"
+                  variant="standard"
+                  sx={{
+                    padding: "2px",
+                    paddingLeft: "6px",
+                    margin: 0,
+                    borderRadius: 0,
+                  }}
+                >
+                  {window.loginInfo}
+                </Alert>
+              )}
 
-            {!authentication && <Routes>{render_routes()}</Routes>}
+            {!window.authentication && <Routes>{render_routes()}</Routes>}
 
-            {authentication && (
+            {window.authentication && (
               <Routes>
                 {render_sign_routes()}
                 <Route element={<PersistSignIn />}>{render_routes()}</Route>

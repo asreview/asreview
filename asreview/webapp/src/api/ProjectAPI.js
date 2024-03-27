@@ -204,7 +204,6 @@ class ProjectAPI {
   }
 
   static resolveURI({ uri }) {
-    console.log(uri);
     const resolve_uri = api_url + `resolve_uri?uri=${uri}`;
     return new Promise((resolve, reject) => {
       axios

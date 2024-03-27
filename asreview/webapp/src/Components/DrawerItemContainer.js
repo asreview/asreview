@@ -1,6 +1,5 @@
 import React from "react";
 import { useQuery } from "react-query";
-import { useSelector } from "react-redux";
 import { Route, Routes, useParams } from "react-router-dom";
 import {
   Box,
@@ -122,8 +121,6 @@ const ProjectItemList = ({
   onNavDrawer,
   toggleNavDrawer,
 }) => {
-  const authentication = useSelector((state) => state.authentication);
-  const allowTeams = useSelector((state) => state.allow_teams);
   const [openGame, setOpenGame] = React.useState(false);
 
   const toggleGame = () => {
@@ -204,7 +201,7 @@ const ProjectItemList = ({
         toggleNavDrawer={toggleNavDrawer}
       />
 
-      {authentication && allowTeams && (
+      {window.authentication && window.allowTeams && (
         <DrawerItem
           key={"project-team"}
           path={`/projects/${project_id}/team`}
