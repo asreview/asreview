@@ -39,12 +39,6 @@ const CitationStylesRow = styled("div")(({ theme }) => ({
   },
 }));
 
-const mapStateToProps = (state) => {
-  return {
-    asreview_version: state.asreview_version,
-  };
-};
-
 const CiteDialog = ({ isOpen, onClose, mobileScreen, asreview_version }) => {
   const theme = useTheme();
   const copyButtonSize = theme.spacing(6);
@@ -179,4 +173,4 @@ const CiteDialog = ({ isOpen, onClose, mobileScreen, asreview_version }) => {
   );
 };
 
-export default connect(mapStateToProps)(CiteDialog);
+export default CiteDialog;

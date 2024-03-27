@@ -217,7 +217,7 @@ const SettingsDialog = (props) => {
                     About ASReview LAB <OpenInNewIconStyled />
                   </React.Fragment>
                 }
-                secondary={`Version ${props.asreview_version}`}
+                secondary={`Version ${window.asreviewVersion}`}
               />
             </ListItem>
             {donateURL !== undefined && (

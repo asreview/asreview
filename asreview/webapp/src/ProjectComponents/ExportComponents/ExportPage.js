@@ -363,7 +363,11 @@ const ExportPage = (props) => {
                     >
                       Cite
                     </Button>
-                    <CiteDialog isOpen={dialogOpen} onClose={toggleDialog} />
+                    <CiteDialog
+                      isOpen={dialogOpen}
+                      onClose={toggleDialog}
+                      asreview_version={window.asreviewVersion}
+                    />
                     <Button
                       variant="outlined"
                       color="primary"
