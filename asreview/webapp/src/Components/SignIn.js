@@ -50,7 +50,7 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const SignIn = ({ allowAccountCreation, emailVerification, oAuthData }) => {
+const SignIn = ({ allowAccountCreation, emailVerification, oAuthConfig }) => {
   return (
     <Root>
       <Fade in>
@@ -71,9 +71,9 @@ const SignIn = ({ allowAccountCreation, emailVerification, oAuthData }) => {
                   allowAccountCreation={allowAccountCreation}
                   emailVerification={emailVerification}
                 />
-                {oAuthData?.services &&
-                  Object.keys(oAuthData.services).length > 0 && (
-                    <SignInOAuth classes={classes} oAuthData={oAuthData} />
+                {oAuthConfig?.services &&
+                  Object.keys(oAuthConfig.services).length > 0 && (
+                    <SignInOAuth classes={classes} oAuthConfig={oAuthConfig} />
                   )}
               </Stack>
             </CardContent>

@@ -23,7 +23,7 @@ const generateOAuthUrl = (config) => {
   );
 };
 
-const SignInOauth = ({ classes, oAuthData }) => {
+const SignInOauth = ({ classes, oAuthConfig }) => {
   const { setAuth } = useAuth();
   const navigate = useNavigate();
 
@@ -82,8 +82,8 @@ const SignInOauth = ({ classes, oAuthData }) => {
     <>
       <Stack className={classes.button} direction="row">
         <Typography variant="body1">Or sign in with:</Typography>
-        {Object.keys(oAuthData.services).map((provider) => {
-          let config = oAuthData.services[provider];
+        {Object.keys(oAuthConfig.services).map((provider) => {
+          let config = oAuthConfig.services[provider];
           return (
             <OauthPopup
               url={generateOAuthUrl(config)}

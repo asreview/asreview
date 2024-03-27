@@ -100,7 +100,7 @@ const App = () => {
           path="/signin"
           element={
             <SignIn
-              oAuthData={window.oAuthData}
+              oAuthConfig={window.oAuthConfig}
               allowAccountCreation={window.allowAccountCreation}
               emailVerification={window.emailVerification}
             />

@@ -139,6 +139,10 @@ def create_app(config_path=None):
     @app.route("/forgot_password", methods=["GET"])
     @app.route("/reset_password", methods=["GET"])
     def index(**kwargs):
+        oauth_params = None
+        if isinstance(app.config.get("OAUTH", False), OAuthHandler):
+            oauth_params = app.config.get("OAUTH").front_end_params()
+
         return render_template(
             "index.html",
             api_url=app.config.get("API_URL", "/"),
@@ -148,7 +152,7 @@ def create_app(config_path=None):
             allow_account_creation=app.config.get("ALLOW_ACCOUNT_CREATION", True),
             allow_teams=app.config.get("ALLOW_TEAMS", False),
             email_verification=app.config.get("EMAIL_VERIFICATION", False),
-            oauth=app.config.get("OAUTH", {}),
+            oauth=app.config.get("OAUTH", oauth_params),
         )
 
     @app.route("/favicon.ico")
@@ -156,24 +160,5 @@ def create_app(config_path=None):
         return send_from_directory(
             "build", "favicon.ico", mimetype="image/vnd.microsoft.icon"
         )
-
-    # @app.route("/boot", methods=["GET"])
-    # def api_boot():
-    #     """Get the boot info."""
-
-    #     #     response["email_config"] = all(
-    #     #         [
-    #     #             app.config.get("MAIL_SERVER", False),
-    #     #             app.config.get("MAIL_USERNAME", False),
-    #     #             app.config.get("MAIL_PASSWORD", False),
-    #     #         ]
-    #     #     )
-
-    #         # if oauth config is provided
-    #         if isinstance(app.config.get("OAUTH", False), OAuthHandler):
-    #             if params := app.config.get("OAUTH").front_end_params():
-    #                 response["oauth"] = params
-
-    #     return jsonify(response)
 
     return app

@@ -13,9 +13,9 @@ const checkState = (key, receivedState) => {
 };
 
 const SignInOAuthCallback = () => {
-  // get window.oAuthData (for state comparison to avoid CSRF)
-  const compareKey = window.oAuthData.compareKey;
-  const messageType = window.oAuthData.messageType;
+  // get window.oAuthConfig (for state comparison to avoid CSRF)
+  const compareKey = window.oAuthConfig.compareKey;
+  const messageType = window.oAuthConfig.messageType;
 
   // On mount
   useEffect(() => {
