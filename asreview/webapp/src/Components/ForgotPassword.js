@@ -111,18 +111,18 @@ const ForgotPassword = (props) => {
                     alt="ASReview LAB"
                   />
                   <Typography variant="h5">Forgot your password?</Typography>
-                  {window.emailConfig && (
+                  {window.emailVerification && (
                     <p>
                       Enter your email address, click on the submit button and
                       an email will be sent to you. Check your spam or bulk
                       folder if you don't get an email.
                     </p>
                   )}
-                  {!window.emailConfig && (
+                  {!window.emailVerification && (
                     <p>Contact your ASReview-app administrator</p>
                   )}
                 </Stack>
-                {window.emailConfig && (
+                {window.emailVerification && (
                   <>
                     <Stack spacing={3}>
                       <TextField

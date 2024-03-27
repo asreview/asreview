@@ -16,7 +16,7 @@ import AuthAPI from "api/AuthAPI";
 import useAuth from "hooks/useAuth";
 import { useToggle } from "hooks/useToggle";
 
-const SignInForm = ({ classes, allowAccountCreation, emailConfig }) => {
+const SignInForm = ({ classes, allowAccountCreation, emailVerification }) => {
   const queryClient = useQueryClient();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
@@ -145,7 +145,7 @@ const SignInForm = ({ classes, allowAccountCreation, emailConfig }) => {
           </Button>
         )}
 
-        {emailConfig && (
+        {emailVerification && (
           <Button
             id="forgot-password"
             onClick={handleForgotPassword}

@@ -50,7 +50,7 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const SignIn = ({ allowAccountCreation, emailConfig, oAuthData }) => {
+const SignIn = ({ allowAccountCreation, emailVerification, oAuthData }) => {
   return (
     <Root>
       <Fade in>
@@ -69,7 +69,7 @@ const SignIn = ({ allowAccountCreation, emailConfig, oAuthData }) => {
                 <SignInForm
                   classes={classes}
                   allowAccountCreation={allowAccountCreation}
-                  emailConfig={emailConfig}
+                  emailVerification={emailVerification}
                 />
                 {oAuthData?.services &&
                   Object.keys(oAuthData.services).length > 0 && (

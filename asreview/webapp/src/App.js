@@ -46,8 +46,6 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 const queryClient = new QueryClient();
 
 const App = () => {
-  // Snackbar Notification (taking care of self closing
-  // notifications visible on the lower left side)
   const [notification, setNotification] = React.useState({
     open: false,
     message: "",
@@ -104,7 +102,7 @@ const App = () => {
             <SignIn
               oAuthData={window.oAuthData}
               allowAccountCreation={window.allowAccountCreation}
-              emailConfig={window.emailConfig}
+              emailVerification={window.emailVerification}
             />
           }
         />
@@ -118,7 +116,7 @@ const App = () => {
             element={<ConfirmAccount showNotification={showNotification} />}
           />
         )}
-        {window.emailConfig && (
+        {window.emailVerification && (
           <>
             <Route
               path="/forgot_password"
