@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery } from "react-query";
 import {
@@ -38,7 +38,6 @@ const Root = styled("div")(({ theme }) => ({}));
 
 const ProfilePopper = (props) => {
   const { auth, setAuth } = useAuth();
-  const allowTeams = useSelector((state) => state.allow_teams);
   const navigate = useNavigate();
 
   const [projectInvitations, setProjectInvitations] = React.useState([]);
@@ -56,7 +55,7 @@ const ProfilePopper = (props) => {
     onError: (data) => {
       console.log("error", data);
     },
-    enabled: allowTeams,
+    enabled: window.allowTeams,
   });
 
   const { mutate } = useMutation(AuthAPI.signout, {
@@ -206,7 +205,7 @@ const ProfilePopper = (props) => {
                   </ListItemText>
                 </MenuItem>
 
-                {false && allowTeams && (
+                {false && window.allowTeams && (
                   <MenuItem onClick={openAcceptanceDialog}>
                     <ListItemIcon>
                       <GroupAdd fontSize="small" />
@@ -247,7 +246,7 @@ const ProfilePopper = (props) => {
         </Box>
       </ClickAwayListener>
 
-      {allowTeams && (
+      {window.allowTeams && (
         <AcceptanceDialog
           open={onAcceptanceDialog}
           onClose={toggleAcceptanceDialog}

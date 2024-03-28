@@ -1,6 +1,4 @@
 import * as React from "react";
-import { useQuery } from "react-query";
-import { connect } from "react-redux";
 import {
   Box,
   Card,
@@ -28,23 +26,8 @@ import { ArrowBack, Close, InfoOutlined } from "@mui/icons-material";
 import { AppBarWithinDialog, OpenInNewIconStyled } from "Components";
 import { StyledIconButton } from "StyledComponents/StyledButton";
 
-import { BaseAPI } from "api";
 import { useToggle } from "hooks/useToggle";
 import { fontSizeOptions, donateURL } from "globals.js";
-
-const mapStateToProps = (state) => {
-  return {
-    asreview_version: state.asreview_version,
-  };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    // setASReviewVersion: (asreview_version) => {
-    //   dispatch(setASReviewVersion(asreview_version));
-    // },
-  };
-};
 
 const PREFIX = "SettingsDialog";
 
@@ -65,15 +48,6 @@ const SettingsDialog = (props) => {
   // second layer state
   const [fontSizeSetting, toggleFontSizeSetting] = useToggle();
   const [shortcutSetting, toggleShortcutSetting] = useToggle();
-
-  const { isError } = useQuery("boot", BaseAPI.boot, {
-    enabled: props.asreview_version === undefined,
-    onSuccess: (data) => {
-      // set the version of asreview
-      //props.setASReviewVersion(data.version);
-    },
-    refetchOnWindowFocus: false,
-  });
 
   // second layer font size setting
   const handleFontSize = (event, newValue) => {
@@ -243,9 +217,7 @@ const SettingsDialog = (props) => {
                     About ASReview LAB <OpenInNewIconStyled />
                   </React.Fragment>
                 }
-                secondary={`Version ${
-                  !isError ? props.asreview_version : `N/A`
-                }`}
+                secondary={`Version ${window.asreviewVersion}`}
               />
             </ListItem>
             {donateURL !== undefined && (
@@ -499,4 +471,4 @@ const SettingsDialog = (props) => {
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(SettingsDialog);
+export default SettingsDialog;
