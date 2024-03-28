@@ -32,8 +32,7 @@ const SignupSchema = Yup.object().shape({
     .nullable(),
   name: Yup.string().required("Full name is required").nullable(),
   affiliation: Yup.string()
-    .min(2, "Affiliation must be at least 2 characters long")
-    .nullable(),
+    .min(2, "Affiliation must be at least 2 characters long").nullable(),
   oldPassword: Yup.string(),
   newPassword: passwordValidation(Yup.string()),
   confirmPassword: Yup.string()
@@ -44,8 +43,24 @@ const SignupSchema = Yup.object().shape({
     }),
 });
 
+const initialValues = {
+  email: "",
+  name: "",
+  affiliation: "",
+  oldPassword: "",
+  newPassword: "",
+  confirmPassword: "",
+  publicAccount: true,
+};
+
+
 const ProfilePage = (props) => {
   const navigate = useNavigate();
+
+  const formik = useFormik({
+    initialValues: initialValues,
+    validationSchema: SignupSchema,
+  });
 
   const [showPassword, toggleShowPassword] = useToggle();
   const [loadingSaveButton, setLoadingSaveButton] = React.useState(true);
@@ -68,31 +83,20 @@ const ProfilePage = (props) => {
     }
   };
 
-  const initialValues = {
-    email: "",
-    name: "",
-    affiliation: "",
-    oldPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-    publicAccount: true,
-  };
-
-  const formik = useFormik({
-    initialValues: initialValues,
-    validationSchema: SignupSchema,
-  });
-
   const { data, isFetched } = useQuery("fetchProfileData", AuthAPI.getProfile, {
     onSuccess: (data) => {
-      formik.setFieldValue("email", data.message.email, true);
-      formik.setFieldValue("name", data.message.name, true);
-      formik.setFieldValue(
-        "affiliation",
-        data.message.affiliation || "",
-        false
-      );
-      formik.setFieldValue("public", data.message.public || true);
+      var email = data.message.email;
+      var name = data.message.name;
+      var affiliation = data.message.affiliation || "";
+      var publicAccount = data.message.public || true;
+
+      formik.setValues({
+        name: name,
+        email: email,
+        affiliation: affiliation,
+        publicAccount: publicAccount
+      }, true);
+
       // show password field?
       if (data.message.origin === "asreview") {
         setShowPasswordFields(true);
@@ -207,6 +211,7 @@ const ProfilePage = (props) => {
     );
   };
 
+
   return (
     <DashboardPage>
       {data && isFetched && (
@@ -277,6 +282,7 @@ const ProfilePage = (props) => {
               {formik.touched.affiliation && formik.errors.affiliation ? (
                 <FHT error={true}>{formik.errors.affiliation}</FHT>
               ) : null}
+
               {showPasswordFields && renderPasswordFields(formik)}
 
               {false && (
@@ -299,6 +305,7 @@ const ProfilePage = (props) => {
                   </FHT>
                 </>
               )}
+
               {isError && (
                 <FHT>
                   <InlineErrorHandler message={error.message} />
