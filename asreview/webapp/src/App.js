@@ -5,10 +5,10 @@ import { Routes, Route } from "react-router-dom";
 import "typeface-roboto";
 import { Box, CssBaseline, createTheme, useMediaQuery } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
-import MuiAlert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import "./App.css";
+import Alert from "./Components/Alert.js";
 
 import { BaseAPI } from "./api/index.js";
 import { setBootData, setOAuthServices } from "./redux/actions";
@@ -43,11 +43,6 @@ if (currentDomain.includes("127.0.0.1")) {
   window.location.replace(newDomain);
 }
 
-// Snackbar Notification Alert
-const Alert = React.forwardRef(function Alert(props, ref) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-});
-
 const queryClient = new QueryClient();
 
 const App = (props) => {
@@ -60,7 +55,6 @@ const App = (props) => {
   );
   const emailConfig = useSelector((state) => state.email_config);
   const emailVerification = useSelector((state) => state.email_verification);
-  const loginInfo = useSelector((state) => state.login_info);
 
   // Snackbar Notification (taking care of self closing
   // notifications visible on the lower left side)
@@ -241,21 +235,6 @@ const App = (props) => {
           <CssBaseline />
 
           <div aria-label="nav and main content">
-            {(typeof loginInfo === 'string') && (loginInfo.length > 0) && (
-              <Alert
-                severity="info"
-                variant="standard"
-                sx={{
-                  padding: "2px",
-                  paddingLeft: "6px",
-                  margin: 0,
-                  borderRadius: 0,
-                }}
-              >
-                {loginInfo}
-              </Alert>
-            )}
-
             {appReady === false && (
               <Box
                 display="flex"
@@ -287,6 +266,7 @@ const App = (props) => {
             <Alert
               onClose={handleCloseNotification}
               severity={notification.severity}
+              variant="filled"
               sx={{ width: "100%" }}
             >
               {notification.message}
