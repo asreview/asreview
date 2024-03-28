@@ -129,10 +129,22 @@ const ProfilePage = (props) => {
   const renderPasswordFields = (formik) => {
     return (
       <>
-        <Divider />
         <FormControl>
           <Stack direction="column" spacing={2}>
-            <Typography variant="h6">Change Password</Typography>
+            <Typography variant="h6">Change email & password</Typography>
+            <TextField
+              id="email"
+              label="Email"
+              size="small"
+              fullWidth
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              autoComplete="off"
+            />
+            {formik.touched.email && formik.errors.email ? (
+              <FHT error={true}>{formik.errors.email}</FHT>
+            ) : null}
             <TextField
               id="oldPassword"
               label="Old Password"
@@ -142,7 +154,7 @@ const ProfilePage = (props) => {
               value={formik.values.oldPassword}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              autoComplete="off"
+              autoComplete="current-password"
             />
             <TextField
               id="newPassword"
@@ -155,6 +167,7 @@ const ProfilePage = (props) => {
               onBlur={formik.handleBlur}
               style={{ opacity: passwordFieldOpacity() }}
               disabled={oldPasswordHasValue()}
+              autoComplete="new-password"
             />
             <TextField
               id="confirmPassword"
@@ -167,6 +180,7 @@ const ProfilePage = (props) => {
               onBlur={formik.handleBlur}
               style={{ opacity: passwordFieldOpacity() }}
               disabled={oldPasswordHasValue()}
+              autoComplete="new-password"
             />
           </Stack>
         </FormControl>
@@ -188,6 +202,7 @@ const ProfilePage = (props) => {
             label="Show passwords"
           />
         </FormControl>
+        <Divider />
       </>
     );
   };
@@ -237,19 +252,6 @@ const ProfilePage = (props) => {
                 <Typography variant="h6">User data</Typography>
               )}
               <TextField
-                autoFocus
-                id="email"
-                label="Email"
-                size="small"
-                fullWidth
-                value={formik.values.email}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              />
-              {formik.touched.email && formik.errors.email ? (
-                <FHT error={true}>{formik.errors.email}</FHT>
-              ) : null}
-              <TextField
                 id="name"
                 label="Full name"
                 size="small"
@@ -257,6 +259,7 @@ const ProfilePage = (props) => {
                 value={formik.values.name}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
+                autoComplete="off"
               />
               {formik.touched.name && formik.errors.name ? (
                 <FHT error={true}>{formik.errors.name}</FHT>
@@ -269,6 +272,7 @@ const ProfilePage = (props) => {
                 value={formik.values.affiliation}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
+                autoComplete="off"
               />
               {formik.touched.affiliation && formik.errors.affiliation ? (
                 <FHT error={true}>{formik.errors.affiliation}</FHT>

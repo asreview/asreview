@@ -238,7 +238,7 @@ const App = (props) => {
           <CssBaseline />
 
           <div aria-label="nav and main content">
-            {loginInfo !== null && (
+            {typeof loginInfo === "string" && loginInfo.length > 0 && (
               <Alert
                 severity="info"
                 variant="standard"
