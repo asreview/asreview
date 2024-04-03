@@ -196,8 +196,6 @@ const DrawerItemContainer = (props) => {
   React.useEffect(() => {
     if (project_id && isFetchingInfo) {
       fetchProjectInfo();
-    } else {
-      setProjectInfo(null);
     }
   }, [fetchProjectInfo, project_id, isFetchingInfo]);
 
@@ -240,7 +238,7 @@ const DrawerItemContainer = (props) => {
                   onNavDrawer={props.onNavDrawer}
                   toggleNavDrawer={props.toggleNavDrawer}
                 />
-                {projectInfo && (
+                <Fade in={props.onNavDrawer && projectInfo && !isFetchingInfo} unmountOnExit>
                   <ListItem
                     className={classes.projectInfo}
                     onClick={toggleGame}
@@ -251,7 +249,6 @@ const DrawerItemContainer = (props) => {
                       className={classes.stateElas}
                     />
 
-                    <Fade in={props.onNavDrawer} unmountOnExit>
                       <div className={classes.yourProject}>
                         <Typography variant="subtitle2">
                           Your project
@@ -264,9 +261,8 @@ const DrawerItemContainer = (props) => {
                           {projectInfo ? projectInfo.name : "Null"}
                         </Typography>
                       </div>
-                    </Fade>
                   </ListItem>
-                )}
+                </Fade>
 
                 {projectInfo &&
                   drawerItemsProjectPage
