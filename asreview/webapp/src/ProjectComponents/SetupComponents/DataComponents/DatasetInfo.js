@@ -555,7 +555,7 @@ const optionsChart4 = React.useCallback(() => {
     setSeries4(seriesArray4());
     setOptions4(optionsChart4());
     
-  }, [seriesArray, optionsChart, seriesArray2, optionsChart2, seriesArray3, optionsChart3 , seriesArray4, optionsChart4]);
+  }, [seriesArray]);//[seriesArray, optionsChart, seriesArray2, optionsChart2, seriesArray3, optionsChart3 , seriesArray4, optionsChart4]);
 
   return (
     <Root>
