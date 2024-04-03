@@ -22,6 +22,7 @@ except ImportError:
     import tomli as tomllib
 
 from flask import Flask
+from flask import request
 from flask import send_from_directory
 from flask.json import jsonify
 from flask.templating import render_template
@@ -147,9 +148,11 @@ def create_app(config_path=None):
         return render_template("index.html", api_url=app.config.get("API_URL", "/"))
 
     @app.route("/favicon.ico")
-    def send_favicon():
+    @app.route("/favicon.png")
+    @app.route("/robots.txt")
+    def static_from_root():
         return send_from_directory(
-            "build", "favicon.ico", mimetype="image/vnd.microsoft.icon"
+            "build", request.path[1:]
         )
 
     @app.route("/boot", methods=["GET"])
