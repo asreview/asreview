@@ -56,11 +56,6 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
   const n_included = data?.n_relevant;
   const n_excluded = data?.n_irrelevant;
   const n_duplicates = data?.n_duplicates;
-  const n_unique = n_papers - n_duplicates;
-  const n_missing_title = data?.n_missing_title;
-  const n_has_title = n_papers - n_missing_title;
-  const n_missing_abstract = data?.n_missing_abstract;
-  const n_has_abstract = n_papers - n_missing_abstract;
   const n_english = data?.n_english;
 
   const formattedTotal = React.useCallback(() => {
@@ -76,35 +71,35 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
   const seriesArray = React.useCallback(() => {
     if (n_papers) {
       return [
-        Math.round(((n_unique) / n_papers) * 10000) / 100,
+        Math.round(((data?.n_rows-data?.n_duplicates) / n_papers) * 10000) / 100,
         Math.round((n_duplicates / n_papers) * 10000) / 100,
       ];
     } else {
       return [];
     }
-  }, [n_unique, n_duplicates, n_papers]);
+  }, [data?.n_duplicates, n_papers]);
 
   const seriesArray2 = React.useCallback(() => {
     if (n_papers) {
       return [
-        Math.round(((n_has_title) / n_papers) * 10000) / 100,
-        Math.round((n_missing_title / n_papers) * 10000) / 100,
+        Math.round(((data?.n_rows-data?.n_missing_title) / n_papers) * 10000) / 100,
+        Math.round((data?.n_missing_title / n_papers) * 10000) / 100,
       ];
     } else {
       return [];
     }
-  }, [n_has_title, n_missing_title, n_papers]);
+  }, [data?.n_missing_title, n_papers]);
 
   const seriesArray3 = React.useCallback(() => {
     if (n_papers) {
       return [
-        Math.round(((n_has_abstract) / n_papers) * 10000) / 100,
-        Math.round((n_missing_abstract / n_papers) * 10000) / 100,
+        Math.round(((data?.n_rows-data?.n_missing_abstract) / n_papers) * 10000) / 100,
+        Math.round((data?.n_missing_abstract / n_papers) * 10000) / 100,
       ];
     } else {
       return [];
     }
-  }, [n_has_abstract, n_missing_abstract, n_papers]);
+  }, [data?.n_missing_abstract, n_papers]);
 
   const seriesArray4 = React.useCallback(() => {
     if (n_papers) {
