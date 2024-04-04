@@ -160,8 +160,6 @@ def create_app(config_path=None):
     @app.route("/favicon.png")
     @app.route("/robots.txt")
     def static_from_root():
-        return send_from_directory(
-            "build", request.path[1:]
-        )
+        return send_from_directory("build", request.path[1:])
 
     return app
