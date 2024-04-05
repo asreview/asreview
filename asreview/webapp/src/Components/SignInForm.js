@@ -16,11 +16,7 @@ import AuthAPI from "api/AuthAPI";
 import useAuth from "hooks/useAuth";
 import { useToggle } from "hooks/useToggle";
 
-const SignInForm = (props) => {
-  const classes = props.classes;
-  const allowAccountCreation = props.allowAccountCreation;
-  const hasEmailConfig = props.emailConfig;
-
+const SignInForm = ({ classes, allowAccountCreation, emailVerification }) => {
   const queryClient = useQueryClient();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
@@ -109,6 +105,7 @@ const SignInForm = (props) => {
           variant="outlined"
           fullWidth
           autoFocus
+          autoComplete="email"
         />
         <FormControl>
           <TextField
@@ -120,6 +117,7 @@ const SignInForm = (props) => {
             variant="outlined"
             fullWidth
             type={returnType()}
+            autoComplete="current-password"
           />
           <FormControlLabel
             control={
@@ -147,7 +145,7 @@ const SignInForm = (props) => {
           </Button>
         )}
 
-        {hasEmailConfig && (
+        {emailVerification && (
           <Button
             id="forgot-password"
             onClick={handleForgotPassword}

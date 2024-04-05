@@ -12,10 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import logging
 import os
-import warnings
 from pathlib import Path
 
 try:
@@ -24,6 +22,7 @@ except ImportError:
     import tomli as tomllib
 
 from flask import Flask
+from flask import request
 from flask import send_from_directory
 from flask.json import jsonify
 from flask.templating import render_template
@@ -41,13 +40,19 @@ from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
 
-def create_app(
-    env="development",
-    config_file=None,
-    secret_key=None,
-    salt=None,
-    enable_authentication=False,
-):
+def create_app(config_path=None):
+    """Create a new ASReview webapp.
+
+    For use with WSGI servers, such as gunicorn:
+
+        > gunicorn -w 4 -b "127.0.0.1:5006" "asreview.webapp.app:create_app()"
+
+    Returns
+    -------
+    Flask:
+        The ASReview webapp.
+    """
+
     app = Flask(
         __name__,
         instance_relative_config=True,
@@ -55,37 +60,17 @@ def create_app(
         template_folder="build",
     )
 
-    app.config["ALLOWED_ORIGINS"] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    app.config.from_prefixed_env("ASREVIEW_LAB")
 
-    app.config["SECRET_KEY"] = secret_key
-    app.config["SALT"] = salt
+    # load config from file
+    if config_fp := (config_path or app.config.get("CONFIG_PATH", None)):
+        app.config.from_file(Path(config_fp).absolute(), load=tomllib.load, text=False)
 
-    app.config.from_prefixed_env()
+    # if there are no cors and config is in debug mode, add default cors
+    if app.debug and not app.config.get("CORS_ORIGINS", None):
+        app.config["CORS_ORIGINS"] = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
-    # If allowed origins comes as an environment variables, and is a list,
-    # then we assume a JSON string.
-    if isinstance(app.config.get("ALLOWED_ORIGINS", False), str):
-        app.config["ALLOWED_ORIGINS"] = json.loads(app.config["ALLOWED_ORIGINS"])
-
-    if config_file_path := config_file or app.config.get("CONFIGFILE", ""):
-        app.config.from_file(
-            Path(config_file_path).absolute(), load=tomllib.load, text=False
-        )
-
-    if app.config.get("AUTHENTICATION_ENABLED", None):
-        warnings.warn(
-            "The use of AUTHENTICATION_ENABLED=true is deprecated and "
-            "will be removed in the future. Use LOGIN_DISABLED=false instead.",
-            stacklevel=2,
-        )
-        if "LOGIN_DISABLED" not in app.config:
-            app.config["LOGIN_DISABLED"] = False
-
-    if "LOGIN_DISABLED" not in app.config:
-        app.config["LOGIN_DISABLED"] = not enable_authentication
-
-    if origins := app.config.get("ALLOWED_ORIGINS", False):
-        CORS(app, origins=origins, supports_credentials=True)
+    CORS(app, supports_credentials=True)
 
     with app.app_context():
         app.register_blueprint(projects.bp)
@@ -102,6 +87,8 @@ def create_app(
             return User.query.get(int(user_id))
 
         if not app.config.get("SQLALCHEMY_DATABASE_URI", None):
+            env = "development" if app.debug else "production"
+            env = "test" if app.testing else env
             uri = os.path.join(asreview_path(), f"asreview.{env}.sqlite")
             app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{uri}"
 
@@ -144,6 +131,7 @@ def create_app(
     @app.route("/signup", methods=["GET"])
     @app.route("/confirm_account", methods=["GET"])
     @app.route("/oauth_callback", methods=["GET"])
+    @app.route("/profile", methods=["GET"])
     @app.route("/get_profile", methods=["GET"])
     @app.route("/update_profile", methods=["GET"])
     @app.route("/projects/", methods=["GET"])
@@ -151,55 +139,27 @@ def create_app(
     @app.route("/projects/<project_id>/<tab>/", methods=["GET"])
     @app.route("/forgot_password", methods=["GET"])
     @app.route("/reset_password", methods=["GET"])
-    def index():
-        return render_template("index.html")
+    def index(**kwargs):
+        oauth_params = None
+        if isinstance(app.config.get("OAUTH", False), OAuthHandler):
+            oauth_params = app.config.get("OAUTH").front_end_params()
 
-    @app.route("/favicon.ico")
-    def send_favicon():
-        return send_from_directory(
-            "build", "favicon.ico", mimetype="image/vnd.microsoft.icon"
+        return render_template(
+            "index.html",
+            api_url=app.config.get("API_URL", "/"),
+            asreview_version=asreview_version,
+            authentication=not app.config.get("LOGIN_DISABLED", False),
+            login_info=app.config.get("LOGIN_INFO", None),
+            allow_account_creation=app.config.get("ALLOW_ACCOUNT_CREATION", True),
+            allow_teams=app.config.get("ALLOW_TEAMS", False),
+            email_verification=app.config.get("EMAIL_VERIFICATION", False),
+            oauth=app.config.get("OAUTH", oauth_params),
         )
 
-    @app.route("/boot", methods=["GET"])
-    def api_boot():
-        """Get the boot info."""
-
-        authenticated = not app.config.get("LOGIN_DISABLED", False)
-
-        response = {
-            "authentication": authenticated,
-            "version": asreview_version,
-        }
-
-        if authenticated:
-            # if recaptcha config is provided for account creation
-            if app.config.get("RE_CAPTCHA_V3", False):
-                response["recaptchav3_key"] = app.config["RE_CAPTCHA_V3"].get(
-                    "KEY", False
-                )
-
-            response["allow_account_creation"] = app.config.get(
-                "ALLOW_ACCOUNT_CREATION", False
-            )
-            response["allow_teams"] = app.config.get("ALLOW_TEAMS", False)
-
-            response["email_verification"] = bool(
-                app.config.get("EMAIL_VERIFICATION", False)
-            )
-
-            response["email_config"] = all(
-                [
-                    app.config.get("MAIL_SERVER", False),
-                    app.config.get("MAIL_USERNAME", False),
-                    app.config.get("MAIL_PASSWORD", False),
-                ]
-            )
-
-            # if oauth config is provided
-            if isinstance(app.config.get("OAUTH", False), OAuthHandler):
-                if params := app.config.get("OAUTH").front_end_params():
-                    response["oauth"] = params
-
-        return jsonify(response)
+    @app.route("/favicon.ico")
+    @app.route("/favicon.png")
+    @app.route("/robots.txt")
+    def static_from_root():
+        return send_from_directory("build", request.path[1:])
 
     return app

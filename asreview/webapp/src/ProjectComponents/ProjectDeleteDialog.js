@@ -1,6 +1,6 @@
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Alert,
@@ -23,7 +23,6 @@ const ProjectDeleteDialog = (props) => {
   const queryClient = useQueryClient();
 
   const { auth } = useAuth();
-  const authenticated = useSelector((state) => state.authentication);
   const dispatch = useDispatch();
 
   const descriptionElementRef = React.useRef(null);
@@ -45,7 +44,7 @@ const ProjectDeleteDialog = (props) => {
   );
 
   const endCollaboration = () => {
-    if (authenticated && props.project_id && auth.id) {
+    if (window.authentication && props.project_id && auth.id) {
       TeamAPI.endCollaboration(props.project_id, auth.id)
         .then((data) => {
           if (data.success) {

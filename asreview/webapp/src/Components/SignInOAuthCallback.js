@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
 import { Box } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
 
@@ -14,10 +13,9 @@ const checkState = (key, receivedState) => {
 };
 
 const SignInOAuthCallback = () => {
-  // get oAuthData (for state comparison to avoid CSRF)
-  const oAuthData = useSelector((state) => state.oAuthData);
-  const compareKey = oAuthData.compareKey;
-  const messageType = oAuthData.messageType;
+  // get window.oAuthConfig (for state comparison to avoid CSRF)
+  const compareKey = window.oAuthConfig.compareKey;
+  const messageType = window.oAuthConfig.messageType;
 
   // On mount
   useEffect(() => {

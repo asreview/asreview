@@ -125,7 +125,6 @@ const modeLabelMap = {
 const ProjectTable = (props) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const authenticated = useSelector((state) => state.authentication);
   const myProjects = useSelector((state) => state.myProjects);
   const dispatch = useDispatch();
   const { auth } = useAuth();
@@ -336,7 +335,9 @@ const ProjectTable = (props) => {
     setHoverRowId(project_id);
     setHoverRowIdPersistent(project_id);
     setHoverRowTitle(project_title);
-    setHoverIsOwner(authenticated && owner_id !== auth.id ? false : true);
+    setHoverIsOwner(
+      window.authenticated && owner_id !== auth.id ? false : true,
+    );
   };
 
   const hoverOffProject = () => {
@@ -413,11 +414,12 @@ const ProjectTable = (props) => {
                 .map((row) => {
                   // if we do authentication, then we need to know who the owner is
                   row["owner_id"] =
-                    authenticated && "owner_id" in row
+                    window.authenticated && "owner_id" in row
                       ? row["owner_id"]
                       : false;
                   // A collaborator can not edit
-                  const isOwner = authenticated && row["owner_id"] === auth.id;
+                  const isOwner =
+                    window.authenticated && row["owner_id"] === auth.id;
 
                   const isSimulating = () => {
                     return (

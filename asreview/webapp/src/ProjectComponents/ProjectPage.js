@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { connect, useSelector } from "react-redux";
+import { connect } from "react-redux";
 
 import {
   Routes,
@@ -62,7 +62,6 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const ProjectPage = (props) => {
-  const authenticated = useSelector((state) => state.authentication);
   const { auth } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -238,7 +237,7 @@ const ProjectPage = (props) => {
           )}
 
           {/* Team */}
-          {isSuccess && authenticated && !data?.projectNeedsUpgrade && (
+          {isSuccess && window.authentication && !data?.projectNeedsUpgrade && (
             <Route
               path="team"
               element={

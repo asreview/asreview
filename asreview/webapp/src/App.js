@@ -1,17 +1,12 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { useSelector, useDispatch } from "react-redux";
 import { Routes, Route } from "react-router-dom";
 import "typeface-roboto";
-import { Box, CssBaseline, createTheme, useMediaQuery } from "@mui/material";
-import CircularProgress from "@mui/material/CircularProgress";
+import { CssBaseline, createTheme, useMediaQuery } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import "./App.css";
-
-import { BaseAPI } from "api";
-import { setBootData, setOAuthServices } from "redux/actions";
 
 import {
   ConfirmAccount,
@@ -50,19 +45,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 
 const queryClient = new QueryClient();
 
-const App = (props) => {
-  // state related stuff for booting the app
-  const [appReady, setAppReadyState] = React.useState(false);
-  const dispatch = useDispatch();
-  const authentication = useSelector((state) => state.authentication);
-  const allowAccountCreation = useSelector(
-    (state) => state.allow_account_creation,
-  );
-  const emailConfig = useSelector((state) => state.email_config);
-  const emailVerification = useSelector((state) => state.email_verification);
-
-  // Snackbar Notification (taking care of self closing
-  // notifications visible on the lower left side)
+const App = () => {
   const [notification, setNotification] = React.useState({
     open: false,
     message: "",
@@ -99,65 +82,41 @@ const App = (props) => {
   // Navigation drawer state
   const [onNavDrawer, toggleNavDrawer] = useToggle(mobileScreen ? false : true);
 
-  // This effect does a boot request to gather information
-  // from the backend
-  React.useEffect(() => {
-    BaseAPI.boot({})
-      .then((response) => {
-        dispatch(setBootData(response));
-        // set oauth services if there are any
-        if (response?.oauth) {
-          dispatch(setOAuthServices(response.oauth));
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [dispatch]);
-
-  // This effect makes sure we handle routing at the
-  // moment we know for sure if there is, or isn't authentication.
-  React.useEffect(() => {
-    if (
-      authentication !== undefined &&
-      allowAccountCreation !== undefined &&
-      emailVerification !== undefined
-    ) {
-      setAppReadyState(true);
-    } else {
-      setAppReadyState(false);
-    }
-  }, [authentication, allowAccountCreation, emailVerification]);
-
   const render_sign_routes = () => {
     return (
       <>
-        {allowAccountCreation && (
+        {window.allowAccountCreation && (
           <Route
             path="/signup"
             element={
               <SignUpForm
                 mobileScreen={mobileScreen}
-                showNotification={emailVerification && showNotification}
+                showNotification={window.emailVerification && showNotification}
               />
             }
           />
         )}
         <Route
           path="/signin"
-          element={<SignIn mobileScreen={mobileScreen} />}
+          element={
+            <SignIn
+              oAuthConfig={window.oAuthConfig}
+              allowAccountCreation={window.allowAccountCreation}
+              emailVerification={window.emailVerification}
+            />
+          }
         />
         <Route
           path="/oauth_callback"
           element={<SignInOAuthCallback mobileScreen={mobileScreen} />}
         />
-        {emailConfig && emailVerification && (
+        {window.emailVerification && (
           <Route
             path="/confirm_account"
             element={<ConfirmAccount showNotification={showNotification} />}
           />
         )}
-        {emailConfig && (
+        {window.emailVerification && (
           <>
             <Route
               path="/forgot_password"
@@ -190,7 +149,7 @@ const App = (props) => {
         <Route
           path="*"
           element={
-            <RequireAuth enforce_authentication={authentication}>
+            <RequireAuth enforce_authentication={window.authentication}>
               <NavigationDrawer
                 mobileScreen={mobileScreen}
                 onNavDrawer={onNavDrawer}
@@ -237,21 +196,25 @@ const App = (props) => {
           <CssBaseline />
 
           <div aria-label="nav and main content">
-            {appReady === false && (
-              <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                minHeight="100vh"
-              >
-                <CircularProgress />
-              </Box>
-            )}
-            {appReady === true && authentication === false && (
-              <Routes>{render_routes()}</Routes>
-            )}
+            {typeof window.loginInfo === "string" &&
+              window.loginInfo.length > 0 && (
+                <Alert
+                  severity="info"
+                  variant="standard"
+                  sx={{
+                    padding: "2px",
+                    paddingLeft: "6px",
+                    margin: 0,
+                    borderRadius: 0,
+                  }}
+                >
+                  {window.loginInfo}
+                </Alert>
+              )}
 
-            {appReady === true && authentication === true && (
+            {!window.authentication && <Routes>{render_routes()}</Routes>}
+
+            {window.authentication && (
               <Routes>
                 {render_sign_routes()}
                 <Route element={<PersistSignIn />}>{render_routes()}</Route>

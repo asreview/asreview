@@ -10,6 +10,7 @@ in a helper-directive to generate it with a single YAML configuration file.
 It currently exists for maintainers of the pydata-sphinx-theme,
 but might be abstracted into a standalone package if it proves useful.
 """
+
 from pathlib import Path
 from typing import Any
 from typing import Dict
