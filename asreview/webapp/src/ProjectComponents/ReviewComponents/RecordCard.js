@@ -6,18 +6,20 @@ import {
   Card,
   CardContent,
   CircularProgress,
+  Link,
   Stack,
   Tooltip,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Link } from "@mui/icons-material";
+import { Link as LinkIcon } from "@mui/icons-material";
+import TruncateMarkup from "react-truncate-markup";
 
-import { BoxErrorHandler } from "Components";
 import { DOIIcon } from "icons";
 import { RecordTrainingInfo, DecisionButton } from ".";
 import { ExplorationModeRecordAlert } from "StyledComponents/StyledAlert";
 import { StyledIconButton } from "StyledComponents/StyledButton";
+import { useToggle } from "hooks/useToggle";
 
 const PREFIX = "RecordCard";
 
@@ -73,142 +75,152 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const RecordCard = (props) => {
+const RecordCard = ({
+  project_id,
+  record,
+  afterDecision,
+  mobileScreen,
+  fontSize,
+  tags,
+  keyPressEnabled = false,
+  collapseAbstract = false,
+  disabled = false,
+}) => {
+  const [readMoreOpen, toggleReadMore] = useToggle();
+
+  console.log(record);
+
   const isNotTrained =
-    props.activeRecord?.state.query_strategy === "top-down" ||
-    props.activeRecord?.state.query_strategy === "random";
+    record?.state?.query_strategy === "top-down" ||
+    record?.state?.query_strategy === "random";
 
   return (
     <Root aria-label="record card">
-      {!props.isError && !props.activeRecord && <CircularProgress />}
-      {props.isError && (
-        <Card
-          elevation={props.mobileScreen ? 0 : 2}
-          className={clsx(classes.loadedCard, classes.loadingCard)}
-          aria-label="record loaded failure"
-        >
-          <BoxErrorHandler queryKey="fetchRecord" error={props.error} />
-        </Card>
-      )}
-      {props.activeRecord && (
-        <Card
-          elevation={props.mobileScreen ? 0 : 2}
-          className={classes.loadedCard}
-          aria-label="record loaded"
-        >
-          {isNotTrained && (
-            <Alert
-              severity="warning"
-              className="record-card-alert"
-              sx={{ borderRadius: 0 }}
-            >
-              This record is not presented by the model
-            </Alert>
-          )}
-
-          <CardContent
-            className={`${classes.titleAbstract} record-card-content`}
-            aria-label="record title abstract"
+      <Card
+        elevation={mobileScreen ? 0 : 2}
+        className={classes.loadedCard}
+        aria-label="record loaded"
+      >
+        {isNotTrained && (
+          <Alert
+            severity="warning"
+            className="record-card-alert"
+            sx={{ borderRadius: 0 }}
           >
-            <Stack spacing={1}>
-              <Stack
-                direction="row"
-                justifyContent="space-between"
-                alignItems="baseline"
-                spacing={1}
-              >
-                {/* Show the title */}
-                <Typography
-                  component="div"
-                  className={classes.title}
-                  variant={!props.mobileScreen ? "h5" : "h6"}
-                  sx={{
-                    fontWeight: (theme) => theme.typography.fontWeightRegular,
-                  }}
-                >
-                  {/* No title, inplace text */}
-                  {(props.activeRecord.title === "" ||
-                    props.activeRecord.title === null) && (
-                    <Box
-                      className={"fontSize" + props.fontSize.label}
-                      fontStyle="italic"
-                    >
-                      No title available
-                    </Box>
-                  )}
+            This record is not presented by the model
+          </Alert>
+        )}
 
-                  {!(
-                    props.activeRecord.title === "" ||
-                    props.activeRecord.title === null
-                  ) && (
-                    <Box className={"fontSize" + props.fontSize.label}>
-                      {props.activeRecord.title}
-                    </Box>
-                  )}
-                </Typography>
-                <RecordTrainingInfo state={props.activeRecord.state} />
-              </Stack>
-              <Stack direction="row" spacing={1}>
-                {!(
-                  props.activeRecord.doi === undefined ||
-                  props.activeRecord.doi === null
-                ) && (
+        <CardContent
+          className={`${classes.titleAbstract} record-card-content`}
+          aria-label="record title abstract"
+        >
+          <Stack spacing={1}>
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="baseline"
+              spacing={1}
+            >
+              {/* Show the title */}
+              <Typography
+                component="div"
+                className={classes.title}
+                variant={!mobileScreen ? "h5" : "h6"}
+                sx={{
+                  fontWeight: (theme) => theme.typography.fontWeightRegular,
+                }}
+              >
+                {/* No title, inplace text */}
+                {(record.title === "" || record.title === null) && (
+                  <Box
+                    className={"fontSize" + fontSize?.label}
+                    fontStyle="italic"
+                  >
+                    No title available
+                  </Box>
+                )}
+
+                {!(record.title === "" || record.title === null) && (
+                  <Box className={"fontSize" + fontSize?.label}>
+                    {record.title}
+                  </Box>
+                )}
+              </Typography>
+              {record?.state && <RecordTrainingInfo state={record.state} />}
+            </Stack>
+            <Stack direction="row" spacing={1}>
+              {!(record.doi === undefined || record.doi === null) && (
+                <StyledIconButton
+                  className="record-card-icon"
+                  href={"https://doi.org/" + record.doi}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <DOIIcon />
+                </StyledIconButton>
+              )}
+
+              {!(record.url === undefined || record.url === null) && (
+                <Tooltip title="Open URL">
                   <StyledIconButton
                     className="record-card-icon"
-                    href={"https://doi.org/" + props.activeRecord.doi}
+                    href={record.url}
                     target="_blank"
                     rel="noreferrer"
                   >
-                    <DOIIcon />
+                    <LinkIcon />
                   </StyledIconButton>
-                )}
+                </Tooltip>
+              )}
+            </Stack>
 
-                {!(
-                  props.activeRecord.url === undefined ||
-                  props.activeRecord.url === null
-                ) && (
-                  <Tooltip title="Open URL">
-                    <StyledIconButton
-                      className="record-card-icon"
-                      href={props.activeRecord.url}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <Link />
-                    </StyledIconButton>
-                  </Tooltip>
-                )}
-              </Stack>
+            <TruncateMarkup
+              lines={collapseAbstract && !readMoreOpen ? 6 : Infinity}
+              ellipsis={
+                <span>
+                  ...{" "}
+                  <Link
+                    component="button"
+                    underline="none"
+                    onClick={toggleReadMore}
+                  >
+                    read more
+                  </Link>
+                </span>
+              }
+            >
               <Typography
                 component="div"
-                className={
-                  classes.abstract + " fontSize" + props.fontSize.label
-                }
+                className={classes.abstract + " fontSize" + fontSize?.label}
                 variant="body2"
                 paragraph
                 sx={{ color: "text.secondary" }}
               >
-                {(props.activeRecord.abstract === "" ||
-                  props.activeRecord.abstract === null) && (
+                {(record.abstract === "" || record.abstract === null) && (
                   <Box fontStyle="italic">No abstract available</Box>
                 )}
 
-                {!(
-                  props.activeRecord.abstract === "" ||
-                  props.activeRecord.abstract === null
-                ) && <Box>{props.activeRecord.abstract}</Box>}
+                {!(record.abstract === "" || record.abstract === null) && (
+                  <Box>{record.abstract}</Box>
+                )}
               </Typography>
-            </Stack>
-          </CardContent>
-          <DecisionButton
-            makeDecision={props.makeDecision}
-            labelFromDataset={props.activeRecord?.label_from_dataset}
-            mobileScreen={props.mobileScreen}
-            tags={props.tags}
-            keyPressEnabled={props.keyPressEnabled}
-          />
-        </Card>
-      )}
+            </TruncateMarkup>
+          </Stack>
+        </CardContent>
+        <DecisionButton
+          project_id={project_id}
+          record_id={record.record_id}
+          label={record.state?.included}
+          labelFromDataset={record.included}
+          afterDecision={afterDecision}
+          note={record.note}
+          tags={tags}
+          tagValues={record.tag_values}
+          keyPressEnabled={keyPressEnabled}
+          disabled={disabled}
+        />
+      </Card>
     </Root>
   );
 };

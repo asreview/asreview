@@ -1377,8 +1377,8 @@ def api_get_document(project):  # noqa: F401
 
     as_data = project.read_data()
     item = asdict(as_data.record(pending["record_id"].iloc[0]))
-    item["label_from_dataset"] = item["included"]
     item["state"] = pending.iloc[0].to_dict()
+    item["tags_form"] = project.config.get("tags", None)
 
     return jsonify({"result": item, "pool_empty": False, "has_ranking": True})
 

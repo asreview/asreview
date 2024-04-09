@@ -1,9 +1,11 @@
 import React from "react";
 import {
+  Alert,
   Box,
   Fab,
   Stack,
   Tooltip,
+  TextField,
   Chip,
   CardActions,
   Button,
@@ -12,13 +14,16 @@ import {
   Typography,
   IconButton,
 } from "@mui/material";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+
 import { styled } from "@mui/material/styles";
 import { Edit, Favorite, FavoriteBorder, Expand } from "@mui/icons-material";
 import "./ReviewPage.css";
 import { useKeyPress } from "hooks/useKeyPress";
 import { useToggle } from "hooks/useToggle";
+import { ProjectAPI } from "api";
 
-import { NoteSheet, TagsTable } from ".";
+import { TagsTable } from ".";
 
 const PREFIX = "DecisionButton";
 
@@ -32,13 +37,21 @@ const Root = styled("div")(({ theme }) => ({
   // },
 }));
 
-const DecisionButton = (props) => {
+const DecisionButton = ({
+  project_id,
+  record_id,
+  label,
+  labelFromDataset,
+  tags,
+  tagValues,
+  note,
+  afterDecision,
+  keyPressEnabled = false,
+  disabled = false,
+}) => {
   const [showNotes, toggleShowNotes] = useToggle(false);
-  const [showTags, toggleShowTags] = useToggle(false);
-  const [note, setNote] = React.useState(props.activeRecord?.note);
-  const [tagValues, setTagValues] = React.useState(
-    props.activeRecord?.tag_values,
-  );
+  const [noteState, setNoteState] = React.useState(note);
+  const [tagValuesState, setTagValuesState] = React.useState(tagValues);
 
   const tagValuesEqual = (tagValues1, tagValues2) => {
     if (tagValues1 === null || tagValues2 === null) {
@@ -54,16 +67,24 @@ const DecisionButton = (props) => {
   let relevantLabel = "Yes";
   let irrelevantLabel = "No";
 
-  // if (props.previousRecord.show) {
-  //   if (props.previousRecord.label === 0) {
-  //     relevantLabel = "Convert to relevant";
-  //     irrelevantLabel = "Keep irrelevant";
-  //   }
-  //   if (props.previousRecord.label === 1) {
-  //     relevantLabel = "Keep relevant";
-  //     irrelevantLabel = "Convert to irrelevant";
-  //   }
-  // }
+  const { error, isError, isLoading, mutate, reset } = useMutation(
+    ProjectAPI.mutateClassification,
+    {
+      onSuccess: () => {
+        afterDecision();
+      },
+    },
+  );
+
+  const makeDecision = (label) => {
+    mutate({
+      project_id: project_id,
+      record_id: record_id,
+      label: label,
+      note: noteState,
+      tagValues: tagValuesState,
+    });
+  };
 
   /**
    * Use keyboard shortcuts
@@ -73,140 +94,109 @@ const DecisionButton = (props) => {
   const irrelevantPress = useKeyPress("i");
   // const undoPress = useKeyPress("u");
   const notePress = useKeyPress("n");
-  const tagsPress = useKeyPress("t");
+
+  const handleNote = (event) => {
+    setNoteState(event.target.value);
+  };
 
   React.useEffect(() => {
-    if (props.keyPressEnabled) {
+    if (keyPressEnabled) {
       if (relevantPress) {
-        props.makeDecision(1);
+        makeDecision(1);
       }
       if (irrelevantPress) {
-        props.makeDecision(0);
+        makeDecision(0);
       }
       if (notePress) {
         toggleShowNotes();
       }
-
-      if (tagsPress) {
-        toggleShowTags();
-      }
     }
-  }, [relevantPress, irrelevantPress, notePress, tagsPress]);
+  }, [relevantPress, irrelevantPress, notePress]);
+
+  const hasTags = Array.isArray(tags) && tags.length > 0;
+
+  console.log(tags);
+  console.log(tagValues);
 
   return (
     <Root>
-      {showTags && (
+      <Divider>
+        <Chip label="Labels & decisions" size="small" />
+      </Divider>
+
+      {!(disabled && !hasTags) && (
         <>
-          <Divider>
-            <Chip label="Extra labels & notes" size="small" />
-          </Divider>
           <CardContent>
-            {Array.isArray(props.tags) && props.tags.length > 0 && (
-              <TagsTable
-                tags={props.tags}
-                tagValues={tagValues}
-                setTagValues={setTagValues}
-              />
-            )}
+            {/* <TagsTable
+                tags={tags}
+                tagValues={tagValuesState}
+                setTagValues={setTagValuesState}
+                disabled={disabled}
+              /> */}
           </CardContent>
         </>
       )}
 
-      {showNotes && (
+      {(showNotes || (disabled && note !== null)) && (
         <>
-          <Divider />
+          {/* <Divider /> */}
           <CardContent>
-            <NoteSheet note={note} setNote={setNote} />
+            <TextField
+              autoComplete="off"
+              id="record-note"
+              label="Note"
+              focused={true}
+              fullWidth
+              helperText={
+                !disabled && "Note is saved when label decision is made."
+              }
+              multiline
+              onChange={handleNote}
+              placeholder="Write a note for this record..."
+              rows={4}
+              value={noteState}
+              disabled={disabled}
+            />
           </CardContent>
         </>
       )}
 
-      <Stack
-        className="review-page-decision-button"
-        // direction={
-        //   !props.mobileScreen
-        //     ? "row"
-        //     : !props.previousRecord.show
-        //       ? "row"
-        //       : "column"
-        // }
-        // spacing={!props.mobileScreen ? 10 : !props.previousRecord.show ? 10 : 2}
-      >
-        {/* <Box>
-          <Tooltip
-            open={props.labelFromDataset === 0}
-            title="Label in dataset is irrelevant"
-            placement="top"
-            disableFocusListener
-            disableHoverListener
-            disableTouchListener
-            arrow
-          >
-            <Fab
-              id="irrelevant"
-              disabled={props.disableButton()}
-              onClick={() => props.makeDecision(0)}
-              size={props.mobileScreen ? "small" : "large"}
-              variant="extended"
-            >
-              <FavoriteBorder className={classes.extendedFab} />
-              {irrelevantLabel}
-            </Fab>
-          </Tooltip>
-        </Box>
-        <Box>
-          <Tooltip
-            open={props.labelFromDataset === 1}
-            title="Label in dataset is relevant"
-            placement="top"
-            disableFocusListener
-            disableHoverListener
-            disableTouchListener
-            arrow
-          >
-            <Fab
-              id="relevant"
-              onClick={() => props.makeDecision(1)}
-              color="primary"
-              disabled={props.disableButton()}
-              size={props.mobileScreen ? "small" : "large"}
-              variant="extended"
-            >
-              <Favorite className={classes.extendedFab} />
-              {relevantLabel}
-            </Fab>
-          </Tooltip>
-        </Box> */}
-      </Stack>
-
-      <Divider />
+      <CardContent>
+        <Alert severity="info" sx={{ margin: "0.5rem 1rem" }}>
+          {labelFromDataset === -1 && "No label in dataset"}
+          {labelFromDataset === 0 && "Label in dataset is irrelevant"}
+          {labelFromDataset === 1 && "Label in dataset is relevant"}
+        </Alert>
+      </CardContent>
       <CardActions>
-        <IconButton
-          onClick={toggleShowNotes}
-          primary={showNotes}
-          aria-label="add note"
-        >
-          <Edit />
-        </IconButton>
-        <IconButton onClick={toggleShowTags} aria-label="add tags">
-          <Expand />
-        </IconButton>
+        {!disabled && (
+          <IconButton
+            onClick={toggleShowNotes}
+            primary={showNotes}
+            aria-label="add note"
+          >
+            <Edit />
+          </IconButton>
+        )}
 
         <Typography>
           Is this record relevant to your review question?
         </Typography>
+
         <Button
           id="relevant"
-          onClick={() => props.makeDecision(1)}
-          variant="extended"
+          onClick={() => makeDecision(1)}
+          variant={label === 1 ? "outlined" : undefined}
+          disabled={disabled}
         >
           <Favorite className={classes.extendedFab} />
           {relevantLabel}
         </Button>
         <Button
           id="irrelevant"
-          onClick={() => props.makeDecision(0)}
-          variant="extended"
+          onClick={() => makeDecision(0)}
+          variant={label === 0 ? "outlined" : undefined}
+          disabled={disabled}
         >
           <FavoriteBorder className={classes.extendedFab} />
           {irrelevantLabel}

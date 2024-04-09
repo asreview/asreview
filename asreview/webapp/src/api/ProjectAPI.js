@@ -586,7 +586,10 @@ class ProjectAPI {
     let body = new FormData();
     body.set("record_id", variables.record_id);
     body.set("label", variables.label);
-    body.set("note", variables.note);
+
+    if (variables.note !== undefined) {
+      body.set("note", variables.note);
+    }
 
     const tagValues = variables.tagValues;
     if (tagValues) {

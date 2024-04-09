@@ -23,6 +23,8 @@ import { ProjectAPI } from "api";
 import { projectModes } from "globals.js";
 import { useToggle } from "hooks/useToggle";
 
+import { RecordCard } from "ProjectComponents/ReviewComponents";
+
 import { ProjectContext } from "ProjectContext";
 import { useContext } from "react";
 
@@ -234,11 +236,10 @@ const PriorRandom = (props) => {
                 {data?.result
                   .filter((record) => record?.included === null)
                   .map((record, index) => (
-                    <PriorUnlabeled
+                    <RecordCard
+                      project_id={project_id}
                       record={record}
-                      mode={props.mode}
-                      nRecords={nRecords}
-                      subset={subset}
+                      collapseAbstract={true}
                       key={`result-page-${index}`}
                     />
                   ))}

@@ -14,6 +14,11 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
+import {
+  RecordCard,
+  ReviewPageFinished,
+} from "ProjectComponents/ReviewComponents";
+
 import { InlineErrorHandler } from "Components";
 import { ExplorationModeRecordAlert } from "StyledComponents/StyledAlert";
 import { ProjectAPI } from "api";

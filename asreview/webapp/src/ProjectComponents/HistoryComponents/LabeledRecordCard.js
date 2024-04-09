@@ -28,6 +28,7 @@ import { StyledIconButton } from "StyledComponents/StyledButton";
 import { ProjectAPI } from "api";
 import { projectModes } from "globals.js";
 import { DOIIcon } from "icons";
+import { RecordCard } from "ProjectComponents/ReviewComponents";
 
 const PREFIX = "LabeledRecordCard";
 
@@ -169,166 +170,172 @@ const LabeledRecordCard = (props) => {
         )}
         {!isError &&
           props.page.result
-            .filter((value) => value.included !== -1)
-            .map((value) => (
-              <Card
-                elevation={3}
-                className={classes.root}
-                key={value.record_id}
-              >
-                <CardContent className="record-card-content">
-                  <Stack spacing={1}>
-                    <Typography variant="h6">
-                      {value.title ? value.title : "No title available"}
-                    </Typography>
-                    {!props.is_prior && (value.doi || value.url) && (
-                      <Stack direction="row" spacing={1}>
-                        {/* Show DOI if available */}
-                        {value.doi && (
-                          <StyledIconButton
-                            className="record-card-icon"
-                            href={"https://doi.org/" + value.doi}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            <DOIIcon />
-                          </StyledIconButton>
-                        )}
+            .filter((record) => record.included !== -1)
+            .map((record) => (
+              <RecordCard
+                record={record}
+                collapseAbstract={true}
+                disabled={true}
+              />
 
-                        {/* Show URL if available */}
-                        {value.url && (
-                          <Tooltip title="Open URL">
-                            <StyledIconButton
-                              className="record-card-icon"
-                              href={value.url}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              <LinkIcon />
-                            </StyledIconButton>
-                          </Tooltip>
-                        )}
-                      </Stack>
-                    )}
-                    <TruncateMarkup
-                      lines={value.record_id === recordReadMore ? Infinity : 6}
-                      ellipsis={
-                        <span>
-                          ...{" "}
-                          <Link
-                            component="button"
-                            underline="none"
-                            onClick={() => setRecordReadMore(value.record_id)}
-                          >
-                            read more
-                          </Link>
-                        </span>
-                      }
-                    >
-                      <Typography color="textSecondary">
-                        {value.abstract
-                          ? value.abstract
-                          : "No abstract available"}
-                      </Typography>
-                    </TruncateMarkup>
-                  </Stack>
-                </CardContent>
-                <CardActions className={classes.cardActions}>
-                  <Tooltip
-                    title={
-                      !isSimulationProject()
-                        ? disableConvertPrior(value.prior)
-                          ? "Prior knowledge cannot be converted"
-                          : note.editing !== value.record_id
-                            ? value.included === 1
-                              ? "Convert to irrelevant"
-                              : "Convert to relevant"
-                            : "Save note before converting"
-                        : "Cannot be converted in simulation mode"
-                    }
-                  >
-                    <span>
-                      <IconButton
-                        disabled={
-                          isSimulationProject() ||
-                          disableConvertPrior(value.prior) ||
-                          isLoading ||
-                          note.editing === value.record_id
-                        }
-                        onClick={() => {
-                          handleClickLabelConvert(value);
-                        }}
-                      >
-                        {value.included === 1 ? (
-                          <Favorite
-                            color="error"
-                            fontSize={!props.mobileScreen ? "medium" : "small"}
-                          />
-                        ) : (
-                          <FavoriteBorder
-                            fontSize={!props.mobileScreen ? "medium" : "small"}
-                          />
-                        )}
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                  {props.is_prior && (
-                    <Tooltip
-                      title={`Remove ${
-                        value.included !== 1 ? "irrelevant" : "relevant"
-                      } label`}
-                    >
-                      <span>
-                        <IconButton
-                          disabled={isLoading}
-                          onClick={() => {
-                            handleClickRemoveLabel(value);
-                          }}
-                        >
-                          <LabelOff
-                            fontSize={!props.mobileScreen ? "medium" : "small"}
-                          />
-                        </IconButton>
-                      </span>
-                    </Tooltip>
-                  )}
-                  {!props.is_prior &&
-                    !value.note &&
-                    value.record_id !== note.editing && (
-                      <Tooltip
-                        title={
-                          !props.isSimulating
-                            ? !disableAddNoteButton(value.record_id)
-                              ? ""
-                              : "Save another note before adding"
-                            : "Add note after simulation is finished"
-                        }
-                      >
-                        <span>
-                          <Button
-                            disabled={
-                              props.isSimulating ||
-                              disableAddNoteButton(value.record_id)
-                            }
-                            onClick={() => handleClickAddNote(value.record_id)}
-                            size={!props.mobileScreen ? "medium" : "small"}
-                          >
-                            Add note
-                          </Button>
-                        </span>
-                      </Tooltip>
-                    )}
-                </CardActions>
-                <RecordCardNote
-                  isLoading={isLoading}
-                  record={value}
-                  mobileScreen={props.mobileScreen}
-                  mutate={mutate}
-                  note={note}
-                  setNote={setNote}
-                  is_prior={props.is_prior}
-                />
-              </Card>
+              // <Card
+              //   elevation={3}
+              //   className={classes.root}
+              //   key={record.record_id}
+              // >
+              //   <CardContent className="record-card-content">
+              //     <Stack spacing={1}>
+              //       <Typography variant="h6">
+              //         {record.title ? record.title : "No title available"}
+              //       </Typography>
+              //       {!props.is_prior && (record.doi || record.url) && (
+              //         <Stack direction="row" spacing={1}>
+              //           {/* Show DOI if available */}
+              //           {record.doi && (
+              //             <StyledIconButton
+              //               className="record-card-icon"
+              //               href={"https://doi.org/" + record.doi}
+              //               target="_blank"
+              //               rel="noreferrer"
+              //             >
+              //               <DOIIcon />
+              //             </StyledIconButton>
+              //           )}
+
+              //           {/* Show URL if available */}
+              //           {record.url && (
+              //             <Tooltip title="Open URL">
+              //               <StyledIconButton
+              //                 className="record-card-icon"
+              //                 href={record.url}
+              //                 target="_blank"
+              //                 rel="noreferrer"
+              //               >
+              //                 <LinkIcon />
+              //               </StyledIconButton>
+              //             </Tooltip>
+              //           )}
+              //         </Stack>
+              //       )}
+              //       <TruncateMarkup
+              //         lines={record.record_id === recordReadMore ? Infinity : 6}
+              //         ellipsis={
+              //           <span>
+              //             ...{" "}
+              //             <Link
+              //               component="button"
+              //               underline="none"
+              //               onClick={() => setRecordReadMore(record.record_id)}
+              //             >
+              //               read more
+              //             </Link>
+              //           </span>
+              //         }
+              //       >
+              //         <Typography color="textSecondary">
+              //           {record.abstract
+              //             ? record.abstract
+              //             : "No abstract available"}
+              //         </Typography>
+              //       </TruncateMarkup>
+              //     </Stack>
+              //   </CardContent>
+              //   <CardActions className={classes.cardActions}>
+              //     <Tooltip
+              //       title={
+              //         !isSimulationProject()
+              //           ? disableConvertPrior(record.prior)
+              //             ? "Prior knowledge cannot be converted"
+              //             : note.editing !== record.record_id
+              //               ? record.included === 1
+              //                 ? "Convert to irrelevant"
+              //                 : "Convert to relevant"
+              //               : "Save note before converting"
+              //           : "Cannot be converted in simulation mode"
+              //       }
+              //     >
+              //       <span>
+              //         <IconButton
+              //           disabled={
+              //             isSimulationProject() ||
+              //             disableConvertPrior(record.prior) ||
+              //             isLoading ||
+              //             note.editing === record.record_id
+              //           }
+              //           onClick={() => {
+              //             handleClickLabelConvert(record);
+              //           }}
+              //         >
+              //           {record.included === 1 ? (
+              //             <Favorite
+              //               color="error"
+              //               fontSize={!props.mobileScreen ? "medium" : "small"}
+              //             />
+              //           ) : (
+              //             <FavoriteBorder
+              //               fontSize={!props.mobileScreen ? "medium" : "small"}
+              //             />
+              //           )}
+              //         </IconButton>
+              //       </span>
+              //     </Tooltip>
+              //     {props.is_prior && (
+              //       <Tooltip
+              //         title={`Remove ${
+              //           record.included !== 1 ? "irrelevant" : "relevant"
+              //         } label`}
+              //       >
+              //         <span>
+              //           <IconButton
+              //             disabled={isLoading}
+              //             onClick={() => {
+              //               handleClickRemoveLabel(record);
+              //             }}
+              //           >
+              //             <LabelOff
+              //               fontSize={!props.mobileScreen ? "medium" : "small"}
+              //             />
+              //           </IconButton>
+              //         </span>
+              //       </Tooltip>
+              //     )}
+              //     {!props.is_prior &&
+              //       !record.note &&
+              //       record.record_id !== note.editing && (
+              //         <Tooltip
+              //           title={
+              //             !props.isSimulating
+              //               ? !disableAddNoteButton(record.record_id)
+              //                 ? ""
+              //                 : "Save another note before adding"
+              //               : "Add note after simulation is finished"
+              //           }
+              //         >
+              //           <span>
+              //             <Button
+              //               disabled={
+              //                 props.isSimulating ||
+              //                 disableAddNoteButton(record.record_id)
+              //               }
+              //               onClick={() => handleClickAddNote(record.record_id)}
+              //               size={!props.mobileScreen ? "medium" : "small"}
+              //             >
+              //               Add note
+              //             </Button>
+              //           </span>
+              //         </Tooltip>
+              //       )}
+              //   </CardActions>
+              //   <RecordCardNote
+              //     isLoading={isLoading}
+              //     record={record}
+              //     mobileScreen={props.mobileScreen}
+              //     mutate={mutate}
+              //     note={note}
+              //     setNote={setNote}
+              //     is_prior={props.is_prior}
+              //   />
+              // </Card>
             ))}
       </Stack>
     </Root>

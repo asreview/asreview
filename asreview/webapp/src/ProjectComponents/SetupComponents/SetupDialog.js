@@ -127,11 +127,10 @@ const SetupDialogContent = ({ project_id, mode, onClose, mobileScreen }) => {
       {activeStep === 0 && (
         <InfoForm integrated={true} handleNext={handleNext} />
       )}
-
       {activeStep === 1 && (
         <>
           <DialogContent dividers>
-            <ModelForm />
+            <ScreenLanding />
           </DialogContent>
           <DialogActions>
             <Button onClick={handleBack}>Back</Button>
@@ -144,7 +143,7 @@ const SetupDialogContent = ({ project_id, mode, onClose, mobileScreen }) => {
       {activeStep === 2 && (
         <>
           <DialogContent dividers>
-            <PriorForm />
+            <ModelForm />
           </DialogContent>
           <DialogActions>
             <Button onClick={handleBack}>Back</Button>
@@ -157,7 +156,7 @@ const SetupDialogContent = ({ project_id, mode, onClose, mobileScreen }) => {
       {activeStep === 3 && (
         <>
           <DialogContent dividers>
-            <ScreenLanding />
+            <PriorForm />
           </DialogContent>
           <DialogActions>
             <Button onClick={handleBack}>Back</Button>

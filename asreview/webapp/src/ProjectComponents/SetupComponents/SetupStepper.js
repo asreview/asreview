@@ -3,9 +3,9 @@ import { Stepper, Step, StepButton, StepLabel } from "@mui/material";
 
 const steps = [
   "Project information",
+  "Screen options",
   "Model",
   "Review criteria",
-  "Screen options",
 ];
 
 const SetupStepper = ({ activeStep, handleStep }) => {
