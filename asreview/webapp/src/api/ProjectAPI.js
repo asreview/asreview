@@ -592,12 +592,15 @@ class ProjectAPI {
     }
 
     const tagValues = variables.tagValues;
-    if (tagValues) {
-      if (typeof tagValues === "object") {
-        body.set("tags", JSON.stringify(Object.keys(tagValues)));
-      } else if (Array.isArray(tagValues)) {
-        body.set("tags", JSON.stringify(tagValues));
-      }
+
+    if (tagValues && Array.isArray(tagValues)) {
+      // if (typeof tagValues === "object") {
+      //   body.set("tags", JSON.stringify(Object.keys(tagValues)));
+      // } else
+
+      // if (Array.isArray(tagValues)) {
+      body.set("tags", JSON.stringify(tagValues));
+      // }
     }
 
     // prior items should be labeled as such

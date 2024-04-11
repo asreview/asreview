@@ -567,13 +567,15 @@ def api_get_labeled(project):  # noqa: F401
     for i, record in zip(state_data.index.tolist(), records):
         # add variables from record
         record_d = asdict(record)
-        record_d["label_from_dataset"] = record.included
 
         # add variables from state
         record_d["included"] = int(state_data.loc[i, "label"])
         record_d["note"] = state_data.loc[i, "notes"]
         record_d["tags"] = extract_tags(state_data.loc[i, "custom_metadata_json"])
         record_d["prior"] = int(state_data.loc[i, "prior"])
+
+        # add tags form
+        record_d["tags_form"] = project.config.get("tags", None)
 
         result.append(record_d)
 

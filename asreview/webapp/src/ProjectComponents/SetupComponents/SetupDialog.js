@@ -54,6 +54,15 @@ const StyledSetupDialogHeader = styled(Stack)(({ theme }) => ({
   },
 }));
 
+const simulateSteps = ["Project information", "Model", "Review criteria"];
+
+const reviewSteps = [
+  "Project information",
+  "Screen options",
+  "Model",
+  "Review criteria",
+];
+
 const SetupDialogHeader = ({ mobileScreen, onClose }) => {
   if (mobileScreen) return null;
 
@@ -123,11 +132,15 @@ const SetupDialogContent = ({ project_id, mode, onClose, mobileScreen }) => {
       {!mobileScreen && (
         <SetupDialogHeader onClose={onClose} mobileScreen={mobileScreen} />
       )}
-      <SetupStepper activeStep={activeStep} handleStep={handleStep} />
+      <SetupStepper
+        steps={mode === projectModes.SIMULATION ? simulateSteps : reviewSteps}
+        activeStep={activeStep}
+        handleStep={handleStep}
+      />
       {activeStep === 0 && (
         <InfoForm integrated={true} handleNext={handleNext} />
       )}
-      {activeStep === 1 && (
+      {mode !== projectModes.SIMULATION && activeStep === 1 && (
         <>
           <DialogContent dividers>
             <ScreenLanding />
@@ -140,7 +153,8 @@ const SetupDialogContent = ({ project_id, mode, onClose, mobileScreen }) => {
           </DialogActions>
         </>
       )}
-      {activeStep === 2 && (
+      {((mode !== projectModes.SIMULATION && activeStep === 2) ||
+        (mode === projectModes.SIMULATION && activeStep === 1)) && (
         <>
           <DialogContent dividers>
             <ModelForm />
@@ -153,7 +167,8 @@ const SetupDialogContent = ({ project_id, mode, onClose, mobileScreen }) => {
           </DialogActions>
         </>
       )}
-      {activeStep === 3 && (
+      {((mode !== projectModes.SIMULATION && activeStep === 3) ||
+        (mode === projectModes.SIMULATION && activeStep === 2)) && (
         <>
           <DialogContent dividers>
             <PriorForm />

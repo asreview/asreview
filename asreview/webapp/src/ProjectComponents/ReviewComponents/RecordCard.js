@@ -25,11 +25,9 @@ const PREFIX = "RecordCard";
 
 const classes = {
   loadedCard: `${PREFIX}-loadedCard`,
-  loadingCard: `${PREFIX}-loadingCard`,
   titleAbstract: `${PREFIX}-titleAbstract`,
   title: `${PREFIX}-title`,
   abstract: `${PREFIX}-abstract`,
-  note: `${PREFIX}-note`,
 };
 
 const Root = styled("div")(({ theme }) => ({
@@ -52,11 +50,6 @@ const Root = styled("div")(({ theme }) => ({
     },
   },
 
-  [`& .${classes.loadingCard}`]: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
   [`& .${classes.titleAbstract}`]: {
     height: "100%",
     overflowY: "scroll",
@@ -69,10 +62,6 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.abstract}`]: {
     whiteSpace: "pre-line",
   },
-
-  [`& .${classes.note}`]: {
-    justifyContent: "flex-end",
-  },
 }));
 
 const RecordCard = ({
@@ -81,7 +70,6 @@ const RecordCard = ({
   afterDecision,
   mobileScreen,
   fontSize,
-  tags,
   keyPressEnabled = false,
   collapseAbstract = false,
   disabled = false,
@@ -215,8 +203,8 @@ const RecordCard = ({
           labelFromDataset={record.included}
           afterDecision={afterDecision}
           note={record.note}
-          tags={tags}
-          tagValues={record.tag_values}
+          tagsForm={record.tags_form}
+          tagValues={record.tags}
           keyPressEnabled={keyPressEnabled}
           disabled={disabled}
         />

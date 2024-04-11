@@ -42,8 +42,8 @@ const DecisionButton = ({
   record_id,
   label,
   labelFromDataset,
-  tags,
-  tagValues,
+  tagsForm,
+  tagValues = [],
   note,
   afterDecision,
   keyPressEnabled = false,
@@ -52,17 +52,6 @@ const DecisionButton = ({
   const [showNotes, toggleShowNotes] = useToggle(false);
   const [noteState, setNoteState] = React.useState(note);
   const [tagValuesState, setTagValuesState] = React.useState(tagValues);
-
-  const tagValuesEqual = (tagValues1, tagValues2) => {
-    if (tagValues1 === null || tagValues2 === null) {
-      return tagValues1 === null && tagValues2 === null;
-    }
-
-    const keys1 = Object.keys(tagValues1);
-    const keys2 = Object.keys(tagValues2);
-    const union = new Set(keys1.concat(keys2));
-    return union.size === keys1.length && union.size === keys2.length;
-  };
 
   let relevantLabel = "Yes";
   let irrelevantLabel = "No";
@@ -75,6 +64,8 @@ const DecisionButton = ({
       },
     },
   );
+
+  console.log(tagValuesState);
 
   const makeDecision = (label) => {
     mutate({
@@ -113,10 +104,7 @@ const DecisionButton = ({
     }
   }, [relevantPress, irrelevantPress, notePress]);
 
-  const hasTags = Array.isArray(tags) && tags.length > 0;
-
-  console.log(tags);
-  console.log(tagValues);
+  const hasTags = Array.isArray(tagsForm) && tagsForm.length > 0;
 
   return (
     <Root>
@@ -127,12 +115,12 @@ const DecisionButton = ({
       {!(disabled && !hasTags) && (
         <>
           <CardContent>
-            {/* <TagsTable
-                tags={tags}
-                tagValues={tagValuesState}
-                setTagValues={setTagValuesState}
-                disabled={disabled}
-              /> */}
+            <TagsTable
+              tagsForm={tagsForm}
+              tagValues={tagValuesState}
+              setTagValues={setTagValuesState}
+              disabled={disabled}
+            />
           </CardContent>
         </>
       )}
@@ -170,11 +158,7 @@ const DecisionButton = ({
       </CardContent>
       <CardActions>
         {!disabled && (
-          <IconButton
-            onClick={toggleShowNotes}
-            primary={showNotes}
-            aria-label="add note"
-          >
+          <IconButton onClick={toggleShowNotes} aria-label="add note">
             <Edit />
           </IconButton>
         )}

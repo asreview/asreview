@@ -1,14 +1,7 @@
 import React from "react";
 import { Stepper, Step, StepButton, StepLabel } from "@mui/material";
 
-const steps = [
-  "Project information",
-  "Screen options",
-  "Model",
-  "Review criteria",
-];
-
-const SetupStepper = ({ activeStep, handleStep }) => {
+const SetupStepper = ({ steps, activeStep, handleStep }) => {
   return (
     <Stepper
       alternativeLabel
