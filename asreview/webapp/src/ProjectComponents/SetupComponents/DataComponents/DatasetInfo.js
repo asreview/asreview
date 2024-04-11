@@ -7,6 +7,7 @@ import {
   Card,
   CardActions,
   CardContent,
+  Grid,
   Stack,
   Typography,
   CircularProgress,
@@ -73,7 +74,8 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
               <Typography variant="body2">{data?.n_rows}</Typography>
             </Stack>
 
-            <Box style={{ display: "flex", justifyContent: "space-evenly" }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
               <DatasetChart
                 label={"Unique records"}
                 part={
@@ -81,27 +83,32 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
                 }
                 total={data?.n_rows}
               />
+              </Grid>
 
+              <Grid item xs={12}>
               <DatasetChart
                 label={"Available titles"}
                 part={data?.n_rows - data?.n_missing_title}
                 total={data?.n_rows}
               />
-            </Box>
+              </Grid>
 
-            <Box style={{ display: "flex", justifyContent: "space-evenly" }}>
+              <Grid item xs={12}>
               <DatasetChart
                 label={"Available abstracts"}
                 part={data?.n_rows - data?.n_missing_abstract}
                 total={data?.n_rows}
               />
+              </Grid>
 
+              <Grid item xs={12}>
               <DatasetChart
                 label={"English language"}
                 part={n_english}
                 total={data?.n_rows}
               />
-            </Box>
+              </Grid>
+            </Grid>
           </Stack>
 
           )}
