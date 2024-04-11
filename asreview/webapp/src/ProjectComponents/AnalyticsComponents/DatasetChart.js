@@ -1,65 +1,24 @@
 import React from "react";
 import Chart from "react-apexcharts";
-import { Card, CardContent } from "@mui/material";
-import { styled, useTheme } from "@mui/material/styles";
+import useTheme from "@mui/material/styles";
 
-import { projectModes } from "globals.js";
-
-const PREFIX = "DataChart";
-
-const classes = {
-  root: `${PREFIX}-root`,
-};
-
-const StyledCard = styled(Card)(({ theme }) => ({
-  borderRadius: 16,
-  maxWidth: 960,
-  overflow: "visible",
-  width: "100%",
-  [`& .${classes.root}`]: {
-    paddingTop: 24,
-    paddingLeft: 32,
-    paddingRight: 32,
-  },
-}));
-
-export default function DatasetChart(props) {
+export default function DatasetChart({ label, part, total }) {
   const theme = useTheme();
 
-  const n_included = props.progressQuery.data
-    ? props.progressQuery.data["n_included"]
-    : null;
-  const n_excluded = props.progressQuery.data
-    ? props.progressQuery.data["n_excluded"]
-    : null;
-  const n_papers = props.progressQuery.data
-    ? props.progressQuery.data["n_papers"]
-    : null;
-
   const formattedTotal = React.useCallback(() => {
-    if (props.mode !== projectModes.SIMULATION || !props.isSimulating) {
-      return n_papers ? n_papers.toLocaleString("en-US") : 0;
-    } else {
-      return (
-        Math.round(((n_included + n_excluded) / n_papers) * 10000) / 100 + "%"
-      );
-    }
-  }, [props.isSimulating, props.mode, n_included, n_excluded, n_papers]);
+    return Math.round((part / total) * 1000) / 10 + "%";
+  }, [total, part]);
 
   /**
    * Chart data array
    */
   const seriesArray = React.useCallback(() => {
-    // if (n_included && n_excluded && n_papers) {
-    if (props.part && props.total) {
-      return [
-        Math.round((props.part / props.total) * 10000) / 100,
-        // Math.round((props.part / props.total) * 10000) / 100,
-      ];
+    if (part && total) {
+      return [Math.round((part / total) * 10000) / 100];
     } else {
       return [];
     }
-  }, [props.part, props.total]);
+  }, [part, total]);
 
   /**
    * Chart options
@@ -78,33 +37,22 @@ export default function DatasetChart(props) {
         radialBar: {
           hollow: {
             margin: 15,
-            size: "75%",
+            size: "60%",
           },
           dataLabels: {
             name: {
               fontSize: "22px",
             },
             value: {
-              fontSize: !props.mobileScreen
-                ? theme.typography.h5.fontSize
-                : theme.typography.h6.fontSize,
-              fontFamily: !props.mobileScreen
-                ? theme.typography.h5.fontFamily
-                : theme.typography.h6.fontFamily,
+              fontSize: theme.typography.h5.fontSize,
+              fontFamily: theme.typography.h5.fontFamily,
               fontWeight: theme.typography.fontWeightBold,
             },
             total: {
               show: true,
-              label:
-                props.mode !== projectModes.SIMULATION || !props.isSimulating
-                  ? "Total records"
-                  : "Simulation progress",
-              fontSize: !props.mobileScreen
-                ? theme.typography.subtitle1.fontSize
-                : theme.typography.subtitle2.fontSize,
-              fontFamily: !props.mobileScreen
-                ? theme.typography.subtitle1.fontFamily
-                : theme.typography.subtitle2.fontFamily,
+              label: label,
+              fontSize: theme.typography.subtitle1.fontSize,
+              fontFamily: theme.typography.subtitle1.fontFamily,
               color: theme.palette.text.secondary,
               formatter: formattedTotal,
             },
@@ -121,25 +69,6 @@ export default function DatasetChart(props) {
       ],
       dataLabels: {
         enabled: false,
-      },
-      labels: props.labels,
-      legend: {
-        show: true,
-        position: "bottom",
-        fontSize: !props.mobileScreen ? "14px" : "12px",
-        fontFamily: theme.typography.subtitle2.fontFamily,
-        fontWeight: theme.typography.subtitle2.fontWeight,
-        labels: {
-          colors: theme.palette.text.secondary,
-        },
-        markers: {
-          width: 8,
-          height: 8,
-          offsetX: -4,
-        },
-        itemMargin: {
-          horizontal: 16,
-        },
       },
       fill: {
         type: "gradient",
@@ -166,13 +95,7 @@ export default function DatasetChart(props) {
         mode: theme.palette.mode,
       },
     };
-  }, [
-    theme,
-    formattedTotal,
-    props.mobileScreen,
-    props.mode,
-    props.isSimulating,
-  ]);
+  }, [theme, formattedTotal]);
 
   const [series, setSeries] = React.useState(seriesArray());
   const [options, setOptions] = React.useState({});
@@ -182,13 +105,13 @@ export default function DatasetChart(props) {
     setOptions(optionsChart());
   }, [seriesArray, optionsChart]);
 
-    return (
-        <Chart
-        options={options}
-          series={series}
-          type="radialBar"
-          height={350}
-          width="100%"
-        />
-    );
+  return (
+    <Chart
+      options={options}
+      series={series}
+      type="radialBar"
+      height={350}
+      width="100%"
+    />
+  );
 }

@@ -20,26 +20,23 @@ import Chart from "react-apexcharts";
 import { projectModes } from "globals.js";
 import DatasetChart from "ProjectComponents/AnalyticsComponents/DatasetChart";
 
-
 const classes = {};
 
 const Root = styled("div")(({ theme }) => ({}));
 
-
 const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
-
-  console.log("render state")
-  const progressQuery = useQuery(
-    // data,
-    // error: fetchDataError,
-    // isError: isFetchDataError,
-    // isFetching: isFetchingData,
-  // } = useQuery(
+  console.log("render state");
+  const {
+    data,
+    error: fetchDataError,
+    isError: isFetchDataError,
+    isFetching: isFetchingData,
+  } = useQuery(
     ["fetchData", { project_id: project_id }],
     ProjectAPI.fetchData,
     {
       refetchOnWindowFocus: false,
-    },
+    }
   );
 
   const { mutate: deleteProject } = useMutation(
@@ -49,10 +46,10 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
       onSuccess: () => {
         setDataset(null);
       },
-    },
+    }
   );
 
-  const n_english = 30;
+  const n_english = data?.n_rows * 0.3;
 
   return (
     <Root>
@@ -82,92 +79,49 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
                 Records
               </Typography>
-              <Typography variant="body2">{progressQuery.data?.n_rows}</Typography>
+              <Typography variant="body2">{data?.n_rows}</Typography>
             </Stack>
 
-            <Stack>
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Duplicates
-              </Typography>
-              <Typography variant="body2">
-                About {progressQuery.data?.n_duplicates} ({(Math.round((progressQuery.data?.n_duplicates/progressQuery.data?.n_rows*100)*100)/100).toFixed(2)}%)
-              </Typography>
-              </Stack>
+            <Box style={{ display: "flex", justifyContent: "space-evenly" }}>
+              <DatasetChart
+                label={"Unique records"}
+                part={
+                  data?.n_rows - data?.n_duplicates
+                }
+                total={data?.n_rows}
+              />
 
-              <Stack>
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Missing titles
-              </Typography>
-              <Typography variant="body2">
-                {progressQuery.data?.n_missing_title}
-              </Typography>
-              </Stack>
+              <DatasetChart
+                label={"Available titles"}
+                part={data?.n_rows - data?.n_missing_title}
+                total={data?.n_rows}
+              />
+            </Box>
 
-              <Stack>
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Missing abstracts
-              </Typography>
-              <Typography variant="body2">
-                {progressQuery.data?.n_missing_abstract}
-              </Typography>
-              </Stack>
+            <Box style={{ display: "flex", justifyContent: "space-evenly" }}>
+              <DatasetChart
+                label={"Available abstracts"}
+                part={data?.n_rows - data?.n_missing_abstract}
+                total={data?.n_rows}
+              />
 
-        {/* <Box style={{display: 'flex', justifyContent: 'space-between'}}> */}
-        <Box style={{display: 'flex', justifyContent: 'space-between'}}>
-        <DatasetChart 
-        isSimulating={props.isSimulating}
-        mobileScreen={props.mobileScreen}
-        mode={props.mode}
-        progressQuery={progressQuery}
-        labels={["Unique", "Duplicate"]}
-        part={progressQuery.data?.n_rows-progressQuery.data?.n_duplicates}
-        total={progressQuery.data?.n_rows}
-        />
-
-        <DatasetChart 
-        isSimulating={props.isSimulating}
-        mobileScreen={props.mobileScreen}
-        mode={props.mode}
-        progressQuery={progressQuery}
-        labels={["Has title", "No title"]}
-        part={progressQuery.data?.n_rows-progressQuery.data?.n_missing_title}
-        total={progressQuery.data?.n_rows}
-        />
-
-        <DatasetChart 
-        isSimulating={props.isSimulating}
-        mobileScreen={props.mobileScreen}
-        mode={props.mode}
-        progressQuery={progressQuery}
-        labels={["Has abstract", "No abstract"]}
-        part={progressQuery.data?.n_rows-progressQuery.data?.n_missing_abstract}
-        total={progressQuery.data?.n_rows}
-        />  
-
-        <DatasetChart 
-        isSimulating={props.isSimulating}
-        mobileScreen={props.mobileScreen}
-        mode={props.mode}
-        progressQuery={progressQuery}
-        labels={["English", "Non English"]}
-        part={n_english}
-        total={progressQuery.data?.n_rows}
-        />
-
-        </Box>
-
-
+              <DatasetChart
+                label={"English language"}
+                part={n_english}
+                total={data?.n_rows}
+              />
+            </Box>
           </Stack>
 
-          {progressQuery.isFetchingData && (
+          {isFetchingData && (
             <Box className="main-page-body-wrapper">
               <CircularProgress />
             </Box>
           )}
           <CardErrorHandler
             queryKey={"fetchData"}
-            error={progressQuery.fetchDataError}
-            isError={progressQuery.isFetchDataError}
+            error={fetchDataError}
+            isError={isFetchDataError}
           />
 
           <Button
