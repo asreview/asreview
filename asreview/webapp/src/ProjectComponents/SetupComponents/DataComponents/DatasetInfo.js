@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Card,
+  CardActions,
   CardContent,
   Stack,
   Typography,
@@ -13,14 +14,9 @@ import {
 import { CardErrorHandler } from "Components";
 import { ProjectAPI } from "api";
 
-import { styled, useTheme } from "@mui/material/styles";
+import { styled} from "@mui/material/styles";
 
-import Chart from "react-apexcharts";
-
-import { projectModes } from "globals.js";
 import DatasetChart from "ProjectComponents/AnalyticsComponents/DatasetChart";
-
-const classes = {};
 
 const Root = styled("div")(({ theme }) => ({}));
 
@@ -61,12 +57,7 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
         }}
       >
         <CardContent>
-          <Box
-            className={classes.cardOverlay}
-            sx={{
-              bgcolor: "transparent",
-            }}
-          />
+          {data && (
           <Stack spacing={2}>
             <Stack>
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
@@ -113,6 +104,8 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
             </Box>
           </Stack>
 
+          )}
+
           {isFetchingData && (
             <Box className="main-page-body-wrapper">
               <CircularProgress />
@@ -123,17 +116,19 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
             error={fetchDataError}
             isError={isFetchDataError}
           />
+        
+          </CardContent>
+        
 
+          <CardActions>
           <Button
-            sx={{ m: 2, display: "inline", float: "right" }}
-            color="warning"
             onClick={() => {
               deleteProject({ project_id: project_id });
             }}
           >
             Change dataset
           </Button>
-        </CardContent>
+          </CardActions>
       </Card>
     </Root>
   );
