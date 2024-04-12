@@ -60,7 +60,7 @@ const reviewSteps = [
   "Project information",
   "Screen options",
   "Model",
-  "Review criteria",
+  "Pretrain Model",
 ];
 
 const SetupDialogHeader = ({ mobileScreen, onClose }) => {

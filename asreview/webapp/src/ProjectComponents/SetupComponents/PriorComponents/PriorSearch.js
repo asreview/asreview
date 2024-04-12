@@ -64,7 +64,7 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const PriorSearch = ({ toggleSearch, afterDecision }) => {
+const PriorSearch = ({}) => {
   const project_id = useContext(ProjectContext);
 
   const queryClient = useQueryClient();
@@ -99,16 +99,13 @@ const PriorSearch = ({ toggleSearch, afterDecision }) => {
     }
   };
 
+  const afterDecision = () => {};
+
   return (
     <Root>
       <Fade in>
         <Box className={classes.root}>
           <Stack direction="row" sx={{ p: "4px 16px" }}>
-            <Tooltip title="Select another way">
-              <StyledIconButton onClick={toggleSearch}>
-                <ArrowBack />
-              </StyledIconButton>
-            </Tooltip>
             <InputBase
               id="search-input"
               autoFocus
@@ -122,7 +119,6 @@ const PriorSearch = ({ toggleSearch, afterDecision }) => {
               <Search />
             </StyledIconButton>
           </Stack>
-          <Divider />
           {isFetching && !isError && (
             <Box className={classes.loading}>
               <CircularProgress />

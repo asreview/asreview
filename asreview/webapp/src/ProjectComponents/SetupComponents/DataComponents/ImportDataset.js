@@ -60,6 +60,8 @@ const ImportDataset = ({
   const [dataset, setDataset] = React.useState(null);
   const [uploadSource, setUploadSource] = React.useState("file");
 
+  console.log(dataset);
+
   const handleUploadSource = (event) => {
     setUploadSource(event.target.value);
   };

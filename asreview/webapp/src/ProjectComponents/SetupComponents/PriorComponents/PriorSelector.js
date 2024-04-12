@@ -86,8 +86,8 @@ const PriorSelector = ({
                 className={classes.singleLine}
                 sx={{ color: "text.secondary" }}
               >
-                Label at least 1 relevant and 1 irrelevant record to warm up the
-                AI
+                Label 1 or more relevant records to warm up the AI. It's also
+                possible to label irrelevant records.
               </Typography>
             )}
             {data?.n_inclusions !== 0 && data?.n_exclusions !== 0 && (
