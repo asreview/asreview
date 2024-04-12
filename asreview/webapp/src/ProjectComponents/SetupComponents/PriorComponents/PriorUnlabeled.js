@@ -148,18 +148,6 @@ const PriorUnlabeled = (props) => {
       )}
       {!isError && (
         <Card elevation={3} className={classes.root}>
-          {/* {props.mode !== projectModes.ORACLE && props.record.label_from_dataset !== null && (
-            <ExplorationModeRecordAlert
-              label={
-                props.record.label_from_dataset === -1
-                  ? "not seen"
-                  : !isDebugInclusion()
-                    ? "irrelevant"
-                    : "relevant"
-              }
-              prior={true}
-            />
-          )} */}
           <CardContent className="record-card-content">
             <Typography gutterBottom variant="h6">
               {props.record.title ? props.record.title : "No title available"}

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useQuery } from "react-query";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -21,7 +22,6 @@ import { styled } from "@mui/material/styles";
 import AddIcon from "@mui/icons-material/Add";
 
 import { AppBarWithinDialog } from "Components";
-import { InfoCard } from "ProjectComponents/SetupComponents";
 import { PriorLabeled, PriorRandom, PriorSearch } from ".";
 import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";
@@ -165,7 +165,9 @@ const AddPriorKnowledge = ({ open, toggleAddPrior, mobileScreen }) => {
                     Learn more
                   </Link>
                 </Typography>
-                <InfoCard info="Editing prior knowledge does not train the model" />
+                <Alert severity="info">
+                  Editing prior knowledge does not train the model
+                </Alert>
                 <Typography
                   variant="subtitle1"
                   sx={{ color: "text.secondary" }}
@@ -196,6 +198,7 @@ const AddPriorKnowledge = ({ open, toggleAddPrior, mobileScreen }) => {
               <PriorSearch
                 n_prior={data?.n_prior}
                 toggleSearch={toggleSearch}
+                afterDecision={() => {}}
               />
             )}
             {!search && random && (
@@ -204,6 +207,7 @@ const AddPriorKnowledge = ({ open, toggleAddPrior, mobileScreen }) => {
                 n_prior_exclusions={data?.n_prior_exclusions}
                 toggleRandom={toggleRandom}
                 toggleSearch={toggleSearch}
+                afterDecision={() => {}}
               />
             )}
           </Card>

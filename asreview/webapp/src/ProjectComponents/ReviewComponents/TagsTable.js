@@ -14,8 +14,6 @@ const TagsTable = ({
   tagValues = [],
   disabled = false,
 }) => {
-  console.log(tagsForm);
-
   const handleTagValueChange = (isChecked, groupId, tagId) => {
     // create a set and store the tag values
     let valuesSet = new Set(tagValues);

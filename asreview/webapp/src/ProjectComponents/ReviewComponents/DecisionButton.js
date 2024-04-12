@@ -65,8 +65,6 @@ const DecisionButton = ({
     },
   );
 
-  console.log(tagValuesState);
-
   const makeDecision = (label) => {
     mutate({
       project_id: project_id,

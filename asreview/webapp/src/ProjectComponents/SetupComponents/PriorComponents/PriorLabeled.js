@@ -31,7 +31,12 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const PriorLabeled = (props) => {
+const PriorLabeled = ({
+  n_prior,
+  n_prior_exclusions,
+  n_prior_inclusions,
+  mobileScreen,
+}) => {
   const project_id = useContext(ProjectContext);
 
   const [label, setLabel] = React.useState("relevant");
@@ -47,35 +52,25 @@ const PriorLabeled = (props) => {
       >
         <LabelChip
           label={label}
-          n_prior_exclusions={props.n_prior_exclusions}
-          n_prior_inclusions={props.n_prior_inclusions}
+          n_prior_exclusions={n_prior_exclusions}
+          n_prior_inclusions={n_prior_inclusions}
           setLabel={setLabel}
-          mobileScreen={props.mobileScreen}
+          mobileScreen={mobileScreen}
         />
         <Divider />
         <LabeledRecord
           project_id={project_id}
           label={label}
-          n_prior={props.n_prior}
-          n_prior_exclusions={props.n_prior_exclusions}
-          n_prior_inclusions={props.n_prior_inclusions}
+          n_prior={n_prior}
+          n_prior_exclusions={n_prior_exclusions}
+          n_prior_inclusions={n_prior_inclusions}
           is_prior={true}
         />
-        {((label === "relevant" && props.n_prior_inclusions === 0) ||
-          (label === "irrelevant" && props.n_prior_exclusions === 0)) && (
-          <Box className={classes.noPrior}>
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              {`You have not labeled ${label} prior knowledge`}
-            </Typography>
-          </Box>
-        )}
-        {label === "all" && props.n_prior === 0 && (
-          <Box className={classes.noPrior}>
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              {`You have not labeled prior knowledge`}
-            </Typography>
-          </Box>
-        )}
+        <Box className={classes.noPrior}>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            No records labeled as {label !== "all" && label} prior knowledge
+          </Typography>
+        </Box>
       </Box>
     </Root>
   );

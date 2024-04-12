@@ -132,11 +132,6 @@ const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
         <Add sx={{ mr: 1 }} />
         {modeLabel[mode]}
       </Fab>
-      {/* <ModePickDialog
-        open={onCreateProject.mode}
-        closeModePick={closeModePick}
-        closeModePickAndOpenData={closeModePickAndOpenData}
-      /> */}
       <ImportDataset
         open={onCreateProject.data}
         mode={onCreateProject.mode_id}

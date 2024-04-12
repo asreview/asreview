@@ -35,7 +35,7 @@ const Root = styled("div")(({ theme }) => ({
   flex: "1 0 auto",
   margin: "auto",
   maxWidth: 960,
-  padding: "64px 0px 32px 0px",
+  // padding: "64px 0px 32px 0px",
   height: "100%",
   [theme.breakpoints.down("md")]: {
     padding: "4px 0px",
@@ -200,7 +200,7 @@ const RecordCard = ({
           project_id={project_id}
           record_id={record.record_id}
           label={record.state?.included}
-          labelFromDataset={record.included}
+          labelFromDataset={record.label_from_dataset}
           afterDecision={afterDecision}
           note={record.note}
           tagsForm={record.tags_form}

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
 import {
+  Alert,
   Box,
   CircularProgress,
   Divider,
@@ -15,7 +16,6 @@ import {
 import { styled } from "@mui/material/styles";
 import { ArrowBack } from "@mui/icons-material";
 
-import { InfoCard } from "ProjectComponents/SetupComponents";
 import { InlineErrorHandler } from "Components";
 import { EnoughPriorBanner, PriorUnlabeled } from ".";
 import { StyledIconButton } from "StyledComponents/StyledButton";
@@ -230,15 +230,16 @@ const PriorRandom = (props) => {
                 aria-label="unlabeled record card"
                 spacing={3}
               >
-                <Box className={classes.infoCard}>
-                  <InfoCard info="Label records that you want to use as prior knowledge" />
-                </Box>
+                <Alert severity="info">
+                  Label records that you want to use as prior knowledge
+                </Alert>
                 {data?.result
                   .filter((record) => record?.included === null)
                   .map((record, index) => (
                     <RecordCard
                       project_id={project_id}
                       record={record}
+                      afterDecision={props.afterDecision}
                       collapseAbstract={true}
                       key={`result-page-${index}`}
                     />

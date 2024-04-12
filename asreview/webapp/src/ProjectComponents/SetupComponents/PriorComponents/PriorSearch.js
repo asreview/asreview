@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
 import {
+  Alert,
   Box,
   CircularProgress,
   Divider,
@@ -13,12 +14,11 @@ import {
 import { styled } from "@mui/material/styles";
 import { ArrowBack, Search } from "@mui/icons-material";
 
-import { InfoCard } from "ProjectComponents/SetupComponents";
 import { InlineErrorHandler } from "Components";
-import { PriorUnlabeled } from ".";
 import { StyledIconButton } from "StyledComponents/StyledButton";
 import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";
+import { RecordCard } from "ProjectComponents/ReviewComponents";
 
 import { ProjectContext } from "ProjectContext";
 import { useContext } from "react";
@@ -28,7 +28,6 @@ const PREFIX = "PriorSearch";
 const classes = {
   root: `${PREFIX}-root`,
   recordCard: `${PREFIX}-record-card`,
-  infoCard: `${PREFIX}-info-card`,
   empty: `${PREFIX}-empty`,
   loading: `${PREFIX}-loading`,
 };
@@ -50,11 +49,6 @@ const Root = styled("div")(({ theme }) => ({
     },
   },
 
-  [`& .${classes.infoCard}`]: {
-    width: "100%",
-    maxWidth: "400px",
-  },
-
   [`& .${classes.empty}`]: {
     height: "calc(100% - 56px)",
     display: "flex",
@@ -70,7 +64,7 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const PriorSearch = (props) => {
+const PriorSearch = ({ toggleSearch, afterDecision }) => {
   const project_id = useContext(ProjectContext);
 
   const queryClient = useQueryClient();
@@ -111,7 +105,7 @@ const PriorSearch = (props) => {
         <Box className={classes.root}>
           <Stack direction="row" sx={{ p: "4px 16px" }}>
             <Tooltip title="Select another way">
-              <StyledIconButton onClick={props.toggleSearch}>
+              <StyledIconButton onClick={toggleSearch}>
                 <ArrowBack />
               </StyledIconButton>
             </Tooltip>
@@ -164,15 +158,17 @@ const PriorSearch = (props) => {
               aria-label="unlabeled record card"
               spacing={3}
             >
-              <Box className={classes.infoCard}>
-                <InfoCard info="Label records that you want to use as prior knowledge" />
-              </Box>
+              <Alert severity="info">
+                Label records that you want to use as prior knowledge
+              </Alert>
               {data?.result
                 .filter((record) => record?.included === -1)
                 .map((record, index) => (
-                  <PriorUnlabeled
-                    keyword={keyword}
+                  <RecordCard
+                    project_id={project_id}
                     record={record}
+                    afterDecision={afterDecision}
+                    collapseAbstract={true}
                     key={`result-page-${index}`}
                   />
                 ))}
