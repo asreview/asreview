@@ -14,10 +14,12 @@ import {
   Radio,
   RadioGroup,
   Stack,
+  Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { AppBarWithinDialog } from "Components";
+import { InfoForm } from "ProjectComponents/SetupComponents/InfoComponents";
 import { DatasetFromFile, DatasetFromEntryPoint, DatasetFromURI } from ".";
 import { ProjectAPI } from "api";
 import {
@@ -28,7 +30,7 @@ import {
 } from "globals.js";
 import DatasetInfo from "./DatasetInfo";
 
-const PREFIX = "ImportDataset";
+const PREFIX = "SetupDatasetDialog";
 
 const classes = {
   root: `${PREFIX}-root`,
@@ -48,19 +50,24 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-const ImportDataset = ({
+const SetupDatasetDialog = ({
   open,
   mode,
   closeDataPickAndOpenSetup,
   mobileScreen,
   closeDataPick,
+  projectInfo = null,
 }) => {
   const navigate = useNavigate();
 
-  const [dataset, setDataset] = React.useState(null);
-  const [uploadSource, setUploadSource] = React.useState("file");
+  console.log(projectInfo);
 
+  const [dataset, setDataset] = React.useState(projectInfo);
+
+  console.log(projectInfo);
   console.log(dataset);
+
+  const [uploadSource, setUploadSource] = React.useState("file");
 
   const handleUploadSource = (event) => {
     setUploadSource(event.target.value);
@@ -110,11 +117,15 @@ const ImportDataset = ({
       {!mobileScreen && <DialogTitle>Import a dataset</DialogTitle>}
       <DialogContent className={classes.form}>
         {dataset && (
-          <DatasetInfo
-            project_id={dataset.id}
-            dataset_path={dataset.dataset_path}
-            setDataset={setDataset}
-          />
+          <>
+            <InfoForm projectInfo={dataset} />
+
+            <DatasetInfo
+              project_id={dataset.id}
+              dataset_path={dataset.dataset_path}
+              setDataset={setDataset}
+            />
+          </>
         )}
 
         {!dataset && (
@@ -222,4 +233,4 @@ const ImportDataset = ({
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ImportDataset);
+export default connect(mapStateToProps, mapDispatchToProps)(SetupDatasetDialog);

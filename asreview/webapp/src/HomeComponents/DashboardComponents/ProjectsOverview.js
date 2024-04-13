@@ -6,7 +6,7 @@ import { DashboardPageHeader, ProjectTable } from ".";
 import { ActionsFeedbackBar } from "Components";
 import { ImportProject } from "ProjectComponents";
 import { SetupDialog } from "ProjectComponents/SetupComponents";
-import { ImportDataset } from "ProjectComponents/SetupComponents/DataComponents";
+import { SetupDatasetDialog } from "ProjectComponents/SetupComponents/DataComponents";
 
 import { useToggle } from "hooks/useToggle";
 
@@ -132,7 +132,7 @@ const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
         <Add sx={{ mr: 1 }} />
         {modeLabel[mode]}
       </Fab>
-      <ImportDataset
+      <SetupDatasetDialog
         open={onCreateProject.data}
         mode={onCreateProject.mode_id}
         mobileScreen={mobileScreen}

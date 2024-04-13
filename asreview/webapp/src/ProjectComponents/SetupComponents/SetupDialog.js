@@ -54,14 +54,9 @@ const StyledSetupDialogHeader = styled(Stack)(({ theme }) => ({
   },
 }));
 
-const simulateSteps = ["Project information", "Model", "Review criteria"];
+const simulateSteps = ["Model", "Review criteria"];
 
-const reviewSteps = [
-  "Project information",
-  "Screen options",
-  "Model",
-  "Pretrain Model",
-];
+const reviewSteps = ["Screen options", "Model", "Pretrain Model"];
 
 const SetupDialogHeader = ({ mobileScreen, onClose }) => {
   if (mobileScreen) return null;
@@ -137,24 +132,20 @@ const SetupDialogContent = ({ project_id, mode, onClose, mobileScreen }) => {
         activeStep={activeStep}
         handleStep={handleStep}
       />
-      {activeStep === 0 && (
-        <InfoForm integrated={true} handleNext={handleNext} />
-      )}
-      {mode !== projectModes.SIMULATION && activeStep === 1 && (
+      {mode !== projectModes.SIMULATION && activeStep === 0 && (
         <>
           <DialogContent dividers>
             <ScreenLanding />
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleBack}>Back</Button>
             <Button id="next-setup-button" onClick={handleNext}>
               Next
             </Button>
           </DialogActions>
         </>
       )}
-      {((mode !== projectModes.SIMULATION && activeStep === 2) ||
-        (mode === projectModes.SIMULATION && activeStep === 1)) && (
+      {((mode !== projectModes.SIMULATION && activeStep === 1) ||
+        (mode === projectModes.SIMULATION && activeStep === 0)) && (
         <>
           <DialogContent dividers>
             <ModelForm />
@@ -167,8 +158,8 @@ const SetupDialogContent = ({ project_id, mode, onClose, mobileScreen }) => {
           </DialogActions>
         </>
       )}
-      {((mode !== projectModes.SIMULATION && activeStep === 3) ||
-        (mode === projectModes.SIMULATION && activeStep === 2)) && (
+      {((mode !== projectModes.SIMULATION && activeStep === 2) ||
+        (mode === projectModes.SIMULATION && activeStep === 1)) && (
         <>
           <DialogContent dividers>
             <PriorForm />

@@ -36,6 +36,7 @@ import {
 } from "globals.js";
 import useAuth from "hooks/useAuth";
 import { setMyProjects } from "redux/actions";
+import { SetupDatasetDialog } from "ProjectComponents/SetupComponents/DataComponents";
 
 const PREFIX = "ProjectTable";
 
@@ -312,7 +313,7 @@ const ProjectTable = (props) => {
     ) {
       setSetupDialogState({
         open: true,
-        project_id: project["id"],
+        project_info: project,
       });
     } else if (!project["projectNeedsUpgrade"]) {
       // open project page
@@ -390,6 +391,8 @@ const ProjectTable = (props) => {
     handleRowsPerPage(+event.target.value);
     setPage(0);
   };
+
+  // console.log(setupDialogState)
 
   return (
     <StyledPaper elevation={2} className={classes.root}>
@@ -619,7 +622,7 @@ const ProjectTable = (props) => {
             onRowsPerPageChange={setRowsPerPage}
           />
         )}
-      <SetupDialog
+      {/* <SetupDialog
         project_id={setupDialogState.project_id}
         mode={props.mode}
         mobileScreen={props.mobileScreen}
@@ -628,6 +631,17 @@ const ProjectTable = (props) => {
           setSetupDialogState({ open: false, project_id: null });
         }}
         setFeedbackBar={props.setFeedbackBar}
+      /> */}
+      <SetupDatasetDialog
+        open={setupDialogState.open}
+        mode={props.mode}
+        // closeDataPickAndOpenSetup={},
+        projectInfo={setupDialogState.project_info}
+        mobileScreen={props.mobileScreen}
+        closeDataPick={() => {
+          setSetupDialogState({ open: false, project_info: null });
+        }}
+        key={"setup-dialog-" + setupDialogState.project_info?.id}
       />
       <ProjectCheckDialog
         projectCheck={props.projectCheck}

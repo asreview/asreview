@@ -6,6 +6,7 @@ import {
   Button,
   DialogActions,
   DialogContent,
+  IconButton,
   Stack,
   TextField,
   Tooltip,
@@ -15,6 +16,8 @@ import { styled } from "@mui/material/styles";
 import { ProjectAPI } from "api";
 import { CardErrorHandler } from "Components";
 import { ProjectContext } from "ProjectContext";
+import { useToggle } from "hooks/useToggle";
+import { Edit } from "@mui/icons-material";
 
 const PREFIX = "InfoForm";
 
@@ -40,10 +43,11 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const InfoForm = ({ integrated, handleNext, editable = true }) => {
-  const project_id = useContext(ProjectContext);
+const InfoForm = ({ projectInfo, editable = true }) => {
+  const project_id = projectInfo.id;
 
-  const [info, setInfo] = React.useState(null);
+  const [info, setInfo] = React.useState(projectInfo);
+  const [editProjectInfo, toggleEditProjectInfo] = useToggle(false);
 
   const handleInfoChange = (event) => {
     setInfo({
@@ -55,62 +59,46 @@ const InfoForm = ({ integrated, handleNext, editable = true }) => {
   const saveInfo = () => {
     mutate({
       project_id: project_id,
-      title: info.title || "",
+      title: info.name || "",
       authors: info.authors || "",
       description: info.description || "",
     });
   };
 
-  const {
-    data: infoData,
-    error: fetchInfoError,
-    isError: isFetchInfoError,
-  } = useQuery(
-    ["fetchInfo", { project_id: project_id }],
-    ProjectAPI.fetchInfo,
+  const { isLoading: isMutatingInfo, mutate } = useMutation(
+    ProjectAPI.mutateInfo,
     {
-      enabled: project_id !== null,
-      onSuccess: (data) => {
-        setInfo({
-          title: data["name"],
-          authors: data["authors"],
-          description: data["description"],
-        });
+      mutationKey: ["mutateInfo"],
+      onSuccess: () => {
+        toggleEditProjectInfo();
       },
-      refetchOnWindowFocus: false,
     },
   );
 
-  const {
-    error: mutateInfoError,
-    // isError: isMutateInfoError,
-    isLoading: isMutatingInfo,
-    mutate,
-  } = useMutation(ProjectAPI.mutateInfo, {
-    mutationKey: ["mutateInfo"],
-    onSuccess: () => {
-      if (integrated) {
-        handleNext();
-      }
-    },
-  });
-
   const isChanged = () => {
     return (
-      infoData !== undefined &&
-      info !== null &&
-      (infoData?.name !== info.title ||
-        infoData?.authors !== info.authors ||
-        infoData?.description !== info.description)
+      // projectInfo !== undefined &&
+      // info !== null &&
+      projectInfo?.name !== info.name ||
+      projectInfo?.authors !== info.authors ||
+      projectInfo?.description !== info.description
     );
   };
 
-  const infoFormBody = () => {
-    return (
-      <Root className={classes.root}>
-        <Box className={classes.title}>
-          <Typography variant="h6">Project Information</Typography>
-        </Box>
+  console.log(info);
+
+  return (
+    <Root className={classes.root}>
+      {!editProjectInfo && (
+        <Stack alignItems="center" direction="row" gap={2}>
+          <Typography variant="h6">Project title:</Typography>
+          <Typography>{info?.name}</Typography>
+          <IconButton onClick={toggleEditProjectInfo} disabled={!editable}>
+            <Edit />
+          </IconButton>
+        </Stack>
+      )}
+      {editProjectInfo && (
         <Stack spacing={3}>
           <>
             <Stack direction="column" spacing={3}>
@@ -118,22 +106,22 @@ const InfoForm = ({ integrated, handleNext, editable = true }) => {
                 disableHoverListener
                 title="Your project needs a title"
                 arrow
-                open={info?.title.length === 0}
+                open={info?.name.length === 0}
                 placement="top-start"
               >
                 <TextField
                   autoFocus
-                  error={mutateInfoError}
+                  // error={mutateInfoError}
                   fullWidth
                   id="project-title"
                   InputLabelProps={{
                     required: true,
                   }}
                   label="Title"
-                  name="title"
+                  name="name"
                   onChange={handleInfoChange}
                   required
-                  value={info?.title || ""}
+                  value={info?.name || ""}
                   disabled={!editable}
                 />
               </Tooltip>
@@ -157,41 +145,15 @@ const InfoForm = ({ integrated, handleNext, editable = true }) => {
                 value={info?.description || ""}
                 disabled={!editable}
               />
-              {!integrated && (
-                <Button onClick={saveInfo} disabled={!isChanged() || !editable}>
-                  Save
-                </Button>
-              )}
+              <Button onClick={saveInfo} disabled={!isChanged()}>
+                Save
+              </Button>
             </Stack>
           </>
-
-          <CardErrorHandler
-            queryKey={"fetchInfo"}
-            error={fetchInfoError}
-            isError={isFetchInfoError}
-          />
         </Stack>
-      </Root>
-    );
-  };
-
-  if (integrated) {
-    return (
-      <>
-        <DialogContent dividers>{infoFormBody()}</DialogContent>
-        <DialogActions>
-          {isChanged() && (
-            <Button onClick={saveInfo} disabled={isMutatingInfo}>
-              Save
-            </Button>
-          )}
-          {!isChanged() && <Button onClick={handleNext}>Next</Button>}
-        </DialogActions>
-      </>
-    );
-  } else {
-    return infoFormBody();
-  }
+      )}
+    </Root>
+  );
 };
 
 export default InfoForm;
