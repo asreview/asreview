@@ -1,30 +1,12 @@
 import * as React from "react";
-import { useQueryClient, useMutation } from "react-query";
-import { useNavigate } from "react-router-dom";
-import {
-  Button,
-  DialogContent,
-  DialogActions,
-  Dialog,
-  DialogTitle,
-  Stack,
-  Tooltip,
-} from "@mui/material";
+import { useQueryClient } from "react-query";
+import { Dialog, DialogTitle, Stack, Tooltip } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import Close from "@mui/icons-material/Close";
 
 import { StyledIconButton } from "StyledComponents/StyledButton";
 
-import { SetupStepper } from ".";
-import { AppBarWithinDialog } from "Components";
-import { PriorForm } from "./PriorComponents";
-import { ModelForm } from "./ModelComponents";
-import { InfoForm } from "./InfoComponents";
-import { ScreenLanding } from "./ScreenComponents";
-
-import { ProjectAPI } from "api";
-import { ProjectContext } from "ProjectContext";
-import { projectModes, projectStatuses } from "globals.js";
+import { SetupDatasetDialogContent } from "./DataComponents";
 
 const PREFIX = "SetupDialog";
 
@@ -64,7 +46,7 @@ const SetupDialogHeader = ({ mobileScreen, onClose }) => {
   return (
     <StyledSetupDialogHeader className="dialog-header" direction="row">
       <DialogTitle className={classesHeader.title}>
-        Optional details
+        Advanced configuration
       </DialogTitle>
       <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
         <Stack
@@ -83,104 +65,11 @@ const SetupDialogHeader = ({ mobileScreen, onClose }) => {
   );
 };
 
-const SetupDialogContent = ({ project_id, mode, onClose, mobileScreen }) => {
-  const navigate = useNavigate();
-  const [activeStep, setActiveStep] = React.useState(0);
-
-  const { mutate } = useMutation(ProjectAPI.mutateReviewStatus, {
-    mutationKey: ["mutateReviewStatus"],
-    onError: () => {
-      console.log("error updating status");
-    },
-    onSuccess: () => {
-      if (mode === projectModes.SIMULATION) {
-        navigate(`/projects/${project_id}`);
-      } else {
-        navigate(`/projects/${project_id}/review`);
-      }
-    },
-  });
-
-  const handleNext = () => {
-    setActiveStep(activeStep + 1);
-  };
-
-  const handleBack = () => {
-    setActiveStep(activeStep - 1);
-  };
-
-  const handleStep = (step) => () => {
-    setActiveStep(step);
-  };
-
-  const handleFinish = () => {
-    mutate({
-      project_id: project_id,
-      status: projectStatuses.REVIEW,
-      tigger_model: true,
-    });
-  };
-
-  return (
-    <ProjectContext.Provider value={project_id}>
-      {mobileScreen && <AppBarWithinDialog onClickStartIcon={onClose} />}
-      {!mobileScreen && (
-        <SetupDialogHeader onClose={onClose} mobileScreen={mobileScreen} />
-      )}
-      <SetupStepper
-        steps={mode === projectModes.SIMULATION ? simulateSteps : reviewSteps}
-        activeStep={activeStep}
-        handleStep={handleStep}
-      />
-      {mode !== projectModes.SIMULATION && activeStep === 0 && (
-        <>
-          <DialogContent dividers>
-            <ScreenLanding />
-          </DialogContent>
-          <DialogActions>
-            <Button id="next-setup-button" onClick={handleNext}>
-              Next
-            </Button>
-          </DialogActions>
-        </>
-      )}
-      {((mode !== projectModes.SIMULATION && activeStep === 1) ||
-        (mode === projectModes.SIMULATION && activeStep === 0)) && (
-        <>
-          <DialogContent dividers>
-            <ModelForm />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleBack}>Back</Button>
-            <Button id="next-setup-button" onClick={handleNext}>
-              Next
-            </Button>
-          </DialogActions>
-        </>
-      )}
-      {((mode !== projectModes.SIMULATION && activeStep === 2) ||
-        (mode === projectModes.SIMULATION && activeStep === 1)) && (
-        <>
-          <DialogContent dividers>
-            <PriorForm />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleBack}>Back</Button>
-            <Button id="finish-setup-button" onClick={handleFinish}>
-              {mode === projectModes.SIMULATION ? "Simulate" : "Screen"}
-            </Button>
-          </DialogActions>
-        </>
-      )}
-    </ProjectContext.Provider>
-  );
-};
-
 const SetupDialog = ({
-  project_id,
-  mode,
   open,
   onClose,
+  projectInfo = null,
+  mode = null,
   setFeedbackBar,
   mobileScreen,
 }) => {
@@ -204,7 +93,7 @@ const SetupDialog = ({
       open={open}
       fullScreen={mobileScreen}
       fullWidth
-      maxWidth="md"
+      maxWidth="sm"
       PaperProps={{
         sx: { height: !mobileScreen ? "calc(100% - 96px)" : "100%" },
       }}
@@ -214,8 +103,8 @@ const SetupDialog = ({
         onExited: () => exitedSetup(),
       }}
     >
-      <SetupDialogContent
-        project_id={project_id}
+      <SetupDatasetDialogContent
+        projectInfo={projectInfo}
         mode={mode}
         onClose={onClose}
         mobileScreen={mobileScreen}

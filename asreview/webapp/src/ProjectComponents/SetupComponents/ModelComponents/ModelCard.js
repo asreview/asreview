@@ -2,10 +2,15 @@ import * as React from "react";
 import { useMutation, useQuery } from "react-query";
 import {
   Box,
+  Card,
+  CardContent,
+  CardMedia,
+  CardHeader,
   CircularProgress,
   Link,
   Stack,
   Typography,
+  Skeleton,
   FormControl,
   FormHelperText,
   InputLabel,
@@ -27,39 +32,14 @@ import { defaultAlgorithms } from "globals.js";
 import { SelectItem } from "ProjectComponents";
 import { useContext } from "react";
 import { ProjectContext } from "ProjectContext";
-
-const PREFIX = "ModelForm";
-
-const classes = {
-  title: `${PREFIX}-title`,
-  loading: `${PREFIX}-loading`,
-  custom: `${PREFIX}-custom`,
-};
-
-const Root = styled("div")(({ theme }) => ({
-  [`& .${classes.title}`]: {
-    paddingBottom: 16,
-  },
-
-  [`& .${classes.loading}`]: {
-    display: "flex",
-    justifyContent: "center",
-  },
-
-  [`& .${classes.custom}`]: {
-    paddingTop: 16,
-    // add grey.100 background color
-    bgcolor: (theme) =>
-      theme.palette.mode === "dark" ? "background.paper" : "grey.100",
-  },
-}));
+import modelAlwaysGood from "images/models/modelAlwaysGood.png";
 
 const DEFAULT_MODELS = [
   {
     name: "tfidf-nb-max-double",
-    title: "Model Always Good",
+    title: "Model AlwaysGood",
     description:
-      "A classic combination that has proven to work well in the ASReview context, as shown in many simulations. It especially handles the starting phase of the systematic review well, being able to handle little amounts of data.",
+      "AlwaysGood is a classic combination that has proven to work well in the ASReview context, as shown in many simulations. It especially handles the starting phase of the systematic review well, being able to handle little amounts of data.",
   },
   {
     name: "onehot-logistic-max-double",
@@ -90,7 +70,7 @@ const DEFAULT_MODELS = [
   },
 ];
 
-const getFullModelName = (model) => {
+const getFullModel = (model) => {
   let name =
     model.feature_extraction +
     "-" +
@@ -102,13 +82,13 @@ const getFullModelName = (model) => {
   let defaultModel = DEFAULT_MODELS.filter((e) => e.name === name);
 
   if (defaultModel.length === 1) {
-    return defaultModel[0].name;
+    return defaultModel[0];
   } else {
     return "custom";
   }
 };
 
-const ModelForm = ({
+const ModelCard = ({
   editable = true,
   showWarning = false,
   trainNewModel = false,
@@ -145,7 +125,7 @@ const ModelForm = ({
       enabled: project_id !== null,
       onSuccess: (data) => {
         setModelState({
-          custom: getFullModelName(data) === "custom",
+          custom: getFullModel(data).name === "custom",
           isChanged: modelState.isChanged,
           model: data,
           warning: { ...modelState.warning },
@@ -247,31 +227,45 @@ const ModelForm = ({
     }
   }, [modelState, mutateModelConfig, prepareMutationData]);
 
+  const loading = true;
+
   return (
-    <Root>
-      <Box className={classes.title}>
-        <Typography variant="h6">Model</Typography>
-        <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          An active learning model consists of a feature extraction technique, a
-          classifier, a query strategy, and a balance strategy. The default
-          setup (TF-IDF, Naive Bayes, Maximum, Dynamic resampling) overall has
-          great time saving.{" "}
-          <Link
-            underline="none"
-            href={`https://asreview.nl/blog/active-learning-explained/`}
-            target="_blank"
-          >
-            Learn more
-          </Link>
-        </Typography>
-      </Box>
-      <Stack spacing={3} sx={{ mt: 3 }}>
-        {(isFetchingModelOptions || isFetchingModelConfig) && (
-          <Box className={classes.loading}>
-            <CircularProgress />
-          </Box>
-        )}
-        {!isFetchingModelOptions && !isFetchingModelConfig && (
+    <Card>
+      <CardHeader
+        title="Your AI"
+        subheader={
+          <>
+            <>Choose an AI model to accelerate your review process. </>
+            <Link
+              underline="none"
+              href={`https://asreview.nl/blog/active-learning-explained/`}
+              target="_blank"
+            >
+              learn more
+            </Link>
+          </>
+        }
+      />
+      {loading ? (
+        <Skeleton sx={{ height: 190 }} animation="wave" variant="rectangular" />
+      ) : (
+        <CardMedia
+          component="img"
+          height="140"
+          image={modelAlwaysGood}
+          alt={"Model " + getFullModel(modelState.model).title}
+        />
+      )}
+
+      <CardContent>{getFullModel(modelState.model).description}</CardContent>
+
+      <CardContent>
+        <Button variant="contained" color="primary" onClick={() => {}}>
+          Change
+        </Button>
+
+        {/* <Stack>
+
           <Box component="form" noValidate autoComplete="off">
             <FormControl
               disabled={!editable}
@@ -292,11 +286,10 @@ const ModelForm = ({
                 value={
                   modelState.custom
                     ? "custom"
-                    : getFullModelName(modelState.model)
+                    : getFullModel(modelState.model).name
                 }
                 onChange={handleModelDropdownChange}
               >
-                {/* iterater over the default models */}
                 {DEFAULT_MODELS.map((value) => (
                   <MenuItem
                     value={value.name}
@@ -344,7 +337,7 @@ const ModelForm = ({
             </FormControl>
 
             {modelState.custom && (
-              <Box className={classes.custom}>
+              <Box>
                 <Stack direction="column" spacing={3}>
                   <ModelSelect
                     name="feature_extraction"
@@ -387,46 +380,46 @@ const ModelForm = ({
               </Box>
             )}
           </Box>
-        )}
-      </Stack>
-      <Dialog
-        open={modelState.warning.active}
-        onClose={cancelWarning}
-        aria-labelledby="mutate-warning-dialog-title"
-        aria-describedby="mutate-warning-dialog-description"
-      >
-        <DialogTitle id="mutate-warning-dialog-title">
-          Change the model?
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="mutate-warning-dialog-description">
-            You are about to change the model. When you continue screening, a
-            model will be trained based on the new settings. Are you sure you
-            want to continue?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={cancelWarning} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={acceptModelChange} color="primary" autoFocus>
-            Continue
-          </Button>
-        </DialogActions>
-      </Dialog>
+      </Stack> */}
+        <Dialog
+          open={modelState.warning.active}
+          onClose={cancelWarning}
+          aria-labelledby="mutate-warning-dialog-title"
+          aria-describedby="mutate-warning-dialog-description"
+        >
+          <DialogTitle id="mutate-warning-dialog-title">
+            Change the model?
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="mutate-warning-dialog-description">
+              You are about to change the model. When you continue screening, a
+              model will be trained based on the new settings. Are you sure you
+              want to continue?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={cancelWarning} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={acceptModelChange} color="primary" autoFocus>
+              Continue
+            </Button>
+          </DialogActions>
+        </Dialog>
 
-      <CardErrorHandler
-        queryKey={"fetchModelOptions"}
-        error={fetchModelOptionsError}
-        isError={isFetchModelOptionsError}
-      />
-      <CardErrorHandler
-        queryKey={"fetchModelConfig"}
-        error={fetchModelConfigError}
-        isError={isFetchModelConfigError}
-      />
-    </Root>
+        <CardErrorHandler
+          queryKey={"fetchModelOptions"}
+          error={fetchModelOptionsError}
+          isError={isFetchModelOptionsError}
+        />
+        <CardErrorHandler
+          queryKey={"fetchModelConfig"}
+          error={fetchModelConfigError}
+          isError={isFetchModelConfigError}
+        />
+      </CardContent>
+    </Card>
   );
 };
 
-export default ModelForm;
+export default ModelCard;

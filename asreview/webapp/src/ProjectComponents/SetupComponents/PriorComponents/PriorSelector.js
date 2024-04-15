@@ -3,7 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "react-query";
 import { useContext } from "react";
 
-import { Button, Card, CardContent, Stack, Typography } from "@mui/material";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  Link,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { Check } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { historyFilterOptions } from "globals.js";
@@ -69,17 +77,23 @@ const PriorSelector = ({
   return (
     <Root>
       <Card>
-        <CardContent className={classes.cardContent}>
+        <CardHeader
+          title="Your knowledge"
+          subheader={
+            <>
+              <>Your knowledge can help to warm up and accelerate the AI. </>
+              <Link
+                underline="none"
+                href={`https://asreview.nl/blog/active-learning-explained/`}
+                target="_blank"
+              >
+                learn more
+              </Link>
+            </>
+          }
+        />
+        <CardContent>
           <Stack spacing={1}>
-            <Typography
-              variant="subtitle1"
-              className={classes.singleLine}
-              sx={{
-                fontWeight: (theme) => theme.typography.fontWeightMedium,
-              }}
-            >
-              Add prior knowledge
-            </Typography>
             {(data?.n_inclusions === 0 || data?.n_exclusions === 0) && (
               <Typography
                 variant="body2"
@@ -100,19 +114,18 @@ const PriorSelector = ({
               </Typography>
             )}
           </Stack>
-          <Stack direction="row" sx={{ alignItems: "center" }}>
-            {data?.n_inclusions !== 0 && data?.n_exclusions !== 0 && (
-              <Check color="success" sx={{ mr: 1 }} />
-            )}
-            {editable && (
-              <Button id={"add-prior"} onClick={toggleAddPrior}>
-                {data?.n_inclusions === 0 || data?.n_exclusions === 0
-                  ? "Add"
-                  : "Edit"}
-              </Button>
-            )}
-            {!editable && <Button onClick={handleClickViewPrior}>View</Button>}
-          </Stack>
+          {editable && (
+            <Button
+              id={"add-prior"}
+              onClick={toggleAddPrior}
+              variant="contained"
+            >
+              {data?.n_inclusions === 0 || data?.n_exclusions === 0
+                ? "Add"
+                : "Edit"}
+            </Button>
+          )}
+          {!editable && <Button onClick={handleClickViewPrior}>View</Button>}
         </CardContent>
 
         <AddPriorKnowledge

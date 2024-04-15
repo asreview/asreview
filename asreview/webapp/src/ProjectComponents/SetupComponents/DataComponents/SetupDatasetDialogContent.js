@@ -1,10 +1,10 @@
 import * as React from "react";
 import { useMutation } from "react-query";
-import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
+  Box,
   Button,
-  Dialog,
+  Collapse,
   DialogActions,
   DialogContent,
   DialogTitle,
@@ -14,58 +14,29 @@ import {
   Radio,
   RadioGroup,
   Stack,
-  Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 
 import { AppBarWithinDialog } from "Components";
 import { InfoForm } from "ProjectComponents/SetupComponents/InfoComponents";
 import { DatasetFromFile, DatasetFromEntryPoint, DatasetFromURI } from ".";
 import { ProjectAPI } from "api";
-import {
-  mapDispatchToProps,
-  mapStateToProps,
-  projectModes,
-  projectStatuses,
-} from "globals.js";
+import { projectModes, projectStatuses } from "globals.js";
 import DatasetInfo from "./DatasetInfo";
+import { TagEditor } from "ProjectComponents/SetupComponents/ScreenComponents/TagComponents";
+import { PriorSelector } from "ProjectComponents/SetupComponents/PriorComponents";
+import { useToggle } from "hooks/useToggle";
+import { ModelCard } from "ProjectComponents/SetupComponents/ModelComponents";
 
-const PREFIX = "SetupDatasetDialog";
-
-const classes = {
-  root: `${PREFIX}-root`,
-  form: `${PREFIX}-form`,
-};
-
-const StyledDialog = styled(Dialog)(({ theme }) => ({
-  // overflowY: "hidden",
-  [`& .${classes.form}`]: {
-    // height: "calc(100% - 64px)",
-    // overflowY: "scroll",
-    // padding: "24px 48px 48px 48px",
-    // [theme.breakpoints.down("md")]: {
-    //   height: "calc(100% - 56px)",
-    //   padding: "32px 24px 48px 24px",
-    // },
-  },
-}));
-
-const SetupDatasetDialog = ({
-  open,
-  mode,
-  closeDataPickAndOpenSetup,
+const SetupDatasetDialogContent = ({
   mobileScreen,
-  closeDataPick,
+  onClose,
+  mode = null,
   projectInfo = null,
 }) => {
   const navigate = useNavigate();
 
-  console.log(projectInfo);
-
   const [dataset, setDataset] = React.useState(projectInfo);
-
-  console.log(projectInfo);
-  console.log(dataset);
+  const [showSettings, setShowSettings] = useToggle(false);
 
   const [uploadSource, setUploadSource] = React.useState("file");
 
@@ -85,48 +56,45 @@ const SetupDatasetDialog = ({
   });
 
   return (
-    <StyledDialog
-      open={open}
-      fullScreen={mobileScreen}
-      fullWidth
-      onClose={closeDataPick}
-      maxWidth="md"
-      PaperProps={{
-        sx: { height: !mobileScreen ? "calc(100% - 96px)" : "100%" },
-      }}
-      TransitionProps={{
-        onEnter: () => {
-          if (mode === projectModes.SIMULATION) {
-            setUploadSource("benchmark");
-          }
-        },
-        onExit: () => {
-          setUploadSource("file");
-          setDataset(null);
-        },
-      }}
-    >
+    <>
       {mobileScreen && (
         <AppBarWithinDialog
           // disableStartIcon={isLoading}
-          onClickStartIcon={closeDataPick}
+          onClickStartIcon={onClose}
           startIconIsClose
-          title="Import a dataset"
+          title="Import dataset"
         />
       )}
-      {!mobileScreen && <DialogTitle>Import a dataset</DialogTitle>}
-      <DialogContent className={classes.form}>
-        {dataset && (
-          <>
-            <InfoForm projectInfo={dataset} />
+      {!mobileScreen && <DialogTitle>Import dataset</DialogTitle>}
+      <DialogContent>
+        <Collapse in={!showSettings}>
+          <InfoForm projectInfo={dataset} />
 
-            <DatasetInfo
-              project_id={dataset.id}
-              dataset_path={dataset.dataset_path}
-              setDataset={setDataset}
-            />
-          </>
-        )}
+          <DatasetInfo
+            project_id={dataset.id}
+            dataset_path={dataset.dataset_path}
+            setDataset={setDataset}
+          />
+        </Collapse>
+
+        <Box sx={{ textAlign: "center" }}>
+          <Button onClick={setShowSettings}>
+            {showSettings ? "Show project" : "Show options"}
+          </Button>
+        </Box>
+
+        <Collapse in={showSettings}>
+          {mode !== projectModes.SIMULATION && (
+            <TagEditor project_id={dataset.id} mobileScreen={mobileScreen} />
+          )}
+          <ModelCard />
+
+          <PriorSelector
+            // setHistoryFilterQuery={setHistoryFilterQuery}
+            editable={true}
+            mobileScreen={mobileScreen}
+          />
+        </Collapse>
 
         {!dataset && (
           <Stack spacing={3}>
@@ -198,6 +166,12 @@ const SetupDatasetDialog = ({
       {dataset && (
         <DialogActions>
           <Button
+            onClick={onClose}
+            // disabled={isLoading}
+          >
+            Cancel
+          </Button>
+          <Button
             onClick={() => {
               setStatus({
                 project_id: dataset.id,
@@ -208,29 +182,21 @@ const SetupDatasetDialog = ({
           >
             {mode === projectModes.SIMULATION ? "Simulate" : "Screen"}
           </Button>
-          <Button
-            onClick={() => {
-              closeDataPickAndOpenSetup(dataset.id);
-            }}
-            // disabled={isLoading}
-          >
-            Configure
-          </Button>
         </DialogActions>
       )}
 
       {!dataset && (
         <DialogActions>
           <Button
-            onClick={closeDataPick}
+            onClick={onClose}
             // disabled={isLoading}
           >
             Cancel
           </Button>
         </DialogActions>
       )}
-    </StyledDialog>
+    </>
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(SetupDatasetDialog);
+export default SetupDatasetDialogContent;

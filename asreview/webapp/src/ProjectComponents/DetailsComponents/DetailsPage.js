@@ -13,7 +13,7 @@ import LoadingButton from "@mui/lab/LoadingButton";
 
 import { ProjectDeleteDialog } from "ProjectComponents";
 import { ScreenLanding } from "ProjectComponents/SetupComponents/ScreenComponents";
-import { ModelForm } from "ProjectComponents/SetupComponents/ModelComponents";
+import { ModelCard } from "ProjectComponents/SetupComponents/ModelComponents";
 import { PriorForm } from "ProjectComponents/SetupComponents/PriorComponents";
 import { InfoForm } from "ProjectComponents/SetupComponents/InfoComponents";
 
@@ -56,7 +56,7 @@ const DetailsPage = (props) => {
             />
           </Box>
           <Box sx={{ padding: "12px 0px" }}>
-            <ModelForm editable={true} showWarning={true} />
+            <ModelCard editable={true} showWarning={true} />
           </Box>
           <Box sx={{ padding: "12px 0px" }}>
             <ScreenLanding />

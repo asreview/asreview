@@ -1,11 +1,9 @@
 import * as React from "react";
-import { useContext } from "react";
-import { useMutation, useQuery } from "react-query";
+import { useMutation } from "react-query";
 import {
   Box,
   Button,
-  DialogActions,
-  DialogContent,
+  Paper,
   IconButton,
   Stack,
   TextField,
@@ -14,34 +12,8 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { ProjectAPI } from "api";
-import { CardErrorHandler } from "Components";
-import { ProjectContext } from "ProjectContext";
 import { useToggle } from "hooks/useToggle";
 import { Edit } from "@mui/icons-material";
-
-const PREFIX = "InfoForm";
-
-const classes = {
-  root: `${PREFIX}-root`,
-  title: `${PREFIX}-title`,
-  error: `${PREFIX}-error`,
-  textField: `${PREFIX}-textField`,
-};
-
-const Root = styled("div")(({ theme }) => ({
-  [`& .${classes.root}`]: {
-    display: "flex",
-  },
-  [`& .${classes.title}`]: {
-    paddingBottom: 24,
-  },
-  [`& .${classes.error}`]: {
-    marginBottom: 16,
-  },
-  [`& .${classes.textField}`]: {
-    marginTop: 0,
-  },
-}));
 
 const InfoForm = ({ projectInfo, editable = true }) => {
   const project_id = projectInfo.id;
@@ -85,18 +57,25 @@ const InfoForm = ({ projectInfo, editable = true }) => {
     );
   };
 
-  console.log(info);
-
   return (
-    <Root className={classes.root}>
+    <>
       {!editProjectInfo && (
-        <Stack alignItems="center" direction="row" gap={2}>
-          <Typography variant="h6">Project title:</Typography>
-          <Typography>{info?.name}</Typography>
-          <IconButton onClick={toggleEditProjectInfo} disabled={!editable}>
-            <Edit />
-          </IconButton>
-        </Stack>
+        <Paper>
+          <Stack alignItems="center" direction="row">
+            <Typography>Project: {info?.name}</Typography>
+            <IconButton onClick={toggleEditProjectInfo} disabled={!editable}>
+              <Edit />
+            </IconButton>
+          </Stack>
+          {/* <TextField id="standard-basic" label="authors" variant="standard" /> */}
+          <Typography>
+            Authors:{" "}
+            <Box sx={{ fontStyle: "italic", opacity: 0.3, display: "inline" }}>
+              {info?.authors}
+            </Box>
+          </Typography>
+          <Typography>Description: {info?.description}</Typography>
+        </Paper>
       )}
       {editProjectInfo && (
         <Stack spacing={3}>
@@ -145,6 +124,7 @@ const InfoForm = ({ projectInfo, editable = true }) => {
                 value={info?.description || ""}
                 disabled={!editable}
               />
+              <Button onClick={toggleEditProjectInfo}>Cancel</Button>
               <Button onClick={saveInfo} disabled={!isChanged()}>
                 Save
               </Button>
@@ -152,7 +132,7 @@ const InfoForm = ({ projectInfo, editable = true }) => {
           </>
         </Stack>
       )}
-    </Root>
+    </>
   );
 };
 

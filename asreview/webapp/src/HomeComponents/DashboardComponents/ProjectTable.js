@@ -36,7 +36,6 @@ import {
 } from "globals.js";
 import useAuth from "hooks/useAuth";
 import { setMyProjects } from "redux/actions";
-import { SetupDatasetDialog } from "ProjectComponents/SetupComponents/DataComponents";
 
 const PREFIX = "ProjectTable";
 
@@ -113,7 +112,6 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
 const columns = [
   { id: "name", label: "Project", width: "55%" },
   { id: "created_at_unix", label: "Date", width: "15%" },
-  // { id: "mode", label: "Mode", width: "15%" },
   { id: "status", label: "Status", width: "15%" },
 ];
 
@@ -588,7 +586,7 @@ const ProjectTable = (props) => {
               <Button
                 id="get-started"
                 onClick={() => {
-                  props.openDataPick(props.mode);
+                  // props.openDataPick(props.mode);
                 }}
               >
                 Start
@@ -622,8 +620,8 @@ const ProjectTable = (props) => {
             onRowsPerPageChange={setRowsPerPage}
           />
         )}
-      {/* <SetupDialog
-        project_id={setupDialogState.project_id}
+      <SetupDialog
+        projectInfo={setupDialogState.project_info}
         mode={props.mode}
         mobileScreen={props.mobileScreen}
         open={setupDialogState.open}
@@ -631,16 +629,6 @@ const ProjectTable = (props) => {
           setSetupDialogState({ open: false, project_id: null });
         }}
         setFeedbackBar={props.setFeedbackBar}
-      /> */}
-      <SetupDatasetDialog
-        open={setupDialogState.open}
-        mode={props.mode}
-        // closeDataPickAndOpenSetup={},
-        projectInfo={setupDialogState.project_info}
-        mobileScreen={props.mobileScreen}
-        closeDataPick={() => {
-          setSetupDialogState({ open: false, project_info: null });
-        }}
         key={"setup-dialog-" + setupDialogState.project_info?.id}
       />
       <ProjectCheckDialog
