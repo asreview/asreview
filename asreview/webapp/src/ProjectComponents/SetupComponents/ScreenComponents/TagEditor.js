@@ -4,19 +4,22 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Box,
   Button,
   TextField,
   Stack,
   Typography,
   AccordionActions,
   Card,
+  CardContent,
+  CardActions,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  CardHeader,
 } from "@mui/material";
+import { grey } from "@mui/material/colors";
 
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
@@ -314,7 +317,7 @@ const Group = (props) => {
   };
 
   return (
-    <Accordion elevation={3}>
+    <Accordion elevation={0} sx={{ backgroundColor: grey[200] }}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Stack
           direction={!props.mobileScreen ? "row" : "column"}
@@ -341,12 +344,12 @@ const Group = (props) => {
         />
 
         <Stack spacing={3}>
-          <TypographySubtitle1Medium>Name</TypographySubtitle1Medium>
+          <TypographySubtitle1Medium>Tag group</TypographySubtitle1Medium>
           <Stack direction="row" spacing={3}>
             <TextField
               fullWidth
               id="tag-group-name"
-              label="Group Name"
+              label="Group"
               onChange={(event) =>
                 props.editTagGroup(props.group.id, {
                   ...props.group,
@@ -447,23 +450,12 @@ const TagEditor = (props) => {
   };
 
   return (
-    <Card sx={{ padding: "24px" }}>
-      <Typography
-        variant="subtitle1"
-        sx={{
-          fontWeight: (theme) => theme.typography.fontWeightMedium,
-        }}
-      >
-        Tags
-      </Typography>
-      <Typography variant="body2" sx={{ color: "text.secondary" }}>
-        Tags and tag groups are used to label records with additional
-        information. Tags are not used by the machine learning algorithms.
-      </Typography>
-      <Box sx={{ padding: "12px" }}>
-        {tags.length !== 0 && (
-          <TypographySubtitle1Medium>Tag groups</TypographySubtitle1Medium>
-        )}
+    <Card>
+      <CardHeader
+        title="Your tags"
+        subheader="Tags and tag groups are used to label records with additional information. Tags are not used by the machine learning algorithms."
+      />
+      <CardContent>
         <AddGroupDialog
           title="Add Tag Group"
           open={groupDialogOpen}
@@ -480,15 +472,16 @@ const TagEditor = (props) => {
             mobileScreen={props.mobileScreen}
           />
         ))}
-      </Box>
-      <AccordionActions>
+      </CardContent>
+      <CardActions>
         <Button
           onClick={() => setGroupDialogOpen(true)}
           disabled={isMutatingInfo}
+          variant="contained"
         >
-          Add Tag Group
+          Add tags
         </Button>
-      </AccordionActions>
+      </CardActions>
     </Card>
   );
 };

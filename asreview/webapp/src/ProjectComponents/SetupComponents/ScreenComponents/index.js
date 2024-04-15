@@ -1,1 +1,1 @@
-export { default as ScreenLanding } from "./ScreenLanding";
+export { default as TagEditor } from "./TagEditor";

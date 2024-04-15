@@ -227,7 +227,7 @@ const ModelCard = ({
     }
   }, [modelState, mutateModelConfig, prepareMutationData]);
 
-  const loading = true;
+  const loading = false;
 
   return (
     <Card>
