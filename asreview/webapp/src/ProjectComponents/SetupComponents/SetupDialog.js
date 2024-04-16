@@ -16,9 +16,12 @@ import {
   FormLabel,
   Radio,
   RadioGroup,
+  IconButton,
+  Input,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import Close from "@mui/icons-material/Close";
+import Edit from "@mui/icons-material/Edit";
 
 import { StyledIconButton } from "StyledComponents/StyledButton";
 
@@ -36,6 +39,7 @@ import { TagEditor } from "ProjectComponents/SetupComponents/ScreenComponents";
 import { PriorSelector } from "ProjectComponents/SetupComponents/PriorComponents";
 import { useToggle } from "hooks/useToggle";
 import { ModelCard } from "ProjectComponents/SetupComponents/ModelComponents";
+import { Save } from "@mui/icons-material";
 
 const PREFIX = "SetupDialog";
 
@@ -103,11 +107,24 @@ const SetupDialog = ({
   const [dataset, setDataset] = React.useState(projectInfo);
   const [showSettings, setShowSettings] = useToggle(false);
 
+  const [editName, toggleEditName] = useToggle(false);
+  const [name, setName] = React.useState(dataset?.name || "");
+
   const [uploadSource, setUploadSource] = React.useState("file");
 
   const handleUploadSource = (event) => {
     setUploadSource(event.target.value);
   };
+
+  const { isLoading: isMutatingName, mutate: mutateName } = useMutation(
+    ProjectAPI.mutateInfo,
+    {
+      mutationKey: ["mutateInfo"],
+      onSuccess: () => {
+        toggleEditName();
+      },
+    },
+  );
 
   const { mutate: setStatus } = useMutation(ProjectAPI.mutateReviewStatus, {
     mutationKey: ["mutateReviewStatus"],
@@ -133,7 +150,7 @@ const SetupDialog = ({
       open={open}
       fullScreen={mobileScreen}
       fullWidth
-      maxWidth="sm"
+      maxWidth="md"
       PaperProps={{
         sx: { height: !mobileScreen ? "calc(100% - 96px)" : "100%" },
       }}
@@ -142,31 +159,70 @@ const SetupDialog = ({
         onExited: () => exitedSetup(),
       }}
     >
-      {mobileScreen && (
+      {/* {mobileScreen && (
         <AppBarWithinDialog
           // disableStartIcon={isLoading}
           onClickStartIcon={onClose}
           startIconIsClose
           title="Import dataset"
         />
+      )} */}
+      {dataset && (
+        <DialogTitle>
+          Start project:{" "}
+          {!editName && (
+            <>
+              {name}
+              <Tooltip title={"Edit project name"}>
+                <IconButton onClick={toggleEditName} disabled={isMutatingName}>
+                  <Edit />
+                </IconButton>
+              </Tooltip>
+            </>
+          )}
+          {editName && (
+            <>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                disabled={isMutatingName}
+                sx={{ width: "50%" }}
+                autoFocus
+              />
+              <Tooltip title={"Save project name"}>
+                <IconButton
+                  onClick={() => {
+                    mutateName({ project_id: dataset.id, title: name });
+                  }}
+                  disabled={isMutatingName}
+                >
+                  <Save />
+                </IconButton>
+              </Tooltip>
+            </>
+          )}
+        </DialogTitle>
       )}
-      {!mobileScreen && <DialogTitle>Import dataset</DialogTitle>}
       <DialogContent>
-        <Collapse in={!showSettings}>
-          <InfoForm projectInfo={dataset} />
+        {dataset && (
+          <Collapse in={!showSettings}>
+            <InfoForm projectInfo={dataset} editName={false} />
 
-          <DatasetInfo
-            project_id={dataset?.id}
-            dataset_path={dataset?.dataset_path}
-            setDataset={setDataset}
-          />
-        </Collapse>
+            <DatasetInfo
+              project_id={dataset?.id}
+              dataset_path={dataset?.dataset_path}
+              setDataset={setDataset}
+            />
+          </Collapse>
+        )}
 
-        <Box sx={{ textAlign: "center" }}>
-          <Button onClick={setShowSettings}>
-            {showSettings ? "Show project" : "Show options"}
-          </Button>
-        </Box>
+        {dataset && (
+          <Box sx={{ textAlign: "center" }}>
+            <Button onClick={setShowSettings}>
+              {showSettings ? "Show project" : "Show options"}
+            </Button>
+          </Box>
+        )}
 
         <Collapse in={showSettings}>
           {mode !== projectModes.SIMULATION && (
@@ -187,6 +243,7 @@ const SetupDialog = ({
             />
           </Box>
         </Collapse>
+        {!dataset && <DialogTitle>Import dataset</DialogTitle>}
 
         {!dataset && (
           <Stack spacing={3}>
@@ -255,6 +312,16 @@ const SetupDialog = ({
         )}
       </DialogContent>
 
+      {!dataset && (
+        <DialogActions>
+          <Button
+            onClick={onClose}
+            // disabled={isLoading}
+          >
+            Cancel
+          </Button>
+        </DialogActions>
+      )}
       {dataset && (
         <DialogActions>
           <Button
@@ -273,17 +340,6 @@ const SetupDialog = ({
             // disabled={isLoading}
           >
             {mode === projectModes.SIMULATION ? "Simulate" : "Screen"}
-          </Button>
-        </DialogActions>
-      )}
-
-      {!dataset && (
-        <DialogActions>
-          <Button
-            onClick={onClose}
-            // disabled={isLoading}
-          >
-            Cancel
           </Button>
         </DialogActions>
       )}

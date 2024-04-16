@@ -18,6 +18,7 @@ import {
   DialogContentText,
   DialogTitle,
   CardHeader,
+  Link,
 } from "@mui/material";
 import { grey } from "@mui/material/colors";
 
@@ -317,7 +318,7 @@ const Group = (props) => {
   };
 
   return (
-    <Accordion elevation={0} sx={{ backgroundColor: grey[200] }}>
+    <Accordion elevation={0} sx={{ backgroundColor: "#93494914" }}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Stack
           direction={!props.mobileScreen ? "row" : "column"}
@@ -453,27 +454,45 @@ const TagEditor = (props) => {
     <Card>
       <CardHeader
         title="Your tags"
-        subheader="Tags and tag groups are used to label records with additional information. Tags are not used by the machine learning algorithms."
+        subheader={
+          <>
+            <>
+              Tags and tag groups are used to label records with additional
+              information. Tags are not used by the machine learning algorithms.{" "}
+            </>
+            <Link
+              underline="none"
+              href={`https://asreview.nl/blog/active-learning-explained/`}
+              target="_blank"
+            >
+              learn more
+            </Link>
+          </>
+        }
       />
+      {tags.length !== 0 && (
+        <CardContent>
+          {tags.map((c) => (
+            <Group
+              group={c}
+              key={c.id}
+              editTagGroup={editTagGroup}
+              mobileScreen={props.mobileScreen}
+            />
+          ))}
+        </CardContent>
+      )}
+
+      <AddGroupDialog
+        title="Add Tag Group"
+        open={groupDialogOpen}
+        handleClose={() => setGroupDialogOpen(false)}
+        handleAdd={addTagGroup}
+        handleAddTags={editTagGroup}
+        groups={tags}
+      />
+
       <CardContent>
-        <AddGroupDialog
-          title="Add Tag Group"
-          open={groupDialogOpen}
-          handleClose={() => setGroupDialogOpen(false)}
-          handleAdd={addTagGroup}
-          handleAddTags={editTagGroup}
-          groups={tags}
-        />
-        {tags.map((c) => (
-          <Group
-            group={c}
-            key={c.id}
-            editTagGroup={editTagGroup}
-            mobileScreen={props.mobileScreen}
-          />
-        ))}
-      </CardContent>
-      <CardActions>
         <Button
           onClick={() => setGroupDialogOpen(true)}
           disabled={isMutatingInfo}
@@ -481,7 +500,7 @@ const TagEditor = (props) => {
         >
           Add tags
         </Button>
-      </CardActions>
+      </CardContent>
     </Card>
   );
 };
