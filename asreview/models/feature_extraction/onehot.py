@@ -24,7 +24,7 @@ class OneHot(BaseFeatureExtraction):
 
     Use the standard OneHot feature extraction technique from `SKLearn
     <https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html>`__.
-    
+
     Arguments
     ---------
     lowercase: bool
@@ -39,7 +39,6 @@ class OneHot(BaseFeatureExtraction):
         absolute counts.
     """
 
-
     name = "onehot"
     label = "OneHot"
 
@@ -53,12 +52,13 @@ class OneHot(BaseFeatureExtraction):
     @property
     def _model(self):
         if not hasattr(self, "CV"):
-            self.CV = CountVectorizer(binary=True,  # One-hot encoding, not counts.
-                                      lowercase=self.lowercase,
-                                      max_df=self.max_df,
-                                      min_df=self.min_df,
-                                      ngram_range=(1, 3)
-                                      )
+            self.CV = CountVectorizer(
+                binary=True,  # One-hot encoding, not counts.
+                lowercase=self.lowercase,
+                max_df=self.max_df,
+                min_df=self.min_df,
+                ngram_range=(1, 3),
+            )
         return self.CV
 
     def fit(self, texts):
