@@ -35,7 +35,7 @@ def get_feature_class(name):
     Arguments
     ---------
     name: str
-        Name of the feature model, e.g. 'doc2vec', 'tfidf' or 'embedding-lstm'.
+        Name of the feature model, e.g. 'tfidf' or 'onehot'.
 
     Returns
     -------
