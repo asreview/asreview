@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import {
   Box,
   Card,
@@ -7,8 +7,10 @@ import {
   CardMedia,
   CardHeader,
   CircularProgress,
+  Radio,
   Link,
   Stack,
+  Slider,
   Typography,
   Skeleton,
   FormControl,
@@ -16,6 +18,9 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  FormControlLabel,
+  RadioGroup,
+  FormLabel,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -33,37 +38,38 @@ import { SelectItem } from "ProjectComponents";
 import { useContext } from "react";
 import { ProjectContext } from "ProjectContext";
 import modelAlwaysGood from "images/models/modelAlwaysGood.png";
+import { useToggle } from "hooks/useToggle";
 
 const DEFAULT_MODELS = [
   {
     name: "tfidf-nb-max-double",
-    title: "Model AlwaysGood",
+    title: "AlwaysGood",
     description:
       "AlwaysGood is a classic combination that has proven to work well in the ASReview context, as shown in many simulations. It especially handles the starting phase of the systematic review well, being able to handle little amounts of data.",
   },
   {
     name: "onehot-logistic-max-double",
-    title: "Model One Word",
+    title: "One Word",
     description:
       "A model that excels in finding specific words, providing good performance in finding the last remaining relevant documents.",
   },
   {
     name: "labse-logistic-max-double",
-    title: "Model Multi Language",
+    title: "MultiLanguage",
     requires: "asreview-nemo",
     description:
       "A multilingual feature extractor for systematic review datasets in multiple languages (LaBSE x Logistic Regression).",
   },
   {
     name: "sbert-rf-max-double",
-    title: "Model Context",
+    title: "Context",
     requires: "asreview-nemo",
     description:
       "A powerful pretrained model based on the transformer infrastructure used in the latest AI models. Combined with a proven implementation of a gradient boosting classifier (SBert x XGBoost).",
   },
   {
     name: "doc2vec-dynamic_nn-max-double",
-    title: "Model Neural",
+    title: "Neural",
     requires: "asreview-nemo",
     description:
       "A classifier and feature extractor combination both based on neural network architectures. Long training time and needs more data, but unrivaled performance in the final screening stages (Wide-Doc2Vec x Dynamic Neural Network).",
@@ -88,12 +94,141 @@ const getFullModel = (model) => {
   }
 };
 
+const splitFullModel = (changeValue, selectedModel = null) => {
+  if (changeValue === "custom") {
+    return selectedModel;
+  } else {
+    let parts = changeValue.split("-");
+    return {
+      feature_extraction: parts[0],
+      classifier: parts[1],
+      query_strategy: parts[2],
+      balance_strategy: parts[3],
+    };
+  }
+};
+
+const ModelSelectDialog = ({
+  open,
+  handleClose,
+  model,
+  modelOptions,
+  trainNewModel = false,
+}) => {
+  const project_id = useContext(ProjectContext);
+  const queryClient = useQueryClient();
+
+  const [selectedModel, setSelectedModel] = React.useState(model);
+
+  const handleRadioChange = (event) => {
+    setSelectedModel(splitFullModel(event.target.value, selectedModel));
+  };
+
+  const { mutate, isLoading, isError } = useMutation(
+    ProjectAPI.mutateModelConfig,
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["fetchModelConfig"] });
+
+        handleClose(selectedModel);
+      },
+    },
+  );
+
+  const handleSave = () => {
+    mutate({
+      project_id: project_id,
+      ...selectedModel,
+      trainNewModel: trainNewModel,
+    });
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="model-select-dialog-title"
+      aria-describedby="model-select-dialog-description"
+    >
+      <DialogTitle id="model-select-dialog-title">Select a model</DialogTitle>
+      <DialogContent>
+        <FormControl fullWidth>
+          <RadioGroup
+            value={getFullModel(selectedModel).name}
+            onChange={handleRadioChange}
+          >
+            {DEFAULT_MODELS.map((value) => (
+              <FormControlLabel
+                value={value.name}
+                control={<Radio />}
+                label={value.title}
+              />
+            ))}
+            <FormControlLabel
+              value={"custom"}
+              control={<Radio />}
+              label={"Custom"}
+            />
+            {getFullModel(selectedModel).name === "custom" && (
+              <Box>
+                <Stack direction="column" spacing={3}>
+                  <ModelSelect
+                    name="feature_extraction"
+                    label="Feature extraction technique"
+                    items={modelOptions?.feature_extraction}
+                    model={selectedModel}
+                    // handleModel={handleModelCustom}
+                  />
+                  <ModelSelect
+                    name="classifier"
+                    label="Classifier"
+                    items={modelOptions?.classifier}
+                    model={selectedModel}
+                    // handleModel={handleModelCustom}
+                  />
+                  <ModelSelect
+                    name="query_strategy"
+                    label="Query strategy"
+                    items={modelOptions?.query_strategy}
+                    model={selectedModel}
+                    // handleModel={handleModelCustom}
+                    helperText={
+                      selectedModel?.query_strategy === "random"
+                        ? "Your review is not accelerated by the model"
+                        : undefined
+                    }
+                  />
+                  <ModelSelect
+                    name="balance_strategy"
+                    label="Balance strategy"
+                    items={modelOptions?.balance_strategy}
+                    model={selectedModel}
+                    // handleModel={handleModelCustom}
+                  />
+                </Stack>
+              </Box>
+            )}
+          </RadioGroup>
+        </FormControl>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose}>Cancel</Button>
+        <Button onClick={handleSave} autoFocus disabled={isLoading}>
+          Save
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
 const ModelCard = ({
   editable = true,
   showWarning = false,
   trainNewModel = false,
 }) => {
   const project_id = useContext(ProjectContext);
+
+  const [modelSelect, toggleModelSelect] = useToggle();
 
   const [modelState, setModelState] = React.useState({
     custom: false,
@@ -115,6 +250,8 @@ const ModelCard = ({
   });
 
   const {
+    data: modelConfig,
+    isLoading: isLoadingModelConfig,
     error: fetchModelConfigError,
     isError: isFetchModelConfigError,
     isFetching: isFetchingModelConfig,
@@ -122,112 +259,9 @@ const ModelCard = ({
     ["fetchModelConfig", { project_id: project_id }],
     ProjectAPI.fetchModelConfig,
     {
-      enabled: project_id !== null,
-      onSuccess: (data) => {
-        setModelState({
-          custom: getFullModel(data).name === "custom",
-          isChanged: modelState.isChanged,
-          model: data,
-          warning: { ...modelState.warning },
-        });
-      },
       refetchOnWindowFocus: false,
     },
   );
-
-  const { mutate: mutateModelConfig, isError: isMutateModelConfigError } =
-    useMutation(ProjectAPI.mutateModelConfig, {
-      mutationKey: "mutateModelConfig",
-    });
-
-  const prepareMutationData = React.useCallback(
-    () => ({
-      project_id: project_id,
-      ...modelState.model,
-      trainNewModel: trainNewModel,
-    }),
-    [project_id, modelState, trainNewModel],
-  );
-
-  const handleModelCustom = (event) => {
-    const { name, value } = event.target;
-    setModelState({
-      custom: modelState.custom,
-      isChanged: true,
-      model: { ...modelState.model, ...{ [name]: value } },
-      warning: { ...modelState.warning },
-    });
-  };
-
-  const acceptModelChange = ({ value }) => {
-    const changeValue = value === undefined ? modelState.warning.value : value;
-
-    if (changeValue === "custom") {
-      setModelState({
-        custom: true,
-        isChanged: true,
-        model: modelState.model,
-        warning: {
-          active: false,
-          value: null,
-        },
-      });
-    } else {
-      let parts = changeValue.split("-");
-      setModelState({
-        custom: false,
-        isChanged: true,
-        model: {
-          feature_extraction: parts[0],
-          classifier: parts[1],
-          query_strategy: parts[2],
-          balance_strategy: parts[3],
-        },
-        warning: {
-          active: false,
-          value: null,
-        },
-      });
-    }
-  };
-
-  const cancelWarning = () => {
-    setModelState({
-      custom: modelState.custom,
-      isChanged: modelState.isChanged,
-      model: modelState.model,
-      warning: {
-        active: false,
-        value: null,
-      },
-    });
-  };
-
-  const handleModelDropdownChange = (event) => {
-    const { value } = event.target;
-
-    if (showWarning) {
-      setModelState({
-        custom: modelState.custom,
-        isChanged: modelState.isChanged,
-        model: modelState.model,
-        warning: {
-          active: true,
-          value: value,
-        },
-      });
-    } else {
-      acceptModelChange({ value });
-    }
-  };
-
-  React.useEffect(() => {
-    if (modelState.isChanged) {
-      mutateModelConfig(prepareMutationData());
-    }
-  }, [modelState, mutateModelConfig, prepareMutationData]);
-
-  const loading = false;
 
   return (
     <Card>
@@ -246,25 +280,52 @@ const ModelCard = ({
           </>
         }
       />
-      {loading ? (
-        <Skeleton sx={{ height: 190 }} animation="wave" variant="rectangular" />
+      {isLoadingModelConfig ? (
+        <Skeleton sx={{ height: 140 }} animation="wave" variant="rectangular" />
       ) : (
         <CardMedia
           component="img"
           height="140"
           image={modelAlwaysGood}
-          alt={"Model " + getFullModel(modelState.model).title}
+          alt={"Model " + getFullModel(modelConfig).title}
         />
       )}
 
-      <CardContent>{getFullModel(modelState.model).description}</CardContent>
+      {isLoadingModelConfig ? (
+        <Skeleton animation="wave" variant="text" />
+      ) : (
+        <CardContent>{getFullModel(modelConfig).description}</CardContent>
+      )}
 
       <CardContent>
-        <Button variant="contained" color="primary" onClick={() => {}}>
+        <Slider
+          sx={{ width: 300 }}
+          aria-label="Random"
+          defaultValue={0}
+          // getAriaValueText={(value) => {`${value}%`}}
+          valueLabelDisplay="on"
+          min={0}
+          max={25}
+        />
+      </CardContent>
+
+      <CardContent>
+        <Button variant="contained" color="primary" onClick={toggleModelSelect}>
           Change
         </Button>
 
-        {/* <Stack>
+        {!isLoadingModelConfig && (
+          <ModelSelectDialog
+            open={modelSelect}
+            handleClose={toggleModelSelect}
+            model={modelConfig}
+            modelOptions={modelOptions}
+            trainNewModel={trainNewModel}
+          />
+        )}
+
+        {/*
+        <Stack>
 
           <Box component="form" noValidate autoComplete="off">
             <FormControl
@@ -381,7 +442,7 @@ const ModelCard = ({
             )}
           </Box>
       </Stack> */}
-        <Dialog
+        {/* <Dialog
           open={modelState.warning.active}
           onClose={cancelWarning}
           aria-labelledby="mutate-warning-dialog-title"
@@ -405,8 +466,8 @@ const ModelCard = ({
               Continue
             </Button>
           </DialogActions>
-        </Dialog>
-
+        </Dialog> */}
+        {/*
         <CardErrorHandler
           queryKey={"fetchModelOptions"}
           error={fetchModelOptionsError}
@@ -416,7 +477,7 @@ const ModelCard = ({
           queryKey={"fetchModelConfig"}
           error={fetchModelConfigError}
           isError={isFetchModelConfigError}
-        />
+        /> */}
       </CardContent>
     </Card>
   );

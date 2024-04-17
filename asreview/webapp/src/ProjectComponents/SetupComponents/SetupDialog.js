@@ -40,6 +40,7 @@ import { PriorSelector } from "ProjectComponents/SetupComponents/PriorComponents
 import { useToggle } from "hooks/useToggle";
 import { ModelCard } from "ProjectComponents/SetupComponents/ModelComponents";
 import { Save } from "@mui/icons-material";
+import { ProjectContext } from "ProjectContext";
 
 const PREFIX = "SetupDialog";
 
@@ -246,7 +247,7 @@ const SetupDialog = ({
         </>
       )}
       {dataset && (
-        <>
+        <ProjectContext.Provider value={dataset.id}>
           <DialogTitle>
             Start project:{" "}
             {!editName && (
@@ -340,8 +341,8 @@ const SetupDialog = ({
               {mode === projectModes.SIMULATION ? "Simulate" : "Screen"}
             </Button>
           </DialogActions>
-        </>
-      )}{" "}
+        </ProjectContext.Provider>
+      )}
     </StyledSetupDialog>
   );
 };

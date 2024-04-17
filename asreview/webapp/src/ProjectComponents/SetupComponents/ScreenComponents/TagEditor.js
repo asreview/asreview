@@ -20,8 +20,8 @@ import {
   CardHeader,
   Link,
 } from "@mui/material";
-import { grey } from "@mui/material/colors";
-
+import { useContext } from "react";
+import { ProjectContext } from "ProjectContext";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import { useMutation, useQuery } from "react-query";
@@ -389,25 +389,19 @@ const Group = (props) => {
 const TagEditor = (props) => {
   const [groupDialogOpen, setGroupDialogOpen] = React.useState(false);
   const [tags, setTags] = React.useState([]);
+  const project_id = useContext(ProjectContext);
 
   /**
    * Fetch project info
    */
-  useQuery(
-    ["fetchInfo", { project_id: props.project_id }],
-    ProjectAPI.fetchInfo,
-    {
-      enabled: props.project_id !== null,
-      onSuccess: (data) => {
-        setTags(
-          data["tags"] === undefined || data["tags"] === null
-            ? []
-            : data["tags"],
-        );
-      },
-      refetchOnWindowFocus: false,
+  useQuery(["fetchInfo", { project_id: project_id }], ProjectAPI.fetchInfo, {
+    onSuccess: (data) => {
+      setTags(
+        data["tags"] === undefined || data["tags"] === null ? [] : data["tags"],
+      );
     },
-  );
+    refetchOnWindowFocus: false,
+  });
 
   /**
    * Mutate project info
@@ -438,7 +432,7 @@ const TagEditor = (props) => {
           updatedGroup,
           ...tags.slice(updatedGroupIndex + 1),
         ],
-        project_id: props.project_id,
+        project_id: project_id,
       });
     }
   };
@@ -446,7 +440,7 @@ const TagEditor = (props) => {
     mutate({
       // add new group to tags
       tags: [...tags, { name: name, values: values, id: id }],
-      project_id: props.project_id,
+      project_id: project_id,
     });
   };
 
