@@ -117,6 +117,7 @@ logistic = "asreview.models.classifiers:LogisticClassifier"
 
 [project.entry-points."asreview.models.feature_extraction"]
 tfidf = "asreview.models.feature_extraction:Tfidf"
+onehot = "asreview.models.feature_extraction:OneHot"
 
 [project.entry-points."asreview.models.balance"]
 simple = "asreview.models.balance:SimpleBalance"
