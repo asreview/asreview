@@ -33,7 +33,7 @@ done
 
 
 
-FEATURE_STRATEGIES=('tfidf')
+FEATURE_STRATEGIES=('tfidf' 'onehot')
 # FEATURE_STRATEGIES=('doc2vec' 'embedding-idf' 'embedding-lstm' 'sbert' 'tfidf')
 
 for fs in "${FEATURE_STRATEGIES[@]}"
