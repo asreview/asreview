@@ -15,7 +15,7 @@ import {
 import { CardErrorHandler } from "Components";
 import { ProjectAPI } from "api";
 
-import { styled} from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 
 import DatasetChart from "ProjectComponents/AnalyticsComponents/DatasetChart";
 
@@ -33,7 +33,7 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
     ProjectAPI.fetchData,
     {
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   const { mutate: deleteProject } = useMutation(
@@ -43,7 +43,7 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
       onSuccess: () => {
         setDataset(null);
       },
-    }
+    },
   );
 
   const n_english = data?.n_rows * 0.3;
@@ -59,58 +59,55 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
       >
         <CardContent>
           {data && (
-          <Stack spacing={2}>
-            <Stack>
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Dataset filename
-              </Typography>
-              <Typography variant="body2">{dataset_path}</Typography>
+            <Stack spacing={2}>
+              <Stack>
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  Dataset filename
+                </Typography>
+                <Typography variant="body2">{dataset_path}</Typography>
+              </Stack>
+
+              <Stack>
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  Records
+                </Typography>
+                <Typography variant="body2">{data?.n_rows}</Typography>
+              </Stack>
+
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <DatasetChart
+                    label={"Unique records"}
+                    part={data?.n_rows - data?.n_duplicates}
+                    total={data?.n_rows}
+                  />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <DatasetChart
+                    label={"Available titles"}
+                    part={data?.n_rows - data?.n_missing_title}
+                    total={data?.n_rows}
+                  />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <DatasetChart
+                    label={"Available abstracts"}
+                    part={data?.n_rows - data?.n_missing_abstract}
+                    total={data?.n_rows}
+                  />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <DatasetChart
+                    label={"English language"}
+                    part={n_english}
+                    total={data?.n_rows}
+                  />
+                </Grid>
+              </Grid>
             </Stack>
-
-            <Stack>
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Records
-              </Typography>
-              <Typography variant="body2">{data?.n_rows}</Typography>
-            </Stack>
-
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-              <DatasetChart
-                label={"Unique records"}
-                part={
-                  data?.n_rows - data?.n_duplicates
-                }
-                total={data?.n_rows}
-              />
-              </Grid>
-
-              <Grid item xs={12}>
-              <DatasetChart
-                label={"Available titles"}
-                part={data?.n_rows - data?.n_missing_title}
-                total={data?.n_rows}
-              />
-              </Grid>
-
-              <Grid item xs={12}>
-              <DatasetChart
-                label={"Available abstracts"}
-                part={data?.n_rows - data?.n_missing_abstract}
-                total={data?.n_rows}
-              />
-              </Grid>
-
-              <Grid item xs={12}>
-              <DatasetChart
-                label={"English language"}
-                part={n_english}
-                total={data?.n_rows}
-              />
-              </Grid>
-            </Grid>
-          </Stack>
-
           )}
 
           {isFetchingData && (
@@ -123,11 +120,9 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
             error={fetchDataError}
             isError={isFetchDataError}
           />
-        
-          </CardContent>
-        
+        </CardContent>
 
-          <CardActions>
+        <CardActions>
           <Button
             onClick={() => {
               deleteProject({ project_id: project_id });
@@ -135,7 +130,7 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
           >
             Change dataset
           </Button>
-          </CardActions>
+        </CardActions>
       </Card>
     </Root>
   );
