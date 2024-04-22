@@ -27,7 +27,7 @@ import {
   ModelCard,
   PriorCard,
   DatasetCard,
-  TagEditor,
+  TagCard,
 } from "ProjectComponents/SetupComponents";
 import {
   DatasetFromEntryPoint,
@@ -266,7 +266,7 @@ const SetupDialog = ({
             <Collapse in={showSettings}>
               {mode !== projectModes.SIMULATION && (
                 <Box sx={{ mb: 3 }}>
-                  <TagEditor
+                  <TagCard
                     project_id={dataset?.id}
                     mobileScreen={mobileScreen}
                   />

@@ -386,7 +386,7 @@ const Group = (props) => {
   );
 };
 
-const TagEditor = (props) => {
+const TagCard = (props) => {
   const [groupDialogOpen, setGroupDialogOpen] = React.useState(false);
   const [tags, setTags] = React.useState([]);
   const project_id = useContext(ProjectContext);
@@ -499,4 +499,4 @@ const TagEditor = (props) => {
   );
 };
 
-export default TagEditor;
+export default TagCard;

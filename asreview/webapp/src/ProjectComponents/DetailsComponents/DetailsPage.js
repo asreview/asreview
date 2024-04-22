@@ -11,7 +11,11 @@ import { styled } from "@mui/material/styles";
 import { useParams } from "react-router-dom";
 
 import { ProjectDeleteDialog } from "ProjectComponents";
-import { ModelCard, PriorCard } from "ProjectComponents/SetupComponents";
+import {
+  ModelCard,
+  PriorCard,
+  TagCard,
+} from "ProjectComponents/SetupComponents";
 
 import { ProjectContext } from "ProjectContext";
 import { TypographyH5Medium } from "StyledComponents/StyledTypography";
@@ -43,15 +47,18 @@ const DetailsPage = (props) => {
       <Container maxWidth="md">
         <ProjectContext.Provider value={project_id}>
           <Box sx={{ padding: "12px 0px" }}>
+            <TagCard editable={false} />
+          </Box>
+
+          <Box sx={{ padding: "12px 0px" }}>
+            <ModelCard editable={true} showWarning={true} />
+          </Box>
+          <Box sx={{ padding: "12px 0px" }}>
             <PriorCard
               editable={false}
               setHistoryFilterQuery={props.setHistoryFilterQuery}
             />
           </Box>
-          <Box sx={{ padding: "12px 0px" }}>
-            <ModelCard editable={true} showWarning={true} />
-          </Box>
-
           <Box sx={{ padding: "12px 0px" }}>
             <Typography variant="h6">Project status</Typography>
             <FormGroup>

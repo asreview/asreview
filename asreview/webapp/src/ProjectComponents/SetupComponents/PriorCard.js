@@ -108,7 +108,7 @@ const PriorCard = ({
           id={"add-prior-search"}
           onClick={toggleAddPrior}
           variant="contained"
-          diabled={editable}
+          disabled={editable}
           sx={{ mr: 2 }}
         >
           Search
@@ -117,7 +117,7 @@ const PriorCard = ({
         <Button
           id={"add-prior-view"}
           onClick={handleClickViewPrior}
-          diabled={data?.n_inclusions === 0 && data?.n_exclusions === 0}
+          disabled={data?.n_inclusions === 0 && data?.n_exclusions === 0}
         >
           View ({data?.n_inclusions + data?.n_exclusions})
         </Button>
