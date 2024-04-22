@@ -1,25 +1,22 @@
-import * as React from "react";
-import { useParams } from "react-router-dom";
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Box,
   Container,
-  Typography,
-  FormGroup,
   FormControlLabel,
+  FormGroup,
   Switch,
+  Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import LoadingButton from "@mui/lab/LoadingButton";
+import { useParams } from "react-router-dom";
 
 import { ProjectDeleteDialog } from "ProjectComponents";
-import { ModelCard } from "ProjectComponents/SetupComponents/ModelComponents";
-import { PriorForm } from "ProjectComponents/SetupComponents/PriorComponents";
-import { InfoForm } from "ProjectComponents/SetupComponents/InfoComponents";
+import { ModelCard, PriorCard } from "ProjectComponents/SetupComponents";
 
+import { ProjectContext } from "ProjectContext";
 import { TypographyH5Medium } from "StyledComponents/StyledTypography";
 import { projectStatuses } from "globals.js";
 import { useToggle } from "hooks/useToggle";
-import { ProjectContext } from "ProjectContext";
 
 const Root = styled("div")(({ theme }) => ({}));
 
@@ -46,10 +43,7 @@ const DetailsPage = (props) => {
       <Container maxWidth="md">
         <ProjectContext.Provider value={project_id}>
           <Box sx={{ padding: "12px 0px" }}>
-            <InfoForm editable={true} />
-          </Box>
-          <Box sx={{ padding: "12px 0px" }}>
-            <PriorForm
+            <PriorCard
               editable={false}
               setHistoryFilterQuery={props.setHistoryFilterQuery}
             />

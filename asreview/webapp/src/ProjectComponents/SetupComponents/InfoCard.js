@@ -1,9 +1,7 @@
-import * as React from "react";
-import { useMutation } from "react-query";
+import { Edit } from "@mui/icons-material";
 import {
   Box,
   Button,
-  Paper,
   IconButton,
   Link,
   Stack,
@@ -11,12 +9,12 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";
-import { Edit } from "@mui/icons-material";
+import * as React from "react";
+import { useMutation } from "react-query";
 
-const InfoForm = ({ projectInfo, editable = true, editName = true }) => {
+const InfoCard = ({ projectInfo, editable = true, editName = true }) => {
   const project_id = projectInfo.id;
 
   const [info, setInfo] = React.useState(projectInfo);
@@ -160,4 +158,4 @@ const InfoForm = ({ projectInfo, editable = true, editName = true }) => {
   );
 };
 
-export default InfoForm;
+export default InfoCard;

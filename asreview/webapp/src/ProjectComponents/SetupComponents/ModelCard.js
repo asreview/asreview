@@ -1,54 +1,48 @@
+import {
+  Avatar,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardMedia,
+  Chip,
+  Collapse,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  FormControl,
+  FormControlLabel,
+  FormHelperText,
+  IconButton,
+  InputLabel,
+  Link,
+  MenuItem,
+  Radio,
+  RadioGroup,
+  Select,
+  Skeleton,
+  Slider,
+  Stack,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import {
-  Box,
-  Card,
-  Chip,
-  Avatar,
-  CardContent,
-  CardMedia,
-  CardHeader,
-  CircularProgress,
-  Collapse,
-  Radio,
-  Link,
-  Stack,
-  Slider,
-  Typography,
-  Skeleton,
-  FormControl,
-  FormHelperText,
-  InputLabel,
-  MenuItem,
-  Select,
-  FormControlLabel,
-  RadioGroup,
-  FormLabel,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button,
-  IconButton,
-  Tooltip,
-  Divider,
-} from "@mui/material";
 
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 import { styled } from "@mui/material/styles";
 
-import { CardErrorHandler } from "Components";
-import { ModelSelect } from ".";
+import { SelectItem } from "ProjectComponents";
+import { ProjectContext } from "ProjectContext";
 import { ProjectAPI } from "api";
 import { defaultAlgorithms } from "globals.js";
-import { SelectItem } from "ProjectComponents";
-import { useContext } from "react";
-import { ProjectContext } from "ProjectContext";
-import modelAlwaysGood from "images/models/modelAlwaysGood.png";
 import { useToggle } from "hooks/useToggle";
+import modelAlwaysGood from "images/models/modelAlwaysGood.png";
+import { useContext } from "react";
 
 const DEFAULT_MODELS = [
   {
@@ -128,6 +122,41 @@ const splitFullModel = (changeValue, selectedModel = null) => {
     };
   }
 };
+
+const ModelSelect = ({
+  name,
+  label,
+  items,
+  model,
+  handleModel,
+  disableItem,
+  helperText,
+  editable = true,
+}) => (
+  <FormControl>
+    <InputLabel id={`${name}-select-label`}>{label}</InputLabel>
+    <Select
+      id={`select-${name}`}
+      name={name}
+      label={label}
+      value={model?.[name]}
+      onChange={handleModel}
+      disabled={!editable}
+    >
+      {items.map((value) => (
+        <MenuItem
+          key={`result-item-${value.name}`}
+          checked={model?.[name] === value.name}
+          value={value.name}
+          disabled={disableItem ? disableItem(value.name) : false}
+        >
+          <SelectItem primary={value.label} secondary={value.description} />
+        </MenuItem>
+      ))}
+    </Select>
+    <FormHelperText>{helperText}</FormHelperText>
+  </FormControl>
+);
 
 const ModelSelectDialog = ({
   open,

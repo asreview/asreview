@@ -1,9 +1,5 @@
-import * as React from "react";
-import { useMutation } from "react-query";
-import { useNavigate } from "react-router-dom";
+import Edit from "@mui/icons-material/Edit";
 import {
-  Stack,
-  Tooltip,
   Box,
   Button,
   Collapse,
@@ -14,33 +10,34 @@ import {
   FormControl,
   FormControlLabel,
   FormLabel,
-  Radio,
-  RadioGroup,
   IconButton,
   Input,
+  Radio,
+  RadioGroup,
+  Stack,
+  Tooltip,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import Close from "@mui/icons-material/Close";
-import Edit from "@mui/icons-material/Edit";
+import * as React from "react";
+import { useMutation } from "react-query";
+import { useNavigate } from "react-router-dom";
 
-import { StyledIconButton } from "StyledComponents/StyledButton";
-
-import { AppBarWithinDialog } from "Components";
-import { InfoForm } from "ProjectComponents/SetupComponents/InfoComponents";
+import { Save } from "@mui/icons-material";
 import {
-  DatasetFromFile,
+  ModelCard,
+  PriorCard,
+  TagEditor,
+} from "ProjectComponents/SetupComponents";
+import {
   DatasetFromEntryPoint,
+  DatasetFromFile,
   DatasetFromURI,
   DatasetInfo,
-} from "ProjectComponents/SetupComponents/DataComponents";
+} from "ProjectComponents/SetupComponents/DataUploadComponents";
+import { ProjectContext } from "ProjectContext";
 import { ProjectAPI } from "api";
 import { projectModes, projectStatuses } from "globals.js";
-import { TagEditor } from "ProjectComponents/SetupComponents/ScreenComponents";
-import { PriorSelector } from "ProjectComponents/SetupComponents/PriorComponents";
 import { useToggle } from "hooks/useToggle";
-import { ModelCard } from "ProjectComponents/SetupComponents/ModelComponents";
-import { Save } from "@mui/icons-material";
-import { ProjectContext } from "ProjectContext";
 
 const PREFIX = "SetupDialog";
 
@@ -59,41 +56,6 @@ const StyledSetupDialog = styled(Dialog)(({ theme }) => ({
     },
   },
 }));
-
-const classesHeader = {
-  title: `${PREFIX}-header-title`,
-};
-
-const StyledSetupDialogHeader = styled(Stack)(({ theme }) => ({
-  [`& .${classesHeader.title}`]: {
-    height: "64px",
-  },
-}));
-
-const SetupDialogHeader = ({ mobileScreen, onClose }) => {
-  if (mobileScreen) return null;
-
-  return (
-    <StyledSetupDialogHeader className="dialog-header" direction="row">
-      <DialogTitle className={classesHeader.title}>
-        Advanced configuration
-      </DialogTitle>
-      <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-        <Stack
-          className="dialog-header-button right"
-          direction="row"
-          spacing={1}
-        >
-          <Tooltip title={"Close"}>
-            <StyledIconButton onClick={onClose}>
-              <Close />
-            </StyledIconButton>
-          </Tooltip>
-        </Stack>
-      </Stack>
-    </StyledSetupDialogHeader>
-  );
-};
 
 const SetupDialog = ({
   open,
@@ -314,7 +276,7 @@ const SetupDialog = ({
                 <ModelCard />
               </Box>
               <Box sx={{ my: 3 }}>
-                <PriorSelector
+                <PriorCard
                   // setHistoryFilterQuery={setHistoryFilterQuery}
                   editable={true}
                   mobileScreen={mobileScreen}

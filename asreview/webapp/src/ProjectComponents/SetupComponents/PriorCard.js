@@ -1,29 +1,27 @@
-import * as React from "react";
-import { useNavigate } from "react-router-dom";
-import { useQuery } from "react-query";
 import { useContext } from "react";
+import { useQuery } from "react-query";
+import { useNavigate } from "react-router-dom";
 
 import {
   Button,
   Card,
   CardContent,
   CardHeader,
-  Link,
-  Stack,
-  Typography,
   FormControl,
-  FormLabel,
-  RadioGroup,
   FormControlLabel,
+  FormLabel,
+  Link,
   Radio,
+  RadioGroup,
+  Typography,
 } from "@mui/material";
-import { historyFilterOptions } from "globals.js";
-import { AddPriorKnowledge } from ".";
-import { useToggle } from "hooks/useToggle";
-import { ProjectAPI } from "api";
 import { ProjectContext } from "ProjectContext";
+import { ProjectAPI } from "api";
+import { historyFilterOptions } from "globals.js";
+import { useToggle } from "hooks/useToggle";
+import { AddPriorKnowledge } from "./SearchComponents";
 
-const PriorSelector = ({
+const PriorCard = ({
   setHistoryFilterQuery,
   mobileScreen,
   editable = true,
@@ -134,4 +132,4 @@ const PriorSelector = ({
   );
 };
 
-export default PriorSelector;
+export default PriorCard;
