@@ -48,6 +48,9 @@ from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.data import list_readers
 from asreview.data import list_writers
 from asreview.data.statistics import n_duplicates
+from asreview.data.statistics import n_relevant
+from asreview.data.statistics import n_irrelevant
+
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
 from asreview.models.balance import get_balance_model
@@ -396,7 +399,16 @@ def api_get_project_data(project):  # noqa: F401
 
         statistics = {
             "n_rows": len(as_data),
+            "n_relevant": n_relevant(as_data),
+            "n_irrelevant": n_irrelevant(as_data),
             "n_duplicates": n_duplicates(as_data),
+            "n_missing_title": int(
+                pd.Series(as_data.title).replace("", None).isnull().sum()
+            ),
+            "n_missing_abstract": int(
+                pd.Series(as_data.abstract).replace("", None).isnull().sum()
+            ),
+            "n_english": None,
             "filename": Path(project.config["dataset_path"]).stem,
         }
 

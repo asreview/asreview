@@ -5,7 +5,9 @@ import {
   Box,
   Button,
   Card,
+  CardActions,
   CardContent,
+  Grid,
   Stack,
   Typography,
   CircularProgress,
@@ -15,11 +17,12 @@ import { ProjectAPI } from "api";
 
 import { styled } from "@mui/material/styles";
 
-const classes = {};
+import DatasetChart from "ProjectComponents/AnalyticsComponents/DatasetChart";
 
 const Root = styled("div")(({ theme }) => ({}));
 
-const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
+const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
+  console.log("render state");
   const {
     data,
     error: fetchDataError,
@@ -53,34 +56,57 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
         }}
       >
         <CardContent>
-          <Box
-            className={classes.cardOverlay}
-            sx={{
-              bgcolor: "transparent",
-            }}
-          />
-          <Stack spacing={2}>
-            <Stack>
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Dataset filename
-              </Typography>
-              <Typography variant="body2">{dataset_path}</Typography>
+          {data && (
+            <Stack spacing={2}>
+              <Stack>
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  Dataset filename
+                </Typography>
+                <Typography variant="body2">{dataset_path}</Typography>
+              </Stack>
+
+              <Stack>
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  Records
+                </Typography>
+                <Typography variant="body2">{data?.n_rows}</Typography>
+              </Stack>
+
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <DatasetChart
+                    label={"Unique records"}
+                    part={data?.n_rows - data?.n_duplicates}
+                    total={data?.n_rows}
+                  />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <DatasetChart
+                    label={"Available titles"}
+                    part={data?.n_rows - data?.n_missing_title}
+                    total={data?.n_rows}
+                  />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <DatasetChart
+                    label={"Available abstracts"}
+                    part={data?.n_rows - data?.n_missing_abstract}
+                    total={data?.n_rows}
+                  />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <DatasetChart
+                    label={"English language"}
+                    part={data?.n_english}
+                    total={data?.n_rows}
+                  />
+                </Grid>
+              </Grid>
             </Stack>
-            <Stack>
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Records
-              </Typography>
-              <Typography variant="body2">{data?.n_rows}</Typography>
-            </Stack>
-            <Stack>
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Duplicates
-              </Typography>
-              <Typography variant="body2">
-                About {data?.n_duplicates}
-              </Typography>
-            </Stack>
-          </Stack>
+          )}
 
           {isFetchingData && (
             <Box className="main-page-body-wrapper">
@@ -92,17 +118,17 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
             error={fetchDataError}
             isError={isFetchDataError}
           />
+        </CardContent>
 
+        <CardActions>
           <Button
-            sx={{ m: 2, display: "inline", float: "right" }}
-            color="warning"
             onClick={() => {
               deleteProject({ project_id: project_id });
             }}
           >
             Change dataset
           </Button>
-        </CardContent>
+        </CardActions>
       </Card>
     </Root>
   );
