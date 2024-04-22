@@ -3,10 +3,13 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import {
   Box,
   Card,
+  Chip,
+  Avatar,
   CardContent,
   CardMedia,
   CardHeader,
   CircularProgress,
+  Collapse,
   Radio,
   Link,
   Stack,
@@ -27,7 +30,14 @@ import {
   DialogContentText,
   DialogActions,
   Button,
+  IconButton,
+  Tooltip,
+  Divider,
 } from "@mui/material";
+
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+
 import { styled } from "@mui/material/styles";
 
 import { CardErrorHandler } from "Components";
@@ -49,7 +59,7 @@ const DEFAULT_MODELS = [
   },
   {
     name: "onehot-logistic-max-double",
-    title: "One Word",
+    title: "OneWord",
     description:
       "A model that excels in finding specific words, providing good performance in finding the last remaining relevant documents.",
   },
@@ -75,6 +85,17 @@ const DEFAULT_MODELS = [
       "A classifier and feature extractor combination both based on neural network architectures. Long training time and needs more data, but unrivaled performance in the final screening stages (Wide-Doc2Vec x Dynamic Neural Network).",
   },
 ];
+
+const ExpandMore = styled((props) => {
+  const { expand, ...other } = props;
+  return <IconButton {...other} />;
+})(({ theme, expand }) => ({
+  transform: !expand ? "rotate(0deg)" : "rotate(180deg)",
+  marginLeft: "auto",
+  transition: theme.transitions.create("transform", {
+    duration: theme.transitions.duration.shortest,
+  }),
+}));
 
 const getFullModel = (model) => {
   let name =
@@ -230,6 +251,12 @@ const ModelCard = ({
 
   const [modelSelect, toggleModelSelect] = useToggle();
 
+  const [expanded, setExpanded] = React.useState(false);
+
+  const handleExpandClick = () => {
+    setExpanded(!expanded);
+  };
+
   const [modelState, setModelState] = React.useState({
     custom: false,
     isChanged: false,
@@ -263,6 +290,8 @@ const ModelCard = ({
     },
   );
 
+  console.log(modelConfig);
+
   return (
     <Card>
       <CardHeader
@@ -294,191 +323,100 @@ const ModelCard = ({
       {isLoadingModelConfig ? (
         <Skeleton animation="wave" variant="text" />
       ) : (
-        <CardContent>{getFullModel(modelConfig).description}</CardContent>
+        <CardContent>
+          <Typography variant="h6">
+            {getFullModel(modelConfig).title}
+          </Typography>
+          <Typography paragraph>
+            {getFullModel(modelConfig).description}{" "}
+            {" The model consists of the following components:"}
+          </Typography>
+
+          <Stack spacing={1} alignItems="center">
+            <Stack direction="row" spacing={1}>
+              <Tooltip title="Feature extraction">
+                <Chip
+                  avatar={<Avatar>F</Avatar>}
+                  label={modelConfig.feature_extraction}
+                  color="primary"
+                  variant="outlined"
+                />
+              </Tooltip>
+              <Tooltip title="Classifier">
+                <Chip
+                  avatar={<Avatar>C</Avatar>}
+                  label={modelConfig.classifier}
+                  color="primary"
+                  variant="outlined"
+                />
+              </Tooltip>
+              <Tooltip title="Query strategy">
+                <Chip
+                  avatar={<Avatar>Q</Avatar>}
+                  label={modelConfig.query_strategy}
+                  color="primary"
+                  variant="outlined"
+                />
+              </Tooltip>
+              <Tooltip title="Balance strategy">
+                <Chip
+                  avatar={<Avatar>B</Avatar>}
+                  label={modelConfig.balance_strategy}
+                  color="primary"
+                  variant="outlined"
+                />
+              </Tooltip>
+            </Stack>
+          </Stack>
+        </CardContent>
       )}
 
-      <CardContent>
-        <Slider
-          sx={{ width: 300 }}
-          aria-label="Random"
-          defaultValue={0}
-          // getAriaValueText={(value) => {`${value}%`}}
-          valueLabelDisplay="on"
-          min={0}
-          max={25}
+      {!isLoadingModelConfig && (
+        <ModelSelectDialog
+          open={modelSelect}
+          handleClose={toggleModelSelect}
+          model={modelConfig}
+          modelOptions={modelOptions}
+          trainNewModel={trainNewModel}
         />
-      </CardContent>
-
+      )}
       <CardContent>
         <Button variant="contained" color="primary" onClick={toggleModelSelect}>
           Change
         </Button>
-
-        {!isLoadingModelConfig && (
-          <ModelSelectDialog
-            open={modelSelect}
-            handleClose={toggleModelSelect}
-            model={modelConfig}
-            modelOptions={modelOptions}
-            trainNewModel={trainNewModel}
-          />
-        )}
-
-        {/*
-        <Stack>
-
-          <Box component="form" noValidate autoComplete="off">
-            <FormControl
-              disabled={!editable}
-              fullWidth
-              variant={editable ? "outlined" : "filled"}
-              error={isMutateModelConfigError}
-            >
-              <InputLabel id="model-select-label">Model</InputLabel>
-              <Select
-                labelId="model-select-label"
-                id="model-select"
-                // inputProps={{
-                //   onFocus: () => onFocus(),
-                //   onBlur: () => onBlur(),
-                // }}
-                name="model"
-                label="Model"
-                value={
-                  modelState.custom
-                    ? "custom"
-                    : getFullModel(modelState.model).name
-                }
-                onChange={handleModelDropdownChange}
-              >
-                {DEFAULT_MODELS.map((value) => (
-                  <MenuItem
-                    value={value.name}
-                    key={`result-item-${value.name}`}
-                    divider
-                  >
-                    <SelectItem
-                      primary={
-                        <Box>
-                          {value.title}{" "}
-                          {value.requires && (
-                            <Box sx={{ color: "blue", display: "inline" }}>
-                              (requires {value.requires})
-                            </Box>
-                          )}
-                        </Box>
-                      }
-                      secondary={value.description}
-                    />
-                  </MenuItem>
-                ))}
-
-                <MenuItem value={"custom"}>
-                  <SelectItem
-                    primary="Custom"
-                    secondary="Built the model yourself by picking a feature extractor, classifier, query strategy, and balance strategy."
-                  />
-                </MenuItem>
-              </Select>
-              {isMutateModelConfigError && (
-                <FormHelperText style={{ fontSize: "16px" }}>
-                  ASReview NEMO (New Exciting MOdels) extension isn't installed.
-                  Please install the{" "}
-                  <Link
-                    underline="none"
-                    href={`https://asreview.readthedocs.io/en/latest/guide/installation.html#installing-nemo-models`}
-                    target="_blank"
-                  >
-                    {" "}
-                    NEMO models
-                  </Link>{" "}
-                  extension to use this model.
-                </FormHelperText>
-              )}
-            </FormControl>
-
-            {modelState.custom && (
-              <Box>
-                <Stack direction="column" spacing={3}>
-                  <ModelSelect
-                    name="feature_extraction"
-                    label="Feature extraction technique"
-                    items={modelOptions?.feature_extraction}
-                    model={modelState.model}
-                    handleModel={handleModelCustom}
-                    editable={editable}
-                  />
-                  <ModelSelect
-                    name="classifier"
-                    label="Classifier"
-                    items={modelOptions?.classifier}
-                    model={modelState.model}
-                    handleModel={handleModelCustom}
-                    editable={editable}
-                  />
-                  <ModelSelect
-                    name="query_strategy"
-                    label="Query strategy"
-                    items={modelOptions?.query_strategy}
-                    model={modelState.model}
-                    handleModel={handleModelCustom}
-                    helperText={
-                      modelState.model?.query_strategy === "random"
-                        ? "Your review is not accelerated by the model"
-                        : undefined
-                    }
-                    editable={editable}
-                  />
-                  <ModelSelect
-                    name="balance_strategy"
-                    label="Balance strategy"
-                    items={modelOptions?.balance_strategy}
-                    model={modelState.model}
-                    handleModel={handleModelCustom}
-                    editable={editable}
-                  />
-                </Stack>
-              </Box>
-            )}
-          </Box>
-      </Stack> */}
-        {/* <Dialog
-          open={modelState.warning.active}
-          onClose={cancelWarning}
-          aria-labelledby="mutate-warning-dialog-title"
-          aria-describedby="mutate-warning-dialog-description"
+        <ExpandMore
+          expand={expanded}
+          onClick={handleExpandClick}
+          aria-expanded={expanded}
+          aria-label="show more"
+          sx={{ float: "right" }}
         >
-          <DialogTitle id="mutate-warning-dialog-title">
-            Change the model?
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="mutate-warning-dialog-description">
-              You are about to change the model. When you continue screening, a
-              model will be trained based on the new settings. Are you sure you
-              want to continue?
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={cancelWarning} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={acceptModelChange} color="primary" autoFocus>
-              Continue
-            </Button>
-          </DialogActions>
-        </Dialog> */}
-        {/*
-        <CardErrorHandler
-          queryKey={"fetchModelOptions"}
-          error={fetchModelOptionsError}
-          isError={isFetchModelOptionsError}
-        />
-        <CardErrorHandler
-          queryKey={"fetchModelConfig"}
-          error={fetchModelConfigError}
-          isError={isFetchModelConfigError}
-        /> */}
+          <ExpandMoreIcon />
+        </ExpandMore>
       </CardContent>
+
+      <Collapse in={expanded} timeout="auto" unmountOnExit>
+        <Divider />
+        <CardContent>
+          <Typography variant="h6">Randomness level</Typography>
+          <Typography paragraph>
+            Present a small percentage of randomly selected records from your
+            dataset during your review. This might help to find relevant records
+            that are not found by the AI model.
+          </Typography>
+          <Box sx={{ px: 2, paddingTop: 2 }}>
+            <Slider
+              sx={{ maxWidth: "500px" }}
+              aria-label="Random"
+              defaultValue={0}
+              // getAriaValueText={(value) => {`${value}%`}}
+              valueLabelDisplay="on"
+              min={0}
+              max={25}
+            />
+          </Box>
+        </CardContent>
+      </Collapse>
     </Card>
   );
 };

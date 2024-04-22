@@ -298,7 +298,7 @@ const SetupDialog = ({
 
             <Box sx={{ textAlign: "center" }}>
               <Button onClick={setShowSettings}>
-                {showSettings ? "Show project" : "Show options"}
+                {showSettings ? "Show dataset" : "Show options"}
               </Button>
             </Box>
             <Collapse in={showSettings}>
