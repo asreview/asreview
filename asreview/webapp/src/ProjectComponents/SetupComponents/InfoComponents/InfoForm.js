@@ -73,7 +73,7 @@ const InfoForm = ({ projectInfo, editable = true, editName = true }) => {
             </Stack>
           )}
           {info.description === null && (
-            <Box sx={{ mb: 3 }}>
+            <Typography sx={{ my: 3 }}>
               {!editProjectInfo && (
                 <Link
                   component="button"
@@ -85,10 +85,10 @@ const InfoForm = ({ projectInfo, editable = true, editName = true }) => {
                     color: "text.primary",
                   }}
                 >
-                  Click to add a description
+                  Click to add a project description
                 </Link>
               )}
-            </Box>
+            </Typography>
           )}
 
           {info.description !== null && (

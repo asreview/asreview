@@ -153,7 +153,7 @@ const SetupDialog = ({
       fullWidth
       maxWidth="md"
       PaperProps={{
-        sx: { height: !mobileScreen ? "calc(100% - 96px)" : "100%" },
+        sx: { height: !mobileScreen ? "calc(100% - 64px)" : "100%" },
       }}
       onClose={onClose}
       TransitionProps={{
@@ -285,25 +285,25 @@ const SetupDialog = ({
               </>
             )}
           </DialogTitle>
-          <DialogContent>
+          <DialogContent sx={{ backgroundColor: "#be7e7b" }}>
             <Collapse in={!showSettings}>
-              <InfoForm projectInfo={dataset} editName={false} />
-
-              <DatasetInfo
-                project_id={dataset?.id}
-                dataset_path={dataset?.dataset_path}
-                setDataset={setDataset}
-              />
+              <Box sx={{ mt: 3 }}>
+                <DatasetInfo
+                  project_id={dataset?.id}
+                  dataset_path={dataset?.dataset_path}
+                  setDataset={setDataset}
+                />
+              </Box>
             </Collapse>
 
-            <Box sx={{ textAlign: "center" }}>
-              <Button onClick={setShowSettings}>
+            <Box sx={{ textAlign: "center", my: 2 }}>
+              <Button onClick={setShowSettings} sx={{ color: "white" }}>
                 {showSettings ? "Show dataset" : "Show options"}
               </Button>
             </Box>
             <Collapse in={showSettings}>
               {mode !== projectModes.SIMULATION && (
-                <Box sx={{ my: 3 }}>
+                <Box sx={{ mb: 3 }}>
                   <TagEditor
                     project_id={dataset?.id}
                     mobileScreen={mobileScreen}

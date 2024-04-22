@@ -11,41 +11,17 @@ import {
   Link,
   Stack,
   Typography,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
 } from "@mui/material";
-import { Check } from "@mui/icons-material";
-import { styled } from "@mui/material/styles";
 import { historyFilterOptions } from "globals.js";
 import { AddPriorKnowledge } from ".";
 import { useToggle } from "hooks/useToggle";
 import { ProjectAPI } from "api";
 import { ProjectContext } from "ProjectContext";
-
-const PREFIX = "PriorSelector";
-
-const classes = {
-  cardContent: `${PREFIX}-card-content`,
-  cardOverlay: `${PREFIX}-card-overlay`,
-  singleLine: `${PREFIX}-single-line`,
-};
-
-const Root = styled("div")(({ theme }) => ({
-  [`& .${classes.cardContent}`]: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 24,
-    paddingRight: 8,
-    position: "relative",
-  },
-
-  [`& .${classes.singleLine}`]: {
-    display: "-webkit-box",
-    WebkitBoxOrient: "vertical",
-    WebkitLineClamp: 2,
-    whiteSpace: "pre-line",
-    overflow: "hidden",
-  },
-}));
 
 const PriorSelector = ({
   setHistoryFilterQuery,
@@ -75,66 +51,86 @@ const PriorSelector = ({
   );
 
   return (
-    <Root>
-      <Card>
-        <CardHeader
-          title="Your knowledge"
-          subheader={
-            <>
-              <>Your knowledge can help to warm up and accelerate the AI. </>
-              <Link
-                underline="none"
-                href={`https://asreview.nl/blog/active-learning-explained/`}
-                target="_blank"
-              >
-                learn more
-              </Link>
-            </>
-          }
-        />
-        <CardContent>
-          <Stack spacing={1}>
-            {(data?.n_inclusions === 0 || data?.n_exclusions === 0) && (
-              <Typography
-                variant="body2"
-                className={classes.singleLine}
-                sx={{ color: "text.secondary" }}
-              >
-                Label 1 or more relevant records to warm up the AI. It's also
-                possible to label irrelevant records.
-              </Typography>
-            )}
-            {data?.n_inclusions !== 0 && data?.n_exclusions !== 0 && (
-              <Typography
-                variant="body2"
-                className={classes.singleLine}
-                sx={{ color: "text.secondary" }}
-              >
-                {`${data?.n_prior_inclusions} relevant and ${data?.n_prior_exclusions} irrelevant records`}
-              </Typography>
-            )}
-          </Stack>
-          {editable && (
-            <Button
-              id={"add-prior"}
-              onClick={toggleAddPrior}
-              variant="contained"
+    <Card>
+      <CardHeader
+        title="Your knowledge"
+        subheader={
+          <>
+            <>Your knowledge helps to warm up and accelerate the AI. </>
+            <Link
+              underline="none"
+              href={`https://asreview.nl/blog/active-learning-explained/`}
+              target="_blank"
             >
-              {data?.n_inclusions === 0 || data?.n_exclusions === 0
-                ? "Add"
-                : "Edit"}
-            </Button>
-          )}
-          {!editable && <Button onClick={handleClickViewPrior}>View</Button>}
-        </CardContent>
+              learn more
+            </Link>
+          </>
+        }
+      />
 
-        <AddPriorKnowledge
-          open={onAddPrior}
-          mobileScreen={mobileScreen}
-          toggleAddPrior={toggleAddPrior}
-        />
-      </Card>
-    </Root>
+      <CardContent>
+        <FormControl>
+          <FormLabel id="prior-type-radio">
+            What knowledge so you want the AI to use in the beginning?
+          </FormLabel>
+          <RadioGroup
+            row
+            aria-labelledby="prior-type-radio"
+            name="prior-type"
+            defaultValue="records"
+          >
+            <FormControlLabel
+              value="records"
+              control={<Radio />}
+              label="Records"
+            />
+            <FormControlLabel
+              value="criteria"
+              control={<Radio />}
+              label="Criteria"
+            />
+          </RadioGroup>
+        </FormControl>
+      </CardContent>
+      <CardContent>
+        {(data?.n_inclusions === 0 || data?.n_exclusions === 0) && (
+          <Typography>
+            Search for one or more relevant records and label them relevant.
+            It's also possible to label irrelevant records.
+          </Typography>
+        )}
+        {data?.n_inclusions !== 0 && data?.n_exclusions !== 0 && (
+          <Typography>
+            {`${data?.n_prior_inclusions} relevant and ${data?.n_prior_exclusions} irrelevant records`}
+          </Typography>
+        )}
+      </CardContent>
+      <CardContent>
+        <Button
+          id={"add-prior-search"}
+          onClick={toggleAddPrior}
+          variant="contained"
+          diabled={editable}
+          sx={{ mr: 2 }}
+        >
+          Search
+        </Button>
+
+        <Button
+          id={"add-prior-view"}
+          onClick={handleClickViewPrior}
+          diabled={data?.n_inclusions === 0 && data?.n_exclusions === 0}
+        >
+          View ({data?.n_inclusions + data?.n_exclusions})
+        </Button>
+      </CardContent>
+
+      <AddPriorKnowledge
+        open={onAddPrior}
+        mobileScreen={mobileScreen}
+        toggleAddPrior={toggleAddPrior}
+      />
+    </Card>
   );
 };
 
