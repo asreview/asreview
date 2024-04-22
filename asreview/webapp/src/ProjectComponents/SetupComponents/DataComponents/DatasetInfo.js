@@ -46,8 +46,6 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
     },
   );
 
-  const n_english = data?.n_rows * 0.3;
-
   return (
     <Root>
       <Card
@@ -102,7 +100,7 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
                 <Grid item xs={12}>
                   <DatasetChart
                     label={"English language"}
-                    part={n_english}
+                    part={data?.n_english}
                     total={data?.n_rows}
                   />
                 </Grid>

@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import math
 
 import json
 import logging
@@ -409,9 +408,7 @@ def api_get_project_data(project):  # noqa: F401
             "n_missing_abstract": int(
                 pd.Series(as_data.abstract).replace("", None).isnull().sum()
             ),
-            "n_english": math.floor(
-                len(as_data) / 3
-            ),  # hardcoded for now TODO: implement language detection
+            "n_english": None,
             "filename": Path(project.config["dataset_path"]).stem,
         }
 
