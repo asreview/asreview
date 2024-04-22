@@ -1,25 +1,21 @@
-import React from "react";
-import clsx from "clsx";
+import { Link as LinkIcon } from "@mui/icons-material";
 import {
   Alert,
   Box,
   Card,
   CardContent,
-  CircularProgress,
   Link,
   Stack,
   Tooltip,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Link as LinkIcon } from "@mui/icons-material";
 import TruncateMarkup from "react-truncate-markup";
 
-import { DOIIcon } from "icons";
-import { RecordTrainingInfo, DecisionButton } from ".";
-import { ExplorationModeRecordAlert } from "StyledComponents/StyledAlert";
 import { StyledIconButton } from "StyledComponents/StyledButton";
 import { useToggle } from "hooks/useToggle";
+import { DOIIcon } from "icons";
+import { DecisionButton, RecordTrainingInfo } from ".";
 
 const PREFIX = "RecordCard";
 

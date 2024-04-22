@@ -26,13 +26,13 @@ import { Save } from "@mui/icons-material";
 import {
   ModelCard,
   PriorCard,
+  DatasetCard,
   TagEditor,
 } from "ProjectComponents/SetupComponents";
 import {
   DatasetFromEntryPoint,
   DatasetFromFile,
   DatasetFromURI,
-  DatasetInfo,
 } from "ProjectComponents/SetupComponents/DataUploadComponents";
 import { ProjectContext } from "ProjectContext";
 import { ProjectAPI } from "api";
@@ -250,7 +250,7 @@ const SetupDialog = ({
           <DialogContent sx={{ backgroundColor: "#be7e7b" }}>
             <Collapse in={!showSettings}>
               <Box sx={{ mt: 3 }}>
-                <DatasetInfo
+                <DatasetCard
                   project_id={dataset?.id}
                   dataset_path={dataset?.dataset_path}
                   setDataset={setDataset}

@@ -1,22 +1,16 @@
-import * as React from "react";
-import { useQuery, useMutation } from "react-query";
+import { useMutation, useQuery } from "react-query";
 
 import {
   Box,
   Button,
   Card,
-  CardActions,
   CardContent,
-  Grid,
-  Stack,
-  Link,
   CardHeader,
-  Skeleton,
   CardMedia,
-  Typography,
-  CircularProgress,
+  Grid,
+  Link,
+  Skeleton,
 } from "@mui/material";
-import { CardErrorHandler } from "Components";
 import { ProjectAPI } from "api";
 
 import DatasetChart from "ProjectComponents/AnalyticsComponents/DatasetChart";
@@ -92,7 +86,6 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
                 total={data?.n_rows}
               />
             </Grid>
-
             <Grid item xs={12} sm={4} sx={{ width: "200px" }}>
               <DatasetChart
                 label={"Abstract available"}
@@ -100,7 +93,6 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
                 total={data?.n_rows}
               />
             </Grid>
-
             <Grid item xs={12} sm={4} sx={{ width: "200px" }}>
               <DatasetChart
                 label={"English language"}
@@ -111,7 +103,6 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
           </Grid>
         </CardMedia>
       )}
-
       <CardContent>
         <Button
           variant="contained"
@@ -120,7 +111,7 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
             deleteProject({ project_id: project_id });
           }}
         >
-          Change dataset
+          Change
         </Button>
       </CardContent>
     </Card>
