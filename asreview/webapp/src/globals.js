@@ -107,14 +107,19 @@ export const passwordValidation = (yup_string) => {
     return `Your password must have at least 1 ${str} character`;
   };
 
-  return yup_string
-    // check minimum characters
-    .min(8, "Password must have at least 8 characters")
-    // different error messages for different requirements
-    .matches(/[0-9]/, getCharacterValidationError("digit"))
-    .matches(/[a-z]/, getCharacterValidationError("lowercase"))
-    .matches(/[A-Z]/, getCharacterValidationError("uppercase"))
+  return (
+    yup_string
+      // check minimum characters
+      .min(8, "Password must have at least 8 characters")
+      // different error messages for different requirements
+      .matches(/[0-9]/, getCharacterValidationError("digit"))
+      .matches(/[a-z]/, getCharacterValidationError("lowercase"))
+      .matches(/[A-Z]/, getCharacterValidationError("uppercase"))
+  );
 };
+
+export const passwordRequirements =
+  "Your password must be at least 8 characters long and includes at least one number, one lowercase letter, and one uppercase letter.";
 
 /**
  * Format date and mode
@@ -126,8 +131,6 @@ export const formatDate = (datetime) => {
     dateString.replace(/\s+\S*$/, ",") + dateString.match(/\s+\S*$/);
   return dateDisplay;
 };
-
-
 
 // enums
 export const projectModes = {
