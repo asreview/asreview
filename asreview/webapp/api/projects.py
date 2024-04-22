@@ -48,13 +48,10 @@ from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.data import list_readers
 from asreview.data import list_writers
-from asreview.data.statistics import (
-    n_duplicates,
-    n_missing_title,
-    n_missing_abstract,
-    n_relevant,
-    n_irrelevant,
-)
+from asreview.data.statistics import n_duplicates
+from asreview.data.statistics import n_relevant
+from asreview.data.statistics import n_irrelevant
+
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
 from asreview.models.balance import get_balance_model
