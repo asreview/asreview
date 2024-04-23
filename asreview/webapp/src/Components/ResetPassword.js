@@ -21,7 +21,7 @@ import AuthAPI from "api/AuthAPI";
 import {
   WordmarkState,
   passwordRequirements,
-  passwordValidation
+  passwordValidation,
 } from "globals.js";
 import { useToggle } from "hooks/useToggle";
 import { useFormik } from "formik";
@@ -73,7 +73,8 @@ const Root = styled("div")(({ theme }) => ({
 // VALIDATION SCHEMA
 const SignupSchema = Yup.object().shape({
   password: passwordValidation(Yup.string()).required("Password is required"),
-  confirmPassword: Yup.string().required("Password confirmation is required")
+  confirmPassword: Yup.string()
+    .required("Password confirmation is required")
     .oneOf([Yup.ref("password")], "Passwords must match")
     .when("password", {
       is: (value) => value !== undefined && value.length > 0,
@@ -151,7 +152,7 @@ const ResetPassword = (props) => {
                   <Typography variant="h5">Reset your password</Typography>
                   <Typography
                     variant="body2"
-                    sx={{ marginTop: "7px !important",}}
+                    sx={{ marginTop: "7px !important" }}
                   >
                     {passwordRequirements}
                   </Typography>

@@ -75,17 +75,15 @@ const ProfilePage = (props) => {
   };
 
   const handleReset = () => {
-    formik.setValues(
-      {
-        name: initName,
-        email: initEmail,
-        affiliation: initAffiliation,
-        publicAccount: initPublic,
-        oldPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-      },
-    );
+    formik.setValues({
+      name: initName,
+      email: initEmail,
+      affiliation: initAffiliation,
+      publicAccount: initPublic,
+      oldPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
   };
 
   const initialValues = {
@@ -105,7 +103,6 @@ const ProfilePage = (props) => {
 
   const { data, isFetched } = useQuery("fetchProfileData", AuthAPI.getProfile, {
     onSuccess: (data) => {
-
       var email = data.message.email;
       var name = data.message.name;
       var affiliation = data.message.affiliation || "";
@@ -123,7 +120,7 @@ const ProfilePage = (props) => {
           affiliation: affiliation,
           publicAccount: publicAcc,
         },
-        true
+        true,
       );
 
       // show password field?
@@ -224,10 +221,7 @@ const ProfilePage = (props) => {
           </Stack>
         </FormControl>
 
-        <Typography
-          variant="body2"
-          sx={{ marginTop: "7px !important",}}
-        >
+        <Typography variant="body2" sx={{ marginTop: "7px !important" }}>
           {passwordRequirements}
         </Typography>
 
@@ -272,10 +266,7 @@ const ProfilePage = (props) => {
               )}
               <Stack direction="row" spacing={1}>
                 <span>
-                  <Button
-                    onClick={handleReset}
-                    sx={{ marginRight: "15px" }}
-                  >
+                  <Button onClick={handleReset} sx={{ marginRight: "15px" }}>
                     reset
                   </Button>
                   <LoadingButton
