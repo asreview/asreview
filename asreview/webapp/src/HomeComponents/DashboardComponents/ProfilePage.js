@@ -166,6 +166,7 @@ const ProfilePage = (props) => {
           <Stack direction="column" spacing={2}>
             <Typography variant="h6">Change email & password</Typography>
             <TextField
+              required={true}
               id="email"
               label="Email"
               size="small"
@@ -304,6 +305,7 @@ const ProfilePage = (props) => {
                 <Typography variant="h6">User data</Typography>
               )}
               <TextField
+                required={true}
                 id="name"
                 label="Full name"
                 size="small"
@@ -319,6 +321,7 @@ const ProfilePage = (props) => {
                 <FHT error={true}>{formik.errors.name}</FHT>
               ) : null}
               <TextField
+                required={true}
                 id="affiliation"
                 label="Affiliation"
                 size="small"

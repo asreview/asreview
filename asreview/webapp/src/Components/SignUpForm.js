@@ -147,6 +147,7 @@ const SignUpForm = (props) => {
                 <Typography variant="h5">Create your profile</Typography>
                 <Stack spacing={3} component="form" noValidate>
                   <TextField
+                    required={true}
                     id="email"
                     name="email"
                     label="Email"
@@ -164,6 +165,7 @@ const SignUpForm = (props) => {
                   <FormControl>
                     <Stack direction="row" spacing={2}>
                       <TextField
+                        required={true}
                         id="password"
                         label="Password"
                         size="small"
@@ -177,6 +179,7 @@ const SignUpForm = (props) => {
                         }}
                       />
                       <TextField
+                        required={true}
                         id="confirmPassword"
                         label="Confirm Password"
                         size="small"
@@ -242,6 +245,7 @@ const SignUpForm = (props) => {
                   {isError && <InlineErrorHandler message={error.message} />}
                   <Divider />
                   <TextField
+                    required={true}
                     id="name"
                     name="name"
                     label="Full name"
@@ -256,6 +260,7 @@ const SignUpForm = (props) => {
                     <FHT error={true}>{formik.errors.name}</FHT>
                   ) : null}
                   <TextField
+                    required={true}
                     id="affiliation"
                     label="Affiliation"
                     size="small"

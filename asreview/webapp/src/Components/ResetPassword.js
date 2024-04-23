@@ -160,6 +160,7 @@ const ResetPassword = (props) => {
                 <FormControl>
                   <Stack spacing={3}>
                     <TextField
+                      required={true}
                       id="password"
                       label="Password"
                       size="small"
@@ -175,6 +176,7 @@ const ResetPassword = (props) => {
                       }}
                     />
                     <TextField
+                      required={true}
                       id="confirmPassword"
                       label="Confirm Password"
                       size="small"
