@@ -20,7 +20,11 @@ import {
 } from "@mui/material";
 
 import { InlineErrorHandler } from ".";
-import { WordmarkState, passwordValidation } from "../globals";
+import {
+  WordmarkState,
+  passwordValidation,
+  passwordRequirements
+} from "../globals";
 import { styled } from "@mui/material/styles";
 import { HelpPrivacyTermsButton } from "../Components";
 import { useToggle } from "../hooks/useToggle";
@@ -116,7 +120,9 @@ const SignUpForm = (props) => {
   });
 
   const handleSubmit = () => {
-    mutate(formik.values);
+    if (formik.isValid) {
+      mutate(formik.values);
+    }
   };
 
   const handleSignIn = () => {
@@ -148,6 +154,7 @@ const SignUpForm = (props) => {
                   <Typography variant="h5">Create your profile</Typography>
                   <Stack spacing={3} component="form" noValidate>
                     <TextField
+                      required={true}
                       id="email"
                       name="email"
                       label="Email"
@@ -165,30 +172,44 @@ const SignUpForm = (props) => {
                     <FormControl>
                       <Stack direction="row" spacing={2}>
                         <TextField
+                          required={true}
                           id="password"
                           label="Password"
                           size="small"
-                          autoComplete="new-password"
                           fullWidth
                           type={showPassword ? "text" : "password"}
                           value={formik.values.password}
                           onChange={formik.handleChange}
                           onBlur={formik.handleBlur}
+                          inputProps={{
+                            autoComplete: "new-password",
+                          }}
                         />
                         <TextField
+                          required={true}
                           id="confirmPassword"
                           label="Confirm Password"
                           size="small"
-                          autoComplete="new-password"
                           fullWidth
                           type={showPassword ? "text" : "password"}
                           onKeyDown={handleEnterKey}
                           value={formik.values.confirmPassword}
                           onChange={formik.handleChange}
                           onBlur={formik.handleBlur}
+                          inputProps={{
+                            autoComplete: "new-password",
+                          }}
                         />
                       </Stack>
                     </FormControl>
+
+                    <Typography
+                      variant="body2"
+                      sx={{ marginTop: "7px !important" }}
+                    >
+                      {passwordRequirements}
+                    </Typography>
+
                     {formik.touched.password && formik.errors.password ? (
                       <FHT error={true}>{formik.errors.password}</FHT>
                     ) : null}
@@ -232,6 +253,7 @@ const SignUpForm = (props) => {
                     {isError && <InlineErrorHandler message={error.message} />}
                     <Divider />
                     <TextField
+                      required={true}
                       id="name"
                       name="name"
                       label="Full name"
@@ -246,6 +268,7 @@ const SignUpForm = (props) => {
                       <FHT error={true}>{formik.errors.name}</FHT>
                     ) : null}
                     <TextField
+                      required={true}
                       id="affiliation"
                       label="Affiliation"
                       size="small"

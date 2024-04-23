@@ -127,7 +127,8 @@ export const formatDate = (datetime) => {
   return dateDisplay;
 };
 
-
+export const passwordRequirements =
+  "Your password must be at least 8 characters long and includes at least one number, one lowercase letter, and one uppercase letter.";
 
 // enums
 export const projectModes = {
