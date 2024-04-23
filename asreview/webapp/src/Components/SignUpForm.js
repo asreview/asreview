@@ -19,7 +19,11 @@ import {
 } from "@mui/material";
 
 import { InlineErrorHandler } from ".";
-import { WordmarkState, passwordValidation } from "globals.js";
+import {
+  WordmarkState,
+  passwordRequirements,
+  passwordValidation,
+} from "globals.js";
 import { styled } from "@mui/material/styles";
 import { HelpPrivacyTermsButton } from "Components";
 import { useToggle } from "hooks/useToggle";
@@ -105,7 +109,7 @@ const SignUpForm = (props) => {
       formik.setValues(initialValues, false);
       if (typeof props.showNotification === "function") {
         props.showNotification(
-          `A confirmation email has been sent to ${email}.`,
+          `A confirmation email has been sent to ${email}.`
         );
       }
       navigate("/signin");
@@ -113,7 +117,9 @@ const SignUpForm = (props) => {
   });
 
   const handleSubmit = () => {
-    mutate(formik.values);
+    if (formik.isValid) {
+      mutate(formik.values);
+    }
   };
 
   const handleSignIn = () => {
@@ -161,27 +167,39 @@ const SignUpForm = (props) => {
                         id="password"
                         label="Password"
                         size="small"
-                        autoComplete="new-password"
                         fullWidth
                         type={showPassword ? "text" : "password"}
                         value={formik.values.password}
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
+                        inputProps={{
+                          autoComplete: "new-password",
+                        }}
                       />
                       <TextField
                         id="confirmPassword"
                         label="Confirm Password"
                         size="small"
-                        autoComplete="new-password"
                         fullWidth
                         type={showPassword ? "text" : "password"}
                         onKeyDown={handleEnterKey}
                         value={formik.values.confirmPassword}
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
+                        inputProps={{
+                          autoComplete: "new-password",
+                        }}
                       />
                     </Stack>
                   </FormControl>
+
+                  <Typography
+                    variant="body2"
+                    sx={{ marginTop: "7px !important" }}
+                  >
+                    {passwordRequirements}
+                  </Typography>
+
                   {formik.touched.password && formik.errors.password ? (
                     <FHT error={true}>{formik.errors.password}</FHT>
                   ) : null}
