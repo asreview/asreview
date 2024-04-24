@@ -690,8 +690,8 @@ class ASReviewProject:
                 f.truncate()
 
         # location to copy file to
-        # Move the project from the temp folder to the projects folder.
-        os.replace(tmpdir, Path(project_path, project_config["id"]))
+        # Copy the project from the temp folder to the projects folder.
+        shutil.copytree(tmpdir, Path(project_path, project_config["id"]))
 
         return cls(Path(project_path, project_config["id"]))
 
