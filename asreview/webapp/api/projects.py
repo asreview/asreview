@@ -731,10 +731,6 @@ def api_get_algorithms(project):  # noqa: F401
     except StateNotFoundError:
         pass
 
-    from time import sleep
-
-    sleep(20)
-
     return jsonify(
         {
             "classifier": "nb",
