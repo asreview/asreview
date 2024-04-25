@@ -97,7 +97,9 @@ const PriorSearch = ({}) => {
     }
   };
 
-  const afterDecision = () => {};
+  const afterDecision = () => {
+    console.log("afterDecision - close the card");
+  };
 
   return (
     <Root>

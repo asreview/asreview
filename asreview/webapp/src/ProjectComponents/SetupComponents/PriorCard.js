@@ -1,5 +1,6 @@
 import { useContext } from "react";
-import { useQuery } from "react-query";
+import React from "react";
+import { useQuery, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -18,7 +19,6 @@ import {
 import { ProjectContext } from "ProjectContext";
 import { ProjectAPI } from "api";
 import { historyFilterOptions } from "globals.js";
-import { useToggle } from "hooks/useToggle";
 import { AddPriorKnowledge } from "./SearchComponents";
 
 const PriorCard = ({
@@ -27,10 +27,12 @@ const PriorCard = ({
   editable = true,
 }) => {
   const project_id = useContext(ProjectContext);
+  const queryClient = useQueryClient();
 
   const navigate = useNavigate();
 
-  const [onAddPrior, toggleAddPrior] = useToggle();
+  const [openPriorSearch, setOpenPriorSearch] = React.useState(false);
+  const [priorType, setPriorType] = React.useState("records");
 
   const handleClickViewPrior = () => {
     navigate(`/projects/${project_id}/history`);
@@ -43,10 +45,18 @@ const PriorCard = ({
     ["fetchLabeledStats", { project_id: project_id }],
     ProjectAPI.fetchLabeledStats,
     {
-      enabled: project_id !== null,
       refetchOnWindowFocus: false,
     },
   );
+
+  const onClosePriorSearch = () => {
+    // Reset the fetchLabeledStats query
+    queryClient.resetQueries("fetchLabeledStats");
+
+    setOpenPriorSearch(false);
+  };
+
+  console.log("render card", data);
 
   return (
     <Card>
@@ -75,7 +85,8 @@ const PriorCard = ({
             row
             aria-labelledby="prior-type-radio"
             name="prior-type"
-            defaultValue="records"
+            defaultValue={priorType}
+            onChange={(event) => setPriorType(event.target.value)}
           >
             <FormControlLabel
               value="records"
@@ -90,43 +101,49 @@ const PriorCard = ({
           </RadioGroup>
         </FormControl>
       </CardContent>
-      <CardContent>
-        {(data?.n_inclusions === 0 || data?.n_exclusions === 0) && (
-          <Typography>
-            Search for one or more relevant records and label them relevant.
-            It's also possible to label irrelevant records.
-          </Typography>
-        )}
-        {data?.n_inclusions !== 0 && data?.n_exclusions !== 0 && (
-          <Typography>
-            {`${data?.n_prior_inclusions} relevant and ${data?.n_prior_exclusions} irrelevant records`}
-          </Typography>
-        )}
-      </CardContent>
-      <CardContent>
-        <Button
-          id={"add-prior-search"}
-          onClick={toggleAddPrior}
-          variant="contained"
-          disabled={editable}
-          sx={{ mr: 2 }}
-        >
-          Search
-        </Button>
 
-        <Button
-          id={"add-prior-view"}
-          onClick={handleClickViewPrior}
-          disabled={data?.n_inclusions === 0 && data?.n_exclusions === 0}
-        >
-          View ({data?.n_inclusions + data?.n_exclusions})
-        </Button>
-      </CardContent>
+      {priorType === "records" && (
+        <>
+          <CardContent>
+            {(data?.n_inclusions === 0 || data?.n_exclusions === 0) && (
+              <Typography>
+                Search for one or more relevant records and label them relevant.
+                It's also possible to label irrelevant records.
+              </Typography>
+            )}
+            {data?.n_inclusions !== 0 && data?.n_exclusions !== 0 && (
+              <Typography>
+                {`${data?.n_prior_inclusions} relevant and ${data?.n_prior_exclusions} irrelevant records`}
+              </Typography>
+            )}
+          </CardContent>
+
+          <CardContent>
+            <Button
+              id={"add-prior-search"}
+              onClick={() => setOpenPriorSearch(true)}
+              variant="contained"
+              disabled={!editable}
+              sx={{ mr: 2 }}
+            >
+              Search
+            </Button>
+
+            <Button
+              id={"add-prior-view"}
+              onClick={handleClickViewPrior}
+              disabled={data?.n_inclusions === 0 && data?.n_exclusions === 0}
+            >
+              View ({data?.n_inclusions + data?.n_exclusions})
+            </Button>
+          </CardContent>
+        </>
+      )}
 
       <AddPriorKnowledge
-        open={onAddPrior}
+        open={openPriorSearch}
         mobileScreen={mobileScreen}
-        toggleAddPrior={toggleAddPrior}
+        onClose={onClosePriorSearch}
       />
     </Card>
   );

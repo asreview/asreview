@@ -72,7 +72,7 @@ const RecordCard = ({
 }) => {
   const [readMoreOpen, toggleReadMore] = useToggle();
 
-  console.log(record);
+  // console.log(record);
 
   const isNotTrained =
     record?.state?.query_strategy === "top-down" ||

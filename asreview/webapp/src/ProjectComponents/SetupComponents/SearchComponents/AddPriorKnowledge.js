@@ -20,18 +20,7 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   overflowY: "hidden",
 }));
 
-const AddPriorKnowledge = ({ open, toggleAddPrior, mobileScreen }) => {
-  const project_id = useContext(ProjectContext);
-
-  const { data } = useQuery(
-    ["fetchLabeledStats", { project_id: project_id }],
-    ProjectAPI.fetchLabeledStats,
-    {
-      enabled: open && project_id !== null,
-      refetchOnWindowFocus: false,
-    },
-  );
-
+const AddPriorKnowledge = ({ open, onClose, mobileScreen }) => {
   return (
     <StyledDialog
       hideBackdrop
@@ -43,13 +32,14 @@ const AddPriorKnowledge = ({ open, toggleAddPrior, mobileScreen }) => {
         sx: { height: !mobileScreen ? "calc(100% - 64px)" : "100%" },
       }}
       TransitionComponent={Fade}
+      onClose={onClose}
     >
       <DialogTitle>Search prior knowledge</DialogTitle>
       <DialogContent>
-        <PriorSearch n_prior={data?.n_prior} />
+        <PriorSearch />
       </DialogContent>
       <DialogActions>
-        <Button onClick={toggleAddPrior}>Return</Button>
+        <Button onClick={onClose}>Return</Button>
       </DialogActions>
     </StyledDialog>
   );
