@@ -222,9 +222,8 @@ class SQLiteState(BaseState):
             )
 
             con.commit()
-            con.close()
+
         except sqlite3.Error as e:
-            con.close()
             raise e
 
         # Create settings_metadata.json file
@@ -286,7 +285,6 @@ class SQLiteState(BaseState):
         table_names = cur.execute(
             "SELECT name FROM sqlite_master WHERE type='table';"
         ).fetchall()
-        con.close()
 
         # Check if all required tables are present.
         table_names = [tup[0] for tup in table_names]
@@ -328,7 +326,7 @@ class SQLiteState(BaseState):
             json.dump(self.settings_metadata, f)
 
     def close(self):
-        pass
+        self._connect_to_sql().close()
 
     # PROPERTIES
     @property
@@ -400,7 +398,6 @@ class SQLiteState(BaseState):
         cur = con.cursor()
         cur.execute("SELECT COUNT (*) FROM record_table")
         n = cur.fetchone()[0]
-        con.close()
 
         return n
 
@@ -429,7 +426,7 @@ class SQLiteState(BaseState):
         cur = con.cursor()
         cur.execute("SELECT COUNT (*) FROM results WHERE query_strategy='prior'")
         n = cur.fetchone()
-        con.close()
+
         n = n[0]
 
         if n == 0:
@@ -586,7 +583,6 @@ class SQLiteState(BaseState):
             db_rows,
         )
         con.commit()
-        con.close()
 
     def add_note(self, note, record_id):
         """Add a text note to save with a labeled record.
@@ -604,7 +600,6 @@ class SQLiteState(BaseState):
             "UPDATE results SET notes = ? WHERE record_id = ?", (note, record_id)
         )
         con.commit()
-        con.close()
 
     def add_labeling_data(
         self, record_ids, labels, notes=None, tags_list=None, prior=False
@@ -707,7 +702,6 @@ class SQLiteState(BaseState):
         cur = con.cursor()
         cur.executemany(query, data)
         con.commit()
-        con.close()
 
     def _add_labeling_data_simulation_mode(self, rows):
         """Add labeling and model data to the results table.
@@ -734,7 +728,6 @@ class SQLiteState(BaseState):
         cur = con.cursor()
         cur.executemany(query, rows)
         con.commit()
-        con.close()
 
     def update_decision(self, record_id, label, note=None, tags=None):
         """Change the label of an already labeled record.
@@ -771,7 +764,6 @@ class SQLiteState(BaseState):
         )
 
         con.commit()
-        con.close()
 
     def delete_record_labeling_data(self, record_id):
         """Delete the labeling data for the given record id.
@@ -797,7 +789,6 @@ class SQLiteState(BaseState):
             (record_id, None, current_time),
         )
         con.commit()
-        con.close()
 
     def get_decision_changes(self):
         """Get the record ids for any decision changes.
@@ -813,7 +804,7 @@ class SQLiteState(BaseState):
         """
         con = self._connect_to_sql()
         change_table = pd.read_sql_query("SELECT * FROM decision_changes", con)
-        con.close()
+
         return change_table
 
     def get_record_table(self):
@@ -827,7 +818,7 @@ class SQLiteState(BaseState):
         con = self._connect_to_sql()
         record_table = pd.read_sql_query("SELECT * FROM record_table", con)
         record_table = record_table["record_id"]
-        con.close()
+
         return record_table
 
     def get_last_probabilities(self):
@@ -840,7 +831,7 @@ class SQLiteState(BaseState):
         """
         con = self._connect_to_sql()
         last_probabilities = pd.read_sql_query("SELECT * FROM last_probabilities", con)
-        con.close()
+
         return last_probabilities["proba"]
 
     def get_last_ranking(self):
@@ -856,7 +847,7 @@ class SQLiteState(BaseState):
         """
         con = self._connect_to_sql()
         last_ranking = pd.read_sql_query("SELECT * FROM last_ranking", con)
-        con.close()
+
         return last_ranking
 
     def _move_ranking_data_to_results(self, record_ids):
@@ -884,7 +875,6 @@ class SQLiteState(BaseState):
             record_list,
         )
         con.commit()
-        con.close()
 
     def get_top_ranked(self, n):
         """Get the top ranked records from the ranking table.
@@ -948,7 +938,7 @@ class SQLiteState(BaseState):
         data = pd.read_sql_query(
             f"SELECT {query_string} FROM results WHERE record_id={record_id}", con
         )
-        con.close()
+
         return data
 
     def get_dataset(self, columns=None, priors=True, pending=False):
@@ -996,7 +986,6 @@ class SQLiteState(BaseState):
         data = pd.read_sql_query(
             f"SELECT {query_string} FROM results {sql_where_str}", con
         )
-        con.close()
 
         return data
 
@@ -1037,7 +1026,6 @@ class SQLiteState(BaseState):
             f"SELECT {query_string} FROM results" " WHERE query_strategy is 'prior'",
             con,
         )
-        con.close()
 
         return data
 
@@ -1136,7 +1124,7 @@ class SQLiteState(BaseState):
                 """,
             con,
         )
-        con.close()
+
         return df["record_id"]
 
     def get_labeled(self):
@@ -1156,7 +1144,7 @@ class SQLiteState(BaseState):
         query = """SELECT record_id, label FROM results
          WHERE label is not null"""
         df = pd.read_sql_query(query, con)
-        con.close()
+
         return df
 
     def get_pending(self, return_all=False):
@@ -1177,7 +1165,6 @@ class SQLiteState(BaseState):
         else:
             query = """SELECT record_id FROM results WHERE label is null"""
         df = pd.read_sql_query(query, con)
-        con.close()
 
         if return_all:
             return df
@@ -1215,7 +1202,7 @@ class SQLiteState(BaseState):
                 """
 
         df = pd.read_sql_query(query, con)
-        con.close()
+
         labeled = df.loc[~df["label"].isna()].loc[:, ["record_id", "label"]].astype(int)
         pool = df.loc[df["label_order"].isna(), "record_id"].astype(int)
         pending = (
