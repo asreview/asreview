@@ -62,7 +62,6 @@ SETTINGS_METADATA_KEYS = [
     "settings",
     "state_version",
     "software_version",
-    "model_has_trained",
 ]
 CURRENT_STATE_VERSION = "1.1"
 
@@ -92,8 +91,6 @@ class SQLiteState(BaseState):
     exist_new_labeled_records: bool
         Have there been labeled records added to the state since the last time
         a model ranking was added to the state?
-    model_has_trained: bool
-        Has the ranking by a model been added to the state?
     """
 
     def __init__(self, read_only=True):
@@ -236,7 +233,6 @@ class SQLiteState(BaseState):
             "settings": None,
             "state_version": CURRENT_STATE_VERSION,
             "software_version": __version__,
-            "model_has_trained": False,
         }
 
         with open(self._settings_metadata_fp, "w") as f:
@@ -455,11 +451,6 @@ class SQLiteState(BaseState):
         else:
             return len(labeled) > last_training_set.iloc[0]
 
-    @property
-    def model_has_trained(self):
-        """Return True if there is data of a trained model in the state."""
-        return self.settings_metadata["model_has_trained"]
-
     def _add_settings_metadata(self, key, value):
         """Add information to the settings_metadata dictionary."""
         if self.read_only:
@@ -596,10 +587,6 @@ class SQLiteState(BaseState):
         )
         con.commit()
         con.close()
-
-        # If it's the first ranking table to be added, set model_has_trained.
-        if not self.model_has_trained:
-            self._add_settings_metadata("model_has_trained", True)
 
     def add_note(self, note, record_id):
         """Add a text note to save with a labeled record.
@@ -884,23 +871,20 @@ class SQLiteState(BaseState):
             List of record ids in last ranking whose model data should be added
             to the results table.
         """
-        if self.model_has_trained:
-            record_list = [(record_id,) for record_id in record_ids]
-            con = self._connect_to_sql()
-            cur = con.cursor()
-            cur.executemany(
-                """INSERT INTO results (record_id, classifier, query_strategy,
-                balance_strategy, feature_extraction, training_set)
-                SELECT record_id, classifier, query_strategy,
-                balance_strategy, feature_extraction, training_set
-                FROM last_ranking
-                WHERE record_id=?""",
-                record_list,
-            )
-            con.commit()
-            con.close()
-        else:
-            raise StateError("Save trained model data before using this function.")
+        record_list = [(record_id,) for record_id in record_ids]
+        con = self._connect_to_sql()
+        cur = con.cursor()
+        cur.executemany(
+            """INSERT INTO results (record_id, classifier, query_strategy,
+            balance_strategy, feature_extraction, training_set)
+            SELECT record_id, classifier, query_strategy,
+            balance_strategy, feature_extraction, training_set
+            FROM last_ranking
+            WHERE record_id=?""",
+            record_list,
+        )
+        con.commit()
+        con.close()
 
     def get_top_ranked(self, n):
         """Get the top ranked records from the ranking table.
@@ -918,10 +902,7 @@ class SQLiteState(BaseState):
         list
             List of record_ids of the top n ranked records.
         """
-        if self.model_has_trained:
-            return self.get_pool()[:n].to_list()
-        else:
-            raise StateError("Save trained model data before using this function.")
+        return self.get_pool()[:n].to_list()
 
     def query_top_ranked(self, n, return_all=False):
         """Get the top ranked records from the ranking table.
@@ -939,12 +920,8 @@ class SQLiteState(BaseState):
         list
             List of record_ids of the top n ranked records.
         """
-        if self.model_has_trained:
-            pool = self.get_pool()
-            top_n_records = pool[:n].to_list()
-            self._move_ranking_data_to_results(top_n_records)
-        else:
-            raise StateError("Save trained model data before using this function.")
+        top_n_records = self.get_pool()[:n].to_list()
+        self._move_ranking_data_to_results(top_n_records)
 
         return top_n_records
 
@@ -1265,27 +1242,17 @@ class SQLiteState(BaseState):
         """
         # If model has trained, using ranking to order pool.
         con = self._connect_to_sql()
-        if self.model_has_trained:
-            query = """SELECT last_ranking.record_id, last_ranking.ranking,
-                    results.query_strategy
-                    FROM last_ranking
-                    LEFT JOIN results
-                    ON last_ranking.record_id = results.record_id
-                    WHERE results.query_strategy is null
-                    ORDER BY ranking
-                    """
-            df = pd.read_sql_query(query, con)
-
-        # Else return all records not yet in the results table.
-        else:
-            query = """SELECT record_table.record_id, results.query_strategy
-                    FROM record_table
-                    LEFT JOIN results
-                    ON record_table.record_id = results.record_id
-                    WHERE results.query_strategy is null
-                    """
-            df = pd.read_sql_query(query, con)
-
+        df = pd.read_sql_query(
+            """SELECT last_ranking.record_id, last_ranking.ranking,
+                results.query_strategy
+                FROM last_ranking
+                LEFT JOIN results
+                ON last_ranking.record_id = results.record_id
+                WHERE results.query_strategy is null
+                ORDER BY ranking
+                """,
+            con,
+        )
         con.close()
         return df["record_id"]
 
