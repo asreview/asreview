@@ -258,14 +258,12 @@ def test_get_data_by_record_id():
 
 def test_get_query_strategies():
     with open_state(TEST_STATE_FP) as state:
-        assert isinstance(state.get_query_strategies(), pd.Series)
-        assert state.get_query_strategies().to_list() == TEST_QUERY_STRATEGIES
+        assert state.get_dataset()["query_strategy"].to_list() == TEST_QUERY_STRATEGIES
 
 
 def test_get_classifiers():
     with open_state(TEST_STATE_FP) as state:
-        assert isinstance(state.get_classifiers(), pd.Series)
-        assert state.get_classifiers().to_list() == TEST_CLASSIFIERS
+        assert state.get_dataset()["classifier"].to_list() == TEST_CLASSIFIERS
 
 
 def test_get_training_sets():
