@@ -12,7 +12,6 @@ from asreview.settings import ASReviewSettings
 from asreview.state import SQLiteState
 from asreview.state.contextmanager import open_state
 from asreview.state.errors import StateNotFoundError
-from asreview.state.sqlstate import RESULTS_TABLE_COLUMNS
 
 TEST_LABELS = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
 TEST_INDICES = [16, 346, 509, 27, 11, 555, 554, 680, 264, 309]
@@ -247,32 +246,6 @@ def test_get_dataset_drop_pending(tmpdir):
         assert state.get_dataset(pending=False)["label"].notna().all()
 
 
-def test_get_data_by_query_number():
-    with open_state(TEST_STATE_FP) as state:
-        query = state.get_data_by_query_number(0)
-        assert list(query.columns) == RESULTS_TABLE_COLUMNS
-        assert (
-            query["balance_strategy"].tolist()
-            == TEST_BALANCE_STRATEGIES[:TEST_N_PRIORS]
-        )
-        assert query["classifier"].tolist() == TEST_CLASSIFIERS[:TEST_N_PRIORS]
-
-        for query_num in [1, 3, 5]:
-            query_idx = query_num + TEST_N_PRIORS - 1
-            query = state.get_data_by_query_number(query_num)
-            assert isinstance(query, pd.DataFrame)
-            assert (
-                query["feature_extraction"].to_list()[0]
-                == TEST_FEATURE_EXTRACTION[query_idx]
-            )
-            assert query["label"].to_list()[0] == TEST_LABELS[query_idx]
-            assert query["record_id"].to_list()[0] == TEST_RECORD_IDS[query_idx]
-
-        columns = RESULTS_TABLE_COLUMNS[2:5]
-        query = state.get_data_by_query_number(4, columns)
-        assert list(query.columns) == columns
-
-
 def test_get_data_by_record_id():
     with open_state(TEST_STATE_FP) as state:
         for idx in [2, 6, 8]:
@@ -285,14 +258,12 @@ def test_get_data_by_record_id():
 
 def test_get_query_strategies():
     with open_state(TEST_STATE_FP) as state:
-        assert isinstance(state.get_query_strategies(), pd.Series)
-        assert state.get_query_strategies().to_list() == TEST_QUERY_STRATEGIES
+        assert state.get_dataset()["query_strategy"].to_list() == TEST_QUERY_STRATEGIES
 
 
 def test_get_classifiers():
     with open_state(TEST_STATE_FP) as state:
-        assert isinstance(state.get_classifiers(), pd.Series)
-        assert state.get_classifiers().to_list() == TEST_CLASSIFIERS
+        assert state.get_dataset()["classifier"].to_list() == TEST_CLASSIFIERS
 
 
 def test_get_training_sets():

@@ -926,44 +926,6 @@ class SQLiteState(BaseState):
         return top_n_records
 
     # GET FUNCTIONS
-    def get_data_by_query_number(self, query, columns=None):
-        """Get the data of a specific query from the results table.
-
-        Arguments
-        ---------
-        query: int
-            Number of the query of which you want the data. query=0 corresponds
-            to all the prior records.
-        columns: list
-            List of columns names of the results table.
-
-        Returns
-        -------
-        pd.DataFrame
-            Dataframe containing the data from the results table with the given
-            query number and columns.
-        """
-        if columns is not None:
-            if not isinstance(columns, list):
-                raise ValueError("The columns argument should be a list.")
-        col_query_string = "*" if columns is None else ",".join(columns)
-
-        if query == 0:
-            sql_query = (
-                f"SELECT {col_query_string} FROM results WHERE "
-                f"query_strategy='prior'"
-            )
-        else:
-            rowid = query + self.n_priors
-            sql_query = (
-                f"SELECT {col_query_string} FROM results WHERE " f"rowid={rowid}"
-            )
-
-        con = self._connect_to_sql()
-        data = pd.read_sql_query(sql_query, con)
-        con.close()
-        return data
-
     def get_data_by_record_id(self, record_id, columns=None):
         """Get the data of a specific query from the results table.
 
@@ -1096,85 +1058,6 @@ class SQLiteState(BaseState):
         """
 
         return self.get_dataset("label", priors=priors, pending=pending)["label"]
-
-    def get_classifiers(self, priors=True, pending=False):
-        """Get the classifiers from the state.
-
-        Arguments
-        ---------
-        priors: bool
-            Whether to keep the records containing the prior knowledge.
-        pending: bool
-            Whether to keep the records which are pending a labeling decision.
-
-        Returns
-        -------
-        pd.Series:
-            Series containing the classifier used at each labeling moment.
-        """
-        return self.get_dataset("classifier", priors=priors, pending=pending)[
-            "classifier"
-        ]
-
-    def get_query_strategies(self, priors=True, pending=False):
-        """Get the query strategies from the state.
-
-        Arguments
-        ---------
-        priors: bool
-            Whether to keep the records containing the prior knowledge.
-        pending: bool
-            Whether to keep the records which are pending a labeling decision.
-
-        Returns
-        -------
-        pd.Series:
-            Series containing the query strategy used to get the record to
-            query at each labeling moment.
-        """
-        return self.get_dataset("query_strategy", priors=priors, pending=pending)[
-            "query_strategy"
-        ]
-
-    def get_balance_strategies(self, priors=True, pending=False):
-        """Get the balance strategies from the state.
-
-        Arguments
-        ---------
-        priors: bool
-            Whether to keep the records containing the prior knowledge.
-        pending: bool
-            Whether to keep the records which are pending a labeling decision.
-
-        Returns
-        -------
-        pd.Series:
-            Series containing the balance strategy used to get the training
-            data at each labeling moment.
-        """
-        return self.get_dataset("balance_strategy", priors=priors, pending=pending)[
-            "balance_strategy"
-        ]
-
-    def get_feature_extraction(self, priors=True, pending=False):
-        """Get the query strategies from the state.
-
-        Arguments
-        ---------
-        priors: bool
-            Whether to keep the records containing the prior knowledge.
-        pending: bool
-            Whether to keep the records which are pending a labeling decision.
-
-        Returns
-        -------
-        pd.Series:
-            Series containing the feature extraction method used for the
-            classifier input at each labeling moment.
-        """
-        return self.get_dataset("feature_extraction", priors=priors, pending=pending)[
-            "feature_extraction"
-        ]
 
     def get_training_sets(self, priors=True, pending=False):
         """Get the training_sets from the state.
