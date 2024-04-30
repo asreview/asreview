@@ -50,7 +50,7 @@ def test_prior_idx(tmpdir):
 
     with open_state(asreview_fp) as state:
         labeling_order = state.get_order_of_labeling()
-        query_strategies = state.get_query_strategies()
+        query_strategies = state.get_dataset()["query_strategy"]
 
     assert labeling_order[0] == 1
     assert labeling_order[1] == 4
@@ -131,7 +131,7 @@ def test_non_tf_models(tmpdir):
         cli_simulate(argv)
 
         with open_state(asreview_fp) as state:
-            classifiers = state.get_classifiers()
+            classifiers = state.get_dataset()["classifier"]
         default_n_priors = 2
         assert all(classifiers[default_n_priors:] == model)
 
