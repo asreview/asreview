@@ -665,9 +665,9 @@ def api_random_prior_papers(project):  # noqa: F401
         indices = as_data.df.index.values
 
     with open_state(project.project_path) as state:
-        pool = state.get_pool().values
+        labeled = state.get_labeled()["record_id"].values
 
-    pool = np.intersect1d(pool, indices)
+    pool = np.setdiff1d(indices, labeled, assume_unique=True)
     rand_pool = np.random.choice(pool, min(len(pool), n), replace=False)
 
     payload = {"result": []}
