@@ -256,49 +256,6 @@ class BaseState(ABC):
         """
         raise NotImplementedError
 
-    def get_classifiers(self):
-        """Get the classifiers from the state file.
-
-        Returns
-        -------
-        pd.Series:
-            Series containing the classifier used at each labeling moment.
-        """
-        raise NotImplementedError
-
-    def get_query_strategies(self):
-        """Get the query strategies from the state file.
-
-        Returns
-        -------
-        pd.Series:
-            Series containing the query strategy used to get the record to
-            query at each labeling moment.
-        """
-        raise NotImplementedError
-
-    def get_balance_strategies(self):
-        """Get the balance strategies from the state file.
-
-        Returns
-        -------
-        pd.Series:
-            Series containing the balance strategy used to get the training
-            data at each labeling moment.
-        """
-        raise NotImplementedError
-
-    def get_feature_extraction(self):
-        """Get the query strategies from the state file.
-
-        Returns
-        -------
-        pd.Series:
-            Series containing the feature extraction method used for the
-            classifier input at each labeling moment.
-        """
-        raise NotImplementedError
-
     def get_training_sets(self):
         """Get the training_sets from the state file.
 
