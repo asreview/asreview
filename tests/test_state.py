@@ -354,17 +354,12 @@ def test_add_last_probabilities_fail(asreview_test_project):
             state.add_last_probabilities([1.0, 2.0, 3.0])
 
 
-def test_add_last_probabilities(tmpdir):
-    project_path = Path(tmpdir, "test.asreview")
-    asr.Project.create(project_path)
-    probabilities = [float(num) for num in range(50)]
-    with open_state(project_path) as state:
+def test_add_last_probabilities(asreview_test_project):
+    with open_state(asreview_test_project) as state:
+        probabilities = [float(num) for num in range(state.n_records)]
         state.add_last_probabilities(probabilities)
         state_probabilities = state.get_last_probabilities().to_list()
         assert state_probabilities == probabilities
-        state.add_last_probabilities(None)
-        state_probabilities = state.get_last_probabilities().to_list()
-        assert not state_probabilities
 
 
 def test_move_ranking_data_to_results(tmpdir):

@@ -201,8 +201,7 @@ class SQLiteState(BaseState):
             json.dump(self.settings_metadata, f)
 
     def _restore(self, working_dir, review_id):
-        """
-        Restore a state from files.
+        """Restore a state from files.
 
         Arguments
         ---------
@@ -357,12 +356,9 @@ class SQLiteState(BaseState):
         int
             Number of records.
         """
-        con = self._conn()
-        cur = con.cursor()
+        cur = self._conn().cursor()
         cur.execute("SELECT COUNT (*) FROM record_table")
-        n = cur.fetchone()[0]
-
-        return n
+        return cur.fetchone()[0]
 
     @property
     def n_records_labeled(self):
@@ -373,8 +369,7 @@ class SQLiteState(BaseState):
         int
             Number of labeled records, priors counted individually.
         """
-        labeled = self.get_labeled()
-        return len(labeled)
+        return len(self.get_labeled())
 
     @property
     def n_priors(self):
@@ -385,16 +380,9 @@ class SQLiteState(BaseState):
         int
             Number of records which were added as prior knowledge.
         """
-        con = self._conn()
-        cur = con.cursor()
+        cur = self._conn().cursor()
         cur.execute("SELECT COUNT (*) FROM results WHERE query_strategy='prior'")
-        n = cur.fetchone()
-
-        n = n[0]
-
-        if n == 0:
-            return None
-        return n
+        return cur.fetchone()[0]
 
     @property
     def exist_new_labeled_records(self):
@@ -426,15 +414,9 @@ class SQLiteState(BaseState):
         record_ids: list, np.array
             List containing all record ids of the dataset.
         """
-        record_sql_input = [(int(record_id),) for record_id in record_ids]
-
-        con = self._conn()
-        cur = con.cursor()
-        cur.execute("DELETE FROM record_table")
-        cur.executemany(
-            "INSERT INTO record_table (record_id) VALUES (?)", record_sql_input
+        pd.DataFrame({"record_id": record_ids}).to_sql(
+            "record_table", self._conn(), if_exists="replace", index=False
         )
-        con.commit()
 
     def add_last_probabilities(self, probabilities):
         """Save the probabilities produced by the last classifier.
@@ -442,36 +424,17 @@ class SQLiteState(BaseState):
         Arguments
         ---------
         probabilities: list, np.array
-            List containing the relevance scores for every record. If this is None, the
-            last probabilities table in the state is emptied.
+            List containing the relevance scores for every record.
         """
-        if probabilities is None:
-            con = self._conn()
-            cur = con.cursor()
-            cur.execute("""DELETE FROM last_probabilities""")
-            con.commit()
-            return
 
-        proba_sql_input = [(proba,) for proba in probabilities]
-
-        con = self._conn()
-        cur = con.cursor()
-
-        # Check that the number of rows in the table is 0 (if the table is not
-        # yet populated), or that it's equal to len(probabilities).
-        cur.execute("SELECT COUNT (*) FROM last_probabilities")
-        proba_length = cur.fetchone()[0]
-        if not ((proba_length == 0) or (proba_length == len(proba_sql_input))):
+        if self.n_records != len(probabilities):
             raise ValueError(
-                f"There are {proba_length} probabilities in the database, "
-                f"but 'probabilities' has length {len(probabilities)}"
+                "The number of probabilities should be equal to the number of records."
             )
 
-        cur.execute("""DELETE FROM last_probabilities""")
-        cur.executemany(
-            "INSERT INTO last_probabilities (proba) VALUES (?)", proba_sql_input
+        pd.DataFrame({"proba": probabilities}).to_sql(
+            "last_probabilities", self._conn(), if_exists="replace", index=False
         )
-        con.commit()
 
     def add_last_ranking(
         self,
@@ -869,15 +832,13 @@ class SQLiteState(BaseState):
         return top_n_records
 
     # GET FUNCTIONS
-    def get_data_by_record_id(self, record_id, columns=None):
+    def get_data_by_record_id(self, record_id):
         """Get the data of a specific query from the results table.
 
         Arguments
         ---------
         record_id: int
             Record id of which you want the data.
-        columns: list
-            List of columns names of the results table.
 
         Returns
         -------
@@ -885,10 +846,9 @@ class SQLiteState(BaseState):
             Dataframe containing the data from the results table with the given
             record_id and columns.
         """
-        query_string = "*" if columns is None else ",".join(columns)
 
         return pd.read_sql_query(
-            f"SELECT {query_string} FROM results WHERE record_id={record_id}",
+            f"SELECT * FROM results WHERE record_id={record_id}",
             self._conn(),
         )
 
@@ -956,7 +916,7 @@ class SQLiteState(BaseState):
             "record_id"
         ]
 
-    def get_priors(self, columns=None):
+    def get_priors(self):
         """Get the record ids of the priors.
 
         Returns
@@ -965,12 +925,8 @@ class SQLiteState(BaseState):
             The record_id's of the priors in the order they were added.
         """
 
-        if columns is None:
-            columns = ["record_id"]
-        query_string = "*" if columns is None else ",".join(columns)
-
         return pd.read_sql_query(
-            f"SELECT {query_string} FROM results" " WHERE query_strategy is 'prior'",
+            "SELECT * FROM results WHERE query_strategy is 'prior'",
             self._conn(),
         )
 
@@ -1056,8 +1012,6 @@ class SQLiteState(BaseState):
             Series containing the record_ids of the unlabeled, not pending
             records, in the order of the last available ranking.
         """
-        # If model has trained, using ranking to order pool.
-        con = self._conn()
         return pd.read_sql_query(
             """SELECT last_ranking.record_id, last_ranking.ranking,
                 results.query_strategy
@@ -1067,7 +1021,7 @@ class SQLiteState(BaseState):
                 WHERE results.query_strategy is null
                 ORDER BY ranking
                 """,
-            con,
+            self._conn(),
         )["record_id"]
 
     def get_labeled(self):
@@ -1123,7 +1077,6 @@ class SQLiteState(BaseState):
             order that they were labeled. Pending is a series containing the
             record_ids of the records whose label is pending.
         """
-        con = self._conn()
 
         query = """SELECT record_table.record_id, results.label,
                 results.rowid AS label_order, results.query_strategy,
@@ -1136,7 +1089,7 @@ class SQLiteState(BaseState):
                 ORDER BY label_order, ranking
                 """
 
-        df = pd.read_sql_query(query, con)
+        df = pd.read_sql_query(query, self._conn())
 
         labeled = df.loc[~df["label"].isna()].loc[:, ["record_id", "label"]].astype(int)
         pool = df.loc[df["label_order"].isna(), "record_id"].astype(int)
