@@ -28,9 +28,6 @@ class BaseState(ABC):
     def __exit__(self, *_, **__):
         self.close()
 
-    def __str__(self):
-        return str(self.to_dict())
-
     @abstractmethod
     def _create_new_state_file(self, working_dir, review_id):
         """Create empty internal structure for state.
@@ -120,12 +117,6 @@ class BaseState(ABC):
         """
         raise NotImplementedError
 
-    @property
-    @abstractmethod
-    def settings(self):
-        """Get settings from the state."""
-        raise NotImplementedError
-
     @abstractmethod
     def add_note(self, note, record_id):
         """Add a text note to save with a labeled record.
@@ -191,16 +182,6 @@ class BaseState(ABC):
             record_ids of the records whose label is pending.
         """
         raise NotImplementedError
-
-    def is_empty(self):
-        """Check if state has no results.
-
-        Returns
-        -------
-        bool
-            True if empty.
-        """
-        return self.n_records_labeled == 0
 
     @property
     @abstractmethod
@@ -283,15 +264,3 @@ class BaseState(ABC):
     def close(self):
         """Close the files opened by the state."""
         raise NotImplementedError
-
-    def to_dict(self):
-        """Convert state to dictionary.
-
-        Returns
-        -------
-        dict:
-            Dictionary with all settings and results.
-        """
-        state_data = self.get_dataset()
-        state_dict = {"settings": vars(self.settings), "data": state_data.to_dict()}
-        return state_dict

@@ -19,6 +19,8 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+import json
+from pathlib import Path
 
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import LABEL_NA
@@ -146,9 +148,6 @@ class Simulate:
         if self.data_labels is None:
             self.data_labels = np.full(len(as_data), LABEL_NA)
 
-        with open_state(self.project):
-            pass
-
     @property
     def settings(self):
         """Get an ASReview settings object"""
@@ -245,9 +244,16 @@ class Simulate:
 
     def review(self):
         with open_state(self.project) as s:
-            # If the state is empty, add the settings.
-            if s.is_empty():
-                s.settings = self.settings
+            with open(
+                Path(
+                    self.project.project_path,
+                    "reviews",
+                    self.project.reviews[0]["id"],
+                    "settings_metadata.json",
+                ),
+                "w",
+            ) as f:
+                json.dump({"settings": self.settings.to_dict()}, f)
 
             # Add the record table to the state if it is not already there.
             self.record_table = s.get_record_table()

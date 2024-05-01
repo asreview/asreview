@@ -81,6 +81,8 @@ def test_n_prior_included(tmpdir):
     with open(settings_path) as f:
         settings_metadata = json.load(f)
 
+    print(settings_metadata)
+
     assert settings_metadata["settings"]["n_prior_included"] == 2
 
 
