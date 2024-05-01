@@ -60,10 +60,8 @@ RESULTS_TABLE_COLUMNS = [
 ]
 SETTINGS_METADATA_KEYS = [
     "settings",
-    "state_version",
-    "software_version",
 ]
-CURRENT_STATE_VERSION = "1.1"
+CURRENT_STATE_VERSION = 2
 
 
 class SQLiteState(BaseState):
@@ -137,8 +135,9 @@ class SQLiteState(BaseState):
 
         # Create results table.
         con = self._conn()
-        cur = con.cursor()
+        self.user_version = CURRENT_STATE_VERSION
 
+        cur = con.cursor()
         # Create the results table.
         cur.execute(
             """CREATE TABLE results
@@ -189,17 +188,6 @@ class SQLiteState(BaseState):
 
         con.commit()
 
-        # Create settings_metadata.json file
-        # content of the settings is added later
-        self.settings_metadata = {
-            "settings": None,
-            "state_version": CURRENT_STATE_VERSION,
-            "software_version": __version__,
-        }
-
-        with open(self._settings_metadata_fp, "w") as f:
-            json.dump(self.settings_metadata, f)
-
     def _restore(self, working_dir, review_id):
         """Restore a state from files.
 
@@ -234,10 +222,10 @@ class SQLiteState(BaseState):
     def _is_valid_state(self):
         try:
             version = check_and_update_version(
-                self.version, CURRENT_STATE_VERSION, self
+                self.user_version, CURRENT_STATE_VERSION, self
             )
-            if version != self.version:
-                self._update_version(version)
+            if version != self.user_version:
+                self.user_version = version
         except AttributeError as err:
             raise ValueError(f"Unexpected error when opening state file: {err}")
 
@@ -270,43 +258,24 @@ class SQLiteState(BaseState):
                 f"{' '.join(missing_columns)}."
             )
 
-        # Check settings_metadata contains the required keys.
-        missing_keys = [
-            key
-            for key in SETTINGS_METADATA_KEYS
-            if key not in self.settings_metadata.keys()
-        ]
-        if missing_keys:
-            raise StateError(
-                f"The keys {' '.join(missing_keys)} were not found in "
-                f"settings_metadata."
-            )
-
-    def _update_version(self, new_version):
-        self.settings_metadata["state_version"] = str(new_version)
-        with open(self._settings_metadata_fp, "w") as f:
-            json.dump(self.settings_metadata, f)
-
     def close(self):
         self._conn().close()
 
     # PROPERTIES
     @property
-    def version(self):
-        """Version number of the state.
+    def user_version(self):
+        """Version number of the state."""
+        cur = self._conn().cursor()
+        version = cur.execute("PRAGMA user_version")
 
-        Returns
-        -------
-        str:
-            Returns the version of the state.
+        return int(version.fetchone()[0])
 
-        """
-        try:
-            return self.settings_metadata["state_version"]
-        except KeyError:
-            raise AttributeError(
-                "'settings_metadata.json' does not contain 'state_version'."
-            )
+    @user_version.setter
+    def user_version(self, version):
+        cur = self._conn().cursor()
+        cur.execute(f"PRAGMA user_version = {version}")
+        self._conn().commit()
+        cur.close()
 
     @property
     def settings(self):

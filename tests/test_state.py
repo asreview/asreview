@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 
 import pandas as pd
 import pytest
@@ -166,7 +167,7 @@ def test_read_basic_state(asreview_test_project):
 
 def test_version_number_state(asreview_test_project):
     with open_state(asreview_test_project) as state:
-        assert state.version[0] == "1"
+        assert state.user_version == 2
 
 
 def test_print_state(asreview_test_project):
@@ -175,8 +176,12 @@ def test_print_state(asreview_test_project):
 
 
 def test_settings_state(asreview_test_project):
-    with open_state(asreview_test_project) as state:
-        assert isinstance(state.settings, ASReviewSettings)
+    project = asr.Project(asreview_test_project)
+    review_id = project.reviews[0]["id"]
+    with open(
+        Path(project.project_path, "reviews", review_id, "settings_metadata.json")
+    ) as f:
+        ASReviewSettings(**json.load(f)["settings"])
 
 
 def test_n_records_labeled(asreview_test_project):
@@ -190,9 +195,8 @@ def test_n_priors(asreview_test_project):
 
 
 def test_create_new_state_file(tmpdir):
-    project_path = Path(tmpdir, "test.asreview")
-    asr.Project.create(project_path)
-    with open_state(project_path) as state:
+    project = asr.Project.create(Path(tmpdir, "test.asreview"))
+    with open_state(project) as state:
         state._is_valid_state()
 
 

@@ -716,16 +716,20 @@ def api_get_algorithms(project):  # noqa: F401
     """Get the algorithms used in the project"""
 
     try:
-        with open_state(project.project_path) as state:
-            if state.settings is not None:
-                return jsonify(
-                    {
-                        "classifier": state.settings.model,
-                        "feature_extraction": state.settings.feature_extraction,
-                        "query_strategy": state.settings.query_strategy,
-                        "balance_strategy": state.settings.balance_strategy,
-                    }
-                )
+        review_id = project.reviews[0]["id"]
+        with open(
+            Path(project.project_path, "reviews", review_id, "settings_metadata.json")
+        ) as f:
+            settings = ASReviewSettings(**json.load(f)["settings"])
+
+        return jsonify(
+            {
+                "classifier": settings.model,
+                "feature_extraction": settings.feature_extraction,
+                "query_strategy": settings.query_strategy,
+                "balance_strategy": settings.balance_strategy,
+            }
+        )
     except StateNotFoundError:
         pass
 
@@ -768,9 +772,17 @@ def api_set_algorithms(project):  # noqa: F401
         feature_param=feature_extraction.param,
     )
 
-    # save the new settings to the state file
-    with open_state(project.project_path) as state:
-        state.settings = asreview_settings
+    # Create settings_metadata.json file
+    # content of the settings is added later
+    settings_metadata = {
+        "settings": asreview_settings.to_dict(),
+    }
+
+    review_id = project.reviews[0]["id"]
+    with open(
+        Path(project.project_path, "reviews", review_id, "settings_metadata.json"), "w"
+    ) as f:
+        json.dump(settings_metadata, f)
 
     return jsonify({"success": True})
 
