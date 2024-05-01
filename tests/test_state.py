@@ -472,7 +472,7 @@ def test_pool_labeled_pending(tmpdir):
 
         pool2 = state.get_pool()
         labeled2 = state.get_labeled()
-        pending2 = state.get_pending()
+        pending2 = state.get_pending()["record_id"]
 
         assert isinstance(pool2, pd.Series)
         assert isinstance(labeled2, pd.DataFrame)

@@ -1365,7 +1365,7 @@ def api_get_document(project):  # noqa: F401
     """Retrieve record in order of review."""
 
     with open_state(project.project_path) as state:
-        pending = state.get_pending(return_all=True)
+        pending = state.get_pending()
 
         if pending.empty:
             try:
@@ -1385,7 +1385,7 @@ def api_get_document(project):  # noqa: F401
                 )
 
             state.query_top_ranked(1)
-            pending = state.get_pending(return_all=True)
+            pending = state.get_pending()
 
     as_data = project.read_data()
     item = asdict(as_data.record(pending["record_id"].iloc[0]))

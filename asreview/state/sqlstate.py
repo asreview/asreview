@@ -763,10 +763,8 @@ class SQLiteState(BaseState):
             Dataframe with columns 'record_id', 'new_label', and 'time' for
             each record of which the labeling decision was changed.
         """
-        con = self._conn()
-        change_table = pd.read_sql_query("SELECT * FROM decision_changes", con)
 
-        return change_table
+        return pd.read_sql_query("SELECT * FROM decision_changes", self._conn())
 
     def get_record_table(self):
         """Get the record table of the state.
@@ -776,11 +774,9 @@ class SQLiteState(BaseState):
         pd.Series:
             Series with name 'record_id' containing the record ids.
         """
-        con = self._conn()
-        record_table = pd.read_sql_query("SELECT * FROM record_table", con)
-        record_table = record_table["record_id"]
-
-        return record_table
+        return pd.read_sql_query("SELECT * FROM record_table", self._conn())[
+            "record_id"
+        ]
 
     def get_last_probabilities(self):
         """Get the probabilities produced by the last classifier.
@@ -790,10 +786,9 @@ class SQLiteState(BaseState):
         pd.Series:
             Series with name 'proba' containing the probabilities.
         """
-        con = self._conn()
-        last_probabilities = pd.read_sql_query("SELECT * FROM last_probabilities", con)
-
-        return last_probabilities["proba"]
+        return pd.read_sql_query("SELECT * FROM last_probabilities", self._conn())[
+            "proba"
+        ]
 
     def get_last_ranking(self):
         """Get the ranking from the state.
@@ -806,10 +801,7 @@ class SQLiteState(BaseState):
             'training_set' and 'time'. It has one row for each record in the
             dataset, and is ordered by ranking.
         """
-        con = self._conn()
-        last_ranking = pd.read_sql_query("SELECT * FROM last_ranking", con)
-
-        return last_ranking
+        return pd.read_sql_query("SELECT * FROM last_ranking", self._conn())
 
     def _move_ranking_data_to_results(self, record_ids):
         """Move data from the ranking to the results table.
@@ -895,12 +887,10 @@ class SQLiteState(BaseState):
         """
         query_string = "*" if columns is None else ",".join(columns)
 
-        con = self._conn()
-        data = pd.read_sql_query(
-            f"SELECT {query_string} FROM results WHERE record_id={record_id}", con
+        return pd.read_sql_query(
+            f"SELECT {query_string} FROM results WHERE record_id={record_id}",
+            self._conn(),
         )
-
-        return data
 
     def get_dataset(self, columns=None, priors=True, pending=False):
         """Get a subset from the results table.
@@ -943,12 +933,9 @@ class SQLiteState(BaseState):
 
         # Query the database.
         query_string = "*" if columns is None else ",".join(columns)
-        con = self._conn()
-        data = pd.read_sql_query(
-            f"SELECT {query_string} FROM results {sql_where_str}", con
+        return pd.read_sql_query(
+            f"SELECT {query_string} FROM results {sql_where_str}", self._conn()
         )
-
-        return data
 
     def get_order_of_labeling(self, priors=True, pending=False):
         """Get full array of record id's in order that they were labeled.
@@ -982,13 +969,10 @@ class SQLiteState(BaseState):
             columns = ["record_id"]
         query_string = "*" if columns is None else ",".join(columns)
 
-        con = self._conn()
-        data = pd.read_sql_query(
+        return pd.read_sql_query(
             f"SELECT {query_string} FROM results" " WHERE query_strategy is 'prior'",
-            con,
+            self._conn(),
         )
-
-        return data
 
     def get_labels(self, priors=True, pending=False):
         """Get the labels from the state.
@@ -1074,7 +1058,7 @@ class SQLiteState(BaseState):
         """
         # If model has trained, using ranking to order pool.
         con = self._conn()
-        df = pd.read_sql_query(
+        return pd.read_sql_query(
             """SELECT last_ranking.record_id, last_ranking.ranking,
                 results.query_strategy
                 FROM last_ranking
@@ -1084,9 +1068,7 @@ class SQLiteState(BaseState):
                 ORDER BY ranking
                 """,
             con,
-        )
-
-        return df["record_id"]
+        )["record_id"]
 
     def get_labeled(self):
         """Get the labeled records in order of labeling.
@@ -1101,14 +1083,14 @@ class SQLiteState(BaseState):
             Dataframe containing the record_ids and labels of the labeled
             records, in the order that they were labeled.
         """
-        con = self._conn()
-        query = """SELECT record_id, label FROM results
-         WHERE label is not null"""
-        df = pd.read_sql_query(query, con)
+        return pd.read_sql_query(
+            """SELECT record_id, label FROM results
+                WHERE label is not null
+            """,
+            self._conn(),
+        )
 
-        return df
-
-    def get_pending(self, return_all=False):
+    def get_pending(self):
         """Get the record_ids of the records pending a labeling decision.
 
         If you only want the pending records, this is more efficient
@@ -1120,17 +1102,9 @@ class SQLiteState(BaseState):
             A series containing the record_ids of the records whose label is
             pending.
         """
-        con = self._conn()
-        if return_all:
-            query = """SELECT * FROM results WHERE label is null"""
-        else:
-            query = """SELECT record_id FROM results WHERE label is null"""
-        df = pd.read_sql_query(query, con)
-
-        if return_all:
-            return df
-
-        return df["record_id"]
+        return pd.read_sql_query(
+            """SELECT * FROM results WHERE label is null""", self._conn()
+        )
 
     def get_pool_labeled_pending(self):
         """Return the unlabeled pool, labeled and pending records.

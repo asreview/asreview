@@ -239,7 +239,7 @@ class Simulate:
                 s.add_labeling_data(unlabeled_priors, labels, prior=True)
 
             # Make sure the pending records are labeled.
-            pending = state.get_pending()
+            pending = state.get_pending()["record_id"]
             pending_labels = self.data_labels[pending]
             state.add_labeling_data(pending, pending_labels)
 
@@ -281,7 +281,7 @@ class Simulate:
                     "the priors."
                 )
 
-            pending = s.get_pending()
+            pending = s.get_pending()["record_id"]
             if not pending.empty:
                 self._label(pending)
 
