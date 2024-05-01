@@ -36,6 +36,7 @@ from datetime import datetime
 from functools import wraps
 from pathlib import Path
 from uuid import uuid4
+from dataclasses import asdict
 
 import jsonschema
 import numpy as np
@@ -61,7 +62,7 @@ from asreview.models.balance import get_balance_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
-from asreview.settings import ASReviewSettings
+from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState
 from asreview.utils import asreview_path
 
@@ -518,7 +519,7 @@ class Project:
         balance_strategy = get_balance_model(DEFAULT_BALANCE_STRATEGY)
         feature_extraction = get_feature_model(DEFAULT_FEATURE_EXTRACTION)
 
-        asreview_settings = ASReviewSettings(
+        asreview_settings = ReviewSettings(
             model=DEFAULT_MODEL,
             query_strategy=DEFAULT_QUERY_STRATEGY,
             balance_strategy=DEFAULT_BALANCE_STRATEGY,
@@ -529,16 +530,10 @@ class Project:
             feature_param=feature_extraction.param,
         )
 
-        # Create settings_metadata.json file
-        # content of the settings is added later
-        self.settings_metadata = {
-            "settings": asreview_settings.to_dict(),
-        }
-
         with open(
             Path(self.project_path, "reviews", review_id, "settings_metadata.json"), "w"
         ) as f:
-            json.dump(self.settings_metadata, f)
+            json.dump(asdict(asreview_settings), f)
 
         review_config = {
             "id": review_id,

@@ -81,9 +81,7 @@ def test_n_prior_included(tmpdir):
     with open(settings_path) as f:
         settings_metadata = json.load(f)
 
-    print(settings_metadata)
-
-    assert settings_metadata["settings"]["n_prior_included"] == 2
+    assert settings_metadata["n_prior_included"] == 2
 
 
 def test_n_prior_excluded(tmpdir):
@@ -109,7 +107,7 @@ def test_n_prior_excluded(tmpdir):
     with open(settings_path) as f:
         settings_metadata = json.load(f)
 
-    assert settings_metadata["settings"]["n_prior_excluded"] == 2
+    assert settings_metadata["n_prior_excluded"] == 2
 
 
 # TODO: Add random seed to settings.
@@ -149,7 +147,7 @@ def test_non_tf_models(tmpdir):
         with open(settings_path) as f:
             settings_metadata = json.load(f)
 
-        assert settings_metadata["settings"]["model"] == model
+        assert settings_metadata["model"] == model
 
 
 def test_last_probabilities(tmpdir):

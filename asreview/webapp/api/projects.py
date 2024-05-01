@@ -65,7 +65,7 @@ from asreview.project import ProjectNotFoundError
 from asreview.project import get_project_path
 from asreview.project import is_v0_project
 from asreview.search import fuzzy_find
-from asreview.settings import ASReviewSettings
+from asreview.settings import ReviewSettings
 from asreview.state.contextmanager import open_state
 from asreview.state.custom_metadata_mapper import extract_tags
 from asreview.state.custom_metadata_mapper import get_tag_composite_id
@@ -720,7 +720,7 @@ def api_get_algorithms(project):  # noqa: F401
         with open(
             Path(project.project_path, "reviews", review_id, "settings_metadata.json")
         ) as f:
-            settings = ASReviewSettings(**json.load(f)["settings"])
+            settings = ReviewSettings(**json.load(f))
 
         return jsonify(
             {
@@ -761,7 +761,7 @@ def api_set_algorithms(project):  # noqa: F401
     except (KeyError, AttributeError) as err:
         return jsonify(message=f"Model component not found {err}"), 400
 
-    asreview_settings = ASReviewSettings(
+    asreview_settings = ReviewSettings(
         model=s_classifier,
         query_strategy=s_query_strategy,
         balance_strategy=s_balance_strategy,
@@ -772,17 +772,11 @@ def api_set_algorithms(project):  # noqa: F401
         feature_param=feature_extraction.param,
     )
 
-    # Create settings_metadata.json file
-    # content of the settings is added later
-    settings_metadata = {
-        "settings": asreview_settings.to_dict(),
-    }
-
     review_id = project.reviews[0]["id"]
     with open(
         Path(project.project_path, "reviews", review_id, "settings_metadata.json"), "w"
     ) as f:
-        json.dump(settings_metadata, f)
+        json.dump(asdict(asreview_settings), f)
 
     return jsonify({"success": True})
 

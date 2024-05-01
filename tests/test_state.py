@@ -1,5 +1,4 @@
 from pathlib import Path
-import json
 
 import pandas as pd
 import pytest
@@ -8,7 +7,7 @@ from scipy.sparse import csr_matrix
 import asreview as asr
 from asreview import load_dataset
 from asreview.project import ProjectExistsError, ProjectNotFoundError
-from asreview.settings import ASReviewSettings
+from asreview.settings import ReviewSettings
 from asreview.state import SQLiteState
 from asreview.state.contextmanager import open_state
 from asreview.state.errors import StateNotFoundError
@@ -178,10 +177,9 @@ def test_print_state(asreview_test_project):
 def test_settings_state(asreview_test_project):
     project = asr.Project(asreview_test_project)
     review_id = project.reviews[0]["id"]
-    with open(
+    ReviewSettings.from_file(
         Path(project.project_path, "reviews", review_id, "settings_metadata.json")
-    ) as f:
-        ASReviewSettings(**json.load(f)["settings"])
+    )
 
 
 def test_n_records_labeled(asreview_test_project):

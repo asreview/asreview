@@ -35,7 +35,7 @@ from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
 from asreview.project import Project
 from asreview.project import ProjectExistsError
-from asreview.settings import ASReviewSettings
+from asreview.settings import ReviewSettings
 from asreview.simulation import Simulate
 from asreview.state.contextmanager import open_state
 from asreview.state import SQLiteState
@@ -156,7 +156,7 @@ def cli_simulate(argv):
     project.update_config(dataset_path=filename)
 
     # create a new settings object from arguments
-    settings = ASReviewSettings(
+    settings = ReviewSettings(
         model=args.model,
         n_instances=args.n_instances,
         stop_if=args.stop_if,

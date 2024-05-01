@@ -21,6 +21,7 @@ import pandas as pd
 from tqdm import tqdm
 import json
 from pathlib import Path
+from dataclasses import asdict
 
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import LABEL_NA
@@ -28,7 +29,7 @@ from asreview.models.balance.simple import SimpleBalance
 from asreview.models.classifiers import NaiveBayesClassifier
 from asreview.models.feature_extraction.tfidf import Tfidf
 from asreview.models.query.max_prob import MaxQuery
-from asreview.settings import ASReviewSettings
+from asreview.settings import ReviewSettings
 from asreview.simulation.prior_knowledge import naive_prior_knowledge
 from asreview.simulation.prior_knowledge import sample_prior_knowledge
 from asreview.state.contextmanager import open_state
@@ -156,7 +157,7 @@ class Simulate:
             extra_kwargs["n_prior_included"] = self.n_prior_included
         if hasattr(self, "n_prior_excluded"):
             extra_kwargs["n_prior_excluded"] = self.n_prior_excluded
-        return ASReviewSettings(
+        return ReviewSettings(
             model=self.classifier.name,
             query_strategy=self.query_strategy.name,
             balance_strategy=self.balance_model.name,
@@ -253,7 +254,7 @@ class Simulate:
                 ),
                 "w",
             ) as f:
-                json.dump({"settings": self.settings.to_dict()}, f)
+                json.dump(asdict(self.settings), f)
 
             # Add the record table to the state if it is not already there.
             self.record_table = s.get_record_table()
