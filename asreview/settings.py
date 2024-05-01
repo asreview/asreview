@@ -14,7 +14,12 @@
 
 __all__ = ["ReviewSettings"]
 
-import tomllib
+
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
+
 import json
 from dataclasses import dataclass, replace
 from typing import Optional
