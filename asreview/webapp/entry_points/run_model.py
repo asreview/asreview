@@ -52,7 +52,7 @@ def _run_model_start(project, output_error=True):
         # Lock so that only one training run is running at the same time.
         lock = FileLock(Path(project.project_path, "training.lock"), timeout=0)
 
-        settings = ReviewSettings.from_file(
+        settings = ReviewSettings().from_file(
             Path(
                 project.project_path,
                 "reviews",
@@ -121,7 +121,7 @@ def _run_model_start(project, output_error=True):
 
 
 def _simulate_start(project):
-    settings = ReviewSettings.from_file(
+    settings = ReviewSettings().from_file(
         Path(
             project.project_path,
             "reviews",

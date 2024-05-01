@@ -177,7 +177,7 @@ def test_print_state(asreview_test_project):
 def test_settings_state(asreview_test_project):
     project = asr.Project(asreview_test_project)
     review_id = project.reviews[0]["id"]
-    ReviewSettings.from_file(
+    ReviewSettings().from_file(
         Path(project.project_path, "reviews", review_id, "settings_metadata.json")
     )
 
@@ -196,6 +196,11 @@ def test_create_new_state_file(tmpdir):
     project = asr.Project.create(Path(tmpdir, "test.asreview"))
     with open_state(project) as state:
         state._is_valid_state()
+
+    review_id = project.reviews[0]["id"]
+    ReviewSettings().from_file(
+        Path(project.project_path, "reviews", review_id, "settings_metadata.json")
+    )
 
 
 def test_get_dataset(asreview_test_project):

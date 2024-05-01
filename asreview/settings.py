@@ -15,10 +15,16 @@
 __all__ = ["ReviewSettings"]
 
 import tomllib
+import json
 from dataclasses import dataclass, replace
+from typing import Optional
+from pathlib import Path
 
 from asreview.config import DEFAULT_N_INSTANCES
-from asreview.data import Dataset
+from asreview.config import DEFAULT_BALANCE_STRATEGY
+from asreview.config import DEFAULT_FEATURE_EXTRACTION
+from asreview.config import DEFAULT_MODEL
+from asreview.config import DEFAULT_QUERY_STRATEGY
 
 
 @dataclass
@@ -29,19 +35,18 @@ class ReviewSettings:
     of its contents.
     """
 
-    model: str
-    query_strategy: str
-    balance_strategy: str
-    feature_extraction: str
+    model: str = DEFAULT_MODEL
+    query_strategy: str = DEFAULT_QUERY_STRATEGY
+    balance_strategy: str = DEFAULT_BALANCE_STRATEGY
+    feature_extraction: str = DEFAULT_FEATURE_EXTRACTION
+    stop_if: Optional[int] = None
+    n_prior_included: Optional[int] = None
+    n_prior_excluded: Optional[int] = None
+    model_param: Optional[dict] = None
+    query_param: Optional[dict] = None
+    balance_param: Optional[dict] = None
+    feature_param: Optional[dict] = None
     n_instances: int = DEFAULT_N_INSTANCES
-    stop_if: int
-    n_prior_included: int
-    n_prior_excluded: int
-    as_data: Dataset
-    model_param: dict
-    query_param: dict
-    balance_param: dict
-    feature_param: dict
 
     def from_file(self, fp, load=None):
         """Fill the contents of settings by reading a config file.
@@ -51,10 +56,16 @@ class ReviewSettings:
         fp: str, Path
             Review config file.
         load: object
-            Config reader. Default tomllib.load
+            Config reader. Default tomllib.load for TOML (.toml) files,
+            otherwise json.load.
         """
         if load is None:
-            load = tomllib.load
+            if Path(fp).suffix == ".toml":
+                load = tomllib.load
+            else:
+                load = json.load
 
-        with open(fp) as f:
-            self = replace(self, load(f))
+        with open(fp, "rb") as f:
+            self = replace(self, **load(f))
+
+        return self
