@@ -11,6 +11,7 @@ from asreview.settings import ASReviewSettings
 from asreview.state import SQLiteState
 from asreview.state.contextmanager import open_state
 from asreview.state.errors import StateNotFoundError
+import shutil
 
 TEST_LABELS = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
 TEST_INDICES = [16, 346, 509, 27, 11, 555, 554, 680, 264, 309]
@@ -113,6 +114,14 @@ TEST_LAST_PROBS = [
 TEST_POOL_START = [157, 301, 536, 567, 416, 171, 659, 335, 329, 428]
 
 
+@pytest.fixture
+def asreview_test_project(tmpdir):
+    shutil.copytree(
+        TEST_STATE_FP, Path(tmpdir, "test_state_example_converted.asreview")
+    )
+    return Path(tmpdir, "test_state_example_converted.asreview")
+
+
 def test_init_project_folder(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     project = asr.Project.create(project_path)
@@ -150,33 +159,33 @@ def test_state_not_found(tmpdir):
             pass
 
 
-def test_read_basic_state():
-    with open_state(TEST_STATE_FP) as state:
+def test_read_basic_state(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         assert isinstance(state, SQLiteState)
 
 
-def test_version_number_state():
-    with open_state(TEST_STATE_FP) as state:
+def test_version_number_state(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         assert state.version[0] == "1"
 
 
-def test_print_state():
-    with open_state(TEST_STATE_FP) as state:
+def test_print_state(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         print(state)
 
 
-def test_settings_state():
-    with open_state(TEST_STATE_FP) as state:
+def test_settings_state(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         assert isinstance(state.settings, ASReviewSettings)
 
 
-def test_n_records_labeled():
-    with open_state(TEST_STATE_FP) as state:
+def test_n_records_labeled(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         assert state.n_records_labeled == len(TEST_LABELS)
 
 
-def test_n_priors():
-    with open_state(TEST_STATE_FP) as state:
+def test_n_priors(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         assert state.n_priors == TEST_N_PRIORS
 
 
@@ -187,8 +196,8 @@ def test_create_new_state_file(tmpdir):
         state._is_valid_state()
 
 
-def test_get_dataset():
-    with open_state(TEST_STATE_FP) as state:
+def test_get_dataset(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         assert isinstance(state.get_dataset(["query_strategy"]), pd.DataFrame)
         assert isinstance(state.get_dataset(), pd.DataFrame)
 
@@ -212,8 +221,8 @@ def test_get_dataset():
         )
 
 
-def test_get_dataset_drop_prior():
-    with open_state(TEST_STATE_FP) as state:
+def test_get_dataset_drop_prior(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         assert (
             len(state.get_dataset(priors=False)) == len(TEST_RECORD_IDS) - TEST_N_PRIORS
         )
@@ -239,8 +248,8 @@ def test_get_dataset_drop_pending(tmpdir):
         assert state.get_dataset(pending=False)["label"].notna().all()
 
 
-def test_get_data_by_record_id():
-    with open_state(TEST_STATE_FP) as state:
+def test_get_data_by_record_id(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         for idx in [2, 6, 8]:
             record_id = TEST_RECORD_IDS[idx]
             query = state.get_data_by_record_id(record_id)
@@ -249,43 +258,43 @@ def test_get_data_by_record_id():
             assert query["record_id"].to_list()[0] == TEST_RECORD_IDS[idx]
 
 
-def test_get_query_strategies():
-    with open_state(TEST_STATE_FP) as state:
+def test_get_query_strategies(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         assert state.get_dataset()["query_strategy"].to_list() == TEST_QUERY_STRATEGIES
 
 
-def test_get_classifiers():
-    with open_state(TEST_STATE_FP) as state:
+def test_get_classifiers(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         assert state.get_dataset()["classifier"].to_list() == TEST_CLASSIFIERS
 
 
-def test_get_training_sets():
-    with open_state(TEST_STATE_FP) as state:
+def test_get_training_sets(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         assert isinstance(state.get_training_sets(), pd.Series)
         assert all(state.get_training_sets() == TEST_TRAINING_SETS)
 
 
-def test_get_order_of_labeling():
-    with open_state(TEST_STATE_FP) as state:
+def test_get_order_of_labeling(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         assert isinstance(state.get_order_of_labeling(), pd.Series)
         assert all(state.get_order_of_labeling() == TEST_RECORD_IDS)
 
 
-def test_get_labels():
-    with open_state(TEST_STATE_FP) as state:
+def test_get_labels(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         assert isinstance(state.get_labels(), pd.Series)
         assert all(state.get_labels() == TEST_LABELS)
 
 
-def test_get_labels_no_priors():
-    with open_state(TEST_STATE_FP) as state:
+def test_get_labels_no_priors(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         labels = state.get_labels(priors=False)
         assert isinstance(labels, pd.Series)
         assert all(labels == TEST_LABELS[4:])
 
 
-def test_get_labeling_times():
-    with open_state(TEST_WITH_TIMES_FP) as state:
+def test_get_labeling_times(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         assert isinstance(state.get_labeling_times(), pd.Series)
         assert all(state.get_labeling_times() == TEST_LABELING_TIMES)
 
@@ -297,8 +306,8 @@ def test_create_empty_state(tmpdir):
         assert state.is_empty()
 
 
-def test_get_feature_matrix():
-    project = asr.Project(TEST_STATE_FP)
+def test_get_feature_matrix(asreview_test_project):
+    project = asr.Project(asreview_test_project)
 
     assert len(project.feature_matrices) == 1
 
@@ -306,8 +315,8 @@ def test_get_feature_matrix():
     assert isinstance(feature_matrix, csr_matrix)
 
 
-def test_get_record_table():
-    with open_state(TEST_STATE_FP) as state:
+def test_get_record_table(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         record_table = state.get_record_table()
         assert isinstance(record_table, pd.Series)
         assert record_table.name == "record_id"
@@ -326,8 +335,8 @@ def test_record_table(tmpdir):
         assert state.get_record_table().to_list() == list(range(len(as_data)))
 
 
-def test_get_last_probabilities():
-    with open_state(TEST_STATE_FP) as state:
+def test_get_last_probabilities(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         probabilities = state.get_last_probabilities()
         assert isinstance(probabilities, pd.Series)
         assert probabilities.name == "proba"
@@ -335,8 +344,8 @@ def test_get_last_probabilities():
         assert probabilities.to_list()[-10:] == TEST_LAST_PROBS
 
 
-def test_add_last_probabilities_fail():
-    with open_state(TEST_STATE_FP) as state:
+def test_add_last_probabilities_fail(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         with pytest.raises(ValueError):
             state.add_last_probabilities([1.0, 2.0, 3.0])
 
@@ -534,8 +543,8 @@ def test_update_decision(tmpdir):
         assert change_table["new_label"].to_list() == new_labels
 
 
-def test_get_pool_labeled():
-    with open_state(TEST_STATE_FP) as state:
+def test_get_pool_labeled(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         pool, labeled, _ = state.get_pool_labeled_pending()
 
     assert isinstance(pool, pd.Series)
@@ -589,8 +598,8 @@ def test_last_ranking(tmpdir):
         assert last_ranking["classifier"].to_list() == [classifier] * len(record_ids)
 
 
-def test_get_pool():
-    with open_state(TEST_STATE_FP) as state:
+def test_get_pool(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         pool = state.get_pool()
 
     assert isinstance(pool, pd.Series)
@@ -598,8 +607,8 @@ def test_get_pool():
     assert pool[:10].to_list() == TEST_POOL_START
 
 
-def test_get_labeled():
-    with open_state(TEST_STATE_FP) as state:
+def test_get_labeled(asreview_test_project):
+    with open_state(asreview_test_project) as state:
         labeled = state.get_labeled()
 
     assert isinstance(labeled, pd.DataFrame)
