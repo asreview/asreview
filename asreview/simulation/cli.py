@@ -227,7 +227,7 @@ def cli_simulate(argv):
         # Start the review process.
         project.update_review(status="review")
 
-        with open_state(project, read_only=True) as s:
+        with open_state(project) as s:
             prior_df = s.get_priors()
 
             print("The following records are prior knowledge:\n")

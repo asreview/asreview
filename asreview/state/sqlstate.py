@@ -71,11 +71,6 @@ class SQLiteState(BaseState):
 
     The results are stored in a sqlite database.
 
-    Arguments
-    ---------
-    read_only: bool
-        Open state in read only mode. Default False.
-
     Attributes
     ----------
     version: str
@@ -93,45 +88,19 @@ class SQLiteState(BaseState):
         a model ranking was added to the state?
     """
 
-    def __init__(self, read_only=True):
-        super().__init__(read_only=read_only)
-
-    # INTERNAL PATHS AND CONNECTIONS
-
-    def _connect_to_sql(self):
+    def _conn(self):
         """Get a connection to the SQLite database.
 
         Returns
         -------
         sqlite3.Connection
             Connection to the SQLite database.
-            The connection is read only if self.read_only is true.
         """
-        if self.read_only:
-            con = self.connect_to_sql_r()
-        else:
-            con = self.connect_to_sql_wr()
-        return con
+        if hasattr(self, "_conn_cache"):
+            return self._conn_cache
 
-    def connect_to_sql_r(self):
-        """Get a connection to the SQLite database.
-
-        Returns
-        -------
-        sqlite3.Connection
-            Read only connection to the SQLite database.
-        """
-        return sqlite3.connect(f"file:{str(self._sql_fp)}?mode=ro", uri=True)
-
-    def connect_to_sql_wr(self):
-        """Get a connection to the SQLite database.
-
-        Returns
-        -------
-        sqlite3.Connection
-            Write / read connection to the SQLite database.
-        """
-        return sqlite3.connect(str(self._sql_fp))
+        self._conn_cache = sqlite3.connect(str(self._sql_fp))
+        return self._conn_cache
 
     @property
     def _sql_fp(self):
@@ -160,8 +129,6 @@ class SQLiteState(BaseState):
         review_id: str
             Identifier of the review.
         """
-        if self.read_only:
-            raise ValueError("Can't create new state file in read_only mode.")
 
         self.review_dir = Path(working_dir, "reviews", review_id)
 
@@ -169,62 +136,58 @@ class SQLiteState(BaseState):
         self._sql_fp.parent.mkdir(parents=True, exist_ok=True)
 
         # Create results table.
-        con = self._connect_to_sql()
-        try:
-            cur = con.cursor()
+        con = self._conn()
+        cur = con.cursor()
 
-            # Create the results table.
-            cur.execute(
-                """CREATE TABLE results
-                                (record_id INTEGER,
-                                label INTEGER,
-                                classifier TEXT,
-                                query_strategy TEXT,
-                                balance_strategy TEXT,
-                                feature_extraction TEXT,
-                                training_set INTEGER,
-                                labeling_time INTEGER,
-                                notes TEXT,
-                                custom_metadata_json TEXT)"""
-            )
+        # Create the results table.
+        cur.execute(
+            """CREATE TABLE results
+                            (record_id INTEGER,
+                            label INTEGER,
+                            classifier TEXT,
+                            query_strategy TEXT,
+                            balance_strategy TEXT,
+                            feature_extraction TEXT,
+                            training_set INTEGER,
+                            labeling_time INTEGER,
+                            notes TEXT,
+                            custom_metadata_json TEXT)"""
+        )
 
-            # Create the record table.
-            cur.execute(
-                """CREATE TABLE record_table
-                                (record_id INT)"""
-            )
+        # Create the record table.
+        cur.execute(
+            """CREATE TABLE record_table
+                            (record_id INT)"""
+        )
 
-            # Create the last_probabilities table.
-            cur.execute(
-                """CREATE TABLE last_probabilities
-                                (proba REAL)"""
-            )
+        # Create the last_probabilities table.
+        cur.execute(
+            """CREATE TABLE last_probabilities
+                            (proba REAL)"""
+        )
 
-            # Create the last_ranking table.
-            cur.execute(
-                """CREATE TABLE last_ranking
-                                (record_id INTEGER,
-                                ranking INT,
-                                classifier TEXT,
-                                query_strategy TEXT,
-                                balance_strategy TEXT,
-                                feature_extraction TEXT,
-                                training_set INTEGER,
-                                time INTEGER)"""
-            )
+        # Create the last_ranking table.
+        cur.execute(
+            """CREATE TABLE last_ranking
+                            (record_id INTEGER,
+                            ranking INT,
+                            classifier TEXT,
+                            query_strategy TEXT,
+                            balance_strategy TEXT,
+                            feature_extraction TEXT,
+                            training_set INTEGER,
+                            time INTEGER)"""
+        )
 
-            # Create the table of changed decisions.
-            cur.execute(
-                """CREATE TABLE decision_changes
-                                (record_id INTEGER,
-                                new_label INTEGER,
-                                time INTEGER)"""
-            )
+        # Create the table of changed decisions.
+        cur.execute(
+            """CREATE TABLE decision_changes
+                            (record_id INTEGER,
+                            new_label INTEGER,
+                            time INTEGER)"""
+        )
 
-            con.commit()
-
-        except sqlite3.Error as e:
-            raise e
+        con.commit()
 
         # Create settings_metadata.json file
         # content of the settings is added later
@@ -279,7 +242,7 @@ class SQLiteState(BaseState):
         except AttributeError as err:
             raise ValueError(f"Unexpected error when opening state file: {err}")
 
-        con = self.connect_to_sql_wr()
+        con = self._conn()
         cur = con.cursor()
         column_names = cur.execute("PRAGMA table_info(results)").fetchall()
         table_names = cur.execute(
@@ -326,7 +289,7 @@ class SQLiteState(BaseState):
             json.dump(self.settings_metadata, f)
 
     def close(self):
-        self._connect_to_sql().close()
+        self._conn().close()
 
     # PROPERTIES
     @property
@@ -394,7 +357,7 @@ class SQLiteState(BaseState):
         int
             Number of records.
         """
-        con = self._connect_to_sql()
+        con = self._conn()
         cur = con.cursor()
         cur.execute("SELECT COUNT (*) FROM record_table")
         n = cur.fetchone()[0]
@@ -422,7 +385,7 @@ class SQLiteState(BaseState):
         int
             Number of records which were added as prior knowledge.
         """
-        con = self._connect_to_sql()
+        con = self._conn()
         cur = con.cursor()
         cur.execute("SELECT COUNT (*) FROM results WHERE query_strategy='prior'")
         n = cur.fetchone()
@@ -450,8 +413,6 @@ class SQLiteState(BaseState):
 
     def _add_settings_metadata(self, key, value):
         """Add information to the settings_metadata dictionary."""
-        if self.read_only:
-            raise ValueError("Can't change settings in read only mode.")
         self.settings_metadata[key] = value
 
         with open(self._settings_metadata_fp, "w") as f:
@@ -467,7 +428,7 @@ class SQLiteState(BaseState):
         """
         record_sql_input = [(int(record_id),) for record_id in record_ids]
 
-        con = self._connect_to_sql()
+        con = self._conn()
         cur = con.cursor()
         cur.execute("DELETE FROM record_table")
         cur.executemany(
@@ -485,7 +446,7 @@ class SQLiteState(BaseState):
             last probabilities table in the state is emptied.
         """
         if probabilities is None:
-            con = self._connect_to_sql()
+            con = self._conn()
             cur = con.cursor()
             cur.execute("""DELETE FROM last_probabilities""")
             con.commit()
@@ -493,7 +454,7 @@ class SQLiteState(BaseState):
 
         proba_sql_input = [(proba,) for proba in probabilities]
 
-        con = self._connect_to_sql()
+        con = self._conn()
         cur = con.cursor()
 
         # Check that the number of rows in the table is 0 (if the table is not
@@ -571,7 +532,7 @@ class SQLiteState(BaseState):
             for i in range(len(record_ids))
         ]
 
-        con = self._connect_to_sql()
+        con = self._conn()
         cur = con.cursor()
         cur.execute("DELETE FROM last_ranking")
         cur.executemany(
@@ -594,7 +555,7 @@ class SQLiteState(BaseState):
         record_id: int
             Identifier of the record to which the note should be added.
         """
-        con = self._connect_to_sql()
+        con = self._conn()
         cur = con.cursor()
         cur.execute(
             "UPDATE results SET notes = ? WHERE record_id = ?", (note, record_id)
@@ -698,7 +659,7 @@ class SQLiteState(BaseState):
             )
 
         # Add the rows to the database.
-        con = self._connect_to_sql()
+        con = self._conn()
         cur = con.cursor()
         cur.executemany(query, data)
         con.commit()
@@ -724,7 +685,7 @@ class SQLiteState(BaseState):
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
         )
 
-        con = self._connect_to_sql()
+        con = self._conn()
         cur = con.cursor()
         cur.executemany(query, rows)
         con.commit()
@@ -744,7 +705,7 @@ class SQLiteState(BaseState):
             Tags list to add to the record.
         """
 
-        con = self._connect_to_sql()
+        con = self._conn()
         cur = con.cursor()
 
         # Change the label.
@@ -776,7 +737,7 @@ class SQLiteState(BaseState):
         """
         current_time = datetime.now()
 
-        con = self._connect_to_sql()
+        con = self._conn()
         cur = con.cursor()
         cur.execute("DELETE FROM results WHERE record_id=?", (record_id,))
 
@@ -802,7 +763,7 @@ class SQLiteState(BaseState):
             Dataframe with columns 'record_id', 'new_label', and 'time' for
             each record of which the labeling decision was changed.
         """
-        con = self._connect_to_sql()
+        con = self._conn()
         change_table = pd.read_sql_query("SELECT * FROM decision_changes", con)
 
         return change_table
@@ -815,7 +776,7 @@ class SQLiteState(BaseState):
         pd.Series:
             Series with name 'record_id' containing the record ids.
         """
-        con = self._connect_to_sql()
+        con = self._conn()
         record_table = pd.read_sql_query("SELECT * FROM record_table", con)
         record_table = record_table["record_id"]
 
@@ -829,7 +790,7 @@ class SQLiteState(BaseState):
         pd.Series:
             Series with name 'proba' containing the probabilities.
         """
-        con = self._connect_to_sql()
+        con = self._conn()
         last_probabilities = pd.read_sql_query("SELECT * FROM last_probabilities", con)
 
         return last_probabilities["proba"]
@@ -845,7 +806,7 @@ class SQLiteState(BaseState):
             'training_set' and 'time'. It has one row for each record in the
             dataset, and is ordered by ranking.
         """
-        con = self._connect_to_sql()
+        con = self._conn()
         last_ranking = pd.read_sql_query("SELECT * FROM last_ranking", con)
 
         return last_ranking
@@ -863,7 +824,7 @@ class SQLiteState(BaseState):
             to the results table.
         """
         record_list = [(record_id,) for record_id in record_ids]
-        con = self._connect_to_sql()
+        con = self._conn()
         cur = con.cursor()
         cur.executemany(
             """INSERT INTO results (record_id, classifier, query_strategy,
@@ -934,7 +895,7 @@ class SQLiteState(BaseState):
         """
         query_string = "*" if columns is None else ",".join(columns)
 
-        con = self._connect_to_sql()
+        con = self._conn()
         data = pd.read_sql_query(
             f"SELECT {query_string} FROM results WHERE record_id={record_id}", con
         )
@@ -982,7 +943,7 @@ class SQLiteState(BaseState):
 
         # Query the database.
         query_string = "*" if columns is None else ",".join(columns)
-        con = self._connect_to_sql()
+        con = self._conn()
         data = pd.read_sql_query(
             f"SELECT {query_string} FROM results {sql_where_str}", con
         )
@@ -1021,7 +982,7 @@ class SQLiteState(BaseState):
             columns = ["record_id"]
         query_string = "*" if columns is None else ",".join(columns)
 
-        con = self._connect_to_sql()
+        con = self._conn()
         data = pd.read_sql_query(
             f"SELECT {query_string} FROM results" " WHERE query_strategy is 'prior'",
             con,
@@ -1112,7 +1073,7 @@ class SQLiteState(BaseState):
             records, in the order of the last available ranking.
         """
         # If model has trained, using ranking to order pool.
-        con = self._connect_to_sql()
+        con = self._conn()
         df = pd.read_sql_query(
             """SELECT last_ranking.record_id, last_ranking.ranking,
                 results.query_strategy
@@ -1140,7 +1101,7 @@ class SQLiteState(BaseState):
             Dataframe containing the record_ids and labels of the labeled
             records, in the order that they were labeled.
         """
-        con = self._connect_to_sql()
+        con = self._conn()
         query = """SELECT record_id, label FROM results
          WHERE label is not null"""
         df = pd.read_sql_query(query, con)
@@ -1159,7 +1120,7 @@ class SQLiteState(BaseState):
             A series containing the record_ids of the records whose label is
             pending.
         """
-        con = self._connect_to_sql()
+        con = self._conn()
         if return_all:
             query = """SELECT * FROM results WHERE label is null"""
         else:
@@ -1188,7 +1149,7 @@ class SQLiteState(BaseState):
             order that they were labeled. Pending is a series containing the
             record_ids of the records whose label is pending.
         """
-        con = self._connect_to_sql()
+        con = self._conn()
 
         query = """SELECT record_table.record_id, results.label,
                 results.rowid AS label_order, results.query_strategy,

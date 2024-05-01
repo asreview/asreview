@@ -16,7 +16,7 @@ def _fill_last_ranking(project, ranking):
     if ranking not in ["random", "top-down"]:
         raise ValueError(f"Unknown ranking type: {ranking}")
 
-    with open_state(project.project_path, read_only=False) as state:
+    with open_state(project.project_path) as state:
         if ranking == "random":
             records = state.get_record_table().sample(frac=1)
         elif ranking == "top-down":

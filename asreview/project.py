@@ -298,7 +298,7 @@ class Project:
 
         self.update_config(dataset_path=file_name, name=file_name.rsplit(".", 1)[0])
 
-        state = SQLiteState(read_only=False)
+        state = SQLiteState()
 
         try:
             review_id = uuid4().hex

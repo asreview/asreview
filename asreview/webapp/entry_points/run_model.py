@@ -91,7 +91,7 @@ def _run_model_start(project, output_error=True):
                 fm, classifier=classifier, return_classifier_scores=True
             )
 
-            with open_state(project, read_only=False) as state:
+            with open_state(project) as state:
                 state.add_last_ranking(
                     ranked_record_ids,
                     classifier.name,
