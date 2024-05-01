@@ -48,9 +48,9 @@ def cli_state_inspect(argv):
         project_path = get_project_path(args.project_id)
 
     with open_state(project_path) as s:
-        conn = s._connect_to_sql()
+        conn = s._conn()
 
-    df = pd.read_sql(f"select * from {args.table}", conn)
+        df = pd.read_sql(f"select * from {args.table}", conn)
 
     if args.table == "results":
         df["label"] = df["label"].astype(pd.Int64Dtype())

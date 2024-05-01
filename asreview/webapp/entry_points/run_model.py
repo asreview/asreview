@@ -55,6 +55,7 @@ def _run_model_start(project, output_error=True):
             with open_state(project) as state:
                 settings = state.settings
 
+                record_table = state.get_record_table()
                 labeled = state.get_labeled()
 
             # get the feature matrix
@@ -71,8 +72,7 @@ def _run_model_start(project, output_error=True):
             # TODO: Simplify balance model input.
             # Use the balance model to sample the trainings data.
             y_sample_input = (
-                state.get_record_table()
-                .to_frame()
+                record_table.to_frame()
                 .merge(labeled, how="left", on="record_id")
                 .loc[:, "label"]
                 .fillna(LABEL_NA)
@@ -91,7 +91,7 @@ def _run_model_start(project, output_error=True):
                 fm, classifier=classifier, return_classifier_scores=True
             )
 
-            with open_state(project, read_only=False) as state:
+            with open_state(project) as state:
                 state.add_last_ranking(
                     ranked_record_ids,
                     classifier.name,
@@ -116,8 +116,6 @@ def _simulate_start(project):
     with open_state(project) as state:
         settings = state.settings
         priors = state.get_priors()["record_id"].tolist()
-        print(state.settings)
-        print(priors)
 
     reviewer = Simulate(
         project.read_data(),

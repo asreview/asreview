@@ -20,12 +20,13 @@ from pathlib import Path
 from uuid import uuid4
 
 from asreview.project import Project
+from asreview.project import is_project, ProjectNotFoundError, ProjectError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
 
 
 @contextmanager
-def open_state(asreview_obj, review_id=None, read_only=True):
+def open_state(asreview_obj, review_id=None, create_new=True):
     """Initialize a state class instance from a project folder.
 
     Arguments
@@ -36,8 +37,8 @@ def open_state(asreview_obj, review_id=None, read_only=True):
     review_id: str
         Identifier of the review from which the state will be instantiated.
         If none is given, the first review in the reviews folder will be taken.
-    read_only: bool
-        Whether to open in read_only mode.
+    create_new: bool
+        If True, a new state file is created.
 
     Returns
     -------
@@ -48,17 +49,20 @@ def open_state(asreview_obj, review_id=None, read_only=True):
     if isinstance(asreview_obj, Project):
         project = asreview_obj
     elif zipfile.is_zipfile(asreview_obj) and Path(asreview_obj).suffix == ".asreview":
-        if not read_only:
-            raise ValueError("ASReview files do not support not read only files.")
-
         # work from a temp dir
         tmpdir = tempfile.TemporaryDirectory()
         project = Project.load(asreview_obj, tmpdir.name)
-    else:
+    elif isinstance(asreview_obj, (Path, str)) and not Path(asreview_obj).is_dir():
+        raise ProjectNotFoundError(
+            f"Directory {asreview_obj} is not a valid ASReview project."
+        )
+    elif is_project(asreview_obj):
         project = Project(asreview_obj)
+    else:
+        raise ProjectError("Unknown project type.")
 
     # init state class
-    state = SQLiteState(read_only=read_only)
+    state = SQLiteState()
 
     try:
         if len(project.reviews) > 0:
@@ -66,15 +70,13 @@ def open_state(asreview_obj, review_id=None, read_only=True):
                 review_id = project.config["reviews"][0]["id"]
             logging.debug(f"Opening review {review_id}.")
             state._restore(project.project_path, review_id)
-        elif len(project.reviews) == 0 and not read_only:
+        elif create_new and len(project.reviews) == 0:
             review_id = uuid4().hex
             logging.debug(f"Create new review (state) with id {review_id}.")
             state._create_new_state_file(project.project_path, review_id)
             project.add_review(review_id)
         else:
-            raise StateNotFoundError(
-                "State file does not exist, and in read only mode."
-            )
+            raise StateNotFoundError("State does not exist in the project")
         yield state
     finally:
         try:

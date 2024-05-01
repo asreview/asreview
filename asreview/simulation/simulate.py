@@ -146,7 +146,7 @@ class Simulate:
         if self.data_labels is None:
             self.data_labels = np.full(len(as_data), LABEL_NA)
 
-        with open_state(self.project, read_only=False):
+        with open_state(self.project):
             pass
 
     @property
@@ -227,7 +227,7 @@ class Simulate:
 
         self.prior_indices = self.start_idx
 
-        with open_state(self.project, read_only=False) as state:
+        with open_state(self.project) as state:
             # Make sure the prior records are labeled.
             labeled = state.get_labeled()
             unlabeled_priors = [
@@ -235,16 +235,16 @@ class Simulate:
             ]
             labels = self.data_labels[unlabeled_priors]
 
-            with open_state(self.project, read_only=False) as s:
+            with open_state(self.project) as s:
                 s.add_labeling_data(unlabeled_priors, labels, prior=True)
 
             # Make sure the pending records are labeled.
-            pending = state.get_pending()
+            pending = state.get_pending()["record_id"]
             pending_labels = self.data_labels[pending]
             state.add_labeling_data(pending, pending_labels)
 
     def review(self):
-        with open_state(self.project, read_only=False) as s:
+        with open_state(self.project) as s:
             # If the state is empty, add the settings.
             if s.is_empty():
                 s.settings = self.settings
@@ -281,7 +281,7 @@ class Simulate:
                     "the priors."
                 )
 
-            pending = s.get_pending()
+            pending = s.get_pending()["record_id"]
             if not pending.empty:
                 self._label(pending)
 
@@ -436,7 +436,7 @@ class Simulate:
         # Write the data to the state.
         if len(self._results) > 0:
             rows = [tuple(self._results.iloc[i]) for i in range(len(self._results))]
-            with open_state(self.project, read_only=False) as state:
+            with open_state(self.project) as state:
                 state._add_labeling_data_simulation_mode(rows)
 
                 state.add_last_ranking(

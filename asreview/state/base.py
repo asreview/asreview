@@ -19,13 +19,8 @@ from abc import abstractmethod
 
 
 class BaseState(ABC):
-    def __init__(self, read_only=False):
-        """Abstract Base Class for state.
-
-        read_only: bool
-            Whether to open file in read only mode.
-        """
-        self.read_only = read_only
+    def __init__(self):
+        """Abstract Base Class for state."""
 
     def __enter__(self):
         return self

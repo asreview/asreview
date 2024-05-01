@@ -769,7 +769,7 @@ def api_set_algorithms(project):  # noqa: F401
     )
 
     # save the new settings to the state file
-    with open_state(project.project_path, read_only=False) as state:
+    with open_state(project.project_path) as state:
         state.settings = asreview_settings
 
     return jsonify({"success": True})
@@ -1324,7 +1324,7 @@ def api_classify_instance(project, record_id):  # noqa: F401
     prior = True if is_prior == "1" else False
 
     if request.method == "POST":
-        with open_state(project.project_path, read_only=False) as state:
+        with open_state(project.project_path) as state:
             # add the labels as prior data
             state.add_labeling_data(
                 record_ids=[record_id],
@@ -1335,7 +1335,7 @@ def api_classify_instance(project, record_id):  # noqa: F401
             )
 
     elif request.method == "PUT":
-        with open_state(project.project_path, read_only=False) as state:
+        with open_state(project.project_path) as state:
             if label in [0, 1]:
                 state.update_decision(record_id, label, note=note, tags=tags)
             elif label == -1:
@@ -1364,8 +1364,8 @@ def api_classify_instance(project, record_id):  # noqa: F401
 def api_get_document(project):  # noqa: F401
     """Retrieve record in order of review."""
 
-    with open_state(project.project_path, read_only=False) as state:
-        pending = state.get_pending(return_all=True)
+    with open_state(project.project_path) as state:
+        pending = state.get_pending()
 
         if pending.empty:
             try:
@@ -1385,7 +1385,7 @@ def api_get_document(project):  # noqa: F401
                 )
 
             state.query_top_ranked(1)
-            pending = state.get_pending(return_all=True)
+            pending = state.get_pending()
 
     as_data = project.read_data()
     item = asdict(as_data.record(pending["record_id"].iloc[0]))
