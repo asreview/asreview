@@ -15,6 +15,7 @@
 import argparse
 import logging
 from pathlib import Path
+import json
 
 import numpy as np
 from filelock import FileLock
@@ -27,6 +28,7 @@ from asreview.models.balance import get_balance_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
+from asreview.settings import ASReviewSettings
 from asreview.simulation import Simulate
 from asreview.state.contextmanager import open_state
 
@@ -51,10 +53,14 @@ def _run_model_start(project, output_error=True):
         # Lock so that only one training run is running at the same time.
         lock = FileLock(Path(project.project_path, "training.lock"), timeout=0)
 
+        review_id = project.reviews[0]["id"]
+        with open(
+            Path(project.project_path, "reviews", review_id, "settings_metadata.json")
+        ) as f:
+            settings = ASReviewSettings(**json.load(f)["settings"])
+
         with lock:
             with open_state(project) as state:
-                settings = state.settings
-
                 record_table = state.get_record_table()
                 labeled = state.get_labeled()
 
@@ -113,8 +119,13 @@ def _run_model_start(project, output_error=True):
 
 
 def _simulate_start(project):
+    review_id = project.reviews[0]["id"]
+    with open(
+        Path(project.project_path, "reviews", review_id, "settings_metadata.json")
+    ) as f:
+        settings = ASReviewSettings(**json.load(f)["settings"])
+
     with open_state(project) as state:
-        settings = state.settings
         priors = state.get_priors()["record_id"].tolist()
 
     reviewer = Simulate(

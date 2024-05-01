@@ -308,25 +308,6 @@ class Project:
             # save the record ids in the state file
             state.add_record_table(as_data.record_ids)
 
-            # add default settings to the state file
-            classifier = get_classifier(DEFAULT_MODEL)
-            query_strategy = get_query_model(DEFAULT_QUERY_STRATEGY)
-            balance_strategy = get_balance_model(DEFAULT_BALANCE_STRATEGY)
-            feature_extraction = get_feature_model(DEFAULT_FEATURE_EXTRACTION)
-
-            asreview_settings = ASReviewSettings(
-                model=DEFAULT_MODEL,
-                query_strategy=DEFAULT_QUERY_STRATEGY,
-                balance_strategy=DEFAULT_BALANCE_STRATEGY,
-                feature_extraction=DEFAULT_FEATURE_EXTRACTION,
-                model_param=classifier.param,
-                query_param=query_strategy.param,
-                balance_param=balance_strategy.param,
-                feature_param=feature_extraction.param,
-            )
-
-            state.settings = asreview_settings
-
             # if the data contains labels and oracle mode, add them to the state file
             if (
                 self.config["mode"] == PROJECT_MODE_ORACLE
@@ -530,6 +511,34 @@ class Project:
 
         # Add the review to the project.
         config = self.config
+
+        # add default settings to the state file
+        classifier = get_classifier(DEFAULT_MODEL)
+        query_strategy = get_query_model(DEFAULT_QUERY_STRATEGY)
+        balance_strategy = get_balance_model(DEFAULT_BALANCE_STRATEGY)
+        feature_extraction = get_feature_model(DEFAULT_FEATURE_EXTRACTION)
+
+        asreview_settings = ASReviewSettings(
+            model=DEFAULT_MODEL,
+            query_strategy=DEFAULT_QUERY_STRATEGY,
+            balance_strategy=DEFAULT_BALANCE_STRATEGY,
+            feature_extraction=DEFAULT_FEATURE_EXTRACTION,
+            model_param=classifier.param,
+            query_param=query_strategy.param,
+            balance_param=balance_strategy.param,
+            feature_param=feature_extraction.param,
+        )
+
+        # Create settings_metadata.json file
+        # content of the settings is added later
+        self.settings_metadata = {
+            "settings": asreview_settings.to_dict(),
+        }
+
+        with open(
+            Path(self.project_path, "reviews", review_id, "settings_metadata.json"), "w"
+        ) as f:
+            json.dump(self.settings_metadata, f)
 
         review_config = {
             "id": review_id,

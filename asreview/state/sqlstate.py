@@ -188,15 +188,6 @@ class SQLiteState(BaseState):
 
         con.commit()
 
-        # Create settings_metadata.json file
-        # content of the settings is added later
-        self.settings_metadata = {
-            "settings": None,
-        }
-
-        with open(self._settings_metadata_fp, "w") as f:
-            json.dump(self.settings_metadata, f)
-
     def _restore(self, working_dir, review_id):
         """Restore a state from files.
 
@@ -265,18 +256,6 @@ class SQLiteState(BaseState):
             raise StateError(
                 f"The results table does not contain the columns "
                 f"{' '.join(missing_columns)}."
-            )
-
-        # Check settings_metadata contains the required keys.
-        missing_keys = [
-            key
-            for key in SETTINGS_METADATA_KEYS
-            if key not in self.settings_metadata.keys()
-        ]
-        if missing_keys:
-            raise StateError(
-                f"The keys {' '.join(missing_keys)} were not found in "
-                f"settings_metadata."
             )
 
     def close(self):

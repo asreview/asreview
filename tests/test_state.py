@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 
 import pandas as pd
 import pytest
@@ -175,8 +176,12 @@ def test_print_state(asreview_test_project):
 
 
 def test_settings_state(asreview_test_project):
-    with open_state(asreview_test_project) as state:
-        assert isinstance(state.settings, ASReviewSettings)
+    project = asr.Project(asreview_test_project)
+    review_id = project.reviews[0]["id"]
+    with open(
+        Path(project.project_path, "reviews", review_id, "settings_metadata.json")
+    ) as f:
+        ASReviewSettings(**json.load(f)["settings"])
 
 
 def test_n_records_labeled(asreview_test_project):
