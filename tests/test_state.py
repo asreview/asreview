@@ -293,8 +293,12 @@ def test_get_labels_no_priors(asreview_test_project):
         assert all(labels == TEST_LABELS[4:])
 
 
-def test_get_labeling_times(asreview_test_project):
-    with open_state(asreview_test_project) as state:
+def test_get_labeling_times(tmpdir):
+    shutil.copytree(
+        TEST_WITH_TIMES_FP, Path(tmpdir, "test_state_example_with_times.asreview")
+    )
+
+    with open_state(Path(tmpdir, "test_state_example_with_times.asreview")) as state:
         assert isinstance(state.get_labeling_times(), pd.Series)
         assert all(state.get_labeling_times() == TEST_LABELING_TIMES)
 
