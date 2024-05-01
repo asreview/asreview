@@ -14,14 +14,12 @@
 
 __all__ = ["SQLiteState"]
 
-import json
 import sqlite3
 from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
 
-from asreview.settings import ASReviewSettings
 from asreview.state.base import BaseState
 from asreview.state.compatibility import check_and_update_version
 from asreview.state.custom_metadata_mapper import convert_to_custom_metadata_str
@@ -58,9 +56,6 @@ RESULTS_TABLE_COLUMNS = [
     "notes",
     "custom_metadata_json",
 ]
-SETTINGS_METADATA_KEYS = [
-    "settings",
-]
 CURRENT_STATE_VERSION = 2
 
 
@@ -71,11 +66,8 @@ class SQLiteState(BaseState):
 
     Attributes
     ----------
-    version: str
+    user_version: str
         Return the version number of the state.
-    settings: asreview.settings.ASReviewSettings
-        Return an ASReview settings object with model settings and
-        active learning settings.
     n_records_labeled: int
         Get the number of labeled records, where each prior is counted
         individually.
@@ -106,19 +98,8 @@ class SQLiteState(BaseState):
 
         return Path(self.review_dir, "results.sql")
 
-    @property
-    def _settings_metadata_fp(self):
-        """Get the path to the settings and metadata json file."""
-
-        return Path(self.review_dir, "settings_metadata.json")
-
     def _create_new_state_file(self, working_dir, review_id):
         """Create the files for storing a new state given an review_id.
-
-        Stages:
-        1: create result structure
-        2: create model settings
-        3: add state to the project file
 
         Arguments
         ---------
@@ -208,15 +189,6 @@ class SQLiteState(BaseState):
         if not self._sql_fp.parent.is_dir():
             raise StateNotFoundError(f"Review with id {review_id} doesn't exist.")
 
-        # Cache the settings.
-        try:
-            with open(self._settings_metadata_fp) as f:
-                self.settings_metadata = json.load(f)
-        except FileNotFoundError:
-            raise AttributeError(
-                "'settings_metadata.json' not found in the state file."
-            )
-
         self._is_valid_state()
 
     def _is_valid_state(self):
@@ -278,45 +250,6 @@ class SQLiteState(BaseState):
         cur.close()
 
     @property
-    def settings(self):
-        """Settings of the ASReview pipeline.
-
-        Example
-        -------
-
-        Example of settings.
-
-            model             : nb
-            query_strategy    : max_random
-            balance_strategy  : triple
-            feature_extraction: tfidf
-            n_instances       : 1
-            stop_if           : min
-            n_prior_included  : 10
-            n_prior_excluded  : 10
-            mode              : simulate
-            model_param       : {'alpha': 3.822}
-            query_param       : {'strategy_1': 'max', 'strategy_2': 'random',
-            'mix_ratio': 0.95}
-            feature_param     : {}
-            balance_param     : {'a': 2.155, 'alpha': 0.94, ... 'gamma': 2.0,
-            'shuffle': True}
-            abstract_only     : False
-
-        """
-        settings = self.settings_metadata["settings"]
-        if settings is None:
-            return None
-        return ASReviewSettings(**settings)
-
-    @settings.setter
-    def settings(self, settings):
-        if isinstance(settings, ASReviewSettings):
-            self._add_settings_metadata("settings", settings.to_dict())
-        else:
-            raise ValueError("'settings' should be an ASReviewSettings object.")
-
-    @property
     def n_records(self):
         """Number of records in the loop.
 
@@ -367,13 +300,6 @@ class SQLiteState(BaseState):
             return len(labeled) > 0
         else:
             return len(labeled) > last_training_set.iloc[0]
-
-    def _add_settings_metadata(self, key, value):
-        """Add information to the settings_metadata dictionary."""
-        self.settings_metadata[key] = value
-
-        with open(self._settings_metadata_fp, "w") as f:
-            json.dump(self.settings_metadata, f)
 
     def add_record_table(self, record_ids):
         """Add the record table to the state.

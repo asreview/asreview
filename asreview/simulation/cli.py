@@ -18,6 +18,7 @@ import logging
 import re
 import shutil
 from pathlib import Path
+from uuid import uuid4
 
 from asreview import load_dataset
 from asreview.config import DEFAULT_BALANCE_STRATEGY
@@ -37,6 +38,7 @@ from asreview.project import ProjectExistsError
 from asreview.settings import ASReviewSettings
 from asreview.simulation import Simulate
 from asreview.state.contextmanager import open_state
+from asreview.state import SQLiteState
 from asreview.types import type_n_queries
 from asreview.utils import format_to_str
 from asreview.utils import get_random_state
@@ -222,6 +224,11 @@ def cli_simulate(argv):
         init_seed=args.init_seed,
         write_interval=args.write_interval,
     )
+
+    review_id = uuid4().hex
+    logging.debug(f"Create new review (state) with id {review_id}.")
+    SQLiteState()._create_new_state_file(project.project_path, review_id)
+    project.add_review(review_id)
 
     try:
         # Start the review process.
