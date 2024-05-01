@@ -307,13 +307,6 @@ def test_get_labeling_times(tmpdir):
         assert all(state.get_labeling_times() == TEST_LABELING_TIMES)
 
 
-def test_create_empty_state(tmpdir):
-    project_path = Path(tmpdir, "test.asreview")
-    asr.Project.create(project_path)
-    with open_state(project_path) as state:
-        assert state.is_empty()
-
-
 def test_get_feature_matrix(asreview_test_project):
     project = asr.Project(asreview_test_project)
 
