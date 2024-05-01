@@ -54,7 +54,7 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const DEFAULT_MODELS = [
+const DEFAULT_CLASSIFIERS = [
   {
     name: "tfidf-nb-max-double",
     title: "Model Always Good",
@@ -99,7 +99,7 @@ const getFullModelName = (model) => {
     model.query_strategy +
     "-" +
     model.balance_strategy;
-  let defaultModel = DEFAULT_MODELS.filter((e) => e.name === name);
+  let defaultModel = DEFAULT_CLASSIFIERS.filter((e) => e.name === name);
 
   if (defaultModel.length === 1) {
     return defaultModel[0].name;
@@ -297,7 +297,7 @@ const ModelForm = ({
                 onChange={handleModelDropdownChange}
               >
                 {/* iterater over the default models */}
-                {DEFAULT_MODELS.map((value) => (
+                {DEFAULT_CLASSIFIERS.map((value) => (
                   <MenuItem
                     value={value.name}
                     key={`result-item-${value.name}`}

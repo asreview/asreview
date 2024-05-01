@@ -735,7 +735,7 @@ def api_set_algorithms(project):  # noqa: F401
     """Set the algorithms used in the project"""
 
     asreview_settings = ReviewSettings(
-        model=request.form.get("classifier"),
+        classifier=request.form.get("classifier"),
         query_strategy=request.form.get("query_strategy"),
         balance_strategy=request.form.get("balance_strategy"),
         feature_extraction=request.form.get("feature_extraction"),

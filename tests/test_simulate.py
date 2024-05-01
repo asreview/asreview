@@ -146,7 +146,7 @@ def test_non_tf_models(model, tmpdir):
         )
     )
 
-    assert settings.model == model
+    assert settings.classifier == model
 
 
 def test_last_probabilities(tmpdir):

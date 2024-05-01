@@ -23,7 +23,7 @@ from pathlib import Path
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
-from asreview.config import DEFAULT_MODEL
+from asreview.config import DEFAULT_CLASSIFIER
 from asreview.config import DEFAULT_QUERY_STRATEGY
 
 
@@ -35,14 +35,14 @@ class ReviewSettings:
     of its contents.
     """
 
-    model: str = DEFAULT_MODEL
+    classifier: str = DEFAULT_CLASSIFIER
     query_strategy: str = DEFAULT_QUERY_STRATEGY
     balance_strategy: str = DEFAULT_BALANCE_STRATEGY
     feature_extraction: str = DEFAULT_FEATURE_EXTRACTION
     stop_if: Optional[int] = None
     n_prior_included: Optional[int] = None
     n_prior_excluded: Optional[int] = None
-    model_param: Optional[dict] = None
+    classifier_param: Optional[dict] = None
     query_param: Optional[dict] = None
     balance_param: Optional[dict] = None
     feature_param: Optional[dict] = None

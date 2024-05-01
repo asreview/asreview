@@ -91,7 +91,7 @@ def _run_model_start(project, output_error=True):
             balance_model = get_balance_model(settings.balance_strategy)
             X_train, y_train = balance_model.sample(fm, y_sample_input, train_idx)
 
-            classifier = get_classifier(settings.model)
+            classifier = get_classifier(settings.classifier)
             classifier.fit(X_train, y_train)
 
             query_strategy = get_query_model(settings.query_strategy)
@@ -136,7 +136,7 @@ def _simulate_start(project):
     reviewer = Simulate(
         project.read_data(),
         project=project,
-        classifier=get_classifier(settings.model),
+        classifier=get_classifier(settings.classifier),
         query_model=get_query_model(settings.query_strategy),
         balance_model=get_balance_model(settings.balance_strategy),
         feature_model=get_feature_model(settings.feature_extraction),

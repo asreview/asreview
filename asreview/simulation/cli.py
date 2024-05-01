@@ -23,7 +23,7 @@ from uuid import uuid4
 from asreview import load_dataset
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
-from asreview.config import DEFAULT_MODEL
+from asreview.config import DEFAULT_CLASSIFIER
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED
@@ -164,7 +164,7 @@ def cli_simulate(argv):
 
     # create a new settings object from arguments
     settings = ReviewSettings(
-        model=args.model,
+        classifier=args.model,
         n_instances=args.n_instances,
         stop_if=args.stop_if,
         n_prior_included=args.n_prior_included,
@@ -180,9 +180,9 @@ def cli_simulate(argv):
     # Initialize models.
     random_state = get_random_state(args.seed)
     classifier_model = get_classifier(
-        settings.model,
+        settings.classifier,
         random_state=random_state,
-        **_unpack_params(settings.model_param),
+        **_unpack_params(settings.classifier_param),
     )
     query_model = get_query_model(
         settings.query_strategy,
@@ -337,9 +337,9 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "-m",
         "--model",
         type=str,
-        default=DEFAULT_MODEL,
+        default=DEFAULT_CLASSIFIER,
         help=f"The prediction model for Active Learning. "
-        f"Default: '{DEFAULT_MODEL}'.",
+        f"Default: '{DEFAULT_CLASSIFIER}'.",
     )
     parser.add_argument(
         "-q",

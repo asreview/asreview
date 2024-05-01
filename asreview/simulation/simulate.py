@@ -158,13 +158,13 @@ class Simulate:
         if hasattr(self, "n_prior_excluded"):
             extra_kwargs["n_prior_excluded"] = self.n_prior_excluded
         return ReviewSettings(
-            model=self.classifier.name,
+            classifier=self.classifier.name,
             query_strategy=self.query_strategy.name,
             balance_strategy=self.balance_model.name,
             feature_extraction=self.feature_extraction.name,
             n_instances=self.n_instances,
             stop_if=self.stop_if,
-            model_param=self.classifier.param,
+            classifier_param=self.classifier.param,
             query_param=self.query_strategy.param,
             balance_param=self.balance_model.param,
             feature_param=self.feature_extraction.param,

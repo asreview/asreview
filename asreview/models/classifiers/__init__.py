@@ -33,5 +33,5 @@ from asreview.models.classifiers.utils import list_classifiers
 """Machine learning classifiers to classify the documents.
 
 There are several machine learning classifiers available. In configuration
-files, parameters are found under the section ``[model_param]``.
+files, parameters are found under the section ``[classifier_param]``.
 """
