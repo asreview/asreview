@@ -61,7 +61,6 @@ RESULTS_TABLE_COLUMNS = [
 SETTINGS_METADATA_KEYS = [
     "settings",
     "state_version",
-    "software_version",
 ]
 CURRENT_STATE_VERSION = "1.1"
 
@@ -194,7 +193,6 @@ class SQLiteState(BaseState):
         self.settings_metadata = {
             "settings": None,
             "state_version": CURRENT_STATE_VERSION,
-            "software_version": __version__,
         }
 
         with open(self._settings_metadata_fp, "w") as f:
