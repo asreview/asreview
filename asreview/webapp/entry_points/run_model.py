@@ -15,7 +15,6 @@
 import argparse
 import logging
 from pathlib import Path
-import json
 
 import numpy as np
 from filelock import FileLock
@@ -28,7 +27,7 @@ from asreview.models.balance import get_balance_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
-from asreview.settings import ASReviewSettings
+from asreview.settings import ReviewSettings
 from asreview.simulation import Simulate
 from asreview.state.contextmanager import open_state
 
@@ -53,11 +52,14 @@ def _run_model_start(project, output_error=True):
         # Lock so that only one training run is running at the same time.
         lock = FileLock(Path(project.project_path, "training.lock"), timeout=0)
 
-        review_id = project.reviews[0]["id"]
-        with open(
-            Path(project.project_path, "reviews", review_id, "settings_metadata.json")
-        ) as f:
-            settings = ASReviewSettings(**json.load(f)["settings"])
+        settings = ReviewSettings().from_file(
+            Path(
+                project.project_path,
+                "reviews",
+                project.reviews[0]["id"],
+                "settings_metadata.json",
+            )
+        )
 
         with lock:
             with open_state(project) as state:
@@ -89,7 +91,7 @@ def _run_model_start(project, output_error=True):
             balance_model = get_balance_model(settings.balance_strategy)
             X_train, y_train = balance_model.sample(fm, y_sample_input, train_idx)
 
-            classifier = get_classifier(settings.model)
+            classifier = get_classifier(settings.classifier)
             classifier.fit(X_train, y_train)
 
             query_strategy = get_query_model(settings.query_strategy)
@@ -119,11 +121,14 @@ def _run_model_start(project, output_error=True):
 
 
 def _simulate_start(project):
-    review_id = project.reviews[0]["id"]
-    with open(
-        Path(project.project_path, "reviews", review_id, "settings_metadata.json")
-    ) as f:
-        settings = ASReviewSettings(**json.load(f)["settings"])
+    settings = ReviewSettings().from_file(
+        Path(
+            project.project_path,
+            "reviews",
+            project.reviews[0]["id"],
+            "settings_metadata.json",
+        )
+    )
 
     with open_state(project) as state:
         priors = state.get_priors()["record_id"].tolist()
@@ -131,7 +136,7 @@ def _simulate_start(project):
     reviewer = Simulate(
         project.read_data(),
         project=project,
-        classifier=get_classifier(settings.model),
+        classifier=get_classifier(settings.classifier),
         query_model=get_query_model(settings.query_strategy),
         balance_model=get_balance_model(settings.balance_strategy),
         feature_model=get_feature_model(settings.feature_extraction),

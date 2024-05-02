@@ -36,8 +36,4 @@ from asreview.models.query.utils import get_query_class
 from asreview.models.query.utils import get_query_model
 from asreview.models.query.utils import list_query_strategies
 
-"""Query strategies query records to label by the user.
-
-There are several query strategies available. In configuration files,
-parameters are found under the section ``[query_param]``.
-"""
+"""Query strategies query records to label by the user."""

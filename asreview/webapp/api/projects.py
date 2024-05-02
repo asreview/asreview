@@ -53,19 +53,15 @@ from asreview.data.statistics import n_irrelevant
 
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
-from asreview.models.balance import get_balance_model
 from asreview.models.balance import list_balance_strategies
-from asreview.models.classifiers import get_classifier
 from asreview.models.classifiers import list_classifiers
-from asreview.models.feature_extraction import get_feature_model
 from asreview.models.feature_extraction import list_feature_extraction
-from asreview.models.query import get_query_model
 from asreview.models.query import list_query_strategies
 from asreview.project import ProjectNotFoundError
 from asreview.project import get_project_path
 from asreview.project import is_v0_project
 from asreview.search import fuzzy_find
-from asreview.settings import ASReviewSettings
+from asreview.settings import ReviewSettings
 from asreview.state.contextmanager import open_state
 from asreview.state.custom_metadata_mapper import extract_tags
 from asreview.state.custom_metadata_mapper import get_tag_composite_id
@@ -715,32 +711,21 @@ def api_list_algorithms():
 def api_get_algorithms(project):  # noqa: F401
     """Get the algorithms used in the project"""
 
-    try:
-        review_id = project.reviews[0]["id"]
-        with open(
-            Path(project.project_path, "reviews", review_id, "settings_metadata.json")
-        ) as f:
-            settings = ASReviewSettings(**json.load(f)["settings"])
+    settings = ReviewSettings()
 
-        return jsonify(
-            {
-                "classifier": settings.model,
-                "feature_extraction": settings.feature_extraction,
-                "query_strategy": settings.query_strategy,
-                "balance_strategy": settings.balance_strategy,
-            }
+    try:
+        settings = settings.from_file(
+            Path(
+                project.project_path,
+                "reviews",
+                project.reviews[0]["id"],
+                "settings_metadata.json",
+            )
         )
-    except StateNotFoundError:
+    except FileNotFoundError:
         pass
 
-    return jsonify(
-        {
-            "classifier": "nb",
-            "feature_extraction": "tfidf",
-            "query_strategy": "max",
-            "balance_strategy": "double",
-        }
-    )
+    return jsonify(asdict(settings))
 
 
 @bp.route("/projects/<project_id>/algorithms", methods=["POST", "PUT"])
@@ -748,41 +733,24 @@ def api_get_algorithms(project):  # noqa: F401
 @project_authorization
 def api_set_algorithms(project):  # noqa: F401
     """Set the algorithms used in the project"""
-    s_classifier = request.form.get("classifier", None)
-    s_query_strategy = request.form.get("query_strategy", None)
-    s_balance_strategy = request.form.get("balance_strategy", None)
-    s_feature_extraction = request.form.get("feature_extraction", None)
 
-    try:
-        classifier = get_classifier(s_classifier)
-        query_strategy = get_query_model(s_query_strategy)
-        balance_strategy = get_balance_model(s_balance_strategy)
-        feature_extraction = get_feature_model(s_feature_extraction)
-    except (KeyError, AttributeError) as err:
-        return jsonify(message=f"Model component not found {err}"), 400
-
-    asreview_settings = ASReviewSettings(
-        model=s_classifier,
-        query_strategy=s_query_strategy,
-        balance_strategy=s_balance_strategy,
-        feature_extraction=s_feature_extraction,
-        model_param=classifier.param,
-        query_param=query_strategy.param,
-        balance_param=balance_strategy.param,
-        feature_param=feature_extraction.param,
+    asreview_settings = ReviewSettings(
+        classifier=request.form.get("classifier"),
+        query_strategy=request.form.get("query_strategy"),
+        balance_strategy=request.form.get("balance_strategy"),
+        feature_extraction=request.form.get("feature_extraction"),
     )
 
-    # Create settings_metadata.json file
-    # content of the settings is added later
-    settings_metadata = {
-        "settings": asreview_settings.to_dict(),
-    }
-
-    review_id = project.reviews[0]["id"]
     with open(
-        Path(project.project_path, "reviews", review_id, "settings_metadata.json"), "w"
+        Path(
+            project.project_path,
+            "reviews",
+            project.reviews[0]["id"],
+            "settings_metadata.json",
+        ),
+        "w",
     ) as f:
-        json.dump(settings_metadata, f)
+        json.dump(asdict(asreview_settings), f)
 
     return jsonify({"success": True})
 

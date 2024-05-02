@@ -36,6 +36,7 @@ from datetime import datetime
 from functools import wraps
 from pathlib import Path
 from uuid import uuid4
+from dataclasses import asdict
 
 import jsonschema
 import numpy as np
@@ -46,10 +47,6 @@ from scipy.sparse import load_npz
 from scipy.sparse import save_npz
 
 from asreview import load_dataset
-from asreview.config import DEFAULT_BALANCE_STRATEGY
-from asreview.config import DEFAULT_FEATURE_EXTRACTION
-from asreview.config import DEFAULT_MODEL
-from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_ORACLE
@@ -57,11 +54,7 @@ from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.config import PROJECT_MODES
 from asreview.config import SCHEMA
 from asreview.exceptions import CacheDataError
-from asreview.models.balance import get_balance_model
-from asreview.models.classifiers import get_classifier
-from asreview.models.feature_extraction import get_feature_model
-from asreview.models.query import get_query_model
-from asreview.settings import ASReviewSettings
+from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState
 from asreview.utils import asreview_path
 
@@ -509,36 +502,14 @@ class Project:
         if start_time is None:
             start_time = datetime.now()
 
-        # Add the review to the project.
         config = self.config
 
-        # add default settings to the state file
-        classifier = get_classifier(DEFAULT_MODEL)
-        query_strategy = get_query_model(DEFAULT_QUERY_STRATEGY)
-        balance_strategy = get_balance_model(DEFAULT_BALANCE_STRATEGY)
-        feature_extraction = get_feature_model(DEFAULT_FEATURE_EXTRACTION)
-
-        asreview_settings = ASReviewSettings(
-            model=DEFAULT_MODEL,
-            query_strategy=DEFAULT_QUERY_STRATEGY,
-            balance_strategy=DEFAULT_BALANCE_STRATEGY,
-            feature_extraction=DEFAULT_FEATURE_EXTRACTION,
-            model_param=classifier.param,
-            query_param=query_strategy.param,
-            balance_param=balance_strategy.param,
-            feature_param=feature_extraction.param,
-        )
-
-        # Create settings_metadata.json file
-        # content of the settings is added later
-        self.settings_metadata = {
-            "settings": asreview_settings.to_dict(),
-        }
+        asreview_settings = ReviewSettings()
 
         with open(
             Path(self.project_path, "reviews", review_id, "settings_metadata.json"), "w"
         ) as f:
-            json.dump(self.settings_metadata, f)
+            json.dump(asdict(asreview_settings), f)
 
         review_config = {
             "id": review_id,

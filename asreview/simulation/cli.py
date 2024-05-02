@@ -23,7 +23,7 @@ from uuid import uuid4
 from asreview import load_dataset
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
-from asreview.config import DEFAULT_MODEL
+from asreview.config import DEFAULT_CLASSIFIER
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED
@@ -35,7 +35,7 @@ from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
 from asreview.project import Project
 from asreview.project import ProjectExistsError
-from asreview.settings import ASReviewSettings
+from asreview.settings import ReviewSettings
 from asreview.simulation import Simulate
 from asreview.state.contextmanager import open_state
 from asreview.state import SQLiteState
@@ -66,6 +66,13 @@ def _convert_id_to_idx(data_obj, record_id):
             raise KeyError(f"record_id {i} not found in data.")
 
     return result
+
+
+def _unpack_params(params):
+    if params is None:
+        return {}
+
+    return params
 
 
 def _print_record(record, use_cli_colors=True):
@@ -156,8 +163,8 @@ def cli_simulate(argv):
     project.update_config(dataset_path=filename)
 
     # create a new settings object from arguments
-    settings = ASReviewSettings(
-        model=args.model,
+    settings = ReviewSettings(
+        classifier=args.model,
         n_instances=args.n_instances,
         stop_if=args.stop_if,
         n_prior_included=args.n_prior_included,
@@ -166,27 +173,31 @@ def cli_simulate(argv):
         balance_strategy=args.balance_strategy,
         feature_extraction=args.feature_extraction,
     )
-    settings.from_file(args.config_file)
+
+    if args.config_file:
+        settings.from_file(args.config_file)
 
     # Initialize models.
     random_state = get_random_state(args.seed)
     classifier_model = get_classifier(
-        settings.model, random_state=random_state, **settings.model_param
+        settings.classifier,
+        random_state=random_state,
+        **_unpack_params(settings.classifier_param),
     )
     query_model = get_query_model(
         settings.query_strategy,
         random_state=random_state,
-        **settings.query_param,
+        **_unpack_params(settings.query_param),
     )
     balance_model = get_balance_model(
         settings.balance_strategy,
         random_state=random_state,
-        **settings.balance_param,
+        **_unpack_params(settings.balance_param),
     )
     feature_model = get_feature_model(
         settings.feature_extraction,
         random_state=random_state,
-        **settings.feature_param,
+        **_unpack_params(settings.feature_param),
     )
 
     # prior knowledge
@@ -326,9 +337,9 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "-m",
         "--model",
         type=str,
-        default=DEFAULT_MODEL,
+        default=DEFAULT_CLASSIFIER,
         help=f"The prediction model for Active Learning. "
-        f"Default: '{DEFAULT_MODEL}'.",
+        f"Default: '{DEFAULT_CLASSIFIER}'.",
     )
     parser.add_argument(
         "-q",

@@ -18,7 +18,7 @@
     "n_prior_excluded": null,
     "abstract_only": false,
     "as_data": null,
-    "model_param": {
+    "classifier_param": {
       "alpha": 3.822
     },
     "query_param": {},

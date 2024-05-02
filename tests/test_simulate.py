@@ -8,6 +8,7 @@ from asreview.project import ProjectExistsError
 from asreview.simulation.cli import _simulate_parser
 from asreview.simulation.cli import cli_simulate
 from asreview.state.contextmanager import open_state
+from asreview.settings import ReviewSettings
 
 DATA_FP = Path("tests", "demo_data", "generic_labels.csv")
 DATA_FP_URL = "https://raw.githubusercontent.com/asreview/asreview/master/tests/demo_data/generic_labels.csv"  # noqa
@@ -81,9 +82,7 @@ def test_n_prior_included(tmpdir):
     with open(settings_path) as f:
         settings_metadata = json.load(f)
 
-    print(settings_metadata)
-
-    assert settings_metadata["settings"]["n_prior_included"] == 2
+    assert settings_metadata["n_prior_included"] == 2
 
 
 def test_n_prior_excluded(tmpdir):
@@ -109,7 +108,7 @@ def test_n_prior_excluded(tmpdir):
     with open(settings_path) as f:
         settings_metadata = json.load(f)
 
-    assert settings_metadata["settings"]["n_prior_excluded"] == 2
+    assert settings_metadata["n_prior_excluded"] == 2
 
 
 # TODO: Add random seed to settings.
@@ -124,32 +123,30 @@ def test_n_prior_excluded(tmpdir):
 #     assert settings_metadata['random_seed'] == 42
 
 
-def test_non_tf_models(tmpdir):
-    models = ["logistic", "nb", "rf", "svm"]
-    for model in models:
-        print(model)
-        asreview_fp = Path(tmpdir, f"test_{model}.asreview")
-        argv = f"{str(DATA_FP)} -s {asreview_fp} -m {model}".split()
-        cli_simulate(argv)
+@pytest.mark.parametrize("model", ["logistic", "nb", "rf", "svm"])
+def test_non_tf_models(model, tmpdir):
+    asreview_fp = Path(tmpdir, f"test_{model}.asreview")
+    argv = f"{str(DATA_FP)} -s {asreview_fp} -m {model}".split()
+    cli_simulate(argv)
 
-        with open_state(asreview_fp) as state:
-            classifiers = state.get_dataset()["classifier"]
-        default_n_priors = 2
-        assert all(classifiers[default_n_priors:] == model)
+    with open_state(asreview_fp) as state:
+        classifiers = state.get_dataset()["classifier"]
+    default_n_priors = 2
+    assert all(classifiers[default_n_priors:] == model)
 
-        Path(tmpdir, f"test_{model}").mkdir(parents=True)
-        project = asr.Project.load(asreview_fp, Path(tmpdir, f"test_{model}"))
+    Path(tmpdir, f"test_{model}").mkdir(parents=True)
+    project = asr.Project.load(asreview_fp, Path(tmpdir, f"test_{model}"))
 
-        settings_path = Path(
+    settings = ReviewSettings().from_file(
+        Path(
             project.project_path,
             "reviews",
             project.config["reviews"][0]["id"],
             "settings_metadata.json",
         )
-        with open(settings_path) as f:
-            settings_metadata = json.load(f)
+    )
 
-        assert settings_metadata["settings"]["model"] == model
+    assert settings.classifier == model
 
 
 def test_last_probabilities(tmpdir):
