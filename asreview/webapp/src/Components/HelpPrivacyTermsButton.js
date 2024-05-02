@@ -10,7 +10,7 @@ export default function HelpPrivacyTermsButton(props) {
       spacing={2}
       direction="row"
       sx={{
-        justifyContent: "flex-end",
+        justifyContent: "center",
         marginTop: (theme) => theme.spacing(3),
       }}
     >
