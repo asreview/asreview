@@ -360,48 +360,19 @@ class SQLiteState(BaseState):
         training_set: int
             Number of labeled records available at the time of training.
         """
-        record_ids = self.get_record_table()
 
-        if len(record_ids) != len(ranked_record_ids):
-            raise ValueError(
-                "The ranking should have the same length as the " "record table."
-            )
-
-        ranking = range(len(record_ids))
-        classifiers = [classifier for _ in record_ids]
-        query_strategies = [query_strategy for _ in record_ids]
-        balance_strategies = [balance_strategy for _ in record_ids]
-        feature_extractions = [feature_extraction for _ in record_ids]
-        training_sets = [int(training_set) for _ in record_ids]
-        ranking_times = [datetime.now()] * len(record_ids)
-
-        # Create the database rows.
-        db_rows = [
-            (
-                int(ranked_record_ids[i]),
-                int(ranking[i]),
-                classifiers[i],
-                query_strategies[i],
-                balance_strategies[i],
-                feature_extractions[i],
-                training_sets[i],
-                ranking_times[i],
-            )
-            for i in range(len(record_ids))
-        ]
-
-        con = self._conn()
-        cur = con.cursor()
-        cur.execute("DELETE FROM last_ranking")
-        cur.executemany(
-            (
-                "INSERT INTO last_ranking (record_id, ranking, classifier, "
-                "query_strategy, balance_strategy, feature_extraction, "
-                "training_set, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-            ),
-            db_rows,
-        )
-        con.commit()
+        pd.DataFrame(
+            {
+                "record_id": ranked_record_ids,
+                "ranking": range(len(ranked_record_ids)),
+                "classifier": classifier,
+                "query_strategy": query_strategy,
+                "balance_strategy": balance_strategy,
+                "feature_extraction": feature_extraction,
+                "training_set": training_set,
+                "time": datetime.now(),
+            }
+        ).to_sql("last_ranking", self._conn(), if_exists="replace", index=False)
 
     def add_note(self, note, record_id):
         """Add a text note to save with a labeled record.
