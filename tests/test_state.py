@@ -429,8 +429,6 @@ def test_ranking_with_labels(tmpdir):
         assert isinstance(ranking_with_labels, pd.DataFrame)
         assert list(ranking_with_labels.columns) == ["record_id", "label"]
 
-        print(ranking_with_labels)
-
         subset_with_labels = ranking_with_labels[ranking_with_labels["label"].notnull()]
         subset_without_labels = ranking_with_labels[
             ranking_with_labels["label"].isnull()

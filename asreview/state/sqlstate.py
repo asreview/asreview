@@ -824,11 +824,11 @@ class SQLiteState:
             records, in the order of the last available ranking.
         """
         return pd.read_sql_query(
-            """SELECT last_ranking.record_id, last_ranking.ranking,
+            """SELECT record_id, last_ranking.ranking,
                 results.query_strategy
                 FROM last_ranking
                 LEFT JOIN results
-                ON last_ranking.record_id = results.record_id
+                USING (record_id)
                 WHERE results.query_strategy is null
                 ORDER BY ranking
                 """,
@@ -868,13 +868,13 @@ class SQLiteState:
 
         return pd.read_sql_query(
             """SELECT
-                    last_ranking.record_id, results.label
+                    record_id, results.label
                 FROM
                     last_ranking
                 LEFT JOIN
                     results
-                ON
-                    results.record_id=last_ranking.record_id
+                USING
+                    (record_id)
                 """,
             self._conn(),
             dtype={"label": "Int64"},

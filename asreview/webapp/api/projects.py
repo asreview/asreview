@@ -975,8 +975,10 @@ def api_export_dataset(project):
     try:
         # get labels and ranking from state file
         with open_state(project.project_path) as s:
-            pool, labeled, pending = s.get_ranking_with_labels()
-            # get state dataset for accessing notes
+            # todo: execute in single transaction (most likely it already does)
+            pool = s.get_pool()
+            labeled = s.get_labeled()
+
             state_df = s.get_dataset().set_index("record_id")
 
         included = labeled[labeled["label"] == 1]
@@ -988,7 +990,6 @@ def api_export_dataset(project):
         else:
             export_order = (
                 included["record_id"].to_list()
-                + pending.to_list()
                 + pool.to_list()
                 + excluded["record_id"].to_list()
             )
