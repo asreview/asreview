@@ -264,14 +264,14 @@ def test_get_classifiers(asreview_test_project):
 
 def test_get_training_sets(asreview_test_project):
     with open_state(asreview_test_project) as state:
-        assert isinstance(state.get_training_sets(), pd.Series)
-        assert all(state.get_training_sets() == TEST_TRAINING_SETS)
+        assert isinstance(state.get_dataset()["training_set"], pd.Series)
+        assert all(state.get_dataset()["training_set"] == TEST_TRAINING_SETS)
 
 
 def test_get_order_of_labeling(asreview_test_project):
     with open_state(asreview_test_project) as state:
-        assert isinstance(state.get_order_of_labeling(), pd.Series)
-        assert all(state.get_order_of_labeling() == TEST_RECORD_IDS)
+        assert isinstance(state.get_dataset()["record_id"], pd.Series)
+        assert all(state.get_dataset()["record_id"] == TEST_RECORD_IDS)
 
 
 def test_get_labels(asreview_test_project):
@@ -293,8 +293,7 @@ def test_get_labeling_times(tmpdir):
     )
 
     with open_state(Path(tmpdir, "test_state_example_with_times.asreview")) as state:
-        assert isinstance(state.get_labeling_times(), pd.Series)
-        assert all(state.get_labeling_times() == TEST_LABELING_TIMES)
+        assert all(state.get_dataset()["labeling_time"] == TEST_LABELING_TIMES)
 
 
 def test_get_feature_matrix(asreview_test_project):

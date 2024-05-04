@@ -50,7 +50,7 @@ def test_prior_idx(tmpdir):
     cli_simulate(argv)
 
     with open_state(asreview_fp) as state:
-        labeling_order = state.get_order_of_labeling()
+        labeling_order = state.get_dataset()["record_id"]
         query_strategies = state.get_dataset()["query_strategy"]
 
     assert labeling_order[0] == 1

@@ -670,25 +670,6 @@ class SQLiteState:
             f"SELECT {query_string} FROM results {sql_where_str}", self._conn
         )
 
-    def get_order_of_labeling(self, priors=True, pending=False):
-        """Get full array of record id's in order that they were labeled.
-
-        Arguments
-        ---------
-        priors: bool
-            Whether to keep the records containing the prior knowledge.
-        pending: bool
-            Whether to keep the records are pending a labeling decision.
-
-        Returns
-        -------
-        pd.Series:
-            The record_id's in the order that they were labeled.
-        """
-        return self.get_dataset("record_id", priors=priors, pending=pending)[
-            "record_id"
-        ]
-
     def get_priors(self):
         """Get the record ids of the priors.
 
@@ -725,55 +706,6 @@ class SQLiteState:
             labels = labels.append(pd.Series([0] * (n_labels_padding - len(labels))))
 
         return labels
-
-    def get_training_sets(self, priors=True, pending=False):
-        """Get the training_sets from the state.
-
-        Arguments
-        ---------
-        priors: bool
-            Whether to keep the records containing the prior knowledge.
-        pending: bool
-            Whether to keep the records which are pending a labeling decision.
-
-        Returns
-        -------
-        pd.Series:
-            Series containing the training set on which the classifier was fit
-            at each labeling moment.
-        """
-        return self.get_dataset("training_set", priors=priors, pending=pending)[
-            "training_set"
-        ]
-
-    def get_labeling_times(self, time_format="int", priors=True, pending=False):
-        """Get the time of labeling from the state.
-
-        Arguments
-        ---------
-        time_format: 'int' or 'datetime'
-            Format of the return value. If it is 'int' you get a UTC timestamp,
-            if it is 'datetime' you get datetime instead of an integer.
-        priors: bool
-            Whether to keep the records containing the prior knowledge.
-        pending: bool
-            Whether to keep the records which are pending a labeling decision.
-
-        Returns
-        -------
-        pd.Series:
-            If format='int' you get a UTC timestamp (integer number of
-            microseconds), if it is 'datetime' you get datetime format.
-        """
-        times = self.get_dataset("labeling_time", priors=priors, pending=pending)[
-            "labeling_time"
-        ]
-
-        # Convert time to datetime format.
-        if time_format == "datetime":
-            times = times.applymap(lambda x: datetime.utcfromtimestamp(x / 10**6))
-
-        return times
 
     def get_pool(self):
         """Get the unlabeled, not-pending records in ranking order.

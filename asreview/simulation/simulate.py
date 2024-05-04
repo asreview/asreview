@@ -271,9 +271,7 @@ class Simulate:
                 ]
             )
             self.training_set = len(self.labeled)
-
-            training_sets = s.get_training_sets()
-            self.total_queries = len(set(training_sets)) - 1
+            self.total_queries = 0
 
             # Check that both labels are available.
             if (0 not in self.labeled["label"].values) or (
