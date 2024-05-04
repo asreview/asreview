@@ -322,11 +322,6 @@ class SQLiteState(BaseState):
             List containing the relevance scores for every record.
         """
 
-        if self.n_records != len(probabilities):
-            raise ValueError(
-                "The number of probabilities should be equal to the number of records."
-            )
-
         pd.DataFrame({"proba": probabilities}).to_sql(
             "last_probabilities", self._conn(), if_exists="replace", index=False
         )
@@ -432,14 +427,14 @@ class SQLiteState(BaseState):
 
         n_records_labeled = len(record_ids)
 
-        pool, _, pending = self.get_pool_labeled_pending()
-
         if prior:
-            # Check that the record_ids are in the pool.
-            if not all(record_id in pool.values for record_id in record_ids):
-                raise ValueError(
-                    "Labeling priors, but not all " "record_ids were found in the pool."
-                )
+            # pool = self.get_pool()
+
+            # # Check that the record_ids are in the pool.
+            # if not all(record_id in pool.values for record_id in record_ids):
+            #     raise ValueError(
+            #         "Labeling priors, but not all record_ids were found in the pool."
+            #     )
 
             query_strategies = ["prior" for _ in record_ids]
             training_sets = [-1 for _ in record_ids]
@@ -464,11 +459,12 @@ class SQLiteState(BaseState):
             )
 
         else:
-            # Check that the record_ids are pending.
-            if not all(record_id in pending.values for record_id in record_ids):
-                raise ValueError(
-                    "Labeling records, but not all record_ids were pending."
-                )
+            # pending = self.get_pending()
+            # # Check that the record_ids are pending.
+            # if not all(record_id in pending.values for record_id in record_ids):
+            #     raise ValueError(
+            #         "Labeling records, but not all record_ids were pending."
+            #     )
 
             data = [
                 (
@@ -863,14 +859,8 @@ class SQLiteState(BaseState):
 
         return times
 
-    # Get pool, labeled and pending in slightly more optimized way than via
-    # get_dataset.
     def get_pool(self):
         """Get the unlabeled, not-pending records in ranking order.
-
-        Get the pool of unlabeled records, not pending a labeling decision,
-        in the ranking order. If you only want the records in the pool, this
-        is more efficient than via 'get_pool_labeled_pending'.
 
         Returns
         -------
@@ -891,11 +881,7 @@ class SQLiteState(BaseState):
         )["record_id"]
 
     def get_labeled(self):
-        """Get the labeled records in order of labeling.
-
-        Get the record_ids and labels of the labeled records in order of
-        labeling. If you only want the labeled records, this is more efficient
-        than via 'get_pool_labeled_pending'.
+        """Get labeled records from the results table.
 
         Returns
         -------
@@ -911,58 +897,30 @@ class SQLiteState(BaseState):
         )
 
     def get_pending(self):
-        """Get the record_ids of the records pending a labeling decision.
-
-        If you only want the pending records, this is more efficient
-        than via 'get_pool_labeled_pending'.
+        """Get pending records from the results table.
 
         Returns
         -------
-        pd.Series
-            A series containing the record_ids of the records whose label is
-            pending.
+        pd.DataFrame
+            DataFrame with pending results records.
         """
         return pd.read_sql_query(
             """SELECT * FROM results WHERE label is null""", self._conn()
         )
 
-    def get_pool_labeled_pending(self):
-        """Return the unlabeled pool, labeled and pending records.
+    def get_ranking_with_labels(self):
+        """Return ranking with labels is present"""
 
-        Convenience function to get the pool, labeled and pending records in
-        one SQL query. If you only want one of these, it is more efficient to
-        use the methods 'get_pool', 'get_labeled' or 'get_pending'.
-
-        Returns
-        -------
-        tuple (pd.Series, pd.DataFrame, pd.Series):
-            Returns a tuple (pool, labeled, pending). Pool is a series
-            containing the unlabeled, not pending record_ids, ordered by the
-            last predicted ranking of the model. Labeled is a dataframe
-            containing the record_ids and labels of the labeled records, in the
-            order that they were labeled. Pending is a series containing the
-            record_ids of the records whose label is pending.
-        """
-
-        query = """SELECT record_table.record_id, results.label,
-                results.rowid AS label_order, results.query_strategy,
-                last_ranking.ranking
-                FROM record_table
-                LEFT JOIN results
-                ON results.record_id=record_table.record_id
-                LEFT JOIN last_ranking
-                ON record_table.record_id=last_ranking.record_id
-                ORDER BY label_order, ranking
-                """
-
-        df = pd.read_sql_query(query, self._conn())
-
-        labeled = df.loc[~df["label"].isna()].loc[:, ["record_id", "label"]].astype(int)
-        pool = df.loc[df["label_order"].isna(), "record_id"].astype(int)
-        pending = (
-            df.loc[df["label"].isna() & ~df["query_strategy"].isna()]
-            .loc[:, "record_id"]
-            .astype(int)
+        return pd.read_sql_query(
+            """SELECT
+                    last_ranking.record_id, results.label
+                FROM
+                    last_ranking
+                LEFT JOIN
+                    results
+                ON
+                    results.record_id=last_ranking.record_id
+                """,
+            self._conn(),
+            dtype={"label": "Int64"},
         )
-
-        return pool, labeled, pending

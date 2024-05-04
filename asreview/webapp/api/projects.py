@@ -975,7 +975,7 @@ def api_export_dataset(project):
     try:
         # get labels and ranking from state file
         with open_state(project.project_path) as s:
-            pool, labeled, pending = s.get_pool_labeled_pending()
+            pool, labeled, pending = s.get_ranking_with_labels()
             # get state dataset for accessing notes
             state_df = s.get_dataset().set_index("record_id")
 

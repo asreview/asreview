@@ -167,7 +167,7 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_pool_labeled_pending(self):
+    def get_ranking_with_labels(self):
         """Return the labeled and unlabeled records and the records pending a
         labeling decision.
 
