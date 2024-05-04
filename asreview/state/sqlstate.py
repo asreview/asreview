@@ -20,7 +20,6 @@ from pathlib import Path
 
 import pandas as pd
 
-from asreview.state.base import BaseState
 from asreview.state.compatibility import check_and_update_version
 from asreview.state.custom_metadata_mapper import convert_to_custom_metadata_str
 from asreview.state.errors import StateError
@@ -53,7 +52,7 @@ RESULTS_TABLE_COLUMNS = [
 CURRENT_STATE_VERSION = 2
 
 
-class SQLiteState(BaseState):
+class SQLiteState:
     """Class for storing the review state.
 
     The results are stored in a sqlite database.
