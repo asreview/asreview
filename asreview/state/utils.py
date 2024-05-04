@@ -1,3 +1,5 @@
+import pandas as pd
+
 from asreview.state.contextmanager import open_state
 
 
@@ -16,10 +18,13 @@ def _fill_last_ranking(project, ranking):
     if ranking not in ["random", "top-down"]:
         raise ValueError(f"Unknown ranking type: {ranking}")
 
+    as_data = project.read_data()
+    record_table = pd.Series(as_data.record_ids, name="record_id")
+
     with open_state(project.project_path) as state:
         if ranking == "random":
-            records = state.get_record_table().sample(frac=1)
+            records = record_table.sample(frac=1)
         elif ranking == "top-down":
-            records = state.get_record_table()
+            records = record_table
 
         state.add_last_ranking(records.values, ranking, ranking, ranking, ranking, -1)
