@@ -1115,17 +1115,21 @@ def _get_stats(project, include_priors=False):
     else:
         # Check if there is a review started in the project.
         try:
+            as_data = project.read_data()
+
             # get label history
             with open_state(project.project_path) as s:
                 if (
                     project.config["reviews"][0]["status"] == "finished"
                     and project.config["mode"] == PROJECT_MODE_SIMULATE
                 ):
-                    labels = _get_labels(s, priors=include_priors)
+                    labels = s.get_labels(
+                        priors=include_priors, n_labels_padding=len(as_data)
+                    )
                 else:
                     labels = s.get_labels(priors=include_priors)
 
-                n_records = s.n_records
+            n_records = len(as_data)
 
         # No state file found or not init.
         except (StateNotFoundError, StateError):
@@ -1147,20 +1151,6 @@ def _get_stats(project, include_priors=False):
         "n_papers": n_records,
         "n_pool": n_records - n_excluded - n_included,
     }
-
-
-def _get_labels(state_obj, priors=False):
-    # get the number of records
-    n_records = state_obj.n_records
-
-    # get the labels
-    labels = state_obj.get_labels(priors=priors).to_list()
-
-    # if less labels than records, fill with 0
-    if len(labels) < n_records:
-        labels += [0] * (n_records - len(labels))
-
-    return pd.Series(labels)
 
 
 @bp.route("/projects/<project_id>/progress", methods=["GET"])
@@ -1191,7 +1181,8 @@ def api_get_progress_density(project):
             project.config["reviews"][0]["status"] == "finished"
             and project.config["mode"] == PROJECT_MODE_SIMULATE
         ):
-            data = _get_labels(s, priors=include_priors)
+            as_data = project.read_data()
+            data = s.get_labels(priors=include_priors, n_labels_padding=len(as_data))
         else:
             data = s.get_labels(priors=include_priors)
 
@@ -1238,16 +1229,17 @@ def api_get_progress_recall(project):
 
     include_priors = request.args.get("priors", False, type=bool)
 
+    as_data = project.read_data()
+    n_records = len(as_data)
+
     with open_state(project.project_path) as s:
         if (
             project.config["reviews"][0]["status"] == "finished"
             and project.config["mode"] == PROJECT_MODE_SIMULATE
         ):
-            data = _get_labels(s, priors=include_priors)
+            data = s.get_labels(priors=include_priors, n_labels_padding=len(as_data))
         else:
             data = s.get_labels(priors=include_priors)
-
-        n_records = len(s.get_record_table())
 
     # create a dataset with the cumulative number of inclusions
     df = data.to_frame(name="Relevant").reset_index(drop=True).cumsum()

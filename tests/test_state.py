@@ -5,7 +5,6 @@ import pytest
 from scipy.sparse import csr_matrix
 
 import asreview as asr
-from asreview import load_dataset
 from asreview.project import ProjectExistsError, ProjectNotFoundError
 from asreview.settings import ReviewSettings
 from asreview.state import SQLiteState
@@ -239,12 +238,10 @@ def test_get_dataset_drop_prior(asreview_test_project):
 
 
 def test_get_dataset_drop_pending(tmpdir):
-    record_table = range(1, 11)
     test_ranking = range(10, 0, -1)
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
     with open_state(project_path) as state:
-        state.add_record_table(record_table)
         state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
         state.add_labeling_data([4, 5, 6], [1, 0, 1], prior=True)
         state.query_top_ranked(3)
@@ -319,26 +316,6 @@ def test_get_feature_matrix(asreview_test_project):
     assert isinstance(feature_matrix, csr_matrix)
 
 
-def test_get_record_table(asreview_test_project):
-    with open_state(asreview_test_project) as state:
-        record_table = state.get_record_table()
-        assert isinstance(record_table, pd.Series)
-        assert record_table.name == "record_id"
-        assert record_table.to_list() == TEST_RECORD_TABLE
-
-
-def test_record_table(tmpdir):
-    data_fp = Path("tests", "demo_data", "record_id.csv")
-    as_data = load_dataset(data_fp)
-
-    project_path = Path(tmpdir, "test.asreview")
-    asr.Project.create(project_path)
-
-    with open_state(project_path) as state:
-        state.add_record_table(as_data.record_ids)
-        assert state.get_record_table().to_list() == list(range(len(as_data)))
-
-
 def test_get_last_probabilities(asreview_test_project):
     with open_state(asreview_test_project) as state:
         probabilities = state.get_last_probabilities()
@@ -369,7 +346,6 @@ def test_move_ranking_data_to_results(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
     with open_state(project_path) as state:
-        state.add_record_table(TEST_RECORD_TABLE)
         state.add_last_ranking(
             range(1, len(TEST_RECORD_TABLE) + 1), "nb", "max", "double", "tfidf", 4
         )
@@ -386,7 +362,6 @@ def test_query_top_ranked(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
     with open_state(project_path) as state:
-        state.add_record_table(TEST_RECORD_TABLE)
         state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
         top_ranked = state.query_top_ranked(5)
 
@@ -405,7 +380,6 @@ def test_add_labeling_data(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
     with open_state(project_path) as state:
-        state.add_record_table(TEST_RECORD_TABLE)
         state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
         for i in range(3):
             # Test without specifying notes.
@@ -517,7 +491,6 @@ def test_update_decision(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
     with open_state(project_path) as state:
-        state.add_record_table(TEST_RECORD_TABLE)
         state.add_labeling_data(TEST_RECORD_IDS[:3], TEST_LABELS[:3], prior=True)
 
         for i in range(3):
@@ -571,7 +544,6 @@ def test_last_ranking(tmpdir):
     training_set = 2
 
     with open_state(project_path) as state:
-        state.add_record_table(record_ids)
         state.add_last_ranking(
             ranking,
             classifier,
@@ -639,7 +611,6 @@ def test_add_extra_column(tmpdir):
     training_set = 2
 
     with open_state(project_path) as state:
-        state.add_record_table(record_ids)
         state.add_last_ranking(
             ranking,
             classifier,

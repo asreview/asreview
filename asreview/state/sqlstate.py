@@ -26,16 +26,10 @@ from asreview.state.custom_metadata_mapper import convert_to_custom_metadata_str
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 
-try:
-    from asreview._version import __version__
-except ImportError:
-    __version__ = "0.0.0"
 
 REQUIRED_TABLES = [
     # the table with the labeling decisions and models trained
     "results",
-    # the mapping of record identifiers to row numbers
-    "record_table",
     # the latest probabilities.
     "last_probabilities",
     # the latest ranking.
@@ -132,12 +126,6 @@ class SQLiteState(BaseState):
                             labeling_time INTEGER,
                             notes TEXT,
                             custom_metadata_json TEXT)"""
-        )
-
-        # Create the record table.
-        cur.execute(
-            """CREATE TABLE record_table
-                            (record_id INT)"""
         )
 
         # Create the last_probabilities table.
@@ -250,19 +238,6 @@ class SQLiteState(BaseState):
         cur.close()
 
     @property
-    def n_records(self):
-        """Number of records in the loop.
-
-        Returns
-        -------
-        int
-            Number of records.
-        """
-        cur = self._conn().cursor()
-        cur.execute("SELECT COUNT (*) FROM record_table")
-        return cur.fetchone()[0]
-
-    @property
     def n_records_labeled(self):
         """Number labeled records.
 
@@ -300,18 +275,6 @@ class SQLiteState(BaseState):
             return len(labeled) > 0
         else:
             return len(labeled) > last_training_set.iloc[0]
-
-    def add_record_table(self, record_ids):
-        """Add the record table to the state.
-
-        Arguments
-        ---------
-        record_ids: list, np.array
-            List containing all record ids of the dataset.
-        """
-        pd.DataFrame({"record_id": record_ids}).to_sql(
-            "record_table", self._conn(), if_exists="replace", index=False
-        )
 
     def add_last_probabilities(self, probabilities):
         """Save the probabilities produced by the last classifier.
@@ -591,18 +554,6 @@ class SQLiteState(BaseState):
 
         return pd.read_sql_query("SELECT * FROM decision_changes", self._conn())
 
-    def get_record_table(self):
-        """Get the record table of the state.
-
-        Returns
-        -------
-        pd.Series:
-            Series with name 'record_id' containing the record ids.
-        """
-        return pd.read_sql_query("SELECT * FROM record_table", self._conn())[
-            "record_id"
-        ]
-
     def get_last_probabilities(self):
         """Get the probabilities produced by the last classifier.
 
@@ -792,7 +743,7 @@ class SQLiteState(BaseState):
             self._conn(),
         )
 
-    def get_labels(self, priors=True, pending=False):
+    def get_labels(self, priors=True, pending=False, n_labels_padding=None):
         """Get the labels from the state.
 
         Arguments
@@ -808,7 +759,12 @@ class SQLiteState(BaseState):
             Series containing the labels at each labelling moment.
         """
 
-        return self.get_dataset("label", priors=priors, pending=pending)["label"]
+        labels = self.get_dataset("label", priors=priors, pending=pending)["label"]
+
+        if n_labels_padding is not None:
+            labels = labels.append(pd.Series([0] * (n_labels_padding - len(labels))))
+
+        return labels
 
     def get_training_sets(self, priors=True, pending=False):
         """Get the training_sets from the state.

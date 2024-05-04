@@ -256,11 +256,8 @@ class Simulate:
             ) as f:
                 json.dump(asdict(self.settings), f)
 
-            # Add the record table to the state if it is not already there.
-            self.record_table = s.get_record_table()
-            if self.record_table.empty:
-                s.add_record_table(self.as_data.record_ids)
-                self.record_table = s.get_record_table()
+            # Add the record table
+            self.record_table = pd.Series(self.as_data.record_ids, name="record_id")
 
             # Make sure the priors are labeled.
             self._label_priors()

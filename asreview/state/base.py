@@ -55,17 +55,6 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def add_record_table(self, record_ids):
-        """Add the record table to the state.
-
-        Arguments
-        ---------
-        record_ids: list-like
-            List containing all record ids of the dataset.
-        """
-        raise NotImplementedError
-
-    @abstractmethod
     def add_last_probabilities(self, probabilities):
         """Save the probabilities produced by the last classifier.
 

@@ -19,6 +19,7 @@ from pathlib import Path
 import numpy as np
 from filelock import FileLock
 from filelock import Timeout
+import pandas as pd
 
 import asreview as asr
 from asreview.config import LABEL_NA
@@ -63,15 +64,16 @@ def _run_model_start(project, output_error=True):
 
         with lock:
             with open_state(project) as state:
-                record_table = state.get_record_table()
                 labeled = state.get_labeled()
+
+            as_data = project.read_data()
+            record_table = pd.Series(as_data.record_ids, name="record_id")
 
             # get the feature matrix
             feature_model = get_feature_model(settings.feature_extraction)
             try:
                 fm = project.get_feature_matrix(feature_model.name)
             except FileNotFoundError:
-                as_data = project.read_data()
                 fm = feature_model.fit_transform(
                     as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
                 )

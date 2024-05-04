@@ -298,9 +298,6 @@ class Project:
             state._create_new_state_file(self.project_path, review_id)
             self.add_review(review_id)
 
-            # save the record ids in the state file
-            state.add_record_table(as_data.record_ids)
-
             # if the data contains labels and oracle mode, add them to the state file
             if (
                 self.config["mode"] == PROJECT_MODE_ORACLE
