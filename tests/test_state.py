@@ -181,16 +181,6 @@ def test_settings_state(asreview_test_project):
     )
 
 
-def test_n_records_labeled(asreview_test_project):
-    with open_state(asreview_test_project) as state:
-        assert state.n_records_labeled == len(TEST_LABELS)
-
-
-def test_n_priors(asreview_test_project):
-    with open_state(asreview_test_project) as state:
-        assert state.n_priors == TEST_N_PRIORS
-
-
 def test_create_new_state_file(tmpdir):
     project = asr.Project.create(Path(tmpdir, "test.asreview"))
     with open_state(project) as state:
@@ -593,7 +583,7 @@ def test_add_extra_column(tmpdir):
     asr.Project.create(project_path)
 
     with open_state(project_path) as state:
-        con = state._conn()
+        con = state._conn
         cur = con.cursor()
         cur.execute("ALTER TABLE last_ranking ADD COLUMN test_lr INTEGER;")
         cur.execute("ALTER TABLE results ADD COLUMN test_res INTEGER;")

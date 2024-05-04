@@ -48,7 +48,7 @@ def cli_state_inspect(argv):
         project_path = get_project_path(args.project_id)
 
     with open_state(project_path) as s:
-        conn = s._conn()
+        conn = s._conn
 
         df = pd.read_sql(f"select * from {args.table}", conn)
 

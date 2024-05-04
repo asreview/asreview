@@ -71,6 +71,7 @@ class SQLiteState:
         a model ranking was added to the state?
     """
 
+    @property
     def _conn(self):
         """Get a connection to the SQLite database.
 
@@ -108,7 +109,7 @@ class SQLiteState:
         self._sql_fp.parent.mkdir(parents=True, exist_ok=True)
 
         # Create results table.
-        con = self._conn()
+        con = self._conn
         self.user_version = CURRENT_STATE_VERSION
 
         cur = con.cursor()
@@ -188,8 +189,7 @@ class SQLiteState:
         except AttributeError as err:
             raise ValueError(f"Unexpected error when opening state file: {err}")
 
-        con = self._conn()
-        cur = con.cursor()
+        cur = self._conn.cursor()
         column_names = cur.execute("PRAGMA table_info(results)").fetchall()
         table_names = cur.execute(
             "SELECT name FROM sqlite_master WHERE type='table';"
@@ -218,47 +218,23 @@ class SQLiteState:
             )
 
     def close(self):
-        self._conn().close()
+        self._conn.close()
 
     # PROPERTIES
     @property
     def user_version(self):
         """Version number of the state."""
-        cur = self._conn().cursor()
+        cur = self._conn.cursor()
         version = cur.execute("PRAGMA user_version")
 
         return int(version.fetchone()[0])
 
     @user_version.setter
     def user_version(self, version):
-        cur = self._conn().cursor()
+        cur = self._conn.cursor()
         cur.execute(f"PRAGMA user_version = {version}")
-        self._conn().commit()
+        self._conn.commit()
         cur.close()
-
-    @property
-    def n_records_labeled(self):
-        """Number labeled records.
-
-        Returns
-        -------
-        int
-            Number of labeled records, priors counted individually.
-        """
-        return len(self.get_labeled())
-
-    @property
-    def n_priors(self):
-        """Number of records added as prior knowledge.
-
-        Returns
-        -------
-        int
-            Number of records which were added as prior knowledge.
-        """
-        cur = self._conn().cursor()
-        cur.execute("SELECT COUNT (*) FROM results WHERE query_strategy='prior'")
-        return cur.fetchone()[0]
 
     @property
     def exist_new_labeled_records(self):
@@ -285,7 +261,7 @@ class SQLiteState:
         """
 
         pd.DataFrame({"proba": probabilities}).to_sql(
-            "last_probabilities", self._conn(), if_exists="replace", index=False
+            "last_probabilities", self._conn, if_exists="replace", index=False
         )
 
     def add_last_ranking(
@@ -329,7 +305,7 @@ class SQLiteState:
                 "training_set": training_set,
                 "time": datetime.now(),
             }
-        ).to_sql("last_ranking", self._conn(), if_exists="replace", index=False)
+        ).to_sql("last_ranking", self._conn, if_exists="replace", index=False)
 
     def add_note(self, note, record_id):
         """Add a text note to save with a labeled record.
@@ -341,7 +317,7 @@ class SQLiteState:
         record_id: int
             Identifier of the record to which the note should be added.
         """
-        con = self._conn()
+        con = self._conn
         cur = con.cursor()
         cur.execute(
             "UPDATE results SET notes = ? WHERE record_id = ?", (note, record_id)
@@ -390,14 +366,6 @@ class SQLiteState:
         n_records_labeled = len(record_ids)
 
         if prior:
-            # pool = self.get_pool()
-
-            # # Check that the record_ids are in the pool.
-            # if not all(record_id in pool.values for record_id in record_ids):
-            #     raise ValueError(
-            #         "Labeling priors, but not all record_ids were found in the pool."
-            #     )
-
             query_strategies = ["prior" for _ in record_ids]
             training_sets = [-1 for _ in record_ids]
             data = [
@@ -421,13 +389,6 @@ class SQLiteState:
             )
 
         else:
-            # pending = self.get_pending()
-            # # Check that the record_ids are pending.
-            # if not all(record_id in pending.values for record_id in record_ids):
-            #     raise ValueError(
-            #         "Labeling records, but not all record_ids were pending."
-            #     )
-
             data = [
                 (
                     int(labels[i]),
@@ -446,7 +407,7 @@ class SQLiteState:
             )
 
         # Add the rows to the database.
-        con = self._conn()
+        con = self._conn
         cur = con.cursor()
         cur.executemany(query, data)
         con.commit()
@@ -472,7 +433,7 @@ class SQLiteState:
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
         )
 
-        con = self._conn()
+        con = self._conn
         cur = con.cursor()
         cur.executemany(query, rows)
         con.commit()
@@ -492,7 +453,7 @@ class SQLiteState:
             Tags list to add to the record.
         """
 
-        con = self._conn()
+        con = self._conn
         cur = con.cursor()
 
         # Change the label.
@@ -524,7 +485,7 @@ class SQLiteState:
         """
         current_time = datetime.now()
 
-        con = self._conn()
+        con = self._conn
         cur = con.cursor()
         cur.execute("DELETE FROM results WHERE record_id=?", (record_id,))
 
@@ -551,7 +512,7 @@ class SQLiteState:
             each record of which the labeling decision was changed.
         """
 
-        return pd.read_sql_query("SELECT * FROM decision_changes", self._conn())
+        return pd.read_sql_query("SELECT * FROM decision_changes", self._conn)
 
     def get_last_probabilities(self):
         """Get the probabilities produced by the last classifier.
@@ -561,7 +522,7 @@ class SQLiteState:
         pd.Series:
             Series with name 'proba' containing the probabilities.
         """
-        return pd.read_sql_query("SELECT * FROM last_probabilities", self._conn())[
+        return pd.read_sql_query("SELECT * FROM last_probabilities", self._conn)[
             "proba"
         ]
 
@@ -576,7 +537,7 @@ class SQLiteState:
             'training_set' and 'time'. It has one row for each record in the
             dataset, and is ordered by ranking.
         """
-        return pd.read_sql_query("SELECT * FROM last_ranking", self._conn())
+        return pd.read_sql_query("SELECT * FROM last_ranking", self._conn)
 
     def _move_ranking_data_to_results(self, record_ids):
         """Move data from the ranking to the results table.
@@ -591,7 +552,7 @@ class SQLiteState:
             to the results table.
         """
         record_list = [(record_id,) for record_id in record_ids]
-        con = self._conn()
+        con = self._conn
         cur = con.cursor()
         cur.executemany(
             """INSERT INTO results (record_id, classifier, query_strategy,
@@ -661,7 +622,7 @@ class SQLiteState:
 
         return pd.read_sql_query(
             f"SELECT * FROM results WHERE record_id={record_id}",
-            self._conn(),
+            self._conn,
         )
 
     def get_dataset(self, columns=None, priors=True, pending=False):
@@ -706,7 +667,7 @@ class SQLiteState:
         # Query the database.
         query_string = "*" if columns is None else ",".join(columns)
         return pd.read_sql_query(
-            f"SELECT {query_string} FROM results {sql_where_str}", self._conn()
+            f"SELECT {query_string} FROM results {sql_where_str}", self._conn
         )
 
     def get_order_of_labeling(self, priors=True, pending=False):
@@ -739,7 +700,7 @@ class SQLiteState:
 
         return pd.read_sql_query(
             "SELECT * FROM results WHERE query_strategy is 'prior'",
-            self._conn(),
+            self._conn,
         )
 
     def get_labels(self, priors=True, pending=False, n_labels_padding=None):
@@ -832,7 +793,7 @@ class SQLiteState:
                 WHERE results.query_strategy is null
                 ORDER BY ranking
                 """,
-            self._conn(),
+            self._conn,
         )["record_id"]
 
     def get_labeled(self):
@@ -848,7 +809,7 @@ class SQLiteState:
             """SELECT record_id, label FROM results
                 WHERE label is not null
             """,
-            self._conn(),
+            self._conn,
         )
 
     def get_pending(self):
@@ -860,7 +821,7 @@ class SQLiteState:
             DataFrame with pending results records.
         """
         return pd.read_sql_query(
-            """SELECT * FROM results WHERE label is null""", self._conn()
+            """SELECT * FROM results WHERE label is null""", self._conn
         )
 
     def get_ranking_with_labels(self):
@@ -876,6 +837,6 @@ class SQLiteState:
                 USING
                     (record_id)
                 """,
-            self._conn(),
+            self._conn,
             dtype={"label": "Int64"},
         )
