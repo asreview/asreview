@@ -443,21 +443,6 @@ def test_exist_new_labeled_records(tmpdir):
         assert state.exist_new_labeled_records
 
 
-def test_add_note(tmpdir):
-    project_path = Path(tmpdir, "test.asreview")
-    asr.Project.create(project_path)
-    with open_state(project_path) as state:
-        state.add_labeling_data(
-            TEST_RECORD_IDS[:3], TEST_LABELS[:3], TEST_NOTES[:3], prior=True
-        )
-
-        note = "An added note"
-        record_id = TEST_RECORD_IDS[1]
-        state.add_note(note, record_id)
-        record_data = state.get_data_by_record_id(record_id)
-        assert record_data["notes"][0] == note
-
-
 def test_update_decision(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)

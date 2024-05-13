@@ -238,23 +238,6 @@ class SQLiteState:
             }
         ).to_sql("last_ranking", self._conn, if_exists="replace", index=False)
 
-    def add_note(self, note, record_id):
-        """Add a text note to save with a labeled record.
-
-        Arguments
-        ---------
-        note: str
-            Text note to save.
-        record_id: int
-            Identifier of the record to which the note should be added.
-        """
-        con = self._conn
-        cur = con.cursor()
-        cur.execute(
-            "UPDATE results SET notes = ? WHERE record_id = ?", (note, record_id)
-        )
-        con.commit()
-
     def add_labeling_data(
         self, record_ids, labels, notes=None, tags_list=None, prior=False
     ):
