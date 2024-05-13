@@ -137,9 +137,9 @@ const SignUpForm = (props) => {
       <Root>
         <Fade in>
           <Box>
-            <Card className={classes.card} variant="outlined">
-              <CardContent className={classes.cardContent}>
-                <Stack spacing={3}>
+          <Card className={props.mobileScreen ? classes.mobileCard : classes.card} variant="outlined">
+            <CardContent className={props.mobileScreen ? classes.mobileCardContent : classes.cardContent}>
+              <Stack spacing={props.mobileScreen ? 1 : 3}>
                   <img
                     className={classes.logo}
                     src={WordmarkState()}
