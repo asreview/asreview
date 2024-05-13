@@ -71,12 +71,11 @@ def create_app(config_path=None):
     if config_fp := (config_path or app.config.get("CONFIG_PATH", None)):
         app.config.from_file(Path(config_fp).absolute(), load=tomllib.load, text=False)
 
-    # remove existing training lock files
-    [
-        Path(f, "training.lock").unlink(missing_ok=True)
-        for f in asreview_path().iterdir()
-        if f.is_dir()
-    ]
+    # remove all lock files per project folder
+    for f in asreview_path().iterdir():
+        if f.is_dir():
+            # remove lock files
+            [lockfile.unlink(missing_ok=True) for lockfile in f.glob("*.lock")]
 
     # if there are no cors and config is in debug mode, add default cors
     if app.debug and not app.config.get("CORS_ORIGINS", None):
