@@ -71,6 +71,13 @@ def create_app(config_path=None):
     if config_fp := (config_path or app.config.get("CONFIG_PATH", None)):
         app.config.from_file(Path(config_fp).absolute(), load=tomllib.load, text=False)
 
+    # remove existing training lock files
+    [
+        Path(f, "training.lock").unlink(missing_ok=True)
+        for f in asreview_path().iterdir()
+        if f.is_dir()
+    ]
+
     # if there are no cors and config is in debug mode, add default cors
     if app.debug and not app.config.get("CORS_ORIGINS", None):
         app.config["CORS_ORIGINS"] = ["http://localhost:3000", "http://127.0.0.1:3000"]

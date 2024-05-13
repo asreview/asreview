@@ -1470,6 +1470,7 @@ def api_classify_instance(project, doc_id):  # noqa: F401
 
     retrain_model = False if is_prior == "1" else True
     prior = True if is_prior == "1" else False
+    file_lock_path = Path(project.project_path, "trainings.lock")
 
     if request.method == "POST":
         with open_state(project.project_path, read_only=False) as state:
@@ -1485,7 +1486,8 @@ def api_classify_instance(project, doc_id):  # noqa: F401
             elif label == -1:
                 state.delete_record_labeling_data(record_id)
 
-    if retrain_model:
+    # retrain only if there is no lock
+    if retrain_model and not file_lock_path.exists():
         # retrain model
         subprocess.Popen(
             [

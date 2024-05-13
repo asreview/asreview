@@ -16,9 +16,6 @@ import argparse
 import logging
 from pathlib import Path
 
-from filelock import FileLock
-from filelock import Timeout
-
 from asreview.models.balance import get_balance_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
@@ -42,6 +39,7 @@ def run_model_entry_point(argv):
     args = parser.parse_args(argv)
 
     project = ASReviewProject(args.project_path)
+    file_lock_path = Path(project.project_path, "trainings.lock")
 
     try:
 
@@ -51,9 +49,7 @@ def run_model_entry_point(argv):
                 return
 
         # Lock so that only one training run is running at the same time.
-        lock = FileLock(Path(project.project_path, "training.lock"), timeout=0)
-
-        with lock:
+        with open(file_lock_path, "w") as lock:
 
             with open_state(project) as state:
                 settings = state.settings
@@ -70,14 +66,12 @@ def run_model_entry_point(argv):
 
             reviewer.train()
 
-        project.update_review(status="review")
-
-    except Timeout:
-        logging.debug("Another iteration is training")
-
     except Exception as err:
         project.set_error(err, save_error_message=args.output_error)
         raise err
 
-    else:
+    finally:
+        # Ensure removal of lock file
+        file_lock_path.unlink(missing_ok=True)
+        # Update status
         project.update_review(status="review")
