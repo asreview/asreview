@@ -189,7 +189,7 @@ class SQLiteState:
         model was trained yet, but priors have been added.
         """
         labeled = self.get_labeled()
-        last_training_set = self.get_last_ranking()["training_set"]
+        last_training_set = self.get_last_ranking_table()["training_set"]
         if last_training_set.empty:
             return len(labeled) > 0
         else:
@@ -349,81 +349,7 @@ class SQLiteState:
         cur.executemany(query, rows)
         con.commit()
 
-    def update_decision(self, record_id, label, note=None, tags=None):
-        """Change the label of an already labeled record.
-
-        Arguments
-        ---------
-        record_id: int
-            Id of the record whose label should be changed.
-        label: 0 / 1
-            New label of the record.
-        note: str
-            Note to add to the record.
-        tags: list
-            Tags list to add to the record.
-        """
-
-        cur = self._conn.cursor()
-
-        # Change the label.
-        cur.execute(
-            "UPDATE results SET label = ?, notes = ?, "
-            "custom_metadata_json=? WHERE record_id = ?",
-            (label, note, convert_to_custom_metadata_str(tags=tags), record_id),
-        )
-
-        # Add the change to the decision changes table.
-        cur.execute(
-            (
-                "INSERT INTO decision_changes (record_id, new_label, time) "
-                "VALUES (?, ?, ?)"
-            ),
-            (record_id, label, datetime.now()),
-        )
-
-        self._conn.commit()
-
-    def delete_record_labeling_data(self, record_id):
-        """Delete the labeling data for the given record id.
-
-        Arguments
-        ----------
-        record_id : str
-            Identifier of the record to delete.
-
-        """
-        current_time = datetime.now()
-
-        cur = self._conn.cursor()
-        cur.execute("DELETE FROM results WHERE record_id=?", (record_id,))
-
-        # Add the change to the decision changes table.
-        cur.execute(
-            (
-                "INSERT INTO decision_changes (record_id, new_label, time) "
-                "VALUES (?,?, ?)"
-            ),
-            (record_id, None, current_time),
-        )
-        self._conn.commit()
-
-    def get_decision_changes(self):
-        """Get the record ids for any decision changes.
-
-        Get the record ids of the records whose labels have been changed
-        after the original labeling action.
-
-        Returns
-        -------
-        pd.DataFrame
-            Dataframe with columns 'record_id', 'new_label', and 'time' for
-            each record of which the labeling decision was changed.
-        """
-
-        return pd.read_sql_query("SELECT * FROM decision_changes", self._conn)
-
-    def get_last_ranking(self):
+    def get_last_ranking_table(self):
         """Get the ranking from the state.
 
         Returns
@@ -435,32 +361,6 @@ class SQLiteState:
             dataset, and is ordered by ranking.
         """
         return pd.read_sql_query("SELECT * FROM last_ranking", self._conn)
-
-    def _move_ranking_data_to_results(self, record_ids):
-        """Move data from the ranking to the results table.
-
-        Move the data with the given record_ids from the last_ranking table
-        to the results table.
-
-        Arguments
-        ---------
-        record_ids: list
-            List of record ids in last ranking whose model data should be added
-            to the results table.
-        """
-        record_list = [(record_id,) for record_id in record_ids]
-        con = self._conn
-        cur = con.cursor()
-        cur.executemany(
-            """INSERT INTO results (record_id, classifier, query_strategy,
-            balance_strategy, feature_extraction, training_set)
-            SELECT record_id, classifier, query_strategy,
-            balance_strategy, feature_extraction, training_set
-            FROM last_ranking
-            WHERE record_id=?""",
-            record_list,
-        )
-        con.commit()
 
     def get_top_ranked(self, n):
         """Get the top ranked records from the ranking table.
@@ -497,7 +397,19 @@ class SQLiteState:
             List of record_ids of the top n ranked records.
         """
         top_n_records = self.get_pool()[:n].to_list()
-        self._move_ranking_data_to_results(top_n_records)
+        record_list = [(record_id,) for record_id in top_n_records]
+        con = self._conn
+        cur = con.cursor()
+        cur.executemany(
+            """INSERT INTO results (record_id, classifier, query_strategy,
+            balance_strategy, feature_extraction, training_set)
+            SELECT record_id, classifier, query_strategy,
+            balance_strategy, feature_extraction, training_set
+            FROM last_ranking
+            WHERE record_id=?""",
+            record_list,
+        )
+        con.commit()
 
         return top_n_records
 
@@ -670,3 +582,77 @@ class SQLiteState:
             self._conn,
             dtype={"label": "Int64"},
         )
+
+    def update_decision(self, record_id, label, note=None, tags=None):
+        """Change the label of an already labeled record.
+
+        Arguments
+        ---------
+        record_id: int
+            Id of the record whose label should be changed.
+        label: 0 / 1
+            New label of the record.
+        note: str
+            Note to add to the record.
+        tags: list
+            Tags list to add to the record.
+        """
+
+        cur = self._conn.cursor()
+
+        # Change the label.
+        cur.execute(
+            "UPDATE results SET label = ?, notes = ?, "
+            "custom_metadata_json=? WHERE record_id = ?",
+            (label, note, convert_to_custom_metadata_str(tags=tags), record_id),
+        )
+
+        # Add the change to the decision changes table.
+        cur.execute(
+            (
+                "INSERT INTO decision_changes (record_id, new_label, time) "
+                "VALUES (?, ?, ?)"
+            ),
+            (record_id, label, datetime.now()),
+        )
+
+        self._conn.commit()
+
+    def delete_record_labeling_data(self, record_id):
+        """Delete the labeling data for the given record id.
+
+        Arguments
+        ----------
+        record_id : str
+            Identifier of the record to delete.
+
+        """
+        current_time = datetime.now()
+
+        cur = self._conn.cursor()
+        cur.execute("DELETE FROM results WHERE record_id=?", (record_id,))
+
+        # Add the change to the decision changes table.
+        cur.execute(
+            (
+                "INSERT INTO decision_changes (record_id, new_label, time) "
+                "VALUES (?,?, ?)"
+            ),
+            (record_id, None, current_time),
+        )
+        self._conn.commit()
+
+    def get_decision_changes(self):
+        """Get the record ids for any decision changes.
+
+        Get the record ids of the records whose labels have been changed
+        after the original labeling action.
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe with columns 'record_id', 'new_label', and 'time' for
+            each record of which the labeling decision was changed.
+        """
+
+        return pd.read_sql_query("SELECT * FROM decision_changes", self._conn)

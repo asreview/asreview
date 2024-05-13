@@ -322,7 +322,7 @@ def test_move_ranking_data_to_results(tmpdir):
         state.add_last_ranking(
             range(1, len(TEST_RECORD_TABLE) + 1), "nb", "max", "double", "tfidf", 4
         )
-        state._move_ranking_data_to_results([4, 6, 5, 7])
+        state.query_top_ranked(4)
 
         data = state.get_results_table(pending=True)
         assert data["record_id"].to_list() == [4, 6, 5, 7]
@@ -509,7 +509,7 @@ def test_last_ranking(tmpdir):
             training_set,
         )
 
-        last_ranking = state.get_last_ranking()
+        last_ranking = state.get_last_ranking_table()
         assert isinstance(last_ranking, pd.DataFrame)
         assert list(last_ranking.columns) == [
             "record_id",
