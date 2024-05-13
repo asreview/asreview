@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import argparse
-import logging
 from pathlib import Path
 
 from asreview.models.balance import get_balance_model
@@ -49,7 +48,7 @@ def run_model_entry_point(argv):
                 return
 
         # Lock so that only one training run is running at the same time.
-        with open(file_lock_path, "w") as lock:
+        with open(file_lock_path, "w"):
 
             with open_state(project) as state:
                 settings = state.settings
