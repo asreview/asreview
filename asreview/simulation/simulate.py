@@ -134,7 +134,6 @@ class Simulate:
         self.write_interval = write_interval
 
         self._last_ranking = None
-        self._last_probabilities = None
         self._results = init_results_table()
 
         if len(as_data) == 0:
@@ -376,8 +375,6 @@ class Simulate:
             axis=1,
         )
         self._last_ranking.columns = ["record_id", "label"]
-        # The scores for the included records in the second column.
-        self._last_probabilities = relevance_scores[:, 1]
 
         self.training_set = new_training_set
 
@@ -449,7 +446,6 @@ class Simulate:
                     self.feature_extraction.name,
                     self.training_set,
                 )
-                state.add_last_probabilities(self._last_probabilities)
 
             # Empty the results table in memory.
             self._results.drop(self._results.index, inplace=True)

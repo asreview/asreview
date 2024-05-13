@@ -149,16 +149,6 @@ def test_non_tf_models(model, tmpdir):
     assert settings.classifier == model
 
 
-def test_last_probabilities(tmpdir):
-    asreview_fp = Path(tmpdir, "test.asreview")
-    argv = f"{str(DATA_FP)} -s {asreview_fp}".split()
-    cli_simulate(argv)
-
-    with open_state(asreview_fp) as state:
-        last_probabilities = state.get_last_probabilities()
-    assert not last_probabilities.empty
-
-
 def test_number_records_found(tmpdir):
     dataset = "synergy:van_de_Schoot_2018"
     asreview_fp = Path(tmpdir, "test.asreview")

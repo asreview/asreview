@@ -111,9 +111,6 @@ def _run_model_start(project, output_error=True):
                     len(labeled),
                 )
 
-                if relevance_scores is not None:
-                    state.add_last_probabilities(relevance_scores[:, 1])
-
     except Timeout:
         logging.debug("Another iteration is training")
 

@@ -315,32 +315,6 @@ def test_get_feature_matrix(asreview_test_project):
     assert isinstance(feature_matrix, csr_matrix)
 
 
-def test_get_last_probabilities(asreview_test_project):
-    with open_state(asreview_test_project) as state:
-        probabilities = state.get_last_probabilities()
-        assert isinstance(probabilities, pd.Series)
-        assert probabilities.name == "proba"
-        assert probabilities.to_list()[:10] == TEST_FIRST_PROBS
-        assert probabilities.to_list()[-10:] == TEST_LAST_PROBS
-
-
-@pytest.mark.skip(reason="Check removed, not sure if needed")
-def test_add_last_probabilities_fail(asreview_test_project):
-    with open_state(asreview_test_project) as state:
-        with pytest.raises(ValueError):
-            state.add_last_probabilities([1.0, 2.0, 3.0])
-
-
-def test_add_last_probabilities(asreview_test_project):
-    with open_state(asreview_test_project) as state:
-        probabilities = [
-            float(num) for num in range(len(state.get_last_probabilities()))
-        ]
-        state.add_last_probabilities(probabilities)
-        state_probabilities = state.get_last_probabilities().to_list()
-        assert state_probabilities == probabilities
-
-
 def test_move_ranking_data_to_results(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)

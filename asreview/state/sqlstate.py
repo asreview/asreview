@@ -27,8 +27,6 @@ from asreview.state.errors import StateError
 REQUIRED_TABLES = [
     # the table with the labeling decisions and models trained
     "results",
-    # the latest probabilities.
-    "last_probabilities",
     # the latest ranking.
     "last_ranking",
     # the record ids whose labeling decision was changed.
@@ -101,12 +99,6 @@ class SQLiteState:
                             labeling_time INTEGER,
                             notes TEXT,
                             custom_metadata_json TEXT)"""
-        )
-
-        # Create the last_probabilities table.
-        cur.execute(
-            """CREATE TABLE last_probabilities
-                            (proba REAL)"""
         )
 
         # Create the last_ranking table.
@@ -202,19 +194,6 @@ class SQLiteState:
             return len(labeled) > 0
         else:
             return len(labeled) > last_training_set.iloc[0]
-
-    def add_last_probabilities(self, probabilities):
-        """Save the probabilities produced by the last classifier.
-
-        Arguments
-        ---------
-        probabilities: list, np.array
-            List containing the relevance scores for every record.
-        """
-
-        pd.DataFrame({"proba": probabilities}).to_sql(
-            "last_probabilities", self._conn, if_exists="replace", index=False
-        )
 
     def add_last_ranking(
         self,
@@ -460,18 +439,6 @@ class SQLiteState:
         """
 
         return pd.read_sql_query("SELECT * FROM decision_changes", self._conn)
-
-    def get_last_probabilities(self):
-        """Get the probabilities produced by the last classifier.
-
-        Returns
-        -------
-        pd.Series:
-            Series with name 'proba' containing the probabilities.
-        """
-        return pd.read_sql_query("SELECT * FROM last_probabilities", self._conn)[
-            "proba"
-        ]
 
     def get_last_ranking(self):
         """Get the ranking from the state.
