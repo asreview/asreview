@@ -412,7 +412,7 @@ def test_ranking_with_labels(tmpdir):
         assert subset_with_labels["label"].to_list() == [1, 0, 1]
 
         pool2 = state.get_pool()
-        labeled2 = state.get_labeled()
+        labeled2 = state.get_results_table()[["record_id", "label"]]
 
         assert isinstance(pool2, pd.Series)
         assert isinstance(labeled2, pd.DataFrame)
@@ -538,7 +538,7 @@ def test_get_pool(asreview_test_project):
 
 def test_get_labeled(asreview_test_project):
     with open_state(asreview_test_project) as state:
-        labeled = state.get_labeled()
+        labeled = state.get_results_table()[["record_id", "label"]]
 
     assert isinstance(labeled, pd.DataFrame)
     assert labeled["record_id"].to_list() == TEST_RECORD_IDS

@@ -228,7 +228,7 @@ class Simulate:
 
         with open_state(self.project) as state:
             # Make sure the prior records are labeled.
-            labeled = state.get_labeled()
+            labeled = state.get_results_table()
             unlabeled_priors = [
                 x for x in self.prior_indices if x not in labeled["record_id"].to_list()
             ]
@@ -261,7 +261,7 @@ class Simulate:
             # Make sure the priors are labeled.
             self._label_priors()
 
-            self.labeled = s.get_labeled()
+            self.labeled = s.get_results_table()[["record_id", "label"]]
             self.pool = pd.Series(
                 [
                     record_id

@@ -188,7 +188,7 @@ class SQLiteState:
         the model ranking was added to the state. Also returns True if no
         model was trained yet, but priors have been added.
         """
-        labeled = self.get_labeled()
+        labeled = self.get_results_table()
         last_training_set = self.get_last_ranking_table()["training_set"]
         if last_training_set.empty:
             return len(labeled) > 0
@@ -257,7 +257,7 @@ class SQLiteState:
             Whether the added record are prior knowledge.
         """
 
-        labeling_times = [datetime.now()] * len(record_ids)
+        labeling_time = datetime.now()
 
         if notes is None:
             notes = [None for _ in record_ids]
@@ -285,7 +285,7 @@ class SQLiteState:
                     int(labels[i]),
                     query_strategies[i],
                     training_sets[i],
-                    labeling_times[i],
+                    labeling_time,
                     notes[i],
                     custom_metadata_list[i],
                 )
@@ -303,7 +303,7 @@ class SQLiteState:
             data = [
                 (
                     int(labels[i]),
-                    labeling_times[i],
+                    labeling_time,
                     notes[i],
                     custom_metadata_list[i],
                     int(record_ids[i]),
@@ -321,32 +321,6 @@ class SQLiteState:
         con = self._conn
         cur = con.cursor()
         cur.executemany(query, data)
-        con.commit()
-
-    def _add_labeling_data_simulation_mode(self, rows):
-        """Add labeling and model data to the results table.
-
-        Add the labeling data and the model data at the same time to the
-        results table. This is used for the simulation mode, since the model
-        data is available at the time of labeling.
-
-        Arguments
-        ----------
-        rows : list of tuples
-            List of tuples (record_id: int, label: int, classifier: str,
-            query_strategy: str, balance_strategy: str, feature_extraction: str,
-             training_set: int, labeling_time: int, notes: str).
-        """
-        query = (
-            "INSERT INTO results (record_id, label, classifier, "
-            "query_strategy, balance_strategy, feature_extraction, "
-            "training_set, labeling_time, notes) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        )
-
-        con = self._conn
-        cur = con.cursor()
-        cur.executemany(query, rows)
         con.commit()
 
     def get_last_ranking_table(self):
@@ -520,22 +494,6 @@ class SQLiteState:
             self._conn,
         )["record_id"]
 
-    def get_labeled(self):
-        """Get labeled records from the results table.
-
-        Returns
-        -------
-        pd.DataFrame
-            Dataframe containing the record_ids and labels of the labeled
-            records, in the order that they were labeled.
-        """
-        return pd.read_sql_query(
-            """SELECT record_id, label FROM results
-                WHERE label is not null
-            """,
-            self._conn,
-        )
-
     def get_pending(self):
         """Get pending records from the results table.
 
@@ -638,3 +596,29 @@ class SQLiteState:
         """
 
         return pd.read_sql_query("SELECT * FROM decision_changes", self._conn)
+
+    def _add_labeling_data_simulation_mode(self, rows):
+        """Add labeling and model data to the results table.
+
+        Add the labeling data and the model data at the same time to the
+        results table. This is used for the simulation mode, since the model
+        data is available at the time of labeling.
+
+        Arguments
+        ----------
+        rows : list of tuples
+            List of tuples (record_id: int, label: int, classifier: str,
+            query_strategy: str, balance_strategy: str, feature_extraction: str,
+             training_set: int, labeling_time: int, notes: str).
+        """
+        query = (
+            "INSERT INTO results (record_id, label, classifier, "
+            "query_strategy, balance_strategy, feature_extraction, "
+            "training_set, labeling_time, notes) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        )
+
+        con = self._conn
+        cur = con.cursor()
+        cur.executemany(query, rows)
+        con.commit()

@@ -35,7 +35,7 @@ from asreview.state.contextmanager import open_state
 
 def has_prior_knowledge(project):
     with open_state(project) as s:
-        labels = s.get_labeled()["label"].to_list()
+        labels = s.get_results_table()["label"].to_list()
         return 0 in labels and 1 in labels
 
 
@@ -64,7 +64,7 @@ def _run_model_start(project, output_error=True):
 
         with lock:
             with open_state(project) as state:
-                labeled = state.get_labeled()
+                labeled = state.get_results_table()[["record_id", "label"]]
 
             as_data = project.read_data()
             record_table = pd.Series(as_data.record_ids, name="record_id")

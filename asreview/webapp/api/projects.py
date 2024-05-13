@@ -475,7 +475,7 @@ def api_search_data(project):  # noqa: F401
     as_data = project.read_data()
 
     with open_state(project.project_path) as s:
-        labeled_record_ids = s.get_labeled()["record_id"].to_list()
+        labeled_record_ids = s.get_results_table()["record_id"].to_list()
 
     result_ids = fuzzy_find(
         as_data,
@@ -661,7 +661,7 @@ def api_random_prior_papers(project):  # noqa: F401
         indices = as_data.df.index.values
 
     with open_state(project.project_path) as state:
-        labeled = state.get_labeled()["record_id"].values
+        labeled = state.get_results_table()["record_id"].values
 
     pool = np.setdiff1d(indices, labeled, assume_unique=True)
     rand_pool = np.random.choice(pool, min(len(pool), n), replace=False)
@@ -977,7 +977,7 @@ def api_export_dataset(project):
         with open_state(project.project_path) as s:
             # todo: execute in single transaction (most likely it already does)
             pool = s.get_pool()
-            labeled = s.get_labeled()
+            labeled = s.get_results_table()[["record_id", "label"]]
 
             state_df = s.get_results_table().set_index("record_id")
 
