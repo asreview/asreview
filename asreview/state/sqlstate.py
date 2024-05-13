@@ -362,24 +362,6 @@ class SQLiteState:
         """
         return pd.read_sql_query("SELECT * FROM last_ranking", self._conn)
 
-    def get_top_ranked(self, n):
-        """Get the top ranked records from the ranking table.
-
-        Get the top n instances from the pool according to the last ranking.
-        Add the model data to the results table.
-
-        Arguments
-        ---------
-        n: int
-            Number of instances.
-
-        Returns
-        -------
-        list
-            List of record_ids of the top n ranked records.
-        """
-        return self.get_pool()[:n].to_list()
-
     def query_top_ranked(self, n, return_all=False):
         """Get the top ranked records from the ranking table.
 
@@ -483,8 +465,8 @@ class SQLiteState:
 
         Returns
         -------
-        pd.Series:
-            The record_id's of the priors in the order they were added.
+        pd.DataFrame:
+            The result records of the priors in the order they were added.
         """
 
         return pd.read_sql_query(

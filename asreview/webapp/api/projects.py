@@ -1342,7 +1342,7 @@ def api_get_document(project):  # noqa: F401
 
         if pending.empty:
             try:
-                rank_n_1 = state.get_top_ranked(1)
+                rank_n_1 = state.get_pool()[:1].to_list()
 
                 # there is a ranking, but pool is empty
                 if rank_n_1 == []:
@@ -1352,7 +1352,7 @@ def api_get_document(project):  # noqa: F401
                     )
 
             except StateError:
-                # there is no ranking and get_top_ranked raises an error
+                # there is no ranking and get_pool raises an error
                 return jsonify(
                     {"result": None, "pool_empty": False, "has_ranking": False}
                 )
