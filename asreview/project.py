@@ -291,11 +291,12 @@ class Project:
 
         self.update_config(dataset_path=file_name, name=file_name.rsplit(".", 1)[0])
 
-        state = SQLiteState()
+        review_id = uuid4().hex
+        state_fp = Path(self.project_path, "reviews", review_id, "results.sql")
+        state = SQLiteState(state_fp)
 
         try:
-            review_id = uuid4().hex
-            state._create_new_state_file(self.project_path, review_id)
+            state.create_tables()
             self.add_review(review_id)
 
             # if the data contains labels and oracle mode, add them to the state file

@@ -50,8 +50,8 @@ def test_prior_idx(tmpdir):
     cli_simulate(argv)
 
     with open_state(asreview_fp) as state:
-        labeling_order = state.get_dataset()["record_id"]
-        query_strategies = state.get_dataset()["query_strategy"]
+        labeling_order = state.get_results_table()["record_id"]
+        query_strategies = state.get_results_table()["query_strategy"]
 
     assert labeling_order[0] == 1
     assert labeling_order[1] == 4
@@ -65,7 +65,7 @@ def test_n_prior_included(tmpdir):
     cli_simulate(argv)
 
     with open_state(asreview_fp) as state:
-        result = state.get_dataset(["label", "query_strategy"])
+        result = state.get_results_table(["label", "query_strategy"])
 
     prior_included = result["label"] & (result["query_strategy"] == "prior")
     assert sum(prior_included) == 2
@@ -91,7 +91,7 @@ def test_n_prior_excluded(tmpdir):
     cli_simulate(argv)
 
     with open_state(asreview_fp) as state:
-        result = state.get_dataset(["label", "query_strategy"])
+        result = state.get_results_table(["label", "query_strategy"])
 
     prior_excluded = ~result["label"] & (result["query_strategy"] == "prior")
     assert sum(prior_excluded) == 2
@@ -130,7 +130,7 @@ def test_non_tf_models(model, tmpdir):
     cli_simulate(argv)
 
     with open_state(asreview_fp) as state:
-        classifiers = state.get_dataset()["classifier"]
+        classifiers = state.get_results_table()["classifier"]
     default_n_priors = 2
     assert all(classifiers[default_n_priors:] == model)
 
@@ -279,10 +279,10 @@ def test_partial_simulation(tmpdir):
     cli_simulate(argv)
 
     with open_state(asreview_fp1) as state:
-        dataset1 = state.get_dataset()
+        dataset1 = state.get_results_table()
 
     with open_state(asreview_fp2) as state:
-        dataset2 = state.get_dataset()
+        dataset2 = state.get_results_table()
 
     assert dataset1.shape == dataset2.shape
     # All query strategies should match.

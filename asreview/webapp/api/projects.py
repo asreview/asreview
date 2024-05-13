@@ -506,7 +506,7 @@ def api_get_labeled(project):  # noqa: F401
     latest_first = request.args.get("latest_first", default=1, type=int)
 
     with open_state(project.project_path) as s:
-        state_data = s.get_dataset(
+        state_data = s.get_results_table(
             ["record_id", "label", "query_strategy", "notes", "custom_metadata_json"]
         )
         state_data["prior"] = (state_data["query_strategy"] == "prior").astype(int)
@@ -603,7 +603,7 @@ def api_get_labeled_stats(project):  # noqa: F401
 
     try:
         with open_state(project.project_path) as s:
-            data = s.get_dataset(["label", "query_strategy"])
+            data = s.get_results_table(["label", "query_strategy"])
             data_prior = data[data["query_strategy"] == "prior"]
 
         return jsonify(
@@ -979,7 +979,7 @@ def api_export_dataset(project):
             pool = s.get_pool()
             labeled = s.get_labeled()
 
-            state_df = s.get_dataset().set_index("record_id")
+            state_df = s.get_results_table().set_index("record_id")
 
         included = labeled[labeled["label"] == 1]
         excluded = labeled[labeled["label"] != 1]

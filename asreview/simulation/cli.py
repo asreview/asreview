@@ -238,7 +238,19 @@ def cli_simulate(argv):
 
     review_id = uuid4().hex
     logging.debug(f"Create new review (state) with id {review_id}.")
-    SQLiteState()._create_new_state_file(project.project_path, review_id)
+    state_fp = Path(project.project_path, "reviews", review_id, "results.sql")
+    Path(state_fp.parent).mkdir(parents=True, exist_ok=True)
+
+    state = SQLiteState(state_fp)
+
+    try:
+        state.create_tables()
+    finally:
+        try:
+            state.close()
+        except AttributeError:
+            pass
+
     project.add_review(review_id)
 
     try:

@@ -26,7 +26,7 @@ from asreview.state.sqlstate import SQLiteState
 
 
 @contextmanager
-def open_state(asreview_obj, review_id=None, create_new=True):
+def open_state(asreview_obj, review_id=None, create_new=True, check_integrety=False):
     """Initialize a state class instance from a project folder.
 
     Arguments
@@ -39,17 +39,17 @@ def open_state(asreview_obj, review_id=None, create_new=True):
         If none is given, the first review in the reviews folder will be taken.
     create_new: bool
         If True, a new state file is created.
+    check_integrety: bool
+        If True, the integrity of the state file is checked. Default is False.
 
     Returns
     -------
     SQLiteState
     """
 
-    # Unzip the ASReview data if needed.
     if isinstance(asreview_obj, Project):
         project = asreview_obj
     elif zipfile.is_zipfile(asreview_obj) and Path(asreview_obj).suffix == ".asreview":
-        # work from a temp dir
         tmpdir = tempfile.TemporaryDirectory()
         project = Project.load(asreview_obj, tmpdir.name)
     elif isinstance(asreview_obj, (Path, str)) and not Path(asreview_obj).is_dir():
@@ -61,23 +61,30 @@ def open_state(asreview_obj, review_id=None, create_new=True):
     else:
         raise ProjectError("Unknown project type.")
 
-    # init state class
-    state = SQLiteState()
+    if not create_new and len(project.reviews) == 0:
+        raise StateNotFoundError("State does not exist in the project")
 
     try:
-        if len(project.reviews) > 0:
-            if review_id is None:
-                review_id = project.config["reviews"][0]["id"]
-            logging.debug(f"Opening review {review_id}.")
-            state._restore(project.project_path, review_id)
-        elif create_new and len(project.reviews) == 0:
+        if create_new and len(project.reviews) == 0:
             review_id = uuid4().hex
             logging.debug(f"Create new review (state) with id {review_id}.")
-            state._create_new_state_file(project.project_path, review_id)
+            state_fp = Path(project.project_path, "reviews", review_id, "results.sql")
+            state_fp.parent.mkdir(parents=True, exist_ok=True)
+            state = SQLiteState(state_fp)
+            state.create_tables()
             project.add_review(review_id)
-        else:
-            raise StateNotFoundError("State does not exist in the project")
+
+        review_id = project.config["reviews"][0]["id"]
+        logging.debug(f"Opening review {review_id}.")
+        state = SQLiteState(
+            Path(project.project_path, "reviews", review_id, "results.sql")
+        )
+
+        if check_integrety:
+            state._is_valid_state()
+
         yield state
+
     finally:
         try:
             state.close()

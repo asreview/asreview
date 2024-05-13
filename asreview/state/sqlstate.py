@@ -16,14 +16,12 @@ __all__ = ["SQLiteState"]
 
 import sqlite3
 from datetime import datetime
-from pathlib import Path
 
 import pandas as pd
 
 from asreview.state.compatibility import check_and_update_version
 from asreview.state.custom_metadata_mapper import convert_to_custom_metadata_str
 from asreview.state.errors import StateError
-from asreview.state.errors import StateNotFoundError
 
 
 REQUIRED_TABLES = [
@@ -61,15 +59,13 @@ class SQLiteState:
     ----------
     user_version: str
         Return the version number of the state.
-    n_records_labeled: int
-        Get the number of labeled records, where each prior is counted
-        individually.
-    n_priors: int
-        Number of priors. If priors have not been selected returns None.
     exist_new_labeled_records: bool
         Have there been labeled records added to the state since the last time
         a model ranking was added to the state?
     """
+
+    def __init__(self, fp):
+        self.fp = fp
 
     @property
     def _conn(self):
@@ -83,36 +79,15 @@ class SQLiteState:
         if hasattr(self, "_conn_cache"):
             return self._conn_cache
 
-        self._conn_cache = sqlite3.connect(str(self._sql_fp))
+        self._conn_cache = sqlite3.connect(str(self.fp))
         return self._conn_cache
 
-    @property
-    def _sql_fp(self):
-        """Get the path to the sqlite database."""
+    def create_tables(self):
+        """Create the files for storing a new state."""
 
-        return Path(self.review_dir, "results.sql")
-
-    def _create_new_state_file(self, working_dir, review_id):
-        """Create the files for storing a new state given an review_id.
-
-        Arguments
-        ---------
-        review_dir: str, pathlib.Path
-            Review folder location.
-        review_id: str
-            Identifier of the review.
-        """
-
-        self.review_dir = Path(working_dir, "reviews", review_id)
-
-        # create folder in the folder `results` with the name of result_id
-        self._sql_fp.parent.mkdir(parents=True, exist_ok=True)
-
-        # Create results table.
-        con = self._conn
         self.user_version = CURRENT_STATE_VERSION
 
-        cur = con.cursor()
+        cur = self._conn.cursor()
         # Create the results table.
         cur.execute(
             """CREATE TABLE results
@@ -155,29 +130,7 @@ class SQLiteState:
                             time INTEGER)"""
         )
 
-        con.commit()
-
-    def _restore(self, working_dir, review_id):
-        """Restore a state from files.
-
-        Arguments
-        ---------
-        review_dir: str, pathlib.Path
-            Review folder location.
-        review_id: str
-            Identifier of the review.
-        """
-        # store filepath
-        self.review_dir = Path(working_dir, "reviews", review_id)
-
-        # If state already exist
-        if not working_dir.is_dir():
-            raise StateNotFoundError(f"Project {working_dir} doesn't exist.")
-
-        if not self._sql_fp.parent.is_dir():
-            raise StateNotFoundError(f"Review with id {review_id} doesn't exist.")
-
-        self._is_valid_state()
+        self._conn.commit()
 
     def _is_valid_state(self):
         try:
@@ -220,7 +173,6 @@ class SQLiteState:
     def close(self):
         self._conn.close()
 
-    # PROPERTIES
     @property
     def user_version(self):
         """Version number of the state."""
@@ -343,9 +295,6 @@ class SQLiteState:
             Whether the added record are prior knowledge.
         """
 
-        # Check if the state is still valid.
-        self._is_valid_state()
-
         labeling_times = [datetime.now()] * len(record_ids)
 
         if notes is None:
@@ -453,8 +402,7 @@ class SQLiteState:
             Tags list to add to the record.
         """
 
-        con = self._conn
-        cur = con.cursor()
+        cur = self._conn.cursor()
 
         # Change the label.
         cur.execute(
@@ -472,7 +420,7 @@ class SQLiteState:
             (record_id, label, datetime.now()),
         )
 
-        con.commit()
+        self._conn.commit()
 
     def delete_record_labeling_data(self, record_id):
         """Delete the labeling data for the given record id.
@@ -485,8 +433,7 @@ class SQLiteState:
         """
         current_time = datetime.now()
 
-        con = self._conn
-        cur = con.cursor()
+        cur = self._conn.cursor()
         cur.execute("DELETE FROM results WHERE record_id=?", (record_id,))
 
         # Add the change to the decision changes table.
@@ -497,7 +444,7 @@ class SQLiteState:
             ),
             (record_id, None, current_time),
         )
-        con.commit()
+        self._conn.commit()
 
     def get_decision_changes(self):
         """Get the record ids for any decision changes.
@@ -604,7 +551,6 @@ class SQLiteState:
 
         return top_n_records
 
-    # GET FUNCTIONS
     def get_data_by_record_id(self, record_id):
         """Get the data of a specific query from the results table.
 
@@ -625,7 +571,7 @@ class SQLiteState:
             self._conn,
         )
 
-    def get_dataset(self, columns=None, priors=True, pending=False):
+    def get_results_table(self, columns=None, priors=True, pending=False):
         """Get a subset from the results table.
 
         Can be used to get any column subset from the results table.
@@ -700,7 +646,9 @@ class SQLiteState:
             Series containing the labels at each labelling moment.
         """
 
-        labels = self.get_dataset("label", priors=priors, pending=pending)["label"]
+        labels = self.get_results_table("label", priors=priors, pending=pending)[
+            "label"
+        ]
 
         if n_labels_padding is not None:
             labels = labels.append(pd.Series([0] * (n_labels_padding - len(labels))))
