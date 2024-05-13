@@ -65,6 +65,9 @@ def run_model_entry_point(argv):
 
             reviewer.train()
 
+            # Update status
+            project.update_review(status="review")
+
     except Exception as err:
         project.set_error(err, save_error_message=args.output_error)
         raise err
@@ -72,5 +75,3 @@ def run_model_entry_point(argv):
     finally:
         # Ensure removal of lock file
         file_lock_path.unlink(missing_ok=True)
-        # Update status
-        project.update_review(status="review")
