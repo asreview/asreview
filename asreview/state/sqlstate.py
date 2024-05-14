@@ -596,29 +596,3 @@ class SQLiteState:
         """
 
         return pd.read_sql_query("SELECT * FROM decision_changes", self._conn)
-
-    def _add_labeling_data_simulation_mode(self, rows):
-        """Add labeling and model data to the results table.
-
-        Add the labeling data and the model data at the same time to the
-        results table. This is used for the simulation mode, since the model
-        data is available at the time of labeling.
-
-        Arguments
-        ----------
-        rows : list of tuples
-            List of tuples (record_id: int, label: int, classifier: str,
-            query_strategy: str, balance_strategy: str, feature_extraction: str,
-             training_set: int, labeling_time: int, notes: str).
-        """
-        query = (
-            "INSERT INTO results (record_id, label, classifier, "
-            "query_strategy, balance_strategy, feature_extraction, "
-            "training_set, labeling_time, notes) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        )
-
-        con = self._conn
-        cur = con.cursor()
-        cur.executemany(query, rows)
-        con.commit()

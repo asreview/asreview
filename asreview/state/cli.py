@@ -21,8 +21,7 @@ from asreview.project import get_project_path
 from asreview.state.contextmanager import open_state
 
 
-def _parse_state_inspect_args():
-    # parse arguments if available
+def cli_state_inspect(argv):
     parser = argparse.ArgumentParser(
         prog="state-inspect", description="Inspect state file."
     )
@@ -34,12 +33,6 @@ def _parse_state_inspect_args():
         type=str,
         help="Table to view (e.g. results, last_ranking).",
     )
-
-    return parser
-
-
-def cli_state_inspect(argv):
-    parser = _parse_state_inspect_args()
     args = parser.parse_args(argv)
 
     if Path(args.project_id).suffix == ".asreview":

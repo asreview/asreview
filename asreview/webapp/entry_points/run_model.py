@@ -132,15 +132,21 @@ def _simulate_start(project):
     with open_state(project) as state:
         priors = state.get_priors()["record_id"].tolist()
 
+    as_data = project.read_data()
+
+    feature_model = get_feature_model(settings.feature_extraction)
+    fm = feature_model.fit_transform(
+        as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
+    )
+    project.add_feature_matrix(fm, feature_model.name)
+
     reviewer = Simulate(
-        project.read_data(),
-        project=project,
+        fm,
+        labels=as_data.labels,
         classifier=get_classifier(settings.classifier),
         query_model=get_query_model(settings.query_strategy),
         balance_model=get_balance_model(settings.balance_strategy),
-        feature_model=get_feature_model(settings.feature_extraction),
         prior_indices=priors,
-        write_interval=100,
     )
 
     try:

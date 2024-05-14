@@ -293,33 +293,26 @@ class Project:
 
         review_id = uuid4().hex
         state_fp = Path(self.project_path, "reviews", review_id, "results.sql")
+        state_fp.parent.mkdir(parents=True, exist_ok=True)
+
         state = SQLiteState(state_fp)
+        state.create_tables()
+        self.add_review(review_id)
 
-        try:
-            state.create_tables()
-            self.add_review(review_id)
+        # if the data contains labels and oracle mode, add them to the state file
+        if self.config["mode"] == PROJECT_MODE_ORACLE and as_data.labels is not None:
+            labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
+            labels = as_data.labels[labeled_indices].tolist()
+            labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
 
-            # if the data contains labels and oracle mode, add them to the state file
-            if (
-                self.config["mode"] == PROJECT_MODE_ORACLE
-                and as_data.labels is not None
-            ):
-                labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
-                labels = as_data.labels[labeled_indices].tolist()
-                labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
-
-                # add the labels as prior data
-                state.add_labeling_data(
-                    record_ids=labeled_record_ids,
-                    labels=labels,
-                    notes=[None for _ in labeled_record_ids],
-                    prior=True,
-                )
-        finally:
-            try:
-                state.close()
-            except AttributeError:
-                pass
+            # add the labels as prior data
+            state.add_labeling_data(
+                record_ids=labeled_record_ids,
+                labels=labels,
+                notes=[None for _ in labeled_record_ids],
+                prior=True,
+            )
+        state.close()
 
     def remove_dataset(self):
         """Remove dataset from project."""

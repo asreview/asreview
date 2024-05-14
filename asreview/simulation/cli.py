@@ -18,7 +18,8 @@ import logging
 import re
 import shutil
 from pathlib import Path
-from uuid import uuid4
+import json
+from dataclasses import asdict
 
 from asreview import load_dataset
 from asreview.config import DEFAULT_BALANCE_STRATEGY
@@ -37,8 +38,6 @@ from asreview.project import Project
 from asreview.project import ProjectExistsError
 from asreview.settings import ReviewSettings
 from asreview.simulation import Simulate
-from asreview.state.contextmanager import open_state
-from asreview.state import SQLiteState
 from asreview.types import type_n_queries
 from asreview.utils import format_to_str
 from asreview.utils import get_random_state
@@ -172,6 +171,8 @@ def cli_simulate(argv):
         query_strategy=args.query_strategy,
         balance_strategy=args.balance_strategy,
         feature_extraction=args.feature_extraction,
+        init_seed=args.init_seed,
+        n_papers=args.n_papers,
     )
 
     if args.config_file:
@@ -213,19 +214,24 @@ def cli_simulate(argv):
     if args.prior_record_id is not None and len(args.prior_record_id) > 0:
         prior_idx = _convert_id_to_idx(as_data, args.prior_record_id)
 
-    if classifier_model.name.startswith("lstm-"):
-        classifier_model.embedding_matrix = feature_model.get_embedding_matrix(
-            as_data.texts, args.embedding_fp
-        )
+    fm = feature_model.fit_transform(
+        as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
+    )
+    project.add_feature_matrix(fm, feature_model.name)
 
-    # Initialize the review class.
-    reviewer = Simulate(
-        as_data,
-        project=project,
+    # with open_state(project) as s:
+    #     prior_df = s.get_priors()
+
+    #     print("The following records are prior knowledge:\n")
+    #     for _, row in prior_df.iterrows():
+    #         _print_record(as_data.record(row["record_id"]))
+
+    sim = Simulate(
+        fm,
+        as_data.labels,
         classifier=classifier_model,
         query_model=query_model,
         balance_model=balance_model,
-        feature_model=feature_model,
         n_papers=args.n_papers,
         n_instances=args.n_instances,
         stop_if=args.stop_if,
@@ -233,47 +239,22 @@ def cli_simulate(argv):
         n_prior_included=args.n_prior_included,
         n_prior_excluded=args.n_prior_excluded,
         init_seed=args.init_seed,
-        write_interval=args.write_interval,
     )
+    sim.review()
+    sim.to_state(project)
 
-    review_id = uuid4().hex
-    logging.debug(f"Create new review (state) with id {review_id}.")
-    state_fp = Path(project.project_path, "reviews", review_id, "results.sql")
-    Path(state_fp.parent).mkdir(parents=True, exist_ok=True)
+    # sim.to_project(project)
 
-    state = SQLiteState(state_fp)
-
-    try:
-        state.create_tables()
-    finally:
-        try:
-            state.close()
-        except AttributeError:
-            pass
-
-    project.add_review(review_id)
-
-    try:
-        # Start the review process.
-        project.update_review(status="review")
-
-        with open_state(project) as s:
-            prior_df = s.get_priors()
-
-            print("The following records are prior knowledge:\n")
-            for _, row in prior_df.iterrows():
-                _print_record(as_data.record(row["record_id"]))
-
-        print("Simulation started\n")
-        reviewer.review()
-    except Exception as err:
-        # save the error to the project
-        project.set_error(err)
-
-        raise err
-
-    print("\nSimulation finished")
-    project.mark_review_finished()
+    with open(
+        Path(
+            project.project_path,
+            "reviews",
+            project.reviews[0]["id"],
+            "settings_metadata.json",
+        ),
+        "w",
+    ) as f:
+        json.dump(asdict(settings), f)
 
     # create .ASReview file out of simulation folder
     project.export(args.state_file)
@@ -429,15 +410,6 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         help="Deprecated, use 'stop_if' instead.",
     )
     parser.add_argument("--verbose", "-v", default=0, type=int, help="Verbosity")
-    parser.add_argument(
-        "--write_interval",
-        "-w",
-        default=None,
-        type=int,
-        help="The simulation data will be written after each set of this"
-        "many labeled records. By default only writes data at the end"
-        "of the simulation to make it as fast as possible.",
-    )
     parser.add_argument(
         "--embedding",
         type=str,

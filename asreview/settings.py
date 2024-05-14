@@ -44,14 +44,16 @@ class ReviewSettings:
     query_strategy: str = DEFAULT_QUERY_STRATEGY
     balance_strategy: str = DEFAULT_BALANCE_STRATEGY
     feature_extraction: str = DEFAULT_FEATURE_EXTRACTION
-    stop_if: Optional[int] = None
-    n_prior_included: Optional[int] = None
-    n_prior_excluded: Optional[int] = None
     classifier_param: Optional[dict] = None
     query_param: Optional[dict] = None
     balance_param: Optional[dict] = None
     feature_param: Optional[dict] = None
     n_instances: int = DEFAULT_N_INSTANCES
+    stop_if: Optional[int] = None
+    n_prior_included: Optional[int] = None
+    n_prior_excluded: Optional[int] = None
+    init_seed: Optional[int] = None
+    n_papers: Optional[int] = None
 
     def from_file(self, fp, load=None):
         """Fill the contents of settings by reading a config file.

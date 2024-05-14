@@ -12,6 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["BaseState", "SQLiteState"]
+__all__ = ["SQLiteState"]
 
 from asreview.state.sqlstate import SQLiteState
