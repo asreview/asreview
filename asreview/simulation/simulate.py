@@ -24,10 +24,6 @@ from uuid import uuid4
 
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import LABEL_NA
-from asreview.models.balance.simple import SimpleBalance
-from asreview.models.classifiers import NaiveBayesClassifier
-from asreview.models.feature_extraction.tfidf import Tfidf
-from asreview.models.query.max_prob import MaxQuery
 from asreview.simulation.prior_knowledge import naive_prior_knowledge
 from asreview.simulation.prior_knowledge import sample_prior_knowledge
 from asreview.state.contextmanager import open_state
@@ -38,33 +34,32 @@ class Simulate:
 
     Arguments
     ---------
-    as_data: asreview.Dataset
-        The data object which contains the text, labels, etc.
-    model: BaseModel
-        Initialized model to fit the data during active learning.
-        See asreview.models.utils.py for possible models.
+    fm: numpy.ndarray
+        The feature matrix to use for the simulation.
+    labels: numpy.ndarray, pandas.Series, list
+        The labels to use for the simulation.
+    classifier: BaseModel
+        The classifier to use for the simulation.
     query_strategy: BaseQueryModel
-        Initialized model to query new instances for review, such as random
-        sampling or max sampling.
-        See asreview.query_strategies.utils.py for query models.
+        The query strategy to use for the simulation.
     balance_strategy: BaseBalanceModel
-        Initialized model to redistribute the training data during the
-        active learning process. They might either resample or undersample
-        specific papers.
+        The balance strategy to use for the simulation.
     feature_extraction: BaseFeatureModel
-        Feature extraction model that converts texts and keywords to
-        feature matrices.
+        The feature extraction model to use for the simulation. If None,
+        the name of the feature extraction model is set to None.
     n_prior_included: int
-        Sample n prior included papers.
+        Sample n prior included papers. Default is 0.
     n_prior_excluded: int
-        Sample n prior excluded papers.
+        Sample n prior excluded papers. Default is 0.
     prior_indices: int
-        Prior indices by row number.
+        Prior indices by row number. If provided, n_prior_included and
+        n_prior_excluded are ignored.
     n_instances: int
         Number of papers to query at each step in the active learning
-        process.
+        process. Default is 1.
     stop_if: int
-        Number of steps/queries to perform. Set to None for no limit.
+        Number of steps/queries to perform. Set to None for no limit. Default
+        is None.
     start_idx: numpy.ndarray
         Start the simulation/review with these indices. They are assumed to
         be already labeled. Failing to do so might result bad behaviour.
@@ -72,27 +67,22 @@ class Simulate:
         Seed for setting the prior indices if the --prior_idx option is
         not used. If the option prior_idx is used with one or more
         index, this option is ignored.
-    state_file: str
-        Path to state file.
-    write_interval: int
-        After how many labeled records to write the simulation data to the
-        state.
     """
 
     def __init__(
         self,
         fm,
         labels,
-        classifier=NaiveBayesClassifier(),
-        query_strategy=MaxQuery(),
-        balance_strategy=SimpleBalance(),
-        feature_extraction=Tfidf(),
+        classifier,
+        query_strategy,
+        balance_strategy,
+        feature_extraction=None,
         n_prior_included=0,
         n_prior_excluded=0,
         prior_indices=None,
         n_instances=DEFAULT_N_INSTANCES,
         stop_if="min",
-        start_idx=None,
+        start_idx=None,  # TODO: replace with prior_indices
         init_seed=None,
     ):
         self.fm = fm

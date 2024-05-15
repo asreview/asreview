@@ -53,10 +53,10 @@ from asreview.data.statistics import n_irrelevant
 
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
-from asreview.models.balance import list_balance_strategies
-from asreview.models.classifiers import list_classifiers
-from asreview.models.feature_extraction import list_feature_extraction
-from asreview.models.query import list_query_strategies
+from asreview.models.balance.utils import list_balance_strategies
+from asreview.models.classifiers.utils import list_classifiers
+from asreview.models.feature_extraction.utils import list_feature_extraction
+from asreview.models.query.utils import list_query_strategies
 from asreview.project import ProjectNotFoundError
 from asreview.project import get_project_path
 from asreview.project import is_v0_project

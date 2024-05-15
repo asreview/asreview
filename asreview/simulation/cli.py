@@ -31,9 +31,9 @@ from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.datasets import DatasetManager
 from asreview.models.balance.utils import get_balance_model
-from asreview.models.classifiers import get_classifier
-from asreview.models.feature_extraction import get_feature_model
-from asreview.models.query import get_query_model
+from asreview.models.classifiers.utils import get_classifier
+from asreview.models.feature_extraction.utils import get_feature_model
+from asreview.models.query.utils import get_query_model
 from asreview.project import Project
 from asreview.project import ProjectExistsError
 from asreview.settings import ReviewSettings

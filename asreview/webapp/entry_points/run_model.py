@@ -24,10 +24,10 @@ import pandas as pd
 import asreview as asr
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_SIMULATE
-from asreview.models.balance import get_balance_model
-from asreview.models.classifiers import get_classifier
-from asreview.models.feature_extraction import get_feature_model
-from asreview.models.query import get_query_model
+from asreview.models.balance.utils import get_balance_model
+from asreview.models.classifiers.utils import get_classifier
+from asreview.models.feature_extraction.utils import get_feature_model
+from asreview.models.query.utils import get_query_model
 from asreview.settings import ReviewSettings
 from asreview.simulation import Simulate
 from asreview.state.contextmanager import open_state
