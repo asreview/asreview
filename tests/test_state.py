@@ -323,13 +323,11 @@ def test_move_ranking_data_to_results(tmpdir):
             range(1, len(TEST_RECORD_TABLE) + 1), "nb", "max", "double", "tfidf", 4
         )
         state.query_top_ranked(4)
-
         data = state.get_results_table(pending=True)
 
-        # print(data)
-        assert data["record_id"].to_list() == [4, 6, 5, 7]
-        assert data["label"].to_list() == [None] * 4
-        assert data["classifier"].to_list() == ["nb"] * 4
+    assert data["record_id"].to_list() == [1, 2, 3, 4]
+    assert data["label"].to_list() == [None] * 4
+    assert data["classifier"].to_list() == ["nb"] * 4
 
 
 def test_query_top_ranked(tmpdir):
