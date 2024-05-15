@@ -3,6 +3,7 @@ import shutil
 
 import asreview as asr
 import pandas as pd
+import numpy as np
 
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.classifiers import get_classifier
@@ -31,6 +32,9 @@ def test_simulate(tmpdir):
         as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
     )
     project.add_feature_matrix(fm, feature_model.name)
+
+    # set numpy seed
+    np.random.seed(42)
 
     sim = asr.Simulate(
         fm,

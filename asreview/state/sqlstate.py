@@ -25,11 +25,8 @@ from asreview.state.errors import StateError
 
 
 REQUIRED_TABLES = [
-    # the table with the labeling decisions and models trained
     "results",
-    # the latest ranking.
     "last_ranking",
-    # the record ids whose labeling decision was changed.
     "decision_changes",
 ]
 
@@ -44,14 +41,23 @@ RESULTS_TABLE_COLUMNS = [
     "labeling_time",
     "notes",
     "custom_metadata_json",
+    "user_id",
 ]
+
 CURRENT_STATE_VERSION = 2
 
 
 class SQLiteState:
-    """Class for storing the review state.
+    """Class for managing the state of the review process.
 
-    The results are stored in a sqlite database.
+    The state is stored in a SQLite database. The state contains the results
+    of the review process, the ranking of the last model, and the changes in
+    the decisions.
+
+    Arguments
+    ---------
+    fp: str, Path
+        Path to the SQLite database file.
 
     Attributes
     ----------
@@ -260,8 +266,6 @@ class SQLiteState:
             User id of the user who labeled the records.
         """
 
-        labeling_time = datetime.now()
-
         if notes is None:
             notes = [None for _ in record_ids]
 
@@ -277,34 +281,22 @@ class SQLiteState:
             for i, _ in enumerate(record_ids)
         ]
 
-        n_records_labeled = len(record_ids)
-
         if prior:
-            query_strategies = ["prior" for _ in record_ids]
-            training_sets = [-1 for _ in record_ids]
-            data = [
-                (
-                    int(record_ids[i]),
-                    int(labels[i]),
-                    query_strategies[i],
-                    training_sets[i],
-                    labeling_time,
-                    notes[i],
-                    custom_metadata_list[i],
-                    user_id,
-                )
-                for i in range(n_records_labeled)
-            ]
-
-            # If prior, we need to insert new records into the database.
-            query = (
-                "INSERT INTO results (record_id, label, query_strategy, "
-                "training_set, labeling_time, notes, custom_metadata_json, "
-                "user_id)"
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-            )
+            pd.DataFrame(
+                {
+                    "record_id": record_ids,
+                    "label": labels,
+                    "query_strategy": "prior",
+                    "training_set": -1,
+                    "labeling_time": datetime.now(),
+                    "notes": notes,
+                    "custom_metadata_json": custom_metadata_list,
+                    "user_id": user_id,
+                }
+            ).to_sql("results", self._conn, if_exists="append", index=False)
 
         else:
+            labeling_time = datetime.now()
             data = [
                 (
                     int(labels[i]),
@@ -313,7 +305,7 @@ class SQLiteState:
                     custom_metadata_list[i],
                     int(record_ids[i]),
                 )
-                for i in range(n_records_labeled)
+                for i in range(len(record_ids))
             ]
 
             # If not prior, we need to update records.
@@ -322,11 +314,11 @@ class SQLiteState:
                 "notes=?, custom_metadata_json=? WHERE record_id=?"
             )
 
-        # Add the rows to the database.
-        con = self._conn
-        cur = con.cursor()
-        cur.executemany(query, data)
-        con.commit()
+            # Add the rows to the database.
+            con = self._conn
+            cur = con.cursor()
+            cur.executemany(query, data)
+            con.commit()
 
     def get_last_ranking_table(self):
         """Get the ranking from the state.
@@ -596,7 +588,7 @@ class SQLiteState:
         cur.execute(
             (
                 "INSERT INTO decision_changes (record_id, new_label, time) "
-                "VALUES (?,?, ?)"
+                "VALUES (?, ?, ?)"
             ),
             (record_id, None, current_time),
         )
