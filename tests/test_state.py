@@ -325,6 +325,8 @@ def test_move_ranking_data_to_results(tmpdir):
         state.query_top_ranked(4)
 
         data = state.get_results_table(pending=True)
+
+        # print(data)
         assert data["record_id"].to_list() == [4, 6, 5, 7]
         assert data["label"].to_list() == [None] * 4
         assert data["classifier"].to_list() == ["nb"] * 4

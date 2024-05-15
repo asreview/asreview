@@ -98,7 +98,8 @@ class SQLiteState:
                             training_set INTEGER,
                             labeling_time INTEGER,
                             notes TEXT,
-                            custom_metadata_json TEXT)"""
+                            custom_metadata_json TEXT,
+                            user_id INTEGER)"""
         )
 
         # Create the last_ranking table.
@@ -239,7 +240,7 @@ class SQLiteState:
         ).to_sql("last_ranking", self._conn, if_exists="replace", index=False)
 
     def add_labeling_data(
-        self, record_ids, labels, notes=None, tags_list=None, prior=False
+        self, record_ids, labels, notes=None, tags_list=None, prior=False, user_id=None
     ):
         """Add the data corresponding to a labeling action to the state file.
 
@@ -255,6 +256,8 @@ class SQLiteState:
             A list of tags to save with the labeled records.
         prior: bool
             Whether the added record are prior knowledge.
+        user_id: int
+            User id of the user who labeled the records.
         """
 
         labeling_time = datetime.now()
@@ -288,6 +291,7 @@ class SQLiteState:
                     labeling_time,
                     notes[i],
                     custom_metadata_list[i],
+                    user_id,
                 )
                 for i in range(n_records_labeled)
             ]
@@ -295,8 +299,9 @@ class SQLiteState:
             # If prior, we need to insert new records into the database.
             query = (
                 "INSERT INTO results (record_id, label, query_strategy, "
-                "training_set, labeling_time, notes, custom_metadata_json) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?)"
+                "training_set, labeling_time, notes, custom_metadata_json, "
+                "user_id)"
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
             )
 
         else:
@@ -336,7 +341,7 @@ class SQLiteState:
         """
         return pd.read_sql_query("SELECT * FROM last_ranking", self._conn)
 
-    def query_top_ranked(self, n, return_all=False):
+    def query_top_ranked(self, n=1, user_id=None):
         """Get the top ranked records from the ranking table.
 
         Get the top n instances from the pool according to the last ranking.
@@ -345,7 +350,9 @@ class SQLiteState:
         Arguments
         ---------
         n: int
-            Number of instances.
+            Number of instances. Default is 1.
+        user_id: int
+            User id of the user who queries the records.
 
         Returns
         -------
@@ -353,14 +360,14 @@ class SQLiteState:
             List of record_ids of the top n ranked records.
         """
         top_n_records = self.get_pool()[:n].to_list()
-        record_list = [(record_id,) for record_id in top_n_records]
+        record_list = [(user_id, record_id) for record_id in top_n_records]
         con = self._conn
         cur = con.cursor()
         cur.executemany(
             """INSERT INTO results (record_id, classifier, query_strategy,
-            balance_strategy, feature_extraction, training_set)
+            balance_strategy, feature_extraction, training_set, user_id)
             SELECT record_id, classifier, query_strategy,
-            balance_strategy, feature_extraction, training_set
+            balance_strategy, feature_extraction, training_set, ? AS user_id
             FROM last_ranking
             WHERE record_id=?""",
             record_list,
@@ -494,20 +501,33 @@ class SQLiteState:
             self._conn,
         )["record_id"]
 
-    def get_pending(self):
+    def get_pending(self, user_id=None):
         """Get pending records from the results table.
+
+        Arguments
+        ---------
+        user_id: int
+            User id of the user who labeled the records.
 
         Returns
         -------
         pd.DataFrame
             DataFrame with pending results records.
         """
-        return pd.read_sql_query(
-            """SELECT * FROM results WHERE label is null""", self._conn
-        )
+
+        if user_id is None:
+            return pd.read_sql_query(
+                """SELECT * FROM results WHERE label is null""", self._conn
+            )
+        else:
+            return pd.read_sql_query(
+                """SELECT * FROM results WHERE label is null AND user_id=?""",
+                self._conn,
+                params=(user_id,),
+            )
 
     def get_ranking_with_labels(self):
-        """Return ranking with labels is present"""
+        """Get the ranking with the labels of the records."""
 
         return pd.read_sql_query(
             """SELECT

@@ -1357,7 +1357,7 @@ def api_get_document(project):  # noqa: F401
                     {"result": None, "pool_empty": False, "has_ranking": False}
                 )
 
-            state.query_top_ranked(1)
+            state.query_top_ranked()
             pending = state.get_pending()
 
     as_data = project.read_data()
