@@ -194,7 +194,7 @@ class Simulate:
             return True
 
         # Stop when reaching stop_if (if provided)
-        if isinstance(self.stop_if, int):
+        if isinstance(self.stop_if, int) and len(self._results) >= self.stop_if:
             return True
 
         return False
@@ -231,8 +231,6 @@ class Simulate:
             axis=1,
         )
         self._last_ranking.columns = ["record_id", "rank"]
-
-        # print(self._last_ranking)
 
         self.training_set = new_training_set
 

@@ -176,7 +176,10 @@ def test_number_records_found(tmpdir):
     cli_simulate(argv)
 
     with open_state(asreview_fp) as s:
-        assert s.get_labels().sum() == 29
+        assert s.get_labels().sum() == 28
+        assert s.get_labels().shape[0] == stop_if
+        assert s.get_results_table().shape[0] == stop_if
+        assert s.get_results_table()["record_id"].head(2).to_list() == [116, 285]
 
 
 def test_stop_if_min(tmpdir):
