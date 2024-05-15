@@ -144,8 +144,9 @@ def _simulate_start(project):
         fm,
         labels=as_data.labels,
         classifier=get_classifier(settings.classifier),
-        query_model=get_query_model(settings.query_strategy),
-        balance_model=get_balance_model(settings.balance_strategy),
+        query_strategy=get_query_model(settings.query_strategy),
+        balance_strategy=get_balance_model(settings.balance_strategy),
+        feature_extraction=feature_model,
         prior_indices=priors,
     )
 

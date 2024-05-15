@@ -172,7 +172,6 @@ def cli_simulate(argv):
         balance_strategy=args.balance_strategy,
         feature_extraction=args.feature_extraction,
         init_seed=args.init_seed,
-        n_papers=args.n_papers,
     )
 
     if args.config_file:
@@ -230,9 +229,9 @@ def cli_simulate(argv):
         fm,
         as_data.labels,
         classifier=classifier_model,
-        query_model=query_model,
-        balance_model=balance_model,
-        n_papers=args.n_papers,
+        query_strategy=query_model,
+        balance_strategy=balance_model,
+        feature_extraction=feature_model,
         n_instances=args.n_instances,
         stop_if=args.stop_if,
         prior_indices=prior_idx,
@@ -401,13 +400,6 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         help="The number of label actions to simulate. Default, 'min' "
         "will stop simulating when all relevant records are found. Use -1 "
         "to simulate all labels actions.",
-    )
-    parser.add_argument(
-        "-n",
-        "--n_papers",
-        type=int,
-        default=None,
-        help="Deprecated, use 'stop_if' instead.",
     )
     parser.add_argument("--verbose", "-v", default=0, type=int, help="Verbosity")
     parser.add_argument(

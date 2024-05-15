@@ -43,15 +43,15 @@ class Simulate:
     model: BaseModel
         Initialized model to fit the data during active learning.
         See asreview.models.utils.py for possible models.
-    query_model: BaseQueryModel
+    query_strategy: BaseQueryModel
         Initialized model to query new instances for review, such as random
         sampling or max sampling.
         See asreview.query_strategies.utils.py for query models.
-    balance_model: BaseBalanceModel
+    balance_strategy: BaseBalanceModel
         Initialized model to redistribute the training data during the
         active learning process. They might either resample or undersample
         specific papers.
-    feature_model: BaseFeatureModel
+    feature_extraction: BaseFeatureModel
         Feature extraction model that converts texts and keywords to
         feature matrices.
     n_prior_included: int
@@ -84,9 +84,9 @@ class Simulate:
         fm,
         labels,
         classifier=NaiveBayesClassifier(),
-        query_model=MaxQuery(),
-        balance_model=SimpleBalance(),
-        feature_model=Tfidf(),
+        query_strategy=MaxQuery(),
+        balance_strategy=SimpleBalance(),
+        feature_extraction=Tfidf(),
         n_prior_included=0,
         n_prior_excluded=0,
         prior_indices=None,
@@ -94,14 +94,14 @@ class Simulate:
         stop_if="min",
         start_idx=None,
         init_seed=None,
-        **kwargs,
     ):
         self.fm = fm
         self.labels = labels
 
         self.classifier = classifier
-        self.balance_model = balance_model
-        self.query_strategy = query_model
+        self.balance_strategy = balance_strategy
+        self.query_strategy = query_strategy
+        self.feature_extraction = feature_extraction
 
         self.n_prior_included = n_prior_included
         self.n_prior_excluded = n_prior_excluded
@@ -147,6 +147,7 @@ class Simulate:
                 "training_set": 0,
                 "labeling_time": str(datetime.now()),
                 "notes": None,
+                "user_id": None,
             }
         )
 
@@ -214,16 +215,15 @@ class Simulate:
 
         train_idx = np.where(y_sample_input != LABEL_NA)[0]
 
-        X_train, y_train = self.balance_model.sample(self.fm, y_sample_input, train_idx)
+        X_train, y_train = self.balance_strategy.sample(
+            self.fm, y_sample_input, train_idx
+        )
 
-        # Fit the classifier on the trainings data.
         self.classifier.fit(X_train, y_train)
 
-        # Use the query strategy to produce a ranking.
         ranked_record_ids = self.query_strategy.query(
             self.fm,
             classifier=self.classifier,
-            # return_classifier_scores=True,
         )
 
         self._last_ranking = pd.concat(
@@ -272,11 +272,12 @@ class Simulate:
                         "label": self.labels[record_ids],
                         "classifier": self.classifier.name,
                         "query_strategy": self.query_strategy.name,
-                        "balance_strategy": self.balance_model.name,
-                        "feature_extraction": None,
+                        "balance_strategy": self.balance_strategy.name,
+                        "feature_extraction": self.feature_extraction.name,
                         "training_set": int(self.training_set),
                         "labeling_time": str(datetime.now()),
                         "notes": None,
+                        "user_id": None,
                     }
                 ),
             ],
@@ -303,8 +304,6 @@ class Simulate:
 
         project.add_review(review_id)
 
-        # print(self._last_ranking)
-
         with open_state(project) as state:
             state.create_tables()
 
@@ -316,7 +315,7 @@ class Simulate:
                 self._last_ranking["record_id"].to_numpy(),
                 self.classifier.name,
                 self.query_strategy.name,
-                self.balance_model.name,
+                self.balance_strategy.name,
                 None,
                 self.training_set,
             )

@@ -24,13 +24,13 @@ def test_init_seed(tmpdir, seed):
     # simulate run 1
     argv1 = (
         f"{DATA_FP} -s {project1_fp} -m nb --init_seed"
-        f" {seed} --n_prior_excluded 1 --n_prior_included 1 -n 2".split()
+        f" {seed} --n_prior_excluded 1 --n_prior_included 1 --stop_if 4".split()
     )
 
     # simulate run 2
     argv2 = (
         f"{DATA_FP} -s {project2_fp} -m nb --init_seed"
-        f" {seed} --n_prior_excluded 1 --n_prior_included 1  -n 2".split()
+        f" {seed} --n_prior_excluded 1 --n_prior_included 1  --stop_if 4".split()
     )
 
     # run the simulations
@@ -55,7 +55,7 @@ def test_no_seed(tmpdir):
 
         argv = (
             f"{DATA_FP} -s {project_fp} -m nb "
-            f"--n_prior_excluded 1 --n_prior_included 1 -n 2".split()
+            f"--n_prior_excluded 1 --n_prior_included 1 --stop_if 4".split()
         )
         cli_simulate(argv)
 

@@ -36,8 +36,9 @@ def test_simulate(tmpdir):
         fm,
         labels=as_data.labels,
         classifier=get_classifier("svm"),
-        query_model=get_query_model("max_random"),
-        balance_model=get_balance_model("double"),
+        query_strategy=get_query_model("max_random"),
+        balance_strategy=get_balance_model("double"),
+        feature_extraction=feature_model,
         prior_indices=[0, 1],
     )
 

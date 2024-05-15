@@ -53,7 +53,6 @@ class ReviewSettings:
     n_prior_included: Optional[int] = None
     n_prior_excluded: Optional[int] = None
     init_seed: Optional[int] = None
-    n_papers: Optional[int] = None
 
     def from_file(self, fp, load=None):
         """Fill the contents of settings by reading a config file.
