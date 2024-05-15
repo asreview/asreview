@@ -2,7 +2,6 @@ from io import StringIO
 from pathlib import Path
 
 from asreview.datasets import DatasetManager
-from asreview.datasets import DatasetNotFoundError
 from asreview.exceptions import BadFileFormatError
 from asreview.utils import _entry_points
 from asreview.utils import _get_filename_from_url
@@ -99,7 +98,7 @@ def load_dataset(name, **kwargs):
     # check if dataset is plugin dataset
     try:
         return _from_extension(name, **kwargs)
-    except DatasetNotFoundError:
+    except ValueError:
         pass
 
     # Could not find dataset, return None.

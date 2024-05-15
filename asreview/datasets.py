@@ -16,7 +16,6 @@ __all__ = [
     "BaseDataGroup",
     "BaseDataSet",
     "DatasetManager",
-    "DatasetNotFoundError",
     "NaturePublicationDataGroup",
     "SynergyDataGroup",
     "SynergyDataSet",
@@ -38,10 +37,6 @@ from asreview.data.tabular import CSVReader
 from asreview.utils import _entry_points
 from asreview.utils import _get_filename_from_url
 from asreview.utils import is_iterable
-
-
-class DatasetNotFoundError(Exception):
-    pass
 
 
 def _download_from_metadata(url):
@@ -254,7 +249,7 @@ class BaseDataGroup(ABC):
         elif len(results) == 1:
             return results[0]
 
-        raise DatasetNotFoundError(f"Dataset {dataset_id} not found")
+        raise ValueError(f"Dataset {dataset_id} not found")
 
 
 class DatasetManager:
@@ -323,7 +318,7 @@ class DatasetManager:
             return list(all_results.values())[0]
 
         # Could not find dataset
-        raise DatasetNotFoundError(f"Dataset {dataset_id} not found")
+        raise ValueError(f"Dataset {dataset_id} not found")
 
     def list(self, include=None, exclude=None, serialize=True, raise_on_error=False):
         """List the available datasets.
