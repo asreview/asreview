@@ -120,7 +120,7 @@ def _print_record(record, use_cli_colors=True):
     print(f"\n{header:-<60}\n{title}{authors}{abstract}")
 
 
-def cli_simulate(argv):
+def _cli_simulate(argv):
     # parse arguments
     parser = _simulate_parser()
     args = parser.parse_args(argv)

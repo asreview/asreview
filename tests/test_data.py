@@ -5,7 +5,6 @@ import pandas as pd
 from pytest import mark
 
 import asreview as asr
-from asreview import load_dataset
 from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
 from asreview.search import fuzzy_find
@@ -31,7 +30,7 @@ def exists(url):
 )
 def test_fuzzy_finder(keywords, record_id):
     fp = Path("tests", "demo_data", "embase.csv")
-    as_data = load_dataset(fp)
+    as_data = asr.load_dataset(fp)
 
     assert fuzzy_find(as_data, keywords)[0] == record_id
 
@@ -53,13 +52,13 @@ def test_datasets(data_name):
 
 
 def test_duplicate_count():
-    d = load_dataset(Path("tests", "demo_data", "duplicate_records.csv"))
+    d = asr.load_dataset(Path("tests", "demo_data", "duplicate_records.csv"))
 
     assert n_duplicates(d) == 2
 
 
 def test_deduplication():
-    d_dups = load_dataset(Path("tests", "demo_data", "duplicate_records.csv"))
+    d_dups = asr.load_dataset(Path("tests", "demo_data", "duplicate_records.csv"))
 
     s_dups_bool = pd.Series(
         [

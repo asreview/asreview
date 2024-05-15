@@ -18,10 +18,12 @@ from asreview.data.loader import load_dataset
 from asreview.data.utils import list_readers
 from asreview.data.utils import list_writers
 from asreview.project import Project
+from asreview.state.sqlstate import SQLiteState
 from asreview.state.contextmanager import open_state
 from asreview.utils import asreview_path
 from asreview.utils import get_data_home
 from asreview.simulation.simulate import Simulate
+
 
 try:
     from asreview._version import __version__
@@ -31,13 +33,15 @@ except ImportError:
     __version_tuple__ = (0, 0, 0)
 
 __all__ = [
-    "load_dataset",
-    "asreview_path",
+    # classes
     "Dataset",
     "Project",
     "Simulate",
-    "get_data_home",
+    "SQLiteState",
+    "load_dataset",
     "list_readers",
     "list_writers",
     "open_state",
+    "asreview_path",
+    "get_data_home",
 ]

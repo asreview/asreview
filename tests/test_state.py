@@ -1,4 +1,5 @@
 from pathlib import Path
+import shutil
 
 import pandas as pd
 import pytest
@@ -6,11 +7,7 @@ from scipy.sparse import csr_matrix
 
 import asreview as asr
 from asreview.project import ProjectExistsError, ProjectNotFoundError
-from asreview.settings import ReviewSettings
-from asreview.state import SQLiteState
-from asreview.state.contextmanager import open_state
 from asreview.state.errors import StateNotFoundError
-import shutil
 
 TEST_LABELS = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
 TEST_INDICES = [16, 346, 509, 27, 11, 555, 554, 680, 264, 309]
@@ -143,7 +140,7 @@ def test_init_project_already_exists(tmpdir):
 def test_invalid_project_folder(tmpdir):
     project_path = Path(tmpdir, "this_is_not_a_project")
     with pytest.raises(ProjectNotFoundError):
-        with open_state(project_path):
+        with asr.open_state(project_path):
             pass
 
     # there should be no folder called "this_is_not_a_project"
@@ -154,46 +151,46 @@ def test_state_not_found(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
     with pytest.raises(StateNotFoundError):
-        with open_state(project_path, create_new=False):
+        with asr.open_state(project_path, create_new=False):
             pass
 
 
 def test_read_basic_state(asreview_test_project):
-    with open_state(asreview_test_project) as state:
-        assert isinstance(state, SQLiteState)
+    with asr.open_state(asreview_test_project) as state:
+        assert isinstance(state, asr.SQLiteState)
 
 
 def test_version_number_state(asreview_test_project):
-    with open_state(asreview_test_project) as state:
+    with asr.open_state(asreview_test_project) as state:
         assert state.user_version == 2
 
 
 def test_print_state(asreview_test_project):
-    with open_state(asreview_test_project) as state:
+    with asr.open_state(asreview_test_project) as state:
         print(state)
 
 
 def test_settings_state(asreview_test_project):
     project = asr.Project(asreview_test_project)
     review_id = project.reviews[0]["id"]
-    ReviewSettings().from_file(
+    asr.ReviewSettings().from_file(
         Path(project.project_path, "reviews", review_id, "settings_metadata.json")
     )
 
 
 def test_create_new_state_file(tmpdir):
     project = asr.Project.create(Path(tmpdir, "test.asreview"))
-    with open_state(project) as state:
+    with asr.open_state(project) as state:
         state._is_valid_state()
 
     review_id = project.reviews[0]["id"]
-    ReviewSettings().from_file(
+    asr.ReviewSettings().from_file(
         Path(project.project_path, "reviews", review_id, "settings_metadata.json")
     )
 
 
 def test_get_dataset(asreview_test_project):
-    with open_state(asreview_test_project) as state:
+    with asr.open_state(asreview_test_project) as state:
         assert isinstance(state.get_results_table(["query_strategy"]), pd.DataFrame)
         assert isinstance(state.get_results_table(), pd.DataFrame)
 
@@ -222,7 +219,7 @@ def test_get_dataset(asreview_test_project):
 
 
 def test_get_dataset_drop_prior(asreview_test_project):
-    with open_state(asreview_test_project) as state:
+    with asr.open_state(asreview_test_project) as state:
         assert (
             len(state.get_results_table(priors=False))
             == len(TEST_RECORD_IDS) - TEST_N_PRIORS
@@ -238,7 +235,7 @@ def test_get_dataset_drop_pending(tmpdir):
     test_ranking = range(10, 0, -1)
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
-    with open_state(project_path) as state:
+    with asr.open_state(project_path) as state:
         state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
         state.add_labeling_data([4, 5, 6], [1, 0, 1], prior=True)
         state.query_top_ranked(3)
@@ -250,7 +247,7 @@ def test_get_dataset_drop_pending(tmpdir):
 
 
 def test_get_data_by_record_id(asreview_test_project):
-    with open_state(asreview_test_project) as state:
+    with asr.open_state(asreview_test_project) as state:
         for idx in [2, 6, 8]:
             record_id = TEST_RECORD_IDS[idx]
             query = state.get_data_by_record_id(record_id)
@@ -260,7 +257,7 @@ def test_get_data_by_record_id(asreview_test_project):
 
 
 def test_get_query_strategies(asreview_test_project):
-    with open_state(asreview_test_project) as state:
+    with asr.open_state(asreview_test_project) as state:
         assert (
             state.get_results_table()["query_strategy"].to_list()
             == TEST_QUERY_STRATEGIES
@@ -268,30 +265,30 @@ def test_get_query_strategies(asreview_test_project):
 
 
 def test_get_classifiers(asreview_test_project):
-    with open_state(asreview_test_project) as state:
+    with asr.open_state(asreview_test_project) as state:
         assert state.get_results_table()["classifier"].to_list() == TEST_CLASSIFIERS
 
 
 def test_get_training_sets(asreview_test_project):
-    with open_state(asreview_test_project) as state:
+    with asr.open_state(asreview_test_project) as state:
         assert isinstance(state.get_results_table()["training_set"], pd.Series)
         assert all(state.get_results_table()["training_set"] == TEST_TRAINING_SETS)
 
 
 def test_get_order_of_labeling(asreview_test_project):
-    with open_state(asreview_test_project) as state:
+    with asr.open_state(asreview_test_project) as state:
         assert isinstance(state.get_results_table()["record_id"], pd.Series)
         assert all(state.get_results_table()["record_id"] == TEST_RECORD_IDS)
 
 
 def test_get_labels(asreview_test_project):
-    with open_state(asreview_test_project) as state:
+    with asr.open_state(asreview_test_project) as state:
         assert isinstance(state.get_labels(), pd.Series)
         assert all(state.get_labels() == TEST_LABELS)
 
 
 def test_get_labels_no_priors(asreview_test_project):
-    with open_state(asreview_test_project) as state:
+    with asr.open_state(asreview_test_project) as state:
         labels = state.get_labels(priors=False)
         assert isinstance(labels, pd.Series)
         assert all(labels == TEST_LABELS[4:])
@@ -302,7 +299,9 @@ def test_get_labeling_times(tmpdir):
         TEST_WITH_TIMES_FP, Path(tmpdir, "test_state_example_with_times.asreview")
     )
 
-    with open_state(Path(tmpdir, "test_state_example_with_times.asreview")) as state:
+    with asr.open_state(
+        Path(tmpdir, "test_state_example_with_times.asreview")
+    ) as state:
         assert all(state.get_results_table()["labeling_time"] == TEST_LABELING_TIMES)
 
 
@@ -318,7 +317,7 @@ def test_get_feature_matrix(asreview_test_project):
 def test_move_ranking_data_to_results(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
-    with open_state(project_path) as state:
+    with asr.open_state(project_path) as state:
         state.add_last_ranking(
             range(1, len(TEST_RECORD_TABLE) + 1), "nb", "max", "double", "tfidf", 4
         )
@@ -334,7 +333,7 @@ def test_query_top_ranked(tmpdir):
     test_ranking = [2, 1, 0] + list(range(3, len(TEST_RECORD_TABLE)))
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
-    with open_state(project_path) as state:
+    with asr.open_state(project_path) as state:
         state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
         top_ranked = state.query_top_ranked(5)
 
@@ -352,7 +351,7 @@ def test_add_labeling_data(tmpdir):
     test_ranking = list(range(len(TEST_RECORD_TABLE)))
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
-    with open_state(project_path) as state:
+    with asr.open_state(project_path) as state:
         state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
         for i in range(3):
             # Test without specifying notes.
@@ -394,7 +393,7 @@ def test_ranking_with_labels(tmpdir):
     test_ranking = range(10, 0, -1)
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
-    with open_state(project_path) as state:
+    with asr.open_state(project_path) as state:
         state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
         state.add_labeling_data([4, 5, 6], [1, 0, 1], prior=True)
 
@@ -429,7 +428,7 @@ def test_exist_new_labeled_records(tmpdir):
     test_ranking = range(10, 0, -1)
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
-    with open_state(project_path) as state:
+    with asr.open_state(project_path) as state:
         assert not state.exist_new_labeled_records
         state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 3)
 
@@ -446,7 +445,7 @@ def test_exist_new_labeled_records(tmpdir):
 def test_update_decision(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
-    with open_state(project_path) as state:
+    with asr.open_state(project_path) as state:
         state.add_labeling_data(TEST_RECORD_IDS[:3], TEST_LABELS[:3], prior=True)
 
         for i in range(3):
@@ -467,7 +466,7 @@ def test_update_decision(tmpdir):
 
 
 def test_get_ranking_with_labels(asreview_test_project):
-    with open_state(asreview_test_project) as state:
+    with asr.open_state(asreview_test_project) as state:
         ranking_with_labels = state.get_ranking_with_labels()
 
     assert isinstance(ranking_with_labels, pd.DataFrame)
@@ -499,7 +498,7 @@ def test_last_ranking(tmpdir):
     feature_extraction = "tfidf"
     training_set = 2
 
-    with open_state(project_path) as state:
+    with asr.open_state(project_path) as state:
         state.add_last_ranking(
             ranking,
             classifier,
@@ -528,7 +527,7 @@ def test_last_ranking(tmpdir):
 
 
 def test_get_pool(asreview_test_project):
-    with open_state(asreview_test_project) as state:
+    with asr.open_state(asreview_test_project) as state:
         pool = state.get_pool()
 
     assert isinstance(pool, pd.Series)
@@ -537,7 +536,7 @@ def test_get_pool(asreview_test_project):
 
 
 def test_get_labeled(asreview_test_project):
-    with open_state(asreview_test_project) as state:
+    with asr.open_state(asreview_test_project) as state:
         labeled = state.get_results_table()[["record_id", "label"]]
 
     assert isinstance(labeled, pd.DataFrame)
@@ -550,7 +549,7 @@ def test_add_extra_column(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
 
-    with open_state(project_path) as state:
+    with asr.open_state(project_path) as state:
         con = state._conn
         cur = con.cursor()
         cur.execute("ALTER TABLE last_ranking ADD COLUMN test_lr INTEGER;")
@@ -566,7 +565,7 @@ def test_add_extra_column(tmpdir):
     feature_extraction = "tfidf"
     training_set = 2
 
-    with open_state(project_path) as state:
+    with asr.open_state(project_path) as state:
         state.add_last_ranking(
             ranking,
             classifier,

@@ -18,7 +18,7 @@ import json
 
 import pandas as pd
 
-from asreview.state.compatibility import check_and_update_version
+from asreview.state.compatibility import _check_and_update_version
 from asreview.state.errors import StateError
 
 
@@ -129,7 +129,7 @@ class SQLiteState:
 
     def _is_valid_state(self):
         try:
-            version = check_and_update_version(CURRENT_STATE_VERSION, self)
+            version = _check_and_update_version(CURRENT_STATE_VERSION, self)
             if version != self.user_version:
                 self.user_version = version
         except AttributeError as err:

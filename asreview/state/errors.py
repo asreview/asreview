@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["StateNotFoundError", "StateError", "BadStateFileError"]
+__all__ = ["StateNotFoundError", "StateError"]
 
 
 class StateNotFoundError(FileNotFoundError):
@@ -20,8 +20,4 @@ class StateNotFoundError(FileNotFoundError):
 
 
 class StateError(Exception):
-    pass
-
-
-class BadStateFileError(Exception):
     pass

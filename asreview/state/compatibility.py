@@ -10,7 +10,7 @@ def _alter_tag_column(state):
     con.execute("ALTER TABLE results ADD COLUMN custom_metadata_json TEXT")
 
 
-def check_and_update_version(new_version, state):
+def _check_and_update_version(new_version, state):
     if state.user_version == new_version:
         return state.user_version
 
