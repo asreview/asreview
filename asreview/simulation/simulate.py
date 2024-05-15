@@ -24,9 +24,8 @@ from uuid import uuid4
 
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import LABEL_NA
-from asreview.simulation.prior_knowledge import naive_prior_knowledge
-from asreview.simulation.prior_knowledge import sample_prior_knowledge
 from asreview.state.contextmanager import open_state
+from asreview.utils import get_random_state
 
 
 class Simulate:
@@ -47,26 +46,12 @@ class Simulate:
     feature_extraction: BaseFeatureModel
         The feature extraction model to use for the simulation. If None,
         the name of the feature extraction model is set to None.
-    n_prior_included: int
-        Sample n prior included papers. Default is 0.
-    n_prior_excluded: int
-        Sample n prior excluded papers. Default is 0.
-    prior_indices: int
-        Prior indices by row number. If provided, n_prior_included and
-        n_prior_excluded are ignored.
     n_instances: int
         Number of papers to query at each step in the active learning
         process. Default is 1.
     stop_if: int
         Number of steps/queries to perform. Set to None for no limit. Default
         is None.
-    start_idx: numpy.ndarray
-        Start the simulation/review with these indices. They are assumed to
-        be already labeled. Failing to do so might result bad behaviour.
-    init_seed: int
-        Seed for setting the prior indices if the --prior_idx option is
-        not used. If the option prior_idx is used with one or more
-        index, this option is ignored.
     """
 
     def __init__(
@@ -77,74 +62,64 @@ class Simulate:
         query_strategy,
         balance_strategy,
         feature_extraction=None,
-        n_prior_included=0,
-        n_prior_excluded=0,
-        prior_indices=None,
         n_instances=DEFAULT_N_INSTANCES,
         stop_if="min",
-        start_idx=None,  # TODO: replace with prior_indices
-        init_seed=None,
     ):
         self.fm = fm
         self.labels = labels
-
         self.classifier = classifier
         self.balance_strategy = balance_strategy
         self.query_strategy = query_strategy
         self.feature_extraction = feature_extraction
-
-        self.n_prior_included = n_prior_included
-        self.n_prior_excluded = n_prior_excluded
-        self.prior_indices = prior_indices
         self.n_instances = n_instances
         self.stop_if = stop_if
-        self.start_idx = start_idx
-        self.init_seed = init_seed
 
         self._last_ranking = None
-        self._results = None
-
-    def _label_priors(self):
-        """Label the prior knowledge."""
-
-        if self.prior_indices is not None and len(self.prior_indices) != 0:
-            self.start_idx = self.prior_indices
-        else:
-            if (
-                self.start_idx is None
-                or (isinstance(self.start_idx, list) and len(self.start_idx) == 0)
-            ) and self.n_prior_included + self.n_prior_excluded > 0:
-                self.start_idx = sample_prior_knowledge(
-                    self.labels,
-                    self.n_prior_included,
-                    self.n_prior_excluded,
-                    random_state=self.init_seed,
-                )
-            else:
-                self.start_idx = naive_prior_knowledge(self.labels)
-
-        if self.start_idx is None:
-            self.start_idx = []
-
         self._results = pd.DataFrame(
-            {
-                "record_id": self.start_idx,
-                "label": self.labels[self.start_idx],
-                "classifier": None,
-                "query_strategy": "prior",
-                "balance_strategy": None,
-                "feature_extraction": None,
-                "training_set": 0,
-                "labeling_time": str(datetime.now()),
-                "notes": None,
-                "user_id": None,
-            }
+            columns=[
+                "record_id",
+                "label",
+                "classifier",
+                "query_strategy",
+                "balance_strategy",
+                "feature_extraction",
+                "training_set",
+                "labeling_time",
+                "notes",
+                "user_id",
+            ]
         )
+
+    def _stop_review(self):
+        """Check if the review should be stopped."""
+
+        # if the pool is empty, always stop
+        if len(self._results) == len(self.labels):
+            return True
+
+        # If stop_if is set to min, stop after stop_if queries.
+        if self.stop_if == "min" and sum(self.labels) == sum(self._results["label"]):
+            return True
+
+        # Stop when reaching stop_if (if provided)
+        if isinstance(self.stop_if, int) and len(self._results) >= self.stop_if:
+            return True
+
+        return False
 
     def review(self):
         """Start the review process."""
 
-        self._label_priors()
+        if (
+            not (self._results["label"] == 1).any()
+            or not (self._results["label"] == 0).any()
+        ):
+            first_included_idx = np.where(self.labels == 1)[0].min()
+            first_excluded_idx = np.where(self.labels == 0)[0].min()
+            first_idx = np.arange(max(first_included_idx, first_excluded_idx) + 1)
+
+            new_idx = list(set(first_idx) - set(self._results["record_id"]))
+            self.label(new_idx, prior=True)
 
         # progress bars
         pbar_rel = tqdm(
@@ -172,23 +147,6 @@ class Simulate:
         else:
             pbar_rel.close()
             pbar_total.close()
-
-    def _stop_review(self):
-        """Check if the review should be stopped."""
-
-        # if the pool is empty, always stop
-        if len(self._results) == len(self.labels):
-            return True
-
-        # If stop_if is set to max, stop after stop_if queries.
-        if self.stop_if == "min" and sum(self.labels) == sum(self._results["label"]):
-            return True
-
-        # Stop when reaching stop_if (if provided)
-        if isinstance(self.stop_if, int) and len(self._results) >= self.stop_if:
-            return True
-
-        return False
 
     def train(self):
         """Train a new model on the labeled data."""
@@ -243,15 +201,30 @@ class Simulate:
 
         return df_pool["record_id"].head(n).to_list()
 
-    def label(self, record_ids):
+    def label(self, record_ids, prior=False):
         """Label the records with the given record_ids.
 
         Arguments
         ---------
         record_ids: list
             The record ids to label.
+        prior: bool
+            If True, the records are labeled based on prior knowledge.
 
         """
+
+        if prior:
+            classifier = None
+            query_strategy = "prior"
+            balance_strategy = None
+            feature_extraction = None
+            training_set = 0
+        else:
+            classifier = self.classifier.name
+            query_strategy = self.query_strategy.name
+            balance_strategy = self.balance_strategy.name
+            feature_extraction = self.feature_extraction.name
+            training_set = int(self.training_set)
 
         self._results = pd.concat(
             [
@@ -260,11 +233,11 @@ class Simulate:
                     {
                         "record_id": record_ids,
                         "label": self.labels[record_ids],
-                        "classifier": self.classifier.name,
-                        "query_strategy": self.query_strategy.name,
-                        "balance_strategy": self.balance_strategy.name,
-                        "feature_extraction": self.feature_extraction.name,
-                        "training_set": int(self.training_set),
+                        "classifier": classifier,
+                        "query_strategy": query_strategy,
+                        "balance_strategy": balance_strategy,
+                        "feature_extraction": feature_extraction,
+                        "training_set": training_set,
                         "labeling_time": str(datetime.now()),
                         "notes": None,
                         "user_id": None,
@@ -274,8 +247,50 @@ class Simulate:
             ignore_index=True,
         )
 
-    def to_state(self, project, review_id=None):
-        """Write the data a state in the project.
+    def label_random(
+        self, n_included=None, n_excluded=None, prior=False, random_state=None
+    ):
+        """Label random records.
+
+        Arguments
+        ---------
+        n_included: int
+            Number of included records to label.
+        n_excluded: int
+            Number of excluded records to label.
+        prior: bool
+            If True, the records are labeled based on prior knowledge.
+        random_state: int, RandomState
+            Seed for the random number generator.
+        """
+
+        r = get_random_state(random_state)
+
+        included_idx = np.where(self.labels == 1)[0]
+        excluded_idx = np.where(self.labels == 0)[0]
+
+        if len(included_idx) < n_included:
+            raise ValueError(
+                f"Number of included priors requested ({n_included})"
+                f" is bigger than number of included papers "
+                f"({len(included_idx)})."
+            )
+        if len(excluded_idx) < n_excluded:
+            raise ValueError(
+                f"Number of excluded priors requested ({n_excluded})"
+                f" is bigger than number of excluded papers "
+                f"({len(excluded_idx)})."
+            )
+
+        init = np.append(
+            r.choice(included_idx, n_included, replace=False),
+            r.choice(excluded_idx, n_excluded, replace=False),
+        )
+
+        self.label(init, prior=prior)
+
+    def to_sql(self, project, review_id=None):
+        """Write the data a sql file.
 
         Arguments
         ---------

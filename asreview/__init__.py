@@ -35,9 +35,9 @@ __all__ = [
     "asreview_path",
     "Dataset",
     "Project",
+    "Simulate",
     "get_data_home",
     "list_readers",
     "list_writers",
     "open_state",
-    "Simulate",
 ]

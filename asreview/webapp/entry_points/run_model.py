@@ -29,25 +29,15 @@ from asreview.models.classifiers.utils import get_classifier
 from asreview.models.feature_extraction.utils import get_feature_model
 from asreview.models.query.utils import get_query_model
 from asreview.settings import ReviewSettings
-from asreview.simulation import Simulate
+from asreview.simulation.simulate import Simulate
 from asreview.state.contextmanager import open_state
-
-
-def has_prior_knowledge(project):
-    with open_state(project) as s:
-        labels = s.get_results_table()["label"].to_list()
-        return 0 in labels and 1 in labels
-
-
-def _has_new_records(project):
-    with open_state(project) as s:
-        return s.exist_new_labeled_records
 
 
 def _run_model_start(project, output_error=True):
     # Check if there are new labeled records to train with
-    if not _has_new_records(project):
-        return
+    with open_state(project) as s:
+        if not s.exist_new_labeled_records:
+            return
 
     try:
         # Lock so that only one training run is running at the same time.
@@ -140,19 +130,19 @@ def _simulate_start(project):
     )
     project.add_feature_matrix(fm, feature_model.name)
 
-    reviewer = Simulate(
+    sim = Simulate(
         fm,
         labels=as_data.labels,
         classifier=get_classifier(settings.classifier),
         query_strategy=get_query_model(settings.query_strategy),
         balance_strategy=get_balance_model(settings.balance_strategy),
         feature_extraction=feature_model,
-        prior_indices=priors,
     )
 
     try:
-        reviewer.review()
-
+        sim.label(priors, prior=True)
+        sim.review()
+        sim.to_sql(project)
     except Exception as err:
         project.set_error(err)
         raise err
@@ -164,8 +154,6 @@ def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("project", type=asr.Project, help="Project path")
     args = parser.parse_args(argv)
-
-    print(args.project.config)
 
     if args.project.config["mode"] == PROJECT_MODE_SIMULATE:
         _simulate_start(args.project)

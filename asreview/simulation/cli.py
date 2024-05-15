@@ -37,7 +37,7 @@ from asreview.models.query.utils import get_query_model
 from asreview.project import Project
 from asreview.project import ProjectExistsError
 from asreview.settings import ReviewSettings
-from asreview.simulation import Simulate
+from asreview.simulation.simulate import Simulate
 from asreview.types import type_n_queries
 from asreview.utils import format_to_str
 from asreview.utils import get_random_state
@@ -231,13 +231,19 @@ def cli_simulate(argv):
         feature_extraction=feature_model,
         n_instances=args.n_instances,
         stop_if=args.stop_if,
-        prior_indices=prior_idx,
-        n_prior_included=args.n_prior_included,
-        n_prior_excluded=args.n_prior_excluded,
-        init_seed=args.init_seed,
     )
+    if len(prior_idx) > 0:
+        sim.label(prior_idx, prior=True)
+
+    if args.n_prior_included > 0 or args.n_prior_excluded > 0:
+        sim.label_random(
+            n_included=args.n_prior_included,
+            n_excluded=args.n_prior_excluded,
+            prior=True,
+            random_state=args.init_seed,
+        )
     sim.review()
-    sim.to_state(project)
+    sim.to_sql(project)
 
     # sim.to_project(project)
 

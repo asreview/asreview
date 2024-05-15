@@ -72,7 +72,6 @@ from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
 from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
-from asreview.webapp.entry_points.run_model import has_prior_knowledge
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -901,7 +900,10 @@ def api_update_review_status(project, review_id):
     if current_status == "setup" and status == "review":
         is_simulation = project.config["mode"] == PROJECT_MODE_SIMULATE
 
-        if not (pk := has_prior_knowledge(project)) and not is_simulation:
+        with open_state(project) as s:
+            labels = s.get_results_table()["label"].to_list()
+
+        if not (pk := 0 in labels and 1 in labels) and not is_simulation:
             _fill_last_ranking(project, "random")
 
         if trigger_model and (pk or is_simulation):
