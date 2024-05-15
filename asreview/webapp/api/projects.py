@@ -63,11 +63,8 @@ from asreview.project import is_v0_project
 from asreview.search import fuzzy_find
 from asreview.settings import ReviewSettings
 from asreview.state.contextmanager import open_state
-from asreview.state.custom_metadata_mapper import extract_tags
-from asreview.state.custom_metadata_mapper import get_tag_composite_id
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
-from asreview.state.utils import _fill_last_ranking
 from asreview.utils import _entry_points
 from asreview.utils import _get_filename_from_url
 from asreview.utils import asreview_path
@@ -78,6 +75,49 @@ from asreview.webapp.authentication.models import Project
 from asreview.webapp.entry_points.run_model import has_prior_knowledge
 
 bp = Blueprint("api", __name__, url_prefix="/api")
+
+
+def _extract_tags(custom_metadata_str):
+    if not isinstance(custom_metadata_str, str):
+        return None
+
+    obj = json.loads(custom_metadata_str)
+
+    if "tags" in obj:
+        return obj["tags"]
+    else:
+        return None
+
+
+def _get_tag_composite_id(group_id, tag_id):
+    return f"{group_id}:{tag_id}"
+
+
+def _fill_last_ranking(project, ranking):
+    """Fill the last ranking with a random or top-down ranking.
+
+    Arguments
+    ---------
+    project: asreview.Project
+        The project to fill the last ranking of.
+    ranking: str
+        The type of ranking to fill the last ranking with. Either "random" or
+        "top-down".
+    """
+
+    if ranking not in ["random", "top-down"]:
+        raise ValueError(f"Unknown ranking type: {ranking}")
+
+    as_data = project.read_data()
+    record_table = pd.Series(as_data.record_ids, name="record_id")
+
+    with open_state(project.project_path) as state:
+        if ranking == "random":
+            records = record_table.sample(frac=1)
+        elif ranking == "top-down":
+            records = record_table
+
+        state.add_last_ranking(records.values, ranking, ranking, ranking, ranking, -1)
 
 
 # error handlers
@@ -580,7 +620,7 @@ def api_get_labeled(project):  # noqa: F401
         # add variables from state
         record_d["included"] = int(state_data.loc[i, "label"])
         record_d["note"] = state_data.loc[i, "notes"]
-        record_d["tags"] = extract_tags(state_data.loc[i, "custom_metadata_json"])
+        record_d["tags"] = _extract_tags(state_data.loc[i, "custom_metadata_json"])
         record_d["prior"] = int(state_data.loc[i, "prior"])
 
         result.append(record_d)
@@ -929,7 +969,7 @@ def _add_tags_to_export_data(project, export_data, state_df):
 
     tags_df["tags"] = (
         tags_df["custom_metadata_json"]
-        .apply(lambda d: extract_tags(d))
+        .apply(lambda d: _extract_tags(d))
         .apply(lambda d: d if isinstance(d, list) else [])
     )
 
@@ -938,7 +978,7 @@ def _add_tags_to_export_data(project, export_data, state_df):
 
     if tags_config is not None:
         all_tags = [
-            [get_tag_composite_id(group["id"], tag["id"]) for tag in group["values"]]
+            [_get_tag_composite_id(group["id"], tag["id"]) for tag in group["values"]]
             for group in tags_config
         ]
         all_tags = list(chain.from_iterable(all_tags))

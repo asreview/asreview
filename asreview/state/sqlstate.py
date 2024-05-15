@@ -12,15 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["SQLiteState"]
-
 import sqlite3
 from datetime import datetime
+import json
 
 import pandas as pd
 
 from asreview.state.compatibility import check_and_update_version
-from asreview.state.custom_metadata_mapper import convert_to_custom_metadata_str
 from asreview.state.errors import StateError
 
 
@@ -92,7 +90,7 @@ class SQLiteState:
         self.user_version = CURRENT_STATE_VERSION
 
         cur = self._conn.cursor()
-        # Create the results table.
+
         cur.execute(
             """CREATE TABLE results
                             (record_id INTEGER,
@@ -108,7 +106,6 @@ class SQLiteState:
                             user_id INTEGER)"""
         )
 
-        # Create the last_ranking table.
         cur.execute(
             """CREATE TABLE last_ranking
                             (record_id INTEGER,
@@ -121,7 +118,6 @@ class SQLiteState:
                             time INTEGER)"""
         )
 
-        # Create the table of changed decisions.
         cur.execute(
             """CREATE TABLE decision_changes
                             (record_id INTEGER,
@@ -133,9 +129,7 @@ class SQLiteState:
 
     def _is_valid_state(self):
         try:
-            version = check_and_update_version(
-                self.user_version, CURRENT_STATE_VERSION, self
-            )
+            version = check_and_update_version(CURRENT_STATE_VERSION, self)
             if version != self.user_version:
                 self.user_version = version
         except AttributeError as err:
@@ -277,8 +271,7 @@ class SQLiteState:
             raise ValueError("Input data should be of the same length.")
 
         custom_metadata_list = [
-            convert_to_custom_metadata_str(tags=tags_list[i])
-            for i, _ in enumerate(record_ids)
+            json.dumps({"tags": tags_list[i]}) for i, _ in enumerate(record_ids)
         ]
 
         if prior:
@@ -556,7 +549,7 @@ class SQLiteState:
         cur.execute(
             "UPDATE results SET label = ?, notes = ?, "
             "custom_metadata_json=? WHERE record_id = ?",
-            (label, note, convert_to_custom_metadata_str(tags=tags), record_id),
+            (label, note, json.dumps({"tags": tags}), record_id),
         )
 
         # Add the change to the decision changes table.

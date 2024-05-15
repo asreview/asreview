@@ -21,7 +21,7 @@ from asreview.project import get_project_path
 from asreview.state.contextmanager import open_state
 
 
-def cli_state_inspect(argv):
+def _cli_state_inspect(argv):
     parser = argparse.ArgumentParser(
         prog="state-inspect", description="Inspect state file."
     )

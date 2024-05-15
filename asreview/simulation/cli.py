@@ -218,12 +218,9 @@ def cli_simulate(argv):
     )
     project.add_feature_matrix(fm, feature_model.name)
 
-    # with open_state(project) as s:
-    #     prior_df = s.get_priors()
-
-    #     print("The following records are prior knowledge:\n")
-    #     for _, row in prior_df.iterrows():
-    #         _print_record(as_data.record(row["record_id"]))
+    print("The following records are prior knowledge:\n")
+    for record_id, row in as_data.df.iloc[prior_idx].iterrows():
+        _print_record(as_data.record(record_id))
 
     sim = Simulate(
         fm,
