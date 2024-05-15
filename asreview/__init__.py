@@ -21,7 +21,7 @@ from asreview.project import Project
 from asreview.state.contextmanager import open_state
 from asreview.utils import asreview_path
 from asreview.utils import get_data_home
-from asreview.simulation import Simulate
+from asreview.simulation.simulate import Simulate
 
 try:
     from asreview._version import __version__
