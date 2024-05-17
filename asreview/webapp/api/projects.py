@@ -59,7 +59,8 @@ from asreview.models.feature_extraction.utils import list_feature_extraction
 from asreview.models.query.utils import list_query_strategies
 from asreview.project import ProjectNotFoundError
 from asreview.webapp.utils import get_project_path
-from asreview.project import is_v0_project
+from asreview.project import is_project
+from asreview.project import ProjectError
 from asreview.search import fuzzy_find
 from asreview.settings import ReviewSettings
 from asreview.state.contextmanager import open_state
@@ -1128,56 +1129,30 @@ def export_project(project):
 
 
 def _get_stats(project, include_priors=False):
-    if is_v0_project(project.project_path):
-        json_fp = Path(project.project_path, "result.json")
+    # Check if there is a review started in the project.
+    try:
+        is_project(project)
 
-        # Check if the v0 project is in review.
-        if json_fp.exists():
-            with open(json_fp) as f:
-                s = json.load(f)
+        as_data = project.read_data()
 
-            # Get the labels.
-            labels = np.array(
-                [
-                    int(sample_data[1])
-                    for query in range(len(s["results"]))
-                    for sample_data in s["results"][query]["labelled"]
-                ]
-            )
+        # get label history
+        with open_state(project.project_path) as s:
+            if (
+                project.config["reviews"][0]["status"] == "finished"
+                and project.config["mode"] == PROJECT_MODE_SIMULATE
+            ):
+                labels = s.get_labels(
+                    priors=include_priors, n_labels_padding=len(as_data)
+                )
+            else:
+                labels = s.get_labels(priors=include_priors)
 
-            # Get the record table.
-            data_hash = list(s["data_properties"].keys())[0]
-            record_table = s["data_properties"][data_hash]["record_table"]
+        n_records = len(as_data)
 
-            n_records = len(record_table)
-
-        # No result found.
-        else:
-            labels = np.array([])
-            n_records = 0
-    else:
-        # Check if there is a review started in the project.
-        try:
-            as_data = project.read_data()
-
-            # get label history
-            with open_state(project.project_path) as s:
-                if (
-                    project.config["reviews"][0]["status"] == "finished"
-                    and project.config["mode"] == PROJECT_MODE_SIMULATE
-                ):
-                    labels = s.get_labels(
-                        priors=include_priors, n_labels_padding=len(as_data)
-                    )
-                else:
-                    labels = s.get_labels(priors=include_priors)
-
-            n_records = len(as_data)
-
-        # No state file found or not init.
-        except (StateNotFoundError, StateError):
-            labels = np.array([])
-            n_records = 0
+    # No state file found or not init.
+    except (StateNotFoundError, StateError, ProjectError):
+        labels = np.array([])
+        n_records = 0
 
     n_included = int(sum(labels == 1))
     n_excluded = int(sum(labels == 0))

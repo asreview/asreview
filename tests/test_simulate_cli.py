@@ -4,7 +4,6 @@ from pathlib import Path
 import pytest
 
 import asreview as asr
-from asreview.project import ProjectExistsError
 from asreview.simulation.cli import _cli_simulate
 
 
@@ -215,7 +214,7 @@ def test_stop_if_all(tmpdir):
         assert len(s.get_labels()) == 4544
 
 
-@pytest.mark.xfail(raises=ProjectExistsError, reason="Cannot continue simulation.")
+@pytest.mark.xfail(raises=ValueError, reason="Cannot continue simulation.")
 def test_project_already_exists_error(tmpdir):
     asreview_fp1 = Path(tmpdir, "test1.asreview")
 

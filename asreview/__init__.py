@@ -18,6 +18,7 @@ from asreview.data.loader import load_dataset
 from asreview.data.utils import list_readers
 from asreview.data.utils import list_writers
 from asreview.project import Project
+from asreview.project import is_project
 from asreview.state.sqlstate import SQLiteState
 from asreview.state.contextmanager import open_state
 from asreview.utils import asreview_path
@@ -41,6 +42,7 @@ __all__ = [
     "SQLiteState",
     "ReviewSettings",
     # functions
+    "is_project",
     "load_dataset",
     "list_readers",
     "list_writers",

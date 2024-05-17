@@ -6,7 +6,7 @@ import pytest
 from scipy.sparse import csr_matrix
 
 import asreview as asr
-from asreview.project import ProjectExistsError, ProjectNotFoundError
+from asreview.project import ProjectNotFoundError
 from asreview.state.errors import StateNotFoundError
 
 TEST_LABELS = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
@@ -133,7 +133,7 @@ def test_init_project_folder(tmpdir):
 def test_init_project_already_exists(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
-    with pytest.raises(ProjectExistsError):
+    with pytest.raises(ValueError):
         asr.Project.create(project_path)
 
 

@@ -35,7 +35,6 @@ from asreview.models.classifiers.utils import get_classifier
 from asreview.models.feature_extraction.utils import get_feature_model
 from asreview.models.query.utils import get_query_model
 from asreview.project import Project
-from asreview.project import ProjectExistsError
 from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
 from asreview.types import type_n_queries
@@ -134,7 +133,7 @@ def _cli_simulate(argv):
 
     # do this check now and again when zipping.
     if Path(args.state_file).exists():
-        raise ProjectExistsError("Project already exists.")
+        raise ValueError("Project path already exists.")
 
     # create a project file
     fp_tmp_simulation = Path(args.state_file).with_suffix(".asreview.tmp")

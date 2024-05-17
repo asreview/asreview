@@ -13,10 +13,9 @@
 # limitations under the License.
 
 __all__ = [
-    "ProjectExistsError",
+    "ProjectError",
     "ProjectNotFoundError",
     "is_project",
-    "is_v0_project",
 ]
 
 import json
@@ -61,7 +60,7 @@ PATH_PROJECT_CONFIG_LOCK = "project.json.lock"
 PATH_FEATURE_MATRICES = "feature_matrices"
 
 
-class ProjectExistsError(Exception):
+class ProjectError(Exception):
     pass
 
 
@@ -69,16 +68,13 @@ class ProjectNotFoundError(Exception):
     pass
 
 
-def is_project(project_path):
-    project_path = Path(project_path) / PATH_PROJECT_CONFIG
+def is_project(project_path, raise_on_old_version=True):
+    print(project_path)
+    print(list(Path(project_path).glob("*")))
+    if raise_on_old_version and not Path(project_path, "reviews").exists():
+        raise ProjectError("Project is of an older version.")
 
-    return project_path.exists()
-
-
-def is_v0_project(project_path):
-    """Check if a project file is of a ASReview version 0 project."""
-
-    return not Path(project_path, "reviews").exists()
+    return Path(project_path, PATH_PROJECT_CONFIG).exists()
 
 
 class Project:
@@ -103,8 +99,8 @@ class Project:
 
         project_path = Path(project_path)
 
-        if is_project(project_path):
-            raise ProjectExistsError("Project already exists.")
+        if project_path.exists():
+            raise ValueError("Project path is not empty.")
 
         if project_mode not in PROJECT_MODES:
             raise ValueError(
