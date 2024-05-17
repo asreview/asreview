@@ -13,10 +13,8 @@
 # limitations under the License.
 
 # deprecated in __init__.py, use asreview.models.feature_extraction instead
-from asreview.data.base import Dataset
+from asreview.data.base import Dataset, Record
 from asreview.data.loader import load_dataset
-from asreview.data.utils import list_readers
-from asreview.data.utils import list_writers
 from asreview.project import Project
 from asreview.project import is_project
 from asreview.state.sqlstate import SQLiteState
@@ -36,6 +34,7 @@ except ImportError:
 
 __all__ = [
     # classes
+    "Record",
     "Dataset",
     "Project",
     "Simulate",
@@ -44,8 +43,6 @@ __all__ = [
     # functions
     "is_project",
     "load_dataset",
-    "list_readers",
-    "list_writers",
     "open_state",
     "asreview_path",
     "get_data_home",

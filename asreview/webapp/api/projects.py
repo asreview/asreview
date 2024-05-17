@@ -45,11 +45,10 @@ import asreview as asr
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
-from asreview.data import list_readers
-from asreview.data import list_writers
-from asreview.data.statistics import n_duplicates
-from asreview.data.statistics import n_relevant
-from asreview.data.statistics import n_irrelevant
+from asreview.extensions import extensions
+from asreview.statistics import n_duplicates
+from asreview.statistics import n_relevant
+from asreview.statistics import n_irrelevant
 
 from asreview.datasets import DatasetManager
 
@@ -462,8 +461,8 @@ def api_list_dataset_writers(project):
 
     fp_data = Path(project.config["dataset_path"])
 
-    readers = list_readers()
-    writers = list_writers()
+    readers = extensions("readers", auto_load=True)
+    writers = extensions("writers", auto_load=True)
 
     # get write format for the data file
     write_format = None
@@ -1037,7 +1036,7 @@ def api_export_dataset(project):
             )
 
         # get writer corresponding to specified file format
-        writers = list_writers()
+        writers = extensions("writers", auto_load=True)
         writer = None
         for c in writers:
             if writer is None:
