@@ -25,7 +25,6 @@ from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
 
 from asreview.utils import _entry_points
-from asreview.utils import is_iterable
 
 
 def _type_from_column(col_name, col_definitions):
@@ -219,7 +218,7 @@ class Dataset:
             The corresponding record if i was an integer, or a list of records
             if i was an iterable.
         """
-        if not is_iterable(i):
+        if isinstance(i, int):
             index_list = [i]
         else:
             index_list = i
@@ -237,7 +236,7 @@ class Dataset:
             for j in index_list
         ]
 
-        if is_iterable(i):
+        if not isinstance(i, int):
             return records
         return records[0]
 

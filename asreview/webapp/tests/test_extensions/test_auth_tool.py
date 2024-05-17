@@ -8,7 +8,7 @@ import pytest
 
 import asreview as asr
 import asreview.webapp.entry_points.auth_tool as tool
-from asreview.utils import asreview_path
+from asreview.webapp.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.entry_points.auth_tool import AuthTool
 from asreview.webapp.tests.utils import api_utils as au

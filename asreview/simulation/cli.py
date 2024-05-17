@@ -38,7 +38,7 @@ from asreview.project import Project
 from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
 from asreview.types import type_n_queries
-from asreview.utils import format_to_str
+from asreview.utils import _format_to_str
 from asreview.utils import get_random_state
 
 
@@ -97,7 +97,7 @@ def _print_record(record, use_cli_colors=True):
         title = ""
 
     if record.authors is not None and len(record.authors) > 0:
-        authors = format_to_str(record.authors) + "\n"
+        authors = _format_to_str(record.authors) + "\n"
     else:
         authors = ""
 

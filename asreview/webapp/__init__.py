@@ -13,6 +13,16 @@
 # limitations under the License.
 
 from flask_sqlalchemy import SQLAlchemy
+from asreview.webapp.utils import asreview_path
+from asreview.webapp.utils import get_project_path
+from asreview.webapp.utils import get_projects
 
 # this is a global variable for accessing the database
 DB = SQLAlchemy()
+
+
+__all__ = [
+    "asreview_path",
+    "get_project_path",
+    "get_projects",
+]

@@ -19,8 +19,6 @@ from asreview.project import Project
 from asreview.project import is_project
 from asreview.state.sqlstate import SQLiteState
 from asreview.state.contextmanager import open_state
-from asreview.utils import asreview_path
-from asreview.utils import get_data_home
 from asreview.simulation.simulate import Simulate
 from asreview.settings import ReviewSettings
 
@@ -44,6 +42,4 @@ __all__ = [
     "is_project",
     "load_dataset",
     "open_state",
-    "asreview_path",
-    "get_data_home",
 ]

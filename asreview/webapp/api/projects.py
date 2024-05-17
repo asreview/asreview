@@ -66,7 +66,7 @@ from asreview.state.contextmanager import open_state
 from asreview.state.exceptions import StateNotFoundError
 from asreview.utils import _entry_points
 from asreview.utils import _get_filename_from_url
-from asreview.utils import asreview_path
+from asreview.webapp.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
 from asreview.webapp.authentication.decorators import project_authorization

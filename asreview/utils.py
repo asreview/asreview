@@ -13,12 +13,9 @@
 # limitations under the License.
 
 __all__ = [
-    "asreview_path",
-    "get_data_home",
     "get_random_state",
 ]
 
-import os
 import sys
 from pathlib import Path
 from urllib.error import HTTPError
@@ -34,7 +31,7 @@ else:
 
 
 def _get_filename_from_url(url):
-    if not is_url(url):
+    if not _is_url(url):
         raise ValueError(f"'{url}' is not a valid URL.")
 
     if Path(urlparse(url).path).suffix:
@@ -51,51 +48,7 @@ def _get_filename_from_url(url):
                 raise err
 
 
-def asreview_path():
-    """Get the location where projects are stored.
-
-    Overwrite this location by specifying the ASREVIEW_PATH enviroment
-    variable.
-    """
-    if os.environ.get("ASREVIEW_PATH", None):
-        asreview_path = Path(os.environ["ASREVIEW_PATH"])
-    else:
-        asreview_path = Path("~", ".asreview").expanduser()
-
-    asreview_path.mkdir(parents=True, exist_ok=True)
-
-    return asreview_path
-
-
-def get_data_home(data_home=None):
-    """Return the path of the ASR data dir.
-
-    This folder is used by some large dataset loaders to avoid downloading the
-    data several times.
-    By default the data dir is set to a folder named 'asr_data' in the
-    user home folder.
-    Alternatively, it can be set by the 'ASR_DATA' environment
-    variable or programmatically by giving an explicit folder path. The '~'
-    symbol is expanded to the user home folder.
-    If the folder does not already exist, it is automatically created.
-
-    Parameters
-    ----------
-    data_home : str | None
-        The path to scikit-learn data dir.
-
-    """
-    if data_home is None:
-        data_home = os.environ.get("ASR_DATA", Path("~", "asr_data"))
-    data_home = Path(data_home).expanduser()
-
-    if not data_home.exists():
-        data_home.mkdir(parents=True, exist_ok=True)
-
-    return data_home
-
-
-def format_to_str(obj):
+def _format_to_str(obj):
     """Create string from object, concatenate if list."""
 
     if isinstance(obj, str):
@@ -108,18 +61,7 @@ def format_to_str(obj):
         return str(obj)
 
 
-def is_iterable(i):
-    """Check if a variable is iterable, but not a string."""
-    try:
-        iter(i)
-        if isinstance(i, str):
-            return False
-        return True
-    except TypeError:
-        return False
-
-
-def is_url(url):
+def _is_url(url):
     """Check if object is a valid url."""
     try:
         result = urlparse(url)

@@ -36,7 +36,6 @@ import synergy_dataset as sd
 from asreview.data.tabular import CSVReader
 from asreview.utils import _entry_points
 from asreview.utils import _get_filename_from_url
-from asreview.utils import is_iterable
 
 
 def _download_from_metadata(url):
@@ -276,9 +275,6 @@ class DatasetManager:
         BaseDataSet:
             Return the dataset with dataset_id.
         """
-        # If dataset_id is a non-string iterable, return a list.
-        if is_iterable(dataset_id):
-            return [self.find(x) for x in dataset_id]
 
         # If dataset_id is a valid path, create a dataset from it.
         if Path(dataset_id).is_file():
@@ -344,11 +340,10 @@ class DatasetManager:
             raise ValueError("Cannot exclude groups when include is not None.")
 
         if include is not None:
-            if not is_iterable(include):
-                include = [include]
+            include = [include] if isinstance(include, str) else include
             groups = include
         elif exclude is not None:
-            exclude = exclude if is_iterable(exclude) else [exclude]
+            exclude = [exclude] if isinstance(exclude, str) else exclude
             groups = list(set(self.groups) - set(exclude))
         else:
             groups = self.groups.copy()
