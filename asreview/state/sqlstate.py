@@ -19,7 +19,6 @@ import json
 import pandas as pd
 
 from asreview.state.compatibility import _check_and_update_version
-from asreview.state.errors import StateError
 
 
 REQUIRED_TABLES = [
@@ -147,7 +146,7 @@ class SQLiteState:
             table for table in REQUIRED_TABLES if table not in table_names
         ]
         if missing_tables:
-            raise StateError(
+            raise ValueError(
                 f"The SQL file should contain tables named "
                 f"'{' '.join(missing_tables)}'."
             )
@@ -158,7 +157,7 @@ class SQLiteState:
             col for col in RESULTS_TABLE_COLUMNS if col not in column_names
         ]
         if missing_columns:
-            raise StateError(
+            raise ValueError(
                 f"The results table does not contain the columns "
                 f"{' '.join(missing_columns)}."
             )

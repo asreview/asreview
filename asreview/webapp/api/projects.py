@@ -52,7 +52,7 @@ from asreview.data.statistics import n_relevant
 from asreview.data.statistics import n_irrelevant
 
 from asreview.datasets import DatasetManager
-from asreview.exceptions import BadFileFormatError
+
 from asreview.models.balance.utils import list_balance_strategies
 from asreview.models.classifiers.utils import list_classifiers
 from asreview.models.feature_extraction.utils import list_feature_extraction
@@ -64,8 +64,7 @@ from asreview.project import ProjectError
 from asreview.search import fuzzy_find
 from asreview.settings import ReviewSettings
 from asreview.state.contextmanager import open_state
-from asreview.state.errors import StateError
-from asreview.state.errors import StateNotFoundError
+from asreview.state.exceptions import StateNotFoundError
 from asreview.utils import _entry_points
 from asreview.utils import _get_filename_from_url
 from asreview.utils import asreview_path
@@ -1150,7 +1149,7 @@ def _get_stats(project, include_priors=False):
         n_records = len(as_data)
 
     # No state file found or not init.
-    except (StateNotFoundError, StateError, ProjectError):
+    except (StateNotFoundError, ValueError, ProjectError):
         labels = np.array([])
         n_records = 0
 
@@ -1368,7 +1367,7 @@ def api_get_document(project):  # noqa: F401
                         {"result": None, "pool_empty": True, "has_ranking": False}
                     )
 
-            except StateError:
+            except ValueError:
                 # there is no ranking and get_pool raises an error
                 return jsonify(
                     {"result": None, "pool_empty": False, "has_ranking": False}
@@ -1437,7 +1436,7 @@ def api_resolve_uri():  # noqa: F401
     if filename and Path(filename).suffix and Path(filename).suffix in reader_keys:
         return jsonify(files=[{"link": uri, "name": filename}]), 201
     elif filename and not Path(filename).suffix:
-        raise BadFileFormatError("Can't determine file format.")
+        raise ValueError("Can't determine file format.")
     else:
         try:
             dh = datahugger.info(uri)
@@ -1448,4 +1447,4 @@ def api_resolve_uri():  # noqa: F401
 
             return jsonify(files=files), 201
         except Exception:
-            raise BadFileFormatError("Can't retrieve files.")
+            raise ValueError("Can't retrieve files.")

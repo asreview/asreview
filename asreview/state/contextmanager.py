@@ -21,7 +21,7 @@ from uuid import uuid4
 
 from asreview.project import Project
 from asreview.project import is_project, ProjectNotFoundError
-from asreview.state.errors import StateNotFoundError
+from asreview.state.exceptions import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
 
 

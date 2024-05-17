@@ -15,7 +15,6 @@
 __all__ = [
     "ProjectError",
     "ProjectNotFoundError",
-    "is_project",
 ]
 
 import json
@@ -46,7 +45,6 @@ from asreview.config import PROJECT_MODE_ORACLE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.config import PROJECT_MODES
 from asreview.config import SCHEMA
-from asreview.exceptions import CacheDataError
 from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState
 
@@ -64,7 +62,7 @@ class ProjectError(Exception):
     pass
 
 
-class ProjectNotFoundError(Exception):
+class ProjectNotFoundError(FileNotFoundError):
     pass
 
 
@@ -277,16 +275,12 @@ class Project:
             if (not version_check) or (__version__ == data_obj_version):
                 return data_obj
 
-        except FileNotFoundError:
-            pass
-        except Exception as err:
+        except ValueError as err:
             logging.error(f"Error reading cache file: {err}")
             try:
                 os.remove(fp_data_pickle)
             except FileNotFoundError:
                 pass
-
-        raise CacheDataError()
 
     def read_data(self, use_cache=True, save_cache=True):
         """Get Dataset object from file.
@@ -308,7 +302,7 @@ class Project:
         if use_cache:
             try:
                 return self._read_data_from_cache()
-            except CacheDataError:
+            except FileNotFoundError:
                 pass
 
         try:

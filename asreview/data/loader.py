@@ -2,7 +2,7 @@ from io import StringIO
 from pathlib import Path
 
 from asreview.datasets import DatasetManager
-from asreview.exceptions import BadFileFormatError
+
 from asreview.utils import _entry_points
 from asreview.utils import _get_filename_from_url
 from asreview.utils import is_url
@@ -35,7 +35,7 @@ def _from_file(fp, reader=None):
     try:
         reader = _entry_points(group="asreview.readers")[Path(fn).suffix].load()
     except Exception:
-        raise BadFileFormatError(f"Importing file {fp} not possible.")
+        raise ValueError(f"Importing file {fp} not possible.")
 
     return reader.read_data(fp)
 
@@ -70,7 +70,7 @@ def _from_extension(name, reader=None):
         try:
             reader = _entry_points(group="asreview.readers")[Path(fn).suffix].load()
         except Exception:
-            raise BadFileFormatError(f"Importing file {fp} not possible.")
+            raise ValueError(f"Importing file {fp} not possible.")
 
     return reader.read_data(fp)
 

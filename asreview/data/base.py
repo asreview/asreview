@@ -25,7 +25,7 @@ from pandas.api.types import is_string_dtype
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
-from asreview.exceptions import BadFileFormatError
+
 from asreview.utils import _entry_points
 from asreview.utils import is_iterable
 
@@ -189,9 +189,7 @@ class Dataset:
         if "abstract" not in list(self.column_spec) and "title" not in list(
             self.column_spec
         ):
-            raise BadFileFormatError(
-                "File supplied without 'abstract' or 'title'" " fields."
-            )
+            raise ValueError("File supplied without 'abstract' or 'title'" " fields.")
         if "abstract" not in list(self.column_spec):
             logging.warning("Unable to detect abstracts in dataset.")
         if "title" not in list(self.column_spec):
@@ -395,7 +393,7 @@ class Dataset:
                         best_suffix = entry.name
 
             if best_suffix is None:
-                raise BadFileFormatError(
+                raise ValueError(
                     f"Error exporting file {fp}, no capabilities "
                     "for exporting such a file."
                 )
