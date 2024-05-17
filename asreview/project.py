@@ -13,13 +13,8 @@
 # limitations under the License.
 
 __all__ = [
-    "ProjectError",
     "ProjectExistsError",
     "ProjectNotFoundError",
-    "Project",
-    "get_project_path",
-    "project_from_id",
-    "get_projects",
     "is_project",
     "is_v0_project",
 ]
@@ -33,7 +28,6 @@ import tempfile
 import time
 import zipfile
 from datetime import datetime
-from functools import wraps
 from pathlib import Path
 from uuid import uuid4
 from dataclasses import asdict
@@ -56,7 +50,6 @@ from asreview.config import SCHEMA
 from asreview.exceptions import CacheDataError
 from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState
-from asreview.utils import asreview_path
 
 try:
     from asreview._version import __version__
@@ -68,66 +61,12 @@ PATH_PROJECT_CONFIG_LOCK = "project.json.lock"
 PATH_FEATURE_MATRICES = "feature_matrices"
 
 
-class ProjectError(Exception):
-    pass
-
-
 class ProjectExistsError(Exception):
     pass
 
 
 class ProjectNotFoundError(Exception):
     pass
-
-
-def get_project_path(folder_id):
-    """Get the project directory.
-
-    Arguments
-    ---------
-    folder_id: str
-        The id of the folder containing a project. If there is no
-        authentication, the folder_id is equal to the project_id. Otherwise,
-        this is equal to {project_owner_id}_{project_id}.
-    """
-    return Path(asreview_path(), folder_id)
-
-
-def project_from_id(f):
-    """Decorator function that takes a user account as parameter,
-    the user account is used to get the correct sub folder in which
-    the projects is
-    """
-
-    @wraps(f)
-    def decorated_function(project_id, *args, **kwargs):
-        project_path = get_project_path(project_id)
-        if not is_project(project_path):
-            raise ProjectNotFoundError(f"Project '{project_id}' not found")
-        project = Project(project_path, project_id=project_id)
-        return f(project, *args, **kwargs)
-
-    return decorated_function
-
-
-def get_projects(project_paths=None):
-    """Get the ASReview projects at the given paths.
-
-    Arguments
-    ---------
-    project_paths : list[Path], optional
-        List of paths to projects. By default all the projects in the asreview
-        folder are used, by default None
-
-    Returns
-    -------
-    list[Project]
-        Projects at the given project paths.
-    """
-    if project_paths is None:
-        project_paths = [path for path in asreview_path().iterdir() if path.is_dir()]
-
-    return [Project(project_path) for project_path in project_paths]
 
 
 def is_project(project_path):

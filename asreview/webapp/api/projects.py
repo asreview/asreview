@@ -58,7 +58,7 @@ from asreview.models.classifiers.utils import list_classifiers
 from asreview.models.feature_extraction.utils import list_feature_extraction
 from asreview.models.query.utils import list_query_strategies
 from asreview.project import ProjectNotFoundError
-from asreview.project import get_project_path
+from asreview.webapp.utils import get_project_path
 from asreview.project import is_v0_project
 from asreview.search import fuzzy_find
 from asreview.settings import ReviewSettings

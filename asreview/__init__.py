@@ -23,6 +23,7 @@ from asreview.state.contextmanager import open_state
 from asreview.utils import asreview_path
 from asreview.utils import get_data_home
 from asreview.simulation.simulate import Simulate
+from asreview.settings import ReviewSettings
 
 
 try:
@@ -38,6 +39,8 @@ __all__ = [
     "Project",
     "Simulate",
     "SQLiteState",
+    "ReviewSettings",
+    # functions
     "load_dataset",
     "list_readers",
     "list_writers",

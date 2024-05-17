@@ -20,8 +20,8 @@ from flask_login import current_user
 
 import asreview as asr
 from asreview.project import ProjectNotFoundError
-from asreview.project import get_project_path
-from asreview.project import get_projects
+from asreview.webapp.utils import get_project_path
+from asreview.webapp.utils import get_projects
 from asreview.project import is_project
 from asreview.webapp.authentication.models import Project
 

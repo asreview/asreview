@@ -26,8 +26,8 @@ from rich.console import Console
 import asreview as asr
 from asreview._deprecated import DeprecateAction
 from asreview._deprecated import mark_deprecated_help_strings
-from asreview.project import get_project_path
-from asreview.project import get_projects
+from asreview.webapp.utils import get_project_path
+from asreview.webapp.utils import get_projects
 from asreview.webapp.app import create_app
 
 # Host name

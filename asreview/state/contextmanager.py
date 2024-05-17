@@ -20,7 +20,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from asreview.project import Project
-from asreview.project import is_project, ProjectNotFoundError, ProjectError
+from asreview.project import is_project, ProjectNotFoundError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
 
@@ -59,7 +59,7 @@ def open_state(asreview_obj, review_id=None, create_new=True, check_integrety=Fa
     elif is_project(asreview_obj):
         project = Project(asreview_obj)
     else:
-        raise ProjectError("Unknown project type.")
+        raise TypeError("Unknown project type.")
 
     if not create_new and len(project.reviews) == 0:
         raise StateNotFoundError("State does not exist in the project")
