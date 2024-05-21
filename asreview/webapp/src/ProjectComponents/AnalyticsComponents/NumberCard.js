@@ -87,35 +87,35 @@ export default function NumberCard(props) {
           </Card>
         </Grid>
         {hasPriorKnowledge() && (
-        <Grid item xs={12} sm={12}>
-          <Card className="number-card" elevation={2}>
-            <CardContent>
-              <Stack spacing={2} className="number-card-content">
-                <Typography
-                  className="number-card-content-text"
-                  variant={!props.mobileScreen ? "subtitle1" : "subtitle2"}
-                  sx={{ color: "text.secondary" }}
-                >
-                  Irrelevant records since last relevant
-                </Typography>
-                <Typography
-                  className="number-card-content-numeral"
-                  variant={!props.mobileScreen ? "h4" : "h5"}
-                >
-                  <NumberFormat
-                    value={
-                      showNumber()
-                        ? props.progressQuery.data["n_since_last_inclusion"]
-                        : 0
-                    }
-                    displayType="text"
-                    thousandSeparator
-                  />
-                </Typography>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
+          <Grid item xs={12} sm={12}>
+            <Card className="number-card" elevation={2}>
+              <CardContent>
+                <Stack spacing={2} className="number-card-content">
+                  <Typography
+                    className="number-card-content-text"
+                    variant={!props.mobileScreen ? "subtitle1" : "subtitle2"}
+                    sx={{ color: "text.secondary" }}
+                  >
+                    Irrelevant records since last relevant
+                  </Typography>
+                  <Typography
+                    className="number-card-content-numeral"
+                    variant={!props.mobileScreen ? "h4" : "h5"}
+                  >
+                    <NumberFormat
+                      value={
+                        showNumber()
+                          ? props.progressQuery.data["n_since_last_inclusion"]
+                          : 0
+                      }
+                      displayType="text"
+                      thousandSeparator
+                    />
+                  </Typography>
+                </Stack>
+              </CardContent>
+            </Card>
+          </Grid>
         )}
       </Grid>
     </Root>
