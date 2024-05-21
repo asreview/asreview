@@ -16,18 +16,12 @@ __all__ = [
     "get_random_state",
 ]
 
-import sys
 from pathlib import Path
 from urllib.error import HTTPError
 from urllib.parse import urlparse
 from urllib.request import urlopen
 
 import numpy as np
-
-if sys.version_info >= (3, 10):
-    from importlib.metadata import entry_points as _entry_points  # noqa
-else:
-    from importlib_metadata import entry_points as _entry_points  # noqa
 
 
 def _get_filename_from_url(url):

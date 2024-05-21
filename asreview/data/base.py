@@ -24,7 +24,7 @@ from pandas.api.types import is_string_dtype
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
 
-from asreview.utils import _entry_points
+from asreview.extensions import extensions
 
 
 def _type_from_column(col_name, col_definitions):
@@ -384,7 +384,7 @@ class Dataset:
         else:
             best_suffix = None
 
-            for entry in _entry_points(group="asreview.writers"):
+            for entry in extensions("writers"):
                 if Path(fp).suffix == entry.name:
                     if best_suffix is None or len(entry.name) > len(best_suffix):
                         best_suffix = entry.name
@@ -395,7 +395,7 @@ class Dataset:
                     "for exporting such a file."
                 )
 
-            writer = _entry_points(group="asreview.writers")[best_suffix].load()
+            writer = extensions("writers")[best_suffix].load()
             writer.write_data(df, fp)
 
     def to_dataframe(self, labels=None, ranking=None, keep_old_labels=False):

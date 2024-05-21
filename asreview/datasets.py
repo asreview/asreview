@@ -34,7 +34,7 @@ from urllib.request import urlretrieve
 import synergy_dataset as sd
 
 from asreview.data.tabular import CSVReader
-from asreview.utils import _entry_points
+from asreview.extensions import extensions
 from asreview.utils import _get_filename_from_url
 
 
@@ -254,7 +254,7 @@ class BaseDataGroup(ABC):
 class DatasetManager:
     @property
     def groups(self):
-        return list(_entry_points(group="asreview.datasets").names)
+        return list(extensions("datasets").names)
 
     def find(self, dataset_id):
         """Find a dataset.
@@ -283,7 +283,7 @@ class DatasetManager:
         dataset_id = str(dataset_id)
 
         # get installed dataset groups
-        dataset_groups = _entry_points(group="asreview.datasets")
+        dataset_groups = extensions("datasets")
 
         # Split into group/dataset if possible.
         split_dataset_id = dataset_id.split(":")
@@ -348,7 +348,7 @@ class DatasetManager:
         else:
             groups = self.groups.copy()
 
-        dataset_groups = _entry_points(group="asreview.datasets")
+        dataset_groups = extensions("datasets")
 
         group_list = []
         for group in groups:

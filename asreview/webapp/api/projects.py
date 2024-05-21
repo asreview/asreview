@@ -45,7 +45,6 @@ import asreview as asr
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
-from asreview.extensions import extensions
 from asreview.statistics import n_duplicates
 from asreview.statistics import n_relevant
 from asreview.statistics import n_irrelevant
@@ -60,7 +59,7 @@ from asreview.search import fuzzy_find
 from asreview.settings import ReviewSettings
 from asreview.state.contextmanager import open_state
 from asreview.state.exceptions import StateNotFoundError
-from asreview.utils import _entry_points
+from asreview.extensions import extensions
 from asreview.utils import _get_filename_from_url
 from asreview.webapp.utils import asreview_path
 from asreview.webapp import DB
@@ -323,7 +322,7 @@ def api_init_project():  # noqa: F401
 def api_list_data_readers():
     """Get the list of available data readers and read formats."""
     payload = {"result": []}
-    for e in _entry_points(group="asreview.readers"):
+    for e in extensions("readers"):
         payload["result"].append({"extension": e.name})
     return jsonify(payload)
 
@@ -1426,7 +1425,7 @@ def api_resolve_uri():  # noqa: F401
 
     filename = _get_filename_from_url(uri)
 
-    reader_keys = [e.name for e in _entry_points(group="asreview.readers")]
+    reader_keys = [e.name for e in extensions("readers")]
 
     if filename and Path(filename).suffix and Path(filename).suffix in reader_keys:
         return jsonify(files=[{"link": uri, "name": filename}]), 201

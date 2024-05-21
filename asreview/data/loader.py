@@ -3,7 +3,7 @@ from pathlib import Path
 
 from asreview.datasets import DatasetManager
 
-from asreview.utils import _entry_points
+from asreview.extensions import extensions
 from asreview.utils import _get_filename_from_url
 from asreview.utils import _is_url
 
@@ -33,7 +33,7 @@ def _from_file(fp, reader=None):
         fn = Path(fp).name
 
     try:
-        reader = _entry_points(group="asreview.readers")[Path(fn).suffix].load()
+        reader = extensions("readers")[Path(fn).suffix].load()
     except Exception:
         raise ValueError(f"Importing file {fp} not possible.")
 
@@ -68,7 +68,7 @@ def _from_extension(name, reader=None):
             fn = Path(fp).name
 
         try:
-            reader = _entry_points(group="asreview.readers")[Path(fn).suffix].load()
+            reader = extensions("readers")[Path(fn).suffix].load()
         except Exception:
             raise ValueError(f"Importing file {fp} not possible.")
 
