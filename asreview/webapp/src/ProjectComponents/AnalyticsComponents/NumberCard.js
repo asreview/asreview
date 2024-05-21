@@ -18,7 +18,9 @@ export default function NumberCard(props) {
       props.progressQuery.isSuccess
     );
   };
-
+  const hasPriorKnowledge = () => {
+    return showNumber() && props.progressQuery.data["n_included"] > 0;
+  };
   return (
     <Root>
       <CardErrorHandler
@@ -84,6 +86,7 @@ export default function NumberCard(props) {
             </CardContent>
           </Card>
         </Grid>
+        {hasPriorKnowledge() && (
         <Grid item xs={12} sm={12}>
           <Card className="number-card" elevation={2}>
             <CardContent>
@@ -113,6 +116,7 @@ export default function NumberCard(props) {
             </CardContent>
           </Card>
         </Grid>
+        )}
       </Grid>
     </Root>
   );
