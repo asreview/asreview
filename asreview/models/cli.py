@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.models.balance.utils import list_balance_strategies
-from asreview.models.classifiers.utils import list_classifiers
-from asreview.models.feature_extraction.utils import list_feature_extraction
-from asreview.models.query.utils import list_query_strategies
+from asreview.extensions import extensions
 
 
 def _format_algorithm(values, name, description):
@@ -40,30 +37,26 @@ def _format_algorithm(values, name, description):
 def cli_algorithms(argv):  # noqa
     s = "Available active learning algorithms for ASReview. \n\n"
 
-    # feature_extraction
     s += _format_algorithm(
-        values=list_feature_extraction(),
+        values=extensions("models.feature_extraction"),
         name="feature_extraction",
         description="feature extraction algorithms",
     )
 
-    # classifiers
     s += _format_algorithm(
-        values=list_classifiers(),
+        values=extensions("models.classifiers"),
         name="classifiers",
         description="classification algorithms",
     )
 
-    # query_strategies
     s += _format_algorithm(
-        values=list_query_strategies(),
+        values=extensions("models.query"),
         name="query_strategies",
         description="query strategies",
     )
 
-    # balance_strategies
     s += _format_algorithm(
-        values=list_balance_strategies(),
+        values=extensions("models.balance"),
         name="balance_strategies",
         description="balance strategies",
     )

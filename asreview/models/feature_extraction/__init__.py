@@ -15,16 +15,10 @@
 __all__ = [
     "Tfidf",
     "OneHot",
-    "get_feature_class",
-    "get_feature_model",
-    "list_feature_extraction",
 ]
 
 from asreview.models.feature_extraction.tfidf import Tfidf
 from asreview.models.feature_extraction.onehot import OneHot
-from asreview.models.feature_extraction.utils import get_feature_class
-from asreview.models.feature_extraction.utils import get_feature_model
-from asreview.models.feature_extraction.utils import list_feature_extraction
 
 """Feature extraction converts texts into features.
 

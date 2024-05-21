@@ -21,6 +21,8 @@ from pathlib import Path
 import json
 from dataclasses import asdict
 
+import numpy as np
+
 from asreview import load_dataset
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
@@ -30,10 +32,7 @@ from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.datasets import DatasetManager
-from asreview.models.balance.utils import get_balance_model
-from asreview.models.classifiers.utils import get_classifier
-from asreview.models.feature_extraction.utils import get_feature_model
-from asreview.models.query.utils import get_query_model
+from asreview.extensions import load_extension
 from asreview.project import Project
 from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
@@ -176,28 +175,15 @@ def _cli_simulate(argv):
     if args.config_file:
         settings.from_file(args.config_file)
 
-    # Initialize models.
     random_state = get_random_state(args.seed)
-    classifier_model = get_classifier(
-        settings.classifier,
-        random_state=random_state,
-        **_unpack_params(settings.classifier_param),
-    )
-    query_model = get_query_model(
-        settings.query_strategy,
-        random_state=random_state,
-        **_unpack_params(settings.query_param),
-    )
-    balance_model = get_balance_model(
-        settings.balance_strategy,
-        random_state=random_state,
-        **_unpack_params(settings.balance_param),
-    )
-    feature_model = get_feature_model(
-        settings.feature_extraction,
-        random_state=random_state,
-        **_unpack_params(settings.feature_param),
-    )
+    np.random.seed(random_state)
+
+    classifier_model = load_extension("models.classifiers", settings.classifier)
+    query_model = load_extension("models.query", settings.query_strategy)
+    balance_model = load_extension("models.balance", settings.balance_strategy)
+    feature_model = load_extension(
+        "models.feature_extraction", settings.feature_extraction
+    )(**_unpack_params(settings.feature_param))
 
     # prior knowledge
     if (
@@ -224,9 +210,9 @@ def _cli_simulate(argv):
     sim = Simulate(
         fm,
         as_data.labels,
-        classifier=classifier_model,
-        query_strategy=query_model,
-        balance_strategy=balance_model,
+        classifier=classifier_model(**_unpack_params(settings.classifier_param)),
+        query_strategy=query_model(**_unpack_params(settings.query_param)),
+        balance_strategy=balance_model(**_unpack_params(settings.balance_param)),
         feature_extraction=feature_model,
         n_instances=args.n_instances,
         stop_if=args.stop_if,
@@ -388,12 +374,6 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         default=DEFAULT_N_INSTANCES,
         type=int,
         help="Number of papers queried each query." f"Default {DEFAULT_N_INSTANCES}.",
-    )
-    parser.add_argument(
-        "--n_queries",
-        type=type_n_queries,
-        default="min",
-        help="Deprecated, use 'stop_if' instead.",
     )
     parser.add_argument(
         "--stop_if",

@@ -20,7 +20,7 @@ else:
     from importlib_metadata import entry_points as _entry_points  # noqa
 
 
-def extensions(group, auto_load=False):
+def extensions(group):
     """Get the extension class from an entry point.
 
     Arguments
@@ -33,13 +33,8 @@ def extensions(group, auto_load=False):
     dict:
         The class corresponding to the extension.
     """
-    exts = _entry_points(group=f"asreview.{group}")
 
-    if auto_load:
-        for e in exts:
-            yield e.load()
-
-    return exts
+    return _entry_points(group=f"asreview.{group}")
 
 
 def get_extension(group, name):
@@ -57,8 +52,12 @@ def get_extension(group, name):
     class:
         The class corresponding to the extension.
     """
-    entry_points = extensions(f"asreview.{group}")
-    return entry_points.get(name, None)
+
+    try:
+        (entry_point,) = _entry_points(group=f"asreview.{group}", name=name)
+        return entry_point
+    except ValueError:
+        raise ValueError(f"Extension {name} not found in group {group}.")
 
 
 def load_extension(group, name):

@@ -21,6 +21,8 @@ from asreview.state.sqlstate import SQLiteState
 from asreview.state.contextmanager import open_state
 from asreview.simulation.simulate import Simulate
 from asreview.settings import ReviewSettings
+from asreview.search import fuzzy_find
+from asreview.extensions import extensions, get_extension, load_extension
 
 
 try:
@@ -42,4 +44,8 @@ __all__ = [
     "is_project",
     "load_dataset",
     "open_state",
+    "fuzzy_find",
+    "extensions",
+    "get_extension",
+    "load_extension",
 ]

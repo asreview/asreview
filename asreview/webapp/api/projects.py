@@ -52,10 +52,6 @@ from asreview.statistics import n_irrelevant
 
 from asreview.datasets import DatasetManager
 
-from asreview.models.balance.utils import list_balance_strategies
-from asreview.models.classifiers.utils import list_classifiers
-from asreview.models.feature_extraction.utils import list_feature_extraction
-from asreview.models.query.utils import list_query_strategies
 from asreview.project import ProjectNotFoundError
 from asreview.webapp.utils import get_project_path
 from asreview.project import is_project
@@ -461,8 +457,8 @@ def api_list_dataset_writers(project):
 
     fp_data = Path(project.config["dataset_path"])
 
-    readers = extensions("readers", auto_load=True)
-    writers = extensions("writers", auto_load=True)
+    readers = extensions("readers")
+    writers = extensions("writers")
 
     # get write format for the data file
     write_format = None
@@ -720,10 +716,10 @@ def api_list_algorithms():
     """List the names and labels of available algorithms"""
 
     classes = [
-        list_balance_strategies(),
-        list_classifiers(),
-        list_feature_extraction(),
-        list_query_strategies(),
+        extensions("models.balance"),
+        extensions("models.classifiers"),
+        extensions("models.feature_extraction"),
+        extensions("models.query"),
     ]
 
     payload = {
@@ -1036,7 +1032,7 @@ def api_export_dataset(project):
             )
 
         # get writer corresponding to specified file format
-        writers = extensions("writers", auto_load=True)
+        writers = extensions("writers")
         writer = None
         for c in writers:
             if writer is None:

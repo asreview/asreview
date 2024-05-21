@@ -5,10 +5,7 @@ import asreview as asr
 import pandas as pd
 import numpy as np
 
-from asreview.models.feature_extraction import get_feature_model
-from asreview.models.classifiers import get_classifier
-from asreview.models.query import get_query_model
-from asreview.models.balance import get_balance_model
+from asreview.extensions import load_extension
 
 DATA_FP = Path("tests", "demo_data", "generic_labels.csv")
 
@@ -27,7 +24,7 @@ def test_simulate_basic(tmpdir):
 
     as_data = project.read_data()
 
-    feature_model = get_feature_model("tfidf")
+    feature_model = load_extension("models.feature_extraction", "tfidf")()
     fm = feature_model.fit_transform(
         as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
     )
@@ -39,9 +36,9 @@ def test_simulate_basic(tmpdir):
     sim = asr.Simulate(
         fm,
         labels=as_data.labels,
-        classifier=get_classifier("svm"),
-        query_strategy=get_query_model("max_random"),
-        balance_strategy=get_balance_model("double"),
+        classifier=load_extension("models.classifiers", "svm")(),
+        query_strategy=load_extension("models.query", "max_random")(),
+        balance_strategy=load_extension("models.balance", "double")(),
         feature_extraction=feature_model,
     )
     sim.label([0, 1], prior=True)
@@ -69,7 +66,7 @@ def test_simulate_no_prior(tmpdir):
 
     as_data = project.read_data()
 
-    feature_model = get_feature_model("tfidf")
+    feature_model = load_extension("models.feature_extraction", "tfidf")()
     fm = feature_model.fit_transform(
         as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
     )
@@ -81,9 +78,9 @@ def test_simulate_no_prior(tmpdir):
     sim = asr.Simulate(
         fm,
         labels=as_data.labels,
-        classifier=get_classifier("svm"),
-        query_strategy=get_query_model("max_random"),
-        balance_strategy=get_balance_model("double"),
+        classifier=load_extension("models.classifiers", "svm")(),
+        query_strategy=load_extension("models.query", "max_random")(),
+        balance_strategy=load_extension("models.balance", "double")(),
         feature_extraction=feature_model,
     )
     sim.review()
@@ -110,7 +107,7 @@ def test_simulate_random_prior(tmpdir):
 
     as_data = project.read_data()
 
-    feature_model = get_feature_model("tfidf")
+    feature_model = load_extension("models.feature_extraction", "tfidf")()
     fm = feature_model.fit_transform(
         as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
     )
@@ -122,9 +119,9 @@ def test_simulate_random_prior(tmpdir):
     sim = asr.Simulate(
         fm,
         labels=as_data.labels,
-        classifier=get_classifier("svm"),
-        query_strategy=get_query_model("max_random"),
-        balance_strategy=get_balance_model("double"),
+        classifier=load_extension("models.classifiers", "svm")(),
+        query_strategy=load_extension("models.query", "max_random")(),
+        balance_strategy=load_extension("models.balance", "double")(),
         feature_extraction=feature_model,
     )
     sim.label_random(1, 1, prior=True, random_state=42)

@@ -24,10 +24,7 @@ import pandas as pd
 import asreview as asr
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_SIMULATE
-from asreview.models.balance.utils import get_balance_model
-from asreview.models.classifiers.utils import get_classifier
-from asreview.models.feature_extraction.utils import get_feature_model
-from asreview.models.query.utils import get_query_model
+from asreview.extensions import load_extension
 from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
 from asreview.state.contextmanager import open_state
@@ -60,7 +57,9 @@ def _run_model_start(project, output_error=True):
             record_table = pd.Series(as_data.record_ids, name="record_id")
 
             # get the feature matrix
-            feature_model = get_feature_model(settings.feature_extraction)
+            feature_model = load_extension(
+                "models.feature_extraction", settings.feature_extraction
+            )()
             try:
                 fm = project.get_feature_matrix(feature_model.name)
             except FileNotFoundError:
@@ -80,13 +79,13 @@ def _run_model_start(project, output_error=True):
             )
             train_idx = np.where(y_sample_input != LABEL_NA)[0]
 
-            balance_model = get_balance_model(settings.balance_strategy)
+            balance_model = load_extension("models.balance", settings.balance_strategy)
             X_train, y_train = balance_model.sample(fm, y_sample_input, train_idx)
 
-            classifier = get_classifier(settings.classifier)
+            classifier = load_extension("models.classifiers", settings.classifier)
             classifier.fit(X_train, y_train)
 
-            query_strategy = get_query_model(settings.query_strategy)
+            query_strategy = load_extension("models.query", settings.query_strategy)
             ranked_record_ids, relevance_scores = query_strategy.query(
                 fm, classifier=classifier, return_classifier_scores=True
             )
@@ -124,7 +123,9 @@ def _simulate_start(project):
 
     as_data = project.read_data()
 
-    feature_model = get_feature_model(settings.feature_extraction)
+    feature_model = load_extension(
+        "models.feature_extration", settings.feature_extraction
+    )()
     fm = feature_model.fit_transform(
         as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
     )
@@ -133,9 +134,9 @@ def _simulate_start(project):
     sim = Simulate(
         fm,
         labels=as_data.labels,
-        classifier=get_classifier(settings.classifier),
-        query_strategy=get_query_model(settings.query_strategy),
-        balance_strategy=get_balance_model(settings.balance_strategy),
+        classifier=load_extension("models.classifiers", settings.classifier)(),
+        query_strategy=load_extension("models.query", settings.query_strategy)(),
+        balance_strategy=load_extension("models.balance", settings.balance_strategy)(),
         feature_extraction=feature_model,
     )
 

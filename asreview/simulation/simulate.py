@@ -31,6 +31,12 @@ from asreview.utils import get_random_state
 class Simulate:
     """ASReview Simulation mode class.
 
+    The simulation will stop when all papers have been labeled or when the number of
+    steps/queries reaches the stop_if parameter.
+
+    To seed the simulation, provide the seed to the classifier, query strategy,
+    feature extraction model, and balance strategy or use a global random seed.
+
     Arguments
     ---------
     fm: numpy.ndarray
@@ -38,13 +44,13 @@ class Simulate:
     labels: numpy.ndarray, pandas.Series, list
         The labels to use for the simulation.
     classifier: BaseModel
-        The classifier to use for the simulation.
+        The initialized classifier to use for the simulation.
     query_strategy: BaseQueryModel
-        The query strategy to use for the simulation.
+        The initialized query strategy to use for the simulation.
     balance_strategy: BaseBalanceModel
-        The balance strategy to use for the simulation.
+        The initialized balance strategy to use for the simulation.
     feature_extraction: BaseFeatureModel
-        The feature extraction model to use for the simulation. If None,
+        The initialized feature extraction model to use for the simulation. If None,
         the name of the feature extraction model is set to None.
     n_instances: int
         Number of papers to query at each step in the active learning

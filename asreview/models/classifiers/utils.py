@@ -12,11 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["list_classifiers", "get_classifier_class", "get_classifier"]
+__all__ = []
 
 import logging
-
-from asreview.utils import _entry_points
 
 
 def _set_class_weight(weight1):
@@ -30,55 +28,3 @@ def _set_class_weight(weight1):
     }
     logging.debug(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
     return cw_class
-
-
-def list_classifiers():
-    """List available classifier classes.
-
-    Returns
-    -------
-    list:
-        Classes of available classifiers in alphabetical order.
-    """
-
-    return [e.load() for e in _entry_points(group="asreview.models.classifiers")]
-
-
-def get_classifier_class(name):
-    """Get class of model from string.
-
-    Arguments
-    ---------
-    name: str
-        Name of the model, e.g. 'svm', 'nb' or 'lstm-pool'.
-
-    Returns
-    -------
-    BaseModel:
-        Class corresponding to the name.
-    """
-    return _entry_points(group="asreview.models.classifiers")[name].load()
-
-
-def get_classifier(name, *args, random_state=None, **kwargs):
-    """Get an instance of a model from a string.
-
-    Arguments
-    ---------
-    name: str
-        Name of the model.
-    *args:
-        Arguments for the model.
-    **kwargs:
-        Keyword arguments for the model.
-
-    Returns
-    -------
-    BaseFeatureExtraction:
-        Initialized instance of classifier.
-    """
-    model_class = get_classifier_class(name)
-    try:
-        return model_class(*args, random_state=random_state, **kwargs)
-    except TypeError:
-        return model_class(*args, **kwargs)
