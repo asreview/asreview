@@ -218,7 +218,7 @@ class Dataset:
             The corresponding record if i was an integer, or a list of records
             if i was an iterable.
         """
-        if isinstance(i, int):
+        if isinstance(i, (int, np.int64)):
             index_list = [i]
         else:
             index_list = i
@@ -236,7 +236,7 @@ class Dataset:
             for j in index_list
         ]
 
-        if not isinstance(i, int):
+        if not isinstance(i, (int, np.int64)):
             return records
         return records[0]
 
