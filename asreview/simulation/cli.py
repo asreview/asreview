@@ -38,7 +38,6 @@ from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
 from asreview.types import type_n_queries
 from asreview.utils import _format_to_str
-from asreview.utils import get_random_state
 
 
 def _set_log_verbosity(verbose):
@@ -175,8 +174,10 @@ def _cli_simulate(argv):
     if args.config_file:
         settings.from_file(args.config_file)
 
-    random_state = get_random_state(args.seed)
-    np.random.seed(random_state)
+    # set the seeds
+    # TODO: set seeds in the settings object
+    # TODO: seed also other tools like tensorflow
+    np.random.seed(args.seed)
 
     classifier_model = load_extension("models.classifiers", settings.classifier)
     query_model = load_extension("models.query", settings.query_strategy)
@@ -204,7 +205,7 @@ def _cli_simulate(argv):
     project.add_feature_matrix(fm, feature_model.name)
 
     print("The following records are prior knowledge:\n")
-    for record_id, row in as_data.df.iloc[prior_idx].iterrows():
+    for record_id, _ in as_data.df.iloc[prior_idx].iterrows():
         _print_record(as_data.record(record_id))
 
     sim = Simulate(

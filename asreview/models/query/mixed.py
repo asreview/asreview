@@ -16,8 +16,10 @@ __all__ = ["MixedQuery", "MaxRandomQuery", "MaxUncertaintyQuery"]
 
 import numpy as np
 
+from sklearn.utils import check_random_state
+
+
 from asreview.models.query.base import BaseQueryStrategy
-from asreview.utils import get_random_state
 from asreview.models.query.max_prob import MaxQuery
 from asreview.models.query.random import RandomQuery
 from asreview.models.query.uncertainty import UncertaintyQuery
@@ -66,7 +68,7 @@ class MixedQuery(BaseQueryStrategy):
         self.query_model2 = query_model2
 
         self.mix_ratio = mix_ratio
-        self._random_state = get_random_state(random_state)
+        self._random_state = random_state
 
     def query(
         self, X, classifier, n_instances=None, return_classifier_scores=False, **kwargs
@@ -102,7 +104,7 @@ class MixedQuery(BaseQueryStrategy):
         j = 0
 
         while i < len(query_idx_1) and j < len(query_idx_2):
-            if self._random_state.rand() < self.mix_ratio:
+            if check_random_state(self._random_state).rand() < self.mix_ratio:
                 query_idx_mix.append(query_idx_1[i])
                 i = i + 1
             else:

@@ -183,7 +183,7 @@ def test_stop_if_min(tmpdir):
     asreview_fp = Path(tmpdir, "test.asreview")
     stop_if = "min"
     priors = [116, 285]
-    seed = 101
+    seed = 535
 
     argv = (
         f"{dataset} -s {asreview_fp} --stop_if {stop_if} "
@@ -193,7 +193,7 @@ def test_stop_if_min(tmpdir):
 
     with asr.open_state(asreview_fp) as s:
         assert s.get_labels().sum() == 38
-        assert len(s.get_labels()) == 630
+        assert len(s.get_labels()) == 660
 
 
 def test_stop_if_all(tmpdir):

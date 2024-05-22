@@ -17,6 +17,8 @@ __all__ = []
 import logging
 
 import numpy as np
+from sklearn.utils import check_random_state
+
 
 from asreview.models.balance.base import BaseBalance
 from asreview.models.balance.double import DoubleBalance
@@ -24,7 +26,6 @@ from asreview.models.balance.double import _one_weight
 from asreview.models.balance.double import _zero_weight
 from asreview.models.balance.double import fill_training
 from asreview.models.balance.double import random_round
-from asreview.utils import get_random_state
 
 
 class TripleBalance(BaseBalance):
@@ -92,7 +93,7 @@ class TripleBalance(BaseBalance):
         self.fallback_model = DoubleBalance(
             a=a, alpha=alpha, b=b, beta=beta, random_state=random_state
         )
-        self._random_state = get_random_state(random_state)
+        self._random_state = random_state
 
     def sample(self, X, y, train_idx, shared):
         """Resample the training data.
@@ -122,8 +123,8 @@ class TripleBalance(BaseBalance):
         rand_idx = rand_idx.astype(int)
         # Write them back for next round.
         if self.shuffle:
-            self._random_state.shuffle(rand_idx)
-            self._random_state.shuffle(max_idx)
+            check_random_state(self._random_state).shuffle(rand_idx)
+            check_random_state(self._random_state).shuffle(max_idx)
 
         if len(rand_idx) == 0 or len(max_idx) == 0:
             logging.debug(
@@ -183,7 +184,7 @@ class TripleBalance(BaseBalance):
         all_idx = np.concatenate(
             [one_train_idx, zero_rand_train_idx, zero_max_train_idx]
         )
-        self._random_state.shuffle(all_idx)
+        check_random_state(self._random_state).shuffle(all_idx)
 
         return X[all_idx], y[all_idx]
 

@@ -25,7 +25,7 @@ from uuid import uuid4
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import LABEL_NA
 from asreview.state.contextmanager import open_state
-from asreview.utils import get_random_state
+from sklearn.utils import check_random_state
 
 
 class Simulate:
@@ -266,11 +266,10 @@ class Simulate:
             Number of excluded records to label.
         prior: bool
             If True, the records are labeled based on prior knowledge.
-        random_state: int, RandomState
-            Seed for the random number generator.
+
         """
 
-        r = get_random_state(random_state)
+        r = check_random_state(random_state)
 
         included_idx = np.where(self.labels == 1)[0]
         excluded_idx = np.where(self.labels == 0)[0]
@@ -292,6 +291,8 @@ class Simulate:
             r.choice(included_idx, n_included, replace=False),
             r.choice(excluded_idx, n_excluded, replace=False),
         )
+
+        print(init)
 
         self.label(init, prior=prior)
 
