@@ -1127,23 +1127,49 @@ def _get_stats(project, include_priors=False):
 
                 n_records = s.n_records
 
+                # Also get labels without priors for the new key
+                labels_without_priors = s.get_labels(priors=False)
+
         # No state file found or not init.
         except (StateNotFoundError, StateError):
             labels = np.array([])
+            labels_without_priors = np.array([])
             n_records = 0
 
     n_included = int(sum(labels == 1))
     n_excluded = int(sum(labels == 0))
 
     if n_included > 0:
-        n_since_last_relevant = int(labels.tolist()[::-1].index(1))
+        try:
+            # Find the last relevant label index
+            last_relevant_index = len(labels) - 1 - np.argmax(labels[::-1] == 1)
+            n_since_last_relevant = int(sum(labels[last_relevant_index + 1 :] == 0))
+        except Exception:
+            n_since_last_relevant = "-"
     else:
         n_since_last_relevant = 0
+
+    if len(labels_without_priors) > 0 and n_included > 0:
+        try:
+            # Find the last relevant label index without priors
+            last_relevant_index_no_priors = (
+                len(labels_without_priors)
+                - 1
+                - np.argmax(labels_without_priors[::-1] == 1)
+            )
+            n_since_last_relevant_no_priors = int(
+                sum(labels_without_priors[last_relevant_index_no_priors + 1 :] == 0)
+            )
+        except Exception:
+            n_since_last_relevant_no_priors = "-"
+    else:
+        n_since_last_relevant_no_priors = None
 
     return {
         "n_included": n_included,
         "n_excluded": n_excluded,
         "n_since_last_inclusion": n_since_last_relevant,
+        "n_since_last_inclusion_no_priors": n_since_last_relevant_no_priors,
         "n_papers": n_records,
         "n_pool": n_records - n_excluded - n_included,
     }
