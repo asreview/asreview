@@ -30,7 +30,7 @@ from sqlalchemy.orm import validates
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 
-import asreview.utils as utils
+from asreview.webapp.utils import asreview_path
 from asreview.webapp import DB
 
 PASSWORD_REGEX = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$"  # noqa
@@ -263,7 +263,7 @@ class Project(DB.Model):
     @property
     def project_path(self):
         """Returns full project path"""
-        return Path(utils.asreview_path(), self.project_id)
+        return Path(asreview_path(), self.project_id)
 
     @property
     def folder(self):

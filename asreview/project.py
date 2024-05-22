@@ -66,13 +66,14 @@ class ProjectNotFoundError(FileNotFoundError):
     pass
 
 
-def is_project(project_path, raise_on_old_version=True):
-    print(project_path)
-    print(list(Path(project_path).glob("*")))
-    if raise_on_old_version and not Path(project_path, "reviews").exists():
+def is_project(project_obj, raise_on_old_version=True):
+    if isinstance(project_obj, Project):
+        project_obj = project_obj.project_path
+
+    if raise_on_old_version and not Path(project_obj, "reviews").exists():
         raise ProjectError("Project is of an older version.")
 
-    return Path(project_path, PATH_PROJECT_CONFIG).exists()
+    return Path(project_obj, PATH_PROJECT_CONFIG).exists()
 
 
 class Project:

@@ -79,13 +79,15 @@ def _run_model_start(project, output_error=True):
             )
             train_idx = np.where(y_sample_input != LABEL_NA)[0]
 
-            balance_model = load_extension("models.balance", settings.balance_strategy)
+            balance_model = load_extension(
+                "models.balance", settings.balance_strategy
+            )()
             X_train, y_train = balance_model.sample(fm, y_sample_input, train_idx)
 
-            classifier = load_extension("models.classifiers", settings.classifier)
+            classifier = load_extension("models.classifiers", settings.classifier)()
             classifier.fit(X_train, y_train)
 
-            query_strategy = load_extension("models.query", settings.query_strategy)
+            query_strategy = load_extension("models.query", settings.query_strategy)()
             ranked_record_ids, relevance_scores = query_strategy.query(
                 fm, classifier=classifier, return_classifier_scores=True
             )

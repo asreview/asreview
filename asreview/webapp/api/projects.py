@@ -462,19 +462,21 @@ def api_list_dataset_writers(project):
     # get write format for the data file
     write_format = None
     for c in readers:
-        if fp_data.suffix in c.read_format:
+        c_loaded = c.load()
+        if fp_data.suffix in c_loaded.read_format:
             if write_format is None:
-                write_format = c.write_format
+                write_format = c_loaded.write_format
 
     # get available writers
     payload = {"result": []}
     for c in writers:
+        c_loaded = c.load()
         payload["result"].append(
             {
-                "enabled": True if c.write_format in write_format else False,
-                "name": c.name,
-                "label": c.label,
-                "caution": c.caution if hasattr(c, "caution") else None,
+                "enabled": True if c_loaded.write_format in write_format else False,
+                "name": c_loaded.name,
+                "label": c_loaded.label,
+                "caution": c_loaded.caution if hasattr(c_loaded, "caution") else None,
             }
         )
 
