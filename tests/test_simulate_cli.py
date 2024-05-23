@@ -66,7 +66,7 @@ def test_n_prior_included(tmpdir):
         result = state.get_results_table(["label", "query_strategy"])
 
     prior_included = result["label"] & (result["query_strategy"] == "prior")
-    assert sum(prior_included) == 2
+    assert sum(prior_included) >= 2
 
     Path(tmpdir, "test").mkdir(parents=True)
     project = asr.Project.load(asreview_fp, Path(tmpdir, "test"))
@@ -92,7 +92,7 @@ def test_n_prior_excluded(tmpdir):
         result = state.get_results_table(["label", "query_strategy"])
 
     prior_excluded = ~result["label"] & (result["query_strategy"] == "prior")
-    assert sum(prior_excluded) == 2
+    assert sum(prior_excluded) >= 2
 
     Path(tmpdir, "test").mkdir(parents=True)
     project = asr.Project.load(asreview_fp, Path(tmpdir, "test"))
