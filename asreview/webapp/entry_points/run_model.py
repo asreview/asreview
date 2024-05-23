@@ -126,7 +126,7 @@ def _simulate_start(project):
     as_data = project.read_data()
 
     feature_model = load_extension(
-        "models.feature_extration", settings.feature_extraction
+        "models.feature_extraction", settings.feature_extraction
     )()
     fm = feature_model.fit_transform(
         as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
