@@ -132,6 +132,7 @@ def test_try_upgrade_a_modern_project(client, project):
 
 
 # Test upgrading a v0.x project
+@pytest.mark.skip(reason="projects in 0 series should no longer be supported")
 def test_upgrade_an_old_project(client, user):
     tests_folder = Path(__file__).parent.parent
     asreview_v0_file = Path(
