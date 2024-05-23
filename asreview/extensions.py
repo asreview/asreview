@@ -56,8 +56,8 @@ def get_extension(group, name):
     try:
         (entry_point,) = _entry_points(group=f"asreview.{group}", name=name)
         return entry_point
-    except ValueError:
-        raise ValueError(f"Extension {name} not found in group {group}.")
+    except ValueError as err:
+        raise ValueError(f"Extension {name} not found in group {group}.") from err
 
 
 def load_extension(group, name):
