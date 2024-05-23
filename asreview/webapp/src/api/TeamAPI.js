@@ -17,7 +17,8 @@ class TeamAPI {
     });
   }
 
-  static fetchCollaborators(projectId) {
+  static fetchUsers({ queryKey }) {
+    const projectId = queryKey[1];
     if (projectId !== null) {
       const url = api_url + `projects/${projectId}/users`;
       return new Promise((resolve, reject) => {
@@ -30,8 +31,6 @@ class TeamAPI {
             reject(axiosErrorHandler(error));
           });
       });
-    } else {
-      return {};
     }
   }
 
