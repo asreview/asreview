@@ -28,6 +28,7 @@ from asreview._deprecated import DeprecateAction
 from asreview._deprecated import mark_deprecated_help_strings
 from asreview.webapp.utils import get_project_path
 from asreview.webapp.utils import get_projects
+from asreview.webapp.utils import asreview_path
 from asreview.webapp.app import create_app
 
 # Host name
@@ -158,7 +159,7 @@ def lab_entry_point(argv):
 
     console.print(host_str)
     console.print(version_str, highlight=False)
-    console.print(f"[bold]Local projects folder:[/bold] {asr.asreview_path()}")
+    console.print(f"[bold]Local projects folder:[/bold] {asreview_path()}")
 
     if update_available:
         console.print(
