@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useQuery } from "react-query";
+import { useQuery, useMutation } from "react-query";
 import { useParams } from "react-router-dom";
 
 import { Box, Fade, Grid, Stack } from "@mui/material";
@@ -34,25 +34,69 @@ const TeamPage = (props) => {
           .filter((item) => !associatedUsers.includes(item))
           .sort((a, b) => a.name.toLowerCase() - b.name.toLowerCase())
       );
-      setCollaborators((state) => data.collaborators);
-      setInvitedUsers((state) => data.invitations);
+      setCollaborators((state) => allUsers.filter((item) => data.collaborators.includes(item.id)));
+      setInvitedUsers((state) => allUsers.filter((item) => data.invitations.includes(item.id)));
     },
   });
 
-  const onInvite = (user) => {
-    // call api
-    // remove user from allUsers
-    const index = selectableUsers.findIndex((item) => item.id === user.id);
-    setSelectableUsers((state) => [
-      ...selectableUsers.slice(0, index),
-      ...selectableUsers.slice(index + 1),
-    ]);
-    // set in Pending invitations
-    setInvitedUsers((state) =>
-      [...invitedUsers, user].sort(
-        (a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1
-      )
-    );
+  const inviteUser = useMutation(
+    (data) => TeamAPI.inviteUser(data),
+    {
+      onSuccess: (response, inputParams) => {
+        // get the user
+        const user = inputParams.user;
+        // remove user from allUsers
+        const index = selectableUsers.findIndex((item) => item.id === user.id);
+        setSelectableUsers((state) => [
+          ...selectableUsers.slice(0, index),
+          ...selectableUsers.slice(index + 1),
+        ]);
+        // set in Pending invitations
+        setInvitedUsers((state) =>
+          [...invitedUsers, user].sort(
+            (a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1
+          )
+        );
+      }
+    }
+  );
+
+
+    // TeamAPI.inviteUser(project_id, selectedUser.id)
+    // .then((data) => {
+    //   if (data.success) {
+    //     // add this user to the invited users (ofEffect will take care of the rest
+    //     // -autocomplete-)
+    //     setInvitedUsers((state) => new Set([...state, selectedUser.id]));
+    //     // set selected value to null
+    //     setSelectedUser(null);
+    //   } else {
+    //     console.log("Could not invite user -- DB failure");
+    //   }
+    // })
+    // {
+    //   onMutate: (variables) => {
+    //     closeUndoBar(); // hide potentially active undo bar
+    //     setPreviousRecord({
+    //       record: activeRecord,
+    //       label: variables.label,
+    //       note: variables.note,
+    //       tagValues: variables.tagValues,
+    //       show: false,
+    //     });
+    //   },
+    //   onSuccess: (data, variables) => {
+    //     setActiveRecord(null);
+    //     resetNote();
+    //     resetTagValues();
+    //     queryClient.invalidateQueries("fetchRecord");
+    //     showUndoBarIfNeeded(variables.label, variables.initial);
+    //   },
+    // },
+    //);
+
+  const onInvite = (userObject) => {
+    if (userObject !== null) inviteUser.mutate({ projectId: project_id, user: userObject});
   };
 
   // const inviteUser = () => {

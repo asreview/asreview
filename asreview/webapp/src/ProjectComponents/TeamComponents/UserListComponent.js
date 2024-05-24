@@ -4,7 +4,6 @@ import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 import UserListEntry from "./UserListEntry";
 
 const UserListComponent = ({header, users}) => {
-
   return (
     <Card className="team-card" elevation={2}>
       <CardContent className="team-card-content">
