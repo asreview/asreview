@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 
 import { Box, Fade, Grid, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import Paper from '@mui/material/Paper';
+import Paper from "@mui/material/Paper";
 
 import { PageHeader } from "Components";
 import { EndCollaboration, InvitationContents } from ".";
@@ -12,20 +12,48 @@ import { EndCollaboration, InvitationContents } from ".";
 import { TeamAPI } from "api";
 import InvitationForm from "./InvitationForm";
 import UserListComponent from "./UserListComponent";
+import { parseJsonSourceFileConfigFileContent } from "typescript";
 
 const Root = styled("div")(({ theme }) => ({}));
 
 const TeamPage = (props) => {
   const { project_id } = useParams();
-  const [collaborators, setCollaborators] = React.useState(new Set([]));
-  const [invitedUsers, setInvitedUsers] = React.useState(new Set([]));
+  const [selectableUsers, setSelectableUsers] = React.useState([]);
+  const [collaborators, setCollaborators] = React.useState([]);
+  const [invitedUsers, setInvitedUsers] = React.useState([]);
 
-  const usersQuery = useQuery(
-    ["fetchUsers", project_id],
-    TeamAPI.fetchUsers,
-    { refetchOnWindowFocus: false },
-  );
+  const usersQuery = useQuery(["fetchUsers", project_id], TeamAPI.fetchUsers, {
+    refetchOnWindowFocus: false,
+    onSuccess: (data) => {
+      // filter all collaborators and invited people from users
+      const associatedUsers = [...data.collaborators, ...data.invitations];
+      const allUsers = data.all_users;
+      //
+      setSelectableUsers((state) =>
+        allUsers
+          .filter((item) => !associatedUsers.includes(item))
+          .sort((a, b) => a.name.toLowerCase() - b.name.toLowerCase())
+      );
+      setCollaborators((state) => data.collaborators);
+      setInvitedUsers((state) => data.invitations);
+    },
+  });
 
+  const onInvite = (user) => {
+    // call api
+    // remove user from allUsers
+    const index = selectableUsers.findIndex((item) => item.id === user.id);
+    setSelectableUsers((state) => [
+      ...selectableUsers.slice(0, index),
+      ...selectableUsers.slice(index + 1),
+    ]);
+    // set in Pending invitations
+    setInvitedUsers((state) =>
+      [...invitedUsers, user].sort(
+        (a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1
+      )
+    );
+  };
 
   // const inviteUser = () => {
   //   if (selectedUser) {
@@ -53,14 +81,13 @@ const TeamPage = (props) => {
 
           <Box className="main-page-body-wrapper">
             <Stack spacing={3} className="main-page-body">
-
-              { !usersQuery.isFetching && props.isOwner &&
+              {!usersQuery.isFetching && props.isOwner && (
                 <Box>
                   <Grid container spacing={3}>
-
                     <Grid item xs={12}>
                       <InvitationForm
-                        allUsers={usersQuery.data['all_users']}
+                        selectableUsers={selectableUsers}
+                        onInvite={onInvite}
                       />
                     </Grid>
 
@@ -73,19 +100,17 @@ const TeamPage = (props) => {
 
                     <Grid item xs={12} sm={6}>
                       <UserListComponent
-                        header="Pending invites"
-                        users={[]}
+                        header="Pending invitations"
+                        users={invitedUsers}
                       />
                       {/* <Box className="main-page-body-wrapper">
           {props.isOwner && false && <InvitationContents />}
           {!props.isOwner && false && <EndCollaboration />}
         </Box> */}
-
-
                     </Grid>
                   </Grid>
                 </Box>
-              }
+              )}
             </Stack>
           </Box>
         </Box>

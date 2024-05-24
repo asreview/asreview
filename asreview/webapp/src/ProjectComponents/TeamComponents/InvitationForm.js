@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Add } from "@mui/icons-material";
+import { Add, AirlineSeatLegroomExtraRounded } from "@mui/icons-material";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import { Card, CardContent, Fab, Grid } from "@mui/material";
@@ -8,7 +8,6 @@ import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 const InvitationForm = (props) => {
   const [selectedUser, setSelectedUser] = React.useState(null);
   const [inputValue, setInputValue] = React.useState("");
-  const [associatedUsers, setAssociatedUsers] = React.useState(new Set([]));
 
 
 
@@ -34,7 +33,7 @@ const InvitationForm = (props) => {
 
   return (
     <Card className="team-card" elevation={2}>
-      <CardContent class="team-card-content">
+      <CardContent className="team-card-content">
 
         <TypographySubtitle1Medium>Invite people to collaborate</TypographySubtitle1Medium>
 
@@ -46,6 +45,7 @@ const InvitationForm = (props) => {
               isOptionEqualToValue={(option, value) => option.id === value.id}
               onChange={(event, newValue = null) => {
                 if (newValue !== null) {
+                  console.log(newValue);
                   setSelectedUser(newValue);
                 }
               }}
@@ -53,7 +53,7 @@ const InvitationForm = (props) => {
               onInputChange={(event, newInputValue) => {
                 setInputValue(newInputValue);
               }}
-              options={props.allUsers.filter((item) => !associatedUsers.has(item.id))}
+              options={props.selectableUsers}
               getOptionLabel={(option) => `${option.name}`}
               sx={{ width: "100%"}}
               renderOption={(props, option) => {
@@ -69,7 +69,12 @@ const InvitationForm = (props) => {
             <Fab
               size="medium"
               color="primary"
-              //onClick={}
+              onClick={() => {
+                if (selectedUser != null) {
+                  setSelectedUser(null);
+                  props.onInvite(selectedUser);
+                }
+              }}
               variant="extended"
               sx={{ width: "100%"}}
             >

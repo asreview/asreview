@@ -1,18 +1,20 @@
 import * as React from "react";
-import { Card, CardContent, List } from "@mui/material";
+import { Box, Card, CardContent, List, Typography } from "@mui/material";
 import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 import UserListEntry from "./UserListEntry";
 
-const UserListComponent = (props) => {
+const UserListComponent = ({header, users}) => {
 
   return (
     <Card className="team-card" elevation={2}>
-      <CardContent class="team-card-content">
+      <CardContent className="team-card-content">
 
-        <TypographySubtitle1Medium>{props.header}</TypographySubtitle1Medium>
+        <TypographySubtitle1Medium>{header}</TypographySubtitle1Medium>
+
+        <Box sx={{fontStyle: 'italic', fontSize: 13}}>(Double click to remove)</Box>
 
         <List sx={{ pt: 0 }}>
-          {props.users.map((user) => (
+          {users.map((user) => (
             <UserListEntry
               key={user.id}
               user={user}
