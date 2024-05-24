@@ -11,30 +11,14 @@ import { EndCollaboration, InvitationContents } from ".";
 
 import { TeamAPI } from "api";
 import InvitationForm from "./InvitationForm";
+import UserListComponent from "./UserListComponent";
 
-const PREFIX = "TeamPage";
-
-const classes = {
-  cardWrapper: `${PREFIX}-card-wrapper`,
-};
-
-const Root = styled("div")(({ theme }) => ({
-  [`& .${classes.cardWrapper}`]: {
-    paddingTop: 32,
-  },
-}));
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-}));
+const Root = styled("div")(({ theme }) => ({}));
 
 const TeamPage = (props) => {
   const { project_id } = useParams();
-  console.log(project_id);
+  const [collaborators, setCollaborators] = React.useState(new Set([]));
+  const [invitedUsers, setInvitedUsers] = React.useState(new Set([]));
 
   const usersQuery = useQuery(
     ["fetchUsers", project_id],
@@ -68,36 +52,36 @@ const TeamPage = (props) => {
           <PageHeader header="Team" mobileScreen={props.mobileScreen} />
 
           <Box className="main-page-body-wrapper">
-              <Stack spacing={3} className="main-page-body">
-                { !usersQuery.isFetching &&
-                  <Box>
-                    <Grid container spacing={3}>
-                      { console.log(usersQuery.data) }
-                      
+            <Stack spacing={3} className="main-page-body">
+
+              { !usersQuery.isFetching && props.isOwner &&
+                <Box>
+                  <Grid container spacing={3}>
+
+                    <Grid item xs={12}>
                       <InvitationForm
                         allUsers={usersQuery.data['all_users']}
-                      
                       />
+                    </Grid>
 
-                      <Grid item xs={12} sm={5}>
-                        <Item>1</Item>
-                        {/* <ProgressChart
-                          isSimulating={props.isSimulating}
-                          mobileScreen={props.mobileScreen}
-                          mode={props.mode}
-                          progressQuery={progressQuery}
-                        /> */}
-                      </Grid>
-                      <Grid item xs={12} sm={7}>
-                        <Item>2</Item>
-                        {/* <Box className="main-page-body-wrapper">
-            {props.isOwner && false && <InvitationContents />}
-            {!props.isOwner && false && <EndCollaboration />}
-          </Box> */}
-                        {/* <NumberCard
-                          mobileScreen={props.mobileScreen}
-                          progressQuery={progressQuery}
-                        /> */}
+                    <Grid item xs={12} sm={6}>
+                      <UserListComponent
+                        header="Collaborators"
+                        users={[]}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                      <UserListComponent
+                        header="Pending invites"
+                        users={[]}
+                      />
+                      {/* <Box className="main-page-body-wrapper">
+          {props.isOwner && false && <InvitationContents />}
+          {!props.isOwner && false && <EndCollaboration />}
+        </Box> */}
+
+
                     </Grid>
                   </Grid>
                 </Box>

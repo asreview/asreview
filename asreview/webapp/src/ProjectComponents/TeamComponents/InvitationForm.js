@@ -1,23 +1,15 @@
 import * as React from "react";
-import { useQuery } from "react-query";
-import { useParams } from "react-router-dom";
-import { TeamAPI } from "api";
-import List from "@mui/material/List";
 import { Add } from "@mui/icons-material";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
-import UserListEntry from "./UserListEntry";
-import { Box, Fab, Grid } from "@mui/material";
-import { ConfirmationDialog } from ".";
+import { Card, CardContent, Fab, Grid } from "@mui/material";
+import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
 const InvitationForm = (props) => {
   const [selectedUser, setSelectedUser] = React.useState(null);
-  const [removeUser, setRemoveUser] = React.useState(null);
   const [inputValue, setInputValue] = React.useState("");
-  const [allUsers, setAllUsers] = React.useState([]);
   const [associatedUsers, setAssociatedUsers] = React.useState(new Set([]));
-  const { project_id } = useParams();
-  const [dialogOpen, setDialogOpen] = React.useState(false);
+
 
 
 //   const inviteUser = () => {
@@ -41,43 +33,53 @@ const InvitationForm = (props) => {
 
 
   return (
-    <Box>
-      <Grid container spacing={3}>
-      <Autocomplete
-        id="select-potential-collaborators"
-        value={selectedUser}
-        isOptionEqualToValue={(option, value) => option.id === value.id}
-        onChange={(event, newValue = null) => {
-          if (newValue !== null) {
-            setSelectedUser(newValue);
-          }
-        }}
-        inputValue={inputValue}
-        onInputChange={(event, newInputValue) => {
-          setInputValue(newInputValue);
-        }}
-        options={props.allUsers.filter((item) => !associatedUsers.has(item.id))}
-        getOptionLabel={(option) => `${option.name}`}
-        sx={{ width: 400, padding: 1 }}
-        renderOption={(props, option) => {
-          return <li {...props} key={option.id}>{option.name}</li>;
-        }}
-        renderInput={(params) => (
-            <TextField {...params} label="Select a user" />
-        )}
-      />
-      <Fab
-        className=""
-        color="primary"
-        //onClick={}
-        variant="extended"
-        sx={{ width: 120, padding: 1, margin: 2 }}
-        >
-        <Add sx={{ mr: 1 }} />
-        Invite
-      </Fab>
-      </Grid>
-    </Box>
+    <Card className="team-card" elevation={2}>
+      <CardContent class="team-card-content">
+
+        <TypographySubtitle1Medium>Invite people to collaborate</TypographySubtitle1Medium>
+
+        <Grid container spacing={2} sx={{marginTop: 0.5}} alignItems={"center"}>
+          <Grid item xs={12} sm={10}>
+            <Autocomplete
+              id="select-potential-collaborators"
+              value={selectedUser}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              onChange={(event, newValue = null) => {
+                if (newValue !== null) {
+                  setSelectedUser(newValue);
+                }
+              }}
+              inputValue={inputValue}
+              onInputChange={(event, newInputValue) => {
+                setInputValue(newInputValue);
+              }}
+              options={props.allUsers.filter((item) => !associatedUsers.has(item.id))}
+              getOptionLabel={(option) => `${option.name}`}
+              sx={{ width: "100%"}}
+              renderOption={(props, option) => {
+                return <li {...props} key={option.id}>{option.name}</li>;
+              }}
+              renderInput={(params) => (
+                  <TextField {...params} label="Select a user" />
+              )}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={2}>
+            <Fab
+              size="medium"
+              color="primary"
+              //onClick={}
+              variant="extended"
+              sx={{ width: "100%"}}
+            >
+              <Add sx={{ mr: 1 }} />
+              Invite
+            </Fab>
+          </Grid>
+        </Grid>
+      </CardContent>
+    </Card>
   );
 };
 
