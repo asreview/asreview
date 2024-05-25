@@ -217,16 +217,6 @@ def get_demo_data(client: FlaskClient, subset: str):
     return response
 
 
-def upload_data_to_project(
-    client: FlaskClient, project: Union[Project, asr.Project], data: dict
-):
-    response = client.post(
-        f"/api/projects/{get_project_id(project)}/data",
-        data=data,
-    )
-    return response
-
-
 def get_project_data(client: FlaskClient, project: Union[Project, asr.Project]):
     response = client.get(f"/api/projects/{get_project_id(project)}/data")
     return response

@@ -19,8 +19,6 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-from pathlib import Path
-from uuid import uuid4
 
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import LABEL_NA
@@ -292,44 +290,28 @@ class Simulate:
             r.choice(excluded_idx, n_excluded, replace=False),
         )
 
-        print(init)
-
         self.label(init, prior=prior)
 
-    def to_sql(self, project, review_id=None):
+    def to_sql(self, fp):
         """Write the data a sql file.
 
         Arguments
         ---------
-        project: asreview.Project
-            The project to write the data to
-        review_id: str
-            The review id to write the data to. If None, a new review is
-            created.
+        fp: str, Path, asreview.Project
+            The path to the sqlite file to write the results to.
         """
 
-        if review_id is None:
-            review_id = uuid4().hex
-
-        state_fp = Path(project.project_path, "reviews", review_id, "results.sql")
-        Path(state_fp.parent).mkdir(parents=True, exist_ok=True)
-
-        project.add_review(review_id)
-
-        with open_state(project) as state:
-            state.create_tables()
-
+        with open_state(fp) as state:
             self._results.to_sql(
                 "results", state._conn, if_exists="replace", index=False
             )
 
-            state.add_last_ranking(
-                self._last_ranking["record_id"].to_numpy(),
-                self.classifier.name,
-                self.query_strategy.name,
-                self.balance_strategy.name,
-                None,
-                self.training_set,
-            )
-
-        project.mark_review_finished()
+            if self._last_ranking is not None:
+                state.add_last_ranking(
+                    self._last_ranking["record_id"].to_numpy(),
+                    self.classifier.name,
+                    self.query_strategy.name,
+                    self.balance_strategy.name,
+                    None,
+                    self.training_set,
+                )

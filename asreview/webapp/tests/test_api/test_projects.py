@@ -313,7 +313,6 @@ def test_update_project_info(client, project):
         client,
         project,
         name=new_name,
-        # mode=new_mode,  # from version 2 on, it's no longer possible to update mode
         authors=new_authors,
         description=new_description,
         tags=new_tags,
@@ -542,7 +541,6 @@ def test_retrieve_document_for_review(client, project):
     au.upload_label_set_and_start_model(client, project)
     r = au.get_project_current_document(client, project)
 
-    print(r.json)
     assert r.status_code == 200
     assert isinstance(r.json, dict)
     assert not r.json["pool_empty"]

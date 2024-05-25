@@ -427,6 +427,7 @@ class Project:
 
         asreview_settings = ReviewSettings()
 
+        Path(self.project_path, "reviews", review_id).mkdir(exist_ok=True, parents=True)
         with open(
             Path(self.project_path, "reviews", review_id, "settings_metadata.json"), "w"
         ) as f:

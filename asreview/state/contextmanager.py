@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 import tempfile
 import zipfile
 from contextlib import contextmanager
@@ -23,6 +22,19 @@ from asreview.project import Project
 from asreview.project import is_project, ProjectNotFoundError
 from asreview.state.exceptions import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
+
+
+def _get_state_path(project, review_id=None, create_new=True):
+    if review_id is None:
+        if len(project.reviews) == 0:
+            if not create_new:
+                raise StateNotFoundError("State does not exist in the project")
+            review_id = uuid4().hex
+            project.add_review(review_id)
+        else:
+            review_id = project.reviews[0]["id"]
+
+    return Path(project.project_path, "reviews", review_id, "results.sql")
 
 
 @contextmanager
@@ -48,37 +60,38 @@ def open_state(asreview_obj, review_id=None, create_new=True, check_integrety=Fa
     """
 
     if isinstance(asreview_obj, Project):
-        project = asreview_obj
-    elif zipfile.is_zipfile(asreview_obj) and Path(asreview_obj).suffix == ".asreview":
+        fp_state = _get_state_path(
+            asreview_obj, review_id=review_id, create_new=create_new
+        )
+    elif (
+        isinstance(asreview_obj, (Path, str))
+        and Path(asreview_obj).is_file()
+        and zipfile.is_zipfile(asreview_obj)
+        and Path(asreview_obj).suffix == ".asreview"
+    ):
         tmpdir = tempfile.TemporaryDirectory()
         project = Project.load(asreview_obj, tmpdir.name)
-    elif isinstance(asreview_obj, (Path, str)) and not Path(asreview_obj).is_dir():
-        raise ProjectNotFoundError(
-            f"Directory {asreview_obj} is not a valid ASReview project."
+        fp_state = _get_state_path(project, review_id=review_id, create_new=create_new)
+    elif (
+        isinstance(asreview_obj, (Path, str))
+        and Path(asreview_obj).is_dir()
+        and is_project(asreview_obj)
+    ):
+        fp_state = _get_state_path(
+            Project(asreview_obj), review_id=review_id, create_new=create_new
         )
-    elif is_project(asreview_obj):
-        project = Project(asreview_obj)
+    elif isinstance(asreview_obj, (Path, str)) and Path(asreview_obj).suffix == ".sql":
+        Path(asreview_obj).parent.mkdir(parents=True, exist_ok=True)
+        fp_state = Path(asreview_obj)
     else:
-        raise TypeError("Unknown project type.")
-
-    if not create_new and len(project.reviews) == 0:
-        raise StateNotFoundError("State does not exist in the project")
+        raise ProjectNotFoundError(f"{asreview_obj} is not a valid input for state")
 
     try:
-        if create_new and len(project.reviews) == 0:
-            review_id = uuid4().hex
-            logging.debug(f"Create new review (state) with id {review_id}.")
-            state_fp = Path(project.project_path, "reviews", review_id, "results.sql")
-            state_fp.parent.mkdir(parents=True, exist_ok=True)
-            state = SQLiteState(state_fp)
+        if create_new and not fp_state.is_file():
+            state = SQLiteState(fp_state)
             state.create_tables()
-            project.add_review(review_id)
-
-        review_id = project.config["reviews"][0]["id"]
-        logging.debug(f"Opening review {review_id}.")
-        state = SQLiteState(
-            Path(project.project_path, "reviews", review_id, "results.sql")
-        )
+        else:
+            state = SQLiteState(fp_state)
 
         if check_integrety:
             state._is_valid_state()

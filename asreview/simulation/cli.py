@@ -20,6 +20,7 @@ import shutil
 from pathlib import Path
 import json
 from dataclasses import asdict
+from uuid import uuid4
 
 import numpy as np
 
@@ -169,15 +170,19 @@ def _cli_simulate(argv):
         balance_strategy=args.balance_strategy,
         feature_extraction=args.feature_extraction,
         init_seed=args.init_seed,
+        seed=args.seed,
     )
 
     if args.config_file:
         settings.from_file(args.config_file)
 
+    print(settings)
+
     # set the seeds
     # TODO: set seeds in the settings object
     # TODO: seed also other tools like tensorflow
     np.random.seed(args.seed)
+    np.random.seed(args.init_seed)
 
     classifier_model = load_extension("models.classifiers", settings.classifier)
     query_model = load_extension("models.query", settings.query_strategy)
@@ -229,9 +234,16 @@ def _cli_simulate(argv):
             random_state=args.init_seed,
         )
     sim.review()
-    sim.to_sql(project)
 
-    # sim.to_project(project)
+    project.add_review(review_id=uuid4().hex)
+    sim.to_sql(
+        Path(
+            project.project_path,
+            "reviews",
+            project.reviews[0]["id"],
+            "results.sql",
+        )
+    )
 
     with open(
         Path(
@@ -243,6 +255,8 @@ def _cli_simulate(argv):
         "w",
     ) as f:
         json.dump(asdict(settings), f)
+
+    project.update_review(review_id=project.reviews[0]["id"], status="finished")
 
     # create .ASReview file out of simulation folder
     project.export(args.state_file)
