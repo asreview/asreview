@@ -175,18 +175,6 @@ const InvitationContents = (props) => {
           </List>
         </Box>
       </Box>
-
-      <ConfirmationDialog
-        open={dialogOpen}
-        title={`Remove "${
-          removeUser && Boolean(removeUser.name) ? removeUser.name : "unknown"
-        }" from project`}
-        contents={
-          "Are you sure? You will remove this person from this project if you click on the 'Remove' button."
-        }
-        handleCancel={handleCloseConfirmationDialog}
-        handleConfirm={removeCollaborator}
-      />
     </>
   );
 };

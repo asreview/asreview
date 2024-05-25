@@ -34,7 +34,6 @@ class TeamAPI {
     }
   }
 
-  // static inviteUser(projectId, userId) {
   static inviteUser(params) {
     const projectId = params.projectId;
     const userId = params.user.id;
@@ -58,7 +57,10 @@ class TeamAPI {
     }
   }
 
-  static deleteInvitation(projectId, userId) {
+  static deleteInvitation(params) {
+    console.log(params);
+    const projectId = params.projectId;
+    const userId = params.userId;
     if (projectId !== null && userId !== null) {
       const url = api_url + `invitations/projects/${projectId}/users/${userId}`;
       return new Promise((resolve, reject) => {

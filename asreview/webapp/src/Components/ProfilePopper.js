@@ -19,7 +19,6 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import MailIcon from "@mui/icons-material/Mail";
 import { styled } from "@mui/material/styles";
 import { Logout, GroupAdd, Person } from "@mui/icons-material";
 
@@ -205,28 +204,26 @@ const ProfilePopper = (props) => {
                   </ListItemText>
                 </MenuItem>
 
-                {window.allowTeams && (
+                {window.allowTeams && projectInvitations.length > 0 && (
                   <MenuItem onClick={openAcceptanceDialog}>
                     <ListItemIcon>
-                      <GroupAdd fontSize="small" />
+                      <Badge
+                        badgeContent={projectInvitations.length}
+                        sx={{
+                          "& .MuiBadge-badge": {
+                            color: "white",
+                            backgroundColor: "red",
+                            fontSize: 9,
+                          },
+                        }}
+                      >
+                        <GroupAdd fontSize="small" />
+                      </Badge>
                     </ListItemIcon>
+                    
                     <ListItemText disableTypography>
                       <Typography variant="body2">
                         Collaboration Invites
-                        {projectInvitations.length > 0 && (
-                          <Badge
-                            badgeContent={projectInvitations.length}
-                            sx={{
-                              "& .MuiBadge-badge": {
-                                color: "white",
-                                backgroundColor: "red",
-                                fontSize: 11,
-                              },
-                            }}
-                          >
-                            <MailIcon color="action" fontSize="small" />
-                          </Badge>
-                        )}
                       </Typography>
                     </ListItemText>
                   </MenuItem>

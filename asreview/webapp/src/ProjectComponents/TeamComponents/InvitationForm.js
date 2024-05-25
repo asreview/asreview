@@ -5,7 +5,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import { Card, CardContent, Fab, Grid } from "@mui/material";
 import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
-const InvitationForm = (props) => {
+const InvitationForm = ({selectableUsers, onInvite}) => {
   const [selectedUser, setSelectedUser] = React.useState(null);
   const [inputValue, setInputValue] = React.useState("");
 
@@ -30,7 +30,7 @@ const InvitationForm = (props) => {
               onInputChange={(event, newInputValue) => {
                 setInputValue(newInputValue);
               }}
-              options={props.selectableUsers}
+              options={selectableUsers}
               getOptionLabel={(option) => `${option.name}`}
               sx={{ width: "100%"}}
               renderOption={(props, option) => {
@@ -49,7 +49,7 @@ const InvitationForm = (props) => {
               onClick={() => {
                 if (selectedUser != null) {
                   setSelectedUser(null);
-                  props.onInvite(selectedUser);
+                  onInvite(selectedUser);
                 }
               }}
               variant="extended"

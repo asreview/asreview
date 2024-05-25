@@ -1,9 +1,14 @@
 import * as React from "react";
-import { Box, Card, CardContent, List, Typography } from "@mui/material";
+import { 
+  Box,
+  Card,
+  CardContent,
+  List
+} from "@mui/material";
 import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 import UserListEntry from "./UserListEntry";
 
-const UserListComponent = ({header, users}) => {
+const UserListComponent = ({header, users, onDelete}) => {
   return (
     <Card className="team-card" elevation={2}>
       <CardContent className="team-card-content">
@@ -17,7 +22,7 @@ const UserListComponent = ({header, users}) => {
             <UserListEntry
               key={user.id}
               user={user}
-              //onDoubleClick={}
+              onDelete={onDelete}
             />
           ))}
         </List>
