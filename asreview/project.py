@@ -41,7 +41,6 @@ from scipy.sparse import save_npz
 from asreview import load_dataset
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_EXPLORE
-from asreview.config import PROJECT_MODE_ORACLE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.config import PROJECT_MODES
 from asreview.config import SCHEMA
@@ -208,7 +207,7 @@ class Project:
     def add_dataset(self, file_name):
         """Add file path to the project file.
 
-        Add file to data subfolder and fill the pool of iteration 0.
+        Add file to data subfolder.
         """
 
         # fill the pool of the first iteration
@@ -224,29 +223,6 @@ class Project:
             raise ValueError("Import partially or fully labeled dataset")
 
         self.update_config(dataset_path=file_name, name=file_name.rsplit(".", 1)[0])
-
-        review_id = uuid4().hex
-        state_fp = Path(self.project_path, "reviews", review_id, "results.sql")
-        state_fp.parent.mkdir(parents=True, exist_ok=True)
-
-        state = SQLiteState(state_fp)
-        state.create_tables()
-        self.add_review(review_id)
-
-        # if the data contains labels and oracle mode, add them to the state file
-        if self.config["mode"] == PROJECT_MODE_ORACLE and as_data.labels is not None:
-            labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
-            labels = as_data.labels[labeled_indices].tolist()
-            labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
-
-            # add the labels as prior data
-            state.add_labeling_data(
-                record_ids=labeled_record_ids,
-                labels=labels,
-                notes=[None for _ in labeled_record_ids],
-                prior=True,
-            )
-        state.close()
 
     def remove_dataset(self):
         """Remove dataset from project."""
@@ -406,13 +382,19 @@ class Project:
         except Exception:
             return []
 
-    def add_review(self, review_id, start_time=None, status="setup"):
+    def add_review(
+        self, review_id=None, settings=None, state=None, start_time=None, status="setup"
+    ):
         """Add new review metadata.
 
         Arguments
         ---------
         review_id: str
             The review_id uuid4.
+        settings: ReviewSettings
+            The settings of the review.
+        state: SQLiteState
+            The state of the review.
         status: str
             The status of the review. One of 'setup', 'running',
             'finished'.
@@ -420,18 +402,30 @@ class Project:
             Start of the review.
 
         """
+        if review_id is None:
+            review_id = uuid4().hex
+
         if start_time is None:
             start_time = datetime.now()
 
         config = self.config
 
-        asreview_settings = ReviewSettings()
+        if settings is None:
+            settings = ReviewSettings()
 
         Path(self.project_path, "reviews", review_id).mkdir(exist_ok=True, parents=True)
         with open(
             Path(self.project_path, "reviews", review_id, "settings_metadata.json"), "w"
         ) as f:
-            json.dump(asdict(asreview_settings), f)
+            json.dump(asdict(settings), f)
+
+        fp_state = Path(self.project_path, "reviews", review_id, "results.sql")
+
+        if state is None:
+            state = SQLiteState(fp_state)
+            state.create_tables()
+        else:
+            state.to_sql(fp_state)
 
         review_config = {
             "id": review_id,
@@ -447,6 +441,7 @@ class Project:
         config["reviews"].append(review_config)
 
         self.config = config
+        return config
 
     def update_review(self, review_id=None, **kwargs):
         """Update review metadata.

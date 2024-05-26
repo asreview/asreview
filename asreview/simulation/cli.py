@@ -18,9 +18,6 @@ import logging
 import re
 import shutil
 from pathlib import Path
-import json
-from dataclasses import asdict
-from uuid import uuid4
 
 import numpy as np
 
@@ -235,30 +232,8 @@ def _cli_simulate(argv):
         )
     sim.review()
 
-    project.add_review(review_id=uuid4().hex)
-    sim.to_sql(
-        Path(
-            project.project_path,
-            "reviews",
-            project.reviews[0]["id"],
-            "results.sql",
-        )
-    )
+    project.add_review(settings=settings, state=sim, status="finished")
 
-    with open(
-        Path(
-            project.project_path,
-            "reviews",
-            project.reviews[0]["id"],
-            "settings_metadata.json",
-        ),
-        "w",
-    ) as f:
-        json.dump(asdict(settings), f)
-
-    project.update_review(review_id=project.reviews[0]["id"], status="finished")
-
-    # create .ASReview file out of simulation folder
     project.export(args.state_file)
     shutil.rmtree(fp_tmp_simulation)
 

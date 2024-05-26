@@ -44,6 +44,7 @@ from werkzeug.utils import secure_filename
 import asreview as asr
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_EXPLORE
+from asreview.config import PROJECT_MODE_ORACLE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.statistics import n_duplicates
 from asreview.statistics import n_relevant
@@ -269,6 +270,27 @@ def api_create_project():  # noqa: F401
 
     try:
         project.add_dataset(data_path.name)
+        as_data = project.read_data()
+
+        project.add_review()
+
+        with open_state(project.project_path) as state:
+            # if the data contains labels and oracle mode, add them to the state file
+            if (
+                project.config["mode"] == PROJECT_MODE_ORACLE
+                and as_data.labels is not None
+            ):
+                labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
+                labels = as_data.labels[labeled_indices].tolist()
+                labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
+
+                # add the labels as prior data
+                state.add_labeling_data(
+                    record_ids=labeled_record_ids,
+                    labels=labels,
+                    notes=[None for _ in labeled_record_ids],
+                    prior=True,
+                )
 
     except Exception as err:
         try:

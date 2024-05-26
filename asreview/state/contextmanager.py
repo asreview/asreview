@@ -16,7 +16,6 @@ import tempfile
 import zipfile
 from contextlib import contextmanager
 from pathlib import Path
-from uuid import uuid4
 
 from asreview.project import Project
 from asreview.project import is_project, ProjectNotFoundError
@@ -29,8 +28,8 @@ def _get_state_path(project, review_id=None, create_new=True):
         if len(project.reviews) == 0:
             if not create_new:
                 raise StateNotFoundError("State does not exist in the project")
-            review_id = uuid4().hex
-            project.add_review(review_id)
+            d_review = project.add_review()
+            review_id = d_review["id"]
         else:
             review_id = project.reviews[0]["id"]
 
@@ -81,13 +80,13 @@ def open_state(asreview_obj, review_id=None, create_new=True, check_integrety=Fa
             Project(asreview_obj), review_id=review_id, create_new=create_new
         )
     elif isinstance(asreview_obj, (Path, str)) and Path(asreview_obj).suffix == ".sql":
-        Path(asreview_obj).parent.mkdir(parents=True, exist_ok=True)
         fp_state = Path(asreview_obj)
     else:
         raise ProjectNotFoundError(f"{asreview_obj} is not a valid input for state")
 
     try:
         if create_new and not fp_state.is_file():
+            fp_state.parent.mkdir(parents=True, exist_ok=True)
             state = SQLiteState(fp_state)
             state.create_tables()
         else:

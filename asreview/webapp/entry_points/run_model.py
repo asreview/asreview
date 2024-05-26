@@ -135,8 +135,6 @@ def _simulate_start(project):
     )
     project.add_feature_matrix(fm, feature_model.name)
 
-    project.add_review()
-
     sim = Simulate(
         fm,
         labels=as_data.labels,
@@ -150,13 +148,11 @@ def _simulate_start(project):
         sim.label(priors, prior=True)
         sim.review()
 
-        # should be overwritten
-        sim.to_sql(project, review_id=project)
+        project.add_review(state=sim, settings=settings, status="finished")
+
     except Exception as err:
         project.set_error(err)
         raise err
-
-    project.mark_review_finished()
 
 
 def main(argv):

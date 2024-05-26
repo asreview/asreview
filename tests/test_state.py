@@ -180,12 +180,17 @@ def test_settings_state(asreview_test_project):
 
 def test_create_new_state_file(tmpdir):
     project = asr.Project.create(Path(tmpdir, "test.asreview"))
+
     with asr.open_state(project) as state:
         state._is_valid_state()
 
-    review_id = project.reviews[0]["id"]
     asr.ReviewSettings().from_file(
-        Path(project.project_path, "reviews", review_id, "settings_metadata.json")
+        Path(
+            project.project_path,
+            "reviews",
+            project.reviews[0]["id"],
+            "settings_metadata.json",
+        )
     )
 
 
