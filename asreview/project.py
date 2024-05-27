@@ -224,6 +224,8 @@ class Project:
 
         self.update_config(dataset_path=file_name, name=file_name.rsplit(".", 1)[0])
 
+        return as_data
+
     def remove_dataset(self):
         """Remove dataset from project."""
         # reset dataset_path

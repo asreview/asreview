@@ -267,9 +267,7 @@ def api_create_project():  # noqa: F401
     data_path = Path(project.project_path, "data") / filename
 
     try:
-        project.add_dataset(data_path.name)
-        as_data = project.read_data()
-
+        as_data = project.add_dataset(data_path.name)
         project.add_review()
 
         with open_state(project.project_path) as state:
