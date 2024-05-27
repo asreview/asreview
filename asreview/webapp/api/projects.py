@@ -308,35 +308,6 @@ def api_create_project():  # noqa: F401
     return jsonify(project.config), 201
 
 
-@bp.route("/projects/info", methods=["POST"])
-@login_required
-def api_init_project():  # noqa: F401
-    """Initialize a new project"""
-
-    project_mode = request.form["mode"]
-    project_title = request.form["mode"] + "_" + time.strftime("%Y%m%d-%H%M%S")
-    # TODO: retrieve author from the authenticated profile
-
-    # get a unique project id
-    project_id = uuid4().hex
-
-    project = asr.Project.create(
-        get_project_path(project_id),
-        project_id=project_id,
-        project_mode=project_mode,
-        project_name=project_title,
-    )
-
-    if current_app.config.get("LOGIN_DISABLED", False):
-        return jsonify(project.config), 201
-
-    # create a database entry for this project
-    current_user.projects.append(Project(project_id=project_id))
-    DB.session.commit()
-
-    return jsonify(project.config), 201
-
-
 @bp.route("/dataset_readers", methods=["GET"])
 @login_required
 def api_list_data_readers():
