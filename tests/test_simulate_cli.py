@@ -6,7 +6,6 @@ import pytest
 import asreview as asr
 from asreview.simulation.cli import _cli_simulate
 
-
 DATA_FP = Path("tests", "demo_data", "generic_labels.csv")
 DATA_FP_URL = "https://raw.githubusercontent.com/asreview/asreview/master/tests/demo_data/generic_labels.csv"  # noqa
 DATA_FP_NO_ABS = Path("tests", "demo_data", "generic_labels_no_abs.csv")

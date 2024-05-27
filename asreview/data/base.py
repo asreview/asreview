@@ -23,7 +23,6 @@ from pandas.api.types import is_string_dtype
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
-
 from asreview.extensions import extensions
 
 

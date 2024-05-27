@@ -21,14 +21,15 @@ except ImportError:
     import tomli as tomllib
 
 import json
-from dataclasses import dataclass, replace
-from typing import Optional
+from dataclasses import dataclass
+from dataclasses import replace
 from pathlib import Path
+from typing import Optional
 
-from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_BALANCE_STRATEGY
-from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_CLASSIFIER
+from asreview.config import DEFAULT_FEATURE_EXTRACTION
+from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_QUERY_STRATEGY
 
 

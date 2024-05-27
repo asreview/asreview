@@ -18,12 +18,12 @@ from datetime import datetime
 
 import numpy as np
 import pandas as pd
+from sklearn.utils import check_random_state
 from tqdm import tqdm
 
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import LABEL_NA
 from asreview.state.contextmanager import open_state
-from sklearn.utils import check_random_state
 
 
 class Simulate:

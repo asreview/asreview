@@ -1,5 +1,5 @@
-from pathlib import Path
 import os
+from pathlib import Path
 
 from asreview.project import Project
 

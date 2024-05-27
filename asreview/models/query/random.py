@@ -18,7 +18,6 @@ __all__ = ["RandomQuery"]
 import numpy as np
 from sklearn.utils import check_random_state
 
-
 from asreview.models.query.base import BaseQueryStrategy
 
 

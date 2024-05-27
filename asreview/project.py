@@ -25,10 +25,10 @@ import shutil
 import tempfile
 import time
 import zipfile
+from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
-from dataclasses import asdict
 
 import jsonschema
 import numpy as np
@@ -40,9 +40,9 @@ from scipy.sparse import save_npz
 
 from asreview import load_dataset
 from asreview.config import LABEL_NA
+from asreview.config import PROJECT_MODES
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
-from asreview.config import PROJECT_MODES
 from asreview.config import SCHEMA
 from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState

@@ -15,9 +15,7 @@
 __all__ = ["MixedQuery", "MaxRandomQuery", "MaxUncertaintyQuery"]
 
 import numpy as np
-
 from sklearn.utils import check_random_state
-
 
 from asreview.models.query.base import BaseQueryStrategy
 from asreview.models.query.max_prob import MaxQuery

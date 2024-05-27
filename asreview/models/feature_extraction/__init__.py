@@ -17,8 +17,8 @@ __all__ = [
     "OneHot",
 ]
 
-from asreview.models.feature_extraction.tfidf import Tfidf
 from asreview.models.feature_extraction.onehot import OneHot
+from asreview.models.feature_extraction.tfidf import Tfidf
 
 """Feature extraction converts texts into features.
 

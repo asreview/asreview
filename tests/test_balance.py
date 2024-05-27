@@ -1,7 +1,8 @@
 import numpy as np
 from pytest import mark
 
-from asreview.extensions import load_extension, extensions
+from asreview.extensions import extensions
+from asreview.extensions import load_extension
 
 
 def generate_data(n_feature=20, n_sample=10):

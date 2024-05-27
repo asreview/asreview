@@ -31,13 +31,13 @@ from flask_login import LoginManager
 from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
-from asreview.webapp.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.api import auth
 from asreview.webapp.api import projects
 from asreview.webapp.api import team
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
+from asreview.webapp.utils import asreview_path
 
 
 def create_app(config_path=None):

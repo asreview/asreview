@@ -12,10 +12,10 @@ import asreview as asr
 import asreview.webapp.tests.utils.api_utils as au
 import asreview.webapp.tests.utils.crud as crud
 import asreview.webapp.tests.utils.misc as misc
-from asreview.webapp.utils import get_projects
-from asreview.webapp.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import Project
+from asreview.webapp.utils import asreview_path
+from asreview.webapp.utils import get_projects
 
 # NOTE: I don't see a plugin that can be used for testing
 # purposes

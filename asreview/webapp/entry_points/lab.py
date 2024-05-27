@@ -26,10 +26,10 @@ from rich.console import Console
 import asreview as asr
 from asreview._deprecated import DeprecateAction
 from asreview._deprecated import mark_deprecated_help_strings
+from asreview.webapp.app import create_app
+from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
 from asreview.webapp.utils import get_projects
-from asreview.webapp.utils import asreview_path
-from asreview.webapp.app import create_app
 
 # Host name
 HOST_NAME = os.getenv("ASREVIEW_LAB_HOST", "localhost")

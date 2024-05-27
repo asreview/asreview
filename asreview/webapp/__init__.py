@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from flask_sqlalchemy import SQLAlchemy
+
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
 from asreview.webapp.utils import get_projects

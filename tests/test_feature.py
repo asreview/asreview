@@ -3,7 +3,8 @@ import os
 import pytest
 
 import asreview as asr
-from asreview.extensions import extensions, load_extension
+from asreview.extensions import extensions
+from asreview.extensions import load_extension
 
 REQUIRES_AI_MODEL_DEP = ["doc2vec", "embedding-idf", "sbert"]
 

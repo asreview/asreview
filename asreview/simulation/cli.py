@@ -23,8 +23,8 @@ import numpy as np
 
 from asreview import load_dataset
 from asreview.config import DEFAULT_BALANCE_STRATEGY
-from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_CLASSIFIER
+from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED

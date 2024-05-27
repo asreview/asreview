@@ -13,17 +13,19 @@
 # limitations under the License.
 
 # deprecated in __init__.py, use asreview.models.feature_extraction instead
-from asreview.data.base import Dataset, Record
+from asreview.data.base import Dataset
+from asreview.data.base import Record
 from asreview.data.loader import load_dataset
+from asreview.extensions import extensions
+from asreview.extensions import get_extension
+from asreview.extensions import load_extension
 from asreview.project import Project
 from asreview.project import is_project
-from asreview.state.sqlstate import SQLiteState
-from asreview.state.contextmanager import open_state
-from asreview.simulation.simulate import Simulate
-from asreview.settings import ReviewSettings
 from asreview.search import fuzzy_find
-from asreview.extensions import extensions, get_extension, load_extension
-
+from asreview.settings import ReviewSettings
+from asreview.simulation.simulate import Simulate
+from asreview.state.contextmanager import open_state
+from asreview.state.sqlstate import SQLiteState
 
 try:
     from asreview._version import __version__

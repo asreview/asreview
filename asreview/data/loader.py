@@ -2,7 +2,6 @@ from io import StringIO
 from pathlib import Path
 
 from asreview.datasets import DatasetManager
-
 from asreview.extensions import extensions
 from asreview.utils import _get_filename_from_url
 from asreview.utils import _is_url

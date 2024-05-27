@@ -1,10 +1,10 @@
-from pathlib import Path
 import shutil
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
 
 import asreview as asr
-import pandas as pd
-import numpy as np
-
 from asreview.extensions import load_extension
 
 DATA_FP = Path("tests", "demo_data", "generic_labels.csv")

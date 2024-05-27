@@ -17,9 +17,9 @@ import logging
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 from filelock import FileLock
 from filelock import Timeout
-import pandas as pd
 
 import asreview as asr
 from asreview.config import LABEL_NA

@@ -18,7 +18,6 @@ import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.utils import check_random_state
 
-
 from asreview.models.query.base import ProbaQueryStrategy
 from asreview.models.query.max_prob import MaxQuery
 

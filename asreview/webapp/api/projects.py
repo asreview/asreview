@@ -46,27 +46,25 @@ from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_ORACLE
 from asreview.config import PROJECT_MODE_SIMULATE
-from asreview.statistics import n_duplicates
-from asreview.statistics import n_relevant
-from asreview.statistics import n_irrelevant
-
 from asreview.datasets import DatasetManager
-
-from asreview.project import ProjectNotFoundError
-from asreview.webapp.utils import get_project_path
-from asreview.project import is_project
+from asreview.extensions import extensions
 from asreview.project import ProjectError
+from asreview.project import ProjectNotFoundError
+from asreview.project import is_project
 from asreview.search import fuzzy_find
 from asreview.settings import ReviewSettings
 from asreview.state.contextmanager import open_state
 from asreview.state.exceptions import StateNotFoundError
-from asreview.extensions import extensions
+from asreview.statistics import n_duplicates
+from asreview.statistics import n_irrelevant
+from asreview.statistics import n_relevant
 from asreview.utils import _get_filename_from_url
-from asreview.webapp.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
 from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
+from asreview.webapp.utils import asreview_path
+from asreview.webapp.utils import get_project_path
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 

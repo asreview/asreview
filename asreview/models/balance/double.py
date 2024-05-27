@@ -18,10 +18,10 @@ from math import floor
 from math import log
 
 import numpy as np
+from sklearn.utils import check_random_state
 
 from asreview.models.balance.base import BaseBalance
 from asreview.models.balance.simple import SimpleBalance
-from sklearn.utils import check_random_state
 
 
 class DoubleBalance(BaseBalance):

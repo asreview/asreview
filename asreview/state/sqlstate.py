@@ -12,14 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import sqlite3
 from datetime import datetime
-import json
 
 import pandas as pd
 
 from asreview.state.compatibility import _check_and_update_version
-
 
 REQUIRED_TABLES = [
     "results",

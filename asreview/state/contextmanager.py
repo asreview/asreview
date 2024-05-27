@@ -18,7 +18,8 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from asreview.project import Project
-from asreview.project import is_project, ProjectNotFoundError
+from asreview.project import ProjectNotFoundError
+from asreview.project import is_project
 from asreview.state.exceptions import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
 

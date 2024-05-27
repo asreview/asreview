@@ -5,9 +5,9 @@ import pandas as pd
 from pytest import mark
 
 import asreview as asr
-from asreview.statistics import n_duplicates
 from asreview.datasets import DatasetManager
 from asreview.search import fuzzy_find
+from asreview.statistics import n_duplicates
 
 
 def exists(url):
