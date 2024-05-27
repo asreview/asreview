@@ -531,7 +531,7 @@ def api_get_labeled(project):  # noqa: F401
 
     with open_state(project.project_path) as s:
         state_data = s.get_results_table(
-            ["record_id", "label", "query_strategy", "notes", "custom_metadata_json"]
+            ["record_id", "label", "query_strategy", "notes", "tags"]
         )
         state_data["prior"] = (state_data["query_strategy"] == "prior").astype(int)
 
@@ -604,7 +604,7 @@ def api_get_labeled(project):  # noqa: F401
         # add variables from state
         record_d["included"] = int(state_data.loc[i, "label"])
         record_d["note"] = state_data.loc[i, "notes"]
-        record_d["tags"] = _extract_tags(state_data.loc[i, "custom_metadata_json"])
+        record_d["tags"] = _extract_tags(state_data.loc[i, "tags"])
         record_d["prior"] = int(state_data.loc[i, "prior"])
 
         result.append(record_d)
@@ -952,10 +952,10 @@ def api_import_project():
 
 
 def _add_tags_to_export_data(project, export_data, state_df):
-    tags_df = state_df[["custom_metadata_json"]].copy()
+    tags_df = state_df[["tags"]].copy()
 
     tags_df["tags"] = (
-        tags_df["custom_metadata_json"]
+        tags_df["tags"]
         .apply(lambda d: _extract_tags(d))
         .apply(lambda d: d if isinstance(d, list) else [])
     )

@@ -36,7 +36,7 @@ RESULTS_TABLE_COLUMNS = [
     "training_set",
     "labeling_time",
     "notes",
-    "custom_metadata_json",
+    "tags",
     "user_id",
 ]
 
@@ -100,7 +100,7 @@ class SQLiteState:
                             training_set INTEGER,
                             labeling_time INTEGER,
                             notes TEXT,
-                            custom_metadata_json TEXT,
+                            tags JSON,
                             user_id INTEGER)"""
         )
 
@@ -281,7 +281,7 @@ class SQLiteState:
                     "training_set": -1,
                     "labeling_time": datetime.now(),
                     "notes": notes,
-                    "custom_metadata_json": custom_metadata_list,
+                    "tags": custom_metadata_list,
                     "user_id": user_id,
                 }
             ).to_sql("results", self._conn, if_exists="append", index=False)
@@ -302,7 +302,7 @@ class SQLiteState:
             # If not prior, we need to update records.
             query = (
                 "UPDATE results SET label=?, labeling_time=?, "
-                "notes=?, custom_metadata_json=? WHERE record_id=?"
+                "notes=?, tags=? WHERE record_id=?"
             )
 
             # Add the rows to the database.
@@ -538,8 +538,7 @@ class SQLiteState:
 
         # Change the label.
         cur.execute(
-            "UPDATE results SET label = ?, notes = ?, "
-            "custom_metadata_json=? WHERE record_id = ?",
+            "UPDATE results SET label = ?, notes = ?, " "tags=? WHERE record_id = ?",
             (label, note, json.dumps({"tags": tags}), record_id),
         )
 

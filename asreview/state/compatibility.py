@@ -7,7 +7,7 @@ def _alter_tag_column(state):
     Introduced in state version 2.
     """
     con: sqlite3.Connection = state._conn
-    con.execute("ALTER TABLE results ADD COLUMN custom_metadata_json TEXT")
+    con.execute("ALTER TABLE results ADD COLUMN tags JSON")
 
 
 def _check_and_update_version(new_version, state):
