@@ -16,10 +16,10 @@ __all__ = ["ClusterQuery"]
 
 import numpy as np
 from sklearn.cluster import KMeans
+from sklearn.utils import check_random_state
 
 from asreview.models.query.base import ProbaQueryStrategy
 from asreview.models.query.max_prob import MaxQuery
-from asreview.utils import get_random_state
 
 
 class ClusterQuery(ProbaQueryStrategy):
@@ -49,7 +49,7 @@ class ClusterQuery(ProbaQueryStrategy):
         self.update_interval = update_interval
         self.last_update = None
         self.fallback_model = MaxQuery()
-        self._random_state = get_random_state(random_state)
+        self._random_state = random_state
 
     def _query(self, predictions, n_instances, X):
         n_samples = X.shape[0]
@@ -86,7 +86,9 @@ class ClusterQuery(ProbaQueryStrategy):
         clust_idx = []
         cluster_ids = list(clusters)
         for _ in range(n_instances):
-            cluster_id = self._random_state.choice(cluster_ids, 1)[0]
+            cluster_id = check_random_state(self._random_state).choice(cluster_ids, 1)[
+                0
+            ]
             clust_idx.append(clusters[cluster_id].pop()[0])
             if len(clusters[cluster_id]) == 0:
                 del clusters[cluster_id]
