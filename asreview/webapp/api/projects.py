@@ -1154,15 +1154,7 @@ def _get_stats(project, include_priors=False):
 
         # get label history
         with open_state(project.project_path) as s:
-            if (
-                project.config["reviews"][0]["status"] == "finished"
-                and project.config["mode"] == PROJECT_MODE_SIMULATE
-            ):
-                labels = s.get_labels(
-                    priors=include_priors, n_labels_padding=len(as_data)
-                )
-            else:
-                labels = s.get_labels(priors=include_priors)
+            labels = s.get_labels(priors=include_priors)
 
         n_records = len(as_data)
 
@@ -1212,14 +1204,7 @@ def api_get_progress_density(project):
 
     # get label history
     with open_state(project.project_path) as s:
-        if (
-            project.config["reviews"][0]["status"] == "finished"
-            and project.config["mode"] == PROJECT_MODE_SIMULATE
-        ):
-            as_data = project.read_data()
-            data = s.get_labels(priors=include_priors, n_labels_padding=len(as_data))
-        else:
-            data = s.get_labels(priors=include_priors)
+        data = s.get_labels(priors=include_priors)
 
     # create a dataset with the rolling mean of every 10 papers
     df = (
@@ -1265,21 +1250,14 @@ def api_get_progress_recall(project):
     include_priors = request.args.get("priors", False, type=bool)
 
     as_data = project.read_data()
-    n_records = len(as_data)
 
     with open_state(project.project_path) as s:
-        if (
-            project.config["reviews"][0]["status"] == "finished"
-            and project.config["mode"] == PROJECT_MODE_SIMULATE
-        ):
-            data = s.get_labels(priors=include_priors, n_labels_padding=len(as_data))
-        else:
-            data = s.get_labels(priors=include_priors)
+        data = s.get_labels(priors=include_priors)
 
     # create a dataset with the cumulative number of inclusions
     df = data.to_frame(name="Relevant").reset_index(drop=True).cumsum()
     df["Total"] = df.index + 1
-    df["Random"] = (df["Total"] * (df["Relevant"][-1:] / n_records).values).round()
+    df["Random"] = (df["Total"] * (df["Relevant"][-1:] / len(as_data)).values).round()
 
     df = df.round(1).to_dict(orient="records")
     for d in df:

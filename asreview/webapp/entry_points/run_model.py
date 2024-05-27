@@ -111,6 +111,8 @@ def _run_model_start(project, output_error=True):
 
 
 def _simulate_start(project):
+    as_data = project.read_data()
+
     settings = ReviewSettings().from_file(
         Path(
             project.project_path,
@@ -120,12 +122,8 @@ def _simulate_start(project):
         )
     )
 
-    print("\n\n\n\n\n", "start simulate", "\n\n\n\n\n")
-
     with open_state(project) as state:
         priors = state.get_priors()["record_id"].tolist()
-
-    as_data = project.read_data()
 
     feature_model = load_extension(
         "models.feature_extraction", settings.feature_extraction
@@ -143,16 +141,14 @@ def _simulate_start(project):
         balance_strategy=load_extension("models.balance", settings.balance_strategy)(),
         feature_extraction=feature_model,
     )
-
     try:
         sim.label(priors, prior=True)
         sim.review()
-
-        project.add_review(state=sim, settings=settings, status="finished")
-
     except Exception as err:
         project.set_error(err)
         raise err
+
+    project.update_review(state=sim, status="finished")
 
 
 def main(argv):

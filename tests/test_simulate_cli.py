@@ -109,16 +109,16 @@ def test_n_prior_excluded(tmpdir):
     assert settings_metadata["n_prior_excluded"] == 2
 
 
-# TODO: Add random seed to settings.
-# def test_seed(tmpdir):
-#     asreview_fp = Path(tmpdir, 'test.asreview')
-#     argv = f'{str(DATA_FP)} -s {asreview_fp} --seed 42'.split()
-#     simulate(argv)
-#
-#     with open(get_settings_metadata_path(asreview_fp), 'r') as f:
-#         settings_metadata = json.load(f)
-#
-#     assert settings_metadata['random_seed'] == 42
+@pytest.mark.skip(reason="Not implemented yet.")
+def test_seed(tmpdir):
+    asreview_fp = Path(tmpdir, "test.asreview")
+    argv = f"{str(DATA_FP)} -s {asreview_fp} --seed 42".split()
+    _cli_simulate(argv)
+
+    with open(asreview_fp, "r") as f:
+        settings_metadata = json.load(f)
+
+    assert settings_metadata["random_seed"] == 42
 
 
 @pytest.mark.parametrize("model", ["logistic", "nb", "rf", "svm"])

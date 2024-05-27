@@ -402,6 +402,12 @@ class Project:
             Start of the review.
 
         """
+
+        if review_id is not None and any(
+            [x["id"] == review_id for x in self.config["reviews"]]
+        ):
+            raise ValueError(f"Review with id {review_id} already exists.")
+
         if review_id is None:
             review_id = uuid4().hex
 
@@ -443,7 +449,7 @@ class Project:
         self.config = config
         return config
 
-    def update_review(self, review_id=None, **kwargs):
+    def update_review(self, review_id=None, settings=None, state=None, **kwargs):
         """Update review metadata.
 
         Arguments
@@ -464,8 +470,20 @@ class Project:
 
         if review_id is None:
             review_index = 0
+            review_id = config["reviews"][0]["id"]
         else:
             review_index = [x["id"] for x in self.config["reviews"]].index(review_id)
+
+        if state is not None:
+            fp_state = Path(self.project_path, "reviews", review_id, "results.sql")
+            state.to_sql(fp_state)
+
+        if settings is not None:
+            with open(
+                Path(self.project_path, "reviews", review_id, "settings_metadata.json"),
+                "w",
+            ) as f:
+                json.dump(asdict(settings), f)
 
         review_config = config["reviews"][review_index]
         review_config.update(kwargs)

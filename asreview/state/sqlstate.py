@@ -439,7 +439,7 @@ class SQLiteState:
             self._conn,
         )
 
-    def get_labels(self, priors=True, pending=False, n_labels_padding=None):
+    def get_labels(self, priors=True, pending=False):
         """Get the labels from the state.
 
         Arguments
@@ -455,14 +455,7 @@ class SQLiteState:
             Series containing the labels at each labelling moment.
         """
 
-        labels = self.get_results_table("label", priors=priors, pending=pending)[
-            "label"
-        ]
-
-        if n_labels_padding is not None:
-            labels = labels.append(pd.Series([0] * (n_labels_padding - len(labels))))
-
-        return labels
+        return self.get_results_table("label", priors=priors, pending=pending)["label"]
 
     def get_pool(self):
         """Get the unlabeled, not-pending records in ranking order.

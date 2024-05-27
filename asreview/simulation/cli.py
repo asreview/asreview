@@ -173,13 +173,10 @@ def _cli_simulate(argv):
     if args.config_file:
         settings.from_file(args.config_file)
 
-    print(settings)
-
     # set the seeds
     # TODO: set seeds in the settings object
     # TODO: seed also other tools like tensorflow
     np.random.seed(args.seed)
-    np.random.seed(args.init_seed)
 
     classifier_model = load_extension("models.classifiers", settings.classifier)
     query_model = load_extension("models.query", settings.query_strategy)
