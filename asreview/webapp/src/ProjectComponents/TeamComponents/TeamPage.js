@@ -5,14 +5,21 @@ import { Box, Fade, Grid, Snackbar, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { PageHeader } from "Components";
 import { TeamAPI } from "api";
-import InvitationForm from "./InvitationForm";
 import {
   ConfirmationDialog,
-  UserListComponent
+  EndCollaboration,
+  InvitationForm,
+  UserListComponent,
 } from "ProjectComponents/TeamComponents";
 
 const Root = styled("div")(({ theme }) => ({}));
 const initSnackbarData = { show: false, message: "" };
+const initDeleteData = {
+  openDialog: false,
+  userId: undefined,
+  text: undefined,
+  function: undefined,
+};
 
 const TeamPage = (props) => {
   const { project_id } = useParams();
@@ -20,8 +27,7 @@ const TeamPage = (props) => {
   const [collaborators, setCollaborators] = React.useState([]);
   const [invitedUsers, setInvitedUsers] = React.useState([]);
   const [snackbar, setSnackbar] = React.useState(initSnackbarData);
-  const [endCollaborationDialog, setEndCollaborationDialog] =
-    React.useState(false);
+  const [handleDelete, setHandleDelete] = React.useState(initDeleteData);
 
   const handleCloseSnackbar = () => {
     setSnackbar(initSnackbarData);
@@ -48,45 +54,45 @@ const TeamPage = (props) => {
     },
   });
 
-  const inviteUser = useMutation((data) => TeamAPI.inviteUser(data), {
-    onSuccess: (response, inputParams) => {
-      // get the user
-      const user = inputParams.user;
-      // remove user from allUsers
-      const index = selectableUsers.findIndex((item) => item.id === user.id);
-      //
-      setSelectableUsers((state) => [
-        ...selectableUsers.slice(0, index),
-        ...selectableUsers.slice(index + 1),
-      ]);
-      // set in Pending invitations
-      setInvitedUsers((state) =>
-        [...invitedUsers, user].sort((a, b) =>
-          a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1
-        )
-      );
-      //
-      setSnackbar({
-        show: true,
-        message: `You have invited ${user.name} to collaborate on this project`,
-      });
-    },
-    onError: (error) => {
-      console.error(error);
-      //
-      setSnackbar({
-        show: true,
-        message: `Unable to invite the selected user`,
-      });
-    },
-  });
+  const inviteUser = useMutation(
+    (user) => TeamAPI.inviteUser({ projectId: project_id, user: user }),
+    {
+      onSuccess: (response, user) => {
+        // remove user from allUsers
+        const index = selectableUsers.findIndex((item) => item.id === user.id);
+        //
+        setSelectableUsers((state) => [
+          ...selectableUsers.slice(0, index),
+          ...selectableUsers.slice(index + 1),
+        ]);
+        // set in Pending invitations
+        setInvitedUsers((state) =>
+          [...invitedUsers, user].sort((a, b) =>
+            a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1
+          )
+        );
+        //
+        setSnackbar({
+          show: true,
+          message: `You have invited ${user.name} to collaborate on this project`,
+        });
+      },
+      onError: (error) => {
+        console.error(error);
+        //
+        setSnackbar({
+          show: true,
+          message: `Unable to invite the selected user`,
+        });
+      },
+    }
+  );
 
   const deleteInvitation = useMutation(
-    (data) => TeamAPI.deleteInvitation(data),
+    (userId) =>
+      TeamAPI.deleteInvitation({ projectId: project_id, userId: userId }),
     {
-      onSuccess: (response, inputParams) => {
-        // get the userId
-        const userId = inputParams.userId;
+      onSuccess: (response, userId) => {
         // remove user from invitedUsers
         const index = invitedUsers.findIndex((item) => item.id === userId);
         const user = invitedUsers[index];
@@ -118,42 +124,71 @@ const TeamPage = (props) => {
     }
   );
 
+  const deleteCollaboration = useMutation(
+    (userId) =>
+      TeamAPI.deleteCollaboration({ projectId: project_id, userId: userId }),
+    {
+      onSuccess: (response, userId) => {
+        // remove user from invitedUsers
+        const index = collaborators.findIndex((item) => item.id === userId);
+        const user = collaborators[index];
+        //
+        setCollaborators((state) => [
+          ...invitedUsers.slice(0, index),
+          ...invitedUsers.slice(index + 1),
+        ]);
+        // set in selectable users
+        setSelectableUsers((state) =>
+          [...selectableUsers, user].sort((a, b) =>
+            a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1
+          )
+        );
+        //
+        setSnackbar({
+          show: true,
+          message: "Ended collaboration",
+        });
+      },
+      onError: (error) => {
+        console.log(error);
+        //
+        setSnackbar({
+          show: true,
+          message: "Unable to remove the collaborator",
+        });
+      },
+    }
+  );
+
   const onInvite = (userObject) => {
     if (userObject !== null) {
-      inviteUser.mutate({ projectId: project_id, user: userObject });
+      inviteUser.mutate(userObject);
     }
   };
 
   const onDeleteInvitation = (userId) => {
     if (userId !== null) {
-      deleteInvitation.mutate({ projectId: project_id, userId: userId });
+      setHandleDelete({
+        openDialog: true,
+        userId: userId,
+        text: "Do you really want to delete this invitation?",
+        function: deleteInvitation,
+      });
+      //deleteInvitation.mutate({ projectId: project_id, userId: userId });
     }
   };
 
   const onDeleteCollaboration = (userId) => {
     if (userId !== null) {
-      console.log(userId);
+      setHandleDelete({
+        openDialog: true,
+        userId: userId,
+        text: "Do you really want to delete this collaborator?",
+        function: deleteCollaboration,
+      });
       //deleteInvitation.mutate({ projectId: project_id, userId: userId });
     }
   };
-
-  // const inviteUser = () => {
-  //   if (selectedUser) {
-  //     TeamAPI.inviteUser(project_id, selectedUser.id)
-  //       .then((data) => {
-  //         if (data.success) {
-  //           // add this user to the invited users (ofEffect will take care of the rest
-  //           // -autocomplete-)
-  //           setInvitedUsers((state) => new Set([...state, selectedUser.id]));
-  //           // set selected value to null
-  //           setSelectedUser(null);
-  //         } else {
-  //           console.log("Could not invite user -- DB failure");
-  //         }
-  //       })
-  //       .catch((err) => console.log("Could not invite user", err));
-  //   }
-  // };
 
   return (
     <Root aria-label="teams page">
@@ -163,7 +198,8 @@ const TeamPage = (props) => {
 
           <Box className="main-page-body-wrapper">
             <Stack spacing={3} className="main-page-body">
-              {!usersQuery.isFetching && props.isOwner && (
+              
+              {props.isOwner && !usersQuery.isFetching && (
                 <Box>
                   <Grid container spacing={3}>
                     <Grid item xs={12}>
@@ -191,28 +227,34 @@ const TeamPage = (props) => {
                   </Grid>
                 </Box>
               )}
+
+              {!props.isOwner && (
+                <EndCollaboration />
+              )}
+
+
             </Stack>
           </Box>
         </Box>
       </Fade>
-
-      <ConfirmationDialog
-        open={endCollaborationDialog}
-        // title={`Remove "${
-        //   removeUser && Boolean(removeUser.name) ? removeUser.name : "unknown"
-        // }" from project`}
-        // contents={
-        //   "Are you sure? You will remove this person from this project if you click on the 'Remove' button."
-        // }
-        // handleCancel={handleCloseConfirmationDialog}
-        // handleConfirm={removeCollaborator}
-      />
 
       <Snackbar
         open={snackbar.show}
         autoHideDuration={3000}
         onClose={handleCloseSnackbar}
         message={snackbar.message}
+      />
+
+      <ConfirmationDialog
+        title="Are you sure?"
+        contentText={handleDelete.text}
+        open={handleDelete.openDialog}
+        onClose={() => setHandleDelete(initDeleteData)}
+        handleCancel={() => setHandleDelete(initDeleteData)}
+        handleConfirm={() => {
+          handleDelete.function.mutate(handleDelete.userId);
+          setHandleDelete(initDeleteData);
+        }}
       />
     </Root>
   );

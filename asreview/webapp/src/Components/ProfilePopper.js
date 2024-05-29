@@ -1,7 +1,6 @@
 import * as React from "react";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import {
   Avatar,
   Badge,
@@ -25,37 +24,25 @@ import { Logout, GroupAdd, Person } from "@mui/icons-material";
 import { StyledMenuItem } from "StyledComponents/StyledMenuItem";
 import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
-import { AuthAPI, TeamAPI, ProjectAPI } from "api";
+import { AuthAPI, TeamAPI } from "api";
 import useAuth from "hooks/useAuth";
 import ElasAvatar from "images/ElasAvatar.svg";
 
-import { AcceptanceDialog } from "ProjectComponents/TeamComponents";
+import { InvitationsDialog } from "ProjectComponents/TeamComponents";
 import { useToggle } from "hooks/useToggle";
-import { setMyProjects } from "redux/actions";
 
 const Root = styled("div")(({ theme }) => ({}));
 
 const ProfilePopper = (props) => {
   const { auth, setAuth } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [projectInvitations, setProjectInvitations] = React.useState([]);
-  const dispatch = useDispatch();
-
   const [onAcceptanceDialog, toggleAcceptanceDialog] = useToggle();
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [open, setOpen] = React.useState(false);
-
-  useQuery(["getProjectInvitations"], () => TeamAPI.getProjectInvitations(), {
-    onSuccess: (data) => {
-      setProjectInvitations(data["invited_for_projects"] || []);
-    },
-    onError: (data) => {
-      console.log("error", data);
-    },
-    enabled: window.allowTeams,
-  });
 
   const { mutate } = useMutation(AuthAPI.signout, {
     onSuccess: () => {
@@ -86,61 +73,59 @@ const ProfilePopper = (props) => {
     navigate("/profile");
   };
 
-  const acceptanceHandler = (project) => {
-    // Call the API to accept the invitation, if that is successful
-    // get list of all projects of this user and refresh the projects
-    // list, remove from Dialog
-    TeamAPI.acceptInvitation(project.project_id)
-      .then((data) => {
-        if (data.success) {
-          // success, the invite was transformed into a collaboration, get all projects
-          ProjectAPI.fetchProjects({})
-            .then((data) => {
-              if (data.result instanceof Array) {
-                // refresh project list
-                dispatch(setMyProjects(data.result));
-                // remove project from Dialog table
-                const newProjectList = projectInvitations.filter(
-                  (p) => p.id !== project.id,
-                );
-                setProjectInvitations(newProjectList);
-                // close modal if there are no more invitations
-                if (newProjectList.length === 0) {
-                  toggleAcceptanceDialog();
-                }
-              } else {
-                console.log("Could not get projects list -- DB failure");
-              }
-            })
-            .catch((err) => console.log("Could not pull all projects", err));
-        } else {
-          console.log("Could not reject invitation -- DB failure");
-        }
-      })
-      .catch((err) => console.log("Could not reject invitation", err));
-  };
+  useQuery(["getProjectInvitations"], () => TeamAPI.getProjectInvitations(), {
+    onSuccess: (data) => {
+      setProjectInvitations(data["invited_for_projects"] || []);
+    },
+    onError: (data) => {
+      console.log("error", data);
+    },
+    enabled: window.allowTeams,
+  });
 
-  const rejectionHandler = (project) => {
-    // call API to remove the invitation
-    TeamAPI.rejectInvitation(project.project_id)
-      .then((data) => {
-        if (data.success) {
-          // remove project from Dialog table and close if there are
-          // no more invitations
-          const newProjectList = projectInvitations.filter(
-            (p) => p.id !== project.id,
-          );
-          setProjectInvitations(newProjectList);
-          // close modal if there are no more invitations
-          if (newProjectList.length === 0) {
-            toggleAcceptanceDialog();
-          }
-        } else {
-          console.log("Could not reject invitation -- DB failure");
+  const acceptInvitation = useMutation(
+    (project) => TeamAPI.acceptInvitation(project.project_id),
+    {
+      onSuccess: (response, project) => {
+        // refetch all projects
+        queryClient.invalidateQueries({ queryKey: ["fetchProjects", project.mode]});
+        // filter out accepted project
+        const newProjectList = projectInvitations.filter(
+          (p) => p.id !== project.id,
+        );
+        // reset invitations
+        setProjectInvitations(newProjectList);
+        // close modal if there are no more invitations
+        if (newProjectList.length === 0) {
+          toggleAcceptanceDialog();
         }
-      })
-      .catch((err) => console.log("Could not reject invitation", err));
-  };
+      },
+      onError: (error) => {
+        console.log(error);
+      }
+    }
+  );
+
+  const rejectInvitation = useMutation(
+    (project) => TeamAPI.rejectInvitation(project.project_id),
+    {
+      onSuccess: (response, project) => {
+        // filter out rejected project
+        const newProjectList = projectInvitations.filter(
+          (p) => p.id !== project.id,
+        );
+        // reset invitations
+        setProjectInvitations(newProjectList);
+        // close modal if there are no more invitations
+        if (newProjectList.length === 0) {
+          toggleAcceptanceDialog();
+        }
+      },
+      onError: (error) => {
+        console.log(error);
+      }
+    }
+  );
 
   return (
     <Root>
@@ -244,13 +229,13 @@ const ProfilePopper = (props) => {
       </ClickAwayListener>
 
       {window.allowTeams && (
-        <AcceptanceDialog
+        <InvitationsDialog
           open={onAcceptanceDialog}
           onClose={toggleAcceptanceDialog}
           userId={auth.id}
           projectInvitations={projectInvitations}
-          handleAcceptance={acceptanceHandler}
-          handleRejection={rejectionHandler}
+          handleAcceptance={acceptInvitation.mutate}
+          handleRejection={rejectInvitation.mutate}
         />
       )}
     </Root>

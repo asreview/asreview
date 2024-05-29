@@ -58,7 +58,6 @@ class TeamAPI {
   }
 
   static deleteInvitation(params) {
-    console.log(params);
     const projectId = params.projectId;
     const userId = params.userId;
     if (projectId !== null && userId !== null) {
@@ -117,7 +116,9 @@ class TeamAPI {
     }
   }
 
-  static endCollaboration(projectId, userId) {
+  static deleteCollaboration(params) {
+    const projectId = params.projectId;
+    const userId = params.userId;
     if (userId !== null && projectId !== null) {
       const url = api_url + `projects/${projectId}/users/${userId}`;
       return new Promise((resolve, reject) => {

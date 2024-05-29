@@ -6,9 +6,10 @@ import {
   List
 } from "@mui/material";
 import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
-import UserListEntry from "./UserListEntry";
+import { UserListEntry } from "ProjectComponents/TeamComponents";
 
 const UserListComponent = ({header, users, onDelete}) => {
+  
   return (
     <Card className="team-card" elevation={2}>
       <CardContent className="team-card-content">
