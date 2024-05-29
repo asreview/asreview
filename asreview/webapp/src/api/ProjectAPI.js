@@ -567,13 +567,9 @@ class ProjectAPI {
     body.set("label", variables.label);
     body.set("note", variables.note);
 
-    const tagValues = variables.tagValues;
-    if (tagValues) {
-      if (typeof tagValues === "object") {
-        body.set("tags", JSON.stringify(Object.keys(tagValues)));
-      } else if (Array.isArray(tagValues)) {
-        body.set("tags", JSON.stringify(tagValues));
-      }
+    console.log(variables.tagValues);
+    if (variables.tagValues) {
+      body.set("tags", JSON.stringify(variables.tagValues));
     }
 
     // prior items should be labeled as such

@@ -81,10 +81,6 @@ def _extract_tags(custom_metadata_str):
         return None
 
 
-def _get_tag_composite_id(group_id, tag_id):
-    return f"{group_id}:{tag_id}"
-
-
 def _fill_last_ranking(project, ranking):
     """Fill the last ranking with a random or top-down ranking.
 
@@ -965,7 +961,7 @@ def _add_tags_to_export_data(project, export_data, state_df):
 
     if tags_config is not None:
         all_tags = [
-            [_get_tag_composite_id(group["id"], tag["id"]) for tag in group["values"]]
+            [f"{group['id']}:{tag['id']}" for tag in group["values"]]
             for group in tags_config
         ]
         all_tags = list(chain.from_iterable(all_tags))
@@ -1282,7 +1278,7 @@ def api_classify_instance(project, record_id):  # noqa: F401
                 record_ids=[record_id],
                 labels=[label],
                 notes=[note],
-                tags_list=[tags],
+                tags=[tags],
                 prior=prior,
             )
 

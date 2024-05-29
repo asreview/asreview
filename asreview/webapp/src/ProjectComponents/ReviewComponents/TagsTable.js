@@ -40,32 +40,36 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const TagsTable = (props) => {
-  const removeProperty = (propKey, { [propKey]: propValue, ...rest }) => rest;
-
-  const getTagCompositeId = (groupId, tagId) => `${groupId}:${tagId}`;
-
   const handleTagValueChange = (isChecked, groupId, tagId) => {
     let tagValues;
+
+    console.log(groupId);
+    console.log(tagId);
 
     if (isChecked) {
       tagValues = {
         ...props.tagValues,
-        [getTagCompositeId(groupId, tagId)]: true,
+        [groupId]:
+          props.tagValues[groupId] === undefined
+            ? [tagId]
+            : [...props.tagValues[groupId], tagId],
       };
     } else {
-      tagValues = removeProperty(
-        getTagCompositeId(groupId, tagId),
-        props.tagValues,
-      );
+      tagValues = {
+        ...props.tagValues,
+        [groupId]: props.tagValues[groupId].filter((value) => value !== tagId),
+      };
     }
-
-    console.log(tagValues);
 
     props.setTagValues(tagValues);
   };
 
   const isChecked = (groupId, tagId) => {
-    return props.tagValues.hasOwnProperty(getTagCompositeId(groupId, tagId));
+    if (props.tagValues[groupId] === undefined) {
+      return false;
+    } else {
+      return props.tagValues[groupId].includes(tagId);
+    }
   };
 
   return (
@@ -78,7 +82,7 @@ const TagsTable = (props) => {
               <FormGroup row={true}>
                 {group.values.map((tag) => (
                   <FormControlLabel
-                    key={getTagCompositeId(group.id, tag.id)}
+                    key={`${group.id}-${tag.id}`}
                     control={
                       <Checkbox
                         checked={isChecked(group.id, tag.id)}

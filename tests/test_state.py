@@ -394,6 +394,25 @@ def test_add_labeling_data(tmpdir):
         assert data["notes"].to_list() == TEST_NOTES[:6] + ["note0", None, "note2"]
 
 
+def test_results_tags(tmpdir):
+    project = asr.Project.create(Path(tmpdir, "test.asreview"))
+    with asr.open_state(project.project_path) as state:
+        state.add_last_ranking(range(851), "nb", "max", "double", "tfidf", 4)
+
+        for i in range(3):
+            state.add_labeling_data([TEST_RECORD_IDS[i]], [TEST_LABELS[i]], prior=True)
+
+        records = state.query_top_ranked(3)
+        state.add_labeling_data(
+            [records[0]], [1], tags={"tag1": ["value1", "value2"]}, prior=False
+        )
+
+        results = state.get_results_table()
+        assert results["tags"].notnull().sum() == 1
+        assert results["tags"].iloc[3] == {"tag1": ["value1", "value2"]}
+        assert results["tags"].iloc[2] is None
+
+
 def test_ranking_with_labels(tmpdir):
     test_ranking = range(10, 0, -1)
     project_path = Path(tmpdir, "test.asreview")

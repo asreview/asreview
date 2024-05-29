@@ -50,6 +50,8 @@ const ReviewPageRecord = (props) => {
     message: null,
   });
 
+  console.log(tagValues);
+
   const relevantPress = useKeyPress("r");
   const irrelevantPress = useKeyPress("i");
   const undoPress = useKeyPress("u");

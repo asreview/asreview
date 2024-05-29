@@ -238,7 +238,7 @@ class SQLiteState:
         ).to_sql("last_ranking", self._conn, if_exists="replace", index=False)
 
     def add_labeling_data(
-        self, record_ids, labels, notes=None, tags_list=None, prior=False, user_id=None
+        self, record_ids, labels, notes=None, tags=None, prior=False, user_id=None
     ):
         """Add the data corresponding to a labeling action to the state file.
 
@@ -261,16 +261,16 @@ class SQLiteState:
         if notes is None:
             notes = [None for _ in record_ids]
 
-        if tags_list is None:
-            tags_list = [None for _ in record_ids]
+        if tags is None:
+            tags = [None for _ in record_ids]
+        elif isinstance(tags, dict):
+            tags = [json.dumps(tags) for _ in record_ids]
+        else:
+            tags = [json.dumps(tag) for tag in tags]
 
         # Check that all input data has the same length.
-        if len({len(record_ids), len(labels), len(notes), len(tags_list)}) != 1:
+        if len({len(record_ids), len(labels), len(notes), len(tags)}) != 1:
             raise ValueError("Input data should be of the same length.")
-
-        custom_metadata_list = [
-            json.dumps({"tags": tags_list[i]}) for i, _ in enumerate(record_ids)
-        ]
 
         if prior:
             pd.DataFrame(
@@ -281,7 +281,7 @@ class SQLiteState:
                     "training_set": -1,
                     "labeling_time": datetime.now(),
                     "notes": notes,
-                    "tags": custom_metadata_list,
+                    "tags": tags,
                     "user_id": user_id,
                 }
             ).to_sql("results", self._conn, if_exists="append", index=False)
@@ -293,7 +293,7 @@ class SQLiteState:
                     int(labels[i]),
                     labeling_time,
                     notes[i],
-                    custom_metadata_list[i],
+                    tags[i],
                     int(record_ids[i]),
                 )
                 for i in range(len(record_ids))
@@ -377,6 +377,7 @@ class SQLiteState:
         return pd.read_sql_query(
             f"SELECT * FROM results WHERE record_id={record_id}",
             self._conn,
+            dtype={"label": "Int64"},
         )
 
     def get_results_table(self, columns=None, priors=True, pending=False):
@@ -420,9 +421,14 @@ class SQLiteState:
 
         # Query the database.
         query_string = "*" if columns is None else ",".join(columns)
-        return pd.read_sql_query(
-            f"SELECT {query_string} FROM results {sql_where_str}", self._conn
+        df_results = pd.read_sql_query(
+            f"SELECT {query_string} FROM results {sql_where_str}",
+            self._conn,
+            dtype={"label": "Int64"},
         )
+        df_results["tags"] = df_results["tags"].map(json.loads, na_action="ignore")
+
+        return df_results
 
     def get_priors(self):
         """Get the record ids of the priors.
@@ -433,10 +439,14 @@ class SQLiteState:
             The result records of the priors in the order they were added.
         """
 
-        return pd.read_sql_query(
+        df_results = pd.read_sql_query(
             "SELECT * FROM results WHERE query_strategy is 'prior'",
             self._conn,
+            dtype={"label": "Int64"},
         )
+        df_results["tags"] = df_results["tags"].map(json.loads, na_action="ignore")
+
+        return df_results
 
     def get_labels(self, priors=True, pending=False):
         """Get the labels from the state.
