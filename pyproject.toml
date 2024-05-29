@@ -87,7 +87,6 @@ algorithms = "asreview.simulation.algorithms:cli_algorithms"
 
 [project.entry-points."asreview.entry_points_internal"]
 web_run_model = "asreview.webapp.entry_points.run_model:main"
-state-inspect = "asreview.state.cli:cli_state_inspect"
 
 [project.entry-points."asreview.readers"]
 ".csv" = "asreview.data:CSVReader"
@@ -185,13 +184,14 @@ exclude = [
 line-length = 88
 indent-width = 4
 
-[ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "asreview/config.py" = ["E501"]
 
-[ruff.lint.isort]
+[tool.ruff.lint.isort]
 force-single-line = true
+case-sensitive = true
 
-[ruff.format]
+[tool.ruff.format]
 docstring-code-format = true
 docstring-code-line-length = "dynamic"
 

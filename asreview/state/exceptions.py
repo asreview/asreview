@@ -12,12 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["BadFileFormatError", "CacheDataError"]
+__all__ = ["StateNotFoundError"]
 
 
-class BadFileFormatError(Exception):
-    pass
-
-
-class CacheDataError(Exception):
+class StateNotFoundError(FileNotFoundError):
     pass

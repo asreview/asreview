@@ -18,30 +18,24 @@ import logging
 import re
 import shutil
 from pathlib import Path
-from uuid import uuid4
+
+import numpy as np
 
 from asreview import load_dataset
 from asreview.config import DEFAULT_BALANCE_STRATEGY
-from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_CLASSIFIER
+from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.datasets import DatasetManager
-from asreview.models.balance.utils import get_balance_model
-from asreview.models.classifiers import get_classifier
-from asreview.models.feature_extraction import get_feature_model
-from asreview.models.query import get_query_model
+from asreview.extensions import load_extension
 from asreview.project import Project
-from asreview.project import ProjectExistsError
 from asreview.settings import ReviewSettings
-from asreview.simulation import Simulate
-from asreview.state.contextmanager import open_state
-from asreview.state import SQLiteState
+from asreview.simulation.simulate import Simulate
 from asreview.types import type_n_queries
-from asreview.utils import format_to_str
-from asreview.utils import get_random_state
+from asreview.utils import _format_to_str
 
 
 def _set_log_verbosity(verbose):
@@ -99,7 +93,7 @@ def _print_record(record, use_cli_colors=True):
         title = ""
 
     if record.authors is not None and len(record.authors) > 0:
-        authors = format_to_str(record.authors) + "\n"
+        authors = _format_to_str(record.authors) + "\n"
     else:
         authors = ""
 
@@ -121,7 +115,7 @@ def _print_record(record, use_cli_colors=True):
     print(f"\n{header:-<60}\n{title}{authors}{abstract}")
 
 
-def cli_simulate(argv):
+def _cli_simulate(argv):
     # parse arguments
     parser = _simulate_parser()
     args = parser.parse_args(argv)
@@ -135,7 +129,7 @@ def cli_simulate(argv):
 
     # do this check now and again when zipping.
     if Path(args.state_file).exists():
-        raise ProjectExistsError("Project already exists.")
+        raise ValueError("Project path already exists.")
 
     # create a project file
     fp_tmp_simulation = Path(args.state_file).with_suffix(".asreview.tmp")
@@ -172,33 +166,24 @@ def cli_simulate(argv):
         query_strategy=args.query_strategy,
         balance_strategy=args.balance_strategy,
         feature_extraction=args.feature_extraction,
+        init_seed=args.init_seed,
+        seed=args.seed,
     )
 
     if args.config_file:
         settings.from_file(args.config_file)
 
-    # Initialize models.
-    random_state = get_random_state(args.seed)
-    classifier_model = get_classifier(
-        settings.classifier,
-        random_state=random_state,
-        **_unpack_params(settings.classifier_param),
-    )
-    query_model = get_query_model(
-        settings.query_strategy,
-        random_state=random_state,
-        **_unpack_params(settings.query_param),
-    )
-    balance_model = get_balance_model(
-        settings.balance_strategy,
-        random_state=random_state,
-        **_unpack_params(settings.balance_param),
-    )
-    feature_model = get_feature_model(
-        settings.feature_extraction,
-        random_state=random_state,
-        **_unpack_params(settings.feature_param),
-    )
+    # set the seeds
+    # TODO: set seeds in the settings object
+    # TODO: seed also other tools like tensorflow
+    np.random.seed(args.seed)
+
+    classifier_model = load_extension("models.classifiers", settings.classifier)
+    query_model = load_extension("models.query", settings.query_strategy)
+    balance_model = load_extension("models.balance", settings.balance_strategy)
+    feature_model = load_extension(
+        "models.feature_extraction", settings.feature_extraction
+    )(**_unpack_params(settings.feature_param))
 
     # prior knowledge
     if (
@@ -213,57 +198,39 @@ def cli_simulate(argv):
     if args.prior_record_id is not None and len(args.prior_record_id) > 0:
         prior_idx = _convert_id_to_idx(as_data, args.prior_record_id)
 
-    if classifier_model.name.startswith("lstm-"):
-        classifier_model.embedding_matrix = feature_model.get_embedding_matrix(
-            as_data.texts, args.embedding_fp
-        )
+    fm = feature_model.fit_transform(
+        as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
+    )
+    project.add_feature_matrix(fm, feature_model.name)
 
-    # Initialize the review class.
-    reviewer = Simulate(
-        as_data,
-        project=project,
-        classifier=classifier_model,
-        query_model=query_model,
-        balance_model=balance_model,
-        feature_model=feature_model,
-        n_papers=args.n_papers,
+    print("The following records are prior knowledge:\n")
+    for record_id, _ in as_data.df.iloc[prior_idx].iterrows():
+        _print_record(as_data.record(record_id))
+
+    sim = Simulate(
+        fm,
+        as_data.labels,
+        classifier=classifier_model(**_unpack_params(settings.classifier_param)),
+        query_strategy=query_model(**_unpack_params(settings.query_param)),
+        balance_strategy=balance_model(**_unpack_params(settings.balance_param)),
+        feature_extraction=feature_model,
         n_instances=args.n_instances,
         stop_if=args.stop_if,
-        prior_indices=prior_idx,
-        n_prior_included=args.n_prior_included,
-        n_prior_excluded=args.n_prior_excluded,
-        init_seed=args.init_seed,
-        write_interval=args.write_interval,
     )
+    if len(prior_idx) > 0:
+        sim.label(prior_idx, prior=True)
 
-    review_id = uuid4().hex
-    logging.debug(f"Create new review (state) with id {review_id}.")
-    SQLiteState()._create_new_state_file(project.project_path, review_id)
-    project.add_review(review_id)
+    if args.n_prior_included > 0 or args.n_prior_excluded > 0:
+        sim.label_random(
+            n_included=args.n_prior_included,
+            n_excluded=args.n_prior_excluded,
+            prior=True,
+            random_state=args.init_seed,
+        )
+    sim.review()
 
-    try:
-        # Start the review process.
-        project.update_review(status="review")
+    project.add_review(settings=settings, state=sim, status="finished")
 
-        with open_state(project) as s:
-            prior_df = s.get_priors()
-
-            print("The following records are prior knowledge:\n")
-            for _, row in prior_df.iterrows():
-                _print_record(as_data.record(row["record_id"]))
-
-        print("Simulation started\n")
-        reviewer.review()
-    except Exception as err:
-        # save the error to the project
-        project.set_error(err)
-
-        raise err
-
-    print("\nSimulation finished")
-    project.mark_review_finished()
-
-    # create .ASReview file out of simulation folder
     project.export(args.state_file)
     shutil.rmtree(fp_tmp_simulation)
 
@@ -396,12 +363,6 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         help="Number of papers queried each query." f"Default {DEFAULT_N_INSTANCES}.",
     )
     parser.add_argument(
-        "--n_queries",
-        type=type_n_queries,
-        default="min",
-        help="Deprecated, use 'stop_if' instead.",
-    )
-    parser.add_argument(
         "--stop_if",
         type=type_n_queries,
         default="min",
@@ -409,23 +370,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "will stop simulating when all relevant records are found. Use -1 "
         "to simulate all labels actions.",
     )
-    parser.add_argument(
-        "-n",
-        "--n_papers",
-        type=int,
-        default=None,
-        help="Deprecated, use 'stop_if' instead.",
-    )
     parser.add_argument("--verbose", "-v", default=0, type=int, help="Verbosity")
-    parser.add_argument(
-        "--write_interval",
-        "-w",
-        default=None,
-        type=int,
-        help="The simulation data will be written after each set of this"
-        "many labeled records. By default only writes data at the end"
-        "of the simulation to make it as fast as possible.",
-    )
     parser.add_argument(
         "--embedding",
         type=str,

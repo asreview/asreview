@@ -20,8 +20,6 @@ __all__ = [
     "RISReader",
     "RISWriter",
     "TSVWriter",
-    "list_readers",
-    "list_writers",
 ]
 
 from asreview.data.ris import RISReader
@@ -31,5 +29,3 @@ from asreview.data.tabular import CSVWriter
 from asreview.data.tabular import ExcelReader
 from asreview.data.tabular import ExcelWriter
 from asreview.data.tabular import TSVWriter
-from asreview.data.utils import list_readers
-from asreview.data.utils import list_writers

@@ -17,9 +17,9 @@ __all__ = ["UndersampleBalance"]
 from math import ceil
 
 import numpy as np
+from sklearn.utils import check_random_state
 
 from asreview.models.balance.base import BaseBalance
-from asreview.utils import get_random_state
 
 
 class UndersampleBalance(BaseBalance):
@@ -42,7 +42,7 @@ class UndersampleBalance(BaseBalance):
         """Initialize the undersampling balance strategy."""
         super().__init__()
         self.ratio = ratio
-        self._random_state = get_random_state(random_state)
+        self._random_state = check_random_state(random_state)
 
     def sample(self, X, y, train_idx):
         """Resample the training data.
@@ -72,10 +72,10 @@ class UndersampleBalance(BaseBalance):
             shuf_ind = np.append(one_ind, zero_ind)
         else:
             n_zero_epoch = ceil(n_one / self.ratio)
-            zero_under = self._random_state.choice(
+            zero_under = check_random_state(self._random_state).choice(
                 np.arange(n_zero), n_zero_epoch, replace=False
             )
             shuf_ind = np.append(one_ind, zero_ind[zero_under])
 
-        self._random_state.shuffle(shuf_ind)
+        check_random_state(self._random_state).shuffle(shuf_ind)
         return X[shuf_ind], y[shuf_ind]

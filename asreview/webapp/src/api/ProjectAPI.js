@@ -36,27 +36,6 @@ class ProjectAPI {
     });
   }
 
-  static mutateInitProject(variables) {
-    let body = new FormData();
-    body.set("mode", variables.mode);
-
-    const url = api_url + `projects/info`;
-    return new Promise((resolve, reject) => {
-      axios({
-        method: "post",
-        url: url,
-        data: body,
-        withCredentials: true,
-      })
-        .then((result) => {
-          resolve(result["data"]);
-        })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
   static createProject(variables) {
     let body = new FormData();
     body.set("mode", variables.mode);

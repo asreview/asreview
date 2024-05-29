@@ -5,7 +5,7 @@ import rispy
 from pytest import mark
 
 from asreview import load_dataset
-from asreview.utils import is_url
+from asreview.utils import _is_url
 
 
 @mark.parametrize(
@@ -30,7 +30,7 @@ from asreview.utils import is_url
     ],
 )
 def test_reader(test_file, n_lines, ignore_col):
-    if is_url(test_file):
+    if _is_url(test_file):
         fp = test_file
     else:
         fp = Path("tests", "demo_data", test_file)

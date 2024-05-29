@@ -20,7 +20,7 @@ from difflib import SequenceMatcher
 import numpy as np
 import pandas as pd
 
-from asreview.utils import format_to_str
+from asreview.utils import _format_to_str
 
 
 def _create_inverted_index(match_strings):
@@ -117,10 +117,10 @@ def fuzzy_find(
     all_strings = pd.Series(as_data.title).fillna("")
 
     if as_data.authors is not None:
-        all_strings += " " + pd.Series(as_data.authors).map(format_to_str).fillna("")
+        all_strings += " " + pd.Series(as_data.authors).map(_format_to_str).fillna("")
 
     if as_data.keywords is not None:
-        all_strings += " " + pd.Series(as_data.keywords).map(format_to_str).fillna("")
+        all_strings += " " + pd.Series(as_data.keywords).map(_format_to_str).fillna("")
 
     new_ranking = _get_fuzzy_scores(keywords, all_strings.values)
     sorted_idx = np.argsort(-new_ranking)
