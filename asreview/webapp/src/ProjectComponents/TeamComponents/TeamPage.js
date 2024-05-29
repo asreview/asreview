@@ -130,6 +130,13 @@ const TeamPage = (props) => {
     }
   };
 
+  const onDeleteCollaboration = (userId) => {
+    if (userId !== null) {
+      console.log(userId);
+      //deleteInvitation.mutate({ projectId: project_id, userId: userId });
+    }
+  };
+
   // const inviteUser = () => {
   //   if (selectedUser) {
   //     TeamAPI.inviteUser(project_id, selectedUser.id)
@@ -170,7 +177,7 @@ const TeamPage = (props) => {
                       <UserListComponent
                         header="Collaborators"
                         users={collaborators}
-                        onDelete={onDeleteInvitation}
+                        onDelete={onDeleteCollaboration}
                       />
                     </Grid>
 
