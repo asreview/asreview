@@ -22,15 +22,17 @@ def users(project_id):
     response = jsonify(REQUESTER_FRAUD), 404
 
     # get project
-    project = Project.query.filter(Project.project_id == project_id).one_or_none()
+    project = Project.query.filter(
+        Project.project_id == project_id).one_or_none()
 
     # check if this project is in fact from current user
     if project in current_user.projects:
+
         # get associated users from project
         collaborators = project.collaborators
         invitations = project.pending_invitations
 
-        # get all users that are involved (invited or collabo)
+        # get all users that are involved (invited or collaborators)
         collaborators = [user.id for user in collaborators]
         invitations = [user.id for user in invitations]
 

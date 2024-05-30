@@ -19,7 +19,10 @@ import { AnalyticsPage } from "ProjectComponents/AnalyticsComponents";
 import { DetailsPage } from "ProjectComponents/DetailsComponents";
 import { HistoryPage } from "ProjectComponents/HistoryComponents";
 import { ExportPage } from "ProjectComponents/ExportComponents";
-import { TeamPage } from "ProjectComponents/TeamComponents";
+import { 
+  CollaborationPage,
+  TeamPage
+} from "ProjectComponents/TeamComponents";
 
 import { ReviewPage } from "ProjectComponents/ReviewComponents";
 import RouteNotFound from "RouteNotFound";
@@ -240,11 +243,14 @@ const ProjectPage = (props) => {
           {isSuccess && window.authentication && !data?.projectNeedsUpgrade && (
             <Route
               path="team"
-              element={
+              element={ isOwner ?
                 <TeamPage
-                  isOwner={isOwner}
                   mobileScreen={props.mobileScreen}
-                  mode={data?.mode}
+                  info={data}
+                />
+                :
+                <CollaborationPage
+                  info={data}
                 />
               }
             />

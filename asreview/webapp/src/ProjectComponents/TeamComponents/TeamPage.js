@@ -1,13 +1,11 @@
 import * as React from "react";
 import { useQuery, useMutation } from "react-query";
-import { useParams } from "react-router-dom";
 import { Box, Fade, Grid, Snackbar, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { PageHeader } from "Components";
 import { TeamAPI } from "api";
 import {
   ConfirmationDialog,
-  EndCollaboration,
   InvitationForm,
   UserListComponent,
 } from "ProjectComponents/TeamComponents";
@@ -22,7 +20,6 @@ const initDeleteData = {
 };
 
 const TeamPage = (props) => {
-  const { project_id } = useParams();
   const [selectableUsers, setSelectableUsers] = React.useState([]);
   const [collaborators, setCollaborators] = React.useState([]);
   const [invitedUsers, setInvitedUsers] = React.useState([]);
@@ -33,7 +30,7 @@ const TeamPage = (props) => {
     setSnackbar(initSnackbarData);
   };
 
-  const usersQuery = useQuery(["fetchUsers", project_id], TeamAPI.fetchUsers, {
+  useQuery(["fetchUsers", props.info.id], TeamAPI.fetchUsers, {
     refetchOnWindowFocus: false,
     onSuccess: (data) => {
       // filter all collaborators and invited people from users
@@ -55,7 +52,7 @@ const TeamPage = (props) => {
   });
 
   const inviteUser = useMutation(
-    (user) => TeamAPI.inviteUser({ projectId: project_id, user: user }),
+    (user) => TeamAPI.inviteUser({ projectId: props.info.id, user: user }),
     {
       onSuccess: (response, user) => {
         // remove user from allUsers
@@ -90,7 +87,7 @@ const TeamPage = (props) => {
 
   const deleteInvitation = useMutation(
     (userId) =>
-      TeamAPI.deleteInvitation({ projectId: project_id, userId: userId }),
+      TeamAPI.deleteInvitation({ projectId: props.info.id, userId: userId }),
     {
       onSuccess: (response, userId) => {
         // remove user from invitedUsers
@@ -126,7 +123,7 @@ const TeamPage = (props) => {
 
   const deleteCollaboration = useMutation(
     (userId) =>
-      TeamAPI.deleteCollaboration({ projectId: project_id, userId: userId }),
+      TeamAPI.deleteCollaboration({ projectId: props.info.id, userId: userId }),
     {
       onSuccess: (response, userId) => {
         // remove user from invitedUsers
@@ -174,7 +171,6 @@ const TeamPage = (props) => {
         text: "Do you really want to delete this invitation?",
         function: deleteInvitation,
       });
-      //deleteInvitation.mutate({ projectId: project_id, userId: userId });
     }
   };
 
@@ -186,7 +182,6 @@ const TeamPage = (props) => {
         text: "Do you really want to delete this collaborator?",
         function: deleteCollaboration,
       });
-      //deleteInvitation.mutate({ projectId: project_id, userId: userId });
     }
   };
 
@@ -196,10 +191,9 @@ const TeamPage = (props) => {
         <Box>
           <PageHeader header="Team" mobileScreen={props.mobileScreen} />
 
-          <Box className="main-page-body-wrapper">
-            <Stack spacing={3} className="main-page-body">
-              
-              {props.isOwner && !usersQuery.isFetching && (
+          { props.info && (
+            <Box className="main-page-body-wrapper">
+              <Stack spacing={3} className="main-page-body">
                 <Box>
                   <Grid container spacing={3}>
                     <Grid item xs={12}>
@@ -226,36 +220,31 @@ const TeamPage = (props) => {
                     </Grid>
                   </Grid>
                 </Box>
-              )}
+              </Stack>
 
-              {!props.isOwner && (
-                <EndCollaboration />
-              )}
+              <Snackbar
+                open={snackbar.show}
+                autoHideDuration={3000}
+                onClose={handleCloseSnackbar}
+                message={snackbar.message}
+              />
 
+              <ConfirmationDialog
+                title="Are you sure?"
+                contentText={handleDelete.text}
+                open={handleDelete.openDialog}
+                onClose={() => setHandleDelete(initDeleteData)}
+                handleCancel={() => setHandleDelete(initDeleteData)}
+                handleConfirm={() => {
+                  handleDelete.function.mutate(handleDelete.userId);
+                  setHandleDelete(initDeleteData);
+                }}
+              />
 
-            </Stack>
-          </Box>
+            </Box>
+          )}
         </Box>
       </Fade>
-
-      <Snackbar
-        open={snackbar.show}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-        message={snackbar.message}
-      />
-
-      <ConfirmationDialog
-        title="Are you sure?"
-        contentText={handleDelete.text}
-        open={handleDelete.openDialog}
-        onClose={() => setHandleDelete(initDeleteData)}
-        handleCancel={() => setHandleDelete(initDeleteData)}
-        handleConfirm={() => {
-          handleDelete.function.mutate(handleDelete.userId);
-          setHandleDelete(initDeleteData);
-        }}
-      />
     </Root>
   );
 };
