@@ -96,7 +96,7 @@ const columns = [
   { id: "action", label: "Action", width: "25%" },
 ];
 
-const AcceptanceDialog = (props) => {
+const InvitationsComponent = (props) => {
   return (
     <StyledPaper elevation={2} className={classes.root}>
       <TableContainer>
@@ -141,4 +141,4 @@ const AcceptanceDialog = (props) => {
   );
 };
 
-export default AcceptanceDialog;
+export default InvitationsComponent;

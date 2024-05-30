@@ -30,7 +30,7 @@ def users(project_id):
         collaborators = project.collaborators
         invitations = project.pending_invitations
 
-        # get all users that are involved (invited or collabo)
+        # get all users that are involved (invited or collaborators)
         collaborators = [user.id for user in collaborators]
         invitations = [user.id for user in invitations]
 
