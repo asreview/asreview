@@ -3,18 +3,9 @@ import { useMutation, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { TeamAPI } from "api";
 import useAuth from "hooks/useAuth";
-import {
-  Box,
-  Button,
-  Fade,
-  Stack,
-  Typography
-} from "@mui/material";
+import { Box, Button, Fade, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import {
-  InlineErrorHandler,
-  PageHeader
-} from "Components";
+import { InlineErrorHandler, PageHeader } from "Components";
 import { ConfirmationDialog } from "ProjectComponents/TeamComponents";
 
 const Root = styled("div")(({ theme }) => ({}));
@@ -35,18 +26,23 @@ const CollaborationPage = (props) => {
   };
 
   const handleEndCollaboration = useMutation(
-    () => TeamAPI.deleteCollaboration({ projectId: props.info.id, userId: auth.id }),
+    () =>
+      TeamAPI.deleteCollaboration({
+        projectId: props.info.id,
+        userId: auth.id,
+      }),
     {
       onSuccess: (response, project) => {
-        queryClient.invalidateQueries({ queryKey: ["fetchProjects", props.info.mode]});
+        queryClient.invalidateQueries({
+          queryKey: ["fetchProjects", props.info.mode],
+        });
         navigate("/projects");
       },
       onError: (error) => {
         let message = `Could not end the collaboration: (${error})`;
         setErrorMessage(message);
-
       },
-    }
+    },
   );
 
   return (
@@ -57,11 +53,12 @@ const CollaborationPage = (props) => {
 
           <Box className="main-page-body-wrapper">
             <Stack className="main-page-body">
-
-              <Typography variant="h5">You are collaborating in this project</Typography>
-              { props.info && (
+              <Typography variant="h5">
+                You are collaborating in this project
+              </Typography>
+              {props.info && (
                 <>
-                  <Typography sx={{ paddingTop: 3, paddingBottom: 3}}>
+                  <Typography sx={{ paddingTop: 3, paddingBottom: 3 }}>
                     If you would like to end this collaboration, click on the
                     button below:
                   </Typography>
@@ -84,9 +81,7 @@ const CollaborationPage = (props) => {
                   <ConfirmationDialog
                     open={dialogOpen}
                     title="Are you sure?"
-                    contentText={
-                      `You will remove yourself from project "${props.info.name}".`
-                    }
+                    contentText={`You will remove yourself from project "${props.info.name}".`}
                     handleCancel={handleCloseConfirmationDialog}
                     handleConfirm={() => handleEndCollaboration.mutate()}
                   />

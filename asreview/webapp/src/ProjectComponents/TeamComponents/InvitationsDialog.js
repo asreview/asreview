@@ -39,7 +39,6 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 const InvitationsDialog = (props) => {
-
   const handleClose = () => {
     props.onClose();
   };

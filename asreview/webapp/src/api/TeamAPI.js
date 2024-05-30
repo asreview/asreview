@@ -38,9 +38,7 @@ class TeamAPI {
     const projectId = params.projectId;
     const userId = params.user.id;
     if (projectId !== null && userId !== null) {
-      const url =
-        api_url +
-        `invitations/projects/${projectId}/users/${userId}`;
+      const url = api_url + `invitations/projects/${projectId}/users/${userId}`;
       return new Promise((resolve, reject) => {
         axios({
           method: "post",

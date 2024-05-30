@@ -6,9 +6,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import Avatar from "@mui/material/Avatar";
 import { blue } from "@mui/material/colors";
 
-
-const UserListEntry = ({user, onDelete}) => {
-
+const UserListEntry = ({ user, onDelete }) => {
   return (
     <ListItemButton onDoubleClick={() => onDelete(user.id)}>
       <ListItemAvatar>

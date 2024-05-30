@@ -40,13 +40,13 @@ const TeamPage = (props) => {
       setSelectableUsers((state) =>
         allUsers
           .filter((item) => !associatedUsers.includes(item.id))
-          .sort((a, b) => a.name.toLowerCase() - b.name.toLowerCase())
+          .sort((a, b) => a.name.toLowerCase() - b.name.toLowerCase()),
       );
       setCollaborators((state) =>
-        allUsers.filter((item) => data.collaborators.includes(item.id))
+        allUsers.filter((item) => data.collaborators.includes(item.id)),
       );
       setInvitedUsers((state) =>
-        allUsers.filter((item) => data.invitations.includes(item.id))
+        allUsers.filter((item) => data.invitations.includes(item.id)),
       );
     },
   });
@@ -65,8 +65,8 @@ const TeamPage = (props) => {
         // set in Pending invitations
         setInvitedUsers((state) =>
           [...invitedUsers, user].sort((a, b) =>
-            a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1
-          )
+            a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1,
+          ),
         );
         //
         setSnackbar({
@@ -82,7 +82,7 @@ const TeamPage = (props) => {
           message: `Unable to invite the selected user`,
         });
       },
-    }
+    },
   );
 
   const deleteInvitation = useMutation(
@@ -101,8 +101,8 @@ const TeamPage = (props) => {
         // set in selectable users
         setSelectableUsers((state) =>
           [...selectableUsers, user].sort((a, b) =>
-            a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1
-          )
+            a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1,
+          ),
         );
         //
         setSnackbar({
@@ -118,7 +118,7 @@ const TeamPage = (props) => {
           message: "Unable to remove invitation",
         });
       },
-    }
+    },
   );
 
   const deleteCollaboration = useMutation(
@@ -137,8 +137,8 @@ const TeamPage = (props) => {
         // set in selectable users
         setSelectableUsers((state) =>
           [...selectableUsers, user].sort((a, b) =>
-            a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1
-          )
+            a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1,
+          ),
         );
         //
         setSnackbar({
@@ -154,7 +154,7 @@ const TeamPage = (props) => {
           message: "Unable to remove the collaborator",
         });
       },
-    }
+    },
   );
 
   const onInvite = (userObject) => {
@@ -191,7 +191,7 @@ const TeamPage = (props) => {
         <Box>
           <PageHeader header="Team" mobileScreen={props.mobileScreen} />
 
-          { props.info && (
+          {props.info && (
             <Box className="main-page-body-wrapper">
               <Stack spacing={3} className="main-page-body">
                 <Box>
@@ -240,7 +240,6 @@ const TeamPage = (props) => {
                   setHandleDelete(initDeleteData);
                 }}
               />
-
             </Box>
           )}
         </Box>

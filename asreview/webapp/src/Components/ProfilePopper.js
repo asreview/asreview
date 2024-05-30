@@ -88,7 +88,9 @@ const ProfilePopper = (props) => {
     {
       onSuccess: (response, project) => {
         // refetch all projects
-        queryClient.invalidateQueries({ queryKey: ["fetchProjects", project.mode]});
+        queryClient.invalidateQueries({
+          queryKey: ["fetchProjects", project.mode],
+        });
         // filter out accepted project
         const newProjectList = projectInvitations.filter(
           (p) => p.id !== project.id,
@@ -102,8 +104,8 @@ const ProfilePopper = (props) => {
       },
       onError: (error) => {
         console.log(error);
-      }
-    }
+      },
+    },
   );
 
   const rejectInvitation = useMutation(
@@ -123,8 +125,8 @@ const ProfilePopper = (props) => {
       },
       onError: (error) => {
         console.log(error);
-      }
-    }
+      },
+    },
   );
 
   return (
@@ -205,7 +207,7 @@ const ProfilePopper = (props) => {
                         <GroupAdd fontSize="small" />
                       </Badge>
                     </ListItemIcon>
-                    
+
                     <ListItemText disableTypography>
                       <Typography variant="body2">
                         Collaboration Invites

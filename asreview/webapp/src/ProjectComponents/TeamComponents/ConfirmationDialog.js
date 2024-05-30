@@ -20,9 +20,7 @@ const ConfirmationDialog = (props) => {
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={props.handleCancel}>
-          {props.cancelText || "No"}
-        </Button>
+        <Button onClick={props.handleCancel}>{props.cancelText || "No"}</Button>
         <Button onClick={props.handleConfirm} autoFocus>
           {props.confirmText || "Yes"}
         </Button>
