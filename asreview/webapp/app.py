@@ -148,14 +148,13 @@ def create_app(config_path=None):
             "index.html",
             api_url=app.config.get("API_URL", "/"),
             asreview_version=asreview_version,
-            authentication=str(
-                not app.config.get("LOGIN_DISABLED", False)).lower(),
+            authentication=str(not app.config.get("LOGIN_DISABLED", False)).lower(),
             login_info=app.config.get("LOGIN_INFO", None),
             allow_account_creation=str(
-                app.config.get("ALLOW_ACCOUNT_CREATION", True)).lower(),
+                app.config.get("ALLOW_ACCOUNT_CREATION", True)
+            ).lower(),
             allow_teams=str(app.config.get("ALLOW_TEAMS", False)).lower(),
-            email_verification=str(
-                app.config.get("EMAIL_VERIFICATION", False)).lower(),
+            email_verification=str(app.config.get("EMAIL_VERIFICATION", False)).lower(),
             oauth=app.config.get("OAUTH", oauth_params),
         )
 
