@@ -16,13 +16,13 @@ const ConfirmationDialog = (props) => {
       <DialogTitle id="alert-dialog-title">{props.title}</DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
-          {props.contents}
+          {props.contentText}
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={props.handleCancel}>Cancel</Button>
+        <Button onClick={props.handleCancel}>{props.cancelText || "No"}</Button>
         <Button onClick={props.handleConfirm} autoFocus>
-          Remove
+          {props.confirmText || "Yes"}
         </Button>
       </DialogActions>
     </Dialog>
