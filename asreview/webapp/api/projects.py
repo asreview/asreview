@@ -1284,7 +1284,7 @@ def api_classify_instance(project, record_id):  # noqa: F401
                 notes=[note],
                 tags_list=[tags],
                 prior=prior,
-                user_id=current_user.id
+                user_id=current_user.id,
             )
 
     elif request.method == "PUT":
