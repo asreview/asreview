@@ -1275,6 +1275,11 @@ def api_classify_instance(project, record_id):  # noqa: F401
     retrain_model = False if is_prior == "1" else True
     prior = True if is_prior == "1" else False
 
+    try:
+        user_id = current_user.id
+    except Exception as e:
+        user_id = None
+
     if request.method == "POST":
         with open_state(project.project_path) as state:
             # add the labels as prior data
@@ -1284,7 +1289,7 @@ def api_classify_instance(project, record_id):  # noqa: F401
                 notes=[note],
                 tags_list=[tags],
                 prior=prior,
-                user_id=current_user.id,
+                user_id=user_id
             )
 
     elif request.method == "PUT":
@@ -1336,9 +1341,14 @@ def api_get_document(project):  # noqa: F401
                 return jsonify(
                     {"result": None, "pool_empty": False, "has_ranking": False}
                 )
-
-            state.query_top_ranked(user_id=current_user.id)
-            pending = state.get_pending(user_id=current_user.id)
+            
+            try:
+                user_id = current_user.id
+            except Exception as e:
+                user_id = None
+                
+            state.query_top_ranked(user_id=user_id)
+            pending = state.get_pending(user_id=user_id)
 
     as_data = project.read_data()
     item = asdict(as_data.record(pending["record_id"].iloc[0]))
