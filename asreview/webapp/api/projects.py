@@ -1284,6 +1284,7 @@ def api_classify_instance(project, record_id):  # noqa: F401
                 notes=[note],
                 tags_list=[tags],
                 prior=prior,
+                user_id=current_user.id
             )
 
     elif request.method == "PUT":
@@ -1336,8 +1337,8 @@ def api_get_document(project):  # noqa: F401
                     {"result": None, "pool_empty": False, "has_ranking": False}
                 )
 
-            state.query_top_ranked()
-            pending = state.get_pending()
+            state.query_top_ranked(user_id=current_user.id)
+            pending = state.get_pending(user_id=current_user.id)
 
     as_data = project.read_data()
     item = asdict(as_data.record(pending["record_id"].iloc[0]))
