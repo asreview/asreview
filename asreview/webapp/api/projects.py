@@ -1275,6 +1275,10 @@ def api_classify_instance(project, record_id):  # noqa: F401
     retrain_model = False if is_prior == "1" else True
     prior = True if is_prior == "1" else False
 
+    user_id = (
+        None if current_app.config.get("LOGIN_DISABLED", False) else current_user.id
+    )
+
     if request.method == "POST":
         with open_state(project.project_path) as state:
             # add the labels as prior data
@@ -1284,6 +1288,7 @@ def api_classify_instance(project, record_id):  # noqa: F401
                 notes=[note],
                 tags_list=[tags],
                 prior=prior,
+                user_id=user_id,
             )
 
     elif request.method == "PUT":
@@ -1316,8 +1321,12 @@ def api_classify_instance(project, record_id):  # noqa: F401
 def api_get_document(project):  # noqa: F401
     """Retrieve record in order of review."""
 
+    user_id = (
+        None if current_app.config.get("LOGIN_DISABLED", False) else current_user.id
+    )
+
     with open_state(project.project_path) as state:
-        pending = state.get_pending()
+        pending = state.get_pending(user_id=user_id)
 
         if pending.empty:
             try:
@@ -1336,8 +1345,8 @@ def api_get_document(project):  # noqa: F401
                     {"result": None, "pool_empty": False, "has_ranking": False}
                 )
 
-            state.query_top_ranked()
-            pending = state.get_pending()
+            state.query_top_ranked(user_id=user_id)
+            pending = state.get_pending(user_id=user_id)
 
     as_data = project.read_data()
     item = asdict(as_data.record(pending["record_id"].iloc[0]))
