@@ -111,6 +111,7 @@ def _fill_last_ranking(project, ranking):
 
         state.add_last_ranking(records.values, ranking, ranking, ranking, ranking, -1)
 
+
 # error handlers
 @bp.errorhandler(ValueError)
 def value_error(e):
@@ -1274,7 +1275,9 @@ def api_classify_instance(project, record_id):  # noqa: F401
     retrain_model = False if is_prior == "1" else True
     prior = True if is_prior == "1" else False
 
-    user_id = None if current_app.config.get("LOGIN_DISABLED", False) else current_user.id
+    user_id = (
+        None if current_app.config.get("LOGIN_DISABLED", False) else current_user.id
+    )
 
     if request.method == "POST":
         with open_state(project.project_path) as state:
@@ -1318,7 +1321,9 @@ def api_classify_instance(project, record_id):  # noqa: F401
 def api_get_document(project):  # noqa: F401
     """Retrieve record in order of review."""
 
-    user_id = None if current_app.config.get("LOGIN_DISABLED", False) else current_user.id
+    user_id = (
+        None if current_app.config.get("LOGIN_DISABLED", False) else current_user.id
+    )
 
     with open_state(project.project_path) as state:
         pending = state.get_pending(user_id=user_id)
