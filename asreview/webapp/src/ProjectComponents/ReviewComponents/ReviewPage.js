@@ -285,13 +285,16 @@ const ReviewPageRecord = (props) => {
             previousRecord={previousRecord}
           />
           {/* Labels table */}
-          {Array.isArray(props.tags) && props.tags.length > 0 && (
-            <TagsTable
-              tags={props.tags}
-              tagValues={tagValues}
-              setTagValues={setTagValues}
-            />
-          )}
+          {activeRecord?.record_id &&
+            Array.isArray(props.tags) &&
+            props.tags.length > 0 && (
+              <TagsTable
+                key={activeRecord?.record_id}
+                tags={props.tags}
+                tagValues={tagValues}
+                setTagValues={setTagValues}
+              />
+            )}
         </Box>
       </Fade>
       {/* Decision undo bar */}

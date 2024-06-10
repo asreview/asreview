@@ -69,18 +69,6 @@ from asreview.webapp.utils import get_project_path
 bp = Blueprint("api", __name__, url_prefix="/api")
 
 
-def _extract_tags(custom_metadata_str):
-    if not isinstance(custom_metadata_str, str):
-        return None
-
-    obj = json.loads(custom_metadata_str)
-
-    if "tags" in obj:
-        return obj["tags"]
-    else:
-        return None
-
-
 def _fill_last_ranking(project, ranking):
     """Fill the last ranking with a random or top-down ranking.
 
@@ -600,7 +588,7 @@ def api_get_labeled(project):  # noqa: F401
         # add variables from state
         record_d["included"] = int(state_data.loc[i, "label"])
         record_d["note"] = state_data.loc[i, "notes"]
-        record_d["tags"] = _extract_tags(state_data.loc[i, "tags"])
+        record_d["tags"] = state_data.loc[i, "tags"]
         record_d["prior"] = int(state_data.loc[i, "prior"])
 
         result.append(record_d)

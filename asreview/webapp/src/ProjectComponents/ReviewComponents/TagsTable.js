@@ -39,58 +39,44 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const TagsTable = (props) => {
-  const handleTagValueChange = (isChecked, groupId, tagId) => {
-    let tagValues;
+const TagsTable = ({ tags, tagValues, setTagValues }) => {
+  // console.log(tagValues)
+  // if (!tagValues){
+  //   console.log("tagValues is null")
+  //   tagValues = tags.map(group => ({...group, values: group.values.map(tag => ({...tag}))}));
+  // }
 
-    console.log(groupId);
-    console.log(tagId);
+  const handleTagValueChange = (isChecked, group_index, tag_index) => {
+    console.log(group_index, tag_index, isChecked);
+    tagValues[group_index].values[tag_index].checked = isChecked;
+    // console.log(tagValues)
+    // console.log(tagValues.map(el => ({...el, values: el.values.map(el => ({...el, checked: isChecked}))})))
 
-    if (isChecked) {
-      tagValues = {
-        ...props.tagValues,
-        [groupId]:
-          props.tagValues[groupId] === undefined
-            ? [tagId]
-            : [...props.tagValues[groupId], tagId],
-      };
-    } else {
-      tagValues = {
-        ...props.tagValues,
-        [groupId]: props.tagValues[groupId].filter((value) => value !== tagId),
-      };
-    }
-
-    props.setTagValues(tagValues);
-  };
-
-  const isChecked = (groupId, tagId) => {
-    if (props.tagValues[groupId] === undefined) {
-      return false;
-    } else {
-      return props.tagValues[groupId].includes(tagId);
-    }
+    console.log(tagValues);
+    setTagValues(tagValues);
   };
 
   return (
     <Root>
       <Box>
-        {props.tags.map((group) => (
+        {tags.map((group, group_index) => (
           <Card elevation={2} className={classes.groupCard} key={group.id}>
             <CardContent>
               <Typography variant="h6">{group.name}</Typography>
               <FormGroup row={true}>
-                {group.values.map((tag) => (
+                {group.values.map((tag, tag_index) => (
                   <FormControlLabel
                     key={`${group.id}-${tag.id}`}
                     control={
                       <Checkbox
-                        checked={isChecked(group.id, tag.id)}
+                        checked={
+                          tagValues[group_index]?.values[tag_index]?.checked
+                        }
                         onChange={(e) => {
                           handleTagValueChange(
                             e.target.checked,
-                            group.id,
-                            tag.id,
+                            group_index,
+                            tag_index,
                           );
                         }}
                       />
