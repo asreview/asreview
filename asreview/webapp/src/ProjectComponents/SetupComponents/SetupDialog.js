@@ -57,6 +57,74 @@ const StyledSetupDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
+const DialogProjectName = ({ project_id, dataset_name }) => {
+  const [state, setState] = React.useState({
+    name: dataset_name,
+    edit: false,
+  });
+
+  const { isLoading: isMutatingName, mutate: mutateName } = useMutation(
+    ProjectAPI.mutateInfo,
+    {
+      mutationKey: ["mutateInfo"],
+      onSuccess: (data) => {
+        setState({
+          name: data?.name,
+          edit: false,
+        });
+      },
+    },
+  );
+
+  const toggleEditName = () => {
+    setState({
+      ...state,
+      edit: !state.edit,
+    });
+  };
+
+  return (
+    <DialogTitle>
+      Start project:{" "}
+      {!state.edit && (
+        <>
+          {state.name}
+          <Tooltip title={"Edit project name"}>
+            <IconButton onClick={toggleEditName} disabled={isMutatingName}>
+              <Edit />
+            </IconButton>
+          </Tooltip>
+        </>
+      )}
+      {state.edit && (
+        <>
+          <Input
+            value={state.name}
+            onChange={(e) => {
+              setState({
+                ...state,
+                name: e.target.value,
+              });
+            }}
+            disabled={isMutatingName}
+            sx={{ width: "50%" }}
+            autoFocus
+          />
+          <Button
+            onClick={() => {
+              mutateName({ project_id: project_id, title: state.name });
+            }}
+            disabled={isMutatingName}
+            variant="contained"
+          >
+            Save
+          </Button>
+        </>
+      )}
+    </DialogTitle>
+  );
+};
+
 const SetupDialog = ({
   open,
   onClose,
@@ -70,24 +138,13 @@ const SetupDialog = ({
   const [dataset, setDataset] = React.useState(projectInfo);
   const [showSettings, setShowSettings] = useToggle(false);
 
-  const [editName, toggleEditName] = useToggle(false);
-  const [name, setName] = React.useState(dataset?.name || "");
+  console.log(dataset?.name);
 
   const [uploadSource, setUploadSource] = React.useState("file");
 
   const handleUploadSource = (event) => {
     setUploadSource(event.target.value);
   };
-
-  const { isLoading: isMutatingName, mutate: mutateName } = useMutation(
-    ProjectAPI.mutateInfo,
-    {
-      mutationKey: ["mutateInfo"],
-      onSuccess: () => {
-        toggleEditName();
-      },
-    },
-  );
 
   const { mutate: setStatus } = useMutation(ProjectAPI.mutateReviewStatus, {
     mutationKey: ["mutateReviewStatus"],
@@ -210,43 +267,10 @@ const SetupDialog = ({
       )}
       {dataset && (
         <ProjectContext.Provider value={dataset.id}>
-          <DialogTitle>
-            Start project:{" "}
-            {!editName && (
-              <>
-                {name}
-                <Tooltip title={"Edit project name"}>
-                  <IconButton
-                    onClick={toggleEditName}
-                    disabled={isMutatingName}
-                  >
-                    <Edit />
-                  </IconButton>
-                </Tooltip>
-              </>
-            )}
-            {editName && (
-              <>
-                <Input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  disabled={isMutatingName}
-                  sx={{ width: "50%" }}
-                  autoFocus
-                />
-                <Tooltip title={"Save project name"}>
-                  <IconButton
-                    onClick={() => {
-                      mutateName({ project_id: dataset.id, title: name });
-                    }}
-                    disabled={isMutatingName}
-                  >
-                    <Save />
-                  </IconButton>
-                </Tooltip>
-              </>
-            )}
-          </DialogTitle>
+          <DialogProjectName
+            project_id={dataset.id}
+            dataset_name={dataset.name}
+          />
           <DialogContent sx={{ backgroundColor: "#be7e7b" }}>
             <Collapse in={!showSettings}>
               <Box sx={{ mt: 3 }}>
