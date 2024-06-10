@@ -90,7 +90,7 @@ const DialogProjectName = ({ project_id, dataset_name }) => {
         <>
           {state.name}
           <Tooltip title={"Edit project name"}>
-            <IconButton onClick={toggleEditName} disabled={isMutatingName}>
+            <IconButton onClick={toggleEditName}>
               <Edit />
             </IconButton>
           </Tooltip>
@@ -130,6 +130,7 @@ const SetupDialog = ({
   onClose,
   projectInfo = null,
   mode = null,
+  dataSource = "file",
   setFeedbackBar,
   mobileScreen,
 }) => {
@@ -138,9 +139,7 @@ const SetupDialog = ({
   const [dataset, setDataset] = React.useState(projectInfo);
   const [showSettings, setShowSettings] = useToggle(false);
 
-  console.log(dataset?.name);
-
-  const [uploadSource, setUploadSource] = React.useState("file");
+  const [uploadSource, setUploadSource] = React.useState(dataSource);
 
   const handleUploadSource = (event) => {
     setUploadSource(event.target.value);
@@ -157,13 +156,6 @@ const SetupDialog = ({
     },
   });
 
-  const exitedSetup = () => {
-    setFeedbackBar({
-      open: true,
-      message: `Your project has been saved as draft`,
-    });
-  };
-
   return (
     <StyledSetupDialog
       aria-label="project setup"
@@ -176,7 +168,16 @@ const SetupDialog = ({
       }}
       onClose={onClose}
       TransitionProps={{
-        onExited: () => exitedSetup(),
+        onExited: () => {
+          setDataset(null);
+          setShowSettings(false);
+          setUploadSource("file");
+
+          setFeedbackBar({
+            open: true,
+            message: `Your project has been saved as draft`,
+          });
+        },
       }}
     >
       {/* {mobileScreen && (

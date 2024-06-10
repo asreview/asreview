@@ -140,7 +140,7 @@ const ProjectTable = (props) => {
   const [rowsPerPage, handleRowsPerPage] = useRowsPerPage();
   const [setupDialogState, setSetupDialogState] = React.useState({
     open: false,
-    project_id: null,
+    project_info: null,
   });
 
   /**
@@ -390,8 +390,6 @@ const ProjectTable = (props) => {
     setPage(0);
   };
 
-  // console.log(setupDialogState)
-
   return (
     <StyledPaper elevation={2} className={classes.root}>
       <TableContainer>
@@ -626,7 +624,7 @@ const ProjectTable = (props) => {
         mobileScreen={props.mobileScreen}
         open={setupDialogState.open}
         onClose={() => {
-          setSetupDialogState({ open: false, project_id: null });
+          setSetupDialogState({ open: false, project_info: null });
         }}
         setFeedbackBar={props.setFeedbackBar}
         key={"setup-dialog-" + setupDialogState.project_info?.id}
