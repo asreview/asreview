@@ -8,7 +8,7 @@ from typing import Union
 
 from flask import current_app
 
-from asreview.utils import asreview_path
+from asreview.webapp.utils import asreview_path
 
 
 def get_project_id(project):

@@ -17,52 +17,52 @@ import logging
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 from filelock import FileLock
 from filelock import Timeout
 
 import asreview as asr
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_SIMULATE
-from asreview.models.balance import get_balance_model
-from asreview.models.classifiers import get_classifier
-from asreview.models.feature_extraction import get_feature_model
-from asreview.models.query import get_query_model
-from asreview.simulation import Simulate
+from asreview.extensions import load_extension
+from asreview.settings import ReviewSettings
+from asreview.simulation.simulate import Simulate
 from asreview.state.contextmanager import open_state
-
-
-def has_prior_knowledge(project):
-    with open_state(project) as s:
-        labels = s.get_labeled()["label"].to_list()
-        return 0 in labels and 1 in labels
-
-
-def _has_new_records(project):
-    with open_state(project) as s:
-        return s.exist_new_labeled_records
 
 
 def _run_model_start(project, output_error=True):
     # Check if there are new labeled records to train with
-    if not _has_new_records(project):
-        return
+    with open_state(project) as s:
+        if not s.exist_new_labeled_records:
+            return
 
     try:
         # Lock so that only one training run is running at the same time.
         lock = FileLock(Path(project.project_path, "training.lock"), timeout=0)
 
+        settings = ReviewSettings().from_file(
+            Path(
+                project.project_path,
+                "reviews",
+                project.reviews[0]["id"],
+                "settings_metadata.json",
+            )
+        )
+
         with lock:
             with open_state(project) as state:
-                settings = state.settings
+                labeled = state.get_results_table()[["record_id", "label"]]
 
-                labeled = state.get_labeled()
+            as_data = project.read_data()
+            record_table = pd.Series(as_data.record_ids, name="record_id")
 
             # get the feature matrix
-            feature_model = get_feature_model(settings.feature_extraction)
+            feature_model = load_extension(
+                "models.feature_extraction", settings.feature_extraction
+            )()
             try:
                 fm = project.get_feature_matrix(feature_model.name)
             except FileNotFoundError:
-                as_data = project.read_data()
                 fm = feature_model.fit_transform(
                     as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
                 )
@@ -71,8 +71,7 @@ def _run_model_start(project, output_error=True):
             # TODO: Simplify balance model input.
             # Use the balance model to sample the trainings data.
             y_sample_input = (
-                state.get_record_table()
-                .to_frame()
+                record_table.to_frame()
                 .merge(labeled, how="left", on="record_id")
                 .loc[:, "label"]
                 .fillna(LABEL_NA)
@@ -80,18 +79,20 @@ def _run_model_start(project, output_error=True):
             )
             train_idx = np.where(y_sample_input != LABEL_NA)[0]
 
-            balance_model = get_balance_model(settings.balance_strategy)
+            balance_model = load_extension(
+                "models.balance", settings.balance_strategy
+            )()
             X_train, y_train = balance_model.sample(fm, y_sample_input, train_idx)
 
-            classifier = get_classifier(settings.model)
+            classifier = load_extension("models.classifiers", settings.classifier)()
             classifier.fit(X_train, y_train)
 
-            query_strategy = get_query_model(settings.query_strategy)
+            query_strategy = load_extension("models.query", settings.query_strategy)()
             ranked_record_ids, relevance_scores = query_strategy.query(
                 fm, classifier=classifier, return_classifier_scores=True
             )
 
-            with open_state(project, read_only=False) as state:
+            with open_state(project) as state:
                 state.add_last_ranking(
                     ranked_record_ids,
                     classifier.name,
@@ -100,9 +101,6 @@ def _run_model_start(project, output_error=True):
                     feature_model.name,
                     len(labeled),
                 )
-
-                if relevance_scores is not None:
-                    state.add_last_probabilities(relevance_scores[:, 1])
 
     except Timeout:
         logging.debug("Another iteration is training")
@@ -113,39 +111,50 @@ def _run_model_start(project, output_error=True):
 
 
 def _simulate_start(project):
-    with open_state(project) as state:
-        settings = state.settings
-        priors = state.get_priors()["record_id"].tolist()
-        print(state.settings)
-        print(priors)
+    as_data = project.read_data()
 
-    reviewer = Simulate(
-        project.read_data(),
-        project=project,
-        classifier=get_classifier(settings.model),
-        query_model=get_query_model(settings.query_strategy),
-        balance_model=get_balance_model(settings.balance_strategy),
-        feature_model=get_feature_model(settings.feature_extraction),
-        prior_indices=priors,
-        write_interval=100,
+    settings = ReviewSettings().from_file(
+        Path(
+            project.project_path,
+            "reviews",
+            project.reviews[0]["id"],
+            "settings_metadata.json",
+        )
     )
 
-    try:
-        reviewer.review()
+    with open_state(project) as state:
+        priors = state.get_priors()["record_id"].tolist()
 
+    feature_model = load_extension(
+        "models.feature_extraction", settings.feature_extraction
+    )()
+    fm = feature_model.fit_transform(
+        as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
+    )
+    project.add_feature_matrix(fm, feature_model.name)
+
+    sim = Simulate(
+        fm,
+        labels=as_data.labels,
+        classifier=load_extension("models.classifiers", settings.classifier)(),
+        query_strategy=load_extension("models.query", settings.query_strategy)(),
+        balance_strategy=load_extension("models.balance", settings.balance_strategy)(),
+        feature_extraction=feature_model,
+    )
+    try:
+        sim.label(priors, prior=True)
+        sim.review()
     except Exception as err:
         project.set_error(err)
         raise err
 
-    project.mark_review_finished()
+    project.update_review(state=sim, status="finished")
 
 
 def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("project", type=asr.Project, help="Project path")
     args = parser.parse_args(argv)
-
-    print(args.project.config)
 
     if args.project.config["mode"] == PROJECT_MODE_SIMULATE:
         _simulate_start(args.project)

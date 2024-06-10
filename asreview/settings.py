@@ -12,195 +12,68 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["ASReviewSettings"]
+__all__ = []
 
-import logging
-import os
-from configparser import ConfigParser
 
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
+
+import json
+from dataclasses import dataclass
+from dataclasses import replace
+from pathlib import Path
+from typing import Optional
+
+from asreview.config import DEFAULT_BALANCE_STRATEGY
+from asreview.config import DEFAULT_CLASSIFIER
+from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_N_INSTANCES
-from asreview.models.balance import get_balance_model
-from asreview.models.classifiers import get_classifier
-from asreview.models.feature_extraction import get_feature_model
-from asreview.models.query import get_query_model
-from asreview.types import type_n_queries
-
-SETTINGS_TYPE_DICT = {
-    "model": str,
-    "query_strategy": str,
-    "balance_strategy": str,
-    "feature_extraction": str,
-    "n_instances": int,
-    "stop_if": type_n_queries,
-    "n_prior_included": int,
-    "n_prior_excluded": int,
-    "mode": str,
-    "model_param": dict,
-    "query_param": dict,
-    "feature_param": dict,
-    "balance_param": dict,
-}
+from asreview.config import DEFAULT_QUERY_STRATEGY
 
 
-def _map_settings_type(name, value):
-    if value is None:
-        return None
-
-    try:
-        return SETTINGS_TYPE_DICT[name](value)
-    except TypeError:
-        raise TypeError(f"Can't convert setting '{name}' to {SETTINGS_TYPE_DICT[name]}")
-
-
-def _convert_types(par_defaults, param):
-    """Convert strings from the config file to the appropriate type."""
-    for par in param:
-        try:
-            par_type = type(par_defaults[par])
-            if par_type == bool:
-                param[par] = param[par] in ["True", "true", "T", "t", True]
-            else:
-                try:
-                    param[par] = par_type(param[par])
-                except TypeError:
-                    raise TypeError(f"Error converting key in config file: {par}")
-        except KeyError:
-            logging.warning(
-                f"Parameter {par} does not have a default.\n"
-                f"Defaults: {par_defaults}."
-            )
-
-
-def _pretty_format(result):
-    longest_key = max([len(key) for key in result])
-    result_str = ""
-    for key, value in result.items():
-        temp_str = f"{{key: <{longest_key}}}: {{value}}\n"
-        result_str += temp_str.format(key=key, value=value)
-    return result_str
-
-
-class ASReviewSettings:
+@dataclass
+class ReviewSettings:
     """Object to store the configuration of a review session.
 
     The main difference being that it type checks (some)
     of its contents.
     """
 
-    def __init__(
-        self,
-        model,
-        query_strategy,
-        balance_strategy,
-        feature_extraction,
-        n_instances=DEFAULT_N_INSTANCES,
-        stop_if=None,
-        n_prior_included=None,
-        n_prior_excluded=None,
-        as_data=None,
-        model_param=None,
-        query_param=None,
-        balance_param=None,
-        feature_param=None,
-        **kwargs,
-    ):
-        if feature_param is None:
-            feature_param = {}
-        if balance_param is None:
-            balance_param = {}
-        if query_param is None:
-            query_param = {}
-        if model_param is None:
-            model_param = {}
-        self.model = model
-        self.query_strategy = query_strategy
-        self.balance_strategy = balance_strategy
-        self.feature_extraction = feature_extraction
-        self.n_instances = n_instances
-        self.stop_if = stop_if
-        self.n_prior_included = n_prior_included
-        self.n_prior_excluded = n_prior_excluded
-        self.as_data = as_data
-        self.model_param = model_param
-        if query_strategy == "max_random":
-            query_param_copy = query_param.copy()
-            try:
-                del query_param_copy["strategy_1"]
-                del query_param_copy["strategy_2"]
-            except KeyError:
-                pass
-            self.query_param = query_param_copy
-        else:
-            self.query_param = query_param
-        self.balance_param = balance_param
-        self.feature_param = feature_param
+    classifier: str = DEFAULT_CLASSIFIER
+    query_strategy: str = DEFAULT_QUERY_STRATEGY
+    balance_strategy: str = DEFAULT_BALANCE_STRATEGY
+    feature_extraction: str = DEFAULT_FEATURE_EXTRACTION
+    classifier_param: Optional[dict] = None
+    query_param: Optional[dict] = None
+    balance_param: Optional[dict] = None
+    feature_param: Optional[dict] = None
+    n_instances: int = DEFAULT_N_INSTANCES
+    stop_if: Optional[int] = None
+    n_prior_included: Optional[int] = None
+    n_prior_excluded: Optional[int] = None
+    init_seed: Optional[int] = None
+    seed: Optional[int] = None
 
-    def __str__(self):
-        return _pretty_format(self.to_dict())
-
-    def __setattr__(self, name, value):
-        try:
-            super().__setattr__(name, _map_settings_type(name, value))
-        except KeyError:
-            super().__setattr__(name, value)
-
-    def to_dict(self):
-        """Export default settings to dict."""
-        info_dict = {}
-        for attrib in SETTINGS_TYPE_DICT:
-            value = getattr(self, attrib, None)
-            if value is not None:
-                info_dict[attrib] = value
-        return info_dict
-
-    def from_file(self, config_file):
+    def from_file(self, fp, load=None):
         """Fill the contents of settings by reading a config file.
 
         Arguments
         ---------
-        config_file: str
-            Source configuration file.
-
+        fp: str, Path
+            Review config file.
+        load: object
+            Config reader. Default tomllib.load for TOML (.toml) files,
+            otherwise json.load.
         """
-        if config_file is None or not os.path.isfile(config_file):
-            if config_file is not None:
-                print(f"Didn't find configuration file: {config_file}")
-            return
+        if load is None:
+            if Path(fp).suffix == ".toml":
+                load = tomllib.load
+            else:
+                load = json.load
 
-        config = ConfigParser()
-        config.optionxform = str
-        config.read(config_file)
+        with open(fp, "rb") as f:
+            self = replace(self, **load(f))
 
-        # Read the each of the sections.
-        for sect in config:
-            if sect == "global_settings":
-                for key, value in config.items(sect):
-                    try:
-                        setattr(self, key, SETTINGS_TYPE_DICT[key](value))
-                    except (KeyError, TypeError):
-                        print(
-                            f"Warning: value with key '{key}' is ignored "
-                            "(spelling mistake, wrong type?)."
-                        )
-
-            elif sect in [
-                "model_param",
-                "query_param",
-                "balance_param",
-                "feature_param",
-            ]:
-                setattr(self, sect, dict(config.items(sect)))
-            elif sect != "DEFAULT":
-                print(
-                    f"Warning: section [{sect}] is ignored in "
-                    f"config file {config_file}"
-                )
-
-        model = get_classifier(self.model)
-        _convert_types(model.default_param, self.model_param)
-        balance_model = get_balance_model(self.balance_strategy)
-        _convert_types(balance_model.default_param, self.balance_param)
-        query_model = get_query_model(self.query_strategy)
-        _convert_types(query_model.default_param, self.query_param)
-        feature_model = get_feature_model(self.feature_extraction)
-        _convert_types(feature_model.default_param, self.feature_param)
+        return self

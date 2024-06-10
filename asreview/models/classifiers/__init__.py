@@ -17,21 +17,15 @@ __all__ = [
     "NaiveBayesClassifier",
     "RandomForestClassifier",
     "SVMClassifier",
-    "get_classifier",
-    "get_classifier_class",
-    "list_classifiers",
 ]
 
 from asreview.models.classifiers.logistic import LogisticClassifier
 from asreview.models.classifiers.nb import NaiveBayesClassifier
 from asreview.models.classifiers.rf import RandomForestClassifier
 from asreview.models.classifiers.svm import SVMClassifier
-from asreview.models.classifiers.utils import get_classifier
-from asreview.models.classifiers.utils import get_classifier_class
-from asreview.models.classifiers.utils import list_classifiers
 
 """Machine learning classifiers to classify the documents.
 
 There are several machine learning classifiers available. In configuration
-files, parameters are found under the section ``[model_param]``.
+files, parameters are found under the section ``[classifier_param]``.
 """

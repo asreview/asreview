@@ -37,24 +37,20 @@ class LogisticClassifier(BaseTrainClassifier):
         Class weight of the inclusions.
     random_state: int, asreview.utils.SeededRandomState
         Random state for the model.
-    n_jobs: int
-        Number of CPU cores used.
     """
 
     name = "logistic"
     label = "Logistic regression"
 
-    def __init__(self, C=1.0, class_weight=1.0, random_state=None, n_jobs=1):
+    def __init__(self, C=1.0, class_weight=1.0, random_state=None):
         super().__init__()
         self.C = C
         self.class_weight = class_weight
-        self.n_jobs = n_jobs
 
         self._model = LogisticRegression(
             solver="liblinear",
             C=C,
             class_weight=_set_class_weight(class_weight),
-            n_jobs=n_jobs,
             random_state=random_state,
         )
         logging.debug(self._model)

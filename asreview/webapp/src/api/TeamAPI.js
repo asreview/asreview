@@ -17,7 +17,8 @@ class TeamAPI {
     });
   }
 
-  static fetchCollaborators(projectId) {
+  static fetchUsers({ queryKey }) {
+    const projectId = queryKey[1];
     if (projectId !== null) {
       const url = api_url + `projects/${projectId}/users`;
       return new Promise((resolve, reject) => {
@@ -30,12 +31,12 @@ class TeamAPI {
             reject(axiosErrorHandler(error));
           });
       });
-    } else {
-      return {};
     }
   }
 
-  static inviteUser(projectId, userId) {
+  static inviteUser(params) {
+    const projectId = params.projectId;
+    const userId = params.user.id;
     if (projectId !== null && userId !== null) {
       const url = api_url + `invitations/projects/${projectId}/users/${userId}`;
       return new Promise((resolve, reject) => {
@@ -54,7 +55,9 @@ class TeamAPI {
     }
   }
 
-  static deleteInvitation(projectId, userId) {
+  static deleteInvitation(params) {
+    const projectId = params.projectId;
+    const userId = params.userId;
     if (projectId !== null && userId !== null) {
       const url = api_url + `invitations/projects/${projectId}/users/${userId}`;
       return new Promise((resolve, reject) => {
@@ -111,7 +114,9 @@ class TeamAPI {
     }
   }
 
-  static endCollaboration(projectId, userId) {
+  static deleteCollaboration(params) {
+    const projectId = params.projectId;
+    const userId = params.userId;
     if (userId !== null && projectId !== null) {
       const url = api_url + `projects/${projectId}/users/${userId}`;
       return new Promise((resolve, reject) => {
