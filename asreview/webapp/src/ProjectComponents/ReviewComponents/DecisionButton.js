@@ -99,7 +99,7 @@ const DecisionButton = ({
   project_id,
   record_id,
   label,
-  labelFromDataset,
+  labelFromDataset = null,
   tagsForm,
   tagValues = [],
   note = null,
@@ -160,13 +160,17 @@ const DecisionButton = ({
 
       <Divider />
 
-      {labelFromDataset && (
+      {labelFromDataset !== null && (
         <CardContent>
-          <Alert severity="info">
-            {labelFromDataset === -1 && "No label in dataset"}
-            {labelFromDataset === 0 && "Label in dataset is irrelevant"}
-            {labelFromDataset === 1 && "Label in dataset is relevant"}
-          </Alert>
+          {labelFromDataset === -1 && (
+            <Alert severity="info">No label in dataset</Alert>
+          )}
+          {labelFromDataset === 0 && (
+            <Alert severity="info">Label in dataset is irrelevant</Alert>
+          )}
+          {labelFromDataset === 1 && (
+            <Alert severity="info">Label in dataset is relevant</Alert>
+          )}
         </CardContent>
       )}
 
