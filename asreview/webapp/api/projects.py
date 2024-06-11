@@ -601,10 +601,17 @@ def api_get_labeled(project):  # noqa: F401
 def api_get_labeled_stats(project):  # noqa: F401
     """Get all papers classified as prior documents"""
 
+    # Retrieve the include_priors parameter from the request's query.
+    include_priors = request.args.get("priors", True, type=bool)
+
     try:
         with open_state(project.project_path) as s:
             data = s.get_dataset(["label", "query_strategy"])
             data_prior = data[data["query_strategy"] == "prior"]
+
+            # If the 'include_priors' flag is set to False, filter out records that have a query strategy marked as prior.
+            if not include_priors:
+                data = data[data["query_strategy"] != "prior"]
 
         return jsonify(
             {
@@ -1139,6 +1146,9 @@ def _get_stats(project, include_priors=False):
     n_included = int(sum(labels == 1))
     n_excluded = int(sum(labels == 0))
 
+    n_included_no_priors = int(sum(labels_without_priors == 1))
+    n_excluded_no_priors = int(sum(labels_without_priors == 0))
+
     if n_included > 0:
         try:
             # Find the last relevant label index
@@ -1168,6 +1178,8 @@ def _get_stats(project, include_priors=False):
     return {
         "n_included": n_included,
         "n_excluded": n_excluded,
+        "n_included_no_priors": n_included_no_priors,
+        "n_excluded_no_priors": n_excluded_no_priors,
         "n_since_last_inclusion": n_since_last_relevant,
         "n_since_last_inclusion_no_priors": n_since_last_relevant_no_priors,
         "n_papers": n_records,

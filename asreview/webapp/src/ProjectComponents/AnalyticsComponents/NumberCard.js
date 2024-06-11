@@ -19,8 +19,43 @@ export default function NumberCard(props) {
     );
   };
 
-  const hasPriorKnowledge = () => {
-    return showNumber() && props.progressQuery.data["n_included"] > 0;
+  const getLabeledRecords = () => {
+    if (showNumber()) {
+      if (props.includePriorKnowledge) {
+        return (
+          (props.progressQuery.data["n_included"] || 0) +
+          (props.progressQuery.data["n_excluded"] || 0)
+        );
+      } else {
+        return (
+          (props.progressQuery.data["n_included_no_priors"] || 0) +
+          (props.progressQuery.data["n_excluded_no_priors"] || 0)
+        );
+      }
+    }
+    return 0;
+  };
+
+  const getRelevantRecords = () => {
+    if (showNumber()) {
+      if (props.includePriorKnowledge) {
+        return props.progressQuery.data["n_included"] || 0;
+      } else {
+        return props.progressQuery.data["n_included_no_priors"] || 0;
+      }
+    }
+    return 0;
+  };
+
+  const getIrrelevantRecordsSinceLastRelevant = () => {
+    if (showNumber()) {
+      // Always use the data without prior knowledge, regardless of the switch state
+      return props.progressQuery.data["n_since_last_inclusion_no_priors"] !==
+        null
+        ? props.progressQuery.data["n_since_last_inclusion_no_priors"]
+        : "-";
+    }
+    return 0;
   };
 
   return (
@@ -47,12 +82,7 @@ export default function NumberCard(props) {
                   variant={!props.mobileScreen ? "h4" : "h5"}
                 >
                   <NumberFormat
-                    value={
-                      showNumber()
-                        ? props.progressQuery.data["n_included"] +
-                          props.progressQuery.data["n_excluded"]
-                        : 0
-                    }
+                    value={getLabeledRecords()}
                     displayType="text"
                     thousandSeparator
                   />
@@ -77,9 +107,7 @@ export default function NumberCard(props) {
                   variant={!props.mobileScreen ? "h4" : "h5"}
                 >
                   <NumberFormat
-                    value={
-                      showNumber() ? props.progressQuery.data["n_included"] : 0
-                    }
+                    value={getRelevantRecords()}
                     displayType="text"
                     thousandSeparator
                   />
@@ -88,7 +116,7 @@ export default function NumberCard(props) {
             </CardContent>
           </Card>
         </Grid>
-        {hasPriorKnowledge() && (
+        {showNumber() && (
           <Grid item xs={12} sm={12}>
             <Card className="number-card" elevation={2}>
               <CardContent>
@@ -104,15 +132,7 @@ export default function NumberCard(props) {
                     className="number-card-content-numeral"
                     variant={!props.mobileScreen ? "h4" : "h5"}
                   >
-                    {showNumber()
-                      ? props.progressQuery.data[
-                          "n_since_last_inclusion_no_priors"
-                        ] !== null
-                        ? props.progressQuery.data[
-                            "n_since_last_inclusion_no_priors"
-                          ]
-                        : "-"
-                      : 0}
+                    {getIrrelevantRecordsSinceLastRelevant()}
                   </Typography>
                 </Stack>
               </CardContent>

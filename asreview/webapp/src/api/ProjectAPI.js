@@ -22,11 +22,14 @@ class ProjectAPI {
     });
   }
 
-  static fetchDashboardStats({ queryKey }) {
+  static fetchDashboardStats({ queryKey, includePrior = true }) {
     const url = api_url + `projects/stats`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url, { withCredentials: true })
+        .get(url, {
+          params: { includePrior: includePrior },
+          withCredentials: true,
+        })
         .then((result) => {
           resolve(result.data["result"]);
         })
@@ -538,11 +541,11 @@ class ProjectAPI {
   }
 
   static fetchProgress({ queryKey }) {
-    const { project_id } = queryKey[1];
+    const { project_id, includePrior } = queryKey[1];
     const url = api_url + `projects/${project_id}/progress`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url, { withCredentials: true })
+        .get(url, { params: { priors: includePrior }, withCredentials: true })
         .then((result) => {
           resolve(result["data"]);
         })

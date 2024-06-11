@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import {
@@ -10,14 +11,12 @@ import {
 } from "react-share";
 import {
   Box,
-  Button,
   CircularProgress,
   Fade,
   Grid,
   SpeedDial,
   SpeedDialAction,
   Stack,
-  Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Share } from "@mui/icons-material";
@@ -30,10 +29,12 @@ import {
   ProgressDensityChart,
   ProgressRecallChart,
 } from "ProjectComponents/AnalyticsComponents";
-import { TypographyH5Medium } from "StyledComponents/StyledTypography";
-
 import { ProjectAPI } from "api";
 import { projectModes } from "globals.js";
+import { Switch, FormControlLabel } from "@mui/material";
+import { Tooltip, IconButton } from "@mui/material";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import { tooltipClasses } from "@mui/material";
 
 const Root = styled("div")(({ theme }) => ({}));
 
@@ -47,20 +48,41 @@ const actions = [
 
 const AnalyticsPage = (props) => {
   const { project_id } = useParams();
+  // State for Hide Prior Knowledge switch
+  const [includePriorKnowledge, setIncludePriorKnowledge] = useState(false);
 
+  // Queries for fetching data, including includePriorKnowledge state
   const progressQuery = useQuery(
-    ["fetchProgress", { project_id }],
-    ProjectAPI.fetchProgress,
+    ["fetchProgress", { project_id, includePrior: includePriorKnowledge }],
+    ({ queryKey }) =>
+      ProjectAPI.fetchProgress({
+        queryKey,
+        includePrior: includePriorKnowledge,
+      }),
     { refetchOnWindowFocus: false },
   );
   const progressDensityQuery = useQuery(
-    ["fetchProgressDensity", { project_id }],
-    ProjectAPI.fetchProgressDensity,
+    [
+      "fetchProgressDensity",
+      { project_id, includePrior: includePriorKnowledge },
+    ],
+    ({ queryKey }) =>
+      ProjectAPI.fetchProgressDensity({
+        queryKey,
+        includePrior: includePriorKnowledge,
+      }),
     { refetchOnWindowFocus: false },
   );
   const progressRecallQuery = useQuery(
-    ["fetchProgressRecall", { project_id }],
-    ProjectAPI.fetchProgressRecall,
+    [
+      "fetchProgressRecall",
+      { project_id, includePrior: includePriorKnowledge },
+    ],
+    ({ queryKey }) =>
+      ProjectAPI.fetchProgressRecall({
+        queryKey,
+        includePrior: includePriorKnowledge,
+      }),
     { refetchOnWindowFocus: false },
   );
 
@@ -87,7 +109,6 @@ const AnalyticsPage = (props) => {
       emailRef.current?.click();
     }
   };
-
   const allQueriesReady = () => {
     return (
       !progressQuery.isFetching &&
@@ -95,36 +116,141 @@ const AnalyticsPage = (props) => {
       !progressRecallQuery.isFetching
     );
   };
+  // Handle toggling the switch
+  const handleTogglePriorKnowledge = () => {
+    setIncludePriorKnowledge((prev) => !prev);
+  };
+
+  // Custom styled tooltip for
+  const CustomTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: theme.palette.background.paper,
+      color: theme.palette.text.primary,
+      boxShadow: theme.shadows[1],
+      fontSize: theme.typography.pxToRem(12),
+      padding: "10px",
+    },
+  }));
 
   return (
     <Root aria-label="analytics page">
       <Fade in>
         <Box>
           {props.mode !== projectModes.SIMULATION && (
-            <PageHeader header="Analytics" mobileScreen={props.mobileScreen} />
+            <Box
+              className="main-page-sticky-header-wrapper"
+              sx={{ background: (theme) => theme.palette.background.paper }}
+            >
+              <Box
+                className="main-page-sticky-header with-button"
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <PageHeader
+                  header="Analytics"
+                  mobileScreen={props.mobileScreen}
+                />
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={!includePriorKnowledge}
+                        onChange={handleTogglePriorKnowledge}
+                      />
+                    }
+                    label="Hide Prior Knowledge"
+                    labelPlacement="start"
+                  />
+                  <CustomTooltip
+                    title={
+                      <React.Fragment>
+                        <br />
+                        <br />
+                        <ul style={{ margin: 0, paddingLeft: "1.5em" }}>
+                          <li>
+                            <strong>Showing</strong> prior knowledge will show
+                            combined labelings from the original dataset and
+                            those done using ASReview.
+                          </li>
+                          <br />
+                          <li>
+                            <strong>Hiding</strong> prior knowledge will only
+                            show labelings done using ASReview.
+                          </li>
+                        </ul>
+                      </React.Fragment>
+                    }
+                    arrow
+                  >
+                    <IconButton size="small" sx={{ marginRight: 1 }}>
+                      <HelpOutlineIcon />
+                    </IconButton>
+                  </CustomTooltip>
+                </Box>
+              </Box>
+            </Box>
           )}
           {props.mode === projectModes.SIMULATION && (
             <Box
               className="main-page-sticky-header-wrapper"
               sx={{ background: (theme) => theme.palette.background.paper }}
             >
-              <Box className="main-page-sticky-header with-button">
-                {!props.mobileScreen && (
-                  <TypographyH5Medium>Analytics</TypographyH5Medium>
-                )}
-                {props.mobileScreen && (
-                  <Typography variant="h6">Analytics</Typography>
-                )}
-                <Stack direction="row" spacing={1}>
-                  <Button
-                    disabled={!allQueriesReady() || !props.isSimulating}
-                    variant="contained"
-                    onClick={props.refetchAnalytics}
-                    size={!props.mobileScreen ? "medium" : "small"}
+              <Box
+                className="main-page-sticky-header with-button"
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <PageHeader
+                  header="Analytics"
+                  mobileScreen={props.mobileScreen}
+                />
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={!includePriorKnowledge}
+                        onChange={handleTogglePriorKnowledge}
+                      />
+                    }
+                    label="Hide Prior Knowledge"
+                    labelPlacement="start"
+                  />
+                  <CustomTooltip
+                    title={
+                      <React.Fragment>
+                        Toggle to include or hide prior knowledge from the
+                        statistics.
+                        <br />
+                        <br />
+                        <ul style={{ margin: 0, paddingLeft: "1.5em" }}>
+                          <li>
+                            <strong>Showing</strong> prior knowledge will show
+                            combined labelings from the original dataset and
+                            those done using ASReview.
+                          </li>
+                          <br />
+                          <li>
+                            <strong>Hiding</strong> prior knowledge will only
+                            show labelings done using ASReview.
+                          </li>
+                        </ul>
+                      </React.Fragment>
+                    }
+                    arrow
                   >
-                    Refresh
-                  </Button>
-                </Stack>
+                    <IconButton size="small" sx={{ marginRight: 1 }}>
+                      <HelpOutlineIcon />
+                    </IconButton>
+                  </CustomTooltip>
+                </Box>
               </Box>
             </Box>
           )}
@@ -144,12 +270,14 @@ const AnalyticsPage = (props) => {
                         mobileScreen={props.mobileScreen}
                         mode={props.mode}
                         progressQuery={progressQuery}
+                        includePriorKnowledge={includePriorKnowledge} // Pass the state as prop
                       />
                     </Grid>
                     <Grid item xs={12} sm={7}>
                       <NumberCard
                         mobileScreen={props.mobileScreen}
                         progressQuery={progressQuery}
+                        includePriorKnowledge={includePriorKnowledge} // Pass the state as prop
                       />
                     </Grid>
                   </Grid>
@@ -196,5 +324,4 @@ const AnalyticsPage = (props) => {
     </Root>
   );
 };
-
 export default AnalyticsPage;
