@@ -28,28 +28,17 @@ const classes = {
   abstract: `${PREFIX}-abstract`,
 };
 
-const RootCard = styled(Card)(({ theme }) => ({
-  [`& .${classes.loadedCard}`]: {
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
-    [theme.breakpoints.down("md")]: {
-      borderRadius: 0,
-    },
-  },
-
-  [`& .${classes.titleAbstract}`]: {
-    height: "100%",
-    overflowY: "scroll",
-  },
-
-  [`& .${classes.title}`]: {
-    lineHeight: 1.2,
-  },
-
-  [`& .${classes.abstract}`]: {
-    whiteSpace: "pre-line",
-  },
+const StyledCard = styled(Card)(({}) => ({
+  // [`& .${classes.titleAbstract}`]: {
+  //   height: "100%",
+  //   overflowY: "scroll",
+  // },
+  // [`& .${classes.title}`]: {
+  //   lineHeight: 1.2,
+  // },
+  // [`& .${classes.abstract}`]: {
+  //   whiteSpace: "pre-line",
+  // },
 }));
 
 const RecordCard = ({
@@ -80,9 +69,8 @@ const RecordCard = ({
   };
 
   return (
-    // <Root aria-label="record card">
-    <Fade in={state.open} timeout={150} onExited={afterDecision}>
-      <RootCard elevation={mobileScreen ? 0 : 2} className={classes.loadedCard}>
+    <Fade in={state.open} timeout={150} onExited={afterDecision} unmountOnExit>
+      <StyledCard elevation={mobileScreen ? 0 : 2}>
         {isNotTrained && (
           <Alert
             severity="warning"
@@ -200,9 +188,8 @@ const RecordCard = ({
           tagValues={record.tags}
           disabled={disabled}
         />
-      </RootCard>
+      </StyledCard>
     </Fade>
-    // </Root>
   );
 };
 

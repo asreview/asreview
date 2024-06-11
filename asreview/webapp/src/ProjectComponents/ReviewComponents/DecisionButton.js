@@ -133,8 +133,6 @@ const DecisionButton = ({
 
   const hasTags = Array.isArray(tagsForm) && tagsForm.length > 0;
 
-  console.log(note);
-
   return (
     <Root>
       {hasTags && (

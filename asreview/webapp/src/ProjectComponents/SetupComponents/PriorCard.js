@@ -50,6 +50,7 @@ const PriorCard = ({
   );
 
   const onClosePriorSearch = () => {
+    console.log("fetch new labeled stats");
     // Reset the fetchLabeledStats query
     queryClient.resetQueries("fetchLabeledStats");
 
