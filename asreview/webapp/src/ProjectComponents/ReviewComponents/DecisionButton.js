@@ -103,7 +103,7 @@ const DecisionButton = ({
   tagsForm,
   tagValues = [],
   note,
-  afterDecision,
+  decisionCallback,
   disabled = false,
 }) => {
   const [showNotes, toggleShowNotes] = useToggle(false);
@@ -113,7 +113,7 @@ const DecisionButton = ({
     ProjectAPI.mutateClassification,
     {
       onSuccess: () => {
-        afterDecision();
+        decisionCallback();
       },
     },
   );
