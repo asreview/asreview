@@ -189,22 +189,6 @@ const App = () => {
           <CssBaseline />
 
           <div aria-label="nav and main content">
-            {typeof window.loginInfo === "string" &&
-              window.loginInfo.length > 0 && (
-                <Alert
-                  severity="info"
-                  variant="standard"
-                  sx={{
-                    padding: "2px",
-                    paddingLeft: "6px",
-                    margin: 0,
-                    borderRadius: 0,
-                  }}
-                >
-                  {window.loginInfo}
-                </Alert>
-              )}
-
             {!window.authentication && <Routes>{render_routes()}</Routes>}
 
             {window.authentication && (
