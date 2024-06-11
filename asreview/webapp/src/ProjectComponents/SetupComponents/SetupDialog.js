@@ -169,14 +169,16 @@ const SetupDialog = ({
       onClose={onClose}
       TransitionProps={{
         onExited: () => {
+          if (dataset) {
+            setFeedbackBar({
+              open: true,
+              message: `Your project has been saved as draft`,
+            });
+          }
+
           setDataset(null);
           setShowSettings(false);
           setUploadSource("file");
-
-          setFeedbackBar({
-            open: true,
-            message: `Your project has been saved as draft`,
-          });
         },
       }}
     >
