@@ -1,4 +1,3 @@
-import random
 import time
 from typing import Union
 
@@ -236,22 +235,10 @@ def search_project_data(
     return response
 
 
-def get_prior_random_project_data(
-    client: FlaskClient, project: Union[Project, asr.Project]
-):
-    response = client.get(f"/api/projects/{get_project_id(project)}/prior_random")
-    return response
-
-
 def label_random_project_data_record(
     client: FlaskClient, project: Union[Project, asr.Project], label: int
 ):
-    # get random data
-    r = get_prior_random_project_data(client, project)
-    # select a specific record
-    record = random.choice(r.json["result"])
-    record_id = record["record_id"]
-    return label_project_record(client, project, record_id, label, note="")
+    raise NotImplementedError("This function is not implemented.")
 
 
 def label_project_record(

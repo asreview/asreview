@@ -655,53 +655,6 @@ def api_get_labeled_stats(project):  # noqa: F401
         )
 
 
-@bp.route("/projects/<project_id>/prior_random", methods=["GET"])
-@login_required
-@project_authorization
-def api_random_prior_papers(project):  # noqa: F401
-    """Get a selection of random records.
-
-    This set of records is extracted from the pool, but without
-    the already labeled items.
-    """
-
-    n = request.args.get("n", default=5, type=int)
-    subset = request.args.get("subset", default=None, type=str)
-
-    if subset == "relevant":
-        label = 1
-    elif subset == "irrelevant":
-        label = 0
-    elif subset == "not_seen":
-        label = LABEL_NA
-    else:
-        label = None
-
-    as_data = project.read_data()
-
-    if subset in ["relevant", "irrelevant"] and as_data.labels is None:
-        indices = []
-    elif subset in ["relevant", "irrelevant", "not_seen"]:
-        indices = as_data.df[as_data.labels == label].index.values
-    else:
-        indices = as_data.df.index.values
-
-    with open_state(project.project_path) as state:
-        labeled = state.get_results_table()["record_id"].values
-
-    pool = np.setdiff1d(indices, labeled, assume_unique=True)
-    rand_pool = np.random.choice(pool, min(len(pool), n), replace=False)
-
-    payload = {"result": []}
-    for record in as_data.record(rand_pool):
-        record_d = asdict(record)
-        record_d["included"] = None
-        record_d["label_from_dataset"] = record.included
-        payload["result"].append(record_d)
-
-    return jsonify(payload)
-
-
 @bp.route("/algorithms", methods=["GET"])
 @login_required
 def api_list_algorithms():

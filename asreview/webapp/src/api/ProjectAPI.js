@@ -243,24 +243,6 @@ class ProjectAPI {
     });
   }
 
-  static fetchPriorRandom({ queryKey }) {
-    const { project_id, n, subset } = queryKey[1];
-    const url = api_url + `projects/${project_id}/prior_random`;
-    return new Promise((resolve, reject) => {
-      axios
-        .get(url, {
-          params: { n: n, subset: subset },
-          withCredentials: true,
-        })
-        .then((result) => {
-          resolve(result["data"]);
-        })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
   static fetchLabeledRecord({ pageParam = 1, queryKey }) {
     const { project_id, subset, per_page } = queryKey[1];
     const url = api_url + `projects/${project_id}/labeled`;
