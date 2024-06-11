@@ -17,7 +17,10 @@ import {
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import { styled } from "@mui/material/styles";
-import { Edit, Favorite, FavoriteBorder, Expand } from "@mui/icons-material";
+import { Favorite, FavoriteBorder, Expand, Opacity } from "@mui/icons-material";
+import NoteAltOutlinedIcon from "@mui/icons-material/NoteAltOutlined";
+import LibraryAddOutlinedIcon from "@mui/icons-material/LibraryAddOutlined";
+import NotInterestedOutlinedIcon from "@mui/icons-material/NotInterestedOutlined";
 import "./ReviewPage.css";
 import { useKeyPress } from "hooks/useKeyPress";
 import { useToggle } from "hooks/useToggle";
@@ -25,16 +28,18 @@ import { ProjectAPI } from "api";
 
 import { TagsTable } from ".";
 
+import ElasIcon from "icons/ElasIcon";
+
 const PREFIX = "DecisionButton";
 
 const classes = {
-  extendedFab: `${PREFIX}-extendedFab`,
+  icon: `${PREFIX}-icon`,
 };
 
-const Root = styled("div")(({ theme }) => ({
-  // [`& .${classes.extendedFab}`]: {
-  //   marginRight: theme.spacing(1),
-  // },
+const Root = styled("div")(({}) => ({
+  [`& .${classes.icon}`]: {
+    opacity: 0.36,
+  },
 }));
 
 const DecisionButton = ({
@@ -52,9 +57,6 @@ const DecisionButton = ({
   const [showNotes, toggleShowNotes] = useToggle(false);
   const [noteState, setNoteState] = React.useState(note);
   const [tagValuesState, setTagValuesState] = React.useState(tagValues);
-
-  let relevantLabel = "Yes";
-  let irrelevantLabel = "No";
 
   const { error, isError, isLoading, mutate, reset } = useMutation(
     ProjectAPI.mutateClassification,
@@ -106,11 +108,9 @@ const DecisionButton = ({
 
   return (
     <Root>
-      <Divider>
-        <Chip label="Labels & decisions" size="small" />
-      </Divider>
+      <Divider>{/* <ElasIcon className={classes.icon}/> */}</Divider>
 
-      {!(disabled && !hasTags) && (
+      {hasTags && (
         <>
           <CardContent>
             <TagsTable
@@ -147,42 +147,69 @@ const DecisionButton = ({
         </>
       )}
 
-      <CardContent>
-        <Alert severity="info" sx={{ margin: "0.5rem 1rem" }}>
-          {labelFromDataset === -1 && "No label in dataset"}
-          {labelFromDataset === 0 && "Label in dataset is irrelevant"}
-          {labelFromDataset === 1 && "Label in dataset is relevant"}
-        </Alert>
-      </CardContent>
-      <CardActions>
-        {!disabled && (
-          <IconButton onClick={toggleShowNotes} aria-label="add note">
-            <Edit />
-          </IconButton>
-        )}
+      {labelFromDataset && (
+        <CardContent>
+          <Alert severity="info">
+            {labelFromDataset === -1 && "No label in dataset"}
+            {labelFromDataset === 0 && "Label in dataset is irrelevant"}
+            {labelFromDataset === 1 && "Label in dataset is relevant"}
+          </Alert>
+        </CardContent>
+      )}
 
+      <CardActions>
+        {/*
         <Typography>
           Is this record relevant to your review question?
-        </Typography>
+        </Typography> */}
 
-        <Button
-          id="relevant"
-          onClick={() => makeDecision(1)}
-          variant={label === 1 ? "outlined" : undefined}
-          disabled={disabled}
-        >
-          <Favorite className={classes.extendedFab} />
-          {relevantLabel}
-        </Button>
-        <Button
-          id="irrelevant"
-          onClick={() => makeDecision(0)}
-          variant={label === 0 ? "outlined" : undefined}
-          disabled={disabled}
-        >
-          <FavoriteBorder className={classes.extendedFab} />
-          {irrelevantLabel}
-        </Button>
+        {!disabled && (
+          <>
+            <Button
+              id="relevant"
+              onClick={() => makeDecision(1)}
+              // variant={label === 1 ? "outlined" : undefined}
+              variant="contained"
+              startIcon={<LibraryAddOutlinedIcon />}
+            >
+              Add
+            </Button>
+            <Button
+              id="irrelevant"
+              onClick={() => makeDecision(0)}
+              // variant={label === 0 ? "outlined" : undefined}
+              startIcon={<NotInterestedOutlinedIcon />}
+            >
+              Not interesting
+            </Button>
+          </>
+        )}
+
+        {disabled && (
+          <>
+            {/* {label === 1 && ( */}
+            <Chip
+              icon={<LibraryAddOutlinedIcon />}
+              label="Added"
+              color="primary"
+            />
+            {/* )} */}
+
+            {/* {label === 0 && ( */}
+            <Chip
+              icon={<NotInterestedOutlinedIcon />}
+              label="Not interested"
+              color="primary"
+            />
+            {/* )} */}
+          </>
+        )}
+
+        {!disabled && (
+          <IconButton onClick={toggleShowNotes} aria-label="add note">
+            <NoteAltOutlinedIcon />
+          </IconButton>
+        )}
       </CardActions>
     </Root>
   );

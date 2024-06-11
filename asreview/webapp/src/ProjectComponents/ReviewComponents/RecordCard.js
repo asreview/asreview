@@ -72,7 +72,7 @@ const RecordCard = ({
 }) => {
   const [readMoreOpen, toggleReadMore] = useToggle();
 
-  // console.log(record);
+  console.log(record);
 
   const isNotTrained =
     record?.state?.query_strategy === "top-down" ||
@@ -96,7 +96,7 @@ const RecordCard = ({
         )}
 
         <CardContent
-          className={`${classes.titleAbstract} record-card-content`}
+          className={classes.titleAbstract}
           aria-label="record title abstract"
         >
           <Stack spacing={1}>
@@ -104,7 +104,6 @@ const RecordCard = ({
               direction="row"
               justifyContent="space-between"
               alignItems="baseline"
-              spacing={1}
             >
               {/* Show the title */}
               <Typography
@@ -195,8 +194,8 @@ const RecordCard = ({
         <DecisionButton
           project_id={project_id}
           record_id={record.record_id}
-          label={record.state?.included}
-          labelFromDataset={record.label_from_dataset}
+          label={record.state?.label}
+          labelFromDataset={record.included}
           afterDecision={afterDecision}
           note={record.note}
           tagsForm={record.tags_form}
