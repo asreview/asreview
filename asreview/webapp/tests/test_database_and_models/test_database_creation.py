@@ -2,7 +2,7 @@ import pytest
 import sqlalchemy
 from sqlalchemy import create_engine
 
-from asreview.utils import asreview_path
+from asreview.webapp.utils import asreview_path
 
 
 def get_db_path():

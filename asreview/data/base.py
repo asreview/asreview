@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["Dataset", "Record"]
-
 import logging
 from dataclasses import dataclass
 from pathlib import Path
@@ -25,9 +23,7 @@ from pandas.api.types import is_string_dtype
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
-from asreview.exceptions import BadFileFormatError
-from asreview.utils import _entry_points
-from asreview.utils import is_iterable
+from asreview.extensions import extensions
 
 
 def _type_from_column(col_name, col_definitions):
@@ -189,9 +185,7 @@ class Dataset:
         if "abstract" not in list(self.column_spec) and "title" not in list(
             self.column_spec
         ):
-            raise BadFileFormatError(
-                "File supplied without 'abstract' or 'title'" " fields."
-            )
+            raise ValueError("File supplied without 'abstract' or 'title'" " fields.")
         if "abstract" not in list(self.column_spec):
             logging.warning("Unable to detect abstracts in dataset.")
         if "title" not in list(self.column_spec):
@@ -223,7 +217,7 @@ class Dataset:
             The corresponding record if i was an integer, or a list of records
             if i was an iterable.
         """
-        if not is_iterable(i):
+        if isinstance(i, (int, np.int64)):
             index_list = [i]
         else:
             index_list = i
@@ -241,7 +235,7 @@ class Dataset:
             for j in index_list
         ]
 
-        if is_iterable(i):
+        if not isinstance(i, (int, np.int64)):
             return records
         return records[0]
 
@@ -389,18 +383,18 @@ class Dataset:
         else:
             best_suffix = None
 
-            for entry in _entry_points(group="asreview.writers"):
+            for entry in extensions("writers"):
                 if Path(fp).suffix == entry.name:
                     if best_suffix is None or len(entry.name) > len(best_suffix):
                         best_suffix = entry.name
 
             if best_suffix is None:
-                raise BadFileFormatError(
+                raise ValueError(
                     f"Error exporting file {fp}, no capabilities "
                     "for exporting such a file."
                 )
 
-            writer = _entry_points(group="asreview.writers")[best_suffix].load()
+            writer = extensions("writers")[best_suffix].load()
             writer.write_data(df, fp)
 
     def to_dataframe(self, labels=None, ranking=None, keep_old_labels=False):

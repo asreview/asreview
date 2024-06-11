@@ -2,11 +2,9 @@ from io import StringIO
 from pathlib import Path
 
 from asreview.datasets import DatasetManager
-from asreview.datasets import DatasetNotFoundError
-from asreview.exceptions import BadFileFormatError
-from asreview.utils import _entry_points
+from asreview.extensions import extensions
 from asreview.utils import _get_filename_from_url
-from asreview.utils import is_url
+from asreview.utils import _is_url
 
 
 def _from_file(fp, reader=None):
@@ -28,15 +26,15 @@ def _from_file(fp, reader=None):
         return reader.read_data(fp)
 
     # get the filename from a url else file path
-    if is_url(fp):
+    if _is_url(fp):
         fn = _get_filename_from_url(fp)
     else:
         fn = Path(fp).name
 
     try:
-        reader = _entry_points(group="asreview.readers")[Path(fn).suffix].load()
+        reader = extensions("readers")[Path(fn).suffix].load()
     except Exception:
-        raise BadFileFormatError(f"Importing file {fp} not possible.")
+        raise ValueError(f"Importing file {fp} not possible.")
 
     return reader.read_data(fp)
 
@@ -63,15 +61,15 @@ def _from_extension(name, reader=None):
 
     if reader is None:
         # get the filename from a url else file path
-        if is_url(fp):
+        if _is_url(fp):
             fn = _get_filename_from_url(fp)
         else:
             fn = Path(fp).name
 
         try:
-            reader = _entry_points(group="asreview.readers")[Path(fn).suffix].load()
+            reader = extensions("readers")[Path(fn).suffix].load()
         except Exception:
-            raise BadFileFormatError(f"Importing file {fp} not possible.")
+            raise ValueError(f"Importing file {fp} not possible.")
 
     return reader.read_data(fp)
 
@@ -93,13 +91,13 @@ def load_dataset(name, **kwargs):
     """
 
     # check is file or URL
-    if is_url(name) or Path(name).exists():
+    if _is_url(name) or Path(name).exists():
         return _from_file(name, **kwargs)
 
     # check if dataset is plugin dataset
     try:
         return _from_extension(name, **kwargs)
-    except DatasetNotFoundError:
+    except ValueError:
         pass
 
     # Could not find dataset, return None.

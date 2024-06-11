@@ -12,10 +12,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
 import asreview as asr
-from asreview.utils import asreview_path
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.models import create_database_and_tables
+from asreview.webapp.utils import asreview_path
 
 DEFAULT_DATABASE_URI = f"sqlite:///{str(asreview_path())}/asreview.production.sqlite"
 

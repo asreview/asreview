@@ -30,8 +30,8 @@ from sqlalchemy.orm import validates
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 
-import asreview.utils as utils
 from asreview.webapp import DB
+from asreview.webapp.utils import asreview_path
 
 PASSWORD_REGEX = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$"  # noqa
 EMAIL_REGEX = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b"
@@ -263,7 +263,7 @@ class Project(DB.Model):
     @property
     def project_path(self):
         """Returns full project path"""
-        return Path(utils.asreview_path(), self.project_id)
+        return Path(asreview_path(), self.project_id)
 
     @property
     def folder(self):

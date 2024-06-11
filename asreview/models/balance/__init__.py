@@ -17,18 +17,12 @@ __all__ = [
     "SimpleBalance",
     "TripleBalance",
     "UndersampleBalance",
-    "get_balance_class",
-    "get_balance_model",
-    "list_balance_strategies",
 ]
 
 from asreview.models.balance.double import DoubleBalance
 from asreview.models.balance.simple import SimpleBalance
 from asreview.models.balance.triple import TripleBalance
 from asreview.models.balance.undersample import UndersampleBalance
-from asreview.models.balance.utils import get_balance_class
-from asreview.models.balance.utils import get_balance_model
-from asreview.models.balance.utils import list_balance_strategies
 
 """Balance strategies to rebalance and reorder the training data.
 
