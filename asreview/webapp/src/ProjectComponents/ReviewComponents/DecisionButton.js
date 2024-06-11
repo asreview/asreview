@@ -5,6 +5,10 @@ import {
   Fab,
   Stack,
   Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   TextField,
   Chip,
   CardActions,
@@ -16,13 +20,14 @@ import {
 } from "@mui/material";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
+import { useHotkeys } from "react-hotkeys-hook";
+
 import { styled } from "@mui/material/styles";
 import { Favorite, FavoriteBorder, Expand, Opacity } from "@mui/icons-material";
 import NoteAltOutlinedIcon from "@mui/icons-material/NoteAltOutlined";
 import LibraryAddOutlinedIcon from "@mui/icons-material/LibraryAddOutlined";
 import NotInterestedOutlinedIcon from "@mui/icons-material/NotInterestedOutlined";
 import "./ReviewPage.css";
-import { useKeyPress } from "hooks/useKeyPress";
 import { useToggle } from "hooks/useToggle";
 import { ProjectAPI } from "api";
 
@@ -42,6 +47,54 @@ const Root = styled("div")(({}) => ({
   },
 }));
 
+const NoteDialog = ({ project_id, record_id, open, onClose, note }) => {
+  const [noteState, setNoteState] = React.useState(note);
+
+  const { isError, isLoading, mutate } = useMutation(ProjectAPI.mutateNote, {
+    onSuccess: () => {
+      onClose();
+    },
+  });
+
+  return (
+    <Dialog open={open} onClose={onClose} fullWidth>
+      <DialogTitle>Add note</DialogTitle>
+      <DialogContent>
+        <TextField
+          autoComplete="off"
+          id="record-note"
+          autoFocus
+          fullWidth
+          multiline
+          onChange={(event) => setNoteState(event.target.value)}
+          placeholder="Write a note for this record..."
+          rows={4}
+          value={noteState}
+          error={isError}
+          disabled={isLoading}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="primary">
+          Cancel
+        </Button>
+        <Button
+          onClick={() => {
+            mutate({
+              project_id: project_id,
+              record_id: record_id,
+              note: noteState,
+            });
+          }}
+          color="primary"
+        >
+          Save
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
 const DecisionButton = ({
   project_id,
   record_id,
@@ -51,11 +104,9 @@ const DecisionButton = ({
   tagValues = [],
   note,
   afterDecision,
-  keyPressEnabled = false,
   disabled = false,
 }) => {
   const [showNotes, toggleShowNotes] = useToggle(false);
-  const [noteState, setNoteState] = React.useState(note);
   const [tagValuesState, setTagValuesState] = React.useState(tagValues);
 
   const { error, isError, isLoading, mutate, reset } = useMutation(
@@ -72,37 +123,13 @@ const DecisionButton = ({
       project_id: project_id,
       record_id: record_id,
       label: label,
-      note: noteState,
       tagValues: tagValuesState,
     });
   };
 
-  /**
-   * Use keyboard shortcuts
-   */
-
-  const relevantPress = useKeyPress("r");
-  const irrelevantPress = useKeyPress("i");
-  // const undoPress = useKeyPress("u");
-  const notePress = useKeyPress("n");
-
-  const handleNote = (event) => {
-    setNoteState(event.target.value);
-  };
-
-  React.useEffect(() => {
-    if (keyPressEnabled) {
-      if (relevantPress) {
-        makeDecision(1);
-      }
-      if (irrelevantPress) {
-        makeDecision(0);
-      }
-      if (notePress) {
-        toggleShowNotes();
-      }
-    }
-  }, [relevantPress, irrelevantPress, notePress]);
+  useHotkeys("r", () => makeDecision(1));
+  useHotkeys("i", () => makeDecision(0));
+  useHotkeys("n", toggleShowNotes, { keyup: true });
 
   const hasTags = Array.isArray(tagsForm) && tagsForm.length > 0;
 
@@ -126,24 +153,7 @@ const DecisionButton = ({
       {(showNotes || (disabled && note !== null)) && (
         <>
           {/* <Divider /> */}
-          <CardContent>
-            <TextField
-              autoComplete="off"
-              id="record-note"
-              label="Note"
-              focused={true}
-              fullWidth
-              helperText={
-                !disabled && "Note is saved when label decision is made."
-              }
-              multiline
-              onChange={handleNote}
-              placeholder="Write a note for this record..."
-              rows={4}
-              value={noteState}
-              disabled={disabled}
-            />
-          </CardContent>
+          <CardContent>{note}</CardContent>
         </>
       )}
 
@@ -157,7 +167,7 @@ const DecisionButton = ({
         </CardContent>
       )}
 
-      <CardActions>
+      <CardActions sx={{ display: "block" }}>
         {/*
         <Typography>
           Is this record relevant to your review question?
@@ -168,7 +178,6 @@ const DecisionButton = ({
             <Button
               id="relevant"
               onClick={() => makeDecision(1)}
-              // variant={label === 1 ? "outlined" : undefined}
               variant="contained"
               startIcon={<LibraryAddOutlinedIcon />}
             >
@@ -177,7 +186,6 @@ const DecisionButton = ({
             <Button
               id="irrelevant"
               onClick={() => makeDecision(0)}
-              // variant={label === 0 ? "outlined" : undefined}
               startIcon={<NotInterestedOutlinedIcon />}
             >
               Not interesting
@@ -206,9 +214,24 @@ const DecisionButton = ({
         )}
 
         {!disabled && (
-          <IconButton onClick={toggleShowNotes} aria-label="add note">
-            <NoteAltOutlinedIcon />
-          </IconButton>
+          <>
+            <Tooltip title="Add note">
+              <IconButton
+                onClick={toggleShowNotes}
+                aria-label="add note"
+                sx={{ float: "right" }}
+              >
+                <NoteAltOutlinedIcon />
+              </IconButton>
+            </Tooltip>
+            <NoteDialog
+              project_id={project_id}
+              record_id={record_id}
+              open={showNotes}
+              onClose={toggleShowNotes}
+              note={note}
+            />
+          </>
         )}
       </CardActions>
     </Root>

@@ -23,12 +23,7 @@ import {
 } from "Components";
 import { HomePage } from "./HomeComponents";
 import { ProjectPage } from "ProjectComponents";
-import {
-  useDarkMode,
-  useFontSize,
-  useKeyPressEnabled,
-  useUndoEnabled,
-} from "hooks/SettingsHooks";
+import { useDarkMode, useFontSize, useUndoEnabled } from "hooks/SettingsHooks";
 import { useToggle } from "hooks/useToggle";
 
 // Ensure that on localhost we use 'localhost' instead of '127.0.0.1'
@@ -72,7 +67,6 @@ const App = () => {
   const [theme, toggleDarkMode] = useDarkMode();
   const [fontSize, handleFontSizeChange] = useFontSize();
   const [undoEnabled, toggleUndoEnabled] = useUndoEnabled();
-  const [keyPressEnabled, toggleKeyPressEnabled] = useKeyPressEnabled();
 
   const muiTheme = createTheme(theme);
   const mobileScreen = useMediaQuery(muiTheme.breakpoints.down("md"), {
@@ -178,7 +172,6 @@ const App = () => {
                 onNavDrawer={onNavDrawer}
                 fontSize={fontSize}
                 undoEnabled={undoEnabled}
-                keyPressEnabled={keyPressEnabled}
                 projectCheck={projectCheck}
                 setProjectCheck={setProjectCheck}
               />
@@ -241,12 +234,10 @@ const App = () => {
             onSettings={onSettings}
             onDark={theme}
             fontSize={fontSize}
-            keyPressEnabled={keyPressEnabled}
             undoEnabled={undoEnabled}
             toggleSettings={toggleSettings}
             toggleDarkMode={toggleDarkMode}
             handleFontSizeChange={handleFontSizeChange}
-            toggleKeyPressEnabled={toggleKeyPressEnabled}
             toggleUndoEnabled={toggleUndoEnabled}
           />
           <HelpDialog mobileScreen={mobileScreen} />

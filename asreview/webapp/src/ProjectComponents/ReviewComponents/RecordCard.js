@@ -66,7 +66,6 @@ const RecordCard = ({
   afterDecision,
   mobileScreen,
   fontSize,
-  keyPressEnabled = false,
   collapseAbstract = false,
   disabled = false,
 }) => {
@@ -200,7 +199,6 @@ const RecordCard = ({
           note={record.note}
           tagsForm={record.tags_form}
           tagValues={record.tags}
-          keyPressEnabled={keyPressEnabled}
           disabled={disabled}
         />
       </Card>

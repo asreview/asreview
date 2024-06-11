@@ -519,7 +519,7 @@ class SQLiteState:
             dtype={"label": "Int64"},
         )
 
-    def update_decision(self, record_id, label, note=None, tags=None):
+    def update(self, record_id, label=None, note=None, tags=None):
         """Change the label of an already labeled record.
 
         Arguments
@@ -536,13 +536,11 @@ class SQLiteState:
 
         cur = self._conn.cursor()
 
-        # Change the label.
         cur.execute(
             "UPDATE results SET label = ?, notes = ?, "
             "custom_metadata_json=? WHERE record_id = ?",
             (label, note, json.dumps({"tags": tags}), record_id),
         )
-
         # Add the change to the decision changes table.
         cur.execute(
             (
@@ -552,6 +550,27 @@ class SQLiteState:
             (record_id, label, datetime.now()),
         )
 
+        self._conn.commit()
+
+    def update_note(self, record_id, note=None):
+        """Change the note of an already labeled or pending record.
+
+        Arguments
+        ---------
+        record_id: int
+            Id of the record whose label should be changed.
+        note: str
+            Note to add to the record.
+        """
+
+        if note is None:
+            note = "NULL"
+
+        cur = self._conn.cursor()
+        cur.execute(
+            "UPDATE results SET notes = ? WHERE record_id = ?",
+            (note, record_id),
+        )
         self._conn.commit()
 
     def delete_record_labeling_data(self, record_id):

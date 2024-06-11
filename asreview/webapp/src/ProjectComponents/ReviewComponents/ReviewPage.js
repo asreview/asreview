@@ -50,7 +50,6 @@ const Screener = (props) => {
             mobileScreen={props.mobileScreen}
             // noteFieldAutoFocus={noteFieldAutoFocus}
             // previousRecord={previousRecord}
-            keyPressEnabled={props.keyPressEnabled}
             tags={props.tags}
             tagValues={tagValues}
             setTagValues={setTagValues}
@@ -78,7 +77,6 @@ const ReviewPage = ({
   mobileScreen,
   fontSize,
   undoEnabled,
-  keyPressEnabled,
   tags,
 }) => {
   const [record, setRecord] = React.useState(null);
@@ -120,7 +118,6 @@ const ReviewPage = ({
             mobileScreen={mobileScreen}
             fontSize={fontSize}
             undoEnabled={undoEnabled}
-            keyPressEnabled={keyPressEnabled}
             tags={tags}
           />
         )}

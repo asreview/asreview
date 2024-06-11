@@ -168,14 +168,6 @@ const SettingsDialog = (props) => {
                 REVIEW PREFERENCES
               </Typography>
             </ListItem>
-            <ListItem button onClick={toggleShortcutSetting}>
-              <ListItemIcon></ListItemIcon>
-              <ListItemText
-                id="switch-list-label-key"
-                primary="Keyboard shortcuts"
-                secondary={props.keyPressEnabled ? "On" : "Off"}
-              />
-            </ListItem>
             <ListItem button onClick={props.toggleUndoEnabled}>
               <ListItemIcon></ListItemIcon>
               <ListItemText
@@ -356,23 +348,6 @@ const SettingsDialog = (props) => {
       {shortcutSetting && (
         <DialogContent className={classes.content} dividers>
           <List>
-            <ListItem button onClick={props.toggleKeyPressEnabled}>
-              <ListItemIcon></ListItemIcon>
-              <ListItemText
-                id="switch-list-label-key"
-                primary="Keyboard shortcuts"
-                secondary="Label a record by pressing a key"
-              />
-              <ListItemSecondaryAction sx={{ right: 24 }}>
-                <Switch
-                  edge="end"
-                  onChange={props.toggleKeyPressEnabled}
-                  checked={props.keyPressEnabled}
-                  inputProps={{ "aria-labelledby": "switch-list-label-key" }}
-                />
-              </ListItemSecondaryAction>
-            </ListItem>
-            <Divider sx={{ marginTop: "8px", marginBottom: "8px" }} />
             <ListItem alignItems="flex-start">
               <ListItemIcon>
                 <InfoOutlined />

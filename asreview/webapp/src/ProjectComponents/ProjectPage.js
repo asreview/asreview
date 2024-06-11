@@ -210,7 +210,6 @@ const ProjectPage = (props) => {
                   projectMode={data?.mode}
                   fontSize={props.fontSize}
                   undoEnabled={props.undoEnabled}
-                  keyPressEnabled={props.keyPressEnabled}
                   tags={tags}
                 />
               }

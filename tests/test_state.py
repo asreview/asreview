@@ -454,11 +454,11 @@ def test_update_decision(tmpdir):
         state.add_labeling_data(TEST_RECORD_IDS[:3], TEST_LABELS[:3], prior=True)
 
         for i in range(3):
-            state.update_decision(TEST_RECORD_IDS[i], 1 - TEST_LABELS[i])
+            state.update(TEST_RECORD_IDS[i], 1 - TEST_LABELS[i])
             new_label = state.get_data_by_record_id(TEST_RECORD_IDS[i])["label"][0]
             assert new_label == 1 - TEST_LABELS[i]
 
-        state.update_decision(TEST_RECORD_IDS[1], TEST_LABELS[1])
+        state.update(TEST_RECORD_IDS[1], TEST_LABELS[1])
         new_label = state.get_data_by_record_id(TEST_RECORD_IDS[1])["label"][0]
         assert new_label == TEST_LABELS[1]
 
