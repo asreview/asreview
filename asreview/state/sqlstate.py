@@ -91,7 +91,7 @@ class SQLiteState:
 
         cur.execute(
             """CREATE TABLE results
-                            (record_id INTEGER,
+                            (record_id INTEGER UNIQUE,
                             label INTEGER,
                             classifier TEXT,
                             query_strategy TEXT,
@@ -106,7 +106,7 @@ class SQLiteState:
 
         cur.execute(
             """CREATE TABLE last_ranking
-                            (record_id INTEGER,
+                            (record_id INTEGER UNIQUE,
                             ranking INT,
                             classifier TEXT,
                             query_strategy TEXT,
@@ -238,7 +238,7 @@ class SQLiteState:
         ).to_sql("last_ranking", self._conn, if_exists="replace", index=False)
 
     def add_labeling_data(
-        self, record_ids, labels, notes=None, tags_list=None, prior=False, user_id=None
+        self, record_ids, labels, notes=None, tags_list=None, user_id=None
     ):
         """Add the data corresponding to a labeling action to the state file.
 
@@ -252,8 +252,6 @@ class SQLiteState:
             A list of text notes to save with the labeled records.
         tags_list: list of list
             A list of tags to save with the labeled records.
-        prior: bool
-            Whether the added record are prior knowledge.
         user_id: int
             User id of the user who labeled the records.
         """
@@ -264,6 +262,9 @@ class SQLiteState:
         if tags_list is None:
             tags_list = [None for _ in record_ids]
 
+        if user_id is None:
+            user_id = [None for _ in record_ids]
+
         # Check that all input data has the same length.
         if len({len(record_ids), len(labels), len(notes), len(tags_list)}) != 1:
             raise ValueError("Input data should be of the same length.")
@@ -272,44 +273,38 @@ class SQLiteState:
             json.dumps({"tags": tags_list[i]}) for i, _ in enumerate(record_ids)
         ]
 
-        if prior:
-            pd.DataFrame(
-                {
-                    "record_id": record_ids,
-                    "label": labels,
-                    "query_strategy": "prior",
-                    "training_set": -1,
-                    "labeling_time": datetime.now(),
-                    "notes": notes,
-                    "custom_metadata_json": custom_metadata_list,
-                    "user_id": user_id,
-                }
-            ).to_sql("results", self._conn, if_exists="append", index=False)
+        labeling_time = datetime.now()
 
-        else:
-            labeling_time = datetime.now()
-            data = [
+        # Add the rows to the database.
+        con = self._conn
+        cur = con.cursor()
+        cur.executemany(
+            (
+                """
+                INSERT INTO results(record_id,label,labeling_time,notes,custom_metadata_json, user_id)
+                VALUES(?,?,?,?,?,?)
+                ON CONFLICT(record_id) DO UPDATE
+                    SET label=excluded.label, labeling_time=excluded.labeling_time,
+                    notes=excluded.notes, custom_metadata_json=excluded.custom_metadata_json, user_id=excluded.user_id
+            """
+            ),
+            [
                 (
+                    int(record_ids[i]),
                     int(labels[i]),
                     labeling_time,
                     notes[i],
                     custom_metadata_list[i],
-                    int(record_ids[i]),
+                    user_id[i],
                 )
                 for i in range(len(record_ids))
-            ]
+            ],
+        )
 
-            # If not prior, we need to update records.
-            query = (
-                "UPDATE results SET label=?, labeling_time=?, "
-                "notes=?, custom_metadata_json=? WHERE record_id=?"
-            )
+        if cur.rowcount != len(record_ids):
+            raise ValueError("Failed to insert or update labels for record.")
 
-            # Add the rows to the database.
-            con = self._conn
-            cur = con.cursor()
-            cur.executemany(query, data)
-            con.commit()
+        con.commit()
 
     def get_last_ranking_table(self):
         """Get the ranking from the state.
@@ -541,6 +536,10 @@ class SQLiteState:
             "custom_metadata_json=? WHERE record_id = ?",
             (label, note, json.dumps({"tags": tags}), record_id),
         )
+
+        if cur.rowcount == 0:
+            raise ValueError(f"Record with id {record_id} not found.")
+
         # Add the change to the decision changes table.
         cur.execute(
             (

@@ -1259,7 +1259,6 @@ def api_classify_instance(project, record_id):  # noqa: F401
     """
     # return the combination of document_id and label.
     record_id = int(request.form.get("record_id"))
-
     label = int(request.form.get("label"))
 
     tags = request.form.get("tags", type=str)
@@ -1268,32 +1267,33 @@ def api_classify_instance(project, record_id):  # noqa: F401
     else:
         tags = json.loads(tags)
 
-    is_prior = request.form.get("is_prior", default=False)
+    # is_prior = request.form.get("is_prior", default=False)
 
-    retrain_model = False if is_prior == "1" else True
-    prior = True if is_prior == "1" else False
+    # retrain_model = False if is_prior == "1" else True
+    # prior = True if is_prior == "1" else False
+
+    retrain_model = request.form.get("retrain_model", default=False)
 
     user_id = (
         None if current_app.config.get("LOGIN_DISABLED", False) else current_user.id
     )
 
-    if request.method == "POST":
-        with open_state(project.project_path) as state:
-            # add the labels as prior data
+    print(request.method, label)
+
+    with open_state(project.project_path) as state:
+        if label in [0, 1]:
             state.add_labeling_data(
                 record_ids=[record_id],
                 labels=[label],
                 tags_list=[tags],
-                prior=prior,
                 user_id=user_id,
             )
+        elif label == -1:
+            state.delete_record_labeling_data(record_id)
+        else:
+            raise ValueError(f"Invalid label {label}")
 
-    elif request.method == "PUT":
-        with open_state(project.project_path) as state:
-            if label in [0, 1]:
-                state.update(record_id, label, tags=tags)
-            elif label == -1:
-                state.delete_record_labeling_data(record_id)
+        # state.update(record_id, label, tags=tags)
 
     if retrain_model:
         # retrain model

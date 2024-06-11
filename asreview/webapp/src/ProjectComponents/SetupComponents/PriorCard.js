@@ -57,8 +57,6 @@ const PriorCard = ({
     setOpenPriorSearch(false);
   };
 
-  console.log("render card", data);
-
   return (
     <Card>
       <CardHeader

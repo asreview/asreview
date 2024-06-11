@@ -111,7 +111,7 @@ const PriorSearch = ({}) => {
                 <RecordCard
                   project_id={project_id}
                   record={record}
-                  // collapseAbstract={true}
+                  collapseAbstract={true}
                   key={`result-page-${index}`}
                 />
               ))}
