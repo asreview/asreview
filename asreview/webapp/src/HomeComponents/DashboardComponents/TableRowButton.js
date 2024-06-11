@@ -78,7 +78,7 @@ export default function TableRowButton(props) {
             </IconButton>
           </Tooltip>
         )}
-        {false && props.isOwner && (
+        {props.isOwner && (
           <Tooltip title="Add team members">
             <IconButton
               className={classes.button}
@@ -88,7 +88,7 @@ export default function TableRowButton(props) {
             </IconButton>
           </Tooltip>
         )}
-        {false && !props.isOwner && (
+        {!props.isOwner && (
           <Tooltip title="Remove yourself from team">
             <IconButton
               className={classes.button}

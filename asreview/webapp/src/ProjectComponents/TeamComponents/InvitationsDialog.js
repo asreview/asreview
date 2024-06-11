@@ -1,8 +1,9 @@
 import * as React from "react";
-import { Dialog, Divider } from "@mui/material";
+import { Dialog, DialogTitle, Divider, Stack, Tooltip } from "@mui/material";
+import { Close } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
-import AcceptanceContents from "./AcceptanceContents";
-import DialogHeader from "./DialogHeader";
+import { InvitationsComponent } from "ProjectComponents/TeamComponents";
+import { StyledIconButton } from "StyledComponents/StyledButton";
 
 const PREFIX = "SetupDialog";
 
@@ -37,7 +38,7 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-const AcceptanceDialog = (props) => {
+const InvitationsDialog = (props) => {
   const handleClose = () => {
     props.onClose();
   };
@@ -53,12 +54,26 @@ const AcceptanceDialog = (props) => {
         sx: { height: !props.mobileScreen ? "calc(100% - 96px)" : "100%" },
       }}
     >
-      <DialogHeader
-        title="Collaboration invitations"
-        handleClose={handleClose}
-      />
+      <Stack className="dialog-header" direction="row">
+        <DialogTitle>Collaboration invitations</DialogTitle>
+        <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+          <Stack
+            className="dialog-header-button right"
+            direction="row"
+            spacing={1}
+          >
+            <Tooltip title="Close">
+              <StyledIconButton onClick={handleClose}>
+                <Close />
+              </StyledIconButton>
+            </Tooltip>
+          </Stack>
+        </Stack>
+      </Stack>
+
       <Divider />
-      <AcceptanceContents
+
+      <InvitationsComponent
         projectInvitations={props.projectInvitations}
         handleAcceptance={props.handleAcceptance}
         handleRejection={props.handleRejection}
@@ -67,4 +82,4 @@ const AcceptanceDialog = (props) => {
   );
 };
 
-export default AcceptanceDialog;
+export default InvitationsDialog;

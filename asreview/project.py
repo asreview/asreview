@@ -14,14 +14,7 @@
 
 __all__ = [
     "ProjectError",
-    "ProjectExistsError",
     "ProjectNotFoundError",
-    "Project",
-    "get_project_path",
-    "project_from_id",
-    "get_projects",
-    "is_project",
-    "is_v0_project",
 ]
 
 import json
@@ -32,11 +25,10 @@ import shutil
 import tempfile
 import time
 import zipfile
+from dataclasses import asdict
 from datetime import datetime
-from functools import wraps
 from pathlib import Path
 from uuid import uuid4
-from dataclasses import asdict
 
 import jsonschema
 import numpy as np
@@ -48,15 +40,12 @@ from scipy.sparse import save_npz
 
 from asreview import load_dataset
 from asreview.config import LABEL_NA
-from asreview.config import PROJECT_MODE_EXPLORE
-from asreview.config import PROJECT_MODE_ORACLE
-from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.config import PROJECT_MODES
+from asreview.config import PROJECT_MODE_EXPLORE
+from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.config import SCHEMA
-from asreview.exceptions import CacheDataError
 from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState
-from asreview.utils import asreview_path
 
 try:
     from asreview._version import __version__
@@ -72,74 +61,18 @@ class ProjectError(Exception):
     pass
 
 
-class ProjectExistsError(Exception):
+class ProjectNotFoundError(FileNotFoundError):
     pass
 
 
-class ProjectNotFoundError(Exception):
-    pass
+def is_project(project_obj, raise_on_old_version=True):
+    if isinstance(project_obj, Project):
+        project_obj = project_obj.project_path
 
+    if raise_on_old_version and not Path(project_obj, "reviews").exists():
+        raise ProjectError("Project is of an older version.")
 
-def get_project_path(folder_id):
-    """Get the project directory.
-
-    Arguments
-    ---------
-    folder_id: str
-        The id of the folder containing a project. If there is no
-        authentication, the folder_id is equal to the project_id. Otherwise,
-        this is equal to {project_owner_id}_{project_id}.
-    """
-    return Path(asreview_path(), folder_id)
-
-
-def project_from_id(f):
-    """Decorator function that takes a user account as parameter,
-    the user account is used to get the correct sub folder in which
-    the projects is
-    """
-
-    @wraps(f)
-    def decorated_function(project_id, *args, **kwargs):
-        project_path = get_project_path(project_id)
-        if not is_project(project_path):
-            raise ProjectNotFoundError(f"Project '{project_id}' not found")
-        project = Project(project_path, project_id=project_id)
-        return f(project, *args, **kwargs)
-
-    return decorated_function
-
-
-def get_projects(project_paths=None):
-    """Get the ASReview projects at the given paths.
-
-    Arguments
-    ---------
-    project_paths : list[Path], optional
-        List of paths to projects. By default all the projects in the asreview
-        folder are used, by default None
-
-    Returns
-    -------
-    list[Project]
-        Projects at the given project paths.
-    """
-    if project_paths is None:
-        project_paths = [path for path in asreview_path().iterdir() if path.is_dir()]
-
-    return [Project(project_path) for project_path in project_paths]
-
-
-def is_project(project_path):
-    project_path = Path(project_path) / PATH_PROJECT_CONFIG
-
-    return project_path.exists()
-
-
-def is_v0_project(project_path):
-    """Check if a project file is of a ASReview version 0 project."""
-
-    return not Path(project_path, "reviews").exists()
+    return Path(project_obj, PATH_PROJECT_CONFIG).exists()
 
 
 class Project:
@@ -164,8 +97,8 @@ class Project:
 
         project_path = Path(project_path)
 
-        if is_project(project_path):
-            raise ProjectExistsError("Project already exists.")
+        if project_path.exists():
+            raise ValueError("Project path is not empty.")
 
         if project_mode not in PROJECT_MODES:
             raise ValueError(
@@ -274,7 +207,7 @@ class Project:
     def add_dataset(self, file_name):
         """Add file path to the project file.
 
-        Add file to data subfolder and fill the pool of iteration 0.
+        Add file to data subfolder.
         """
 
         # fill the pool of the first iteration
@@ -291,37 +224,7 @@ class Project:
 
         self.update_config(dataset_path=file_name, name=file_name.rsplit(".", 1)[0])
 
-        state = SQLiteState()
-
-        try:
-            review_id = uuid4().hex
-            state._create_new_state_file(self.project_path, review_id)
-            self.add_review(review_id)
-
-            # save the record ids in the state file
-            state.add_record_table(as_data.record_ids)
-
-            # if the data contains labels and oracle mode, add them to the state file
-            if (
-                self.config["mode"] == PROJECT_MODE_ORACLE
-                and as_data.labels is not None
-            ):
-                labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
-                labels = as_data.labels[labeled_indices].tolist()
-                labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
-
-                # add the labels as prior data
-                state.add_labeling_data(
-                    record_ids=labeled_record_ids,
-                    labels=labels,
-                    notes=[None for _ in labeled_record_ids],
-                    prior=True,
-                )
-        finally:
-            try:
-                state.close()
-            except AttributeError:
-                pass
+        return as_data
 
     def remove_dataset(self):
         """Remove dataset from project."""
@@ -351,16 +254,12 @@ class Project:
             if (not version_check) or (__version__ == data_obj_version):
                 return data_obj
 
-        except FileNotFoundError:
-            pass
-        except Exception as err:
+        except ValueError as err:
             logging.error(f"Error reading cache file: {err}")
             try:
                 os.remove(fp_data_pickle)
             except FileNotFoundError:
                 pass
-
-        raise CacheDataError()
 
     def read_data(self, use_cache=True, save_cache=True):
         """Get Dataset object from file.
@@ -382,7 +281,7 @@ class Project:
         if use_cache:
             try:
                 return self._read_data_from_cache()
-            except CacheDataError:
+            except FileNotFoundError:
                 pass
 
         try:
@@ -485,13 +384,19 @@ class Project:
         except Exception:
             return []
 
-    def add_review(self, review_id, start_time=None, status="setup"):
+    def add_review(
+        self, review_id=None, settings=None, state=None, start_time=None, status="setup"
+    ):
         """Add new review metadata.
 
         Arguments
         ---------
         review_id: str
             The review_id uuid4.
+        settings: ReviewSettings
+            The settings of the review.
+        state: SQLiteState
+            The state of the review.
         status: str
             The status of the review. One of 'setup', 'running',
             'finished'.
@@ -499,17 +404,36 @@ class Project:
             Start of the review.
 
         """
+
+        if review_id is not None and any(
+            [x["id"] == review_id for x in self.config["reviews"]]
+        ):
+            raise ValueError(f"Review with id {review_id} already exists.")
+
+        if review_id is None:
+            review_id = uuid4().hex
+
         if start_time is None:
             start_time = datetime.now()
 
         config = self.config
 
-        asreview_settings = ReviewSettings()
+        if settings is None:
+            settings = ReviewSettings()
 
+        Path(self.project_path, "reviews", review_id).mkdir(exist_ok=True, parents=True)
         with open(
             Path(self.project_path, "reviews", review_id, "settings_metadata.json"), "w"
         ) as f:
-            json.dump(asdict(asreview_settings), f)
+            json.dump(asdict(settings), f)
+
+        fp_state = Path(self.project_path, "reviews", review_id, "results.sql")
+
+        if state is None:
+            state = SQLiteState(fp_state)
+            state.create_tables()
+        else:
+            state.to_sql(fp_state)
 
         review_config = {
             "id": review_id,
@@ -525,8 +449,9 @@ class Project:
         config["reviews"].append(review_config)
 
         self.config = config
+        return config
 
-    def update_review(self, review_id=None, **kwargs):
+    def update_review(self, review_id=None, settings=None, state=None, **kwargs):
         """Update review metadata.
 
         Arguments
@@ -547,8 +472,20 @@ class Project:
 
         if review_id is None:
             review_index = 0
+            review_id = config["reviews"][0]["id"]
         else:
             review_index = [x["id"] for x in self.config["reviews"]].index(review_id)
+
+        if state is not None:
+            fp_state = Path(self.project_path, "reviews", review_id, "results.sql")
+            state.to_sql(fp_state)
+
+        if settings is not None:
+            with open(
+                Path(self.project_path, "reviews", review_id, "settings_metadata.json"),
+                "w",
+            ) as f:
+                json.dump(asdict(settings), f)
 
         review_config = config["reviews"][review_index]
         review_config.update(kwargs)

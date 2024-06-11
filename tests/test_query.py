@@ -1,9 +1,8 @@
 import numpy as np
 from pytest import mark
 
-from asreview.models.classifiers import get_classifier
-from asreview.models.query import get_query_model
-from asreview.models.query import list_query_strategies
+from asreview.extensions import extensions
+from asreview.extensions import load_extension
 
 
 @mark.parametrize(
@@ -22,9 +21,9 @@ from asreview.models.query import list_query_strategies
 def test_query(query_strategy, n_instances, n_train):
     n_features = 50
     n_sample = 100
-    classifier = get_classifier("rf")
+    classifier = load_extension("models.classifiers", "rf")()
 
-    query_model = get_query_model(query_strategy)
+    query_model = load_extension("models.query", query_strategy)()
     X = np.random.rand(n_sample, n_features)
 
     y = np.concatenate((np.zeros(n_sample // 2), np.ones(n_sample // 2)), axis=0)
@@ -50,4 +49,4 @@ def test_query(query_strategy, n_instances, n_train):
 
 
 def test_query_general():
-    assert len(list_query_strategies()) >= 4
+    assert len(extensions("models.query")) >= 4

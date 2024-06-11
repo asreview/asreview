@@ -1,8 +1,8 @@
 import numpy as np
 from pytest import mark
 
-from asreview.models.balance import get_balance_model
-from asreview.models.balance import list_balance_strategies
+from asreview.extensions import extensions
+from asreview.extensions import load_extension
 
 
 def generate_data(n_feature=20, n_sample=10):
@@ -34,11 +34,10 @@ def check_partition(X, y, X_partition, y_partition, train_idx):
         "undersample",
         "simple",
         "double",
-        # "triple",  # Broken, only via API
     ],
 )
 def test_balance(balance_strategy, n_partition=100, n_feature=200, n_sample=100):
-    model = get_balance_model(balance_strategy)
+    model = load_extension("models.balance", balance_strategy)()
     assert isinstance(model.param, dict)
     assert model.name == balance_strategy
     X, y = generate_data(n_feature=n_feature, n_sample=n_sample)
@@ -55,4 +54,4 @@ def test_balance(balance_strategy, n_partition=100, n_feature=200, n_sample=100)
 
 
 def test_balance_general():
-    assert len(list_balance_strategies()) >= 3
+    assert len(extensions("models.balance")) >= 3

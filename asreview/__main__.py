@@ -21,7 +21,7 @@ from importlib.metadata import metadata
 from itertools import groupby
 
 from asreview import __version__
-from asreview.utils import _entry_points
+from asreview.extensions import extensions
 
 
 def _execute_entry_point(entry, args):
@@ -33,8 +33,8 @@ def _execute_entry_point(entry, args):
 
 def main():
     # Get the available entry points.
-    base_entries = _entry_points(group="asreview.entry_points")
-    base_entries_internal = _entry_points(group="asreview.entry_points_internal")
+    base_entries = extensions("entry_points")
+    base_entries_internal = extensions("entry_points_internal")
 
     if (
         len(sys.argv) > 1
@@ -56,7 +56,7 @@ def main():
     else:
         description_subcommands = ""
 
-        for name, dist_entry_points in groupby(
+        for name, dist_extensions in groupby(
             base_entries,
             lambda e: e.dist.name,
         ):
@@ -64,7 +64,7 @@ def main():
             version = metadata(name)["Version"]
             description_subcommands += f"\n[{name} {version}] - {description}\n"
 
-            for entry in dist_entry_points:
+            for entry in dist_extensions:
                 description_subcommands += f"\t{entry.name}\n"
 
         parser = argparse.ArgumentParser(

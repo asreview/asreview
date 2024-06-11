@@ -12,10 +12,10 @@ import asreview as asr
 import asreview.webapp.tests.utils.api_utils as au
 import asreview.webapp.tests.utils.crud as crud
 import asreview.webapp.tests.utils.misc as misc
-from asreview.project import get_projects
-from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import Project
+from asreview.webapp.utils import asreview_path
+from asreview.webapp.utils import get_projects
 
 # NOTE: I don't see a plugin that can be used for testing
 # purposes
@@ -132,6 +132,7 @@ def test_try_upgrade_a_modern_project(client, project):
 
 
 # Test upgrading a v0.x project
+@pytest.mark.skip(reason="projects in 0 series should no longer be supported")
 def test_upgrade_an_old_project(client, user):
     tests_folder = Path(__file__).parent.parent
     asreview_v0_file = Path(
@@ -312,7 +313,6 @@ def test_update_project_info(client, project):
         client,
         project,
         name=new_name,
-        # mode=new_mode,  # from version 2 on, it's no longer possible to update mode
         authors=new_authors,
         description=new_description,
         tags=new_tags,
@@ -541,7 +541,6 @@ def test_retrieve_document_for_review(client, project):
     au.upload_label_set_and_start_model(client, project)
     r = au.get_project_current_document(client, project)
 
-    print(r.json)
     assert r.status_code == 200
     assert isinstance(r.json, dict)
     assert not r.json["pool_empty"]
