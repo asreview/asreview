@@ -28,18 +28,7 @@ const classes = {
   abstract: `${PREFIX}-abstract`,
 };
 
-const Root = styled("div")(({ theme }) => ({
-  display: "flex",
-  flex: "1 0 auto",
-  margin: "auto",
-  maxWidth: 960,
-  height: "100%",
-  [theme.breakpoints.down("md")]: {
-    padding: "4px 0px",
-  },
-  [theme.breakpoints.up("md")]: {
-    padding: "3rem 1rem",
-  },
+const RootCard = styled(Card)(({ theme }) => ({
   [`& .${classes.loadedCard}`]: {
     display: "flex",
     flexDirection: "column",
@@ -91,133 +80,129 @@ const RecordCard = ({
   };
 
   return (
-    <Root aria-label="record card">
-      <Fade in={state.open} timeout={150} onExited={afterDecision}>
-        <Card
-          elevation={mobileScreen ? 0 : 2}
-          className={classes.loadedCard}
-          aria-label="record loaded"
-        >
-          {isNotTrained && (
-            <Alert
-              severity="warning"
-              className="record-card-alert"
-              sx={{ borderRadius: 0 }}
-            >
-              This record is not presented by the model
-            </Alert>
-          )}
-
-          <CardContent
-            className={classes.titleAbstract}
-            aria-label="record title abstract"
+    // <Root aria-label="record card">
+    <Fade in={state.open} timeout={150} onExited={afterDecision}>
+      <RootCard elevation={mobileScreen ? 0 : 2} className={classes.loadedCard}>
+        {isNotTrained && (
+          <Alert
+            severity="warning"
+            className="record-card-alert"
+            sx={{ borderRadius: 0 }}
           >
-            <Stack spacing={1}>
-              <Stack
-                direction="row"
-                justifyContent="space-between"
-                alignItems="baseline"
-              >
-                {/* Show the title */}
-                <Typography
-                  component="div"
-                  className={classes.title}
-                  variant={!mobileScreen ? "h5" : "h6"}
-                  sx={{
-                    fontWeight: (theme) => theme.typography.fontWeightRegular,
-                  }}
-                >
-                  {/* No title, inplace text */}
-                  {(record.title === "" || record.title === null) && (
-                    <Box
-                      className={"fontSize" + fontSize?.label}
-                      fontStyle="italic"
-                    >
-                      No title available
-                    </Box>
-                  )}
+            This record is not presented by the model
+          </Alert>
+        )}
 
-                  {!(record.title === "" || record.title === null) && (
-                    <Box className={"fontSize" + fontSize?.label}>
-                      {record.title}
-                    </Box>
-                  )}
-                </Typography>
-                {record?.state && <RecordTrainingInfo state={record.state} />}
-              </Stack>
-              <Stack direction="row" spacing={1}>
-                {!(record.doi === undefined || record.doi === null) && (
+        <CardContent
+          className={classes.titleAbstract}
+          aria-label="record title abstract"
+        >
+          <Stack spacing={1}>
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="baseline"
+            >
+              {/* Show the title */}
+              <Typography
+                component="div"
+                className={classes.title}
+                variant={!mobileScreen ? "h5" : "h6"}
+                sx={{
+                  fontWeight: (theme) => theme.typography.fontWeightRegular,
+                }}
+              >
+                {/* No title, inplace text */}
+                {(record.title === "" || record.title === null) && (
+                  <Box
+                    className={"fontSize" + fontSize?.label}
+                    fontStyle="italic"
+                  >
+                    No title available
+                  </Box>
+                )}
+
+                {!(record.title === "" || record.title === null) && (
+                  <Box className={"fontSize" + fontSize?.label}>
+                    {record.title}
+                  </Box>
+                )}
+              </Typography>
+              {record?.state && <RecordTrainingInfo state={record.state} />}
+            </Stack>
+            <Stack direction="row" spacing={1}>
+              {!(record.doi === undefined || record.doi === null) && (
+                <StyledIconButton
+                  className="record-card-icon"
+                  href={"https://doi.org/" + record.doi}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <DOIIcon />
+                </StyledIconButton>
+              )}
+
+              {!(record.url === undefined || record.url === null) && (
+                <Tooltip title="Open URL">
                   <StyledIconButton
                     className="record-card-icon"
-                    href={"https://doi.org/" + record.doi}
+                    href={record.url}
                     target="_blank"
                     rel="noreferrer"
                   >
-                    <DOIIcon />
+                    <LinkIcon />
                   </StyledIconButton>
-                )}
-
-                {!(record.url === undefined || record.url === null) && (
-                  <Tooltip title="Open URL">
-                    <StyledIconButton
-                      className="record-card-icon"
-                      href={record.url}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <LinkIcon />
-                    </StyledIconButton>
-                  </Tooltip>
-                )}
-              </Stack>
-
-              <TruncateMarkup
-                lines={collapseAbstract && !readMoreOpen ? 6 : Infinity}
-                ellipsis={
-                  <span>
-                    ...{" "}
-                    <Link
-                      component="button"
-                      underline="none"
-                      onClick={toggleReadMore}
-                    >
-                      expand
-                    </Link>
-                  </span>
-                }
-              >
-                <Typography
-                  component="div"
-                  className={classes.abstract + " fontSize" + fontSize?.label}
-                  variant="body2"
-                  paragraph
-                  sx={{ color: "text.secondary" }}
-                >
-                  {(record.abstract === "" || record.abstract === null) && (
-                    <Box fontStyle="italic">No abstract available</Box>
-                  )}
-
-                  {!(record.abstract === "" || record.abstract === null) && (
-                    <Box>{record.abstract}</Box>
-                  )}
-                </Typography>
-              </TruncateMarkup>
+                </Tooltip>
+              )}
             </Stack>
-          </CardContent>
-          <DecisionButton
-            project_id={project_id}
-            record_id={record.record_id}
-            label={record.state?.label}
-            labelFromDataset={record.included}
-            decisionCallback={decisionCallback}
-            note={record.note}
-            tagsForm={record.tags_form}
-            tagValues={record.tags}
-            disabled={disabled}
-          />
-        </Card>
-      </Fade>
-    </Root>
+
+            <TruncateMarkup
+              lines={collapseAbstract && !readMoreOpen ? 6 : Infinity}
+              ellipsis={
+                <span>
+                  ...{" "}
+                  <Link
+                    component="button"
+                    underline="none"
+                    onClick={toggleReadMore}
+                  >
+                    expand
+                  </Link>
+                </span>
+              }
+            >
+              <Typography
+                component="div"
+                className={classes.abstract + " fontSize" + fontSize?.label}
+                variant="body2"
+                paragraph
+                sx={{ color: "text.secondary" }}
+              >
+                {(record.abstract === "" || record.abstract === null) && (
+                  <Box fontStyle="italic">No abstract available</Box>
+                )}
+
+                {!(record.abstract === "" || record.abstract === null) && (
+                  <Box>{record.abstract}</Box>
+                )}
+              </Typography>
+            </TruncateMarkup>
+          </Stack>
+        </CardContent>
+        <DecisionButton
+          project_id={project_id}
+          record_id={record.record_id}
+          label={record.state?.label}
+          labelFromDataset={record.included}
+          decisionCallback={decisionCallback}
+          note={record.note}
+          tagsForm={record.tags_form}
+          tagValues={record.tags}
+          disabled={disabled}
+        />
+      </RootCard>
+    </Fade>
+    // </Root>
   );
 };
 

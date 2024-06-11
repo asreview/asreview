@@ -14,7 +14,14 @@ import "./ReviewPage.css";
 import FinishSetup from "./ReviewPageTraining";
 
 const Root = styled("div")(({ theme }) => ({
-  // height: "100%",
+  margin: "auto",
+  maxWidth: 960,
+  [theme.breakpoints.down("md")]: {
+    padding: "4px 0px",
+  },
+  [theme.breakpoints.up("md")]: {
+    padding: "2rem 1rem",
+  },
 }));
 
 const Screener = (props) => {
