@@ -135,10 +135,9 @@ const DecisionButton = ({
 
   return (
     <Root>
-      <Divider>{/* <ElasIcon className={classes.icon}/> */}</Divider>
-
       {hasTags && (
         <>
+          <Divider>Tags</Divider>
           <CardContent>
             <TagsTable
               tagsForm={tagsForm}
@@ -149,6 +148,8 @@ const DecisionButton = ({
           </CardContent>
         </>
       )}
+
+      <Divider />
 
       {(showNotes || (disabled && note !== null)) && (
         <>
