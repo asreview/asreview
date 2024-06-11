@@ -102,7 +102,7 @@ const DecisionButton = ({
   labelFromDataset,
   tagsForm,
   tagValues = [],
-  note,
+  note = null,
   decisionCallback,
   disabled = false,
 }) => {
@@ -133,6 +133,8 @@ const DecisionButton = ({
 
   const hasTags = Array.isArray(tagsForm) && tagsForm.length > 0;
 
+  console.log(note);
+
   return (
     <Root>
       {hasTags && (
@@ -149,14 +151,14 @@ const DecisionButton = ({
         </>
       )}
 
-      <Divider />
-
-      {(showNotes || (disabled && note !== null)) && (
+      {note !== null && (
         <>
-          {/* <Divider /> */}
+          <Divider />
           <CardContent>{note}</CardContent>
         </>
       )}
+
+      <Divider />
 
       {labelFromDataset && (
         <CardContent>
