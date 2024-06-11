@@ -31,13 +31,14 @@ const Root = styled("div")(({ theme }) => ({
   flex: "1 0 auto",
   margin: "auto",
   maxWidth: 960,
-  // padding: "64px 0px 32px 0px",
   height: "100%",
   [theme.breakpoints.down("md")]: {
     padding: "4px 0px",
   },
+  [theme.breakpoints.up("md")]: {
+    padding: "3rem 1rem",
+  },
   [`& .${classes.loadedCard}`]: {
-    borderRadius: 16,
     display: "flex",
     flexDirection: "column",
     width: "100%",
