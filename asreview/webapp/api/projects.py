@@ -1267,18 +1267,11 @@ def api_classify_instance(project, record_id):  # noqa: F401
     else:
         tags = json.loads(tags)
 
-    # is_prior = request.form.get("is_prior", default=False)
-
-    # retrain_model = False if is_prior == "1" else True
-    # prior = True if is_prior == "1" else False
-
-    retrain_model = request.form.get("retrain_model", default=False)
+    retrain_model = bool(request.form.get("retrain_model", default=False))
 
     user_id = (
         None if current_app.config.get("LOGIN_DISABLED", False) else current_user.id
     )
-
-    print(request.method, label)
 
     with open_state(project.project_path) as state:
         if label in [0, 1]:
@@ -1293,10 +1286,7 @@ def api_classify_instance(project, record_id):  # noqa: F401
         else:
             raise ValueError(f"Invalid label {label}")
 
-        # state.update(record_id, label, tags=tags)
-
     if retrain_model:
-        # retrain model
         subprocess.Popen(
             [
                 sys.executable if sys.executable else "python",
@@ -1307,9 +1297,7 @@ def api_classify_instance(project, record_id):  # noqa: F401
             ]
         )
 
-    response = jsonify({"success": True})
-
-    return response
+    return jsonify({"success": True})
 
 
 @bp.route("/projects/<project_id>/record/<record_id>/note", methods=["PUT"])

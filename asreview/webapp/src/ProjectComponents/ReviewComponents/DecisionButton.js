@@ -104,6 +104,7 @@ const DecisionButton = ({
   tagValues = [],
   note = null,
   decisionCallback,
+  retrainAfterDecision = true,
   disabled = false,
 }) => {
   const [showNotes, toggleShowNotes] = useToggle(false);
@@ -124,6 +125,7 @@ const DecisionButton = ({
       record_id: record_id,
       label: label,
       tagValues: tagValuesState,
+      retrain_model: retrainAfterDecision,
     });
   };
 

@@ -112,6 +112,7 @@ const PriorSearch = ({}) => {
                   project_id={project_id}
                   record={record}
                   collapseAbstract={true}
+                  retrainAfterDecision={false}
                   key={`result-page-${index}`}
                 />
               ))}

@@ -45,6 +45,7 @@ const RecordCard = ({
   project_id,
   record,
   afterDecision,
+  retrainAfterDecision = true,
   mobileScreen,
   fontSize,
   collapseAbstract = false,
@@ -183,6 +184,7 @@ const RecordCard = ({
           label={record.state?.label}
           labelFromDataset={record.included}
           decisionCallback={decisionCallback}
+          retrainAfterDecision={retrainAfterDecision}
           note={record.note}
           tagsForm={record.tags_form}
           tagValues={record.tags}

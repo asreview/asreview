@@ -582,9 +582,8 @@ class ProjectAPI {
       // }
     }
 
-    // prior items should be labeled as such
-    if (variables.is_prior === 1) {
-      body.set("is_prior", 1);
+    if (variables.retrain_model) {
+      body.set("retrain_model", 1);
     }
     const url =
       api_url +
