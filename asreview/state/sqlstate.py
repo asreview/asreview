@@ -403,7 +403,7 @@ class SQLiteState:
         if (not priors) or (not pending):
             sql_where = []
             if not priors:
-                sql_where.append("query_strategy is not 'prior'")
+                sql_where.append("query_strategy is not NULL")
             if not pending:
                 sql_where.append("label is not NULL")
 
@@ -429,7 +429,7 @@ class SQLiteState:
         """
 
         return pd.read_sql_query(
-            "SELECT * FROM results WHERE query_strategy is 'prior'",
+            "SELECT * FROM results WHERE query_strategy is NULL AND label is not NULL",
             self._conn,
         )
 
