@@ -35,10 +35,12 @@ const PriorCard = ({
   const [priorType, setPriorType] = React.useState("records");
 
   const handleClickViewPrior = () => {
-    navigate(`/projects/${project_id}/history`);
-    setHistoryFilterQuery([
-      historyFilterOptions.find((e) => e.value === "prior"),
-    ]);
+    if (!editable) {
+      navigate(`/projects/${project_id}/history`);
+      setHistoryFilterQuery([
+        historyFilterOptions.find((e) => e.value === "prior"),
+      ]);
+    }
   };
 
   const { data } = useQuery(
@@ -50,10 +52,7 @@ const PriorCard = ({
   );
 
   const onClosePriorSearch = () => {
-    console.log("fetch new labeled stats");
-    // Reset the fetchLabeledStats query
     queryClient.resetQueries("fetchLabeledStats");
-
     setOpenPriorSearch(false);
   };
 
@@ -112,7 +111,8 @@ const PriorCard = ({
             )}
             {data?.n_inclusions !== 0 && data?.n_exclusions !== 0 && (
               <Typography>
-                {`${data?.n_prior_inclusions} relevant and ${data?.n_prior_exclusions} irrelevant records`}
+                You added{" "}
+                {`${data?.n_inclusions} relevant records and ${data?.n_exclusions} records that aren't relevant.`}
               </Typography>
             )}
           </CardContent>
@@ -137,6 +137,11 @@ const PriorCard = ({
             </Button>
           </CardContent>
         </>
+      )}
+      {priorType === "criteria" && (
+        <CardContent>
+          Coming soon! Keep an eye on our website and socials.
+        </CardContent>
       )}
 
       <AddPriorKnowledge

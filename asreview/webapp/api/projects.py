@@ -533,7 +533,7 @@ def api_get_labeled(project):  # noqa: F401
         state_data = s.get_results_table(
             ["record_id", "label", "query_strategy", "notes", "custom_metadata_json"]
         )
-        state_data["prior"] = (state_data["query_strategy"] == "prior").astype(int)
+        state_data["prior"] = (state_data["query_strategy"].isnull()).astype(int)
 
     if any(s in subset for s in ["relevant", "included"]):
         state_data = state_data[state_data["label"] == 1]
