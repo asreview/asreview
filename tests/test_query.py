@@ -32,20 +32,19 @@ def test_query(query_strategy, n_instances, n_train):
     y = y[order]
 
     classifier.fit(X, y)
+    relevance_scores = classifier.predict_proba(X)
 
     assert isinstance(query_model.param, dict)
     assert query_model.name == query_strategy
 
-    query_idx = query_model.query(X, classifier, n_instances=n_instances)
+    query_idx = query_model.query(
+        feature_matrix=X, relevance_scores=relevance_scores, n_instances=n_instances
+    )
     assert len(query_idx) == n_instances
     assert len(query_idx) == len(np.unique(query_idx))
 
-    query_idx, relevance_scores = query_model.query(
-        X, classifier, return_classifier_scores=True
-    )
+    query_idx = query_model.query(feature_matrix=X, relevance_scores=relevance_scores)
     assert len(query_idx) == X.shape[0]
-    if relevance_scores is not None:
-        assert relevance_scores.shape == (X.shape[0], 2)
 
 
 def test_query_general():

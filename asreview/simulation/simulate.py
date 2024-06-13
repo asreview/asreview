@@ -172,10 +172,11 @@ class Simulate:
         )
 
         self.classifier.fit(X_train, y_train)
+        relevance_scores = self.classifier.predict_proba(self.fm)
 
         ranked_record_ids = self.query_strategy.query(
-            self.fm,
-            classifier=self.classifier,
+            feature_matrix=self.fm,
+            relevance_scores=relevance_scores,
         )
 
         self._last_ranking = pd.concat(

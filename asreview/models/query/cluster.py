@@ -18,11 +18,11 @@ import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.utils import check_random_state
 
-from asreview.models.query.base import ProbaQueryStrategy
+from asreview.models.query.base import BaseQueryStrategy
 from asreview.models.query.max_prob import MaxQuery
 
 
-class ClusterQuery(ProbaQueryStrategy):
+class ClusterQuery(BaseQueryStrategy):
     """Clustering query strategy (``cluster``).
 
     Use clustering after feature extraction on the dataset. Then the highest
@@ -51,8 +51,8 @@ class ClusterQuery(ProbaQueryStrategy):
         self.fallback_model = MaxQuery()
         self._random_state = random_state
 
-    def _query(self, predictions, n_instances, X):
-        n_samples = X.shape[0]
+    def _query(self, feature_matrix, relevance_scores, n_instances):
+        n_samples = feature_matrix.shape[0]
 
         last_update = self.last_update
         if (
@@ -62,20 +62,24 @@ class ClusterQuery(ProbaQueryStrategy):
         ):
             n_clusters = round(n_samples / self.cluster_size)
             if n_clusters <= 1:
-                return self.fallback_model._query(predictions, n_instances, X)
+                return self.fallback_model._query(
+                    feature_matrix=feature_matrix,
+                    relevance_scores=relevance_scores,
+                    n_instances=n_instances,
+                )
             model = KMeans(
                 n_clusters=n_clusters, n_init=1, random_state=self._random_state
             )
-            self.clusters = model.fit_predict(X)
+            self.clusters = model.fit_predict(feature_matrix)
             self.last_update = n_samples
 
         clusters = {}
         for idx in np.arange(n_samples):
             cluster_id = self.clusters[idx]
             if cluster_id in clusters:
-                clusters[cluster_id].append((idx, predictions[idx, 1]))
+                clusters[cluster_id].append((idx, relevance_scores[idx, 1]))
             else:
-                clusters[cluster_id] = [(idx, predictions[idx, 1])]
+                clusters[cluster_id] = [(idx, relevance_scores[idx, 1])]
 
         for cluster_id in clusters:
             try:

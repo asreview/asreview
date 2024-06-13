@@ -39,22 +39,13 @@ class RandomQuery(BaseQueryStrategy):
         super().__init__()
         self._random_state = random_state
 
-    def query(
+    def _query(
         self,
-        X,
-        classifier=None,
+        feature_matrix,
+        relevance_scores,
         n_instances=None,
-        return_classifier_scores=False,
-        **kwargs,
     ):
-        if n_instances is None:
-            n_instances = X.shape[0]
-
-        query_idx = check_random_state(self._random_state).choice(
-            np.arange(X.shape[0]), n_instances, replace=False
+        del relevance_scores
+        return check_random_state(self._random_state).choice(
+            np.arange(feature_matrix.shape[0]), n_instances, replace=False
         )
-
-        if return_classifier_scores:
-            return query_idx, None
-        else:
-            return query_idx
