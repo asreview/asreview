@@ -51,7 +51,7 @@ class ClusterQuery(BaseQueryStrategy):
         self.fallback_model = MaxQuery()
         self._random_state = random_state
 
-    def _query(self, feature_matrix, relevance_scores, n_instances):
+    def query(self, feature_matrix, relevance_scores):
         n_samples = feature_matrix.shape[0]
 
         last_update = self.last_update
@@ -62,10 +62,9 @@ class ClusterQuery(BaseQueryStrategy):
         ):
             n_clusters = round(n_samples / self.cluster_size)
             if n_clusters <= 1:
-                return self.fallback_model._query(
+                return self.fallback_model.query(
                     feature_matrix=feature_matrix,
                     relevance_scores=relevance_scores,
-                    n_instances=n_instances,
                 )
             model = KMeans(
                 n_clusters=n_clusters, n_init=1, random_state=self._random_state
@@ -89,7 +88,7 @@ class ClusterQuery(BaseQueryStrategy):
 
         clust_idx = []
         cluster_ids = list(clusters)
-        for _ in range(n_instances):
+        for _ in range(feature_matrix.shape[0]):
             cluster_id = check_random_state(self._random_state).choice(cluster_ids, 1)[
                 0
             ]

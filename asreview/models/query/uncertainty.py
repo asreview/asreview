@@ -32,8 +32,8 @@ class UncertaintyQuery(BaseQueryStrategy):
     name = "uncertainty"
     label = "Uncertainty"
 
-    def _query(self, feature_matrix, relevance_scores, n_instances):
+    def query(self, feature_matrix, relevance_scores):
         del feature_matrix
         uncertainty = 1 - np.max(relevance_scores, axis=1)
-        query_idx = np.argsort(-uncertainty)[:n_instances]
+        query_idx = np.argsort(-uncertainty)
         return query_idx

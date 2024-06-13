@@ -71,12 +71,12 @@ class MixedQuery(BaseQueryStrategy):
         self.mix_probability = mix_probability
         self._random_state = random_state
 
-    def _query(self, feature_matrix, relevance_scores, n_instances=None, **kwargs):
+    def query(self, feature_matrix, relevance_scores):
         query_idx_1 = self.query_model1.query(
-            feature_matrix, relevance_scores, n_instances=n_instances
+            feature_matrix=feature_matrix, relevance_scores=relevance_scores
         )
         query_idx_2 = self.query_model2.query(
-            feature_matrix, relevance_scores, n_instances=n_instances
+            feature_matrix=feature_matrix, relevance_scores=relevance_scores
         )
 
         # mix the 2 query strategies into one list
@@ -93,7 +93,7 @@ class MixedQuery(BaseQueryStrategy):
                 j = j + 1
 
         indexes = np.unique(query_idx_mix, return_index=True)[1]
-        ranking = [query_idx_mix[i] for i in sorted(indexes)][0:n_instances]
+        ranking = [query_idx_mix[i] for i in sorted(indexes)]
 
         return ranking
 

@@ -29,7 +29,7 @@ class MaxQuery(BaseQueryStrategy):
     name = "max"
     label = "Maximum"
 
-    def _query(self, feature_matrix, relevance_scores, n_instances):
+    def query(self, feature_matrix, relevance_scores):
         del feature_matrix
-        query_indices = np.argsort(relevance_scores[:, 0])[:n_instances]
+        query_indices = np.argsort(relevance_scores[:, 0])
         return query_indices

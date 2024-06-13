@@ -24,7 +24,8 @@ class BaseQueryStrategy(BaseModel):
 
     name = "base"
 
-    def query(self, feature_matrix, relevance_scores, n_instances=None, **kwargs):
+    @abstractmethod
+    def query(self, feature_matrix, relevance_scores, **kwargs):
         """Put records in ranked order.
 
         Arguments
@@ -33,32 +34,12 @@ class BaseQueryStrategy(BaseModel):
             Feature matrix where every row contains the features of a record.
         relevance_scores: numpy.ndarray
             Relevance scores as predicted by the classifier.
-        n_instances: int
-            Number of records to query. If None returns all records in ranked order.
 
         Returns
         -------
-        numpy.ndarray or (numpy.ndarray, np.ndarray)
+        numpy.ndarray
             The QueryStrategy ranks the row numbers of the feature matrix. It returns
-            an array of shape (n_instances,) containing the row indices in ranked
+            an array of shape (len(feature_matrix),) containing the row indices in ranked
             order.
-            If n_instances is None, returns all row numbers in ranked order. If
-            n_instances is an integer, it only returns the top n_instances.
-            If return_classifier_scores=True, also returns a second array with the same
-            number of rows as the feature matrix, containing the relevance scores
-            predicted by the classifier. If the classifier is not used, this will be
-            None.
         """
-        if n_instances is None:
-            n_instances = feature_matrix.shape[0]
-
-        return self._query(
-            feature_matrix=feature_matrix,
-            relevance_scores=relevance_scores,
-            n_instances=n_instances,
-            **kwargs,
-        )
-
-    @abstractmethod
-    def _query(self, feature_matrix, relevance_scores, n_instances, **kwargs):
         raise NotImplementedError
