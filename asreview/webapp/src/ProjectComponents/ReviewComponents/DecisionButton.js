@@ -202,21 +202,21 @@ const DecisionButton = ({
 
         {disabled && (
           <>
-            {/* {label === 1 && ( */}
-            <Chip
-              icon={<LibraryAddOutlinedIcon />}
-              label="Added"
-              color="primary"
-            />
-            {/* )} */}
+            {label === 1 && (
+              <Chip
+                icon={<LibraryAddOutlinedIcon />}
+                label="Added"
+                color="primary"
+              />
+            )}
 
-            {/* {label === 0 && ( */}
-            <Chip
-              icon={<NotInterestedOutlinedIcon />}
-              label="Not interested"
-              color="primary"
-            />
-            {/* )} */}
+            {label === 0 && (
+              <Chip
+                icon={<NotInterestedOutlinedIcon />}
+                label="Not interested"
+                color="primary"
+              />
+            )}
           </>
         )}
 

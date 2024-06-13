@@ -16,6 +16,7 @@ import { styled } from "@mui/material/styles";
 import { BoxErrorHandler } from "Components";
 import { LabeledRecordCard } from ".";
 import { ProjectAPI } from "api";
+import { RecordCard } from "ProjectComponents/ReviewComponents";
 
 let height = window.screen.height;
 
@@ -29,21 +30,21 @@ const classes = {
 
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.loading}`]: {
-    display: "flex",
-    justifyContent: "center",
-    padding: 64,
+    // display: "flex",
+    // justifyContent: "center",
+    // padding: 64,
   },
 
   [`& .${classes.priorRecordCard}`]: {
-    height: "calc(100vh - 208px)",
-    overflowY: "scroll",
-    padding: "32px 24px",
-    [`${theme.breakpoints.down("md")} and (orientation: portrait)`]: {
-      height: `calc(100vh - ${height / 2 + 80}px)`,
-    },
-    [`${theme.breakpoints.down("md")} and (orientation: landscape)`]: {
-      height: `calc(100vh - 116px)`,
-    },
+    // height: "calc(100vh - 208px)",
+    // overflowY: "scroll",
+    // padding: "32px 24px",
+    // [`${theme.breakpoints.down("md")} and (orientation: portrait)`]: {
+    //   height: `calc(100vh - ${height / 2 + 80}px)`,
+    // },
+    // [`${theme.breakpoints.down("md")} and (orientation: landscape)`]: {
+    //   height: `calc(100vh - 116px)`,
+    // },
   },
 
   [`& .${classes.loadMoreInView}`]: {
@@ -54,11 +55,7 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const LabeledRecord = (props) => {
-  const [subset, setSubset] = React.useState(null);
-
-  const returnSubset = () => {
-    return !subset ? [props.label] : [props.label].concat(subset);
-  };
+  // const [subset, setSubset] = React.useState(null);
 
   const enableQuery = () => {
     return !props.is_prior
@@ -84,7 +81,7 @@ const LabeledRecord = (props) => {
       "fetchLabeledRecord",
       {
         project_id: props.project_id,
-        subset: returnSubset(),
+        subset: props.label,
       },
     ],
     ProjectAPI.fetchLabeledRecord,
@@ -94,15 +91,6 @@ const LabeledRecord = (props) => {
       refetchOnWindowFocus: false,
     },
   );
-
-  // For use on History page ONLY
-  React.useEffect(() => {
-    setSubset(
-      props.filterQuery?.map((element) => {
-        return element.value;
-      }),
-    );
-  }, [props.filterQuery]);
 
   /**
    * Check if this component is mounted
@@ -130,26 +118,19 @@ const LabeledRecord = (props) => {
         !(isLoading || !mounted.current) &&
         isFetched && (
           <Fade in={!isError && !(isLoading || !mounted.current) && isFetched}>
-            <Stack
-              className={clsx({
-                [classes.priorRecordCard]: props.is_prior,
-              })}
-              aria-label="labeled record card"
-              spacing={3}
-            >
+            <Stack aria-label="labeled record card" spacing={3}>
               {isFetched &&
-                data.pages.map((page, index) => (
-                  <LabeledRecordCard
-                    project_id={props.project_id}
-                    page={page}
-                    key={`result-page-${index}`}
-                    is_prior={props.is_prior}
-                    isSimulating={props.isSimulating}
-                    returnSubset={returnSubset}
-                    mobileScreen={props.mobileScreen}
-                    mode={props.mode}
-                  />
-                ))}
+                data?.pages.map((page) =>
+                  page.result.map((record) => (
+                    <RecordCard
+                      project_id={props.project_id}
+                      record={record}
+                      collapseAbstract={true}
+                      disabled={true}
+                      key={record.record_id}
+                    />
+                  )),
+                )}
               <InView
                 as="div"
                 onChange={(inView, entry) => {

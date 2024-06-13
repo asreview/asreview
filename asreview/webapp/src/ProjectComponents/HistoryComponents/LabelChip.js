@@ -3,18 +3,6 @@ import * as React from "react";
 import { Chip, Stack } from "@mui/material";
 
 const LabelChip = (props) => {
-  const handleClickRelevant = () => {
-    props.setLabel("relevant");
-  };
-
-  const handleClickIrrelevant = () => {
-    props.setLabel("irrelevant");
-  };
-
-  const handleClickAll = () => {
-    props.setLabel("all");
-  };
-
   return (
     <Stack direction="row" spacing={2} sx={{ padding: "8px 24px" }}>
       <Chip
@@ -25,7 +13,9 @@ const LabelChip = (props) => {
         }
         color="primary"
         variant={props.label === "relevant" ? "filled" : "outlined"}
-        onClick={handleClickRelevant}
+        onClick={() => {
+          props.setLabel("relevant");
+        }}
         size={!props.mobileScreen ? "medium" : "small"}
       />
       <Chip
@@ -36,14 +26,18 @@ const LabelChip = (props) => {
         }
         color="primary"
         variant={props.label === "irrelevant" ? "filled" : "outlined"}
-        onClick={handleClickIrrelevant}
+        onClick={() => {
+          props.setLabel("irrelevant");
+        }}
         size={!props.mobileScreen ? "medium" : "small"}
       />
       <Chip
         label={"All"}
         color="primary"
         variant={props.label === "all" ? "filled" : "outlined"}
-        onClick={handleClickAll}
+        onClick={() => {
+          props.setLabel("all");
+        }}
         size={!props.mobileScreen ? "medium" : "small"}
       />
     </Stack>

@@ -23,10 +23,7 @@ const HistoryPage = (props) => {
       <Fade in>
         <Box>
           <PageHeader header="History" mobileScreen={props.mobileScreen} />
-          <Box
-            className="main-page-sticky-header-wrapper"
-            sx={{ background: (theme) => theme.palette.background.paper }}
-          >
+          <Box>
             <LabelChip
               mobileScreen={props.mobileScreen}
               label={props.label}
@@ -40,18 +37,14 @@ const HistoryPage = (props) => {
             />
             <Divider />
           </Box>
-          <Box className="main-page-body-wrapper">
-            <Box className={`${classes.cardWrapper} main-page-body`}>
-              <LabeledRecord
-                project_id={props.project_id}
-                label={props.label}
-                filterQuery={props.filterQuery}
-                isSimulating={props.isSimulating}
-                mobileScreen={props.mobileScreen}
-                mode={props.mode}
-              />
-            </Box>
-          </Box>
+          <LabeledRecord
+            project_id={props.project_id}
+            label={props.label}
+            filterQuery={props.filterQuery}
+            isSimulating={props.isSimulating}
+            mobileScreen={props.mobileScreen}
+            mode={props.mode}
+          />
         </Box>
       </Fade>
     </Root>

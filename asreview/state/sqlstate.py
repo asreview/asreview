@@ -317,7 +317,11 @@ class SQLiteState:
             'training_set' and 'time'. It has one row for each record in the
             dataset, and is ordered by ranking.
         """
-        return pd.read_sql_query("SELECT * FROM last_ranking", self._conn)
+        return pd.read_sql_query(
+            "SELECT * FROM last_ranking",
+            self._conn,
+            dtype={"training_set": "Int64"},
+        )
 
     def query_top_ranked(self, n=1, user_id=None):
         """Get the top ranked records from the ranking table.
@@ -416,7 +420,9 @@ class SQLiteState:
         # Query the database.
         query_string = "*" if columns is None else ",".join(columns)
         return pd.read_sql_query(
-            f"SELECT {query_string} FROM results {sql_where_str}", self._conn
+            f"SELECT {query_string} FROM results {sql_where_str}",
+            self._conn,
+            dtype={"label": "Int64", "training_set": "Int64"},
         )
 
     def get_priors(self):
@@ -431,6 +437,7 @@ class SQLiteState:
         return pd.read_sql_query(
             "SELECT * FROM results WHERE query_strategy is NULL AND label is not NULL",
             self._conn,
+            dtype={"label": "Int64", "training_set": "Int64"},
         )
 
     def get_labels(self, priors=True, pending=False):

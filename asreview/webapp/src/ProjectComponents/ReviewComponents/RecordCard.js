@@ -57,8 +57,6 @@ const RecordCard = ({
     open: true,
   });
 
-  console.log(record);
-
   const isNotTrained =
     record?.state?.query_strategy === "top-down" ||
     record?.state?.query_strategy === "random";

@@ -526,27 +526,24 @@ def api_get_labeled(project):  # noqa: F401
 
     page = request.args.get("page", default=None, type=int)
     per_page = request.args.get("per_page", default=20, type=int)
-    subset = request.args.getlist("subset")
+    subset = request.args.get("subset", default="all", type=str)
     latest_first = request.args.get("latest_first", default=1, type=int)
 
     with open_state(project.project_path) as s:
-        state_data = s.get_results_table(
-            ["record_id", "label", "query_strategy", "notes", "custom_metadata_json"]
-        )
-        state_data["prior"] = (state_data["query_strategy"].isnull()).astype(int)
+        state_data = s.get_results_table()
 
-    if any(s in subset for s in ["relevant", "included"]):
+    if subset == "relevant":
         state_data = state_data[state_data["label"] == 1]
-    elif any(s in subset for s in ["irrelevant", "excluded"]):
+    elif subset == "irrelevant":
         state_data = state_data[state_data["label"] == 0]
     else:
         state_data = state_data[~state_data["label"].isnull()]
 
-    if "note" in subset:
-        state_data = state_data[~state_data["notes"].isnull()]
+    # if "note" in subset:
+    #     state_data = state_data[~state_data["notes"].isnull()]
 
-    if "prior" in subset:
-        state_data = state_data[state_data["prior"] == 1]
+    # if "prior" in subset:
+    #     state_data = state_data[state_data["query_strategy"].isnull()]
 
     if latest_first == 1:
         state_data = state_data.iloc[::-1]
@@ -596,19 +593,10 @@ def api_get_labeled(project):  # noqa: F401
     records = project.read_data().record(state_data["record_id"])
 
     result = []
-    for i, record in zip(state_data.index.tolist(), records):
-        # add variables from record
+    for (_, state), record in zip(state_data.iterrows(), records):
         record_d = asdict(record)
-
-        # add variables from state
-        record_d["included"] = int(state_data.loc[i, "label"])
-        record_d["note"] = state_data.loc[i, "notes"]
-        record_d["tags"] = _extract_tags(state_data.loc[i, "custom_metadata_json"])
-        record_d["prior"] = int(state_data.loc[i, "prior"])
-
-        # add tags form
+        record_d["state"] = state.to_dict()
         record_d["tags_form"] = project.config.get("tags", None)
-
         result.append(record_d)
 
     return jsonify(

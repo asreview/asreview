@@ -250,9 +250,6 @@ class ProjectAPI {
       axios
         .get(url, {
           params: { subset: subset, page: pageParam, per_page: per_page },
-          paramsSerializer: (params) => {
-            return qs.stringify(params, { arrayFormat: "repeat" });
-          },
           withCredentials: true,
         })
         .then((result) => {
