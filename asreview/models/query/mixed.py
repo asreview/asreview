@@ -26,13 +26,15 @@ from asreview.models.query.uncertainty import UncertaintyQuery
 class MixedQuery(BaseQueryStrategy):
     """Mixed query strategy.
 
-    Use two different query strategies at the same time with a
-    ratio of one to the other. A mix of two query strategies is used. For
-    example mixing max and random sampling with a mix ratio of 0.95 would mean
-    that at each query 95% of the instances would be sampled with the max
-    query strategy after which the remaining 5% would be sampled with the
-    random query strategy. It would be called the `max_random` query strategy.
-    Every combination of primitive query strategy is possible.
+    Apply two query strategies and mix the rankings produced by both into a single
+    joined ranking. If for example the `max` and `random` query strategies are used, it
+    would be called the `max_random` query strategy. Every combination of primitive
+    query strategy is possible.
+    It uses a parameter `mix_probability` which determines how often the first versus
+    the second query strategy should be used. Intuitively, if `mix_probability` is 0.95
+    then a record has a 95% chance to come from the first query strategy and a 5% chance
+    to come from the second query strategy. What actually happens is close to this, but
+    for full details look at the implemenatation of the algorithm in the code.
 
     Arguments
     ---------
@@ -40,11 +42,12 @@ class MixedQuery(BaseQueryStrategy):
         Name of the first query strategy.
     query_model2: str
         Name of the second query strategy.
-    mix_ratio: float
-        Sampling from query_model1 and query_model2 according a Bernoulli
-        distribution. E.g. for mix_ratio=0.95, this implies query_model1
-        with probability 0.95 and query_model2 with probability 0.05.
-        Default 0.95.
+    mix_probability: float
+        Number between 0 and 1. A variable used in the algorithm to combine the outputs
+        of query_model1 and query_model2. It is the probability that a record is taken
+        from the output of query_model1 in each iteration of the algorithm. Note that it
+        is not the ratio, or fraction of records taken from query_model1 vs
+        query_model2.
     random_state: float
         Seed for the numpy random number generator.
     **kwargs: dict
@@ -57,7 +60,7 @@ class MixedQuery(BaseQueryStrategy):
         self,
         query_model1,
         query_model2,
-        mix_ratio=0.95,
+        mix_probability=0.95,
         random_state=None,
     ):
         """Initialize the Mixed query strategy."""
@@ -65,7 +68,7 @@ class MixedQuery(BaseQueryStrategy):
         self.query_model1 = query_model1
         self.query_model2 = query_model2
 
-        self.mix_ratio = mix_ratio
+        self.mix_probability = mix_probability
         self._random_state = random_state
 
     def query(
@@ -102,7 +105,7 @@ class MixedQuery(BaseQueryStrategy):
         j = 0
 
         while i < len(query_idx_1) and j < len(query_idx_2):
-            if check_random_state(self._random_state).rand() < self.mix_ratio:
+            if check_random_state(self._random_state).rand() < self.mix_probability:
                 query_idx_mix.append(query_idx_1[i])
                 i = i + 1
             else:
@@ -134,12 +137,12 @@ class MaxRandomQuery(MixedQuery):
     name = "max_random"
     label = "Mixed (95% Maximum and 5% Random)"
 
-    def __init__(self, mix_ratio=0.95, random_state=None):
+    def __init__(self, mix_probability=0.95, random_state=None):
         """Initialize the Mixed (Maximum and Random) query strategy."""
         super().__init__(
             query_model1=MaxQuery(),
             query_model2=RandomQuery(),
-            mix_ratio=mix_ratio,
+            mix_probability=mix_probability,
             random_state=random_state,
         )
 
@@ -156,11 +159,11 @@ class MaxUncertaintyQuery(MixedQuery):
     name = "max_uncertainty"
     label = "Mixed (95% Maximum and 5% Uncertainty)"
 
-    def __init__(self, mix_ratio=0.95, random_state=None):
+    def __init__(self, mix_probability=0.95, random_state=None):
         """Initialize the Mixed (Maximum and Uncertainty) query strategy."""
         super().__init__(
             query_model1=MaxQuery(),
             query_model2=UncertaintyQuery(),
-            mix_ratio=mix_ratio,
+            mix_probability=mix_probability,
             random_state=random_state,
         )
