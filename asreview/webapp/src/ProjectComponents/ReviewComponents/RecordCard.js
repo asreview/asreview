@@ -67,6 +67,8 @@ const RecordCard = ({
     });
   };
 
+  console.log(record);
+
   return (
     <Fade in={state.open} timeout={150} onExited={afterDecision} unmountOnExit>
       <StyledCard elevation={mobileScreen ? 0 : 2}>
@@ -183,7 +185,7 @@ const RecordCard = ({
           labelFromDataset={record.included}
           decisionCallback={decisionCallback}
           retrainAfterDecision={retrainAfterDecision}
-          note={record.note}
+          note={record.state?.note}
           tagsForm={record.tags_form}
           tagValues={record.tags}
           disabled={disabled}

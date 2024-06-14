@@ -29,6 +29,15 @@ const classes = {
 };
 
 const Root = styled("div")(({ theme }) => ({
+  margin: "auto",
+  maxWidth: 960,
+  [theme.breakpoints.down("md")]: {
+    padding: "4px 0px",
+  },
+  [theme.breakpoints.up("md")]: {
+    padding: "2rem 1rem",
+  },
+
   [`& .${classes.loading}`]: {
     // display: "flex",
     // justifyContent: "center",
@@ -55,8 +64,6 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const LabeledRecord = (props) => {
-  // const [subset, setSubset] = React.useState(null);
-
   const enableQuery = () => {
     return !props.is_prior
       ? true

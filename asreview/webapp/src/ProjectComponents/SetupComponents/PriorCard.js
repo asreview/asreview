@@ -21,11 +21,7 @@ import { ProjectAPI } from "api";
 import { historyFilterOptions } from "globals.js";
 import { AddPriorKnowledge } from "./SearchComponents";
 
-const PriorCard = ({
-  setHistoryFilterQuery,
-  mobileScreen,
-  editable = true,
-}) => {
+const PriorCard = ({ mobileScreen, editable = true }) => {
   const project_id = useContext(ProjectContext);
   const queryClient = useQueryClient();
 
@@ -37,9 +33,8 @@ const PriorCard = ({
   const handleClickViewPrior = () => {
     if (!editable) {
       navigate(`/projects/${project_id}/history`);
-      setHistoryFilterQuery([
-        historyFilterOptions.find((e) => e.value === "prior"),
-      ]);
+
+      // todo set filter to prior knowledge
     }
   };
 

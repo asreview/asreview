@@ -1245,8 +1245,11 @@ def api_classify_instance(project, record_id):  # noqa: F401
 @login_required
 @project_authorization
 def api_update_note(project, record_id):  # noqa: F401
+    note = request.form.get("note", type=str)
+    note = note if note != "" else None
+
     with open_state(project.project_path) as state:
-        state.update_note(record_id, request.form.get("note", type=str))
+        state.update_note(record_id, note)
 
     return jsonify({"success": True})
 

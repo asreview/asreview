@@ -35,7 +35,7 @@ RESULTS_TABLE_COLUMNS = [
     "feature_extraction",
     "training_set",
     "labeling_time",
-    "notes",
+    "note",
     "custom_metadata_json",
     "user_id",
 ]
@@ -99,7 +99,7 @@ class SQLiteState:
                             feature_extraction TEXT,
                             training_set INTEGER,
                             labeling_time INTEGER,
-                            notes TEXT,
+                            note TEXT,
                             custom_metadata_json TEXT,
                             user_id INTEGER)"""
         )
@@ -237,9 +237,7 @@ class SQLiteState:
             }
         ).to_sql("last_ranking", self._conn, if_exists="replace", index=False)
 
-    def add_labeling_data(
-        self, record_ids, labels, notes=None, tags_list=None, user_id=None
-    ):
+    def add_labeling_data(self, record_ids, labels, tags_list=None, user_id=None):
         """Add the data corresponding to a labeling action to the state file.
 
         Arguments
@@ -248,16 +246,11 @@ class SQLiteState:
             A list of ids of the labeled records as int.
         labels: list, numpy.ndarray
             A list of labels of the labeled records as int.
-        notes: list of str/None
-            A list of text notes to save with the labeled records.
         tags_list: list of list
             A list of tags to save with the labeled records.
         user_id: int
             User id of the user who labeled the records.
         """
-
-        if notes is None:
-            notes = [None for _ in record_ids]
 
         if tags_list is None:
             tags_list = [None for _ in record_ids]
@@ -266,7 +259,7 @@ class SQLiteState:
             user_id = [None for _ in record_ids]
 
         # Check that all input data has the same length.
-        if len({len(record_ids), len(labels), len(notes), len(tags_list)}) != 1:
+        if len({len(record_ids), len(labels), len(tags_list)}) != 1:
             raise ValueError("Input data should be of the same length.")
 
         custom_metadata_list = [
@@ -281,11 +274,11 @@ class SQLiteState:
         cur.executemany(
             (
                 """
-                INSERT INTO results(record_id,label,labeling_time,notes,custom_metadata_json, user_id)
-                VALUES(?,?,?,?,?,?)
+                INSERT INTO results(record_id,label,labeling_time,custom_metadata_json, user_id)
+                VALUES(?,?,?,?,?)
                 ON CONFLICT(record_id) DO UPDATE
                     SET label=excluded.label, labeling_time=excluded.labeling_time,
-                    notes=excluded.notes, custom_metadata_json=excluded.custom_metadata_json, user_id=excluded.user_id
+                    custom_metadata_json=excluded.custom_metadata_json, user_id=excluded.user_id
             """
             ),
             [
@@ -293,7 +286,6 @@ class SQLiteState:
                     int(record_ids[i]),
                     int(labels[i]),
                     labeling_time,
-                    notes[i],
                     custom_metadata_list[i],
                     user_id[i],
                 )
@@ -521,8 +513,8 @@ class SQLiteState:
             dtype={"label": "Int64"},
         )
 
-    def update(self, record_id, label=None, note=None, tags=None):
-        """Change the label of an already labeled record.
+    def update(self, record_id, label=None, tags=None):
+        """Change the label or tag of an already labeled record.
 
         Arguments
         ---------
@@ -530,8 +522,6 @@ class SQLiteState:
             Id of the record whose label should be changed.
         label: 0 / 1
             New label of the record.
-        note: str
-            Note to add to the record.
         tags: list
             Tags list to add to the record.
         """
@@ -539,9 +529,8 @@ class SQLiteState:
         cur = self._conn.cursor()
 
         cur.execute(
-            "UPDATE results SET label = ?, notes = ?, "
-            "custom_metadata_json=? WHERE record_id = ?",
-            (label, note, json.dumps({"tags": tags}), record_id),
+            "UPDATE results SET label = ?, custom_metadata_json=? WHERE record_id = ?",
+            (label, json.dumps({"tags": tags}), record_id),
         )
 
         if cur.rowcount == 0:
@@ -569,14 +558,15 @@ class SQLiteState:
             Note to add to the record.
         """
 
-        if note is None:
-            note = "NULL"
-
         cur = self._conn.cursor()
         cur.execute(
-            "UPDATE results SET notes = ? WHERE record_id = ?",
+            "UPDATE results SET note = ? WHERE record_id = ?",
             (note, record_id),
         )
+
+        if cur.rowcount == 0:
+            raise ValueError(f"Record with id {record_id} not found.")
+
         self._conn.commit()
 
     def delete_record_labeling_data(self, record_id):

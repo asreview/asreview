@@ -153,7 +153,7 @@ const DecisionButton = ({
 
       {note !== null && (
         <>
-          <Divider />
+          <Divider>Note</Divider>
           <CardContent>{note}</CardContent>
         </>
       )}
