@@ -40,6 +40,12 @@ RESULTS_TABLE_COLUMNS = [
     "user_id",
 ]
 
+RESULTS_TABLE_COLUMNS_PANDAS_DTYPES = {
+    "record_id": "Int64",
+    "label": "Int64",
+    "training_set": "Int64",
+}
+
 CURRENT_STATE_VERSION = 2
 
 
@@ -414,7 +420,11 @@ class SQLiteState:
         return pd.read_sql_query(
             f"SELECT {query_string} FROM results {sql_where_str}",
             self._conn,
-            dtype={"label": "Int64", "training_set": "Int64"},
+            dtype={
+                k: v
+                for k, v in RESULTS_TABLE_COLUMNS_PANDAS_DTYPES.items()
+                if columns and k in columns
+            },
         )
 
     def get_priors(self):

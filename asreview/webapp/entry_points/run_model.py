@@ -16,7 +16,6 @@ import argparse
 import logging
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 from filelock import FileLock
 from filelock import Timeout
@@ -50,11 +49,7 @@ def _run_model_start(project, output_error=True):
         )
 
         with lock:
-            with open_state(project) as state:
-                labeled = state.get_results_table()[["record_id", "label"]]
-
             as_data = project.read_data()
-            record_table = pd.Series(as_data.record_ids, name="record_id")
 
             # get the feature matrix
             feature_model = load_extension(
@@ -68,21 +63,21 @@ def _run_model_start(project, output_error=True):
                 )
                 project.add_feature_matrix(fm, feature_model.name)
 
-            # TODO: Simplify balance model input.
-            # Use the balance model to sample the trainings data.
-            y_sample_input = (
-                record_table.to_frame()
-                .merge(labeled, how="left", on="record_id")
-                .loc[:, "label"]
+            with open_state(project) as state:
+                labeled = state.get_results_table(columns=["record_id", "label"])
+
+            y_input = (
+                pd.DataFrame({"record_id": as_data.record_ids})
+                .merge(labeled, how="left", on="record_id")["label"]
                 .fillna(LABEL_NA)
-                .to_numpy()
             )
-            train_idx = np.where(y_sample_input != LABEL_NA)[0]
 
             balance_model = load_extension(
                 "models.balance", settings.balance_strategy
             )()
-            X_train, y_train = balance_model.sample(fm, y_sample_input, train_idx)
+            X_train, y_train = balance_model.sample(
+                fm, y_input, labeled["record_id"].values
+            )
 
             classifier = load_extension("models.classifiers", settings.classifier)()
             classifier.fit(X_train, y_train)
