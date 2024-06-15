@@ -74,7 +74,8 @@ authenticated setup.
 
     # RESET PASSWORD USER
     user_reset_password_par = sub_parser.add_parser(
-        "reset-password", help="Reset password of a single user account.")
+        "reset-password", help="Reset password of a single user account."
+    )
 
     user_reset_password_par.add_argument(
         "-d",
@@ -196,9 +197,7 @@ def get_users(session):
 
 
 def get_user_by_id(session, user_id):
-    return session.query(User).\
-        filter_by(id=user_id).\
-        one()
+    return session.query(User).filter_by(id=user_id).one()
 
 
 class AuthTool:
@@ -255,13 +254,13 @@ class AuthTool:
         """Resets password for a user."""
         # get user accounts
         user_ids = [u.id for u in get_users(self.session)]
-        print('\nReset password of:')
+        print("\nReset password of:")
         self.list_users()
         # get user id
         id = self._ensure_valid_value_for(
             "Id of user account",
             lambda x: x.isnumeric() and int(x) in user_ids,
-            hint="Id number must be a number and exist."
+            hint="Id number must be a number and exist.",
         )
         # get new password, since this is not hidden I don't see
         # the point of confirmation
