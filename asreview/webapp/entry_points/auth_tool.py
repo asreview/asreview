@@ -19,6 +19,12 @@ from asreview.webapp.utils import asreview_path
 
 DEFAULT_DATABASE_URI = f"sqlite:///{str(asreview_path())}/asreview.production.sqlite"
 
+DB_URI_HELP = (
+    "URI of the database. By default, the value is given by the environment "
+    "variable ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI. If not set, the default "
+    "is 'asreview.production.sqlite' in the ASReview folder."
+)
+
 
 def auth_parser():
     parser = argparse.ArgumentParser(
@@ -45,11 +51,7 @@ authenticated setup.
         "--db-uri",
         type=str,
         default=None,
-        help=(
-            "URI of the database. By default, the value is given by the environment "
-            "variable ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI. If not set, the default "
-            "is 'asreview.production.sqlite' in the ASReview folder."
-        ),
+        help=DB_URI_HELP,
     )
 
     # ADD USERS
@@ -60,11 +62,7 @@ authenticated setup.
         "--db-uri",
         type=str,
         default=None,
-        help=(
-            "URI of the database. By default, the value is given by the environment "
-            "variable ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI. If not set, the default "
-            "is 'asreview.production.sqlite' in the ASReview folder."
-        ),
+        help=DB_URI_HELP,
     )
 
     user_par.add_argument(
@@ -72,6 +70,18 @@ authenticated setup.
         "--json",
         type=str,
         help="JSON string that contains a list with user account data.",
+    )
+
+    # RESET PASSWORD USER
+    user_reset_password_par = sub_parser.add_parser(
+        "reset-password", help="Reset password of a single user account.")
+
+    user_reset_password_par.add_argument(
+        "-d",
+        "--db-uri",
+        type=str,
+        default=None,
+        help=DB_URI_HELP,
     )
 
     # LIST USERS
@@ -85,11 +95,7 @@ authenticated setup.
         "--db-uri",
         type=str,
         default=None,
-        help=(
-            "URI of the database. By default, the value is given by the environment "
-            "variable ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI. If not set, the default "
-            "is 'asreview.production.sqlite' in the ASReview folder."
-        ),
+        help=DB_URI_HELP,
     )
 
     # LIST PROJECTS
@@ -189,6 +195,12 @@ def get_users(session):
     return session.query(User).all()
 
 
+def get_user_by_id(session, user_id):
+    return session.query(User).\
+        filter_by(id=user_id).\
+        one()
+
+
 class AuthTool:
     def execute(self, argv):
         parser = auth_parser()
@@ -216,6 +228,8 @@ class AuthTool:
             self.create_database()
         elif "add-users" in argv:
             self.add_users()
+        elif "reset-password" in argv:
+            self.reset_password()
         elif "list-users" in argv:
             self.list_users()
         elif "list-projects" in argv:
@@ -237,6 +251,31 @@ class AuthTool:
         else:
             self.enter_users()
 
+    def reset_password(self):
+        """Resets password for a user."""
+        # get user accounts
+        user_ids = [u.id for u in get_users(self.session)]
+        print('\nReset password of:')
+        self.list_users()
+        # get user id
+        id = self._ensure_valid_value_for(
+            "Id of user account",
+            lambda x: x.isnumeric() and int(x) in user_ids,
+            hint="Id number must be a number and exist."
+        )
+        # get new password, since this is not hidden I don't see
+        # the point of confirmation
+        password = self._ensure_valid_value_for(
+            "New password",
+            User.valid_password,
+            "Use 8 or more characters with a mix of letters, numbers & symbols.",  # noqa
+        )
+        # id and password are guaranteed, get user and reset password
+        user = get_user_by_id(self.session, int(id))
+        user.reset_password(password)
+        self.session.commit()
+        print(f"Password of {user.name} has been reset.")
+
     def _ensure_valid_value_for(self, name, validation_function, hint=""):
         """Prompt user for validated input."""
         while True:
@@ -244,7 +283,7 @@ class AuthTool:
             if validation_function(value):
                 return value
             else:
-                sys.stderr.write(hint)
+                sys.stderr.write(hint + "\n")
 
     def enter_users(self):
         while True:
