@@ -162,7 +162,6 @@ class SQLiteState:
             "SELECT name FROM sqlite_master WHERE type='table';"
         ).fetchall()
 
-        # Check if all required tables are present.
         table_names = [tup[0] for tup in table_names]
         missing_tables = [
             table for table in REQUIRED_TABLES if table not in table_names
@@ -173,7 +172,6 @@ class SQLiteState:
                 f"'{' '.join(missing_tables)}'."
             )
 
-        # Check if all required columns are present in results.
         column_names = [tup[1] for tup in column_names]
         missing_columns = [
             col for col in RESULTS_TABLE_COLUMNS if col not in column_names
@@ -282,7 +280,6 @@ class SQLiteState:
         if user_id is None:
             user_id = [None for _ in record_ids]
 
-        # Check that all input data has the same length.
         if len({len(record_ids), len(labels), len(tags_list)}) != 1:
             raise ValueError("Input data should be of the same length.")
 
@@ -292,7 +289,6 @@ class SQLiteState:
 
         labeling_time = datetime.now()
 
-        # Add the rows to the database.
         con = self._conn
         cur = con.cursor()
         cur.executemany(
@@ -551,7 +547,6 @@ class SQLiteState:
         if cur.rowcount == 0:
             raise ValueError(f"Record with id {record_id} not found.")
 
-        # Add the change to the decision changes table.
         cur.execute(
             (
                 "INSERT INTO decision_changes (record_id, new_label, time) "
@@ -598,7 +593,6 @@ class SQLiteState:
         cur = self._conn.cursor()
         cur.execute("DELETE FROM results WHERE record_id=?", (record_id,))
 
-        # Add the change to the decision changes table.
         cur.execute(
             (
                 "INSERT INTO decision_changes (record_id, new_label, time) "
