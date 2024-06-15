@@ -80,10 +80,6 @@ const ProjectPage = (props) => {
 
   const [tags, setTags] = React.useState([]);
 
-  // History page state
-  const [historyLabel, setHistoryLabel] = React.useState("relevant");
-  const [historyFilterQuery, setHistoryFilterQuery] = React.useState([]);
-
   const { data, error, isError, isSuccess } = useQuery(
     ["fetchInfo", { project_id }],
     ProjectAPI.fetchInfo,
@@ -223,13 +219,9 @@ const ProjectPage = (props) => {
               element={
                 <HistoryPage
                   project_id={project_id}
-                  filterQuery={historyFilterQuery}
-                  label={historyLabel}
                   isSimulating={isSimulating}
                   mobileScreen={props.mobileScreen}
                   mode={data?.mode}
-                  setFilterQuery={setHistoryFilterQuery}
-                  setLabel={setHistoryLabel}
                 />
               }
             />
@@ -274,7 +266,6 @@ const ProjectPage = (props) => {
                   tags={tags}
                   isSimulating={isSimulating}
                   mobileScreen={props.mobileScreen}
-                  setHistoryFilterQuery={setHistoryFilterQuery}
                 />
               }
             />

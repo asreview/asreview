@@ -3,7 +3,10 @@ import { Autocomplete, IconButton, InputBase, Popper } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FilterList } from "@mui/icons-material";
 
-import { historyFilterOptions } from "globals.js";
+const historyFilterOptions = [
+  { value: "has_note", label: "Contains note" },
+  { value: "is_prior", label: "Prior knowledge" },
+];
 
 const PREFIX = "Filter";
 
@@ -25,12 +28,6 @@ const Root = styled("div")(({ theme }) => ({
 export default function Filter(props) {
   const filterInput = React.useRef(null);
 
-  const customPopper = (props) => {
-    return (
-      <Popper {...props} style={{ width: 160 }} placement="bottom-start" />
-    );
-  };
-
   const onClickFilter = () => {
     filterInput.current.focus();
   };
@@ -38,7 +35,7 @@ export default function Filter(props) {
   return (
     <Root>
       <IconButton className={classes.icon} onClick={onClickFilter}>
-        <FilterList fontSize={!props.mobileScreen ? "medium" : "small"} />
+        <FilterList />
       </IconButton>
       <Autocomplete
         id="filter labeled record"
@@ -51,7 +48,6 @@ export default function Filter(props) {
         openOnFocus
         options={historyFilterOptions}
         getOptionLabel={(option) => option.label}
-        PopperComponent={customPopper}
         renderInput={(params) => {
           const { InputLabelProps, InputProps, ...rest } = params;
           return (
@@ -69,13 +65,6 @@ export default function Filter(props) {
         }}
         value={props.filterQuery}
       />
-      {/*
-      <Tooltip title="Remove filter">
-        <IconButton className={classes.icon}>
-          <Close />
-        </IconButton>
-      </Tooltip>
-    */}
     </Root>
   );
 }

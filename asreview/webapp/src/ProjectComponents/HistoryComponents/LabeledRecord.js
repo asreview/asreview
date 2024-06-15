@@ -1,5 +1,4 @@
 import React from "react";
-import clsx from "clsx";
 import { InView } from "react-intersection-observer";
 import { useInfiniteQuery } from "react-query";
 import {
@@ -14,17 +13,13 @@ import { grey } from "@mui/material/colors";
 import { styled } from "@mui/material/styles";
 
 import { BoxErrorHandler } from "Components";
-import { LabeledRecordCard } from ".";
 import { ProjectAPI } from "api";
 import { RecordCard } from "ProjectComponents/ReviewComponents";
-
-let height = window.screen.height;
 
 const PREFIX = "LabeledRecord";
 
 const classes = {
   loading: `${PREFIX}-loading`,
-  priorRecordCard: `${PREFIX}-prior-record-card`,
   loadMoreInView: `${PREFIX}-loadMoreInView`,
 };
 
@@ -42,18 +37,6 @@ const Root = styled("div")(({ theme }) => ({
     // display: "flex",
     // justifyContent: "center",
     // padding: 64,
-  },
-
-  [`& .${classes.priorRecordCard}`]: {
-    // height: "calc(100vh - 208px)",
-    // overflowY: "scroll",
-    // padding: "32px 24px",
-    // [`${theme.breakpoints.down("md")} and (orientation: portrait)`]: {
-    //   height: `calc(100vh - ${height / 2 + 80}px)`,
-    // },
-    // [`${theme.breakpoints.down("md")} and (orientation: landscape)`]: {
-    //   height: `calc(100vh - 116px)`,
-    // },
   },
 
   [`& .${classes.loadMoreInView}`]: {
@@ -89,6 +72,7 @@ const LabeledRecord = (props) => {
       {
         project_id: props.project_id,
         subset: props.label,
+        filter: props.filterQuery.map((filter) => filter.value),
       },
     ],
     ProjectAPI.fetchLabeledRecord,

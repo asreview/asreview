@@ -288,13 +288,13 @@ def test_get_order_of_labeling(asreview_test_project):
 
 def test_get_labels(asreview_test_project):
     with asr.open_state(asreview_test_project) as state:
-        assert isinstance(state.get_labels(), pd.Series)
-        assert all(state.get_labels() == TEST_LABELS)
+        assert isinstance(state.get_results_table("label"), pd.Series)
+        assert all(state.get_results_table("label") == TEST_LABELS)
 
 
 def test_get_labels_no_priors(asreview_test_project):
     with asr.open_state(asreview_test_project) as state:
-        labels = state.get_labels(priors=False)
+        labels = state.get_results_table("label", priors=False)
         assert isinstance(labels, pd.Series)
         assert all(labels == TEST_LABELS[4:])
 
@@ -384,7 +384,7 @@ def test_add_labeling_data(tmpdir):
         assert data["record_id"].to_list() == TEST_RECORD_IDS[:6] + [0, 1, 2]
 
         state.add_labeling_data([1], [1])
-        labels = state.get_labels(pending=True)
+        labels = state.get_results_table("label", pending=True)
         assert labels.to_list()[:6] == TEST_LABELS[:6]
         assert labels[7] == 1
 

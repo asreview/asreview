@@ -18,7 +18,6 @@ import {
 } from "@mui/material";
 import { ProjectContext } from "ProjectContext";
 import { ProjectAPI } from "api";
-import { historyFilterOptions } from "globals.js";
 import { AddPriorKnowledge } from "./SearchComponents";
 
 const PriorCard = ({ mobileScreen, editable = true }) => {

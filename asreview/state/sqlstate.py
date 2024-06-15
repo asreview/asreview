@@ -43,7 +43,24 @@ RESULTS_TABLE_COLUMNS = [
 RESULTS_TABLE_COLUMNS_PANDAS_DTYPES = {
     "record_id": "Int64",
     "label": "Int64",
+    "classifier": "object",
+    "query_strategy": "object",
+    "balance_strategy": "object",
+    "feature_extraction": "object",
     "training_set": "Int64",
+    "labeling_time": "datetime64[ns]",
+    "user_id": "Int64",
+}
+
+RANKING_TABLE_COLUMNS_PANDAS_DTYPES = {
+    "record_id": "Int64",
+    "ranking": "Int64",
+    "classifier": "object",
+    "query_strategy": "object",
+    "balance_strategy": "object",
+    "feature_extraction": "object",
+    "training_set": "Int64",
+    "time": "datetime64[ns]",
 }
 
 CURRENT_STATE_VERSION = 2
@@ -193,12 +210,13 @@ class SQLiteState:
         the model ranking was added to the state. Also returns True if no
         model was trained yet, but priors have been added.
         """
-        labeled = self.get_results_table()
+        labeled = self.get_results_table("label")
         last_training_set = self.get_last_ranking_table()["training_set"]
-        if last_training_set.empty:
+
+        if last_training_set.empty or pd.isna(last_training_set.max()):
             return len(labeled) > 0
         else:
-            return len(labeled) > last_training_set.iloc[0]
+            return len(labeled) > last_training_set.max()
 
     def add_last_ranking(
         self,
@@ -207,7 +225,7 @@ class SQLiteState:
         query_strategy,
         balance_strategy,
         feature_extraction,
-        training_set,
+        training_set=None,
     ):
         """Save the ranking of the last iteration of the model.
 
@@ -415,16 +433,20 @@ class SQLiteState:
         else:
             sql_where_str = ""
 
-        # Query the database.
+        if columns is None:
+            col_dtype = RESULTS_TABLE_COLUMNS_PANDAS_DTYPES
+        else:
+            col_dtype = {
+                k: v
+                for k, v in RESULTS_TABLE_COLUMNS_PANDAS_DTYPES.items()
+                if columns and k in columns
+            }
+
         query_string = "*" if columns is None else ",".join(columns)
         return pd.read_sql_query(
             f"SELECT {query_string} FROM results {sql_where_str}",
             self._conn,
-            dtype={
-                k: v
-                for k, v in RESULTS_TABLE_COLUMNS_PANDAS_DTYPES.items()
-                if columns and k in columns
-            },
+            dtype=col_dtype,
         )
 
     def get_priors(self):
@@ -442,24 +464,6 @@ class SQLiteState:
             dtype={"label": "Int64", "training_set": "Int64"},
         )
 
-    def get_labels(self, priors=True, pending=False):
-        """Get the labels from the state.
-
-        Arguments
-        ---------
-        priors: bool
-            Whether to keep the records containing the prior knowledge.
-        pending: bool
-            Whether to keep the records which are pending a labeling decision.
-
-        Returns
-        -------
-        pd.Series:
-            Series containing the labels at each labelling moment.
-        """
-
-        return self.get_results_table("label", priors=priors, pending=pending)["label"]
-
     def get_pool(self):
         """Get the unlabeled, not-pending records in ranking order.
 
@@ -469,6 +473,7 @@ class SQLiteState:
             Series containing the record_ids of the unlabeled, not pending
             records, in the order of the last available ranking.
         """
+
         return pd.read_sql_query(
             """SELECT record_id, last_ranking.ranking,
                 results.query_strategy

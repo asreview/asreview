@@ -1,53 +1,77 @@
 import * as React from "react";
-import { Box, Divider, Fade } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { Box, Divider, Fade, Stack, Chip } from "@mui/material";
 
 import { PageHeader } from "Components";
-import { Filter, LabelChip, LabeledRecord } from "../HistoryComponents";
+import { Filter, LabeledRecord } from "../HistoryComponents";
 
-const PREFIX = "HistoryPage";
+const HistoryPage = ({
+  mobileScreen,
+  project_id,
+  isSimulating,
+  mode,
+  n_prior_inclusions = null,
+  n_prior_exclusions = null,
+}) => {
+  const [label, setLabel] = React.useState("relevant");
+  const [filterQuery, setFilterQuery] = React.useState([]);
 
-const classes = {
-  cardWrapper: `${PREFIX}-card-wrapper`,
-};
-
-const Root = styled("div")(({ theme }) => ({
-  [`& .${classes.cardWrapper}`]: {
-    paddingTop: 32,
-  },
-}));
-
-const HistoryPage = (props) => {
   return (
-    <Root aria-label="history page">
-      <Fade in>
+    <Fade in>
+      <Box>
+        <PageHeader header="History" mobileScreen={mobileScreen} />
         <Box>
-          <PageHeader header="History" mobileScreen={props.mobileScreen} />
-          <Box>
-            <LabelChip
-              mobileScreen={props.mobileScreen}
-              label={props.label}
-              setLabel={props.setLabel}
+          <Stack direction="row" spacing={2} sx={{ p: "1rem" }}>
+            <Chip
+              label={
+                !n_prior_inclusions
+                  ? "Relevant"
+                  : `Relevant (${n_prior_inclusions})`
+              }
+              color="primary"
+              variant={label !== "relevant" && "outlined"}
+              onClick={() => {
+                setLabel("relevant");
+              }}
             />
-            <Divider />
-            <Filter
-              mobileScreen={props.mobileScreen}
-              filterQuery={props.filterQuery}
-              setFilterQuery={props.setFilterQuery}
+            <Chip
+              label={
+                !n_prior_exclusions
+                  ? "Irrelevant"
+                  : `Irrelevant (${n_prior_exclusions})`
+              }
+              color="primary"
+              variant={label !== "irrelevant" && "outlined"}
+              onClick={() => {
+                setLabel("irrelevant");
+              }}
             />
-            <Divider />
-          </Box>
-          <LabeledRecord
-            project_id={props.project_id}
-            label={props.label}
-            filterQuery={props.filterQuery}
-            isSimulating={props.isSimulating}
-            mobileScreen={props.mobileScreen}
-            mode={props.mode}
+            <Chip
+              label={"All"}
+              color="primary"
+              variant={label !== "all" && "outlined"}
+              onClick={() => {
+                setLabel("all");
+              }}
+            />
+          </Stack>
+
+          <Divider />
+          <Filter
+            mobileScreen={mobileScreen}
+            filterQuery={filterQuery}
+            setFilterQuery={setFilterQuery}
           />
+          <Divider />
         </Box>
-      </Fade>
-    </Root>
+        <LabeledRecord
+          project_id={project_id}
+          label={label}
+          filterQuery={filterQuery}
+          isSimulating={isSimulating}
+          mode={mode}
+        />
+      </Box>
+    </Fade>
   );
 };
 

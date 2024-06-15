@@ -67,7 +67,7 @@ const RecordCard = ({
     });
   };
 
-  console.log(record);
+  // console.log(record);
 
   return (
     <Fade in={state.open} timeout={150} onExited={afterDecision} unmountOnExit>

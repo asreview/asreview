@@ -109,7 +109,7 @@ def _fill_last_ranking(project, ranking):
         elif ranking == "top-down":
             records = record_table
 
-        state.add_last_ranking(records.values, ranking, ranking, ranking, ranking, -1)
+        state.add_last_ranking(records.values, None, ranking, None, None)
 
 
 # error handlers
@@ -527,10 +527,16 @@ def api_get_labeled(project):  # noqa: F401
     page = request.args.get("page", default=None, type=int)
     per_page = request.args.get("per_page", default=20, type=int)
     subset = request.args.get("subset", default="all", type=str)
+    filters = request.args.getlist("filter", type=str)
     latest_first = request.args.get("latest_first", default=1, type=int)
 
     with open_state(project.project_path) as s:
-        state_data = s.get_results_table()
+        if "is_prior" in filters:
+            state_data = s.get_priors()
+        else:
+            state_data = s.get_results_table()
+
+            print(state_data.dtypes)
 
     if subset == "relevant":
         state_data = state_data[state_data["label"] == 1]
@@ -539,11 +545,8 @@ def api_get_labeled(project):  # noqa: F401
     else:
         state_data = state_data[~state_data["label"].isnull()]
 
-    # if "note" in subset:
-    #     state_data = state_data[~state_data["notes"].isnull()]
-
-    # if "prior" in subset:
-    #     state_data = state_data[state_data["query_strategy"].isnull()]
+    if "has_note" in filters:
+        state_data = state_data[~state_data["note"].isnull()]
 
     if latest_first == 1:
         state_data = state_data.iloc[::-1]
@@ -618,16 +621,16 @@ def api_get_labeled_stats(project):  # noqa: F401
     try:
         with open_state(project.project_path) as s:
             data = s.get_results_table(["label", "query_strategy"])
-            data_prior = data[data["query_strategy"] == "prior"]
+            data_prior = data[data["query_strategy"].isnull()]
 
         return jsonify(
             {
                 "n": len(data),
-                "n_inclusions": sum(data["label"] == 1),
-                "n_exclusions": sum(data["label"] == 0),
+                "n_inclusions": int(sum(data["label"] == 1)),
+                "n_exclusions": int(sum(data["label"] == 0)),
                 "n_prior": len(data_prior),
-                "n_prior_inclusions": sum(data_prior["label"] == 1),
-                "n_prior_exclusions": sum(data_prior["label"] == 0),
+                "n_prior_inclusions": int(sum(data_prior["label"] == 1)),
+                "n_prior_exclusions": int(sum(data_prior["label"] == 0)),
             }
         )
     except StateNotFoundError:
@@ -997,7 +1000,7 @@ def api_export_dataset(project):
 
         state_df.rename(
             columns={
-                "notes": f"exported_notes_{screening}",
+                "note": f"exported_notes_{screening}",
             },
             inplace=True,
         )
@@ -1064,7 +1067,7 @@ def _get_stats(project, include_priors=False):
 
         # get label history
         with open_state(project.project_path) as s:
-            labels = s.get_labels(priors=include_priors)
+            labels = s.get_results_table("label", priors=include_priors)["label"]
 
         n_records = len(as_data)
 
@@ -1114,25 +1117,20 @@ def api_get_progress_density(project):
 
     # get label history
     with open_state(project.project_path) as s:
-        data = s.get_labels(priors=include_priors)
+        data = s.get_results_table("label", priors=include_priors)
 
     # create a dataset with the rolling mean of every 10 papers
-    df = (
-        data.to_frame(name="Relevant")
-        .reset_index(drop=True)
-        .rolling(10, min_periods=1)
-        .mean()
-    )
+    df = data.rolling(10, min_periods=1).mean()
     df["Total"] = df.index + 1
 
     # transform mean(percentage) to number
     for i in range(0, len(df)):
         if df.loc[i, "Total"] < 10:
-            df.loc[i, "Irrelevant"] = (1 - df.loc[i, "Relevant"]) * df.loc[i, "Total"]
-            df.loc[i, "Relevant"] = df.loc[i, "Total"] - df.loc[i, "Irrelevant"]
+            df.loc[i, "Irrelevant"] = (1 - df.loc[i, "label"]) * df.loc[i, "Total"]
+            df.loc[i, "label"] = df.loc[i, "Total"] - df.loc[i, "Irrelevant"]
         else:
-            df.loc[i, "Irrelevant"] = (1 - df.loc[i, "Relevant"]) * 10
-            df.loc[i, "Relevant"] = 10 - df.loc[i, "Irrelevant"]
+            df.loc[i, "Irrelevant"] = (1 - df.loc[i, "label"]) * 10
+            df.loc[i, "label"] = 10 - df.loc[i, "Irrelevant"]
 
     df = df.round(1).to_dict(orient="records")
     for d in df:
@@ -1140,9 +1138,9 @@ def api_get_progress_density(project):
 
     df_relevant = [{k: v for k, v in d.items() if k != "Irrelevant"} for d in df]
     for d in df_relevant:
-        d["y"] = d.pop("Relevant")
+        d["y"] = d.pop("label")
 
-    df_irrelevant = [{k: v for k, v in d.items() if k != "Relevant"} for d in df]
+    df_irrelevant = [{k: v for k, v in d.items() if k != "label"} for d in df]
     for d in df_irrelevant:
         d["y"] = d.pop("Irrelevant")
 
@@ -1162,12 +1160,12 @@ def api_get_progress_recall(project):
     as_data = project.read_data()
 
     with open_state(project.project_path) as s:
-        data = s.get_labels(priors=include_priors)
+        data = s.get_results_table("label", priors=include_priors)
 
-    # create a dataset with the cumulative number of inclusions
-    df = data.to_frame(name="Relevant").reset_index(drop=True).cumsum()
+    df = data.cumsum()
+
     df["Total"] = df.index + 1
-    df["Random"] = (df["Total"] * (df["Relevant"][-1:] / len(as_data)).values).round()
+    df["Random"] = (df["Total"] * (df["label"][-1:] / len(as_data))).round()
 
     df = df.round(1).to_dict(orient="records")
     for d in df:
@@ -1175,9 +1173,9 @@ def api_get_progress_recall(project):
 
     df_asreview = [{k: v for k, v in d.items() if k != "Random"} for d in df]
     for d in df_asreview:
-        d["y"] = d.pop("Relevant")
+        d["y"] = d.pop("label")
 
-    df_random = [{k: v for k, v in d.items() if k != "Relevant"} for d in df]
+    df_random = [{k: v for k, v in d.items() if k != "label"} for d in df]
     for d in df_random:
         d["y"] = d.pop("Random")
 
@@ -1189,7 +1187,7 @@ def api_get_progress_recall(project):
 @bp.route("/projects/<project_id>/record/<record_id>", methods=["POST", "PUT"])
 @login_required
 @project_authorization
-def api_classify_instance(project, record_id):  # noqa: F401
+def api_label_record(project, record_id):  # noqa: F401
     """Label item
 
     This request handles the document identifier and the corresponding label.

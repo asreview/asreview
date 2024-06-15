@@ -244,12 +244,16 @@ class ProjectAPI {
   }
 
   static fetchLabeledRecord({ pageParam = 1, queryKey }) {
-    const { project_id, subset, per_page } = queryKey[1];
+    const { project_id, subset, filter } = queryKey[1];
+
     const url = api_url + `projects/${project_id}/labeled`;
     return new Promise((resolve, reject) => {
       axios
         .get(url, {
-          params: { subset: subset, page: pageParam, per_page: per_page },
+          params: { subset: subset, filter: filter, page: pageParam },
+          paramsSerializer: (params) => {
+            return qs.stringify(params, { arrayFormat: "repeat" });
+          },
           withCredentials: true,
         })
         .then((result) => {

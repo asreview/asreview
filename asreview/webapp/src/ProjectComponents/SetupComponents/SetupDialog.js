@@ -303,11 +303,7 @@ const SetupDialog = ({
                 <ModelCard />
               </Box>
               <Box sx={{ my: 3 }}>
-                <PriorCard
-                  // setHistoryFilterQuery={setHistoryFilterQuery}
-                  editable={true}
-                  mobileScreen={mobileScreen}
-                />
+                <PriorCard editable={true} mobileScreen={mobileScreen} />
               </Box>
             </Collapse>
           </DialogContent>

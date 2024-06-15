@@ -54,10 +54,7 @@ const DetailsPage = (props) => {
             <ModelCard editable={true} showWarning={true} />
           </Box>
           <Box sx={{ padding: "12px 0px" }}>
-            <PriorCard
-              editable={false}
-              setHistoryFilterQuery={props.setHistoryFilterQuery}
-            />
+            <PriorCard editable={false} />
           </Box>
           <Box sx={{ padding: "12px 0px" }}>
             <Typography variant="h6">Project status</Typography>
