@@ -176,9 +176,7 @@ def api_get_projects(projects):  # noqa: F401
         reverse=True,
     )
 
-    response = jsonify({"result": project_info})
-
-    return response
+    return jsonify({"result": project_info})
 
 
 @bp.route("/projects/stats", methods=["GET"])
@@ -323,13 +321,11 @@ def api_upgrade_project_if_old(project):
     """Get upgrade project if it is v0.x"""
 
     if project.config["version"].startswith("0"):
-        response = jsonify(
+        return jsonify(
             message="Not possible to upgrade Version 0 projects, see LINK."
-        )
-        return response, 400
+        ), 400
 
-    response = jsonify({"success": True})
-    return response
+    return jsonify({"success": True})
 
 
 @bp.route("/projects/<project_id>/info", methods=["GET"])
@@ -536,8 +532,6 @@ def api_get_labeled(project):  # noqa: F401
         else:
             state_data = s.get_results_table()
 
-            print(state_data.dtypes)
-
     if subset == "relevant":
         state_data = state_data[state_data["label"] == 1]
     elif subset == "irrelevant":
@@ -560,9 +554,7 @@ def api_get_labeled(project):  # noqa: F401
             "previous_page": None,
             "result": [],
         }
-        response = jsonify(payload)
-
-        return response
+        return jsonify(payload)
 
     max_page_calc = divmod(count, per_page)
     if max_page_calc[1] == 0:
@@ -773,9 +765,7 @@ def api_get_status(project):  # noqa: F401
 
             raise Exception(error_message)
 
-    response = jsonify({"status": status})
-
-    return response
+    return jsonify({"status": status})
 
 
 @bp.route("/projects/<project_id>/reviews", methods=["GET"])
@@ -874,8 +864,7 @@ def api_import_project():
 
     # raise error if file not given
     if "file" not in request.files:
-        response = jsonify(message="No ASReview file found to import.")
-        return response, 400
+        return jsonify(message="No ASReview file found to import."), 400
 
     try:
         project = asr.Project.load(
@@ -1101,10 +1090,7 @@ def api_get_progress_info(project):  # noqa: F401
 
     include_priors = request.args.get("priors", True, type=bool)
 
-    response = jsonify(_get_stats(project, include_priors=include_priors))
-
-    # return a success response to the client.
-    return response
+    return jsonify(_get_stats(project, include_priors=include_priors))
 
 
 @bp.route("/projects/<project_id>/progress_density", methods=["GET"])
@@ -1323,9 +1309,7 @@ def api_delete_project(project):  # noqa: F401
             logging.error(err)
             return jsonify(message="Failed to delete project."), 500
 
-        response = jsonify({"success": True})
-
-        return response
+        return jsonify({"success": True})
 
 
 @bp.route("/resolve_uri", methods=["GET"])
