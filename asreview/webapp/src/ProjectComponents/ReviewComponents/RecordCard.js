@@ -48,8 +48,8 @@ const RecordCard = ({
   retrainAfterDecision = true,
   mobileScreen,
   fontSize,
+  showNotes = true,
   collapseAbstract = false,
-  disabled = false,
 }) => {
   const [readMoreOpen, toggleReadMore] = useToggle();
 
@@ -186,9 +186,9 @@ const RecordCard = ({
           decisionCallback={decisionCallback}
           retrainAfterDecision={retrainAfterDecision}
           note={record.state?.note}
+          showNotes={showNotes}
           tagsForm={record.tags_form}
           tagValues={record.tags}
-          disabled={disabled}
         />
       </StyledCard>
     </Fade>

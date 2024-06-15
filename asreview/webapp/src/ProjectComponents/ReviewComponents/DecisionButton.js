@@ -103,11 +103,11 @@ const DecisionButton = ({
   tagsForm,
   tagValues = [],
   note = null,
+  showNotes = true,
   decisionCallback,
   retrainAfterDecision = true,
-  disabled = false,
 }) => {
-  const [showNotes, toggleShowNotes] = useToggle(false);
+  const [showNotesDialog, toggleShowNotesDialog] = useToggle(false);
   const [tagValuesState, setTagValuesState] = React.useState(tagValues);
 
   const { error, isError, isLoading, mutate, isSuccess } = useMutation(
@@ -131,7 +131,7 @@ const DecisionButton = ({
 
   useHotkeys("r", () => makeDecision(1));
   useHotkeys("i", () => makeDecision(0));
-  useHotkeys("n", toggleShowNotes, { keyup: true });
+  useHotkeys("n", toggleShowNotesDialog, { keyup: true });
 
   const hasTags = Array.isArray(tagsForm) && tagsForm.length > 0;
 
@@ -145,7 +145,7 @@ const DecisionButton = ({
               tagsForm={tagsForm}
               tagValues={tagValuesState}
               setTagValues={setTagValuesState}
-              disabled={disabled}
+              disabled={label === 1 || label === 0}
             />
           </CardContent>
         </>
@@ -175,7 +175,7 @@ const DecisionButton = ({
       )}
 
       <CardActions sx={{ display: "block" }}>
-        {!disabled && (
+        {!(label === 1 || label === 0) && (
           <>
             <Button
               id="relevant"
@@ -197,7 +197,7 @@ const DecisionButton = ({
           </>
         )}
 
-        {disabled && (
+        {(label === 1 || label === 0) && (
           <>
             {label === 1 && (
               <Chip
@@ -217,11 +217,11 @@ const DecisionButton = ({
           </>
         )}
 
-        {!disabled && (
+        {showNotes && (
           <>
             <Tooltip title="Add note">
               <IconButton
-                onClick={toggleShowNotes}
+                onClick={toggleShowNotesDialog}
                 aria-label="add note"
                 sx={{ float: "right" }}
                 disabled={isLoading || isSuccess}
@@ -232,8 +232,8 @@ const DecisionButton = ({
             <NoteDialog
               project_id={project_id}
               record_id={record_id}
-              open={showNotes}
-              onClose={toggleShowNotes}
+              open={showNotesDialog}
+              onClose={toggleShowNotesDialog}
               note={note}
             />
           </>
