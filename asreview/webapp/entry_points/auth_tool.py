@@ -11,15 +11,19 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
-from asreview.entry_points.base import BaseEntryPoint
-from asreview.project import ASReviewProject
-from asreview.utils import asreview_path
+import asreview as asr
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.models import create_database_and_tables
+from asreview.webapp.utils import asreview_path
 
-DEFAULT_DATABASE_URI = \
-    f"sqlite:///{str(asreview_path())}/asreview.production.sqlite"
+DEFAULT_DATABASE_URI = f"sqlite:///{str(asreview_path())}/asreview.production.sqlite"
+
+DB_URI_HELP = (
+    "URI of the database. By default, the value is given by the environment "
+    "variable ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI. If not set, the default "
+    "is 'asreview.production.sqlite' in the ASReview folder."
+)
 
 
 def auth_parser():
@@ -39,7 +43,7 @@ authenticated setup.
     # CREATE DB
     create_db_par = sub_parser.add_parser(
         "create-db",
-        help="Create the database necessary to authenticate the ASReview app."
+        help="Create the database necessary to authenticate the ASReview app.",
     )
 
     create_db_par.add_argument(
@@ -47,25 +51,18 @@ authenticated setup.
         "--db-uri",
         type=str,
         default=None,
-        help=("URI of the database. By default, the value is given by the environment "
-              "variable ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI. If not set, the default "
-              "is 'asreview.production.sqlite' in the ASReview folder."),
+        help=DB_URI_HELP,
     )
 
     # ADD USERS
-    user_par = sub_parser.add_parser(
-        "add-users",
-        help="Add users into the database."
-    )
+    user_par = sub_parser.add_parser("add-users", help="Add users into the database.")
 
     user_par.add_argument(
         "-d",
         "--db-uri",
         type=str,
         default=None,
-        help=("URI of the database. By default, the value is given by the environment "
-              "variable ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI. If not set, the default "
-              "is 'asreview.production.sqlite' in the ASReview folder."),
+        help=DB_URI_HELP,
     )
 
     user_par.add_argument(
@@ -73,6 +70,19 @@ authenticated setup.
         "--json",
         type=str,
         help="JSON string that contains a list with user account data.",
+    )
+
+    # RESET PASSWORD USER
+    user_reset_password_par = sub_parser.add_parser(
+        "reset-password", help="Reset password of a single user account."
+    )
+
+    user_reset_password_par.add_argument(
+        "-d",
+        "--db-uri",
+        type=str,
+        default=None,
+        help=DB_URI_HELP,
     )
 
     # LIST USERS
@@ -86,9 +96,7 @@ authenticated setup.
         "--db-uri",
         type=str,
         default=None,
-        help=("URI of the database. By default, the value is given by the environment "
-              "variable ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI. If not set, the default "
-              "is 'asreview.production.sqlite' in the ASReview folder."),
+        help=DB_URI_HELP,
     )
 
     # LIST PROJECTS
@@ -121,9 +129,7 @@ authenticated setup.
         "--db-uri",
         type=str,
         default=None,
-        help=("URI of the database. By default, the value is given by the environment "
-              "variable ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI. If not set, the default "
-              "is 'asreview.production.sqlite' in the ASReview folder."),
+        help=DB_URI_HELP,
     )
 
     return parser
@@ -186,7 +192,11 @@ def get_users(session):
     return session.query(User).all()
 
 
-class AuthTool(BaseEntryPoint):
+def get_user_by_id(session, user_id):
+    return session.query(User).filter_by(id=user_id).one()
+
+
+class AuthTool:
     def execute(self, argv):
         parser = auth_parser()
         args = parser.parse_args(argv)
@@ -198,10 +208,12 @@ class AuthTool(BaseEntryPoint):
         # is not needed when the only command is "list-projects", all
         # other commands need a database session)
         if self.argv != ["list-projects"]:
-            self.uri = getattr(self.args, "db_uri", False) or \
-                os.environ.get("SQLALCHEMY_DATABASE_URI", False) or \
-                os.environ.get("ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI", False) or \
-                DEFAULT_DATABASE_URI
+            self.uri = (
+                getattr(self.args, "db_uri", False)
+                or os.environ.get("SQLALCHEMY_DATABASE_URI", False)
+                or os.environ.get("ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI", False)
+                or DEFAULT_DATABASE_URI
+            )
             Session = sessionmaker()
             engine = create_engine(self.uri)
             Session.configure(bind=engine)
@@ -211,6 +223,8 @@ class AuthTool(BaseEntryPoint):
             self.create_database()
         elif "add-users" in argv:
             self.add_users()
+        elif "reset-password" in argv:
+            self.reset_password()
         elif "list-users" in argv:
             self.list_users()
         elif "list-projects" in argv:
@@ -232,6 +246,31 @@ class AuthTool(BaseEntryPoint):
         else:
             self.enter_users()
 
+    def reset_password(self):
+        """Resets password for a user."""
+        # get user accounts
+        user_ids = [u.id for u in get_users(self.session)]
+        print("\nReset password of:")
+        self.list_users()
+        # get user id
+        id = self._ensure_valid_value_for(
+            "Id of user account",
+            lambda x: x.isnumeric() and int(x) in user_ids,
+            hint="Id number must be a number and exist.",
+        )
+        # get new password, since this is not hidden I don't see
+        # the point of confirmation
+        password = self._ensure_valid_value_for(
+            "New password",
+            User.valid_password,
+            "Use 8 or more characters with a mix of letters, numbers & symbols.",  # noqa
+        )
+        # id and password are guaranteed, get user and reset password
+        user = get_user_by_id(self.session, int(id))
+        user.reset_password(password)
+        self.session.commit()
+        print(f"Password of {user.name} has been reset.")
+
     def _ensure_valid_value_for(self, name, validation_function, hint=""):
         """Prompt user for validated input."""
         while True:
@@ -239,7 +278,7 @@ class AuthTool(BaseEntryPoint):
             if validation_function(value):
                 return value
             else:
-                sys.stderr.write(hint)
+                sys.stderr.write(hint + "\n")
 
     def enter_users(self):
         while True:
@@ -295,7 +334,7 @@ class AuthTool(BaseEntryPoint):
         projects = [f for f in asreview_path().glob("*") if f.is_dir()]
         result = []
         for folder in projects:
-            project = ASReviewProject(folder)
+            project = asr.Project(folder)
 
             # Raise a RuntimeError if the project version is too low.
             if project.config.get("version").startswith("0."):
