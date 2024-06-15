@@ -11,11 +11,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
-import asreview as asr
+from asreview.project import ASReviewProject
+from asreview.utils import asreview_path
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.models import create_database_and_tables
-from asreview.webapp.utils import asreview_path
 
 DEFAULT_DATABASE_URI = f"sqlite:///{str(asreview_path())}/asreview.production.sqlite"
 
@@ -334,7 +334,7 @@ class AuthTool:
         projects = [f for f in asreview_path().glob("*") if f.is_dir()]
         result = []
         for folder in projects:
-            project = asr.Project(folder)
+            project = ASReviewProject(folder)
 
             # Raise a RuntimeError if the project version is too low.
             if project.config.get("version").startswith("0."):
