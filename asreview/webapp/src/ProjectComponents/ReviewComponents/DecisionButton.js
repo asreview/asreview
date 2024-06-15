@@ -110,7 +110,7 @@ const DecisionButton = ({
   const [showNotes, toggleShowNotes] = useToggle(false);
   const [tagValuesState, setTagValuesState] = React.useState(tagValues);
 
-  const { error, isError, isLoading, mutate, reset } = useMutation(
+  const { error, isError, isLoading, mutate, isSuccess } = useMutation(
     ProjectAPI.mutateClassification,
     {
       onSuccess: () => {
@@ -175,11 +175,6 @@ const DecisionButton = ({
       )}
 
       <CardActions sx={{ display: "block" }}>
-        {/*
-        <Typography>
-          Is this record relevant to your review question?
-        </Typography> */}
-
         {!disabled && (
           <>
             <Button
@@ -187,6 +182,7 @@ const DecisionButton = ({
               onClick={() => makeDecision(1)}
               variant="contained"
               startIcon={<LibraryAddOutlinedIcon />}
+              disabled={isLoading || isSuccess}
             >
               Add
             </Button>
@@ -194,6 +190,7 @@ const DecisionButton = ({
               id="irrelevant"
               onClick={() => makeDecision(0)}
               startIcon={<NotInterestedOutlinedIcon />}
+              disabled={isLoading || isSuccess}
             >
               Not interesting
             </Button>
@@ -227,6 +224,7 @@ const DecisionButton = ({
                 onClick={toggleShowNotes}
                 aria-label="add note"
                 sx={{ float: "right" }}
+                disabled={isLoading || isSuccess}
               >
                 <NoteAltOutlinedIcon />
               </IconButton>
