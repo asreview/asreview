@@ -1130,9 +1130,7 @@ def api_get_progress_density(project):
     for d in df_irrelevant:
         d["y"] = d.pop("Irrelevant")
 
-    payload = {"relevant": df_relevant, "irrelevant": df_irrelevant}
-
-    return jsonify(payload)
+    return jsonify({"relevant": df_relevant, "irrelevant": df_irrelevant})
 
 
 @bp.route("/projects/<project_id>/progress_recall", methods=["GET"])
