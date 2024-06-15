@@ -129,11 +129,7 @@ authenticated setup.
         "--db-uri",
         type=str,
         default=None,
-        help=(
-            "URI of the database. By default, the value is given by the environment "
-            "variable ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI. If not set, the default "
-            "is 'asreview.production.sqlite' in the ASReview folder."
-        ),
+        help=DB_URI_HELP,
     )
 
     return parser
