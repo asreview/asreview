@@ -30,13 +30,14 @@ from asreview.state.contextmanager import open_state
 
 
 def _run_model_start(project, output_error=True):
-    # Check if there are new labeled records to train with
     with open_state(project) as s:
         if not s.exist_new_labeled_records:
             return
 
+        if s.get_results_table("label")["label"].value_counts().shape[0] < 2:
+            return
+
     try:
-        # Lock so that only one training run is running at the same time.
         lock = FileLock(Path(project.project_path, "training.lock"), timeout=0)
 
         settings = ReviewSettings().from_file(
@@ -51,7 +52,6 @@ def _run_model_start(project, output_error=True):
         with lock:
             as_data = project.read_data()
 
-            # get the feature matrix
             feature_model = load_extension(
                 "models.feature_extraction", settings.feature_extraction
             )()
