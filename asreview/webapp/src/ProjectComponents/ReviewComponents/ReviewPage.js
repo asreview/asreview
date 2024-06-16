@@ -86,55 +86,43 @@ const ReviewPage = ({
   undoEnabled,
   tags,
 }) => {
-  const [record, setRecord] = React.useState(null);
-
   /* fetch the record and check if the project is training */
-  const { refetch } = useQuery(
+  const { refetch, data, isSuccess } = useQuery(
     ["fetchRecord", { project_id }],
     ProjectAPI.fetchRecord,
     {
       refetchOnWindowFocus: false,
       retry: false,
-      refetchInterval: 4000,
+      refetchInterval: (data) =>
+        data?.result && !data?.pool_empty ? -1 : 4000,
       refetchIntervalInBackground: true,
-      // enabled only during the training phase
-      enabled:
-        record === null ||
-        (record?.result === null &&
-          !record?.has_ranking &&
-          !record?.pool_empty),
-      onSuccess: (data) => {
-        setRecord(data);
-      },
     },
   );
 
   return (
     <Root aria-label="review page">
-      {record?.result === null &&
-        !record?.has_ranking &&
-        !record?.pool_empty && (
-          <FinishSetup project_id={project_id} refetch={refetch} />
-        )}
+      {isSuccess && (
+        <>
+          {data?.result !== null && (
+            <Screener
+              record={data}
+              mobileScreen={mobileScreen}
+              fontSize={fontSize}
+              undoEnabled={undoEnabled}
+              tags={tags}
+            />
+          )}
 
-      {record?.result !== null &&
-        record?.has_ranking &&
-        !record?.pool_empty && (
-          <Screener
-            record={record}
-            mobileScreen={mobileScreen}
-            fontSize={fontSize}
-            undoEnabled={undoEnabled}
-            tags={tags}
-          />
-        )}
+          {data?.result === null && !data?.pool_empty && (
+            <FinishSetup project_id={project_id} refetch={refetch} />
+          )}
 
-      {/* Review finished */}
-      {record?.result === null &&
-        !record?.has_ranking &&
-        record?.pool_empty && (
-          <ReviewPageFinished mobileScreen={mobileScreen} />
-        )}
+          {/* Review finished */}
+          {data?.result === null && data?.pool_empty && (
+            <ReviewPageFinished mobileScreen={mobileScreen} />
+          )}
+        </>
+      )}
     </Root>
   );
 };

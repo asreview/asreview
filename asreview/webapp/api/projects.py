@@ -1251,23 +1251,17 @@ def api_get_document(project):  # noqa: F401
 
         if pending.empty:
             try:
-                rank_n_1 = state.get_pool()[:1].to_list()
-
-                # there is a ranking, but pool is empty
-                if rank_n_1 == []:
-                    project.update_review(status="finished")
-                    return jsonify(
-                        {"result": None, "pool_empty": True, "has_ranking": False}
-                    )
-
+                pending = state.query_top_ranked(user_id=user_id)
             except ValueError:
-                # there is no ranking and get_pool raises an error
-                return jsonify(
-                    {"result": None, "pool_empty": False, "has_ranking": False}
-                )
+                ranking = state.get_last_ranking_table()
+                pool = state.get_pool()
 
-            state.query_top_ranked(user_id=user_id)
-            pending = state.get_pending(user_id=user_id)
+                if not ranking.empty and pool.empty:
+                    project.update_review(status="finished")
+
+                return jsonify(
+                    {"result": None, "pool_empty": not ranking.empty and pool.empty}
+                )
 
     as_data = project.read_data()
     item = asdict(as_data.record(pending["record_id"].iloc[0]))

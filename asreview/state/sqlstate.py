@@ -355,6 +355,7 @@ class SQLiteState:
         """
         top_n_records = self.get_pool()[:n].to_list()
         record_list = [(user_id, record_id) for record_id in top_n_records]
+
         con = self._conn
         cur = con.cursor()
         cur.executemany(
@@ -366,9 +367,13 @@ class SQLiteState:
             WHERE record_id=?""",
             record_list,
         )
+
+        if cur.rowcount != n:
+            raise ValueError("Failed to query top ranked records.")
+
         con.commit()
 
-        return top_n_records
+        return self.get_pending(user_id=user_id)
 
     def get_data_by_record_id(self, record_id):
         """Get the data of a specific query from the results table.
@@ -476,7 +481,7 @@ class SQLiteState:
                 FROM last_ranking
                 LEFT JOIN results
                 USING (record_id)
-                WHERE results.query_strategy is null
+                WHERE results.label is null
                 ORDER BY ranking
                 """,
             self._conn,
