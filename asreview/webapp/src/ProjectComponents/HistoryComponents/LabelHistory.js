@@ -24,7 +24,7 @@ const LabelHistory = ({
                 : `Relevant (${n_prior_inclusions})`
             }
             color="primary"
-            variant={label !== "relevant" && "outlined"}
+            variant={label !== "relevant" ? "outlined" : "filled"}
             onClick={() => {
               setLabel("relevant");
             }}
@@ -36,7 +36,7 @@ const LabelHistory = ({
                 : `Irrelevant (${n_prior_exclusions})`
             }
             color="primary"
-            variant={label !== "irrelevant" && "outlined"}
+            variant={label !== "irrelevant" ? "outlined" : "filled"}
             onClick={() => {
               setLabel("irrelevant");
             }}
@@ -44,7 +44,7 @@ const LabelHistory = ({
           <Chip
             label={"All"}
             color="primary"
-            variant={label !== "all" && "outlined"}
+            variant={label !== "all" ? "outlined" : "filled"}
             onClick={() => {
               setLabel("all");
             }}
