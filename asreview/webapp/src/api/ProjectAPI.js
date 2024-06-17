@@ -22,13 +22,37 @@ class ProjectAPI {
     });
   }
 
-  static fetchDashboardStats({ queryKey }) {
+  static fetchDashboardStats({ queryKey, includePrior = true }) {
     const url = api_url + `projects/stats`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url, { withCredentials: true })
+        .get(url, {
+          params: { includePrior: includePrior },
+          withCredentials: true,
+        })
         .then((result) => {
           resolve(result.data["result"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static mutateInitProject(variables) {
+    let body = new FormData();
+    body.set("mode", variables.mode);
+
+    const url = api_url + `projects/info`;
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "post",
+        url: url,
+        data: body,
+        withCredentials: true,
+      })
+        .then((result) => {
+          resolve(result["data"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));
@@ -517,11 +541,11 @@ class ProjectAPI {
   }
 
   static fetchProgress({ queryKey }) {
-    const { project_id } = queryKey[1];
+    const { project_id, includePrior } = queryKey[1];
     const url = api_url + `projects/${project_id}/progress`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url, { withCredentials: true })
+        .get(url, { params: { priors: includePrior }, withCredentials: true })
         .then((result) => {
           resolve(result["data"]);
         })
