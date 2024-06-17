@@ -18,7 +18,11 @@ import { InlineErrorHandler } from ".";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { styled } from "@mui/material/styles";
 import AuthAPI from "api/AuthAPI";
-import { WordmarkState } from "globals.js";
+import {
+  WordmarkState,
+  passwordRequirements,
+  passwordValidation,
+} from "globals.js";
 import { useToggle } from "hooks/useToggle";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -68,15 +72,14 @@ const Root = styled("div")(({ theme }) => ({
 
 // VALIDATION SCHEMA
 const SignupSchema = Yup.object().shape({
-  password: Yup.string()
-    .matches(
-      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/,
-      "Use 8 or more characters with a mix of letters, numbers & symbols",
-    )
-    .required("Password is required"),
+  password: passwordValidation(Yup.string()).required("Password is required"),
   confirmPassword: Yup.string()
     .required("Password confirmation is required")
-    .oneOf([Yup.ref("password"), null], "Passwords must match"),
+    .oneOf([Yup.ref("password")], "Passwords must match")
+    .when("password", {
+      is: (value) => value !== undefined && value.length > 0,
+      then: (schema) => schema.required("Confirmation password is required"),
+    }),
 });
 
 const ResetPassword = (props) => {
@@ -127,8 +130,10 @@ const ResetPassword = (props) => {
     let userId = searchParams.get("user_id");
     let token = searchParams.get("token");
     let password = formik.values.password;
-    mutate({ userId, token, password });
-    //reset();
+
+    if (formik.isValid) {
+      mutate({ userId, token, password });
+    }
   };
 
   return (
@@ -145,11 +150,18 @@ const ResetPassword = (props) => {
                     alt="ASReview LAB"
                   />
                   <Typography variant="h5">Reset your password</Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ marginTop: "7px !important" }}
+                  >
+                    {passwordRequirements}
+                  </Typography>
                 </Stack>
 
                 <FormControl>
                   <Stack spacing={3}>
                     <TextField
+                      required={true}
                       id="password"
                       label="Password"
                       size="small"
@@ -160,8 +172,12 @@ const ResetPassword = (props) => {
                       value={formik.values.password}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
+                      inputProps={{
+                        autoComplete: "new-password",
+                      }}
                     />
                     <TextField
+                      required={true}
                       id="confirmPassword"
                       label="Confirm Password"
                       size="small"
@@ -171,6 +187,9 @@ const ResetPassword = (props) => {
                       value={formik.values.confirmPassword}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
+                      inputProps={{
+                        autoComplete: "new-password",
+                      }}
                     />
                   </Stack>
                 </FormControl>
@@ -198,6 +217,7 @@ const ResetPassword = (props) => {
                 )}
                 <Stack className={classes.button} direction="row">
                   <LoadingButton
+                    disabled={!formik.isValid || formik.values.password === ""}
                     loading={isLoading}
                     variant="contained"
                     color="primary"
