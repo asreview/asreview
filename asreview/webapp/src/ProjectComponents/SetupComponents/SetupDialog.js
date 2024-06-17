@@ -22,11 +22,10 @@ import * as React from "react";
 import { useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
 
-import { Save } from "@mui/icons-material";
 import {
+  DatasetCard,
   ModelCard,
   PriorCard,
-  DatasetCard,
   TagCard,
 } from "ProjectComponents/SetupComponents";
 import {

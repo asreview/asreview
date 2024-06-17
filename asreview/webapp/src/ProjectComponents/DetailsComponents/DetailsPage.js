@@ -18,7 +18,6 @@ import {
 } from "ProjectComponents/SetupComponents";
 
 import { ProjectContext } from "ProjectContext";
-import { TypographyH5Medium } from "StyledComponents/StyledTypography";
 import { projectStatuses } from "globals.js";
 import { useToggle } from "hooks/useToggle";
 
@@ -37,13 +36,6 @@ const DetailsPage = (props) => {
 
   return (
     <Root aria-label="details page">
-      <Box className="main-page-sticky-header with-button">
-        {!props.mobileScreen && (
-          <TypographyH5Medium>Details</TypographyH5Medium>
-        )}
-        {props.mobileScreen && <Typography variant="h6">Details</Typography>}
-      </Box>
-
       <Container maxWidth="md">
         <ProjectContext.Provider value={project_id}>
           <Box sx={{ padding: "12px 0px" }}>

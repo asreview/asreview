@@ -1,7 +1,5 @@
-import { useContext } from "react";
-import React from "react";
+import React, { useContext } from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { useNavigate } from "react-router-dom";
 
 import {
   Button,
@@ -16,26 +14,19 @@ import {
   RadioGroup,
   Typography,
 } from "@mui/material";
+import { LabelHistory } from "ProjectComponents/HistoryComponents";
 import { ProjectContext } from "ProjectContext";
 import { ProjectAPI } from "api";
+import { useToggle } from "hooks/useToggle";
 import { AddPriorKnowledge } from "./SearchComponents";
 
 const PriorCard = ({ mobileScreen, editable = true }) => {
   const project_id = useContext(ProjectContext);
   const queryClient = useQueryClient();
 
-  const navigate = useNavigate();
-
   const [openPriorSearch, setOpenPriorSearch] = React.useState(false);
+  const [openPriorView, toggleOpenPriorView] = useToggle(false);
   const [priorType, setPriorType] = React.useState("records");
-
-  const handleClickViewPrior = () => {
-    if (!editable) {
-      navigate(`/projects/${project_id}/history`);
-
-      // todo set filter to prior knowledge
-    }
-  };
 
   const { data } = useQuery(
     ["fetchLabeledStats", { project_id: project_id }],
@@ -97,18 +88,20 @@ const PriorCard = ({ mobileScreen, editable = true }) => {
       {priorType === "records" && (
         <>
           <CardContent>
-            {(data?.n_inclusions === 0 || data?.n_exclusions === 0) && (
+            {(data?.n_prior_inclusions === 0 ||
+              data?.n_prior_exclusions === 0) && (
               <Typography>
                 Search for one or more relevant records and label them relevant.
                 It's also possible to label irrelevant records.
               </Typography>
             )}
-            {data?.n_inclusions !== 0 && data?.n_exclusions !== 0 && (
-              <Typography>
-                You added{" "}
-                {`${data?.n_inclusions} relevant records and ${data?.n_exclusions} records that aren't relevant.`}
-              </Typography>
-            )}
+            {data?.n_prior_inclusions !== 0 &&
+              data?.n_prior_exclusions !== 0 && (
+                <Typography>
+                  You added{" "}
+                  {`${data?.n_prior_inclusions} relevant records and ${data?.n_prior_exclusions} records that aren't relevant.`}
+                </Typography>
+              )}
           </CardContent>
 
           <CardContent>
@@ -124,14 +117,27 @@ const PriorCard = ({ mobileScreen, editable = true }) => {
 
             <Button
               id={"add-prior-view"}
-              onClick={handleClickViewPrior}
-              disabled={data?.n_inclusions === 0 && data?.n_exclusions === 0}
+              onClick={toggleOpenPriorView}
+              disabled={
+                data?.n_prior_inclusions === 0 && data?.n_prior_exclusions === 0
+              }
             >
-              View ({data?.n_inclusions + data?.n_exclusions})
+              {openPriorView
+                ? "Hide records"
+                : "Show records (" + data?.n_prior + ")"}
             </Button>
           </CardContent>
         </>
       )}
+      {openPriorView && (
+        <LabelHistory
+          project_id={project_id}
+          mobileScreen={mobileScreen}
+          showFilter={false}
+          filterQuery={[{ value: "is_prior", label: "Prior knowledge" }]}
+        />
+      )}
+
       {priorType === "criteria" && (
         <CardContent>
           Coming soon! Keep an eye on our website and socials.

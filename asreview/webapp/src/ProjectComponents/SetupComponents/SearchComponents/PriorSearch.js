@@ -8,7 +8,6 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
 
@@ -21,7 +20,7 @@ import { useToggle } from "hooks/useToggle";
 import { ProjectContext } from "ProjectContext";
 import { useContext } from "react";
 
-const PriorSearch = ({}) => {
+const PriorSearch = () => {
   const project_id = useContext(ProjectContext);
 
   const queryClient = useQueryClient();

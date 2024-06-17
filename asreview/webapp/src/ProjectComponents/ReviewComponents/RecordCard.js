@@ -28,7 +28,7 @@ const classes = {
   abstract: `${PREFIX}-abstract`,
 };
 
-const StyledCard = styled(Card)(({}) => ({
+const StyledCard = styled(Card)(() => ({
   // [`& .${classes.titleAbstract}`]: {
   //   height: "100%",
   //   overflowY: "scroll",

@@ -1,21 +1,16 @@
-import * as React from "react";
-import { useQuery } from "react-query";
 import {
   Button,
   Dialog,
-  DialogContent,
   DialogActions,
+  DialogContent,
   DialogTitle,
   Fade,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { PriorSearch } from ".";
-import { ProjectAPI } from "api";
-import { useContext } from "react";
-import { ProjectContext } from "ProjectContext";
 
-const StyledDialog = styled(Dialog)(({ theme }) => ({
+const StyledDialog = styled(Dialog)(() => ({
   height: "100%",
   overflowY: "hidden",
 }));

@@ -1,10 +1,13 @@
-import React, { useState } from "react";
-import { useQuery, useQueryClient } from "react-query";
-import { useParams } from "react-router-dom";
+import {
+  Diversity3,
+  Email,
+  LibraryBooks,
+  Payment,
+  StarBorder,
+} from "@mui/icons-material";
 import {
   Box,
   Button,
-  Fade,
   FormControl,
   FormHelperText,
   InputLabel,
@@ -16,18 +19,14 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import {
-  Diversity3,
-  Payment,
-  StarBorder,
-  LibraryBooks,
-  Email,
-} from "@mui/icons-material";
-import { ActionsFeedbackBar, PageHeader, CiteDialog } from "Components";
+import "App.css";
+import { ActionsFeedbackBar, CiteDialog, PageHeader } from "Components";
 import { SelectItem } from "ProjectComponents";
 import { MouseOverPopover } from "StyledComponents/StyledPopover";
 import { ProjectAPI } from "api";
-import "App.css";
+import React, { useState } from "react";
+import { useQuery, useQueryClient } from "react-query";
+import { useParams } from "react-router-dom";
 
 const selectWidth = 310;
 
@@ -151,270 +150,262 @@ const ExportPage = (props) => {
 
   return (
     <Root aria-label="export page">
-      <Fade in>
-        <Box>
-          <PageHeader header="Export" mobileScreen={props.mobileScreen} />
-          <Box className="main-page-body-wrapper">
-            <Stack className="main-page-body" spacing={3}>
-              <Box
-                className="main-page-body-wrapper"
-                component="form"
-                noValidate
-                autoComplete="off"
-              >
-                <Stack spacing={3}>
+      <Box>
+        <PageHeader header="Export" mobileScreen={props.mobileScreen} />
+        <Box className="main-page-body-wrapper">
+          <Stack className="main-page-body" spacing={3}>
+            <Box
+              className="main-page-body-wrapper"
+              component="form"
+              noValidate
+              autoComplete="off"
+            >
+              <Stack spacing={3}>
+                <FormControl
+                  className={`${classes.select} ${classes.selectHeight}`}
+                >
+                  {!file && (
+                    <InputLabel id="file-select-label" shrink={false}>
+                      Select file
+                    </InputLabel>
+                  )}
+                  <Select
+                    labelId="file-select-label"
+                    id="file-select"
+                    value={file}
+                    onChange={handleFile}
+                  >
+                    <MenuItem value="dataset" divider>
+                      <Box>
+                        <Typography variant="subtitle1">Dataset</Typography>
+                        <Typography
+                          variant="body2"
+                          gutterBottom
+                          sx={{ color: "text.secondary" }}
+                        >
+                          Including all labeled and unlabeled records
+                        </Typography>
+                      </Box>
+                    </MenuItem>
+                    <MenuItem value="dataset_relevant" divider>
+                      <Box>
+                        <Typography variant="subtitle1">
+                          Dataset (relevant only)
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          gutterBottom
+                          sx={{ color: "text.secondary" }}
+                        >
+                          Including relevant records only
+                        </Typography>
+                      </Box>
+                    </MenuItem>
+                    <MenuItem value="project">
+                      <Box>
+                        <Typography variant="subtitle1">Project</Typography>
+                        <Typography
+                          variant="body2"
+                          gutterBottom
+                          sx={{ color: "text.secondary" }}
+                        >
+                          Including data and model configuration
+                        </Typography>
+                      </Box>
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+                {!file && (
+                  <Box className={classes.selectHeight}>
+                    <MouseOverPopover title="Select file before selecting file format">
+                      <FormControl
+                        className={classes.select}
+                        disabled
+                        variant="filled"
+                      >
+                        <InputLabel id="file-select-label">
+                          File format
+                        </InputLabel>
+                        <Select
+                          labelId="file-type-select-label"
+                          id="file-type-select"
+                          label="File format"
+                          value=""
+                        />
+                      </FormControl>
+                    </MouseOverPopover>
+                  </Box>
+                )}
+                {(file === "dataset" || file === "dataset_relevant") && (
                   <FormControl
                     className={`${classes.select} ${classes.selectHeight}`}
+                    disabled={isError || isFetching}
+                    error={isError}
+                    variant={isError || isFetching ? "filled" : "outlined"}
                   >
-                    {!file && (
-                      <InputLabel id="file-select-label" shrink={false}>
-                        Select file
-                      </InputLabel>
-                    )}
+                    <InputLabel id="file-select-label">File format</InputLabel>
                     <Select
-                      labelId="file-select-label"
-                      id="file-select"
-                      value={file}
-                      onChange={handleFile}
+                      labelId="file-type-select-label"
+                      id="file-type-select"
+                      label="File format"
+                      value={fileFormat}
+                      onChange={handleFileFormat}
+                      MenuProps={{
+                        sx: { width: selectWidth },
+                      }}
                     >
-                      <MenuItem value="dataset" divider>
-                        <Box>
-                          <Typography variant="subtitle1">Dataset</Typography>
-                          <Typography
-                            variant="body2"
-                            gutterBottom
-                            sx={{ color: "text.secondary" }}
+                      {data?.result.map((value, index) => {
+                        return (
+                          <MenuItem
+                            key={index}
+                            value={value.name}
+                            disabled={!value.enabled}
                           >
-                            Including all labeled and unlabeled records
-                          </Typography>
-                        </Box>
-                      </MenuItem>
-                      <MenuItem value="dataset_relevant" divider>
-                        <Box>
-                          <Typography variant="subtitle1">
-                            Dataset (relevant only)
-                          </Typography>
-                          <Typography
-                            variant="body2"
-                            gutterBottom
-                            sx={{ color: "text.secondary" }}
-                          >
-                            Including relevant records only
-                          </Typography>
-                        </Box>
-                      </MenuItem>
-                      <MenuItem value="project">
-                        <Box>
-                          <Typography variant="subtitle1">Project</Typography>
-                          <Typography
-                            variant="body2"
-                            gutterBottom
-                            sx={{ color: "text.secondary" }}
-                          >
-                            Including data and model configuration
-                          </Typography>
-                        </Box>
-                      </MenuItem>
+                            <SelectItem
+                              primary={value.label}
+                              secondary={!value.enabled ? value.caution : null}
+                            />
+                          </MenuItem>
+                        );
+                      })}
                     </Select>
-                  </FormControl>
-                  {!file && (
-                    <Box className={classes.selectHeight}>
-                      <MouseOverPopover title="Select file before selecting file format">
-                        <FormControl
-                          className={classes.select}
-                          disabled
-                          variant="filled"
+                    {isError && (
+                      <FormHelperText>
+                        {error.message}
+                        <Link
+                          component="button"
+                          variant="body2"
+                          onClick={refetchDatasetWriter}
                         >
-                          <InputLabel id="file-select-label">
-                            File format
-                          </InputLabel>
-                          <Select
-                            labelId="file-type-select-label"
-                            id="file-type-select"
-                            label="File format"
-                            value=""
-                          />
-                        </FormControl>
-                      </MouseOverPopover>
-                    </Box>
-                  )}
-                  {(file === "dataset" || file === "dataset_relevant") && (
-                    <FormControl
-                      className={`${classes.select} ${classes.selectHeight}`}
-                      disabled={isError || isFetching}
-                      error={isError}
-                      variant={isError || isFetching ? "filled" : "outlined"}
-                    >
-                      <InputLabel id="file-select-label">
-                        File format
-                      </InputLabel>
+                          Please try again
+                        </Link>
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+                {file === "project" && (
+                  <FormControl
+                    className={classes.selectHeight}
+                    disabled
+                    variant="filled"
+                  >
+                    <InputLabel id="file-select-label">File format</InputLabel>
+                    <Box>
                       <Select
+                        className={classes.select}
                         labelId="file-type-select-label"
                         id="file-type-select"
                         label="File format"
                         value={fileFormat}
-                        onChange={handleFileFormat}
-                        MenuProps={{
-                          sx: { width: selectWidth },
-                        }}
                       >
-                        {data?.result.map((value, index) => {
-                          return (
-                            <MenuItem
-                              key={index}
-                              value={value.name}
-                              disabled={!value.enabled}
-                            >
-                              <SelectItem
-                                primary={value.label}
-                                secondary={
-                                  !value.enabled ? value.caution : null
-                                }
-                              />
-                            </MenuItem>
-                          );
-                        })}
+                        <MenuItem value="asreview">ASREVIEW</MenuItem>
                       </Select>
-                      {isError && (
-                        <FormHelperText>
-                          {error.message}
-                          <Link
-                            component="button"
-                            variant="body2"
-                            onClick={refetchDatasetWriter}
-                          >
-                            Please try again
-                          </Link>
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  )}
-                  {file === "project" && (
-                    <FormControl
-                      className={classes.selectHeight}
-                      disabled
-                      variant="filled"
-                    >
-                      <InputLabel id="file-select-label">
-                        File format
-                      </InputLabel>
-                      <Box>
-                        <Select
-                          className={classes.select}
-                          labelId="file-type-select-label"
-                          id="file-type-select"
-                          label="File format"
-                          value={fileFormat}
-                        >
-                          <MenuItem value="asreview">ASREVIEW</MenuItem>
-                        </Select>
-                        <FormHelperText>
-                          Can be imported into ASReview LAB
-                        </FormHelperText>
-                      </Box>
-                    </FormControl>
-                  )}
-                </Stack>
-              </Box>
-              <Box className="main-page-body-wrapper">
-                <Tooltip
-                  disableFocusListener={!props.isSimulating}
-                  disableHoverListener={!props.isSimulating}
-                  disableTouchListener={!props.isSimulating}
-                  title="Export after simulation is finished"
+                      <FormHelperText>
+                        Can be imported into ASReview LAB
+                      </FormHelperText>
+                    </Box>
+                  </FormControl>
+                )}
+              </Stack>
+            </Box>
+            <Box className="main-page-body-wrapper">
+              <Tooltip
+                disableFocusListener={!props.isSimulating}
+                disableHoverListener={!props.isSimulating}
+                disableTouchListener={!props.isSimulating}
+                title="Export after simulation is finished"
+              >
+                <span>
+                  <Button
+                    disabled={disableExportButton()}
+                    onClick={onClickExport}
+                  >
+                    {!exporting ? "Export" : "Exporting..."}
+                  </Button>
+                </span>
+              </Tooltip>
+            </Box>
+            <StyledActionsBox>
+              <Box
+                sx={{
+                  maxWidth: { xs: "60%", sm: "40%", md: "30%" },
+                  width: "100%",
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{ textAlign: "center", paddingBottom: "10px" }}
                 >
-                  <span>
-                    <Button
-                      disabled={disableExportButton()}
-                      onClick={onClickExport}
-                    >
-                      {!exporting ? "Export" : "Exporting..."}
-                    </Button>
-                  </span>
-                </Tooltip>
-              </Box>
-              <StyledActionsBox>
-                <Box
+                  Love using ASReview LAB?
+                </Typography>
+                <Stack
+                  spacing={2}
                   sx={{
-                    maxWidth: { xs: "60%", sm: "40%", md: "30%" },
-                    width: "100%",
+                    justifyContent: "center",
+                    width: "164px",
+                    margin: "auto",
+                    textAlign: "center",
                   }}
                 >
-                  <Typography
-                    variant="h6"
-                    sx={{ textAlign: "center", paddingBottom: "10px" }}
+                  <Button
+                    startIcon={<LibraryBooks />}
+                    variant="outlined"
+                    color="primary"
+                    onClick={toggleDialog}
                   >
-                    Love using ASReview LAB?
-                  </Typography>
-                  <Stack
-                    spacing={2}
-                    sx={{
-                      justifyContent: "center",
-                      width: "164px",
-                      margin: "auto",
-                      textAlign: "center",
-                    }}
+                    Cite
+                  </Button>
+                  <CiteDialog
+                    isOpen={dialogOpen}
+                    onClose={toggleDialog}
+                    asreview_version={window.asreviewVersion}
+                  />
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    component={Link}
+                    target="_blank"
+                    href="https://github.com/asreview/asreview"
+                    startIcon={<StarBorder />}
                   >
-                    <Button
-                      startIcon={<LibraryBooks />}
-                      variant="outlined"
-                      color="primary"
-                      onClick={toggleDialog}
-                    >
-                      Cite
-                    </Button>
-                    <CiteDialog
-                      isOpen={dialogOpen}
-                      onClose={toggleDialog}
-                      asreview_version={window.asreviewVersion}
-                    />
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      component={Link}
-                      target="_blank"
-                      href="https://github.com/asreview/asreview"
-                      startIcon={<StarBorder />}
-                    >
-                      Star
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      component={Link}
-                      target="_blank"
-                      href="https://asreview.nl/donate"
-                      startIcon={<Payment />}
-                    >
-                      Donate
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      component={Link}
-                      target="_blank"
-                      href="https://asreview.ai/newsletter/subscribe"
-                      startIcon={<Email />}
-                    >
-                      Subscribe
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      component={Link}
-                      target="_blank"
-                      href="https://asreview.nl/community"
-                      startIcon={<Diversity3 />}
-                    >
-                      Contribute
-                    </Button>
-                  </Stack>
-                </Box>
-              </StyledActionsBox>
-            </Stack>
-          </Box>
+                    Star
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    component={Link}
+                    target="_blank"
+                    href="https://asreview.nl/donate"
+                    startIcon={<Payment />}
+                  >
+                    Donate
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    component={Link}
+                    target="_blank"
+                    href="https://asreview.ai/newsletter/subscribe"
+                    startIcon={<Email />}
+                  >
+                    Subscribe
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    component={Link}
+                    target="_blank"
+                    href="https://asreview.nl/community"
+                    startIcon={<Diversity3 />}
+                  >
+                    Contribute
+                  </Button>
+                </Stack>
+              </Box>
+            </StyledActionsBox>
+          </Stack>
         </Box>
-      </Fade>
+      </Box>
       {selectedQuery() && (
         <ActionsFeedbackBar
           feedback="Successfully exported the file"

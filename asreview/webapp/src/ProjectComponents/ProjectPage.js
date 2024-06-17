@@ -15,9 +15,10 @@ import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { DialogErrorHandler } from "Components";
+import { PageHeader } from "Components";
 import { AnalyticsPage } from "ProjectComponents/AnalyticsComponents";
 import { DetailsPage } from "ProjectComponents/DetailsComponents";
-import { HistoryPage } from "ProjectComponents/HistoryComponents";
+import { LabelHistory } from "ProjectComponents/HistoryComponents";
 import { ExportPage } from "ProjectComponents/ExportComponents";
 import { CollaborationPage, TeamPage } from "ProjectComponents/TeamComponents";
 
@@ -217,12 +218,13 @@ const ProjectPage = (props) => {
             <Route
               path="history"
               element={
-                <HistoryPage
-                  project_id={project_id}
-                  isSimulating={isSimulating}
-                  mobileScreen={props.mobileScreen}
-                  mode={data?.mode}
-                />
+                <>
+                  <PageHeader
+                    header="History"
+                    mobileScreen={props.mobileScreen}
+                  />
+                  <LabelHistory project_id={project_id} />
+                </>
               }
             />
           )}
@@ -260,13 +262,19 @@ const ProjectPage = (props) => {
             <Route
               path="details"
               element={
-                <DetailsPage
-                  project_id={project_id}
-                  info={data}
-                  tags={tags}
-                  isSimulating={isSimulating}
-                  mobileScreen={props.mobileScreen}
-                />
+                <>
+                  <PageHeader
+                    header="Details"
+                    mobileScreen={props.mobileScreen}
+                  />
+                  <DetailsPage
+                    project_id={project_id}
+                    info={data}
+                    tags={tags}
+                    isSimulating={isSimulating}
+                    mobileScreen={props.mobileScreen}
+                  />
+                </>
               }
             />
           )}
