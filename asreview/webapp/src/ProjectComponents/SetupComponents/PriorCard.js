@@ -53,10 +53,10 @@ const PriorCard = ({ mobileScreen, editable = true }) => {
   return (
     <Card>
       <CardHeader
-        title="Your knowledge"
+        title="Prior knowledge"
         subheader={
           <>
-            <>Your knowledge helps to warm up and accelerate the AI. </>
+            <>Prior knowledge helps to warm up and accelerate the AI. </>
             <Link
               underline="none"
               href={`https://asreview.nl/blog/active-learning-explained/`}

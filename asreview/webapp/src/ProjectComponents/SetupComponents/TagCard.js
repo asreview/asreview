@@ -447,7 +447,7 @@ const TagCard = (props) => {
   return (
     <Card>
       <CardHeader
-        title="Your tags"
+        title="Labeling tags"
         subheader={
           <>
             <>

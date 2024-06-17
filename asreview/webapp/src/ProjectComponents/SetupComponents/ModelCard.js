@@ -319,12 +319,10 @@ const ModelCard = ({
     },
   );
 
-  console.log(modelConfig);
-
   return (
     <Card>
       <CardHeader
-        title="Your AI"
+        title="AI model"
         subheader={
           <>
             <>Choose an AI model to accelerate your review process. </>
