@@ -112,6 +112,7 @@ const PriorSearch = () => {
                   record={record}
                   collapseAbstract={true}
                   retrainAfterDecision={false}
+                  transitionType="collapse"
                   key={`result-page-${index}`}
                 />
               ))}

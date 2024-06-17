@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { useQuery, useQueryClient } from "react-query";
 
 import {
+  Alert,
   Button,
   Card,
   CardContent,
@@ -140,7 +141,9 @@ const PriorCard = ({ mobileScreen, editable = true }) => {
 
       {priorType === "criteria" && (
         <CardContent>
-          Coming soon! Keep an eye on our website and socials.
+          <Alert severity="info">
+            Coming soon! Keep an eye on our website and socials.
+          </Alert>
         </CardContent>
       )}
 
