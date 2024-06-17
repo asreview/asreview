@@ -174,6 +174,14 @@ const DecisionButton = ({
         </CardContent>
       )}
 
+      {isError && (
+        <CardContent>
+          <Alert severity="error">
+            Failed to label record. {error?.message}
+          </Alert>
+        </CardContent>
+      )}
+
       <CardActions sx={{ display: "block" }}>
         {!(label === 1 || label === 0) && (
           <>
