@@ -13,7 +13,6 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import TruncateMarkup from "react-truncate-markup";
 
 import { StyledIconButton } from "StyledComponents/StyledButton";
 import { useToggle } from "hooks/useToggle";
@@ -70,7 +69,6 @@ const RecordCard = ({
   };
 
   // console.log(record);
-  console.log(transitionType);
 
   const styledRepoCard = (
     <StyledCard elevation={mobileScreen ? 0 : 2}>
@@ -147,11 +145,23 @@ const RecordCard = ({
             )}
           </Stack>
 
-          <TruncateMarkup
-            lines={collapseAbstract && !readMoreOpen ? 6 : Infinity}
-            ellipsis={
-              <span>
-                ...{" "}
+          <Typography
+            component="div"
+            className={classes.abstract + " fontSize" + fontSize?.label}
+            variant="body2"
+            paragraph
+            sx={{ color: "text.secondary" }}
+          >
+            {(record.abstract === "" || record.abstract === null) && (
+              <Box fontStyle="italic">No abstract available</Box>
+            )}
+
+            {!(record.abstract === "" || record.abstract === null) &&
+            collapseAbstract &&
+            !readMoreOpen &&
+            record.abstract.length > 500 ? (
+              <Box>
+                {record.abstract.substring(0, 500)}...
                 <Link
                   component="button"
                   underline="none"
@@ -159,25 +169,11 @@ const RecordCard = ({
                 >
                   expand
                 </Link>
-              </span>
-            }
-          >
-            <Typography
-              component="div"
-              className={classes.abstract + " fontSize" + fontSize?.label}
-              variant="body2"
-              paragraph
-              sx={{ color: "text.secondary" }}
-            >
-              {(record.abstract === "" || record.abstract === null) && (
-                <Box fontStyle="italic">No abstract available</Box>
-              )}
-
-              {!(record.abstract === "" || record.abstract === null) && (
-                <Box>{record.abstract}</Box>
-              )}
-            </Typography>
-          </TruncateMarkup>
+              </Box>
+            ) : (
+              record.abstract
+            )}
+          </Typography>
         </Stack>
       </CardContent>
       <DecisionButton
