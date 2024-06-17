@@ -1,7 +1,7 @@
-import * as React from "react";
-import { Autocomplete, IconButton, InputBase, Popper } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import { FilterList } from "@mui/icons-material";
+import { Autocomplete, IconButton, InputBase } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import * as React from "react";
 
 const historyFilterOptions = [
   { value: "has_note", label: "Contains note" },

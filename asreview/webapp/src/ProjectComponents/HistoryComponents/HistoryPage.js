@@ -1,5 +1,5 @@
+import { Box, Chip, Divider, Fade, Stack } from "@mui/material";
 import * as React from "react";
-import { Box, Divider, Fade, Stack, Chip } from "@mui/material";
 
 import { PageHeader } from "Components";
 import { Filter, LabeledRecord } from "../HistoryComponents";

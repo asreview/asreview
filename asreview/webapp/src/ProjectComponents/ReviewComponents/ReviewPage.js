@@ -1,8 +1,7 @@
-import * as React from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
-import { useParams } from "react-router-dom";
-import { Box, Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import * as React from "react";
+import { useQuery, useQueryClient } from "react-query";
+import { useParams } from "react-router-dom";
 
 import { ActionsFeedbackBar } from "Components";
 import { RecordCard, ReviewPageFinished } from ".";

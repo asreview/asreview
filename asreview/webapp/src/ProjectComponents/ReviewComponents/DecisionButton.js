@@ -1,39 +1,32 @@
-import React from "react";
 import {
   Alert,
-  Box,
-  Fab,
-  Stack,
-  Tooltip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Chip,
-  CardActions,
   Button,
-  Divider,
+  CardActions,
   CardContent,
-  Typography,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
   IconButton,
+  TextField,
+  Tooltip,
 } from "@mui/material";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import React from "react";
+import { useMutation } from "react-query";
 
 import { useHotkeys } from "react-hotkeys-hook";
 
-import { styled } from "@mui/material/styles";
-import { Favorite, FavoriteBorder, Expand, Opacity } from "@mui/icons-material";
-import NoteAltOutlinedIcon from "@mui/icons-material/NoteAltOutlined";
 import LibraryAddOutlinedIcon from "@mui/icons-material/LibraryAddOutlined";
 import NotInterestedOutlinedIcon from "@mui/icons-material/NotInterestedOutlined";
-import "./ReviewPage.css";
-import { useToggle } from "hooks/useToggle";
+import NoteAltOutlinedIcon from "@mui/icons-material/NoteAltOutlined";
+import { styled } from "@mui/material/styles";
 import { ProjectAPI } from "api";
+import { useToggle } from "hooks/useToggle";
+import "./ReviewPage.css";
 
 import { TagsTable } from ".";
-
-import ElasIcon from "icons/ElasIcon";
 
 const PREFIX = "DecisionButton";
 
@@ -41,7 +34,7 @@ const classes = {
   icon: `${PREFIX}-icon`,
 };
 
-const Root = styled("div")(({}) => ({
+const Root = styled("div")(() => ({
   [`& .${classes.icon}`]: {
     opacity: 0.36,
   },

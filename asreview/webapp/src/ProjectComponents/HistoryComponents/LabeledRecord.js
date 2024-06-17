@@ -1,6 +1,3 @@
-import React from "react";
-import { InView } from "react-intersection-observer";
-import { useInfiniteQuery } from "react-query";
 import {
   Box,
   ButtonBase,
@@ -11,10 +8,13 @@ import {
 } from "@mui/material";
 import { grey } from "@mui/material/colors";
 import { styled } from "@mui/material/styles";
+import React from "react";
+import { InView } from "react-intersection-observer";
+import { useInfiniteQuery } from "react-query";
 
 import { BoxErrorHandler } from "Components";
-import { ProjectAPI } from "api";
 import { RecordCard } from "ProjectComponents/ReviewComponents";
+import { ProjectAPI } from "api";
 
 const PREFIX = "LabeledRecord";
 
