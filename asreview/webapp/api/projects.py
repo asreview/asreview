@@ -625,10 +625,17 @@ def api_get_labeled(project):  # noqa: F401
 def api_get_labeled_stats(project):  # noqa: F401
     """Get all papers classified as prior documents"""
 
+    # Retrieve the include_priors parameter from the request's query.
+    include_priors = request.args.get("priors", True, type=bool)
+
     try:
         with open_state(project.project_path) as s:
             data = s.get_results_table(["label", "query_strategy"])
             data_prior = data[data["query_strategy"] == "prior"]
+
+            # If the 'include_priors' flag is set to False, filter out records that have a query strategy marked as prior.
+            if not include_priors:
+                data = data[data["query_strategy"] != "prior"]
 
         return jsonify(
             {
@@ -1113,38 +1120,79 @@ def export_project(project):
 
 
 def _get_stats(project, include_priors=False):
-    # Check if there is a review started in the project.
     try:
         is_project(project)
 
         as_data = project.read_data()
 
-        # get label history
+        # Get label history
         with open_state(project.project_path) as s:
             labels = s.get_labels(priors=include_priors)
-
+            # Also get labels without priors for the new key
+            labels_without_priors = s.get_labels(priors=False)
         n_records = len(as_data)
 
-    # No state file found or not init.
     except (StateNotFoundError, ValueError, ProjectError):
         labels = np.array([])
+        labels_without_priors = np.array([])
         n_records = 0
 
     n_included = int(sum(labels == 1))
     n_excluded = int(sum(labels == 0))
 
+    n_included_no_priors = int(sum(labels_without_priors == 1))
+    n_excluded_no_priors = int(sum(labels_without_priors == 0))
+
     if n_included > 0:
-        n_since_last_relevant = int(labels.tolist()[::-1].index(1))
+        try:
+            # Find the last relevant label index
+            last_relevant_index = len(labels) - 1 - np.argmax(labels[::-1] == 1)
+            n_since_last_relevant = int(sum(labels[last_relevant_index + 1 :] == 0))
+        except Exception:
+            n_since_last_relevant = "-"
     else:
         n_since_last_relevant = 0
+
+    if len(labels_without_priors) > 0 and n_included > 0:
+        try:
+            # Find the last relevant label index without priors
+            last_relevant_index_no_priors = (
+                len(labels_without_priors)
+                - 1
+                - np.argmax(labels_without_priors[::-1] == 1)
+            )
+            n_since_last_relevant_no_priors = int(
+                sum(labels_without_priors[last_relevant_index_no_priors + 1 :] == 0)
+            )
+        except Exception:
+            n_since_last_relevant_no_priors = "-"
+    else:
+        n_since_last_relevant_no_priors = None
 
     return {
         "n_included": n_included,
         "n_excluded": n_excluded,
+        "n_included_no_priors": n_included_no_priors,
+        "n_excluded_no_priors": n_excluded_no_priors,
         "n_since_last_inclusion": n_since_last_relevant,
+        "n_since_last_inclusion_no_priors": n_since_last_relevant_no_priors,
         "n_papers": n_records,
         "n_pool": n_records - n_excluded - n_included,
     }
+
+
+def _get_labels(state_obj, priors=False):
+    # get the number of records
+    n_records = state_obj.n_records
+
+    # get the labels
+    labels = state_obj.get_labels(priors=priors).to_list()
+
+    # if less labels than records, fill with 0
+    if len(labels) < n_records:
+        labels += [0] * (n_records - len(labels))
+
+    return pd.Series(labels)
 
 
 @bp.route("/projects/<project_id>/progress", methods=["GET"])
@@ -1171,7 +1219,13 @@ def api_get_progress_density(project):
 
     # get label history
     with open_state(project.project_path) as s:
-        data = s.get_labels(priors=include_priors)
+        if (
+            project.config["reviews"][0]["status"] == "finished"
+            and project.config["mode"] == PROJECT_MODE_SIMULATE
+        ):
+            data = _get_labels(s, priors=include_priors)
+        else:
+            data = s.get_labels(priors=include_priors)
 
     # create a dataset with the rolling mean of every 10 papers
     df = (
@@ -1219,7 +1273,13 @@ def api_get_progress_recall(project):
     as_data = project.read_data()
 
     with open_state(project.project_path) as s:
-        data = s.get_labels(priors=include_priors)
+        if (
+            project.config["reviews"][0]["status"] == "finished"
+            and project.config["mode"] == PROJECT_MODE_SIMULATE
+        ):
+            data = _get_labels(s, priors=include_priors)
+        else:
+            data = s.get_labels(priors=include_priors)
 
     # create a dataset with the cumulative number of inclusions
     df = data.to_frame(name="Relevant").reset_index(drop=True).cumsum()

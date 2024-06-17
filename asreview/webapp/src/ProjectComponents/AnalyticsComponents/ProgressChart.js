@@ -35,6 +35,12 @@ export default function ProgressChart(props) {
   const n_papers = props.progressQuery.data
     ? props.progressQuery.data["n_papers"]
     : null;
+  const n_included_no_priors = props.progressQuery.data
+    ? props.progressQuery.data["n_included_no_priors"]
+    : null;
+  const n_excluded_no_priors = props.progressQuery.data
+    ? props.progressQuery.data["n_excluded_no_priors"]
+    : null;
 
   const formattedTotal = React.useCallback(() => {
     if (props.mode !== projectModes.SIMULATION || !props.isSimulating) {
@@ -50,15 +56,27 @@ export default function ProgressChart(props) {
    * Chart data array
    */
   const seriesArray = React.useCallback(() => {
-    if (n_included && n_excluded && n_papers) {
+    if (props.includePriorKnowledge) {
       return [
         Math.round(((n_included + n_excluded) / n_papers) * 10000) / 100,
         Math.round((n_included / n_papers) * 10000) / 100,
       ];
     } else {
-      return [];
+      return [
+        Math.round(
+          ((n_included_no_priors + n_excluded_no_priors) / n_papers) * 10000,
+        ) / 100,
+        Math.round((n_included_no_priors / n_papers) * 10000) / 100,
+      ];
     }
-  }, [n_included, n_excluded, n_papers]);
+  }, [
+    n_included,
+    n_excluded,
+    n_papers,
+    props.includePriorKnowledge,
+    n_included_no_priors,
+    n_excluded_no_priors,
+  ]);
 
   /**
    * Chart options
@@ -110,18 +128,32 @@ export default function ProgressChart(props) {
           },
         },
       },
-      colors: [
-        theme.palette.mode === "light"
-          ? theme.palette.secondary.light
-          : theme.palette.secondary.main,
-        theme.palette.mode === "light"
-          ? theme.palette.primary.light
-          : theme.palette.primary.main,
-      ],
+      colors: props.includePriorKnowledge
+        ? [
+            theme.palette.mode === "light"
+              ? theme.palette.secondary.light
+              : theme.palette.secondary.main,
+            theme.palette.mode === "light"
+              ? theme.palette.primary.light
+              : theme.palette.primary.main,
+            theme.palette.mode === "light"
+              ? theme.palette.warning.light
+              : theme.palette.warning.main,
+          ]
+        : [
+            theme.palette.mode === "light"
+              ? theme.palette.secondary.light
+              : theme.palette.secondary.main,
+            theme.palette.mode === "light"
+              ? theme.palette.warning.light
+              : theme.palette.warning.main,
+          ],
       dataLabels: {
         enabled: false,
       },
-      labels: ["Labeled", "Relevant"],
+      labels: props.includePriorKnowledge
+        ? ["Labeled", "Relevant"]
+        : ["Labeled", "Relevant"],
       legend: {
         show: true,
         position: "bottom",
@@ -171,6 +203,7 @@ export default function ProgressChart(props) {
     props.mobileScreen,
     props.mode,
     props.isSimulating,
+    props.includePriorKnowledge,
   ]);
 
   const [series, setSeries] = React.useState(seriesArray());
