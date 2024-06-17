@@ -1129,11 +1129,9 @@ def _get_stats(project, include_priors=False):
         # get label history
         with open_state(project.project_path) as s:
             labels = s.get_labels(priors=include_priors)
-
+            # Get labels without priors
+            labels_without_priors = s.get_labels(priors=False)
         n_records = len(as_data)
-
-        # Get labels without priors
-        labels_without_priors = s.get_labels(priors=False)
 
     # No state file found or not init.
     except (StateNotFoundError, ValueError, ProjectError):

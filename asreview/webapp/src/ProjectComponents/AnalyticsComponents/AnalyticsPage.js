@@ -109,6 +109,7 @@ const AnalyticsPage = (props) => {
       emailRef.current?.click();
     }
   };
+
   const allQueriesReady = () => {
     return (
       !progressQuery.isFetching &&
@@ -324,4 +325,5 @@ const AnalyticsPage = (props) => {
     </Root>
   );
 };
+
 export default AnalyticsPage;
