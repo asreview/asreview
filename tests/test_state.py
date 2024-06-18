@@ -242,7 +242,7 @@ def test_get_dataset_drop_pending(tmpdir):
     asr.Project.create(project_path)
     with asr.open_state(project_path) as state:
         state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
-        state.add_labeling_data([4, 5, 6], [1, 0, 1], prior=True)
+        state.add_labeling_data([4, 5, 6], [1, 0, 1])
         state.query_top_ranked(3)
 
         assert "label" in state.get_results_table(pending=False).columns
@@ -288,13 +288,14 @@ def test_get_order_of_labeling(asreview_test_project):
 
 def test_get_labels(asreview_test_project):
     with asr.open_state(asreview_test_project) as state:
-        assert isinstance(state.get_results_table("label"), pd.Series)
-        assert all(state.get_results_table("label") == TEST_LABELS)
+        labels = state.get_results_table("label")["label"]
+        assert isinstance(labels, pd.Series)
+        assert all(labels == TEST_LABELS)
 
 
 def test_get_labels_no_priors(asreview_test_project):
     with asr.open_state(asreview_test_project) as state:
-        labels = state.get_results_table("label", priors=False)
+        labels = state.get_results_table("label", priors=False)["label"]
         assert isinstance(labels, pd.Series)
         assert all(labels == TEST_LABELS[4:])
 
@@ -342,7 +343,7 @@ def test_query_top_ranked(tmpdir):
         state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
         top_ranked = state.query_top_ranked(5)
 
-        assert top_ranked == [2, 1, 0, 3, 4]
+        assert top_ranked["record_id"].to_list() == [2, 1, 0, 3, 4]
         data = state.get_results_table(pending=True)
         assert data["record_id"].to_list() == [2, 1, 0, 3, 4]
         assert data["classifier"].to_list() == ["nb"] * 5
@@ -360,22 +361,19 @@ def test_add_labeling_data(tmpdir):
         state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
         for i in range(3):
             # Test without specifying notes.
-            state.add_labeling_data([TEST_RECORD_IDS[i]], [TEST_LABELS[i]], prior=True)
+            state.add_labeling_data([TEST_RECORD_IDS[i]], [TEST_LABELS[i]])
 
         # Test with specifying notes and with larger batch.
-        state.add_labeling_data(
-            TEST_RECORD_IDS[3:6], TEST_LABELS[3:6], notes=TEST_NOTES[3:6], prior=True
-        )
+        state.add_labeling_data(TEST_RECORD_IDS[3:6], TEST_LABELS[3:6])
 
         data = state.get_results_table(pending=True)
         assert data["record_id"].to_list() == TEST_RECORD_IDS[:6]
         assert data["label"].to_list() == TEST_LABELS[:6]
         assert data["classifier"].to_list() == [None] * 6
-        assert data["query_strategy"].to_list() == ["prior"] * 6
+        assert data["query_strategy"].to_list() == [None] * 6
         assert data["balance_strategy"].to_list() == [None] * 6
         assert data["feature_extraction"].to_list() == [None] * 6
-        assert data["training_set"].to_list() == [-1] * 6
-        assert data["notes"].to_list() == TEST_NOTES[:6]
+        assert data["training_set"].to_list() == [None] * 6
 
         state.query_top_ranked(3)
         data = state.get_results_table(pending=True)
@@ -391,7 +389,6 @@ def test_add_labeling_data(tmpdir):
         state.add_labeling_data([0, 2], [0, 1], notes=["note0", "note2"])
         data = state.get_results_table(pending=True)
         assert data["label"].to_list() == TEST_LABELS[:6] + [0, 1, 1]
-        assert data["notes"].to_list() == TEST_NOTES[:6] + ["note0", None, "note2"]
 
 
 def test_ranking_with_labels(tmpdir):
@@ -400,7 +397,7 @@ def test_ranking_with_labels(tmpdir):
     asr.Project.create(project_path)
     with asr.open_state(project_path) as state:
         state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
-        state.add_labeling_data([4, 5, 6], [1, 0, 1], prior=True)
+        state.add_labeling_data([4, 5, 6], [1, 0, 1])
 
         ranking_with_labels = state.get_ranking_with_labels()
         assert isinstance(ranking_with_labels, pd.DataFrame)
@@ -438,7 +435,7 @@ def test_exist_new_labeled_records(tmpdir):
         state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 3)
 
         assert not state.exist_new_labeled_records
-        state.add_labeling_data([4, 5, 6], [1, 0, 1], prior=True)
+        state.add_labeling_data([4, 5, 6], [1, 0, 1])
 
         assert not state.exist_new_labeled_records
         state.query_top_ranked(3)
@@ -451,7 +448,7 @@ def test_update_decision(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
     with asr.open_state(project_path) as state:
-        state.add_labeling_data(TEST_RECORD_IDS[:3], TEST_LABELS[:3], prior=True)
+        state.add_labeling_data(TEST_RECORD_IDS[:3], TEST_LABELS[:3])
 
         for i in range(3):
             state.update(TEST_RECORD_IDS[i], 1 - TEST_LABELS[i])
