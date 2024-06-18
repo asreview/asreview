@@ -98,6 +98,7 @@ const DecisionButton = ({
   note = null,
   showNotes = true,
   decisionCallback,
+  hotkeys = false,
   retrainAfterDecision = true,
 }) => {
   const [showNotesDialog, toggleShowNotesDialog] = useToggle(false);
@@ -122,9 +123,9 @@ const DecisionButton = ({
     });
   };
 
-  useHotkeys("r", () => makeDecision(1));
-  useHotkeys("i", () => makeDecision(0));
-  useHotkeys("n", toggleShowNotesDialog, { keyup: true });
+  useHotkeys("r", () => hotkeys && makeDecision(1));
+  useHotkeys("i", () => hotkeys && makeDecision(0));
+  useHotkeys("n", () => hotkeys && toggleShowNotesDialog(), { keyup: true });
 
   const hasTags = Array.isArray(tagsForm) && tagsForm.length > 0;
 

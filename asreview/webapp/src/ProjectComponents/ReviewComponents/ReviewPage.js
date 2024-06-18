@@ -43,29 +43,21 @@ const Screener = (props) => {
 
   return (
     <Root aria-label="review page">
-      {
-        data["result"] && (
-          // <Fade in>
-          <RecordCard
-            project_id={project_id}
-            record={data["result"]}
-            afterDecision={afterDecision}
-            // recordNote={recordNote}
-            // setRecordNote={setRecordNote}
-            fontSize={props.fontSize}
-            mobileScreen={props.mobileScreen}
-            // noteFieldAutoFocus={noteFieldAutoFocus}
-            // previousRecord={previousRecord}
-            tags={props.tags}
-            tagValues={tagValues}
-            setTagValues={setTagValues}
-            collapseAbstract={false}
-            key={project_id + "-" + data["result"]["record_id"]}
-          />
-        )
-
-        // </Fade>
-      }
+      {data["result"] && (
+        <RecordCard
+          project_id={project_id}
+          record={data["result"]}
+          afterDecision={afterDecision}
+          fontSize={props.fontSize}
+          mobileScreen={props.mobileScreen}
+          tags={props.tags}
+          tagValues={tagValues}
+          setTagValues={setTagValues}
+          collapseAbstract={false}
+          hotkeys={true}
+          key={project_id + "-" + data["result"]["record_id"]}
+        />
+      )}
 
       {/* Error handler */}
       {isError && (

@@ -50,6 +50,7 @@ const RecordCard = ({
   fontSize,
   showNotes = true,
   collapseAbstract = false,
+  hotkeys = false,
   transitionType = "fade",
 }) => {
   const [readMoreOpen, toggleReadMore] = useToggle();
@@ -187,6 +188,7 @@ const RecordCard = ({
         showNotes={showNotes}
         tagsForm={record.tags_form}
         tagValues={record.tags}
+        hotkeys={hotkeys}
       />
     </StyledCard>
   );
