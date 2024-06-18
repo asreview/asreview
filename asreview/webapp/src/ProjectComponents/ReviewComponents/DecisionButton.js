@@ -40,7 +40,7 @@ const Root = styled("div")(() => ({
   },
 }));
 
-const NoteDialog = ({ project_id, record_id, open, onClose, note }) => {
+const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
   const [noteState, setNoteState] = React.useState(note);
 
   const { isError, isLoading, mutate } = useMutation(ProjectAPI.mutateNote, {
@@ -62,7 +62,7 @@ const NoteDialog = ({ project_id, record_id, open, onClose, note }) => {
           onChange={(event) => setNoteState(event.target.value)}
           placeholder="Write a note for this record..."
           rows={4}
-          value={noteState}
+          value={noteState ? noteState : ""}
           error={isError}
           disabled={isLoading}
         />
