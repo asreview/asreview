@@ -289,7 +289,7 @@ const SetupDialog = ({
                 {showSettings ? "Show dataset" : "Show options"}
               </Button>
             </Box>
-            <Collapse in={showSettings}>
+            <Collapse in={showSettings} mountOnEnter>
               {mode !== projectModes.SIMULATION && (
                 <Box sx={{ mb: 3 }}>
                   <TagCard
