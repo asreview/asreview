@@ -119,6 +119,9 @@ export const passwordValidation = (yup_string) => {
   );
 };
 
+export const passwordRequirements =
+  "Your password must be at least 8 characters long and includes at least one number, one lowercase letter, and one uppercase letter.";
+
 /**
  * Format date and mode
  */

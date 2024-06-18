@@ -17,10 +17,10 @@ __all__ = ["MaxQuery"]
 
 import numpy as np
 
-from asreview.models.query.base import ProbaQueryStrategy
+from asreview.models.query.base import BaseQueryStrategy
 
 
-class MaxQuery(ProbaQueryStrategy):
+class MaxQuery(BaseQueryStrategy):
     """Maximum query strategy (``max``).
 
     Choose the most likely samples to be included according to the model.
@@ -29,7 +29,7 @@ class MaxQuery(ProbaQueryStrategy):
     name = "max"
     label = "Maximum"
 
-    def _query(self, predictions, n_instances, X=None):
-        query_indices = np.argsort(predictions[:, 0])[:n_instances]
-
+    def query(self, feature_matrix, relevance_scores):
+        del feature_matrix
+        query_indices = np.argsort(relevance_scores[:, 0])
         return query_indices

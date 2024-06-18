@@ -81,10 +81,11 @@ def _run_model_start(project, output_error=True):
 
             classifier = load_extension("models.classifiers", settings.classifier)()
             classifier.fit(X_train, y_train)
+            relevance_scores = classifier.predict_proba(fm)
 
             query_strategy = load_extension("models.query", settings.query_strategy)()
-            ranked_record_ids, relevance_scores = query_strategy.query(
-                fm, classifier=classifier, return_classifier_scores=True
+            ranked_record_ids = query_strategy.query(
+                feature_matrix=fm, relevance_scores=relevance_scores
             )
 
             with open_state(project) as state:
