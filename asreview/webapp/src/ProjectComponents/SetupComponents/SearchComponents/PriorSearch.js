@@ -5,8 +5,8 @@ import {
   CircularProgress,
   Fade,
   InputBase,
+  Paper,
   Stack,
-  Typography,
 } from "@mui/material";
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
@@ -57,20 +57,23 @@ const PriorSearch = () => {
   return (
     <Fade in>
       <Box>
-        <Stack direction="row" sx={{ p: "4px 16px" }}>
+        <Paper
+          // component="form"
+          sx={{ p: 1, display: "flex", alignItems: "center" }}
+        >
           <InputBase
             id="search-input"
             autoFocus
             fullWidth
             onChange={onChangeKeyword}
             onKeyDown={onKeyDown}
-            placeholder="Search"
-            sx={{ ml: 1 }}
+            placeholder="Search for records in the dataset"
+            sx={{ ml: 1, flex: 1 }}
           />
           <StyledIconButton id="search" onClick={onClickSearch}>
             <Search />
           </StyledIconButton>
-        </Stack>
+        </Paper>
         {isFetching && !isError && (
           <Box>
             <CircularProgress />
@@ -81,23 +84,10 @@ const PriorSearch = () => {
             <Alert severity="error">{error["message"]}</Alert>
           </Box>
         )}
-        {!isFetching &&
-          !isError &&
-          (data === undefined ||
-            !data?.result.filter((record) => record?.included === -1)
-              .length) && (
-            <Typography
-              id="no-search-result"
-              variant="body2"
-              sx={{ color: "text.secondary" }}
-            >
-              Your search results will show up here
-            </Typography>
-          )}
         {!isError && isFetched && isSuccess && (
           <Stack aria-label="unlabeled record card" spacing={3}>
-            <Alert severity="info">
-              Label records that you want to use as prior knowledge
+            <Alert severity="success" sx={{ mt: 2 }}>
+              Tip: Label only the record you are looking for!
             </Alert>
             {data?.result.map((record, index) => (
               <RecordCard
