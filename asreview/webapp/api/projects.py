@@ -1150,7 +1150,7 @@ def api_get_progress_density(project):
 
     # get label history
     with open_state(project.project_path) as s:
-        data = s.get_labels(priors=include_priors)
+        data = s.get_results_table("label", priors=include_priors)
 
     # create a dataset with the rolling mean of every 10 papers
     df = data.rolling(10, min_periods=1).mean()
@@ -1191,7 +1191,7 @@ def api_get_progress_recall(project):
     as_data = project.read_data()
 
     with open_state(project.project_path) as s:
-        data = s.get_labels(priors=include_priors)
+        data = s.get_results_table("label", priors=include_priors)
 
     df = data.cumsum()
 
