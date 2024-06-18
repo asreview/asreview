@@ -188,6 +188,10 @@ export default function ProgressRecallChart(props) {
    * Chart options
    */
   const optionsChart = React.useCallback(() => {
+    const maxYValue = maxY() || 0;
+    const tickAmount = 7;
+    const closestDivisibleBy7 = Math.ceil(maxYValue / tickAmount) * tickAmount; // To make the intervals consistent, max value in the y-axis should be always divisible by 7.
+
     return {
       chart: {
         animations: {
@@ -265,9 +269,10 @@ export default function ProgressRecallChart(props) {
           },
         },
         showAlways: false,
-        max: maxY(),
+        max: closestDivisibleBy7,
         forceNiceScale: false,
-        tickAmount: maxY() < 6 ? maxY() : 6,
+        min: 0,
+        tickAmount: tickAmount,
         title: {
           text: "Number of relevant records",
         },
