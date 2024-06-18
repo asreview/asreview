@@ -42,35 +42,43 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
   return (
     <Card>
       <CardHeader
-        title="Your dataset"
+        title={isFetchingData ? <Skeleton width="30%" /> : "Your dataset"}
         subheader={
           <>
-            <>
-              Dataset{" "}
-              <Box sx={{ fontWeight: "bold", display: "inline" }}>
-                {dataset_path}
-              </Box>{" "}
-              contains{" "}
-              <Box sx={{ fontWeight: "bold", display: "inline" }}>
-                {data?.n_rows - data?.n_duplicates}
-              </Box>{" "}
-              unique records from a total of {data?.n_rows} records. The follow
-              charts help to understand the dataset. Keep in mind that a clean
-              and complete dataset improves the quality of ASReview.{" "}
-            </>
-            <Link
-              underline="none"
-              href={`https://asreview.nl/blog/active-learning-explained/`}
-              target="_blank"
-            >
-              learn more
-            </Link>
+            {isFetchingData ? (
+              <>
+                <Skeleton />
+                <Skeleton />
+                <Skeleton width="40%" />
+              </>
+            ) : (
+              <>
+                Dataset{" "}
+                <Box sx={{ fontWeight: "bold", display: "inline" }}>
+                  {dataset_path}
+                </Box>{" "}
+                contains{" "}
+                <Box sx={{ fontWeight: "bold", display: "inline" }}>
+                  {data?.n_rows - data?.n_duplicates}
+                </Box>{" "}
+                unique records from a total of {data?.n_rows} records. The
+                follow charts help to understand the dataset. Keep in mind that
+                a clean and complete dataset improves the quality of ASReview.{" "}
+                <Link
+                  underline="none"
+                  href={`https://asreview.nl/blog/active-learning-explained/`}
+                  target="_blank"
+                >
+                  learn more
+                </Link>
+              </>
+            )}
           </>
         }
       />
 
       {isFetchingData ? (
-        <Skeleton sx={{ height: 140 }} animation="wave" variant="rectangular" />
+        <Skeleton sx={{ height: 140 }} variant="rectangular" />
       ) : (
         <CardMedia
           component="div"
@@ -104,15 +112,21 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
         </CardMedia>
       )}
       <CardContent>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => {
-            deleteProject({ project_id: project_id });
-          }}
-        >
-          Change
-        </Button>
+        {isFetchingData ? (
+          <Skeleton>
+            <Button />
+          </Skeleton>
+        ) : (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => {
+              deleteProject({ project_id: project_id });
+            }}
+          >
+            Change
+          </Button>
+        )}
       </CardContent>
     </Card>
   );
