@@ -507,8 +507,8 @@ def api_search_data(project):  # noqa: F401
     result = []
     for record in as_data.record(result_ids):
         record_d = asdict(record)
-        record_d["included"] = -1
-        record_d["label_from_dataset"] = record.included
+        record_d["state"] = None
+        record_d["tags_form"] = project.config.get("tags", None)
         result.append(record_d)
 
     return jsonify({"result": result})

@@ -11,7 +11,6 @@ import {
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
 
-import { InlineErrorHandler } from "Components";
 import { RecordCard } from "ProjectComponents/ReviewComponents";
 import { StyledIconButton } from "StyledComponents/StyledButton";
 import { ProjectAPI } from "api";
@@ -79,11 +78,7 @@ const PriorSearch = () => {
         )}
         {!isFetching && isError && (
           <Box>
-            <InlineErrorHandler
-              message={error["message"]}
-              refetch={refetchPriorSearch}
-              button={true}
-            />
+            <Alert severity="error">{error["message"]}</Alert>
           </Box>
         )}
         {!isFetching &&
@@ -104,18 +99,17 @@ const PriorSearch = () => {
             <Alert severity="info">
               Label records that you want to use as prior knowledge
             </Alert>
-            {data?.result
-              .filter((record) => record?.included === -1)
-              .map((record, index) => (
-                <RecordCard
-                  project_id={project_id}
-                  record={record}
-                  collapseAbstract={true}
-                  retrainAfterDecision={false}
-                  transitionType="collapse"
-                  key={`result-page-${index}`}
-                />
-              ))}
+            {data?.result.map((record, index) => (
+              <RecordCard
+                project_id={project_id}
+                record={record}
+                collapseAbstract={true}
+                retrainAfterDecision={false}
+                transitionType="collapse"
+                showNotes={false}
+                key={`result-record-${index}`}
+              />
+            ))}
           </Stack>
         )}
       </Box>
