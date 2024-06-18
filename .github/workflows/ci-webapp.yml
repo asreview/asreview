@@ -1,4 +1,4 @@
-name: test-frontend
+name: test-webapp
 on: [push, pull_request]
 jobs:
   compile-and-test:
