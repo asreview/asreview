@@ -331,7 +331,7 @@ def test_move_ranking_data_to_results(tmpdir):
         data = state.get_results_table(pending=True)
 
     assert data["record_id"].to_list() == [1, 2, 3, 4]
-    assert data["label"].to_list() == [None] * 4
+    assert data["label"].isnull().sum() == 4
     assert data["classifier"].to_list() == ["nb"] * 4
 
 
