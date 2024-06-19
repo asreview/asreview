@@ -329,7 +329,7 @@ class SQLiteState:
         return pd.read_sql_query(
             "SELECT * FROM last_ranking",
             self._conn,
-            dtype={"training_set": "Int64"},
+            dtype=RANKING_TABLE_COLUMNS_PANDAS_DTYPES,
         )
 
     def query_top_ranked(self, n=1, user_id=None):
