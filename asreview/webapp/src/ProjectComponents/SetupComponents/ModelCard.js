@@ -39,7 +39,6 @@ import { styled } from "@mui/material/styles";
 import { SelectItem } from "ProjectComponents";
 import { ProjectContext } from "ProjectContext";
 import { ProjectAPI } from "api";
-import { defaultAlgorithms } from "globals.js";
 import { useToggle } from "hooks/useToggle";
 import modelAlwaysGood from "images/models/modelAlwaysGood.png";
 import { useContext } from "react";
@@ -174,16 +173,13 @@ const ModelSelectDialog = ({
     setSelectedModel(splitFullModel(event.target.value, selectedModel));
   };
 
-  const { mutate, isLoading, isError } = useMutation(
-    ProjectAPI.mutateModelConfig,
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["fetchModelConfig"] });
+  const { mutate, isLoading } = useMutation(ProjectAPI.mutateModelConfig, {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["fetchModelConfig"] });
 
-        handleClose(selectedModel);
-      },
+      handleClose(selectedModel);
     },
-  );
+  });
 
   const handleSave = () => {
     mutate({
@@ -286,21 +282,21 @@ const ModelCard = ({
     setExpanded(!expanded);
   };
 
-  const [modelState, setModelState] = React.useState({
-    custom: false,
-    isChanged: false,
-    warning: {
-      active: false,
-      value: null,
-    },
-    model: defaultAlgorithms,
-  });
+  // const [modelState, setModelState] = React.useState({
+  //   custom: false,
+  //   isChanged: false,
+  //   warning: {
+  //     active: false,
+  //     value: null,
+  //   },
+  //   model: defaultAlgorithms,
+  // });
 
   const {
     data: modelOptions,
-    error: fetchModelOptionsError,
-    isError: isFetchModelOptionsError,
-    isFetching: isFetchingModelOptions,
+    // error: fetchModelOptionsError,
+    // isError: isFetchModelOptionsError,
+    // isFetching: isFetchingModelOptions,
   } = useQuery("fetchModelOptions", ProjectAPI.fetchModelOptions, {
     refetchOnWindowFocus: false,
   });
@@ -308,9 +304,9 @@ const ModelCard = ({
   const {
     data: modelConfig,
     isLoading: isLoadingModelConfig,
-    error: fetchModelConfigError,
-    isError: isFetchModelConfigError,
-    isFetching: isFetchingModelConfig,
+    // error: fetchModelConfigError,
+    // isError: isFetchModelConfigError,
+    // isFetching: isFetchingModelConfig,
   } = useQuery(
     ["fetchModelConfig", { project_id: project_id }],
     ProjectAPI.fetchModelConfig,

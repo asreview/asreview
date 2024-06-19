@@ -9,7 +9,7 @@ import {
   Stack,
 } from "@mui/material";
 import * as React from "react";
-import { useQuery, useQueryClient } from "react-query";
+import { useQuery } from "react-query";
 
 import { RecordCard } from "ProjectComponents/ReviewComponents";
 import { StyledIconButton } from "StyledComponents/StyledButton";
@@ -22,7 +22,6 @@ import { useContext } from "react";
 const PriorSearch = () => {
   const project_id = useContext(ProjectContext);
 
-  const queryClient = useQueryClient();
   const [keyword, setKeyword] = React.useState("");
   const [clickSearch, onClickSearch] = useToggle();
 
@@ -39,10 +38,6 @@ const PriorSearch = () => {
       refetchOnWindowFocus: false,
     },
   );
-
-  const refetchPriorSearch = () => {
-    queryClient.resetQueries("fetchPriorSearch");
-  };
 
   const onChangeKeyword = (event) => {
     setKeyword(event.target.value);

@@ -2,7 +2,6 @@ import React from "react";
 import Chart from "react-apexcharts";
 import { useTheme } from "@mui/material/styles";
 import { Box } from "@mui/system";
-import { Typography } from "@mui/material";
 
 export default function DatasetChart({ label, part, total }) {
   const theme = useTheme();

@@ -18,8 +18,8 @@ import DatasetChart from "ProjectComponents/AnalyticsComponents/DatasetChart";
 const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
   const {
     data,
-    error: fetchDataError,
-    isError: isFetchDataError,
+    // error: fetchDataError,
+    // isError: isFetchDataError,
     isFetching: isFetchingData,
   } = useQuery(
     ["fetchData", { project_id: project_id }],
