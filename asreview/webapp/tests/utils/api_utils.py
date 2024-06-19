@@ -238,7 +238,10 @@ def search_project_data(
 def label_random_project_data_record(
     client: FlaskClient, project: Union[Project, asr.Project], label: int
 ):
-    raise NotImplementedError("This function is not implemented.")
+    r = search_project_data(client, project, query="The&n_max=10")
+    return label_project_record(
+        client, project, r.json["result"][0]["record_id"], label
+    )
 
 
 def label_project_record(

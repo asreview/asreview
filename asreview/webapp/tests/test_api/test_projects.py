@@ -333,16 +333,6 @@ def test_search_data(client, project):
     assert len(r.json["result"]) <= 10
 
 
-# Test get a selection of random papers to find exclusions
-def test_random_prior_papers(client, project):
-    # get random selection
-    r = au.get_prior_random_project_data(client, project)
-    assert r.status_code == 200
-    assert "result" in r.json
-    assert isinstance(r.json["result"], list)
-    assert len(r.json["result"]) > 0
-
-
 # Test labeling of prior data
 @pytest.mark.parametrize("label", [0, 1])
 def test_label_item(client, project, label):
@@ -445,9 +435,6 @@ def test_start_and_model_ready(client, project):
 def test_status_project(client, project, state_name, expected_state):
     # call these progression steps
     if state_name in ["setup", "review", "finish"]:
-        # label 2 records
-        au.label_random_project_data_record(client, project, 1)
-        au.label_random_project_data_record(client, project, 0)
         # select a model
         data = misc.choose_project_algorithms()
         au.set_project_algorithms(client, project, data=data)
@@ -598,7 +585,6 @@ def test_delete_project(client, project):
         au.get_project_data,
         au.get_project_dataset_writer,
         au.search_project_data,
-        au.get_prior_random_project_data,
         au.label_project_record,
         au.update_label_project_record,
         au.get_labeled_project_data,

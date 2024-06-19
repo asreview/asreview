@@ -277,9 +277,6 @@ class SQLiteState:
         if tags_list is None:
             tags_list = [None for _ in record_ids]
 
-        if user_id is None:
-            user_id = [None for _ in record_ids]
-
         if len({len(record_ids), len(labels), len(tags_list)}) != 1:
             raise ValueError("Input data should be of the same length.")
 
@@ -307,7 +304,7 @@ class SQLiteState:
                     int(labels[i]),
                     labeling_time,
                     custom_metadata_list[i],
-                    user_id[i],
+                    user_id,
                 )
                 for i in range(len(record_ids))
             ],
