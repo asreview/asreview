@@ -48,7 +48,7 @@ RESULTS_TABLE_COLUMNS_PANDAS_DTYPES = {
     "balance_strategy": "object",
     "feature_extraction": "object",
     "training_set": "Int64",
-    "labeling_time": "datetime64[ns]",
+    "labeling_time": "object",
     "user_id": "Int64",
 }
 
@@ -60,7 +60,7 @@ RANKING_TABLE_COLUMNS_PANDAS_DTYPES = {
     "balance_strategy": "object",
     "feature_extraction": "object",
     "training_set": "Int64",
-    "time": "datetime64[ns]",
+    "time": "object",
 }
 
 CURRENT_STATE_VERSION = 2
@@ -121,7 +121,7 @@ class SQLiteState:
                             balance_strategy TEXT,
                             feature_extraction TEXT,
                             training_set INTEGER,
-                            labeling_time INTEGER,
+                            labeling_time TEXT,
                             note TEXT,
                             custom_metadata_json TEXT,
                             user_id INTEGER)"""

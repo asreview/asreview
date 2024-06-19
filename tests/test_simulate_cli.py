@@ -52,8 +52,8 @@ def test_prior_idx(tmpdir):
 
     assert results_table["record_id"][0] == 1
     assert results_table["record_id"][1] == 4
-    assert all(results_table["query_strategy"][:1] == "prior")
-    assert all(results_table["query_strategy"][2:] != "prior")
+    assert results_table["query_strategy"][:1].isnull().all()
+    assert results_table["query_strategy"][2:].notnull().all()
 
 
 def test_n_prior_included(tmpdir):
@@ -90,7 +90,7 @@ def test_n_prior_excluded(tmpdir):
     with asr.open_state(asreview_fp) as state:
         result = state.get_results_table(["label", "query_strategy"])
 
-    prior_excluded = ~result["label"] & (result["query_strategy"] == "prior")
+    prior_excluded = ~result["label"] & (result["query_strategy"].isnull())
     assert sum(prior_excluded) >= 2
 
     Path(tmpdir, "test").mkdir(parents=True)
