@@ -220,10 +220,10 @@ class Simulate:
 
         if prior:
             classifier = None
-            query_strategy = "prior"
+            query_strategy = None
             balance_strategy = None
             feature_extraction = None
-            training_set = 0
+            training_set = None
         else:
             classifier = self.classifier.name
             query_strategy = self.query_strategy.name

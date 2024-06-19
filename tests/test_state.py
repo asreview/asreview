@@ -15,10 +15,10 @@ TEST_RECORD_IDS = [17, 347, 510, 28, 12, 556, 555, 681, 265, 310]
 TEST_RECORD_TABLE = list(range(851))
 TEST_CLASSIFIERS = [None, None, None, None, "nb", "nb", "nb", "nb", "nb", "nb"]
 TEST_QUERY_STRATEGIES = [
-    "prior",
-    "prior",
-    "prior",
-    "prior",
+    None,
+    None,
+    None,
+    None,
     "max",
     "max",
     "max",
@@ -50,7 +50,7 @@ TEST_FEATURE_EXTRACTION = [
     "tfidf",
     "tfidf",
 ]
-TEST_TRAINING_SETS = [-1, -1, -1, -1, 4, 5, 6, 7, 8, 9]
+TEST_TRAINING_SETS = [pd.NA, pd.NA, pd.NA, pd.NA, 4, 5, 6, 7, 8, 9]
 TEST_NOTES = [
     None,
     None,
@@ -217,6 +217,7 @@ def test_get_dataset(asreview_test_project):
         )
         # Try getting a specific column with column name as string, instead of
         # list containing column name.
+
         assert (
             state.get_results_table("training_set")["training_set"].to_list()
             == TEST_TRAINING_SETS
@@ -229,9 +230,7 @@ def test_get_dataset_drop_prior(asreview_test_project):
             len(state.get_results_table(priors=False))
             == len(TEST_RECORD_IDS) - TEST_N_PRIORS
         )
-        assert (
-            state.get_results_table(priors=False)["query_strategy"] != "prior"
-        ).all()
+        assert (state.get_results_table(priors=False)["query_strategy"].notnull()).all()
         assert "query_strategy" in state.get_results_table(priors=False).columns
         assert "query_strategy" not in state.get_results_table("label", priors=False)
 
@@ -251,14 +250,15 @@ def test_get_dataset_drop_pending(tmpdir):
         assert state.get_results_table(pending=False)["label"].notna().all()
 
 
-def test_get_data_by_record_id(asreview_test_project):
+def test_get_results_record(asreview_test_project):
     with asr.open_state(asreview_test_project) as state:
         for idx in [2, 6, 8]:
             record_id = TEST_RECORD_IDS[idx]
-            query = state.get_data_by_record_id(record_id)
+            query = state.get_results_record(record_id)
             assert isinstance(query, pd.DataFrame)
-            assert query["training_set"].to_list()[0] == TEST_TRAINING_SETS[idx]
-            assert query["record_id"].to_list()[0] == TEST_RECORD_IDS[idx]
+
+            assert query["label"][0] == TEST_LABELS[idx]
+            assert query["record_id"][0] == TEST_RECORD_IDS[idx]
 
 
 def test_get_query_strategies(asreview_test_project):
@@ -277,7 +277,8 @@ def test_get_classifiers(asreview_test_project):
 def test_get_training_sets(asreview_test_project):
     with asr.open_state(asreview_test_project) as state:
         assert isinstance(state.get_results_table()["training_set"], pd.Series)
-        assert all(state.get_results_table()["training_set"] == TEST_TRAINING_SETS)
+
+        assert state.get_results_table()["training_set"].to_list() == TEST_TRAINING_SETS
 
 
 def test_get_order_of_labeling(asreview_test_project):
@@ -373,7 +374,7 @@ def test_add_labeling_data(tmpdir):
         assert data["query_strategy"].to_list() == [None] * 6
         assert data["balance_strategy"].to_list() == [None] * 6
         assert data["feature_extraction"].to_list() == [None] * 6
-        assert data["training_set"].to_list() == [None] * 6
+        assert data["training_set"].isna().all()
 
         state.query_top_ranked(3)
         data = state.get_results_table(pending=True)
@@ -382,11 +383,11 @@ def test_add_labeling_data(tmpdir):
         assert data["record_id"].to_list() == TEST_RECORD_IDS[:6] + [0, 1, 2]
 
         state.add_labeling_data([1], [1])
-        labels = state.get_results_table("label", pending=True)
+        labels = state.get_results_table("label", pending=True)["label"]
         assert labels.to_list()[:6] == TEST_LABELS[:6]
         assert labels[7] == 1
 
-        state.add_labeling_data([0, 2], [0, 1], notes=["note0", "note2"])
+        state.add_labeling_data([0, 2], [0, 1])
         data = state.get_results_table(pending=True)
         assert data["label"].to_list() == TEST_LABELS[:6] + [0, 1, 1]
 
@@ -452,11 +453,11 @@ def test_update_decision(tmpdir):
 
         for i in range(3):
             state.update(TEST_RECORD_IDS[i], 1 - TEST_LABELS[i])
-            new_label = state.get_data_by_record_id(TEST_RECORD_IDS[i])["label"][0]
+            new_label = state.get_results_record(TEST_RECORD_IDS[i])["label"][0]
             assert new_label == 1 - TEST_LABELS[i]
 
         state.update(TEST_RECORD_IDS[1], TEST_LABELS[1])
-        new_label = state.get_data_by_record_id(TEST_RECORD_IDS[1])["label"][0]
+        new_label = state.get_results_record(TEST_RECORD_IDS[1])["label"][0]
         assert new_label == TEST_LABELS[1]
 
         change_table = state.get_decision_changes()
@@ -577,14 +578,13 @@ def test_add_extra_column(tmpdir):
             training_set,
         )
 
-        top_ranked = state.query_top_ranked(1)
+        top_ranked = state.query_top_ranked(1)["record_id"]
         ranking_with_labels = state.get_ranking_with_labels()
         assert ranking_with_labels["label"].isnull().sum() == len(record_ids)
         assert ranking_with_labels["label"].notnull().sum() == 0
 
         state.add_labeling_data(top_ranked, [0 for _ in top_ranked])
         ranking_with_labels = state.get_ranking_with_labels()
-        print(ranking_with_labels)
 
         assert ranking_with_labels["label"].isnull().sum() == len(record_ids) - 1
         assert ranking_with_labels["label"].notnull().sum() == 1

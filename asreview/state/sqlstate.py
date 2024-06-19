@@ -375,7 +375,7 @@ class SQLiteState:
 
         return self.get_pending(user_id=user_id)
 
-    def get_data_by_record_id(self, record_id):
+    def get_results_record(self, record_id):
         """Get the data of a specific query from the results table.
 
         Arguments
@@ -393,6 +393,7 @@ class SQLiteState:
         return pd.read_sql_query(
             f"SELECT * FROM results WHERE record_id={record_id}",
             self._conn,
+            dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
         )
 
     def get_results_table(self, columns=None, priors=True, pending=False):
@@ -462,7 +463,7 @@ class SQLiteState:
         return pd.read_sql_query(
             "SELECT * FROM results WHERE query_strategy is NULL AND label is not NULL",
             self._conn,
-            dtype={"label": "Int64", "training_set": "Int64"},
+            dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
         )
 
     def get_pool(self):
@@ -503,13 +504,16 @@ class SQLiteState:
 
         if user_id is None:
             return pd.read_sql_query(
-                """SELECT * FROM results WHERE label is null""", self._conn
+                """SELECT * FROM results WHERE label is null""",
+                self._conn,
+                dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
             )
         else:
             return pd.read_sql_query(
                 """SELECT * FROM results WHERE label is null AND user_id=?""",
                 self._conn,
                 params=(user_id,),
+                dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
             )
 
     def get_ranking_with_labels(self):
