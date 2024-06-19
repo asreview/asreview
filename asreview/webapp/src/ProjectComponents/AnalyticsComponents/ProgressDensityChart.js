@@ -254,7 +254,7 @@ export default function ProgressDensityChart(props) {
         showAlways: false,
         max: 10,
         min: 0,
-        tickAmount: 3,
+        tickAmount: 5,
         title: {
           text: "Number of relevant records",
         },
