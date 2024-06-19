@@ -64,7 +64,7 @@ def test_n_prior_included(tmpdir):
     with asr.open_state(asreview_fp) as state:
         result = state.get_results_table(["label", "query_strategy"])
 
-    prior_included = result["label"] & (result["query_strategy"] == "prior")
+    prior_included = result["label"] & (result["query_strategy"].isnull())
     assert sum(prior_included) >= 2
 
     Path(tmpdir, "test").mkdir(parents=True)
