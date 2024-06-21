@@ -24,7 +24,6 @@ import NoteAltOutlinedIcon from "@mui/icons-material/NoteAltOutlined";
 import { styled } from "@mui/material/styles";
 import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";
-import "./ReviewPage.css";
 
 import { TagsTable } from ".";
 
@@ -94,7 +93,7 @@ const DecisionButton = ({
   label,
   labelFromDataset = null,
   tagsForm,
-  tagValues = [],
+  tagValues = null,
   note = null,
   showNotes = true,
   decisionCallback,
@@ -102,7 +101,9 @@ const DecisionButton = ({
   retrainAfterDecision = true,
 }) => {
   const [showNotesDialog, toggleShowNotesDialog] = useToggle(false);
-  const [tagValuesState, setTagValuesState] = React.useState(tagValues);
+  const [tagValuesState, setTagValuesState] = React.useState(
+    tagValues ? tagValues : structuredClone(tagsForm),
+  );
 
   const { error, isError, isLoading, mutate, isSuccess } = useMutation(
     ProjectAPI.mutateClassification,

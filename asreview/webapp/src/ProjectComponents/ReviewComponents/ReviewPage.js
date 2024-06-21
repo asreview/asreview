@@ -7,9 +7,7 @@ import { ActionsFeedbackBar } from "Components";
 import { RecordCard, ReviewPageFinished } from ".";
 
 import { ProjectAPI } from "api";
-// import { useKeyPress } from "hooks/useKeyPress";
 
-import "./ReviewPage.css";
 import FinishSetup from "./ReviewPageTraining";
 
 const Root = styled("div")(({ theme }) => ({

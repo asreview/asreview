@@ -36,7 +36,7 @@ RESULTS_TABLE_COLUMNS = [
     "training_set",
     "labeling_time",
     "note",
-    "custom_metadata_json",
+    "tags",
     "user_id",
 ]
 
@@ -49,6 +49,8 @@ RESULTS_TABLE_COLUMNS_PANDAS_DTYPES = {
     "feature_extraction": "object",
     "training_set": "Int64",
     "labeling_time": "object",
+    "note": "object",
+    "tags": "object",
     "user_id": "Int64",
 }
 
@@ -123,7 +125,7 @@ class SQLiteState:
                             training_set INTEGER,
                             labeling_time TEXT,
                             note TEXT,
-                            custom_metadata_json TEXT,
+                            tags JSON,
                             user_id INTEGER)"""
         )
 
@@ -259,7 +261,7 @@ class SQLiteState:
             }
         ).to_sql("last_ranking", self._conn, if_exists="replace", index=False)
 
-    def add_labeling_data(self, record_ids, labels, tags_list=None, user_id=None):
+    def add_labeling_data(self, record_ids, labels, tags=None, user_id=None):
         """Add the data corresponding to a labeling action to the state file.
 
         Arguments
@@ -268,21 +270,24 @@ class SQLiteState:
             A list of ids of the labeled records as int.
         labels: list, numpy.ndarray
             A list of labels of the labeled records as int.
-        tags_list: list of list
-            A list of tags to save with the labeled records.
+        tags: dict
+            A dict of tags to save with the labeled records.
         user_id: int
             User id of the user who labeled the records.
         """
 
-        if tags_list is None:
-            tags_list = [None for _ in record_ids]
+        if tags is None:
+            tags = [None for _ in record_ids]
 
-        if len({len(record_ids), len(labels), len(tags_list)}) != 1:
+        if len({len(record_ids), len(labels), len(tags)}) != 1:
             raise ValueError("Input data should be of the same length.")
 
-        custom_metadata_list = [
-            json.dumps({"tags": tags_list[i]}) for i, _ in enumerate(record_ids)
-        ]
+        if tags is None:
+            tags = [None for _ in record_ids]
+        elif isinstance(tags, dict):
+            tags = [json.dumps(tags) for _ in record_ids]
+        else:
+            tags = [json.dumps(tag) for tag in tags]
 
         labeling_time = datetime.now()
 
@@ -291,11 +296,11 @@ class SQLiteState:
         cur.executemany(
             (
                 """
-                INSERT INTO results(record_id,label,labeling_time,custom_metadata_json, user_id)
+                INSERT INTO results(record_id,label,labeling_time,tags, user_id)
                 VALUES(?,?,?,?,?)
                 ON CONFLICT(record_id) DO UPDATE
                     SET label=excluded.label, labeling_time=excluded.labeling_time,
-                    custom_metadata_json=excluded.custom_metadata_json, user_id=excluded.user_id
+                    tags=excluded.tags, user_id=excluded.user_id
             """
             ),
             [
@@ -303,7 +308,7 @@ class SQLiteState:
                     int(record_ids[i]),
                     int(labels[i]),
                     labeling_time,
-                    custom_metadata_list[i],
+                    tags[i],
                     user_id,
                 )
                 for i in range(len(record_ids))
@@ -442,11 +447,14 @@ class SQLiteState:
             }
 
         query_string = "*" if columns is None else ",".join(columns)
-        return pd.read_sql_query(
+        df_results = pd.read_sql_query(
             f"SELECT {query_string} FROM results {sql_where_str}",
             self._conn,
             dtype=col_dtype,
         )
+
+        df_results["tags"] = df_results["tags"].map(json.loads, na_action="ignore")
+        return df_results
 
     def get_priors(self):
         """Get the record ids of the priors.
@@ -546,7 +554,7 @@ class SQLiteState:
         cur = self._conn.cursor()
 
         cur.execute(
-            "UPDATE results SET label = ?, custom_metadata_json=? WHERE record_id = ?",
+            "UPDATE results SET label = ?, tags=? WHERE record_id = ?",
             (label, json.dumps({"tags": tags}), record_id),
         )
 

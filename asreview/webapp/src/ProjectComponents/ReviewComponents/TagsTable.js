@@ -6,40 +6,38 @@ import {
   FormGroup,
   FormControlLabel,
 } from "@mui/material";
-import "./ReviewPage.css";
 
 const TagsTable = ({
   tagsForm,
   setTagValues,
-  tagValues = [],
+  tagValues = null,
   disabled = false,
 }) => {
+  console.log(tagValues);
+
   const handleTagValueChange = (isChecked, groupId, tagId) => {
-    // create a set and store the tag values
-    let valuesSet = new Set(tagValues);
+    let groupI = tagValues.findIndex((group) => group.id === groupId);
+    let tagI = tagValues[groupI].values.findIndex((tag) => tag.id === tagId);
 
-    if (isChecked) {
-      valuesSet = valuesSet.add(`${groupId}:${tagId}`);
-    } else {
-      valuesSet.delete(`${groupId}:${tagId}`);
-    }
+    let tagValuesCopy = tagValues;
+    tagValuesCopy[groupI].values[tagI]["checked"] = isChecked;
 
-    setTagValues([...valuesSet]);
+    setTagValues(tagValuesCopy);
   };
 
   return (
     <>
       {tagsForm &&
-        tagsForm.map((group) => (
+        tagsForm.map((group, i) => (
           <Box key={group.id}>
             <Typography variant="h6">{group.name}</Typography>
             <FormGroup row={true}>
-              {group.values.map((tag) => (
+              {group.values.map((tag, j) => (
                 <FormControlLabel
                   key={`${group.id}:${tag.id}`}
                   control={
                     <Checkbox
-                      checked={tagValues?.includes(`${group.id}:${tag.id}`)}
+                      checked={tagValues[i]?.values[j]?.checked}
                       onChange={(e) => {
                         handleTagValueChange(
                           e.target.checked,

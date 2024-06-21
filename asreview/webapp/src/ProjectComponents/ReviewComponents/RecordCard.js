@@ -187,7 +187,7 @@ const RecordCard = ({
         note={record.state?.note}
         showNotes={showNotes}
         tagsForm={record.tags_form}
-        tagValues={record.tags}
+        tagValues={record.state?.tags}
         hotkeys={hotkeys}
       />
     </StyledCard>

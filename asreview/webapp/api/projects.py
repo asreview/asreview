@@ -69,22 +69,6 @@ from asreview.webapp.utils import get_project_path
 bp = Blueprint("api", __name__, url_prefix="/api")
 
 
-def _extract_tags(custom_metadata_str):
-    if not isinstance(custom_metadata_str, str):
-        return None
-
-    obj = json.loads(custom_metadata_str)
-
-    if "tags" in obj:
-        return obj["tags"]
-    else:
-        return None
-
-
-def _get_tag_composite_id(group_id, tag_id):
-    return f"{group_id}:{tag_id}"
-
-
 def _fill_last_ranking(project, ranking):
     """Fill the last ranking with a random or top-down ranking.
 
@@ -894,11 +878,11 @@ def api_import_project():
 
 
 def _add_tags_to_export_data(project, export_data, state_df):
-    tags_df = state_df[["custom_metadata_json"]].copy()
+    tags_df = state_df[["tags"]].copy()
 
     tags_df["tags"] = (
-        tags_df["custom_metadata_json"]
-        .apply(lambda d: _extract_tags(d))
+        tags_df["tags"]
+        # .apply(lambda d: _extract_tags(d))
         .apply(lambda d: d if isinstance(d, list) else [])
     )
 
@@ -907,7 +891,7 @@ def _add_tags_to_export_data(project, export_data, state_df):
 
     if tags_config is not None:
         all_tags = [
-            [_get_tag_composite_id(group["id"], tag["id"]) for tag in group["values"]]
+            [(group["id"], tag["id"]) for tag in group["values"]]
             for group in tags_config
         ]
         all_tags = list(chain.from_iterable(all_tags))
@@ -1248,7 +1232,7 @@ def api_label_record(project, record_id):  # noqa: F401
             state.add_labeling_data(
                 record_ids=[record_id],
                 labels=[label],
-                tags_list=[tags],
+                tags=[tags],
                 user_id=user_id,
             )
         elif label == -1:
