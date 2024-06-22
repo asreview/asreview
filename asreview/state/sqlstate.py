@@ -453,7 +453,8 @@ class SQLiteState:
             dtype=col_dtype,
         )
 
-        df_results["tags"] = df_results["tags"].map(json.loads, na_action="ignore")
+        if columns is None or "tags" in columns:
+            df_results["tags"] = df_results["tags"].map(json.loads, na_action="ignore")
         return df_results
 
     def get_priors(self):
@@ -465,11 +466,13 @@ class SQLiteState:
             The result records of the priors in the order they were added.
         """
 
-        return pd.read_sql_query(
+        df_results = pd.read_sql_query(
             "SELECT * FROM results WHERE query_strategy is NULL AND label is not NULL",
             self._conn,
             dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
         )
+        df_results["tags"] = df_results["tags"].map(json.loads, na_action="ignore")
+        return df_results
 
     def get_pool(self):
         """Get the unlabeled, not-pending records in ranking order.
