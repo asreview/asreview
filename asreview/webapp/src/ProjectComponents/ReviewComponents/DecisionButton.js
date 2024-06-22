@@ -29,6 +29,12 @@ import NoteAltOutlinedIcon from "@mui/icons-material/NoteAltOutlined";
 import { styled } from "@mui/material/styles";
 import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";
+import TimeAgo from "javascript-time-ago";
+
+import en from "javascript-time-ago/locale/en";
+
+TimeAgo.addLocale(en);
+const timeAgo = new TimeAgo("en-US");
 
 const PREFIX = "DecisionButton";
 
@@ -99,6 +105,8 @@ const DecisionButton = ({
   tagValues = null,
   note = null,
   showNotes = true,
+  labelDatetime = null,
+  user = null,
   decisionCallback,
   hotkeys = false,
   retrainAfterDecision = true,
@@ -253,6 +261,10 @@ const DecisionButton = ({
                 color="primary"
               />
             )}
+
+            <Typography variant="secondary" sx={{ pl: "0.5rem", opacity: 0.7 }}>
+              {timeAgo.format(new Date(labelDatetime))} {user && "by " + user}
+            </Typography>
           </>
         )}
 
