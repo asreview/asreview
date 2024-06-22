@@ -1,6 +1,11 @@
 import {
   Alert,
   Button,
+  Box,
+  Typography,
+  Checkbox,
+  FormGroup,
+  FormControlLabel,
   CardActions,
   CardContent,
   Chip,
@@ -24,8 +29,6 @@ import NoteAltOutlinedIcon from "@mui/icons-material/NoteAltOutlined";
 import { styled } from "@mui/material/styles";
 import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";
-
-import { TagsTable } from ".";
 
 const PREFIX = "DecisionButton";
 
@@ -114,6 +117,18 @@ const DecisionButton = ({
     },
   );
 
+  const handleTagValueChange = (isChecked, groupId, tagId) => {
+    let groupI = tagValuesState.findIndex((group) => group.id === groupId);
+    let tagI = tagValuesState[groupI].values.findIndex(
+      (tag) => tag.id === tagId,
+    );
+
+    let tagValuesCopy = structuredClone(tagValuesState);
+    tagValuesCopy[groupI].values[tagI]["checked"] = isChecked;
+
+    setTagValuesState(tagValuesCopy);
+  };
+
   const makeDecision = (label) => {
     mutate({
       project_id: project_id,
@@ -128,20 +143,41 @@ const DecisionButton = ({
   useHotkeys("i", () => hotkeys && makeDecision(0));
   useHotkeys("n", () => hotkeys && toggleShowNotesDialog(), { keyup: true });
 
-  const hasTags = Array.isArray(tagsForm) && tagsForm.length > 0;
-
   return (
     <Root>
-      {hasTags && (
+      {Array.isArray(tagsForm) && tagsForm.length > 0 && (
         <>
           <Divider>Tags</Divider>
           <CardContent>
-            <TagsTable
-              tagsForm={tagsForm}
-              tagValues={tagValuesState}
-              setTagValues={setTagValuesState}
-              disabled={label === 1 || label === 0}
-            />
+            {tagsForm &&
+              tagsForm.map((group, i) => (
+                <Box key={tagValuesState[i].name}>
+                  <Typography variant="h6">{group.name}</Typography>
+                  <FormGroup row={true} key={tagValuesState[i].name}>
+                    {group.values.map((tag, j) => (
+                      <FormControlLabel
+                        key={`${group.id}:${tag.id}`}
+                        control={
+                          <Checkbox
+                            checked={
+                              tagValuesState[i]?.values[j]?.checked || false
+                            }
+                            onChange={(e) => {
+                              handleTagValueChange(
+                                e.target.checked,
+                                group.id,
+                                tag.id,
+                              );
+                            }}
+                            disabled={label === 1 || label === 0}
+                          />
+                        }
+                        label={tag.name}
+                      />
+                    ))}
+                  </FormGroup>
+                </Box>
+              ))}
           </CardContent>
         </>
       )}
