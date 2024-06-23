@@ -143,7 +143,10 @@ class ProjectAPI {
 
   static mutateInfo(variables) {
     let body = new FormData();
-    body.set("name", variables.title);
+
+    if (variables.title !== undefined) {
+      body.set("name", variables.title);
+    }
 
     if (variables.authors !== undefined) {
       body.set("authors", variables.authors);
