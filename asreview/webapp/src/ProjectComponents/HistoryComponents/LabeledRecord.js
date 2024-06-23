@@ -118,6 +118,7 @@ const LabeledRecord = (props) => {
                       record={record}
                       collapseAbstract={true}
                       disabled={true}
+                      transitionType="none"
                       key={record.record_id}
                     />
                   )),

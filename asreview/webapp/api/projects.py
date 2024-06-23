@@ -1251,7 +1251,18 @@ def api_label_record(project, record_id):  # noqa: F401
             ]
         )
 
-    return jsonify({"success": True})
+    if request.method == "POST":
+        return jsonify({"success": True})
+    else:
+        with open_state(project.project_path) as state:
+            record = state.get_results_record(record_id)
+
+        as_data = project.read_data()
+        item = asdict(as_data.record(record_id))
+        item["state"] = record.iloc[0].to_dict()
+        item["tags_form"] = project.config.get("tags", None)
+
+        return jsonify({"result": item})
 
 
 @bp.route("/projects/<project_id>/record/<record_id>/note", methods=["PUT"])

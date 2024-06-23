@@ -576,20 +576,8 @@ class ProjectAPI {
     body.set("record_id", variables.record_id);
     body.set("label", variables.label);
 
-    if (variables.note !== undefined) {
-      body.set("note", variables.note);
-    }
-
-    const tagValues = variables.tagValues;
-
-    if (tagValues && Array.isArray(tagValues)) {
-      // if (typeof tagValues === "object") {
-      //   body.set("tags", JSON.stringify(Object.keys(tagValues)));
-      // } else
-
-      // if (Array.isArray(tagValues)) {
-      body.set("tags", JSON.stringify(tagValues));
-      // }
+    if (variables.tagValues && Array.isArray(variables.tagValues)) {
+      body.set("tags", JSON.stringify(variables.tagValues));
     }
 
     if (variables.retrain_model) {
@@ -603,16 +591,24 @@ class ProjectAPI {
         method: variables.initial ? "post" : "put",
         url: url,
         data: body,
-        // headers: { "Content-Type": "application/json" },
         withCredentials: true,
       })
         .then((result) => {
-          resolve(result);
-          console.log(
-            `${variables.project_id} - add item ${variables.record_id} to ${
-              variables.label === 1 ? "inclusions" : "exclusions"
-            }`,
-          );
+          if (result.config.method === "post") {
+            console.log(
+              `${variables.project_id} - initial classification ${
+                variables.record_id
+              } as ${variables.label === 1 ? "inclusion" : "exclusion"}`,
+            );
+            resolve(result);
+          } else {
+            console.log(
+              `${variables.project_id} - update classification ${
+                variables.record_id
+              } as ${variables.label === 1 ? "inclusion" : "exclusion"}`,
+            );
+            resolve(result["data"]);
+          }
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));

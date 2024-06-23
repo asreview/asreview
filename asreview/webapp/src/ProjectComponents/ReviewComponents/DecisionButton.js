@@ -23,6 +23,7 @@ import { useMutation } from "react-query";
 
 import { useHotkeys } from "react-hotkeys-hook";
 
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import LibraryAddOutlinedIcon from "@mui/icons-material/LibraryAddOutlined";
 import NotInterestedOutlinedIcon from "@mui/icons-material/NotInterestedOutlined";
 import NoteAltOutlinedIcon from "@mui/icons-material/NoteAltOutlined";
@@ -111,19 +112,28 @@ const DecisionButton = ({
   hotkeys = false,
   retrainAfterDecision = true,
 }) => {
+  const [editState, toggleEditState] = useToggle(!(label === 1 || label === 0));
   const [showNotesDialog, toggleShowNotesDialog] = useToggle(false);
   const [tagValuesState, setTagValuesState] = React.useState(
     tagValues ? tagValues : structuredClone(tagsForm),
   );
 
-  const { error, isError, isLoading, mutate, isSuccess } = useMutation(
+  const { error, isError, isLoading, mutate, isSuccess, data } = useMutation(
     ProjectAPI.mutateClassification,
     {
-      onSuccess: () => {
+      onSuccess: (data) => {
+        if (editState) {
+          // get the label from the request
+
+          toggleEditState();
+        }
+
         decisionCallback();
       },
     },
   );
+
+  console.log(data);
 
   const handleTagValueChange = (isChecked, groupId, tagId) => {
     let groupI = tagValuesState.findIndex((group) => group.id === groupId);
@@ -177,7 +187,7 @@ const DecisionButton = ({
                                 tag.id,
                               );
                             }}
-                            disabled={label === 1 || label === 0}
+                            disabled={!editState || isLoading || isSuccess}
                           />
                         }
                         label={tag.name}
@@ -222,7 +232,7 @@ const DecisionButton = ({
       )}
 
       <CardActions sx={{ display: "block" }}>
-        {!(label === 1 || label === 0) && (
+        {editState && (
           <>
             <Button
               id="relevant"
@@ -244,7 +254,7 @@ const DecisionButton = ({
           </>
         )}
 
-        {(label === 1 || label === 0) && (
+        {!editState && (
           <>
             {label === 1 && (
               <Chip
@@ -268,7 +278,7 @@ const DecisionButton = ({
           </>
         )}
 
-        {showNotes && (
+        {editState && showNotes && (
           <>
             <Tooltip title="Add note">
               <IconButton
@@ -288,6 +298,19 @@ const DecisionButton = ({
               note={note}
             />
           </>
+        )}
+
+        {(label === 1 || label === 0) && (
+          <Tooltip title="Edit record">
+            <IconButton
+              onClick={toggleEditState}
+              aria-label="Edit record decision"
+              sx={{ float: "right" }}
+              disabled={isLoading}
+            >
+              <EditOutlinedIcon />
+            </IconButton>
+          </Tooltip>
         )}
       </CardActions>
     </Root>

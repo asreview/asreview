@@ -107,9 +107,7 @@ const ReviewPage = ({
           )}
 
           {/* Review finished */}
-          {data?.result === null && data?.pool_empty && (
-            <ReviewPageFinished mobileScreen={mobileScreen} />
-          )}
+          {data?.result === null && data?.pool_empty && <ReviewPageFinished />}
         </>
       )}
     </Root>

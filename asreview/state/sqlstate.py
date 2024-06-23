@@ -392,11 +392,13 @@ class SQLiteState:
             record_id and columns.
         """
 
-        return pd.read_sql_query(
+        result = pd.read_sql_query(
             f"SELECT * FROM results WHERE record_id={record_id}",
             self._conn,
             dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
         )
+        result["tags"] = result["tags"].map(json.loads, na_action="ignore")
+        return result
 
     def get_results_table(self, columns=None, priors=True, pending=False):
         """Get a subset from the results table.
