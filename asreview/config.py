@@ -63,10 +63,8 @@ COLUMN_DEFINITIONS = {
     "notes": ["notes"],
     "keywords": ["keywords"],
     "doi": ["doi"],
-    "custom_metadata_json": [
-        "custom metadata",
-        "custom metadata json",
-        "custom_metadata_json",
+    "tags": [
+        "tags",
     ],
     "is_prior": ["asreview_prior", "is_prior"],
 }

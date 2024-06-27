@@ -25,20 +25,20 @@ export const getDesignTokens = (mode) => ({
     ...(mode === "light"
       ? {
           primary: {
-            main: "#816700",
-            light: "#FFCD00",
+            main: "#934949",
+            light: "#bd7e7c",
           },
           secondary: {
-            main: "#076AED",
-            light: "#3ea6ff",
+            main: "#499393",
+            light: "#6dcdcc",
           },
         }
       : {
           primary: {
-            main: "#FFCD00",
+            main: "#934949",
           },
           secondary: {
-            main: "#3ea6ff",
+            main: "#499393",
           },
         }),
   },
@@ -63,10 +63,6 @@ export const defaultAlgorithms = {
 
 // drawer configs
 export const drawerWidth = 250;
-
-// review screen configs
-export const decisionUndoBarDuration = 6000;
-export const decisionUndoBarMarginBottom = 80;
 
 export const checkIfSimulationFinishedDuration = 6000;
 
@@ -146,9 +142,3 @@ export const projectStatuses = {
   FINISHED: "finished",
   ERROR: "error",
 };
-
-// project history filter options
-export const historyFilterOptions = [
-  { value: "note", label: "Contains note" },
-  { value: "prior", label: "Prior knowledge" },
-];

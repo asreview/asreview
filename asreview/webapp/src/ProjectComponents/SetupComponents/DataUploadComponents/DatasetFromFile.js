@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "react-query";
 import { connect } from "react-redux";
 import {
   Avatar,
+  Alert,
   Box,
   ButtonBase,
   Stack,
@@ -12,8 +13,6 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FileUpload } from "@mui/icons-material";
-
-import { InlineErrorHandler } from "Components";
 
 import { ProjectAPI } from "api";
 import { mapStateToProps, projectModes } from "globals.js";
@@ -164,8 +163,9 @@ const DatasetFromFile = ({ project_id, mode, setDataset }) => {
               />
             </Avatar>
           </ButtonBase>
-          <Typography>Drag and drop a dataset file to add</Typography>
-          <Typography variant="secondary">Or click to select a file</Typography>
+          <Typography>
+            Drag and drop a dataset file or click on the button
+          </Typography>
           <Typography variant="secondary">
             Accepted files: {acceptedFileTypes}
           </Typography>
@@ -176,9 +176,7 @@ const DatasetFromFile = ({ project_id, mode, setDataset }) => {
           )}
           {isCreatingProject && <CircularProgress />}
           {isCreatingProjectError && (
-            <InlineErrorHandler
-              message={createProjectError?.message + " Please try again."}
-            />
+            <Alert severity="error">{createProjectError?.message + "."}</Alert>
           )}
         </Stack>
       </Box>

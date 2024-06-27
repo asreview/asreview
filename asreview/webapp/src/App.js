@@ -23,12 +23,7 @@ import {
 } from "Components";
 import { HomePage } from "./HomeComponents";
 import { ProjectPage } from "ProjectComponents";
-import {
-  useDarkMode,
-  useFontSize,
-  useKeyPressEnabled,
-  useUndoEnabled,
-} from "hooks/SettingsHooks";
+import { useDarkMode, useFontSize, useUndoEnabled } from "hooks/SettingsHooks";
 import { useToggle } from "hooks/useToggle";
 
 // Ensure that on localhost we use 'localhost' instead of '127.0.0.1'
@@ -72,7 +67,6 @@ const App = () => {
   const [theme, toggleDarkMode] = useDarkMode();
   const [fontSize, handleFontSizeChange] = useFontSize();
   const [undoEnabled, toggleUndoEnabled] = useUndoEnabled();
-  const [keyPressEnabled, toggleKeyPressEnabled] = useKeyPressEnabled();
 
   const muiTheme = createTheme(theme);
   const mobileScreen = useMediaQuery(muiTheme.breakpoints.down("md"), {
@@ -178,7 +172,6 @@ const App = () => {
                 onNavDrawer={onNavDrawer}
                 fontSize={fontSize}
                 undoEnabled={undoEnabled}
-                keyPressEnabled={keyPressEnabled}
                 projectCheck={projectCheck}
                 setProjectCheck={setProjectCheck}
               />
@@ -196,22 +189,6 @@ const App = () => {
           <CssBaseline />
 
           <div aria-label="nav and main content">
-            {typeof window.loginInfo === "string" &&
-              window.loginInfo.length > 0 && (
-                <Alert
-                  severity="info"
-                  variant="standard"
-                  sx={{
-                    padding: "2px",
-                    paddingLeft: "6px",
-                    margin: 0,
-                    borderRadius: 0,
-                  }}
-                >
-                  {window.loginInfo}
-                </Alert>
-              )}
-
             {!window.authentication && <Routes>{render_routes()}</Routes>}
 
             {window.authentication && (
@@ -222,7 +199,6 @@ const App = () => {
             )}
           </div>
 
-          {/* Notifications */}
           <Snackbar
             open={notification.open}
             autoHideDuration={6000}
@@ -237,18 +213,15 @@ const App = () => {
             </Alert>
           </Snackbar>
 
-          {/* Dialogs */}
           <SettingsDialog
             mobileScreen={mobileScreen}
             onSettings={onSettings}
             onDark={theme}
             fontSize={fontSize}
-            keyPressEnabled={keyPressEnabled}
             undoEnabled={undoEnabled}
             toggleSettings={toggleSettings}
             toggleDarkMode={toggleDarkMode}
             handleFontSizeChange={handleFontSizeChange}
-            toggleKeyPressEnabled={toggleKeyPressEnabled}
             toggleUndoEnabled={toggleUndoEnabled}
           />
           <HelpDialog mobileScreen={mobileScreen} />

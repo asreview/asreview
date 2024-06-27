@@ -143,7 +143,10 @@ class ProjectAPI {
 
   static mutateInfo(variables) {
     let body = new FormData();
-    body.set("name", variables.title);
+
+    if (variables.title !== undefined) {
+      body.set("name", variables.title);
+    }
 
     if (variables.authors !== undefined) {
       body.set("authors", variables.authors);
@@ -267,31 +270,14 @@ class ProjectAPI {
     });
   }
 
-  static fetchPriorRandom({ queryKey }) {
-    const { project_id, n, subset } = queryKey[1];
-    const url = api_url + `projects/${project_id}/prior_random`;
-    return new Promise((resolve, reject) => {
-      axios
-        .get(url, {
-          params: { n: n, subset: subset },
-          withCredentials: true,
-        })
-        .then((result) => {
-          resolve(result["data"]);
-        })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
   static fetchLabeledRecord({ pageParam = 1, queryKey }) {
-    const { project_id, subset, per_page } = queryKey[1];
+    const { project_id, subset, filter } = queryKey[1];
+
     const url = api_url + `projects/${project_id}/labeled`;
     return new Promise((resolve, reject) => {
       axios
         .get(url, {
-          params: { subset: subset, page: pageParam, per_page: per_page },
+          params: { subset: subset, filter: filter, page: pageParam },
           paramsSerializer: (params) => {
             return qs.stringify(params, { arrayFormat: "repeat" });
           },
@@ -589,20 +575,13 @@ class ProjectAPI {
     let body = new FormData();
     body.set("record_id", variables.record_id);
     body.set("label", variables.label);
-    body.set("note", variables.note);
 
-    const tagValues = variables.tagValues;
-    if (tagValues) {
-      if (typeof tagValues === "object") {
-        body.set("tags", JSON.stringify(Object.keys(tagValues)));
-      } else if (Array.isArray(tagValues)) {
-        body.set("tags", JSON.stringify(tagValues));
-      }
+    if (variables.tagValues && Array.isArray(variables.tagValues)) {
+      body.set("tags", JSON.stringify(variables.tagValues));
     }
 
-    // prior items should be labeled as such
-    if (variables.is_prior === 1) {
-      body.set("is_prior", 1);
+    if (variables.retrain_model) {
+      body.set("retrain_model", 1);
     }
     const url =
       api_url +
@@ -612,16 +591,49 @@ class ProjectAPI {
         method: variables.initial ? "post" : "put",
         url: url,
         data: body,
-        // headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      })
+        .then((result) => {
+          if (result.config.method === "post") {
+            console.log(
+              `${variables.project_id} - initial classification ${
+                variables.record_id
+              } as ${variables.label === 1 ? "inclusion" : "exclusion"}`,
+            );
+            resolve(result);
+          } else {
+            console.log(
+              `${variables.project_id} - update classification ${
+                variables.record_id
+              } as ${variables.label === 1 ? "inclusion" : "exclusion"}`,
+            );
+            resolve(result["data"]);
+          }
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static mutateNote(variables) {
+    let body = new FormData();
+    body.set("record_id", variables.record_id);
+    body.set("note", variables.note);
+
+    const url =
+      api_url +
+      `projects/${variables.project_id}/record/${variables.record_id}/note`;
+
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "put",
+        url: url,
+        data: body,
         withCredentials: true,
       })
         .then((result) => {
           resolve(result);
-          console.log(
-            `${variables.project_id} - add item ${variables.record_id} to ${
-              variables.label === 1 ? "inclusions" : "exclusions"
-            }`,
-          );
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));

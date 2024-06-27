@@ -1,26 +1,25 @@
-import * as React from "react";
-import { useParams } from "react-router-dom";
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Box,
   Container,
-  Typography,
-  FormGroup,
   FormControlLabel,
+  FormGroup,
   Switch,
+  Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import LoadingButton from "@mui/lab/LoadingButton";
+import { useParams } from "react-router-dom";
 
 import { ProjectDeleteDialog } from "ProjectComponents";
-import { ScreenLanding } from "ProjectComponents/SetupComponents/ScreenComponents";
-import { ModelForm } from "ProjectComponents/SetupComponents/ModelComponents";
-import { PriorForm } from "ProjectComponents/SetupComponents/PriorComponents";
-import { InfoForm } from "ProjectComponents/SetupComponents/InfoComponents";
+import {
+  ModelCard,
+  PriorCard,
+  TagCard,
+} from "ProjectComponents/SetupComponents";
 
-import { TypographyH5Medium } from "StyledComponents/StyledTypography";
+import { ProjectContext } from "ProjectContext";
 import { projectStatuses } from "globals.js";
 import { useToggle } from "hooks/useToggle";
-import { ProjectContext } from "ProjectContext";
 
 const Root = styled("div")(({ theme }) => ({}));
 
@@ -37,31 +36,18 @@ const DetailsPage = (props) => {
 
   return (
     <Root aria-label="details page">
-      <Box className="main-page-sticky-header with-button">
-        {!props.mobileScreen && (
-          <TypographyH5Medium>Details</TypographyH5Medium>
-        )}
-        {props.mobileScreen && <Typography variant="h6">Details</Typography>}
-      </Box>
-
       <Container maxWidth="md">
         <ProjectContext.Provider value={project_id}>
           <Box sx={{ padding: "12px 0px" }}>
-            <InfoForm editable={true} />
-          </Box>
-          <Box sx={{ padding: "12px 0px" }}>
-            <PriorForm
-              editable={false}
-              setHistoryFilterQuery={props.setHistoryFilterQuery}
-            />
-          </Box>
-          <Box sx={{ padding: "12px 0px" }}>
-            <ModelForm editable={true} showWarning={true} />
-          </Box>
-          <Box sx={{ padding: "12px 0px" }}>
-            <ScreenLanding />
+            <TagCard editable={false} />
           </Box>
 
+          <Box sx={{ padding: "12px 0px" }}>
+            <ModelCard editable={true} showWarning={true} />
+          </Box>
+          <Box sx={{ padding: "12px 0px" }}>
+            <PriorCard editable={false} />
+          </Box>
           <Box sx={{ padding: "12px 0px" }}>
             <Typography variant="h6">Project status</Typography>
             <FormGroup>

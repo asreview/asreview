@@ -112,7 +112,6 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
 const columns = [
   { id: "name", label: "Project", width: "55%" },
   { id: "created_at_unix", label: "Date", width: "15%" },
-  // { id: "mode", label: "Mode", width: "15%" },
   { id: "status", label: "Status", width: "15%" },
 ];
 
@@ -141,7 +140,7 @@ const ProjectTable = (props) => {
   const [rowsPerPage, handleRowsPerPage] = useRowsPerPage();
   const [setupDialogState, setSetupDialogState] = React.useState({
     open: false,
-    project_id: null,
+    project_info: null,
   });
 
   /**
@@ -312,7 +311,7 @@ const ProjectTable = (props) => {
     ) {
       setSetupDialogState({
         open: true,
-        project_id: project["id"],
+        project_info: project,
       });
     } else if (!project["projectNeedsUpgrade"]) {
       // open project page
@@ -585,7 +584,7 @@ const ProjectTable = (props) => {
               <Button
                 id="get-started"
                 onClick={() => {
-                  props.openDataPick(props.mode);
+                  // props.openDataPick(props.mode);
                 }}
               >
                 Start
@@ -620,14 +619,15 @@ const ProjectTable = (props) => {
           />
         )}
       <SetupDialog
-        project_id={setupDialogState.project_id}
+        projectInfo={setupDialogState.project_info}
         mode={props.mode}
         mobileScreen={props.mobileScreen}
         open={setupDialogState.open}
         onClose={() => {
-          setSetupDialogState({ open: false, project_id: null });
+          setSetupDialogState({ open: false, project_info: null });
         }}
         setFeedbackBar={props.setFeedbackBar}
+        key={"setup-dialog-" + setupDialogState.project_info?.id}
       />
       <ProjectCheckDialog
         projectCheck={props.projectCheck}

@@ -1,5 +1,13 @@
 import * as React from "react";
-import { Box, Card, CardContent, Fade, Stack, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Card,
+  CardContent,
+  Fade,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { HelpPrivacyTermsButton, SignInForm } from "Components";
@@ -65,6 +73,11 @@ const SignIn = ({ allowAccountCreation, emailVerification, oAuthConfig }) => {
                     alt="ASReview LAB"
                   />
                   <Typography variant="h5">Sign in</Typography>
+
+                  {typeof window.loginInfo === "string" &&
+                    window.loginInfo.length > 0 && (
+                      <Alert severity="info">{window.loginInfo}</Alert>
+                    )}
                 </Stack>
                 <SignInForm
                   classes={classes}

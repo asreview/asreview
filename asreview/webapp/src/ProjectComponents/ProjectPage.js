@@ -15,9 +15,10 @@ import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { DialogErrorHandler } from "Components";
+import { PageHeader } from "Components";
 import { AnalyticsPage } from "ProjectComponents/AnalyticsComponents";
 import { DetailsPage } from "ProjectComponents/DetailsComponents";
-import { HistoryPage } from "ProjectComponents/HistoryComponents";
+import { LabelHistory } from "ProjectComponents/HistoryComponents";
 import { ExportPage } from "ProjectComponents/ExportComponents";
 import { CollaborationPage, TeamPage } from "ProjectComponents/TeamComponents";
 
@@ -79,10 +80,6 @@ const ProjectPage = (props) => {
   const [isOwner, setIsOwner] = React.useState(false);
 
   const [tags, setTags] = React.useState([]);
-
-  // History page state
-  const [historyLabel, setHistoryLabel] = React.useState("relevant");
-  const [historyFilterQuery, setHistoryFilterQuery] = React.useState([]);
 
   const { data, error, isError, isSuccess } = useQuery(
     ["fetchInfo", { project_id }],
@@ -210,7 +207,6 @@ const ProjectPage = (props) => {
                   projectMode={data?.mode}
                   fontSize={props.fontSize}
                   undoEnabled={props.undoEnabled}
-                  keyPressEnabled={props.keyPressEnabled}
                   tags={tags}
                 />
               }
@@ -222,16 +218,13 @@ const ProjectPage = (props) => {
             <Route
               path="history"
               element={
-                <HistoryPage
-                  project_id={project_id}
-                  filterQuery={historyFilterQuery}
-                  label={historyLabel}
-                  isSimulating={isSimulating}
-                  mobileScreen={props.mobileScreen}
-                  mode={data?.mode}
-                  setFilterQuery={setHistoryFilterQuery}
-                  setLabel={setHistoryLabel}
-                />
+                <>
+                  <PageHeader
+                    header="History"
+                    mobileScreen={props.mobileScreen}
+                  />
+                  <LabelHistory project_id={project_id} />
+                </>
               }
             />
           )}
@@ -269,14 +262,19 @@ const ProjectPage = (props) => {
             <Route
               path="details"
               element={
-                <DetailsPage
-                  project_id={project_id}
-                  info={data}
-                  tags={tags}
-                  isSimulating={isSimulating}
-                  mobileScreen={props.mobileScreen}
-                  setHistoryFilterQuery={setHistoryFilterQuery}
-                />
+                <>
+                  <PageHeader
+                    header="Details"
+                    mobileScreen={props.mobileScreen}
+                  />
+                  <DetailsPage
+                    project_id={project_id}
+                    info={data}
+                    tags={tags}
+                    isSimulating={isSimulating}
+                    mobileScreen={props.mobileScreen}
+                  />
+                </>
               }
             />
           )}

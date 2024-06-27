@@ -52,8 +52,8 @@ def test_prior_idx(tmpdir):
 
     assert results_table["record_id"][0] == 1
     assert results_table["record_id"][1] == 4
-    assert all(results_table["query_strategy"][:1] == "prior")
-    assert all(results_table["query_strategy"][2:] != "prior")
+    assert results_table["query_strategy"][:1].isnull().all()
+    assert results_table["query_strategy"][2:].notnull().all()
 
 
 def test_n_prior_included(tmpdir):
@@ -64,7 +64,7 @@ def test_n_prior_included(tmpdir):
     with asr.open_state(asreview_fp) as state:
         result = state.get_results_table(["label", "query_strategy"])
 
-    prior_included = result["label"] & (result["query_strategy"] == "prior")
+    prior_included = result["label"] & (result["query_strategy"].isnull())
     assert sum(prior_included) >= 2
 
     Path(tmpdir, "test").mkdir(parents=True)
@@ -90,7 +90,7 @@ def test_n_prior_excluded(tmpdir):
     with asr.open_state(asreview_fp) as state:
         result = state.get_results_table(["label", "query_strategy"])
 
-    prior_excluded = ~result["label"] & (result["query_strategy"] == "prior")
+    prior_excluded = ~result["label"] & (result["query_strategy"].isnull())
     assert sum(prior_excluded) >= 2
 
     Path(tmpdir, "test").mkdir(parents=True)
@@ -171,8 +171,8 @@ def test_number_records_found(tmpdir):
     _cli_simulate(argv)
 
     with asr.open_state(asreview_fp) as s:
-        assert s.get_labels().sum() == 28
-        assert s.get_labels().shape[0] == stop_if
+        assert s.get_results_table("label")["label"].sum() == 28
+        assert s.get_results_table("label").shape[0] == stop_if
         assert s.get_results_table().shape[0] == stop_if
         assert s.get_results_table()["record_id"].head(2).to_list() == [116, 285]
 
@@ -191,8 +191,8 @@ def test_stop_if_min(tmpdir):
     _cli_simulate(argv)
 
     with asr.open_state(asreview_fp) as s:
-        assert s.get_labels().sum() == 38
-        assert len(s.get_labels()) == 660
+        assert s.get_results_table("label")["label"].sum() == 38
+        assert len(s.get_results_table("label")) == 660
 
 
 def test_stop_if_all(tmpdir):
@@ -209,8 +209,8 @@ def test_stop_if_all(tmpdir):
     _cli_simulate(argv)
 
     with asr.open_state(asreview_fp) as s:
-        assert s.get_labels().sum() == 38
-        assert len(s.get_labels()) == 4544
+        assert s.get_results_table("label")["label"].sum() == 38
+        assert len(s.get_results_table("label")) == 4544
 
 
 @pytest.mark.xfail(raises=ValueError, reason="Cannot continue simulation.")
