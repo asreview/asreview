@@ -201,7 +201,7 @@ def _cli_simulate(argv):
     fm = feature_model.fit_transform(
         as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
     )
-    project.add_feature_matrix(fm, feature_model.name)
+    project.add_feature_matrix(fm, feature_model)
 
     print("The following records are prior knowledge:\n")
     for record_id, _ in as_data.df.iloc[prior_idx].iterrows():

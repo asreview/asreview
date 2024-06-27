@@ -61,12 +61,12 @@ def _run_model_start(project, output_error=True):
                 "models.feature_extraction", settings.feature_extraction
             )()
             try:
-                fm = project.get_feature_matrix(feature_model.name)
+                fm = project.get_feature_matrix(feature_model)
             except FileNotFoundError:
                 fm = feature_model.fit_transform(
                     as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
                 )
-                project.add_feature_matrix(fm, feature_model.name)
+                project.add_feature_matrix(fm, feature_model)
 
             # TODO: Simplify balance model input.
             # Use the balance model to sample the trainings data.
@@ -132,7 +132,7 @@ def _simulate_start(project):
     fm = feature_model.fit_transform(
         as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
     )
-    project.add_feature_matrix(fm, feature_model.name)
+    project.add_feature_matrix(fm, feature_model)
 
     sim = Simulate(
         fm,
