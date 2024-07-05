@@ -1,6 +1,7 @@
 import { styled } from "@mui/material/styles";
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
+import { useMediaQuery } from "@mui/material";
 import { useParams } from "react-router-dom";
 
 import { ActionsFeedbackBar } from "Components";
@@ -46,8 +47,8 @@ const Screener = (props) => {
           project_id={project_id}
           record={data["result"]}
           afterDecision={afterDecision}
-          fontSize={props.fontSize}
-          mobileScreen={props.mobileScreen}
+          fontSize={props.fontSize?.label}
+          showBorder={props.showBorder}
           tags={props.tags}
           tagValues={tagValues}
           setTagValues={setTagValues}
@@ -68,13 +69,7 @@ const Screener = (props) => {
   );
 };
 
-const ReviewPage = ({
-  project_id,
-  mobileScreen,
-  fontSize,
-  undoEnabled,
-  tags,
-}) => {
+const ReviewPage = ({ project_id, fontSize, undoEnabled, tags }) => {
   /* fetch the record and check if the project is training */
   const { refetch, data, isSuccess } = useQuery(
     ["fetchRecord", { project_id }],
@@ -88,6 +83,10 @@ const ReviewPage = ({
     },
   );
 
+  let showBorder = useMediaQuery((theme) => theme.breakpoints.up("md"), {
+    noSsr: true,
+  });
+
   return (
     <Root aria-label="review page">
       {isSuccess && (
@@ -95,9 +94,9 @@ const ReviewPage = ({
           {data?.result !== null && (
             <Screener
               record={data}
-              mobileScreen={mobileScreen}
               fontSize={fontSize}
               undoEnabled={undoEnabled}
+              showBorder={showBorder}
               tags={tags}
             />
           )}

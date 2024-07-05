@@ -44,10 +44,10 @@ const StyledCard = styled(Card)(() => ({
 const RecordCard = ({
   project_id,
   record,
-  afterDecision,
+  afterDecision = null,
   retrainAfterDecision = true,
-  mobileScreen,
-  fontSize,
+  showBorder = true,
+  fontSize = "Default",
   showNotes = true,
   collapseAbstract = false,
   hotkeys = false,
@@ -72,7 +72,7 @@ const RecordCard = ({
   // console.log(record);
 
   const styledRepoCard = (
-    <StyledCard elevation={mobileScreen ? 0 : 2}>
+    <StyledCard elevation={showBorder ? 2 : 0}>
       {isNotTrained && (
         <Alert
           severity="warning"
@@ -97,7 +97,7 @@ const RecordCard = ({
             <Typography
               component="div"
               className={classes.title}
-              variant={!mobileScreen ? "h5" : "h6"}
+              variant={"h5"}
               sx={{
                 fontWeight: (theme) => theme.typography.fontWeightRegular,
               }}

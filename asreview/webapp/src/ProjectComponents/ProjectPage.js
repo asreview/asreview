@@ -203,7 +203,6 @@ const ProjectPage = (props) => {
               element={
                 <ReviewPage
                   project_id={project_id}
-                  mobileScreen={props.mobileScreen}
                   projectMode={data?.mode}
                   fontSize={props.fontSize}
                   undoEnabled={props.undoEnabled}
