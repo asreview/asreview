@@ -133,8 +133,6 @@ const DecisionButton = ({
     },
   );
 
-  console.log(data);
-
   const handleTagValueChange = (isChecked, groupId, tagId) => {
     let groupI = tagValuesState.findIndex((group) => group.id === groupId);
     let tagI = tagValuesState[groupI].values.findIndex(

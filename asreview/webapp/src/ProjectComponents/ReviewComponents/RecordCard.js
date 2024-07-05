@@ -104,18 +104,13 @@ const RecordCard = ({
             >
               {/* No title, inplace text */}
               {(record.title === "" || record.title === null) && (
-                <Box
-                  className={"fontSize" + fontSize?.label}
-                  fontStyle="italic"
-                >
+                <Box className={"fontSize" + fontSize} fontStyle="italic">
                   No title available
                 </Box>
               )}
 
               {!(record.title === "" || record.title === null) && (
-                <Box className={"fontSize" + fontSize?.label}>
-                  {record.title}
-                </Box>
+                <Box className={"fontSize" + fontSize}>{record.title}</Box>
               )}
             </Typography>
             {record?.state && <RecordTrainingInfo state={record.state} />}
@@ -148,7 +143,7 @@ const RecordCard = ({
 
           <Typography
             component="div"
-            className={classes.abstract + " fontSize" + fontSize?.label}
+            className={classes.abstract + " fontSize" + fontSize}
             variant="body2"
             paragraph
             sx={{ color: "text.secondary" }}
