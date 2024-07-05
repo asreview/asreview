@@ -23,7 +23,7 @@ import {
 } from "Components";
 import { HomePage } from "./HomeComponents";
 import { ProjectPage } from "ProjectComponents";
-import { useDarkMode, useFontSize, useUndoEnabled } from "hooks/SettingsHooks";
+import { useDarkMode, useFontSize } from "hooks/SettingsHooks";
 import { useToggle } from "hooks/useToggle";
 
 // Ensure that on localhost we use 'localhost' instead of '127.0.0.1'
@@ -66,7 +66,6 @@ const App = () => {
   // Settings hook
   const [theme, toggleDarkMode] = useDarkMode();
   const [fontSize, handleFontSizeChange] = useFontSize();
-  const [undoEnabled, toggleUndoEnabled] = useUndoEnabled();
 
   const muiTheme = createTheme(theme);
   const mobileScreen = useMediaQuery(muiTheme.breakpoints.down("md"), {
@@ -171,7 +170,6 @@ const App = () => {
                 mobileScreen={mobileScreen}
                 onNavDrawer={onNavDrawer}
                 fontSize={fontSize}
-                undoEnabled={undoEnabled}
                 projectCheck={projectCheck}
                 setProjectCheck={setProjectCheck}
               />
@@ -218,11 +216,9 @@ const App = () => {
             onSettings={onSettings}
             onDark={theme}
             fontSize={fontSize}
-            undoEnabled={undoEnabled}
             toggleSettings={toggleSettings}
             toggleDarkMode={toggleDarkMode}
             handleFontSizeChange={handleFontSizeChange}
-            toggleUndoEnabled={toggleUndoEnabled}
           />
           <HelpDialog mobileScreen={mobileScreen} />
         </ThemeProvider>

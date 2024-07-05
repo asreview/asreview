@@ -69,7 +69,7 @@ const Screener = (props) => {
   );
 };
 
-const ReviewPage = ({ project_id, fontSize, undoEnabled, tags }) => {
+const ReviewPage = ({ project_id, fontSize, tags }) => {
   /* fetch the record and check if the project is training */
   const { refetch, data, isSuccess } = useQuery(
     ["fetchRecord", { project_id }],
@@ -95,7 +95,6 @@ const ReviewPage = ({ project_id, fontSize, undoEnabled, tags }) => {
             <Screener
               record={data}
               fontSize={fontSize}
-              undoEnabled={undoEnabled}
               showBorder={showBorder}
               tags={tags}
             />

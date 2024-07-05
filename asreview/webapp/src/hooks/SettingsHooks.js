@@ -67,23 +67,4 @@ const useFontSize = () => {
   return [fontSize, handleFontSizeChange];
 };
 
-const useUndoEnabled = () => {
-  const [undoEnabled, setUndoEnabled] = useState(true);
-
-  const toggleUndoEnabled = () => {
-    window.localStorage.setItem("undoEnabled", !undoEnabled);
-    setUndoEnabled((a) => !a);
-  };
-
-  useEffect(() => {
-    const localUndoEnabled = window.localStorage.getItem("undoEnabled");
-    const localUndoEnabledIsTrue = localUndoEnabled === "true";
-    if (undoEnabled !== localUndoEnabledIsTrue && localUndoEnabled !== null) {
-      setUndoEnabled(localUndoEnabledIsTrue);
-    }
-  }, [undoEnabled]);
-
-  return [undoEnabled, toggleUndoEnabled];
-};
-
-export { useRowsPerPage, useDarkMode, useFontSize, useUndoEnabled };
+export { useRowsPerPage, useDarkMode, useFontSize };

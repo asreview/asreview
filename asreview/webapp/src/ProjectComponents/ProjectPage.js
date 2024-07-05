@@ -205,7 +205,6 @@ const ProjectPage = (props) => {
                   project_id={project_id}
                   projectMode={data?.mode}
                   fontSize={props.fontSize}
-                  undoEnabled={props.undoEnabled}
                   tags={tags}
                 />
               }

@@ -165,33 +165,6 @@ const SettingsDialog = (props) => {
                 display="block"
                 variant="subtitle2"
               >
-                REVIEW PREFERENCES
-              </Typography>
-            </ListItem>
-            <ListItem button onClick={props.toggleUndoEnabled}>
-              <ListItemIcon></ListItemIcon>
-              <ListItemText
-                id="switch-list-label-undo"
-                primary="Undo"
-                secondary="Allow returning to the previous decision"
-              />
-              <ListItemSecondaryAction sx={{ right: 24 }}>
-                <Switch
-                  edge="end"
-                  onChange={props.toggleUndoEnabled}
-                  checked={props.undoEnabled}
-                  inputProps={{ "aria-labelledby": "switch-list-label-undo" }}
-                />
-              </ListItemSecondaryAction>
-            </ListItem>
-            <Divider sx={{ marginTop: "8px", marginBottom: "8px" }} />
-            <ListItem>
-              <ListItemIcon></ListItemIcon>
-              <Typography
-                color="textSecondary"
-                display="block"
-                variant="subtitle2"
-              >
                 OTHER
               </Typography>
             </ListItem>
