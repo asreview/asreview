@@ -214,11 +214,11 @@ const ProjectPage = (props) => {
           {/* History */}
           {isSuccess && !data?.projectNeedsUpgrade && (
             <Route
-              path="history"
+              path="collection"
               element={
                 <>
                   <PageHeader
-                    header="History"
+                    header="Collection"
                     mobileScreen={props.mobileScreen}
                   />
                   <LabelHistory project_id={project_id} />

@@ -97,7 +97,7 @@ const ProjectDeleteDialog = (props) => {
   const warningSuffix = () => {
     // which project are we talking about?
     if (props.isOwner) {
-      return ", including the dataset, review history, notes, and model configuration.";
+      return ", including the dataset, review labels, notes, and model configuration.";
     } else {
       return " from your list";
     }

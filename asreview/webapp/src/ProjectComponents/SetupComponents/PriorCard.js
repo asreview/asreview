@@ -80,7 +80,12 @@ const PriorCard = ({ mobileScreen, editable = true }) => {
             <FormControlLabel
               value="criteria"
               control={<Radio />}
-              label="Criteria"
+              label="Review criteria"
+            />
+            <FormControlLabel
+              value="file"
+              control={<Radio />}
+              label="From file"
             />
           </RadioGroup>
         </FormControl>
@@ -139,7 +144,7 @@ const PriorCard = ({ mobileScreen, editable = true }) => {
         />
       )}
 
-      {priorType === "criteria" && (
+      {(priorType === "criteria" || priorType === "file") && (
         <CardContent>
           <Alert severity="info">
             Coming soon! Keep an eye on our website and socials.

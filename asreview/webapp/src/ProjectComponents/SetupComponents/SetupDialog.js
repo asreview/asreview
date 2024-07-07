@@ -181,14 +181,6 @@ const SetupDialog = ({
         },
       }}
     >
-      {/* {mobileScreen && (
-        <AppBarWithinDialog
-          // disableStartIcon={isLoading}
-          onClickStartIcon={onClose}
-          startIconIsClose
-          title="Import dataset"
-        />
-      )} */}
       {!dataset && (
         <>
           <DialogTitle>Import dataset</DialogTitle>

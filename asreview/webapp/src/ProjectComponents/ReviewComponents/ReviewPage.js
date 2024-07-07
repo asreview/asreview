@@ -47,7 +47,7 @@ const Screener = (props) => {
           project_id={project_id}
           record={data["result"]}
           afterDecision={afterDecision}
-          fontSize={props.fontSize?.label}
+          fontSize={props.fontSize}
           showBorder={props.showBorder}
           tags={props.tags}
           tagValues={tagValues}

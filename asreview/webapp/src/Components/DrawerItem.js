@@ -13,14 +13,14 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import {
-  ArrowBack,
-  Assignment,
-  Assessment,
-  Dashboard,
-  Download,
-  Edit,
-  History,
-  PeopleAlt,
+  ArrowBackOutlined,
+  AssignmentOutlined,
+  AssessmentOutlined,
+  DashboardOutlined,
+  DownloadOutlined,
+  EditOutlined,
+  LibraryBooksOutlined,
+  PeopleAltOutlined,
 } from "@mui/icons-material";
 
 const PREFIX = "DrawerItem";
@@ -77,30 +77,30 @@ const DrawerItem = (props) => {
         props.label === "Validations" ||
         props.label === "Simulations")
     ) {
-      return <Dashboard color={returnIconColor()} />;
+      return <DashboardOutlined color={returnIconColor()} />;
     }
 
     // project page navigation
     if (project_id && props.label === "Projects") {
-      return <ArrowBack />;
+      return <ArrowBackOutlined />;
     }
     if (props.label === "Analytics") {
-      return <Assessment color={returnIconColor()} />;
+      return <AssessmentOutlined color={returnIconColor()} />;
     }
     if (props.label === "Review") {
-      return <Assignment color={returnIconColor()} />;
+      return <AssignmentOutlined color={returnIconColor()} />;
     }
-    if (props.label === "History") {
-      return <History color={returnIconColor()} />;
+    if (props.label === "Collection") {
+      return <LibraryBooksOutlined color={returnIconColor()} />;
     }
     if (props.label === "Team") {
-      return <PeopleAlt color={returnIconColor()} />;
+      return <PeopleAltOutlined color={returnIconColor()} />;
     }
     if (props.label === "Export") {
-      return <Download color={returnIconColor()} />;
+      return <DownloadOutlined color={returnIconColor()} />;
     }
     if (props.label === "Details") {
-      return <Edit color={returnIconColor()} />;
+      return <EditOutlined color={returnIconColor()} />;
     }
   };
 

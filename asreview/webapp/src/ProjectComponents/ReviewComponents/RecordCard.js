@@ -19,6 +19,8 @@ import { useToggle } from "hooks/useToggle";
 import { DOIIcon } from "icons";
 import { DecisionButton, RecordTrainingInfo } from ".";
 
+import { fontSizeOptions } from "globals.js";
+
 const PREFIX = "RecordCard";
 
 const classes = {
@@ -47,7 +49,7 @@ const RecordCard = ({
   afterDecision = null,
   retrainAfterDecision = true,
   showBorder = true,
-  fontSize = "Default",
+  fontSize = 1,
   showNotes = true,
   collapseAbstract = false,
   hotkeys = false,
@@ -104,13 +106,18 @@ const RecordCard = ({
             >
               {/* No title, inplace text */}
               {(record.title === "" || record.title === null) && (
-                <Box className={"fontSize" + fontSize} fontStyle="italic">
+                <Box
+                  className={"fontSize" + fontSizeOptions[fontSize]}
+                  fontStyle="italic"
+                >
                   No title available
                 </Box>
               )}
 
               {!(record.title === "" || record.title === null) && (
-                <Box className={"fontSize" + fontSize}>{record.title}</Box>
+                <Box className={"fontSize" + fontSizeOptions[fontSize]}>
+                  {record.title}
+                </Box>
               )}
             </Typography>
             {record?.state && <RecordTrainingInfo state={record.state} />}
@@ -143,7 +150,9 @@ const RecordCard = ({
 
           <Typography
             component="div"
-            className={classes.abstract + " fontSize" + fontSize}
+            className={
+              classes.abstract + " fontSize" + fontSizeOptions[fontSize]
+            }
             variant="body2"
             paragraph
             sx={{ color: "text.secondary" }}

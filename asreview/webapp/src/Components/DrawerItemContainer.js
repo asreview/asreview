@@ -20,7 +20,12 @@ import {
 } from "@mui/material";
 
 import { styled } from "@mui/material/styles";
-import { Diversity3, Help, Payment, Settings } from "@mui/icons-material";
+import {
+  Diversity1Outlined,
+  HelpOutlineOutlined,
+  PaymentOutlined,
+  TuneOutlined,
+} from "@mui/icons-material";
 
 import { DrawerItem, ElasGame } from "Components";
 import { ProjectAPI } from "api";
@@ -194,8 +199,8 @@ const ProjectItemList = ({
       )}
       <DrawerItem
         key={"project-history"}
-        path={`/projects/${project_id}/history`}
-        label={"History"}
+        path={`/projects/${project_id}/collection`}
+        label={"Collection"}
         mobileScreen={mobileScreen}
         onNavDrawer={onNavDrawer}
         toggleNavDrawer={toggleNavDrawer}
@@ -321,7 +326,7 @@ const DrawerItemContainer = (props) => {
               target="_blank"
             >
               <ListItemIcon className={classes.icon}>
-                <Payment />
+                <PaymentOutlined />
               </ListItemIcon>
               <ListItemText primary="Donate" />
             </ListItemButton>
@@ -340,7 +345,7 @@ const DrawerItemContainer = (props) => {
               target="_blank"
             >
               <ListItemIcon className={classes.icon}>
-                <Diversity3 />
+                <Diversity1Outlined />
               </ListItemIcon>
               <ListItemText primary="Community" />
             </ListItemButton>
@@ -348,7 +353,7 @@ const DrawerItemContainer = (props) => {
         )}
         <Tooltip
           disableHoverListener={props.onNavDrawer}
-          title="Settings"
+          title="Customize"
           placement="right"
         >
           <ListItemButton
@@ -360,9 +365,9 @@ const DrawerItemContainer = (props) => {
             }}
           >
             <ListItemIcon className={classes.icon}>
-              <Settings />
+              <TuneOutlined />
             </ListItemIcon>
-            <ListItemText primary="Settings" />
+            <ListItemText primary="Customize" />
           </ListItemButton>
         </Tooltip>
         <Tooltip
@@ -379,7 +384,7 @@ const DrawerItemContainer = (props) => {
             }}
           >
             <ListItemIcon className={classes.icon}>
-              <Help />
+              <HelpOutlineOutlined />
             </ListItemIcon>
             <ListItemText primary="Help" />
           </ListItemButton>

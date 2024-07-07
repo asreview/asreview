@@ -43,26 +43,22 @@ const useDarkMode = () => {
   return [theme, toggleDarkMode];
 };
 
-const useFontSize = () => {
-  const [fontSize, setFontSize] = useState(fontSizeOptions[1]);
+const useFontSize = (value = 1) => {
+  let localFontSize = parseInt(window.localStorage.getItem("fontSize"));
+  localFontSize =
+    localFontSize === 0 ||
+    localFontSize === 1 ||
+    localFontSize === 2 ||
+    localFontSize === 3
+      ? localFontSize
+      : value;
+
+  const [fontSize, setFontSize] = useState(localFontSize);
 
   const handleFontSizeChange = (size) => {
-    window.localStorage.setItem(
-      "fontSize",
-      JSON.stringify([size.value, size.label]),
-    );
+    window.localStorage.setItem("fontSize", size);
     setFontSize(size);
   };
-
-  useEffect(() => {
-    const localFontSize = JSON.parse(window.localStorage.getItem("fontSize"));
-    if (localFontSize !== null && fontSize.value !== localFontSize[0]) {
-      setFontSize({
-        value: localFontSize[0],
-        label: localFontSize[1],
-      });
-    }
-  }, [fontSize]);
 
   return [fontSize, handleFontSizeChange];
 };

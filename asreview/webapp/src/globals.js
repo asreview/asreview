@@ -66,24 +66,7 @@ export const drawerWidth = 250;
 
 export const checkIfSimulationFinishedDuration = 6000;
 
-export const fontSizeOptions = [
-  {
-    value: 1,
-    label: "Small",
-  },
-  {
-    value: 2,
-    label: "Default",
-  },
-  {
-    value: 3,
-    label: "Large",
-  },
-  {
-    value: 4,
-    label: "Largest",
-  },
-];
+export const fontSizeOptions = ["Small", "Default", "Large", "Largest"];
 
 // functions
 export const mapStateToProps = (state) => {
