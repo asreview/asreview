@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { fontSizeOptions, getDesignTokens } from "globals.js";
+import { getDesignTokens } from "globals.js";
 
 const useRowsPerPage = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -63,4 +63,4 @@ const useFontSize = (value = 1) => {
   return [fontSize, handleFontSizeChange];
 };
 
-export { useRowsPerPage, useDarkMode, useFontSize };
+export { useDarkMode, useFontSize, useRowsPerPage };

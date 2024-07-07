@@ -317,7 +317,7 @@ const Group = (props) => {
   };
 
   return (
-    <Accordion elevation={0} sx={{ backgroundColor: "#93494914" }}>
+    <Accordion elevation={0} sx={{ bgcolor: `primary.background` }}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Stack
           direction={!props.mobileScreen ? "row" : "column"}

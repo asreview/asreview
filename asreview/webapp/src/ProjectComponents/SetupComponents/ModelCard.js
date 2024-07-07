@@ -40,7 +40,6 @@ import { SelectItem } from "ProjectComponents";
 import { ProjectContext } from "ProjectContext";
 import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";
-import modelAlwaysGood from "images/models/modelAlwaysGood.png";
 import { useContext } from "react";
 
 const DEFAULT_MODELS = [
@@ -336,10 +335,11 @@ const ModelCard = ({
         <Skeleton sx={{ height: 140 }} animation="wave" variant="rectangular" />
       ) : (
         <CardMedia
-          component="img"
+          // component="img"
           height="140"
-          image={modelAlwaysGood}
+          // image={modelAlwaysGood}
           alt={"Model " + getFullModel(modelConfig).title}
+          sx={{ bgcolor: `primary.background` }}
         />
       )}
 

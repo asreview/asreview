@@ -17,7 +17,6 @@ import {
   Stack,
   Tooltip,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import * as React from "react";
 import { useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
@@ -37,24 +36,6 @@ import { ProjectContext } from "ProjectContext";
 import { ProjectAPI } from "api";
 import { projectModes, projectStatuses } from "globals.js";
 import { useToggle } from "hooks/useToggle";
-
-const PREFIX = "SetupDialog";
-
-const classes = {
-  form: `${PREFIX}-form`,
-  formWarmup: `${PREFIX}-form-warmup`,
-};
-
-const StyledSetupDialog = styled(Dialog)(({ theme }) => ({
-  [`& .${classes.form}`]: {
-    height: "calc(100% - 60px)",
-    overflowY: "scroll",
-    padding: "32px 48px 48px 48px",
-    [theme.breakpoints.down("md")]: {
-      padding: "32px 24px 48px 24px",
-    },
-  },
-}));
 
 const DialogProjectName = ({ project_id, dataset_name }) => {
   const [state, setState] = React.useState({
@@ -156,7 +137,7 @@ const SetupDialog = ({
   });
 
   return (
-    <StyledSetupDialog
+    <Dialog
       aria-label="project setup"
       open={open}
       fullScreen={mobileScreen}
@@ -265,7 +246,7 @@ const SetupDialog = ({
             project_id={dataset.id}
             dataset_name={dataset.name}
           />
-          <DialogContent sx={{ backgroundColor: "#be7e7b" }}>
+          <DialogContent sx={{ bgcolor: "primary.light" }}>
             <Collapse in={!showSettings}>
               <Box sx={{ mt: 3 }}>
                 <DatasetCard
@@ -319,7 +300,7 @@ const SetupDialog = ({
           </DialogActions>
         </ProjectContext.Provider>
       )}
-    </StyledSetupDialog>
+    </Dialog>
   );
 };
 

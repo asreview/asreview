@@ -11,11 +11,11 @@ import {
   Link,
   Skeleton,
 } from "@mui/material";
-import { ProjectAPI } from "api";
 
+import { ProjectAPI } from "api";
 import DatasetChart from "ProjectComponents/AnalyticsComponents/DatasetChart";
 
-const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
+const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
   const {
     data,
     // error: fetchDataError,
@@ -84,7 +84,7 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }, props) => {
           component="div"
           height="140"
           alt={"Dataset information"}
-          sx={{ backgroundColor: "#93494914" }}
+          sx={{ bgcolor: `primary.background` }}
         >
           <Grid container>
             <Grid item xs={12} sm={4} sx={{ width: "200px" }}>

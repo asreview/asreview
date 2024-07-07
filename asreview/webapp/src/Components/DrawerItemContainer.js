@@ -27,6 +27,8 @@ import {
   TuneOutlined,
 } from "@mui/icons-material";
 
+import { OpenInNewIconStyled } from "Components";
+
 import { DrawerItem, ElasGame } from "Components";
 import { ProjectAPI } from "api";
 import {
@@ -328,7 +330,13 @@ const DrawerItemContainer = (props) => {
               <ListItemIcon className={classes.icon}>
                 <PaymentOutlined />
               </ListItemIcon>
-              <ListItemText primary="Donate" />
+              <ListItemText
+                primary={
+                  <React.Fragment>
+                    Donate <OpenInNewIconStyled />
+                  </React.Fragment>
+                }
+              />
             </ListItemButton>
           </Tooltip>
         )}
@@ -347,7 +355,13 @@ const DrawerItemContainer = (props) => {
               <ListItemIcon className={classes.icon}>
                 <Diversity1Outlined />
               </ListItemIcon>
-              <ListItemText primary="Community" />
+              <ListItemText
+                primary={
+                  <React.Fragment>
+                    Community <OpenInNewIconStyled />
+                  </React.Fragment>
+                }
+              />
             </ListItemButton>
           </Tooltip>
         )}
