@@ -1,5 +1,6 @@
 import {
   Avatar,
+  Alert,
   Box,
   Button,
   Card,
@@ -207,12 +208,14 @@ const ModelSelectDialog = ({
                 value={value.name}
                 control={<Radio />}
                 label={value.title}
+                key={value.name}
               />
             ))}
             <FormControlLabel
               value={"custom"}
               control={<Radio />}
               label={"Custom"}
+              key="custom"
             />
             {getFullModel(selectedModel).name === "custom" && (
               <Box>
@@ -335,11 +338,11 @@ const ModelCard = ({
         <Skeleton sx={{ height: 140 }} animation="wave" variant="rectangular" />
       ) : (
         <CardMedia
-          // component="img"
+          component="img"
           height="140"
           // image={modelAlwaysGood}
           alt={"Model " + getFullModel(modelConfig).title}
-          sx={{ bgcolor: `primary.background` }}
+          sx={{ bgcolor: "primary.background" }}
         />
       )}
 
@@ -421,11 +424,11 @@ const ModelCard = ({
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <Divider />
         <CardContent>
-          <Typography variant="h6">Randomness level</Typography>
+          <Typography variant="h6">Show random records</Typography>
           <Typography paragraph>
             Present a small percentage of randomly selected records from your
-            dataset during your review. This might help to find relevant records
-            that are not found by the AI model.
+            dataset during your review. In some cases, this can help to find
+            isolated clusters of relevant records.
           </Typography>
           <Box sx={{ px: 2, paddingTop: 2 }}>
             <Slider
@@ -436,7 +439,11 @@ const ModelCard = ({
               valueLabelDisplay="on"
               min={0}
               max={25}
+              disabled
             />
+            <Alert severity="info">
+              Coming soon! Keep an eye on our website and socials.
+            </Alert>
           </Box>
         </CardContent>
       </Collapse>

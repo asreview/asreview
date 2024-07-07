@@ -84,7 +84,7 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
           component="div"
           height="140"
           alt={"Dataset information"}
-          sx={{ bgcolor: `primary.background` }}
+          sx={{ bgcolor: "primary.background" }}
         >
           <Grid container>
             <Grid item xs={12} sm={4} sx={{ width: "200px" }}>
