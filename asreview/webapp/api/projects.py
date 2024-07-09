@@ -634,7 +634,7 @@ def api_get_labeled_stats(project):  # noqa: F401
 def api_list_algorithms():
     """List the names and labels of available algorithms"""
 
-    classes = [
+    entry_points_per_submodel = [
         extensions("models.balance"),
         extensions("models.classifiers"),
         extensions("models.feature_extraction"),
@@ -648,12 +648,18 @@ def api_list_algorithms():
         "query_strategy": [],
     }
 
-    for c, key in zip(classes, payload.keys()):
-        for method in c:
-            if hasattr(method, "label"):
-                payload[key].append({"name": method.name, "label": method.label})
+    for entry_points, key in zip(entry_points_per_submodel, payload.keys()):
+        for e in entry_points:
+            model_class = e.load()
+
+            if hasattr(model_class, "label"):
+                payload[key].append(
+                    {"name": model_class.name, "label": model_class.label}
+                )
             else:
-                payload[key].append({"name": method.name, "label": method.name})
+                payload[key].append(
+                    {"name": model_class.name, "label": model_class.name}
+                )
 
     return jsonify(payload)
 
