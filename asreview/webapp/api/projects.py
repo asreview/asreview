@@ -693,7 +693,7 @@ def api_get_algorithms(project):  # noqa: F401
 def api_set_algorithms(project):  # noqa: F401
     """Set the algorithms used in the project"""
 
-    asreview_settings = ReviewSettings(
+    settings = ReviewSettings(
         classifier=request.form.get("classifier"),
         query_strategy=request.form.get("query_strategy"),
         balance_strategy=request.form.get("balance_strategy"),
@@ -709,9 +709,9 @@ def api_set_algorithms(project):  # noqa: F401
         ),
         "w",
     ) as f:
-        json.dump(asdict(asreview_settings), f)
+        json.dump(asdict(settings), f)
 
-    return jsonify({"success": True})
+    return jsonify(asdict(settings))
 
 
 @bp.route("/projects/<project_id>/train", methods=["POST"])

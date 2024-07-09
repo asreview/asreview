@@ -17,6 +17,7 @@ import {
   FormControl,
   FormControlLabel,
   FormHelperText,
+  Grid,
   IconButton,
   InputLabel,
   Link,
@@ -29,11 +30,12 @@ import {
   Stack,
   Tooltip,
   Typography,
+  CircularProgress,
 } from "@mui/material";
 import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { ExpandMore, DoneOutlined } from "@mui/icons-material";
 
 import { styled } from "@mui/material/styles";
 
@@ -45,33 +47,33 @@ import { useContext } from "react";
 
 const DEFAULT_MODELS = [
   {
-    name: "tfidf-nb-max-double",
-    title: "AlwaysGood",
+    name: "tfidf-nb",
+    title: "RapidElas",
     description:
-      "AlwaysGood is a classic combination that has proven to work well in the ASReview context, as shown in many simulations. It especially handles the starting phase of the systematic review well, being able to handle little amounts of data.",
+      "RapidElas is a classic combination that has proven to work well in the ASReview context, as shown in many simulations. It especially handles the starting phase of the systematic review well, being able to handle little amounts of data.",
   },
   {
-    name: "onehot-logistic-max-double",
+    name: "onehot-logistic",
     title: "OneWord",
     description:
       "A model that excels in finding specific words, providing good performance in finding the last remaining relevant documents.",
   },
   {
-    name: "labse-logistic-max-double",
+    name: "labse-logistic",
     title: "MultiLanguage",
     requires: "asreview-nemo",
     description:
       "A multilingual feature extractor for systematic review datasets in multiple languages (LaBSE x Logistic Regression).",
   },
   {
-    name: "sbert-rf-max-double",
+    name: "sbert-rf",
     title: "Context",
     requires: "asreview-nemo",
     description:
       "A powerful pretrained model based on the transformer infrastructure used in the latest AI models. Combined with a proven implementation of a gradient boosting classifier (SBert x XGBoost).",
   },
   {
-    name: "doc2vec-dynamic_nn-max-double",
+    name: "doc2vec-dynamic_nn",
     title: "Neural",
     requires: "asreview-nemo",
     description:
@@ -79,7 +81,7 @@ const DEFAULT_MODELS = [
   },
 ];
 
-const ExpandMore = styled((props) => {
+const ExpandMoreButton = styled((props) => {
   const { expand, ...other } = props;
   return <IconButton {...other} />;
 })(({ theme, expand }) => ({
@@ -91,34 +93,13 @@ const ExpandMore = styled((props) => {
 }));
 
 const getFullModel = (model) => {
-  let name =
-    model.feature_extraction +
-    "-" +
-    model.classifier +
-    "-" +
-    model.query_strategy +
-    "-" +
-    model.balance_strategy;
+  let name = model.feature_extraction + "-" + model.classifier;
   let defaultModel = DEFAULT_MODELS.filter((e) => e.name === name);
 
   if (defaultModel.length === 1) {
     return defaultModel[0];
   } else {
     return "custom";
-  }
-};
-
-const splitFullModel = (changeValue, selectedModel = null) => {
-  if (changeValue === "custom") {
-    return selectedModel;
-  } else {
-    let parts = changeValue.split("-");
-    return {
-      feature_extraction: parts[0],
-      classifier: parts[1],
-      query_strategy: parts[2],
-      balance_strategy: parts[3],
-    };
   }
 };
 
@@ -138,7 +119,7 @@ const ModelSelect = ({
       id={`select-${name}`}
       name={name}
       label={label}
-      value={model?.[name]}
+      value={model?.[name] ? model[name] : ""}
       onChange={handleModel}
       disabled={!editable}
     >
@@ -167,27 +148,37 @@ const ModelSelectDialog = ({
   const project_id = useContext(ProjectContext);
   const queryClient = useQueryClient();
 
-  const [selectedModel, setSelectedModel] = React.useState(model);
+  const [selectedModel, setSelectedModel] = React.useState({
+    name: model.feature_extraction + "-" + model.classifier,
+    ...model,
+  });
 
   const handleRadioChange = (event) => {
-    setSelectedModel(splitFullModel(event.target.value, selectedModel));
+    if (event.target.value !== "custom") {
+      let parts = event.target.value.split("-");
+      setSelectedModel({
+        ...selectedModel,
+        name: event.target.value,
+        feature_extraction: parts[0],
+        classifier: parts[1],
+      });
+    } else {
+      setSelectedModel({
+        ...selectedModel,
+        name: "custom",
+      });
+    }
   };
 
   const { mutate, isLoading } = useMutation(ProjectAPI.mutateModelConfig, {
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["fetchModelConfig"] });
-
-      handleClose(selectedModel);
+    onSuccess: (data) => {
+      queryClient.setQueryData(
+        ["fetchModelConfig", { project_id: project_id }],
+        data,
+      );
+      handleClose();
     },
   });
-
-  const handleSave = () => {
-    mutate({
-      project_id: project_id,
-      ...selectedModel,
-      trainNewModel: trainNewModel,
-    });
-  };
 
   return (
     <Dialog
@@ -199,25 +190,133 @@ const ModelSelectDialog = ({
       <DialogTitle id="model-select-dialog-title">Select a model</DialogTitle>
       <DialogContent>
         <FormControl fullWidth>
-          <RadioGroup
-            value={getFullModel(selectedModel).name}
-            onChange={handleRadioChange}
-          >
-            {DEFAULT_MODELS.map((value) => (
-              <FormControlLabel
-                value={value.name}
-                control={<Radio />}
-                label={value.title}
-                key={value.name}
-              />
-            ))}
+          <RadioGroup value={selectedModel.name} onChange={handleRadioChange}>
+            <FormControlLabel
+              value={"tfidf-nb"}
+              control={<Radio />}
+              label={
+                <Box>
+                  <Typography variant="h6">RapidElas</Typography>
+                  <Typography paragraph>
+                    A simple feature extractor with Naive Bayes. This model is
+                    fast and efficient for rapid screening.
+                  </Typography>
+                </Box>
+              }
+              key="tfidf-nb"
+            />
+            <FormControlLabel
+              value={"onehot-logistic"}
+              control={<Radio />}
+              label={
+                <Box>
+                  <Typography variant="h6">OneWord</Typography>
+                  <Typography paragraph>
+                    An onehot feature extractor with logistic regression. This
+                    model is good at finding specific words.
+                  </Typography>
+                </Box>
+              }
+              key="onehot-logistic"
+            />
+            <FormControlLabel
+              value={"labse-logistic"}
+              control={<Radio />}
+              label={
+                <Box>
+                  <Typography variant="h6">
+                    MultiLanguage{" "}
+                    <Typography
+                      color="secondary"
+                      sx={{ display: "inline", fontSize: "80%" }}
+                    >
+                      part of asreview-nemo
+                    </Typography>
+                  </Typography>
+                  <Typography paragraph>
+                    A Labse feature extractor with logistic regression. This
+                    model is good at handling multiple languages.
+                  </Typography>
+                </Box>
+              }
+              key="labse-logistic"
+              disabled={
+                modelOptions?.feature_extraction.find(
+                  (v) => v.name === "labse",
+                ) === undefined
+              }
+            />
+            <FormControlLabel
+              value={"sbert-rf"}
+              control={<Radio />}
+              label={
+                <Box>
+                  <Typography variant="h6">
+                    Context{" "}
+                    <Typography
+                      color="secondary"
+                      sx={{ display: "inline", fontSize: "80%" }}
+                    >
+                      part of asreview-nemo
+                    </Typography>
+                  </Typography>
+                  <Typography paragraph>
+                    A SBert feature extractor with random forest. This model is
+                    good at handling deeper context.
+                  </Typography>
+                </Box>
+              }
+              key="sbert-rf"
+              disabled={
+                modelOptions?.classifier.find((v) => v.name === "sbert") ===
+                undefined
+              }
+            />
+            <FormControlLabel
+              value={"doc2vec-dynamic_nn"}
+              control={<Radio />}
+              label={
+                <Box>
+                  <Typography variant="h6">
+                    Neural{" "}
+                    <Typography
+                      color="secondary"
+                      sx={{ display: "inline", fontSize: "80%" }}
+                    >
+                      part of asreview-nemo
+                    </Typography>
+                  </Typography>
+                  <Typography paragraph>
+                    A Doc2Vec feature extractor with neural network. This model
+                    handles complex data better.
+                  </Typography>
+                </Box>
+              }
+              key="doc2vec-dynamic_nn"
+              disabled={
+                modelOptions?.classifier.find(
+                  (v) => v.name === "dynamic_nn",
+                ) === undefined ||
+                modelOptions?.feature_extraction.find(
+                  (v) => v.name === "doc2vec",
+                ) === undefined
+              }
+            />
             <FormControlLabel
               value={"custom"}
               control={<Radio />}
-              label={"Custom"}
+              label={
+                <Box>
+                  <Typography variant="h6">Custom</Typography>
+                  <Typography paragraph>
+                    Craft your own model with a feature extractor and
+                    classifier.
+                  </Typography>
+                </Box>
+              }
               key="custom"
             />
-            {getFullModel(selectedModel).name === "custom" && (
+            {selectedModel.name === "custom" && (
               <Box>
                 <Stack direction="column" spacing={3}>
                   <ModelSelect
@@ -225,33 +324,24 @@ const ModelSelectDialog = ({
                     label="Feature extraction technique"
                     items={modelOptions?.feature_extraction}
                     model={selectedModel}
-                    // handleModel={handleModelCustom}
+                    handleModel={(event) => {
+                      setSelectedModel({
+                        ...selectedModel,
+                        feature_extraction: event.target.value,
+                      });
+                    }}
                   />
                   <ModelSelect
                     name="classifier"
                     label="Classifier"
                     items={modelOptions?.classifier}
                     model={selectedModel}
-                    // handleModel={handleModelCustom}
-                  />
-                  <ModelSelect
-                    name="query_strategy"
-                    label="Query strategy"
-                    items={modelOptions?.query_strategy}
-                    model={selectedModel}
-                    // handleModel={handleModelCustom}
-                    helperText={
-                      selectedModel?.query_strategy === "random"
-                        ? "Your review is not accelerated by the model"
-                        : undefined
-                    }
-                  />
-                  <ModelSelect
-                    name="balance_strategy"
-                    label="Balance strategy"
-                    items={modelOptions?.balance_strategy}
-                    model={selectedModel}
-                    // handleModel={handleModelCustom}
+                    handleModel={(event) => {
+                      setSelectedModel({
+                        ...selectedModel,
+                        classifier: event.target.value,
+                      });
+                    }}
                   />
                 </Stack>
               </Box>
@@ -261,7 +351,17 @@ const ModelSelectDialog = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleSave} autoFocus disabled={isLoading}>
+        <Button
+          onClick={() => {
+            mutate({
+              project_id: project_id,
+              ...selectedModel,
+              trainNewModel: trainNewModel,
+            });
+          }}
+          autoFocus
+          disabled={isLoading}
+        >
           Save
         </Button>
       </DialogActions>
@@ -275,6 +375,7 @@ const ModelCard = ({
   trainNewModel = false,
 }) => {
   const project_id = useContext(ProjectContext);
+  const queryClient = useQueryClient();
 
   const [modelSelect, toggleModelSelect] = useToggle();
 
@@ -283,16 +384,6 @@ const ModelCard = ({
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
-
-  // const [modelState, setModelState] = React.useState({
-  //   custom: false,
-  //   isChanged: false,
-  //   warning: {
-  //     active: false,
-  //     value: null,
-  //   },
-  //   model: defaultAlgorithms,
-  // });
 
   const {
     data: modelOptions,
@@ -304,11 +395,25 @@ const ModelCard = ({
   });
 
   const {
+    mutate,
+    isLoading: isLoadingMutate,
+    isSuccess: isSuccessMutate,
+  } = useMutation(ProjectAPI.mutateModelConfig, {
+    onSuccess: (data) => {
+      queryClient.setQueryData(
+        ["fetchModelConfig", { project_id: project_id }],
+        data,
+      );
+    },
+  });
+
+  const {
     data: modelConfig,
     isLoading: isLoadingModelConfig,
     // error: fetchModelConfigError,
     // isError: isFetchModelConfigError,
-    // isFetching: isFetchingModelConfig,
+    isFetching: isFetchingModelConfig,
+    isSuccess: isSuccessModelConfig,
   } = useQuery(
     ["fetchModelConfig", { project_id: project_id }],
     ProjectAPI.fetchModelConfig,
@@ -323,7 +428,7 @@ const ModelCard = ({
         title="AI model"
         subheader={
           <>
-            <>Choose an AI model to accelerate your review process. </>
+            <>Compose an AI model to accelerate your review process. </>
             <Link
               underline="none"
               href={`https://asreview.nl/blog/active-learning-explained/`}
@@ -354,46 +459,21 @@ const ModelCard = ({
             {getFullModel(modelConfig).title}
           </Typography>
           <Typography paragraph>
+            {"The  model consists of a"}{" "}
+            {
+              modelOptions?.feature_extraction.find(
+                (v) => v.name == modelConfig.feature_extraction,
+              )?.label
+            }{" "}
+            {"feature extractor and a"}{" "}
+            {
+              modelOptions?.classifier.find(
+                (v) => v.name == modelConfig.classifier,
+              )?.label
+            }{" "}
+            {"classifier. "}
             {getFullModel(modelConfig).description}{" "}
-            {" The model consists of the following components:"}
           </Typography>
-
-          <Stack spacing={1} alignItems="center">
-            <Stack direction="row" spacing={1}>
-              <Tooltip title="Feature extraction">
-                <Chip
-                  avatar={<Avatar>F</Avatar>}
-                  label={modelConfig.feature_extraction}
-                  color="primary"
-                  variant="outlined"
-                />
-              </Tooltip>
-              <Tooltip title="Classifier">
-                <Chip
-                  avatar={<Avatar>C</Avatar>}
-                  label={modelConfig.classifier}
-                  color="primary"
-                  variant="outlined"
-                />
-              </Tooltip>
-              <Tooltip title="Query strategy">
-                <Chip
-                  avatar={<Avatar>Q</Avatar>}
-                  label={modelConfig.query_strategy}
-                  color="primary"
-                  variant="outlined"
-                />
-              </Tooltip>
-              <Tooltip title="Balance strategy">
-                <Chip
-                  avatar={<Avatar>B</Avatar>}
-                  label={modelConfig.balance_strategy}
-                  color="primary"
-                  variant="outlined"
-                />
-              </Tooltip>
-            </Stack>
-          </Stack>
         </CardContent>
       )}
 
@@ -410,18 +490,62 @@ const ModelCard = ({
         <Button variant="contained" color="primary" onClick={toggleModelSelect}>
           Change
         </Button>
-        <ExpandMore
+        <ExpandMoreButton
           expand={expanded}
           onClick={handleExpandClick}
           aria-expanded={expanded}
           aria-label="show more"
           sx={{ float: "right" }}
         >
-          <ExpandMoreIcon />
-        </ExpandMore>
+          <ExpandMore />
+        </ExpandMoreButton>
       </CardContent>
 
       <Collapse in={expanded} timeout="auto" unmountOnExit>
+        <Divider />
+        <CardContent>
+          <Typography variant="h6">Query method</Typography>
+          <Typography paragraph>
+            Query strategies determine which records are presented to you for
+            labeling. The query strategy can have a large impact on the
+            efficiency of your review.
+          </Typography>
+
+          <Grid
+            container
+            direction="row"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <FormControl sx={{ m: 1, minWidth: 240 }}>
+              <InputLabel id="select-query">Query strategy</InputLabel>
+              <Select
+                labelId="select-query"
+                id="select-query"
+                value={modelConfig?.query_strategy}
+                label="Query strategy"
+                onChange={(event) => {
+                  mutate({
+                    project_id: project_id,
+                    ...modelConfig,
+                    query_strategy: event.target.value,
+                    trainNewModel: trainNewModel,
+                  });
+                }}
+                disabled={isLoadingMutate}
+              >
+                {modelOptions?.query_strategy.map((value) => (
+                  <MenuItem value={value.name} key={value.name}>
+                    {value.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            {isLoadingMutate && <CircularProgress size={"1.5rem"} />}
+            {isSuccessMutate && <DoneOutlined color="success" />}
+          </Grid>
+        </CardContent>
         <Divider />
         <CardContent>
           <Typography variant="h6">Show random records</Typography>
@@ -430,7 +554,14 @@ const ModelCard = ({
             dataset during your review. In some cases, this can help to find
             isolated clusters of relevant records.
           </Typography>
-          <Box sx={{ px: 2, paddingTop: 2 }}>
+          <Grid
+            container
+            direction="row"
+            justifyContent="center"
+            alignItems="center"
+            sx={{ pt: 2 }}
+          >
+            {" "}
             <Slider
               sx={{ maxWidth: "500px" }}
               aria-label="Random"
@@ -444,6 +575,56 @@ const ModelCard = ({
             <Alert severity="info">
               Coming soon! Keep an eye on our website and socials.
             </Alert>
+          </Grid>
+        </CardContent>
+        <Divider />
+        <CardContent>
+          <Typography variant="h6">Balance method</Typography>
+          <Typography paragraph>
+            The balance strategy determines how the model deals with the
+            imbalance between relevant and irrelevant records. This can be
+            important when the number of relevant records is small compared to
+            the number of irrelevant records.
+          </Typography>
+          <Box sx={{ px: 2, paddingTop: 2 }}>
+            <Grid
+              container
+              direction="row"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <FormControl sx={{ m: 1, minWidth: 240 }}>
+                <InputLabel id="select-balance">Balance strategy</InputLabel>
+                <Select
+                  labelId="select-balance"
+                  id="select-balance"
+                  value={modelConfig?.balance_strategy}
+                  label="Balance strategy"
+                  onChange={(event) => {
+                    mutate({
+                      project_id: project_id,
+                      ...modelConfig,
+                      balance_strategy: event.target.value,
+                      trainNewModel: trainNewModel,
+                    });
+                  }}
+                  disabled={isLoadingMutate}
+                >
+                  <MenuItem value="" key="none">
+                    <em>None</em>
+                  </MenuItem>
+
+                  {modelOptions?.balance_strategy.map((value) => (
+                    <MenuItem value={value.name} key={value.name}>
+                      {value.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {isLoadingMutate && <CircularProgress size={"1.5rem"} />}
+              {isSuccessMutate && <DoneOutlined color="success" />}
+            </Grid>
           </Box>
         </CardContent>
       </Collapse>
