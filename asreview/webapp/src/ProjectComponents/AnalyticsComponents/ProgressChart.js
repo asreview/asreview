@@ -217,7 +217,12 @@ export default function ProgressChart(props) {
     <StyledCard elevation={2}>
       <CardContent className={classes.root}>
         {props.progressQuery.isLoading ? (
-          <Skeleton variant="circular" width={300} height={300} style={{ margin: 'auto' }} />
+          <Skeleton
+            variant="circular"
+            width={300}
+            height={300}
+            style={{ margin: "auto" }}
+          />
         ) : (
           <Chart
             options={options}
