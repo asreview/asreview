@@ -1,6 +1,6 @@
 import React from "react";
 import NumberFormat from "react-number-format";
-import { Card, CardContent, Grid, Stack, Typography } from "@mui/material";
+import { Card, CardContent, Grid, Stack, Typography, Skeleton } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { CardErrorHandler } from "Components";
@@ -77,16 +77,20 @@ export default function NumberCard(props) {
                 >
                   Labeled records
                 </Typography>
-                <Typography
-                  className="number-card-content-numeral"
-                  variant={!props.mobileScreen ? "h4" : "h5"}
-                >
-                  <NumberFormat
-                    value={getLabeledRecords()}
-                    displayType="text"
-                    thousandSeparator
-                  />
-                </Typography>
+                {props.progressQuery.isLoading ? (
+                  <Skeleton variant="text" width={100} height={50} />
+                ) : (
+                  <Typography
+                    className="number-card-content-numeral"
+                    variant={!props.mobileScreen ? "h4" : "h5"}
+                  >
+                    <NumberFormat
+                      value={getLabeledRecords()}
+                      displayType="text"
+                      thousandSeparator
+                    />
+                  </Typography>
+                )}
               </Stack>
             </CardContent>
           </Card>
@@ -102,43 +106,49 @@ export default function NumberCard(props) {
                 >
                   Relevant records
                 </Typography>
-                <Typography
-                  className="number-card-content-numeral"
-                  variant={!props.mobileScreen ? "h4" : "h5"}
-                >
-                  <NumberFormat
-                    value={getRelevantRecords()}
-                    displayType="text"
-                    thousandSeparator
-                  />
-                </Typography>
+                {props.progressQuery.isLoading ? (
+                  <Skeleton variant="text" width={100} height={50} />
+                ) : (
+                  <Typography
+                    className="number-card-content-numeral"
+                    variant={!props.mobileScreen ? "h4" : "h5"}
+                  >
+                    <NumberFormat
+                      value={getRelevantRecords()}
+                      displayType="text"
+                      thousandSeparator
+                    />
+                  </Typography>
+                )}
               </Stack>
             </CardContent>
           </Card>
         </Grid>
-        {showNumber() && (
-          <Grid item xs={12} sm={12}>
-            <Card className="number-card" elevation={2}>
-              <CardContent>
-                <Stack spacing={2} className="number-card-content">
-                  <Typography
-                    className="number-card-content-text"
-                    variant={!props.mobileScreen ? "subtitle1" : "subtitle2"}
-                    sx={{ color: "text.secondary" }}
-                  >
-                    Irrelevant records since last relevant
-                  </Typography>
+        <Grid item xs={12} sm={12}>
+          <Card className="number-card" elevation={2}>
+            <CardContent>
+              <Stack spacing={2} className="number-card-content">
+                <Typography
+                  className="number-card-content-text"
+                  variant={!props.mobileScreen ? "subtitle1" : "subtitle2"}
+                  sx={{ color: "text.secondary" }}
+                >
+                  Irrelevant records since last relevant
+                </Typography>
+                {props.progressQuery.isLoading ? (
+                  <Skeleton variant="text" width={100} height={50} />
+                ) : (
                   <Typography
                     className="number-card-content-numeral"
                     variant={!props.mobileScreen ? "h4" : "h5"}
                   >
                     {getIrrelevantRecordsSinceLastRelevant()}
                   </Typography>
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-        )}
+                )}
+              </Stack>
+            </CardContent>
+          </Card>
+        </Grid>
       </Grid>
     </Root>
   );

@@ -11,7 +11,6 @@ import {
 } from "react-share";
 import {
   Box,
-  CircularProgress,
   Fade,
   Grid,
   SpeedDial,
@@ -109,19 +108,13 @@ const AnalyticsPage = (props) => {
       emailRef.current?.click();
     }
   };
-  const allQueriesReady = () => {
-    return (
-      !progressQuery.isFetching &&
-      !progressDensityQuery.isFetching &&
-      !progressRecallQuery.isFetching
-    );
-  };
+
   // Handle toggling the switch
   const handleTogglePriorKnowledge = () => {
     setIncludePriorKnowledge((prev) => !prev);
   };
 
-  // Custom styled tooltip for
+  // Custom styled tooltip for the switch
   const CustomTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
   ))(({ theme }) => ({
@@ -254,65 +247,56 @@ const AnalyticsPage = (props) => {
               </Box>
             </Box>
           )}
-          {!allQueriesReady() && (
-            <Box className="main-page-body-wrapper">
-              <CircularProgress />
-            </Box>
-          )}
-          {allQueriesReady() && (
-            <Box className="main-page-body-wrapper">
-              <Stack spacing={3} className="main-page-body">
-                <Box>
-                  <Grid container spacing={3}>
-                    <Grid item xs={12} sm={5}>
-                      <ProgressChart
-                        isSimulating={props.isSimulating}
-                        mobileScreen={props.mobileScreen}
-                        mode={props.mode}
-                        progressQuery={progressQuery}
-                        includePriorKnowledge={includePriorKnowledge} // Pass the state as prop
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={7}>
-                      <NumberCard
-                        mobileScreen={props.mobileScreen}
-                        progressQuery={progressQuery}
-                        includePriorKnowledge={includePriorKnowledge} // Pass the state as prop
-                      />
-                    </Grid>
+          <Box className="main-page-body-wrapper">
+            <Stack spacing={3} className="main-page-body">
+              <Box>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={5}>
+                    <ProgressChart
+                      isSimulating={props.isSimulating}
+                      mobileScreen={props.mobileScreen}
+                      mode={props.mode}
+                      progressQuery={progressQuery}
+                      includePriorKnowledge={includePriorKnowledge} // Pass the state as prop
+                    />
                   </Grid>
-                </Box>
-                <ProgressDensityChart
-                  mobileScreen={props.mobileScreen}
-                  progressDensityQuery={progressDensityQuery}
-                />
-                <ProgressRecallChart
-                  mobileScreen={props.mobileScreen}
-                  progressRecallQuery={progressRecallQuery}
-                />
-              </Stack>
-            </Box>
-          )}
+                  <Grid item xs={12} sm={7}>
+                    <NumberCard
+                      mobileScreen={props.mobileScreen}
+                      progressQuery={progressQuery}
+                      includePriorKnowledge={includePriorKnowledge} // Pass the state as prop
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+              <ProgressDensityChart
+                mobileScreen={props.mobileScreen}
+                progressDensityQuery={progressDensityQuery}
+              />
+              <ProgressRecallChart
+                mobileScreen={props.mobileScreen}
+                progressRecallQuery={progressRecallQuery}
+              />
+            </Stack>
+          </Box>
         </Box>
       </Fade>
-      {allQueriesReady() && (
-        <SpeedDial
-          ariaLabel="share project analytics"
-          className="main-page-fab"
-          icon={<Share />}
-        >
-          {actions.map((action) => (
-            <SpeedDialAction
-              key={action.name}
-              icon={action.icon}
-              tooltipTitle={action.name}
-              onClick={() => {
-                handleShare(action.name);
-              }}
-            />
-          ))}
-        </SpeedDial>
-      )}
+      <SpeedDial
+        ariaLabel="share project analytics"
+        className="main-page-fab"
+        icon={<Share />}
+      >
+        {actions.map((action) => (
+          <SpeedDialAction
+            key={action.name}
+            icon={action.icon}
+            tooltipTitle={action.name}
+            onClick={() => {
+              handleShare(action.name);
+            }}
+          />
+        ))}
+      </SpeedDial>
       <ShareFabAction
         progressQueryData={progressQuery.data}
         twitterRef={twitterRef}
