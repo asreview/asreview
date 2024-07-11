@@ -1,6 +1,6 @@
 import React from "react";
 import Chart from "react-apexcharts";
-import { Card, CardContent, Stack, Typography } from "@mui/material";
+import { Card, CardContent, Skeleton, Stack, Typography } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
 import { CardErrorHandler } from "Components";
@@ -307,13 +307,17 @@ export default function ProgressRecallChart(props) {
           {props.mobileScreen && (
             <TypographySubtitle1Medium>Recall</TypographySubtitle1Medium>
           )}
-          <Chart
-            options={options}
-            series={series}
-            type="line"
-            height={400}
-            width="100%"
-          />
+          {props.progressRecallQuery.isLoading ? (
+            <Skeleton variant="rectangular" height={400} width="100%" />
+          ) : (
+            <Chart
+              options={options}
+              series={series}
+              type="line"
+              height={400}
+              width="100%"
+            />
+          )}
         </Stack>
       </CardContent>
     </StyledCard>
