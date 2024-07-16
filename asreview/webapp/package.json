@@ -26,7 +26,7 @@
     "react-number-format": "^4.7.3",
     "react-oauth-popup": "^1.0.5",
     "react-query": "^3.21.0",
-    "react-rotation": "^1.3.0",
+    "react-rotation": "^0.3.2",
     "react-router-dom": "^6.2.1",
     "react-scripts": "^5.0.1",
     "react-share": "^4.4.0",
