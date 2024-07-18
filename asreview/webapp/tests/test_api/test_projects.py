@@ -631,11 +631,11 @@ def test_unauthorized_use_of_api_calls(client, project, api_call):
                 parms.append(client)
             elif annotation == Union[Project, asr.Project]:
                 parms.append(project)
-            elif annotation == int:
+            elif isinstance(annotation, int):
                 parms.append(1)
-            elif annotation == str:
+            elif isinstance(annotation, str):
                 parms.append("abc")
-            elif annotation == dict:
+            elif isinstance(annotation, dict):
                 parms.append({})
 
         # make the api call
