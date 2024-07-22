@@ -45,7 +45,7 @@ def get_long_description():
 
 REQUIRES = [
     "numpy",
-    "pandas>=1.3,<3",
+    "pandas>=2,<3",
     "scikit-learn",
     "rispy~=0.7.0",
     "setuptools",
