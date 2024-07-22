@@ -327,7 +327,7 @@ def export_project_dataset(
     client: FlaskClient, project: Union[Project, asr.Project], format: str
 ):
     id = get_project_id(project)
-    response = client.get(f"/api/projects/{id}/export_dataset?file_format={format}")
+    response = client.get(f"/api/projects/{id}/export_dataset?format={format}")
     return response
 
 
