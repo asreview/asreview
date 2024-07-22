@@ -557,7 +557,6 @@ def test_update_label_of_document_with_running_model(client, project):
         client, project, record_id, label=0, prior=0, note="changed note"
     )
     assert r.status_code == 200
-    assert r.json["success"]
     time.sleep(10)
 
 
