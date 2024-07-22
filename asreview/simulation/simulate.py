@@ -114,7 +114,7 @@ class Simulate:
     def review(self):
         """Start the review process."""
 
-        if not hasattr(self, "_result") or (
+        if not hasattr(self, "_results") or (
             not (self._results["label"] == 1).any()
             or not (self._results["label"] == 0).any()
         ):
