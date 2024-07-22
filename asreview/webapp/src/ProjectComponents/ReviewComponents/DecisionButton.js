@@ -118,10 +118,10 @@ const DecisionButton = ({
     tagValues ? tagValues : structuredClone(tagsForm),
   );
 
-  const { error, isError, isLoading, mutate, isSuccess, data } = useMutation(
+  const { error, isError, isLoading, mutate, isSuccess } = useMutation(
     ProjectAPI.mutateClassification,
     {
-      onSuccess: (data) => {
+      onSuccess: () => {
         if (editState) {
           // get the label from the request
 
