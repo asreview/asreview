@@ -551,40 +551,37 @@ class Project:
 
     @classmethod
     def load(cls, asreview_file, project_path, safe_import=False):
-        tmpdir = tempfile.TemporaryDirectory().name
+        with tempfile.TemporaryDirectory() as tmpdir:
+            try:
+                # Unzip the project file
+                with zipfile.ZipFile(asreview_file, "r") as zip_obj:
+                    zip_filenames = zip_obj.namelist()
 
-        try:
-            # Unzip the project file
-            with zipfile.ZipFile(asreview_file, "r") as zip_obj:
-                zip_filenames = zip_obj.namelist()
+                    # raise error if no ASReview project file
+                    if PATH_PROJECT_CONFIG not in zip_filenames:
+                        raise ValueError("Project file is not valid project.")
 
-                # raise error if no ASReview project file
-                if PATH_PROJECT_CONFIG not in zip_filenames:
-                    raise ValueError("Project file is not valid project.")
+                    # extract all files to folder
+                    for f in zip_filenames:
+                        if not f.endswith(".pickle"):
+                            zip_obj.extract(f, path=tmpdir)
 
-                # extract all files to folder
-                for f in zip_filenames:
-                    if not f.endswith(".pickle"):
-                        zip_obj.extract(f, path=tmpdir)
+            except zipfile.BadZipFile:
+                raise ValueError("File is not an ASReview file.")
 
-        except zipfile.BadZipFile:
-            raise ValueError("File is not an ASReview file.")
+            with open(Path(tmpdir, PATH_PROJECT_CONFIG)) as f:
+                project_config = json.load(f)
 
-        with open(Path(tmpdir, PATH_PROJECT_CONFIG)) as f:
-            project_config = json.load(f)
+            if safe_import:
+                # assign a new id to the project.
+                project_config["id"] = uuid4().hex
+                with open(Path(tmpdir, PATH_PROJECT_CONFIG), "r+") as f:
+                    # write to file
+                    f.seek(0)
+                    json.dump(project_config, f)
+                    f.truncate()
 
-        if safe_import:
-            # assign a new id to the project.
-            project_config["id"] = uuid4().hex
-            with open(Path(tmpdir, PATH_PROJECT_CONFIG), "r+") as f:
-                # write to file
-                f.seek(0)
-                json.dump(project_config, f)
-                f.truncate()
-
-        # location to copy file to
-        # Copy the project from the temp folder to the projects folder.
-        shutil.copytree(tmpdir, Path(project_path, project_config["id"]))
+            shutil.copytree(tmpdir, Path(project_path, project_config["id"]))
 
         return cls(Path(project_path, project_config["id"]))
 
