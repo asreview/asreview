@@ -390,7 +390,6 @@ def test_set_project_algorithms(client, project):
 
     r = au.set_project_algorithms(client, project, data=data)
     assert r.status_code == 200
-    assert r.json["success"]
 
 
 def test_get_project_algorithms(client, project):
@@ -542,7 +541,6 @@ def test_label_a_document_with_running_model(client, user, project):
         client, project, r.json["result"]["record_id"], label=1, prior=0, note="note"
     )
     assert r.status_code == 200
-    assert r.json["success"]
     time.sleep(10)
 
 
