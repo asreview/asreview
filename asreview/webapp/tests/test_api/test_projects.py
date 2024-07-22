@@ -584,7 +584,6 @@ def test_delete_project(client, project):
         (au.get_project_data, True, {}),
         (au.get_project_dataset_writer, True, {}),
         (au.search_project_data, True, {"query": "Software"}),
-        (au.get_prior_random_project_data, True, {}),
         (au.label_project_record, True, {"record_id": 1, "label": 1}),
         (au.update_label_project_record, True, {"record_id": 1, "label": 1}),
         (au.get_labeled_project_data, True, {}),
