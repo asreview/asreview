@@ -564,24 +564,24 @@ class Project:
                     # extract all files to folder
                     for f in zip_filenames:
                         if not f.endswith(".pickle"):
-                            zip_obj.extract(f, path=tmpdir.name)
+                            zip_obj.extract(f, path=tmpdir)
 
             except zipfile.BadZipFile:
                 raise ValueError("File is not an ASReview file.")
 
-            with open(Path(tmpdir.name, PATH_PROJECT_CONFIG)) as f:
+            with open(Path(tmpdir, PATH_PROJECT_CONFIG)) as f:
                 project_config = json.load(f)
 
             if safe_import:
                 # assign a new id to the project.
                 project_config["id"] = uuid4().hex
-                with open(Path(tmpdir.name, PATH_PROJECT_CONFIG), "r+") as f:
+                with open(Path(tmpdir, PATH_PROJECT_CONFIG), "r+") as f:
                     # write to file
                     f.seek(0)
                     json.dump(project_config, f)
                     f.truncate()
 
-            shutil.copytree(tmpdir.name, Path(project_path, project_config["id"]))
+            shutil.copytree(tmpdir, Path(project_path, project_config["id"]))
 
         return cls(Path(project_path, project_config["id"]))
 
