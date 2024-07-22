@@ -88,6 +88,16 @@ class Simulate:
     def _results(self, value):
         self._Simulate__results = value
 
+    @property
+    def _last_ranking(self):
+        if not hasattr(self, "_Simulate__last_ranking"):
+            raise AttributeError("No last ranking. Call train or review.")
+        return self._Simulate__last_ranking
+
+    @_last_ranking.setter
+    def _last_ranking(self, value):
+        self._Simulate__last_ranking = value
+
     def _stop_review(self):
         """Check if the review should be stopped."""
 
