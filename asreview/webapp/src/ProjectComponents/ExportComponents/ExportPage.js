@@ -59,70 +59,20 @@ const ExportPage = (props) => {
 
   const queryClient = useQueryClient();
 
-  const [file, setFile] = React.useState("");
-  const [fileFormat, setFileFormat] = React.useState("");
   const [exporting, setExporting] = React.useState(false);
-  const [datasetLabel, setDatasetLabel] = React.useState("all");
-
-  const { data, error, isError, isFetching } = useQuery(
-    ["fetchDatasetWriter", { project_id }],
-    ProjectAPI.fetchDatasetWriter,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
-
-  const exportDatasetQuery = useQuery(
-    [
-      "fetchExportDataset",
-      {
-        project_id,
-        project_title: props.info["name"],
-        datasetLabel,
-        fileFormat,
-      },
-    ],
-    ProjectAPI.fetchExportDataset,
-    {
-      enabled: (file === "dataset" || file === "dataset_relevant") && exporting,
-      refetchOnWindowFocus: false,
-      onSettled: () => setExporting(false),
-    },
-  );
 
   const exportProjectQuery = useQuery(
     ["fetchExportProject", { project_id, project_title: props.info["name"] }],
     ProjectAPI.fetchExportProject,
     {
-      enabled: file === "project" && exporting,
+      enabled: exporting,
       refetchOnWindowFocus: false,
       onSettled: () => setExporting(false),
     },
   );
 
   const selectedQuery = () => {
-    if (file === "dataset" || file === "dataset_relevant") {
-      return [exportDatasetQuery, "fetchExportDataset"];
-    }
-    if (file === "project") {
-      return [exportProjectQuery, "fetchExportProject"];
-    }
-  };
-
-  const handleFile = (event) => {
-    setFile(event.target.value);
-    if (event.target.value === "dataset_relevant") {
-      setDatasetLabel("relevant");
-    }
-    if (event.target.value === "project") {
-      setFileFormat("asreview");
-    } else {
-      setFileFormat("");
-    }
-  };
-
-  const handleFileFormat = (event) => {
-    setFileFormat(event.target.value);
+    return [exportProjectQuery, "fetchExportProject"];
   };
 
   const onClickExport = () => {
@@ -130,15 +80,11 @@ const ExportPage = (props) => {
   };
 
   const disableExportButton = () => {
-    return !file || !fileFormat || exporting || props.isSimulating;
+    return exporting || props.isSimulating;
   };
 
   const resetQueries = () => {
     queryClient.resetQueries(selectedQuery()[1]);
-  };
-
-  const refetchDatasetWriter = () => {
-    queryClient.resetQueries("fetchDatasetWriter");
   };
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -153,176 +99,6 @@ const ExportPage = (props) => {
         <PageHeader header="Export" mobileScreen={props.mobileScreen} />
         <Box className="main-page-body-wrapper">
           <Stack className="main-page-body" spacing={3}>
-            <Box
-              className="main-page-body-wrapper"
-              component="form"
-              noValidate
-              autoComplete="off"
-            >
-              <Stack spacing={3}>
-                <FormControl
-                  className={`${classes.select} ${classes.selectHeight}`}
-                >
-                  {!file && (
-                    <InputLabel id="file-select-label" shrink={false}>
-                      Select file
-                    </InputLabel>
-                  )}
-                  <Select
-                    labelId="file-select-label"
-                    id="file-select"
-                    value={file}
-                    onChange={handleFile}
-                  >
-                    <MenuItem value="dataset" divider>
-                      <Box>
-                        <Typography variant="subtitle1">Dataset</Typography>
-                        <Typography
-                          variant="body2"
-                          gutterBottom
-                          sx={{ color: "text.secondary" }}
-                        >
-                          Including all labeled and unlabeled records
-                        </Typography>
-                      </Box>
-                    </MenuItem>
-                    <MenuItem value="dataset_relevant" divider>
-                      <Box>
-                        <Typography variant="subtitle1">
-                          Dataset (relevant only)
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          gutterBottom
-                          sx={{ color: "text.secondary" }}
-                        >
-                          Including relevant records only
-                        </Typography>
-                      </Box>
-                    </MenuItem>
-                    <MenuItem value="project">
-                      <Box>
-                        <Typography variant="subtitle1">Project</Typography>
-                        <Typography
-                          variant="body2"
-                          gutterBottom
-                          sx={{ color: "text.secondary" }}
-                        >
-                          Including data and model configuration
-                        </Typography>
-                      </Box>
-                    </MenuItem>
-                  </Select>
-                </FormControl>
-                {!file && (
-                  <Box className={classes.selectHeight}>
-                    <MouseOverPopover title="Select file before selecting file format">
-                      <FormControl
-                        className={classes.select}
-                        disabled
-                        variant="filled"
-                      >
-                        <InputLabel id="file-select-label">
-                          File format
-                        </InputLabel>
-                        <Select
-                          labelId="file-type-select-label"
-                          id="file-type-select"
-                          label="File format"
-                          value=""
-                        />
-                      </FormControl>
-                    </MouseOverPopover>
-                  </Box>
-                )}
-                {(file === "dataset" || file === "dataset_relevant") && (
-                  <FormControl
-                    className={`${classes.select} ${classes.selectHeight}`}
-                    disabled={isError || isFetching}
-                    error={isError}
-                    variant={isError || isFetching ? "filled" : "outlined"}
-                  >
-                    <InputLabel id="file-select-label">File format</InputLabel>
-                    <Select
-                      labelId="file-type-select-label"
-                      id="file-type-select"
-                      label="File format"
-                      value={fileFormat}
-                      onChange={handleFileFormat}
-                      MenuProps={{
-                        sx: { width: selectWidth },
-                      }}
-                    >
-                      {data?.result.map((value, index) => {
-                        return (
-                          <MenuItem
-                            key={index}
-                            value={value.name}
-                            disabled={!value.enabled}
-                          >
-                            <Box>
-                              <Typography
-                                className="typography-wrap"
-                                variant="subtitle1"
-                              >
-                                {value.label}
-                              </Typography>
-                              {!value.enabled
-                                ? value.caution
-                                : null && (
-                                    <Typography
-                                      className="typography-wrap"
-                                      variant="body2"
-                                      gutterBottom
-                                      sx={{ color: "text.secondary" }}
-                                    >
-                                      {!value.enabled ? value.caution : null}
-                                    </Typography>
-                                  )}
-                            </Box>
-                          </MenuItem>
-                        );
-                      })}
-                    </Select>
-                    {isError && (
-                      <FormHelperText>
-                        {error.message}
-                        <Link
-                          component="button"
-                          variant="body2"
-                          onClick={refetchDatasetWriter}
-                        >
-                          Please try again
-                        </Link>
-                      </FormHelperText>
-                    )}
-                  </FormControl>
-                )}
-                {file === "project" && (
-                  <FormControl
-                    className={classes.selectHeight}
-                    disabled
-                    variant="filled"
-                  >
-                    <InputLabel id="file-select-label">File format</InputLabel>
-                    <Box>
-                      <Select
-                        className={classes.select}
-                        labelId="file-type-select-label"
-                        id="file-type-select"
-                        label="File format"
-                        value={fileFormat}
-                      >
-                        <MenuItem value="asreview">ASREVIEW</MenuItem>
-                      </Select>
-                      <FormHelperText>
-                        Can be imported into ASReview LAB
-                      </FormHelperText>
-                    </Box>
-                  </FormControl>
-                )}
-              </Stack>
-            </Box>
             <Box className="main-page-body-wrapper">
               <Tooltip
                 disableFocusListener={!props.isSimulating}
