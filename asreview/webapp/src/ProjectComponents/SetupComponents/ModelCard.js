@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Alert,
   Box,
   Button,
@@ -7,7 +6,7 @@ import {
   CardContent,
   CardHeader,
   CardMedia,
-  Chip,
+  CircularProgress,
   Collapse,
   Dialog,
   DialogActions,
@@ -28,14 +27,12 @@ import {
   Skeleton,
   Slider,
   Stack,
-  Tooltip,
   Typography,
-  CircularProgress,
 } from "@mui/material";
 import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
-import { ExpandMore, DoneOutlined } from "@mui/icons-material";
+import { DoneOutlined, ExpandMore } from "@mui/icons-material";
 
 import { styled } from "@mui/material/styles";
 
@@ -412,8 +409,8 @@ const ModelCard = ({
     isLoading: isLoadingModelConfig,
     // error: fetchModelConfigError,
     // isError: isFetchModelConfigError,
-    isFetching: isFetchingModelConfig,
-    isSuccess: isSuccessModelConfig,
+    // isFetching: isFetchingModelConfig,
+    // isSuccess: isSuccessModelConfig,
   } = useQuery(
     ["fetchModelConfig", { project_id: project_id }],
     ProjectAPI.fetchModelConfig,
@@ -462,13 +459,13 @@ const ModelCard = ({
             {"The  model consists of a"}{" "}
             {
               modelOptions?.feature_extraction.find(
-                (v) => v.name == modelConfig.feature_extraction,
+                (v) => v.name === modelConfig.feature_extraction,
               )?.label
             }{" "}
             {"feature extractor and a"}{" "}
             {
               modelOptions?.classifier.find(
-                (v) => v.name == modelConfig.classifier,
+                (v) => v.name === modelConfig.classifier,
               )?.label
             }{" "}
             {"classifier. "}
