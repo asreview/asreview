@@ -78,61 +78,66 @@ class Simulate:
         self.n_instances = n_instances
         self.stop_if = stop_if
 
-        self._last_ranking = None
-        self._results = pd.DataFrame(
-            columns=[
-                "record_id",
-                "label",
-                "classifier",
-                "query_strategy",
-                "balance_strategy",
-                "feature_extraction",
-                "training_set",
-                "labeling_time",
-                "notes",
-                "user_id",
-            ]
-        )
+    @property
+    def _results(self):
+        if not hasattr(self, "_Simulate__results"):
+            raise AttributeError("No results. Label records or call review.")
+        return self._Simulate__results
+
+    @_results.setter
+    def _results(self, value):
+        self._Simulate__results = value
 
     def _stop_review(self):
         """Check if the review should be stopped."""
 
-        # if the pool is empty, always stop
-        if len(self._results) == len(self.labels):
-            return True
+        try:
+            # if the pool is empty, always stop
+            if len(self._results) == len(self.labels):
+                return True
 
-        # If stop_if is set to min, stop after stop_if queries.
-        if self.stop_if == "min" and sum(self.labels) == sum(self._results["label"]):
-            return True
+            # If stop_if is set to min, stop after stop_if queries.
+            if self.stop_if == "min" and sum(self.labels) == sum(
+                self._results["label"]
+            ):
+                return True
 
-        # Stop when reaching stop_if (if provided)
-        if isinstance(self.stop_if, int) and len(self._results) >= self.stop_if:
-            return True
+            # Stop when reaching stop_if (if provided)
+            if isinstance(self.stop_if, int) and len(self._results) >= self.stop_if:
+                return True
+        except AttributeError:
+            if len(self.labels) == 0:
+                return True
 
         return False
 
     def review(self):
         """Start the review process."""
 
-        if (
+        if not hasattr(self, "_result") or (
             not (self._results["label"] == 1).any()
             or not (self._results["label"] == 0).any()
         ):
-            first_included_idx = np.where(self.labels == 1)[0].min()
-            first_excluded_idx = np.where(self.labels == 0)[0].min()
-            first_idx = np.arange(max(first_included_idx, first_excluded_idx) + 1)
+            argmin_bin = max(
+                np.where(self.labels == 1)[0].min(), np.where(self.labels == 0)[0].min()
+            )
 
-            new_idx = list(set(first_idx) - set(self._results["record_id"]))
+            try:
+                new_idx = list(
+                    set(np.arange(argmin_bin + 1)) - set(self._results["record_id"])
+                )
+            except AttributeError:
+                new_idx = np.arange(argmin_bin + 1)
+
             self.label(new_idx, prior=True)
 
-        # progress bars
         pbar_rel = tqdm(
-            initial=sum(self._results["label"]),
+            initial=sum(self._results["label"]) if hasattr(self, "_results") else 0,
             total=sum(self.labels),
             desc="Relevant records found",
         )
         pbar_total = tqdm(
-            initial=len(self._results["label"]),
+            initial=len(self._results) if hasattr(self, "_results") else 0,
             total=len(self.labels),
             desc="Records labeled       ",
         )
@@ -155,15 +160,16 @@ class Simulate:
     def train(self):
         """Train a new model on the labeled data."""
 
-        new_training_set = len(self._results)
-
-        y_sample_input = (
-            pd.DataFrame(np.arange(self.fm.shape[0]), columns=["record_id"])
-            .merge(self._results, how="left", on="record_id")
-            .loc[:, "label"]
-            .fillna(LABEL_NA)
-            .to_numpy()
-        )
+        try:
+            y_sample_input = (
+                pd.DataFrame(np.arange(self.fm.shape[0]), columns=["record_id"])
+                .merge(self._results, how="left", on="record_id")
+                .loc[:, "label"]
+                .fillna(LABEL_NA)
+                .to_numpy()
+            )
+        except AttributeError:
+            y_sample_input = np.full(self.fm.shape[0], LABEL_NA)
 
         train_idx = np.where(y_sample_input != LABEL_NA)[0]
 
@@ -179,13 +185,18 @@ class Simulate:
             relevance_scores=relevance_scores,
         )
 
-        self._last_ranking = pd.concat(
-            [pd.Series(ranked_record_ids), pd.Series(range(len(ranked_record_ids)))],
-            axis=1,
+        self._last_ranking = pd.DataFrame(
+            {
+                "record_id": ranked_record_ids,
+                "ranking": range(len(ranked_record_ids)),
+                "classifier": self.classifier.name,
+                "query_strategy": self.query_strategy.name,
+                "balance_strategy": self.balance_strategy.name,
+                "feature_extraction": self.feature_extraction.name,
+                "training_set": len(self._results),
+                "time": datetime.now(),
+            }
         )
-        self._last_ranking.columns = ["record_id", "rank"]
-
-        self.training_set = new_training_set
 
     def query(self, n):
         """Query the next n records to label.
@@ -201,10 +212,11 @@ class Simulate:
             The record ids to label.
         """
 
-        df_full = self._last_ranking.merge(self._results, how="left", on="record_id")
-        df_pool = df_full[df_full["label"].isnull()]
+        df_full = self._last_ranking[["record_id", "ranking"]].merge(
+            self._results, how="left", on="record_id"
+        )
 
-        return df_pool["record_id"].head(n).to_list()
+        return df_full[df_full["label"].isnull()]["record_id"].head(n).to_list()
 
     def label(self, record_ids, prior=False):
         """Label the records with the given record_ids.
@@ -229,28 +241,31 @@ class Simulate:
             query_strategy = self.query_strategy.name
             balance_strategy = self.balance_strategy.name
             feature_extraction = self.feature_extraction.name
-            training_set = int(self.training_set)
+            training_set = len(self._results)
 
-        self._results = pd.concat(
-            [
-                self._results,
-                pd.DataFrame(
-                    {
-                        "record_id": record_ids,
-                        "label": self.labels[record_ids],
-                        "classifier": classifier,
-                        "query_strategy": query_strategy,
-                        "balance_strategy": balance_strategy,
-                        "feature_extraction": feature_extraction,
-                        "training_set": training_set,
-                        "labeling_time": str(datetime.now()),
-                        "notes": None,
-                        "user_id": None,
-                    }
-                ),
-            ],
-            ignore_index=True,
+        new_labels = pd.DataFrame(
+            {
+                "record_id": record_ids,
+                "label": self.labels[record_ids],
+                "classifier": classifier,
+                "query_strategy": query_strategy,
+                "balance_strategy": balance_strategy,
+                "feature_extraction": feature_extraction,
+                "training_set": training_set,
+                "labeling_time": str(datetime.now()),
+                "note": None,
+                "tags": None,
+                "user_id": None,
+            }
         )
+
+        try:
+            self._results = pd.concat(
+                [self._results, new_labels],
+                ignore_index=True,
+            )
+        except AttributeError:
+            self._results = new_labels
 
     def label_random(
         self, n_included=None, n_excluded=None, prior=False, random_state=None
@@ -303,16 +318,9 @@ class Simulate:
         """
 
         with open_state(fp) as state:
-            self._results.to_sql(
-                "results", state._conn, if_exists="replace", index=False
-            )
+            state._add_results_from_df(self._results)
 
-            if self._last_ranking is not None:
-                state.add_last_ranking(
-                    self._last_ranking["record_id"].to_numpy(),
-                    self.classifier.name,
-                    self.query_strategy.name,
-                    self.balance_strategy.name,
-                    None,
-                    self.training_set,
-                )
+            try:
+                state._add_last_ranking(self._last_ranking)
+            except AttributeError:
+                pass

@@ -26,20 +26,6 @@ REQUIRED_TABLES = [
     "decision_changes",
 ]
 
-RESULTS_TABLE_COLUMNS = [
-    "record_id",
-    "label",
-    "classifier",
-    "query_strategy",
-    "balance_strategy",
-    "feature_extraction",
-    "training_set",
-    "labeling_time",
-    "note",
-    "tags",
-    "user_id",
-]
-
 RESULTS_TABLE_COLUMNS_PANDAS_DTYPES = {
     "record_id": "Int64",
     "label": "Int64",
@@ -176,7 +162,9 @@ class SQLiteState:
 
         column_names = [tup[1] for tup in column_names]
         missing_columns = [
-            col for col in RESULTS_TABLE_COLUMNS if col not in column_names
+            col
+            for col in RESULTS_TABLE_COLUMNS_PANDAS_DTYPES.keys()
+            if col not in column_names
         ]
         if missing_columns:
             raise ValueError(
@@ -217,6 +205,26 @@ class SQLiteState:
             return len(labeled) > 0
         else:
             return len(labeled) > last_training_set.max()
+
+    def _add_results_from_df(self, results):
+        if not set(results.columns) == set(RESULTS_TABLE_COLUMNS_PANDAS_DTYPES):
+            raise ValueError(
+                f"Columns of the results dataframe should be "
+                f"{list(RESULTS_TABLE_COLUMNS_PANDAS_DTYPES.keys())}."
+            )
+
+        results.to_sql("results", self._conn, if_exists="replace", index=False)
+
+    def _add_last_ranking_from_df(self, last_ranking):
+        if not set(last_ranking.columns) == set(RANKING_TABLE_COLUMNS_PANDAS_DTYPES):
+            raise ValueError(
+                f"Columns of the last ranking dataframe should be "
+                f"{list(RANKING_TABLE_COLUMNS_PANDAS_DTYPES.keys())}."
+            )
+
+        last_ranking.to_sql(
+            "last_ranking", self._conn, if_exists="replace", index=False
+        )
 
     def add_last_ranking(
         self,
