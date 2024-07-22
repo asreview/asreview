@@ -1,6 +1,9 @@
-import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Box,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
   Container,
   FormControlLabel,
   FormGroup,
@@ -20,12 +23,17 @@ import {
 import { ProjectContext } from "ProjectContext";
 import { projectStatuses } from "globals.js";
 import { useToggle } from "hooks/useToggle";
+import useAuth from "hooks/useAuth";
 
 const Root = styled("div")(({ theme }) => ({}));
 
 const DetailsPage = (props) => {
   const { project_id } = useParams();
   const [onDeleteDialog, toggleDeleteDialog] = useToggle();
+
+  const { auth } = useAuth();
+
+  console.log(auth);
 
   const handleChangeStatus = (event) => {};
 
@@ -41,7 +49,6 @@ const DetailsPage = (props) => {
           <Box sx={{ padding: "12px 0px" }}>
             <TagCard editable={false} />
           </Box>
-
           <Box sx={{ padding: "12px 0px" }}>
             <ModelCard editable={true} showWarning={true} />
           </Box>
@@ -67,23 +74,30 @@ const DetailsPage = (props) => {
 
           {/* Add delete project button */}
           <Box sx={{ padding: "12px 0px" }}>
-            <Typography variant="h6">Danger zone</Typography>
-            <LoadingButton
-              variant="contained"
-              color="error"
-              onClick={handleClickDelete}
-            >
-              Delete project
-            </LoadingButton>
+            <Card>
+              <CardHeader
+                title="Danger zone"
+                subheader="Delete project permanently. This action cannot be undone."
+              />
+              <CardContent>
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={handleClickDelete}
+                >
+                  Delete project
+                </Button>
+                <ProjectDeleteDialog
+                  onDeleteDialog={onDeleteDialog}
+                  toggleDeleteDialog={toggleDeleteDialog}
+                  projectTitle={props.info?.name}
+                  project_id={project_id}
+                />
+              </CardContent>
+            </Card>
           </Box>
         </ProjectContext.Provider>
       </Container>
-      <ProjectDeleteDialog
-        onDeleteDialog={onDeleteDialog}
-        toggleDeleteDialog={toggleDeleteDialog}
-        projectTitle={props.info?.name}
-        project_id={project_id}
-      />
     </Root>
   );
 };
