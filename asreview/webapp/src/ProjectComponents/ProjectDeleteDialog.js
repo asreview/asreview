@@ -1,6 +1,5 @@
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
-import { useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Alert,
@@ -49,10 +48,6 @@ const ProjectDeleteDialog = (props) => {
     reset();
   };
 
-  const disableConfirmButton = () => {
-    return deleteInput !== props.projectTitle || isLoading;
-  };
-
   React.useEffect(() => {
     if (props.onDeleteDialog) {
       const { current: descriptionElement } = descriptionElementRef;
@@ -61,15 +56,6 @@ const ProjectDeleteDialog = (props) => {
       }
     }
   }, [props.onDeleteDialog]);
-
-  const warningSuffix = () => {
-    // which project are we talking about?
-    if (props.isOwner) {
-      return ", including the dataset, review labels, notes, and model configuration.";
-    } else {
-      return " from your list";
-    }
-  };
 
   return (
     <Dialog
@@ -86,7 +72,8 @@ const ProjectDeleteDialog = (props) => {
           <Stack spacing={2}>
             <Typography>
               This action <b>cannot</b> be undone. This will permanently delete
-              the <b>{props.projectTitle}</b> project{warningSuffix()}
+              the <b>{props.projectTitle}</b> project , including the dataset,
+              review labels, notes, and model configuration.
             </Typography>
             <Typography>
               Please type <b>{props.projectTitle}</b> to confirm.
@@ -108,7 +95,7 @@ const ProjectDeleteDialog = (props) => {
         <Button onClick={cancelDelete}>Cancel</Button>
         <Button
           onClick={() => mutate({ project_id: props.project_id })}
-          disabled={disableConfirmButton()}
+          disabled={deleteInput !== props.projectTitle || isLoading}
         >
           Delete Forever
         </Button>
