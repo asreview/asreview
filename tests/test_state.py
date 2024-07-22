@@ -6,6 +6,7 @@ import pytest
 from scipy.sparse import csr_matrix
 
 import asreview as asr
+from asreview.extensions import load_extension
 from asreview.project import ProjectNotFoundError
 from asreview.state.exceptions import StateNotFoundError
 
@@ -317,7 +318,9 @@ def test_get_feature_matrix(asreview_test_project):
 
     assert len(project.feature_matrices) == 1
 
-    feature_matrix = project.get_feature_matrix(project.feature_matrices[0]["id"])
+    feature_model_name = project.feature_matrices[0]["id"]
+    feature_model = load_extension("models.feature_extraction", feature_model_name)
+    feature_matrix = project.get_feature_matrix(feature_model)
     assert isinstance(feature_matrix, csr_matrix)
 
 

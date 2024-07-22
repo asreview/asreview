@@ -308,7 +308,8 @@ def test_validity_function_invalid(capsys):
         auth_tool._ensure_valid_value_for("test", lambda x: x == correct, hint=hint)
     out, err = capsys.readouterr()
     assert not bool(out)
-    assert err == hint
+    # An new-line is added to the hint
+    assert err == f"{hint}\n"
 
 
 # Test printing a project

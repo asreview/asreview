@@ -18,6 +18,7 @@ If applicable, add screenshots to help explain your problem.
 **Version information**
 
 - OS: [e.g. Windows]
+- Browser (if applicable) [e.g. Chrome]
 - ASReview version [e.g. 0.6.2]
 
 **Additional context**

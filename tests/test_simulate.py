@@ -28,7 +28,7 @@ def test_simulate_basic(tmpdir):
     fm = feature_model.fit_transform(
         as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
     )
-    project.add_feature_matrix(fm, feature_model.name)
+    project.add_feature_matrix(fm, feature_model)
 
     # set numpy seed
     np.random.seed(42)
@@ -70,7 +70,7 @@ def test_simulate_no_prior(tmpdir):
     fm = feature_model.fit_transform(
         as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
     )
-    project.add_feature_matrix(fm, feature_model.name)
+    project.add_feature_matrix(fm, feature_model)
 
     # set numpy seed
     np.random.seed(42)
@@ -111,7 +111,7 @@ def test_simulate_random_prior(tmpdir):
     fm = feature_model.fit_transform(
         as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
     )
-    project.add_feature_matrix(fm, feature_model.name)
+    project.add_feature_matrix(fm, feature_model)
 
     # set numpy seed
     np.random.seed(42)

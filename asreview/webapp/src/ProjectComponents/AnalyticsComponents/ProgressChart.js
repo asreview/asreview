@@ -1,8 +1,7 @@
 import React from "react";
 import Chart from "react-apexcharts";
-import { Card, CardContent } from "@mui/material";
+import { Card, CardContent, Skeleton } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
-
 import { projectModes } from "globals.js";
 
 const PREFIX = "ProgressChart";
@@ -217,13 +216,22 @@ export default function ProgressChart(props) {
   return (
     <StyledCard elevation={2}>
       <CardContent className={classes.root}>
-        <Chart
-          options={options}
-          series={series}
-          type="radialBar"
-          height={350}
-          width="100%"
-        />
+        {props.progressQuery.isLoading ? (
+          <Skeleton
+            variant="circular"
+            width={300}
+            height={300}
+            style={{ margin: "auto" }}
+          />
+        ) : (
+          <Chart
+            options={options}
+            series={series}
+            type="radialBar"
+            height={300}
+            width={300}
+          />
+        )}
       </CardContent>
     </StyledCard>
   );

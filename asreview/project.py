@@ -31,12 +31,8 @@ from pathlib import Path
 from uuid import uuid4
 
 import jsonschema
-import numpy as np
 import pandas as pd
 from filelock import FileLock
-from scipy.sparse import csr_matrix
-from scipy.sparse import load_npz
-from scipy.sparse import save_npz
 
 from asreview import load_dataset
 from asreview.config import LABEL_NA
@@ -320,27 +316,23 @@ class Project:
         except Exception:
             return []
 
-    def add_feature_matrix(self, feature_matrix, feature_extraction_method):
+    @staticmethod
+    def get_matrix_filename(feature_model):
+        """Get the file name of the feature matrix for a specific feature model."""
+        return f"{feature_model.name}_feature_matrix.{feature_model.file_extension}"
+
+    def add_feature_matrix(self, feature_matrix, feature_model):
         """Add feature matrix to project file.
 
         Arguments
         ---------
         feature_matrix: numpy.ndarray, scipy.sparse.csr.csr_matrix
             The feature matrix to add to the project file.
-        feature_extraction_method: str
-            Name of the feature extraction method.
+        feature_model: BaseFeatureExtraction
+            Feature extraction class.
         """
-        # Make sure the feature matrix is in csr format.
-        if isinstance(feature_matrix, np.ndarray):
-            feature_matrix = csr_matrix(feature_matrix)
-        if not isinstance(feature_matrix, csr_matrix):
-            raise ValueError(
-                "The feature matrix should be convertible to type "
-                "scipy.sparse.csr.csr_matrix."
-            )
-
-        matrix_filename = f"{feature_extraction_method}_feature_matrix.npz"
-        save_npz(
+        matrix_filename = self.get_matrix_filename(feature_model)
+        feature_model.write(
             Path(self.project_path, PATH_FEATURE_MATRICES, matrix_filename),
             feature_matrix,
         )
@@ -349,7 +341,7 @@ class Project:
         config = self.config
 
         feature_matrix_config = {
-            "id": feature_extraction_method,
+            "id": feature_model.name,
             "filename": matrix_filename,
         }
 
@@ -361,21 +353,23 @@ class Project:
 
         self.config = config
 
-    def get_feature_matrix(self, feature_extraction_method):
+    def get_feature_matrix(self, feature_model):
         """Get the feature matrix from the project file.
 
         Arguments
         ---------
-        feature_extraction_method: str
-            Name of the feature extraction method for which to get the matrix.
+        feature_model : BaseFeatureExtraction
+            Feature extraction class for which to get the matrix.
 
         Returns
         -------
-        scipy.sparse.csr_matrix:
-            Feature matrix in sparse format.
+        numpy.ndarray, scipy.sparse.csr_matrix:
+            Feature matrix. This should have the same length as the dataset.
         """
-        matrix_filename = f"{feature_extraction_method}_feature_matrix.npz"
-        return load_npz(Path(self.project_path, PATH_FEATURE_MATRICES, matrix_filename))
+        matrix_filename = self.get_matrix_filename(feature_model)
+        return feature_model.read(
+            Path(self.project_path, PATH_FEATURE_MATRICES, matrix_filename)
+        )
 
     @property
     def reviews(self):
@@ -557,40 +551,37 @@ class Project:
 
     @classmethod
     def load(cls, asreview_file, project_path, safe_import=False):
-        tmpdir = tempfile.TemporaryDirectory().name
+        with tempfile.TemporaryDirectory() as tmpdir:
+            try:
+                # Unzip the project file
+                with zipfile.ZipFile(asreview_file, "r") as zip_obj:
+                    zip_filenames = zip_obj.namelist()
 
-        try:
-            # Unzip the project file
-            with zipfile.ZipFile(asreview_file, "r") as zip_obj:
-                zip_filenames = zip_obj.namelist()
+                    # raise error if no ASReview project file
+                    if PATH_PROJECT_CONFIG not in zip_filenames:
+                        raise ValueError("Project file is not valid project.")
 
-                # raise error if no ASReview project file
-                if PATH_PROJECT_CONFIG not in zip_filenames:
-                    raise ValueError("Project file is not valid project.")
+                    # extract all files to folder
+                    for f in zip_filenames:
+                        if not f.endswith(".pickle"):
+                            zip_obj.extract(f, path=tmpdir)
 
-                # extract all files to folder
-                for f in zip_filenames:
-                    if not f.endswith(".pickle"):
-                        zip_obj.extract(f, path=tmpdir)
+            except zipfile.BadZipFile:
+                raise ValueError("File is not an ASReview file.")
 
-        except zipfile.BadZipFile:
-            raise ValueError("File is not an ASReview file.")
+            with open(Path(tmpdir, PATH_PROJECT_CONFIG)) as f:
+                project_config = json.load(f)
 
-        with open(Path(tmpdir, PATH_PROJECT_CONFIG)) as f:
-            project_config = json.load(f)
+            if safe_import:
+                # assign a new id to the project.
+                project_config["id"] = uuid4().hex
+                with open(Path(tmpdir, PATH_PROJECT_CONFIG), "r+") as f:
+                    # write to file
+                    f.seek(0)
+                    json.dump(project_config, f)
+                    f.truncate()
 
-        if safe_import:
-            # assign a new id to the project.
-            project_config["id"] = uuid4().hex
-            with open(Path(tmpdir, PATH_PROJECT_CONFIG), "r+") as f:
-                # write to file
-                f.seek(0)
-                json.dump(project_config, f)
-                f.truncate()
-
-        # location to copy file to
-        # Move the project from the temp folder to the projects folder.
-        os.replace(tmpdir, Path(project_path, project_config["id"]))
+            shutil.copytree(tmpdir, Path(project_path, project_config["id"]))
 
         return cls(Path(project_path, project_config["id"]))
 

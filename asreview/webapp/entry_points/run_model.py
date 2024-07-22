@@ -56,12 +56,12 @@ def _run_model_start(project, output_error=True):
                 "models.feature_extraction", settings.feature_extraction
             )()
             try:
-                fm = project.get_feature_matrix(feature_model.name)
+                fm = project.get_feature_matrix(feature_model)
             except FileNotFoundError:
                 fm = feature_model.fit_transform(
                     as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
                 )
-                project.add_feature_matrix(fm, feature_model.name)
+                project.add_feature_matrix(fm, feature_model)
 
             with open_state(project) as state:
                 labeled = state.get_results_table(columns=["record_id", "label"])
@@ -127,7 +127,7 @@ def _simulate_start(project):
     fm = feature_model.fit_transform(
         as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
     )
-    project.add_feature_matrix(fm, feature_model.name)
+    project.add_feature_matrix(fm, feature_model)
 
     sim = Simulate(
         fm,
