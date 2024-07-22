@@ -923,35 +923,38 @@ def _add_tags_to_export_data(project, export_data, state_df):
 def api_export_dataset(project):
     """Export dataset with relevant/irrelevant labels"""
 
-    # get the export args
-    file_format = request.args.get("file_format", None)
-    dataset_label = request.args.get("dataset_label", default="all")
+    file_format = request.args.get("format", None)
+    collections = request.args.getlist("collections", type=str)
+    collections = [
+        c for c in ["relevant", "not_seen", "irrelevant"] if c in collections
+    ]
 
-    # create temporary folder to store exported dataset
     tmp_path = tempfile.TemporaryDirectory()
     tmp_path_dataset = Path(tmp_path.name, f"export_dataset.{file_format}")
 
     try:
-        # get labels and ranking from state file
         with open_state(project.project_path) as s:
-            # todo: execute in single transaction (most likely it already does)
             pool = s.get_pool()
-            labeled = s.get_results_table()[["record_id", "label"]]
-
+            results = s.get_results_table()[["record_id", "label"]]
             state_df = s.get_results_table().set_index("record_id")
 
-        included = labeled[labeled["label"] == 1]
-        excluded = labeled[labeled["label"] != 1]
+        included = results[results["label"] == 1]
+        excluded = results[results["label"] != 1]
 
-        if dataset_label == "relevant":
+        labels = []
+        export_order = []
+
+        if "relevant" in collections:
+            labels.append(included["label"].to_list())
             export_order = included["record_id"].to_list()
-            labeled = included
-        else:
-            export_order = (
-                included["record_id"].to_list()
-                + pool.to_list()
-                + excluded["record_id"].to_list()
-            )
+
+        if "not_seen" in collections:
+            labels.append([LABEL_NA] * len(pool))
+            export_order = pool.to_list()
+
+        if "irrelevant" in collections:
+            labels.append(excluded["label"].to_list())
+            export_order = excluded["record_id"].to_list()
 
         # get writer corresponding to specified file format
         writers = extensions("writers")
@@ -997,12 +1000,11 @@ def api_export_dataset(project):
 
         _add_tags_to_export_data(project, as_data, state_df)
 
-        # keep labels in exploration mode
         keep_old_labels = project.config["mode"] == PROJECT_MODE_EXPLORE
 
         as_data.to_file(
             fp=tmp_path_dataset,
-            labels=labeled.values.tolist(),
+            labels=labels,
             ranking=export_order,
             writer=writer,
             keep_old_labels=keep_old_labels,
@@ -1012,6 +1014,7 @@ def api_export_dataset(project):
             tmp_path_dataset,
             as_attachment=True,
             max_age=0,
+            download_name=f"asreview_{'+'.join(collections)}_{project.config['name']}.{file_format}",
         )
 
     except Exception as err:

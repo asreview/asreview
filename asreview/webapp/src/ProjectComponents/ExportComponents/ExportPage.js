@@ -21,7 +21,6 @@ import {
 import { styled } from "@mui/material/styles";
 import "App.css";
 import { ActionsFeedbackBar, CiteDialog, PageHeader } from "Components";
-import { SelectItem } from "ProjectComponents";
 import { MouseOverPopover } from "StyledComponents/StyledPopover";
 import { ProjectAPI } from "api";
 import React, { useState } from "react";
@@ -261,10 +260,26 @@ const ExportPage = (props) => {
                             value={value.name}
                             disabled={!value.enabled}
                           >
-                            <SelectItem
-                              primary={value.label}
-                              secondary={!value.enabled ? value.caution : null}
-                            />
+                            <Box>
+                              <Typography
+                                className="typography-wrap"
+                                variant="subtitle1"
+                              >
+                                {value.label}
+                              </Typography>
+                              {!value.enabled
+                                ? value.caution
+                                : null && (
+                                    <Typography
+                                      className="typography-wrap"
+                                      variant="body2"
+                                      gutterBottom
+                                      sx={{ color: "text.secondary" }}
+                                    >
+                                      {!value.enabled ? value.caution : null}
+                                    </Typography>
+                                  )}
+                            </Box>
                           </MenuItem>
                         );
                       })}

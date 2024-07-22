@@ -36,7 +36,6 @@ import { DoneOutlined, ExpandMore } from "@mui/icons-material";
 
 import { styled } from "@mui/material/styles";
 
-import { SelectItem } from "ProjectComponents";
 import { ProjectContext } from "ProjectContext";
 import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";
@@ -127,7 +126,21 @@ const ModelSelect = ({
           value={value.name}
           disabled={disableItem ? disableItem(value.name) : false}
         >
-          <SelectItem primary={value.label} secondary={value.description} />
+          <Box>
+            <Typography className="typography-wrap" variant="subtitle1">
+              {value.label}
+            </Typography>
+            {value.description && (
+              <Typography
+                className="typography-wrap"
+                variant="body2"
+                gutterBottom
+                sx={{ color: "text.secondary" }}
+              >
+                {value.description}
+              </Typography>
+            )}
+          </Box>
         </MenuItem>
       ))}
     </Select>

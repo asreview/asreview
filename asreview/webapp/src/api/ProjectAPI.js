@@ -441,31 +441,33 @@ class ProjectAPI {
     });
   }
 
-  static fetchExportDataset({ queryKey }) {
-    const { project_id, project_title, datasetLabel, fileFormat } = queryKey[1];
-    const url =
-      api_url +
-      `projects/${project_id}/export_dataset?dataset_label=${datasetLabel}&file_format=${fileFormat}`;
+  static fetchExportDataset({ project_id, collections, format }) {
+    const url = api_url + `projects/${project_id}/export_dataset`;
     return new Promise((resolve, reject) => {
       axios({
         url: url,
         method: "get",
+        params: { collections: collections, format: format },
+        paramsSerializer: (params) => {
+          return qs.stringify(params, { arrayFormat: "repeat" });
+        },
         responseType: "blob",
         withCredentials: true,
       })
         .then((result) => {
+          const filename = result.headers["content-disposition"]
+            .split("filename=")[1]
+            .split(".")[0];
           const url = window.URL.createObjectURL(new Blob([result.data]));
           const link = document.createElement("a");
           link.href = url;
-          link.setAttribute(
-            "download",
-            `asreview_dataset_${datasetLabel}_${project_title}.${fileFormat}`,
-          );
+          link.setAttribute("download", filename);
           document.body.appendChild(link);
           link.click();
           resolve(result);
         })
         .catch((error) => {
+          console.log(error);
           if (
             error.request.responseType === "blob" &&
             error.response.data instanceof Blob &&
@@ -487,7 +489,7 @@ class ProjectAPI {
   }
 
   static fetchExportProject({ queryKey }) {
-    const { project_id, project_title } = queryKey[1];
+    const { project_id } = queryKey[1];
     const url = api_url + `projects/${project_id}/export_project`;
     return new Promise((resolve, reject) => {
       axios({
@@ -499,6 +501,10 @@ class ProjectAPI {
         .then((result) => {
           const url = window.URL.createObjectURL(new Blob([result.data]));
           const link = document.createElement("a");
+          const project_title = result.headers["content-disposition"]
+            .split("filename=")[1]
+            .split(".")[0];
+
           link.href = url;
           link.setAttribute("download", `${project_title}.asreview`);
           document.body.appendChild(link);
