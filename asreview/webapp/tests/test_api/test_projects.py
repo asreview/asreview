@@ -1,11 +1,8 @@
-import inspect
 import json
 import time
 from pathlib import Path
-from typing import Union
 
 import pytest
-from flask.testing import FlaskClient
 from jsonschema.exceptions import ValidationError
 
 import asreview as asr
@@ -587,60 +584,43 @@ def test_delete_project(client, project):
 
 
 @pytest.mark.parametrize(
-    "api_call",
+    "api_call,project_required,params",
     [
-        au.get_all_projects,
-        au.create_project,
-        au.update_project,
-        au.upgrade_project,
-        au.get_project_stats,
-        au.get_demo_data,
-        au.get_project_data,
-        au.get_project_dataset_writer,
-        au.search_project_data,
-        au.get_prior_random_project_data,
-        au.label_project_record,
-        au.update_label_project_record,
-        au.get_labeled_project_data,
-        au.get_labeled_project_data_stats,
-        au.get_project_algorithms_options,
-        au.set_project_algorithms,
-        au.get_project_algorithms,
-        au.set_project_status,
-        au.get_project_status,
-        au.export_project_dataset,
-        au.export_project,
-        au.get_project_progress,
-        au.get_project_progress_density,
-        au.get_project_progress_recall,
-        au.get_project_current_document,
-        au.delete_project,
+        (au.get_all_projects, False, {}),
+        (au.get_project_stats, False, {}),
+        (au.get_demo_data, False, {"subset": "benchmark"}),
+        (au.get_project_algorithms_options, False, {}),
+        (au.get_project_algorithms, True, {}),
+        (au.create_project, True, {}),
+        (au.update_project, True, {}),
+        (au.upgrade_project, True, {}),
+        (au.get_project_data, True, {}),
+        (au.get_project_dataset_writer, True, {}),
+        (au.search_project_data, True, {"query": "Software"}),
+        (au.get_prior_random_project_data, True, {}),
+        (au.label_project_record, True, {"record_id": 1, "label": 1}),
+        (au.update_label_project_record, True, {"record_id": 1, "label": 1}),
+        (au.get_labeled_project_data, True, {}),
+        (au.get_labeled_project_data_stats, True, {}),
+        (au.set_project_algorithms, True, {"data": {}}),
+        (au.set_project_status, True, {"status": "review"}),
+        (au.get_project_status, True, {}),
+        (au.export_project_dataset, True, {"format": "csv"}),
+        (au.export_project, True, {}),
+        (au.get_project_progress, True, {}),
+        (au.get_project_progress_density, True, {}),
+        (au.get_project_progress_recall, True, {}),
+        (au.get_project_current_document, True, {}),
+        (au.delete_project, True, {}),
     ],
 )
-def test_unauthorized_use_of_api_calls(client, project, api_call):
-    if not client.application.config.get("LOGIN_DISABLED"):
-        # signout the client
-        au.signout_user(client)
-        # inspect function
-        sig = inspect.signature(api_call)
-        # form parameters
-        parms = []
-        for par in sig.parameters.keys():
-            annotation = sig.parameters[par].annotation
-            if annotation == FlaskClient:
-                parms.append(client)
-            elif annotation == Union[Project, asr.Project]:
-                parms.append(project)
-            elif annotation == int:
-                parms.append(1)
-            elif annotation == str:
-                parms.append("abc")
-            elif annotation == dict:
-                parms.append({})
+def test_unauthorized_use_of_api_calls(
+    client_auth, project, api_call, project_required, params
+):
+    au.signout_user(client_auth)
 
-        # make the api call
-        r = api_call(*parms)
-        assert r.status_code == 401
-    else:
-        # no asserts in an unauthenticated app
-        pass
+    if project_required:
+        params["project"] = project
+
+    r = api_call(client_auth, **params)
+    assert r.status_code == 401
