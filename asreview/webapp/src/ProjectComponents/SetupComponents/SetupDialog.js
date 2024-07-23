@@ -163,7 +163,7 @@ const SetupDialog = ({
     >
       {!dataset && (
         <>
-          <DialogTitle>Import dataset from</DialogTitle>
+          <DialogTitle>Start with dataset from</DialogTitle>
           <DialogContent>
             <Stack spacing={3} sx={{ height: "100%" }}>
               <FormControl component="fieldset">
