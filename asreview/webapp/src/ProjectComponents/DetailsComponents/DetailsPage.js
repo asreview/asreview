@@ -8,7 +8,6 @@ import {
   FormControlLabel,
   FormGroup,
   Switch,
-  Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useParams } from "react-router-dom";
@@ -22,25 +21,47 @@ import {
 
 import { ProjectContext } from "ProjectContext";
 import { projectStatuses } from "globals.js";
-import { useToggle } from "hooks/useToggle";
 import useAuth from "hooks/useAuth";
+import { useToggle } from "hooks/useToggle";
 
 const Root = styled("div")(({ theme }) => ({}));
 
-const DetailsPage = (props) => {
-  const { project_id } = useParams();
+const DeleteCard = ({ project_id, info }) => {
   const [onDeleteDialog, toggleDeleteDialog] = useToggle();
+
+  return (
+    <Box sx={{ padding: "12px 0px" }}>
+      <Card>
+        <CardHeader
+          title="Danger zone"
+          subheader="Delete project permanently. This action cannot be undone."
+        />
+        <CardContent>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={toggleDeleteDialog}
+          >
+            Delete project
+          </Button>
+          <ProjectDeleteDialog
+            onDeleteDialog={onDeleteDialog}
+            toggleDeleteDialog={toggleDeleteDialog}
+            projectTitle={info?.name}
+            project_id={project_id}
+          />
+        </CardContent>
+      </Card>
+    </Box>
+  );
+};
+
+const DetailsPage = ({ info }) => {
+  const { project_id } = useParams();
 
   const { auth } = useAuth();
 
-  console.log(auth);
-
   const handleChangeStatus = (event) => {};
-
-  const handleClickDelete = () => {
-    // handleCloseOptions();
-    toggleDeleteDialog();
-  };
 
   return (
     <Root aria-label="details page">
@@ -55,47 +76,38 @@ const DetailsPage = (props) => {
           <Box sx={{ padding: "12px 0px" }}>
             <PriorCard editable={false} />
           </Box>
-          <Box sx={{ padding: "12px 0px" }}>
-            <Typography variant="h6">Project status</Typography>
-            <FormGroup>
-              <FormControlLabel
-                control={
-                  <Switch
-                    defaultChecked={
-                      props.info?.reviews[0].status === projectStatuses.REVIEW
-                    }
-                    onClick={handleChangeStatus}
+          {info?.ownerId === auth?.id && (
+            <>
+              <Box sx={{ padding: "12px 0px" }}>
+                <Card>
+                  <CardHeader
+                    title="Project status"
+                    subheader="Mark the project as finished. This disables new label actions. Can be reverted."
                   />
-                }
-                label="Mark the project as finished. This disables new label actions. Can be reverted."
-              />
-            </FormGroup>
-          </Box>
 
-          {/* Add delete project button */}
-          <Box sx={{ padding: "12px 0px" }}>
-            <Card>
-              <CardHeader
-                title="Danger zone"
-                subheader="Delete project permanently. This action cannot be undone."
-              />
-              <CardContent>
-                <Button
-                  variant="contained"
-                  color="error"
-                  onClick={handleClickDelete}
-                >
-                  Delete project
-                </Button>
-                <ProjectDeleteDialog
-                  onDeleteDialog={onDeleteDialog}
-                  toggleDeleteDialog={toggleDeleteDialog}
-                  projectTitle={props.info?.name}
-                  project_id={project_id}
-                />
-              </CardContent>
-            </Card>
-          </Box>
+                  <CardContent>
+                    <FormGroup>
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            defaultChecked={
+                              info?.reviews[0].status === projectStatuses.REVIEW
+                            }
+                            onClick={handleChangeStatus}
+                          />
+                        }
+                        label="Mark the project as finished"
+                      />
+                    </FormGroup>
+                  </CardContent>
+                </Card>
+              </Box>
+
+              <Box sx={{ padding: "12px 0px" }}>
+                <DeleteCard project_id={project_id} info={info} />
+              </Box>
+            </>
+          )}
         </ProjectContext.Provider>
       </Container>
     </Root>

@@ -5,8 +5,8 @@ import { UserListEntry } from "ProjectComponents/TeamComponents";
 
 const UserListComponent = ({ header, users, onDelete }) => {
   return (
-    <Card className="team-card" elevation={2}>
-      <CardContent className="team-card-content">
+    <Card>
+      <CardContent>
         <TypographySubtitle1Medium>{header}</TypographySubtitle1Medium>
 
         <Box sx={{ fontStyle: "italic", fontSize: 13 }}>

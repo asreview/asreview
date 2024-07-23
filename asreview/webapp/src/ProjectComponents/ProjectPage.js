@@ -265,13 +265,7 @@ const ProjectPage = (props) => {
                     header="Details"
                     mobileScreen={props.mobileScreen}
                   />
-                  <DetailsPage
-                    project_id={project_id}
-                    info={data}
-                    tags={tags}
-                    isSimulating={isSimulating}
-                    mobileScreen={props.mobileScreen}
-                  />
+                  <DetailsPage project_id={project_id} info={data} />
                 </>
               }
             />

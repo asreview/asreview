@@ -101,15 +101,6 @@
   font-weight: 600;
 }
 
-.team-card {
-  border-radius: 16px;
-  padding: 16px;
-}
-
-.team-card-content {
-  align-items: center;
-}
-
 .dialog-header {
   align-items: center;
   justify-content: space-between;

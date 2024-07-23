@@ -24,3 +24,4 @@ export { default as SignIn } from "./SignIn";
 export { default as SignInForm } from "./SignInForm";
 export { default as SignInOAuthCallback } from "./SignInOAuthCallback";
 export { default as SignUpForm } from "./SignUpForm";
+export { default as InteractionButtons } from "./InteractionButtons";

@@ -1,58 +1,10 @@
-import {
-  Diversity3,
-  Email,
-  LibraryBooks,
-  Payment,
-  StarBorder,
-} from "@mui/icons-material";
-import {
-  Box,
-  Button,
-  FormControl,
-  FormHelperText,
-  InputLabel,
-  Link,
-  MenuItem,
-  Select,
-  Stack,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { Box, Button, Stack, Tooltip } from "@mui/material";
 import "App.css";
-import { ActionsFeedbackBar, CiteDialog, PageHeader } from "Components";
-import { MouseOverPopover } from "StyledComponents/StyledPopover";
+import { ActionsFeedbackBar, PageHeader, InteractionButtons } from "Components";
 import { ProjectAPI } from "api";
-import React, { useState } from "react";
+import React from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
-
-const selectWidth = 310;
-
-const PREFIX = "ExportPage";
-
-const classes = {
-  select: `${PREFIX}-select`,
-  selectHeight: `${PREFIX}-select-height`,
-};
-
-const Root = styled("div")(({ theme }) => ({
-  [`& .${classes.select}`]: {
-    width: selectWidth,
-  },
-
-  [`& .${classes.selectHeight}`]: {
-    height: 86,
-  },
-}));
-
-const StyledActionsBox = styled(Box)(({ theme }) => ({
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  height: "100%",
-  flexDirection: "row", // Always set to row
-}));
 
 const ExportPage = (props) => {
   const { project_id } = useParams();
@@ -87,19 +39,13 @@ const ExportPage = (props) => {
     queryClient.resetQueries(selectedQuery()[1]);
   };
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-
-  const toggleDialog = () => {
-    setDialogOpen((prev) => !prev);
-  };
-
   return (
-    <Root aria-label="export page">
+    <>
       <Box>
         <PageHeader header="Export" mobileScreen={props.mobileScreen} />
         <Box className="main-page-body-wrapper">
           <Stack className="main-page-body" spacing={3}>
-            <Box className="main-page-body-wrapper">
+            <Box className="main-page-body-wrapper" sx={{ mb: "300px" }}>
               <Tooltip
                 disableFocusListener={!props.isSimulating}
                 disableHoverListener={!props.isSimulating}
@@ -116,84 +62,7 @@ const ExportPage = (props) => {
                 </span>
               </Tooltip>
             </Box>
-            <StyledActionsBox>
-              <Box
-                sx={{
-                  maxWidth: { xs: "60%", sm: "40%", md: "30%" },
-                  width: "100%",
-                }}
-              >
-                <Typography
-                  variant="h6"
-                  sx={{ textAlign: "center", paddingBottom: "10px" }}
-                >
-                  Love using ASReview LAB?
-                </Typography>
-                <Stack
-                  spacing={2}
-                  sx={{
-                    justifyContent: "center",
-                    width: "164px",
-                    margin: "auto",
-                    textAlign: "center",
-                  }}
-                >
-                  <Button
-                    startIcon={<LibraryBooks />}
-                    variant="outlined"
-                    color="primary"
-                    onClick={toggleDialog}
-                  >
-                    Cite
-                  </Button>
-                  <CiteDialog
-                    isOpen={dialogOpen}
-                    onClose={toggleDialog}
-                    asreview_version={window.asreviewVersion}
-                  />
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    component={Link}
-                    target="_blank"
-                    href="https://github.com/asreview/asreview"
-                    startIcon={<StarBorder />}
-                  >
-                    Star
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    component={Link}
-                    target="_blank"
-                    href="https://asreview.nl/donate"
-                    startIcon={<Payment />}
-                  >
-                    Donate
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    component={Link}
-                    target="_blank"
-                    href="https://asreview.ai/newsletter/subscribe"
-                    startIcon={<Email />}
-                  >
-                    Subscribe
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    component={Link}
-                    target="_blank"
-                    href="https://asreview.nl/community"
-                    startIcon={<Diversity3 />}
-                  >
-                    Contribute
-                  </Button>
-                </Stack>
-              </Box>
-            </StyledActionsBox>
+            <InteractionButtons project_id={project_id} />
           </Stack>
         </Box>
       </Box>
@@ -211,7 +80,7 @@ const ExportPage = (props) => {
           onClose={resetQueries}
         />
       )}
-    </Root>
+    </>
   );
 };
 
