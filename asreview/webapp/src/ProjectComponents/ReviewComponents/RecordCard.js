@@ -43,6 +43,8 @@ const StyledCard = styled(Card)(() => ({
   },
 }));
 
+const transitionSpeed = 150;
+
 const RecordCard = ({
   project_id,
   record,
@@ -202,7 +204,7 @@ const RecordCard = ({
     return (
       <Fade
         in={state.open}
-        timeout={150}
+        timeout={transitionSpeed}
         onExited={afterDecision}
         unmountOnExit
       >
@@ -213,7 +215,7 @@ const RecordCard = ({
     return (
       <Collapse
         in={state.open}
-        timeout={150}
+        timeout={transitionSpeed}
         onExited={afterDecision}
         unmountOnExit
       >

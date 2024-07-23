@@ -122,11 +122,11 @@ const DecisionButton = ({
     ProjectAPI.mutateClassification,
     {
       onSuccess: () => {
-        if (editState) {
-          // get the label from the request
+        // if (editState) {
+        //   // get the label from the request
 
-          toggleEditState();
-        }
+        //   toggleEditState();
+        // }
 
         decisionCallback();
       },
@@ -294,7 +294,6 @@ const DecisionButton = ({
             <IconButton
               onClick={toggleEditState}
               aria-label="Edit record decision"
-              sx={{ float: "right" }}
               disabled={isLoading}
             >
               <EditOutlinedIcon />
