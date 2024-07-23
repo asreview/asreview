@@ -9,7 +9,6 @@ import {
   DialogTitle,
   FormControl,
   FormControlLabel,
-  FormLabel,
   IconButton,
   Input,
   Radio,
@@ -32,8 +31,8 @@ import {
   DatasetFromFile,
   DatasetFromURI,
 } from "ProjectComponents/SetupComponents/DataUploadComponents";
-import { ProjectContext } from "context/ProjectContext";
 import { ProjectAPI } from "api";
+import { ProjectContext } from "context/ProjectContext";
 import { projectModes, projectStatuses } from "globals.js";
 import { useToggle } from "hooks/useToggle";
 
@@ -164,11 +163,10 @@ const SetupDialog = ({
     >
       {!dataset && (
         <>
-          <DialogTitle>Import dataset</DialogTitle>
+          <DialogTitle>Import dataset from</DialogTitle>
           <DialogContent>
-            <Stack spacing={3}>
+            <Stack spacing={3} sx={{ height: "100%" }}>
               <FormControl component="fieldset">
-                <FormLabel component="legend">Add a dataset from</FormLabel>
                 <RadioGroup
                   row
                   aria-label="dataset source"
