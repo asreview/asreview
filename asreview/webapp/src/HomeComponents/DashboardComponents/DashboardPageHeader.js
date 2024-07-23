@@ -44,11 +44,11 @@ const Root = styled(Box)(({ theme }) => ({
   },
 }));
 
-const modeLabelMap = {
-  simulate: "Simulation",
-  oracle: "Review",
-  explore: "Validation",
-};
+// const modeLabelMap = {
+//   simulate: "Simulation",
+//   oracle: "Review",
+//   explore: "Validation",
+// };
 
 export default function DashboardPageHeader({ toggleImportProject, mode }) {
   const theme = useTheme();
