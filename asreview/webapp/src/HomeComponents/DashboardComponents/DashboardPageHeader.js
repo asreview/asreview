@@ -1,25 +1,27 @@
-import * as React from "react";
+import { Upload } from "@mui/icons-material";
 import {
   Avatar,
   Box,
+  Button,
   IconButton,
+  Paper,
   Stack,
   Tooltip,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { Upload } from "@mui/icons-material";
+import { styled, useTheme } from "@mui/material/styles";
 
-import { TypographyH5Medium } from "StyledComponents/StyledTypography";
+import { projectModes } from "globals.js";
 
 const PREFIX = "DashboardPageHeader";
 
 const classes = {
   headerButton: `${PREFIX}-header-button`,
+  paperHeader: `${PREFIX}-paper-header`,
 };
 
-const Root = styled("div")(({ theme }) => ({
-  height: "20%",
+const Root = styled(Box)(({ theme }) => ({
   [`& .${classes.headerButton}`]: {
     backgroundColor: [
       theme.palette.mode === "dark"
@@ -31,6 +33,15 @@ const Root = styled("div")(({ theme }) => ({
     //   height: 24,
     // },
   },
+  [`& .${classes.paperHeader}`]: {
+    padding: theme.spacing(2),
+    paddingTop: theme.spacing(5),
+    margin: theme.spacing(2),
+    // backgroundColor: theme.palette.primary.main,
+    textAlign: "center",
+    height: "200px",
+    color: theme.palette.primary.main,
+  },
 }));
 
 const modeLabelMap = {
@@ -39,53 +50,44 @@ const modeLabelMap = {
   explore: "Validation",
 };
 
-export default function DashboardPageHeader({
-  mobileScreen,
-  toggleImportProject,
-  mode,
-}) {
-  const modeLabel = modeLabelMap[mode];
+export default function DashboardPageHeader({ toggleImportProject, mode }) {
+  const theme = useTheme();
+  const mobileScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
-    <Root className="main-page-sticky-header-wrapper">
-      <Box className="main-page-sticky-header with-button">
-        {mobileScreen && (
-          <TypographyH5Medium>{modeLabel} projects</TypographyH5Medium>
+    <Root className={classes.headerButton}>
+      <Paper className={classes.paperHeader}>
+        {mode === projectModes.ORACLE && (
+          <Typography variant="h4">What do you read today?</Typography>
         )}
-        {/* {(!mobileScreen && mode === "simulate") && (
-          <>
-          <Typography variant="h3">Simulate the performance</Typography>
-          <Typography variant="h6">1. Get a fully labeled dataset</Typography>
-          <Typography variant="h6">2. Start a simulation and hold tight</Typography>
-          </>
+        {mode === projectModes.EXPLORATION && (
+          <Typography variant="h4">Validation projects</Typography>
         )}
-        {(!mobileScreen && mode !== "simulate") && (
-          <>
-          <Typography variant="h4">{mode} projects</Typography>
-          </>
-        )} */}
-        {!mobileScreen && (
-          <>
-            <Typography variant="h4">{modeLabel} projects</Typography>
-          </>
+        {mode === projectModes.SIMULATION && (
+          <Typography variant="h4">Simulation projects</Typography>
         )}
+
         <Stack direction="row" spacing={1}>
-          <Tooltip title="Import project">
-            <IconButton
-              disableRipple
-              onClick={toggleImportProject}
-              size={!mobileScreen ? "medium" : "small"}
-            >
-              <Avatar className={classes.headerButton}>
-                <Upload
-                  color="primary"
-                  fontSize={!mobileScreen ? "medium" : "small"}
-                />
-              </Avatar>
-            </IconButton>
-          </Tooltip>
+          {mobileScreen && (
+            <Tooltip title="Import project">
+              <IconButton disableRipple onClick={toggleImportProject}>
+                <Avatar className={classes.headerButton}>
+                  <Upload
+                    color="primary"
+                    fontSize={!mobileScreen ? "medium" : "small"}
+                  />
+                </Avatar>
+              </IconButton>
+            </Tooltip>
+          )}
+
+          {!mobileScreen && (
+            <Button variant="outlined" onClick={toggleImportProject}>
+              Import project
+            </Button>
+          )}
         </Stack>
-      </Box>
+      </Paper>
     </Root>
   );
 }

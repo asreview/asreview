@@ -1,4 +1,3 @@
-export { default as DashboardPage } from "./DashboardPage";
 export { default as DashboardPageHeader } from "./DashboardPageHeader";
 export { default as ProfilePage } from "./ProfilePage";
 export { default as ProjectCheckDialog } from "./ProjectCheckDialog";
