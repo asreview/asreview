@@ -109,7 +109,7 @@ export default function TableRowButton(props) {
             onClose={handleCloseRowMenu}
           >
             {!props.isSimulating() && ( // && props.canEdit
-              <MenuItem onClick={handleClickEditDetails}>Edit details</MenuItem>
+              <MenuItem onClick={handleClickEditDetails}>Settings</MenuItem>
             )}
             {!props.disableProjectStatusChange() && (
               <MenuItem onClick={handleClickUpdateStatus}>

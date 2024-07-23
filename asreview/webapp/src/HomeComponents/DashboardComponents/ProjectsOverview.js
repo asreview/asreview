@@ -3,7 +3,7 @@ import { Box, Fab, Stack } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { useParams } from "react-router-dom";
 import { DashboardPageHeader, ProjectTable } from ".";
-import { ActionsFeedbackBar } from "Components";
+import { ActionsFeedbackBar, InteractionButtons } from "Components";
 import { ImportProject } from "ProjectComponents";
 import { SetupDialog } from "ProjectComponents/SetupComponents";
 
@@ -50,6 +50,8 @@ const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
             setProjectCheck={setProjectCheck}
             mobileScreen={mobileScreen}
           />
+
+          <InteractionButtons />
         </Stack>
       </Box>
       <Fab

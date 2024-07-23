@@ -181,9 +181,9 @@ const ProjectItemList = ({
       )}
 
       <DrawerItem
-        key={"project-analytics"}
+        key={"project-dashboard"}
         path={`/projects/${project_id}/`}
-        label={"Analytics"}
+        label={"Dashboard"}
         mobileScreen={mobileScreen}
         onNavDrawer={onNavDrawer}
         toggleNavDrawer={toggleNavDrawer}
@@ -220,18 +220,9 @@ const ProjectItemList = ({
       )}
 
       <DrawerItem
-        key={"project-export"}
-        path={`/projects/${project_id}/export`}
-        label={"Export"}
-        mobileScreen={mobileScreen}
-        onNavDrawer={onNavDrawer}
-        toggleNavDrawer={toggleNavDrawer}
-      />
-
-      <DrawerItem
-        key={"project-details"}
-        path={`/projects/${project_id}/details`}
-        label={"Details"}
+        key={"project-settings"}
+        path={`/projects/${project_id}/settings`}
+        label={"Settings"}
         mobileScreen={mobileScreen}
         onNavDrawer={onNavDrawer}
         toggleNavDrawer={toggleNavDrawer}

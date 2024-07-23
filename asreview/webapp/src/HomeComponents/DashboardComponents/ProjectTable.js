@@ -396,7 +396,7 @@ const ProjectTable = (props) => {
                   };
 
                   const onClickProjectDetails = () => {
-                    openProject(row, "details");
+                    openProject(row, "settings");
                   };
 
                   const updateProjectStatus = () => {

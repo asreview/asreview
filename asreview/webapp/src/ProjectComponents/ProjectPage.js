@@ -19,7 +19,6 @@ import { PageHeader } from "Components";
 import { AnalyticsPage } from "ProjectComponents/AnalyticsComponents";
 import { DetailsPage } from "ProjectComponents/DetailsComponents";
 import { LabelHistory } from "ProjectComponents/HistoryComponents";
-import { ExportPage } from "ProjectComponents/ExportComponents";
 import { CollaborationPage, TeamPage } from "ProjectComponents/TeamComponents";
 
 import { ReviewPage } from "ProjectComponents/ReviewComponents";
@@ -240,29 +239,14 @@ const ProjectPage = (props) => {
               }
             />
           )}
-
-          {/* Export */}
-          {isSuccess && !data?.projectNeedsUpgrade && (
-            <Route
-              path="export"
-              element={
-                <ExportPage
-                  info={data}
-                  isSimulating={isSimulating}
-                  mobileScreen={props.mobileScreen}
-                />
-              }
-            />
-          )}
-
           {/* Details */}
           {isSuccess && !data?.projectNeedsUpgrade && (
             <Route
-              path="details"
+              path="settings"
               element={
                 <>
                   <PageHeader
-                    header="Details"
+                    header="Settings"
                     mobileScreen={props.mobileScreen}
                   />
                   <DetailsPage project_id={project_id} info={data} />

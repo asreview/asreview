@@ -17,8 +17,7 @@ import {
   AssignmentOutlined,
   AssessmentOutlined,
   DashboardOutlined,
-  DownloadOutlined,
-  EditOutlined,
+  SettingsOutlined,
   LibraryBooksOutlined,
   PeopleAltOutlined,
 } from "@mui/icons-material";
@@ -61,14 +60,6 @@ const DrawerItem = (props) => {
   const resolved = useResolvedPath(props.path);
   const match = useMatch({ path: resolved.pathname, end: true });
 
-  const returnSelectedState = () => {
-    return match !== null;
-  };
-
-  const returnIconColor = () => {
-    return returnSelectedState() ? "primary" : "inherit";
-  };
-
   const returnIconState = () => {
     // home page navigation
     if (
@@ -77,30 +68,39 @@ const DrawerItem = (props) => {
         props.label === "Validations" ||
         props.label === "Simulations")
     ) {
-      return <DashboardOutlined color={returnIconColor()} />;
+      return (
+        <DashboardOutlined color={match !== null ? "primary" : "inherit"} />
+      );
     }
 
     // project page navigation
     if (project_id && props.label === "Projects") {
       return <ArrowBackOutlined />;
     }
-    if (props.label === "Analytics") {
-      return <AssessmentOutlined color={returnIconColor()} />;
+    if (props.label === "Dashboard") {
+      return (
+        <AssessmentOutlined color={match !== null ? "primary" : "inherit"} />
+      );
     }
     if (props.label === "Review") {
-      return <AssignmentOutlined color={returnIconColor()} />;
+      return (
+        <AssignmentOutlined color={match !== null ? "primary" : "inherit"} />
+      );
     }
     if (props.label === "Collection") {
-      return <LibraryBooksOutlined color={returnIconColor()} />;
+      return (
+        <LibraryBooksOutlined color={match !== null ? "primary" : "inherit"} />
+      );
     }
     if (props.label === "Team") {
-      return <PeopleAltOutlined color={returnIconColor()} />;
+      return (
+        <PeopleAltOutlined color={match !== null ? "primary" : "inherit"} />
+      );
     }
-    if (props.label === "Export") {
-      return <DownloadOutlined color={returnIconColor()} />;
-    }
-    if (props.label === "Details") {
-      return <EditOutlined color={returnIconColor()} />;
+    if (props.label === "Settings") {
+      return (
+        <SettingsOutlined color={match !== null ? "primary" : "inherit"} />
+      );
     }
   };
 
@@ -112,14 +112,14 @@ const DrawerItem = (props) => {
         placement="right"
       >
         <ListItemButton
-          selected={returnSelectedState()}
+          selected={match !== null}
           onClick={() => {
             if (props.mobileScreen) {
               props.toggleNavDrawer();
             }
             navigate(props.path);
           }}
-          className={returnSelectedState() ? classes.root : null}
+          className={match !== null ? classes.root : null}
         >
           <ListItemIcon className={classes.icon}>
             {returnIconState()}
@@ -127,7 +127,7 @@ const DrawerItem = (props) => {
           <ListItemText
             primary={props.label}
             primaryTypographyProps={{
-              className: returnSelectedState() ? classes.textSelected : null,
+              className: match !== null ? classes.textSelected : null,
             }}
           />
         </ListItemButton>

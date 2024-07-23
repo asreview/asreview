@@ -19,7 +19,7 @@ const classes = {
 };
 
 const Root = styled("div")(({ theme }) => ({
-  height: "40%",
+  height: "20%",
   [`& .${classes.headerButton}`]: {
     backgroundColor: [
       theme.palette.mode === "dark"
