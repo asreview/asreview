@@ -57,7 +57,7 @@ const ExportButton = ({ project_id }) => {
         Export
       </Button>
       <Dialog open={open} onClose={toggleOpen}>
-        <DialogTitle>Export collections</DialogTitle>
+        <DialogTitle>Export records</DialogTitle>
         <DialogContent>
           <FormControl
             component="fieldset"
@@ -71,17 +71,17 @@ const ExportButton = ({ project_id }) => {
               }
             }}
           >
-            <FormLabel component="legend">Select records to export</FormLabel>
+            <FormLabel component="legend">Select subset(s) to export</FormLabel>
             <FormGroup>
               <FormControlLabel
                 control={<Checkbox />}
-                label="Relevant"
+                label="My collection"
                 name="relevant"
                 checked={collections.includes("relevant")}
               />
               <FormControlLabel
                 control={<Checkbox />}
-                label="Irrelevant"
+                label="Not interested"
                 name="irrelevant"
                 checked={collections.includes("irrelevant")}
               />
@@ -149,8 +149,8 @@ const LabelHistory = ({
           <Chip
             label={
               !n_prior_inclusions
-                ? "Relevant"
-                : `Relevant (${n_prior_inclusions})`
+                ? "My collection"
+                : `My collection (${n_prior_inclusions})`
             }
             color="primary"
             variant={label !== "relevant" ? "outlined" : "filled"}
@@ -161,8 +161,8 @@ const LabelHistory = ({
           <Chip
             label={
               !n_prior_exclusions
-                ? "Irrelevant"
-                : `Irrelevant (${n_prior_exclusions})`
+                ? "Not interested"
+                : `Not interested (${n_prior_exclusions})`
             }
             color="primary"
             variant={label !== "irrelevant" ? "outlined" : "filled"}
@@ -171,7 +171,7 @@ const LabelHistory = ({
             }}
           />
           <Chip
-            label={"All"}
+            label={"All labeled"}
             color="primary"
             variant={label !== "all" ? "outlined" : "filled"}
             onClick={() => {

@@ -1,22 +1,22 @@
 import {
   Alert,
-  Button,
   Box,
-  Typography,
-  Checkbox,
-  FormGroup,
-  FormControlLabel,
+  Button,
   CardActions,
   CardContent,
+  Checkbox,
   Chip,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Divider,
+  FormControlLabel,
+  FormGroup,
   IconButton,
   TextField,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import React from "react";
 import { useMutation } from "react-query";
@@ -254,23 +254,14 @@ const DecisionButton = ({
 
         {!editState && (
           <>
-            {label === 1 && (
-              <Chip
-                icon={<LibraryAddOutlinedIcon />}
-                label="Added"
-                color="primary"
-              />
-            )}
+            <Typography variant="secondary" sx={{ pr: "0.5rem", opacity: 0.7 }}>
+              Added to
+            </Typography>
+            {label === 1 && <Chip label="My collection" color="primary" />}
 
-            {label === 0 && (
-              <Chip
-                icon={<NotInterestedOutlinedIcon />}
-                label="Not interested"
-                color="primary"
-              />
-            )}
+            {label === 0 && <Chip label="Not interested" color="primary" />}
 
-            <Typography variant="secondary" sx={{ pl: "0.5rem", opacity: 0.7 }}>
+            <Typography variant="secondary" sx={{ pl: "0.2rem", opacity: 0.7 }}>
               {timeAgo.format(new Date(labelDatetime))} {user && "by " + user}
             </Typography>
           </>
