@@ -36,7 +36,7 @@ import { DoneOutlined, ExpandMore } from "@mui/icons-material";
 
 import { styled } from "@mui/material/styles";
 
-import { ProjectContext } from "ProjectContext";
+import { ProjectContext } from "context/ProjectContext";
 import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";
 import { useContext } from "react";

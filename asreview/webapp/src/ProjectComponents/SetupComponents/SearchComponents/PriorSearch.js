@@ -16,7 +16,7 @@ import { StyledIconButton } from "StyledComponents/StyledButton";
 import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";
 
-import { ProjectContext } from "ProjectContext";
+import { ProjectContext } from "context/ProjectContext";
 import { useContext } from "react";
 
 const PriorSearch = () => {

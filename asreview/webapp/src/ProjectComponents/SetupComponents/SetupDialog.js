@@ -32,7 +32,7 @@ import {
   DatasetFromFile,
   DatasetFromURI,
 } from "ProjectComponents/SetupComponents/DataUploadComponents";
-import { ProjectContext } from "ProjectContext";
+import { ProjectContext } from "context/ProjectContext";
 import { ProjectAPI } from "api";
 import { projectModes, projectStatuses } from "globals.js";
 import { useToggle } from "hooks/useToggle";

@@ -20,7 +20,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { ProjectContext } from "ProjectContext";
+import { ProjectContext } from "context/ProjectContext";
 import { useContext } from "react";
 
 import { ProjectAPI } from "api";

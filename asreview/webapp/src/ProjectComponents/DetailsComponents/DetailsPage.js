@@ -19,7 +19,7 @@ import {
   TagCard,
 } from "ProjectComponents/SetupComponents";
 
-import { ProjectContext } from "ProjectContext";
+import { ProjectContext } from "context/ProjectContext";
 import { projectStatuses } from "globals.js";
 import useAuth from "hooks/useAuth";
 import { useToggle } from "hooks/useToggle";

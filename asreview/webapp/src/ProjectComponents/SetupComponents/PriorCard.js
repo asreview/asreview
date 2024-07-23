@@ -16,7 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import { LabelHistory } from "ProjectComponents/HistoryComponents";
-import { ProjectContext } from "ProjectContext";
+import { ProjectContext } from "context/ProjectContext";
 import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";
 import { AddPriorKnowledge } from "./SearchComponents";

@@ -104,6 +104,37 @@ const columns = [
   { id: "status", label: "Status", width: "15%" },
 ];
 
+const StatusChip = ({ status }) => {
+  switch (status) {
+    case projectStatuses.SETUP:
+      return (
+        <Chip
+          size="small"
+          label="Setup"
+          sx={{ color: "#424242", backgroundColor: "#bdbdbd" }}
+        />
+      );
+    case projectStatuses.REVIEW:
+      return (
+        <Chip
+          size="small"
+          label="In Review"
+          sx={{ color: "#91620b", backgroundColor: "#fffbe7" }}
+        />
+      );
+    case projectStatuses.FINISHED:
+      return (
+        <Chip
+          size="small"
+          label="Finished"
+          sx={{ color: "#007b55", backgroundColor: "#e1fae3" }}
+        />
+      );
+    default:
+      return;
+  }
+};
+
 const ProjectTable = (props) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -298,30 +329,6 @@ const ProjectTable = (props) => {
     }
   };
 
-  const status = (project) => {
-    if (project.reviews[0].status === projectStatuses.SETUP) {
-      return [projectStatuses.SETUP, "Setup"];
-    }
-    if (project.reviews[0].status === projectStatuses.REVIEW) {
-      return [projectStatuses.REVIEW, "In Review"];
-    }
-    if (project.reviews[0].status === projectStatuses.FINISHED) {
-      return [projectStatuses.FINISHED, "Finished"];
-    }
-  };
-
-  const statusStyle = (project) => {
-    if (project.reviews[0].status === projectStatuses.SETUP) {
-      return "dashboard-page-table-chip setup";
-    }
-    if (project.reviews[0].status === projectStatuses.REVIEW) {
-      return "dashboard-page-table-chip inreview";
-    }
-    if (project.reviews[0].status === projectStatuses.FINISHED) {
-      return "dashboard-page-table-chip finished";
-    }
-  };
-
   return (
     <StyledPaper elevation={2} className={classes.root}>
       <TableContainer>
@@ -427,7 +434,7 @@ const ProjectTable = (props) => {
                             }}
                             onClickProjectExport={onClickProjectExport}
                             onClickProjectDetails={onClickProjectDetails}
-                            projectStatus={status(row)[0]}
+                            projectStatus={row["reviews"][0]["status"]}
                             toggleDeleteDialog={toggleDeleteDialog}
                             updateProjectStatus={updateProjectStatus}
                             //canEdit={canEdit}
@@ -444,10 +451,9 @@ const ProjectTable = (props) => {
                         </Typography>
                       </TableCell>
                       <TableCell className={classes.tableCell}>
-                        <Chip
+                        <StatusChip
                           size="small"
-                          className={statusStyle(row)}
-                          label={status(row)[1]}
+                          status={row["reviews"][0]["status"]}
                         />
                       </TableCell>
                     </TableRow>
