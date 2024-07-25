@@ -73,17 +73,17 @@ const RecordCard = ({
     });
   };
 
-  // console.log(record);
-
   const styledRepoCard = (
     <StyledCard elevation={showBorder ? 2 : 0}>
       {isNotTrained && (
-        <Alert
-          severity="warning"
-          className="record-card-alert"
-          sx={{ borderRadius: 0 }}
-        >
+        <Alert severity="warning" sx={{ borderRadius: 0 }}>
           This record is not presented by the model
+        </Alert>
+      )}
+      {record?.error?.type !== undefined && (
+        <Alert severity="error" sx={{ borderRadius: 0 }}>
+          Model training error: {record?.error?.message}. Change model in
+          settings page.
         </Alert>
       )}
 

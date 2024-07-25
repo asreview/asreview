@@ -378,8 +378,7 @@ const ProjectTable = (props) => {
                       row["projectNeedsUpgrade"] ||
                       row["mode"] === projectModes.SIMULATION ||
                       row["reviews"][0] === undefined ||
-                      row["reviews"][0]["status"] === projectStatuses.SETUP ||
-                      row["reviews"][0]["status"] === projectStatuses.ERROR
+                      row["reviews"][0]["status"] === projectStatuses.SETUP
                     );
                   };
 
