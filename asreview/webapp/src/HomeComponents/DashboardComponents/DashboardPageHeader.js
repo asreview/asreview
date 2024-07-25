@@ -40,7 +40,7 @@ const Root = styled(Box)(({ theme }) => ({
     // backgroundColor: theme.palette.primary.main,
     textAlign: "center",
     height: "200px",
-    color: theme.palette.primary.main,
+    // color: theme.palette.primary.main,
   },
 }));
 
@@ -58,7 +58,9 @@ export default function DashboardPageHeader({ toggleImportProject, mode }) {
     <Root className={classes.headerButton}>
       <Paper className={classes.paperHeader}>
         {mode === projectModes.ORACLE && (
-          <Typography variant="h4">What do you read today?</Typography>
+          <Typography variant="h4" fontWeight={"bold"}>
+            How efficient will you be today?
+          </Typography>
         )}
         {mode === projectModes.EXPLORATION && (
           <Typography variant="h4">Validation projects</Typography>

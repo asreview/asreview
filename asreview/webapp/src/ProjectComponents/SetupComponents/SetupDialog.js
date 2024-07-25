@@ -244,7 +244,7 @@ const SetupDialog = ({
             project_id={dataset.id}
             dataset_name={dataset.name}
           />
-          <DialogContent sx={{ bgcolor: "primary.light" }}>
+          <DialogContent sx={{ bgcolor: "background.default" }}>
             <Collapse in={!showSettings}>
               <Box sx={{ mt: 3 }}>
                 <DatasetCard
@@ -256,7 +256,7 @@ const SetupDialog = ({
             </Collapse>
 
             <Box sx={{ textAlign: "center", my: 2 }}>
-              <Button onClick={setShowSettings} sx={{ color: "white" }}>
+              <Button onClick={setShowSettings} color="secondary">
                 {showSettings ? "Show dataset" : "Show options"}
               </Button>
             </Box>

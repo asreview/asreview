@@ -11,7 +11,6 @@ const classes = {
 };
 
 const StyledCard = styled(Card)(({ theme }) => ({
-  borderRadius: 16,
   maxWidth: 960,
   overflow: "visible",
   width: "100%",
@@ -130,10 +129,10 @@ export default function ProgressChart(props) {
       colors: props.includePriorKnowledge
         ? [
             theme.palette.mode === "light"
-              ? theme.palette.secondary.light
+              ? theme.palette.background.default
               : theme.palette.secondary.main,
             theme.palette.mode === "light"
-              ? theme.palette.primary.light
+              ? theme.palette.background.default
               : theme.palette.primary.main,
             theme.palette.mode === "light"
               ? theme.palette.warning.light
@@ -141,7 +140,7 @@ export default function ProgressChart(props) {
           ]
         : [
             theme.palette.mode === "light"
-              ? theme.palette.secondary.light
+              ? theme.palette.background.default
               : theme.palette.secondary.main,
             theme.palette.mode === "light"
               ? theme.palette.warning.light

@@ -36,7 +36,6 @@ const classes = {
 };
 
 const StyledCard = styled(Card)(({ theme }) => ({
-  borderRadius: 16,
   maxWidth: 960,
   overflow: "visible",
   position: "relative",
@@ -65,8 +64,8 @@ const StyledCard = styled(Card)(({ theme }) => ({
 
   [`& .${classes.tooltipLabelMarkerRelevantColor}`]: {
     ...(theme.palette.mode === "light" && {
-      color: theme.palette.primary.light,
-      background: theme.palette.primary.light,
+      color: theme.palette.background.default,
+      background: theme.palette.background.default,
     }),
     ...(theme.palette.mode === "dark" && {
       color: theme.palette.primary.main,
@@ -185,7 +184,7 @@ export default function ProgressDensityChart(props) {
       },
       colors: [
         theme.palette.mode === "light"
-          ? theme.palette.primary.light
+          ? theme.palette.background.default
           : theme.palette.primary.main,
         "#CED4DC",
       ],

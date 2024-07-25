@@ -71,7 +71,7 @@ const classes = {
 // Styled component for the game layout
 const GameStyle = styled(Box)(({ theme }) => ({
   [`& .${classes.paper}`]: {
-    backgroundColor: theme.palette.primary.light,
+    backgroundColor: theme.palette.background.default,
     height: 120,
     width: 120,
   },
@@ -346,7 +346,7 @@ const ElasGame = (props) => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            bgcolor: "primary.light",
+            bgcolor: "background.default",
             boxShadow: 24,
             p: 4,
             textAlign: "center",

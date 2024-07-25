@@ -21,7 +21,6 @@ const classes = {
 };
 
 const StyledCard = styled(Card)(({ theme }) => ({
-  borderRadius: 16,
   maxWidth: 960,
   overflow: "visible",
   position: "relative",
@@ -44,8 +43,8 @@ const StyledCard = styled(Card)(({ theme }) => ({
 
   [`& .${classes.tooltipLabelMarkerASReviewColor}`]: {
     ...(theme.palette.mode === "light" && {
-      color: theme.palette.primary.light,
-      background: theme.palette.primary.light,
+      color: theme.palette.background.default,
+      background: theme.palette.background.default,
     }),
     ...(theme.palette.mode === "dark" && {
       color: theme.palette.primary.main,
@@ -55,8 +54,8 @@ const StyledCard = styled(Card)(({ theme }) => ({
 
   [`& .${classes.tooltipLabelMarkerRandomColor}`]: {
     ...(theme.palette.mode === "light" && {
-      color: theme.palette.secondary.light,
-      background: theme.palette.secondary.light,
+      color: theme.palette.background.default,
+      background: theme.palette.background.default,
     }),
     ...(theme.palette.mode === "dark" && {
       color: theme.palette.secondary.main,
@@ -141,13 +140,13 @@ export default function ProgressRecallChart(props) {
 
   const lightModePrimaryColor = React.useCallback(() => {
     return theme.palette.mode === "light"
-      ? theme.palette.primary.light
+      ? theme.palette.background.default
       : theme.palette.primary.main;
   }, [theme.palette.mode, theme.palette.primary]);
 
   const lightModeSecondaryColor = React.useCallback(() => {
     return theme.palette.mode === "light"
-      ? theme.palette.secondary.light
+      ? theme.palette.background.default
       : theme.palette.secondary.main;
   }, [theme.palette.mode, theme.palette.secondary]);
 
