@@ -851,7 +851,7 @@ def api_update_review_status(project, review_id):
             f"Not possible to update status from {current_status} to {status}"
         )
 
-    return jsonify({"success": True})
+    return jsonify({"status": status})
 
 
 @bp.route("/projects/import_project", methods=["POST"])

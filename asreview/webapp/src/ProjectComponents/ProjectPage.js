@@ -123,52 +123,52 @@ const ProjectPage = (props) => {
     },
   );
 
-  const refetchAnalytics = () => {
-    if (isAnalyticsPageOpen()) {
-      queryClient.invalidateQueries("fetchProgress");
-      queryClient.invalidateQueries("fetchProgressDensity");
-      queryClient.invalidateQueries("fetchProgressRecall");
-    }
-  };
+  // const refetchAnalytics = () => {
+  //   if (isAnalyticsPageOpen()) {
+  //     queryClient.invalidateQueries("fetchProgress");
+  //     queryClient.invalidateQueries("fetchProgressDensity");
+  //     queryClient.invalidateQueries("fetchProgressRecall");
+  //   }
+  // };
 
-  const { error: checkSimulationError, isError: isCheckSimulationError } =
-    useQuery(
-      ["fetchProjectStatus", { project_id }],
-      ProjectAPI.fetchProjectStatus,
-      {
-        enabled: isSimulating,
-        onSuccess: (data) => {
-          if (data["status"] === projectStatuses.FINISHED) {
-            // refresh analytics
-            refetchAnalytics();
-            // simulation finished
-            setIsSimulating(false);
-            queryClient.invalidateQueries("fetchInfo");
-          } else {
-            // not finished yet
-            setTimeout(
-              () => queryClient.invalidateQueries("fetchProjectStatus"),
-              checkIfSimulationFinishedDuration,
-            );
-          }
-        },
-        refetchOnWindowFocus: false,
-      },
-    );
+  // const { error: checkSimulationError, isError: isCheckSimulationError } =
+  //   useQuery(
+  //     ["fetchProjectStatus", { project_id }],
+  //     ProjectAPI.fetchProjectStatus,
+  //     {
+  //       enabled: isSimulating,
+  //       onSuccess: (data) => {
+  //         if (data["status"] === projectStatuses.FINISHED) {
+  //           // refresh analytics
+  //           refetchAnalytics();
+  //           // simulation finished
+  //           setIsSimulating(false);
+  //           queryClient.invalidateQueries("fetchInfo");
+  //         } else {
+  //           // not finished yet
+  //           setTimeout(
+  //             () => queryClient.invalidateQueries("fetchProjectStatus"),
+  //             checkIfSimulationFinishedDuration,
+  //           );
+  //         }
+  //       },
+  //       refetchOnWindowFocus: false,
+  //     },
+  //   );
 
-  const returnError = () => {
-    if (isError) {
-      return ["fetchInfo", error, isError];
-    } else if (isCheckSimulationError) {
-      return [
-        "fetchProjectStatus",
-        checkSimulationError,
-        isCheckSimulationError,
-      ];
-    } else {
-      return ["", null, false];
-    }
-  };
+  // const returnError = () => {
+  //   if (isError) {
+  //     return ["fetchInfo", error, isError];
+  //   } else if (isCheckSimulationError) {
+  //     return [
+  //       "fetchProjectStatus",
+  //       checkSimulationError,
+  //       isCheckSimulationError,
+  //     ];
+  //   } else {
+  //     return ["", null, false];
+  //   }
+  // };
 
   return (
     <Root aria-label="project page">
@@ -189,7 +189,7 @@ const ProjectPage = (props) => {
                   isSimulating={isSimulating}
                   mobileScreen={props.mobileScreen}
                   mode={data?.mode}
-                  refetchAnalytics={refetchAnalytics}
+                  refetchAnalytics={() => {}}
                 />
               }
             />
@@ -202,7 +202,6 @@ const ProjectPage = (props) => {
               element={
                 <ReviewPage
                   project_id={project_id}
-                  projectMode={data?.mode}
                   fontSize={props.fontSize}
                   tags={tags}
                 />
@@ -258,11 +257,11 @@ const ProjectPage = (props) => {
           {isSuccess && <Route path="*" element={<RouteNotFound />} />}
         </Routes>
       </Box>
-      <DialogErrorHandler
+      {/* <DialogErrorHandler
         isError={returnError()[2]}
         error={returnError()[1]}
         queryKey={returnError()[0]}
-      />
+      /> */}
     </Root>
   );
 };
