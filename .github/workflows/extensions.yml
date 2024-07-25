@@ -1,28 +1,28 @@
 name: test-extensions
 on: [push, pull_request]
 jobs:
-  # test-asreview-datatools:
-  #   name: test-asreview-datatools
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions/setup-python@v4
-  #       with:
-  #         python-version: "3.10"
-  #     - name: Install packages
-  #       run: |
-  #         pip install pytest
-  #         pip install --no-cache-dir .
-  #     - name: Install extension
-  #       run: |
-  #         git clone https://github.com/asreview/asreview-datatools
-  #         cd asreview-datatools
-  #         latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
-  #         git checkout $latestTag
-  #         pip install .
-  #     - name: Run test on asreview-datatools
-  #       run: |
-  #         pytest asreview-datatools/tests/
+  test-asreview-datatools:
+    name: test-asreview-datatools
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install packages
+        run: |
+          pip install pytest
+          pip install --no-cache-dir .
+      - name: Install extension
+        run: |
+          git clone https://github.com/asreview/asreview-datatools
+          cd asreview-datatools
+          latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
+          git checkout $latestTag
+          pip install .
+      - name: Run test on asreview-datatools
+        run: |
+          pytest asreview-datatools/tests/
   test-asreview-insights:
     name: test-asreview-insights
     runs-on: ubuntu-latest
