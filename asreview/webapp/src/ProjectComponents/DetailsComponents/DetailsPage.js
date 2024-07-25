@@ -66,15 +66,6 @@ const MarkFinishedCard = ({ project_id }) => {
     ProjectAPI.fetchProjectStatus,
   );
 
-  const handleChangeStatus = (event) => {
-    mutate({
-      project_id: project_id,
-      status: event.target.checked
-        ? projectStatuses.FINISHED
-        : projectStatuses.REVIEW,
-    });
-  };
-
   const { mutate } = useMutation(ProjectAPI.mutateReviewStatus, {
     onSuccess: (data) => {
       queryClient.setQueryData(["fetchProjectStatus", { project_id }], data);
@@ -95,7 +86,14 @@ const MarkFinishedCard = ({ project_id }) => {
             control={
               <Switch
                 checked={data?.status === projectStatuses.FINISHED}
-                onClick={handleChangeStatus}
+                onClick={(event) => {
+                  mutate({
+                    project_id: project_id,
+                    status: event.target.checked
+                      ? projectStatuses.FINISHED
+                      : projectStatuses.REVIEW,
+                  });
+                }}
               />
             }
             label="Mark the project as finished"
