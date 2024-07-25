@@ -22,13 +22,7 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const DatasetFromEntryPoint = ({
-  subset,
-  mobileScreen,
-  setDataset,
-  mode,
-  datasetSource,
-}) => {
+const DatasetFromEntryPoint = ({ subset, setDataset, mode, datasetSource }) => {
   const queryClient = useQueryClient();
 
   const {
@@ -148,7 +142,6 @@ const DatasetFromEntryPoint = ({
                     subset={subset}
                     isAddingDataset={isLoading}
                     isAddingDatasetError={isError}
-                    mobileScreen={mobileScreen}
                     reset={reset}
                     key={group.group_id + ":" + dataset.dataset_id}
                   />

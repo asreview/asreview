@@ -49,7 +49,7 @@ const CollaborationPage = (props) => {
     <Root aria-label="teams page">
       <Fade in>
         <Box>
-          <PageHeader header="Team" mobileScreen={props.mobileScreen} />
+          <PageHeader header="Team" />
 
           <Box className="main-page-body-wrapper">
             <Stack className="main-page-body">

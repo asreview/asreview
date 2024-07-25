@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { ExpandMore } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
+import { useTheme, useMediaQuery } from "@mui/material";
 
 const DOILink = (doi) => {
   if (doi !== undefined && doi.startsWith("http")) {
@@ -26,9 +27,13 @@ const EntryPointDataset = ({
   subset,
   isAddingDataset,
   isAddingDatasetError,
-  mobileScreen,
   reset,
 }) => {
+  const theme = useTheme();
+  const mobileScreen = useMediaQuery(theme.breakpoints.down("md"), {
+    noSsr: true,
+  });
+
   const [expanded, setExpanded] = React.useState(false);
 
   const handleAccordion = (dataset_id) => (event, isExpanded) => {

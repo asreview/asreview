@@ -52,7 +52,9 @@ const Root = styled(Box)(({ theme }) => ({
 
 export default function DashboardPageHeader({ toggleImportProject, mode }) {
   const theme = useTheme();
-  const mobileScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const mobileScreen = useMediaQuery(theme.breakpoints.down("md"), {
+    noSsr: true,
+  });
 
   return (
     <Root className={classes.headerButton}>

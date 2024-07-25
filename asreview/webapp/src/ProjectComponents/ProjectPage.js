@@ -203,7 +203,7 @@ const ProjectPage = ({
               path="collection"
               element={
                 <>
-                  <PageHeader header="Collection" mobileScreen={mobileScreen} />
+                  <PageHeader header="Collection" />
                   <LabelHistory project_id={project_id} />
                 </>
               }
@@ -216,7 +216,7 @@ const ProjectPage = ({
               path="team"
               element={
                 isOwner ? (
-                  <TeamPage mobileScreen={mobileScreen} info={data} />
+                  <TeamPage info={data} />
                 ) : (
                   <CollaborationPage info={data} />
                 )
@@ -229,7 +229,7 @@ const ProjectPage = ({
               path="settings"
               element={
                 <>
-                  <PageHeader header="Settings" mobileScreen={mobileScreen} />
+                  <PageHeader header="Settings" />
                   <DetailsPage project_id={project_id} info={data} />
                 </>
               }
