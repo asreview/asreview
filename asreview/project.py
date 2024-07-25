@@ -421,7 +421,7 @@ class Project:
         ) as f:
             json.dump(asdict(settings), f)
 
-        fp_state = Path(self.project_path, "reviews", review_id, "results.sql")
+        fp_state = Path(self.project_path, "reviews", review_id, "results.db")
 
         if state is None:
             state = SQLiteState(fp_state)
@@ -471,7 +471,7 @@ class Project:
             review_index = [x["id"] for x in self.config["reviews"]].index(review_id)
 
         if state is not None:
-            fp_state = Path(self.project_path, "reviews", review_id, "results.sql")
+            fp_state = Path(self.project_path, "reviews", review_id, "results.db")
             state.to_sql(fp_state)
 
         if settings is not None:

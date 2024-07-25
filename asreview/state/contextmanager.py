@@ -34,7 +34,7 @@ def _get_state_path(project, review_id=None, create_new=True):
         else:
             review_id = project.reviews[0]["id"]
 
-    return Path(project.project_path, "reviews", review_id, "results.sql")
+    return Path(project.project_path, "reviews", review_id, "results.db")
 
 
 @contextmanager
@@ -80,7 +80,7 @@ def open_state(asreview_obj, review_id=None, create_new=True, check_integrety=Fa
         fp_state = _get_state_path(
             Project(asreview_obj), review_id=review_id, create_new=create_new
         )
-    elif isinstance(asreview_obj, (Path, str)) and Path(asreview_obj).suffix == ".sql":
+    elif isinstance(asreview_obj, (Path, str)) and Path(asreview_obj).suffix == ".db":
         fp_state = Path(asreview_obj)
     else:
         raise ProjectNotFoundError(f"{asreview_obj} is not a valid input for state")
