@@ -29,7 +29,6 @@ const classes = {
 const StyledPaper = styled(Paper)(({ theme }) => ({
   [`&.${classes.root}`]: {
     width: "90%",
-    borderRadius: 16,
     marginBottom: 64,
     marginTop: 16,
     marginLeft: "auto",

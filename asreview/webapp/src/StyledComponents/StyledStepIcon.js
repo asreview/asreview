@@ -12,7 +12,6 @@ const StyledStepIconRoot = styled("div")(({ theme, ownerState }) => ({
   }),
   "& .StyledStepIcon-root": {
     border: "4px solid",
-    borderRadius: "50%",
     color: theme.palette.primary.main,
   },
   "& .StyledStepIcon-activeIcon": {

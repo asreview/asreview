@@ -189,7 +189,7 @@ const TeamPage = (props) => {
     <Root aria-label="teams page">
       <Fade in>
         <Box>
-          <PageHeader header="Team" mobileScreen={props.mobileScreen} />
+          <PageHeader header="Team" />
 
           {props.info && (
             <Box className="main-page-body-wrapper">

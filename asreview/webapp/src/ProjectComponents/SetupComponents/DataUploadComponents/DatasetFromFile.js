@@ -50,7 +50,6 @@ const baseStyle = {
   alignItems: "center",
   justifyContent: "center",
   borderWidth: 2,
-  borderRadius: 2,
   borderColor: "#a7a9df",
   borderStyle: "dashed",
   outline: "none",

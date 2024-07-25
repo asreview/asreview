@@ -143,7 +143,7 @@ const SetupDialog = ({
       fullWidth
       maxWidth="md"
       PaperProps={{
-        sx: { height: !mobileScreen ? "calc(100% - 64px)" : "100%" },
+        sx: { height: "100%" },
       }}
       onClose={onClose}
       TransitionProps={{
@@ -215,7 +215,6 @@ const SetupDialog = ({
                   subset="plugin"
                   mode={mode}
                   setDataset={setDataset}
-                  mobileScreen={mobileScreen}
                 />
               )}
               {uploadSource === "benchmark" && (
@@ -223,7 +222,6 @@ const SetupDialog = ({
                   subset="benchmark"
                   mode={mode}
                   setDataset={setDataset}
-                  mobileScreen={mobileScreen}
                 />
               )}
             </Stack>
@@ -244,7 +242,7 @@ const SetupDialog = ({
             project_id={dataset.id}
             dataset_name={dataset.name}
           />
-          <DialogContent sx={{ bgcolor: "primary.light" }}>
+          <DialogContent sx={{ bgcolor: "background.default" }}>
             <Collapse in={!showSettings}>
               <Box sx={{ mt: 3 }}>
                 <DatasetCard
@@ -256,7 +254,7 @@ const SetupDialog = ({
             </Collapse>
 
             <Box sx={{ textAlign: "center", my: 2 }}>
-              <Button onClick={setShowSettings} sx={{ color: "white" }}>
+              <Button onClick={setShowSettings} color="secondary">
                 {showSettings ? "Show dataset" : "Show options"}
               </Button>
             </Box>
@@ -273,7 +271,7 @@ const SetupDialog = ({
                 <ModelCard />
               </Box>
               <Box sx={{ my: 3 }}>
-                <PriorCard editable={true} mobileScreen={mobileScreen} />
+                <PriorCard editable={true} />
               </Box>
             </Collapse>
           </DialogContent>

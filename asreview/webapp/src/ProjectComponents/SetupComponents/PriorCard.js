@@ -21,7 +21,7 @@ import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";
 import { AddPriorKnowledge } from "./SearchComponents";
 
-const PriorCard = ({ mobileScreen, editable = true }) => {
+const PriorCard = ({ editable = true }) => {
   const project_id = useContext(ProjectContext);
   const queryClient = useQueryClient();
 
@@ -138,7 +138,6 @@ const PriorCard = ({ mobileScreen, editable = true }) => {
       {openPriorView && (
         <LabelHistory
           project_id={project_id}
-          mobileScreen={mobileScreen}
           showFilter={false}
           filterQuery={[{ value: "is_prior", label: "Prior knowledge" }]}
         />
@@ -152,11 +151,7 @@ const PriorCard = ({ mobileScreen, editable = true }) => {
         </CardContent>
       )}
 
-      <AddPriorKnowledge
-        open={openPriorSearch}
-        mobileScreen={mobileScreen}
-        onClose={onClosePriorSearch}
-      />
+      <AddPriorKnowledge open={openPriorSearch} onClose={onClosePriorSearch} />
     </Card>
   );
 };

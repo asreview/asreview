@@ -37,15 +37,15 @@ export default function DatasetChart({ label, part, total }) {
                   offsetY: 90,
                   fontSize: theme.typography.subtitle1.fontSize,
                   fontFamily: theme.typography.subtitle1.fontFamily,
-                  color: theme.palette.text.secondary,
+                  color: theme.palette.secondary.main,
                 },
                 value: {
                   show: true,
                   offsetY: -10,
                   fontSize: theme.typography.subtitle1.fontSize,
-                  fontWeight: "bold",
+                  // fontWeight: "bold",
                   fontFamily: theme.typography.subtitle1.fontFamily,
-                  color: theme.palette.text.secondary,
+                  color: theme.palette.secondary.main,
                   formatter: function (val) {
                     return Math.round((part / total) * 1000) / 10 + "%";
                   },
@@ -55,10 +55,10 @@ export default function DatasetChart({ label, part, total }) {
           },
           colors: [
             theme.palette.mode === "light"
-              ? theme.palette.secondary.light
+              ? theme.palette.background.default
               : theme.palette.secondary.main,
             theme.palette.mode === "light"
-              ? theme.palette.primary.light
+              ? theme.palette.background.default
               : theme.palette.primary.main,
           ],
           fill: {

@@ -245,6 +245,7 @@ const DecisionButton = ({
               onClick={() => makeDecision(0)}
               startIcon={<NotInterestedOutlinedIcon />}
               disabled={isLoading || isSuccess}
+              color="secondary"
             >
               Not interesting
             </Button>

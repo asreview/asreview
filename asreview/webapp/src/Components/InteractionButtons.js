@@ -27,7 +27,7 @@ const InteractionButtons = () => {
           alignItems="center"
         >
           <Grid item xs={4} md={2} sx={{ textAlign: "center", width: "120px" }}>
-            <Button onClick={toggleCite} color="primary">
+            <Button onClick={toggleCite} color="secondary">
               <Stack justifyContent="center" sx={{ alignItems: "center" }}>
                 <LibraryBooks fontSize="large" sx={{ m: "0.5rem" }} />
                 <Typography>Cite</Typography>
@@ -44,6 +44,7 @@ const InteractionButtons = () => {
               component={Link}
               target="_blank"
               href="https://github.com/asreview/asreview"
+              color="secondary"
             >
               <Stack justifyContent="center" sx={{ alignItems: "center" }}>
                 <StarBorder fontSize="large" sx={{ m: "0.5rem" }} />
@@ -56,6 +57,7 @@ const InteractionButtons = () => {
               component={Link}
               target="_blank"
               href="https://asreview.nl/donate"
+              color="secondary"
             >
               <Stack justifyContent="center" sx={{ alignItems: "center" }}>
                 <Payment fontSize="large" sx={{ m: "0.5rem" }} />
@@ -68,6 +70,7 @@ const InteractionButtons = () => {
               component={Link}
               target="_blank"
               href="https://asreview.ai/newsletter/subscribe"
+              color="secondary"
             >
               <Stack justifyContent="center" sx={{ alignItems: "center" }}>
                 <Email fontSize="large" sx={{ m: "0.5rem" }} />
@@ -80,6 +83,7 @@ const InteractionButtons = () => {
               component={Link}
               target="_blank"
               href="https://asreview.nl/community"
+              color="secondary"
             >
               <Stack justifyContent="center" sx={{ alignItems: "center" }}>
                 <Diversity3 fontSize="large" sx={{ m: "0.5rem" }} />

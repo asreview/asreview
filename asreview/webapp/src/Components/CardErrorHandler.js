@@ -4,7 +4,6 @@ import { Backdrop, Button, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 const StyledBackdrop = styled(Backdrop)(({ theme }) => ({
-  borderRadius: 16,
   flexDirection: "column",
   position: "absolute",
   zIndex: 1,

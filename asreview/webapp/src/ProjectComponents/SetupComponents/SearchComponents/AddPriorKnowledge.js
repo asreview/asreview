@@ -7,6 +7,7 @@ import {
   Fade,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { useMediaQuery, useTheme } from "@mui/material";
 
 import { PriorSearch } from ".";
 
@@ -15,16 +16,21 @@ const StyledDialog = styled(Dialog)(() => ({
   overflowY: "hidden",
 }));
 
-const AddPriorKnowledge = ({ open, onClose, mobileScreen }) => {
+const AddPriorKnowledge = ({ open, onClose }) => {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"), {
+    noSsr: true,
+  });
+
   return (
     <StyledDialog
       hideBackdrop
       open={open}
-      fullScreen={mobileScreen}
+      fullScreen={fullScreen}
       fullWidth
       maxWidth="md"
       PaperProps={{
-        sx: { height: !mobileScreen ? "calc(100% - 64px)" : "100%" },
+        sx: { height: "100%" },
       }}
       TransitionComponent={Fade}
       onClose={onClose}

@@ -52,7 +52,6 @@ const Root = styled("div")(({ theme }) => ({
   },
 
   [`& .${classes.card}`]: {
-    borderRadius: theme.spacing(2),
     width: "450px",
   },
 
