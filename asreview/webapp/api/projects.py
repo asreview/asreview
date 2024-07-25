@@ -811,10 +811,6 @@ def api_update_review_status(project, review_id):
 
     current_status = project.config["reviews"][review_id]["status"]
 
-    if current_status == "error" and status == "setup":
-        project.remove_error(status=status)
-        return jsonify({"success": True})
-
     if current_status == "setup" and status == "review":
         is_simulation = project.config["mode"] == PROJECT_MODE_SIMULATE
 
@@ -851,7 +847,7 @@ def api_update_review_status(project, review_id):
             f"Not possible to update status from {current_status} to {status}"
         )
 
-    return jsonify({"status": status})
+    return jsonify({"status": status}), 201
 
 
 @bp.route("/projects/import_project", methods=["POST"])

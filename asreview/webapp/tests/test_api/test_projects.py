@@ -413,8 +413,8 @@ def test_start_and_model_ready(client, project):
     data = misc.choose_project_algorithms()
     au.set_project_algorithms(client, project, data=data)
     r = au.set_project_status(client, project, status="review", trigger_model=True)
-    assert r.status_code == 200
-    assert r.json["success"]
+    assert r.status_code == 201
+    assert r.json["status"] == "review"
     # make sure model is done
     time.sleep(10)
 
@@ -477,14 +477,12 @@ def test_export_project(client, project):
 @pytest.mark.parametrize("status", ["review", "finished"])
 def test_set_project_status(client, project, status):
     au.upload_label_set_and_start_model(client, project)
-    # when setting the status to "review", the project must have another
-    # status then "review"
     if status == "review":
-        au.set_project_status(client, project, "finished")
-    # set project status
+        r = au.set_project_status(client, project, "finished")
+        assert r.status_code == 201
+
     r = au.set_project_status(client, project, status)
-    assert r.status_code == 200
-    assert r.json["success"]
+    assert r.status_code == 201
 
 
 # Test get progress info
