@@ -1,20 +1,12 @@
 import * as React from "react";
-import { useQuery, useQueryClient } from "react-query";
+import { useQuery } from "react-query";
 import { connect } from "react-redux";
 
-import {
-  Routes,
-  Route,
-  useMatch,
-  useNavigate,
-  useParams,
-  useResolvedPath,
-} from "react-router-dom";
-import clsx from "clsx";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import clsx from "clsx";
+import { Route, Routes, useNavigate, useParams } from "react-router-dom";
 
-import { DialogErrorHandler } from "Components";
 import { PageHeader } from "Components";
 import { AnalyticsPage } from "ProjectComponents/AnalyticsComponents";
 import { DetailsPage } from "ProjectComponents/DetailsComponents";
@@ -26,7 +18,6 @@ import RouteNotFound from "RouteNotFound";
 
 import { ProjectAPI } from "api";
 import {
-  checkIfSimulationFinishedDuration,
   drawerWidth,
   mapDispatchToProps,
   projectModes,
@@ -61,17 +52,16 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const ProjectPage = (props) => {
+const ProjectPage = ({
+  mobileScreen,
+  onNavDrawer,
+  fontSize,
+  projectCheck,
+  setProjectCheck,
+}) => {
   const { auth } = useAuth();
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { project_id } = useParams();
-  const resolved = useResolvedPath("");
-  const match = useMatch({ path: resolved.pathname, end: true });
-
-  const isAnalyticsPageOpen = () => {
-    return match !== null;
-  };
 
   const [isSimulating, setIsSimulating] = React.useState(false);
 
@@ -80,7 +70,7 @@ const ProjectPage = (props) => {
 
   const [tags, setTags] = React.useState([]);
 
-  const { data, error, isError, isSuccess } = useQuery(
+  const { data, isSuccess } = useQuery(
     ["fetchInfo", { project_id }],
     ProjectAPI.fetchInfo,
     {
@@ -94,8 +84,6 @@ const ProjectPage = (props) => {
           data.reviews[0] === undefined ||
           data["reviews"][0]["status"] === projectStatuses.SETUP
         ) {
-          // set project id
-          props.setProjectId(project_id);
           // open project setup dialog
           navigate("/projects");
         } else if (!data["projectNeedsUpgrade"]) {
@@ -111,7 +99,7 @@ const ProjectPage = (props) => {
         } else {
           navigate("/projects");
           // open project check dialog
-          props.setProjectCheck({
+          setProjectCheck({
             open: true,
             issue: "upgrade",
             path: "",
@@ -175,7 +163,7 @@ const ProjectPage = (props) => {
       <Box
         component="main"
         className={clsx("main-page-content", classes.content, {
-          [classes.contentShift]: !props.mobileScreen && props.onNavDrawer,
+          [classes.contentShift]: !mobileScreen && onNavDrawer,
         })}
         aria-label="project page content"
       >
@@ -187,7 +175,7 @@ const ProjectPage = (props) => {
               element={
                 <AnalyticsPage
                   isSimulating={isSimulating}
-                  mobileScreen={props.mobileScreen}
+                  mobileScreen={mobileScreen}
                   mode={data?.mode}
                   refetchAnalytics={() => {}}
                 />
@@ -202,7 +190,7 @@ const ProjectPage = (props) => {
               element={
                 <ReviewPage
                   project_id={project_id}
-                  fontSize={props.fontSize}
+                  fontSize={fontSize}
                   tags={tags}
                 />
               }
@@ -215,10 +203,7 @@ const ProjectPage = (props) => {
               path="collection"
               element={
                 <>
-                  <PageHeader
-                    header="Collection"
-                    mobileScreen={props.mobileScreen}
-                  />
+                  <PageHeader header="Collection" mobileScreen={mobileScreen} />
                   <LabelHistory project_id={project_id} />
                 </>
               }
@@ -231,7 +216,7 @@ const ProjectPage = (props) => {
               path="team"
               element={
                 isOwner ? (
-                  <TeamPage mobileScreen={props.mobileScreen} info={data} />
+                  <TeamPage mobileScreen={mobileScreen} info={data} />
                 ) : (
                   <CollaborationPage info={data} />
                 )
@@ -244,10 +229,7 @@ const ProjectPage = (props) => {
               path="settings"
               element={
                 <>
-                  <PageHeader
-                    header="Settings"
-                    mobileScreen={props.mobileScreen}
-                  />
+                  <PageHeader header="Settings" mobileScreen={mobileScreen} />
                   <DetailsPage project_id={project_id} info={data} />
                 </>
               }

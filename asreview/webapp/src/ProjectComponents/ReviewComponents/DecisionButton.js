@@ -27,7 +27,6 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import LibraryAddOutlinedIcon from "@mui/icons-material/LibraryAddOutlined";
 import NotInterestedOutlinedIcon from "@mui/icons-material/NotInterestedOutlined";
 import NoteAltOutlinedIcon from "@mui/icons-material/NoteAltOutlined";
-import { styled } from "@mui/material/styles";
 import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";
 import TimeAgo from "javascript-time-ago";
@@ -37,17 +36,17 @@ import en from "javascript-time-ago/locale/en";
 TimeAgo.addLocale(en);
 const timeAgo = new TimeAgo("en-US");
 
-const PREFIX = "DecisionButton";
+// const PREFIX = "DecisionButton";
 
-const classes = {
-  icon: `${PREFIX}-icon`,
-};
+// const classes = {
+//   icon: `${PREFIX}-icon`,
+// };
 
-const Root = styled("div")(() => ({
-  [`& .${classes.icon}`]: {
-    opacity: 0.36,
-  },
-}));
+// const Root = styled("div")(() => ({
+//   [`& .${classes.icon}`]: {
+//     opacity: 0.36,
+//   },
+// }));
 
 const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
   const [noteState, setNoteState] = React.useState(note);
@@ -160,7 +159,7 @@ const DecisionButton = ({
   useHotkeys("n", () => hotkeys && toggleShowNotesDialog(), { keyup: true });
 
   return (
-    <Root>
+    <Box>
       {Array.isArray(tagsForm) && tagsForm.length > 0 && (
         <>
           <Divider>Tags</Divider>
@@ -301,7 +300,7 @@ const DecisionButton = ({
           </Tooltip>
         )}
       </CardActions>
-    </Root>
+    </Box>
   );
 };
 

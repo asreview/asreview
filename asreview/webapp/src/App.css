@@ -17,24 +17,6 @@
     height: calc(100vh - 64px);
   }
 }
-.main-page-sticky-header {
-  display: flex;
-  padding: 24px 32px;
-}
-@media (max-width: 900px) {
-  .main-page-sticky-header {
-    padding: 16px 24px;
-  }
-}
-.main-page-sticky-header.with-button {
-  justify-content: space-between;
-}
-.main-page-sticky-header-wrapper {
-  position: -webkit-sticky; /* Safari */
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
 .main-page-body {
   width: 100%;
   max-width: 960px;
