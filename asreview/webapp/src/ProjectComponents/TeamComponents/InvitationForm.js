@@ -10,8 +10,8 @@ const InvitationForm = ({ selectableUsers, onInvite }) => {
   const [inputValue, setInputValue] = React.useState("");
 
   return (
-    <Card className="team-card" elevation={2}>
-      <CardContent className="team-card-content">
+    <Card>
+      <CardContent>
         <TypographySubtitle1Medium>
           Invite people to collaborate
         </TypographySubtitle1Medium>

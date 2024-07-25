@@ -3,20 +3,23 @@ import { useQuery } from "react-query";
 import { connect } from "react-redux";
 import {
   Avatar,
+  Button,
   Card,
   CardActionArea,
   CardHeader,
   CircularProgress,
   Dialog,
+  DialogActions,
   DialogContent,
   DialogTitle,
   Divider,
+  Grid,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
   Stack,
-  Tooltip,
+  IconButton,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -28,12 +31,7 @@ import {
   QuestionAnswer,
 } from "@mui/icons-material";
 
-import {
-  AppBarWithinDialog,
-  BoxErrorHandler,
-  OpenInNewIconStyled,
-} from "Components";
-import { StyledIconButton } from "StyledComponents/StyledButton";
+import { BoxErrorHandler, OpenInNewIconStyled } from "Components";
 
 import { UtilsAPI } from "api";
 import { feedbackURL } from "globals.js";
@@ -128,25 +126,21 @@ const HelpDialog = (props) => {
       fullWidth
       maxWidth="sm"
     >
-      {!props.mobileScreen && (
-        <Stack className="dialog-header" direction="row" spacing={1}>
-          <StyledIconButton className="dialog-header-button left-empty" />
-          <DialogTitle>Help</DialogTitle>
-          <Tooltip title="Close">
-            <StyledIconButton
-              className="dialog-header-button right"
-              onClick={props.toggleHelpDialog}
-            >
-              <Close />
-            </StyledIconButton>
-          </Tooltip>
-        </Stack>
-      )}
+      {!props.mobileScreen && <DialogTitle>Help</DialogTitle>}
       {props.mobileScreen && (
-        <AppBarWithinDialog
-          onClickStartIcon={props.toggleHelpDialog}
-          title="Help"
-        />
+        <DialogTitle>
+          <Grid
+            container
+            direction="row"
+            justify="space-between"
+            alignItems="center"
+          >
+            <IconButton onClick={props.toggleHelpDialog}>
+              <Close />
+            </IconButton>
+            Dialog Title
+          </Grid>
+        </DialogTitle>
       )}
       <DialogContent dividers sx={{ padding: "0px 0px 20px 0px" }}>
         <List className={classes.faqHeight}>
@@ -252,6 +246,12 @@ const HelpDialog = (props) => {
           </ListItem>
         </List>
       </DialogContent>
+
+      {!props.mobileScreen && (
+        <DialogActions>
+          <Button onClick={props.toggleHelpDialog}>Close</Button>
+        </DialogActions>
+      )}
     </StyledDialog>
   );
 };

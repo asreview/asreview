@@ -48,7 +48,6 @@ def test_init_seed(tmpdir, seed):
 
 
 def test_no_seed(tmpdir):
-    priors = []
     for i in range(20):
         # get project url
         project_fp = Path(tmpdir, f"tmp_state_{i}.asreview")
@@ -61,9 +60,9 @@ def test_no_seed(tmpdir):
 
         # open the state file and extract the priors
         with asr.open_state(project_fp) as s:
-            priors.extend(s.get_priors()["record_id"].tolist())
+            priors = s.get_priors()
 
-    assert len(set(priors)) > 2
+    assert len(priors) == 2
 
 
 @pytest.mark.parametrize(

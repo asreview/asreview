@@ -145,7 +145,7 @@ const AnalyticsPage = (props) => {
                 }}
               >
                 <PageHeader
-                  header="Analytics"
+                  header="Dashboard"
                   mobileScreen={props.mobileScreen}
                 />
                 <Box sx={{ display: "flex", alignItems: "center" }}>

@@ -1,41 +1,37 @@
-import * as React from "react";
-import { useMutation, useQuery, useQueries, useQueryClient } from "react-query";
-import { connect, useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import {
   Box,
-  Button,
   Chip,
-  CircularProgress,
   Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import * as React from "react";
+import { useMutation, useQueries, useQuery, useQueryClient } from "react-query";
+import { connect, useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
-import { BoxErrorHandler, DialogErrorHandler } from "Components";
+import { DialogErrorHandler } from "Components";
 import { ProjectDeleteDialog } from "ProjectComponents";
-import { ProjectCheckDialog, TableRowButton } from ".";
 import { SetupDialog } from "ProjectComponents/SetupComponents";
 import { ProjectAPI } from "api";
-import { useRowsPerPage } from "hooks/SettingsHooks";
-import { useToggle } from "hooks/useToggle";
-import ElasArrowRightAhead from "images/ElasArrowRightAhead.svg";
 import {
   checkIfSimulationFinishedDuration,
+  formatDate,
   mapDispatchToProps,
   projectModes,
   projectStatuses,
-  formatDate,
 } from "globals.js";
+import { useRowsPerPage } from "hooks/SettingsHooks";
 import useAuth from "hooks/useAuth";
+import { useToggle } from "hooks/useToggle";
 import { setMyProjects } from "redux/actions";
+import { ProjectCheckDialog, TableRowButton } from ".";
 
 const PREFIX = "ProjectTable";
 
@@ -78,13 +74,6 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
     alignItems: "center",
   },
 
-  [`& .${classes.img}`]: {
-    maxWidth: 140,
-    marginTop: 8,
-    marginBottom: 64,
-    marginLeft: 100,
-  },
-
   [`& .${classes.title}`]: {
     cursor: "pointer",
     display: "-webkit-box",
@@ -112,14 +101,38 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
 const columns = [
   { id: "name", label: "Project", width: "55%" },
   { id: "created_at_unix", label: "Date", width: "15%" },
-  // { id: "mode", label: "Mode", width: "15%" },
   { id: "status", label: "Status", width: "15%" },
 ];
 
-const modeLabelMap = {
-  simulate: "Simulate",
-  oracle: "Review",
-  explore: "Validate",
+const StatusChip = ({ status }) => {
+  switch (status) {
+    case projectStatuses.SETUP:
+      return (
+        <Chip
+          size="small"
+          label="Setup"
+          sx={{ color: "#424242", backgroundColor: "#bdbdbd" }}
+        />
+      );
+    case projectStatuses.REVIEW:
+      return (
+        <Chip
+          size="small"
+          label="In Review"
+          sx={{ color: "#91620b", backgroundColor: "#fffbe7" }}
+        />
+      );
+    case projectStatuses.FINISHED:
+      return (
+        <Chip
+          size="small"
+          label="Finished"
+          sx={{ color: "#007b55", backgroundColor: "#e1fae3" }}
+        />
+      );
+    default:
+      return;
+  }
 };
 
 const ProjectTable = (props) => {
@@ -129,19 +142,11 @@ const ProjectTable = (props) => {
   const dispatch = useDispatch();
   const { auth } = useAuth();
 
-  const modeLabel = modeLabelMap[props.mode];
-  /**
-   * Project table state
-   */
-  const [page, setPage] = React.useState(0);
-  const [hoverRowId, setHoverRowId] = React.useState(null);
-  const [hoverRowIdPersistent, setHoverRowIdPersistent] = React.useState(null);
-  const [hoverRowTitle, setHoverRowTitle] = React.useState(null);
-  const [hoverIsOwner, setHoverIsOwner] = React.useState(false);
-  const [rowsPerPage, handleRowsPerPage] = useRowsPerPage();
+  const [page] = React.useState(0);
+  const [rowsPerPage] = useRowsPerPage();
   const [setupDialogState, setSetupDialogState] = React.useState({
     open: false,
-    project_id: null,
+    project_info: null,
   });
 
   /**
@@ -163,7 +168,7 @@ const ProjectTable = (props) => {
   /**
    * Fetch projects and check if simulation running in the background
    */
-  const { error, isError, isFetched, isFetching, isSuccess } = useQuery(
+  const { isError, isFetched, isFetching, isSuccess } = useQuery(
     ["fetchProjects", { subset: props.mode }],
     ProjectAPI.fetchProjects,
     {
@@ -305,14 +310,10 @@ const ProjectTable = (props) => {
   };
 
   const openProject = (project, path) => {
-    if (
-      project["reviews"][0] === undefined ||
-      project["reviews"][0]["status"] === projectStatuses.SETUP ||
-      project["reviews"][0]["status"] === projectStatuses.ERROR
-    ) {
+    if (project["reviews"][0]["status"] === projectStatuses.SETUP) {
       setSetupDialogState({
         open: true,
-        project_id: project["id"],
+        project_info: project,
       });
     } else if (!project["projectNeedsUpgrade"]) {
       // open project page
@@ -326,69 +327,6 @@ const ProjectTable = (props) => {
         project_id: project["id"],
       });
     }
-  };
-
-  /**
-   * Show buttons when hovering over project title
-   */
-  const hoverOnProject = (project_id, project_title, owner_id) => {
-    setHoverRowId(project_id);
-    setHoverRowIdPersistent(project_id);
-    setHoverRowTitle(project_title);
-    setHoverIsOwner(
-      window.authenticated && owner_id !== auth.id ? false : true,
-    );
-  };
-
-  const hoverOffProject = () => {
-    setHoverRowId(null);
-  };
-
-  /**
-   * Return status label and style
-   */
-  const status = (project) => {
-    if (
-      project.reviews[0] === undefined ||
-      project.reviews[0].status === projectStatuses.SETUP ||
-      project.reviews[0].status === projectStatuses.ERROR
-    ) {
-      return [projectStatuses.SETUP, "Setup"];
-    }
-    if (project.reviews[0].status === projectStatuses.REVIEW) {
-      return [projectStatuses.REVIEW, "In Review"];
-    }
-    if (project.reviews[0].status === projectStatuses.FINISHED) {
-      return [projectStatuses.FINISHED, "Finished"];
-    }
-  };
-
-  const statusStyle = (project) => {
-    if (
-      project.reviews[0] === undefined ||
-      project.reviews[0].status === projectStatuses.SETUP ||
-      project.reviews[0].status === projectStatuses.ERROR
-    ) {
-      return "dashboard-page-table-chip setup";
-    }
-    if (project.reviews[0].status === projectStatuses.REVIEW) {
-      return "dashboard-page-table-chip inreview";
-    }
-    if (project.reviews[0].status === projectStatuses.FINISHED) {
-      return "dashboard-page-table-chip finished";
-    }
-  };
-
-  /**
-   * Table pagination & rows per page setting
-   */
-  const handlePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const setRowsPerPage = (event) => {
-    handleRowsPerPage(+event.target.value);
-    setPage(0);
   };
 
   return (
@@ -429,16 +367,6 @@ const ProjectTable = (props) => {
                     );
                   };
 
-                  const showAnalyticsButton = () => {
-                    return (
-                      row["reviews"][0] !== undefined &&
-                      !(
-                        row["reviews"][0]["status"] === projectStatuses.SETUP ||
-                        row["reviews"][0]["status"] === projectStatuses.ERROR
-                      )
-                    );
-                  };
-
                   const showReviewButton = () => {
                     return (
                       row["reviews"][0] !== undefined &&
@@ -456,25 +384,8 @@ const ProjectTable = (props) => {
                     );
                   };
 
-                  const onClickProjectAnalytics = () => {
-                    openProject(row, "");
-                  };
-
-                  const onClickProjectReview = () => {
-                    openProject(row, "review");
-                  };
-
-                  const onClickCollaboration = () => {
-                    openProject(row, "team");
-                    // ******* toggleCollaboDialog();
-                  };
-
                   const onClickProjectExport = () => {
-                    if (
-                      row["reviews"][0] === undefined ||
-                      row["reviews"][0]["status"] === projectStatuses.SETUP ||
-                      row["reviews"][0]["status"] === projectStatuses.ERROR
-                    ) {
+                    if (row["reviews"][0]["status"] === projectStatuses.SETUP) {
                       queryClient.prefetchQuery(
                         ["fetchExportProject", { project_id: row["id"] }],
                         ProjectAPI.fetchExportProject,
@@ -485,60 +396,49 @@ const ProjectTable = (props) => {
                   };
 
                   const onClickProjectDetails = () => {
-                    openProject(row, "details");
+                    openProject(row, "settings");
                   };
 
                   const updateProjectStatus = () => {
                     handleChangeStatus(row);
                   };
                   return (
-                    <TableRow
-                      hover
-                      role="checkbox"
-                      tabIndex={-1}
-                      key={row.id}
-                      onMouseEnter={() => {
-                        return hoverOnProject(
-                          row["id"],
-                          row["name"],
-                          row["owner_id"],
-                        );
-                      }}
-                      onMouseLeave={() => hoverOffProject()}
-                    >
+                    <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                       <TableCell sx={{ display: "flex" }}>
                         <Box className={classes.titleWrapper}>
                           <Typography
-                            onClick={onClickProjectAnalytics}
+                            onClick={() => {
+                              openProject(row, "");
+                            }}
                             className={classes.title}
                             variant="subtitle1"
                           >
                             {row["name"]}
                           </Typography>
                           <Box sx={{ flex: 1 }}></Box>
-                          {hoverRowId === row.id && (
-                            <TableRowButton
-                              disableProjectStatusChange={
-                                disableProjectStatusChange
-                              }
-                              isSimulating={isSimulating}
-                              isOwner={isOwner}
-                              showAnalyticsButton={showAnalyticsButton}
-                              showReviewButton={showReviewButton}
-                              onClickProjectAnalytics={onClickProjectAnalytics}
-                              onClickCollaboration={onClickCollaboration}
-                              onClickEndCollaboration={
-                                onClickCollaboration
-                              } /* !!!!!!!!! */
-                              onClickProjectReview={onClickProjectReview}
-                              onClickProjectExport={onClickProjectExport}
-                              onClickProjectDetails={onClickProjectDetails}
-                              projectStatus={status(row)[0]}
-                              toggleDeleteDialog={toggleDeleteDialog}
-                              updateProjectStatus={updateProjectStatus}
-                              //canEdit={canEdit}
-                            />
-                          )}
+                          <TableRowButton
+                            disableProjectStatusChange={
+                              disableProjectStatusChange
+                            }
+                            isSimulating={isSimulating}
+                            isOwner={isOwner}
+                            showReviewButton={showReviewButton}
+                            onClickCollaboration={() => {
+                              openProject(row, "team");
+                            }}
+                            onClickEndCollaboration={() => {
+                              openProject(row, "team");
+                            }} /* !!!!!!!!! */
+                            onClickProjectReview={() => {
+                              openProject(row, "review");
+                            }}
+                            onClickProjectExport={onClickProjectExport}
+                            onClickProjectDetails={onClickProjectDetails}
+                            projectStatus={row["reviews"][0]["status"]}
+                            toggleDeleteDialog={toggleDeleteDialog}
+                            updateProjectStatus={updateProjectStatus}
+                            //canEdit={canEdit}
+                          />
                         </Box>
                       </TableCell>
                       <TableCell>
@@ -551,10 +451,9 @@ const ProjectTable = (props) => {
                         </Typography>
                       </TableCell>
                       <TableCell className={classes.tableCell}>
-                        <Chip
+                        <StatusChip
                           size="small"
-                          className={statusStyle(row)}
-                          label={status(row)[1]}
+                          status={row["reviews"][0]["status"]}
                         />
                       </TableCell>
                     </TableRow>
@@ -562,12 +461,12 @@ const ProjectTable = (props) => {
                 })}
           </TableBody>
         </Table>
-        {!isError && isFetching && (
+        {/* {!isError && isFetching && (
           <Box className={classes.loadingProjects}>
             <CircularProgress />
           </Box>
-        )}
-        {!isError &&
+        )} */}
+        {/* {!isError &&
           !isFetching &&
           isFetched &&
           isSuccess &&
@@ -585,25 +484,20 @@ const ProjectTable = (props) => {
               <Button
                 id="get-started"
                 onClick={() => {
-                  props.openDataPick(props.mode);
+                  // props.openDataPick(props.mode);
                 }}
               >
                 Start
               </Button>
-              <img
-                src={ElasArrowRightAhead}
-                alt="ElasArrowRightAhead"
-                className={classes.img}
-              />
             </Box>
-          )}
-        {isError && !isFetching && (
+          )} */}
+        {/* {isError && !isFetching && (
           <Box className={classes.error}>
             <BoxErrorHandler error={error} queryKey="fetchProjects" />
           </Box>
-        )}
+        )} */}
       </TableContainer>
-      {!isError &&
+      {/* {!isError &&
         !isFetching &&
         isFetched &&
         isSuccess &&
@@ -618,16 +512,17 @@ const ProjectTable = (props) => {
             onPageChange={handlePage}
             onRowsPerPageChange={setRowsPerPage}
           />
-        )}
+        )} */}
       <SetupDialog
-        project_id={setupDialogState.project_id}
+        projectInfo={setupDialogState.project_info}
         mode={props.mode}
         mobileScreen={props.mobileScreen}
         open={setupDialogState.open}
         onClose={() => {
-          setSetupDialogState({ open: false, project_id: null });
+          setSetupDialogState({ open: false, project_info: null });
         }}
         setFeedbackBar={props.setFeedbackBar}
+        key={"setup-dialog-" + setupDialogState.project_info?.id}
       />
       <ProjectCheckDialog
         projectCheck={props.projectCheck}
@@ -636,9 +531,8 @@ const ProjectTable = (props) => {
       <ProjectDeleteDialog
         onDeleteDialog={onDeleteDialog}
         toggleDeleteDialog={toggleDeleteDialog}
-        projectTitle={hoverRowTitle}
-        project_id={hoverRowIdPersistent}
-        isOwner={hoverIsOwner}
+        projectTitle={null}
+        project_id={null}
       />
       <DialogErrorHandler
         error={querySimulationError}

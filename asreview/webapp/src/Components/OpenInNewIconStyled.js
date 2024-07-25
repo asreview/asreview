@@ -8,7 +8,7 @@ const classes = {
   root: `${PREFIX}-root`,
 };
 
-const StyledOpenInNewIcon = styled(OpenInNewIcon)(({ theme }) => ({
+const StyledOpenInNewIcon = styled(OpenInNewIcon)(() => ({
   [`&.${classes.root}`]: {
     display: "inline-flex",
     alignSelf: "center",
@@ -17,7 +17,7 @@ const StyledOpenInNewIcon = styled(OpenInNewIcon)(({ theme }) => ({
   },
 }));
 
-const OpenInNewIconStyled = (props) => {
+const OpenInNewIconStyled = () => {
   return (
     <StyledOpenInNewIcon
       className={classes.root}
