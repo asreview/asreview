@@ -748,21 +748,7 @@ def api_train(project):  # noqa: F401
 def api_get_status(project):  # noqa: F401
     """Check the status of the review"""
 
-    try:
-        status = project.reviews[0]["status"]
-    except Exception:
-        status = None
-
-    if status == "error":
-        error_path = project.project_path / "error.json"
-        if error_path.exists():
-            logging.error("Error on training")
-            with open(error_path) as f:
-                error_message = json.load(f)["message"]
-
-            raise Exception(error_message)
-
-    return jsonify({"status": status})
+    return jsonify({"status": project.reviews[0]["status"]})
 
 
 @bp.route("/projects/<project_id>/reviews", methods=["GET"])
@@ -1314,6 +1300,11 @@ def api_get_document(project):  # noqa: F401
     item = asdict(as_data.record(pending["record_id"].iloc[0]))
     item["state"] = pending.iloc[0].to_dict()
     item["tags_form"] = project.config.get("tags", None)
+
+    try:
+        item["error"] = project.get_review_error()
+    except ValueError:
+        pass
 
     return jsonify({"result": item, "pool_empty": False, "has_ranking": True})
 

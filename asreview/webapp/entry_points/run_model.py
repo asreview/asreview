@@ -29,7 +29,7 @@ from asreview.simulation.simulate import Simulate
 from asreview.state.contextmanager import open_state
 
 
-def _run_model_start(project, output_error=True):
+def _run_model_start(project):
     with open_state(project) as s:
         if not s.exist_new_labeled_records:
             return
@@ -98,11 +98,13 @@ def _run_model_start(project, output_error=True):
                     len(labeled),
                 )
 
+            project.remove_review_error()
+
     except Timeout:
         logging.debug("Another iteration is training")
 
     except Exception as err:
-        project.set_error(err, save_error_message=output_error)
+        project.set_review_error(err)
         raise err
 
 
@@ -141,7 +143,7 @@ def _simulate_start(project):
         sim.label(priors, prior=True)
         sim.review()
     except Exception as err:
-        project.set_error(err)
+        project.set_review_error(err)
         raise err
 
     project.update_review(state=sim, status="finished")
