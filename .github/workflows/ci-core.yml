@@ -14,7 +14,7 @@ jobs:
           pip install .[dev]
       - name: Lint Python
         run: |
-          ruff check .
+          ruff .
   test-asreview-core:
     name: test-asreview-core
     runs-on: ubuntu-latest
