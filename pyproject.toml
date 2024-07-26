@@ -49,7 +49,7 @@ classifiers = [
 license = {text = "Apache 2.0"}
 dependencies = [
     "numpy",
-    "pandas>=1.3,<3",
+    "pandas>=2,<3",
     "scikit-learn",
     "rispy~=0.7.0",
     "setuptools",

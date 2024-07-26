@@ -26,19 +26,30 @@ REQUIRED_TABLES = [
     "decision_changes",
 ]
 
-RESULTS_TABLE_COLUMNS = [
-    "record_id",
-    "label",
-    "classifier",
-    "query_strategy",
-    "balance_strategy",
-    "feature_extraction",
-    "training_set",
-    "labeling_time",
-    "notes",
-    "custom_metadata_json",
-    "user_id",
-]
+RESULTS_TABLE_COLUMNS_PANDAS_DTYPES = {
+    "record_id": "Int64",
+    "label": "Int64",
+    "classifier": "object",
+    "query_strategy": "object",
+    "balance_strategy": "object",
+    "feature_extraction": "object",
+    "training_set": "Int64",
+    "labeling_time": "object",
+    "note": "object",
+    "tags": "object",
+    "user_id": "Int64",
+}
+
+RANKING_TABLE_COLUMNS_PANDAS_DTYPES = {
+    "record_id": "Int64",
+    "ranking": "Int64",
+    "classifier": "object",
+    "query_strategy": "object",
+    "balance_strategy": "object",
+    "feature_extraction": "object",
+    "training_set": "Int64",
+    "time": "object",
+}
 
 CURRENT_STATE_VERSION = 2
 
@@ -91,22 +102,22 @@ class SQLiteState:
 
         cur.execute(
             """CREATE TABLE results
-                            (record_id INTEGER,
+                            (record_id INTEGER UNIQUE,
                             label INTEGER,
                             classifier TEXT,
                             query_strategy TEXT,
                             balance_strategy TEXT,
                             feature_extraction TEXT,
                             training_set INTEGER,
-                            labeling_time INTEGER,
-                            notes TEXT,
-                            custom_metadata_json TEXT,
+                            labeling_time TEXT,
+                            note TEXT,
+                            tags JSON,
                             user_id INTEGER)"""
         )
 
         cur.execute(
             """CREATE TABLE last_ranking
-                            (record_id INTEGER,
+                            (record_id INTEGER UNIQUE,
                             ranking INT,
                             classifier TEXT,
                             query_strategy TEXT,
@@ -139,7 +150,6 @@ class SQLiteState:
             "SELECT name FROM sqlite_master WHERE type='table';"
         ).fetchall()
 
-        # Check if all required tables are present.
         table_names = [tup[0] for tup in table_names]
         missing_tables = [
             table for table in REQUIRED_TABLES if table not in table_names
@@ -150,10 +160,11 @@ class SQLiteState:
                 f"'{' '.join(missing_tables)}'."
             )
 
-        # Check if all required columns are present in results.
         column_names = [tup[1] for tup in column_names]
         missing_columns = [
-            col for col in RESULTS_TABLE_COLUMNS if col not in column_names
+            col
+            for col in RESULTS_TABLE_COLUMNS_PANDAS_DTYPES.keys()
+            if col not in column_names
         ]
         if missing_columns:
             raise ValueError(
@@ -187,12 +198,33 @@ class SQLiteState:
         the model ranking was added to the state. Also returns True if no
         model was trained yet, but priors have been added.
         """
-        labeled = self.get_results_table()
+        labeled = self.get_results_table("label")
         last_training_set = self.get_last_ranking_table()["training_set"]
-        if last_training_set.empty:
+
+        if last_training_set.empty or pd.isna(last_training_set.max()):
             return len(labeled) > 0
         else:
-            return len(labeled) > last_training_set.iloc[0]
+            return len(labeled) > last_training_set.max()
+
+    def _add_results_from_df(self, results):
+        if not set(results.columns) == set(RESULTS_TABLE_COLUMNS_PANDAS_DTYPES):
+            raise ValueError(
+                f"Columns of the results dataframe should be "
+                f"{list(RESULTS_TABLE_COLUMNS_PANDAS_DTYPES.keys())}."
+            )
+
+        results.to_sql("results", self._conn, if_exists="replace", index=False)
+
+    def _add_last_ranking_from_df(self, last_ranking):
+        if not set(last_ranking.columns) == set(RANKING_TABLE_COLUMNS_PANDAS_DTYPES):
+            raise ValueError(
+                f"Columns of the last ranking dataframe should be "
+                f"{list(RANKING_TABLE_COLUMNS_PANDAS_DTYPES.keys())}."
+            )
+
+        last_ranking.to_sql(
+            "last_ranking", self._conn, if_exists="replace", index=False
+        )
 
     def add_last_ranking(
         self,
@@ -201,7 +233,7 @@ class SQLiteState:
         query_strategy,
         balance_strategy,
         feature_extraction,
-        training_set,
+        training_set=None,
     ):
         """Save the ranking of the last iteration of the model.
 
@@ -237,9 +269,7 @@ class SQLiteState:
             }
         ).to_sql("last_ranking", self._conn, if_exists="replace", index=False)
 
-    def add_labeling_data(
-        self, record_ids, labels, notes=None, tags_list=None, prior=False, user_id=None
-    ):
+    def add_labeling_data(self, record_ids, labels, tags=None, user_id=None):
         """Add the data corresponding to a labeling action to the state file.
 
         Arguments
@@ -248,68 +278,55 @@ class SQLiteState:
             A list of ids of the labeled records as int.
         labels: list, numpy.ndarray
             A list of labels of the labeled records as int.
-        notes: list of str/None
-            A list of text notes to save with the labeled records.
-        tags_list: list of list
-            A list of tags to save with the labeled records.
-        prior: bool
-            Whether the added record are prior knowledge.
+        tags: dict
+            A dict of tags to save with the labeled records.
         user_id: int
             User id of the user who labeled the records.
         """
 
-        if notes is None:
-            notes = [None for _ in record_ids]
+        if tags is None:
+            tags = [None for _ in record_ids]
 
-        if tags_list is None:
-            tags_list = [None for _ in record_ids]
-
-        # Check that all input data has the same length.
-        if len({len(record_ids), len(labels), len(notes), len(tags_list)}) != 1:
+        if len({len(record_ids), len(labels), len(tags)}) != 1:
             raise ValueError("Input data should be of the same length.")
 
-        custom_metadata_list = [
-            json.dumps({"tags": tags_list[i]}) for i, _ in enumerate(record_ids)
-        ]
-
-        if prior:
-            pd.DataFrame(
-                {
-                    "record_id": record_ids,
-                    "label": labels,
-                    "query_strategy": "prior",
-                    "training_set": -1,
-                    "labeling_time": datetime.now(),
-                    "notes": notes,
-                    "custom_metadata_json": custom_metadata_list,
-                    "user_id": user_id,
-                }
-            ).to_sql("results", self._conn, if_exists="append", index=False)
-
+        if tags is None:
+            tags = [None for _ in record_ids]
+        elif isinstance(tags, dict):
+            tags = [json.dumps(tags) for _ in record_ids]
         else:
-            labeling_time = datetime.now()
-            data = [
+            tags = [json.dumps(tag) for tag in tags]
+
+        labeling_time = datetime.now()
+
+        con = self._conn
+        cur = con.cursor()
+        cur.executemany(
+            (
+                """
+                INSERT INTO results(record_id,label,labeling_time,tags, user_id)
+                VALUES(?,?,?,?,?)
+                ON CONFLICT(record_id) DO UPDATE
+                    SET label=excluded.label, labeling_time=excluded.labeling_time,
+                    tags=excluded.tags, user_id=excluded.user_id
+            """
+            ),
+            [
                 (
+                    int(record_ids[i]),
                     int(labels[i]),
                     labeling_time,
-                    notes[i],
-                    custom_metadata_list[i],
-                    int(record_ids[i]),
+                    tags[i],
+                    user_id,
                 )
                 for i in range(len(record_ids))
-            ]
+            ],
+        )
 
-            # If not prior, we need to update records.
-            query = (
-                "UPDATE results SET label=?, labeling_time=?, "
-                "notes=?, custom_metadata_json=? WHERE record_id=?"
-            )
+        if cur.rowcount != len(record_ids):
+            raise ValueError("Failed to insert or update labels for record.")
 
-            # Add the rows to the database.
-            con = self._conn
-            cur = con.cursor()
-            cur.executemany(query, data)
-            con.commit()
+        con.commit()
 
     def get_last_ranking_table(self):
         """Get the ranking from the state.
@@ -322,7 +339,11 @@ class SQLiteState:
             'training_set' and 'time'. It has one row for each record in the
             dataset, and is ordered by ranking.
         """
-        return pd.read_sql_query("SELECT * FROM last_ranking", self._conn)
+        return pd.read_sql_query(
+            "SELECT * FROM last_ranking",
+            self._conn,
+            dtype=RANKING_TABLE_COLUMNS_PANDAS_DTYPES,
+        )
 
     def query_top_ranked(self, n=1, user_id=None):
         """Get the top ranked records from the ranking table.
@@ -344,6 +365,7 @@ class SQLiteState:
         """
         top_n_records = self.get_pool()[:n].to_list()
         record_list = [(user_id, record_id) for record_id in top_n_records]
+
         con = self._conn
         cur = con.cursor()
         cur.executemany(
@@ -355,11 +377,15 @@ class SQLiteState:
             WHERE record_id=?""",
             record_list,
         )
+
+        if cur.rowcount != n:
+            raise ValueError("Failed to query top ranked records.")
+
         con.commit()
 
-        return top_n_records
+        return self.get_pending(user_id=user_id)
 
-    def get_data_by_record_id(self, record_id):
+    def get_results_record(self, record_id):
         """Get the data of a specific query from the results table.
 
         Arguments
@@ -374,10 +400,13 @@ class SQLiteState:
             record_id and columns.
         """
 
-        return pd.read_sql_query(
+        result = pd.read_sql_query(
             f"SELECT * FROM results WHERE record_id={record_id}",
             self._conn,
+            dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
         )
+        result["tags"] = result["tags"].map(json.loads, na_action="ignore")
+        return result
 
     def get_results_table(self, columns=None, priors=True, pending=False):
         """Get a subset from the results table.
@@ -408,7 +437,7 @@ class SQLiteState:
         if (not priors) or (not pending):
             sql_where = []
             if not priors:
-                sql_where.append("query_strategy is not 'prior'")
+                sql_where.append("query_strategy is not NULL")
             if not pending:
                 sql_where.append("label is not NULL")
 
@@ -418,11 +447,25 @@ class SQLiteState:
         else:
             sql_where_str = ""
 
-        # Query the database.
+        if columns is None:
+            col_dtype = RESULTS_TABLE_COLUMNS_PANDAS_DTYPES
+        else:
+            col_dtype = {
+                k: v
+                for k, v in RESULTS_TABLE_COLUMNS_PANDAS_DTYPES.items()
+                if columns and k in columns
+            }
+
         query_string = "*" if columns is None else ",".join(columns)
-        return pd.read_sql_query(
-            f"SELECT {query_string} FROM results {sql_where_str}", self._conn
+        df_results = pd.read_sql_query(
+            f"SELECT {query_string} FROM results {sql_where_str}",
+            self._conn,
+            dtype=col_dtype,
         )
+
+        if columns is None or "tags" in columns:
+            df_results["tags"] = df_results["tags"].map(json.loads, na_action="ignore")
+        return df_results
 
     def get_priors(self):
         """Get the record ids of the priors.
@@ -433,28 +476,13 @@ class SQLiteState:
             The result records of the priors in the order they were added.
         """
 
-        return pd.read_sql_query(
-            "SELECT * FROM results WHERE query_strategy is 'prior'",
+        df_results = pd.read_sql_query(
+            "SELECT * FROM results WHERE query_strategy is NULL AND label is not NULL",
             self._conn,
+            dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
         )
-
-    def get_labels(self, priors=True, pending=False):
-        """Get the labels from the state.
-
-        Arguments
-        ---------
-        priors: bool
-            Whether to keep the records containing the prior knowledge.
-        pending: bool
-            Whether to keep the records which are pending a labeling decision.
-
-        Returns
-        -------
-        pd.Series:
-            Series containing the labels at each labelling moment.
-        """
-
-        return self.get_results_table("label", priors=priors, pending=pending)["label"]
+        df_results["tags"] = df_results["tags"].map(json.loads, na_action="ignore")
+        return df_results
 
     def get_pool(self):
         """Get the unlabeled, not-pending records in ranking order.
@@ -465,13 +493,14 @@ class SQLiteState:
             Series containing the record_ids of the unlabeled, not pending
             records, in the order of the last available ranking.
         """
+
         return pd.read_sql_query(
             """SELECT record_id, last_ranking.ranking,
                 results.query_strategy
                 FROM last_ranking
                 LEFT JOIN results
                 USING (record_id)
-                WHERE results.query_strategy is null
+                WHERE results.label is null
                 ORDER BY ranking
                 """,
             self._conn,
@@ -493,13 +522,16 @@ class SQLiteState:
 
         if user_id is None:
             return pd.read_sql_query(
-                """SELECT * FROM results WHERE label is null""", self._conn
+                """SELECT * FROM results WHERE label is null""",
+                self._conn,
+                dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
             )
         else:
             return pd.read_sql_query(
                 """SELECT * FROM results WHERE label is null AND user_id=?""",
                 self._conn,
                 params=(user_id,),
+                dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
             )
 
     def get_ranking_with_labels(self):
@@ -519,8 +551,8 @@ class SQLiteState:
             dtype={"label": "Int64"},
         )
 
-    def update_decision(self, record_id, label, note=None, tags=None):
-        """Change the label of an already labeled record.
+    def update(self, record_id, label=None, tags=None):
+        """Change the label or tag of an already labeled record.
 
         Arguments
         ---------
@@ -528,22 +560,20 @@ class SQLiteState:
             Id of the record whose label should be changed.
         label: 0 / 1
             New label of the record.
-        note: str
-            Note to add to the record.
         tags: list
             Tags list to add to the record.
         """
 
         cur = self._conn.cursor()
 
-        # Change the label.
         cur.execute(
-            "UPDATE results SET label = ?, notes = ?, "
-            "custom_metadata_json=? WHERE record_id = ?",
-            (label, note, json.dumps({"tags": tags}), record_id),
+            "UPDATE results SET label = ?, tags=? WHERE record_id = ?",
+            (label, json.dumps({"tags": tags}), record_id),
         )
 
-        # Add the change to the decision changes table.
+        if cur.rowcount == 0:
+            raise ValueError(f"Record with id {record_id} not found.")
+
         cur.execute(
             (
                 "INSERT INTO decision_changes (record_id, new_label, time) "
@@ -551,6 +581,28 @@ class SQLiteState:
             ),
             (record_id, label, datetime.now()),
         )
+
+        self._conn.commit()
+
+    def update_note(self, record_id, note=None):
+        """Change the note of an already labeled or pending record.
+
+        Arguments
+        ---------
+        record_id: int
+            Id of the record whose label should be changed.
+        note: str
+            Note to add to the record.
+        """
+
+        cur = self._conn.cursor()
+        cur.execute(
+            "UPDATE results SET note = ? WHERE record_id = ?",
+            (note, record_id),
+        )
+
+        if cur.rowcount == 0:
+            raise ValueError(f"Record with id {record_id} not found.")
 
         self._conn.commit()
 
@@ -568,7 +620,6 @@ class SQLiteState:
         cur = self._conn.cursor()
         cur.execute("DELETE FROM results WHERE record_id=?", (record_id,))
 
-        # Add the change to the decision changes table.
         cur.execute(
             (
                 "INSERT INTO decision_changes (record_id, new_label, time) "

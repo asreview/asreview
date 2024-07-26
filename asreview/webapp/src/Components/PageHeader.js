@@ -1,23 +1,11 @@
 import * as React from "react";
-import { Box, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
-import { TypographyH5Medium } from "StyledComponents/StyledTypography";
-import "App.css";
+const HeaderTypography = styled(Typography)(({ theme }) => ({
+  padding: theme.spacing(3),
+}));
 
-export default function PageHeader(props) {
-  return (
-    <Box
-      className="main-page-sticky-header-wrapper"
-      sx={{ background: (theme) => theme.palette.background.paper }}
-    >
-      <Box className="main-page-sticky-header">
-        {!props.mobileScreen && (
-          <TypographyH5Medium>{props.header}</TypographyH5Medium>
-        )}
-        {props.mobileScreen && (
-          <Typography variant="h6">{props.header}</Typography>
-        )}
-      </Box>
-    </Box>
-  );
+export default function PageHeader({ header }) {
+  return <HeaderTypography variant="h5">{header}</HeaderTypography>;
 }

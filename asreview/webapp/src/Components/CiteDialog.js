@@ -131,7 +131,6 @@ const CiteDialog = ({ isOpen, onClose, mobileScreen, asreview_version }) => {
             position: "relative",
             overflow: "hidden",
             padding: theme.spacing(2),
-            backgroundColor: theme.palette.grey[200],
           }}
         >
           <Box sx={{ overflow: "auto" }}>

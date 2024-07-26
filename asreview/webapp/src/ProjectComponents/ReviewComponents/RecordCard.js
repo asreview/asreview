@@ -1,285 +1,230 @@
 import React from "react";
-import clsx from "clsx";
+import { Link as LinkIcon } from "@mui/icons-material";
 import {
+  Fade,
+  Collapse,
+  Alert,
   Box,
-  Button,
   Card,
-  CardActions,
   CardContent,
-  CircularProgress,
-  Slide,
+  Link,
   Stack,
   Tooltip,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Link } from "@mui/icons-material";
 
-import { BoxErrorHandler } from "Components";
-import { DOIIcon } from "icons";
-import { NoteSheet, RecordTrainingInfo } from ".";
-import { ExplorationModeRecordAlert } from "StyledComponents/StyledAlert";
 import { StyledIconButton } from "StyledComponents/StyledButton";
+import { useToggle } from "hooks/useToggle";
+import { DOIIcon } from "icons";
+import { DecisionButton, RecordTrainingInfo } from ".";
+
+import { fontSizeOptions } from "globals.js";
 
 const PREFIX = "RecordCard";
 
 const classes = {
   loadedCard: `${PREFIX}-loadedCard`,
-  loadingCard: `${PREFIX}-loadingCard`,
   titleAbstract: `${PREFIX}-titleAbstract`,
   title: `${PREFIX}-title`,
   abstract: `${PREFIX}-abstract`,
-  note: `${PREFIX}-note`,
 };
 
-const Root = styled("div")(({ theme }) => ({
-  display: "flex",
-  flex: "1 0 auto",
-  margin: "auto",
-  maxWidth: 960,
-  padding: "64px 0px 32px 0px",
-  height: "100%",
-  [theme.breakpoints.down("md")]: {
-    padding: "4px 0px",
-  },
-  [`& .${classes.loadedCard}`]: {
-    borderRadius: 16,
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
-    [theme.breakpoints.down("md")]: {
-      borderRadius: 0,
-    },
-  },
-
-  [`& .${classes.loadingCard}`]: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  [`& .${classes.titleAbstract}`]: {
-    height: "100%",
-    overflowY: "scroll",
-  },
-
-  [`& .${classes.title}`]: {
-    lineHeight: 1.2,
-  },
-
+const StyledCard = styled(Card)(() => ({
+  // [`& .${classes.titleAbstract}`]: {
+  //   height: "100%",
+  //   overflowY: "scroll",
+  // },
+  // [`& .${classes.title}`]: {
+  //   lineHeight: 1.2,
+  // },
   [`& .${classes.abstract}`]: {
     whiteSpace: "pre-line",
   },
-
-  [`& .${classes.note}`]: {
-    justifyContent: "flex-end",
-  },
 }));
 
-const RecordCard = (props) => {
-  const isDebugInclusion = () => {
-    if (props.activeRecord) {
-      return props.activeRecord.label_from_dataset === 1;
-    }
-  };
+const transitionSpeed = 150;
 
-  const expandNoteSheet = () => {
-    props.setRecordNote((s) => {
-      return {
-        ...s,
-        expand: true,
-        shrink: false,
-      };
+const RecordCard = ({
+  project_id,
+  record,
+  afterDecision = null,
+  retrainAfterDecision = true,
+  showBorder = true,
+  fontSize = 1,
+  showNotes = true,
+  collapseAbstract = false,
+  hotkeys = false,
+  transitionType = "fade",
+}) => {
+  const [readMoreOpen, toggleReadMore] = useToggle();
+
+  const [state, setState] = React.useState({
+    open: true,
+  });
+
+  const isNotTrained =
+    record?.state?.query_strategy === "top-down" ||
+    record?.state?.query_strategy === "random";
+
+  const decisionCallback = () => {
+    setState({
+      open: false,
     });
   };
 
-  const shrinkNoteSheet = () => {
-    props.setRecordNote((s) => {
-      return {
-        ...s,
-        shrink: true,
-      };
-    });
-  };
-
-  return (
-    <Root aria-label="record card">
-      {!props.isError && !props.activeRecord && (
-        <Card
-          elevation={2}
-          className={clsx(classes.loadedCard, classes.loadingCard)}
-        >
-          <CardContent aria-label="record loading">
-            <CircularProgress />
-          </CardContent>
-        </Card>
+  const styledRepoCard = (
+    <StyledCard elevation={showBorder ? 2 : 0}>
+      {isNotTrained && (
+        <Alert severity="warning" sx={{ borderRadius: 0 }}>
+          This record is not presented by the model
+        </Alert>
       )}
-      {props.isError && (
-        <Card
-          elevation={2}
-          className={clsx(classes.loadedCard, classes.loadingCard)}
-          aria-label="record loaded failure"
-        >
-          <BoxErrorHandler queryKey="fetchRecord" error={props.error} />
-        </Card>
+      {record?.error?.type !== undefined && (
+        <Alert severity="error" sx={{ borderRadius: 0 }}>
+          Model training error: {record?.error?.message}. Change model in
+          settings page.
+        </Alert>
       )}
-      {props.activeRecord && (
-        <Card
-          elevation={2}
-          className={classes.loadedCard}
-          aria-label="record loaded"
-        >
-          {/* Previous decision alert */}
-          {props.activeRecord.label_from_dataset !== null && (
-            <ExplorationModeRecordAlert
-              label={
-                props.activeRecord.label_from_dataset === -1
-                  ? "not seen"
-                  : !isDebugInclusion()
-                    ? "irrelevant"
-                    : "relevant"
-              }
-              fontSize={props.fontSize}
-            />
-          )}
 
-          <CardContent
-            className={`${classes.titleAbstract} record-card-content`}
-            aria-label="record title abstract"
+      <CardContent
+        className={classes.titleAbstract}
+        aria-label="record title abstract"
+      >
+        <Stack spacing={1}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="baseline"
           >
-            <Stack spacing={1}>
-              <Stack
-                direction="row"
-                justifyContent="space-between"
-                alignItems="baseline"
-                spacing={1}
-              >
-                {/* Show the title */}
-                <Typography
-                  component="div"
-                  className={classes.title}
-                  variant={!props.mobileScreen ? "h5" : "h6"}
-                  sx={{
-                    fontWeight: (theme) => theme.typography.fontWeightRegular,
-                  }}
+            {/* Show the title */}
+            <Typography
+              component="div"
+              className={classes.title}
+              variant={"h5"}
+              sx={{
+                fontWeight: (theme) => theme.typography.fontWeightRegular,
+              }}
+            >
+              {/* No title, inplace text */}
+              {(record.title === "" || record.title === null) && (
+                <Box
+                  className={"fontSize" + fontSizeOptions[fontSize]}
+                  fontStyle="italic"
                 >
-                  {/* No title, inplace text */}
-                  {(props.activeRecord.title === "" ||
-                    props.activeRecord.title === null) && (
-                    <Box
-                      className={"fontSize" + props.fontSize.label}
-                      fontStyle="italic"
-                    >
-                      No title available
-                    </Box>
-                  )}
+                  No title available
+                </Box>
+              )}
 
-                  {/* Show the title if available */}
-                  {!(
-                    props.activeRecord.title === "" ||
-                    props.activeRecord.title === null
-                  ) && (
-                    <Box className={"fontSize" + props.fontSize.label}>
-                      {props.activeRecord.title}
-                    </Box>
-                  )}
-                </Typography>
-                <RecordTrainingInfo state={props.activeRecord.state} />
-              </Stack>
-              <Stack direction="row" spacing={1}>
-                {/* Show DOI if available */}
-                {!(
-                  props.activeRecord.doi === undefined ||
-                  props.activeRecord.doi === null
-                ) && (
-                  <StyledIconButton
-                    className="record-card-icon"
-                    href={"https://doi.org/" + props.activeRecord.doi}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <DOIIcon />
-                  </StyledIconButton>
-                )}
-
-                {/* Show URL if available */}
-                {!(
-                  props.activeRecord.url === undefined ||
-                  props.activeRecord.url === null
-                ) && (
-                  <Tooltip title="Open URL">
-                    <StyledIconButton
-                      className="record-card-icon"
-                      href={props.activeRecord.url}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <Link />
-                    </StyledIconButton>
-                  </Tooltip>
-                )}
-              </Stack>
-              {/* Show the abstract */}
-              <Typography
-                component="div"
-                className={
-                  classes.abstract + " fontSize" + props.fontSize.label
-                }
-                variant="body2"
-                paragraph
-                sx={{ color: "text.secondary" }}
+              {!(record.title === "" || record.title === null) && (
+                <Box className={"fontSize" + fontSizeOptions[fontSize]}>
+                  {record.title}
+                </Box>
+              )}
+            </Typography>
+            {record?.state && <RecordTrainingInfo state={record.state} />}
+          </Stack>
+          <Stack direction="row" spacing={1}>
+            {!(record.doi === undefined || record.doi === null) && (
+              <StyledIconButton
+                className="record-card-icon"
+                href={"https://doi.org/" + record.doi}
+                target="_blank"
+                rel="noreferrer"
               >
-                {/* No abstract, inplace text */}
-                {(props.activeRecord.abstract === "" ||
-                  props.activeRecord.abstract === null) && (
-                  <Box fontStyle="italic">No abstract available</Box>
-                )}
+                <DOIIcon />
+              </StyledIconButton>
+            )}
 
-                {/* Show the abstract if available */}
-                {!(
-                  props.activeRecord.abstract === "" ||
-                  props.activeRecord.abstract === null
-                ) && <Box>{props.activeRecord.abstract}</Box>}
-              </Typography>
-            </Stack>
-          </CardContent>
+            {!(record.url === undefined || record.url === null) && (
+              <Tooltip title="Open URL">
+                <StyledIconButton
+                  className="record-card-icon"
+                  href={record.url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <LinkIcon />
+                </StyledIconButton>
+              </Tooltip>
+            )}
+          </Stack>
 
-          <Slide
-            direction="up"
-            in={props.recordNote.expand}
-            onExited={shrinkNoteSheet}
-            mountOnEnter
-            unmountOnExit
+          <Typography
+            component="div"
+            className={
+              classes.abstract + " fontSize" + fontSizeOptions[fontSize]
+            }
+            variant="body2"
+            paragraph
+            sx={{ color: "text.secondary" }}
           >
-            <Box>
-              <NoteSheet
-                note={props.recordNote.data}
-                noteFieldAutoFocus={props.noteFieldAutoFocus}
-                previousRecord={props.previousRecord}
-                setRecordNote={props.setRecordNote}
-              />
-            </Box>
-          </Slide>
+            {(record.abstract === "" || record.abstract === null) && (
+              <Box fontStyle="italic">No abstract available</Box>
+            )}
 
-          {props.recordNote.shrink && (
-            <CardActions className={classes.note}>
-              <Button
-                className={"fontSize" + props.fontSize.label}
-                disabled={props.disableButton()}
-                size="small"
-                onClick={expandNoteSheet}
-                aria-label="add note"
-              >
-                {(props.previousRecord.show && props.previousRecord.note) ||
-                props.recordNote.data
-                  ? "Edit Note"
-                  : "Add Note"}
-              </Button>
-            </CardActions>
-          )}
-        </Card>
-      )}
-    </Root>
+            {!(record.abstract === "" || record.abstract === null) &&
+            collapseAbstract &&
+            !readMoreOpen &&
+            record.abstract.length > 500 ? (
+              <Box>
+                {record.abstract.substring(0, 500)}...
+                <Link
+                  component="button"
+                  underline="none"
+                  onClick={toggleReadMore}
+                >
+                  expand
+                </Link>
+              </Box>
+            ) : (
+              record.abstract
+            )}
+          </Typography>
+        </Stack>
+      </CardContent>
+      <DecisionButton
+        project_id={project_id}
+        record_id={record.record_id}
+        label={record.state?.label}
+        labelFromDataset={record.included}
+        decisionCallback={decisionCallback}
+        retrainAfterDecision={retrainAfterDecision}
+        note={record.state?.note}
+        labelDatetime={record.state?.labeling_time}
+        showNotes={showNotes}
+        tagsForm={record.tags_form}
+        tagValues={record.state?.tags}
+        hotkeys={hotkeys}
+      />
+    </StyledCard>
   );
+
+  if (transitionType === "fade") {
+    return (
+      <Fade
+        in={state.open}
+        timeout={transitionSpeed}
+        onExited={afterDecision}
+        unmountOnExit
+      >
+        {styledRepoCard}
+      </Fade>
+    );
+  } else if (transitionType === "collapse") {
+    return (
+      <Collapse
+        in={state.open}
+        timeout={transitionSpeed}
+        onExited={afterDecision}
+        unmountOnExit
+      >
+        {styledRepoCard}
+      </Collapse>
+    );
+  } else {
+    return styledRepoCard;
+  }
 };
 
 export default RecordCard;

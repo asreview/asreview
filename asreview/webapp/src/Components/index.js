@@ -1,5 +1,4 @@
 export { default as ActionsFeedbackBar } from "./ActionsFeedbackBar";
-export { default as AppBarWithinDialog } from "./AppBarWithinDialog";
 export { default as BoxErrorHandler } from "./BoxErrorHandler";
 export { default as CardErrorHandler } from "./CardErrorHandler";
 export { default as CiteDialog } from "./CiteDialog";
@@ -25,3 +24,4 @@ export { default as SignIn } from "./SignIn";
 export { default as SignInForm } from "./SignInForm";
 export { default as SignInOAuthCallback } from "./SignInOAuthCallback";
 export { default as SignUpForm } from "./SignUpForm";
+export { default as InteractionButtons } from "./InteractionButtons";

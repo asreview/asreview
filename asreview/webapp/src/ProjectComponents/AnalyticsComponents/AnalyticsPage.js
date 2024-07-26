@@ -95,7 +95,7 @@ const AnalyticsPage = (props) => {
         queryKey,
         includePrior: includePriorKnowledge,
       }),
-    { refetchOnWindowFocus: false }
+    { refetchOnWindowFocus: false },
   );
 
   const twitterRef = React.useRef(null);
@@ -158,7 +158,7 @@ const AnalyticsPage = (props) => {
                 }}
               >
                 <PageHeader
-                  header="Analytics"
+                  header="Dashboard"
                   mobileScreen={props.mobileScreen}
                 />
                 <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -263,11 +263,11 @@ const AnalyticsPage = (props) => {
           <Box className="main-page-body-wrapper">
             <Stack spacing={3} className="main-page-body">
               <Box>
-                    <NumberCard
-                      mobileScreen={props.mobileScreen}
-                      progressQuery={progressQuery}
-                      includePriorKnowledge={includePriorKnowledge} // Pass the state as prop
-                    />
+                <NumberCard
+                  mobileScreen={props.mobileScreen}
+                  progressQuery={progressQuery}
+                  includePriorKnowledge={includePriorKnowledge} // Pass the state as prop
+                />
               </Box>
 
               <Grid item xs={12}>

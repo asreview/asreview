@@ -1,27 +1,30 @@
 import React from "react";
 
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   Accordion,
+  AccordionActions,
   AccordionDetails,
   AccordionSummary,
-  Box,
   Button,
-  TextField,
-  Stack,
-  Typography,
-  AccordionActions,
   Card,
+  CardContent,
+  CardHeader,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Link,
+  Stack,
+  TextField,
+  Typography,
 } from "@mui/material";
+import { ProjectContext } from "context/ProjectContext";
+import { useContext } from "react";
 
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-
-import { useMutation, useQuery } from "react-query";
 import { ProjectAPI } from "api";
+import { useMutation, useQuery } from "react-query";
 
 import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
@@ -314,7 +317,7 @@ const Group = (props) => {
   };
 
   return (
-    <Accordion elevation={3}>
+    <Accordion elevation={0} sx={{ bgcolor: `primary.background` }}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Stack
           direction={!props.mobileScreen ? "row" : "column"}
@@ -341,12 +344,12 @@ const Group = (props) => {
         />
 
         <Stack spacing={3}>
-          <TypographySubtitle1Medium>Name</TypographySubtitle1Medium>
+          <TypographySubtitle1Medium>Tag group</TypographySubtitle1Medium>
           <Stack direction="row" spacing={3}>
             <TextField
               fullWidth
               id="tag-group-name"
-              label="Group Name"
+              label="Group"
               onChange={(event) =>
                 props.editTagGroup(props.group.id, {
                   ...props.group,
@@ -382,28 +385,22 @@ const Group = (props) => {
   );
 };
 
-const TagEditor = (props) => {
+const TagCard = (props) => {
   const [groupDialogOpen, setGroupDialogOpen] = React.useState(false);
   const [tags, setTags] = React.useState([]);
+  const project_id = useContext(ProjectContext);
 
   /**
    * Fetch project info
    */
-  useQuery(
-    ["fetchInfo", { project_id: props.project_id }],
-    ProjectAPI.fetchInfo,
-    {
-      enabled: props.project_id !== null,
-      onSuccess: (data) => {
-        setTags(
-          data["tags"] === undefined || data["tags"] === null
-            ? []
-            : data["tags"],
-        );
-      },
-      refetchOnWindowFocus: false,
+  useQuery(["fetchInfo", { project_id: project_id }], ProjectAPI.fetchInfo, {
+    onSuccess: (data) => {
+      setTags(
+        data["tags"] === undefined || data["tags"] === null ? [] : data["tags"],
+      );
     },
-  );
+    refetchOnWindowFocus: false,
+  });
 
   /**
    * Mutate project info
@@ -434,7 +431,7 @@ const TagEditor = (props) => {
           updatedGroup,
           ...tags.slice(updatedGroupIndex + 1),
         ],
-        project_id: props.project_id,
+        project_id: project_id,
       });
     }
   };
@@ -442,55 +439,63 @@ const TagEditor = (props) => {
     mutate({
       // add new group to tags
       tags: [...tags, { name: name, values: values, id: id }],
-      project_id: props.project_id,
+      project_id: project_id,
     });
   };
 
   return (
-    <Card sx={{ padding: "24px" }}>
-      <Typography
-        variant="subtitle1"
-        sx={{
-          fontWeight: (theme) => theme.typography.fontWeightMedium,
-        }}
-      >
-        Tags
-      </Typography>
-      <Typography variant="body2" sx={{ color: "text.secondary" }}>
-        Tags and tag groups are used to label records with additional
-        information. Tags are not used by the machine learning algorithms.
-      </Typography>
-      <Box sx={{ padding: "12px" }}>
-        {tags.length !== 0 && (
-          <TypographySubtitle1Medium>Tag groups</TypographySubtitle1Medium>
-        )}
-        <AddGroupDialog
-          title="Add Tag Group"
-          open={groupDialogOpen}
-          handleClose={() => setGroupDialogOpen(false)}
-          handleAdd={addTagGroup}
-          handleAddTags={editTagGroup}
-          groups={tags}
-        />
-        {tags.map((c) => (
-          <Group
-            group={c}
-            key={c.id}
-            editTagGroup={editTagGroup}
-            mobileScreen={props.mobileScreen}
-          />
-        ))}
-      </Box>
-      <AccordionActions>
+    <Card>
+      <CardHeader
+        title="Labeling tags"
+        subheader={
+          <>
+            <>
+              Tags and tag groups are used to label records with additional
+              information. Tags are not used by the machine learning algorithms.{" "}
+            </>
+            <Link
+              underline="none"
+              href={`https://asreview.nl/blog/active-learning-explained/`}
+              target="_blank"
+            >
+              learn more
+            </Link>
+          </>
+        }
+      />
+      {tags.length !== 0 && (
+        <CardContent>
+          {tags.map((c) => (
+            <Group
+              group={c}
+              key={c.id}
+              editTagGroup={editTagGroup}
+              mobileScreen={props.mobileScreen}
+            />
+          ))}
+        </CardContent>
+      )}
+
+      <AddGroupDialog
+        title="Add Tag Group"
+        open={groupDialogOpen}
+        handleClose={() => setGroupDialogOpen(false)}
+        handleAdd={addTagGroup}
+        handleAddTags={editTagGroup}
+        groups={tags}
+      />
+
+      <CardContent>
         <Button
           onClick={() => setGroupDialogOpen(true)}
           disabled={isMutatingInfo}
+          variant="contained"
         >
-          Add Tag Group
+          Add tags
         </Button>
-      </AccordionActions>
+      </CardContent>
     </Card>
   );
 };
 
-export default TagEditor;
+export default TagCard;

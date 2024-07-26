@@ -70,7 +70,7 @@ def create_app(config_path=None):
     if app.debug and not app.config.get("CORS_ORIGINS", None):
         app.config["CORS_ORIGINS"] = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
-    CORS(app, supports_credentials=True)
+    CORS(app, supports_credentials=True, expose_headers=["Content-Disposition"])
 
     with app.app_context():
         app.register_blueprint(projects.bp)

@@ -421,7 +421,7 @@ class Project:
         ) as f:
             json.dump(asdict(settings), f)
 
-        fp_state = Path(self.project_path, "reviews", review_id, "results.sql")
+        fp_state = Path(self.project_path, "reviews", review_id, "results.db")
 
         if state is None:
             state = SQLiteState(fp_state)
@@ -471,7 +471,7 @@ class Project:
             review_index = [x["id"] for x in self.config["reviews"]].index(review_id)
 
         if state is not None:
-            fp_state = Path(self.project_path, "reviews", review_id, "results.sql")
+            fp_state = Path(self.project_path, "reviews", review_id, "results.db")
             state.to_sql(fp_state)
 
         if settings is not None:
@@ -551,63 +551,76 @@ class Project:
 
     @classmethod
     def load(cls, asreview_file, project_path, safe_import=False):
-        tmpdir = tempfile.TemporaryDirectory().name
+        with tempfile.TemporaryDirectory() as tmpdir:
+            try:
+                # Unzip the project file
+                with zipfile.ZipFile(asreview_file, "r") as zip_obj:
+                    zip_filenames = zip_obj.namelist()
 
-        try:
-            # Unzip the project file
-            with zipfile.ZipFile(asreview_file, "r") as zip_obj:
-                zip_filenames = zip_obj.namelist()
+                    # raise error if no ASReview project file
+                    if PATH_PROJECT_CONFIG not in zip_filenames:
+                        raise ValueError("Project file is not valid project.")
 
-                # raise error if no ASReview project file
-                if PATH_PROJECT_CONFIG not in zip_filenames:
-                    raise ValueError("Project file is not valid project.")
+                    # extract all files to folder
+                    for f in zip_filenames:
+                        if not f.endswith(".pickle"):
+                            zip_obj.extract(f, path=tmpdir)
 
-                # extract all files to folder
-                for f in zip_filenames:
-                    if not f.endswith(".pickle"):
-                        zip_obj.extract(f, path=tmpdir)
+            except zipfile.BadZipFile:
+                raise ValueError("File is not an ASReview file.")
 
-        except zipfile.BadZipFile:
-            raise ValueError("File is not an ASReview file.")
+            with open(Path(tmpdir, PATH_PROJECT_CONFIG)) as f:
+                project_config = json.load(f)
 
-        with open(Path(tmpdir, PATH_PROJECT_CONFIG)) as f:
-            project_config = json.load(f)
+            if safe_import:
+                # assign a new id to the project.
+                project_config["id"] = uuid4().hex
+                with open(Path(tmpdir, PATH_PROJECT_CONFIG), "r+") as f:
+                    # write to file
+                    f.seek(0)
+                    json.dump(project_config, f)
+                    f.truncate()
 
-        if safe_import:
-            # assign a new id to the project.
-            project_config["id"] = uuid4().hex
-            with open(Path(tmpdir, PATH_PROJECT_CONFIG), "r+") as f:
-                # write to file
-                f.seek(0)
-                json.dump(project_config, f)
-                f.truncate()
-
-        # location to copy file to
-        # Move the project from the temp folder to the projects folder.
-        os.replace(tmpdir, Path(project_path, project_config["id"]))
+            shutil.copytree(tmpdir, Path(project_path, project_config["id"]))
 
         return cls(Path(project_path, project_config["id"]))
 
-    def set_error(self, err, save_error_message=True):
+    def get_review_error(self, review_id=None):
+        if review_id is None:
+            review_id = self.config["reviews"][0]["id"]
+
+        error_path = Path(self.project_path, "reviews", review_id, "error.json")
+        if error_path.exists():
+            with open(error_path, "r") as f:
+                return json.load(f)
+        else:
+            raise ValueError("No error found.")
+
+    def set_review_error(self, err, review_id=None):
+        if review_id is None:
+            review_id = self.config["reviews"][0]["id"]
+
         err_type = type(err).__name__
-        self.update_review(status="error")
 
-        # write error to file if label method is prior (first iteration)
-        if save_error_message:
-            message = {
-                "message": f"{err_type}: {err}",
-                "type": f"{err_type}",
-                "datetime": str(datetime.now()),
-            }
+        with open(
+            Path(self.project_path, "reviews", review_id, "error.json"), "w"
+        ) as f:
+            json.dump(
+                {
+                    "message": f"{err_type}: {err}",
+                    "type": f"{err_type}",
+                    "datetime": str(datetime.now()),
+                },
+                f,
+            )
 
-            with open(Path(self.project_path, "error.json"), "w") as f:
-                json.dump(message, f)
+    def remove_review_error(self, review_id=None):
+        if review_id is None:
+            review_id = self.config["reviews"][0]["id"]
 
-    def remove_error(self, status):
-        error_path = self.project_path / "error.json"
+        error_path = self.project_path / "reviews" / review_id / "error.json"
         if error_path.exists():
             try:
                 os.remove(error_path)
             except Exception as err:
                 raise ValueError(f"Failed to clear the error. {err}")
-        self.update_review(status=status)

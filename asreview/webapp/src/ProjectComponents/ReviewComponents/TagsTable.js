@@ -5,101 +5,56 @@ import {
   Checkbox,
   FormGroup,
   FormControlLabel,
-  Card,
-  CardContent,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import "./ReviewPage.css";
 
-const PREFIX = "TagsTable";
-
-const classes = {
-  groupCard: `${PREFIX}-groupCard`,
-  title: `${PREFIX}-title`,
-};
-
-const Root = styled("div")(({ theme }) => ({
-  display: "flex",
-  flex: "1 0 auto",
-  margin: "auto",
-  maxWidth: 960,
-  padding: "108px 0px 32px 0px",
-  height: "100%",
-
-  [`& .${classes.groupCard}`]: {
-    borderRadius: 16,
-    marginBottom: "16px",
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
-  },
-
-  [`& .${classes.title}`]: {
-    lineHeight: 1.2,
-  },
-}));
-
-const TagsTable = (props) => {
-  const removeProperty = (propKey, { [propKey]: propValue, ...rest }) => rest;
-
-  const getTagCompositeId = (groupId, tagId) => `${groupId}:${tagId}`;
+const TagsTable = ({
+  tagsForm,
+  setTagValues,
+  tagValues = null,
+  disabled = false,
+}) => {
+  console.log(tagValues);
 
   const handleTagValueChange = (isChecked, groupId, tagId) => {
-    let tagValues;
+    let groupI = tagValues.findIndex((group) => group.id === groupId);
+    let tagI = tagValues[groupI].values.findIndex((tag) => tag.id === tagId);
 
-    if (isChecked) {
-      tagValues = {
-        ...props.tagValues,
-        [getTagCompositeId(groupId, tagId)]: true,
-      };
-    } else {
-      tagValues = removeProperty(
-        getTagCompositeId(groupId, tagId),
-        props.tagValues,
-      );
-    }
+    let tagValuesCopy = tagValues;
+    tagValuesCopy[groupI].values[tagI]["checked"] = isChecked;
 
-    console.log(tagValues);
-
-    props.setTagValues(tagValues);
-  };
-
-  const isChecked = (groupId, tagId) => {
-    return props.tagValues.hasOwnProperty(getTagCompositeId(groupId, tagId));
+    setTagValues(tagValuesCopy);
   };
 
   return (
-    <Root>
-      <Box>
-        {props.tags.map((group) => (
-          <Card elevation={2} className={classes.groupCard} key={group.id}>
-            <CardContent>
-              <Typography variant="h6">{group.name}</Typography>
-              <FormGroup row={true}>
-                {group.values.map((tag) => (
-                  <FormControlLabel
-                    key={getTagCompositeId(group.id, tag.id)}
-                    control={
-                      <Checkbox
-                        checked={isChecked(group.id, tag.id)}
-                        onChange={(e) => {
-                          handleTagValueChange(
-                            e.target.checked,
-                            group.id,
-                            tag.id,
-                          );
-                        }}
-                      />
-                    }
-                    label={tag.name}
-                  />
-                ))}
-              </FormGroup>
-            </CardContent>
-          </Card>
+    <>
+      {tagsForm &&
+        tagsForm.map((group, i) => (
+          <Box key={group.id}>
+            <Typography variant="h6">{group.name}</Typography>
+            <FormGroup row={true}>
+              {group.values.map((tag, j) => (
+                <FormControlLabel
+                  key={`${group.id}:${tag.id}`}
+                  control={
+                    <Checkbox
+                      checked={tagValues[i]?.values[j]?.checked}
+                      onChange={(e) => {
+                        handleTagValueChange(
+                          e.target.checked,
+                          group.id,
+                          tag.id,
+                        );
+                      }}
+                      disabled={disabled}
+                    />
+                  }
+                  label={tag.name}
+                />
+              ))}
+            </FormGroup>
+          </Box>
         ))}
-      </Box>
-    </Root>
+    </>
   );
 };
 
