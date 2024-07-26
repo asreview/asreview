@@ -4,4 +4,4 @@ export { default as ProgressChart } from "./ProgressChart";
 export { default as ProgressDensityChart } from "./ProgressDensityChart";
 export { default as ProgressRecallChart } from "./ProgressRecallChart";
 export { default as ShareFabAction } from "./ShareFabAction";
-export { default as HistoryBar } from './HistoryBar';
+export { default as HistoryBar } from "./HistoryBar";

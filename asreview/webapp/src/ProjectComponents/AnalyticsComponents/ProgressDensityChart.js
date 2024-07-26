@@ -293,40 +293,43 @@ export default function ProgressDensityChart(props) {
     const downloadFileName = `chart.${format}`;
 
     switch (format) {
-      case 'png':
+      case "png":
         toPng(node)
           .then((dataUrl) => {
-            const link = document.createElement('a');
+            const link = document.createElement("a");
             link.download = downloadFileName;
             link.href = dataUrl;
             link.click();
           })
           .catch((error) => {
-            console.error('oops, something went wrong!', error);
+            console.error("oops, something went wrong!", error);
           });
         break;
-      case 'jpeg':
-        toJpeg(node, { quality: 1, backgroundColor: theme.palette.background.paper })
+      case "jpeg":
+        toJpeg(node, {
+          quality: 1,
+          backgroundColor: theme.palette.background.paper,
+        })
           .then((dataUrl) => {
-            const link = document.createElement('a');
+            const link = document.createElement("a");
             link.download = downloadFileName;
             link.href = dataUrl;
             link.click();
           })
           .catch((error) => {
-            console.error('oops, something went wrong!', error);
+            console.error("oops, something went wrong!", error);
           });
         break;
-      case 'svg':
+      case "svg":
         toSvg(node)
           .then((dataUrl) => {
-            const link = document.createElement('a');
+            const link = document.createElement("a");
             link.download = downloadFileName;
             link.href = dataUrl;
             link.click();
           })
           .catch((error) => {
-            console.error('oops, something went wrong!', error);
+            console.error("oops, something went wrong!", error);
           });
         break;
       default:
@@ -343,12 +346,19 @@ export default function ProgressDensityChart(props) {
       />
       <CardContent className={classes.root}>
         <Stack spacing={2}>
-          <Box className={classes.title} sx={{ justifyContent: "space-between" }}>
+          <Box
+            className={classes.title}
+            sx={{ justifyContent: "space-between" }}
+          >
             {!props.mobileScreen && (
-              <Typography variant="h6">Relevant Labels in Last 10 Reviews</Typography>
+              <Typography variant="h6">
+                Relevant Labels in Last 10 Reviews
+              </Typography>
             )}
             {props.mobileScreen && (
-              <TypographySubtitle1Medium>Relevant Labels in Last 10 Reviews</TypographySubtitle1Medium>
+              <TypographySubtitle1Medium>
+                Relevant Labels in Last 10 Reviews
+              </TypographySubtitle1Medium>
             )}
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <StyledTooltip
@@ -394,8 +404,8 @@ export default function ProgressDensityChart(props) {
                                   sx={{ color: "text.secondary" }}
                                 >
                                   Relevant records do not appear. Refer to your
-                                  stopping rule to decide if you want to continue
-                                  reviewing.
+                                  stopping rule to decide if you want to
+                                  continue reviewing.
                                 </Typography>
                               </Box>
                             </Stack>
@@ -419,9 +429,15 @@ export default function ProgressDensityChart(props) {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
-                <MenuItem onClick={() => handleDownload('png')}>Download as PNG</MenuItem>
-                <MenuItem onClick={() => handleDownload('jpeg')}>Download as JPEG</MenuItem>
-                <MenuItem onClick={() => handleDownload('svg')}>Download as SVG</MenuItem>
+                <MenuItem onClick={() => handleDownload("png")}>
+                  Download as PNG
+                </MenuItem>
+                <MenuItem onClick={() => handleDownload("jpeg")}>
+                  Download as JPEG
+                </MenuItem>
+                <MenuItem onClick={() => handleDownload("svg")}>
+                  Download as SVG
+                </MenuItem>
               </Menu>
             </Box>
           </Box>

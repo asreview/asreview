@@ -1,6 +1,15 @@
 import React, { useRef, useState } from "react";
 import Chart from "react-apexcharts";
-import { Card, CardContent, Skeleton, Stack, Typography, IconButton, Menu, MenuItem } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  Skeleton,
+  Stack,
+  Typography,
+  IconButton,
+  Menu,
+  MenuItem,
+} from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 import GetAppIcon from "@mui/icons-material/GetApp";
 import { toPng, toJpeg, toSvg } from "html-to-image";
@@ -313,40 +322,43 @@ export default function ProgressRecallChart(props) {
     const downloadFileName = `chart.${format}`;
 
     switch (format) {
-      case 'png':
+      case "png":
         toPng(node)
           .then((dataUrl) => {
-            const link = document.createElement('a');
+            const link = document.createElement("a");
             link.download = downloadFileName;
             link.href = dataUrl;
             link.click();
           })
           .catch((error) => {
-            console.error('oops, something went wrong!', error);
+            console.error("oops, something went wrong!", error);
           });
         break;
-      case 'jpeg':
-        toJpeg(node, { quality: 1, backgroundColor: theme.palette.background.paper })
+      case "jpeg":
+        toJpeg(node, {
+          quality: 1,
+          backgroundColor: theme.palette.background.paper,
+        })
           .then((dataUrl) => {
-            const link = document.createElement('a');
+            const link = document.createElement("a");
             link.download = downloadFileName;
             link.href = dataUrl;
             link.click();
           })
           .catch((error) => {
-            console.error('oops, something went wrong!', error);
+            console.error("oops, something went wrong!", error);
           });
         break;
-      case 'svg':
+      case "svg":
         toSvg(node)
           .then((dataUrl) => {
-            const link = document.createElement('a');
+            const link = document.createElement("a");
             link.download = downloadFileName;
             link.href = dataUrl;
             link.click();
           })
           .catch((error) => {
-            console.error('oops, something went wrong!', error);
+            console.error("oops, something went wrong!", error);
           });
         break;
       default:
@@ -363,8 +375,14 @@ export default function ProgressRecallChart(props) {
       />
       <CardContent className={classes.root}>
         <Stack spacing={2}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
-            {!props.mobileScreen && <Typography variant="h6">Recall</Typography>}
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            {!props.mobileScreen && (
+              <Typography variant="h6">Recall</Typography>
+            )}
             {props.mobileScreen && (
               <TypographySubtitle1Medium>Recall</TypographySubtitle1Medium>
             )}
@@ -376,9 +394,15 @@ export default function ProgressRecallChart(props) {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={() => handleDownload('png')}>Download as PNG</MenuItem>
-              <MenuItem onClick={() => handleDownload('jpeg')}>Download as JPEG</MenuItem>
-              <MenuItem onClick={() => handleDownload('svg')}>Download as SVG</MenuItem>
+              <MenuItem onClick={() => handleDownload("png")}>
+                Download as PNG
+              </MenuItem>
+              <MenuItem onClick={() => handleDownload("jpeg")}>
+                Download as JPEG
+              </MenuItem>
+              <MenuItem onClick={() => handleDownload("svg")}>
+                Download as SVG
+              </MenuItem>
             </Menu>
           </Stack>
           {props.progressRecallQuery.isLoading ? (
