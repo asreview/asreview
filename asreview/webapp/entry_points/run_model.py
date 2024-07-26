@@ -72,12 +72,15 @@ def _run_model_start(project):
                 .fillna(LABEL_NA)
             )
 
-            balance_model = load_extension(
-                "models.balance", settings.balance_strategy
-            )()
-            X_train, y_train = balance_model.sample(
-                fm, y_input, labeled["record_id"].values
-            )
+            if settings.balance_strategy is not None:
+                balance_model = load_extension(
+                    "models.balance", settings.balance_strategy
+                )()
+                X_train, y_train = balance_model.sample(
+                    fm, y_input, labeled["record_id"].values
+                )
+            else:
+                X_train, y_train = fm, y_input
 
             classifier = load_extension("models.classifiers", settings.classifier)()
             classifier.fit(X_train, y_train)
@@ -131,12 +134,17 @@ def _simulate_start(project):
     )
     project.add_feature_matrix(fm, feature_model)
 
+    if settings.balance_strategy is not None:
+        balance_model = load_extension("models.balance", settings.balance_strategy)()
+    else:
+        balance_model = None
+
     sim = Simulate(
         fm,
         labels=as_data.labels,
         classifier=load_extension("models.classifiers", settings.classifier)(),
         query_strategy=load_extension("models.query", settings.query_strategy)(),
-        balance_strategy=load_extension("models.balance", settings.balance_strategy)(),
+        balance_strategy=balance_model,
         feature_extraction=feature_model,
     )
     try:

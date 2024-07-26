@@ -14,13 +14,11 @@
 
 __all__ = [
     "DoubleBalance",
-    "SimpleBalance",
     "TripleBalance",
     "UndersampleBalance",
 ]
 
 from asreview.models.balance.double import DoubleBalance
-from asreview.models.balance.simple import SimpleBalance
 from asreview.models.balance.triple import TripleBalance
 from asreview.models.balance.undersample import UndersampleBalance
 

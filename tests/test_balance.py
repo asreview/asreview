@@ -32,7 +32,6 @@ def check_partition(X, y, X_partition, y_partition, train_idx):
     "balance_strategy",
     [
         "undersample",
-        "simple",
         "double",
     ],
 )

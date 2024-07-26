@@ -21,7 +21,6 @@ import numpy as np
 from sklearn.utils import check_random_state
 
 from asreview.models.balance.base import BaseBalance
-from asreview.models.balance.simple import SimpleBalance
 
 
 class DoubleBalance(BaseBalance):
@@ -60,7 +59,6 @@ class DoubleBalance(BaseBalance):
         self.alpha = alpha
         self.b = b
         self.beta = beta
-        self.fallback_model = SimpleBalance()
         self._random_state = random_state
 
     def sample(self, X, y, train_idx):
@@ -83,10 +81,6 @@ class DoubleBalance(BaseBalance):
         # Get inclusions and exclusions
         one_idx = train_idx[np.where(y[train_idx] == 1)]
         zero_idx = train_idx[np.where(y[train_idx] == 0)]
-
-        # Fall back to simple sampling if we have only ones or zeroes.
-        if len(one_idx) == 0 or len(zero_idx) == 0:
-            self.fallback_model.sample(X, y, train_idx)
 
         n_one = len(one_idx)
         n_zero = len(zero_idx)
