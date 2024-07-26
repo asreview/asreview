@@ -1,164 +1,109 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Chart from "react-apexcharts";
-import { Card, CardContent, Skeleton } from "@mui/material";
+import { Card, CardContent, Typography, Box, Skeleton } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 import { projectModes } from "globals.js";
 
-const PREFIX = "ProgressChart";
-
-const classes = {
-  root: `${PREFIX}-root`,
-};
-
 const StyledCard = styled(Card)(({ theme }) => ({
   borderRadius: 16,
-  maxWidth: 960,
+  maxWidth: 800, // Reduced from 960
   overflow: "visible",
   width: "100%",
-  [`& .${classes.root}`]: {
-    paddingTop: 24,
-    paddingLeft: 32,
-    paddingRight: 32,
-  },
+  padding: theme.spacing(2), // Reduced from 3
 }));
 
-export default function ProgressChart(props) {
+export default function ModernProgressChart({
+  progressQuery,
+  mode,
+  isSimulating,
+  includePriorKnowledge,
+  mobileScreen,
+}) {
   const theme = useTheme();
 
-  const n_included = props.progressQuery.data
-    ? props.progressQuery.data["n_included"]
-    : null;
-  const n_excluded = props.progressQuery.data
-    ? props.progressQuery.data["n_excluded"]
-    : null;
-  const n_papers = props.progressQuery.data
-    ? props.progressQuery.data["n_papers"]
-    : null;
-  const n_included_no_priors = props.progressQuery.data
-    ? props.progressQuery.data["n_included_no_priors"]
-    : null;
-  const n_excluded_no_priors = props.progressQuery.data
-    ? props.progressQuery.data["n_excluded_no_priors"]
-    : null;
+  const {
+    n_included,
+    n_excluded,
+    n_papers,
+    n_included_no_priors,
+    n_excluded_no_priors,
+  } = useMemo(
+    () => ({
+      n_included: progressQuery.data?.n_included ?? 0,
+      n_excluded: progressQuery.data?.n_excluded ?? 0,
+      n_papers: progressQuery.data?.n_papers ?? 0,
+      n_included_no_priors: progressQuery.data?.n_included_no_priors ?? 0,
+      n_excluded_no_priors: progressQuery.data?.n_excluded_no_priors ?? 0,
+    }),
+    [progressQuery.data],
+  );
 
-  const formattedTotal = React.useCallback(() => {
-    if (props.mode !== projectModes.SIMULATION || !props.isSimulating) {
-      return n_papers ? n_papers.toLocaleString("en-US") : 0;
+  const formattedTotal = useMemo(() => {
+    if (mode !== projectModes.SIMULATION || !isSimulating) {
+      return n_papers.toLocaleString("en-US");
     } else {
-      return (
-        Math.round(((n_included + n_excluded) / n_papers) * 10000) / 100 + "%"
-      );
+      return `${
+        Math.round(((n_included + n_excluded) / n_papers) * 10000) / 100
+      }%`;
     }
-  }, [props.isSimulating, props.mode, n_included, n_excluded, n_papers]);
+  }, [isSimulating, mode, n_included, n_excluded, n_papers]);
 
-  /**
-   * Chart data array
-   */
-  const seriesArray = React.useCallback(() => {
-    if (props.includePriorKnowledge) {
-      return [
-        Math.round(((n_included + n_excluded) / n_papers) * 10000) / 100,
-        Math.round((n_included / n_papers) * 10000) / 100,
-      ];
-    } else {
-      return [
-        Math.round(
-          ((n_included_no_priors + n_excluded_no_priors) / n_papers) * 10000,
-        ) / 100,
-        Math.round((n_included_no_priors / n_papers) * 10000) / 100,
-      ];
-    }
+  const series = useMemo(() => {
+    const relevant = includePriorKnowledge ? n_included : n_included_no_priors;
+    const irrelevant = includePriorKnowledge
+      ? n_excluded
+      : n_excluded_no_priors;
+    const unlabeled = n_papers - relevant - irrelevant;
+    return [relevant, irrelevant, unlabeled];
   }, [
     n_included,
     n_excluded,
     n_papers,
-    props.includePriorKnowledge,
+    includePriorKnowledge,
     n_included_no_priors,
     n_excluded_no_priors,
   ]);
 
-  /**
-   * Chart options
-   */
-  const optionsChart = React.useCallback(() => {
-    return {
+  const options = useMemo(
+    () => ({
       chart: {
-        animations: {
-          enabled: false,
-        },
+        animations: { enabled: false },
         background: "transparent",
-        id: "ASReviewLABprogressChart",
-        type: "radialBar",
+        type: "donut",
       },
       plotOptions: {
-        radialBar: {
-          hollow: {
-            margin: 15,
-            size: "60%",
-          },
-          dataLabels: {
-            name: {
-              fontSize: "22px",
-            },
-            value: {
-              fontSize: !props.mobileScreen
-                ? theme.typography.h5.fontSize
-                : theme.typography.h6.fontSize,
-              fontFamily: !props.mobileScreen
-                ? theme.typography.h5.fontFamily
-                : theme.typography.h6.fontFamily,
-              fontWeight: theme.typography.fontWeightBold,
-            },
-            total: {
+        pie: {
+          donut: {
+            size: "75%",
+            labels: {
               show: true,
-              label:
-                props.mode !== projectModes.SIMULATION || !props.isSimulating
-                  ? "Total records"
-                  : "Simulation progress",
-              fontSize: !props.mobileScreen
-                ? theme.typography.subtitle1.fontSize
-                : theme.typography.subtitle2.fontSize,
-              fontFamily: !props.mobileScreen
-                ? theme.typography.subtitle1.fontFamily
-                : theme.typography.subtitle2.fontFamily,
-              color: theme.palette.text.secondary,
-              formatter: formattedTotal,
+              name: {
+                show: false, // Hide labels by default
+              },
+              value: {
+                show: false, // Hide values by default
+              },
+              total: {
+                show: true,
+                label: "Total",
+                fontSize: mobileScreen ? "14px" : "16px",
+                fontFamily: theme.typography.fontFamily,
+                color: theme.palette.text.primary,
+                formatter: () => formattedTotal,
+              },
             },
           },
         },
       },
-      colors: props.includePriorKnowledge
-        ? [
-            theme.palette.mode === "light"
-              ? theme.palette.secondary.light
-              : theme.palette.secondary.main,
-            theme.palette.mode === "light"
-              ? theme.palette.primary.light
-              : theme.palette.primary.main,
-            theme.palette.mode === "light"
-              ? theme.palette.warning.light
-              : theme.palette.warning.main,
-          ]
-        : [
-            theme.palette.mode === "light"
-              ? theme.palette.secondary.light
-              : theme.palette.secondary.main,
-            theme.palette.mode === "light"
-              ? theme.palette.warning.light
-              : theme.palette.warning.main,
-          ],
-      dataLabels: {
-        enabled: false,
+      labels: ["Relevant", "Irrelevant", "Unlabeled"],
+      colors: ["#FFD700", "#808080", theme.palette.background.paper],
+      stroke: {
+        width: 0,
       },
-      labels: props.includePriorKnowledge
-        ? ["Labeled", "Relevant"]
-        : ["Labeled", "Relevant"],
       legend: {
-        show: true,
         position: "bottom",
-        fontSize: !props.mobileScreen ? "14px" : "12px",
-        fontFamily: theme.typography.subtitle2.fontFamily,
-        fontWeight: theme.typography.subtitle2.fontWeight,
+        fontSize: mobileScreen ? "11px" : "13px",
+        fontFamily: theme.typography.fontFamily,
         labels: {
           colors: theme.palette.text.secondary,
         },
@@ -168,69 +113,64 @@ export default function ProgressChart(props) {
           offsetX: -4,
         },
         itemMargin: {
-          horizontal: 16,
+          horizontal: 12,
         },
       },
-      fill: {
-        type: "gradient",
-        gradient: {
-          shade: "light",
-          type: "horizontal",
-          shadeIntensity: 0,
-          inverseColors: true,
-          opacityFrom: 0.7,
-          opacityTo: 0.9,
-          stops: [0, 100],
+      tooltip: {
+        enabled: true,
+        y: {
+          formatter: (val) => `${val} (${Math.round((val / n_papers) * 100)}%)`,
         },
-      },
-      markers: {
-        size: 0,
-      },
-      noData: {
-        text: "No data available",
-      },
-      stroke: {
-        lineCap: "round",
       },
       theme: {
         mode: theme.palette.mode,
       },
-    };
-  }, [
-    theme,
-    formattedTotal,
-    props.mobileScreen,
-    props.mode,
-    props.isSimulating,
-    props.includePriorKnowledge,
-  ]);
-
-  const [series, setSeries] = React.useState(seriesArray());
-  const [options, setOptions] = React.useState({});
-
-  React.useEffect(() => {
-    setSeries(seriesArray());
-    setOptions(optionsChart());
-  }, [seriesArray, optionsChart]);
+      dataLabels: {
+        enabled: false, // Disable data labels to prevent overlap
+      },
+      states: {
+        hover: {
+          filter: {
+            type: "none", // Disable hover effect
+          },
+        },
+      },
+    }),
+    [theme, mobileScreen, formattedTotal, n_papers],
+  );
 
   return (
     <StyledCard elevation={2}>
-      <CardContent className={classes.root}>
-        {props.progressQuery.isLoading ? (
+      <CardContent>
+        <Typography
+          variant={mobileScreen ? "subtitle1" : "h6"}
+          gutterBottom
+          align="center"
+        >
+          Review Progress
+        </Typography>
+        {progressQuery.isLoading ? (
           <Skeleton
             variant="circular"
-            width={300}
-            height={300}
+            width={240}
+            height={240}
             style={{ margin: "auto" }}
           />
         ) : (
-          <Chart
-            options={options}
-            series={series}
-            type="radialBar"
-            height={300}
-            width={300}
-          />
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            flexDirection="column"
+          >
+            <Chart
+              options={options}
+              series={series}
+              type="donut"
+              height={300}
+              width={300}
+            />
+          </Box>
         )}
       </CardContent>
     </StyledCard>
