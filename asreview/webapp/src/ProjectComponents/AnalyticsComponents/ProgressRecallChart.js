@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import Chart from "react-apexcharts";
-import { Card, CardContent, Skeleton, Stack, Typography } from "@mui/material";
+import { Card, CardContent, Skeleton, Stack, Typography, IconButton, Menu, MenuItem } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
+import GetAppIcon from "@mui/icons-material/GetApp";
+import { toPng, toJpeg, toSvg } from "html-to-image";
 
 import { CardErrorHandler } from "Components";
 import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
@@ -138,6 +140,7 @@ const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
 
 export default function ProgressRecallChart(props) {
   const theme = useTheme();
+  const chartRef = useRef(null);
 
   const lightModePrimaryColor = React.useCallback(() => {
     return theme.palette.mode === "light"
@@ -201,7 +204,7 @@ export default function ProgressRecallChart(props) {
         id: "ASReviewLABprogressRecall",
         type: "line",
         toolbar: {
-          show: !props.mobileScreen,
+          show: false, // Hide the toolbar, it's replaced by the download button
         },
         zoom: {
           enabled: false,
@@ -288,11 +291,68 @@ export default function ProgressRecallChart(props) {
 
   const [series, setSeries] = React.useState(seriesArray());
   const [options, setOptions] = React.useState(optionsChart());
+  const [anchorEl, setAnchorEl] = useState(null);
 
   React.useEffect(() => {
     setSeries(seriesArray());
     setOptions(optionsChart());
   }, [seriesArray, optionsChart]);
+
+  const handleDownloadClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDownload = (format) => {
+    setAnchorEl(null);
+
+    const node = chartRef.current.querySelector(".apexcharts-canvas");
+    const downloadFileName = `chart.${format}`;
+
+    switch (format) {
+      case 'png':
+        toPng(node)
+          .then((dataUrl) => {
+            const link = document.createElement('a');
+            link.download = downloadFileName;
+            link.href = dataUrl;
+            link.click();
+          })
+          .catch((error) => {
+            console.error('oops, something went wrong!', error);
+          });
+        break;
+      case 'jpeg':
+        toJpeg(node, { quality: 1, backgroundColor: theme.palette.background.paper })
+          .then((dataUrl) => {
+            const link = document.createElement('a');
+            link.download = downloadFileName;
+            link.href = dataUrl;
+            link.click();
+          })
+          .catch((error) => {
+            console.error('oops, something went wrong!', error);
+          });
+        break;
+      case 'svg':
+        toSvg(node)
+          .then((dataUrl) => {
+            const link = document.createElement('a');
+            link.download = downloadFileName;
+            link.href = dataUrl;
+            link.click();
+          })
+          .catch((error) => {
+            console.error('oops, something went wrong!', error);
+          });
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <StyledCard elevation={2}>
@@ -303,20 +363,36 @@ export default function ProgressRecallChart(props) {
       />
       <CardContent className={classes.root}>
         <Stack spacing={2}>
-          {!props.mobileScreen && <Typography variant="h6">Recall</Typography>}
-          {props.mobileScreen && (
-            <TypographySubtitle1Medium>Recall</TypographySubtitle1Medium>
-          )}
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
+            {!props.mobileScreen && <Typography variant="h6">Recall</Typography>}
+            {props.mobileScreen && (
+              <TypographySubtitle1Medium>Recall</TypographySubtitle1Medium>
+            )}
+            <IconButton onClick={handleDownloadClick}>
+              <GetAppIcon />
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
+            >
+              <MenuItem onClick={() => handleDownload('png')}>Download as PNG</MenuItem>
+              <MenuItem onClick={() => handleDownload('jpeg')}>Download as JPEG</MenuItem>
+              <MenuItem onClick={() => handleDownload('svg')}>Download as SVG</MenuItem>
+            </Menu>
+          </Stack>
           {props.progressRecallQuery.isLoading ? (
             <Skeleton variant="rectangular" height={400} width="100%" />
           ) : (
-            <Chart
-              options={options}
-              series={series}
-              type="line"
-              height={400}
-              width="100%"
-            />
+            <div ref={chartRef}>
+              <Chart
+                options={options}
+                series={series}
+                type="line"
+                height={400}
+                width="100%"
+              />
+            </div>
           )}
         </Stack>
       </CardContent>

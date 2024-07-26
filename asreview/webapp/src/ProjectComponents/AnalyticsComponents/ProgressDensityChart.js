@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import Chart from "react-apexcharts";
 import {
   Box,
@@ -9,9 +9,14 @@ import {
   Tooltip,
   tooltipClasses,
   Typography,
+  IconButton,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 import { HelpOutline } from "@mui/icons-material";
+import GetAppIcon from "@mui/icons-material/GetApp";
+import { toPng, toJpeg, toSvg } from "html-to-image";
 
 import { CardErrorHandler } from "Components";
 import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
@@ -131,6 +136,8 @@ const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
 
 export default function ProgressDensityChart(props) {
   const theme = useTheme();
+  const chartRef = useRef(null);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const returnTooltipRelevantImg = () => {
     if (theme.palette.mode === "light") {
@@ -180,7 +187,7 @@ export default function ProgressDensityChart(props) {
         type: "area",
         stacked: true,
         toolbar: {
-          show: !props.mobileScreen,
+          show: false, // Hide the toolbar, it's replaced by the download button
         },
       },
       colors: [
@@ -238,7 +245,7 @@ export default function ProgressDensityChart(props) {
       xaxis: {
         decimalsInFloat: 0,
         title: {
-          text: "Number of reviewed records",
+          text: "Records Reviewed",
         },
         type: "numeric",
         labels: {
@@ -257,7 +264,7 @@ export default function ProgressDensityChart(props) {
         min: 0,
         tickAmount: 5,
         title: {
-          text: "Number of relevant records",
+          text: "Relevant Records",
         },
       },
     };
@@ -271,6 +278,62 @@ export default function ProgressDensityChart(props) {
     setOptions(optionsChart());
   }, [seriesArray, optionsChart]);
 
+  const handleDownloadClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDownload = (format) => {
+    setAnchorEl(null);
+
+    const node = chartRef.current.querySelector(".apexcharts-canvas");
+    const downloadFileName = `chart.${format}`;
+
+    switch (format) {
+      case 'png':
+        toPng(node)
+          .then((dataUrl) => {
+            const link = document.createElement('a');
+            link.download = downloadFileName;
+            link.href = dataUrl;
+            link.click();
+          })
+          .catch((error) => {
+            console.error('oops, something went wrong!', error);
+          });
+        break;
+      case 'jpeg':
+        toJpeg(node, { quality: 1, backgroundColor: theme.palette.background.paper })
+          .then((dataUrl) => {
+            const link = document.createElement('a');
+            link.download = downloadFileName;
+            link.href = dataUrl;
+            link.click();
+          })
+          .catch((error) => {
+            console.error('oops, something went wrong!', error);
+          });
+        break;
+      case 'svg':
+        toSvg(node)
+          .then((dataUrl) => {
+            const link = document.createElement('a');
+            link.download = downloadFileName;
+            link.href = dataUrl;
+            link.click();
+          })
+          .catch((error) => {
+            console.error('oops, something went wrong!', error);
+          });
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <StyledCard elevation={2}>
       <CardErrorHandler
@@ -280,84 +343,100 @@ export default function ProgressDensityChart(props) {
       />
       <CardContent className={classes.root}>
         <Stack spacing={2}>
-          <Box className={classes.title}>
+          <Box className={classes.title} sx={{ justifyContent: "space-between" }}>
             {!props.mobileScreen && (
-              <Typography variant="h6">Progress</Typography>
+              <Typography variant="h6">Relevant Labels in Last 10 Reviews</Typography>
             )}
             {props.mobileScreen && (
-              <TypographySubtitle1Medium>Progress</TypographySubtitle1Medium>
+              <TypographySubtitle1Medium>Relevant Labels in Last 10 Reviews</TypographySubtitle1Medium>
             )}
-            <StyledTooltip
-              title={
-                <React.Fragment>
-                  <Card sx={{ backgroundImage: "none" }}>
-                    <CardContent>
-                      <Stack spacing={2}>
-                        <Box sx={{ display: "flex" }}>
-                          <Stack direction="row" spacing={2}>
-                            <img
-                              src={returnTooltipRelevantImg()}
-                              alt="tooltip relevant"
-                              className="tooltip-img"
-                            />
-                            <Box>
-                              <Typography variant="subtitle2">
-                                Presence of relevant records
-                              </Typography>
-                              <Typography
-                                variant="body2"
-                                sx={{ color: "text.secondary" }}
-                              >
-                                Relevant records still appear. Continue
-                                reviewing to discover more.
-                              </Typography>
-                            </Box>
-                          </Stack>
-                        </Box>
-                        <Box sx={{ display: "flex" }}>
-                          <Stack direction="row" spacing={2}>
-                            <img
-                              src={returnTooltipIrrelevantImg()}
-                              alt="tooltip irrelevant"
-                              className="tooltip-img"
-                            />
-                            <Box>
-                              <Typography variant="subtitle2">
-                                Irrelevant records only
-                              </Typography>
-                              <Typography
-                                variant="body2"
-                                sx={{ color: "text.secondary" }}
-                              >
-                                Relevant records do not appear. Refer to your
-                                stopping rule to decide if you want to continue
-                                reviewing.
-                              </Typography>
-                            </Box>
-                          </Stack>
-                        </Box>
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                </React.Fragment>
-              }
-            >
-              <HelpOutline
-                fontSize={!props.mobileScreen ? "small" : "12px"}
-                sx={{ color: "text.secondary", marginLeft: "8px" }}
-              />
-            </StyledTooltip>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <StyledTooltip
+                title={
+                  <React.Fragment>
+                    <Card sx={{ backgroundImage: "none" }}>
+                      <CardContent>
+                        <Stack spacing={2}>
+                          <Box sx={{ display: "flex" }}>
+                            <Stack direction="row" spacing={2}>
+                              <img
+                                src={returnTooltipRelevantImg()}
+                                alt="tooltip relevant"
+                                className="tooltip-img"
+                              />
+                              <Box>
+                                <Typography variant="subtitle2">
+                                  Presence of relevant records
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  sx={{ color: "text.secondary" }}
+                                >
+                                  Relevant records still appear. Continue
+                                  reviewing to discover more.
+                                </Typography>
+                              </Box>
+                            </Stack>
+                          </Box>
+                          <Box sx={{ display: "flex" }}>
+                            <Stack direction="row" spacing={2}>
+                              <img
+                                src={returnTooltipIrrelevantImg()}
+                                alt="tooltip irrelevant"
+                                className="tooltip-img"
+                              />
+                              <Box>
+                                <Typography variant="subtitle2">
+                                  Irrelevant records only
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  sx={{ color: "text.secondary" }}
+                                >
+                                  Relevant records do not appear. Refer to your
+                                  stopping rule to decide if you want to continue
+                                  reviewing.
+                                </Typography>
+                              </Box>
+                            </Stack>
+                          </Box>
+                        </Stack>
+                      </CardContent>
+                    </Card>
+                  </React.Fragment>
+                }
+              >
+                <HelpOutline
+                  fontSize={!props.mobileScreen ? "small" : "12px"}
+                  sx={{ color: "text.secondary", marginRight: "8px" }}
+                />
+              </StyledTooltip>
+              <IconButton onClick={handleDownloadClick}>
+                <GetAppIcon />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                <MenuItem onClick={() => handleDownload('png')}>Download as PNG</MenuItem>
+                <MenuItem onClick={() => handleDownload('jpeg')}>Download as JPEG</MenuItem>
+                <MenuItem onClick={() => handleDownload('svg')}>Download as SVG</MenuItem>
+              </Menu>
+            </Box>
           </Box>
           {props.progressDensityQuery.isLoading ? (
             <Skeleton variant="rectangular" height={230} width="100%" />
           ) : (
-            <Chart
-              options={options}
-              series={series}
-              type="area"
-              height={230}
-              width="100%"
-            />
+            <div ref={chartRef}>
+              <Chart
+                options={options}
+                series={series}
+                type="area"
+                height={230}
+                width="100%"
+              />
+            </div>
           )}
         </Stack>
       </CardContent>

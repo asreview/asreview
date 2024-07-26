@@ -24,9 +24,9 @@ import { PageHeader } from "Components";
 import {
   NumberCard,
   ShareFabAction,
-  ProgressChart,
   ProgressDensityChart,
   ProgressRecallChart,
+  HistoryBar,
 } from "ProjectComponents/AnalyticsComponents";
 import { ProjectAPI } from "api";
 import { projectModes } from "globals.js";
@@ -83,6 +83,19 @@ const AnalyticsPage = (props) => {
         includePrior: includePriorKnowledge,
       }),
     { refetchOnWindowFocus: false },
+  );
+
+  const labelingChronologyQuery = useQuery(
+    [
+      "fetchLabelingChronology",
+      { project_id, includePrior: includePriorKnowledge },
+    ],
+    ({ queryKey }) =>
+      ProjectAPI.fetchLabelingChronology({
+        queryKey,
+        includePrior: includePriorKnowledge,
+      }),
+    { refetchOnWindowFocus: false }
   );
 
   const twitterRef = React.useRef(null);
@@ -250,25 +263,21 @@ const AnalyticsPage = (props) => {
           <Box className="main-page-body-wrapper">
             <Stack spacing={3} className="main-page-body">
               <Box>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} sm={5}>
-                    <ProgressChart
-                      isSimulating={props.isSimulating}
-                      mobileScreen={props.mobileScreen}
-                      mode={props.mode}
-                      progressQuery={progressQuery}
-                      includePriorKnowledge={includePriorKnowledge} // Pass the state as prop
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={7}>
                     <NumberCard
                       mobileScreen={props.mobileScreen}
                       progressQuery={progressQuery}
                       includePriorKnowledge={includePriorKnowledge} // Pass the state as prop
                     />
-                  </Grid>
-                </Grid>
               </Box>
+
+              <Grid item xs={12}>
+                <HistoryBar
+                  mobileScreen={props.mobileScreen}
+                  labelingChronologyQuery={labelingChronologyQuery}
+                  progressQuery={progressQuery}
+                />
+              </Grid>
+
               <ProgressDensityChart
                 mobileScreen={props.mobileScreen}
                 progressDensityQuery={progressDensityQuery}

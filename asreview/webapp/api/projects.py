@@ -1302,6 +1302,29 @@ def api_get_progress_recall(project):
 
     return jsonify(payload)
 
+@bp.route("/projects/<project_id>/labeling_chronology", methods=["GET"])
+@login_required
+@project_authorization
+def api_get_labeling_chronology(project):
+    """Get chronological labeling history of a project"""
+
+    include_priors = request.args.get("priors", False, type=bool)
+
+    with open_state(project.project_path) as s:
+        if (
+            project.config["reviews"][0]["status"] == "finished"
+            and project.config["mode"] == PROJECT_MODE_SIMULATE
+        ):
+            data = _get_labels(s, priors=include_priors)
+        else:
+            data = s.get_labels(priors=include_priors)
+
+    df = data.to_frame(name="Label").reset_index(drop=True)
+    df["x"] = df.index + 1
+
+    payload = df.to_dict(orient="records")
+
+    return jsonify(payload)
 
 @bp.route("/projects/<project_id>/record/<record_id>", methods=["POST", "PUT"])
 @login_required
