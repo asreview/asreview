@@ -1205,7 +1205,7 @@ def api_get_labeling_chronology(project):
         ):
             data = _get_labels(s, priors=include_priors)
         else:
-            data = s.get_labels(priors=include_priors)
+            data = s.get_results_table("label", priors=include_priors)["label"]
 
     df = data.to_frame(name="Label").reset_index(drop=True)
     df["x"] = df.index + 1
