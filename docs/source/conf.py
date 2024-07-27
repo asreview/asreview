@@ -123,6 +123,8 @@ html_theme = "pydata_sphinx_theme"
 # documentation.
 #
 
+html_favicon = "favicon.ico"
+
 html_theme_options = {
     "external_links": [
         {
@@ -146,13 +148,6 @@ html_theme_options = {
         "image_light": "https://raw.githubusercontent.com/asreview/asreview-artwork/master/LogoASReview/SVG/GitHub_Repo_Card_Transparent.svg",
         "image_dark": "https://raw.githubusercontent.com/asreview/asreview-artwork/master/LogoASReview/SVG/GitHub_Repo_Card_Transparent.svg",
     },
-    "favicons": [
-        {
-            "rel": "icon",
-            "sizes": "16x16",
-            "href": "https://github.com/asreview/asreview/blob/d8923df792eaee8d0997782e667c2340dc81ddfc/asreview/webapp/public/favicon.png?raw=true",
-        }
-    ],
     "announcement": "ASReview LAB 2.0 is now available! <a href='https://asreview.nl/download'>Try it out</a>.",
     "use_edit_page_button": True,
     "navbar_align": "left",

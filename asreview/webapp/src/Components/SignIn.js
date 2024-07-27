@@ -1,6 +1,13 @@
 import * as React from "react";
-import { useSelector } from "react-redux";
-import { Box, Card, CardContent, Fade, Stack, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Card,
+  CardContent,
+  Fade,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { HelpPrivacyTermsButton, SignInForm } from "Components";
@@ -51,12 +58,7 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const SignIn = () => {
-  const oAuthData = useSelector((state) => state.oAuthData);
-  const allowAccountCreation =
-    useSelector((state) => state.allow_account_creation) || false;
-  const emailConfig = useSelector((state) => state.email_config) || false;
-
+const SignIn = ({ allowAccountCreation, emailVerification, oAuthConfig }) => {
   return (
     <Root>
       <Fade in>
@@ -71,15 +73,21 @@ const SignIn = () => {
                     alt="ASReview LAB"
                   />
                   <Typography variant="h5">Sign in</Typography>
+
+                  {typeof window.loginInfo === "string" &&
+                    window.loginInfo.length > 0 && (
+                      <Alert severity="info">{window.loginInfo}</Alert>
+                    )}
                 </Stack>
                 <SignInForm
                   classes={classes}
                   allowAccountCreation={allowAccountCreation}
-                  emailConfig={emailConfig}
+                  emailVerification={emailVerification}
                 />
-                {Object.keys(oAuthData.services).length > 0 && (
-                  <SignInOAuth classes={classes} oAuthData={oAuthData} />
-                )}
+                {oAuthConfig?.services &&
+                  Object.keys(oAuthConfig.services).length > 0 && (
+                    <SignInOAuth classes={classes} oAuthConfig={oAuthConfig} />
+                  )}
               </Stack>
             </CardContent>
           </Card>

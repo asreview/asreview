@@ -44,41 +44,56 @@ from werkzeug.utils import secure_filename
 import asreview as asr
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_EXPLORE
+from asreview.config import PROJECT_MODE_ORACLE
 from asreview.config import PROJECT_MODE_SIMULATE
-from asreview.data import list_readers
-from asreview.data import list_writers
-from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
-from asreview.exceptions import BadFileFormatError
-from asreview.models.balance import get_balance_model
-from asreview.models.balance import list_balance_strategies
-from asreview.models.classifiers import get_classifier
-from asreview.models.classifiers import list_classifiers
-from asreview.models.feature_extraction import get_feature_model
-from asreview.models.feature_extraction import list_feature_extraction
-from asreview.models.query import get_query_model
-from asreview.models.query import list_query_strategies
+from asreview.extensions import extensions
+from asreview.project import ProjectError
 from asreview.project import ProjectNotFoundError
-from asreview.project import get_project_path
-from asreview.project import is_v0_project
+from asreview.project import is_project
 from asreview.search import fuzzy_find
-from asreview.settings import ASReviewSettings
+from asreview.settings import ReviewSettings
 from asreview.state.contextmanager import open_state
-from asreview.state.custom_metadata_mapper import extract_tags
-from asreview.state.custom_metadata_mapper import get_tag_composite_id
-from asreview.state.errors import StateError
-from asreview.state.errors import StateNotFoundError
-from asreview.state.utils import _fill_last_ranking
-from asreview.utils import _entry_points
+from asreview.state.exceptions import StateNotFoundError
+from asreview.statistics import n_duplicates
+from asreview.statistics import n_irrelevant
+from asreview.statistics import n_relevant
 from asreview.utils import _get_filename_from_url
-from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
 from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
-from asreview.webapp.entry_points.run_model import has_prior_knowledge
+from asreview.webapp.utils import asreview_path
+from asreview.webapp.utils import get_project_path
 
 bp = Blueprint("api", __name__, url_prefix="/api")
+
+
+def _fill_last_ranking(project, ranking):
+    """Fill the last ranking with a random or top-down ranking.
+
+    Arguments
+    ---------
+    project: asreview.Project
+        The project to fill the last ranking of.
+    ranking: str
+        The type of ranking to fill the last ranking with. Either "random" or
+        "top-down".
+    """
+
+    if ranking not in ["random", "top-down"]:
+        raise ValueError(f"Unknown ranking type: {ranking}")
+
+    as_data = project.read_data()
+    record_table = pd.Series(as_data.record_ids, name="record_id")
+
+    with open_state(project.project_path) as state:
+        if ranking == "random":
+            records = record_table.sample(frac=1)
+        elif ranking == "top-down":
+            records = record_table
+
+        state.add_last_ranking(records.values, None, ranking, None, None)
 
 
 # error handlers
@@ -145,9 +160,7 @@ def api_get_projects(projects):  # noqa: F401
         reverse=True,
     )
 
-    response = jsonify({"result": project_info})
-
-    return response
+    return jsonify({"result": project_info})
 
 
 @bp.route("/projects/stats", methods=["GET"])
@@ -236,7 +249,26 @@ def api_create_project():  # noqa: F401
     data_path = Path(project.project_path, "data") / filename
 
     try:
-        project.add_dataset(data_path.name)
+        as_data = project.add_dataset(data_path.name)
+        project.add_review()
+
+        with open_state(project.project_path) as state:
+            # if the data contains labels and oracle mode, add them to the state file
+            if (
+                project.config["mode"] == PROJECT_MODE_ORACLE
+                and as_data.labels is not None
+            ):
+                labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
+                labels = as_data.labels[labeled_indices].tolist()
+                labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
+
+                # add the labels as prior data
+                state.add_labeling_data(
+                    record_ids=labeled_record_ids,
+                    labels=labels,
+                    notes=[None for _ in labeled_record_ids],
+                    prior=True,
+                )
 
     except Exception as err:
         try:
@@ -256,41 +288,12 @@ def api_create_project():  # noqa: F401
     return jsonify(project.config), 201
 
 
-@bp.route("/projects/info", methods=["POST"])
-@login_required
-def api_init_project():  # noqa: F401
-    """Initialize a new project"""
-
-    project_mode = request.form["mode"]
-    project_title = request.form["mode"] + "_" + time.strftime("%Y%m%d-%H%M%S")
-    # TODO: retrieve author from the authenticated profile
-
-    # get a unique project id
-    project_id = uuid4().hex
-
-    project = asr.Project.create(
-        get_project_path(project_id),
-        project_id=project_id,
-        project_mode=project_mode,
-        project_name=project_title,
-    )
-
-    if current_app.config.get("LOGIN_DISABLED", False):
-        return jsonify(project.config), 201
-
-    # create a database entry for this project
-    current_user.projects.append(Project(project_id=project_id))
-    DB.session.commit()
-
-    return jsonify(project.config), 201
-
-
 @bp.route("/dataset_readers", methods=["GET"])
 @login_required
 def api_list_data_readers():
     """Get the list of available data readers and read formats."""
     payload = {"result": []}
-    for e in _entry_points(group="asreview.readers"):
+    for e in extensions("readers"):
         payload["result"].append({"extension": e.name})
     return jsonify(payload)
 
@@ -302,13 +305,11 @@ def api_upgrade_project_if_old(project):
     """Get upgrade project if it is v0.x"""
 
     if project.config["version"].startswith("0"):
-        response = jsonify(
+        return jsonify(
             message="Not possible to upgrade Version 0 projects, see LINK."
-        )
-        return response, 400
+        ), 400
 
-    response = jsonify({"success": True})
-    return response
+    return jsonify({"success": True})
 
 
 @bp.route("/projects/<project_id>/info", methods=["GET"])
@@ -396,7 +397,16 @@ def api_get_project_data(project):  # noqa: F401
 
         statistics = {
             "n_rows": len(as_data),
+            "n_relevant": n_relevant(as_data),
+            "n_irrelevant": n_irrelevant(as_data),
             "n_duplicates": n_duplicates(as_data),
+            "n_missing_title": int(
+                pd.Series(as_data.title).replace("", None).isnull().sum()
+            ),
+            "n_missing_abstract": int(
+                pd.Series(as_data.abstract).replace("", None).isnull().sum()
+            ),
+            "n_english": None,
             "filename": Path(project.config["dataset_path"]).stem,
         }
 
@@ -415,25 +425,27 @@ def api_list_dataset_writers(project):
 
     fp_data = Path(project.config["dataset_path"])
 
-    readers = list_readers()
-    writers = list_writers()
+    readers = extensions("readers")
+    writers = extensions("writers")
 
     # get write format for the data file
     write_format = None
     for c in readers:
-        if fp_data.suffix in c.read_format:
+        c_loaded = c.load()
+        if fp_data.suffix in c_loaded.read_format:
             if write_format is None:
-                write_format = c.write_format
+                write_format = c_loaded.write_format
 
     # get available writers
     payload = {"result": []}
     for c in writers:
+        c_loaded = c.load()
         payload["result"].append(
             {
-                "enabled": True if c.write_format in write_format else False,
-                "name": c.name,
-                "label": c.label,
-                "caution": c.caution if hasattr(c, "caution") else None,
+                "enabled": True if c_loaded.write_format in write_format else False,
+                "name": c_loaded.name,
+                "label": c_loaded.label,
+                "caution": c_loaded.caution if hasattr(c_loaded, "caution") else None,
             }
         )
 
@@ -467,7 +479,7 @@ def api_search_data(project):  # noqa: F401
     as_data = project.read_data()
 
     with open_state(project.project_path) as s:
-        labeled_record_ids = s.get_labeled()["record_id"].to_list()
+        labeled_record_ids = s.get_results_table()["record_id"].to_list()
 
     result_ids = fuzzy_find(
         as_data,
@@ -479,8 +491,8 @@ def api_search_data(project):  # noqa: F401
     result = []
     for record in as_data.record(result_ids):
         record_d = asdict(record)
-        record_d["included"] = -1
-        record_d["label_from_dataset"] = record.included
+        record_d["state"] = None
+        record_d["tags_form"] = project.config.get("tags", None)
         result.append(record_d)
 
     return jsonify({"result": result})
@@ -494,27 +506,25 @@ def api_get_labeled(project):  # noqa: F401
 
     page = request.args.get("page", default=None, type=int)
     per_page = request.args.get("per_page", default=20, type=int)
-    subset = request.args.getlist("subset")
+    subset = request.args.get("subset", default="all", type=str)
+    filters = request.args.getlist("filter", type=str)
     latest_first = request.args.get("latest_first", default=1, type=int)
 
     with open_state(project.project_path) as s:
-        state_data = s.get_dataset(
-            ["record_id", "label", "query_strategy", "notes", "custom_metadata_json"]
-        )
-        state_data["prior"] = (state_data["query_strategy"] == "prior").astype(int)
+        if "is_prior" in filters:
+            state_data = s.get_priors()
+        else:
+            state_data = s.get_results_table()
 
-    if any(s in subset for s in ["relevant", "included"]):
+    if subset == "relevant":
         state_data = state_data[state_data["label"] == 1]
-    elif any(s in subset for s in ["irrelevant", "excluded"]):
+    elif subset == "irrelevant":
         state_data = state_data[state_data["label"] == 0]
     else:
         state_data = state_data[~state_data["label"].isnull()]
 
-    if "note" in subset:
-        state_data = state_data[~state_data["notes"].isnull()]
-
-    if "prior" in subset:
-        state_data = state_data[state_data["prior"] == 1]
+    if "has_note" in filters:
+        state_data = state_data[~state_data["note"].isnull()]
 
     if latest_first == 1:
         state_data = state_data.iloc[::-1]
@@ -528,9 +538,7 @@ def api_get_labeled(project):  # noqa: F401
             "previous_page": None,
             "result": [],
         }
-        response = jsonify(payload)
-
-        return response
+        return jsonify(payload)
 
     max_page_calc = divmod(count, per_page)
     if max_page_calc[1] == 0:
@@ -564,17 +572,10 @@ def api_get_labeled(project):  # noqa: F401
     records = project.read_data().record(state_data["record_id"])
 
     result = []
-    for i, record in zip(state_data.index.tolist(), records):
-        # add variables from record
+    for (_, state), record in zip(state_data.iterrows(), records):
         record_d = asdict(record)
-        record_d["label_from_dataset"] = record.included
-
-        # add variables from state
-        record_d["included"] = int(state_data.loc[i, "label"])
-        record_d["note"] = state_data.loc[i, "notes"]
-        record_d["tags"] = extract_tags(state_data.loc[i, "custom_metadata_json"])
-        record_d["prior"] = int(state_data.loc[i, "prior"])
-
+        record_d["state"] = state.to_dict()
+        record_d["tags_form"] = project.config.get("tags", None)
         result.append(record_d)
 
     return jsonify(
@@ -593,19 +594,26 @@ def api_get_labeled(project):  # noqa: F401
 def api_get_labeled_stats(project):  # noqa: F401
     """Get all papers classified as prior documents"""
 
+    # Retrieve the include_priors parameter from the request's query.
+    include_priors = request.args.get("priors", True, type=bool)
+
     try:
         with open_state(project.project_path) as s:
-            data = s.get_dataset(["label", "query_strategy"])
-            data_prior = data[data["query_strategy"] == "prior"]
+            data = s.get_results_table(["label", "query_strategy"])
+            data_prior = data[data["query_strategy"].isnull()]
+
+            # If the 'include_priors' flag is set to False, filter out records that have a query strategy marked as prior.
+            if not include_priors:
+                data = data[data["query_strategy"] != "prior"]
 
         return jsonify(
             {
                 "n": len(data),
-                "n_inclusions": sum(data["label"] == 1),
-                "n_exclusions": sum(data["label"] == 0),
+                "n_inclusions": int(sum(data["label"] == 1)),
+                "n_exclusions": int(sum(data["label"] == 0)),
                 "n_prior": len(data_prior),
-                "n_prior_inclusions": sum(data_prior["label"] == 1),
-                "n_prior_exclusions": sum(data_prior["label"] == 0),
+                "n_prior_inclusions": int(sum(data_prior["label"] == 1)),
+                "n_prior_exclusions": int(sum(data_prior["label"] == 0)),
             }
         )
     except StateNotFoundError:
@@ -621,63 +629,16 @@ def api_get_labeled_stats(project):  # noqa: F401
         )
 
 
-@bp.route("/projects/<project_id>/prior_random", methods=["GET"])
-@login_required
-@project_authorization
-def api_random_prior_papers(project):  # noqa: F401
-    """Get a selection of random records.
-
-    This set of records is extracted from the pool, but without
-    the already labeled items.
-    """
-
-    n = request.args.get("n", default=5, type=int)
-    subset = request.args.get("subset", default=None, type=str)
-
-    if subset == "relevant":
-        label = 1
-    elif subset == "irrelevant":
-        label = 0
-    elif subset == "not_seen":
-        label = LABEL_NA
-    else:
-        label = None
-
-    as_data = project.read_data()
-
-    if subset in ["relevant", "irrelevant"] and as_data.labels is None:
-        indices = []
-    elif subset in ["relevant", "irrelevant", "not_seen"]:
-        indices = as_data.df[as_data.labels == label].index.values
-    else:
-        indices = as_data.df.index.values
-
-    with open_state(project.project_path) as state:
-        pool = state.get_pool().values
-
-    pool = np.intersect1d(pool, indices)
-    rand_pool = np.random.choice(pool, min(len(pool), n), replace=False)
-
-    payload = {"result": []}
-    for record in as_data.record(rand_pool):
-        record_d = asdict(record)
-        record_d["included"] = None
-        record_d["label_from_dataset"] = record.included
-        payload["result"].append(record_d)
-
-    return jsonify(payload)
-
-
 @bp.route("/algorithms", methods=["GET"])
 @login_required
 def api_list_algorithms():
     """List the names and labels of available algorithms"""
 
-    classes = [
-        list_balance_strategies(),
-        list_classifiers(),
-        list_feature_extraction(),
-        list_query_strategies(),
+    entry_points_per_submodel = [
+        extensions("models.balance"),
+        extensions("models.classifiers"),
+        extensions("models.feature_extraction"),
+        extensions("models.query"),
     ]
 
     payload = {
@@ -687,12 +648,18 @@ def api_list_algorithms():
         "query_strategy": [],
     }
 
-    for c, key in zip(classes, payload.keys()):
-        for method in c:
-            if hasattr(method, "label"):
-                payload[key].append({"name": method.name, "label": method.label})
+    for entry_points, key in zip(entry_points_per_submodel, payload.keys()):
+        for e in entry_points:
+            model_class = e.load()
+
+            if hasattr(model_class, "label"):
+                payload[key].append(
+                    {"name": model_class.name, "label": model_class.label}
+                )
             else:
-                payload[key].append({"name": method.name, "label": method.name})
+                payload[key].append(
+                    {"name": model_class.name, "label": model_class.name}
+                )
 
     return jsonify(payload)
 
@@ -703,28 +670,21 @@ def api_list_algorithms():
 def api_get_algorithms(project):  # noqa: F401
     """Get the algorithms used in the project"""
 
+    settings = ReviewSettings()
+
     try:
-        with open_state(project.project_path) as state:
-            if state.settings is not None:
-                return jsonify(
-                    {
-                        "classifier": state.settings.model,
-                        "feature_extraction": state.settings.feature_extraction,
-                        "query_strategy": state.settings.query_strategy,
-                        "balance_strategy": state.settings.balance_strategy,
-                    }
-                )
-    except StateNotFoundError:
+        settings = settings.from_file(
+            Path(
+                project.project_path,
+                "reviews",
+                project.reviews[0]["id"],
+                "settings_metadata.json",
+            )
+        )
+    except FileNotFoundError:
         pass
 
-    return jsonify(
-        {
-            "classifier": "nb",
-            "feature_extraction": "tfidf",
-            "query_strategy": "max",
-            "balance_strategy": "double",
-        }
-    )
+    return jsonify(asdict(settings))
 
 
 @bp.route("/projects/<project_id>/algorithms", methods=["POST", "PUT"])
@@ -732,35 +692,26 @@ def api_get_algorithms(project):  # noqa: F401
 @project_authorization
 def api_set_algorithms(project):  # noqa: F401
     """Set the algorithms used in the project"""
-    s_classifier = request.form.get("classifier", None)
-    s_query_strategy = request.form.get("query_strategy", None)
-    s_balance_strategy = request.form.get("balance_strategy", None)
-    s_feature_extraction = request.form.get("feature_extraction", None)
 
-    try:
-        classifier = get_classifier(s_classifier)
-        query_strategy = get_query_model(s_query_strategy)
-        balance_strategy = get_balance_model(s_balance_strategy)
-        feature_extraction = get_feature_model(s_feature_extraction)
-    except (KeyError, AttributeError) as err:
-        return jsonify(message=f"Model component not found {err}"), 400
-
-    asreview_settings = ASReviewSettings(
-        model=s_classifier,
-        query_strategy=s_query_strategy,
-        balance_strategy=s_balance_strategy,
-        feature_extraction=s_feature_extraction,
-        model_param=classifier.param,
-        query_param=query_strategy.param,
-        balance_param=balance_strategy.param,
-        feature_param=feature_extraction.param,
+    settings = ReviewSettings(
+        classifier=request.form.get("classifier"),
+        query_strategy=request.form.get("query_strategy"),
+        balance_strategy=request.form.get("balance_strategy"),
+        feature_extraction=request.form.get("feature_extraction"),
     )
 
-    # save the new settings to the state file
-    with open_state(project.project_path, read_only=False) as state:
-        state.settings = asreview_settings
+    with open(
+        Path(
+            project.project_path,
+            "reviews",
+            project.reviews[0]["id"],
+            "settings_metadata.json",
+        ),
+        "w",
+    ) as f:
+        json.dump(asdict(settings), f)
 
-    return jsonify({"success": True})
+    return jsonify(asdict(settings))
 
 
 @bp.route("/projects/<project_id>/train", methods=["POST"])
@@ -797,23 +748,7 @@ def api_train(project):  # noqa: F401
 def api_get_status(project):  # noqa: F401
     """Check the status of the review"""
 
-    try:
-        status = project.reviews[0]["status"]
-    except Exception:
-        status = None
-
-    if status == "error":
-        error_path = project.project_path / "error.json"
-        if error_path.exists():
-            logging.error("Error on training")
-            with open(error_path) as f:
-                error_message = json.load(f)["message"]
-
-            raise Exception(error_message)
-
-    response = jsonify({"status": status})
-
-    return response
+    return jsonify({"status": project.reviews[0]["status"]})
 
 
 @bp.route("/projects/<project_id>/reviews", methods=["GET"])
@@ -862,14 +797,13 @@ def api_update_review_status(project, review_id):
 
     current_status = project.config["reviews"][review_id]["status"]
 
-    if current_status == "error" and status == "setup":
-        project.remove_error(status=status)
-        return jsonify({"success": True})
-
     if current_status == "setup" and status == "review":
         is_simulation = project.config["mode"] == PROJECT_MODE_SIMULATE
 
-        if not (pk := has_prior_knowledge(project)) and not is_simulation:
+        with open_state(project) as s:
+            labels = s.get_results_table()["label"].to_list()
+
+        if not (pk := 0 in labels and 1 in labels) and not is_simulation:
             _fill_last_ranking(project, "random")
 
         if trigger_model and (pk or is_simulation):
@@ -899,7 +833,7 @@ def api_update_review_status(project, review_id):
             f"Not possible to update status from {current_status} to {status}"
         )
 
-    return jsonify({"success": True})
+    return jsonify({"status": status}), 201
 
 
 @bp.route("/projects/import_project", methods=["POST"])
@@ -909,8 +843,7 @@ def api_import_project():
 
     # raise error if file not given
     if "file" not in request.files:
-        response = jsonify(message="No ASReview file found to import.")
-        return response, 400
+        return jsonify(message="No ASReview file found to import."), 400
 
     try:
         project = asr.Project.load(
@@ -933,11 +866,11 @@ def api_import_project():
 
 
 def _add_tags_to_export_data(project, export_data, state_df):
-    tags_df = state_df[["custom_metadata_json"]].copy()
+    tags_df = state_df[["tags"]].copy()
 
     tags_df["tags"] = (
-        tags_df["custom_metadata_json"]
-        .apply(lambda d: extract_tags(d))
+        tags_df["tags"]
+        # .apply(lambda d: _extract_tags(d))
         .apply(lambda d: d if isinstance(d, list) else [])
     )
 
@@ -946,7 +879,7 @@ def _add_tags_to_export_data(project, export_data, state_df):
 
     if tags_config is not None:
         all_tags = [
-            [get_tag_composite_id(group["id"], tag["id"]) for tag in group["values"]]
+            [(group["id"], tag["id"]) for tag in group["values"]]
             for group in tags_config
         ]
         all_tags = list(chain.from_iterable(all_tags))
@@ -972,37 +905,41 @@ def _add_tags_to_export_data(project, export_data, state_df):
 def api_export_dataset(project):
     """Export dataset with relevant/irrelevant labels"""
 
-    # get the export args
-    file_format = request.args.get("file_format", None)
-    dataset_label = request.args.get("dataset_label", default="all")
+    file_format = request.args.get("format", None)
+    collections = request.args.getlist("collections", type=str)
+    collections = [
+        c for c in ["relevant", "not_seen", "irrelevant"] if c in collections
+    ]
 
-    # create temporary folder to store exported dataset
     tmp_path = tempfile.TemporaryDirectory()
     tmp_path_dataset = Path(tmp_path.name, f"export_dataset.{file_format}")
 
     try:
-        # get labels and ranking from state file
         with open_state(project.project_path) as s:
-            pool, labeled, pending = s.get_pool_labeled_pending()
-            # get state dataset for accessing notes
-            state_df = s.get_dataset().set_index("record_id")
+            pool = s.get_pool()
+            results = s.get_results_table()[["record_id", "label"]]
+            state_df = s.get_results_table().set_index("record_id")
 
-        included = labeled[labeled["label"] == 1]
-        excluded = labeled[labeled["label"] != 1]
+        included = results[results["label"] == 1]
+        excluded = results[results["label"] != 1]
 
-        if dataset_label == "relevant":
+        labels = []
+        export_order = []
+
+        if "relevant" in collections:
+            labels.append(included["label"].to_list())
             export_order = included["record_id"].to_list()
-            labeled = included
-        else:
-            export_order = (
-                included["record_id"].to_list()
-                + pending.to_list()
-                + pool.to_list()
-                + excluded["record_id"].to_list()
-            )
+
+        if "not_seen" in collections:
+            labels.append([LABEL_NA] * len(pool))
+            export_order = pool.to_list()
+
+        if "irrelevant" in collections:
+            labels.append(excluded["label"].to_list())
+            export_order = excluded["record_id"].to_list()
 
         # get writer corresponding to specified file format
-        writers = list_writers()
+        writers = extensions("writers")
         writer = None
         for c in writers:
             if writer is None:
@@ -1034,7 +971,7 @@ def api_export_dataset(project):
 
         state_df.rename(
             columns={
-                "notes": f"exported_notes_{screening}",
+                "note": f"exported_notes_{screening}",
             },
             inplace=True,
         )
@@ -1045,12 +982,11 @@ def api_export_dataset(project):
 
         _add_tags_to_export_data(project, as_data, state_df)
 
-        # keep labels in exploration mode
         keep_old_labels = project.config["mode"] == PROJECT_MODE_EXPLORE
 
         as_data.to_file(
             fp=tmp_path_dataset,
-            labels=labeled.values.tolist(),
+            labels=labels,
             ranking=export_order,
             writer=writer,
             keep_old_labels=keep_old_labels,
@@ -1060,6 +996,7 @@ def api_export_dataset(project):
             tmp_path_dataset,
             as_attachment=True,
             max_age=0,
+            download_name=f"asreview_{'+'.join(collections)}_{project.config['name']}.{file_format}",
         )
 
     except Exception as err:
@@ -1093,65 +1030,61 @@ def export_project(project):
 
 
 def _get_stats(project, include_priors=False):
-    if is_v0_project(project.project_path):
-        json_fp = Path(project.project_path, "result.json")
+    try:
+        is_project(project)
 
-        # Check if the v0 project is in review.
-        if json_fp.exists():
-            with open(json_fp) as f:
-                s = json.load(f)
+        as_data = project.read_data()
 
-            # Get the labels.
-            labels = np.array(
-                [
-                    int(sample_data[1])
-                    for query in range(len(s["results"]))
-                    for sample_data in s["results"][query]["labelled"]
-                ]
-            )
+        # Get label history
+        with open_state(project.project_path) as s:
+            labels = s.get_results_table(priors=include_priors)["label"]
+            labels_without_priors = s.get_results_table(priors=False)["label"]
+        n_records = len(as_data)
 
-            # Get the record table.
-            data_hash = list(s["data_properties"].keys())[0]
-            record_table = s["data_properties"][data_hash]["record_table"]
-
-            n_records = len(record_table)
-
-        # No result found.
-        else:
-            labels = np.array([])
-            n_records = 0
-    else:
-        # Check if there is a review started in the project.
-        try:
-            # get label history
-            with open_state(project.project_path) as s:
-                if (
-                    project.config["reviews"][0]["status"] == "finished"
-                    and project.config["mode"] == PROJECT_MODE_SIMULATE
-                ):
-                    labels = _get_labels(s, priors=include_priors)
-                else:
-                    labels = s.get_labels(priors=include_priors)
-
-                n_records = s.n_records
-
-        # No state file found or not init.
-        except (StateNotFoundError, StateError):
-            labels = np.array([])
-            n_records = 0
+    except (StateNotFoundError, ValueError, ProjectError):
+        labels = np.array([])
+        labels_without_priors = np.array([])
+        n_records = 0
 
     n_included = int(sum(labels == 1))
     n_excluded = int(sum(labels == 0))
 
+    n_included_no_priors = int(sum(labels_without_priors == 1))
+    n_excluded_no_priors = int(sum(labels_without_priors == 0))
+
     if n_included > 0:
-        n_since_last_relevant = int(labels.tolist()[::-1].index(1))
+        try:
+            # Find the last relevant label index
+            last_relevant_index = len(labels) - 1 - np.argmax(labels[::-1] == 1)
+            n_since_last_relevant = int(sum(labels[last_relevant_index + 1 :] == 0))
+        except Exception:
+            n_since_last_relevant = "-"
     else:
         n_since_last_relevant = 0
+
+    if len(labels_without_priors) > 0 and n_included > 0:
+        try:
+            # Find the last relevant label index without priors
+            last_relevant_index_no_priors = (
+                len(labels_without_priors)
+                - 1
+                - np.argmax(labels_without_priors[::-1] == 1)
+            )
+            n_since_last_relevant_no_priors = int(
+                sum(labels_without_priors[last_relevant_index_no_priors + 1 :] == 0)
+            )
+        except Exception:
+            n_since_last_relevant_no_priors = "-"
+    else:
+        n_since_last_relevant_no_priors = None
 
     return {
         "n_included": n_included,
         "n_excluded": n_excluded,
+        "n_included_no_priors": n_included_no_priors,
+        "n_excluded_no_priors": n_excluded_no_priors,
         "n_since_last_inclusion": n_since_last_relevant,
+        "n_since_last_inclusion_no_priors": n_since_last_relevant_no_priors,
         "n_papers": n_records,
         "n_pool": n_records - n_excluded - n_included,
     }
@@ -1179,10 +1112,7 @@ def api_get_progress_info(project):  # noqa: F401
 
     include_priors = request.args.get("priors", True, type=bool)
 
-    response = jsonify(_get_stats(project, include_priors=include_priors))
-
-    # return a success response to the client.
-    return response
+    return jsonify(_get_stats(project, include_priors=include_priors))
 
 
 @bp.route("/projects/<project_id>/progress_density", methods=["GET"])
@@ -1195,31 +1125,20 @@ def api_get_progress_density(project):
 
     # get label history
     with open_state(project.project_path) as s:
-        if (
-            project.config["reviews"][0]["status"] == "finished"
-            and project.config["mode"] == PROJECT_MODE_SIMULATE
-        ):
-            data = _get_labels(s, priors=include_priors)
-        else:
-            data = s.get_labels(priors=include_priors)
+        data = s.get_results_table("label", priors=include_priors)
 
     # create a dataset with the rolling mean of every 10 papers
-    df = (
-        data.to_frame(name="Relevant")
-        .reset_index(drop=True)
-        .rolling(10, min_periods=1)
-        .mean()
-    )
+    df = data.rolling(10, min_periods=1).mean()
     df["Total"] = df.index + 1
 
     # transform mean(percentage) to number
     for i in range(0, len(df)):
         if df.loc[i, "Total"] < 10:
-            df.loc[i, "Irrelevant"] = (1 - df.loc[i, "Relevant"]) * df.loc[i, "Total"]
-            df.loc[i, "Relevant"] = df.loc[i, "Total"] - df.loc[i, "Irrelevant"]
+            df.loc[i, "Irrelevant"] = (1 - df.loc[i, "label"]) * df.loc[i, "Total"]
+            df.loc[i, "label"] = df.loc[i, "Total"] - df.loc[i, "Irrelevant"]
         else:
-            df.loc[i, "Irrelevant"] = (1 - df.loc[i, "Relevant"]) * 10
-            df.loc[i, "Relevant"] = 10 - df.loc[i, "Irrelevant"]
+            df.loc[i, "Irrelevant"] = (1 - df.loc[i, "label"]) * 10
+            df.loc[i, "label"] = 10 - df.loc[i, "Irrelevant"]
 
     df = df.round(1).to_dict(orient="records")
     for d in df:
@@ -1227,15 +1146,13 @@ def api_get_progress_density(project):
 
     df_relevant = [{k: v for k, v in d.items() if k != "Irrelevant"} for d in df]
     for d in df_relevant:
-        d["y"] = d.pop("Relevant")
+        d["y"] = d.pop("label")
 
-    df_irrelevant = [{k: v for k, v in d.items() if k != "Relevant"} for d in df]
+    df_irrelevant = [{k: v for k, v in d.items() if k != "label"} for d in df]
     for d in df_irrelevant:
         d["y"] = d.pop("Irrelevant")
 
-    payload = {"relevant": df_relevant, "irrelevant": df_irrelevant}
-
-    return jsonify(payload)
+    return jsonify({"relevant": df_relevant, "irrelevant": df_irrelevant})
 
 
 @bp.route("/projects/<project_id>/progress_recall", methods=["GET"])
@@ -1246,21 +1163,15 @@ def api_get_progress_recall(project):
 
     include_priors = request.args.get("priors", False, type=bool)
 
+    as_data = project.read_data()
+
     with open_state(project.project_path) as s:
-        if (
-            project.config["reviews"][0]["status"] == "finished"
-            and project.config["mode"] == PROJECT_MODE_SIMULATE
-        ):
-            data = _get_labels(s, priors=include_priors)
-        else:
-            data = s.get_labels(priors=include_priors)
+        data = s.get_results_table("label", priors=include_priors)
 
-        n_records = len(s.get_record_table())
+    df = data.cumsum()
 
-    # create a dataset with the cumulative number of inclusions
-    df = data.to_frame(name="Relevant").reset_index(drop=True).cumsum()
     df["Total"] = df.index + 1
-    df["Random"] = (df["Total"] * (df["Relevant"][-1:] / n_records).values).round()
+    df["Random"] = (df["Total"] * (df["label"][-1:] / len(as_data))).round()
 
     df = df.round(1).to_dict(orient="records")
     for d in df:
@@ -1268,9 +1179,9 @@ def api_get_progress_recall(project):
 
     df_asreview = [{k: v for k, v in d.items() if k != "Random"} for d in df]
     for d in df_asreview:
-        d["y"] = d.pop("Relevant")
+        d["y"] = d.pop("label")
 
-    df_random = [{k: v for k, v in d.items() if k != "Relevant"} for d in df]
+    df_random = [{k: v for k, v in d.items() if k != "label"} for d in df]
     for d in df_random:
         d["y"] = d.pop("Random")
 
@@ -1282,7 +1193,7 @@ def api_get_progress_recall(project):
 @bp.route("/projects/<project_id>/record/<record_id>", methods=["POST", "PUT"])
 @login_required
 @project_authorization
-def api_classify_instance(project, record_id):  # noqa: F401
+def api_label_record(project, record_id):  # noqa: F401
     """Label item
 
     This request handles the document identifier and the corresponding label.
@@ -1293,12 +1204,7 @@ def api_classify_instance(project, record_id):  # noqa: F401
     """
     # return the combination of document_id and label.
     record_id = int(request.form.get("record_id"))
-
     label = int(request.form.get("label"))
-
-    note = request.form.get("note", type=str)
-    if not note:
-        note = None
 
     tags = request.form.get("tags", type=str)
     if not tags:
@@ -1306,31 +1212,26 @@ def api_classify_instance(project, record_id):  # noqa: F401
     else:
         tags = json.loads(tags)
 
-    is_prior = request.form.get("is_prior", default=False)
+    retrain_model = bool(request.form.get("retrain_model", default=False))
 
-    retrain_model = False if is_prior == "1" else True
-    prior = True if is_prior == "1" else False
+    user_id = (
+        None if current_app.config.get("LOGIN_DISABLED", False) else current_user.id
+    )
 
-    if request.method == "POST":
-        with open_state(project.project_path, read_only=False) as state:
-            # add the labels as prior data
+    with open_state(project.project_path) as state:
+        if label in [0, 1]:
             state.add_labeling_data(
                 record_ids=[record_id],
                 labels=[label],
-                notes=[note],
-                tags_list=[tags],
-                prior=prior,
+                tags=[tags],
+                user_id=user_id,
             )
-
-    elif request.method == "PUT":
-        with open_state(project.project_path, read_only=False) as state:
-            if label in [0, 1]:
-                state.update_decision(record_id, label, note=note, tags=tags)
-            elif label == -1:
-                state.delete_record_labeling_data(record_id)
+        elif label == -1:
+            state.delete_record_labeling_data(record_id)
+        else:
+            raise ValueError(f"Invalid label {label}")
 
     if retrain_model:
-        # retrain model
         subprocess.Popen(
             [
                 sys.executable if sys.executable else "python",
@@ -1341,9 +1242,31 @@ def api_classify_instance(project, record_id):  # noqa: F401
             ]
         )
 
-    response = jsonify({"success": True})
+    if request.method == "POST":
+        return jsonify({"success": True})
+    else:
+        with open_state(project.project_path) as state:
+            record = state.get_results_record(record_id)
 
-    return response
+        as_data = project.read_data()
+        item = asdict(as_data.record(record_id))
+        item["state"] = record.iloc[0].to_dict()
+        item["tags_form"] = project.config.get("tags", None)
+
+        return jsonify({"result": item})
+
+
+@bp.route("/projects/<project_id>/record/<record_id>/note", methods=["PUT"])
+@login_required
+@project_authorization
+def api_update_note(project, record_id):  # noqa: F401
+    note = request.form.get("note", type=str)
+    note = note if note != "" else None
+
+    with open_state(project.project_path) as state:
+        state.update_note(record_id, note)
+
+    return jsonify({"success": True})
 
 
 @bp.route("/projects/<project_id>/get_document", methods=["GET"])
@@ -1352,33 +1275,36 @@ def api_classify_instance(project, record_id):  # noqa: F401
 def api_get_document(project):  # noqa: F401
     """Retrieve record in order of review."""
 
-    with open_state(project.project_path, read_only=False) as state:
-        pending = state.get_pending(return_all=True)
+    user_id = (
+        None if current_app.config.get("LOGIN_DISABLED", False) else current_user.id
+    )
+
+    with open_state(project.project_path) as state:
+        pending = state.get_pending(user_id=user_id)
 
         if pending.empty:
             try:
-                rank_n_1 = state.get_top_ranked(1)
+                pending = state.query_top_ranked(user_id=user_id)
+            except ValueError:
+                ranking = state.get_last_ranking_table()
+                pool = state.get_pool()
 
-                # there is a ranking, but pool is empty
-                if rank_n_1 == []:
+                if not ranking.empty and pool.empty:
                     project.update_review(status="finished")
-                    return jsonify(
-                        {"result": None, "pool_empty": True, "has_ranking": False}
-                    )
 
-            except StateError:
-                # there is no ranking and get_top_ranked raises an error
                 return jsonify(
-                    {"result": None, "pool_empty": False, "has_ranking": False}
+                    {"result": None, "pool_empty": not ranking.empty and pool.empty}
                 )
-
-            state.query_top_ranked(1)
-            pending = state.get_pending(return_all=True)
 
     as_data = project.read_data()
     item = asdict(as_data.record(pending["record_id"].iloc[0]))
-    item["label_from_dataset"] = item["included"]
     item["state"] = pending.iloc[0].to_dict()
+    item["tags_form"] = project.config.get("tags", None)
+
+    try:
+        item["error"] = project.get_review_error()
+    except ValueError:
+        pass
 
     return jsonify({"result": item, "pool_empty": False, "has_ranking": True})
 
@@ -1413,9 +1339,7 @@ def api_delete_project(project):  # noqa: F401
             logging.error(err)
             return jsonify(message="Failed to delete project."), 500
 
-        response = jsonify({"success": True})
-
-        return response
+        return jsonify({"success": True})
 
 
 @bp.route("/resolve_uri", methods=["GET"])
@@ -1430,12 +1354,12 @@ def api_resolve_uri():  # noqa: F401
 
     filename = _get_filename_from_url(uri)
 
-    reader_keys = [e.name for e in _entry_points(group="asreview.readers")]
+    reader_keys = [e.name for e in extensions("readers")]
 
     if filename and Path(filename).suffix and Path(filename).suffix in reader_keys:
         return jsonify(files=[{"link": uri, "name": filename}]), 201
     elif filename and not Path(filename).suffix:
-        raise BadFileFormatError("Can't determine file format.")
+        raise ValueError("Can't determine file format.")
     else:
         try:
             dh = datahugger.info(uri)
@@ -1446,4 +1370,4 @@ def api_resolve_uri():  # noqa: F401
 
             return jsonify(files=files), 201
         except Exception:
-            raise BadFileFormatError("Can't retrieve files.")
+            raise ValueError("Can't retrieve files.")

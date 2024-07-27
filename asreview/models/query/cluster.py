@@ -16,13 +16,13 @@ __all__ = ["ClusterQuery"]
 
 import numpy as np
 from sklearn.cluster import KMeans
+from sklearn.utils import check_random_state
 
-from asreview.models.query.base import ProbaQueryStrategy
+from asreview.models.query.base import BaseQueryStrategy
 from asreview.models.query.max_prob import MaxQuery
-from asreview.utils import get_random_state
 
 
-class ClusterQuery(ProbaQueryStrategy):
+class ClusterQuery(BaseQueryStrategy):
     """Clustering query strategy (``cluster``).
 
     Use clustering after feature extraction on the dataset. Then the highest
@@ -49,10 +49,10 @@ class ClusterQuery(ProbaQueryStrategy):
         self.update_interval = update_interval
         self.last_update = None
         self.fallback_model = MaxQuery()
-        self._random_state = get_random_state(random_state)
+        self._random_state = random_state
 
-    def _query(self, predictions, n_instances, X):
-        n_samples = X.shape[0]
+    def query(self, feature_matrix, relevance_scores):
+        n_samples = feature_matrix.shape[0]
 
         last_update = self.last_update
         if (
@@ -62,20 +62,23 @@ class ClusterQuery(ProbaQueryStrategy):
         ):
             n_clusters = round(n_samples / self.cluster_size)
             if n_clusters <= 1:
-                return self.fallback_model._query(predictions, n_instances, X)
+                return self.fallback_model.query(
+                    feature_matrix=feature_matrix,
+                    relevance_scores=relevance_scores,
+                )
             model = KMeans(
                 n_clusters=n_clusters, n_init=1, random_state=self._random_state
             )
-            self.clusters = model.fit_predict(X)
+            self.clusters = model.fit_predict(feature_matrix)
             self.last_update = n_samples
 
         clusters = {}
         for idx in np.arange(n_samples):
             cluster_id = self.clusters[idx]
             if cluster_id in clusters:
-                clusters[cluster_id].append((idx, predictions[idx, 1]))
+                clusters[cluster_id].append((idx, relevance_scores[idx, 1]))
             else:
-                clusters[cluster_id] = [(idx, predictions[idx, 1])]
+                clusters[cluster_id] = [(idx, relevance_scores[idx, 1])]
 
         for cluster_id in clusters:
             try:
@@ -85,8 +88,10 @@ class ClusterQuery(ProbaQueryStrategy):
 
         clust_idx = []
         cluster_ids = list(clusters)
-        for _ in range(n_instances):
-            cluster_id = self._random_state.choice(cluster_ids, 1)[0]
+        for _ in range(feature_matrix.shape[0]):
+            cluster_id = check_random_state(self._random_state).choice(cluster_ids, 1)[
+                0
+            ]
             clust_idx.append(clusters[cluster_id].pop()[0])
             if len(clusters[cluster_id]) == 0:
                 del clusters[cluster_id]

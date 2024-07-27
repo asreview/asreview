@@ -1,50 +1,29 @@
-import * as React from "react";
-import { useQuery } from "react-query";
-import { connect } from "react-redux";
+import { Close } from "@mui/icons-material";
 import {
   Box,
-  Card,
-  CardContent,
-  Container,
+  Button,
   Dialog,
+  DialogActions,
   DialogContent,
   DialogTitle,
   Divider,
   Grid,
+  IconButton,
   List,
   ListItem,
-  ListItemIcon,
   ListItemSecondaryAction,
   ListItemText,
-  Stack,
-  Switch,
   Slider,
-  Tooltip,
+  Switch,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { ArrowBack, Close, InfoOutlined } from "@mui/icons-material";
+import React from "react";
 
-import { AppBarWithinDialog, OpenInNewIconStyled } from "Components";
-import { StyledIconButton } from "StyledComponents/StyledButton";
+import { OpenInNewIconStyled } from "Components";
 
-import { BaseAPI } from "api";
+import { fontSizeOptions } from "globals.js";
 import { useToggle } from "hooks/useToggle";
-import { fontSizeOptions, donateURL } from "globals.js";
-
-const mapStateToProps = (state) => {
-  return {
-    asreview_version: state.asreview_version,
-  };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    // setASReviewVersion: (asreview_version) => {
-    //   dispatch(setASReviewVersion(asreview_version));
-    // },
-  };
-};
 
 const PREFIX = "SettingsDialog";
 
@@ -54,8 +33,7 @@ const classes = {
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
   [`& .${classes.content}`]: {
-    height: 588,
-    padding: "0px 0px 10px 0px",
+    height: 388,
   },
 }));
 
@@ -64,33 +42,11 @@ const SettingsDialog = (props) => {
 
   // second layer state
   const [fontSizeSetting, toggleFontSizeSetting] = useToggle();
-  const [shortcutSetting, toggleShortcutSetting] = useToggle();
-
-  const { isError } = useQuery("boot", BaseAPI.boot, {
-    enabled: props.asreview_version === undefined,
-    onSuccess: (data) => {
-      // set the version of asreview
-      //props.setASReviewVersion(data.version);
-    },
-    refetchOnWindowFocus: false,
-  });
-
-  // second layer font size setting
-  const handleFontSize = (event, newValue) => {
-    let fontSizeSelected = fontSizeOptions.find(
-      (size) => size.value === newValue,
-    );
-    if (fontSizeSelected !== props.fontSize) {
-      props.handleFontSizeChange(fontSizeSelected);
-    }
-  };
+  const [fontSize, setFontSize] = React.useState(props.fontSize);
 
   const toggleBackMainSettings = () => {
     if (fontSizeSetting) {
       toggleFontSizeSetting();
-    }
-    if (shortcutSetting) {
-      toggleShortcutSetting();
     }
   };
 
@@ -117,231 +73,118 @@ const SettingsDialog = (props) => {
         onExited: toggleBackMainSettings,
       }}
     >
-      {/* Main settings */}
       {!props.mobileScreen && (
-        <Stack className="dialog-header" direction="row" spacing={1}>
-          {!fontSizeSetting && !shortcutSetting && (
-            <StyledIconButton className="dialog-header-button left-empty" />
-          )}
-          {(fontSizeSetting || shortcutSetting) && (
-            <Tooltip title="Back">
-              <StyledIconButton
-                className="dialog-header-button left"
-                onClick={toggleBackMainSettings}
-              >
-                <ArrowBack />
-              </StyledIconButton>
-            </Tooltip>
-          )}
-          <DialogTitle>Settings</DialogTitle>
-          <Tooltip title="Close">
-            <StyledIconButton
-              className="dialog-header-button right"
-              onClick={props.toggleSettings}
-            >
+        <DialogTitle>Customize your ASReview LAB</DialogTitle>
+      )}
+      {props.mobileScreen && (
+        <DialogTitle>
+          <Grid
+            container
+            direction="row"
+            justify="space-between"
+            alignItems="center"
+          >
+            <IconButton onClick={props.toggleSettings}>
               <Close />
-            </StyledIconButton>
-          </Tooltip>
-        </Stack>
-      )}
-      {props.mobileScreen && !fontSizeSetting && !shortcutSetting && (
-        <AppBarWithinDialog
-          onClickStartIcon={props.toggleSettings}
-          title="Settings"
-        />
-      )}
-      {!fontSizeSetting && !shortcutSetting && (
-        <DialogContent className={classes.content} dividers>
-          <List>
-            <ListItem>
-              <ListItemIcon></ListItemIcon>
-              <Typography
-                color="textSecondary"
-                display="block"
-                variant="subtitle2"
-              >
-                DISPLAY
-              </Typography>
-            </ListItem>
-            <ListItem button onClick={props.toggleDarkMode}>
-              <ListItemIcon></ListItemIcon>
-              <ListItemText id="switch-list-label-dark" primary="Dark mode" />
-              <ListItemSecondaryAction sx={{ right: 24 }}>
-                <Switch
-                  edge="end"
-                  onChange={props.toggleDarkMode}
-                  checked={props.onDark.palette.mode === "dark"}
-                  inputProps={{ "aria-labelledby": "switch-list-label-dark" }}
-                />
-              </ListItemSecondaryAction>
-            </ListItem>
-            <ListItem button onClick={toggleFontSizeSetting}>
-              <ListItemIcon></ListItemIcon>
-              <ListItemText
-                id="change-text-size"
-                primary="Font size"
-                secondary={props.fontSize.label}
-              />
-            </ListItem>
-            <Divider sx={{ marginTop: "8px", marginBottom: "8px" }} />
-            <ListItem>
-              <ListItemIcon></ListItemIcon>
-              <Typography
-                color="textSecondary"
-                display="block"
-                variant="subtitle2"
-              >
-                REVIEW PREFERENCES
-              </Typography>
-            </ListItem>
-            <ListItem button onClick={toggleShortcutSetting}>
-              <ListItemIcon></ListItemIcon>
-              <ListItemText
-                id="switch-list-label-key"
-                primary="Keyboard shortcuts"
-                secondary={props.keyPressEnabled ? "On" : "Off"}
-              />
-            </ListItem>
-            <ListItem button onClick={props.toggleUndoEnabled}>
-              <ListItemIcon></ListItemIcon>
-              <ListItemText
-                id="switch-list-label-undo"
-                primary="Undo"
-                secondary="Allow returning to the previous decision"
-              />
-              <ListItemSecondaryAction sx={{ right: 24 }}>
-                <Switch
-                  edge="end"
-                  onChange={props.toggleUndoEnabled}
-                  checked={props.undoEnabled}
-                  inputProps={{ "aria-labelledby": "switch-list-label-undo" }}
-                />
-              </ListItemSecondaryAction>
-            </ListItem>
-            <Divider sx={{ marginTop: "8px", marginBottom: "8px" }} />
-            <ListItem>
-              <ListItemIcon></ListItemIcon>
-              <Typography
-                color="textSecondary"
-                display="block"
-                variant="subtitle2"
-              >
-                OTHER
-              </Typography>
-            </ListItem>
-            <ListItem
-              button
-              component={"a"}
-              href="https://asreview.readthedocs.io/en/latest/intro/about.html"
-              target="_blank"
-            >
-              <ListItemIcon></ListItemIcon>
-              <ListItemText
-                id="switch-list-label-about"
-                primary={
-                  <React.Fragment>
-                    About ASReview LAB <OpenInNewIconStyled />
-                  </React.Fragment>
-                }
-                secondary={`Version ${
-                  !isError ? props.asreview_version : `N/A`
-                }`}
-              />
-            </ListItem>
-            {donateURL !== undefined && (
-              <ListItem button component={"a"} href={donateURL} target="_blank">
-                <ListItemIcon></ListItemIcon>
-                <ListItemText
-                  id="switch-list-label-about"
-                  primary={
-                    <React.Fragment>
-                      Donate to ASReview Development Fund{" "}
-                      <OpenInNewIconStyled />
-                    </React.Fragment>
-                  }
-                />
-              </ListItem>
-            )}
-          </List>
-        </DialogContent>
+            </IconButton>
+            Customize
+          </Grid>
+        </DialogTitle>
       )}
 
-      {/*Font size setting*/}
-      {props.mobileScreen && fontSizeSetting && (
-        <AppBarWithinDialog
-          startIconIsClose={false}
-          onClickStartIcon={toggleFontSizeSetting}
-          title="Font size"
-        />
-      )}
-      {fontSizeSetting && (
-        <DialogContent className={classes.content} dividers>
-          <Container
-            maxWidth="md"
-            sx={{ paddingTop: "10px", paddingBottom: "10px" }}
+      <DialogContent dividers className={classes.content}>
+        <List>
+          <ListItem>
+            <Typography
+              color="textSecondary"
+              display="block"
+              variant="subtitle2"
+            >
+              DISPLAY
+            </Typography>
+          </ListItem>
+          <ListItem onClick={props.toggleDarkMode}>
+            <ListItemText id="switch-list-label-dark" primary="Dark mode" />
+            <ListItemSecondaryAction sx={{ right: 24 }}>
+              <Switch
+                edge="end"
+                onChange={props.toggleDarkMode}
+                checked={props.onDark.palette.mode === "dark"}
+                inputProps={{ "aria-labelledby": "switch-list-label-dark" }}
+              />
+            </ListItemSecondaryAction>
+          </ListItem>
+          <Divider sx={{ my: "8px" }} />
+          <ListItem>
+            <Typography
+              color="textSecondary"
+              display="block"
+              variant="subtitle2"
+            >
+              REVIEW
+            </Typography>
+          </ListItem>
+          <ListItem onClick={toggleFontSizeSetting}>
+            <ListItemText
+              id="change-text-size"
+              primary="Font size"
+              secondary={fontSizeOptions[fontSize]}
+            />
+          </ListItem>
+          <Divider sx={{ my: "8px" }} />
+          <ListItem>
+            <Typography
+              color="textSecondary"
+              display="block"
+              variant="subtitle2"
+            >
+              OTHER
+            </Typography>
+          </ListItem>
+          <ListItem
+            button
+            component={"a"}
+            href="https://asreview.readthedocs.io/en/latest/intro/about.html"
+            target="_blank"
           >
-            <Card sx={{ height: 400, overflowY: "scroll" }}>
-              <CardContent>
-                <Typography
-                  variant="h5"
-                  color="textSecondary"
-                  component="div"
-                  paragraph
-                  sx={{ lineHeight: 1.2 }}
-                >
-                  <Box className={"fontSize" + props.fontSize.label}>
-                    An open source machine learning framework for efficient and
-                    transparent systematic reviews
-                  </Box>
-                </Typography>
-                <Typography
-                  className={"fontSize" + props.fontSize.label}
-                  variant="body2"
-                  color="textSecondary"
-                  component="div"
-                  paragraph
-                >
-                  <Box>
-                    To help researchers conduct a systematic review or
-                    meta-analysis as efficiently and transparently as possible,
-                    we designed a tool to accelerate the step of reviewing
-                    titles and abstracts. For many tasks—including but not
-                    limited to systematic reviews and meta-analyses—the
-                    scientific literature needs to be checked systematically.
-                    Scholars and practitioners currently review thousands of
-                    studies by hand to determine which studies to include in
-                    their review or meta-analysis. This is error prone and
-                    inefficient because of extremely imbalanced data: only a
-                    fraction of the reviewed studies is relevant. The future of
-                    systematic reviewing will be an interaction with machine
-                    learning algorithms to deal with the enormous increase of
-                    available text. We therefore developed an open source
-                    machine learning-aided pipeline applying active learning:
-                    ASReview. We demonstrate by means of simulation studies that
-                    active learning can yield far more efficient reviewing than
-                    manual reviewing while providing high quality. Furthermore,
-                    we describe the options of the free and open source research
-                    software and present the results from user experience tests.
-                    We invite the community to contribute to open source
-                    projects such as our own that provide measurable and
-                    reproducible improvements over current practice.
-                  </Box>
-                </Typography>
-              </CardContent>
-            </Card>
-          </Container>
-          <div style={{ paddingLeft: 48 }}>
-            <Typography variant="h6" gutterBottom>
-              Preview
+            <ListItemText
+              id="switch-list-label-about"
+              primary={
+                <React.Fragment>
+                  About ASReview LAB <OpenInNewIconStyled />
+                </React.Fragment>
+              }
+              secondary={`Version ${window.asreviewVersion}`}
+            />
+          </ListItem>
+        </List>
+      </DialogContent>
+
+      {!props.mobileScreen && (
+        <DialogActions>
+          <Button onClick={props.toggleSettings}>Close</Button>
+        </DialogActions>
+      )}
+
+      <Dialog open={fontSizeSetting} onClose={toggleFontSizeSetting}>
+        <DialogTitle>Font size</DialogTitle>
+        <DialogContent>
+          <Box sx={{ pb: "20px" }}>
+            <Typography>
+              Make the text on the review screen smaller or larger.
             </Typography>
-          </div>
-          <div>
-            <Typography align="center" gutterBottom>
-              {props.fontSize.label.charAt(0).toUpperCase() +
-                props.fontSize.label.slice(1)}
+          </Box>
+          <>
+            <Typography
+              align="center"
+              gutterBottom
+              className={"fontSize" + fontSizeOptions[fontSize]}
+            >
+              {fontSizeOptions[fontSize].charAt(0).toUpperCase() +
+                fontSizeOptions[fontSize].slice(1)}
             </Typography>
-          </div>
-          <div>
+          </>
+          <>
             <Grid container sx={{ alignItems: "flex-end" }}>
               <Grid item xs>
                 <Typography align="center" variant="h6">
@@ -350,12 +193,14 @@ const SettingsDialog = (props) => {
               </Grid>
               <Grid item xs={8}>
                 <Slider
-                  value={props.fontSize.value}
+                  value={fontSize}
                   marks={true}
                   step={1}
-                  min={1}
-                  max={4}
-                  onChange={handleFontSize}
+                  min={0}
+                  max={3}
+                  onChange={(event) => {
+                    setFontSize(event.target.value);
+                  }}
                 />
               </Grid>
               <Grid item xs>
@@ -364,139 +209,22 @@ const SettingsDialog = (props) => {
                 </Typography>
               </Grid>
             </Grid>
-          </div>
-          <Box sx={{ padding: "10px 20px" }}>
-            <Typography>
-              Make the text on the review screen smaller or larger.
-            </Typography>
-          </Box>
+          </>
         </DialogContent>
-      )}
-
-      {/*Keyboard shortcut setting*/}
-      {props.mobileScreen && shortcutSetting && (
-        <AppBarWithinDialog
-          startIconIsClose={false}
-          onClickStartIcon={toggleShortcutSetting}
-          title="Keyboard shortcuts"
-        />
-      )}
-      {shortcutSetting && (
-        <DialogContent className={classes.content} dividers>
-          <List>
-            <ListItem button onClick={props.toggleKeyPressEnabled}>
-              <ListItemIcon></ListItemIcon>
-              <ListItemText
-                id="switch-list-label-key"
-                primary="Keyboard shortcuts"
-                secondary="Label a record by pressing a key"
-              />
-              <ListItemSecondaryAction sx={{ right: 24 }}>
-                <Switch
-                  edge="end"
-                  onChange={props.toggleKeyPressEnabled}
-                  checked={props.keyPressEnabled}
-                  inputProps={{ "aria-labelledby": "switch-list-label-key" }}
-                />
-              </ListItemSecondaryAction>
-            </ListItem>
-            <Divider sx={{ marginTop: "8px", marginBottom: "8px" }} />
-            <ListItem alignItems="flex-start">
-              <ListItemIcon>
-                <InfoOutlined />
-              </ListItemIcon>
-              <ListItemText secondary="While reviewing, you can press a key (or a combination of keys) to label a record as relevant or irrelevant, to return to the previous decision, or to add a note." />
-            </ListItem>
-            <ListItem>
-              <ListItemIcon></ListItemIcon>
-              <div style={{ flexGrow: 1 }}>
-                <Grid container>
-                  <Grid item style={{ width: 135 }}>
-                    <Typography
-                      color="textSecondary"
-                      display="block"
-                      variant="body2"
-                    >
-                      Press <b>R</b> or <b>Shift + R</b>:
-                    </Typography>
-                  </Grid>
-                  <Grid item>
-                    <Typography
-                      color="textSecondary"
-                      display="block"
-                      variant="body2"
-                    >
-                      Label a record as relevant
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid container>
-                  <Grid item style={{ width: 135 }}>
-                    <Typography
-                      color="textSecondary"
-                      display="block"
-                      variant="body2"
-                    >
-                      Press <b>I</b> or <b>Shift + I</b>:
-                    </Typography>
-                  </Grid>
-                  <Grid item>
-                    <Typography
-                      color="textSecondary"
-                      display="block"
-                      variant="body2"
-                    >
-                      Label a record as irrelevant
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid container>
-                  <Grid item style={{ width: 135 }}>
-                    <Typography
-                      color="textSecondary"
-                      display="block"
-                      variant="body2"
-                    >
-                      Press <b>U</b> or <b>Shift + U</b>:
-                    </Typography>
-                  </Grid>
-                  <Grid item>
-                    <Typography
-                      color="textSecondary"
-                      display="block"
-                      variant="body2"
-                    >
-                      Return to the previous decision
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid container>
-                  <Grid item style={{ width: 135 }}>
-                    <Typography
-                      color="textSecondary"
-                      display="block"
-                      variant="body2"
-                    >
-                      Press <b>N</b> or <b>Shift + N</b>:
-                    </Typography>
-                  </Grid>
-                  <Grid item>
-                    <Typography
-                      color="textSecondary"
-                      display="block"
-                      variant="body2"
-                    >
-                      Add a note
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </div>
-            </ListItem>
-          </List>
-        </DialogContent>
-      )}
+        <DialogActions>
+          <Button onClick={toggleFontSizeSetting}>Cancel</Button>
+          <Button
+            onClick={() => {
+              props.handleFontSizeChange(fontSize);
+              toggleFontSizeSetting();
+            }}
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
     </StyledDialog>
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(SettingsDialog);
+export default SettingsDialog;

@@ -1,103 +1,142 @@
-import * as React from "react";
-import { useParams } from "react-router-dom";
 import {
   Box,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
   Container,
-  Typography,
-  FormGroup,
   FormControlLabel,
+  FormGroup,
   Switch,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import LoadingButton from "@mui/lab/LoadingButton";
+import { useParams } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import { ProjectDeleteDialog } from "ProjectComponents";
-import { ScreenLanding } from "ProjectComponents/SetupComponents/ScreenComponents";
-import { ModelForm } from "ProjectComponents/SetupComponents/ModelComponents";
-import { PriorForm } from "ProjectComponents/SetupComponents/PriorComponents";
-import { InfoForm } from "ProjectComponents/SetupComponents/InfoComponents";
+import {
+  ModelCard,
+  PriorCard,
+  TagCard,
+} from "ProjectComponents/SetupComponents";
 
-import { TypographyH5Medium } from "StyledComponents/StyledTypography";
+import { ProjectContext } from "context/ProjectContext";
 import { projectStatuses } from "globals.js";
+import useAuth from "hooks/useAuth";
 import { useToggle } from "hooks/useToggle";
-import { ProjectContext } from "ProjectContext";
+import { ProjectAPI } from "api";
 
 const Root = styled("div")(({ theme }) => ({}));
 
-const DetailsPage = (props) => {
-  const { project_id } = useParams();
+const DeleteCard = ({ project_id, info }) => {
   const [onDeleteDialog, toggleDeleteDialog] = useToggle();
 
-  const handleChangeStatus = (event) => {};
+  return (
+    <Box sx={{ padding: "12px 0px" }}>
+      <Card>
+        <CardHeader
+          title="Danger zone"
+          subheader="Delete project permanently. This action cannot be undone."
+        />
+        <CardContent>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={toggleDeleteDialog}
+          >
+            Delete project
+          </Button>
+          <ProjectDeleteDialog
+            onDeleteDialog={onDeleteDialog}
+            toggleDeleteDialog={toggleDeleteDialog}
+            projectTitle={info?.name}
+            project_id={project_id}
+          />
+        </CardContent>
+      </Card>
+    </Box>
+  );
+};
 
-  const handleClickDelete = () => {
-    // handleCloseOptions();
-    toggleDeleteDialog();
-  };
+const MarkFinishedCard = ({ project_id }) => {
+  const queryClient = useQueryClient();
+
+  const { data } = useQuery(
+    ["fetchProjectStatus", { project_id }],
+    ProjectAPI.fetchProjectStatus,
+  );
+
+  const { mutate } = useMutation(ProjectAPI.mutateReviewStatus, {
+    onSuccess: (data) => {
+      queryClient.setQueryData(["fetchProjectStatus", { project_id }], data);
+      queryClient.invalidateQueries(["fetchProjectInfo", { project_id }]);
+    },
+  });
+
+  return (
+    <Card>
+      <CardHeader
+        title="Project status"
+        subheader="Mark the project as finished. This disables new label actions. Can be reverted."
+      />
+
+      <CardContent>
+        <FormGroup>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={data?.status === projectStatuses.FINISHED}
+                onClick={(event) => {
+                  mutate({
+                    project_id: project_id,
+                    status: event.target.checked
+                      ? projectStatuses.FINISHED
+                      : projectStatuses.REVIEW,
+                  });
+                }}
+              />
+            }
+            label="Mark the project as finished"
+          />
+        </FormGroup>
+      </CardContent>
+    </Card>
+  );
+};
+
+const DetailsPage = ({ info }) => {
+  const { project_id } = useParams();
+
+  const { auth } = useAuth();
+
+  console.log("render details");
 
   return (
     <Root aria-label="details page">
-      <Box className="main-page-sticky-header with-button">
-        {!props.mobileScreen && (
-          <TypographyH5Medium>Details</TypographyH5Medium>
-        )}
-        {props.mobileScreen && <Typography variant="h6">Details</Typography>}
-      </Box>
-
       <Container maxWidth="md">
         <ProjectContext.Provider value={project_id}>
           <Box sx={{ padding: "12px 0px" }}>
-            <InfoForm editable={true} />
+            <TagCard editable={false} />
           </Box>
           <Box sx={{ padding: "12px 0px" }}>
-            <PriorForm
-              editable={false}
-              setHistoryFilterQuery={props.setHistoryFilterQuery}
-            />
+            <ModelCard editable={true} showWarning={true} />
           </Box>
           <Box sx={{ padding: "12px 0px" }}>
-            <ModelForm editable={true} showWarning={true} />
+            <PriorCard editable={false} />
           </Box>
-          <Box sx={{ padding: "12px 0px" }}>
-            <ScreenLanding />
-          </Box>
+          {info?.ownerId === auth?.id && (
+            <>
+              <Box sx={{ padding: "12px 0px" }}>
+                <MarkFinishedCard project_id={project_id} info={info} />
+              </Box>
 
-          <Box sx={{ padding: "12px 0px" }}>
-            <Typography variant="h6">Project status</Typography>
-            <FormGroup>
-              <FormControlLabel
-                control={
-                  <Switch
-                    defaultChecked={
-                      props.info?.reviews[0].status === projectStatuses.REVIEW
-                    }
-                    onClick={handleChangeStatus}
-                  />
-                }
-                label="Mark the project as finished. This disables new label actions. Can be reverted."
-              />
-            </FormGroup>
-          </Box>
-
-          {/* Add delete project button */}
-          <Box sx={{ padding: "12px 0px" }}>
-            <Typography variant="h6">Danger zone</Typography>
-            <LoadingButton
-              variant="contained"
-              color="error"
-              onClick={handleClickDelete}
-            >
-              Delete project
-            </LoadingButton>
-          </Box>
+              <Box sx={{ padding: "12px 0px" }}>
+                <DeleteCard project_id={project_id} info={info} />
+              </Box>
+            </>
+          )}
         </ProjectContext.Provider>
       </Container>
-      <ProjectDeleteDialog
-        onDeleteDialog={onDeleteDialog}
-        toggleDeleteDialog={toggleDeleteDialog}
-        projectTitle={props.info?.name}
-        project_id={project_id}
-      />
     </Root>
   );
 };

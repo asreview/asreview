@@ -1,9 +1,9 @@
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery } from "react-query";
-import DashboardPage from "./DashboardPage";
 import {
   Box,
+  Button,
   Checkbox,
   Divider,
   FormControl,
@@ -20,7 +20,7 @@ import { InlineErrorHandler } from "Components";
 import { useToggle } from "hooks/useToggle";
 
 import { AuthAPI } from "api";
-import { passwordValidation } from "globals.js";
+import { passwordRequirements, passwordValidation } from "globals.js";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
@@ -33,7 +33,7 @@ const SignupSchema = Yup.object().shape({
   name: Yup.string().required("Full name is required").nullable(),
   affiliation: Yup.string()
     .min(2, "Affiliation must be at least 2 characters long")
-    .nullable(),
+    .required("Affiliation is required"),
   oldPassword: Yup.string(),
   newPassword: passwordValidation(Yup.string()),
   confirmPassword: Yup.string()
@@ -46,6 +46,11 @@ const SignupSchema = Yup.object().shape({
 
 const ProfilePage = (props) => {
   const navigate = useNavigate();
+
+  const [initEmail, setInitEmail] = React.useState(null);
+  const [initName, setInitName] = React.useState(null);
+  const [initAffiliation, setInitAffiliation] = React.useState(null);
+  const [initPublic, setInitPublic] = React.useState(true);
 
   const [showPassword, toggleShowPassword] = useToggle();
   const [loadingSaveButton, setLoadingSaveButton] = React.useState(true);
@@ -68,6 +73,18 @@ const ProfilePage = (props) => {
     }
   };
 
+  const handleReset = () => {
+    formik.setValues({
+      name: initName,
+      email: initEmail,
+      affiliation: initAffiliation,
+      publicAccount: initPublic,
+      oldPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+  };
+
   const initialValues = {
     email: "",
     name: "",
@@ -85,14 +102,26 @@ const ProfilePage = (props) => {
 
   const { data, isFetched } = useQuery("fetchProfileData", AuthAPI.getProfile, {
     onSuccess: (data) => {
-      formik.setFieldValue("email", data.message.email, true);
-      formik.setFieldValue("name", data.message.name, true);
-      formik.setFieldValue(
-        "affiliation",
-        data.message.affiliation || "",
-        false,
+      var email = data.message.email;
+      var name = data.message.name;
+      var affiliation = data.message.affiliation || "";
+      var publicAcc = data.message.public || true;
+
+      setInitEmail(email);
+      setInitName(name);
+      setInitAffiliation(affiliation);
+      setInitPublic(publicAcc);
+
+      formik.setValues(
+        {
+          name: name,
+          email: email,
+          affiliation: affiliation,
+          publicAccount: publicAcc,
+        },
+        true,
       );
-      formik.setFieldValue("public", data.message.public || true);
+
       // show password field?
       if (data.message.origin === "asreview") {
         setShowPasswordFields(true);
@@ -133,6 +162,7 @@ const ProfilePage = (props) => {
           <Stack direction="column" spacing={2}>
             <Typography variant="h6">Change email & password</Typography>
             <TextField
+              required={true}
               id="email"
               label="Email"
               size="small"
@@ -140,7 +170,6 @@ const ProfilePage = (props) => {
               value={formik.values.email}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              autoComplete="off"
             />
             {formik.touched.email && formik.errors.email ? (
               <FHT error={true}>{formik.errors.email}</FHT>
@@ -154,7 +183,9 @@ const ProfilePage = (props) => {
               value={formik.values.oldPassword}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              autoComplete="current-password"
+              inputProps={{
+                autoComplete: "off",
+              }}
             />
             <TextField
               id="newPassword"
@@ -167,7 +198,9 @@ const ProfilePage = (props) => {
               onBlur={formik.handleBlur}
               style={{ opacity: passwordFieldOpacity() }}
               disabled={oldPasswordHasValue()}
-              autoComplete="new-password"
+              inputProps={{
+                autoComplete: "new-password",
+              }}
             />
             <TextField
               id="confirmPassword"
@@ -180,10 +213,17 @@ const ProfilePage = (props) => {
               onBlur={formik.handleBlur}
               style={{ opacity: passwordFieldOpacity() }}
               disabled={oldPasswordHasValue()}
-              autoComplete="new-password"
+              inputProps={{
+                autoComplete: "new-password",
+              }}
             />
           </Stack>
         </FormControl>
+
+        <Typography variant="body2" sx={{ marginTop: "7px !important" }}>
+          {passwordRequirements}
+        </Typography>
+
         {formik.touched.newPassword && formik.errors.newPassword ? (
           <FHT error={true}>{formik.errors.newPassword}</FHT>
         ) : null}
@@ -208,7 +248,7 @@ const ProfilePage = (props) => {
   };
 
   return (
-    <DashboardPage>
+    <>
       {data && isFetched && (
         <>
           {/* Header */}
@@ -225,6 +265,9 @@ const ProfilePage = (props) => {
               )}
               <Stack direction="row" spacing={1}>
                 <span>
+                  <Button onClick={handleReset} sx={{ marginRight: "15px" }}>
+                    reset
+                  </Button>
                   <LoadingButton
                     id="save"
                     disabled={!formik.isValid}
@@ -252,6 +295,7 @@ const ProfilePage = (props) => {
                 <Typography variant="h6">User data</Typography>
               )}
               <TextField
+                required={true}
                 id="name"
                 label="Full name"
                 size="small"
@@ -259,12 +303,15 @@ const ProfilePage = (props) => {
                 value={formik.values.name}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                autoComplete="off"
+                inputProps={{
+                  autoComplete: "off",
+                }}
               />
               {formik.touched.name && formik.errors.name ? (
                 <FHT error={true}>{formik.errors.name}</FHT>
               ) : null}
               <TextField
+                required={true}
                 id="affiliation"
                 label="Affiliation"
                 size="small"
@@ -272,7 +319,9 @@ const ProfilePage = (props) => {
                 value={formik.values.affiliation}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                autoComplete="off"
+                inputProps={{
+                  autoComplete: "off",
+                }}
               />
               {formik.touched.affiliation && formik.errors.affiliation ? (
                 <FHT error={true}>{formik.errors.affiliation}</FHT>
@@ -308,7 +357,7 @@ const ProfilePage = (props) => {
           </Box>
         </>
       )}
-    </DashboardPage>
+    </>
   );
 };
 

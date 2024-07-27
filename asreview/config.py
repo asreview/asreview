@@ -16,7 +16,7 @@ __all__ = [
     "COLUMN_DEFINITIONS",
     "DEFAULT_BALANCE_STRATEGY",
     "DEFAULT_FEATURE_EXTRACTION",
-    "DEFAULT_MODEL",
+    "DEFAULT_CLASSIFIER",
     "DEFAULT_N_INSTANCES",
     "DEFAULT_N_PRIOR_EXCLUDED",
     "DEFAULT_N_PRIOR_INCLUDED",
@@ -38,13 +38,13 @@ PROJECT_MODE_SIMULATE = "simulate"
 PROJECT_MODES = [PROJECT_MODE_ORACLE, PROJECT_MODE_EXPLORE, PROJECT_MODE_SIMULATE]
 
 # CLI defaults
-DEFAULT_MODEL = "nb"
+DEFAULT_CLASSIFIER = "nb"
 DEFAULT_QUERY_STRATEGY = "max"
 DEFAULT_BALANCE_STRATEGY = "double"
 DEFAULT_FEATURE_EXTRACTION = "tfidf"
 DEFAULT_N_INSTANCES = 1
-DEFAULT_N_PRIOR_INCLUDED = 1
-DEFAULT_N_PRIOR_EXCLUDED = 1
+DEFAULT_N_PRIOR_INCLUDED = 0
+DEFAULT_N_PRIOR_EXCLUDED = 0
 
 COLUMN_DEFINITIONS = {
     "included": [
@@ -63,10 +63,8 @@ COLUMN_DEFINITIONS = {
     "notes": ["notes"],
     "keywords": ["keywords"],
     "doi": ["doi"],
-    "custom_metadata_json": [
-        "custom metadata",
-        "custom metadata json",
-        "custom_metadata_json",
+    "tags": [
+        "tags",
     ],
     "is_prior": ["asreview_prior", "is_prior"],
 }

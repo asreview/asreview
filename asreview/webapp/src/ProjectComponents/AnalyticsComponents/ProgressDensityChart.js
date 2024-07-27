@@ -4,6 +4,7 @@ import {
   Box,
   Card,
   CardContent,
+  Skeleton,
   Stack,
   Tooltip,
   tooltipClasses,
@@ -254,7 +255,7 @@ export default function ProgressDensityChart(props) {
         showAlways: false,
         max: 10,
         min: 0,
-        tickAmount: 3,
+        tickAmount: 5,
         title: {
           text: "Number of relevant records",
         },
@@ -347,13 +348,17 @@ export default function ProgressDensityChart(props) {
               />
             </StyledTooltip>
           </Box>
-          <Chart
-            options={options}
-            series={series}
-            type="area"
-            height={230}
-            width="100%"
-          />
+          {props.progressDensityQuery.isLoading ? (
+            <Skeleton variant="rectangular" height={230} width="100%" />
+          ) : (
+            <Chart
+              options={options}
+              series={series}
+              type="area"
+              height={230}
+              width="100%"
+            />
+          )}
         </Stack>
       </CardContent>
     </StyledCard>

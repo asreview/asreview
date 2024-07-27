@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { fontSizeOptions, getDesignTokens } from "globals.js";
+import { getDesignTokens } from "globals.js";
 
 const useRowsPerPage = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -43,75 +43,24 @@ const useDarkMode = () => {
   return [theme, toggleDarkMode];
 };
 
-const useFontSize = () => {
-  const [fontSize, setFontSize] = useState(fontSizeOptions[1]);
+const useFontSize = (value = 1) => {
+  let localFontSize = parseInt(window.localStorage.getItem("fontSize"));
+  localFontSize =
+    localFontSize === 0 ||
+    localFontSize === 1 ||
+    localFontSize === 2 ||
+    localFontSize === 3
+      ? localFontSize
+      : value;
+
+  const [fontSize, setFontSize] = useState(localFontSize);
 
   const handleFontSizeChange = (size) => {
-    window.localStorage.setItem(
-      "fontSize",
-      JSON.stringify([size.value, size.label]),
-    );
+    window.localStorage.setItem("fontSize", size);
     setFontSize(size);
   };
-
-  useEffect(() => {
-    const localFontSize = JSON.parse(window.localStorage.getItem("fontSize"));
-    if (localFontSize !== null && fontSize.value !== localFontSize[0]) {
-      setFontSize({
-        value: localFontSize[0],
-        label: localFontSize[1],
-      });
-    }
-  }, [fontSize]);
 
   return [fontSize, handleFontSizeChange];
 };
 
-const useUndoEnabled = () => {
-  const [undoEnabled, setUndoEnabled] = useState(true);
-
-  const toggleUndoEnabled = () => {
-    window.localStorage.setItem("undoEnabled", !undoEnabled);
-    setUndoEnabled((a) => !a);
-  };
-
-  useEffect(() => {
-    const localUndoEnabled = window.localStorage.getItem("undoEnabled");
-    const localUndoEnabledIsTrue = localUndoEnabled === "true";
-    if (undoEnabled !== localUndoEnabledIsTrue && localUndoEnabled !== null) {
-      setUndoEnabled(localUndoEnabledIsTrue);
-    }
-  }, [undoEnabled]);
-
-  return [undoEnabled, toggleUndoEnabled];
-};
-
-const useKeyPressEnabled = () => {
-  const [keyPressEnabled, setKeyPressEnabled] = useState(false);
-
-  const toggleKeyPressEnabled = () => {
-    window.localStorage.setItem("keyPressEnabled", !keyPressEnabled);
-    setKeyPressEnabled((a) => !a);
-  };
-
-  useEffect(() => {
-    const localKeyPressEnabled = window.localStorage.getItem("keyPressEnabled");
-    const localKeyPressEnabledIsTrue = localKeyPressEnabled === "true";
-    if (
-      keyPressEnabled !== localKeyPressEnabledIsTrue &&
-      localKeyPressEnabled !== null
-    ) {
-      setKeyPressEnabled(localKeyPressEnabledIsTrue);
-    }
-  }, [keyPressEnabled]);
-
-  return [keyPressEnabled, toggleKeyPressEnabled];
-};
-
-export {
-  useRowsPerPage,
-  useDarkMode,
-  useFontSize,
-  useUndoEnabled,
-  useKeyPressEnabled,
-};
+export { useDarkMode, useFontSize, useRowsPerPage };

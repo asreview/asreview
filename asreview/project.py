@@ -14,14 +14,7 @@
 
 __all__ = [
     "ProjectError",
-    "ProjectExistsError",
     "ProjectNotFoundError",
-    "Project",
-    "get_project_path",
-    "project_from_id",
-    "get_projects",
-    "is_project",
-    "is_v0_project",
 ]
 
 import json
@@ -32,38 +25,23 @@ import shutil
 import tempfile
 import time
 import zipfile
+from dataclasses import asdict
 from datetime import datetime
-from functools import wraps
 from pathlib import Path
 from uuid import uuid4
 
 import jsonschema
-import numpy as np
 import pandas as pd
 from filelock import FileLock
-from scipy.sparse import csr_matrix
-from scipy.sparse import load_npz
-from scipy.sparse import save_npz
 
 from asreview import load_dataset
-from asreview.config import DEFAULT_BALANCE_STRATEGY
-from asreview.config import DEFAULT_FEATURE_EXTRACTION
-from asreview.config import DEFAULT_MODEL
-from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import LABEL_NA
-from asreview.config import PROJECT_MODE_EXPLORE
-from asreview.config import PROJECT_MODE_ORACLE
-from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.config import PROJECT_MODES
+from asreview.config import PROJECT_MODE_EXPLORE
+from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.config import SCHEMA
-from asreview.exceptions import CacheDataError
-from asreview.models.balance import get_balance_model
-from asreview.models.classifiers import get_classifier
-from asreview.models.feature_extraction import get_feature_model
-from asreview.models.query import get_query_model
-from asreview.settings import ASReviewSettings
+from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState
-from asreview.utils import asreview_path
 
 try:
     from asreview._version import __version__
@@ -79,74 +57,18 @@ class ProjectError(Exception):
     pass
 
 
-class ProjectExistsError(Exception):
+class ProjectNotFoundError(FileNotFoundError):
     pass
 
 
-class ProjectNotFoundError(Exception):
-    pass
+def is_project(project_obj, raise_on_old_version=True):
+    if isinstance(project_obj, Project):
+        project_obj = project_obj.project_path
 
+    if raise_on_old_version and not Path(project_obj, "reviews").exists():
+        raise ProjectError("Project is of an older version.")
 
-def get_project_path(folder_id):
-    """Get the project directory.
-
-    Arguments
-    ---------
-    folder_id: str
-        The id of the folder containing a project. If there is no
-        authentication, the folder_id is equal to the project_id. Otherwise,
-        this is equal to {project_owner_id}_{project_id}.
-    """
-    return Path(asreview_path(), folder_id)
-
-
-def project_from_id(f):
-    """Decorator function that takes a user account as parameter,
-    the user account is used to get the correct sub folder in which
-    the projects is
-    """
-
-    @wraps(f)
-    def decorated_function(project_id, *args, **kwargs):
-        project_path = get_project_path(project_id)
-        if not is_project(project_path):
-            raise ProjectNotFoundError(f"Project '{project_id}' not found")
-        project = Project(project_path, project_id=project_id)
-        return f(project, *args, **kwargs)
-
-    return decorated_function
-
-
-def get_projects(project_paths=None):
-    """Get the ASReview projects at the given paths.
-
-    Arguments
-    ---------
-    project_paths : list[Path], optional
-        List of paths to projects. By default all the projects in the asreview
-        folder are used, by default None
-
-    Returns
-    -------
-    list[Project]
-        Projects at the given project paths.
-    """
-    if project_paths is None:
-        project_paths = [path for path in asreview_path().iterdir() if path.is_dir()]
-
-    return [Project(project_path) for project_path in project_paths]
-
-
-def is_project(project_path):
-    project_path = Path(project_path) / PATH_PROJECT_CONFIG
-
-    return project_path.exists()
-
-
-def is_v0_project(project_path):
-    """Check if a project file is of a ASReview version 0 project."""
-
-    return not Path(project_path, "reviews").exists()
+    return Path(project_obj, PATH_PROJECT_CONFIG).exists()
 
 
 class Project:
@@ -171,8 +93,8 @@ class Project:
 
         project_path = Path(project_path)
 
-        if is_project(project_path):
-            raise ProjectExistsError("Project already exists.")
+        if project_path.exists():
+            raise ValueError("Project path is not empty.")
 
         if project_mode not in PROJECT_MODES:
             raise ValueError(
@@ -281,7 +203,7 @@ class Project:
     def add_dataset(self, file_name):
         """Add file path to the project file.
 
-        Add file to data subfolder and fill the pool of iteration 0.
+        Add file to data subfolder.
         """
 
         # fill the pool of the first iteration
@@ -298,56 +220,7 @@ class Project:
 
         self.update_config(dataset_path=file_name, name=file_name.rsplit(".", 1)[0])
 
-        state = SQLiteState(read_only=False)
-
-        try:
-            review_id = uuid4().hex
-            state._create_new_state_file(self.project_path, review_id)
-            self.add_review(review_id)
-
-            # save the record ids in the state file
-            state.add_record_table(as_data.record_ids)
-
-            # add default settings to the state file
-            classifier = get_classifier(DEFAULT_MODEL)
-            query_strategy = get_query_model(DEFAULT_QUERY_STRATEGY)
-            balance_strategy = get_balance_model(DEFAULT_BALANCE_STRATEGY)
-            feature_extraction = get_feature_model(DEFAULT_FEATURE_EXTRACTION)
-
-            asreview_settings = ASReviewSettings(
-                model=DEFAULT_MODEL,
-                query_strategy=DEFAULT_QUERY_STRATEGY,
-                balance_strategy=DEFAULT_BALANCE_STRATEGY,
-                feature_extraction=DEFAULT_FEATURE_EXTRACTION,
-                model_param=classifier.param,
-                query_param=query_strategy.param,
-                balance_param=balance_strategy.param,
-                feature_param=feature_extraction.param,
-            )
-
-            state.settings = asreview_settings
-
-            # if the data contains labels and oracle mode, add them to the state file
-            if (
-                self.config["mode"] == PROJECT_MODE_ORACLE
-                and as_data.labels is not None
-            ):
-                labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
-                labels = as_data.labels[labeled_indices].tolist()
-                labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
-
-                # add the labels as prior data
-                state.add_labeling_data(
-                    record_ids=labeled_record_ids,
-                    labels=labels,
-                    notes=[None for _ in labeled_record_ids],
-                    prior=True,
-                )
-        finally:
-            try:
-                state.close()
-            except AttributeError:
-                pass
+        return as_data
 
     def remove_dataset(self):
         """Remove dataset from project."""
@@ -377,16 +250,12 @@ class Project:
             if (not version_check) or (__version__ == data_obj_version):
                 return data_obj
 
-        except FileNotFoundError:
-            pass
-        except Exception as err:
+        except ValueError as err:
             logging.error(f"Error reading cache file: {err}")
             try:
                 os.remove(fp_data_pickle)
             except FileNotFoundError:
                 pass
-
-        raise CacheDataError()
 
     def read_data(self, use_cache=True, save_cache=True):
         """Get Dataset object from file.
@@ -408,7 +277,7 @@ class Project:
         if use_cache:
             try:
                 return self._read_data_from_cache()
-            except CacheDataError:
+            except FileNotFoundError:
                 pass
 
         try:
@@ -447,27 +316,23 @@ class Project:
         except Exception:
             return []
 
-    def add_feature_matrix(self, feature_matrix, feature_extraction_method):
+    @staticmethod
+    def get_matrix_filename(feature_model):
+        """Get the file name of the feature matrix for a specific feature model."""
+        return f"{feature_model.name}_feature_matrix.{feature_model.file_extension}"
+
+    def add_feature_matrix(self, feature_matrix, feature_model):
         """Add feature matrix to project file.
 
         Arguments
         ---------
         feature_matrix: numpy.ndarray, scipy.sparse.csr.csr_matrix
             The feature matrix to add to the project file.
-        feature_extraction_method: str
-            Name of the feature extraction method.
+        feature_model: BaseFeatureExtraction
+            Feature extraction class.
         """
-        # Make sure the feature matrix is in csr format.
-        if isinstance(feature_matrix, np.ndarray):
-            feature_matrix = csr_matrix(feature_matrix)
-        if not isinstance(feature_matrix, csr_matrix):
-            raise ValueError(
-                "The feature matrix should be convertible to type "
-                "scipy.sparse.csr.csr_matrix."
-            )
-
-        matrix_filename = f"{feature_extraction_method}_feature_matrix.npz"
-        save_npz(
+        matrix_filename = self.get_matrix_filename(feature_model)
+        feature_model.write(
             Path(self.project_path, PATH_FEATURE_MATRICES, matrix_filename),
             feature_matrix,
         )
@@ -476,7 +341,7 @@ class Project:
         config = self.config
 
         feature_matrix_config = {
-            "id": feature_extraction_method,
+            "id": feature_model.name,
             "filename": matrix_filename,
         }
 
@@ -488,21 +353,23 @@ class Project:
 
         self.config = config
 
-    def get_feature_matrix(self, feature_extraction_method):
+    def get_feature_matrix(self, feature_model):
         """Get the feature matrix from the project file.
 
         Arguments
         ---------
-        feature_extraction_method: str
-            Name of the feature extraction method for which to get the matrix.
+        feature_model : BaseFeatureExtraction
+            Feature extraction class for which to get the matrix.
 
         Returns
         -------
-        scipy.sparse.csr_matrix:
-            Feature matrix in sparse format.
+        numpy.ndarray, scipy.sparse.csr_matrix:
+            Feature matrix. This should have the same length as the dataset.
         """
-        matrix_filename = f"{feature_extraction_method}_feature_matrix.npz"
-        return load_npz(Path(self.project_path, PATH_FEATURE_MATRICES, matrix_filename))
+        matrix_filename = self.get_matrix_filename(feature_model)
+        return feature_model.read(
+            Path(self.project_path, PATH_FEATURE_MATRICES, matrix_filename)
+        )
 
     @property
     def reviews(self):
@@ -511,13 +378,19 @@ class Project:
         except Exception:
             return []
 
-    def add_review(self, review_id, start_time=None, status="setup"):
+    def add_review(
+        self, review_id=None, settings=None, state=None, start_time=None, status="setup"
+    ):
         """Add new review metadata.
 
         Arguments
         ---------
         review_id: str
             The review_id uuid4.
+        settings: ReviewSettings
+            The settings of the review.
+        state: SQLiteState
+            The state of the review.
         status: str
             The status of the review. One of 'setup', 'running',
             'finished'.
@@ -525,11 +398,36 @@ class Project:
             Start of the review.
 
         """
+
+        if review_id is not None and any(
+            [x["id"] == review_id for x in self.config["reviews"]]
+        ):
+            raise ValueError(f"Review with id {review_id} already exists.")
+
+        if review_id is None:
+            review_id = uuid4().hex
+
         if start_time is None:
             start_time = datetime.now()
 
-        # Add the review to the project.
         config = self.config
+
+        if settings is None:
+            settings = ReviewSettings()
+
+        Path(self.project_path, "reviews", review_id).mkdir(exist_ok=True, parents=True)
+        with open(
+            Path(self.project_path, "reviews", review_id, "settings_metadata.json"), "w"
+        ) as f:
+            json.dump(asdict(settings), f)
+
+        fp_state = Path(self.project_path, "reviews", review_id, "results.db")
+
+        if state is None:
+            state = SQLiteState(fp_state)
+            state.create_tables()
+        else:
+            state.to_sql(fp_state)
 
         review_config = {
             "id": review_id,
@@ -545,8 +443,9 @@ class Project:
         config["reviews"].append(review_config)
 
         self.config = config
+        return config
 
-    def update_review(self, review_id=None, **kwargs):
+    def update_review(self, review_id=None, settings=None, state=None, **kwargs):
         """Update review metadata.
 
         Arguments
@@ -567,8 +466,20 @@ class Project:
 
         if review_id is None:
             review_index = 0
+            review_id = config["reviews"][0]["id"]
         else:
             review_index = [x["id"] for x in self.config["reviews"]].index(review_id)
+
+        if state is not None:
+            fp_state = Path(self.project_path, "reviews", review_id, "results.db")
+            state.to_sql(fp_state)
+
+        if settings is not None:
+            with open(
+                Path(self.project_path, "reviews", review_id, "settings_metadata.json"),
+                "w",
+            ) as f:
+                json.dump(asdict(settings), f)
 
         review_config = config["reviews"][review_index]
         review_config.update(kwargs)
@@ -640,63 +551,76 @@ class Project:
 
     @classmethod
     def load(cls, asreview_file, project_path, safe_import=False):
-        tmpdir = tempfile.TemporaryDirectory().name
+        with tempfile.TemporaryDirectory() as tmpdir:
+            try:
+                # Unzip the project file
+                with zipfile.ZipFile(asreview_file, "r") as zip_obj:
+                    zip_filenames = zip_obj.namelist()
 
-        try:
-            # Unzip the project file
-            with zipfile.ZipFile(asreview_file, "r") as zip_obj:
-                zip_filenames = zip_obj.namelist()
+                    # raise error if no ASReview project file
+                    if PATH_PROJECT_CONFIG not in zip_filenames:
+                        raise ValueError("Project file is not valid project.")
 
-                # raise error if no ASReview project file
-                if PATH_PROJECT_CONFIG not in zip_filenames:
-                    raise ValueError("Project file is not valid project.")
+                    # extract all files to folder
+                    for f in zip_filenames:
+                        if not f.endswith(".pickle"):
+                            zip_obj.extract(f, path=tmpdir)
 
-                # extract all files to folder
-                for f in zip_filenames:
-                    if not f.endswith(".pickle"):
-                        zip_obj.extract(f, path=tmpdir)
+            except zipfile.BadZipFile:
+                raise ValueError("File is not an ASReview file.")
 
-        except zipfile.BadZipFile:
-            raise ValueError("File is not an ASReview file.")
+            with open(Path(tmpdir, PATH_PROJECT_CONFIG)) as f:
+                project_config = json.load(f)
 
-        with open(Path(tmpdir, PATH_PROJECT_CONFIG)) as f:
-            project_config = json.load(f)
+            if safe_import:
+                # assign a new id to the project.
+                project_config["id"] = uuid4().hex
+                with open(Path(tmpdir, PATH_PROJECT_CONFIG), "r+") as f:
+                    # write to file
+                    f.seek(0)
+                    json.dump(project_config, f)
+                    f.truncate()
 
-        if safe_import:
-            # assign a new id to the project.
-            project_config["id"] = uuid4().hex
-            with open(Path(tmpdir, PATH_PROJECT_CONFIG), "r+") as f:
-                # write to file
-                f.seek(0)
-                json.dump(project_config, f)
-                f.truncate()
-
-        # location to copy file to
-        # Move the project from the temp folder to the projects folder.
-        os.replace(tmpdir, Path(project_path, project_config["id"]))
+            shutil.copytree(tmpdir, Path(project_path, project_config["id"]))
 
         return cls(Path(project_path, project_config["id"]))
 
-    def set_error(self, err, save_error_message=True):
+    def get_review_error(self, review_id=None):
+        if review_id is None:
+            review_id = self.config["reviews"][0]["id"]
+
+        error_path = Path(self.project_path, "reviews", review_id, "error.json")
+        if error_path.exists():
+            with open(error_path, "r") as f:
+                return json.load(f)
+        else:
+            raise ValueError("No error found.")
+
+    def set_review_error(self, err, review_id=None):
+        if review_id is None:
+            review_id = self.config["reviews"][0]["id"]
+
         err_type = type(err).__name__
-        self.update_review(status="error")
 
-        # write error to file if label method is prior (first iteration)
-        if save_error_message:
-            message = {
-                "message": f"{err_type}: {err}",
-                "type": f"{err_type}",
-                "datetime": str(datetime.now()),
-            }
+        with open(
+            Path(self.project_path, "reviews", review_id, "error.json"), "w"
+        ) as f:
+            json.dump(
+                {
+                    "message": f"{err_type}: {err}",
+                    "type": f"{err_type}",
+                    "datetime": str(datetime.now()),
+                },
+                f,
+            )
 
-            with open(Path(self.project_path, "error.json"), "w") as f:
-                json.dump(message, f)
+    def remove_review_error(self, review_id=None):
+        if review_id is None:
+            review_id = self.config["reviews"][0]["id"]
 
-    def remove_error(self, status):
-        error_path = self.project_path / "error.json"
+        error_path = self.project_path / "reviews" / review_id / "error.json"
         if error_path.exists():
             try:
                 os.remove(error_path)
             except Exception as err:
                 raise ValueError(f"Failed to clear the error. {err}")
-        self.update_review(status=status)

@@ -23,7 +23,7 @@ import pandas as pd
 import rispy
 
 from asreview.data.base import Dataset
-from asreview.utils import is_url
+from asreview.utils import _is_url
 
 ASREVIEW_PARSE_RE = r"\bASReview_\w+\b"
 ASREVIEW_PARSE_DICT = {
@@ -171,7 +171,7 @@ class RISReader:
         entries = None
         for encoding in encodings:
             try:
-                if is_url(fp):
+                if _is_url(fp):
                     entries = cls._read_from_url(fp, encoding=encoding)
                     break
                 else:

@@ -1,21 +1,18 @@
-import inspect
 import json
 import time
 from pathlib import Path
-from typing import Union
 
 import pytest
-from flask.testing import FlaskClient
 from jsonschema.exceptions import ValidationError
 
 import asreview as asr
 import asreview.webapp.tests.utils.api_utils as au
 import asreview.webapp.tests.utils.crud as crud
 import asreview.webapp.tests.utils.misc as misc
-from asreview.project import get_projects
-from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import Project
+from asreview.webapp.utils import asreview_path
+from asreview.webapp.utils import get_projects
 
 # NOTE: I don't see a plugin that can be used for testing
 # purposes
@@ -132,6 +129,7 @@ def test_try_upgrade_a_modern_project(client, project):
 
 
 # Test upgrading a v0.x project
+@pytest.mark.skip(reason="projects in 0 series should no longer be supported")
 def test_upgrade_an_old_project(client, user):
     tests_folder = Path(__file__).parent.parent
     asreview_v0_file = Path(
@@ -312,7 +310,6 @@ def test_update_project_info(client, project):
         client,
         project,
         name=new_name,
-        # mode=new_mode,  # from version 2 on, it's no longer possible to update mode
         authors=new_authors,
         description=new_description,
         tags=new_tags,
@@ -331,16 +328,6 @@ def test_search_data(client, project):
     assert "result" in r.json
     assert isinstance(r.json["result"], list)
     assert len(r.json["result"]) <= 10
-
-
-# Test get a selection of random papers to find exclusions
-def test_random_prior_papers(client, project):
-    # get random selection
-    r = au.get_prior_random_project_data(client, project)
-    assert r.status_code == 200
-    assert "result" in r.json
-    assert isinstance(r.json["result"], list)
-    assert len(r.json["result"]) > 0
 
 
 # Test labeling of prior data
@@ -403,7 +390,6 @@ def test_set_project_algorithms(client, project):
 
     r = au.set_project_algorithms(client, project, data=data)
     assert r.status_code == 200
-    assert r.json["success"]
 
 
 def test_get_project_algorithms(client, project):
@@ -427,8 +413,8 @@ def test_start_and_model_ready(client, project):
     data = misc.choose_project_algorithms()
     au.set_project_algorithms(client, project, data=data)
     r = au.set_project_status(client, project, status="review", trigger_model=True)
-    assert r.status_code == 200
-    assert r.json["success"]
+    assert r.status_code == 201
+    assert r.json["status"] == "review"
     # make sure model is done
     time.sleep(10)
 
@@ -445,9 +431,6 @@ def test_start_and_model_ready(client, project):
 def test_status_project(client, project, state_name, expected_state):
     # call these progression steps
     if state_name in ["setup", "review", "finish"]:
-        # label 2 records
-        au.label_random_project_data_record(client, project, 1)
-        au.label_random_project_data_record(client, project, 0)
         # select a model
         data = misc.choose_project_algorithms()
         au.set_project_algorithms(client, project, data=data)
@@ -494,14 +477,12 @@ def test_export_project(client, project):
 @pytest.mark.parametrize("status", ["review", "finished"])
 def test_set_project_status(client, project, status):
     au.upload_label_set_and_start_model(client, project)
-    # when setting the status to "review", the project must have another
-    # status then "review"
     if status == "review":
-        au.set_project_status(client, project, "finished")
-    # set project status
+        r = au.set_project_status(client, project, "finished")
+        assert r.status_code == 201
+
     r = au.set_project_status(client, project, status)
-    assert r.status_code == 200
-    assert r.json["success"]
+    assert r.status_code == 201
 
 
 # Test get progress info
@@ -541,7 +522,6 @@ def test_retrieve_document_for_review(client, project):
     au.upload_label_set_and_start_model(client, project)
     r = au.get_project_current_document(client, project)
 
-    print(r.json)
     assert r.status_code == 200
     assert isinstance(r.json, dict)
     assert not r.json["pool_empty"]
@@ -559,7 +539,6 @@ def test_label_a_document_with_running_model(client, user, project):
         client, project, r.json["result"]["record_id"], label=1, prior=0, note="note"
     )
     assert r.status_code == 200
-    assert r.json["success"]
     time.sleep(10)
 
 
@@ -576,7 +555,6 @@ def test_update_label_of_document_with_running_model(client, project):
         client, project, record_id, label=0, prior=0, note="changed note"
     )
     assert r.status_code == 200
-    assert r.json["success"]
     time.sleep(10)
 
 
@@ -588,60 +566,42 @@ def test_delete_project(client, project):
 
 
 @pytest.mark.parametrize(
-    "api_call",
+    "api_call,project_required,params",
     [
-        au.get_all_projects,
-        au.create_project,
-        au.update_project,
-        au.upgrade_project,
-        au.get_project_stats,
-        au.get_demo_data,
-        au.get_project_data,
-        au.get_project_dataset_writer,
-        au.search_project_data,
-        au.get_prior_random_project_data,
-        au.label_project_record,
-        au.update_label_project_record,
-        au.get_labeled_project_data,
-        au.get_labeled_project_data_stats,
-        au.get_project_algorithms_options,
-        au.set_project_algorithms,
-        au.get_project_algorithms,
-        au.set_project_status,
-        au.get_project_status,
-        au.export_project_dataset,
-        au.export_project,
-        au.get_project_progress,
-        au.get_project_progress_density,
-        au.get_project_progress_recall,
-        au.get_project_current_document,
-        au.delete_project,
+        (au.get_all_projects, False, {}),
+        (au.get_project_stats, False, {}),
+        (au.get_demo_data, False, {"subset": "benchmark"}),
+        (au.get_project_algorithms_options, False, {}),
+        (au.get_project_algorithms, True, {}),
+        (au.create_project, True, {}),
+        (au.update_project, True, {}),
+        (au.upgrade_project, True, {}),
+        (au.get_project_data, True, {}),
+        (au.get_project_dataset_writer, True, {}),
+        (au.search_project_data, True, {"query": "Software"}),
+        (au.label_project_record, True, {"record_id": 1, "label": 1}),
+        (au.update_label_project_record, True, {"record_id": 1, "label": 1}),
+        (au.get_labeled_project_data, True, {}),
+        (au.get_labeled_project_data_stats, True, {}),
+        (au.set_project_algorithms, True, {"data": {}}),
+        (au.set_project_status, True, {"status": "review"}),
+        (au.get_project_status, True, {}),
+        (au.export_project_dataset, True, {"format": "csv"}),
+        (au.export_project, True, {}),
+        (au.get_project_progress, True, {}),
+        (au.get_project_progress_density, True, {}),
+        (au.get_project_progress_recall, True, {}),
+        (au.get_project_current_document, True, {}),
+        (au.delete_project, True, {}),
     ],
 )
-def test_unauthorized_use_of_api_calls(client, project, api_call):
-    if not client.application.config.get("LOGIN_DISABLED"):
-        # signout the client
-        au.signout_user(client)
-        # inspect function
-        sig = inspect.signature(api_call)
-        # form parameters
-        parms = []
-        for par in sig.parameters.keys():
-            annotation = sig.parameters[par].annotation
-            if annotation == FlaskClient:
-                parms.append(client)
-            elif annotation == Union[Project, asr.Project]:
-                parms.append(project)
-            elif annotation == int:
-                parms.append(1)
-            elif annotation == str:
-                parms.append("abc")
-            elif annotation == dict:
-                parms.append({})
+def test_unauthorized_use_of_api_calls(
+    client_auth, project, api_call, project_required, params
+):
+    au.signout_user(client_auth)
 
-        # make the api call
-        r = api_call(*parms)
-        assert r.status_code == 401
-    else:
-        # no asserts in an unauthenticated app
-        pass
+    if project_required:
+        params["project"] = project
+
+    r = api_call(client_auth, **params)
+    assert r.status_code == 401

@@ -1,5 +1,5 @@
 import React from "react";
-import { connect, useSelector } from "react-redux";
+import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { AppBar, Box, ButtonBase, Toolbar, IconButton } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -46,7 +46,6 @@ const mapStateToProps = (state) => {
 
 const Header = (props) => {
   const navigate = useNavigate();
-  const authentication = useSelector((state) => state.authentication);
 
   return (
     <Root aria-label="appbar-toolbar">
@@ -73,7 +72,7 @@ const Header = (props) => {
               />
             </ButtonBase>
           </Box>
-          {authentication === true && (
+          {window.authentication === true && (
             <ProfilePopper mobilescreen={props.mobilescreen} />
           )}
         </Toolbar>

@@ -1,6 +1,5 @@
 import React from "react";
 import { useQuery } from "react-query";
-import { useSelector } from "react-redux";
 import { Route, Routes, useParams } from "react-router-dom";
 import {
   Box,
@@ -21,7 +20,14 @@ import {
 } from "@mui/material";
 
 import { styled } from "@mui/material/styles";
-import { Diversity3, Help, Payment, Settings } from "@mui/icons-material";
+import {
+  Diversity1Outlined,
+  HelpOutlineOutlined,
+  PaymentOutlined,
+  TuneOutlined,
+} from "@mui/icons-material";
+
+import { OpenInNewIconStyled } from "Components";
 
 import { DrawerItem, ElasGame } from "Components";
 import { ProjectAPI } from "api";
@@ -122,8 +128,6 @@ const ProjectItemList = ({
   onNavDrawer,
   toggleNavDrawer,
 }) => {
-  const authentication = useSelector((state) => state.authentication);
-  const allowTeams = useSelector((state) => state.allow_teams);
   const [openGame, setOpenGame] = React.useState(false);
 
   const toggleGame = () => {
@@ -177,9 +181,9 @@ const ProjectItemList = ({
       )}
 
       <DrawerItem
-        key={"project-analytics"}
+        key={"project-dashboard"}
         path={`/projects/${project_id}/`}
-        label={"Analytics"}
+        label={"Dashboard"}
         mobileScreen={mobileScreen}
         onNavDrawer={onNavDrawer}
         toggleNavDrawer={toggleNavDrawer}
@@ -197,14 +201,14 @@ const ProjectItemList = ({
       )}
       <DrawerItem
         key={"project-history"}
-        path={`/projects/${project_id}/history`}
-        label={"History"}
+        path={`/projects/${project_id}/collection`}
+        label={"Collection"}
         mobileScreen={mobileScreen}
         onNavDrawer={onNavDrawer}
         toggleNavDrawer={toggleNavDrawer}
       />
 
-      {authentication && allowTeams && (
+      {window.authentication && window.allowTeams && (
         <DrawerItem
           key={"project-team"}
           path={`/projects/${project_id}/team`}
@@ -216,18 +220,9 @@ const ProjectItemList = ({
       )}
 
       <DrawerItem
-        key={"project-export"}
-        path={`/projects/${project_id}/export`}
-        label={"Export"}
-        mobileScreen={mobileScreen}
-        onNavDrawer={onNavDrawer}
-        toggleNavDrawer={toggleNavDrawer}
-      />
-
-      <DrawerItem
-        key={"project-details"}
-        path={`/projects/${project_id}/details`}
-        label={"Details"}
+        key={"project-settings"}
+        path={`/projects/${project_id}/settings`}
+        label={"Settings"}
         mobileScreen={mobileScreen}
         onNavDrawer={onNavDrawer}
         toggleNavDrawer={toggleNavDrawer}
@@ -324,9 +319,15 @@ const DrawerItemContainer = (props) => {
               target="_blank"
             >
               <ListItemIcon className={classes.icon}>
-                <Payment />
+                <PaymentOutlined />
               </ListItemIcon>
-              <ListItemText primary="Donate" />
+              <ListItemText
+                primary={
+                  <React.Fragment>
+                    Donate <OpenInNewIconStyled />
+                  </React.Fragment>
+                }
+              />
             </ListItemButton>
           </Tooltip>
         )}
@@ -343,15 +344,21 @@ const DrawerItemContainer = (props) => {
               target="_blank"
             >
               <ListItemIcon className={classes.icon}>
-                <Diversity3 />
+                <Diversity1Outlined />
               </ListItemIcon>
-              <ListItemText primary="Community" />
+              <ListItemText
+                primary={
+                  <React.Fragment>
+                    Community <OpenInNewIconStyled />
+                  </React.Fragment>
+                }
+              />
             </ListItemButton>
           </Tooltip>
         )}
         <Tooltip
           disableHoverListener={props.onNavDrawer}
-          title="Settings"
+          title="Customize"
           placement="right"
         >
           <ListItemButton
@@ -363,9 +370,9 @@ const DrawerItemContainer = (props) => {
             }}
           >
             <ListItemIcon className={classes.icon}>
-              <Settings />
+              <TuneOutlined />
             </ListItemIcon>
-            <ListItemText primary="Settings" />
+            <ListItemText primary="Customize" />
           </ListItemButton>
         </Tooltip>
         <Tooltip
@@ -382,7 +389,7 @@ const DrawerItemContainer = (props) => {
             }}
           >
             <ListItemIcon className={classes.icon}>
-              <Help />
+              <HelpOutlineOutlined />
             </ListItemIcon>
             <ListItemText primary="Help" />
           </ListItemButton>

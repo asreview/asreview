@@ -18,10 +18,10 @@ from math import floor
 from math import log
 
 import numpy as np
+from sklearn.utils import check_random_state
 
 from asreview.models.balance.base import BaseBalance
 from asreview.models.balance.simple import SimpleBalance
-from asreview.utils import get_random_state
 
 
 class DoubleBalance(BaseBalance):
@@ -61,7 +61,7 @@ class DoubleBalance(BaseBalance):
         self.b = b
         self.beta = beta
         self.fallback_model = SimpleBalance()
-        self._random_state = get_random_state(random_state)
+        self._random_state = random_state
 
     def sample(self, X, y, train_idx):
         """Resample the training data.
@@ -110,7 +110,7 @@ class DoubleBalance(BaseBalance):
         zero_train_idx = fill_training(zero_idx, n_zero_train, self._random_state)
         # Merge and shuffle.
         all_idx = np.concatenate([one_train_idx, zero_train_idx])
-        self._random_state.shuffle(all_idx)
+        check_random_state(self._random_state).shuffle(all_idx)
 
         # Return resampled feature matrix and labels.
         return X[all_idx], y[all_idx]
@@ -135,7 +135,7 @@ def random_round(value, random_state):
     to 9, 10% of the time.
     """
     base = int(floor(value))
-    if random_state.rand() < value - base:
+    if check_random_state(random_state).rand() < value - base:
         base += 1
     return base
 
@@ -151,6 +151,7 @@ def fill_training(src_idx, n_train, random_state):
     dest_idx = np.tile(src_idx, n_copy).reshape(-1)
     # Add samples
     dest_idx = np.append(
-        dest_idx, random_state.choice(src_idx, n_sample, replace=False)
+        dest_idx,
+        check_random_state(random_state).choice(src_idx, n_sample, replace=False),
     )
     return dest_idx

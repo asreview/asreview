@@ -22,6 +22,7 @@ except ImportError:
     import tomli as tomllib
 
 from flask import Flask
+from flask import request
 from flask import send_from_directory
 from flask.json import jsonify
 from flask.templating import render_template
@@ -30,13 +31,13 @@ from flask_login import LoginManager
 from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
-from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.api import auth
 from asreview.webapp.api import projects
 from asreview.webapp.api import team
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
+from asreview.webapp.utils import asreview_path
 
 
 def create_app(config_path=None):
@@ -69,7 +70,7 @@ def create_app(config_path=None):
     if app.debug and not app.config.get("CORS_ORIGINS", None):
         app.config["CORS_ORIGINS"] = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
-    CORS(app, supports_credentials=True)
+    CORS(app, supports_credentials=True, expose_headers=["Content-Disposition"])
 
     with app.app_context():
         app.register_blueprint(projects.bp)
@@ -139,48 +140,28 @@ def create_app(config_path=None):
     @app.route("/forgot_password", methods=["GET"])
     @app.route("/reset_password", methods=["GET"])
     def index(**kwargs):
-        return render_template("index.html", api_url=app.config.get("API_URL", "/"))
+        oauth_params = None
+        if isinstance(app.config.get("OAUTH", False), OAuthHandler):
+            oauth_params = app.config.get("OAUTH").front_end_params()
 
-    @app.route("/favicon.ico")
-    def send_favicon():
-        return send_from_directory(
-            "build", "favicon.ico", mimetype="image/vnd.microsoft.icon"
+        return render_template(
+            "index.html",
+            api_url=app.config.get("API_URL", "/"),
+            asreview_version=asreview_version,
+            authentication=str(not app.config.get("LOGIN_DISABLED", False)).lower(),
+            login_info=app.config.get("LOGIN_INFO", None),
+            allow_account_creation=str(
+                app.config.get("ALLOW_ACCOUNT_CREATION", True)
+            ).lower(),
+            allow_teams=str(app.config.get("ALLOW_TEAMS", False)).lower(),
+            email_verification=str(app.config.get("EMAIL_VERIFICATION", False)).lower(),
+            oauth=app.config.get("OAUTH", oauth_params),
         )
 
-    @app.route("/boot", methods=["GET"])
-    def api_boot():
-        """Get the boot info."""
-
-        authenticated = not app.config.get("LOGIN_DISABLED", False)
-        response = {
-            "authentication": authenticated,
-            "version": asreview_version,
-            "login_info": app.config.get("LOGIN_INFO", None),
-        }
-
-        if authenticated:
-            response["allow_account_creation"] = app.config.get(
-                "ALLOW_ACCOUNT_CREATION", False
-            )
-            response["allow_teams"] = app.config.get("ALLOW_TEAMS", False)
-
-            response["email_verification"] = bool(
-                app.config.get("EMAIL_VERIFICATION", False)
-            )
-
-            response["email_config"] = all(
-                [
-                    app.config.get("MAIL_SERVER", False),
-                    app.config.get("MAIL_USERNAME", False),
-                    app.config.get("MAIL_PASSWORD", False),
-                ]
-            )
-
-            # if oauth config is provided
-            if isinstance(app.config.get("OAUTH", False), OAuthHandler):
-                if params := app.config.get("OAUTH").front_end_params():
-                    response["oauth"] = params
-
-        return jsonify(response)
+    @app.route("/favicon.ico")
+    @app.route("/favicon.png")
+    @app.route("/robots.txt")
+    def static_from_root():
+        return send_from_directory("build", request.path[1:])
 
     return app

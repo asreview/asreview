@@ -8,13 +8,13 @@ import pytest
 
 import asreview as asr
 import asreview.webapp.entry_points.auth_tool as tool
-from asreview.utils import asreview_path
 from asreview.webapp import DB
 from asreview.webapp.entry_points.auth_tool import AuthTool
 from asreview.webapp.tests.utils import api_utils as au
 from asreview.webapp.tests.utils import config_parser as cp
 from asreview.webapp.tests.utils import crud
 from asreview.webapp.tests.utils import misc
+from asreview.webapp.utils import asreview_path
 
 
 def get_auth_tool_object(namespace):
@@ -308,7 +308,8 @@ def test_validity_function_invalid(capsys):
         auth_tool._ensure_valid_value_for("test", lambda x: x == correct, hint=hint)
     out, err = capsys.readouterr()
     assert not bool(out)
-    assert err == hint
+    # An new-line is added to the hint
+    assert err == f"{hint}\n"
 
 
 # Test printing a project

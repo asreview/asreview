@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { connect } from "react-redux";
 import {
   Box,
   Dialog,
@@ -38,12 +37,6 @@ const CitationStylesRow = styled("div")(({ theme }) => ({
     flexDirection: "column",
   },
 }));
-
-const mapStateToProps = (state) => {
-  return {
-    asreview_version: state.asreview_version,
-  };
-};
 
 const CiteDialog = ({ isOpen, onClose, mobileScreen, asreview_version }) => {
   const theme = useTheme();
@@ -138,7 +131,6 @@ const CiteDialog = ({ isOpen, onClose, mobileScreen, asreview_version }) => {
             position: "relative",
             overflow: "hidden",
             padding: theme.spacing(2),
-            backgroundColor: theme.palette.grey[200],
           }}
         >
           <Box sx={{ overflow: "auto" }}>
@@ -179,4 +171,4 @@ const CiteDialog = ({ isOpen, onClose, mobileScreen, asreview_version }) => {
   );
 };
 
-export default connect(mapStateToProps)(CiteDialog);
+export default CiteDialog;

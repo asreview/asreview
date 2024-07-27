@@ -49,7 +49,7 @@ classifiers = [
 license = {text = "Apache 2.0"}
 dependencies = [
     "numpy",
-    "pandas>=1.3,<3",
+    "pandas>=2,<3",
     "scikit-learn",
     "rispy~=0.7.0",
     "setuptools",
@@ -82,12 +82,11 @@ asreview = "asreview.__main__:main"
 [project.entry-points."asreview.entry_points"]
 lab = "asreview.webapp.entry_points.lab:lab_entry_point"
 auth-tool = "asreview.webapp.entry_points.auth_tool:AuthTool"
-simulate = "asreview.simulation.cli:cli_simulate"
-algorithms = "asreview.simulation.algorithms:cli_algorithms"
+simulate = "asreview.simulation.cli:_cli_simulate"
+algorithms = "asreview.models.cli:cli_algorithms"
 
 [project.entry-points."asreview.entry_points_internal"]
 web_run_model = "asreview.webapp.entry_points.run_model:main"
-state-inspect = "asreview.state.cli:cli_state_inspect"
 
 [project.entry-points."asreview.readers"]
 ".csv" = "asreview.data:CSVReader"
@@ -117,6 +116,7 @@ logistic = "asreview.models.classifiers:LogisticClassifier"
 
 [project.entry-points."asreview.models.feature_extraction"]
 tfidf = "asreview.models.feature_extraction:Tfidf"
+onehot = "asreview.models.feature_extraction:OneHot"
 
 [project.entry-points."asreview.models.balance"]
 simple = "asreview.models.balance:SimpleBalance"
@@ -184,13 +184,14 @@ exclude = [
 line-length = 88
 indent-width = 4
 
-[ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "asreview/config.py" = ["E501"]
 
-[ruff.lint.isort]
+[tool.ruff.lint.isort]
 force-single-line = true
+case-sensitive = true
 
-[ruff.format]
+[tool.ruff.format]
 docstring-code-format = true
 docstring-code-line-length = "dynamic"
 

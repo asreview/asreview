@@ -1,32 +1,23 @@
 import * as React from "react";
-import { useQuery, useQueryClient } from "react-query";
-import { connect, useSelector } from "react-redux";
+import { useQuery } from "react-query";
+import { connect } from "react-redux";
 
-import {
-  Routes,
-  Route,
-  useMatch,
-  useNavigate,
-  useParams,
-  useResolvedPath,
-} from "react-router-dom";
-import clsx from "clsx";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import clsx from "clsx";
+import { Route, Routes, useNavigate, useParams } from "react-router-dom";
 
-import { DialogErrorHandler } from "Components";
+import { PageHeader } from "Components";
 import { AnalyticsPage } from "ProjectComponents/AnalyticsComponents";
 import { DetailsPage } from "ProjectComponents/DetailsComponents";
-import { HistoryPage } from "ProjectComponents/HistoryComponents";
-import { ExportPage } from "ProjectComponents/ExportComponents";
-import { TeamPage } from "ProjectComponents/TeamComponents";
+import { LabelHistory } from "ProjectComponents/HistoryComponents";
+import { CollaborationPage, TeamPage } from "ProjectComponents/TeamComponents";
 
 import { ReviewPage } from "ProjectComponents/ReviewComponents";
 import RouteNotFound from "RouteNotFound";
 
 import { ProjectAPI } from "api";
 import {
-  checkIfSimulationFinishedDuration,
   drawerWidth,
   mapDispatchToProps,
   projectModes,
@@ -61,18 +52,16 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const ProjectPage = (props) => {
-  const authenticated = useSelector((state) => state.authentication);
+const ProjectPage = ({
+  mobileScreen,
+  onNavDrawer,
+  fontSize,
+  projectCheck,
+  setProjectCheck,
+}) => {
   const { auth } = useAuth();
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { project_id } = useParams();
-  const resolved = useResolvedPath("");
-  const match = useMatch({ path: resolved.pathname, end: true });
-
-  const isAnalyticsPageOpen = () => {
-    return match !== null;
-  };
 
   const [isSimulating, setIsSimulating] = React.useState(false);
 
@@ -81,11 +70,7 @@ const ProjectPage = (props) => {
 
   const [tags, setTags] = React.useState([]);
 
-  // History page state
-  const [historyLabel, setHistoryLabel] = React.useState("relevant");
-  const [historyFilterQuery, setHistoryFilterQuery] = React.useState([]);
-
-  const { data, error, isError, isSuccess } = useQuery(
+  const { data, isSuccess } = useQuery(
     ["fetchInfo", { project_id }],
     ProjectAPI.fetchInfo,
     {
@@ -99,8 +84,6 @@ const ProjectPage = (props) => {
           data.reviews[0] === undefined ||
           data["reviews"][0]["status"] === projectStatuses.SETUP
         ) {
-          // set project id
-          props.setProjectId(project_id);
           // open project setup dialog
           navigate("/projects");
         } else if (!data["projectNeedsUpgrade"]) {
@@ -116,7 +99,7 @@ const ProjectPage = (props) => {
         } else {
           navigate("/projects");
           // open project check dialog
-          props.setProjectCheck({
+          setProjectCheck({
             open: true,
             issue: "upgrade",
             path: "",
@@ -128,59 +111,59 @@ const ProjectPage = (props) => {
     },
   );
 
-  const refetchAnalytics = () => {
-    if (isAnalyticsPageOpen()) {
-      queryClient.invalidateQueries("fetchProgress");
-      queryClient.invalidateQueries("fetchProgressDensity");
-      queryClient.invalidateQueries("fetchProgressRecall");
-    }
-  };
+  // const refetchAnalytics = () => {
+  //   if (isAnalyticsPageOpen()) {
+  //     queryClient.invalidateQueries("fetchProgress");
+  //     queryClient.invalidateQueries("fetchProgressDensity");
+  //     queryClient.invalidateQueries("fetchProgressRecall");
+  //   }
+  // };
 
-  const { error: checkSimulationError, isError: isCheckSimulationError } =
-    useQuery(
-      ["fetchProjectStatus", { project_id }],
-      ProjectAPI.fetchProjectStatus,
-      {
-        enabled: isSimulating,
-        onSuccess: (data) => {
-          if (data["status"] === projectStatuses.FINISHED) {
-            // refresh analytics
-            refetchAnalytics();
-            // simulation finished
-            setIsSimulating(false);
-            queryClient.invalidateQueries("fetchInfo");
-          } else {
-            // not finished yet
-            setTimeout(
-              () => queryClient.invalidateQueries("fetchProjectStatus"),
-              checkIfSimulationFinishedDuration,
-            );
-          }
-        },
-        refetchOnWindowFocus: false,
-      },
-    );
+  // const { error: checkSimulationError, isError: isCheckSimulationError } =
+  //   useQuery(
+  //     ["fetchProjectStatus", { project_id }],
+  //     ProjectAPI.fetchProjectStatus,
+  //     {
+  //       enabled: isSimulating,
+  //       onSuccess: (data) => {
+  //         if (data["status"] === projectStatuses.FINISHED) {
+  //           // refresh analytics
+  //           refetchAnalytics();
+  //           // simulation finished
+  //           setIsSimulating(false);
+  //           queryClient.invalidateQueries("fetchInfo");
+  //         } else {
+  //           // not finished yet
+  //           setTimeout(
+  //             () => queryClient.invalidateQueries("fetchProjectStatus"),
+  //             checkIfSimulationFinishedDuration,
+  //           );
+  //         }
+  //       },
+  //       refetchOnWindowFocus: false,
+  //     },
+  //   );
 
-  const returnError = () => {
-    if (isError) {
-      return ["fetchInfo", error, isError];
-    } else if (isCheckSimulationError) {
-      return [
-        "fetchProjectStatus",
-        checkSimulationError,
-        isCheckSimulationError,
-      ];
-    } else {
-      return ["", null, false];
-    }
-  };
+  // const returnError = () => {
+  //   if (isError) {
+  //     return ["fetchInfo", error, isError];
+  //   } else if (isCheckSimulationError) {
+  //     return [
+  //       "fetchProjectStatus",
+  //       checkSimulationError,
+  //       isCheckSimulationError,
+  //     ];
+  //   } else {
+  //     return ["", null, false];
+  //   }
+  // };
 
   return (
     <Root aria-label="project page">
       <Box
         component="main"
         className={clsx("main-page-content", classes.content, {
-          [classes.contentShift]: !props.mobileScreen && props.onNavDrawer,
+          [classes.contentShift]: !mobileScreen && onNavDrawer,
         })}
         aria-label="project page content"
       >
@@ -192,9 +175,9 @@ const ProjectPage = (props) => {
               element={
                 <AnalyticsPage
                   isSimulating={isSimulating}
-                  mobileScreen={props.mobileScreen}
+                  mobileScreen={mobileScreen}
                   mode={data?.mode}
-                  refetchAnalytics={refetchAnalytics}
+                  refetchAnalytics={() => {}}
                 />
               }
             />
@@ -207,11 +190,7 @@ const ProjectPage = (props) => {
               element={
                 <ReviewPage
                   project_id={project_id}
-                  mobileScreen={props.mobileScreen}
-                  projectMode={data?.mode}
-                  fontSize={props.fontSize}
-                  undoEnabled={props.undoEnabled}
-                  keyPressEnabled={props.keyPressEnabled}
+                  fontSize={fontSize}
                   tags={tags}
                 />
               }
@@ -221,63 +200,38 @@ const ProjectPage = (props) => {
           {/* History */}
           {isSuccess && !data?.projectNeedsUpgrade && (
             <Route
-              path="history"
+              path="collection"
               element={
-                <HistoryPage
-                  project_id={project_id}
-                  filterQuery={historyFilterQuery}
-                  label={historyLabel}
-                  isSimulating={isSimulating}
-                  mobileScreen={props.mobileScreen}
-                  mode={data?.mode}
-                  setFilterQuery={setHistoryFilterQuery}
-                  setLabel={setHistoryLabel}
-                />
+                <>
+                  <PageHeader header="Collection" mobileScreen={mobileScreen} />
+                  <LabelHistory project_id={project_id} />
+                </>
               }
             />
           )}
 
           {/* Team */}
-          {isSuccess && authenticated && !data?.projectNeedsUpgrade && (
+          {isSuccess && window.authentication && !data?.projectNeedsUpgrade && (
             <Route
               path="team"
               element={
-                <TeamPage
-                  isOwner={isOwner}
-                  mobileScreen={props.mobileScreen}
-                  mode={data?.mode}
-                />
+                isOwner ? (
+                  <TeamPage mobileScreen={mobileScreen} info={data} />
+                ) : (
+                  <CollaborationPage info={data} />
+                )
               }
             />
           )}
-
-          {/* Export */}
-          {isSuccess && !data?.projectNeedsUpgrade && (
-            <Route
-              path="export"
-              element={
-                <ExportPage
-                  info={data}
-                  isSimulating={isSimulating}
-                  mobileScreen={props.mobileScreen}
-                />
-              }
-            />
-          )}
-
           {/* Details */}
           {isSuccess && !data?.projectNeedsUpgrade && (
             <Route
-              path="details"
+              path="settings"
               element={
-                <DetailsPage
-                  project_id={project_id}
-                  info={data}
-                  tags={tags}
-                  isSimulating={isSimulating}
-                  mobileScreen={props.mobileScreen}
-                  setHistoryFilterQuery={setHistoryFilterQuery}
-                />
+                <>
+                  <PageHeader header="Settings" mobileScreen={mobileScreen} />
+                  <DetailsPage project_id={project_id} info={data} />
+                </>
               }
             />
           )}
@@ -285,11 +239,11 @@ const ProjectPage = (props) => {
           {isSuccess && <Route path="*" element={<RouteNotFound />} />}
         </Routes>
       </Box>
-      <DialogErrorHandler
+      {/* <DialogErrorHandler
         isError={returnError()[2]}
         error={returnError()[1]}
         queryKey={returnError()[0]}
-      />
+      /> */}
     </Root>
   );
 };

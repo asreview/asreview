@@ -1,15 +1,14 @@
-import * as React from "react";
-import { IconButton, Menu, MenuItem, Stack, Tooltip } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import {
   Assignment,
-  Assessment,
   Download,
   GroupAdd,
   MoreVert,
   PersonOff,
 } from "@mui/icons-material";
+import { IconButton, Menu, MenuItem, Stack, Tooltip } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import { projectStatuses } from "globals.js";
+import * as React from "react";
 
 const PREFIX = "TableRowButton";
 
@@ -58,16 +57,6 @@ export default function TableRowButton(props) {
   return (
     <Root>
       <Stack direction="row" spacing={2}>
-        {props.showAnalyticsButton() && (
-          <Tooltip title="Analytics">
-            <IconButton
-              className={classes.button}
-              onClick={props.onClickProjectAnalytics}
-            >
-              <Assessment />
-            </IconButton>
-          </Tooltip>
-        )}
         {!props.isSimulating() && props.showReviewButton() && (
           <Tooltip title="Review">
             <IconButton
@@ -78,7 +67,7 @@ export default function TableRowButton(props) {
             </IconButton>
           </Tooltip>
         )}
-        {false && props.isOwner && (
+        {props.isOwner && (
           <Tooltip title="Add team members">
             <IconButton
               className={classes.button}
@@ -88,7 +77,7 @@ export default function TableRowButton(props) {
             </IconButton>
           </Tooltip>
         )}
-        {false && !props.isOwner && (
+        {!props.isOwner && (
           <Tooltip title="Remove yourself from team">
             <IconButton
               className={classes.button}
@@ -120,7 +109,7 @@ export default function TableRowButton(props) {
             onClose={handleCloseRowMenu}
           >
             {!props.isSimulating() && ( // && props.canEdit
-              <MenuItem onClick={handleClickEditDetails}>Edit details</MenuItem>
+              <MenuItem onClick={handleClickEditDetails}>Settings</MenuItem>
             )}
             {!props.disableProjectStatusChange() && (
               <MenuItem onClick={handleClickUpdateStatus}>

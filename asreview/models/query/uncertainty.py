@@ -17,14 +17,14 @@ __all__ = ["UncertaintyQuery"]
 
 import numpy as np
 
-from asreview.models.query.base import ProbaQueryStrategy
+from asreview.models.query.base import BaseQueryStrategy
 
 
-class UncertaintyQuery(ProbaQueryStrategy):
+class UncertaintyQuery(BaseQueryStrategy):
     """Uncertainty query strategy (``uncertainty``).
 
     Choose the most uncertain samples according to the model (i.e. closest to
-    0.5 probability). Doesn’t work very well in the case of LSTM’s, since the
+    0.5 probability). Doesn't work very well in the case of LSTM's, since the
     probabilities are rather arbitrary.
 
     """
@@ -32,7 +32,8 @@ class UncertaintyQuery(ProbaQueryStrategy):
     name = "uncertainty"
     label = "Uncertainty"
 
-    def _query(self, predictions, n_instances, X=None):
-        uncertainty = 1 - np.max(predictions, axis=1)
-        query_idx = np.argsort(-uncertainty)[:n_instances]
+    def query(self, feature_matrix, relevance_scores):
+        del feature_matrix
+        uncertainty = 1 - np.max(relevance_scores, axis=1)
+        query_idx = np.argsort(-uncertainty)
         return query_idx

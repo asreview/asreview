@@ -16,9 +16,9 @@
 __all__ = ["RandomQuery"]
 
 import numpy as np
+from sklearn.utils import check_random_state
 
 from asreview.models.query.base import BaseQueryStrategy
-from asreview.utils import get_random_state
 
 
 class RandomQuery(BaseQueryStrategy):
@@ -37,24 +37,14 @@ class RandomQuery(BaseQueryStrategy):
 
     def __init__(self, random_state=None):
         super().__init__()
-        self._random_state = get_random_state(random_state)
+        self._random_state = random_state
 
     def query(
         self,
-        X,
-        classifier=None,
-        n_instances=None,
-        return_classifier_scores=False,
-        **kwargs,
+        feature_matrix,
+        relevance_scores,
     ):
-        if n_instances is None:
-            n_instances = X.shape[0]
-
-        query_idx = self._random_state.choice(
-            np.arange(X.shape[0]), n_instances, replace=False
-        )
-
-        if return_classifier_scores:
-            return query_idx, None
-        else:
-            return query_idx
+        del relevance_scores
+        row_indices = np.arange(feature_matrix.shape[0])
+        check_random_state(self._random_state).shuffle(row_indices)
+        return row_indices
