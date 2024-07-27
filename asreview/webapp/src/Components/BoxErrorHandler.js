@@ -7,7 +7,7 @@ const Root = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-          padding: 48,
+             padding: 48,
 }));
 
 export default function BoxErrorHandler(props) {
