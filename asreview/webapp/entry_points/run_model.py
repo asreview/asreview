@@ -76,11 +76,13 @@ def _run_model_start(project):
                 balance_model = load_extension(
                     "models.balance", settings.balance_strategy
                 )()
+                balance_model_name = balance_model.name
                 X_train, y_train = balance_model.sample(
                     fm, y_input, labeled["record_id"].values
                 )
             else:
                 X_train, y_train = fm, y_input
+                balance_model_name = None
 
             classifier = load_extension("models.classifiers", settings.classifier)()
             classifier.fit(X_train, y_train)
@@ -96,7 +98,7 @@ def _run_model_start(project):
                     ranked_record_ids,
                     classifier.name,
                     query_strategy.name,
-                    balance_model.name if balance_model else None,
+                    balance_model_name,
                     feature_model.name,
                     len(labeled),
                 )
