@@ -73,6 +73,6 @@
     "redux": "^4.0.5"
   },
   "lint-staged": {
-    "*.{js,jsx,css}": "npx prettier --write"
+    "*": "prettier --write --ignore-unknown"
   }
 }
