@@ -186,8 +186,7 @@ class User(UserMixin, DB.Model):
         """Checks whether provided token is correct and still valid"""
         # there must be a token and a timestamp
         if bool(self.token) and bool(self.token_created_at):
-            now = dt.datetime.now(dt.timezone.utc)
-            diff = (now - self.token_created_at).total_seconds()
+            diff = (dt.datetime.now() - self.token_created_at).total_seconds()
             # return if token is correct and we are still before deadline
             return self.token == provided_token and diff <= max_hours * 3600
         else:
@@ -196,9 +195,8 @@ class User(UserMixin, DB.Model):
     @classmethod
     def generate_token_data(cls, secret, salt, email):
         """Generate a token for verification by email"""
-        serializer = URLSafeTimedSerializer(secret)
-        token = serializer.dumps(email, salt=salt)
-        return token, dt.datetime.now(dt.timezone.utc)
+        token = URLSafeTimedSerializer(secret).dumps(email, salt=salt)
+        return token, dt.datetime.now()
 
     @classmethod
     def valid_password(cls, password):
