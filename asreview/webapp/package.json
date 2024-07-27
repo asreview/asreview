@@ -73,6 +73,6 @@
     "redux": "^4.0.5"
   },
   "lint-staged": {
-    "asreview/webapp/**/*": "npx prettier --write --ignore-unknown"
+    "asreview/webapp/*": "npx prettier --write --ignore-unknown"
   }
 }
