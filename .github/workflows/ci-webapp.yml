@@ -1,6 +1,16 @@
 name: test-webapp
 on: [push, pull_request]
 jobs:
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Prettify code
+        uses: creyD/prettier_action@v4.3
   compile-and-test:
     strategy:
       matrix:
