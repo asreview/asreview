@@ -73,6 +73,6 @@
     "redux": "^4.0.5"
   },
   "lint-staged": {
-    "**/*.{js,css,md}": "npx prettier --write"
+    "asreview/webapp/**/*.{js,css,md}": "npx prettier --write"
   }
 }
