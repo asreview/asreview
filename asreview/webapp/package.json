@@ -46,7 +46,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "prepare": "husky"
+    "prepare": "cd ../.. && husky asreview/webapp/.husky"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -73,6 +73,6 @@
     "redux": "^4.0.5"
   },
   "lint-staged": {
-    "*.{js,css,md}": "npx prettier --write --ignore-unknown"
+    "**/*.{js,css,md}": "npx prettier --write"
   }
 }
