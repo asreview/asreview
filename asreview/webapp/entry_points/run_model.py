@@ -96,7 +96,7 @@ def _run_model_start(project):
                     ranked_record_ids,
                     classifier.name,
                     query_strategy.name,
-                    balance_model.name,
+                    balance_model.name if balance_model else None,
                     feature_model.name,
                     len(labeled),
                 )
