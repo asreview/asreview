@@ -7,6 +7,7 @@ const Root = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
+
   padding: 48,
 }));
 
