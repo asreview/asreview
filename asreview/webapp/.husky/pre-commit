@@ -1,0 +1,3 @@
+cd asreview/webapp
+
+npx lint-staged

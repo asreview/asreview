@@ -25,20 +25,22 @@ export const getDesignTokens = (mode) => ({
     ...(mode === "light"
       ? {
           primary: {
-            main: "#816700",
-            light: "#FFCD00",
+            main: "#463EA6",
+            light: "#a7a9df",
+            background: "#93494914",
           },
           secondary: {
-            main: "#076AED",
-            light: "#3ea6ff",
+            main: "#9da63e",
+            light: "#e3f4a8",
           },
         }
       : {
           primary: {
-            main: "#FFCD00",
+            main: "#9965f4",
+            background: "#93494914",
           },
           secondary: {
-            main: "#3ea6ff",
+            main: "#9da63e",
           },
         }),
   },
@@ -64,30 +66,9 @@ export const defaultAlgorithms = {
 // drawer configs
 export const drawerWidth = 250;
 
-// review screen configs
-export const decisionUndoBarDuration = 6000;
-export const decisionUndoBarMarginBottom = 80;
-
 export const checkIfSimulationFinishedDuration = 6000;
 
-export const fontSizeOptions = [
-  {
-    value: 1,
-    label: "Small",
-  },
-  {
-    value: 2,
-    label: "Default",
-  },
-  {
-    value: 3,
-    label: "Large",
-  },
-  {
-    value: 4,
-    label: "Largest",
-  },
-];
+export const fontSizeOptions = ["Small", "Default", "Large", "Largest"];
 
 // functions
 export const mapStateToProps = (state) => {
@@ -144,11 +125,4 @@ export const projectStatuses = {
   SETUP: "setup",
   REVIEW: "review",
   FINISHED: "finished",
-  ERROR: "error",
 };
-
-// project history filter options
-export const historyFilterOptions = [
-  { value: "note", label: "Contains note" },
-  { value: "prior", label: "Prior knowledge" },
-];

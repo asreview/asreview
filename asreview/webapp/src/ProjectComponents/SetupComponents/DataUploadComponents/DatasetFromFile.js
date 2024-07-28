@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "react-query";
 import { connect } from "react-redux";
 import {
   Avatar,
+  Alert,
   Box,
   ButtonBase,
   Stack,
@@ -12,8 +13,6 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FileUpload } from "@mui/icons-material";
-
-import { InlineErrorHandler } from "Components";
 
 import { ProjectAPI } from "api";
 import { mapStateToProps, projectModes } from "globals.js";
@@ -31,6 +30,7 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.root}`]: {
     display: "flex",
     alignItems: "center",
+    height: "100%",
   },
 
   [`& .${classes.singleLine}`]: {
@@ -49,10 +49,9 @@ const baseStyle = {
   flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
-  padding: "80px 20px 80px 20px",
   borderWidth: 2,
   borderRadius: 2,
-  borderColor: "#eeeeee",
+  borderColor: "#a7a9df",
   borderStyle: "dashed",
   outline: "none",
   transition: "border .24s ease-in-out",
@@ -118,7 +117,7 @@ const DatasetFromFile = ({ project_id, mode, setDataset }) => {
 
   let acceptedFileTypes = "";
   readers?.result.forEach((reader) => {
-    acceptedFileTypes += reader.extension + ",";
+    acceptedFileTypes += reader.extension + ", ";
   });
 
   const {
@@ -149,8 +148,14 @@ const DatasetFromFile = ({ project_id, mode, setDataset }) => {
     <Root>
       <Box {...getRootProps({ style })}>
         <input {...getInputProps()} />
-        <Stack className={classes.root} spacing={2}>
-          <ButtonBase disabled={isCreatingProject} disableRipple onClick={open}>
+
+        <ButtonBase
+          disabled={isCreatingProject}
+          disableRipple
+          onClick={open}
+          sx={{ height: "100%", width: "100%" }}
+        >
+          <Stack className={classes.root} spacing={2} justifyContent={"center"}>
             <Avatar
               sx={{
                 height: "136px",
@@ -163,24 +168,22 @@ const DatasetFromFile = ({ project_id, mode, setDataset }) => {
                 sx={{ height: "65px", width: "65px", color: "grey.500" }}
               />
             </Avatar>
-          </ButtonBase>
-          <Typography>Drag and drop a dataset file to add</Typography>
-          <Typography variant="secondary">Or click to select a file</Typography>
-          <Typography variant="secondary">
-            Accepted files: {acceptedFileTypes}
-          </Typography>
-          {mode !== projectModes.ORACLE && (
+            <Typography>Drag and drop a dataset file or click</Typography>
             <Typography variant="secondary">
-              "The dataset should contain labels for each record. "
+              Accepted files: {acceptedFileTypes}
             </Typography>
-          )}
-          {isCreatingProject && <CircularProgress />}
-          {isCreatingProjectError && (
-            <InlineErrorHandler
-              message={createProjectError?.message + " Please try again."}
-            />
-          )}
-        </Stack>
+            {mode !== projectModes.ORACLE && (
+              <Typography variant="secondary">
+                "The dataset should contain labels for each record. "
+              </Typography>
+            )}
+          </Stack>
+        </ButtonBase>
+
+        {isCreatingProject && <CircularProgress />}
+        {isCreatingProjectError && (
+          <Alert severity="error">{createProjectError?.message + "."}</Alert>
+        )}
       </Box>
     </Root>
   );

@@ -330,16 +330,6 @@ def test_search_data(client, project):
     assert len(r.json["result"]) <= 10
 
 
-# Test get a selection of random papers to find exclusions
-def test_random_prior_papers(client, project):
-    # get random selection
-    r = au.get_prior_random_project_data(client, project)
-    assert r.status_code == 200
-    assert "result" in r.json
-    assert isinstance(r.json["result"], list)
-    assert len(r.json["result"]) > 0
-
-
 # Test labeling of prior data
 @pytest.mark.parametrize("label", [0, 1])
 def test_label_item(client, project, label):
@@ -400,7 +390,6 @@ def test_set_project_algorithms(client, project):
 
     r = au.set_project_algorithms(client, project, data=data)
     assert r.status_code == 200
-    assert r.json["success"]
 
 
 def test_get_project_algorithms(client, project):
@@ -424,8 +413,8 @@ def test_start_and_model_ready(client, project):
     data = misc.choose_project_algorithms()
     au.set_project_algorithms(client, project, data=data)
     r = au.set_project_status(client, project, status="review", trigger_model=True)
-    assert r.status_code == 200
-    assert r.json["success"]
+    assert r.status_code == 201
+    assert r.json["status"] == "review"
     # make sure model is done
     time.sleep(10)
 
@@ -442,9 +431,6 @@ def test_start_and_model_ready(client, project):
 def test_status_project(client, project, state_name, expected_state):
     # call these progression steps
     if state_name in ["setup", "review", "finish"]:
-        # label 2 records
-        au.label_random_project_data_record(client, project, 1)
-        au.label_random_project_data_record(client, project, 0)
         # select a model
         data = misc.choose_project_algorithms()
         au.set_project_algorithms(client, project, data=data)
@@ -491,14 +477,12 @@ def test_export_project(client, project):
 @pytest.mark.parametrize("status", ["review", "finished"])
 def test_set_project_status(client, project, status):
     au.upload_label_set_and_start_model(client, project)
-    # when setting the status to "review", the project must have another
-    # status then "review"
     if status == "review":
-        au.set_project_status(client, project, "finished")
-    # set project status
+        r = au.set_project_status(client, project, "finished")
+        assert r.status_code == 201
+
     r = au.set_project_status(client, project, status)
-    assert r.status_code == 200
-    assert r.json["success"]
+    assert r.status_code == 201
 
 
 # Test get progress info
@@ -555,7 +539,6 @@ def test_label_a_document_with_running_model(client, user, project):
         client, project, r.json["result"]["record_id"], label=1, prior=0, note="note"
     )
     assert r.status_code == 200
-    assert r.json["success"]
     time.sleep(10)
 
 
@@ -572,7 +555,6 @@ def test_update_label_of_document_with_running_model(client, project):
         client, project, record_id, label=0, prior=0, note="changed note"
     )
     assert r.status_code == 200
-    assert r.json["success"]
     time.sleep(10)
 
 
@@ -597,7 +579,6 @@ def test_delete_project(client, project):
         (au.get_project_data, True, {}),
         (au.get_project_dataset_writer, True, {}),
         (au.search_project_data, True, {"query": "Software"}),
-        (au.get_prior_random_project_data, True, {}),
         (au.label_project_record, True, {"record_id": 1, "label": 1}),
         (au.update_label_project_record, True, {"record_id": 1, "label": 1}),
         (au.get_labeled_project_data, True, {}),

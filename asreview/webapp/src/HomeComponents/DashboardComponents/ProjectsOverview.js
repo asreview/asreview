@@ -3,10 +3,9 @@ import { Box, Fab, Stack } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { useParams } from "react-router-dom";
 import { DashboardPageHeader, ProjectTable } from ".";
-import { ActionsFeedbackBar } from "Components";
+import { ActionsFeedbackBar, InteractionButtons } from "Components";
 import { ImportProject } from "ProjectComponents";
 import { SetupDialog } from "ProjectComponents/SetupComponents";
-import { ImportDataset } from "ProjectComponents/SetupComponents/DataComponents";
 
 import { useToggle } from "hooks/useToggle";
 
@@ -21,73 +20,7 @@ const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
     explore: "Validate",
   };
 
-  const [onCreateProject, setCreateProject] = React.useState({
-    mode: false,
-    data: false,
-    setup: false,
-    project_id: null,
-  });
-
-  // const openModePick = () => {
-  //   setCreateProject({
-  //     mode: true,
-  //     data: false,
-  //     setup: false,
-  //     project_id: null,
-  //   });
-  // };
-
-  // const closeModePick = () => {
-  //   setCreateProject({
-  //     ...onCreateProject,
-  //     mode: false,
-  //   });
-  // };
-
-  // const closeModePickAndOpenData = (mode_id) => {
-  //   setCreateProject({
-  //     mode: false,
-  //     data: true,
-  //     setup: false,
-  //     // project_id: null,
-  //     mode_id: mode_id,
-  //   });
-  // };
-
-  const openDataPick = (mode_id) => {
-    setCreateProject({
-      mode: false,
-      data: true,
-      setup: false,
-      mode_id: mode_id,
-    });
-  };
-
-  const closeDataPick = () => {
-    setCreateProject({
-      mode: false,
-      data: false,
-      setup: false,
-      // project_id: null,
-    });
-  };
-
-  const closeDataPickAndOpenSetup = (project_id) => {
-    setCreateProject({
-      mode: false,
-      data: false,
-      setup: true,
-      project_id: project_id,
-    });
-  };
-
-  const closeProjectSetup = () => {
-    setCreateProject({
-      mode: false,
-      data: false,
-      setup: false,
-    });
-  };
+  const [openCreateProject, toggleCreateProject] = useToggle(false);
 
   const [feedbackBar, setFeedbackBar] = React.useState({
     open: false,
@@ -110,46 +43,32 @@ const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
       />
       <Box className="main-page-body-wrapper">
         <Stack className="main-page-body" spacing={6}>
-          {/* <NumberCard mobileScreen={mobileScreen} /> */}
           <ProjectTable
             mode={mode}
             projectCheck={projectCheck}
             setFeedbackBar={setFeedbackBar}
             setProjectCheck={setProjectCheck}
-            openDataPick={openDataPick}
+            mobileScreen={mobileScreen}
           />
+
+          <InteractionButtons />
         </Stack>
       </Box>
       <Fab
         id="create-project"
         className="main-page-fab"
         color="primary"
-        onClick={() => {
-          openDataPick(mode);
-        }}
+        onClick={toggleCreateProject}
         variant="extended"
       >
         <Add sx={{ mr: 1 }} />
         {modeLabel[mode]}
       </Fab>
-      {/* <ModePickDialog
-        open={onCreateProject.mode}
-        closeModePick={closeModePick}
-        closeModePickAndOpenData={closeModePickAndOpenData}
-      /> */}
-      <ImportDataset
-        open={onCreateProject.data}
-        mode={onCreateProject.mode_id}
-        mobileScreen={mobileScreen}
-        closeDataPick={closeDataPick}
-        closeDataPickAndOpenSetup={closeDataPickAndOpenSetup}
-      />
       <SetupDialog
-        project_id={onCreateProject.project_id}
         mode={mode}
         mobileScreen={mobileScreen}
-        open={onCreateProject.setup}
-        onClose={closeProjectSetup}
+        open={openCreateProject}
+        onClose={toggleCreateProject}
         setFeedbackBar={setFeedbackBar}
       />
       <ImportProject

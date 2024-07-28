@@ -1,221 +1,304 @@
-import * as React from "react";
-import { useQueryClient, useMutation } from "react-query";
-import { useNavigate } from "react-router-dom";
+import Edit from "@mui/icons-material/Edit";
 import {
+  Box,
   Button,
-  DialogContent,
-  DialogActions,
+  Collapse,
   Dialog,
+  DialogActions,
+  DialogContent,
   DialogTitle,
+  FormControl,
+  FormControlLabel,
+  IconButton,
+  Input,
+  Radio,
+  RadioGroup,
   Stack,
   Tooltip,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import Close from "@mui/icons-material/Close";
+import * as React from "react";
+import { useMutation } from "react-query";
+import { useNavigate } from "react-router-dom";
 
-import { StyledIconButton } from "StyledComponents/StyledButton";
-
-import { SetupStepper } from ".";
-import { AppBarWithinDialog } from "Components";
-import { PriorForm } from "./PriorComponents";
-import { ModelForm } from "./ModelComponents";
-import { InfoForm } from "./InfoComponents";
-import { ScreenLanding } from "./ScreenComponents";
-
+import {
+  DatasetCard,
+  ModelCard,
+  PriorCard,
+  TagCard,
+} from "ProjectComponents/SetupComponents";
+import {
+  DatasetFromEntryPoint,
+  DatasetFromFile,
+  DatasetFromURI,
+} from "ProjectComponents/SetupComponents/DataUploadComponents";
 import { ProjectAPI } from "api";
-import { ProjectContext } from "ProjectContext";
+import { ProjectContext } from "context/ProjectContext";
 import { projectModes, projectStatuses } from "globals.js";
+import { useToggle } from "hooks/useToggle";
 
-const PREFIX = "SetupDialog";
-
-const classes = {
-  form: `${PREFIX}-form`,
-  formWarmup: `${PREFIX}-form-warmup`,
-};
-
-const StyledSetupDialog = styled(Dialog)(({ theme }) => ({
-  [`& .${classes.form}`]: {
-    height: "calc(100% - 60px)",
-    overflowY: "scroll",
-    padding: "32px 48px 48px 48px",
-    [theme.breakpoints.down("md")]: {
-      padding: "32px 24px 48px 24px",
-    },
-  },
-}));
-
-const classesHeader = {
-  title: `${PREFIX}-header-title`,
-};
-
-const StyledSetupDialogHeader = styled(Stack)(({ theme }) => ({
-  [`& .${classesHeader.title}`]: {
-    height: "64px",
-  },
-}));
-
-const SetupDialogHeader = ({ mobileScreen, onClose }) => {
-  if (mobileScreen) return null;
-
-  return (
-    <StyledSetupDialogHeader className="dialog-header" direction="row">
-      <DialogTitle className={classesHeader.title}>
-        Optional details
-      </DialogTitle>
-      <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-        <Stack
-          className="dialog-header-button right"
-          direction="row"
-          spacing={1}
-        >
-          <Tooltip title={"Close"}>
-            <StyledIconButton onClick={onClose}>
-              <Close />
-            </StyledIconButton>
-          </Tooltip>
-        </Stack>
-      </Stack>
-    </StyledSetupDialogHeader>
-  );
-};
-
-const SetupDialogContent = ({ project_id, mode, onClose, mobileScreen }) => {
-  const navigate = useNavigate();
-  const [activeStep, setActiveStep] = React.useState(0);
-
-  const { mutate } = useMutation(ProjectAPI.mutateReviewStatus, {
-    mutationKey: ["mutateReviewStatus"],
-    onError: () => {
-      console.log("error updating status");
-    },
-    onSuccess: () => {
-      if (mode === projectModes.SIMULATION) {
-        navigate(`/projects/${project_id}`);
-      } else {
-        navigate(`/projects/${project_id}/review`);
-      }
-    },
+const DialogProjectName = ({ project_id, dataset_name }) => {
+  const [state, setState] = React.useState({
+    name: dataset_name,
+    edit: false,
   });
 
-  const handleNext = () => {
-    setActiveStep(activeStep + 1);
-  };
+  const { isLoading: isMutatingName, mutate: mutateName } = useMutation(
+    ProjectAPI.mutateInfo,
+    {
+      mutationKey: ["mutateInfo"],
+      onSuccess: (data) => {
+        setState({
+          name: data?.name,
+          edit: false,
+        });
+      },
+    },
+  );
 
-  const handleBack = () => {
-    setActiveStep(activeStep - 1);
-  };
-
-  const handleStep = (step) => () => {
-    setActiveStep(step);
-  };
-
-  const handleFinish = () => {
-    mutate({
-      project_id: project_id,
-      status: projectStatuses.REVIEW,
-      tigger_model: true,
+  const toggleEditName = () => {
+    setState({
+      ...state,
+      edit: !state.edit,
     });
   };
 
   return (
-    <ProjectContext.Provider value={project_id}>
-      {mobileScreen && <AppBarWithinDialog onClickStartIcon={onClose} />}
-      {!mobileScreen && (
-        <SetupDialogHeader onClose={onClose} mobileScreen={mobileScreen} />
-      )}
-      <SetupStepper activeStep={activeStep} handleStep={handleStep} />
-      {activeStep === 0 && (
-        <InfoForm integrated={true} handleNext={handleNext} />
-      )}
-
-      {activeStep === 1 && (
+    <DialogTitle>
+      Start project:{" "}
+      {!state.edit && (
         <>
-          <DialogContent dividers>
-            <ModelForm />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleBack}>Back</Button>
-            <Button id="next-setup-button" onClick={handleNext}>
-              Next
-            </Button>
-          </DialogActions>
+          {state.name}
+          <Tooltip title={"Edit project name"}>
+            <IconButton onClick={toggleEditName}>
+              <Edit />
+            </IconButton>
+          </Tooltip>
         </>
       )}
-      {activeStep === 2 && (
+      {state.edit && (
         <>
-          <DialogContent dividers>
-            <PriorForm />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleBack}>Back</Button>
-            <Button id="next-setup-button" onClick={handleNext}>
-              Next
-            </Button>
-          </DialogActions>
+          <Input
+            value={state.name}
+            onChange={(e) => {
+              setState({
+                ...state,
+                name: e.target.value,
+              });
+            }}
+            disabled={isMutatingName}
+            sx={{ width: "50%" }}
+            autoFocus
+          />
+          <Button
+            onClick={() => {
+              mutateName({ project_id: project_id, title: state.name });
+            }}
+            disabled={isMutatingName}
+            variant="contained"
+          >
+            Save
+          </Button>
         </>
       )}
-      {activeStep === 3 && (
-        <>
-          <DialogContent dividers>
-            <ScreenLanding />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleBack}>Back</Button>
-            <Button id="finish-setup-button" onClick={handleFinish}>
-              {mode === projectModes.SIMULATION ? "Simulate" : "Screen"}
-            </Button>
-          </DialogActions>
-        </>
-      )}
-    </ProjectContext.Provider>
+    </DialogTitle>
   );
 };
 
 const SetupDialog = ({
-  project_id,
-  mode,
   open,
   onClose,
+  projectInfo = null,
+  mode = null,
+  dataSource = "file",
   setFeedbackBar,
   mobileScreen,
 }) => {
-  const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
-  const exitingSetup = () => {
-    queryClient.invalidateQueries("fetchProjects");
-    // navigate("/projects");
+  const [dataset, setDataset] = React.useState(projectInfo);
+  const [showSettings, setShowSettings] = useToggle(false);
+
+  const [uploadSource, setUploadSource] = React.useState(dataSource);
+
+  const handleUploadSource = (event) => {
+    setUploadSource(event.target.value);
   };
 
-  const exitedSetup = () => {
-    setFeedbackBar({
-      open: true,
-      message: `Your project has been saved as draft`,
-    });
-  };
+  const { mutate: setStatus } = useMutation(ProjectAPI.mutateReviewStatus, {
+    mutationKey: ["mutateReviewStatus"],
+    onSuccess: () => {
+      if (mode === projectModes.SIMULATION) {
+        navigate(`/projects/${dataset?.id}`);
+      } else {
+        navigate(`/projects/${dataset?.id}/review`);
+      }
+    },
+  });
 
   return (
-    <StyledSetupDialog
+    <Dialog
       aria-label="project setup"
       open={open}
       fullScreen={mobileScreen}
       fullWidth
       maxWidth="md"
       PaperProps={{
-        sx: { height: !mobileScreen ? "calc(100% - 96px)" : "100%" },
+        sx: { height: !mobileScreen ? "calc(100% - 64px)" : "100%" },
       }}
       onClose={onClose}
       TransitionProps={{
-        onExiting: () => exitingSetup(),
-        onExited: () => exitedSetup(),
+        onExited: () => {
+          if (dataset) {
+            setFeedbackBar({
+              open: true,
+              message: `Your project has been saved as draft`,
+            });
+          }
+
+          setDataset(null);
+          setShowSettings(false);
+          setUploadSource("file");
+        },
       }}
     >
-      <SetupDialogContent
-        project_id={project_id}
-        mode={mode}
-        onClose={onClose}
-        mobileScreen={mobileScreen}
-      />
-    </StyledSetupDialog>
+      {!dataset && (
+        <>
+          <DialogTitle>Start with dataset from</DialogTitle>
+          <DialogContent>
+            <Stack spacing={3} sx={{ height: "100%" }}>
+              <FormControl component="fieldset">
+                <RadioGroup
+                  row
+                  aria-label="dataset source"
+                  name="row-radio-buttons-group"
+                  value={uploadSource}
+                >
+                  <FormControlLabel
+                    value="file"
+                    control={<Radio />}
+                    label="File"
+                    onChange={handleUploadSource}
+                  />
+                  <FormControlLabel
+                    value="url"
+                    control={<Radio />}
+                    label="URL or DOI"
+                    onChange={handleUploadSource}
+                  />
+                  {mode === projectModes.ORACLE && (
+                    <FormControlLabel
+                      value="extension"
+                      control={<Radio />}
+                      label="Extension"
+                      onChange={handleUploadSource}
+                    />
+                  )}
+                  {(mode === projectModes.EXPLORATION ||
+                    mode === projectModes.SIMULATION) && (
+                    <FormControlLabel
+                      value="benchmark"
+                      control={<Radio />}
+                      label="Benchmark datasets"
+                      onChange={handleUploadSource}
+                    />
+                  )}
+                </RadioGroup>
+              </FormControl>
+              {uploadSource === "file" && (
+                <DatasetFromFile mode={mode} setDataset={setDataset} />
+              )}
+              {uploadSource === "url" && (
+                <DatasetFromURI mode={mode} setDataset={setDataset} />
+              )}
+              {uploadSource === "extension" && (
+                <DatasetFromEntryPoint
+                  subset="plugin"
+                  mode={mode}
+                  setDataset={setDataset}
+                  mobileScreen={mobileScreen}
+                />
+              )}
+              {uploadSource === "benchmark" && (
+                <DatasetFromEntryPoint
+                  subset="benchmark"
+                  mode={mode}
+                  setDataset={setDataset}
+                  mobileScreen={mobileScreen}
+                />
+              )}
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={onClose}
+              // disabled={isLoading}
+            >
+              Cancel
+            </Button>
+          </DialogActions>{" "}
+        </>
+      )}
+      {dataset && (
+        <ProjectContext.Provider value={dataset.id}>
+          <DialogProjectName
+            project_id={dataset.id}
+            dataset_name={dataset.name}
+          />
+          <DialogContent sx={{ bgcolor: "primary.light" }}>
+            <Collapse in={!showSettings}>
+              <Box sx={{ mt: 3 }}>
+                <DatasetCard
+                  project_id={dataset?.id}
+                  dataset_path={dataset?.dataset_path}
+                  setDataset={setDataset}
+                />
+              </Box>
+            </Collapse>
+
+            <Box sx={{ textAlign: "center", my: 2 }}>
+              <Button onClick={setShowSettings} sx={{ color: "white" }}>
+                {showSettings ? "Show dataset" : "Show options"}
+              </Button>
+            </Box>
+            <Collapse in={showSettings} mountOnEnter>
+              {mode !== projectModes.SIMULATION && (
+                <Box sx={{ mb: 3 }}>
+                  <TagCard
+                    project_id={dataset?.id}
+                    mobileScreen={mobileScreen}
+                  />
+                </Box>
+              )}
+              <Box sx={{ my: 3 }}>
+                <ModelCard />
+              </Box>
+              <Box sx={{ my: 3 }}>
+                <PriorCard editable={true} mobileScreen={mobileScreen} />
+              </Box>
+            </Collapse>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={onClose}
+              // disabled={isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                setStatus({
+                  project_id: dataset?.id,
+                  status: projectStatuses.REVIEW,
+                });
+              }}
+              // disabled={isLoading}
+            >
+              {mode === projectModes.SIMULATION ? "Simulate" : "Screen"}
+            </Button>
+          </DialogActions>
+        </ProjectContext.Provider>
+      )}
+    </Dialog>
   );
 };
 

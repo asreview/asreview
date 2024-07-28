@@ -13,7 +13,6 @@ import {
   DialogContentText,
   DialogActions,
   Fade,
-  // Link,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
@@ -79,48 +78,6 @@ const FinishSetup = ({ project_id, refetch }) => {
   };
 
   return (
-    // <Root>
-    //   <Stack spacing={3}>
-    //     {/* {isTrainError && (
-    //       <InlineErrorHandler
-    //         message={trainError?.message}
-    //         refetch={reset}
-    //         button={true}
-    //       />
-    //     )} */}
-    //     {/* {!isFetchingStatus && isStatusError && (
-    //       <Stack className={classes.root} spacing={3}>
-    //         <InlineErrorHandler message={statusError?.message} />
-    //         <Button
-    //         // onClick={}
-
-    //         >Return to previous step</Button>
-    //       </Stack>
-    //     )} */}
-    //     {/* {isError && (
-    //       <InlineErrorHandler
-    //         message={error?.message}
-    //         // refetch={}
-    //         button={true}
-    //       />
-    //     )} */}
-    //   </Stack>
-    //   <Stack spacing={3} className={classes.root}>
-    //     {/* {!isTrainError && !isStatusError && (
-    //       <YouTube
-    //         videoId={YouTubeVideoID}
-    //         opts={{
-    //           height: "315",
-    //           width: width < 560 ? width - 48 : "560",
-    //           playerVars: {
-    //             rel: 0,
-    //           },
-    //         }}
-    //       />
-    //     )} */}
-    //     {/* {!isTrainError && !isStatusError && training && ( */}
-
-    // </Root>
     <Root aria-label="review page training">
       <Fade in>
         <Stack
@@ -141,11 +98,6 @@ const FinishSetup = ({ project_id, refetch }) => {
             height={60}
             width={60}
           />
-          {/* <Typography className={classes.text}>
-            ASReview LAB extracts information from the text in your dataset and
-            ranks the records for you according to your model.{" "}
-          </Typography> */}
-          {/* Button to skip this and start reviewing */}
           <Button onClick={toggleSkipTraining} disabled={isTraining}>
             I can't wait
           </Button>

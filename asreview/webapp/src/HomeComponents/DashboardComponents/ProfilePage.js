@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery } from "react-query";
-import DashboardPage from "./DashboardPage";
 import {
   Box,
   Button,
@@ -249,7 +248,7 @@ const ProfilePage = (props) => {
   };
 
   return (
-    <DashboardPage>
+    <>
       {data && isFetched && (
         <>
           {/* Header */}
@@ -358,7 +357,7 @@ const ProfilePage = (props) => {
           </Box>
         </>
       )}
-    </DashboardPage>
+    </>
   );
 };
 
