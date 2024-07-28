@@ -1,12 +1,12 @@
-name: test-extensions
+name: Test ASReview extensions
 on: [push, pull_request]
 jobs:
   test-asreview-datatools:
     name: test-asreview-datatools
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
       - name: Install packages
@@ -27,8 +27,8 @@ jobs:
     name: test-asreview-insights
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
       - name: Install packages
@@ -49,8 +49,8 @@ jobs:
     name: test-asreview-wordcloud
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
       - name: Install packages

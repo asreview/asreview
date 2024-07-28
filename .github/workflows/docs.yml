@@ -1,4 +1,4 @@
-name: "Docs render check"
+name: ASReview documentation
 on: [push, pull_request]
 
 jobs:
@@ -6,12 +6,12 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Clone repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install pandoc
         run: |
           brew install pandoc
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.10"
       - name: Install ASReview with docs dependencies
