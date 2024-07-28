@@ -1,4 +1,4 @@
-name: test-webapp
+name: Test ASReview webapp
 on: [push, pull_request]
 jobs:
   prettier:
@@ -13,7 +13,19 @@ jobs:
         with:
           prettier_options: --write **/*.{js,jsx,css,html}
           only_changed: True
-
+  ruff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+      - name: Install ruff
+        run: |
+          pip install .[dev]
+      - name: Lint Python
+        run: |
+          ruff check asreview/webapp
   compile-and-test:
     strategy:
       matrix:

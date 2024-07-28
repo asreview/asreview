@@ -1,4 +1,4 @@
-name: test-extensions
+name: Test ASReview extensions
 on: [push, pull_request]
 jobs:
   test-asreview-datatools:

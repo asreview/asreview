@@ -1,4 +1,4 @@
-name: "Docs render check"
+name: ASReview documentation
 on: [push, pull_request]
 
 jobs:
