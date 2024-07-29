@@ -63,6 +63,8 @@ from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
 from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
+from asreview.webapp.huey_config import huey
+from asreview.webapp.tasks import run_model
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
 
@@ -1230,17 +1232,26 @@ def api_label_record(project, record_id):  # noqa: F401
             state.delete_record_labeling_data(record_id)
         else:
             raise ValueError(f"Invalid label {label}")
+        
+    project_id = project.config.get("id")
+    # is there a pending task for this project in the queue?
+    if any([
+        task.data[0][0].config.get("id") == project_id
+        for task in huey.pending()
+    ]) is False and retrain_model:
+        print("Train model")
+        run_model(project)
 
-    if retrain_model:
-        subprocess.Popen(
-            [
-                sys.executable if sys.executable else "python",
-                "-m",
-                "asreview",
-                "web_run_model",
-                str(project.project_path),
-            ]
-        )
+    # if retrain_model:
+    #     subprocess.Popen(
+    #         [
+    #             sys.executable if sys.executable else "python",
+    #             "-m",
+    #             "asreview",
+    #             "web_run_model",
+    #             str(project.project_path),
+    #         ]
+    #     )
 
     if request.method == "POST":
         return jsonify({"success": True})

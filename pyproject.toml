@@ -62,6 +62,7 @@ dependencies = [
     "xlsxwriter>=3",
     "jsonschema",
     "filelock",
+    "huey>=2.5.1",
     "Flask-SQLAlchemy>=3.0.2",
     "requests",
     "tqdm",
