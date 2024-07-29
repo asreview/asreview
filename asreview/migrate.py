@@ -33,7 +33,7 @@ def _project_state_converter_v1_v2(review_path):
     sqlstate = SQLiteState(Path(review_path, "results.db"))
     sqlstate.create_tables()
 
-    conn = sqlite3.connect(Path(review_path, "results.db"))
+    conn = sqlite3.connect(Path(review_path, "results.sql"))
 
     df_results = pandas.read_sql_query(
         "SELECT * FROM results WHERE label is not NULL", conn) \
