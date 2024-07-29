@@ -65,6 +65,8 @@ from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
+from asreview.utils import _check_model, _reset_model_settings
+
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -849,10 +851,19 @@ def api_import_project():
         project = asr.Project.load(
             request.files["file"], asreview_path(), safe_import=True
         )
-
     except Exception as err:
-        logging.error(err)
-        raise ValueError("Failed to import project.")
+        raise ValueError("Failed to import project.") from err
+
+    settings_fp = Path(project.project_path, "reviews", project.config["reviews"][0]["id"], "settings_metadata.json")
+    settings = ReviewSettings().from_file(settings_fp)
+    print(settings)
+
+    try:
+        _check_model(settings)
+    except ValueError as err:
+        settings_model_reset = _reset_model_settings(settings)
+        with open(settings_fp) as f:
+            json.dump(asdict(settings_model_reset), f)
 
     if current_app.config.get("LOGIN_DISABLED", False):
         return jsonify(project.config)
