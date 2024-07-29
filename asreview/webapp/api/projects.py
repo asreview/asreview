@@ -854,7 +854,12 @@ def api_import_project():
     except Exception as err:
         raise ValueError("Failed to import project.") from err
 
-    settings_fp = Path(project.project_path, "reviews", project.config["reviews"][0]["id"], "settings_metadata.json")
+    settings_fp = Path(
+        project.project_path,
+        "reviews",
+        project.config["reviews"][0]["id"],
+        "settings_metadata.json",
+    )
     settings = ReviewSettings().from_file(settings_fp)
     print(settings)
 
