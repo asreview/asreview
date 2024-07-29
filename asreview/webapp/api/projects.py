@@ -1232,13 +1232,14 @@ def api_label_record(project, record_id):  # noqa: F401
             state.delete_record_labeling_data(record_id)
         else:
             raise ValueError(f"Invalid label {label}")
-        
+
     project_id = project.config.get("id")
     # is there a pending task for this project in the queue?
-    if any([
-        task.data[0][0].config.get("id") == project_id
-        for task in huey.pending()
-    ]) is False and retrain_model:
+    if (
+        any([task.data[0][0].config.get("id") == project_id for task in huey.pending()])
+        is False
+        and retrain_model
+    ):
         print("Train model")
         run_model(project)
 

@@ -45,7 +45,6 @@ def _run_model_start(project):
             )
         )
 
-
         as_data = project.read_data()
 
         feature_model = load_extension(
@@ -68,9 +67,7 @@ def _run_model_start(project):
             .fillna(LABEL_NA)
         )
 
-        balance_model = load_extension(
-            "models.balance", settings.balance_strategy
-        )()
+        balance_model = load_extension("models.balance", settings.balance_strategy)()
         X_train, y_train = balance_model.sample(
             fm, y_input, labeled["record_id"].values
         )
