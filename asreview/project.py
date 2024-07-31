@@ -555,7 +555,13 @@ class Project:
         shutil.move(f"{export_fp_tmp}.zip", export_fp)
 
     @classmethod
-    def load(cls, asreview_file, project_path, safe_import=False, reset_model_if_not_found=False):
+    def load(
+        cls,
+        asreview_file,
+        project_path,
+        safe_import=False,
+        reset_model_if_not_found=False,
+    ):
         with tempfile.TemporaryDirectory() as tmpdir:
             try:
                 # Unzip the project file
@@ -579,7 +585,9 @@ class Project:
                 print(project_config)
 
             # if migration is needed, do it here
-            if project_config["version"].startswith("1.") and not project_config["version"].startswith("1.6"):
+            if project_config["version"].startswith("1.") and not project_config[
+                "version"
+            ].startswith("1.6"):
                 migrate_v1_v2(tmpdir)
 
             with open(Path(tmpdir, PATH_PROJECT_CONFIG)) as f:
@@ -591,8 +599,12 @@ class Project:
                 raise ValueError("Not possible to import old project file.")
 
             if reset_model_if_not_found:
-
-                settings_fp = Path(tmpdir, "reviews", project_config["reviews"][0]["id"], "settings_metadata.json")
+                settings_fp = Path(
+                    tmpdir,
+                    "reviews",
+                    project_config["reviews"][0]["id"],
+                    "settings_metadata.json",
+                )
                 settings = ReviewSettings().from_file(settings_fp)
                 try:
                     _check_model(settings)

@@ -865,7 +865,7 @@ def api_import_project():
 
     try:
         _check_model(settings)
-    except ValueError as err:
+    except ValueError:
         settings_model_reset = _reset_model_settings(settings)
         with open(settings_fp) as f:
             json.dump(asdict(settings_model_reset), f)

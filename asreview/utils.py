@@ -27,6 +27,7 @@ from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
 
+
 def _get_filename_from_url(url):
     if not _is_url(url):
         raise ValueError(f"'{url}' is not a valid URL.")
@@ -70,7 +71,6 @@ def _is_url(url):
 
 
 def _check_model(settings):
-
     warnings = []
 
     try:
@@ -94,8 +94,10 @@ def _check_model(settings):
         warnings.append(f"Balance strategy={settings.balance_strategy}")
 
     if warnings:
-        raise ValueError(", ".join(warnings) +
-                         " not available. Check if the extension is installed.")
+        raise ValueError(
+            ", ".join(warnings) + " not available. Check if the extension is installed."
+        )
+
 
 def _reset_model_settings(settings):
     """Reset model settings to default values."""

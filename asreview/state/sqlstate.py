@@ -51,14 +51,6 @@ RANKING_TABLE_COLUMNS_PANDAS_DTYPES = {
     "time": "object",
 }
 
-from sqlalchemy.types import *
-DF_RESULTS_SCHEMA = {
-  "id": Integer,
-  "name": String(64),
-  "salary": DECIMAL(15,4),
-  "notes": JSON
-}
-
 CURRENT_STATE_VERSION = 2
 
 
@@ -235,15 +227,12 @@ class SQLiteState:
                 f"{list(RANKING_TABLE_COLUMNS_PANDAS_DTYPES.keys())}."
             )
 
-
         cur = self._conn.cursor()
         cur.execute("delete from last_ranking")
         self._conn.commit()
         cur.close()
 
-        last_ranking.to_sql(
-            "last_ranking", self._conn, if_exists="append", index=False
-        )
+        last_ranking.to_sql("last_ranking", self._conn, if_exists="append", index=False)
 
     def add_last_ranking(
         self,

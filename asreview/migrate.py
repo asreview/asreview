@@ -10,11 +10,6 @@ import pandas
 from asreview._version import __version__
 from asreview.state.sqlstate import SQLiteState
 from asreview.settings import ReviewSettings
-from asreview.extensions import get_extension
-from asreview.config import DEFAULT_CLASSIFIER
-from asreview.config import DEFAULT_QUERY_STRATEGY
-from asreview.config import DEFAULT_BALANCE_STRATEGY
-from asreview.config import DEFAULT_FEATURE_EXTRACTION
 
 
 def _project_config_converter_v1_v2(project_json):
@@ -25,19 +20,20 @@ def _project_config_converter_v1_v2(project_json):
 
     return project_json
 
+
 def _project_data_converter_v1_v2(data_path):
     pass
 
-def _project_state_converter_v1_v2(review_path):
 
+def _project_state_converter_v1_v2(review_path):
     sqlstate = SQLiteState(Path(review_path, "results.db"))
     sqlstate.create_tables()
 
     conn = sqlite3.connect(Path(review_path, "results.sql"))
 
     df_results = pandas.read_sql_query(
-        "SELECT * FROM results WHERE label is not NULL", conn) \
-        .rename(columns={"notes": "note"})
+        "SELECT * FROM results WHERE label is not NULL", conn
+    ).rename(columns={"notes": "note"})
     df_results["tags"] = None
     df_results["user_id"] = None
     sqlstate._replace_results_from_df(df_results)
@@ -49,8 +45,9 @@ def _project_state_converter_v1_v2(review_path):
         pass
 
     try:
-        pandas.read_sql_table("SELECT * FROM decision_updates", conn) \
-            .to_sql("decision_updates", sqlstate._conn, index=False)
+        pandas.read_sql_table("SELECT * FROM decision_updates", conn).to_sql(
+            "decision_updates", sqlstate._conn, index=False
+        )
 
     except ValueError:
         pass
@@ -58,8 +55,8 @@ def _project_state_converter_v1_v2(review_path):
 
     os.unlink(Path(review_path, "results.sql"))
 
-def _project_model_settings_converter_v1_v2(model_settings_path):
 
+def _project_model_settings_converter_v1_v2(model_settings_path):
     with open(model_settings_path) as f:
         model_settings = json.load(f)["settings"]
 
@@ -113,8 +110,9 @@ def migrate_v1_v2(folder):
 
     # update the state file
     for review in project["reviews"]:
-
         _project_state_converter_v1_v2(Path(folder, "reviews", review["id"]))
 
         # Update the model settings file
-        _project_model_settings_converter_v1_v2(Path(folder, "reviews", review["id"], "settings_metadata.json"))
+        _project_model_settings_converter_v1_v2(
+            Path(folder, "reviews", review["id"], "settings_metadata.json")
+        )

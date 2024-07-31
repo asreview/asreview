@@ -13,9 +13,7 @@ def test_project_migration_1_to_2(tmpdir):
         "asreview-project-v1-5-startreview.asreview",
     )
 
-    project = asr.Project.load(
-        open(asreview_v1_file, "rb"), tmpdir, safe_import=True
-    )
+    project = asr.Project.load(open(asreview_v1_file, "rb"), tmpdir, safe_import=True)
 
     assert project.config["version"].startswith("1.6")
 
@@ -23,7 +21,6 @@ def test_project_migration_1_to_2(tmpdir):
         state.get_results_table()
         state.get_last_ranking_table()
         state.get_decision_changes()
-
 
     settings = asr.ReviewSettings().from_file(
         Path(
