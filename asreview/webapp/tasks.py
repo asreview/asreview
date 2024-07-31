@@ -17,7 +17,6 @@ from pathlib import Path
 import pandas as pd
 
 from asreview.config import LABEL_NA
-from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.extensions import load_extension
 from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
