@@ -110,10 +110,8 @@ def _run_model(project):
 def _project_not_in_queue(project):
     project_id = project.config.get("id")
     return (
-        any([
-            task.data[0][0].config.get("id") == project_id
-            for task in huey.pending()
-        ]) is False
+        any([task.data[0][0].config.get("id") == project_id for task in huey.pending()])
+        is False
     )
 
 
