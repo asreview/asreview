@@ -109,10 +109,10 @@ def _run_model(project):
 
 def _project_not_in_queue(project):
     project_id = project.config.get("id")
-    return any([
-        task.data[0][0].config.get("id") == project_id
-        for task in huey.pending()
-    ]) is False
+    return (
+        any([task.data[0][0].config.get("id") == project_id for task in huey.pending()])
+        is False
+    )
 
 
 # error handlers
@@ -744,7 +744,6 @@ def api_train(project):  # noqa: F401
         return jsonify({"success": True})
 
     try:
-
         if _project_not_in_queue(project):
             _run_model(project)
 
