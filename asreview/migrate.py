@@ -40,11 +40,11 @@ def _project_state_converter_v1_v2(review_path):
         .rename(columns={"notes": "note"})
     df_results["tags"] = None
     df_results["user_id"] = None
-    sqlstate._add_results_from_df(df_results)
+    sqlstate._replace_results_from_df(df_results)
 
     try:
         df_last_ranking = pandas.read_sql_query("SELECT * FROM last_ranking", conn)
-        sqlstate._add_last_ranking_from_df(df_last_ranking)
+        sqlstate._replace_last_ranking_from_df(df_last_ranking)
     except ValueError:
         pass
 

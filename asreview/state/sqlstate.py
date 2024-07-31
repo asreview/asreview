@@ -51,6 +51,14 @@ RANKING_TABLE_COLUMNS_PANDAS_DTYPES = {
     "time": "object",
 }
 
+from sqlalchemy.types import *
+DF_RESULTS_SCHEMA = {
+  "id": Integer,
+  "name": String(64),
+  "salary": DECIMAL(15,4),
+  "notes": JSON
+}
+
 CURRENT_STATE_VERSION = 2
 
 
@@ -206,24 +214,35 @@ class SQLiteState:
         else:
             return len(labeled) > last_training_set.max()
 
-    def _add_results_from_df(self, results):
+    def _replace_results_from_df(self, results):
         if not set(results.columns) == set(RESULTS_TABLE_COLUMNS_PANDAS_DTYPES):
             raise ValueError(
                 f"Columns of the results dataframe should be "
                 f"{list(RESULTS_TABLE_COLUMNS_PANDAS_DTYPES.keys())}."
             )
 
-        results.to_sql("results", self._conn, if_exists="replace", index=False)
+        cur = self._conn.cursor()
+        cur.execute("delete from results")
+        self._conn.commit()
+        cur.close()
 
-    def _add_last_ranking_from_df(self, last_ranking):
+        results.to_sql("results", self._conn, if_exists="append", index=False)
+
+    def _replace_last_ranking_from_df(self, last_ranking):
         if not set(last_ranking.columns) == set(RANKING_TABLE_COLUMNS_PANDAS_DTYPES):
             raise ValueError(
                 f"Columns of the last ranking dataframe should be "
                 f"{list(RANKING_TABLE_COLUMNS_PANDAS_DTYPES.keys())}."
             )
 
+
+        cur = self._conn.cursor()
+        cur.execute("delete from last_ranking")
+        self._conn.commit()
+        cur.close()
+
         last_ranking.to_sql(
-            "last_ranking", self._conn, if_exists="replace", index=False
+            "last_ranking", self._conn, if_exists="append", index=False
         )
 
     def add_last_ranking(
