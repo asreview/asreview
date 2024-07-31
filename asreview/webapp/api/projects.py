@@ -65,6 +65,7 @@ from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.huey_config import huey
 from asreview.webapp.tasks import run_model
+from asreview.webapp.tasks import run_simulation
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
 
@@ -96,6 +97,22 @@ def _fill_last_ranking(project, ranking):
             records = record_table
 
         state.add_last_ranking(records.values, None, ranking, None, None)
+
+
+def _run_model(project):
+    if project.config["mode"] == PROJECT_MODE_SIMULATE:
+        run_simulation(project)
+    else:
+        run_model(project)
+    return True
+
+
+def _project_not_in_queue(project):
+    project_id = project.config.get("id")
+    return any([
+        task.data[0][0].config.get("id") == project_id
+        for task in huey.pending()
+    ]) is False
 
 
 # error handlers
@@ -727,14 +744,9 @@ def api_train(project):  # noqa: F401
         return jsonify({"success": True})
 
     try:
-        run_command = [
-            sys.executable if sys.executable else "python",
-            "-m",
-            "asreview",
-            "web_run_model",
-            str(project.project_path),
-        ]
-        subprocess.Popen(run_command)
+
+        if _project_not_in_queue(project):
+            _run_model(project)
 
     except Exception as err:
         logging.error(err)
@@ -1232,26 +1244,11 @@ def api_label_record(project, record_id):  # noqa: F401
             state.delete_record_labeling_data(record_id)
         else:
             raise ValueError(f"Invalid label {label}")
-        
-    project_id = project.config.get("id")
-    # is there a pending task for this project in the queue?
-    if any([
-        task.data[0][0].config.get("id") == project_id
-        for task in huey.pending()
-    ]) is False and retrain_model:
-        print("Train model")
-        run_model(project)
 
-    # if retrain_model:
-    #     subprocess.Popen(
-    #         [
-    #             sys.executable if sys.executable else "python",
-    #             "-m",
-    #             "asreview",
-    #             "web_run_model",
-    #             str(project.project_path),
-    #         ]
-    #     )
+    if _project_not_in_queue(project) and retrain_model:
+        _run_model(project)
+    else:
+        print("no")
 
     if request.method == "POST":
         return jsonify({"success": True})

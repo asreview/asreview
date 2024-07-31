@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 from pathlib import Path
 
 import pandas as pd
 
-import asreview as asr
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.extensions import load_extension
@@ -27,7 +25,8 @@ from asreview.state.contextmanager import open_state
 from asreview.webapp.huey_config import huey
 
 
-def _run_model_start(project):
+@huey.task(name="run_model")
+def run_model(project):
     with open_state(project) as s:
         if not s.exist_new_labeled_records:
             return
@@ -101,7 +100,8 @@ def _run_model_start(project):
         raise err
 
 
-def _simulate_start(project):
+@huey.task(name="run_simulation")
+def run_simulation(project):
     as_data = project.read_data()
 
     settings = ReviewSettings().from_file(
@@ -112,8 +112,6 @@ def _simulate_start(project):
             "settings_metadata.json",
         )
     )
-
-    print(settings)
 
     with open_state(project) as state:
         priors = state.get_priors()["record_id"].tolist()
@@ -142,12 +140,3 @@ def _simulate_start(project):
         raise err
 
     project.update_review(state=sim, status="finished")
-
-
-@huey.task(name="run_model")
-def run_model(project):
-    if project.config["mode"] == PROJECT_MODE_SIMULATE:
-        _simulate_start(project)
-    else:
-        _run_model_start(project)
-    return True
