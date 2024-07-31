@@ -582,18 +582,15 @@ class Project:
 
             with open(Path(tmpdir, PATH_PROJECT_CONFIG)) as f:
                 project_config = json.load(f)
-                print(project_config)
 
             # if migration is needed, do it here
             if project_config["version"].startswith("1.") and not project_config[
                 "version"
-            ].startswith("1.6"):
+            ].startswith("1.6.dev"):
                 migrate_v1_v2(tmpdir)
 
             with open(Path(tmpdir, PATH_PROJECT_CONFIG)) as f:
                 project_config = json.load(f)
-
-            print(project_config)
 
             if not project_config["version"].startswith("1.6"):
                 raise ValueError("Not possible to import old project file.")
@@ -606,6 +603,7 @@ class Project:
                     "settings_metadata.json",
                 )
                 settings = ReviewSettings().from_file(settings_fp)
+
                 try:
                     _check_model(settings)
                 except ValueError as err:

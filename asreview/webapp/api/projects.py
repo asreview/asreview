@@ -861,13 +861,12 @@ def api_import_project():
         "settings_metadata.json",
     )
     settings = ReviewSettings().from_file(settings_fp)
-    print(settings)
 
     try:
         _check_model(settings)
     except ValueError:
         settings_model_reset = _reset_model_settings(settings)
-        with open(settings_fp) as f:
+        with open(settings_fp, "w") as f:
             json.dump(asdict(settings_model_reset), f)
 
     if current_app.config.get("LOGIN_DISABLED", False):
