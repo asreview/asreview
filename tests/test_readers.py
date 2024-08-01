@@ -137,10 +137,6 @@ def test_nan_values_ris():
     assert as_data.record(0).doi is None
     assert as_data.record(2).doi is None
 
-    # check is_prior
-    assert not as_data.record(0).is_prior
-    assert not as_data.record(2).is_prior
-
 
 def test_nan_values_csv():
     fp = Path("tests", "demo_data", "missing_values.csv")
@@ -165,17 +161,6 @@ def test_nan_values_csv():
     # Check missing doi
     assert as_data.record(0).doi is None
     assert as_data.record(2).doi is None
-
-
-def test_asreview_labels_prior():
-    fp = Path("tests", "demo_data", "baseline_tag-notes_labels.ris")
-    as_data = load_dataset(fp)
-    assert as_data.record(0).is_prior
-    assert as_data.record(1).is_prior
-    assert not as_data.record(2).is_prior
-    assert not as_data.record(3).is_prior
-
-    assert as_data.is_prior().sum() == 2
 
 
 def test_write_data(tmpdir):
