@@ -26,12 +26,11 @@ UPLOAD_DATA = [
 
 
 def _asreview_file_archive():
-
     return list(
-            Path("asreview", "webapp", "tests", "asreview-project-file-archive").glob(
-                "v[12]*/asreview-project-v[12]*-startreview.asreview"
-            )
+        Path("asreview", "webapp", "tests", "asreview-project-file-archive").glob(
+            "v[12]*/asreview-project-v[12]*-startreview.asreview"
         )
+    )
 
 
 # Test getting all projects
