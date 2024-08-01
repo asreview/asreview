@@ -199,7 +199,7 @@ def _cli_simulate(argv):
         prior_idx = _convert_id_to_idx(as_data, args.prior_record_id)
 
     fm = feature_model.fit_transform(
-        as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
+        as_data.texts, as_data.title, as_data.abstract, as_data.keywords
     )
     project.add_feature_matrix(fm, feature_model)
 

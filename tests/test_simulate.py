@@ -26,7 +26,7 @@ def test_simulate_basic(tmpdir):
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
     fm = feature_model.fit_transform(
-        as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
+        as_data.texts, as_data.title, as_data.abstract, as_data.keywords
     )
     project.add_feature_matrix(fm, feature_model)
 
@@ -68,7 +68,7 @@ def test_simulate_no_prior(tmpdir):
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
     fm = feature_model.fit_transform(
-        as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
+        as_data.texts, as_data.title, as_data.abstract, as_data.keywords
     )
     project.add_feature_matrix(fm, feature_model)
 
@@ -109,7 +109,7 @@ def test_simulate_random_prior(tmpdir):
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
     fm = feature_model.fit_transform(
-        as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
+        as_data.texts, as_data.title, as_data.abstract, as_data.keywords
     )
     project.add_feature_matrix(fm, feature_model)
 

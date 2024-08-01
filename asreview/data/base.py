@@ -250,19 +250,11 @@ class Dataset:
         return cur_texts.values
 
     @property
-    def headings(self):
-        return self.title
-
-    @property
     def title(self):
         try:
             return self.df[self.column_spec["title"]].fillna("").values
         except KeyError:
             return None
-
-    @property
-    def bodies(self):
-        return self.abstract
 
     @property
     def abstract(self):
