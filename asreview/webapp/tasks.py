@@ -92,8 +92,13 @@ def run_model(project):
         project.remove_review_error()
 
     except Exception as err:
+
         project.set_review_error(err)
         raise err
+    
+    import time
+    time.sleep(15)
+    return True
 
 
 @huey.task(name="run_simulation")
@@ -136,3 +141,5 @@ def run_simulation(project):
         raise err
 
     project.update_review(state=sim, status="finished")
+
+    return True
