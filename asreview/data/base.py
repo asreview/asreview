@@ -158,7 +158,7 @@ class Dataset:
         self.df.columns = self.df.columns.str.strip()
 
         # Convert labels to integers.
-        if self.column_spec and "included" in list(self.column_spec):
+        if self.column_spec and "included" in self.column_spec:
             col = self.column_spec["included"]
 
             if self.df[col].dtype in ["str", "object"]:
@@ -176,13 +176,11 @@ class Dataset:
         self.df.set_index("record_id", inplace=True)
 
         # Check if we either have abstracts or titles.
-        if "abstract" not in list(self.column_spec) and "title" not in list(
-            self.column_spec
-        ):
+        if "abstract" not in self.column_spec and "title" not in self.column_spec:
             raise ValueError("File supplied without 'abstract' or 'title'" " fields.")
-        if "abstract" not in list(self.column_spec):
+        if "abstract" not in self.column_spec:
             logging.warning("Unable to detect abstracts in dataset.")
-        if "title" not in list(self.column_spec):
+        if "title" not in self.column_spec:
             logging.warning("Unable to detect titles in dataset.")
 
     def _get_column_spec_df(self):
