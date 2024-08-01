@@ -63,10 +63,6 @@ COLUMN_DEFINITIONS = {
     "notes": ["notes"],
     "keywords": ["keywords"],
     "doi": ["doi"],
-    "tags": [
-        "tags",
-    ],
-    "is_prior": ["asreview_prior", "is_prior"],
 }
 
 # the schema describes the content of the ASReview project file.

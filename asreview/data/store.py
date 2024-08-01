@@ -18,9 +18,7 @@ DATA_TABLE_COLUMNS = {
     "notes",
     "doi",
     "keywords",
-    "tags",
     "created_at",
-    "is_prior",
 }
 
 DATA_TABLE_COLUMNS_PANDAS_DTYPES = {
@@ -34,9 +32,7 @@ DATA_TABLE_COLUMNS_PANDAS_DTYPES = {
     "notes": "object",
     "doi": "object",
     "keywords": "object",
-    "tags": "object",
     "created_at": "object",
-    "is_prior": "Int64",
 }
 
 CURRENT_DATASTORE_VERSION = 0
@@ -96,10 +92,6 @@ class DataStore:
             "notes": dataset.notes,
             "keywords": keywords,
             "doi": dataset.doi,
-            # Tags are not yet in the Dataset object.
-            # "tags": dataset.tags,
-            # It's not clear yet you to get 'is_prior' from a Dataset object
-            # "is_prior": dataset.get("is_prior"),
             "created_at": datetime.now(),
         }
 
@@ -136,7 +128,7 @@ class DataStore:
                 dtype=DATA_TABLE_COLUMNS_PANDAS_DTYPES,
             )
             .rename({"row_number": "record_id"}, axis=1)
-            .drop(["dataset_id", "dataset_row", "tags", "created_at"], axis=1)
+            .drop(["dataset_id", "dataset_row", "created_at"], axis=1)
         )
         return Record(**record.iloc[0].to_dict())
 
@@ -170,8 +162,6 @@ class DataStore:
                             notes TEXT,
                             keywords JSON,
                             doi TEXT,
-                            tags JSON,
-                            is_prior INTEGER,
                             created_at TEXT)"""
         )
         self._conn.commit()

@@ -85,16 +85,12 @@ class Record:
         Keywords of the record.
     included: int
         Label of the record.
-    type_of_reference: str
-        Type of reference.
     year: int
         Year of publication.
     doi: str
         DOI of the record.
     url: str
         URL of the record.
-    is_prior: bool
-        Whether the record is a prior record.
     """
 
     record_id: int
@@ -103,12 +99,10 @@ class Record:
     authors: str = None
     notes: str = None
     keywords: str = None
-    type_of_reference: str = None
     year: int = None
     doi: str = None
     url: str = None
     included: int = None
-    is_prior: bool = False
 
 
 class Dataset:
@@ -340,18 +334,6 @@ class Dataset:
             self.df[column] = labels
         except KeyError:
             self.df["included"] = labels
-
-    def is_prior(self):
-        """Get the labels that are marked as 'prior'.
-
-        Returns
-        -------
-        numpy.ndarray
-            Array of booleans that have the 'prior' property.
-        """
-
-        column = self.column_spec["is_prior"]
-        return self.df[column] == 1
 
     def to_file(
         self, fp, labels=None, ranking=None, writer=None, keep_old_labels=False
