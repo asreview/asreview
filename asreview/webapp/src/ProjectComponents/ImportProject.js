@@ -1,7 +1,10 @@
 import { Close, FileUpload } from "@mui/icons-material";
 import {
   Alert,
-  Avatar, Box, Button, ButtonBase,
+  Avatar,
+  Box,
+  Button,
+  ButtonBase,
   Dialog,
   DialogActions,
   DialogContent,
@@ -22,7 +25,6 @@ import { ProjectAPI } from "api";
 
 import { StyledIconButton } from "StyledComponents/StyledButton";
 import { useToggle } from "hooks/useToggle";
-
 
 const PREFIX = "ImportFromFile";
 
@@ -76,7 +78,11 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-const ImportProject = ({onImportProject, mobileScreen, toggleImportProject}) => {
+const ImportProject = ({
+  onImportProject,
+  mobileScreen,
+  toggleImportProject,
+}) => {
   // const isImportingProject = useIsMutating(["importProject"]);
   const queryClient = useQueryClient();
   const [file, setFile] = React.useState(null);
@@ -101,7 +107,6 @@ const ImportProject = ({onImportProject, mobileScreen, toggleImportProject}) => 
       if (data?.warnings.length > 0) {
         toggleOpenWarnings();
       }
-
     },
   });
 
@@ -151,83 +156,76 @@ const ImportProject = ({onImportProject, mobileScreen, toggleImportProject}) => 
 
   return (
     <>
-    <Dialog
-      open={onImportProject}
-      fullScreen={mobileScreen}
-      fullWidth
-      maxWidth="md"
-      PaperProps={{
-        sx: { height: !mobileScreen ? "calc(100% - 96px)" : "100%" },
-      }}
-    >
-      <Stack className="dialog-header" direction="row" spacing={1}>
-        <DialogTitle>Import project</DialogTitle>
-        <Stack
-          className="dialog-header-button right"
-          direction="row"
-          spacing={1}
-        >
-          <Tooltip title="Close">
-            <StyledIconButton
-              disabled={isLoading}
-              onClick={toggleImportProject}
-            >
-              <Close />
-            </StyledIconButton>
-          </Tooltip>
-        </Stack>
-      </Stack>
-      <DialogContent dividers>
-
-      <Root>
-        <Box {...getRootProps({ style })}>
-          <input {...getInputProps()} />
-          <Stack className={classes.root} spacing={2}>
-            <ButtonBase
-              disabled={isLoading}
-              disableRipple
-              onClick={open}
-            >
-              <Avatar
-                sx={{
-                  height: "136px",
-                  width: "136px",
-                  bgcolor: (theme) =>
-                    theme.palette.mode === "dark" ? "grey.800" : "grey.100",
-                }}
-              >
-                <FileUpload
-                  sx={{ height: "65px", width: "65px", color: "grey.500" }}
-                />
-              </Avatar>
-            </ButtonBase>
-            <Typography>
-              Click or Drag and drop a ASReview file (<code>.asreview</code>)
-            </Typography>
-            {file && (
-              <Typography className={classes.singleLine}>
-                File <i>{file?.path}</i> selected.
-              </Typography>
-            )}
-            {isLoading && (
-              <Typography sx={{ color: "text.secondary" }}>
-                Importing...
-              </Typography>
-            )}
-            {isError && (
-              <InlineErrorHandler
-                message={error?.message + " Please try again."}
-              />
-            )}
-          </Stack>
-        </Box>
-      </Root>
-      </DialogContent>
-    </Dialog>
       <Dialog
-        open={openWarnings}
-        onClose={toggleOpenWarnings}
+        open={onImportProject}
+        fullScreen={mobileScreen}
+        fullWidth
+        maxWidth="md"
+        PaperProps={{
+          sx: { height: !mobileScreen ? "calc(100% - 96px)" : "100%" },
+        }}
       >
+        <Stack className="dialog-header" direction="row" spacing={1}>
+          <DialogTitle>Import project</DialogTitle>
+          <Stack
+            className="dialog-header-button right"
+            direction="row"
+            spacing={1}
+          >
+            <Tooltip title="Close">
+              <StyledIconButton
+                disabled={isLoading}
+                onClick={toggleImportProject}
+              >
+                <Close />
+              </StyledIconButton>
+            </Tooltip>
+          </Stack>
+        </Stack>
+        <DialogContent dividers>
+          <Root>
+            <Box {...getRootProps({ style })}>
+              <input {...getInputProps()} />
+              <Stack className={classes.root} spacing={2}>
+                <ButtonBase disabled={isLoading} disableRipple onClick={open}>
+                  <Avatar
+                    sx={{
+                      height: "136px",
+                      width: "136px",
+                      bgcolor: (theme) =>
+                        theme.palette.mode === "dark" ? "grey.800" : "grey.100",
+                    }}
+                  >
+                    <FileUpload
+                      sx={{ height: "65px", width: "65px", color: "grey.500" }}
+                    />
+                  </Avatar>
+                </ButtonBase>
+                <Typography>
+                  Click or Drag and drop a ASReview file (<code>.asreview</code>
+                  )
+                </Typography>
+                {file && (
+                  <Typography className={classes.singleLine}>
+                    File <i>{file?.path}</i> selected.
+                  </Typography>
+                )}
+                {isLoading && (
+                  <Typography sx={{ color: "text.secondary" }}>
+                    Importing...
+                  </Typography>
+                )}
+                {isError && (
+                  <InlineErrorHandler
+                    message={error?.message + " Please try again."}
+                  />
+                )}
+              </Stack>
+            </Box>
+          </Root>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={openWarnings} onClose={toggleOpenWarnings}>
         <DialogTitle>Imported with warnings</DialogTitle>
         <DialogContent>
           <Typography>
@@ -235,7 +233,7 @@ const ImportProject = ({onImportProject, mobileScreen, toggleImportProject}) => 
             warnings:
           </Typography>
           {data?.warnings.map((item, i) => (
-            <Alert key={i} severity="warning" sx={{mt: 2}}>
+            <Alert key={i} severity="warning" sx={{ mt: 2 }}>
               {item}
             </Alert>
           ))}
@@ -247,11 +245,11 @@ const ImportProject = ({onImportProject, mobileScreen, toggleImportProject}) => 
         </DialogActions>
       </Dialog>
       <Snackbar
-          open={importSnackbar}
-          onClose={toggleImportSnackbar}
-          autoHideDuration={5000}
-          message={`Your project has been imported`}
-        />
+        open={importSnackbar}
+        onClose={toggleImportSnackbar}
+        autoHideDuration={5000}
+        message={`Your project has been imported`}
+      />
     </>
   );
 };
