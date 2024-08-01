@@ -584,16 +584,14 @@ class Project:
                 project_config = json.load(f)
 
             # if migration is needed, do it here
-            if project_config["version"].startswith("1.") and not project_config[
-                "version"
-            ].startswith("1.6.dev"):
+            if project_config["version"].startswith("1."):
                 migrate_v1_v2(tmpdir)
 
             with open(Path(tmpdir, PATH_PROJECT_CONFIG)) as f:
                 project_config = json.load(f)
 
-            if not project_config["version"].startswith("1.6"):
-                raise ValueError("Not possible to import old project file.")
+            if not project_config["version"].startswith("2."):
+                raise ValueError("Not possible to import (old) project file.")
 
             if reset_model_if_not_found:
                 settings_fp = Path(
