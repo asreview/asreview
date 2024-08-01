@@ -26,7 +26,7 @@ def test_simulate_basic(tmpdir):
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
     fm = feature_model.fit_transform(
-        as_data.texts, as_data.title, as_data.abstract, as_data.keywords
+        as_data.texts, as_data["title"], as_data["abstract"], as_data["keywords"]
     )
     project.add_feature_matrix(fm, feature_model)
 
@@ -35,7 +35,7 @@ def test_simulate_basic(tmpdir):
 
     sim = asr.Simulate(
         fm,
-        labels=as_data.labels,
+        labels=as_data["included"],
         classifier=load_extension("models.classifiers", "svm")(),
         query_strategy=load_extension("models.query", "max_random")(),
         balance_strategy=load_extension("models.balance", "double")(),
@@ -68,7 +68,7 @@ def test_simulate_no_prior(tmpdir):
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
     fm = feature_model.fit_transform(
-        as_data.texts, as_data.title, as_data.abstract, as_data.keywords
+        as_data.texts, as_data["title"], as_data["abstract"], as_data["keywords"]
     )
     project.add_feature_matrix(fm, feature_model)
 
@@ -77,7 +77,7 @@ def test_simulate_no_prior(tmpdir):
 
     sim = asr.Simulate(
         fm,
-        labels=as_data.labels,
+        labels=as_data["included"],
         classifier=load_extension("models.classifiers", "svm")(),
         query_strategy=load_extension("models.query", "max_random")(),
         balance_strategy=load_extension("models.balance", "double")(),
@@ -109,7 +109,7 @@ def test_simulate_random_prior(tmpdir):
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
     fm = feature_model.fit_transform(
-        as_data.texts, as_data.title, as_data.abstract, as_data.keywords
+        as_data.texts, as_data["title"], as_data["abstract"], as_data["keywords"]
     )
     project.add_feature_matrix(fm, feature_model)
 
@@ -118,7 +118,7 @@ def test_simulate_random_prior(tmpdir):
 
     sim = asr.Simulate(
         fm,
-        labels=as_data.labels,
+        labels=as_data["included"],
         classifier=load_extension("models.classifiers", "svm")(),
         query_strategy=load_extension("models.query", "max_random")(),
         balance_strategy=load_extension("models.balance", "double")(),

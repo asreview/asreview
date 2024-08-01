@@ -110,17 +110,20 @@ def fuzzy_find(
     list
         Sorted list of indexes that match best the keywords.
     """
-
-    if as_data.title is None:
+    if "title" not in as_data:
         raise ValueError("Cannot search dataset without titles.")
 
-    all_strings = pd.Series(as_data.title).fillna("")
+    all_strings = pd.Series(as_data["title"]).fillna("")
 
-    if as_data.authors is not None:
-        all_strings += " " + pd.Series(as_data.authors).map(_format_to_str).fillna("")
+    if "authors" in as_data:
+        all_strings += " " + pd.Series(as_data["authors"]).map(_format_to_str).fillna(
+            ""
+        )
 
-    if as_data.keywords is not None:
-        all_strings += " " + pd.Series(as_data.keywords).map(_format_to_str).fillna("")
+    if "keywords" not in as_data:
+        all_strings += " " + pd.Series(as_data["keywords"]).map(_format_to_str).fillna(
+            ""
+        )
 
     new_ranking = _get_fuzzy_scores(keywords, all_strings.values)
     sorted_idx = np.argsort(-new_ranking)

@@ -57,9 +57,8 @@ def n_relevant(data):
     int:
         The statistic
     """
-    if data.labels is not None:
-        return len(np.where(data.labels == 1)[0])
-    return None
+    if "included" in data:
+        return len(np.where(data["included"] == 1)[0])
 
 
 def n_irrelevant(data):
@@ -75,9 +74,8 @@ def n_irrelevant(data):
     int:
         The statistic
     """
-    if data.labels is None:
-        return None
-    return len(np.where(data.labels == 0)[0])
+    if "included" in data:
+        return len(np.where(data["included"] == 0)[0])
 
 
 def n_unlabeled(data):
@@ -93,9 +91,8 @@ def n_unlabeled(data):
     int:
         The statistic
     """
-    if data.labels is None:
-        return None
-    return len(data.labels) - n_relevant(data) - n_irrelevant(data)
+    if "included" in data:
+        return len(data) - n_relevant(data) - n_irrelevant(data)
 
 
 def n_missing_title(data):
@@ -111,18 +108,26 @@ def n_missing_title(data):
     int:
         The statistic
     """
-    n_missing = 0
-    if data.title is None:
+    try:
+        titles = data["title"]
+    except KeyError:
         return None, None
-    if data.labels is None:
-        n_missing_included = None
-    else:
-        n_missing_included = 0
-    for i in range(len(data.title)):
-        if len(data.title[i]) == 0:
+    try:
+        included = data["included"]
+    except KeyError:
+        included = [None for _ in range(len(titles))]
+
+    n_missing = 0
+    n_missing_included = 0
+    for i in range(len(data)):
+        if len(titles[i]) == 0:
             n_missing += 1
-            if data.labels is not None and data.labels[i] == 1:
+            if included[i] == 1:
                 n_missing_included += 1
+
+    if "included" not in data:
+        n_missing_included = None
+
     return n_missing, n_missing_included
 
 
@@ -139,19 +144,25 @@ def n_missing_abstract(data):
     int:
         The statistic
     """
-    n_missing = 0
-    if data.abstract is None:
+    try:
+        abstracts = data["abstract"]
+    except KeyError:
         return None, None
-    if data.labels is None:
-        n_missing_included = None
-    else:
-        n_missing_included = 0
+    try:
+        included = data["included"]
+    except KeyError:
+        included = [None for _ in range(len(abstracts))]
 
-    for i in range(len(data.abstract)):
-        if len(data.abstract[i]) == 0:
+    n_missing = 0
+    n_missing_included = 0
+    for i in range(len(data)):
+        if len(abstracts[i]) == 0:
             n_missing += 1
-            if data.labels is not None and data.labels[i] == 1:
+            if included[i] == 1:
                 n_missing_included += 1
+
+    if "included" not in data:
+        n_missing_included = None
 
     return n_missing, n_missing_included
 
@@ -169,12 +180,11 @@ def title_length(data):
     int:
         The statistic
     """
-    if data.title is None:
+    try:
+        titles = data["title"]
+    except KeyError:
         return None
-    avg_len = 0
-    for i in range(len(data.title)):
-        avg_len += len(data.title[i])
-    return avg_len / len(data.title)
+    return np.char.str_len(titles).mean()
 
 
 def abstract_length(data):
@@ -190,12 +200,11 @@ def abstract_length(data):
     int:
         The statistic
     """
-    if data.abstract is None:
+    try:
+        abstracts = data["abstract"]
+    except KeyError:
         return None
-    avg_len = 0
-    for i in range(len(data.abstract)):
-        avg_len += len(data.abstract[i])
-    return avg_len / len(data.abstract)
+    return np.char.str_len(abstracts).mean()
 
 
 def n_keywords(data):
@@ -211,9 +220,17 @@ def n_keywords(data):
     int:
         The statistic
     """
-    if data.keywords is None:
+    # Before the Dataset class cleaned the keywords before returning them.
+    # I'll do this in the reader pipeline later, for now I'll just import the
+    # cleaning code here.
+    from asreview.data.base import _convert_keywords
+
+    try:
+        keywords = data["keywords"]
+    except KeyError:
         return None
-    return np.average([len(keywords) for keywords in data.keywords])
+    keywords = keywords.apply(_convert_keywords)
+    return np.average([len(keywords) for keywords in keywords])
 
 
 def n_duplicates(data, pid="doi"):

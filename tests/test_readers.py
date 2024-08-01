@@ -45,7 +45,7 @@ def test_reader(test_file, n_lines, ignore_col):
     #     assert np.array_equal(as_data.labels, labels)
 
     for col in cols:
-        values = as_data.get(col)
+        values = as_data[col]
         assert len(values) == n_lines
 
 
@@ -173,7 +173,7 @@ def test_write_data(tmpdir):
     asr_data.to_file(tmp_csv_fp_out)
     asr_data_diff = load_dataset(tmp_csv_fp_out)
     # Check if export file includes labels [1,0]
-    assert list(asr_data.labels) == list(asr_data_diff.labels)
+    assert list(asr_data["included"]) == list(asr_data_diff["included"])
 
 
 def test_load_dataset_from_url(tmpdir):

@@ -59,7 +59,10 @@ def _run_model_start(project):
                 fm = project.get_feature_matrix(feature_model)
             except FileNotFoundError:
                 fm = feature_model.fit_transform(
-                    as_data.texts, as_data.title, as_data.abstract, as_data.keywords
+                    as_data.texts,
+                    as_data.get("title"),
+                    as_data.get("abstract"),
+                    as_data.get("keywords"),
                 )
                 project.add_feature_matrix(fm, feature_model)
 
@@ -127,13 +130,16 @@ def _simulate_start(project):
         "models.feature_extraction", settings.feature_extraction
     )()
     fm = feature_model.fit_transform(
-        as_data.texts, as_data.title, as_data.abstract, as_data.keywords
+        as_data.texts,
+        as_data.get("title"),
+        as_data.get("abstract"),
+        as_data.get("keywords"),
     )
     project.add_feature_matrix(fm, feature_model)
 
     sim = Simulate(
         fm,
-        labels=as_data.labels,
+        labels=as_data["included"],
         classifier=load_extension("models.classifiers", settings.classifier)(),
         query_strategy=load_extension("models.query", settings.query_strategy)(),
         balance_strategy=load_extension("models.balance", settings.balance_strategy)(),

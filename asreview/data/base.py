@@ -26,7 +26,7 @@ from asreview.config import LABEL_NA
 from asreview.extensions import extensions
 
 
-def _type_from_column(col_name, col_definitions):
+def _standardize_column_name(col_name, col_definitions):
     """Transform a column name to its standardized form.
 
     Arguments
@@ -114,8 +114,9 @@ class Dataset:
         Dataframe containing the data for the ASReview data object.
     column_spec: dict
         Specification for which column corresponds to which standard
-        specification. Key is the standard specification, key is which column
-        it is actually in. Default: None.
+        specification. Key is the standard specification (see
+        `asreview.config.COLUMN_DEFINITIONS`), value is which column it is actually in.
+        Default: None.
 
     Attributes
     ----------
@@ -141,8 +142,6 @@ class Dataset:
         Returns an array with dataset DOI.
     included: numpy.ndarray
         Returns an array with document inclusion markers.
-    final_included: numpy.ndarray
-        Pending deprecation! Returns an array with document inclusion markers.
     labels: numpy.ndarray
         Identical to included.
 
@@ -153,7 +152,11 @@ class Dataset:
         self.column_spec = column_spec
 
         if column_spec is None:
-            self._get_column_spec_df()
+            self.column_spec = {}
+            for col_name in list(self.df):
+                data_type = _standardize_column_name(col_name, COLUMN_DEFINITIONS)
+                if data_type is not None:
+                    self.column_spec[data_type] = col_name
 
         self.df.columns = self.df.columns.str.strip()
 
@@ -183,18 +186,29 @@ class Dataset:
         if "title" not in self.column_spec:
             logging.warning("Unable to detect titles in dataset.")
 
-    def _get_column_spec_df(self):
-        self.column_spec = {}
-        for col_name in list(self.df):
-            data_type = _type_from_column(col_name, COLUMN_DEFINITIONS)
-            if data_type is not None:
-                self.column_spec[data_type] = col_name
+    def __getitem__(self, item):
+        if item not in self.column_spec or self.column_spec[item] not in self.df:
+            raise KeyError(
+                f"Dataset does not have a column named {item}."
+                f" Valid column names are: {list(self.column_spec)}"
+            )
+        return self.df[self.column_spec[item]].values
+
+    def __contains__(self, item):
+        return item in self.column_spec and self.column_spec[item] in self.df
 
     def __len__(self):
         if self.df is None:
             return 0
         return len(self.df.index)
 
+    def get(self, item, default=None):
+        try:
+            return self[item]
+        except KeyError:
+            return default
+
+    # Once Dataset is a list of Records, this can go.
     def record(self, i):
         """Create a record from an index.
 
@@ -231,99 +245,31 @@ class Dataset:
             return records
         return records[0]
 
+    # Can be removed, just use DataStore.n_records
     @property
     def record_ids(self):
         return self.df.index.values
 
+    # This is only used in BaseFeatureExtraction.fit_transform.
+    # It can probably just be completely removed, use Records as input to FA.
     @property
     def texts(self):
-        if self.title is None:
-            return self.abstract
-        if self.abstract is None:
-            return self.title
+        # One of title and abstract is always present.
+        try:
+            titles = self["title"]
+        except KeyError:
+            return self["abstract"]
+        try:
+            abstracts = self["abstract"]
+        except KeyError:
+            return self["title"]
 
-        s_title = pd.Series(self.title)
-        s_abstract = pd.Series(self.abstract)
+        s_title = pd.Series(titles).fillna("")
+        s_abstract = pd.Series(abstracts).fillna("")
 
         cur_texts = (s_title + " " + s_abstract).str.strip()
 
         return cur_texts.values
-
-    @property
-    def title(self):
-        try:
-            return self.df[self.column_spec["title"]].fillna("").values
-        except KeyError:
-            return None
-
-    @property
-    def abstract(self):
-        try:
-            return self.df[self.column_spec["abstract"]].fillna("").values
-        except KeyError:
-            return None
-
-    @property
-    def notes(self):
-        try:
-            return self.df[self.column_spec["notes"]].values
-        except KeyError:
-            return None
-
-    @property
-    def keywords(self):
-        try:
-            return self.df[self.column_spec["keywords"]].apply(_convert_keywords).values
-        except KeyError:
-            return None
-
-    @property
-    def authors(self):
-        try:
-            return self.df[self.column_spec["authors"]].values
-        except KeyError:
-            return None
-
-    @property
-    def doi(self):
-        try:
-            return self.df[self.column_spec["doi"]].values
-        except KeyError:
-            return None
-
-    @property
-    def url(self):
-        try:
-            return self.df[self.column_spec["url"]].values
-        except KeyError:
-            return None
-
-    def get(self, name):
-        "Get column with name."
-        try:
-            return self.df[self.column_spec[name]].values
-        except KeyError:
-            return self.df[name].values
-
-    @property
-    def included(self):
-        return self.labels
-
-    @property
-    def labels(self):
-        try:
-            column = self.column_spec["included"]
-            return self.df[column].values
-        except KeyError:
-            return None
-
-    @labels.setter
-    def labels(self, labels):
-        try:
-            column = self.column_spec["included"]
-            self.df[column] = labels
-        except KeyError:
-            self.df["included"] = labels
 
     def to_file(
         self, fp, labels=None, ranking=None, writer=None, keep_old_labels=False

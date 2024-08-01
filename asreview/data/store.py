@@ -77,21 +77,23 @@ class DataStore:
 
     def add_dataset(self, dataset, dataset_id):
         """Add a new dataset to the data store."""
-        keywords = (
-            None
-            if dataset.keywords is None
-            else [json.dumps(keyword_list) for keyword_list in dataset.keywords]
-        )
+        try:
+            keywords = [
+                json.dumps(keyword_list) for keyword_list in dataset["keywords"]
+            ]
+        except KeyError:
+            keywords = None
+
         data = {
             "dataset_id": dataset_id,
             "dataset_row": range(len(dataset)),
-            "included": dataset.labels,
-            "title": dataset.title,
-            "authors": dataset.authors,
-            "abstract": dataset.abstract,
-            "notes": dataset.notes,
+            "included": dataset.get("included"),
+            "title": dataset.get("title"),
+            "authors": dataset.get("authors"),
+            "abstract": dataset.get("abstract"),
+            "notes": dataset.get("notes"),
             "keywords": keywords,
-            "doi": dataset.doi,
+            "doi": dataset.get("doi"),
             "created_at": datetime.now(),
         }
 

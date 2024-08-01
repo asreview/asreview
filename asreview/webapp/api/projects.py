@@ -256,10 +256,10 @@ def api_create_project():  # noqa: F401
             # if the data contains labels and oracle mode, add them to the state file
             if (
                 project.config["mode"] == PROJECT_MODE_ORACLE
-                and as_data.labels is not None
+                and as_data["included"] is not None
             ):
-                labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
-                labels = as_data.labels[labeled_indices].tolist()
+                labeled_indices = np.where(as_data["included"] != LABEL_NA)[0]
+                labels = as_data["included"][labeled_indices].tolist()
                 labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
 
                 # add the labels as prior data
@@ -401,10 +401,10 @@ def api_get_project_data(project):  # noqa: F401
             "n_irrelevant": n_irrelevant(as_data),
             "n_duplicates": n_duplicates(as_data),
             "n_missing_title": int(
-                pd.Series(as_data.title).replace("", None).isnull().sum()
+                pd.Series(as_data["title"]).replace("", None).isnull().sum()
             ),
             "n_missing_abstract": int(
-                pd.Series(as_data.abstract).replace("", None).isnull().sum()
+                pd.Series(as_data["abstract"]).replace("", None).isnull().sum()
             ),
             "n_english": None,
             "filename": Path(project.config["dataset_path"]).stem,

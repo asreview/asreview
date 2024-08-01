@@ -199,7 +199,10 @@ def _cli_simulate(argv):
         prior_idx = _convert_id_to_idx(as_data, args.prior_record_id)
 
     fm = feature_model.fit_transform(
-        as_data.texts, as_data.title, as_data.abstract, as_data.keywords
+        as_data.texts,
+        as_data.get("title"),
+        as_data.get("abstract"),
+        as_data.get("keywords"),
     )
     project.add_feature_matrix(fm, feature_model)
 
@@ -209,7 +212,7 @@ def _cli_simulate(argv):
 
     sim = Simulate(
         fm,
-        as_data.labels,
+        as_data["included"],
         classifier=classifier_model(**_unpack_params(settings.classifier_param)),
         query_strategy=query_model(**_unpack_params(settings.query_param)),
         balance_strategy=balance_model(**_unpack_params(settings.balance_param)),

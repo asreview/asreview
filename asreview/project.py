@@ -18,7 +18,6 @@ __all__ = [
 ]
 
 import json
-import logging
 import os
 import shutil
 import tempfile
@@ -30,7 +29,6 @@ from pathlib import Path
 from uuid import uuid4
 
 import jsonschema
-import pandas as pd
 from filelock import FileLock
 
 from asreview import load_dataset
@@ -215,13 +213,13 @@ class Project:
         as_data = load_dataset(fp_data)
 
         if self.config["mode"] == PROJECT_MODE_SIMULATE and (
-            as_data.labels is None or (as_data.labels == LABEL_NA).any()
+            "included" not in as_data or (as_data["included"] == LABEL_NA).any()
         ):
             raise ValueError("Import fully labeled dataset")
 
-        if self.config["mode"] == PROJECT_MODE_EXPLORE and as_data.labels is None:
+        if self.config["mode"] == PROJECT_MODE_EXPLORE and "included" not in as_data:
             raise ValueError("Import partially or fully labeled dataset")
-        
+
         if dataset_id is None:
             dataset_id = uuid4().hex
         self.data_store.add_dataset(dataset=as_data, dataset_id=dataset_id)
@@ -250,7 +248,7 @@ class Project:
             Path(self.project_path, "reviews").iterdir()
         ):
             self.delete_review()
-    
+
     def read_data(self):
         """Get Dataset object from file.
 
@@ -259,8 +257,7 @@ class Project:
         Dataset:
             The data object for internal use in ASReview.
         """
-        as_data = self.data_store.get_all()
-        return as_data
+        return self.data_store.get_all()
 
     @property
     def feature_matrices(self):
