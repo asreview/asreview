@@ -26,11 +26,12 @@ UPLOAD_DATA = [
 
 
 def _asreview_file_archive():
+
     return list(
-        Path("asreview", "webapp", "tests", "asreview-project-file-archive").glob(
-            "*/asreview-project-*-startreview.asreview"
+            Path("asreview", "webapp", "tests", "asreview-project-file-archive").glob(
+                "v[12]*/asreview-project-v[12]*-startreview.asreview"
+            )
         )
-    )
 
 
 # Test getting all projects
@@ -154,7 +155,7 @@ def test_upgrade_an_old_project(client, user):
     assert r.json["message"].startswith("Not possible to upgrade")
 
 
-# Test importing old projects, verify ids
+# Test importing old projects (min_version = 1), verify ids
 @pytest.mark.parametrize("fp", _asreview_file_archive())
 def test_import_project_files(client, user, project, fp):
     r = au.import_project(client, fp)
