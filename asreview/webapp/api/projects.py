@@ -862,12 +862,20 @@ def api_import_project():
     )
     settings = ReviewSettings().from_file(settings_fp)
 
+    warnings = []
     try:
         _check_model(settings)
-    except ValueError:
+    except ValueError as err:
         settings_model_reset = _reset_model_settings(settings)
         with open(settings_fp, "w") as f:
             json.dump(asdict(settings_model_reset), f)
+        warnings.append(
+            str(err) + " Check if an extension with the model is installed."
+        )
+        warnings.append(
+            " The model settings have been reset to the default model and"
+            " can be changed in the project settings."
+        )
 
     if current_app.config.get("LOGIN_DISABLED", False):
         return jsonify(project.config)
@@ -877,7 +885,7 @@ def api_import_project():
     project.config["owner_id"] = current_user.id
     DB.session.commit()
 
-    return jsonify(project.config)
+    return jsonify({"success": True, "warnings": warnings})
 
 
 def _add_tags_to_export_data(project, export_data, state_df):

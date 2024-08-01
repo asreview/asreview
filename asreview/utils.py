@@ -76,27 +76,30 @@ def _check_model(settings):
     try:
         get_extension("models.feature_extraction", settings.feature_extraction)
     except ValueError:
-        warnings.append(f"Feature extractor={settings.feature_extraction}")
+        warnings.append(f"feature extractor={settings.feature_extraction}")
 
     try:
         get_extension("models.classifiers", settings.classifier)
     except ValueError:
-        warnings.append(f"Classifier={settings.classifier}")
+        warnings.append(f"classifier={settings.classifier}")
 
     try:
         get_extension("models.query", settings.query_strategy)
     except ValueError:
-        warnings.append(f"Query strategy={settings.query_strategy}")
+        warnings.append(f"query strategy={settings.query_strategy}")
 
     try:
         get_extension("models.balance", settings.balance_strategy)
     except ValueError:
-        warnings.append(f"Balance strategy={settings.balance_strategy}")
+        warnings.append(f"balance strategy={settings.balance_strategy}")
 
     if warnings:
-        raise ValueError(
-            ", ".join(warnings) + " not available. Check if the extension is installed."
-        )
+        if len(warnings) == 1:
+            raise ValueError("Model component " + warnings[0] + " is not available.")
+        else:
+            raise ValueError(
+                "Model components " + ", ".join(warnings) + " are not available."
+            )
 
 
 def _reset_model_settings(settings):
