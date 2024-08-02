@@ -9,6 +9,7 @@ from asreview.webapp.utils import asreview_path
 db_path = asreview_path() / Path("huey.sqlite")
 huey = SqliteHuey(name="asreview", filename=db_path)
 
+
 def flush_huey_db():
     """Remove all data from huey database."""
     print("Cleaning huey tables")
@@ -20,5 +21,6 @@ def flush_huey_db():
 
     conn.commit()
     conn.close()
+
 
 atexit.register(flush_huey_db)

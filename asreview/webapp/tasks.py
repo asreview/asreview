@@ -92,7 +92,6 @@ def run_model(project):
         project.remove_review_error()
 
     except Exception as err:
-
         project.set_review_error(err)
         raise err
 
