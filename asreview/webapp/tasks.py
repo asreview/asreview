@@ -95,10 +95,6 @@ def run_model(project):
 
         project.set_review_error(err)
         raise err
-    
-    import time
-    time.sleep(15)
-    return True
 
 
 @huey.task(name="run_simulation")
