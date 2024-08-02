@@ -493,44 +493,6 @@ class SQLiteState:
             Series containing the record_ids of the unlabeled, not pending
             records, in the order of the last available ranking.
         """
-        lr = set(
-            pd.read_sql_query("""SELECT record_id FROM last_ranking""", self._conn)[
-                "record_id"
-            ]
-        )
-        re = set(
-            pd.read_sql_query("""SELECT record_id FROM results""", self._conn)[
-                "record_id"
-            ]
-        )
-
-        lj = set(
-            pd.read_sql_query(
-                """SELECT record_id, ranking
-                FROM last_ranking
-                LEFT JOIN results R
-                USING (record_id)
-                WHERE R.record_id is null
-                ORDER BY ranking
-                """,
-                self._conn,
-            )["record_id"]
-        )
-
-        print(len(lr), len(re), len(lr) - len(re), len(lj))
-
-        # return pd.read_sql_query(
-        #     """SELECT record_id, last_ranking.ranking,
-        #         results.query_strategy
-        #         FROM last_ranking
-        #         LEFT JOIN results
-        #         USING (record_id)
-        #         WHERE results.label is null
-        #         ORDER BY ranking
-        #         """,
-        #     self._conn,
-        # )["record_id"]
-
         return pd.read_sql_query(
             """SELECT record_id, ranking
                 FROM last_ranking

@@ -819,20 +819,9 @@ def api_update_review_status(project, review_id):
         if not (pk := 0 in labels and 1 in labels) and not is_simulation:
             _fill_last_ranking(project, "random")
 
-        if trigger_model and (pk or is_simulation):
-            try:
-                subprocess.Popen(
-                    [
-                        sys.executable if sys.executable else "python",
-                        "-m",
-                        "asreview",
-                        "web_run_model",
-                        str(project.project_path),
-                    ]
-                )
-
-            except Exception as err:
-                return jsonify(message=f"Failed to train the model. {err}"), 400
+        if trigger_model and (pk or is_simulation) and \
+                _project_not_in_queue(project):
+            _run_model(project)
 
         project.update_review(status=status)
 
@@ -1244,10 +1233,8 @@ def api_label_record(project, record_id):  # noqa: F401
         else:
             raise ValueError(f"Invalid label {label}")
 
-    if _project_not_in_queue(project) and retrain_model:
+    if retrain_model and _project_not_in_queue(project):
         _run_model(project)
-    else:
-        print("no")
 
     if request.method == "POST":
         return jsonify({"success": True})

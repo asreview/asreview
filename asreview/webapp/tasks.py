@@ -26,6 +26,7 @@ from asreview.webapp.huey_config import huey
 
 @huey.task(name="run_model")
 def run_model(project):
+
     with open_state(project) as s:
         if not s.exist_new_labeled_records:
             return
@@ -95,7 +96,7 @@ def run_model(project):
 
         project.set_review_error(err)
         raise err
-
+    
 
 @huey.task(name="run_simulation")
 def run_simulation(project):
@@ -137,5 +138,3 @@ def run_simulation(project):
         raise err
 
     project.update_review(state=sim, status="finished")
-
-    return True
