@@ -538,5 +538,7 @@ def test_projects_with_0x_projects(client_auth, method):
         "asreview-project-v0-18-startreview.asreview",
     )
 
-    with pytest.raises(ValueError) as error:
-        asr.Project.load(open(asreview_v0_18_file, "rb"), asreview_path(), safe_import=True)
+    with pytest.raises(ValueError):
+        asr.Project.load(
+            open(asreview_v0_18_file, "rb"), asreview_path(), safe_import=True
+        )

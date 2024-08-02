@@ -877,11 +877,6 @@ def api_import_project():
             " can be changed in the project settings."
         )
 
-
-
-
-
-
     if not current_app.config.get("LOGIN_DISABLED", False):
         current_user.projects.append(Project(project_id=project.config.get("id")))
         project.config["owner_id"] = current_user.id
