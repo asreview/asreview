@@ -15,8 +15,6 @@
 import json
 import logging
 import shutil
-import subprocess
-import sys
 import tempfile
 import time
 from dataclasses import asdict
@@ -63,6 +61,9 @@ from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
 from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
+from asreview.webapp.huey_config import huey
+from asreview.webapp.tasks import run_model
+from asreview.webapp.tasks import run_simulation
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
 
@@ -94,6 +95,22 @@ def _fill_last_ranking(project, ranking):
             records = record_table
 
         state.add_last_ranking(records.values, None, ranking, None, None)
+
+
+def _run_model(project):
+    if project.config["mode"] == PROJECT_MODE_SIMULATE:
+        run_simulation(project)
+    else:
+        run_model(project)
+    return True
+
+
+def _project_not_in_queue(project):
+    project_id = project.config.get("id")
+    return (
+        any([task.data[0][0].config.get("id") == project_id for task in huey.pending()])
+        is False
+    )
 
 
 # error handlers
@@ -725,14 +742,8 @@ def api_train(project):  # noqa: F401
         return jsonify({"success": True})
 
     try:
-        run_command = [
-            sys.executable if sys.executable else "python",
-            "-m",
-            "asreview",
-            "web_run_model",
-            str(project.project_path),
-        ]
-        subprocess.Popen(run_command)
+        if _project_not_in_queue(project):
+            _run_model(project)
 
     except Exception as err:
         logging.error(err)
@@ -806,20 +817,8 @@ def api_update_review_status(project, review_id):
         if not (pk := 0 in labels and 1 in labels) and not is_simulation:
             _fill_last_ranking(project, "random")
 
-        if trigger_model and (pk or is_simulation):
-            try:
-                subprocess.Popen(
-                    [
-                        sys.executable if sys.executable else "python",
-                        "-m",
-                        "asreview",
-                        "web_run_model",
-                        str(project.project_path),
-                    ]
-                )
-
-            except Exception as err:
-                return jsonify(message=f"Failed to train the model. {err}"), 400
+        if trigger_model and (pk or is_simulation) and _project_not_in_queue(project):
+            _run_model(project)
 
         project.update_review(status=status)
 
@@ -1231,16 +1230,8 @@ def api_label_record(project, record_id):  # noqa: F401
         else:
             raise ValueError(f"Invalid label {label}")
 
-    if retrain_model:
-        subprocess.Popen(
-            [
-                sys.executable if sys.executable else "python",
-                "-m",
-                "asreview",
-                "web_run_model",
-                str(project.project_path),
-            ]
-        )
+    if retrain_model and _project_not_in_queue(project):
+        _run_model(project)
 
     if request.method == "POST":
         return jsonify({"success": True})
