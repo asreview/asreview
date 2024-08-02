@@ -817,8 +817,7 @@ def api_update_review_status(project, review_id):
         if not (pk := 0 in labels and 1 in labels) and not is_simulation:
             _fill_last_ranking(project, "random")
 
-        if trigger_model and (pk or is_simulation) and \
-                _project_not_in_queue(project):
+        if trigger_model and (pk or is_simulation) and _project_not_in_queue(project):
             _run_model(project)
 
         project.update_review(status=status)
