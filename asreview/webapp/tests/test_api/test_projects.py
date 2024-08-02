@@ -162,19 +162,19 @@ def test_import_project_files(client, user, project, fp):
     folders = set(misc.get_folders_in_asreview_path())
     assert len(folders) == 2
     assert r.status_code == 200
-    assert isinstance(r.json, dict)
+    assert isinstance(r.json["data"], dict)
 
     if not client.application.config.get("LOGIN_DISABLED"):
         # assert it exists in the database
         assert crud.count_projects() == 2
         project = crud.last_project()
-        assert r.json["id"] == project.project_id
+        assert r.json["data"]["id"] == project.project_id
         # assert the owner is current user
-        assert r.json["owner_id"] == user.id
+        assert r.json["data"]["owner_id"] == user.id
     else:
-        assert r.json["id"] != project.config.get("id")
+        assert r.json["data"]["id"] != project.config.get("id")
     # in auth/non-auth the project folder must exist in the asreview folder
-    assert r.json["id"] in set([f.stem for f in folders])
+    assert r.json["data"]["id"] in set([f.stem for f in folders])
 
 
 # Test get stats in setup state

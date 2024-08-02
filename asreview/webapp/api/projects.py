@@ -838,7 +838,7 @@ def api_update_review_status(project, review_id):
     return jsonify({"status": status}), 201
 
 
-@bp.route("/projects/import_project", methods=["POST"])
+@bp.route("/projects/import", methods=["POST"])
 @login_required
 def api_import_project():
     """Import project"""
@@ -877,15 +877,17 @@ def api_import_project():
             " can be changed in the project settings."
         )
 
-    if current_app.config.get("LOGIN_DISABLED", False):
-        return jsonify(project.config)
 
-    # create a database entry for this project
-    current_user.projects.append(Project(project_id=project.config.get("id")))
-    project.config["owner_id"] = current_user.id
-    DB.session.commit()
 
-    return jsonify({"success": True, "warnings": warnings})
+
+
+
+    if not current_app.config.get("LOGIN_DISABLED", False):
+        current_user.projects.append(Project(project_id=project.config.get("id")))
+        project.config["owner_id"] = current_user.id
+        DB.session.commit()
+
+    return jsonify({"data": project.config, "warnings": warnings})
 
 
 def _add_tags_to_export_data(project, export_data, state_df):
