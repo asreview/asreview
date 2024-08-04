@@ -328,7 +328,7 @@ class Simulate:
         """
 
         with open_state(fp) as state:
-            state._add_results_from_df(self._results)
+            state._replace_results_from_df(self._results)
 
             try:
                 state._add_last_ranking(self._last_ranking)
