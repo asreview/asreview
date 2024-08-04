@@ -48,9 +48,10 @@ def _project_state_converter_v1_v2(review_path):
         pandas.read_sql_table("SELECT * FROM decision_updates", conn).to_sql(
             "decision_updates", sqlstate._conn, index=False
         )
-
     except ValueError:
         pass
+
+    conn.close()
     sqlstate.close()
 
     os.unlink(Path(review_path, "results.sql"))
