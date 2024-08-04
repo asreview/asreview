@@ -121,15 +121,16 @@ def test_seed(tmpdir):
 
 
 @pytest.mark.parametrize("model", ["logistic", "nb", "rf", "svm"])
-def test_non_tf_models(model, tmpdir):
+def test_models(model, tmpdir):
     asreview_fp = Path(tmpdir, f"test_{model}.asreview")
     argv = f"{str(DATA_FP)} -s {asreview_fp} -m {model}".split()
     _cli_simulate(argv)
 
     with asr.open_state(asreview_fp) as state:
-        classifiers = state.get_results_table()["classifier"]
+        results = state.get_results_table()
     default_n_priors = 2
-    assert all(classifiers[default_n_priors:] == model)
+    assert all(results["classifier"][default_n_priors:] == model)
+    assert all(results["balance_strategy"][default_n_priors:] == "double")
 
     Path(tmpdir, f"test_{model}").mkdir(parents=True)
     project = asr.Project.load(asreview_fp, Path(tmpdir, f"test_{model}"))
@@ -155,6 +156,21 @@ def test_non_tf_models(model, tmpdir):
     )
 
     assert settings.classifier == model
+
+
+def test_no_balancing(tmpdir):
+    asreview_fp = Path(tmpdir, "test_no_balance.asreview")
+    argv = f"{str(DATA_FP)} -s {asreview_fp} --no_balance_strategy".split()
+    _cli_simulate(argv)
+
+    with asr.open_state(asreview_fp) as state:
+        results_balance_strategies = state.get_results_table()["balance_strategy"]
+        last_ranking_balance_strategies = state.get_last_ranking_table()[
+            "balance_strategy"
+        ]
+
+    assert results_balance_strategies.isnull().all()
+    assert last_ranking_balance_strategies.isnull().all()
 
 
 def test_number_records_found(tmpdir):
