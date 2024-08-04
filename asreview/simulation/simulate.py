@@ -156,12 +156,10 @@ class Simulate:
             self.train()
 
             record_ids = self.query(self.n_instances)
+            labeled = self.label(record_ids)
 
-            self.label(record_ids)
-
-            # update progress here
-            pbar_rel.update(sum(self._results["label"]))
-            pbar_total.update(len(self._results))
+            pbar_rel.update(labeled["label"].sum())
+            pbar_total.update(1)
 
         else:
             pbar_rel.close()
@@ -284,6 +282,8 @@ class Simulate:
             )
         except AttributeError:
             self._results = new_labels
+
+        return new_labels
 
     def label_random(
         self, n_included=None, n_excluded=None, prior=False, random_state=None
