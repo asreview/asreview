@@ -178,9 +178,18 @@ def _cli_simulate(argv):
     # TODO: seed also other tools like tensorflow
     np.random.seed(args.seed)
 
-    classifier_model = load_extension("models.classifiers", settings.classifier)
-    query_model = load_extension("models.query", settings.query_strategy)
-    balance_model = load_extension("models.balance", settings.balance_strategy)
+    classifier_class = load_extension("models.classifiers", settings.classifier)
+    classifier_model = classifier_class(**_unpack_params(settings.classifier_param))
+
+    query_class = load_extension("models.query", settings.query_strategy)
+    query_model = query_class(**_unpack_params(settings.query_param))
+
+    if settings.balance_strategy is None:
+        balance_model = None
+    else:
+        balance_class = load_extension("models.balance", settings.balance_strategy)
+        balance_model = balance_class(**_unpack_params(settings.balance_param))
+
     feature_model = load_extension(
         "models.feature_extraction", settings.feature_extraction
     )(**_unpack_params(settings.feature_param))
@@ -210,9 +219,9 @@ def _cli_simulate(argv):
     sim = Simulate(
         fm,
         as_data.labels,
-        classifier=classifier_model(**_unpack_params(settings.classifier_param)),
-        query_strategy=query_model(**_unpack_params(settings.query_param)),
-        balance_strategy=balance_model(**_unpack_params(settings.balance_param)),
+        classifier=classifier_model,
+        query_strategy=query_model,
+        balance_strategy=balance_model,
         feature_extraction=feature_model,
         n_instances=args.n_instances,
         stop_if=args.stop_if,
@@ -320,10 +329,18 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "-b",
         "--balance_strategy",
         type=str,
+        dest="balance_strategy",
         default=DEFAULT_BALANCE_STRATEGY,
         help="Data rebalancing strategy mainly for RNN methods. Helps against"
         " imbalanced dataset with few inclusions and many exclusions. "
         f"Default: '{DEFAULT_BALANCE_STRATEGY}'",
+    )
+    parser.add_argument(
+        "--no_balance_strategy",
+        action="store_const",
+        const=None,
+        dest="balance_strategy",
+        help="Do not use a balance strategy.",
     )
     parser.add_argument(
         "-e",

@@ -64,7 +64,7 @@ class Simulate:
         labels,
         classifier,
         query_strategy,
-        balance_strategy,
+        balance_strategy=None,
         feature_extraction=None,
         n_instances=DEFAULT_N_INSTANCES,
         stop_if="min",
@@ -183,9 +183,13 @@ class Simulate:
 
         train_idx = np.where(y_sample_input != LABEL_NA)[0]
 
-        X_train, y_train = self.balance_strategy.sample(
-            self.fm, y_sample_input, train_idx
-        )
+        if self.balance_strategy is None:
+            X_train = self.fm[train_idx]
+            y_train = y_sample_input[train_idx]
+        else:
+            X_train, y_train = self.balance_strategy.sample(
+                self.fm, y_sample_input, train_idx
+            )
 
         self.classifier.fit(X_train, y_train)
         relevance_scores = self.classifier.predict_proba(self.fm)
@@ -201,7 +205,9 @@ class Simulate:
                 "ranking": range(len(ranked_record_ids)),
                 "classifier": self.classifier.name,
                 "query_strategy": self.query_strategy.name,
-                "balance_strategy": self.balance_strategy.name,
+                "balance_strategy": self.balance_strategy.name
+                if self.balance_strategy
+                else None,
                 "feature_extraction": self.feature_extraction.name,
                 "training_set": len(self._results),
                 "time": datetime.now(),
@@ -249,7 +255,9 @@ class Simulate:
         else:
             classifier = self.classifier.name
             query_strategy = self.query_strategy.name
-            balance_strategy = self.balance_strategy.name
+            balance_strategy = (
+                self.balance_strategy.name if self.balance_strategy else None,
+            )
             feature_extraction = self.feature_extraction.name
             training_set = len(self._results)
 
