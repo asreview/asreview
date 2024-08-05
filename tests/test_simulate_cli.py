@@ -27,6 +27,10 @@ def test_dataset_not_found(tmpdir):
     _cli_simulate(argv)
 
 
+def test_no_output():
+    _cli_simulate([str(DATA_FP)])
+
+
 def test_simulate_review_finished(tmpdir):
     # file path
     asreview_fp = Path(tmpdir, "test.asreview")
