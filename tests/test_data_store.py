@@ -73,3 +73,15 @@ def test_len(store, dataset):
     assert len(store) == 0
     store.add_dataset(dataset, "foo")
     assert len(store) == len(dataset)
+
+
+def test_get_column(store_with_data, dataset):
+    abstracts = store_with_data["abstract"]
+    assert isinstance(abstracts, pd.DataFrame)
+    assert abstracts.columns == ["abstract"]
+    for i in range(len(dataset)):
+        assert abstracts.loc[i, "abstract"] == dataset["abstract"][i]
+
+    data = store_with_data[["title", "record_id"]]
+    assert isinstance(data, pd.DataFrame)
+    assert list(data.columns) == ["title", "record_id"]

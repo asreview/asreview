@@ -133,6 +133,43 @@ class DataStore:
         cur.close()
         return n
 
+    def __getitem__(self, item):
+        if not item:
+            raise KeyError(
+                "'item' should be valid column name or list of column names."
+            )
+        if isinstance(item, list):
+            illegal_cols = [col for col in item if col not in DATA_TABLE_COLUMNS]
+            if illegal_cols:
+                raise KeyError(
+                    f"DataStore does not have a columns named {illegal_cols}."
+                    f" Valid column names are: {DATA_TABLE_COLUMNS}"
+                )
+            col_string = ",".join(item)
+            dtype = {
+                key: val
+                for key, val in DATA_TABLE_COLUMNS_PANDAS_DTYPES.items()
+                if key in item
+            }
+        else:
+            if item not in DATA_TABLE_COLUMNS:
+                raise KeyError(
+                    f"DataStore does not have a column named {item}."
+                    f" Valid column names are: {DATA_TABLE_COLUMNS}"
+                )
+            col_string = item
+            dtype = DATA_TABLE_COLUMNS_PANDAS_DTYPES[item]
+        # I can use the value of item directly in the query because I checked that item
+        # is in the list of column names.
+        return pd.read_sql(
+            f"SELECT {col_string} FROM records",
+            con=self._conn,
+            dtype=dtype,
+        )
+
+    def __contains__(self, item):
+        return item in DATA_TABLE_COLUMNS
+
     def is_empty(self):
         cur = self._conn.cursor()
         val = cur.execute("SELECT EXISTS (SELECT 1 FROM records);").fetchone()[0]
@@ -150,15 +187,12 @@ class DataStore:
         -------
         asreview.data.base.Record
         """
-        record = (
-            pd.read_sql(
-                "SELECT * FROM records WHERE record_id = ?",
-                con=self._conn,
-                params=(record_id,),
-                dtype=DATA_TABLE_COLUMNS_PANDAS_DTYPES,
-            )
-            .drop(["dataset_id", "dataset_row", "created_at"], axis=1)
-        )
+        record = pd.read_sql(
+            "SELECT * FROM records WHERE record_id = ?",
+            con=self._conn,
+            params=(record_id,),
+            dtype=DATA_TABLE_COLUMNS_PANDAS_DTYPES,
+        ).drop(["dataset_id", "dataset_row", "created_at"], axis=1)
         return Record(**record.iloc[0].to_dict())
 
     def get_all(self):
