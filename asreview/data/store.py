@@ -8,7 +8,7 @@ from asreview.data.base import Dataset
 from asreview.data.base import Record
 
 DATA_TABLE_COLUMNS = {
-    "row_number",
+    "record_id",
     "dataset_id",
     "dataset_row",
     "included",
@@ -22,7 +22,7 @@ DATA_TABLE_COLUMNS = {
 }
 
 DATA_TABLE_COLUMNS_PANDAS_DTYPES = {
-    "row_number": "Int64",
+    "record_id": "Int64",
     "dataset_id": "object",
     "dataset_row": "Int64",
     "included": "Int64",
@@ -75,11 +75,27 @@ class DataStore:
         self._conn.commit()
         cur.close()
 
-    def __len__(self):
+    def create_tables(self):
+        """Initialize the tables containing the data."""
+        self.user_version = CURRENT_DATASTORE_VERSION
+
         cur = self._conn.cursor()
-        n = cur.execute("SELECT COUNT(*) FROM records").fetchone()[0]
-        cur.close()
-        return n
+
+        cur.execute(
+            """CREATE TABLE records
+                            (record_id INTEGER PRIMARY KEY,
+                            dataset_id string,
+                            dataset_row INTEGER,
+                            included INTEGER,
+                            title TEXT,
+                            authors TEXT,
+                            abstract TEXT,
+                            notes TEXT,
+                            keywords JSON,
+                            doi TEXT,
+                            created_at TEXT)"""
+        )
+        self._conn.commit()
 
     def add_dataset(self, dataset, dataset_id):
         """Add a new dataset to the data store."""
@@ -106,23 +122,29 @@ class DataStore:
         # If the data store is empty, make the row number column start at 0 instead of
         # sqlite default value 1.
         if self.is_empty:
-            data["row_number"] = range(len(dataset))
+            data["record_id"] = range(len(dataset))
         pd.DataFrame(data).to_sql(
             "records", self._conn, if_exists="append", index=False
         )
+
+    def __len__(self):
+        cur = self._conn.cursor()
+        n = cur.execute("SELECT COUNT(*) FROM records").fetchone()[0]
+        cur.close()
+        return n
 
     def is_empty(self):
         cur = self._conn.cursor()
         val = cur.execute("SELECT EXISTS (SELECT 1 FROM records);").fetchone()[0]
         return not bool(val)
 
-    def get_record(self, row_number):
+    def get_record(self, record_id):
         """Get the record with the given record row number.
 
         Arguments
         ---------
-        row_number : int
-            Row number of the record to get.
+        record_id : int
+            Record id (row number) of the record to get.
 
         Returns
         -------
@@ -130,12 +152,11 @@ class DataStore:
         """
         record = (
             pd.read_sql(
-                "SELECT * FROM records WHERE row_number = ?",
+                "SELECT * FROM records WHERE record_id = ?",
                 con=self._conn,
-                params=(row_number,),
+                params=(record_id,),
                 dtype=DATA_TABLE_COLUMNS_PANDAS_DTYPES,
             )
-            .rename({"row_number": "record_id"}, axis=1)
             .drop(["dataset_id", "dataset_row", "created_at"], axis=1)
         )
         return Record(**record.iloc[0].to_dict())
@@ -151,25 +172,3 @@ class DataStore:
             "select * from records", self._conn, dtype=DATA_TABLE_COLUMNS_PANDAS_DTYPES
         )
         return Dataset(df=df)
-
-    def create_tables(self):
-        """Initialize the tables containing the data."""
-        self.user_version = CURRENT_DATASTORE_VERSION
-
-        cur = self._conn.cursor()
-
-        cur.execute(
-            """CREATE TABLE records
-                            (row_number INTEGER PRIMARY KEY,
-                            dataset_id string,
-                            dataset_row INTEGER,
-                            included INTEGER,
-                            title TEXT,
-                            authors TEXT,
-                            abstract TEXT,
-                            notes TEXT,
-                            keywords JSON,
-                            doi TEXT,
-                            created_at TEXT)"""
-        )
-        self._conn.commit()
