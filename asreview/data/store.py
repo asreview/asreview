@@ -75,6 +75,12 @@ class DataStore:
         self._conn.commit()
         cur.close()
 
+    def __len__(self):
+        cur = self._conn.cursor()
+        n = cur.execute("SELECT COUNT(*) FROM records").fetchone()[0]
+        cur.close()
+        return n
+
     def add_dataset(self, dataset, dataset_id):
         """Add a new dataset to the data store."""
         try:

@@ -27,7 +27,7 @@ def test_create_tables(tmpdir):
         .execute("SELECT name FROM sqlite_master WHERE type='table'")
         .fetchone()
     )
-    assert tables == ("records", )
+    assert tables == ("records",)
 
 
 def test_add_dataset(tmpdir, dataset):
@@ -67,3 +67,12 @@ def test_get_all(tmpdir, dataset):
     store.add_dataset(dataset, "foo")
     output = store.get_all()
     assert isinstance(output, Dataset)
+
+
+def test_len(tmpdir, dataset):
+    fp = tmpdir / PATH_DATA_STORE
+    store = DataStore(fp)
+    store.create_tables()
+    assert len(store) == 0
+    store.add_dataset(dataset, "foo")
+    assert len(store) == len(dataset)
