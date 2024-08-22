@@ -83,6 +83,8 @@ def test_len(store, dataset):
 
 def test_get_column(store_with_data, dataset):
     abstracts = store_with_data["abstract"]
+    assert isinstance(abstracts, pd.Series)
+    abstracts = store_with_data[["abstract"]]
     assert isinstance(abstracts, pd.DataFrame)
     assert abstracts.columns == ["abstract"]
     for i in range(len(dataset)):

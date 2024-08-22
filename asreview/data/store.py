@@ -69,14 +69,25 @@ class DataStore:
             return session.query(self.record_cls).count()
 
     def __getitem__(self, item):
+        # We allow a string or a list of strings as input. If the input is a string we
+        # return that column as a pandas series. If the input is a list of strings we
+        # return a pandas DataFrame containing those columns. This way the output you
+        # get is the same if you do __getitem__ on a DataStore instance or on a pandas
+        # DataFrame containing the same data.
         if isinstance(item, str):
-            item = [item]
-        return pd.read_sql(
+            columns = [item]
+        else:
+            columns = item
+        df = pd.read_sql(
             self.record_cls.__tablename__,
             self.engine.connect(),
-            columns=item,
+            columns=columns,
             dtype=self.pandas_dtype_mapping,
         )
+        if isinstance(item, str):
+            return df[item]
+        else:
+            return df
 
     def __contains__(self, item):
         return item in self.columns
