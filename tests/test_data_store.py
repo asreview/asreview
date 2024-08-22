@@ -6,6 +6,7 @@ import pytest
 
 from asreview import load_dataset
 from asreview.data.store import DataStore
+from asreview.data.store import CURRENT_DATASTORE_VERSION
 from asreview.data.base import Dataset
 from asreview.data.record import Record
 from asreview.data.record import Base
@@ -37,6 +38,9 @@ def test_create_tables(tmpdir):
     fp = tmpdir / PATH_DATA_STORE
     store = DataStore(fp)
     store.create_tables()
+    assert store.user_version == CURRENT_DATASTORE_VERSION
+    store.user_version = 42
+    assert store.user_version == 42
     con = sqlite3.connect(fp)
     tables = (
         con.cursor()

@@ -1,11 +1,7 @@
-import json
-import sqlite3
-from datetime import datetime
-
 import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine
-from sqlalchemy import select
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from asreview.data.base import Dataset
@@ -34,37 +30,19 @@ class DataStore:
         return self._pandas_dtype_mapping
 
     @property
-    def _conn(self):
-        """Get a connection to the SQLite database.
-
-        Returns
-        -------
-        sqlite3.Connection
-            Connection to the SQLite database.
-        """
-        if hasattr(self, "_conn_cache"):
-            return self._conn_cache
-
-        self._conn_cache = sqlite3.connect(str(self.fp))
-        return self._conn_cache
-
-    def close(self):
-        self._conn.close()
-
-    @property
     def user_version(self):
         """Version number of the state."""
-        cur = self._conn.cursor()
-        version = cur.execute("PRAGMA user_version")
-
-        return int(version.fetchone()[0])
+        with self.engine.connect() as conn:
+            version = conn.execute(text("PRAGMA user_version"))
+            return int(version.fetchone()[0])
 
     @user_version.setter
     def user_version(self, version):
-        cur = self._conn.cursor()
-        cur.execute(f"PRAGMA user_version = {version}")
-        self._conn.commit()
-        cur.close()
+        with self.engine.connect() as conn:
+            # I tried passing the version through a parameter, but it didn't seem to
+            # work. Maybe you can't use parameters with PRAGMA statements?
+            conn.execute(text(f"PRAGMA user_version = {version}"))
+            conn.commit()
 
     def create_tables(self):
         """Initialize the tables containing the data."""
@@ -91,37 +69,13 @@ class DataStore:
             return session.query(self.record_cls).count()
 
     def __getitem__(self, item):
-        if not item:
-            raise KeyError(
-                "'item' should be valid column name or list of column names."
-            )
-        if isinstance(item, list):
-            illegal_cols = [col for col in item if col not in self.columns]
-            if illegal_cols:
-                raise KeyError(
-                    f"DataStore does not have a columns named {illegal_cols}."
-                    f" Valid column names are: {self.columns}"
-                )
-            col_string = ",".join(item)
-            dtype = {
-                key: val
-                for key, val in self.pandas_dtype_mapping.items()
-                if key in item
-            }
-        else:
-            if item not in self.columns:
-                raise KeyError(
-                    f"DataStore does not have a column named {item}."
-                    f" Valid column names are: {self.columns}"
-                )
-            col_string = item
-            dtype = self.pandas_dtype_mapping[item]
-        # I can use the value of item directly in the query because I checked that item
-        # is in the list of column names.
+        if isinstance(item, str):
+            item = [item]
         return pd.read_sql(
-            f"SELECT {col_string} FROM {self.record_cls.__tablename__}",
-            con=self._conn,
-            dtype=dtype,
+            self.record_cls.__tablename__,
+            self.engine.connect(),
+            columns=item,
+            dtype=self.pandas_dtype_mapping,
         )
 
     def __contains__(self, item):
@@ -166,8 +120,8 @@ class DataStore:
         asreview.data.base.Dataset
         """
         df = pd.read_sql(
-            f"select * from {self.record_cls.__tablename__}",
-            self._conn,
+            self.record_cls.__tablename__,
+            self.engine.connect(),
             dtype=self.pandas_dtype_mapping,
         )
         return Dataset(df=df)
