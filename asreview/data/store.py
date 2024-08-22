@@ -1,46 +1,37 @@
-from datetime import datetime
 import json
 import sqlite3
+from datetime import datetime
 
+import numpy as np
 import pandas as pd
+from sqlalchemy import create_engine
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from asreview.data.base import Dataset
-from asreview.data.base import Record
+from asreview.data.record import Base
+from asreview.data.record import Record
 
-DATA_TABLE_COLUMNS = {
-    "record_id",
-    "dataset_id",
-    "dataset_row",
-    "included",
-    "title",
-    "authors",
-    "abstract",
-    "notes",
-    "doi",
-    "keywords",
-    "created_at",
-}
-
-DATA_TABLE_COLUMNS_PANDAS_DTYPES = {
-    "record_id": "Int64",
-    "dataset_id": "object",
-    "dataset_row": "Int64",
-    "included": "Int64",
-    "title": "object",
-    "authors": "object",
-    "abstract": "object",
-    "notes": "object",
-    "doi": "object",
-    "keywords": "object",
-    "created_at": "object",
-}
 
 CURRENT_DATASTORE_VERSION = 0
 
 
 class DataStore:
-    def __init__(self, fp):
+    def __init__(self, fp, record_cls=Record):
         self.fp = fp
+        self.engine = create_engine(f"sqlite+pysqlite:///{self.fp}")
+        self.record_cls = record_cls
+        self._columns = self.record_cls.get_columns()
+        self._pandas_dtype_mapping = self.record_cls.get_pandas_dtype_mapping()
+
+    @property
+    def columns(self):
+        """"""
+        return self._columns
+
+    @property
+    def pandas_dtype_mapping(self):
+        return self._pandas_dtype_mapping
 
     @property
     def _conn(self):
@@ -78,60 +69,26 @@ class DataStore:
     def create_tables(self):
         """Initialize the tables containing the data."""
         self.user_version = CURRENT_DATASTORE_VERSION
-
-        cur = self._conn.cursor()
-
-        cur.execute(
-            """CREATE TABLE records
-                            (record_id INTEGER PRIMARY KEY,
-                            dataset_id string,
-                            dataset_row INTEGER,
-                            included INTEGER,
-                            title TEXT,
-                            authors TEXT,
-                            abstract TEXT,
-                            notes TEXT,
-                            keywords JSON,
-                            doi TEXT,
-                            created_at TEXT)"""
-        )
-        self._conn.commit()
+        Base.metadata.create_all(self.engine)
 
     def add_dataset(self, dataset, dataset_id):
         """Add a new dataset to the data store."""
-        try:
-            keywords = [
-                json.dumps(keyword_list) for keyword_list in dataset["keywords"]
-            ]
-        except KeyError:
-            keywords = None
-
-        data = {
-            "dataset_id": dataset_id,
-            "dataset_row": range(len(dataset)),
-            "included": dataset.get("included"),
-            "title": dataset.get("title"),
-            "authors": dataset.get("authors"),
-            "abstract": dataset.get("abstract"),
-            "notes": dataset.get("notes"),
-            "keywords": keywords,
-            "doi": dataset.get("doi"),
-            "created_at": datetime.now(),
-        }
-
-        # If the data store is empty, make the row number column start at 0 instead of
-        # sqlite default value 1.
-        if self.is_empty:
-            data["record_id"] = range(len(dataset))
-        pd.DataFrame(data).to_sql(
-            "records", self._conn, if_exists="append", index=False
-        )
+        # try:
+        #     keywords = [
+        #         json.dumps(keyword_list) for keyword_list in dataset["keywords"]
+        #     ]
+        # except KeyError:
+        #     keywords = None
+        records = dataset.record(range(len(dataset)))
+        for record in records:
+            record.dataset_id = dataset_id
+        with Session(self.engine) as session:
+            session.add_all(records)
+            session.commit()
 
     def __len__(self):
-        cur = self._conn.cursor()
-        n = cur.execute("SELECT COUNT(*) FROM records").fetchone()[0]
-        cur.close()
-        return n
+        with Session(self.engine) as session:
+            return session.query(self.record_cls).count()
 
     def __getitem__(self, item):
         if not item:
@@ -139,41 +96,40 @@ class DataStore:
                 "'item' should be valid column name or list of column names."
             )
         if isinstance(item, list):
-            illegal_cols = [col for col in item if col not in DATA_TABLE_COLUMNS]
+            illegal_cols = [col for col in item if col not in self.columns]
             if illegal_cols:
                 raise KeyError(
                     f"DataStore does not have a columns named {illegal_cols}."
-                    f" Valid column names are: {DATA_TABLE_COLUMNS}"
+                    f" Valid column names are: {self.columns}"
                 )
             col_string = ",".join(item)
             dtype = {
                 key: val
-                for key, val in DATA_TABLE_COLUMNS_PANDAS_DTYPES.items()
+                for key, val in self.pandas_dtype_mapping.items()
                 if key in item
             }
         else:
-            if item not in DATA_TABLE_COLUMNS:
+            if item not in self.columns:
                 raise KeyError(
                     f"DataStore does not have a column named {item}."
-                    f" Valid column names are: {DATA_TABLE_COLUMNS}"
+                    f" Valid column names are: {self.columns}"
                 )
             col_string = item
-            dtype = DATA_TABLE_COLUMNS_PANDAS_DTYPES[item]
+            dtype = self.pandas_dtype_mapping[item]
         # I can use the value of item directly in the query because I checked that item
         # is in the list of column names.
         return pd.read_sql(
-            f"SELECT {col_string} FROM records",
+            f"SELECT {col_string} FROM {self.record_cls.__tablename__}",
             con=self._conn,
             dtype=dtype,
         )
 
     def __contains__(self, item):
-        return item in DATA_TABLE_COLUMNS
+        return item in self.columns
 
     def is_empty(self):
-        cur = self._conn.cursor()
-        val = cur.execute("SELECT EXISTS (SELECT 1 FROM records);").fetchone()[0]
-        return not bool(val)
+        with Session(self.engine) as session:
+            return session.query(self.record_cls).first() is None
 
     def get_record(self, record_id):
         """Get the record with the given record row number.
@@ -185,15 +141,22 @@ class DataStore:
 
         Returns
         -------
-        asreview.data.base.Record
+        asreview.data.record.Record
         """
-        record = pd.read_sql(
-            "SELECT * FROM records WHERE record_id = ?",
-            con=self._conn,
-            params=(record_id,),
-            dtype=DATA_TABLE_COLUMNS_PANDAS_DTYPES,
-        ).drop(["dataset_id", "dataset_row", "created_at"], axis=1)
-        return Record(**record.iloc[0].to_dict())
+        if isinstance(record_id, np.int64):
+            record_id = record_id.item()
+
+        with Session(self.engine) as session:
+            if isinstance(record_id, int):
+                return (
+                    session.query(self.record_cls)
+                    .filter(self.record_cls.id == record_id)
+                    .first()
+                )
+            else:
+                return session.query(self.record_cls).filter(
+                    self.record_cls.id.in_(record_id)
+                )
 
     def get_all(self):
         """Get all data from the data store as a dataset.
@@ -203,6 +166,8 @@ class DataStore:
         asreview.data.base.Dataset
         """
         df = pd.read_sql(
-            "select * from records", self._conn, dtype=DATA_TABLE_COLUMNS_PANDAS_DTYPES
+            f"select * from {self.record_cls.__tablename__}",
+            self._conn,
+            dtype=self.pandas_dtype_mapping,
         )
         return Dataset(df=df)

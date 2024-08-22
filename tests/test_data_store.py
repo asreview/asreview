@@ -41,13 +41,13 @@ def test_create_tables(tmpdir):
         .execute("SELECT name FROM sqlite_master WHERE type='table'")
         .fetchone()
     )
-    assert tables == ("records",)
+    assert tables == ("record",)
 
 
 def test_add_dataset(store, dataset):
     store.add_dataset(dataset, "foo")
     con = sqlite3.connect(store.fp)
-    df = pd.read_sql("SELECT * FROM records", con)
+    df = pd.read_sql("SELECT * FROM record", con)
     assert df["dataset_id"].eq("foo").all()
 
 
@@ -61,7 +61,7 @@ def test_get_record(store_with_data):
     row_number = 1
     record = store_with_data.get_record(row_number)
     assert isinstance(record, Record)
-    assert record.record_id == row_number
+    assert record.id == row_number
 
 
 def test_get_all(store_with_data):
@@ -82,6 +82,6 @@ def test_get_column(store_with_data, dataset):
     for i in range(len(dataset)):
         assert abstracts.loc[i, "abstract"] == dataset["abstract"][i]
 
-    data = store_with_data[["title", "record_id"]]
+    data = store_with_data[["title", "id"]]
     assert isinstance(data, pd.DataFrame)
-    assert list(data.columns) == ["title", "record_id"]
+    assert list(data.columns) == ["title", "id"]
