@@ -7,7 +7,9 @@ import pytest
 from asreview import load_dataset
 from asreview.data.store import DataStore
 from asreview.data.base import Dataset
-from asreview.data.base import Record
+from asreview.data.record import Record
+from asreview.data.record import Base
+from sqlalchemy.orm import Mapped
 from asreview.project import PATH_DATA_STORE
 
 
@@ -85,3 +87,13 @@ def test_get_column(store_with_data, dataset):
     data = store_with_data[["title", "id"]]
     assert isinstance(data, pd.DataFrame)
     assert list(data.columns) == ["title", "id"]
+
+
+def test_custom_record(tmpdir):
+    class CustomRecord(Base):
+        __tablename__ = "custom"
+        foo: Mapped[str]
+
+    fp = Path(tmpdir, PATH_DATA_STORE)
+    data_store = DataStore(fp, CustomRecord)
+    data_store.create_tables()
