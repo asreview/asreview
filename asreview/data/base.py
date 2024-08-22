@@ -24,6 +24,7 @@ from pandas.api.types import is_string_dtype
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
 from asreview.extensions import extensions
+from asreview.data.record import Record
 
 
 def _standardize_column_name(col_name, col_definitions):
@@ -62,47 +63,47 @@ def _convert_keywords(keywords):
     return current_best
 
 
-@dataclass
-class Record:
-    """A record from the dataset.
+# @dataclass
+# class Record:
+#     """A record from the dataset.
 
-    The record contains only fields that are relevant for the
-    systematic review. Other fields are stored not included.
+#     The record contains only fields that are relevant for the
+#     systematic review. Other fields are stored not included.
 
-    Arguments
-    ---------
-    record_id: int
-        Identifier for this record.
-    title: str
-        Title of the record.
-    abstract: str
-        Abstract of the record.
-    authors: str
-        Authors of the record.
-    notes: str
-        Notes of the record.
-    keywords: str
-        Keywords of the record.
-    included: int
-        Label of the record.
-    year: int
-        Year of publication.
-    doi: str
-        DOI of the record.
-    url: str
-        URL of the record.
-    """
+#     Arguments
+#     ---------
+#     record_id: int
+#         Identifier for this record.
+#     title: str
+#         Title of the record.
+#     abstract: str
+#         Abstract of the record.
+#     authors: str
+#         Authors of the record.
+#     notes: str
+#         Notes of the record.
+#     keywords: str
+#         Keywords of the record.
+#     included: int
+#         Label of the record.
+#     year: int
+#         Year of publication.
+#     doi: str
+#         DOI of the record.
+#     url: str
+#         URL of the record.
+#     """
 
-    record_id: int
-    title: str = None
-    abstract: str = None
-    authors: str = None
-    notes: str = None
-    keywords: str = None
-    year: int = None
-    doi: str = None
-    url: str = None
-    included: int = None
+#     record_id: int
+#     title: str = None
+#     abstract: str = None
+#     authors: str = None
+#     notes: str = None
+#     keywords: str = None
+#     year: int = None
+#     doi: str = None
+#     url: str = None
+#     included: int = None
 
 
 class Dataset:
@@ -230,9 +231,10 @@ class Dataset:
 
         column_spec_inv = {v: k for k, v in self.column_spec.items()}
 
+
         records = [
             Record(
-                record_id=int(self.df.index.values[j]),
+                dataset_row=int(self.df.index.values[j]),
                 **self.df.rename(column_spec_inv, axis=1)[self.column_spec.keys()]
                 .iloc[j]
                 .replace(np.nan, None)
