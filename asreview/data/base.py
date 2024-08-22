@@ -148,7 +148,8 @@ class Dataset:
 
     """
 
-    def __init__(self, df=None, column_spec=None):
+    def __init__(self, df=None, column_spec=None, id="MISSING_DATASET_ID"):
+        self.id = id
         self.df = df
         self.column_spec = column_spec
 
@@ -231,10 +232,10 @@ class Dataset:
 
         column_spec_inv = {v: k for k, v in self.column_spec.items()}
 
-
         records = [
             Record(
                 dataset_row=int(self.df.index.values[j]),
+                dataset_id=self.id,
                 **self.df.rename(column_spec_inv, axis=1)[self.column_spec.keys()]
                 .iloc[j]
                 .replace(np.nan, None)
