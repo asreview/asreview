@@ -10,7 +10,7 @@ def duplicated(df, pid="doi"):
 
     Arguments
     ---------
-    df : pd.DataFrame
+    df : pd.DataFrame or DataStore
         Dataframe containing columns 'title', 'abstract' and optionally a column
         containing identifiers of type `pid`.
     pid: string
@@ -81,3 +81,16 @@ def get_texts(df):
     cur_texts = (s_title + " " + s_abstract).str.strip()
 
     return cur_texts.values
+
+
+def convert_keywords(keywords):
+    """Split keywords separated by commas etc to lists."""
+    if not isinstance(keywords, str):
+        return keywords
+
+    current_best = [keywords]
+    for splitter in [", ", "; ", ": ", ";", ":"]:
+        new_split = keywords.split(splitter)
+        if len(new_split) > len(current_best):
+            current_best = new_split
+    return current_best

@@ -257,7 +257,7 @@ class Project:
         Dataset:
             The data object for internal use in ASReview.
         """
-        return self.data_store.get_all()
+        return self.data_store.get_df()
 
     @property
     def feature_matrices(self):

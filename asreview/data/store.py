@@ -96,19 +96,19 @@ class DataStore:
         with Session(self.engine) as session:
             return session.query(self.record_cls).first() is None
 
-    def get_record(self, record_id):
-        """Get the record with the given record row number.
+    def get_records(self, record_id):
+        """Get the records with the given record identifiers.
 
         Arguments
         ---------
-        record_id : int
-            Record id (row number) of the record to get.
+        record_id : int | list[int]
+            Record id or list of record id's of records to get.
 
         Returns
         -------
-        asreview.data.record.Record
+        asreview.data.record.Record or list of records.
         """
-        if isinstance(record_id, np.int64):
+        if isinstance(record_id, np.integer):
             record_id = record_id.item()
 
         with Session(self.engine) as session:
@@ -123,16 +123,15 @@ class DataStore:
                     self.record_cls.id.in_(record_id)
                 )
 
-    def get_all(self):
-        """Get all data from the data store as a dataset.
+    def get_df(self):
+        """Get all data from the data store as a pandas DataFrmae.
 
         Returns
         -------
-        asreview.data.base.Dataset
+        pd.DataFrame
         """
-        df = pd.read_sql(
+        return pd.read_sql(
             self.record_cls.__tablename__,
             self.engine.connect(),
             dtype=self.pandas_dtype_mapping,
         )
-        return Dataset(df=df)

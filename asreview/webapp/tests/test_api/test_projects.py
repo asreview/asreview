@@ -241,7 +241,7 @@ def test_upload_benchmark_data_to_project(client, user, upload_data):
 
     pickle_path = project.project_path / "tmp" / "data.pickle"
     assert not pickle_path.exists()
-    asr.Project(project.project_path).read_data()
+    asr.Project(project.project_path).data_store.get_df()
     assert pickle_path.exists()
 
 

@@ -46,6 +46,7 @@ from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_ORACLE
 from asreview.config import PROJECT_MODE_SIMULATE
+from asreview.data.base import Dataset
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
 from asreview.project import ProjectError
@@ -84,16 +85,13 @@ def _fill_last_ranking(project, ranking):
     if ranking not in ["random", "top-down"]:
         raise ValueError(f"Unknown ranking type: {ranking}")
 
-    as_data = project.read_data()
-    record_table = pd.Series(as_data.record_ids, name="record_id")
-
+    record_ids = project.data_store["id"]
+    if ranking == "random":
+        ranked_record_ids = record_ids["id"].sample(frac=1)
+    elif ranking == "top-down":
+        ranked_record_ids = record_ids["id"]
     with open_state(project.project_path) as state:
-        if ranking == "random":
-            records = record_table.sample(frac=1)
-        elif ranking == "top-down":
-            records = record_table
-
-        state.add_last_ranking(records.values, None, ranking, None, None)
+        state.add_last_ranking(ranked_record_ids.values, None, ranking, None, None)
 
 
 # error handlers
@@ -393,18 +391,18 @@ def api_get_project_data(project):  # noqa: F401
 
     try:
         # get statistics of the dataset
-        as_data = project.read_data()
+        data = project.data_store[["included", "title", "abstract", "doi"]]
 
         statistics = {
-            "n_rows": len(as_data),
-            "n_relevant": n_relevant(as_data),
-            "n_irrelevant": n_irrelevant(as_data),
-            "n_duplicates": n_duplicates(as_data),
+            "n_rows": len(data),
+            "n_relevant": n_relevant(data),
+            "n_irrelevant": n_irrelevant(data),
+            "n_duplicates": n_duplicates(data),
             "n_missing_title": int(
-                pd.Series(as_data["title"]).replace("", None).isnull().sum()
+                pd.Series(data["title"]).replace("", None).isnull().sum()
             ),
             "n_missing_abstract": int(
-                pd.Series(as_data["abstract"]).replace("", None).isnull().sum()
+                pd.Series(data["abstract"]).replace("", None).isnull().sum()
             ),
             "n_english": None,
             "filename": Path(project.config["dataset_path"]).stem,
@@ -476,20 +474,21 @@ def api_search_data(project):  # noqa: F401
     if not q:
         return jsonify({"result": []})
 
-    as_data = project.read_data()
+    search_data = project.data_store[["title", "authors", "keywords"]]
 
     with open_state(project.project_path) as s:
         labeled_record_ids = s.get_results_table()["record_id"].to_list()
 
     result_ids = fuzzy_find(
-        as_data,
+        search_data,
         q,
         max_return=max_results,
         exclude=labeled_record_ids,
     )
 
     result = []
-    for record in as_data.record(result_ids):
+    for result_id in result_ids:
+        record = project.data_store.get_records(result_id)
         record_d = asdict(record)
         record_d["state"] = None
         record_d["tags_form"] = project.config.get("tags", None)
@@ -569,7 +568,7 @@ def api_get_labeled(project):  # noqa: F401
         next_page = None
         previous_page = None
 
-    records = project.read_data().record(state_data["record_id"])
+    records = project.data_store.get_records(state_data["record_id"])
 
     result = []
     for (_, state), record in zip(state_data.iterrows(), records):
@@ -947,7 +946,7 @@ def api_export_dataset(project):
                     writer = c
 
         # read the dataset into a ASReview data object
-        as_data = project.read_data()
+        as_data = Dataset(project.data_store.get_df())
 
         # Add a new column 'is_prior' to the dataset
         if "asreview_prior" in as_data.df:
@@ -1033,13 +1032,11 @@ def _get_stats(project, include_priors=False):
     try:
         is_project(project)
 
-        as_data = project.read_data()
-
         # Get label history
         with open_state(project.project_path) as s:
             labels = s.get_results_table(priors=include_priors)["label"]
             labels_without_priors = s.get_results_table(priors=False)["label"]
-        n_records = len(as_data)
+        n_records = len(project.data_store())
 
     except (StateNotFoundError, ValueError, ProjectError):
         labels = np.array([])
@@ -1163,15 +1160,13 @@ def api_get_progress_recall(project):
 
     include_priors = request.args.get("priors", False, type=bool)
 
-    as_data = project.read_data()
-
     with open_state(project.project_path) as s:
         data = s.get_results_table("label", priors=include_priors)
 
     df = data.cumsum()
 
     df["Total"] = df.index + 1
-    df["Random"] = (df["Total"] * (df["label"][-1:] / len(as_data))).round()
+    df["Random"] = (df["Total"] * (df["label"][-1:] / len(project.data_store))).round()
 
     df = df.round(1).to_dict(orient="records")
     for d in df:
@@ -1248,8 +1243,7 @@ def api_label_record(project, record_id):  # noqa: F401
         with open_state(project.project_path) as state:
             record = state.get_results_record(record_id)
 
-        as_data = project.read_data()
-        item = asdict(as_data.record(record_id))
+        item = asdict(project.data_store.get_records(record_id))
         item["state"] = record.iloc[0].to_dict()
         item["tags_form"] = project.config.get("tags", None)
 
@@ -1296,8 +1290,7 @@ def api_get_document(project):  # noqa: F401
                     {"result": None, "pool_empty": not ranking.empty and pool.empty}
                 )
 
-    as_data = project.read_data()
-    item = asdict(as_data.record(pending["record_id"].iloc[0]))
+    item = asdict(project.data_store.get_record(pending["record_id"].iloc[0]))
     item["state"] = pending.iloc[0].to_dict()
     item["tags_form"] = project.config.get("tags", None)
 

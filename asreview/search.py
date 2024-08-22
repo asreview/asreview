@@ -93,8 +93,8 @@ def fuzzy_find(
 
     Arguments
     ---------
-    as_data: asreview.Dataset
-        ASReview data object to search
+    as_data: pd.DataFrame or DataStore
+        Dataframe containing the column 'title' and optionally 'authors' and 'keywords'.
     keywords: str
         A string of keywords together, can be a combination.
     threshold: float
@@ -120,7 +120,7 @@ def fuzzy_find(
             ""
         )
 
-    if "keywords" not in as_data:
+    if "keywords" in as_data:
         all_strings += " " + pd.Series(as_data["keywords"]).map(_format_to_str).fillna(
             ""
         )

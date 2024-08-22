@@ -50,19 +50,6 @@ def _standardize_column_name(col_name, col_definitions):
     return None
 
 
-def _convert_keywords(keywords):
-    """Split keywords separated by commas etc to lists."""
-    if not isinstance(keywords, str):
-        return keywords
-
-    current_best = [keywords]
-    for splitter in [", ", "; ", ": ", ";", ":"]:
-        new_split = keywords.split(splitter)
-        if len(new_split) > len(current_best):
-            current_best = new_split
-    return current_best
-
-
 # @dataclass
 # class Record:
 #     """A record from the dataset.

@@ -63,9 +63,9 @@ def test_is_empty(store, dataset):
     assert not store.is_empty()
 
 
-def test_get_record(store_with_data):
+def test_get_records(store_with_data):
     row_number = 1
-    record = store_with_data.get_record(row_number)
+    record = store_with_data.get_records(row_number)
     assert isinstance(record, Record)
     assert record.id == row_number
 

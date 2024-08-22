@@ -26,6 +26,8 @@ __all__ = [
 ]
 
 import numpy as np
+from asreview.data.utils import duplicated
+from asreview.data.utils import convert_keywords
 
 
 def n_records(data):
@@ -49,8 +51,8 @@ def n_relevant(data):
 
     Arguments
     ---------
-    data: asreview.Dataset
-        An Dataset object with the records.
+    data: pd.DataFrame
+        Dataframe containing an 'included' column.
 
     Return
     ------
@@ -66,8 +68,8 @@ def n_irrelevant(data):
 
     Arguments
     ---------
-    data: asreview.Dataset
-        An Dataset object with the records.
+    data: pd.DataFrame
+        Dataframe containing an 'included' column.
 
     Return
     ------
@@ -83,8 +85,8 @@ def n_unlabeled(data):
 
     Arguments
     ---------
-    data: asreview.Dataset
-        An Dataset object with the records.
+    data: pd.DataFrame
+        Dataframe containing an 'included' column.
 
     Return
     ------
@@ -100,8 +102,8 @@ def n_missing_title(data):
 
     Arguments
     ---------
-    data: asreview.Dataset
-        An Dataset object with the records.
+    data: pd.DataFrame
+        Dataframe containing a 'title' and an 'included' column.
 
     Return
     ------
@@ -136,8 +138,8 @@ def n_missing_abstract(data):
 
     Arguments
     ---------
-    data: asreview.Dataset
-        An Dataset object with the records.
+    data: pd.DataFrame
+        Dataframe containing an 'abstract' and 'included' column.
 
     Return
     ------
@@ -172,8 +174,8 @@ def title_length(data):
 
     Arguments
     ---------
-    data: asreview.Dataset
-        An Dataset object with the records.
+    data: pd.DataFrame
+        Dataframe containing a 'title' column.
 
     Return
     ------
@@ -192,8 +194,8 @@ def abstract_length(data):
 
     Arguments
     ---------
-    data: asreview.Dataset
-        An Dataset object with the records.
+    data: pd.DataFrame
+        Dataframe containing an 'abstract' column.
 
     Return
     ------
@@ -212,8 +214,8 @@ def n_keywords(data):
 
     Arguments
     ---------
-    data: asreview.Dataset
-        An Dataset object with the records.
+    data: pd.DataFrame
+        Dataframe containing a 'keywords' column.
 
     Return
     ------
@@ -223,13 +225,11 @@ def n_keywords(data):
     # Before the Dataset class cleaned the keywords before returning them.
     # I'll do this in the reader pipeline later, for now I'll just import the
     # cleaning code here.
-    from asreview.data.base import _convert_keywords
-
     try:
         keywords = data["keywords"]
     except KeyError:
         return None
-    keywords = keywords.apply(_convert_keywords)
+    keywords = keywords.apply(convert_keywords)
     return np.average([len(keywords) for keywords in keywords])
 
 
@@ -241,8 +241,8 @@ def n_duplicates(data, pid="doi"):
 
     Arguments
     ---------
-    data: asreview.Dataset
-        An Dataset object with the records.
+    data: pd.DataFrame or DataStore
+        Dataframe containing a 'title' and 'abstract column and optionally a pid column.
     pid: string
         Which persistent identifier (PID) to use for deduplication.
         Default is 'doi'.
@@ -252,4 +252,4 @@ def n_duplicates(data, pid="doi"):
     int:
         Number of duplicates
     """
-    return int(data.duplicated(pid).sum())
+    return int(duplicated(data, pid).sum())
