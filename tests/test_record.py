@@ -5,20 +5,20 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 
 def test_record():
-    assert Record.get_columns() == {
+    assert Record.get_columns() == [
         "id",
-        "dataset_id",
         "dataset_row",
-        "included",
+        "dataset_id",
         "title",
-        "authors",
         "abstract",
+        "authors",
         "notes",
-        "doi",
         "keywords",
-        "url",
         "year",
-    }
+        "doi",
+        "url",
+        "included",
+    ]
 
     assert Record.get_pandas_dtype_mapping() == {
         "id": "Int64",
@@ -47,7 +47,7 @@ def test_custom_record():
         foo_col: Mapped[int] = mapped_column(primary_key=True)
         bar_col: Mapped[str]
 
-    assert CustomRecord.get_columns() == {"foo_col", "bar_col"}
+    assert CustomRecord.get_columns() == ["foo_col", "bar_col"]
     assert CustomRecord.get_pandas_dtype_mapping() == {
         "foo_col": "foo",
         "bar_col": "bar",

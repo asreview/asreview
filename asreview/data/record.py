@@ -15,7 +15,7 @@ class Base(DeclarativeBase):
 
     @classmethod
     def get_columns(cls):
-        return set(column.name for column in cls.__mapper__.columns)
+        return [column.name for column in cls.__mapper__.columns]
 
     @classmethod
     def get_pandas_dtype_mapping(cls):
