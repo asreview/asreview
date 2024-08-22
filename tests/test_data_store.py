@@ -70,9 +70,10 @@ def test_get_records(store_with_data):
     assert record.id == row_number
 
 
-def test_get_all(store_with_data):
-    output = store_with_data.get_all()
-    assert isinstance(output, Dataset)
+def test_get_df(store_with_data):
+    output = store_with_data.get_df()
+    assert isinstance(output, pd.DataFrame)
+    assert set(output.columns) == set(Record.get_columns())
 
 
 def test_len(store, dataset):

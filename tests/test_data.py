@@ -54,7 +54,7 @@ def test_datasets(data_name):
 def test_duplicate_count():
     d = asr.load_dataset(Path("tests", "demo_data", "duplicate_records.csv"))
 
-    assert n_duplicates(d) == 2
+    assert n_duplicates(d.df) == 2
 
 
 def test_deduplication():
