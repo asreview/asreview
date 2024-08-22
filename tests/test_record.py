@@ -6,7 +6,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 def test_record():
     assert Record.get_columns() == [
-        "id",
         "dataset_row",
         "dataset_id",
         "title",
@@ -18,6 +17,8 @@ def test_record():
         "doi",
         "url",
         "included",
+        "id",
+
     ]
 
     assert Record.get_pandas_dtype_mapping() == {
@@ -47,8 +48,9 @@ def test_custom_record():
         foo_col: Mapped[int] = mapped_column(primary_key=True)
         bar_col: Mapped[str]
 
-    assert CustomRecord.get_columns() == ["foo_col", "bar_col"]
+    assert CustomRecord.get_columns() == ["foo_col", "bar_col", "id"]
     assert CustomRecord.get_pandas_dtype_mapping() == {
         "foo_col": "foo",
         "bar_col": "bar",
+        "id": "foo"
     }
