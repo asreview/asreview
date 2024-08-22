@@ -18,13 +18,13 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from pandas.api.types import is_object_dtype
-from pandas.api.types import is_string_dtype
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
 from asreview.extensions import extensions
 from asreview.data.record import Record
+from asreview.data.utils import duplicated
+from asreview.data.utils import get_texts
 
 
 def _standardize_column_name(col_name, col_definitions):
@@ -257,22 +257,7 @@ class Dataset:
     # It can probably just be completely removed, use Records as input to FA.
     @property
     def texts(self):
-        # One of title and abstract is always present.
-        try:
-            titles = self["title"]
-        except KeyError:
-            return self["abstract"]
-        try:
-            abstracts = self["abstract"]
-        except KeyError:
-            return self["title"]
-
-        s_title = pd.Series(titles).fillna("")
-        s_abstract = pd.Series(abstracts).fillna("")
-
-        cur_texts = (s_title + " " + s_abstract).str.strip()
-
-        return cur_texts.values
+        return get_texts(self.df)
 
     def to_file(
         self, fp, labels=None, ranking=None, writer=None, keep_old_labels=False
@@ -369,58 +354,7 @@ class Dataset:
         return result_df
 
     def duplicated(self, pid="doi"):
-        """Return boolean Series denoting duplicate rows.
-
-        Identify duplicates based on titles and abstracts and if available,
-        on a persistent identifier (PID) such as the Digital Object Identifier
-        (`DOI <https://www.doi.org/>`_).
-
-        Arguments
-        ---------
-        pid: string
-            Which persistent identifier to use for deduplication.
-            Default is 'doi'.
-
-        Returns
-        -------
-        pandas.Series
-            Boolean series for each duplicated rows.
-        """
-        if pid in self.df.columns:
-            # in case of strings, strip whitespaces and replace empty strings with None
-            if is_string_dtype(self.df[pid]) or is_object_dtype(self.df[pid]):
-                s_pid = self.df[pid].str.strip().replace("", None)
-                if pid == "doi":
-                    s_pid = s_pid.str.lower().str.replace(
-                        r"^https?://(www\.)?doi\.org/", "", regex=True
-                    )
-            else:
-                s_pid = self.df[pid]
-
-            # save boolean series for duplicates based on persistent identifiers
-            s_dups_pid = (s_pid.duplicated()) & (s_pid.notnull())
-        else:
-            s_dups_pid = None
-
-        # get the texts, clean them and replace empty strings with None
-        s = (
-            pd.Series(self.texts)
-            .str.replace("[^A-Za-z0-9]", "", regex=True)
-            .str.lower()
-            .str.strip()
-            .replace("", None)
-        )
-
-        # save boolean series for duplicates based on titles/abstracts
-        s_dups_text = (s.duplicated()) & (s.notnull())
-
-        # final boolean series for all duplicates
-        if s_dups_pid is not None:
-            s_dups = s_dups_pid | s_dups_text
-        else:
-            s_dups = s_dups_text
-
-        return s_dups
+        return duplicated(self.df, pid)
 
     def drop_duplicates(self, pid="doi", inplace=False, reset_index=True):
         """Drop duplicate records.
