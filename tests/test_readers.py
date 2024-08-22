@@ -27,7 +27,9 @@ from asreview.utils import _is_url
         ("scopus.ris", 6, []),
         ("ovid_zotero.ris", 6, []),
         ("proquest.ris", 6, []),
-        pytest.param("https://osf.io/download/fg93a/", 38, [], marks=mark.internet_required),
+        pytest.param(
+            "https://osf.io/download/fg93a/", 38, [], marks=mark.internet_required
+        ),
     ],
 )
 def test_reader(test_file, n_lines, ignore_col):
