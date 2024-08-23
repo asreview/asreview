@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import Chart from "react-apexcharts";
 import {
   Card,
@@ -75,6 +75,7 @@ const StoppingRuleSection = ({
   // Handler to save the new threshold value
   const handleSave = () => {
     onThresholdChange(tempThreshold);
+    localStorage.setItem("stoppingRuleThreshold", tempThreshold);
     handleClose();
   };
 
@@ -224,7 +225,15 @@ const StoppingRuleSection = ({
 // Main component to display the modern progress chart
 export default function ModernProgressChart({ progressQuery, mobileScreen }) {
   const theme = useTheme();
-  const [stoppingRuleThreshold, setStoppingRuleThreshold] = useState(30);
+  const [stoppingRuleThreshold, setStoppingRuleThreshold] = useState(
+    localStorage.getItem("stoppingRuleThreshold") || 30
+  );
+
+  useEffect(() => {
+    if (localStorage.getItem("stoppingRuleThreshold")) {
+      setStoppingRuleThreshold(Number(localStorage.getItem("stoppingRuleThreshold")));
+    }
+  }, []);
 
   // Destructure progress data using useMemo for memoization
   const {
@@ -238,11 +247,11 @@ export default function ModernProgressChart({ progressQuery, mobileScreen }) {
     () => ({
       n_included: progressQuery.data?.n_included ?? 0,
       n_excluded: progressQuery.data?.n_excluded ?? 0,
-      n_papers: progressQuery.data?.n_papers ?? 0,
-      n_included_no_priors: progressQuery.data?.n_included_no_priors ?? 0,
-      n_excluded_no_priors: progressQuery.data?.n_excluded_no_priors ?? 0,
+      n_papers: 500000,
+      n_included_no_priors: 13000,
+      n_excluded_no_priors: 50000,
       n_since_last_inclusion_no_priors:
-        progressQuery.data?.n_since_last_inclusion_no_priors ?? 0,
+        25,
     }),
     [progressQuery.data],
   );

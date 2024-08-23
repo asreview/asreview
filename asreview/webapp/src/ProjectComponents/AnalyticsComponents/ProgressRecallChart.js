@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import Chart from "react-apexcharts";
 import {
   Card,
@@ -9,9 +9,13 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Tooltip,
+  tooltipClasses,
+  Box,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 import GetAppIcon from "@mui/icons-material/GetApp";
+import { HelpOutline } from "@mui/icons-material";
 import { toPng, toJpeg, toSvg } from "html-to-image";
 
 import { CardErrorHandler } from "Components";
@@ -98,6 +102,40 @@ const StyledCard = styled(Card)(({ theme }) => ({
   },
 }));
 
+const StyledTooltip = styled(({ className, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: theme.palette.background.paper,
+    color: theme.palette.text.primary,
+    padding: 0,
+    maxWidth: 410,
+    fontSize: theme.typography.pxToRem(12),
+  },
+}));
+
+// Mock data generation function
+const generateMockRecallData = (total_count = 50000, relevant_count = 13000) => {
+  const asreviewData = [];
+  const randomData = [];
+
+  let current_asreview_relevant = 0;
+  let current_random_relevant = 0;
+
+  for (let i = 0; i < total_count; i++) {
+    const asreview_relevant = Math.random() < 0.2 && current_asreview_relevant < relevant_count;
+    const random_relevant = Math.random() < 0.05 && current_random_relevant < relevant_count;
+
+    if (asreview_relevant) current_asreview_relevant++;
+    if (random_relevant) current_random_relevant++;
+
+    asreviewData.push({ x: i + 1, y: current_asreview_relevant });
+    randomData.push({ x: i + 1, y: current_random_relevant });
+  }
+
+  return { asreviewData, randomData };
+};
+
 const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
   let total = dataPointIndex + 1;
   return (
@@ -150,14 +188,21 @@ const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
 export default function ProgressRecallChart(props) {
   const theme = useTheme();
   const chartRef = useRef(null);
+  const [mockData, setMockData] = useState({ asreviewData: [], randomData: [] });
 
-  const lightModePrimaryColor = React.useCallback(() => {
+  useEffect(() => {
+    // Generate mock data
+    const data = generateMockRecallData();
+    setMockData(data);
+  }, []);
+
+  const lightModePrimaryColor = useCallback(() => {
     return theme.palette.mode === "light"
       ? theme.palette.primary.light
       : theme.palette.primary.main;
   }, [theme.palette.mode, theme.palette.primary]);
 
-  const lightModeSecondaryColor = React.useCallback(() => {
+  const lightModeSecondaryColor = useCallback(() => {
     return theme.palette.mode === "light"
       ? theme.palette.secondary.light
       : theme.palette.secondary.main;
@@ -166,24 +211,20 @@ export default function ProgressRecallChart(props) {
   /**
    * Chart data array
    */
-  const seriesArray = React.useCallback(() => {
-    if (props.progressRecallQuery.data) {
-      return [
-        {
-          name: "Relevant by ASReview LAB",
-          data: props.progressRecallQuery.data?.asreview,
-        },
-        {
-          name: "Random relevant",
-          data: props.progressRecallQuery.data?.random,
-        },
-      ];
-    } else {
-      return [];
-    }
-  }, [props.progressRecallQuery.data]);
+  const seriesArray = useCallback(() => {
+    return [
+      {
+        name: "Relevant by ASReview LAB",
+        data: mockData.asreviewData,
+      },
+      {
+        name: "Random relevant",
+        data: mockData.randomData,
+      },
+    ];
+  }, [mockData]);
 
-  const maxY = React.useCallback(() => {
+  const maxY = useCallback(() => {
     if (seriesArray()[0]?.data !== undefined) {
       return Math.max.apply(
         Math,
@@ -199,7 +240,7 @@ export default function ProgressRecallChart(props) {
   /**
    * Chart options
    */
-  const optionsChart = React.useCallback(() => {
+    const optionsChart = useCallback(() => {
     const maxYValue = maxY() || 0;
     const tickAmount = 7;
     const closestDivisibleBy7 = Math.ceil(maxYValue / tickAmount) * tickAmount; // To make the intervals consistent, max value in the y-axis should be always divisible by 7.
@@ -276,8 +317,8 @@ export default function ProgressRecallChart(props) {
       },
       yaxis: {
         labels: {
-          formatter: function (val, index) {
-            return val.toFixed();
+          formatter: function (val) {
+            return val !== null && val !== undefined ? val.toFixed() : '';
           },
         },
         showAlways: false,
@@ -298,11 +339,11 @@ export default function ProgressRecallChart(props) {
     props.mobileScreen,
   ]);
 
-  const [series, setSeries] = React.useState(seriesArray());
-  const [options, setOptions] = React.useState(optionsChart());
+  const [series, setSeries] = useState(seriesArray());
+  const [options, setOptions] = useState(optionsChart());
   const [anchorEl, setAnchorEl] = useState(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setSeries(seriesArray());
     setOptions(optionsChart());
   }, [seriesArray, optionsChart]);
@@ -386,26 +427,52 @@ export default function ProgressRecallChart(props) {
             {props.mobileScreen && (
               <TypographySubtitle1Medium>Recall</TypographySubtitle1Medium>
             )}
-            <IconButton onClick={handleDownloadClick}>
-              <GetAppIcon />
-            </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
-            >
-              <MenuItem onClick={() => handleDownload("png")}>
-                Download as PNG
-              </MenuItem>
-              <MenuItem onClick={() => handleDownload("jpeg")}>
-                Download as JPEG
-              </MenuItem>
-              <MenuItem onClick={() => handleDownload("svg")}>
-                Download as SVG
-              </MenuItem>
-            </Menu>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <StyledTooltip
+                title={
+                  <React.Fragment>
+                    <Card sx={{ backgroundImage: "none" }}>
+                      <CardContent>
+                        <Typography variant="subtitle2">
+                          The chart shows how well the ASReview model and random sampling identify relevant records. 
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                          The model helps prioritize relevant records, but not all relevant records will be identified by the model. 
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                          The random relevant line shows the performance if you manually reviewed all records without model assistance.
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </React.Fragment>
+                }
+              >
+                <HelpOutline
+                  fontSize={!props.mobileScreen ? "small" : "12px"}
+                  sx={{ color: "text.secondary", marginRight: "8px" }}
+                />
+              </StyledTooltip>
+              <IconButton onClick={handleDownloadClick}>
+                <GetAppIcon />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                <MenuItem onClick={() => handleDownload("png")}>
+                  Download as PNG
+                </MenuItem>
+                <MenuItem onClick={() => handleDownload("jpeg")}>
+                  Download as JPEG
+                </MenuItem>
+                <MenuItem onClick={() => handleDownload("svg")}>
+                  Download as SVG
+                </MenuItem>
+              </Menu>
+            </Box>
           </Stack>
-          {props.progressRecallQuery.isLoading ? (
+          {mockData.asreviewData.length === 0 ? (
             <Skeleton variant="rectangular" height={400} width="100%" />
           ) : (
             <div ref={chartRef}>

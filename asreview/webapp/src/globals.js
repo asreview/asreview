@@ -25,22 +25,22 @@ export const getDesignTokens = (mode) => ({
     ...(mode === "light"
       ? {
           primary: {
-            main: "#463EA6",
-            light: "#a7a9df",
+            main: "#FFD700",
+            light: "#FFD700",
             background: "#93494914",
           },
           secondary: {
-            main: "#9da63e",
-            light: "#e3f4a8",
+            main: "#FFD700",
+            light: "#FFD700",
           },
         }
       : {
           primary: {
-            main: "#9965f4",
+            main: "#FFD700",
             background: "#93494914",
           },
           secondary: {
-            main: "#9da63e",
+            main: "#FFD700",
           },
         }),
   },

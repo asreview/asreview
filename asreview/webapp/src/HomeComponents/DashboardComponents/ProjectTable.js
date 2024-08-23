@@ -131,7 +131,7 @@ const StatusChip = ({ status }) => {
         />
       );
     default:
-      return;
+      return null;
   }
 };
 
@@ -184,7 +184,8 @@ const ProjectTable = (props) => {
         const simulationProjects = data.result.filter(
           (element) =>
             element.mode === projectModes.SIMULATION &&
-            element.reviews[0] !== undefined &&
+            element.reviews &&
+            element.reviews[0] &&
             element.reviews[0].status === projectStatuses.REVIEW,
         );
         if (!simulationProjects.length) {
@@ -310,7 +311,7 @@ const ProjectTable = (props) => {
   };
 
   const openProject = (project, path) => {
-    if (project["reviews"][0]["status"] === projectStatuses.SETUP) {
+    if (project["reviews"][0] && project["reviews"][0]["status"] === projectStatuses.SETUP) {
       setSetupDialogState({
         open: true,
         project_info: project,
@@ -362,14 +363,16 @@ const ProjectTable = (props) => {
                   const isSimulating = () => {
                     return (
                       row["mode"] === projectModes.SIMULATION &&
-                      row["reviews"][0] !== undefined &&
+                      row["reviews"] &&
+                      row["reviews"][0] &&
                       row["reviews"][0]["status"] === projectStatuses.REVIEW
                     );
                   };
 
                   const showReviewButton = () => {
                     return (
-                      row["reviews"][0] !== undefined &&
+                      row["reviews"] &&
+                      row["reviews"][0] &&
                       row["reviews"][0]["status"] === projectStatuses.REVIEW
                     );
                   };
@@ -378,13 +381,14 @@ const ProjectTable = (props) => {
                     return (
                       row["projectNeedsUpgrade"] ||
                       row["mode"] === projectModes.SIMULATION ||
-                      row["reviews"][0] === undefined ||
+                      !row["reviews"] ||
+                      !row["reviews"][0] ||
                       row["reviews"][0]["status"] === projectStatuses.SETUP
                     );
                   };
 
                   const onClickProjectExport = () => {
-                    if (row["reviews"][0]["status"] === projectStatuses.SETUP) {
+                    if (row["reviews"] && row["reviews"][0] && row["reviews"][0]["status"] === projectStatuses.SETUP) {
                       queryClient.prefetchQuery(
                         ["fetchExportProject", { project_id: row["id"] }],
                         ProjectAPI.fetchExportProject,
@@ -433,7 +437,7 @@ const ProjectTable = (props) => {
                             }}
                             onClickProjectExport={onClickProjectExport}
                             onClickProjectDetails={onClickProjectDetails}
-                            projectStatus={row["reviews"][0]["status"]}
+                            projectStatus={row["reviews"] && row["reviews"][0] ? row["reviews"][0]["status"] : null}
                             toggleDeleteDialog={toggleDeleteDialog}
                             updateProjectStatus={updateProjectStatus}
                             //canEdit={canEdit}
@@ -452,7 +456,7 @@ const ProjectTable = (props) => {
                       <TableCell className={classes.tableCell}>
                         <StatusChip
                           size="small"
-                          status={row["reviews"][0]["status"]}
+                          status={row["reviews"] && row["reviews"][0] ? row["reviews"][0]["status"] : null}
                         />
                       </TableCell>
                     </TableRow>

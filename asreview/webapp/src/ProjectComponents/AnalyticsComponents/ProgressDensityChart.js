@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import Chart from "react-apexcharts";
 import {
   Box,
@@ -27,6 +27,28 @@ import tooltipIrrelevantLight from "images/progress_irrelevant_light.png";
 import tooltipIrrelevantDark from "images/progress_irrelevant_dark.png";
 
 import "./AnalyticsPage.css";
+
+// Mock data generation function
+const generateMockData = (total_count = 50000, relevant_count = 13000) => {
+  const data = [];
+  let current_relevant = 0;
+
+  const sigmoid = (x) => 1 / (1 + Math.exp(-x));
+
+  for (let i = 0; i < total_count; i++) {
+    const x = 10 * (i / total_count) - 5;
+    const prob_relevant = 0.4 * (1 - sigmoid(x)) + 0.01;
+
+    if (Math.random() < prob_relevant && current_relevant < relevant_count) {
+      data.push({ Label: 1 });
+      current_relevant++;
+    } else {
+      data.push({ Label: 0 });
+    }
+  }
+
+  return data;
+};
 
 const PREFIX = "ProgressDensityChart";
 
@@ -121,7 +143,7 @@ const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
     "Relevant in last 10 reviewed" +
     "</span>" +
     "</div>" +
-    `<p class="tooltip-label-text-secondary ProgressDensityChart-tooltip-label-text-secondary-color">` +
+    `<p class="tooltip-label-text-secondary ProgressDensityChart-tooltip-text-secondary-color">` +
     "Relevant records that you labeled in the last 10 reviewed" +
     "</p>" +
     "</div>" +
@@ -139,45 +161,20 @@ export default function ProgressDensityChart(props) {
   const chartRef = useRef(null);
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const returnTooltipRelevantImg = () => {
-    if (theme.palette.mode === "light") {
-      return tooltipRelevantLight;
-    }
-    if (theme.palette.mode === "dark") {
-      return tooltipRelevantDark;
-    }
-  };
+  const [mockData, setMockData] = useState([]);
+  const [series, setSeries] = useState([]);
+  const [options, setOptions] = useState({});
 
-  const returnTooltipIrrelevantImg = () => {
-    if (theme.palette.mode === "light") {
-      return tooltipIrrelevantLight;
-    }
-    if (theme.palette.mode === "dark") {
-      return tooltipIrrelevantDark;
-    }
-  };
+  useEffect(() => {
+    // Generate the mock data
+    const data = generateMockData();
+    setMockData(data);
 
-  /**
-   * Chart data array
-   */
-  const seriesArray = React.useCallback(() => {
-    if (props.progressDensityQuery.data) {
-      return [
-        {
-          name: "Relevant records",
-          data: props.progressDensityQuery.data?.relevant,
-        },
-      ];
-    } else {
-      return [];
-    }
-  }, [props.progressDensityQuery.data]);
+    const relevantData = data.map(item => item.Label === 1 ? 1 : 0);
 
-  /**
-   * Chart options
-   */
-  const optionsChart = React.useCallback(() => {
-    return {
+    // Update series and options
+    setSeries([{ name: "Relevant records", data: relevantData }]);
+    setOptions({
       chart: {
         animations: {
           enabled: false,
@@ -267,16 +264,16 @@ export default function ProgressDensityChart(props) {
           text: "Relevant Records",
         },
       },
-    };
+    });
   }, [theme, props.mobileScreen]);
 
-  const [series, setSeries] = React.useState(seriesArray());
-  const [options, setOptions] = React.useState(optionsChart());
+  const returnTooltipRelevantImg = () => {
+    return theme.palette.mode === "light" ? tooltipRelevantLight : tooltipRelevantDark;
+  };
 
-  React.useEffect(() => {
-    setSeries(seriesArray());
-    setOptions(optionsChart());
-  }, [seriesArray, optionsChart]);
+  const returnTooltipIrrelevantImg = () => {
+    return theme.palette.mode === "light" ? tooltipIrrelevantLight : tooltipIrrelevantDark;
+  };
 
   const handleDownloadClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -341,8 +338,8 @@ export default function ProgressDensityChart(props) {
     <StyledCard elevation={2}>
       <CardErrorHandler
         queryKey={"fetchProgressDensity"}
-        error={props.progressDensityQuery.error}
-        isError={props.progressDensityQuery.isError}
+        error={props.progressDensityQuery?.error}
+        isError={props.progressDensityQuery?.isError}
       />
       <CardContent className={classes.root}>
         <Stack spacing={2}>
@@ -351,14 +348,10 @@ export default function ProgressDensityChart(props) {
             sx={{ justifyContent: "space-between" }}
           >
             {!props.mobileScreen && (
-              <Typography variant="h6">
-                Relevant Labels in Last 10 Reviews
-              </Typography>
+              <Typography variant="h6">Density</Typography>
             )}
             {props.mobileScreen && (
-              <TypographySubtitle1Medium>
-                Relevant Labels in Last 10 Reviews
-              </TypographySubtitle1Medium>
+              <TypographySubtitle1Medium>Density</TypographySubtitle1Medium>
             )}
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <StyledTooltip
@@ -382,8 +375,7 @@ export default function ProgressDensityChart(props) {
                                   variant="body2"
                                   sx={{ color: "text.secondary" }}
                                 >
-                                  Relevant records still appear. Continue
-                                  reviewing to discover more.
+                                  Relevant records still appear. Continue reviewing to discover more.
                                 </Typography>
                               </Box>
                             </Stack>
@@ -403,9 +395,7 @@ export default function ProgressDensityChart(props) {
                                   variant="body2"
                                   sx={{ color: "text.secondary" }}
                                 >
-                                  Relevant records do not appear. Refer to your
-                                  stopping rule to decide if you want to
-                                  continue reviewing.
+                                  Relevant records do not appear. Refer to your stopping rule to decide if you want to continue reviewing.
                                 </Typography>
                               </Box>
                             </Stack>
@@ -441,15 +431,15 @@ export default function ProgressDensityChart(props) {
               </Menu>
             </Box>
           </Box>
-          {props.progressDensityQuery.isLoading ? (
-            <Skeleton variant="rectangular" height={230} width="100%" />
+          {mockData.length === 0 ? (
+            <Skeleton variant="rectangular" height={400} width="100%" />
           ) : (
             <div ref={chartRef}>
               <Chart
                 options={options}
                 series={series}
                 type="area"
-                height={230}
+                height={400}
                 width="100%"
               />
             </div>

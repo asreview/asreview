@@ -547,7 +547,7 @@ class ProjectAPI {
     });
   }
 
-  static fetchProgressDensity({ queryKey }) {
+  static fetchProgressDensity({ queryKey }) { //remove this, same as py
     const { project_id } = queryKey[1];
     const url = api_url + `projects/${project_id}/progress_density`;
     return new Promise((resolve, reject) => {
@@ -562,7 +562,7 @@ class ProjectAPI {
     });
   }
 
-  static fetchProgressRecall({ queryKey }) {
+  static fetchProgressRecall({ queryKey }) { //remove this, same as py
     const { project_id } = queryKey[1];
     const url = api_url + `projects/${project_id}/progress_recall`;
     return new Promise((resolve, reject) => {
@@ -577,7 +577,7 @@ class ProjectAPI {
     });
   }
 
-  static fetchLabelingChronology({ queryKey }) {
+  static fetchLabelingChronology({ queryKey }) { //make this reusable and generic
     const { project_id } = queryKey[1];
     const url = api_url + `projects/${project_id}/labeling_chronology`;
     return new Promise((resolve, reject) => {

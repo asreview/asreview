@@ -1118,7 +1118,7 @@ def api_get_progress_info(project):  # noqa: F401
 @bp.route("/projects/<project_id>/progress_density", methods=["GET"])
 @login_required
 @project_authorization
-def api_get_progress_density(project):
+def api_get_progress_density(project): #remove this, calculate density in frontend
     """Get progress density of a project"""
 
     include_priors = request.args.get("priors", False, type=bool)
@@ -1158,7 +1158,7 @@ def api_get_progress_density(project):
 @bp.route("/projects/<project_id>/progress_recall", methods=["GET"])
 @login_required
 @project_authorization
-def api_get_progress_recall(project):
+def api_get_progress_recall(project): #remove this, calculate recall in frontend
     """Get cumulative number of inclusions by ASReview/at random"""
 
     include_priors = request.args.get("priors", False, type=bool)
@@ -1193,7 +1193,7 @@ def api_get_progress_recall(project):
 @bp.route("/projects/<project_id>/labeling_chronology", methods=["GET"])
 @login_required
 @project_authorization
-def api_get_labeling_chronology(project):
+def api_get_labeling_chronology(project): #make it reusable and generic, indepent4ent of functionality or card or component
     """Get chronological labeling history of a project"""
 
     include_priors = request.args.get("priors", False, type=bool)
