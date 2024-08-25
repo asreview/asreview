@@ -26,8 +26,8 @@ __all__ = [
 ]
 
 import numpy as np
+
 from asreview.data.utils import duplicated
-from asreview.data.utils import convert_keywords
 
 
 def n_records(data):
@@ -222,15 +222,7 @@ def n_keywords(data):
     int:
         The statistic
     """
-    # Before the Dataset class cleaned the keywords before returning them.
-    # I'll do this in the reader pipeline later, for now I'll just import the
-    # cleaning code here.
-    try:
-        keywords = data["keywords"]
-    except KeyError:
-        return None
-    keywords = keywords.apply(convert_keywords)
-    return np.average([len(keywords) for keywords in keywords])
+    return np.average([len(keywords) for keywords in data["keywords"]])
 
 
 def n_duplicates(data, pid="doi"):

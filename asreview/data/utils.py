@@ -86,19 +86,6 @@ def get_texts(df):
     return cur_texts.values
 
 
-def convert_keywords(keywords):
-    """Split keywords separated by commas etc to lists."""
-    if not isinstance(keywords, str):
-        return keywords
-
-    current_best = [keywords]
-    for splitter in [", ", "; ", ": ", ",", ";", ":"]:
-        new_split = keywords.split(splitter)
-        if len(new_split) > len(current_best):
-            current_best = new_split
-    return current_best
-
-
 def convert_to_list(value):
     """Convert a value to a list.
 
