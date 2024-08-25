@@ -49,7 +49,7 @@ class DataStore:
         self.user_version = CURRENT_DATASTORE_VERSION
         Base.metadata.create_all(self.engine)
 
-    def add_dataset(self, dataset, dataset_id):
+    def add_dataset(self, dataset):
         """Add a new dataset to the data store."""
         # try:
         #     keywords = [
@@ -57,9 +57,7 @@ class DataStore:
         #     ]
         # except KeyError:
         #     keywords = None
-        records = dataset.record(range(len(dataset)))
-        for record in records:
-            record.dataset_id = dataset_id
+        records = dataset.to_records()
         with Session(self.engine) as session:
             session.add_all(records)
             session.commit()

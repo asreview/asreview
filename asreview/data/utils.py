@@ -1,3 +1,6 @@
+import json
+from ast import literal_eval
+import numpy as np
 import pandas as pd
 
 
@@ -89,8 +92,46 @@ def convert_keywords(keywords):
         return keywords
 
     current_best = [keywords]
-    for splitter in [", ", "; ", ": ", ";", ":"]:
+    for splitter in [", ", "; ", ": ", ",", ";", ":"]:
         new_split = keywords.split(splitter)
         if len(new_split) > len(current_best):
             current_best = new_split
     return current_best
+
+
+def convert_to_list(value):
+    """Convert a value to a list.
+
+    This function tries to be very permissive in what input it allows. The goal is to
+    accept input from as many different kinds of input files as possible. If you are
+    certain what format the input has, you are probably better of parsing that format
+    directly.
+    """
+    if isinstance(value, list):
+        return value
+    elif isinstance(value, np.ndarray):
+        return value.tolist()
+    if isinstance(value, str):
+        if value == "":
+            return []
+        if value[0] == "[":
+            # Check if it's a json dumped list.
+            try:
+                return json.loads(value)
+            except json.decoder.JSONDecodeError:
+                # Maybe it's a Python literal value?
+                try:
+                    return literal_eval(value)
+                except SyntaxError:
+                    raise ValueError(
+                        "value is a string starting with '[', but is not a JSON dumped"
+                        f" list or a Python literal list value. Value: {value}"
+                    )
+        # Assume it is a list of items separated by one of ,;:
+        longest_split = []
+        for sep in {",", ";", ":"}:
+            split_value = value.split(sep)
+            if len(split_value) > longest_split:
+                longest_split = split_value
+        # Remove excess whitespace in case the items were separated by ', ' for example.
+        return [item.strip() for item in longest_split]

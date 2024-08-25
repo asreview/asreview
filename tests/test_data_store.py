@@ -17,7 +17,9 @@ from asreview.project import PATH_DATA_STORE
 @pytest.fixture
 def dataset():
     data_fp = Path("tests", "demo_data", "generic.csv")
-    return load_dataset(data_fp)
+    dataset = load_dataset(data_fp)
+    dataset.id = "foo"
+    return dataset
 
 
 @pytest.fixture
@@ -30,7 +32,7 @@ def store(tmpdir):
 
 @pytest.fixture
 def store_with_data(store, dataset):
-    store.add_dataset(dataset, "foo")
+    store.add_dataset(dataset)
     return store
 
 
@@ -51,7 +53,7 @@ def test_create_tables(tmpdir):
 
 
 def test_add_dataset(store, dataset):
-    store.add_dataset(dataset, "foo")
+    store.add_dataset(dataset)
     con = sqlite3.connect(store.fp)
     df = pd.read_sql("SELECT * FROM record", con)
     assert df["dataset_id"].eq("foo").all()
@@ -59,7 +61,7 @@ def test_add_dataset(store, dataset):
 
 def test_is_empty(store, dataset):
     assert store.is_empty()
-    store.add_dataset(dataset, "foo")
+    store.add_dataset(dataset)
     assert not store.is_empty()
 
 
@@ -78,7 +80,7 @@ def test_get_df(store_with_data):
 
 def test_len(store, dataset):
     assert len(store) == 0
-    store.add_dataset(dataset, "foo")
+    store.add_dataset(dataset)
     assert len(store) == len(dataset)
 
 

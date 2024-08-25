@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import logging
 from dataclasses import dataclass
 from pathlib import Path
@@ -21,10 +20,11 @@ import pandas as pd
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
-from asreview.extensions import extensions
 from asreview.data.record import Record
+from asreview.data.utils import convert_to_list
 from asreview.data.utils import duplicated
 from asreview.data.utils import get_texts
+from asreview.extensions import extensions
 
 
 def _standardize_column_name(col_name, col_definitions):
@@ -181,7 +181,14 @@ class Dataset:
                 f"Dataset does not have a column named {item}."
                 f" Valid column names are: {list(self.column_spec)}"
             )
-        return self.df[self.column_spec[item]].values
+        column = self.df[self.column_spec[item]]
+        return column.apply(lambda value: self.clean_value(item, value)).values
+
+    def clean_value(self, column_name, value):
+        if column_name in ["authors", "keywords"]:
+            return convert_to_list(value)
+        else:
+            return value
 
     def __contains__(self, item):
         return item in self.column_spec and self.column_spec[item] in self.df
@@ -234,6 +241,20 @@ class Dataset:
         if not isinstance(i, (int, np.int64)):
             return records
         return records[0]
+
+    def to_records(self):
+        column_spec_inv = {v: k for k, v in self.column_spec.items()}
+        df = self.df.rename(column_spec_inv, axis=1)[self.column_spec.keys()].replace(
+            np.nan, None
+        )
+        for column_name in self.column_spec.keys():
+            df[column_name] = df[column_name].apply(
+                lambda value: self.clean_value(column_name=column_name, value=value)
+            )
+        return [
+            Record(dataset_row=row_idx, dataset_id=self.id, **row)
+            for row_idx, row in df.iterrows()
+        ]
 
     # Can be removed, just use DataStore.n_records
     @property
