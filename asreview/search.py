@@ -92,7 +92,7 @@ def fuzzy_find(
 
     Arguments
     ---------
-    as_data: pd.DataFrame or DataStore
+    data: pd.DataFrame or DataStore
         Dataframe containing the column 'title' and optionally 'authors' and 'keywords'.
     keywords: str
         A string of keywords together, can be a combination.

@@ -247,18 +247,17 @@ def api_create_project():  # noqa: F401
     data_path = Path(project.project_path, "data") / filename
 
     try:
-        as_data = project.add_dataset(data_path.name)
+        project.add_dataset(data_path.name)
         project.add_review()
 
         with open_state(project.project_path) as state:
             # if the data contains labels and oracle mode, add them to the state file
             if (
                 project.config["mode"] == PROJECT_MODE_ORACLE
-                and as_data["included"] is not None
             ):
-                labeled_indices = np.where(as_data["included"] != LABEL_NA)[0]
-                labels = as_data["included"][labeled_indices].tolist()
-                labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
+                labeled_indices = np.where(project.data_store["included"] != LABEL_NA)[0]
+                labels = project.data_store["included"][labeled_indices].tolist()
+                labeled_record_ids = project.data_store["id"][labeled_indices].tolist()
 
                 # add the labels as prior data
                 state.add_labeling_data(

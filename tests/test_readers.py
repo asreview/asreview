@@ -151,8 +151,8 @@ def test_nan_values_csv():
     assert as_data.record(2).abstract is None
 
     # Check missing authors
-    assert as_data.record(0).authors is None
-    assert as_data.record(2).authors is None
+    assert as_data.record(0).authors == []
+    assert as_data.record(2).authors == []
 
     # Check missing keywords
     assert as_data.record(0).keywords == []
