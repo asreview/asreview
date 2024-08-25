@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from sqlalchemy import NullPool
 from sqlalchemy import create_engine
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -14,7 +15,13 @@ CURRENT_DATASTORE_VERSION = 0
 class DataStore:
     def __init__(self, fp, record_cls=Record):
         self.fp = fp
-        self.engine = create_engine(f"sqlite+pysqlite:///{self.fp}")
+        # I'm using NullPool here, indicating that the engine should use a connection
+        # pool, but just create and dispose of a connection every time a request comes.
+        # This makes it very easy dispose of the engine, but is less efficient.
+        # I was getting errors when running tests that try to clean up behind them,
+        # and this solves those errors. We can change this back to a connection pool at
+        # some later moment by properly looking at how to close everything.
+        self.engine = create_engine(f"sqlite+pysqlite:///{self.fp}", poolclass=NullPool)
         self.record_cls = record_cls
         self._columns = self.record_cls.get_columns()
         self._pandas_dtype_mapping = self.record_cls.get_pandas_dtype_mapping()
