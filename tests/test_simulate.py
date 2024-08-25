@@ -22,12 +22,8 @@ def test_simulate_basic(tmpdir):
     shutil.copy(DATA_FP, data_path)
     project.add_dataset(data_path.name)
 
-    as_data = project.read_data()
-
     feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.fit_transform(
-        as_data.texts, as_data["title"], as_data["abstract"], as_data["keywords"]
-    )
+    fm = feature_model.fit_transform(project.data_store)
     project.add_feature_matrix(fm, feature_model)
 
     # set numpy seed
@@ -35,7 +31,7 @@ def test_simulate_basic(tmpdir):
 
     sim = asr.Simulate(
         fm,
-        labels=as_data["included"],
+        labels=project.data_store["included"],
         classifier=load_extension("models.classifiers", "svm")(),
         query_strategy=load_extension("models.query", "max_random")(),
         balance_strategy=load_extension("models.balance", "double")(),
@@ -64,12 +60,8 @@ def test_simulate_no_prior(tmpdir):
     shutil.copy(DATA_FP, data_path)
     project.add_dataset(data_path.name)
 
-    as_data = project.read_data()
-
     feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.fit_transform(
-        as_data.texts, as_data["title"], as_data["abstract"], as_data["keywords"]
-    )
+    fm = feature_model.fit_transform(project.data_store)
     project.add_feature_matrix(fm, feature_model)
 
     # set numpy seed
@@ -77,7 +69,7 @@ def test_simulate_no_prior(tmpdir):
 
     sim = asr.Simulate(
         fm,
-        labels=as_data["included"],
+        labels=project.data_store["included"],
         classifier=load_extension("models.classifiers", "svm")(),
         query_strategy=load_extension("models.query", "max_random")(),
         balance_strategy=load_extension("models.balance", "double")(),
@@ -105,12 +97,8 @@ def test_simulate_random_prior(tmpdir):
     shutil.copy(DATA_FP, data_path)
     project.add_dataset(data_path.name)
 
-    as_data = project.read_data()
-
     feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.fit_transform(
-        as_data.texts, as_data["title"], as_data["abstract"], as_data["keywords"]
-    )
+    fm = feature_model.fit_transform(project.data_store)
     project.add_feature_matrix(fm, feature_model)
 
     # set numpy seed
@@ -118,7 +106,7 @@ def test_simulate_random_prior(tmpdir):
 
     sim = asr.Simulate(
         fm,
-        labels=as_data["included"],
+        labels=project.data_store["included"],
         classifier=load_extension("models.classifiers", "svm")(),
         query_strategy=load_extension("models.query", "max_random")(),
         balance_strategy=load_extension("models.balance", "double")(),

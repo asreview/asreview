@@ -152,6 +152,7 @@ def _cli_simulate(argv):
 
     as_data = load_dataset(args.dataset)
     as_data.to_file(Path(fp_tmp_simulation, "data", filename))
+    project.add_dataset(filename, dataset_id=filename)
 
     # Update the project.json.
     project.update_config(dataset_path=filename)
@@ -198,17 +199,12 @@ def _cli_simulate(argv):
     if args.prior_record_id is not None and len(args.prior_record_id) > 0:
         prior_idx = _convert_id_to_idx(as_data, args.prior_record_id)
 
-    fm = feature_model.fit_transform(
-        as_data.texts,
-        as_data.get("title"),
-        as_data.get("abstract"),
-        as_data.get("keywords"),
-    )
+    fm = feature_model.fit_transform(project.data_store)
     project.add_feature_matrix(fm, feature_model)
 
     print("The following records are prior knowledge:\n")
-    for record_id, _ in as_data.df.iloc[prior_idx].iterrows():
-        _print_record(as_data.record(record_id))
+    for record in project.data_store.get_records(prior_idx):
+        _print_record(record)
 
     sim = Simulate(
         fm,

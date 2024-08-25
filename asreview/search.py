@@ -18,7 +18,6 @@ import re
 from difflib import SequenceMatcher
 
 import numpy as np
-import pandas as pd
 
 from asreview.utils import _format_to_str
 
@@ -79,7 +78,7 @@ def _get_fuzzy_scores(keywords, match_strings, threshold=0.9):
 
 
 def fuzzy_find(
-    as_data,
+    data,
     keywords,
     threshold=60,
     max_return=10,
@@ -110,20 +109,16 @@ def fuzzy_find(
     list
         Sorted list of indexes that match best the keywords.
     """
-    if "title" not in as_data:
+    if "title" not in data:
         raise ValueError("Cannot search dataset without titles.")
 
-    all_strings = pd.Series(as_data["title"]).fillna("")
+    all_strings = data["title"].fillna("")
 
-    if "authors" in as_data:
-        all_strings += " " + pd.Series(as_data["authors"]).map(_format_to_str).fillna(
-            ""
-        )
+    if "authors" in data:
+        all_strings += " " + data["authors"].map(_format_to_str).fillna("")
 
-    if "keywords" in as_data:
-        all_strings += " " + pd.Series(as_data["keywords"]).map(_format_to_str).fillna(
-            ""
-        )
+    if "keywords" in data:
+        all_strings += " " + data["keywords"].map(_format_to_str).fillna("")
 
     new_ranking = _get_fuzzy_scores(keywords, all_strings.values)
     sorted_idx = np.argsort(-new_ranking)

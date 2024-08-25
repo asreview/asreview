@@ -106,3 +106,10 @@ def test_custom_record(tmpdir):
     fp = Path(tmpdir, PATH_DATA_STORE)
     data_store = DataStore(fp, CustomRecord)
     data_store.create_tables()
+
+
+def test_close_store(tmpdir):
+    fp = Path(tmpdir, PATH_DATA_STORE)
+    data_store = DataStore(fp)
+    data_store.create_tables()
+    fp.unlink()

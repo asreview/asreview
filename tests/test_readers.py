@@ -122,12 +122,12 @@ def test_nan_values_ris():
     assert as_data.record(2).abstract is None
 
     # Check missing authors
-    assert as_data.record(0).authors is None
-    assert as_data.record(2).authors is None
+    assert as_data.record(0).authors == []
+    assert as_data.record(2).authors == []
 
     # Check missing keywords
-    assert as_data.record(0).keywords is None
-    assert as_data.record(2).keywords is None
+    assert as_data.record(0).keywords == []
+    assert as_data.record(2).keywords == []
 
     # Check missing notes
     assert as_data.record(0).notes is None
@@ -155,8 +155,8 @@ def test_nan_values_csv():
     assert as_data.record(2).authors is None
 
     # Check missing keywords
-    assert as_data.record(0).keywords is None
-    assert as_data.record(2).keywords is None
+    assert as_data.record(0).keywords == []
+    assert as_data.record(2).keywords == []
 
     # Check missing doi
     assert as_data.record(0).doi is None
