@@ -118,7 +118,7 @@ class DataStore:
             else:
                 return session.query(self.record_cls).filter(
                     self.record_cls.id.in_(record_id)
-                )
+                ).all()
 
     def get_df(self):
         """Get all data from the data store as a pandas DataFrmae.
