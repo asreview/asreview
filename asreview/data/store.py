@@ -4,7 +4,6 @@ from sqlalchemy import create_engine
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from asreview.data.base import Dataset
 from asreview.data.record import Base
 from asreview.data.record import Record
 

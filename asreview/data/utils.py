@@ -131,7 +131,7 @@ def convert_to_list(value):
         longest_split = []
         for sep in {",", ";", ":"}:
             split_value = value.split(sep)
-            if len(split_value) > longest_split:
+            if len(split_value) > len(longest_split):
                 longest_split = split_value
         # Remove excess whitespace in case the items were separated by ', ' for example.
         return [item.strip() for item in longest_split]
