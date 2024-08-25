@@ -8,7 +8,6 @@ from sqlalchemy.orm import Session
 from asreview.data.record import Base
 from asreview.data.record import Record
 
-
 CURRENT_DATASTORE_VERSION = 0
 
 
@@ -57,12 +56,6 @@ class DataStore:
 
     def add_dataset(self, dataset):
         """Add a new dataset to the data store."""
-        # try:
-        #     keywords = [
-        #         json.dumps(keyword_list) for keyword_list in dataset["keywords"]
-        #     ]
-        # except KeyError:
-        #     keywords = None
         records = dataset.to_records()
         with Session(self.engine) as session:
             session.add_all(records)
@@ -82,12 +75,13 @@ class DataStore:
             columns = [item]
         else:
             columns = item
-        df = pd.read_sql(
-            self.record_cls.__tablename__,
-            self.engine.connect(),
-            columns=columns,
-            dtype=self.pandas_dtype_mapping,
-        )
+        with self.engine.connect() as con:
+            df = pd.read_sql(
+                self.record_cls.__tablename__,
+                con,
+                columns=columns,
+                dtype=self.pandas_dtype_mapping,
+            )
         if isinstance(item, str):
             return df[item]
         else:
@@ -123,9 +117,11 @@ class DataStore:
                     .first()
                 )
             else:
-                return session.query(self.record_cls).filter(
-                    self.record_cls.id.in_(record_id)
-                ).all()
+                return (
+                    session.query(self.record_cls)
+                    .filter(self.record_cls.id.in_(record_id))
+                    .all()
+                )
 
     def get_df(self):
         """Get all data from the data store as a pandas DataFrmae.
@@ -134,8 +130,9 @@ class DataStore:
         -------
         pd.DataFrame
         """
-        return pd.read_sql(
-            self.record_cls.__tablename__,
-            self.engine.connect(),
-            dtype=self.pandas_dtype_mapping,
-        )
+        with self.engine.connect() as con:
+            return pd.read_sql(
+                self.record_cls.__tablename__,
+                con,
+                dtype=self.pandas_dtype_mapping,
+            )
