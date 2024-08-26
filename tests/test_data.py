@@ -35,6 +35,7 @@ def test_fuzzy_finder(keywords, record_id):
     assert fuzzy_find(as_data, keywords)[0] == record_id
 
 
+@mark.internet_required
 @mark.parametrize(
     "data_name",
     [
