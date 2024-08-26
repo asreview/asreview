@@ -9,7 +9,7 @@
     "@mui/lab": "^5.0.0-alpha.48",
     "@mui/material": "^5.6.3",
     "apexcharts": "^3.29.0",
-    "axios": "^1.6.0",
+    "axios": "^1.7.4",
     "classnames": "^2.2.6",
     "core-js": "^3.8.3",
     "cors": "^2.8.5",
