@@ -61,6 +61,13 @@ class DataStore:
         records : list[self.record_cls]
             List of records to add to the store.
         """
+        # SQLite makes an autoincremented primary key column start at 1. We want it to
+        # start at 0, so that the record_id is equal to the row number of the record in
+        # feature matrix. By making sure that the first record has record_id 0, we force
+        # the autoincremented column to start at 0.
+        if self.is_empty():
+            records[0].record_id = 0
+
         with Session(self.engine) as session:
             session.add_all(records)
             session.commit()

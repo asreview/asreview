@@ -60,6 +60,16 @@ def test_add_dataset(store, dataset):
     assert df["dataset_id"].eq("foo").all()
 
 
+def test_record_id_start_at_zero(store):
+    store.add_records(
+        [
+            Record(dataset_id="foo", dataset_row=5),
+            Record(dataset_id="foo", dataset_row=6),
+        ]
+    )
+    assert store["record_id"].to_list() == [0, 1]
+
+
 def test_is_empty(store, dataset):
     assert store.is_empty()
     store.add_records(dataset.to_records())
