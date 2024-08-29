@@ -34,7 +34,7 @@ def test_features(tmpdir, feature_extraction, split_ta):
     as_data = asr.load_dataset(data_fp)
     data_store = DataStore(Path(tmpdir, "store.db"))
     data_store.create_tables()
-    data_store.add_records(as_data.records())
+    data_store.add_records(as_data.to_records())
     if feature_extraction.startswith("embedding-"):
         model = load_extension("models.feature_extraction", feature_extraction)(
             split_ta=split_ta, embedding_fp=embedding_fp
