@@ -1,16 +1,17 @@
-from pathlib import Path
 import sqlite3
+from pathlib import Path
 
 import pandas as pd
 import pytest
-
 from sqlalchemy.exc import IntegrityError
-from asreview import load_dataset
-from asreview.data.store import DataStore
-from asreview.data.store import CURRENT_DATASTORE_VERSION
-from asreview.data.record import Record
-from asreview.data.record import Base
 from sqlalchemy.orm import Mapped
+
+from asreview import load_dataset
+from asreview.config import LABEL_NA
+from asreview.data.record import Base
+from asreview.data.record import Record
+from asreview.data.store import CURRENT_DATASTORE_VERSION
+from asreview.data.store import DataStore
 from asreview.project import PATH_DATA_STORE
 
 
@@ -122,3 +123,34 @@ def test_dataset_row_id_unique(store):
     ]
     with pytest.raises(IntegrityError):
         store.add_records(records)
+
+
+def test_author_validation(store):
+    records = [
+        Record(dataset_id="foo", dataset_row=1, authors=None),
+        Record(dataset_id="foo", dataset_row=2, authors=["Foo", "Bar"]),
+    ]
+    store.add_records(records)
+    with pytest.raises(ValueError):
+        store.add_records([Record(dataset_id="foo", dataset_row=3, authors="Foo;Bar")])
+
+
+def test_keyword_validation(store):
+    records = [
+        Record(dataset_id="foo", dataset_row=1, keywords=None),
+        Record(dataset_id="foo", dataset_row=2, keywords=["Foo", "Bar"]),
+    ]
+    store.add_records(records)
+    with pytest.raises(ValueError):
+        store.add_records([Record(dataset_id="foo", dataset_row=3, keywords="Foo;Bar")])
+
+
+def test_label_validation(store):
+    records = [
+        Record(dataset_id="foo", dataset_row=1, included=LABEL_NA),
+        Record(dataset_id="foo", dataset_row=2, included=1),
+        Record(dataset_id="foo", dataset_row=3, included=0),
+    ]
+    store.add_records(records)
+    with pytest.raises(ValueError):
+        store.add_records([Record(dataset_id="foo", dataset_row=4, included="1")])
