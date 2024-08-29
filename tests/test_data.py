@@ -34,7 +34,7 @@ def test_fuzzy_finder(tmpdir, keywords, record_id):
     as_data = asr.load_dataset(fp)
     data_store = DataStore(Path(tmpdir, "store.db"))
     data_store.create_tables()
-    data_store.add_dataset(as_data)
+    data_store.add_records(as_data.to_records())
 
     assert fuzzy_find(data_store, keywords)[0] == record_id
 

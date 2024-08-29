@@ -223,7 +223,7 @@ class Project:
         if dataset_id is None:
             dataset_id = uuid4().hex
         as_data.id = dataset_id
-        self.data_store.add_dataset(dataset=as_data)
+        self.data_store.add_records(dataset=as_data.to_records())
 
         self.update_config(
             dataset_path=file_name,

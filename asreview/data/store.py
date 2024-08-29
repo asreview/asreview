@@ -54,9 +54,14 @@ class DataStore:
         self.user_version = CURRENT_DATASTORE_VERSION
         Base.metadata.create_all(self.engine)
 
-    def add_dataset(self, dataset):
-        """Add a new dataset to the data store."""
-        records = dataset.to_records()
+    def add_records(self, records):
+        """Add records to the data store.
+
+        Parameters
+        ----------
+        records : list[self.record_cls]
+            List of records to add to the store.
+        """
         with Session(self.engine) as session:
             session.add_all(records)
             session.commit()
