@@ -87,9 +87,9 @@ def _fill_last_ranking(project, ranking):
 
     record_ids = project.data_store["id"]
     if ranking == "random":
-        ranked_record_ids = record_ids["id"].sample(frac=1)
+        ranked_record_ids = record_ids.sample(frac=1)
     elif ranking == "top-down":
-        ranked_record_ids = record_ids["id"]
+        ranked_record_ids = record_ids
     with open_state(project.project_path) as state:
         state.add_last_ranking(ranked_record_ids.values, None, ranking, None, None)
 
@@ -1289,7 +1289,7 @@ def api_get_document(project):  # noqa: F401
                     {"result": None, "pool_empty": not ranking.empty and pool.empty}
                 )
 
-    item = asdict(project.data_store.get_record(pending["record_id"].iloc[0]))
+    item = asdict(project.data_store.get_records(pending["record_id"].iloc[0]))
     item["state"] = pending.iloc[0].to_dict()
     item["tags_form"] = project.config.get("tags", None)
 
