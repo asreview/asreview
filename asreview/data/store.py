@@ -12,7 +12,32 @@ CURRENT_DATASTORE_VERSION = 0
 
 
 class DataStore:
+    """Data store to hold user input data.
+
+    Data input always happends via the record class. This means that if you want to add
+    data to the data store, you will first need to clean it, make sure it has the
+    correct columns and make sure it passes the validations defined in the record class.
+
+    Getting data from the store can happen in rows or in columns. If you read rows, you
+    will get record objects as response. If you read columns, you will get pandas
+    objects. If you ask for a single column you get a pandas Series, and if you ask for
+    multiple columns you get a pandas DataFrame.
+
+    DataStore uses an SQLite database in the backend and SQLAlchemy ORM to interact with
+    the database."""
+
     def __init__(self, fp, record_cls=Record):
+        """Initialize the data store.
+
+        Parameters
+        ----------
+        fp : str | Path
+            Location of the database file.
+        record_cls : asreview.data.record.Base, optional
+            The record class to use. The record class specifies which fields each record
+            can have, field validation and more properties of the database. See
+            `asreview.data.record`. By default uses `asreview.data.record.Record`.
+        """
         self.fp = fp
         # I'm using NullPool here, indicating that the engine should use a connection
         # pool, but just create and dispose of a connection every time a request comes.
@@ -31,6 +56,7 @@ class DataStore:
 
     @property
     def pandas_dtype_mapping(self):
+        """Mapping {column name: pandas data type}"""
         return self._pandas_dtype_mapping
 
     @property
@@ -49,7 +75,10 @@ class DataStore:
             conn.commit()
 
     def create_tables(self):
-        """Initialize the tables containing the data."""
+        """Initialize the tables containing the data.
+
+        If you are creating a new data store, you will need to call this method before
+        adding data to the data store."""
         self.user_version = CURRENT_DATASTORE_VERSION
         Base.metadata.create_all(self.engine)
 
@@ -111,11 +140,11 @@ class DataStore:
         Arguments
         ---------
         record_id : int | list[int]
-            Record id or list of record id's of records to get.
+            Record identifier or list record identifiers.
 
         Returns
         -------
-        asreview.data.record.Record or list of records.
+        asreview.data.record.Record | list[asreview.data.record.Record] | None
         """
         if isinstance(record_id, np.integer):
             record_id = record_id.item()
