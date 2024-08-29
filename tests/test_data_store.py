@@ -70,7 +70,7 @@ def test_get_records(store_with_data):
     row_number = 1
     record = store_with_data.get_records(row_number)
     assert isinstance(record, Record)
-    assert record.id == row_number
+    assert record.record_id == row_number
 
 
 def test_get_df(store_with_data):
@@ -94,9 +94,9 @@ def test_get_column(store_with_data, dataset):
     for i in range(len(dataset)):
         assert abstracts.loc[i, "abstract"] == dataset["abstract"][i]
 
-    data = store_with_data[["title", "id"]]
+    data = store_with_data[["title", "record_id"]]
     assert isinstance(data, pd.DataFrame)
-    assert list(data.columns) == ["title", "id"]
+    assert list(data.columns) == ["title", "record_id"]
 
 
 def test_custom_record(tmpdir):

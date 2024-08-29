@@ -110,7 +110,7 @@ def _print_record(record, use_cli_colors=True):
     else:
         label = ""
 
-    header = f"---{record.id}---{label}---"
+    header = f"---{record.record_id}---{label}---"
 
     print(f"\n{header:-<60}\n{title}{authors}{abstract}")
 

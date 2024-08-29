@@ -27,7 +27,6 @@ class DataStore:
 
     @property
     def columns(self):
-        """"""
         return self._columns
 
     @property
@@ -118,13 +117,13 @@ class DataStore:
             if isinstance(record_id, int):
                 return (
                     session.query(self.record_cls)
-                    .filter(self.record_cls.id == record_id)
+                    .filter(self.record_cls.record_id == record_id)
                     .first()
                 )
             else:
                 return (
                     session.query(self.record_cls)
-                    .filter(self.record_cls.id.in_(record_id))
+                    .filter(self.record_cls.record_id.in_(record_id))
                     .all()
                 )
 

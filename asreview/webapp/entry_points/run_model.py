@@ -62,8 +62,7 @@ def _run_model_start(project):
                 labeled = state.get_results_table(columns=["record_id", "label"])
 
             y_input = (
-                project.data_store[["id"]]
-                .rename({"id": "record_id"}, axis=1)
+                project.data_store[["record_id"]]
                 .merge(labeled, how="left", on="record_id")["label"]
                 .fillna(LABEL_NA)
             )

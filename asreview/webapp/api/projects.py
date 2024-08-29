@@ -85,7 +85,7 @@ def _fill_last_ranking(project, ranking):
     if ranking not in ["random", "top-down"]:
         raise ValueError(f"Unknown ranking type: {ranking}")
 
-    record_ids = project.data_store["id"]
+    record_ids = project.data_store["record_id"]
     if ranking == "random":
         ranked_record_ids = record_ids.sample(frac=1)
     elif ranking == "top-down":
@@ -257,7 +257,7 @@ def api_create_project():  # noqa: F401
             ):
                 labeled_indices = np.where(project.data_store["included"] != LABEL_NA)[0]
                 labels = project.data_store["included"][labeled_indices].tolist()
-                labeled_record_ids = project.data_store["id"][labeled_indices].tolist()
+                labeled_record_ids = project.data_store["record_id"][labeled_indices].tolist()
 
                 # add the labels as prior data
                 state.add_labeling_data(

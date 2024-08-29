@@ -25,7 +25,11 @@ class Base(DeclarativeBase, MappedAsDataclass):
     # See 'Customizing the type map' in the section on 'mapped_column'.
     type_annotation_map = {list: JSON}
 
-    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    # The primary identifier of the record. We always want this to correspond to the
+    # row_number of the record in the feature matrix.
+    # Ideally this field should be called 'id' instead of 'record_id', but that requires
+    # refactoring in the frontend as well, so I'll skip that for now.
+    record_id: Mapped[int] = mapped_column(init=False, primary_key=True)
 
     @classmethod
     def get_columns(cls):
