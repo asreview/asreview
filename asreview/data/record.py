@@ -1,13 +1,17 @@
+from abc import abstractmethod
 from typing import Optional
 
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import MappedAsDataclass
+from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import validates
-from sqlalchemy.types import Integer, String, JSON
+from sqlalchemy.types import JSON
+from sqlalchemy.types import Integer
+from sqlalchemy.types import String
+
 from asreview.config import LABEL_NA
-from abc import abstractmethod
 
 
 class Base(DeclarativeBase, MappedAsDataclass):
@@ -44,6 +48,7 @@ class Base(DeclarativeBase, MappedAsDataclass):
 
 class Record(Base):
     __tablename__ = "record"
+    __table_args__ = (UniqueConstraint("dataset_row", "dataset_id"),)
     # We use dataset_row to locate the record in the original input file of the user.
     # For now I call this 'row', meaning that we will look in the input file by row
     # number. We might want to change this to locate the record by an external

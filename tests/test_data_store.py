@@ -4,10 +4,10 @@ import sqlite3
 import pandas as pd
 import pytest
 
+from sqlalchemy.exc import IntegrityError
 from asreview import load_dataset
 from asreview.data.store import DataStore
 from asreview.data.store import CURRENT_DATASTORE_VERSION
-from asreview.data.base import Dataset
 from asreview.data.record import Record
 from asreview.data.record import Base
 from sqlalchemy.orm import Mapped
@@ -113,3 +113,12 @@ def test_close_store(tmpdir):
     data_store = DataStore(fp)
     data_store.create_tables()
     fp.unlink()
+
+
+def test_dataset_row_id_unique(store):
+    records = [
+        Record(dataset_row=1, dataset_id="foo"),
+        Record(dataset_row=1, dataset_id="foo"),
+    ]
+    with pytest.raises(IntegrityError):
+        store.add_records(records)
