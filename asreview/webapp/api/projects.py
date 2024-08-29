@@ -1035,7 +1035,7 @@ def _get_stats(project, include_priors=False):
         with open_state(project.project_path) as s:
             labels = s.get_results_table(priors=include_priors)["label"]
             labels_without_priors = s.get_results_table(priors=False)["label"]
-        n_records = len(project.data_store())
+        n_records = len(project.data_store)
 
     except (StateNotFoundError, ValueError, ProjectError):
         labels = np.array([])
