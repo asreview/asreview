@@ -21,6 +21,12 @@ from urllib.request import urlopen
 
 import numpy as np
 
+from asreview.extensions import get_extension
+from asreview.config import DEFAULT_CLASSIFIER
+from asreview.config import DEFAULT_QUERY_STRATEGY
+from asreview.config import DEFAULT_BALANCE_STRATEGY
+from asreview.config import DEFAULT_FEATURE_EXTRACTION
+
 
 def _get_filename_from_url(url):
     if not _is_url(url):
@@ -62,3 +68,49 @@ def _is_url(url):
         )
     except Exception:
         return False
+
+
+def _check_model(settings):
+    warnings = []
+
+    try:
+        get_extension("models.feature_extraction", settings.feature_extraction)
+    except ValueError:
+        warnings.append(f"feature extractor={settings.feature_extraction}")
+
+    try:
+        get_extension("models.classifiers", settings.classifier)
+    except ValueError:
+        warnings.append(f"classifier={settings.classifier}")
+
+    try:
+        get_extension("models.query", settings.query_strategy)
+    except ValueError:
+        warnings.append(f"query strategy={settings.query_strategy}")
+
+    try:
+        get_extension("models.balance", settings.balance_strategy)
+    except ValueError:
+        warnings.append(f"balance strategy={settings.balance_strategy}")
+
+    if warnings:
+        if len(warnings) == 1:
+            raise ValueError("Model component " + warnings[0] + " is not available.")
+        else:
+            raise ValueError(
+                "Model components " + ", ".join(warnings) + " are not available."
+            )
+
+
+def _reset_model_settings(settings):
+    """Reset model settings to default values."""
+    settings.classifier = DEFAULT_CLASSIFIER
+    settings.query_strategy = DEFAULT_QUERY_STRATEGY
+    settings.balance_strategy = DEFAULT_BALANCE_STRATEGY
+    settings.feature_extraction = DEFAULT_FEATURE_EXTRACTION
+    settings.classifier_param = None
+    settings.query_param = None
+    settings.balance_param = None
+    settings.feature_param = None
+
+    return settings

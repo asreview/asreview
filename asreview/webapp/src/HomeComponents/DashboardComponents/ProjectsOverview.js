@@ -73,9 +73,8 @@ const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
       />
       <ImportProject
         mobileScreen={mobileScreen}
-        open={onImportProject}
+        onImportProject={onImportProject}
         toggleImportProject={toggleImportProject}
-        setFeedbackBar={setFeedbackBar}
       />
       <ActionsFeedbackBar
         center

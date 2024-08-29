@@ -66,6 +66,8 @@ from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
+from asreview.utils import _check_model, _reset_model_settings
+
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -834,7 +836,7 @@ def api_update_review_status(project, review_id):
     return jsonify({"status": status}), 201
 
 
-@bp.route("/projects/import_project", methods=["POST"])
+@bp.route("/projects/import", methods=["POST"])
 @login_required
 def api_import_project():
     """Import project"""
@@ -847,20 +849,38 @@ def api_import_project():
         project = asr.Project.load(
             request.files["file"], asreview_path(), safe_import=True
         )
-
     except Exception as err:
-        logging.error(err)
-        raise ValueError("Failed to import project.")
+        raise ValueError("Failed to import project.") from err
 
-    if current_app.config.get("LOGIN_DISABLED", False):
-        return jsonify(project.config)
+    settings_fp = Path(
+        project.project_path,
+        "reviews",
+        project.config["reviews"][0]["id"],
+        "settings_metadata.json",
+    )
+    settings = ReviewSettings().from_file(settings_fp)
 
-    # create a database entry for this project
-    current_user.projects.append(Project(project_id=project.config.get("id")))
-    project.config["owner_id"] = current_user.id
-    DB.session.commit()
+    warnings = []
+    try:
+        _check_model(settings)
+    except ValueError as err:
+        settings_model_reset = _reset_model_settings(settings)
+        with open(settings_fp, "w") as f:
+            json.dump(asdict(settings_model_reset), f)
+        warnings.append(
+            str(err) + " Check if an extension with the model is installed."
+        )
+        warnings.append(
+            " The model settings have been reset to the default model and"
+            " can be changed in the project settings."
+        )
 
-    return jsonify(project.config)
+    if not current_app.config.get("LOGIN_DISABLED", False):
+        current_user.projects.append(Project(project_id=project.config.get("id")))
+        project.config["owner_id"] = current_user.id
+        DB.session.commit()
+
+    return jsonify({"data": project.config, "warnings": warnings})
 
 
 def _add_tags_to_export_data(project, export_data, state_df):

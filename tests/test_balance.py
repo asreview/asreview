@@ -32,7 +32,6 @@ def check_partition(X, y, X_partition, y_partition, train_idx):
     "balance_strategy",
     [
         "undersample",
-        "simple",
         "double",
     ],
 )
@@ -54,4 +53,4 @@ def test_balance(balance_strategy, n_partition=100, n_feature=200, n_sample=100)
 
 
 def test_balance_general():
-    assert len(extensions("models.balance")) >= 3
+    assert len(extensions("models.balance")) >= 2

@@ -123,25 +123,8 @@ def _cli_simulate(argv):
     # change the verbosity
     _set_log_verbosity(args.verbose)
 
-    # check for state file extension
-    if args.state_file is None:
-        raise ValueError("Specify project file name (with .asreview extension).")
-
-    # do this check now and again when zipping.
-    if Path(args.state_file).exists():
+    if args.state_file and Path(args.state_file).exists():
         raise ValueError("Project path already exists.")
-
-    # create a project file
-    fp_tmp_simulation = Path(args.state_file).with_suffix(".asreview.tmp")
-
-    project = Project.create(
-        fp_tmp_simulation,
-        project_id=Path(args.state_file).stem,
-        project_mode="simulate",
-        project_name=Path(args.state_file).stem,
-        project_description="Simulation created via ASReview via "
-        "command line interface",
-    )
 
     # Get a name for the dataset
     if re.match(r"^([a-zA-Z0-9_-]+)\:([a-zA-Z0-9_-]+)$", args.dataset):
@@ -179,9 +162,18 @@ def _cli_simulate(argv):
     # TODO: seed also other tools like tensorflow
     np.random.seed(args.seed)
 
-    classifier_model = load_extension("models.classifiers", settings.classifier)
-    query_model = load_extension("models.query", settings.query_strategy)
-    balance_model = load_extension("models.balance", settings.balance_strategy)
+    classifier_class = load_extension("models.classifiers", settings.classifier)
+    classifier_model = classifier_class(**_unpack_params(settings.classifier_param))
+
+    query_class = load_extension("models.query", settings.query_strategy)
+    query_model = query_class(**_unpack_params(settings.query_param))
+
+    if settings.balance_strategy is None:
+        balance_model = None
+    else:
+        balance_class = load_extension("models.balance", settings.balance_strategy)
+        balance_model = balance_class(**_unpack_params(settings.balance_param))
+
     feature_model = load_extension(
         "models.feature_extraction", settings.feature_extraction
     )(**_unpack_params(settings.feature_param))
@@ -209,9 +201,9 @@ def _cli_simulate(argv):
     sim = Simulate(
         fm,
         as_data["included"],
-        classifier=classifier_model(**_unpack_params(settings.classifier_param)),
-        query_strategy=query_model(**_unpack_params(settings.query_param)),
-        balance_strategy=balance_model(**_unpack_params(settings.balance_param)),
+        classifier=classifier_model,
+        query_strategy=query_model,
+        balance_strategy=balance_model,
         feature_extraction=feature_model,
         n_instances=args.n_instances,
         stop_if=args.stop_if,
@@ -228,10 +220,31 @@ def _cli_simulate(argv):
         )
     sim.review()
 
-    project.add_review(settings=settings, state=sim, status="finished")
+    if args.state_file is not None:
+        # write all results to the project file
+        fp_tmp_simulation = Path(args.state_file).with_suffix(".asreview.tmp")
 
-    project.export(args.state_file)
-    shutil.rmtree(fp_tmp_simulation)
+        project = Project.create(
+            fp_tmp_simulation,
+            project_id=Path(args.state_file).stem,
+            project_mode="simulate",
+            project_name=Path(args.state_file).stem,
+            project_description="Simulation created via ASReview via "
+            "command line interface",
+        )
+
+        as_data.to_file(Path(fp_tmp_simulation, "data", filename))
+        project.update_config(dataset_path=filename)
+
+        project.add_feature_matrix(fm, feature_model)
+        project.add_review(settings=settings, state=sim, status="finished")
+
+        # export the project file
+        project.export(args.state_file)
+        shutil.rmtree(fp_tmp_simulation)
+
+    else:
+        print("\nTo store the results, use the -s option. E.g. -s my_sim.asreview")
 
 
 DESCRIPTION_SIMULATE = """
@@ -251,7 +264,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         formatter_class=argparse.RawTextHelpFormatter,
     )
 
-    # Active learning parameters
+    # active learning parameters
     # File path to the data.
     parser.add_argument(
         "dataset",
@@ -319,10 +332,18 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "-b",
         "--balance_strategy",
         type=str,
+        dest="balance_strategy",
         default=DEFAULT_BALANCE_STRATEGY,
         help="Data rebalancing strategy mainly for RNN methods. Helps against"
         " imbalanced dataset with few inclusions and many exclusions. "
         f"Default: '{DEFAULT_BALANCE_STRATEGY}'",
+    )
+    parser.add_argument(
+        "--no_balance_strategy",
+        action="store_const",
+        const=None,
+        dest="balance_strategy",
+        help="Do not use a balance strategy.",
     )
     parser.add_argument(
         "-e",

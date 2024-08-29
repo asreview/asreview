@@ -200,7 +200,7 @@ def upgrade_project(client: FlaskClient, project: Union[Project, asr.Project]):
 
 def import_project(client: FlaskClient, asreview_file):
     response = client.post(
-        "/api/projects/import_project",
+        "/api/projects/import",
         data={"file": (open(asreview_file, "rb"), "project.asreview")},
     )
     return response

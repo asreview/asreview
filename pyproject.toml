@@ -119,7 +119,6 @@ tfidf = "asreview.models.feature_extraction:Tfidf"
 onehot = "asreview.models.feature_extraction:OneHot"
 
 [project.entry-points."asreview.models.balance"]
-simple = "asreview.models.balance:SimpleBalance"
 double = "asreview.models.balance:DoubleBalance"
 undersample = "asreview.models.balance:UndersampleBalance"
 
@@ -197,3 +196,6 @@ docstring-code-line-length = "dynamic"
 
 [tool.pytest.ini_options]
 addopts = "--ignore=asreview/webapp/tests/integration_tests"
+markers = [
+    "internet_required: requires internet connection to run",
+]

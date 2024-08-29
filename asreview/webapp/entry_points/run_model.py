@@ -67,12 +67,17 @@ def _run_model_start(project):
                 .fillna(LABEL_NA)
             )
 
-            balance_model = load_extension(
-                "models.balance", settings.balance_strategy
-            )()
-            X_train, y_train = balance_model.sample(
-                fm, y_input, labeled["record_id"].values
-            )
+            if settings.balance_strategy is not None:
+                balance_model = load_extension(
+                    "models.balance", settings.balance_strategy
+                )()
+                balance_model_name = balance_model.name
+                X_train, y_train = balance_model.sample(
+                    fm, y_input, labeled["record_id"].values
+                )
+            else:
+                X_train, y_train = fm, y_input
+                balance_model_name = None
 
             classifier = load_extension("models.classifiers", settings.classifier)()
             classifier.fit(X_train, y_train)
@@ -88,7 +93,7 @@ def _run_model_start(project):
                     ranked_record_ids,
                     classifier.name,
                     query_strategy.name,
-                    balance_model.name,
+                    balance_model_name,
                     feature_model.name,
                     len(labeled),
                 )
@@ -122,12 +127,17 @@ def _simulate_start(project):
     fm = feature_model.fit_transform(project.data_store)
     project.add_feature_matrix(fm, feature_model)
 
+    if settings.balance_strategy is not None:
+        balance_model = load_extension("models.balance", settings.balance_strategy)()
+    else:
+        balance_model = None
+
     sim = Simulate(
         fm,
         labels=project.data_store["included"],
         classifier=load_extension("models.classifiers", settings.classifier)(),
         query_strategy=load_extension("models.query", settings.query_strategy)(),
-        balance_strategy=load_extension("models.balance", settings.balance_strategy)(),
+        balance_strategy=balance_model,
         feature_extraction=feature_model,
     )
     try:

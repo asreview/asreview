@@ -538,15 +538,7 @@ def test_projects_with_0x_projects(client_auth, method):
         "asreview-project-v0-18-startreview.asreview",
     )
 
-    asr.Project.load(open(asreview_v0_18_file, "rb"), asreview_path(), safe_import=True)
-
-    # make sure these projects exist
-    assert len(misc.get_folders_in_asreview_path()) == 1
-    # create AuthTool object
-    auth_tool = get_auth_tool_object(Namespace(json=None))
-    # try to link project to user
-    with pytest.raises(RuntimeError) as error:
-        func = getattr(auth_tool, method)
-        func()
-        assert "Version of project with id" in str(error.value)
-        assert "too old" in str(error.value)
+    with pytest.raises(ValueError):
+        asr.Project.load(
+            open(asreview_v0_18_file, "rb"), asreview_path(), safe_import=True
+        )

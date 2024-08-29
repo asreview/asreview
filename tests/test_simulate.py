@@ -1,5 +1,6 @@
 import shutil
 from pathlib import Path
+import pytest
 
 import numpy as np
 import pandas as pd
@@ -10,7 +11,8 @@ from asreview.extensions import load_extension
 DATA_FP = Path("tests", "demo_data", "generic_labels.csv")
 
 
-def test_simulate_basic(tmpdir):
+@pytest.mark.parametrize("balance_strategy", ["undersample", "double", None])
+def test_simulate_basic(tmpdir, balance_strategy):
     project = asr.Project.create(
         Path(tmpdir, "simulate-example"),
         "simulate-example",
@@ -29,12 +31,17 @@ def test_simulate_basic(tmpdir):
     # set numpy seed
     np.random.seed(42)
 
+    if balance_strategy is not None:
+        balance_model = load_extension("models.balance", balance_strategy)()
+    else:
+        balance_model = None
+
     sim = asr.Simulate(
         fm,
         labels=project.data_store["included"],
         classifier=load_extension("models.classifiers", "svm")(),
         query_strategy=load_extension("models.query", "max_random")(),
-        balance_strategy=load_extension("models.balance", "double")(),
+        balance_strategy=balance_model,
         feature_extraction=feature_model,
     )
     sim.label([0, 1], prior=True)

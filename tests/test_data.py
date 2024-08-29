@@ -39,6 +39,7 @@ def test_fuzzy_finder(tmpdir, keywords, record_id):
     assert fuzzy_find(data_store, keywords)[0] == record_id
 
 
+@mark.internet_required
 @mark.parametrize(
     "data_name",
     [
