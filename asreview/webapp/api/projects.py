@@ -254,12 +254,14 @@ def api_create_project():  # noqa: F401
 
         with open_state(project.project_path) as state:
             # if the data contains labels and oracle mode, add them to the state file
-            if (
-                project.config["mode"] == PROJECT_MODE_ORACLE
-            ):
-                labeled_indices = np.where(project.data_store["included"] != LABEL_NA)[0]
+            if project.config["mode"] == PROJECT_MODE_ORACLE:
+                labeled_indices = np.where(project.data_store["included"] != LABEL_NA)[
+                    0
+                ]
                 labels = project.data_store["included"][labeled_indices].tolist()
-                labeled_record_ids = project.data_store["record_id"][labeled_indices].tolist()
+                labeled_record_ids = project.data_store["record_id"][
+                    labeled_indices
+                ].tolist()
 
                 # add the labels as prior data
                 state.add_labeling_data(
