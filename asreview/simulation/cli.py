@@ -29,6 +29,7 @@ from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
+from asreview.data.store import DataStore
 from asreview.datasets import DatasetManager
 from asreview.extensions import load_extension
 from asreview.project import Project
@@ -133,13 +134,6 @@ def _cli_simulate(argv):
     else:
         filename = Path(args.dataset).name
 
-    as_data = load_dataset(args.dataset)
-    as_data.to_file(Path(fp_tmp_simulation, "data", filename))
-    project.add_dataset(filename, dataset_id=filename)
-
-    # Update the project.json.
-    project.update_config(dataset_path=filename)
-
     # create a new settings object from arguments
     settings = ReviewSettings(
         classifier=args.model,
@@ -187,15 +181,20 @@ def _cli_simulate(argv):
     ):
         raise ValueError("Not possible to provide both prior_idx and prior_record_id")
 
+    as_data = load_dataset(args.dataset)
+    as_data.id = filename
+    data_store = DataStore(":memory:")
+    data_store.create_tables()
+    data_store.add_records(as_data.to_records())
+
     prior_idx = args.prior_idx
     if args.prior_record_id is not None and len(args.prior_record_id) > 0:
         prior_idx = _convert_id_to_idx(as_data, args.prior_record_id)
 
-    fm = feature_model.fit_transform(project.data_store)
-    project.add_feature_matrix(fm, feature_model)
+    fm = feature_model.fit_transform(data_store)
 
     print("The following records are prior knowledge:\n")
-    for record in project.data_store.get_records(prior_idx):
+    for record in data_store.get_records(prior_idx):
         _print_record(record)
 
     sim = Simulate(
@@ -234,6 +233,7 @@ def _cli_simulate(argv):
         )
 
         as_data.to_file(Path(fp_tmp_simulation, "data", filename))
+        project.add_dataset(filename, dataset_id=filename)
         project.update_config(dataset_path=filename)
 
         project.add_feature_matrix(fm, feature_model)

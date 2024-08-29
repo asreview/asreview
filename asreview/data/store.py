@@ -32,20 +32,30 @@ class DataStore:
         Parameters
         ----------
         fp : str | Path
-            Location of the database file.
+            Location of the database file. If `fp == ":memory:"`, the data store will be
+            in memory.
         record_cls : asreview.data.record.Base, optional
             The record class to use. The record class specifies which fields each record
             can have, field validation and more properties of the database. See
             `asreview.data.record`. By default uses `asreview.data.record.Record`.
         """
         self.fp = fp
+        # If the sqlite database is in memory, we should use the default
+        # SingleThreadPool poolclass, because any poolclass with multiple threads will
+        # have different instances of the database for each thread.
+        if fp == ":memory:":
+            poolclass = None
+        else:
+            poolclass = NullPool
         # I'm using NullPool here, indicating that the engine should use a connection
         # pool, but just create and dispose of a connection every time a request comes.
         # This makes it very easy dispose of the engine, but is less efficient.
         # I was getting errors when running tests that try to clean up behind them,
         # and this solves those errors. We can change this back to a connection pool at
         # some later moment by properly looking at how to close everything.
-        self.engine = create_engine(f"sqlite+pysqlite:///{self.fp}", poolclass=NullPool)
+        self.engine = create_engine(
+            f"sqlite+pysqlite:///{self.fp}", poolclass=poolclass
+        )
         self.record_cls = record_cls
         self._columns = self.record_cls.get_columns()
         self._pandas_dtype_mapping = self.record_cls.get_pandas_dtype_mapping()

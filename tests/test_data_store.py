@@ -53,6 +53,19 @@ def test_create_tables(tmpdir):
     assert tables == ("record",)
 
 
+def test_in_memory():
+    store = DataStore(":memory:")
+    store.create_tables()
+    assert store.is_empty()
+    store.add_records(
+        [
+            Record(dataset_row=0, dataset_id="foo"),
+            Record(dataset_row=1, dataset_id="foo"),
+        ]
+    )
+    assert len(store) == 2
+
+
 def test_add_dataset(store, dataset):
     store.add_records(dataset.to_records())
     con = sqlite3.connect(store.fp)
