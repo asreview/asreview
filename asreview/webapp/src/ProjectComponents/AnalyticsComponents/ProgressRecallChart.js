@@ -69,14 +69,8 @@ const StyledCard = styled(Card)(({ theme }) => ({
   },
 
   [`& .${classes.tooltipLabelMarkerRandomColor}`]: {
-    ...(theme.palette.mode === "light" && {
-      color: theme.palette.secondary.light,
-      background: theme.palette.secondary.light,
-    }),
-    ...(theme.palette.mode === "dark" && {
-      color: theme.palette.secondary.main,
-      background: theme.palette.secondary.main,
-    }),
+    color: theme.palette.info.main,
+    background: theme.palette.info.main,
   },
 
   [`& .${classes.tooltipLabelASReviewNumber}`]: {
@@ -88,9 +82,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
 
   [`& .${classes.tooltipLabelRandomNumber}`]: {
     marginLeft: 32,
-    ...(theme.palette.mode === "dark" && {
-      color: theme.palette.secondary.main,
-    }),
+    color: theme.palette.info.main,
   },
 
   [`& .${classes.tooltipLabelTextSecondaryColor}`]: {
@@ -113,28 +105,6 @@ const StyledTooltip = styled(({ className, ...props }) => (
     fontSize: theme.typography.pxToRem(12),
   },
 }));
-
-// Mock data generation function
-const generateMockRecallData = (total_count = 50000, relevant_count = 13000) => {
-  const asreviewData = [];
-  const randomData = [];
-
-  let current_asreview_relevant = 0;
-  let current_random_relevant = 0;
-
-  for (let i = 0; i < total_count; i++) {
-    const asreview_relevant = Math.random() < 0.2 && current_asreview_relevant < relevant_count;
-    const random_relevant = Math.random() < 0.05 && current_random_relevant < relevant_count;
-
-    if (asreview_relevant) current_asreview_relevant++;
-    if (random_relevant) current_random_relevant++;
-
-    asreviewData.push({ x: i + 1, y: current_asreview_relevant });
-    randomData.push({ x: i + 1, y: current_random_relevant });
-  }
-
-  return { asreviewData, randomData };
-};
 
 const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
   let total = dataPointIndex + 1;
@@ -185,16 +155,35 @@ const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
   );
 };
 
+const calculateProgressRecall = (data) => {
+  // Total number of relevant items (inclusions)
+  const totalInclusions = data.reduce((acc, curr) => acc + curr.label, 0);
+  const totalRecords = data.length;
+
+  return data.map((entry, index, arr) => {
+    // Cumulative sum of relevant items up to the current index
+    const cumulativeLabel = arr
+      .slice(0, index + 1)
+      .reduce((acc, curr) => acc + curr.label, 0);
+    
+    // Calculate the expected random inclusions
+    const expectedRandom = Math.round(
+      (index + 1) * (totalInclusions / totalRecords)
+    );
+
+    // Return the results with the same structure as the backend
+    return {
+      x: index + 1,
+      asreview: cumulativeLabel,
+      random: expectedRandom,
+    };
+  });
+};
+
+
 export default function ProgressRecallChart(props) {
   const theme = useTheme();
   const chartRef = useRef(null);
-  const [mockData, setMockData] = useState({ asreviewData: [], randomData: [] });
-
-  useEffect(() => {
-    // Generate mock data
-    const data = generateMockRecallData();
-    setMockData(data);
-  }, []);
 
   const lightModePrimaryColor = useCallback(() => {
     return theme.palette.mode === "light"
@@ -202,27 +191,35 @@ export default function ProgressRecallChart(props) {
       : theme.palette.primary.main;
   }, [theme.palette.mode, theme.palette.primary]);
 
-  const lightModeSecondaryColor = useCallback(() => {
-    return theme.palette.mode === "light"
-      ? theme.palette.secondary.light
-      : theme.palette.secondary.main;
-  }, [theme.palette.mode, theme.palette.secondary]);
+  const darkBlueColor = useCallback(() => {
+    return theme.palette.info.main;
+  }, [theme.palette.info]);
 
-  /**
-   * Chart data array
-   */
   const seriesArray = useCallback(() => {
-    return [
-      {
-        name: "Relevant by ASReview LAB",
-        data: mockData.asreviewData,
-      },
-      {
-        name: "Random relevant",
-        data: mockData.randomData,
-      },
-    ];
-  }, [mockData]);
+    if (props.genericDataQuery.data) {
+      const calculatedData = calculateProgressRecall(
+        props.genericDataQuery.data
+      );
+      return [
+        {
+          name: "Relevant by ASReview LAB",
+          data: calculatedData.map((item) => ({
+            x: item.x,
+            y: item.asreview,
+          })),
+        },
+        {
+          name: "Random Relevant",
+          data: calculatedData.map((item) => ({
+            x: item.x,
+            y: item.random,
+          })),
+        },
+      ];
+    } else {
+      return [];
+    }
+  }, [props.genericDataQuery.data]);
 
   const maxY = useCallback(() => {
     if (seriesArray()[0]?.data !== undefined) {
@@ -260,7 +257,7 @@ export default function ProgressRecallChart(props) {
           enabled: false,
         },
       },
-      colors: [lightModePrimaryColor(), lightModeSecondaryColor()],
+      colors: [lightModePrimaryColor(), darkBlueColor()],
       dataLabels: {
         enabled: false,
       },
@@ -305,7 +302,7 @@ export default function ProgressRecallChart(props) {
           show: true,
         },
         title: {
-          text: "Number of reviewed records",
+          text: "Records Reviewed",
         },
         type: "numeric",
         axisTicks: {
@@ -318,7 +315,7 @@ export default function ProgressRecallChart(props) {
       yaxis: {
         labels: {
           formatter: function (val) {
-            return val !== null && val !== undefined ? val.toFixed() : '';
+            return val !== null && val !== undefined ? val.toFixed() : "";
           },
         },
         showAlways: false,
@@ -327,14 +324,14 @@ export default function ProgressRecallChart(props) {
         min: 0,
         tickAmount: tickAmount,
         title: {
-          text: "Number of relevant records",
+          text: "Relevant Records",
         },
       },
     };
   }, [
     theme,
     lightModePrimaryColor,
-    lightModeSecondaryColor,
+    darkBlueColor,
     maxY,
     props.mobileScreen,
   ]);
@@ -410,9 +407,9 @@ export default function ProgressRecallChart(props) {
   return (
     <StyledCard elevation={2}>
       <CardErrorHandler
-        queryKey={"fetchProgressRecall"}
-        error={props.progressRecallQuery.error}
-        isError={props.progressRecallQuery.isError}
+        queryKey={"fetchGenericData"}
+        error={props.progressRecallQuery?.error}
+        isError={!!props.progressRecallQuery?.isError}
       />
       <CardContent className={classes.root}>
         <Stack spacing={2}>
@@ -422,10 +419,10 @@ export default function ProgressRecallChart(props) {
             alignItems="center"
           >
             {!props.mobileScreen && (
-              <Typography variant="h6">Recall</Typography>
+              <Typography variant="h6"></Typography>
             )}
             {props.mobileScreen && (
-              <TypographySubtitle1Medium>Recall</TypographySubtitle1Medium>
+              <TypographySubtitle1Medium></TypographySubtitle1Medium>
             )}
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <StyledTooltip
@@ -472,7 +469,7 @@ export default function ProgressRecallChart(props) {
               </Menu>
             </Box>
           </Stack>
-          {mockData.asreviewData.length === 0 ? (
+          {props.genericDataQuery.isLoading ? (
             <Skeleton variant="rectangular" height={400} width="100%" />
           ) : (
             <div ref={chartRef}>

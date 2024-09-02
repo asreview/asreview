@@ -28,28 +28,6 @@ import tooltipIrrelevantDark from "images/progress_irrelevant_dark.png";
 
 import "./AnalyticsPage.css";
 
-// Mock data generation function
-const generateMockData = (total_count = 50000, relevant_count = 13000) => {
-  const data = [];
-  let current_relevant = 0;
-
-  const sigmoid = (x) => 1 / (1 + Math.exp(-x));
-
-  for (let i = 0; i < total_count; i++) {
-    const x = 10 * (i / total_count) - 5;
-    const prob_relevant = 0.4 * (1 - sigmoid(x)) + 0.01;
-
-    if (Math.random() < prob_relevant && current_relevant < relevant_count) {
-      data.push({ Label: 1 });
-      current_relevant++;
-    } else {
-      data.push({ Label: 0 });
-    }
-  }
-
-  return data;
-};
-
 const PREFIX = "ProgressDensityChart";
 
 const classes = {
@@ -156,25 +134,71 @@ const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
   );
 };
 
+const calculateProgressDensity = (data) => {
+  return data.map((entry, index, arr) => {
+    // Create a rolling window of up to 10 entries
+    const window = arr.slice(Math.max(0, index - 9), index + 1);
+    
+    // Calculate the mean of the 'label' over the window
+    const mean = window.reduce((acc, curr) => acc + curr.label, 0) / window.length;
+    
+    // Calculate the relevant counts
+    let relevant;
+    if (index + 1 < 10) {
+      // For the first 9 items, scale to the number of items in the window
+      relevant = mean * (index + 1);
+    } else {
+      // After 10 items, scale to 10
+      relevant = mean * 10;
+    }
+
+    // Round to 1 decimal place to match the backend behavior
+    return {
+      x: index + 1,
+      y: Math.round(relevant * 10) / 10
+    };
+  });
+};
+
+
 export default function ProgressDensityChart(props) {
   const theme = useTheme();
   const chartRef = useRef(null);
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const [mockData, setMockData] = useState([]);
-  const [series, setSeries] = useState([]);
-  const [options, setOptions] = useState({});
+  const returnTooltipRelevantImg = () => {
+    if (theme.palette.mode === "light") {
+      return tooltipRelevantLight;
+    }
+    if (theme.palette.mode === "dark") {
+      return tooltipRelevantDark;
+    }
+  };
 
-  useEffect(() => {
-    // Generate the mock data
-    const data = generateMockData();
-    setMockData(data);
+  const returnTooltipIrrelevantImg = () => {
+    if (theme.palette.mode === "light") {
+      return tooltipIrrelevantLight;
+    }
+    if (theme.palette.mode === "dark") {
+      return tooltipIrrelevantDark;
+    }
+  };
 
-    const relevantData = data.map(item => item.Label === 1 ? 1 : 0);
+  const seriesArray = useCallback(() => {
+    if (props.genericDataQuery.data) {
+      return [
+        {
+          name: "Relevant records",
+          data: calculateProgressDensity(props.genericDataQuery.data),
+        },
+      ];
+    } else {
+      return [];
+    }
+  }, [props.genericDataQuery.data]);
 
-    // Update series and options
-    setSeries([{ name: "Relevant records", data: relevantData }]);
-    setOptions({
+  const optionsChart = useCallback(() => {
+    return {
       chart: {
         animations: {
           enabled: false,
@@ -184,7 +208,7 @@ export default function ProgressDensityChart(props) {
         type: "area",
         stacked: true,
         toolbar: {
-          show: false, // Hide the toolbar, it's replaced by the download button
+          show: false, // Hiding the toolbar because it's replaced by the download button
         },
       },
       colors: [
@@ -264,16 +288,16 @@ export default function ProgressDensityChart(props) {
           text: "Relevant Records",
         },
       },
-    });
+    };
   }, [theme, props.mobileScreen]);
 
-  const returnTooltipRelevantImg = () => {
-    return theme.palette.mode === "light" ? tooltipRelevantLight : tooltipRelevantDark;
-  };
+  const [series, setSeries] = useState(seriesArray());
+  const [options, setOptions] = useState(optionsChart());
 
-  const returnTooltipIrrelevantImg = () => {
-    return theme.palette.mode === "light" ? tooltipIrrelevantLight : tooltipIrrelevantDark;
-  };
+  useEffect(() => {
+    setSeries(seriesArray());
+    setOptions(optionsChart());
+  }, [seriesArray, optionsChart]);
 
   const handleDownloadClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -337,9 +361,9 @@ export default function ProgressDensityChart(props) {
   return (
     <StyledCard elevation={2}>
       <CardErrorHandler
-        queryKey={"fetchProgressDensity"}
-        error={props.progressDensityQuery?.error}
-        isError={props.progressDensityQuery?.isError}
+        queryKey={"fetchGenericData"}
+        error={props.genericDataQuery?.error}
+        isError={!!props.genericDataQuery?.isError}
       />
       <CardContent className={classes.root}>
         <Stack spacing={2}>
@@ -348,10 +372,10 @@ export default function ProgressDensityChart(props) {
             sx={{ justifyContent: "space-between" }}
           >
             {!props.mobileScreen && (
-              <Typography variant="h6">Density</Typography>
+              <Typography variant="h6"></Typography>
             )}
             {props.mobileScreen && (
-              <TypographySubtitle1Medium>Density</TypographySubtitle1Medium>
+              <TypographySubtitle1Medium></TypographySubtitle1Medium>
             )}
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <StyledTooltip
@@ -431,7 +455,7 @@ export default function ProgressDensityChart(props) {
               </Menu>
             </Box>
           </Box>
-          {mockData.length === 0 ? (
+          {props.genericDataQuery.isLoading ? (
             <Skeleton variant="rectangular" height={400} width="100%" />
           ) : (
             <div ref={chartRef}>

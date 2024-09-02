@@ -1114,91 +1114,19 @@ def api_get_progress_info(project):  # noqa: F401
 
     return jsonify(_get_stats(project, include_priors=include_priors))
 
-
-@bp.route("/projects/<project_id>/progress_density", methods=["GET"])
+@bp.route("/projects/<project_id>/progress_data", methods=["GET"])
 @login_required
 @project_authorization
-def api_get_progress_density(project): #remove this, calculate density in frontend
-    """Get progress density of a project"""
-
+def api_get_progress_data(project):  # Consolidated endpoint
+    """Get raw progress data of a project"""
+    
     include_priors = request.args.get("priors", False, type=bool)
-
-    # get label history
+    data_type = request.args.get("type", "density")  # 'density', 'recall', or 'chronology'
+    
     with open_state(project.project_path) as s:
         data = s.get_results_table("label", priors=include_priors)
-
-    # create a dataset with the rolling mean of every 10 papers
-    df = data.rolling(10, min_periods=1).mean()
-    df["Total"] = df.index + 1
-
-    # transform mean(percentage) to number
-    for i in range(0, len(df)):
-        if df.loc[i, "Total"] < 10:
-            df.loc[i, "Irrelevant"] = (1 - df.loc[i, "label"]) * df.loc[i, "Total"]
-            df.loc[i, "label"] = df.loc[i, "Total"] - df.loc[i, "Irrelevant"]
-        else:
-            df.loc[i, "Irrelevant"] = (1 - df.loc[i, "label"]) * 10
-            df.loc[i, "label"] = 10 - df.loc[i, "Irrelevant"]
-
-    df = df.round(1).to_dict(orient="records")
-    for d in df:
-        d["x"] = d.pop("Total")
-
-    df_relevant = [{k: v for k, v in d.items() if k != "Irrelevant"} for d in df]
-    for d in df_relevant:
-        d["y"] = d.pop("label")
-
-    df_irrelevant = [{k: v for k, v in d.items() if k != "label"} for d in df]
-    for d in df_irrelevant:
-        d["y"] = d.pop("Irrelevant")
-
-    return jsonify({"relevant": df_relevant, "irrelevant": df_irrelevant})
-
-
-@bp.route("/projects/<project_id>/progress_recall", methods=["GET"])
-@login_required
-@project_authorization
-def api_get_progress_recall(project): #remove this, calculate recall in frontend
-    """Get cumulative number of inclusions by ASReview/at random"""
-
-    include_priors = request.args.get("priors", False, type=bool)
-
-    as_data = project.read_data()
-
-    with open_state(project.project_path) as s:
-        data = s.get_results_table("label", priors=include_priors)
-
-    df = data.cumsum()
-
-    df["Total"] = df.index + 1
-    df["Random"] = (df["Total"] * (df["label"][-1:] / len(as_data))).round()
-
-    df = df.round(1).to_dict(orient="records")
-    for d in df:
-        d["x"] = d.pop("Total")
-
-    df_asreview = [{k: v for k, v in d.items() if k != "Random"} for d in df]
-    for d in df_asreview:
-        d["y"] = d.pop("label")
-
-    df_random = [{k: v for k, v in d.items() if k != "label"} for d in df]
-    for d in df_random:
-        d["y"] = d.pop("Random")
-
-    payload = {"asreview": df_asreview, "random": df_random}
-
-    return jsonify(payload)
-
-
-@bp.route("/projects/<project_id>/labeling_chronology", methods=["GET"])
-@login_required
-@project_authorization
-def api_get_labeling_chronology(project): #make it reusable and generic, indepent4ent of functionality or card or component
-    """Get chronological labeling history of a project"""
-
-    include_priors = request.args.get("priors", False, type=bool)
-
-    with open_state(project.project_path) as s:
+    
+    if data_type == "chronology":
         if (
             project.config["reviews"][0]["status"] == "finished"
             and project.config["mode"] == PROJECT_MODE_SIMULATE
@@ -1206,13 +1134,10 @@ def api_get_labeling_chronology(project): #make it reusable and generic, indepen
             data = _get_labels(s, priors=include_priors)
         else:
             data = s.get_results_table("label", priors=include_priors)["label"]
+        return jsonify(data.to_frame(name="Label").reset_index(drop=True).to_dict(orient="records"))
+    
+    return jsonify(data.to_dict(orient="records"))
 
-    df = data.to_frame(name="Label").reset_index(drop=True)
-    df["x"] = df.index + 1
-
-    payload = df.to_dict(orient="records")
-
-    return jsonify(payload)
 
 
 @bp.route("/projects/<project_id>/record/<record_id>", methods=["POST", "PUT"])
