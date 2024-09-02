@@ -1114,18 +1114,21 @@ def api_get_progress_info(project):  # noqa: F401
 
     return jsonify(_get_stats(project, include_priors=include_priors))
 
+
 @bp.route("/projects/<project_id>/progress_data", methods=["GET"])
 @login_required
 @project_authorization
 def api_get_progress_data(project):  # Consolidated endpoint
     """Get raw progress data of a project"""
-    
+
     include_priors = request.args.get("priors", False, type=bool)
-    data_type = request.args.get("type", "density")  # 'density', 'recall', or 'chronology'
-    
+    data_type = request.args.get(
+        "type", "density"
+    )  # 'density', 'recall', or 'chronology'
+
     with open_state(project.project_path) as s:
         data = s.get_results_table("label", priors=include_priors)
-    
+
     if data_type == "chronology":
         if (
             project.config["reviews"][0]["status"] == "finished"
@@ -1134,10 +1137,11 @@ def api_get_progress_data(project):  # Consolidated endpoint
             data = _get_labels(s, priors=include_priors)
         else:
             data = s.get_results_table("label", priors=include_priors)["label"]
-        return jsonify(data.to_frame(name="Label").reset_index(drop=True).to_dict(orient="records"))
-    
-    return jsonify(data.to_dict(orient="records"))
+        return jsonify(
+            data.to_frame(name="Label").reset_index(drop=True).to_dict(orient="records")
+        )
 
+    return jsonify(data.to_dict(orient="records"))
 
 
 @bp.route("/projects/<project_id>/record/<record_id>", methods=["POST", "PUT"])

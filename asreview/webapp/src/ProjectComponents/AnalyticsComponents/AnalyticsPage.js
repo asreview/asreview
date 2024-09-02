@@ -31,7 +31,7 @@ import {
   ProgressRecallChart,
   LabelingHistory,
   LabelingFrequency,
-  StoppingSuggestion
+  StoppingSuggestion,
 } from "ProjectComponents/AnalyticsComponents";
 import { ProjectAPI } from "api";
 import { projectModes } from "globals.js";
@@ -50,7 +50,7 @@ const AnalyticsPage = (props) => {
   const { project_id } = useParams();
 
   const progressQuery = useQuery(
-    ["fetchProgress", { project_id}],
+    ["fetchProgress", { project_id }],
     ({ queryKey }) =>
       ProjectAPI.fetchProgress({
         queryKey,
@@ -110,7 +110,7 @@ const AnalyticsPage = (props) => {
                   borderBottomRightRadius: 60,
                   padding: 2,
                   boxShadow: (theme) =>
-                    theme.palette.mode === "light" ? 3 : 3, 
+                    theme.palette.mode === "light" ? 3 : 3,
                   mb: 0,
                   ml: 10,
                   mr: 10,
@@ -128,8 +128,7 @@ const AnalyticsPage = (props) => {
                     header={<b>Analytics</b>}
                     mobileScreen={props.mobileScreen}
                   />
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center" }}></Box>
                 </Box>
               </Card>
             </Box>
@@ -144,7 +143,7 @@ const AnalyticsPage = (props) => {
                   borderRadius: 4,
                   padding: 1.5,
                   boxShadow: (theme) =>
-                    theme.palette.mode === "light" ? 3 : 3, 
+                    theme.palette.mode === "light" ? 3 : 3,
                   mb: 2,
                 }}
               >
@@ -160,8 +159,7 @@ const AnalyticsPage = (props) => {
                     header={<b>Analytics</b>}
                     mobileScreen={props.mobileScreen}
                   />
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center" }}></Box>
                 </Box>
               </Card>
             </Box>
@@ -169,14 +167,17 @@ const AnalyticsPage = (props) => {
           <Box className="main-page-body-wrapper">
             <Stack spacing={2} className="main-page-body">
               <Box>
-                <Tabs value={activeProgressTab} onChange={(event, newValue) => setActiveProgressTab(newValue)}>
+                <Tabs
+                  value={activeProgressTab}
+                  onChange={(event, newValue) => setActiveProgressTab(newValue)}
+                >
                   <Tab label="Review Progress" />
                   <Tab label="Stopping Suggestion" />
                 </Tabs>
                 {activeProgressTab === 0 && (
                   <ReviewProgress
                     mobileScreen={props.mobileScreen}
-                    progressQuery={progressQuery}  
+                    progressQuery={progressQuery}
                   />
                 )}
                 {activeProgressTab === 1 && (
@@ -186,13 +187,15 @@ const AnalyticsPage = (props) => {
                   />
                 )}
               </Box>
-  
+
               <Grid item xs={12}>
                 <Box sx={{ position: "relative" }}>
                   <Box>
                     <Tabs
                       value={activeHistoryTab}
-                      onChange={(event, newValue) => setActiveHistoryTab(newValue)}
+                      onChange={(event, newValue) =>
+                        setActiveHistoryTab(newValue)
+                      }
                       left
                     >
                       <Tab label="Labeling History" />
@@ -215,7 +218,7 @@ const AnalyticsPage = (props) => {
                   </Box>
                 </Box>
               </Grid>
-  
+
               <Box
                 sx={{
                   width: "100%",
@@ -223,7 +226,7 @@ const AnalyticsPage = (props) => {
                   justifyContent: "center",
                 }}
               >
-                <Box sx={{ width: '100%' }}>
+                <Box sx={{ width: "100%" }}>
                   <Tabs
                     value={activeChartTab}
                     onChange={(event, newValue) => setActiveChartTab(newValue)}

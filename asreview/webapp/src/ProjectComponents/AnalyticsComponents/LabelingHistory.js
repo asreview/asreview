@@ -128,7 +128,7 @@ const generateLines = (
   decisions,
   chronological,
   chunkSize,
-  handleClick
+  handleClick,
 ) => {
   const lines = [];
   const sortedDecisions = chronological
@@ -144,8 +144,8 @@ const generateLines = (
         ? sortedDecisions[i].label === 1
           ? "#FFD700" // Yellow for relevant
           : sortedDecisions[i].label === 0
-          ? "#808080" // Gray for irrelevant
-          : "#D3D3D3" // Light gray for neutral
+            ? "#808080" // Gray for irrelevant
+            : "#D3D3D3" // Light gray for neutral
         : "#D3D3D3"; // Default color if no decision
 
     lines.push(
@@ -153,7 +153,7 @@ const generateLines = (
         key={i}
         color={color}
         onClick={(event) => handleClick(event, i, paperData, color)}
-      />
+      />,
     );
   }
   return lines;
@@ -275,7 +275,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
                   decisionsToDisplay,
                   chronological,
                   chunkSize,
-                  handleClick
+                  handleClick,
                 )}
               </HistoryContainer>
             )}

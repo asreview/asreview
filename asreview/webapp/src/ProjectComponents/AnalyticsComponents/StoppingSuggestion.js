@@ -45,7 +45,7 @@ const CustomTooltip = styled(({ className, ...props }) => (
 
 const StoppingSuggestion = ({ progressQuery }) => {
   const [stoppingRuleThreshold, setStoppingRuleThreshold] = useState(
-    localStorage.getItem("stoppingRuleThreshold") || 30
+    localStorage.getItem("stoppingRuleThreshold") || 30,
   );
   const [irrelevantCount, setIrrelevantCount] = useState(0);
   const [n_since_last_inclusion_no_priors, setNSinceLastInclusionNoPriors] =
@@ -58,7 +58,7 @@ const StoppingSuggestion = ({ progressQuery }) => {
   useEffect(() => {
     if (localStorage.getItem("stoppingRuleThreshold")) {
       setStoppingRuleThreshold(
-        Number(localStorage.getItem("stoppingRuleThreshold"))
+        Number(localStorage.getItem("stoppingRuleThreshold")),
       );
     }
 
@@ -217,14 +217,23 @@ const StoppingSuggestion = ({ progressQuery }) => {
                     listStyleType: "circle",
                   }}
                 >
-                <li> This feature helps you decide when to stop screening
-                  additional records. </li>
-                <li> The more irrelevant records you label without encountering any
-                  relevant ones, the higher the likelihood that the remaining
-                  records are also irrelevant. </li>
+                  <li>
+                    {" "}
+                    This feature helps you decide when to stop screening
+                    additional records.{" "}
+                  </li>
+                  <li>
+                    {" "}
+                    The more irrelevant records you label without encountering
+                    any relevant ones, the higher the likelihood that the
+                    remaining records are also irrelevant.{" "}
+                  </li>
 
-                <li> You can manually edit and optimize the threshold for your
-                  project. </li>
+                  <li>
+                    {" "}
+                    You can manually edit and optimize the threshold for your
+                    project.{" "}
+                  </li>
                 </ul>
                 <hr
                   style={{
@@ -251,8 +260,8 @@ const StoppingSuggestion = ({ progressQuery }) => {
               </React.Fragment>
             }
             arrow
-            interactive={true} 
-            enterTouchDelay={0} 
+            interactive={true}
+            enterTouchDelay={0}
             sx={{
               color: theme.palette.text.secondary,
               backgroundColor: theme.palette.background.paper,
@@ -262,10 +271,10 @@ const StoppingSuggestion = ({ progressQuery }) => {
           >
             <IconButton
               size="small"
-              sx={{ 
+              sx={{
                 color: theme.palette.text.secondary,
-                p: theme.spacing(2.1), 
-               }}
+                p: theme.spacing(2.1),
+              }}
             >
               <HelpOutlineIcon fontSize="small" />
             </IconButton>

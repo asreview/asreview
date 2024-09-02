@@ -562,7 +562,6 @@ class ProjectAPI {
     });
   }
 
-
   static mutateClassification(variables) {
     let body = new FormData();
     body.set("record_id", variables.record_id);

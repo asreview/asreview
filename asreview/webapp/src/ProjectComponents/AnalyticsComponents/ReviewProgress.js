@@ -89,18 +89,24 @@ export default function ReviewProgress({ progressQuery, mobileScreen }) {
       n_included_no_priors: progressQuery.data?.n_included_no_priors ?? 0,
       n_excluded_no_priors: progressQuery.data?.n_excluded_no_priors ?? 0,
     }),
-    [progressQuery.data]
+    [progressQuery.data],
   );
 
-  const donutSeries = useMemo(
-    () => {
-      const relevant = includePriorKnowledge ? n_included : n_included_no_priors;
-      const irrelevant = includePriorKnowledge ? n_excluded : n_excluded_no_priors;
-      const unlabeled = n_papers - relevant - irrelevant;
-      return [relevant, irrelevant, unlabeled];
-    },
-    [includePriorKnowledge, n_included, n_excluded, n_included_no_priors, n_excluded_no_priors, n_papers]
-  );
+  const donutSeries = useMemo(() => {
+    const relevant = includePriorKnowledge ? n_included : n_included_no_priors;
+    const irrelevant = includePriorKnowledge
+      ? n_excluded
+      : n_excluded_no_priors;
+    const unlabeled = n_papers - relevant - irrelevant;
+    return [relevant, irrelevant, unlabeled];
+  }, [
+    includePriorKnowledge,
+    n_included,
+    n_excluded,
+    n_included_no_priors,
+    n_excluded_no_priors,
+    n_papers,
+  ]);
 
   const relevantPercentage = useMemo(() => {
     const totalRelevantIrrelevant = includePriorKnowledge
@@ -159,7 +165,7 @@ export default function ReviewProgress({ progressQuery, mobileScreen }) {
       theme: { mode: theme.palette.mode },
       dataLabels: { enabled: false },
     }),
-    [theme, relevantPercentage, n_papers]
+    [theme, relevantPercentage, n_papers],
   );
 
   // Info tooltip
@@ -251,7 +257,11 @@ export default function ReviewProgress({ progressQuery, mobileScreen }) {
           />
           <StatItem
             label="Labeled Records"
-            value={includePriorKnowledge ? n_included + n_excluded : n_included_no_priors + n_excluded_no_priors}
+            value={
+              includePriorKnowledge
+                ? n_included + n_excluded
+                : n_included_no_priors + n_excluded_no_priors
+            }
             color="text.primary"
             loading={loading}
           />
@@ -409,7 +419,7 @@ export default function ReviewProgress({ progressQuery, mobileScreen }) {
               </React.Fragment>
             }
             arrow
-            interactive={true} 
+            interactive={true}
             enterTouchDelay={0}
             placement="top"
             sx={{
@@ -421,9 +431,9 @@ export default function ReviewProgress({ progressQuery, mobileScreen }) {
           >
             <IconButton
               size="small"
-              sx={{ 
+              sx={{
                 color: theme.palette.text.secondary,
-                p: theme.spacing(2.1), 
+                p: theme.spacing(2.1),
               }}
             >
               <HelpOutlineIcon fontSize="small" />

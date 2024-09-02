@@ -21,8 +21,8 @@ const StyledCard = styled(Card)(({ theme }) => ({
   borderRadius: 16,
   width: "100%",
   maxWidth: 960,
-  backgroundColor: theme.palette.background.paper, 
-  boxShadow: theme.shadows[2], 
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: theme.shadows[2],
 }));
 
 // Styled component for the tooltip
@@ -66,8 +66,11 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
           minVisibleRecords,
           Math.ceil(
             minVisibleRecords *
-              Math.pow(maxVisibleRecords / minVisibleRecords, sliderValue / 100)
-          )
+              Math.pow(
+                maxVisibleRecords / minVisibleRecords,
+                sliderValue / 100,
+              ),
+          ),
         );
 
   // Slice the dataset to get the visible records
@@ -78,7 +81,7 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
       const ctx = canvasRef.current.getContext("2d");
       ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 
-      const lineWidth = 10; 
+      const lineWidth = 10;
       const fullHeight = canvasRef.current.height;
       const lineHeight = fullHeight * 0.7;
       const canvasWidth = canvasRef.current.width;
@@ -93,7 +96,7 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
           (fullHeight - lineHeight) / 2, // Center the line vertically
           lineWidth,
           lineHeight,
-          5 // Rounded corners
+          5, // Rounded corners
         );
         ctx.fill();
       });
@@ -119,7 +122,7 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
             sx={{
               position: "absolute",
               top: "-12px",
-              right: "-12px", 
+              right: "-12px",
             }}
           >
             <StyledTooltip

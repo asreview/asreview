@@ -311,7 +311,10 @@ const ProjectTable = (props) => {
   };
 
   const openProject = (project, path) => {
-    if (project["reviews"][0] && project["reviews"][0]["status"] === projectStatuses.SETUP) {
+    if (
+      project["reviews"][0] &&
+      project["reviews"][0]["status"] === projectStatuses.SETUP
+    ) {
       setSetupDialogState({
         open: true,
         project_info: project,
@@ -388,7 +391,11 @@ const ProjectTable = (props) => {
                   };
 
                   const onClickProjectExport = () => {
-                    if (row["reviews"] && row["reviews"][0] && row["reviews"][0]["status"] === projectStatuses.SETUP) {
+                    if (
+                      row["reviews"] &&
+                      row["reviews"][0] &&
+                      row["reviews"][0]["status"] === projectStatuses.SETUP
+                    ) {
                       queryClient.prefetchQuery(
                         ["fetchExportProject", { project_id: row["id"] }],
                         ProjectAPI.fetchExportProject,
@@ -437,7 +444,11 @@ const ProjectTable = (props) => {
                             }}
                             onClickProjectExport={onClickProjectExport}
                             onClickProjectDetails={onClickProjectDetails}
-                            projectStatus={row["reviews"] && row["reviews"][0] ? row["reviews"][0]["status"] : null}
+                            projectStatus={
+                              row["reviews"] && row["reviews"][0]
+                                ? row["reviews"][0]["status"]
+                                : null
+                            }
                             toggleDeleteDialog={toggleDeleteDialog}
                             updateProjectStatus={updateProjectStatus}
                             //canEdit={canEdit}
@@ -456,7 +467,11 @@ const ProjectTable = (props) => {
                       <TableCell className={classes.tableCell}>
                         <StatusChip
                           size="small"
-                          status={row["reviews"] && row["reviews"][0] ? row["reviews"][0]["status"] : null}
+                          status={
+                            row["reviews"] && row["reviews"][0]
+                              ? row["reviews"][0]["status"]
+                              : null
+                          }
                         />
                       </TableCell>
                     </TableRow>

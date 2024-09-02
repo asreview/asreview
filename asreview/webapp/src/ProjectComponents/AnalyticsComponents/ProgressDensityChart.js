@@ -138,10 +138,11 @@ const calculateProgressDensity = (data) => {
   return data.map((entry, index, arr) => {
     // Create a rolling window of up to 10 entries
     const window = arr.slice(Math.max(0, index - 9), index + 1);
-    
+
     // Calculate the mean of the 'label' over the window
-    const mean = window.reduce((acc, curr) => acc + curr.label, 0) / window.length;
-    
+    const mean =
+      window.reduce((acc, curr) => acc + curr.label, 0) / window.length;
+
     // Calculate the relevant counts
     let relevant;
     if (index + 1 < 10) {
@@ -155,11 +156,10 @@ const calculateProgressDensity = (data) => {
     // Round to 1 decimal place to match the backend behavior
     return {
       x: index + 1,
-      y: Math.round(relevant * 10) / 10
+      y: Math.round(relevant * 10) / 10,
     };
   });
 };
-
 
 export default function ProgressDensityChart(props) {
   const theme = useTheme();
@@ -371,9 +371,7 @@ export default function ProgressDensityChart(props) {
             className={classes.title}
             sx={{ justifyContent: "space-between" }}
           >
-            {!props.mobileScreen && (
-              <Typography variant="h6"></Typography>
-            )}
+            {!props.mobileScreen && <Typography variant="h6"></Typography>}
             {props.mobileScreen && (
               <TypographySubtitle1Medium></TypographySubtitle1Medium>
             )}
@@ -399,7 +397,8 @@ export default function ProgressDensityChart(props) {
                                   variant="body2"
                                   sx={{ color: "text.secondary" }}
                                 >
-                                  Relevant records still appear. Continue reviewing to discover more.
+                                  Relevant records still appear. Continue
+                                  reviewing to discover more.
                                 </Typography>
                               </Box>
                             </Stack>
@@ -419,7 +418,9 @@ export default function ProgressDensityChart(props) {
                                   variant="body2"
                                   sx={{ color: "text.secondary" }}
                                 >
-                                  Relevant records do not appear. Refer to your stopping rule to decide if you want to continue reviewing.
+                                  Relevant records do not appear. Refer to your
+                                  stopping rule to decide if you want to
+                                  continue reviewing.
                                 </Typography>
                               </Box>
                             </Stack>

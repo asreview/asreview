@@ -165,10 +165,10 @@ const calculateProgressRecall = (data) => {
     const cumulativeLabel = arr
       .slice(0, index + 1)
       .reduce((acc, curr) => acc + curr.label, 0);
-    
+
     // Calculate the expected random inclusions
     const expectedRandom = Math.round(
-      (index + 1) * (totalInclusions / totalRecords)
+      (index + 1) * (totalInclusions / totalRecords),
     );
 
     // Return the results with the same structure as the backend
@@ -179,7 +179,6 @@ const calculateProgressRecall = (data) => {
     };
   });
 };
-
 
 export default function ProgressRecallChart(props) {
   const theme = useTheme();
@@ -198,7 +197,7 @@ export default function ProgressRecallChart(props) {
   const seriesArray = useCallback(() => {
     if (props.genericDataQuery.data) {
       const calculatedData = calculateProgressRecall(
-        props.genericDataQuery.data
+        props.genericDataQuery.data,
       );
       return [
         {
@@ -237,7 +236,7 @@ export default function ProgressRecallChart(props) {
   /**
    * Chart options
    */
-    const optionsChart = useCallback(() => {
+  const optionsChart = useCallback(() => {
     const maxYValue = maxY() || 0;
     const tickAmount = 7;
     const closestDivisibleBy7 = Math.ceil(maxYValue / tickAmount) * tickAmount; // To make the intervals consistent, max value in the y-axis should be always divisible by 7.
@@ -328,13 +327,7 @@ export default function ProgressRecallChart(props) {
         },
       },
     };
-  }, [
-    theme,
-    lightModePrimaryColor,
-    darkBlueColor,
-    maxY,
-    props.mobileScreen,
-  ]);
+  }, [theme, lightModePrimaryColor, darkBlueColor, maxY, props.mobileScreen]);
 
   const [series, setSeries] = useState(seriesArray());
   const [options, setOptions] = useState(optionsChart());
@@ -418,9 +411,7 @@ export default function ProgressRecallChart(props) {
             justifyContent="space-between"
             alignItems="center"
           >
-            {!props.mobileScreen && (
-              <Typography variant="h6"></Typography>
-            )}
+            {!props.mobileScreen && <Typography variant="h6"></Typography>}
             {props.mobileScreen && (
               <TypographySubtitle1Medium></TypographySubtitle1Medium>
             )}
@@ -431,13 +422,23 @@ export default function ProgressRecallChart(props) {
                     <Card sx={{ backgroundImage: "none" }}>
                       <CardContent>
                         <Typography variant="subtitle2">
-                          The chart shows how well the ASReview model and random sampling identify relevant records. 
+                          The chart shows how well the ASReview model and random
+                          sampling identify relevant records.
                         </Typography>
-                        <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                          The model helps prioritize relevant records, but not all relevant records will be identified by the model. 
+                        <Typography
+                          variant="body2"
+                          sx={{ color: "text.secondary" }}
+                        >
+                          The model helps prioritize relevant records, but not
+                          all relevant records will be identified by the model.
                         </Typography>
-                        <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                          The random relevant line shows the performance if you manually reviewed all records without model assistance.
+                        <Typography
+                          variant="body2"
+                          sx={{ color: "text.secondary" }}
+                        >
+                          The random relevant line shows the performance if you
+                          manually reviewed all records without model
+                          assistance.
                         </Typography>
                       </CardContent>
                     </Card>
