@@ -499,13 +499,11 @@ def test_get_progress_info(client, project):
     assert r.json["n_pool"] == r.json["n_papers"] - 2
 
 
-# Test get progress density on the article
+# Test get progress data on the article
 def test_get_progress_data(client, project):
     r = au.get_project_progress_data(client, project)
     assert r.status_code == 200
-    assert isinstance(r.json, dict)
-    assert isinstance(r.json["relevant"], list)
-    assert isinstance(r.json["irrelevant"], list)
+    assert isinstance(r.json, list)
 
 
 # Test retrieve documents in order to review
