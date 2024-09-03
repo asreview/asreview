@@ -27,7 +27,6 @@
     "react-router-dom": "^6.2.1",
     "react-scripts": "^5.0.1",
     "react-share": "^4.4.0",
-    "typeface-roboto": "0.0.75",
     "yup": "^0.32.11"
   },
   "scripts": {
