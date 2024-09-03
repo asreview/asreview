@@ -122,9 +122,7 @@ const AnalyticsPage = (props) => {
               <Box>
                 <Tabs
                   value={activeHistoryTab}
-                  onChange={(event, newValue) =>
-                    setActiveHistoryTab(newValue)
-                  }
+                  onChange={(event, newValue) => setActiveHistoryTab(newValue)}
                   left
                 >
                   <Tab label="Labeling History" />
