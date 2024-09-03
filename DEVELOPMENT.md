@@ -14,11 +14,11 @@ Install ASReview in editable mode
 pip install -e ".[dev]"
 ```
 
-Navigate into `asreview/webapp` and install NPM packages
+Navigate into `asreview/webapp` and install NPM packages (with clean-install)
 
 ```sh
 cd asreview/webapp
-npm install
+npm ci
 ```
 
 ### Setting up servers
