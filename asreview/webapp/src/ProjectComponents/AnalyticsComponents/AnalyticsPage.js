@@ -11,19 +11,16 @@ import {
 } from "react-share";
 import {
   Box,
-  Fade,
   Grid,
   SpeedDial,
   SpeedDialAction,
   Stack,
-  Card,
   Tab,
   Tabs,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Share } from "@mui/icons-material";
 
-import { PageHeader } from "Components";
 import {
   ReviewProgress,
   ShareFabAction,
@@ -34,7 +31,6 @@ import {
   StoppingSuggestion,
 } from "ProjectComponents/AnalyticsComponents";
 import { ProjectAPI } from "api";
-import { projectModes } from "globals.js";
 
 const Root = styled("div")(({ theme }) => ({}));
 
@@ -97,170 +93,101 @@ const AnalyticsPage = (props) => {
 
   return (
     <Root aria-label="analytics page">
-      <Fade in>
-        <Box>
-          {props.mode !== projectModes.SIMULATION && (
-            <Box
-              className="main-page-sticky-header-wrapper"
-              sx={{ background: (theme) => theme.palette.background.paper }}
+      <Box className="main-page-body-wrapper">
+        <Stack spacing={2} className="main-page-body">
+          <Box>
+            <Tabs
+              value={activeProgressTab}
+              onChange={(event, newValue) => setActiveProgressTab(newValue)}
             >
-              <Card
-                sx={{
-                  borderBottomLeftRadius: 60,
-                  borderBottomRightRadius: 60,
-                  padding: 2,
-                  boxShadow: (theme) =>
-                    theme.palette.mode === "light" ? 3 : 3,
-                  mb: 0,
-                  ml: 10,
-                  mr: 10,
-                }}
-              >
-                <Box
-                  className="main-page-sticky-header with-button"
-                  sx={{
-                    display: "flex",
-                    justifyContent: "left",
-                    alignItems: "center",
-                  }}
-                >
-                  <PageHeader
-                    header={<b>Analytics</b>}
-                    mobileScreen={props.mobileScreen}
-                  />
-                  <Box sx={{ display: "flex", alignItems: "center" }}></Box>
-                </Box>
-              </Card>
-            </Box>
-          )}
-          {props.mode === projectModes.SIMULATION && (
-            <Box
-              className="main-page-sticky-header-wrapper"
-              sx={{ background: (theme) => theme.palette.background.paper }}
-            >
-              <Card
-                sx={{
-                  borderRadius: 4,
-                  padding: 1.5,
-                  boxShadow: (theme) =>
-                    theme.palette.mode === "light" ? 3 : 3,
-                  mb: 2,
-                }}
-              >
-                <Box
-                  className="main-page-sticky-header with-button"
-                  sx={{
-                    display: "flex",
-                    justifyContent: "left",
-                    alignItems: "center",
-                  }}
-                >
-                  <PageHeader
-                    header={<b>Analytics</b>}
-                    mobileScreen={props.mobileScreen}
-                  />
-                  <Box sx={{ display: "flex", alignItems: "center" }}></Box>
-                </Box>
-              </Card>
-            </Box>
-          )}
-          <Box className="main-page-body-wrapper">
-            <Stack spacing={2} className="main-page-body">
+              <Tab label="Review Progress" />
+              <Tab label="Stopping Suggestion" />
+            </Tabs>
+            {activeProgressTab === 0 && (
+              <ReviewProgress
+                mobileScreen={props.mobileScreen}
+                progressQuery={progressQuery}
+              />
+            )}
+            {activeProgressTab === 1 && (
+              <StoppingSuggestion
+                mobileScreen={props.mobileScreen}
+                progressQuery={progressQuery}
+              />
+            )}
+          </Box>
+
+          <Grid item xs={12}>
+            <Box sx={{ position: "relative" }}>
               <Box>
                 <Tabs
-                  value={activeProgressTab}
-                  onChange={(event, newValue) => setActiveProgressTab(newValue)}
+                  value={activeHistoryTab}
+                  onChange={(event, newValue) =>
+                    setActiveHistoryTab(newValue)
+                  }
+                  left
                 >
-                  <Tab label="Review Progress" />
-                  <Tab label="Stopping Suggestion" />
+                  <Tab label="Labeling History" />
+                  <Tab label="Labeling Frequency" />
                 </Tabs>
-                {activeProgressTab === 0 && (
-                  <ReviewProgress
+                {activeHistoryTab === 0 && (
+                  <LabelingHistory
                     mobileScreen={props.mobileScreen}
+                    genericDataQuery={genericDataQuery}
                     progressQuery={progressQuery}
                   />
                 )}
-                {activeProgressTab === 1 && (
-                  <StoppingSuggestion
+                {activeHistoryTab === 1 && (
+                  <LabelingFrequency
                     mobileScreen={props.mobileScreen}
+                    genericDataQuery={genericDataQuery}
                     progressQuery={progressQuery}
                   />
                 )}
               </Box>
+            </Box>
+          </Grid>
 
-              <Grid item xs={12}>
-                <Box sx={{ position: "relative" }}>
-                  <Box>
-                    <Tabs
-                      value={activeHistoryTab}
-                      onChange={(event, newValue) =>
-                        setActiveHistoryTab(newValue)
-                      }
-                      left
-                    >
-                      <Tab label="Labeling History" />
-                      <Tab label="Labeling Frequency" />
-                    </Tabs>
-                    {activeHistoryTab === 0 && (
-                      <LabelingHistory
-                        mobileScreen={props.mobileScreen}
-                        genericDataQuery={genericDataQuery}
-                        progressQuery={progressQuery}
-                      />
-                    )}
-                    {activeHistoryTab === 1 && (
-                      <LabelingFrequency
-                        mobileScreen={props.mobileScreen}
-                        genericDataQuery={genericDataQuery}
-                        progressQuery={progressQuery}
-                      />
-                    )}
-                  </Box>
-                </Box>
-              </Grid>
-
-              <Box
-                sx={{
-                  width: "100%",
-                  display: "flex",
-                  justifyContent: "center",
-                }}
+          <Box
+            sx={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <Box sx={{ width: "100%" }}>
+              <Tabs
+                value={activeChartTab}
+                onChange={(event, newValue) => setActiveChartTab(newValue)}
+                left
               >
-                <Box sx={{ width: "100%" }}>
-                  <Tabs
-                    value={activeChartTab}
-                    onChange={(event, newValue) => setActiveChartTab(newValue)}
-                    left
-                  >
-                    <Tab label="Density" />
-                    <Tab label="Recall" />
-                  </Tabs>
-                  {activeChartTab === 0 && (
-                    <ProgressDensityChart
-                      mobileScreen={props.mobileScreen}
-                      genericDataQuery={genericDataQuery}
-                      sx={{
-                        height: "400px",
-                        width: "100%",
-                      }}
-                    />
-                  )}
-                  {activeChartTab === 1 && (
-                    <ProgressRecallChart
-                      mobileScreen={props.mobileScreen}
-                      genericDataQuery={genericDataQuery}
-                      sx={{
-                        height: "400px",
-                        width: "100%",
-                      }}
-                    />
-                  )}
-                </Box>
-              </Box>
-            </Stack>
+                <Tab label="Density" />
+                <Tab label="Recall" />
+              </Tabs>
+              {activeChartTab === 0 && (
+                <ProgressDensityChart
+                  mobileScreen={props.mobileScreen}
+                  genericDataQuery={genericDataQuery}
+                  sx={{
+                    height: "400px",
+                    width: "100%",
+                  }}
+                />
+              )}
+              {activeChartTab === 1 && (
+                <ProgressRecallChart
+                  mobileScreen={props.mobileScreen}
+                  genericDataQuery={genericDataQuery}
+                  sx={{
+                    height: "400px",
+                    width: "100%",
+                  }}
+                />
+              )}
+            </Box>
           </Box>
-        </Box>
-      </Fade>
+        </Stack>
+      </Box>
       <SpeedDial
         ariaLabel="share project analytics"
         className="main-page-fab"
