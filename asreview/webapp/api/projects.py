@@ -1122,24 +1122,9 @@ def api_get_progress_data(project):  # Consolidated endpoint
     """Get raw progress data of a project"""
 
     include_priors = request.args.get("priors", False, type=bool)
-    data_type = request.args.get(
-        "type", "density"
-    )  # 'density', 'recall', or 'chronology'
 
     with open_state(project.project_path) as s:
         data = s.get_results_table("label", priors=include_priors)
-
-    if data_type == "chronology":
-        if (
-            project.config["reviews"][0]["status"] == "finished"
-            and project.config["mode"] == PROJECT_MODE_SIMULATE
-        ):
-            data = _get_labels(s, priors=include_priors)
-        else:
-            data = s.get_results_table("label", priors=include_priors)["label"]
-        return jsonify(
-            data.to_frame(name="Label").reset_index(drop=True).to_dict(orient="records")
-        )
 
     return jsonify(data.to_dict(orient="records"))
 

@@ -68,60 +68,6 @@ const sortPerChunk = (decisions, chunkSize) => {
   return sorted;
 };
 
-// Placeholder titles, abstracts, authors, and mock DOIs
-const generatePaperData = (number) => {
-  const titles = [
-    "Ketorolac versus meperidine: ED treatment of severe musculoskeletal low back pain",
-    "Randomised double-blind active-placebo-controlled crossover trial of intravenous fentanyl in neuropathic pain",
-    "Acute pain services in Europe: a 17-nation survey of 105 hospitals",
-    "Serotonin syndrome with fluoxetine plus tramadol",
-    "Drugs from the deep: marine natural products as drug candidates",
-    "Chronic pain after spinal cord injury: a survey of practice in UK spinal injury units",
-    "Analysis of Pain Management in Critically Ill Patients",
-    "Quality of Life Improvement after Videothoracoscopic Splanchnicectomy in Chronic Pancreatitis Patients: Case Control Study",
-  ];
-
-  const abstracts = [
-    "A comparative study on the efficacy of Ketorolac versus Meperidine in treating severe musculoskeletal low back pain in the emergency department.",
-    "A clinical trial evaluating the effects of intravenous fentanyl on neuropathic pain, using a double-blind active-placebo-controlled crossover design.",
-    "A comprehensive survey across 105 hospitals in 17 European nations, assessing the availability and practices of acute pain services.",
-    "A case report highlighting the incidence of serotonin syndrome in patients concurrently using fluoxetine and tramadol.",
-    "An exploration of marine natural products and their potential as novel drug candidates in various therapeutic areas.",
-    "An investigation into chronic pain management practices within UK spinal injury units, focusing on post-spinal cord injury patients.",
-    "An analysis of pain management strategies and outcomes in critically ill patients, focusing on the efficacy and challenges.",
-    "A case-control study demonstrating the quality of life improvements in chronic pancreatitis patients following videothoracoscopic splanchnicectomy.",
-  ];
-
-  const authors = [
-    "John Doe, Jane Smith",
-    "Emily Brown, Michael Johnson",
-    "Sarah Wilson, David Lee",
-    "James Davis, Emma White",
-    "Olivia Miller, Benjamin Garcia",
-    "Isabella Martinez, Daniel Thompson",
-    "Sophia Anderson, Noah Moore",
-    "Mia Taylor, Lucas Martin",
-  ];
-
-  const dois = [
-    "https://doi.org/10.1001/mockdoi1",
-    "https://doi.org/10.1001/mockdoi2",
-    "https://doi.org/10.1001/mockdoi3",
-    "https://doi.org/10.1001/mockdoi4",
-    "https://doi.org/10.1001/mockdoi5",
-    "https://doi.org/10.1001/mockdoi6",
-    "https://doi.org/10.1001/mockdoi7",
-    "https://doi.org/10.1001/mockdoi8",
-  ];
-
-  return {
-    title: titles[number % titles.length],
-    abstract: abstracts[number % abstracts.length],
-    authors: authors[number % authors.length],
-    doi: dois[number % dois.length],
-  };
-};
-
 // Function to generate the history lines
 const generateLines = (
   total,
@@ -136,9 +82,6 @@ const generateLines = (
     : sortPerChunk(decisions, chunkSize);
 
   for (let i = 0; i < total; i++) {
-    const paperNumber = chronological ? i + 1 : total - i;
-    const paperData = generatePaperData(paperNumber);
-
     const color =
       i < sortedDecisions.length
         ? sortedDecisions[i].label === 1
@@ -152,7 +95,7 @@ const generateLines = (
       <HistoryItem
         key={i}
         color={color}
-        onClick={(event) => handleClick(event, i, paperData, color)}
+        onClick={(event) => handleClick(event, i, color)}
       />,
     );
   }
@@ -404,25 +347,13 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
             }}
           >
             <Typography variant="subtitle1" fontWeight="bold">
-              {selectedPaper.title}
+              Placeholder Title
             </Typography>
             <Typography variant="caption" sx={{ fontStyle: "italic" }}>
-              {selectedPaper.authors}
+              Coming Soon
             </Typography>
             <Typography variant="body2" mt={1}>
-              {selectedPaper.abstract}
-            </Typography>
-            <Typography
-              variant="body2"
-              mt={1}
-              sx={{
-                color: "#1a73e8",
-                textDecoration: "underline",
-                cursor: "pointer",
-              }}
-              onClick={() => window.open(selectedPaper.doi, "_blank")}
-            >
-              {selectedPaper.doi}
+              Placeholder Abstract
             </Typography>
           </Box>
         )}
