@@ -348,19 +348,11 @@ def get_project_progress(
     return response
 
 
-def get_project_progress_density(
+def get_project_progress_data(
     client: FlaskClient,
     project: Union[Project, asr.Project],
 ):
-    response = client.get(f"/api/projects/{get_project_id(project)}/progress_density")
-    return response
-
-
-def get_project_progress_recall(
-    client: FlaskClient,
-    project: Union[Project, asr.Project],
-):
-    response = client.get(f"/api/projects/{get_project_id(project)}/progress_recall")
+    response = client.get(f"/api/projects/{get_project_id(project)}/progress_data")
     return response
 
 

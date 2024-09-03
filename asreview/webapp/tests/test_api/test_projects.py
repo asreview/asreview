@@ -499,22 +499,11 @@ def test_get_progress_info(client, project):
     assert r.json["n_pool"] == r.json["n_papers"] - 2
 
 
-# Test get progress density on the article
-def test_get_progress_density(client, project):
-    r = au.get_project_progress_density(client, project)
+# Test get progress data on the article
+def test_get_progress_data(client, project):
+    r = au.get_project_progress_data(client, project)
     assert r.status_code == 200
-    assert isinstance(r.json, dict)
-    assert isinstance(r.json["relevant"], list)
-    assert isinstance(r.json["irrelevant"], list)
-
-
-# Test progress recall
-def test_get_progress_recall(client, project):
-    r = au.get_project_progress_recall(client, project)
-    assert r.status_code == 200
-    assert isinstance(r.json, dict)
-    assert isinstance(r.json["asreview"], list)
-    assert isinstance(r.json["random"], list)
+    assert isinstance(r.json, list)
 
 
 # Test retrieve documents in order to review
@@ -589,8 +578,7 @@ def test_delete_project(client, project):
         (au.export_project_dataset, True, {"format": "csv"}),
         (au.export_project, True, {}),
         (au.get_project_progress, True, {}),
-        (au.get_project_progress_density, True, {}),
-        (au.get_project_progress_recall, True, {}),
+        (au.get_project_progress_data, True, {}),
         (au.get_project_current_document, True, {}),
         (au.delete_project, True, {}),
     ],
