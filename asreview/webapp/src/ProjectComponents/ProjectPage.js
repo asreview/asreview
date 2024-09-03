@@ -173,12 +173,15 @@ const ProjectPage = ({
             <Route
               index
               element={
-                <AnalyticsPage
-                  isSimulating={isSimulating}
-                  mobileScreen={mobileScreen}
-                  mode={data?.mode}
-                  refetchAnalytics={() => {}}
-                />
+                <>
+                  <PageHeader header="Dashboard" mobileScreen={mobileScreen} />
+                  <AnalyticsPage
+                    isSimulating={isSimulating}
+                    mobileScreen={mobileScreen}
+                    mode={data?.mode}
+                    refetchAnalytics={() => {}}
+                  />
+                </>
               }
             />
           )}
