@@ -127,7 +127,7 @@ const NavigationDrawer = (props) => {
             onNavDrawer={props.onNavDrawer}
             toggleNavDrawer={props.toggleNavDrawer}
             toggleSettings={props.toggleSettings}
-            toggleHelpDialog={props.toggleHelpDialog}
+            toggleHelp={props.toggleHelp}
           />
         </Drawer>
 
@@ -145,7 +145,7 @@ const NavigationDrawer = (props) => {
             onNavDrawer={props.onNavDrawer}
             toggleNavDrawer={props.toggleNavDrawer}
             toggleSettings={props.toggleSettings}
-            toggleHelpDialog={props.toggleHelpDialog}
+            toggleHelp={props.toggleHelp}
           />
         </NavigationRail>
       </Box>

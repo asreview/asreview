@@ -60,6 +60,7 @@ const App = () => {
 
   // Dialog state
   const [onSettings, toggleSettings] = useToggle();
+  const [onHelp, toggleHelp] = useToggle();
 
   const [projectCheck, setProjectCheck] = React.useState({
     open: false,
@@ -153,6 +154,7 @@ const App = () => {
                 onNavDrawer={onNavDrawer}
                 toggleNavDrawer={toggleNavDrawer}
                 toggleSettings={toggleSettings}
+                toggleHelp={toggleHelp}
               />
             </RequireAuth>
           }
@@ -184,6 +186,8 @@ const App = () => {
       </>
     );
   };
+
+  console.log(onHelp);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -225,7 +229,11 @@ const App = () => {
             toggleDarkMode={toggleDarkMode}
             handleFontSizeChange={handleFontSizeChange}
           />
-          <HelpDialog mobileScreen={mobileScreen} />
+          <HelpDialog
+            mobileScreen={mobileScreen}
+            onHelp={onHelp}
+            toggleHelp={toggleHelp}
+          />
         </ThemeProvider>
       </StyledEngineProvider>
     </QueryClientProvider>

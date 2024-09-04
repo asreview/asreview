@@ -12,19 +12,13 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import * as React from "react";
-import { useMutation, useQueries, useQuery, useQueryClient } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
 
-import { DialogErrorHandler } from "Components";
 import { ProjectDeleteDialog } from "ProjectComponents";
 import { SetupDialog } from "ProjectComponents/SetupComponents";
 import { ProjectAPI } from "api";
-import {
-  checkIfSimulationFinishedDuration,
-  formatDate,
-  projectModes,
-  projectStatuses,
-} from "globals.js";
+import { formatDate, projectModes, projectStatuses } from "globals.js";
 import { useRowsPerPage } from "hooks/SettingsHooks";
 import useAuth from "hooks/useAuth";
 import { useToggle } from "hooks/useToggle";

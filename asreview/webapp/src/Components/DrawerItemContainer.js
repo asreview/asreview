@@ -385,7 +385,7 @@ const DrawerItemContainer = (props) => {
               if (props.mobileScreen) {
                 props.toggleNavDrawer();
               }
-              // props.toggleHelpDialog(); TODO
+              props.toggleHelp();
             }}
           >
             <ListItemIcon className={classes.icon}>
