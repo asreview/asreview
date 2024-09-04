@@ -21,8 +21,8 @@ from asreview.extensions import load_extension
 from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
 from asreview.state.contextmanager import open_state
-from asreview.webapp.huey_config import huey
 
+from asreview.webapp.app import huey
 
 @huey.task(name="run_model")
 def run_model(project):

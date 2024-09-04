@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import importlib
 import logging
+import multiprocessing
 import os
 from pathlib import Path
 
@@ -28,6 +30,7 @@ from flask.json import jsonify
 from flask.templating import render_template
 from flask_cors import CORS
 from flask_login import LoginManager
+from huey import SqliteHuey
 from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
@@ -38,6 +41,20 @@ from asreview.webapp.api import team
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 from asreview.webapp.utils import asreview_path
+
+
+huey = SqliteHuey(
+    name="asreview_app",
+    filename=(asreview_path() / Path("huey_app.sqlite")),
+    #immediate=app.testing,
+    results=False
+)
+
+
+def run_huey_consumer():
+    importlib.import_module("asreview.webapp.tasks")
+    consumer = huey.create_consumer()
+    consumer.run()
 
 
 def create_app(config_path=None):
@@ -59,6 +76,8 @@ def create_app(config_path=None):
         static_folder="build/static",
         template_folder="build",
     )
+
+    app.config["HUEY"] = huey
 
     app.config.from_prefixed_env("ASREVIEW_LAB")
 
@@ -164,4 +183,8 @@ def create_app(config_path=None):
     def static_from_root():
         return send_from_directory("build", request.path[1:])
 
+    # start huey queue
+    process = multiprocessing.Process(target=run_huey_consumer)
+    process.start()
+    
     return app

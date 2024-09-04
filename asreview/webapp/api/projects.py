@@ -61,9 +61,6 @@ from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
 from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
-from asreview.webapp.huey_config import huey
-from asreview.webapp.tasks import run_model
-from asreview.webapp.tasks import run_simulation
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
 
@@ -98,6 +95,9 @@ def _fill_last_ranking(project, ranking):
 
 
 def _run_model(project):
+    from asreview.webapp.tasks import run_model
+    from asreview.webapp.tasks import run_simulation
+
     if project.config["mode"] == PROJECT_MODE_SIMULATE:
         run_simulation(project)
     else:
@@ -108,7 +108,10 @@ def _run_model(project):
 def _project_not_in_queue(project):
     project_id = project.config.get("id")
     return (
-        any([task.data[0][0].config.get("id") == project_id for task in huey.pending()])
+        any([
+            task.data[0][0].config.get("id") == project_id
+            for task in current_app.config.get("HUEY").pending()
+        ])
         is False
     )
 
