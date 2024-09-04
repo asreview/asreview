@@ -1,5 +1,5 @@
 import React from "react";
-import { connect } from "react-redux";
+
 import { useNavigate } from "react-router-dom";
 import { AppBar, Box, ButtonBase, Toolbar, IconButton } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -37,12 +37,6 @@ const Root = styled("div")(({ theme }) => ({
     justifyContent: "space-between",
   },
 }));
-
-const mapStateToProps = (state) => {
-  return {
-    app_state: state.app_state,
-  };
-};
 
 const Header = (props) => {
   const navigate = useNavigate();
@@ -82,4 +76,4 @@ const Header = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(Header);
+export default Header;

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useQuery } from "react-query";
-import { connect } from "react-redux";
+
 import {
   Avatar,
   Button,
@@ -35,21 +35,6 @@ import { BoxErrorHandler, OpenInNewIconStyled } from "Components";
 
 import { UtilsAPI } from "api";
 import { feedbackURL } from "globals.js";
-import { toggleHelpDialog } from "redux/actions";
-
-const mapStateToProps = (state) => {
-  return {
-    onHelpDialog: state.onHelpDialog,
-  };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    toggleHelpDialog: () => {
-      dispatch(toggleHelpDialog());
-    },
-  };
-};
 
 const PREFIX = "HelpDialog";
 
@@ -96,38 +81,27 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-const HelpDialog = (props) => {
-  const descriptionElementRef = React.useRef(null);
-
+const HelpDialog = ({ mobileScreen, onHelp, toggleHelp }) => {
   const { data, error, isError, isFetched, isFetching } = useQuery(
     "fetchFAQ",
     UtilsAPI.fetchFAQ,
     {
-      enabled: props.onHelpDialog,
+      enabled: onHelp,
       refetchOnWindowFocus: false,
     },
   );
 
-  React.useEffect(() => {
-    if (props.onHelpDialog) {
-      const { current: descriptionElement } = descriptionElementRef;
-      if (descriptionElement !== null) {
-        descriptionElement.focus();
-      }
-    }
-  }, [props.onHelpDialog]);
-
   return (
     <StyledDialog
-      fullScreen={props.mobileScreen}
-      open={props.onHelpDialog}
-      onClose={props.toggleHelpDialog}
+      fullScreen={mobileScreen}
+      open={onHelp}
+      onClose={toggleHelp}
       scroll="paper"
       fullWidth
       maxWidth="sm"
     >
-      {!props.mobileScreen && <DialogTitle>Help</DialogTitle>}
-      {props.mobileScreen && (
+      {!mobileScreen && <DialogTitle>Help</DialogTitle>}
+      {mobileScreen && (
         <DialogTitle>
           <Grid
             container
@@ -135,7 +109,7 @@ const HelpDialog = (props) => {
             justify="space-between"
             alignItems="center"
           >
-            <IconButton onClick={props.toggleHelpDialog}>
+            <IconButton onClick={toggleHelp}>
               <Close />
             </IconButton>
             Dialog Title
@@ -247,13 +221,13 @@ const HelpDialog = (props) => {
         </List>
       </DialogContent>
 
-      {!props.mobileScreen && (
+      {!mobileScreen && (
         <DialogActions>
-          <Button onClick={props.toggleHelpDialog}>Close</Button>
+          <Button onClick={toggleHelp}>Close</Button>
         </DialogActions>
       )}
     </StyledDialog>
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(HelpDialog);
+export default HelpDialog;

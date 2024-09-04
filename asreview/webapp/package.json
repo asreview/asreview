@@ -52,9 +52,7 @@
     "husky": "^9.1.5",
     "lint-staged": "^15.2.10",
     "node-fetch": ">=3.3.2",
-    "prettier": "3.3.3",
-    "react-redux": "^7.2.2",
-    "redux": "^4.0.5"
+    "prettier": "3.3.3"
   },
   "lint-staged": {
     "*": "prettier --write --ignore-unknown"

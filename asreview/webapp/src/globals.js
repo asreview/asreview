@@ -1,5 +1,4 @@
 import { useTheme } from "@mui/material/styles";
-import { setProject } from "redux/actions";
 
 import ASReviewLAB_black from "./images/asreview_sub_logo_lab_black_transparent.svg";
 import ASReviewLAB_white from "./images/asreview_sub_logo_lab_white_transparent.svg";
@@ -61,19 +60,6 @@ export const drawerWidth = 250;
 export const checkIfSimulationFinishedDuration = 6000;
 
 export const fontSizeOptions = ["Small", "Default", "Large", "Largest"];
-
-// functions
-export const mapStateToProps = (state) => {
-  return { project_id: state.project_id };
-};
-
-export const mapDispatchToProps = (dispatch) => {
-  return {
-    setProjectId: (project_id) => {
-      dispatch(setProject(project_id));
-    },
-  };
-};
 
 export const passwordValidation = (yup_string) => {
   // error messages

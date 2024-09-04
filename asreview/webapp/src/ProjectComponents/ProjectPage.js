@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useQuery } from "react-query";
-import { connect } from "react-redux";
 
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -17,12 +16,7 @@ import { ReviewPage } from "ProjectComponents/ReviewComponents";
 import RouteNotFound from "RouteNotFound";
 
 import { ProjectAPI } from "api";
-import {
-  drawerWidth,
-  mapDispatchToProps,
-  projectModes,
-  projectStatuses,
-} from "globals.js";
+import { drawerWidth, projectModes, projectStatuses } from "globals.js";
 import useAuth from "hooks/useAuth";
 
 const PREFIX = "ProjectPage";
@@ -251,4 +245,4 @@ const ProjectPage = ({
   );
 };
 
-export default connect(null, mapDispatchToProps)(ProjectPage);
+export default ProjectPage;
