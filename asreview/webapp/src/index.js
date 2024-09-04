@@ -1,15 +1,12 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Provider } from "react-redux";
 import { AuthProvider } from "context/AuthProvider";
-import store from "redux/store";
 import App from "App";
 
 function ASReviewApp() {
   return (
     <React.StrictMode>
-      <Provider store={store}>
         <BrowserRouter>
           <AuthProvider>
             <Routes>
@@ -17,7 +14,6 @@ function ASReviewApp() {
             </Routes>
           </AuthProvider>
         </BrowserRouter>
-      </Provider>
     </React.StrictMode>
   );
 }

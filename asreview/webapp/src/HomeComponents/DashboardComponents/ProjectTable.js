@@ -13,7 +13,6 @@ import {
 import { styled } from "@mui/material/styles";
 import * as React from "react";
 import { useMutation, useQueries, useQuery, useQueryClient } from "react-query";
-import { connect, useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { DialogErrorHandler } from "Components";
@@ -23,14 +22,12 @@ import { ProjectAPI } from "api";
 import {
   checkIfSimulationFinishedDuration,
   formatDate,
-  mapDispatchToProps,
   projectModes,
   projectStatuses,
 } from "globals.js";
 import { useRowsPerPage } from "hooks/SettingsHooks";
 import useAuth from "hooks/useAuth";
 import { useToggle } from "hooks/useToggle";
-import { setMyProjects } from "redux/actions";
 import { ProjectCheckDialog, TableRowButton } from ".";
 
 const PREFIX = "ProjectTable";
@@ -138,8 +135,6 @@ const StatusChip = ({ status }) => {
 const ProjectTable = (props) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const myProjects = useSelector((state) => state.myProjects);
-  const dispatch = useDispatch();
   const { auth } = useAuth();
 
   const [page] = React.useState(0);
@@ -149,166 +144,15 @@ const ProjectTable = (props) => {
     project_info: null,
   });
 
-  /**
-   * Dialog state
-   */
   const [onDeleteDialog, toggleDeleteDialog] = useToggle();
 
-  /**
-   * Simulation status query state
-   */
-  const [querySimulationFinished, setQuerySimulationFinished] = React.useState(
-    [],
-  );
-  const [querySimulationError, setQuerySimulationError] = React.useState({
-    isError: false,
-    message: null,
-  });
-
-  /**
-   * Fetch projects and check if simulation running in the background
-   */
-  const { isError, isFetched, isFetching, isSuccess } = useQuery(
+  const { data, isError, isFetched, isFetching, isSuccess } = useQuery(
     ["fetchProjects", { subset: props.mode }],
     ProjectAPI.fetchProjects,
     {
-      onError: () => {
-        setQuerySimulationFinished([]);
-      },
-      onSuccess: (data) => {
-        // set in redux store
-        dispatch(setMyProjects(data.result));
-        // reset query for fetching simulation project(s) status
-        setQuerySimulationFinished([]);
-        // get simulation project(s) running in the background
-        const simulationProjects = data.result.filter(
-          (element) =>
-            element.mode === projectModes.SIMULATION &&
-            element.reviews &&
-            element.reviews[0] &&
-            element.reviews[0].status === projectStatuses.REVIEW,
-        );
-        if (!simulationProjects.length) {
-          console.log("No simulation running");
-        } else {
-          const simulationQueries = [];
-          const project_id = simulationProjects.map((element) => element.id);
-          // prepare query array for fetching simulation project(s) status
-          for (let key in project_id) {
-            // reset query if error
-            if (querySimulationError.isError) {
-              queryClient.resetQueries(`fetchProjectStatus-${project_id[key]}`);
-              setQuerySimulationError({
-                isError: false,
-                message: null,
-              });
-            }
-            // update query array
-            simulationQueries.push({
-              queryKey: [
-                `fetchProjectStatus-${project_id[key]}`,
-                { project_id: project_id[key] },
-              ],
-              queryFn: ProjectAPI.fetchProjectStatus,
-              enabled: project_id[key] !== null,
-              onError: (error) => {
-                setQuerySimulationError({
-                  isError: true,
-                  message: error.message,
-                });
-              },
-              onSuccess: (data) => {
-                if (data["status"] === projectStatuses.FINISHED) {
-                  // simulation finished
-                  queryClient.invalidateQueries("fetchDashboardStats");
-                  // update cached data
-                  queryClient.setQueryData("fetchProjects", (prev) => {
-                    return {
-                      ...prev,
-                      result: prev.result.map((project) => {
-                        return {
-                          ...project,
-                          reviews: project.reviews.map((review) => {
-                            return {
-                              ...review,
-                              status:
-                                project.id === project_id[key]
-                                  ? projectStatuses.FINISHED
-                                  : review.status,
-                            };
-                          }),
-                        };
-                      }),
-                    };
-                  });
-                } else {
-                  // not finished yet
-                  setTimeout(
-                    () =>
-                      queryClient.invalidateQueries(
-                        `fetchProjectStatus-${project_id[key]}`,
-                      ),
-                    checkIfSimulationFinishedDuration,
-                  );
-                }
-              },
-              refetchOnWindowFocus: false,
-            });
-          }
-          // pass prepared query array
-          setQuerySimulationFinished(simulationQueries);
-        }
-      },
       refetchOnWindowFocus: false,
     },
   );
-
-  /**
-   * Fetch if simulation project(s) finished
-   */
-  useQueries(querySimulationFinished);
-
-  const { mutate: mutateStatus } = useMutation(ProjectAPI.mutateProjectStatus, {
-    onError: (error) => {
-      props.setFeedbackBar({
-        open: true,
-        message: error.message,
-      });
-    },
-    onSuccess: (data, variables) => {
-      queryClient.invalidateQueries("fetchDashboardStats");
-      // update cached data
-      queryClient.setQueryData("fetchProjects", (prev) => {
-        return {
-          ...prev,
-          result: prev.result.map((project) => {
-            return {
-              ...project,
-              reviews: project.reviews.map((review) => {
-                return {
-                  ...review,
-                  status:
-                    project.id === variables.project_id
-                      ? variables.status
-                      : review.status,
-                };
-              }),
-            };
-          }),
-        };
-      });
-    },
-  });
-
-  const handleChangeStatus = (project) => {
-    mutateStatus({
-      project_id: project["id"],
-      status:
-        project.reviews[0].status === projectStatuses.REVIEW
-          ? projectStatuses.FINISHED
-          : projectStatuses.REVIEW,
-    });
-  };
 
   const openProject = (project, path) => {
     if (
@@ -351,7 +195,7 @@ const ProjectTable = (props) => {
               !isFetching &&
               isFetched &&
               isSuccess &&
-              myProjects
+              data.result
                 ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
                   // if we do authentication, then we need to know who the owner is
@@ -409,9 +253,9 @@ const ProjectTable = (props) => {
                     openProject(row, "settings");
                   };
 
-                  const updateProjectStatus = () => {
-                    handleChangeStatus(row);
-                  };
+                  // const updateProjectStatus = () => {
+                  //   handleChangeStatus(row);
+                  // };
                   return (
                     <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                       <TableCell sx={{ display: "flex" }}>
@@ -450,8 +294,6 @@ const ProjectTable = (props) => {
                                 : null
                             }
                             toggleDeleteDialog={toggleDeleteDialog}
-                            updateProjectStatus={updateProjectStatus}
-                            //canEdit={canEdit}
                           />
                         </Box>
                       </TableCell>
@@ -479,58 +321,7 @@ const ProjectTable = (props) => {
                 })}
           </TableBody>
         </Table>
-        {/* {!isError && isFetching && (
-          <Box className={classes.loadingProjects}>
-            <CircularProgress />
-          </Box>
-        )} */}
-        {/* {!isError &&
-          !isFetching &&
-          isFetched &&
-          isSuccess &&
-          myProjects.length === 0 && (
-            <Box
-              sx={{
-                alignItems: "center",
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              <Typography sx={{ color: "text.secondary", marginTop: "64px" }}>
-                Start your first {modeLabel.toLowerCase()} project
-              </Typography>
-              <Button
-                id="get-started"
-                onClick={() => {
-                  // props.openDataPick(props.mode);
-                }}
-              >
-                Start
-              </Button>
-            </Box>
-          )} */}
-        {/* {isError && !isFetching && (
-          <Box className={classes.error}>
-            <BoxErrorHandler error={error} queryKey="fetchProjects" />
-          </Box>
-        )} */}
       </TableContainer>
-      {/* {!isError &&
-        !isFetching &&
-        isFetched &&
-        isSuccess &&
-        myProjects.length !== 0 && (
-          <TablePagination
-            rowsPerPageOptions={[15, 30, 100]}
-            component="div"
-            count={myProjects.length}
-            rowsPerPage={rowsPerPage}
-            labelRowsPerPage="Projects per page:"
-            page={page}
-            onPageChange={handlePage}
-            onRowsPerPageChange={setRowsPerPage}
-          />
-        )} */}
       <SetupDialog
         projectInfo={setupDialogState.project_info}
         mode={props.mode}
@@ -552,13 +343,8 @@ const ProjectTable = (props) => {
         projectTitle={null}
         project_id={null}
       />
-      <DialogErrorHandler
-        error={querySimulationError}
-        isError={querySimulationError.isError}
-        queryKey="fetchProjects"
-      />
     </StyledPaper>
   );
 };
 
-export default connect(null, mapDispatchToProps)(ProjectTable);
+export default ProjectTable;

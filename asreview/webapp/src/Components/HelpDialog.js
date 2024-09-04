@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useQuery } from "react-query";
-import { connect } from "react-redux";
+
 import {
   Avatar,
   Button,
@@ -35,21 +35,6 @@ import { BoxErrorHandler, OpenInNewIconStyled } from "Components";
 
 import { UtilsAPI } from "api";
 import { feedbackURL } from "globals.js";
-import { toggleHelpDialog } from "redux/actions";
-
-const mapStateToProps = (state) => {
-  return {
-    onHelpDialog: state.onHelpDialog,
-  };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    toggleHelpDialog: () => {
-      dispatch(toggleHelpDialog());
-    },
-  };
-};
 
 const PREFIX = "HelpDialog";
 
@@ -256,4 +241,4 @@ const HelpDialog = (props) => {
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(HelpDialog);
+export default HelpDialog;
