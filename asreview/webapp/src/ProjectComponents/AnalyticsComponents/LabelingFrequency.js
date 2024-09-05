@@ -88,7 +88,15 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
       const totalVisible = decisionsToDisplay.length;
 
       decisionsToDisplay.forEach((decision, index) => {
-        ctx.fillStyle = decision.label === 1 ? "#FFD700" : "#808080";
+        ctx.fillStyle =
+          decision.label === 1
+            ? theme.palette.mode === "light"
+              ? theme.palette.primary.light
+              : theme.palette.primary.main // Relevant
+            : theme.palette.mode === "light"
+              ? "#808080"
+              : theme.palette.grey[600]; // Irrelevant
+
         ctx.beginPath();
         const x = canvasWidth - ((index + 1) / totalVisible) * canvasWidth; // Start drawing from right to left
         ctx.roundRect(
@@ -101,7 +109,14 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
         ctx.fill();
       });
     }
-  }, [decisionsToDisplay, sliderValue]);
+  }, [
+    decisionsToDisplay,
+    sliderValue,
+    theme.palette.grey,
+    theme.palette.mode,
+    theme.palette.primary.light,
+    theme.palette.primary.main,
+  ]);
 
   const handleSliderChange = (event, newValue) => {
     setSliderValue(newValue);

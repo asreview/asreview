@@ -153,7 +153,13 @@ export default function ReviewProgress({ progressQuery, mobileScreen }) {
         },
       },
       labels: ["Relevant", "Irrelevant", "Unlabeled"],
-      colors: ["#FFD700", "#808080", "#D3D3D3"],
+      colors: [
+        theme.palette.mode === "light"
+          ? theme.palette.primary.light
+          : theme.palette.primary.main, // Relevant
+        theme.palette.mode === "light" ? "#808080" : theme.palette.grey[600], // Irrelevant
+        theme.palette.mode === "light" ? "#D3D3D3" : theme.palette.grey[400], // Unlabeled
+      ],
       stroke: { width: 0 },
       legend: { show: false },
       tooltip: {
@@ -304,13 +310,21 @@ export default function ReviewProgress({ progressQuery, mobileScreen }) {
           <StatItem
             label="Relevant Records"
             value={includePriorKnowledge ? n_included : n_included_no_priors}
-            color="#FFD700"
+            color={
+              theme.palette.mode === "light"
+                ? theme.palette.primary.light
+                : theme.palette.primary.main
+            }
             loading={loading}
           />
           <StatItem
             label="Irrelevant Records"
             value={includePriorKnowledge ? n_excluded : n_excluded_no_priors}
-            color="#808080"
+            color={
+              theme.palette.mode === "light"
+                ? "#808080"
+                : theme.palette.grey[600]
+            }
             loading={loading}
           />
         </Box>
