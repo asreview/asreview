@@ -61,7 +61,7 @@ const Header = (props) => {
                 src={WordmarkState()}
                 alt="ASReview LAB Dashboard"
                 onClick={() => {
-                  navigate("/projects");
+                  navigate("/reviews");
                 }}
               />
             </ButtonBase>

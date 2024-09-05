@@ -60,7 +60,7 @@ const ProfilePage = (props) => {
 
   const { error, isError, mutate } = useMutation(AuthAPI.updateProfile, {
     onSuccess: () => {
-      navigate("/projects");
+      navigate("/reviews");
     },
     onError: (err) => {
       console.log(err);

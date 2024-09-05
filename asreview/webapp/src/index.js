@@ -7,13 +7,13 @@ import App from "App";
 function ASReviewApp() {
   return (
     <React.StrictMode>
-        <BrowserRouter>
-          <AuthProvider>
-            <Routes>
-              <Route path="*" element={<App />} />
-            </Routes>
-          </AuthProvider>
-        </BrowserRouter>
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            <Route path="*" element={<App />} />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
     </React.StrictMode>
   );
 }

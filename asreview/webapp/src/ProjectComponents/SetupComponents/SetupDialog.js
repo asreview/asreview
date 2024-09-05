@@ -128,9 +128,9 @@ const SetupDialog = ({
     mutationKey: ["mutateReviewStatus"],
     onSuccess: () => {
       if (mode === projectModes.SIMULATION) {
-        navigate(`/projects/${dataset?.id}`);
+        navigate(`/simulations/${dataset?.id}`);
       } else {
-        navigate(`/projects/${dataset?.id}/review`);
+        navigate(`/reviews/${dataset?.id}/review`);
       }
     },
   });
