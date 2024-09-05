@@ -38,7 +38,6 @@ from filelock import FileLock
 from asreview import load_dataset
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
-from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.config import SCHEMA
 from asreview.settings import ReviewSettings
@@ -219,9 +218,6 @@ class Project:
             as_data.labels is None or (as_data.labels == LABEL_NA).any()
         ):
             raise ValueError("Import fully labeled dataset")
-
-        if self.config["mode"] == PROJECT_MODE_EXPLORE and as_data.labels is None:
-            raise ValueError("Import partially or fully labeled dataset")
 
         self.update_config(dataset_path=file_name, name=file_name.rsplit(".", 1)[0])
 

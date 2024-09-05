@@ -96,7 +96,6 @@ export const formatDate = (datetime) => {
 export const projectModes = {
   ORACLE: "oracle",
   SIMULATION: "simulate",
-  EXPLORATION: "explore",
 };
 
 export const projectStatuses = {

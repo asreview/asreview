@@ -43,7 +43,6 @@ from werkzeug.utils import secure_filename
 
 import asreview as asr
 from asreview.config import LABEL_NA
-from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_ORACLE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.datasets import DatasetManager
@@ -268,8 +267,7 @@ def api_create_project():  # noqa: F401
                 state.add_labeling_data(
                     record_ids=labeled_record_ids,
                     labels=labels,
-                    notes=[None for _ in labeled_record_ids],
-                    prior=True,
+                    user_id=None,
                 )
 
     except Exception as err:
@@ -925,6 +923,9 @@ def _add_tags_to_export_data(project, export_data, state_df):
 def api_export_dataset(project):
     """Export dataset with relevant/irrelevant labels"""
 
+    # todo: export tags
+    # todo: export labels from state file always as asreview_label
+
     file_format = request.args.get("format", None)
     collections = request.args.getlist("collections", type=str)
     collections = [
@@ -1002,14 +1003,12 @@ def api_export_dataset(project):
 
         _add_tags_to_export_data(project, as_data, state_df)
 
-        keep_old_labels = project.config["mode"] == PROJECT_MODE_EXPLORE
-
         as_data.to_file(
             fp=tmp_path_dataset,
             labels=labels,
             ranking=export_order,
             writer=writer,
-            keep_old_labels=keep_old_labels,
+            keep_old_labels=True,
         )
 
         return send_file(

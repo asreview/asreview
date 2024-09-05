@@ -193,15 +193,12 @@ const SetupDialog = ({
                       onChange={handleUploadSource}
                     />
                   )}
-                  {(mode === projectModes.EXPLORATION ||
-                    mode === projectModes.SIMULATION) && (
-                    <FormControlLabel
-                      value="benchmark"
-                      control={<Radio />}
-                      label="Benchmark datasets"
-                      onChange={handleUploadSource}
-                    />
-                  )}
+                  <FormControlLabel
+                    value="benchmark"
+                    control={<Radio />}
+                    label="Benchmark datasets"
+                    onChange={handleUploadSource}
+                  />
                 </RadioGroup>
               </FormControl>
               {uploadSource === "file" && (

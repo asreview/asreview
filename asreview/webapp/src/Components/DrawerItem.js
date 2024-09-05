@@ -64,9 +64,7 @@ const DrawerItem = (props) => {
     // home page navigation
     if (
       !project_id &&
-      (props.label === "Reviews" ||
-        props.label === "Validations" ||
-        props.label === "Simulations")
+      (props.label === "Reviews" || props.label === "Simulations")
     ) {
       return (
         <DashboardOutlined color={match !== null ? "primary" : "inherit"} />
@@ -76,9 +74,7 @@ const DrawerItem = (props) => {
     // project page navigation
     if (
       project_id &&
-      (props.label === "Reviews" ||
-        props.label === "Validations" ||
-        props.label === "Simulations")
+      (props.label === "Reviews" || props.label === "Simulations")
     ) {
       return <ArrowBackOutlined />;
     }
