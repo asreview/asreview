@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Box, Fab, Stack } from "@mui/material";
 import { Add } from "@mui/icons-material";
-import { useParams } from "react-router-dom";
 import { DashboardPageHeader, ProjectTable } from ".";
 import { ActionsFeedbackBar, InteractionButtons } from "Components";
 import { ImportProject } from "ProjectComponents";
