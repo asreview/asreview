@@ -79,7 +79,7 @@ const ProjectPage = ({
           data["reviews"][0]["status"] === projectStatuses.SETUP
         ) {
           // open project setup dialog
-          navigate("/projects");
+          navigate("/reviews");
         } else if (!data["projectNeedsUpgrade"]) {
           // open project page
           console.log("Opening project " + project_id);
@@ -91,7 +91,7 @@ const ProjectPage = ({
             setIsSimulating(true);
           }
         } else {
-          navigate("/projects");
+          navigate("/reviews");
           // open project check dialog
           setProjectCheck({
             open: true,

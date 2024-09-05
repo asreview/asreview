@@ -52,7 +52,7 @@ const SignInOauth = ({ classes, oAuthConfig }) => {
           if (Boolean(data?.account_created)) {
             navigate("/profile?first_time=true");
           } else {
-            navigate("/projects");
+            navigate("/reviews");
           }
         } else {
           message = "Backend could not log you in.";

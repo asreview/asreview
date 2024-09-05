@@ -36,7 +36,7 @@ const CollaborationPage = (props) => {
         queryClient.invalidateQueries({
           queryKey: ["fetchProjects", props.info.mode],
         });
-        navigate("/projects");
+        navigate("/reviews");
       },
       onError: (error) => {
         let message = `Could not end the collaboration: (${error})`;
