@@ -76,9 +76,9 @@ const DrawerItem = (props) => {
     // project page navigation
     if (
       project_id &&
-      (props.label === "reviews" ||
-        props.label === "validations" ||
-        props.label === "simulations")
+      (props.label === "Reviews" ||
+        props.label === "Validations" ||
+        props.label === "Simulations")
     ) {
       return <ArrowBackOutlined />;
     }

@@ -145,7 +145,7 @@ const ProjectItemList = ({ mobileScreen, onNavDrawer, toggleNavDrawer }) => {
     <Box className={classes.topSection}>
       <DrawerItem
         mobileScreen={mobileScreen}
-        label={subset}
+        label={subset[0].toUpperCase() + subset.slice(1)}
         path={"/" + subset}
         onNavDrawer={onNavDrawer}
         toggleNavDrawer={toggleNavDrawer}
