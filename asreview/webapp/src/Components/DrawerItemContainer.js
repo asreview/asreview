@@ -122,13 +122,10 @@ const ProjectModeMapping = {
   simulate: "Simulation",
 };
 
-const ProjectItemList = ({
-  project_id,
-  mobileScreen,
-  onNavDrawer,
-  toggleNavDrawer,
-}) => {
+const ProjectItemList = ({ mobileScreen, onNavDrawer, toggleNavDrawer }) => {
   const [openGame, setOpenGame] = React.useState(false);
+
+  const { project_id, subset } = useParams();
 
   const toggleGame = () => {
     setOpenGame(!openGame);
@@ -148,8 +145,8 @@ const ProjectItemList = ({
     <Box className={classes.topSection}>
       <DrawerItem
         mobileScreen={mobileScreen}
-        label="Projects"
-        path={"/projects&subset=" + projectInfo?.mode}
+        label={subset}
+        path={"/" + subset}
         onNavDrawer={onNavDrawer}
         toggleNavDrawer={toggleNavDrawer}
       />
@@ -182,7 +179,7 @@ const ProjectItemList = ({
 
       <DrawerItem
         key={"project-dashboard"}
-        path={`/projects/${project_id}/`}
+        path={``}
         label={"Dashboard"}
         mobileScreen={mobileScreen}
         onNavDrawer={onNavDrawer}
@@ -192,7 +189,7 @@ const ProjectItemList = ({
       {projectInfo?.mode !== projectModes.SIMULATION && (
         <DrawerItem
           key={"project-review"}
-          path={`/projects/${project_id}/review`}
+          path={`review`}
           label={"Review"}
           mobileScreen={mobileScreen}
           onNavDrawer={onNavDrawer}
@@ -201,7 +198,7 @@ const ProjectItemList = ({
       )}
       <DrawerItem
         key={"project-history"}
-        path={`/projects/${project_id}/collection`}
+        path={`collection`}
         label={"Collection"}
         mobileScreen={mobileScreen}
         onNavDrawer={onNavDrawer}
@@ -211,7 +208,7 @@ const ProjectItemList = ({
       {window.authentication && window.allowTeams && (
         <DrawerItem
           key={"project-team"}
-          path={`/projects/${project_id}/team`}
+          path={`team`}
           label={"Team"}
           mobileScreen={mobileScreen}
           onNavDrawer={onNavDrawer}
@@ -221,7 +218,7 @@ const ProjectItemList = ({
 
       <DrawerItem
         key={"project-settings"}
-        path={`/projects/${project_id}/settings`}
+        path={`settings`}
         label={"Settings"}
         mobileScreen={mobileScreen}
         onNavDrawer={onNavDrawer}
@@ -251,19 +248,17 @@ const ProjectItemList = ({
 };
 
 const DrawerItemContainer = (props) => {
-  const { project_id } = useParams();
-
   return (
     <StyledList aria-label="drawer item container">
       {/* Top Section: Home page drawer */}
       <Routes>
         <Route
-          path="/projects&subset=:subset"
+          path="/:subset"
           element={
             <div className={classes.topSection}>
               <DrawerItem
                 key={"projects-reviews"}
-                path={"/projects&subset=oracle"}
+                path={"/reviews"}
                 label={"Reviews"}
                 mobileScreen={props.mobileScreen}
                 onNavDrawer={props.onNavDrawer}
@@ -271,7 +266,7 @@ const DrawerItemContainer = (props) => {
               />
               <DrawerItem
                 key={"projects-validations"}
-                path={"/projects&subset=explore"}
+                path={"/validations"}
                 label={"Validations"}
                 mobileScreen={props.mobileScreen}
                 onNavDrawer={props.onNavDrawer}
@@ -279,7 +274,7 @@ const DrawerItemContainer = (props) => {
               />
               <DrawerItem
                 key={"projects-simulations"}
-                path={"/projects&subset=simulate"}
+                path={"/simulations"}
                 label={"Simulations"}
                 mobileScreen={props.mobileScreen}
                 onNavDrawer={props.onNavDrawer}
@@ -291,10 +286,9 @@ const DrawerItemContainer = (props) => {
 
         {/* Top Section: Project page drawer */}
         <Route
-          path="projects/:project_id/*"
+          path="/:subset/:project_id/*"
           element={
             <ProjectItemList
-              project_id={project_id}
               mobileScreen={props.mobileScreen}
               onNavDrawer={props.onNavDrawer}
               toggleNavDrawer={props.toggleNavDrawer}

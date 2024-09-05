@@ -9,10 +9,13 @@ import { SetupDialog } from "ProjectComponents/SetupComponents";
 
 import { useToggle } from "hooks/useToggle";
 
-const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
+const ProjectsOverview = ({
+  mobileScreen,
+  projectCheck,
+  setProjectCheck,
+  mode,
+}) => {
   const [onImportProject, toggleImportProject] = useToggle();
-
-  const { mode } = useParams();
 
   const modeLabel = {
     simulate: "Simulate",

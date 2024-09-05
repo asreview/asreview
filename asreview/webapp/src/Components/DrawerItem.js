@@ -74,7 +74,12 @@ const DrawerItem = (props) => {
     }
 
     // project page navigation
-    if (project_id && props.label === "Projects") {
+    if (
+      project_id &&
+      (props.label === "reviews" ||
+        props.label === "validations" ||
+        props.label === "simulations")
+    ) {
       return <ArrowBackOutlined />;
     }
     if (props.label === "Dashboard") {

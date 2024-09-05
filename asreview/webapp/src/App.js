@@ -171,7 +171,31 @@ const App = () => {
             }
           />
           <Route
-            path="projects/:project_id/*"
+            path="reviews/:project_id/*"
+            element={
+              <ProjectPage
+                mobileScreen={mobileScreen}
+                onNavDrawer={onNavDrawer}
+                fontSize={fontSize}
+                projectCheck={projectCheck}
+                setProjectCheck={setProjectCheck}
+              />
+            }
+          />
+          <Route
+            path="validations/:project_id/*"
+            element={
+              <ProjectPage
+                mobileScreen={mobileScreen}
+                onNavDrawer={onNavDrawer}
+                fontSize={fontSize}
+                projectCheck={projectCheck}
+                setProjectCheck={setProjectCheck}
+              />
+            }
+          />
+          <Route
+            path="simulations/:project_id/*"
             element={
               <ProjectPage
                 mobileScreen={mobileScreen}
@@ -186,8 +210,6 @@ const App = () => {
       </>
     );
   };
-
-  console.log(onHelp);
 
   return (
     <QueryClientProvider client={queryClient}>

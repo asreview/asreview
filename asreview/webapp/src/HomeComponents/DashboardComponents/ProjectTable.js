@@ -159,7 +159,7 @@ const ProjectTable = (props) => {
       });
     } else if (!project["projectNeedsUpgrade"]) {
       // open project page
-      navigate(`/projects/${project["id"]}/${path}`);
+      navigate(`${project["id"]}/${path}`);
     } else {
       // open project check dialog
       props.setProjectCheck({
