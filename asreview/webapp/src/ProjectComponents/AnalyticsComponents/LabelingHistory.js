@@ -75,6 +75,7 @@ const generateLines = (
   chronological,
   chunkSize,
   handleClick,
+  theme,
 ) => {
   const lines = [];
   const sortedDecisions = chronological
@@ -85,11 +86,11 @@ const generateLines = (
     const color =
       i < sortedDecisions.length
         ? sortedDecisions[i].label === 1
-          ? "#FFD700" // Yellow for relevant
+          ? theme.palette.primary.main // Relevant
           : sortedDecisions[i].label === 0
-            ? "#808080" // Gray for irrelevant
-            : "#D3D3D3" // Light gray for neutral
-        : "#D3D3D3"; // Default color if no decision
+            ? theme.palette.grey[500] // Irrelevant
+            : theme.palette.grey[800] // Neutral
+        : theme.palette.grey[300]; // No decision yet
 
     lines.push(
       <HistoryItem
@@ -219,6 +220,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
                   chronological,
                   chunkSize,
                   handleClick,
+                  theme,
                 )}
               </HistoryContainer>
             )}
@@ -343,7 +345,11 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
             borderRadius={3}
             boxShadow={3}
             sx={{
-              color: selectedColor === "#FFD700" ? "#000" : "#FFF",
+              color:
+                selectedColor === theme.palette.primary.main ||
+                selectedColor === theme.palette.primary.secondary
+                  ? "#000"
+                  : "#FFF",
             }}
           >
             <Typography variant="subtitle1" fontWeight="bold">
