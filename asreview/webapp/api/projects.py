@@ -253,10 +253,10 @@ def api_create_project():  # noqa: F401
         as_data = project.add_dataset(data_path.name)
         project.add_review()
 
-        with open_state(project.project_path) as state:
-            if as_data.labels is not None and (
-                n_irrelevant(as_data) > 0 or n_relevant(as_data) > 0
-            ):
+        n_labeled = n_irrelevant(as_data) + n_relevant(as_data)
+
+        if as_data.labels is not None and n_labeled > 0 and n_labeled < len(as_data):
+            with open_state(project.project_path) as state:
                 labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
                 labels = as_data.labels[labeled_indices].tolist()
                 labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
