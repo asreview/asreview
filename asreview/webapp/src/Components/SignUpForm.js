@@ -19,17 +19,14 @@ import {
 } from "@mui/material";
 
 import { InlineErrorHandler } from ".";
-import {
-  WordmarkState,
-  passwordRequirements,
-  passwordValidation,
-} from "globals.js";
+import { passwordRequirements, passwordValidation } from "globals.js";
 import { styled } from "@mui/material/styles";
 import { HelpPrivacyTermsButton } from "Components";
 import { useToggle } from "hooks/useToggle";
 import BaseAPI from "api/AuthAPI";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { WordMark } from "icons/WordMark";
 
 const PREFIX = "SignUpForm";
 
@@ -37,7 +34,6 @@ const classes = {
   button: `${PREFIX}-button`,
   card: `${PREFIX}-card`,
   cardContent: `${PREFIX}-card-content`,
-  logo: `${PREFIX}-logo`,
 };
 
 const Root = styled("div")(({ theme }) => ({
@@ -60,11 +56,6 @@ const Root = styled("div")(({ theme }) => ({
 
   [`& .${classes.cardContent}`]: {
     padding: "48px 40px !important",
-  },
-
-  [`& .${classes.logo}`]: {
-    width: "100%",
-    maxWidth: "130px",
   },
 }));
 
@@ -139,11 +130,7 @@ const SignUpForm = (props) => {
           <Card className={classes.card} variant="outlined">
             <CardContent className={classes.cardContent}>
               <Stack spacing={3}>
-                <img
-                  className={classes.logo}
-                  src={WordmarkState()}
-                  alt="ASReview LAB"
-                />
+                <WordMark style={{ width: "100%", maxWidth: "130px" }} />
                 <Typography variant="h5">Create your profile</Typography>
                 <Stack spacing={3} component="form" noValidate>
                   <TextField

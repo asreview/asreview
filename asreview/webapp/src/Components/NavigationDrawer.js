@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useNavigate, Outlet } from "react-router-dom";
+import { useNavigate, Outlet, Link } from "react-router-dom";
 import {
   Box,
   ButtonBase,
@@ -14,11 +14,8 @@ import { Menu } from "@mui/icons-material";
 
 import { DrawerItemContainer, Header } from "Components";
 
-import ASReviewLAB_black from "images/asreview_sub_logo_lab_black_transparent.svg";
-import ASReviewLAB_white from "images/asreview_sub_logo_lab_white_transparent.svg";
+import { WordMark } from "icons/WordMark";
 import { drawerWidth } from "globals.js";
-
-const Root = styled("div")(({ theme }) => ({}));
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -58,25 +55,20 @@ const NavigationRail = styled(Drawer, {
   }),
 }));
 
-const NavigationDrawer = (props) => {
-  const { window } = props;
-  const navigate = useNavigate();
-  const theme = useTheme();
-
-  const wordmarkState = () => {
-    if (theme.palette.mode === "dark") {
-      return ASReviewLAB_white;
-    } else {
-      return ASReviewLAB_black;
-    }
-  };
-
+const NavigationDrawer = ({
+  window,
+  toggleNavDrawer,
+  onNavDrawer,
+  mobileScreen,
+  toggleSettings,
+  toggleHelp,
+}) => {
   const container =
     window !== undefined ? () => window().document.body : undefined;
 
   return (
-    <Root>
-      <Header toggleNavDrawer={props.toggleNavDrawer} />
+    <Box>
+      <Header toggleNavDrawer={toggleNavDrawer} />
       <Box
         component="nav"
         aria-label="navigation drawer"
@@ -86,8 +78,8 @@ const NavigationDrawer = (props) => {
         <Drawer
           container={container}
           variant="temporary"
-          open={props.mobileScreen && props.onNavDrawer}
-          onClose={props.toggleNavDrawer}
+          open={mobileScreen && onNavDrawer}
+          onClose={toggleNavDrawer}
           ModalProps={{
             keepMounted: true, // Better open performance on mobile.
           }}
@@ -103,54 +95,50 @@ const NavigationDrawer = (props) => {
             <IconButton
               edge="start"
               color="inherit"
-              onClick={props.toggleNavDrawer}
+              onClick={toggleNavDrawer}
               size="large"
               sx={{ marginRight: "4px" }}
             >
               <Menu />
             </IconButton>
-            <ButtonBase disableRipple>
-              <CardMedia
-                component="img"
-                src={wordmarkState()}
-                alt="ASReview LAB Dashboard"
-                onClick={() => {
-                  props.toggleNavDrawer();
-                  navigate("/");
-                }}
-                sx={{ width: 130 }}
-              />
+            <ButtonBase
+              disableRipple
+              sx={{ width: "100px" }}
+              component={Link}
+              to="/reviews"
+            >
+              <WordMark />
             </ButtonBase>
           </Toolbar>
           <DrawerItemContainer
-            mobileScreen={props.mobileScreen}
-            onNavDrawer={props.onNavDrawer}
-            toggleNavDrawer={props.toggleNavDrawer}
-            toggleSettings={props.toggleSettings}
-            toggleHelp={props.toggleHelp}
+            mobileScreen={mobileScreen}
+            onNavDrawer={onNavDrawer}
+            toggleNavDrawer={toggleNavDrawer}
+            toggleSettings={toggleSettings}
+            toggleHelp={toggleHelp}
           />
         </Drawer>
 
         {/* Permanent drawer on desktop screen */}
         <NavigationRail
           variant="permanent"
-          open={props.onNavDrawer}
+          open={onNavDrawer}
           sx={{
             display: { xs: "none", md: "block" },
           }}
         >
           <Toolbar />
           <DrawerItemContainer
-            mobileScreen={props.mobileScreen}
-            onNavDrawer={props.onNavDrawer}
-            toggleNavDrawer={props.toggleNavDrawer}
-            toggleSettings={props.toggleSettings}
-            toggleHelp={props.toggleHelp}
+            mobileScreen={mobileScreen}
+            onNavDrawer={onNavDrawer}
+            toggleNavDrawer={toggleNavDrawer}
+            toggleSettings={toggleSettings}
+            toggleHelp={toggleHelp}
           />
         </NavigationRail>
       </Box>
       <Outlet />
-    </Root>
+    </Box>
   );
 };
 

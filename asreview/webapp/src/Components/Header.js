@@ -1,13 +1,13 @@
 import React from "react";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { AppBar, Box, ButtonBase, Toolbar, IconButton } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Menu } from "@mui/icons-material";
 
 import { ProfilePopper } from "Components";
 
-import { WordmarkState } from "globals.js";
+import { WordMark } from "icons/WordMark";
 
 const PREFIX = "Header";
 
@@ -55,15 +55,13 @@ const Header = (props) => {
             >
               <Menu />
             </IconButton>
-            <ButtonBase disableRipple>
-              <img
-                className={classes.logo}
-                src={WordmarkState()}
-                alt="ASReview LAB Dashboard"
-                onClick={() => {
-                  navigate("/reviews");
-                }}
-              />
+            <ButtonBase
+              disableRipple
+              sx={{ width: "100px" }}
+              component={Link}
+              to="/reviews"
+            >
+              <WordMark />
             </ButtonBase>
           </Box>
           {window.authentication === true && (

@@ -1,8 +1,3 @@
-import { useTheme } from "@mui/material/styles";
-
-import ASReviewLAB_black from "./images/asreview_sub_logo_lab_black_transparent.svg";
-import ASReviewLAB_white from "./images/asreview_sub_logo_lab_white_transparent.svg";
-
 export const api_url = window.api_url + "api/";
 export const auth_url = window.api_url + "auth/";
 export const collab_url = window.api_url + "team/";
@@ -44,15 +39,6 @@ export const getDesignTokens = (mode) => ({
         }),
   },
 });
-
-export const WordmarkState = () => {
-  const theme = useTheme();
-  if (theme.palette.mode === "dark") {
-    return ASReviewLAB_white;
-  } else {
-    return ASReviewLAB_black;
-  }
-};
 
 // drawer configs
 export const drawerWidth = 250;
