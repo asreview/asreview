@@ -120,13 +120,12 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
             during screening while labeling the records yourself.
           </Alert>
         )}
-        {data?.n_unlabeled !== 0 &&
-          data?.n_relevant + data?.n_irrelavant > 0 && (
-            <Alert severity="info" sx={{ mb: 2 }}>
-              The dataset contains labels. The labels are added automatically to
-              the prior knowledge.
-            </Alert>
-          )}
+        {data?.n_unlabeled > 0 && data?.n_relevant + data?.n_irrelevant > 0 && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            The dataset contains labels. The labels are added to the prior
+            knowledge.
+          </Alert>
+        )}
         {isFetchingData ? (
           <Skeleton>
             <Button />
