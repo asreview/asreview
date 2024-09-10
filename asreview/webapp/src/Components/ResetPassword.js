@@ -18,14 +18,11 @@ import { InlineErrorHandler } from ".";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { styled } from "@mui/material/styles";
 import AuthAPI from "api/AuthAPI";
-import {
-  WordmarkState,
-  passwordRequirements,
-  passwordValidation,
-} from "globals.js";
+import { passwordRequirements, passwordValidation } from "globals.js";
 import { useToggle } from "hooks/useToggle";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { WordMark } from "icons/WordMark";
 
 const PREFIX = "SignInForm";
 
@@ -144,11 +141,7 @@ const ResetPassword = (props) => {
             <CardContent className={classes.cardContent}>
               <Stack spacing={3}>
                 <Stack className={classes.header} spacing={2}>
-                  <img
-                    className={classes.logo}
-                    src={WordmarkState()}
-                    alt="ASReview LAB"
-                  />
+                  <WordMark style={{ width: "100%", maxWidth: "130px" }} />
                   <Typography variant="h5">Reset your password</Typography>
                   <Typography
                     variant="body2"

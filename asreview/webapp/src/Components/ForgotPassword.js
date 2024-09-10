@@ -14,7 +14,7 @@ import {
 import LoadingButton from "@mui/lab/LoadingButton";
 import { styled } from "@mui/material/styles";
 
-import { WordmarkState } from "globals.js";
+import { WordMark } from "icons/WordMark";
 import { InlineErrorHandler } from ".";
 import AuthAPI from "api/AuthAPI";
 
@@ -26,7 +26,6 @@ const classes = {
   cardContent: `${PREFIX}-card-content`,
   checkbox: `${PREFIX}-checkbox`,
   header: `${PREFIX}-header`,
-  logo: `${PREFIX}-logo`,
 };
 
 const Root = styled("div")(({ theme }) => ({
@@ -53,11 +52,6 @@ const Root = styled("div")(({ theme }) => ({
 
   [`& .${classes.header}`]: {
     alignItems: "center",
-  },
-
-  [`& .${classes.logo}`]: {
-    width: "100%",
-    maxWidth: "130px",
   },
 }));
 
@@ -105,11 +99,7 @@ const ForgotPassword = (props) => {
             <CardContent className={classes.cardContent}>
               <Stack spacing={3}>
                 <Stack className={classes.header} spacing={2}>
-                  <img
-                    className={classes.logo}
-                    src={WordmarkState()}
-                    alt="ASReview LAB"
-                  />
+                  <WordMark style={{ width: "100%", maxWidth: "130px" }} />
                   <Typography variant="h5">Forgot your password?</Typography>
                   {window.emailVerification && (
                     <p>

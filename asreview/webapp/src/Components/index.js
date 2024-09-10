@@ -4,7 +4,6 @@ export { default as CardErrorHandler } from "./CardErrorHandler";
 export { default as CiteDialog } from "./CiteDialog";
 export { default as ConfirmAccount } from "./ConfirmAccount";
 export { default as DialogErrorHandler } from "./DialogErrorHandler";
-export { default as DrawerItem } from "./DrawerItem";
 export { default as DrawerItemContainer } from "./DrawerItemContainer";
 export { default as ElasGame } from "./ElasGame";
 export { default as ForgotPassword } from "./ForgotPassword";

@@ -1,13 +1,13 @@
 import React from "react";
 
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { AppBar, Box, ButtonBase, Toolbar, IconButton } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Menu } from "@mui/icons-material";
 
 import { ProfilePopper } from "Components";
 
-import { WordmarkState } from "globals.js";
+import { WordMark } from "icons/WordMark";
 
 const PREFIX = "Header";
 
@@ -39,8 +39,6 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const Header = (props) => {
-  const navigate = useNavigate();
-
   return (
     <Root aria-label="appbar-toolbar">
       <AppBar color="inherit" position="fixed" className={classes.appBar}>
@@ -55,15 +53,13 @@ const Header = (props) => {
             >
               <Menu />
             </IconButton>
-            <ButtonBase disableRipple>
-              <img
-                className={classes.logo}
-                src={WordmarkState()}
-                alt="ASReview LAB Dashboard"
-                onClick={() => {
-                  navigate("/reviews");
-                }}
-              />
+            <ButtonBase
+              disableRipple
+              sx={{ width: "100px" }}
+              component={Link}
+              to="/reviews"
+            >
+              <WordMark />
             </ButtonBase>
           </Box>
           {window.authentication === true && (

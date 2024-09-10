@@ -12,7 +12,7 @@ import { styled } from "@mui/material/styles";
 
 import { HelpPrivacyTermsButton, SignInForm } from "Components";
 
-import { WordmarkState } from "globals.js";
+import { WordMark } from "icons/WordMark";
 import SignInOAuth from "./SignInOAuth";
 
 const PREFIX = "SignInForm";
@@ -23,7 +23,6 @@ const classes = {
   cardContent: `${PREFIX}-card-content`,
   checkbox: `${PREFIX}-checkbox`,
   header: `${PREFIX}-header`,
-  logo: `${PREFIX}-logo`,
 };
 
 const Root = styled("div")(({ theme }) => ({
@@ -51,11 +50,6 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.header}`]: {
     alignItems: "center",
   },
-
-  [`& .${classes.logo}`]: {
-    width: "100%",
-    maxWidth: "130px",
-  },
 }));
 
 const SignIn = ({ allowAccountCreation, emailVerification, oAuthConfig }) => {
@@ -67,11 +61,7 @@ const SignIn = ({ allowAccountCreation, emailVerification, oAuthConfig }) => {
             <CardContent className={classes.cardContent}>
               <Stack spacing={3}>
                 <Stack className={classes.header} spacing={2}>
-                  <img
-                    className={classes.logo}
-                    src={WordmarkState()}
-                    alt="ASReview LAB"
-                  />
+                  <WordMark style={{ width: "100%", maxWidth: "130px" }} />
                   <Typography variant="h5">Sign in</Typography>
 
                   {typeof window.loginInfo === "string" &&

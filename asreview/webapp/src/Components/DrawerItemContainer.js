@@ -1,6 +1,6 @@
 import React from "react";
 import { useQuery } from "react-query";
-import { Route, Routes, useParams } from "react-router-dom";
+import { Route, Routes, useParams, Outlet, Link } from "react-router-dom";
 import {
   Box,
   Button,
@@ -12,11 +12,8 @@ import {
   Fade,
   List,
   ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Tooltip,
   Typography,
+  Stack,
 } from "@mui/material";
 
 import { styled } from "@mui/material/styles";
@@ -25,32 +22,33 @@ import {
   HelpOutlineOutlined,
   PaymentOutlined,
   TuneOutlined,
+  ArrowBackOutlined,
+  AssignmentOutlined,
+  AssessmentOutlined,
+  SettingsOutlined,
+  LibraryBooksOutlined,
+  PeopleAltOutlined,
+  DashboardOutlined,
 } from "@mui/icons-material";
 
 import { OpenInNewIconStyled } from "Components";
 
-import { DrawerItem, ElasGame } from "Components";
+import { ElasGame } from "Components";
 import { ProjectAPI } from "api";
-import {
-  communityURL,
-  donateURL,
-  projectModes,
-  projectStatuses,
-} from "globals.js";
-import Finished from "images/ElasHoldingSIGNS_Finished.svg";
-import InReview from "images/ElasHoldingSIGNS_InReview.svg";
-import SetUp from "images/ElasHoldingSIGNS_SetUp.svg";
+import { communityURL, donateURL } from "globals.js";
+import { useToggle } from "hooks/useToggle";
+import { DrawerItem } from "StyledComponents/DrawerItem";
+
+import { ElasSign } from "icons/ElasSign";
 
 const PREFIX = "DrawerItemContainer";
 
 const classes = {
   topSection: `${PREFIX}-topSection`,
   bottomSection: `${PREFIX}-bottomSection`,
-  icon: `${PREFIX}-icon`,
   projectInfo: `${PREFIX}-projectInfo`,
   yourProject: `${PREFIX}-yourProject`,
   projectTitle: `${PREFIX}-projectTitle`,
-  stateElas: `${PREFIX}-stateElas`,
 };
 
 const StyledList = styled(List)(({ theme }) => ({
@@ -63,18 +61,7 @@ const StyledList = styled(List)(({ theme }) => ({
     overflowY: "auto",
     flex: "1 1 auto",
   },
-
-  [`& .${classes.bottomSection}`]: {
-    overflow: "hidden",
-    flex: "0 0 auto",
-  },
-
-  [`& .${classes.icon}`]: {
-    paddingLeft: 8,
-  },
-
   [`& .${classes.projectInfo}`]: {
-    display: "block",
     "& > *": {
       marginTop: theme.spacing(2),
     },
@@ -92,45 +79,18 @@ const StyledList = styled(List)(({ theme }) => ({
     whiteSpace: "pre-line",
     overflow: "hidden",
   },
-
-  [`& .${classes.stateElas}`]: {
-    width: "100%",
-    maxWidth: "140px",
-    display: "block",
-    margin: "auto",
-  },
 }));
-
-const returnElasState = (info) => {
-  if (
-    info?.reviews[0] === undefined ||
-    info?.reviews[0].status === projectStatuses.SETUP
-  ) {
-    return SetUp;
-  }
-  if (info?.reviews[0].status === projectStatuses.REVIEW) {
-    return InReview;
-  }
-  if (info?.reviews[0].status === projectStatuses.FINISHED) {
-    return Finished;
-  }
-};
 
 const ProjectModeMapping = {
   oracle: "Review",
   simulate: "Simulation",
 };
 
-const ProjectItemList = ({ mobileScreen, onNavDrawer, toggleNavDrawer }) => {
-  const [openGame, setOpenGame] = React.useState(false);
+const ProjectItemInfo = ({ mobileDrawer, onNavDrawer, toggleNavDrawer }) => {
+  const [openGame, toggleGame] = useToggle();
+  const { subset, project_id } = useParams();
 
-  const { project_id, subset } = useParams();
-
-  const toggleGame = () => {
-    setOpenGame(!openGame);
-  };
-
-  const { data: projectInfo } = useQuery(
+  const { data } = useQuery(
     ["fetchInfo", { project_id: project_id }],
     ProjectAPI.fetchInfo,
     {
@@ -138,91 +98,47 @@ const ProjectItemList = ({ mobileScreen, onNavDrawer, toggleNavDrawer }) => {
     },
   );
 
-  const elasImage = returnElasState(projectInfo);
-
   return (
     <Box className={classes.topSection}>
       <DrawerItem
-        mobileScreen={mobileScreen}
-        label={subset[0].toUpperCase() + subset.slice(1)}
-        path={"/" + subset}
-        onNavDrawer={onNavDrawer}
-        toggleNavDrawer={toggleNavDrawer}
+        primary={subset[0].toUpperCase() + subset.slice(1)}
+        to={"/" + subset}
+        showTooltip={onNavDrawer}
+        onClick={mobileDrawer ? toggleNavDrawer : undefined}
+        icon={<ArrowBackOutlined />}
+        component={Link}
       />
-      {projectInfo && (
-        <ListItem className={classes.projectInfo}>
-          <Box
-            component="img"
-            src={elasImage}
-            alt="ElasState"
-            className={classes.stateElas}
-            onClick={toggleGame}
-          />
-
-          <Fade in={onNavDrawer} unmountOnExit>
-            <Box className={classes.yourProject}>
-              <Typography variant="subtitle2">
-                Your {ProjectModeMapping[projectInfo?.mode]} project
-              </Typography>
-              <Typography
-                className={classes.projectTitle}
-                variant="body2"
-                color="textSecondary"
-              >
-                {projectInfo?.name}
-              </Typography>
+      {data && (
+        <ListItem onClick={toggleGame}>
+          <Stack
+            direction="column"
+            spacing={2}
+            sx={{
+              alignItems: "flex-start",
+              width: "100%",
+            }}
+          >
+            <Box width="100%" maxWidth="140px" display="block" margin="auto">
+              <ElasSign status={data?.reviews[0].status} />
             </Box>
-          </Fade>
+            <Fade in={onNavDrawer} unmountOnExit>
+              <Box className={classes.yourProject}>
+                <Typography variant="subtitle2">
+                  Your {ProjectModeMapping[data?.mode]}
+                </Typography>
+                <Typography
+                  className={classes.projectTitle}
+                  variant="body2"
+                  color="textSecondary"
+                >
+                  {data?.name}
+                </Typography>
+              </Box>
+            </Fade>
+          </Stack>
         </ListItem>
       )}
-
-      <DrawerItem
-        key={"project-dashboard"}
-        path={``}
-        label={"Dashboard"}
-        mobileScreen={mobileScreen}
-        onNavDrawer={onNavDrawer}
-        toggleNavDrawer={toggleNavDrawer}
-      />
-
-      {projectInfo?.mode !== projectModes.SIMULATION && (
-        <DrawerItem
-          key={"project-review"}
-          path={`review`}
-          label={"Review"}
-          mobileScreen={mobileScreen}
-          onNavDrawer={onNavDrawer}
-          toggleNavDrawer={toggleNavDrawer}
-        />
-      )}
-      <DrawerItem
-        key={"project-history"}
-        path={`collection`}
-        label={"Collection"}
-        mobileScreen={mobileScreen}
-        onNavDrawer={onNavDrawer}
-        toggleNavDrawer={toggleNavDrawer}
-      />
-
-      {window.authentication && window.allowTeams && (
-        <DrawerItem
-          key={"project-team"}
-          path={`team`}
-          label={"Team"}
-          mobileScreen={mobileScreen}
-          onNavDrawer={onNavDrawer}
-          toggleNavDrawer={toggleNavDrawer}
-        />
-      )}
-
-      <DrawerItem
-        key={"project-settings"}
-        path={`settings`}
-        label={"Settings"}
-        mobileScreen={mobileScreen}
-        onNavDrawer={onNavDrawer}
-        toggleNavDrawer={toggleNavDrawer}
-      />
+      <Outlet />
 
       {/* Game */}
       <Dialog
@@ -246,140 +162,218 @@ const ProjectItemList = ({ mobileScreen, onNavDrawer, toggleNavDrawer }) => {
   );
 };
 
-const DrawerItemContainer = (props) => {
+const ProjectItemList = ({ mobileDrawer, showToolTip, toggleNavDrawer }) => {
+  const { subset, page } = useParams();
+
   return (
-    <StyledList aria-label="drawer item container">
-      {/* Top Section: Home page drawer */}
+    <Box className={classes.topSection}>
+      <DrawerItem
+        key={"project-dashboard"}
+        to={`../`}
+        primary={"Dashboard"}
+        selected={page === undefined}
+        showTooltip={showToolTip}
+        onClick={mobileDrawer ? toggleNavDrawer : undefined}
+        icon={<AssessmentOutlined />}
+        component={Link}
+      />
+
+      {subset === "reviews" && (
+        <DrawerItem
+          key={"project-review"}
+          to={`../review`}
+          primary={"Review"}
+          selected={page === "review"}
+          showTooltip={showToolTip}
+          onClick={mobileDrawer ? toggleNavDrawer : undefined}
+          icon={<AssignmentOutlined />}
+          component={Link}
+        />
+      )}
+      <DrawerItem
+        key={"project-history"}
+        to={`../collection`}
+        primary={"Collection"}
+        selected={page === "collection"}
+        showTooltip={showToolTip}
+        onClick={mobileDrawer ? toggleNavDrawer : undefined}
+        icon={<LibraryBooksOutlined />}
+        component={Link}
+      />
+
+      {window.authentication && window.allowTeams && (
+        <DrawerItem
+          key={"project-team"}
+          to={`../team`}
+          primary={"Team"}
+          selected={page === "team"}
+          showTooltip={showToolTip}
+          onClick={mobileDrawer ? toggleNavDrawer : undefined}
+          icon={<PeopleAltOutlined />}
+          component={Link}
+        />
+      )}
+
+      <DrawerItem
+        key={"project-settings"}
+        to={`../settings`}
+        primary={"Settings"}
+        selected={page === "settings"}
+        showTooltip={showToolTip}
+        onClick={mobileDrawer ? toggleNavDrawer : undefined}
+        icon={<SettingsOutlined />}
+        component={Link}
+      />
+    </Box>
+  );
+};
+
+const LandingItemList = ({ showTooltip, toggleNavDrawer, mobileDrawer }) => {
+  const { subset } = useParams();
+
+  return (
+    <div className={classes.topSection}>
+      <DrawerItem
+        key={"projects-reviews"}
+        to={"/reviews"}
+        primary={"Reviews"}
+        selected={subset === "reviews"}
+        showTooltip={showTooltip}
+        icon={<DashboardOutlined />}
+        component={Link}
+        onClick={mobileDrawer ? toggleNavDrawer : undefined}
+      />
+      <DrawerItem
+        key={"projects-simulations"}
+        to={"/simulations"}
+        primary={"Simulations"}
+        selected={subset === "simulations"}
+        showTooltip={showTooltip}
+        icon={<DashboardOutlined />}
+        component={Link}
+        onClick={mobileDrawer ? toggleNavDrawer : undefined}
+      />
+    </div>
+  );
+};
+
+const DrawerItemContainer = ({
+  mobileScreen,
+  onNavDrawer,
+  toggleNavDrawer,
+  toggleHelp,
+  toggleSettings,
+}) => {
+  return (
+    <StyledList>
+      {/* Top Section: Landing page drawer */}
       <Routes>
         <Route
           path="/:subset"
           element={
-            <div className={classes.topSection}>
-              <DrawerItem
-                key={"projects-reviews"}
-                path={"/reviews"}
-                label={"Reviews"}
-                mobileScreen={props.mobileScreen}
-                onNavDrawer={props.onNavDrawer}
-                toggleNavDrawer={props.toggleNavDrawer}
-              />
-              <DrawerItem
-                key={"projects-simulations"}
-                path={"/simulations"}
-                label={"Simulations"}
-                mobileScreen={props.mobileScreen}
-                onNavDrawer={props.onNavDrawer}
-                toggleNavDrawer={props.toggleNavDrawer}
-              />
-            </div>
-          }
-        />
-
-        {/* Top Section: Project page drawer */}
-        <Route
-          path="/:subset/:project_id/*"
-          element={
-            <ProjectItemList
-              mobileScreen={props.mobileScreen}
-              onNavDrawer={props.onNavDrawer}
-              toggleNavDrawer={props.toggleNavDrawer}
+            <LandingItemList
+              showTooltip={onNavDrawer}
+              toggleNavDrawer={toggleNavDrawer}
+              mobileDrawer={mobileScreen}
             />
           }
         />
+        <Route
+          path="/:subset/:project_id"
+          element={
+            <ProjectItemInfo
+              onNavDrawer={onNavDrawer}
+              mobileDrawer={mobileScreen}
+              toggleNavDrawer={toggleNavDrawer}
+            />
+          }
+        >
+          <Route
+            path=":page?"
+            element={
+              <ProjectItemList
+                showTooltip={onNavDrawer}
+                toggleNavDrawer={toggleNavDrawer}
+                mobileDrawer={mobileScreen}
+              />
+            }
+          />
+        </Route>
       </Routes>
 
+      <Divider />
+
       {/* Bottom Section */}
-      <div className={classes.bottomSection}>
-        <Divider />
-        {donateURL !== undefined && (
-          <Tooltip
-            disableHoverListener={props.onNavDrawer}
-            title="Donate"
-            placement="right"
-          >
-            <ListItemButton
-              component={"a"}
-              color="inherit"
-              href={donateURL}
-              target="_blank"
-            >
-              <ListItemIcon className={classes.icon}>
-                <PaymentOutlined />
-              </ListItemIcon>
-              <ListItemText
-                primary={
-                  <React.Fragment>
-                    Donate <OpenInNewIconStyled />
-                  </React.Fragment>
-                }
-              />
-            </ListItemButton>
-          </Tooltip>
-        )}
-        {communityURL !== undefined && (
-          <Tooltip
-            disableHoverListener={props.onNavDrawer}
-            title="Community"
-            placement="right"
-          >
-            <ListItemButton
-              component={"a"}
-              color="inherit"
-              href={communityURL}
-              target="_blank"
-            >
-              <ListItemIcon className={classes.icon}>
-                <Diversity1Outlined />
-              </ListItemIcon>
-              <ListItemText
-                primary={
-                  <React.Fragment>
-                    Community <OpenInNewIconStyled />
-                  </React.Fragment>
-                }
-              />
-            </ListItemButton>
-          </Tooltip>
-        )}
-        <Tooltip
-          disableHoverListener={props.onNavDrawer}
-          title="Customize"
-          placement="right"
-        >
-          <ListItemButton
+      <Box>
+        {donateURL && (
+          <DrawerItem
+            key={"donate"}
+            toolTipTitle={"Donate"}
+            primary={
+              <React.Fragment>
+                Donate <OpenInNewIconStyled />
+              </React.Fragment>
+            }
+            showTooltip={onNavDrawer}
+            icon={<PaymentOutlined />}
+            component={"a"}
+            href={donateURL}
+            target="_blank"
             onClick={() => {
-              if (props.mobileScreen) {
-                props.toggleNavDrawer();
+              if (mobileScreen) {
+                toggleNavDrawer();
               }
-              props.toggleSettings();
             }}
-          >
-            <ListItemIcon className={classes.icon}>
-              <TuneOutlined />
-            </ListItemIcon>
-            <ListItemText primary="Customize" />
-          </ListItemButton>
-        </Tooltip>
-        <Tooltip
-          disableHoverListener={props.onNavDrawer}
-          title="Help"
-          placement="right"
-        >
-          <ListItemButton
+          />
+        )}
+        {communityURL && (
+          <DrawerItem
+            key={"community"}
+            toolTipTitle={"Community"}
+            primary={
+              <React.Fragment>
+                Community <OpenInNewIconStyled />
+              </React.Fragment>
+            }
+            showTooltip={onNavDrawer}
+            icon={<Diversity1Outlined />}
+            component={"a"}
+            href={communityURL}
+            target="_blank"
             onClick={() => {
-              if (props.mobileScreen) {
-                props.toggleNavDrawer();
+              if (mobileScreen) {
+                toggleNavDrawer();
               }
-              props.toggleHelp();
             }}
-          >
-            <ListItemIcon className={classes.icon}>
-              <HelpOutlineOutlined />
-            </ListItemIcon>
-            <ListItemText primary="Help" />
-          </ListItemButton>
-        </Tooltip>
-      </div>
+          />
+        )}
+
+        <DrawerItem
+          key={"customize"}
+          primary={"Customize"}
+          showTooltip={onNavDrawer}
+          icon={<TuneOutlined />}
+          onClick={() => {
+            if (mobileScreen) {
+              toggleNavDrawer();
+            }
+            toggleSettings();
+          }}
+        />
+
+        <DrawerItem
+          key={"help"}
+          primary={"Help"}
+          showTooltip={onNavDrawer}
+          icon={<HelpOutlineOutlined />}
+          onClick={() => {
+            if (mobileScreen) {
+              toggleNavDrawer();
+            }
+            toggleHelp();
+          }}
+        />
+      </Box>
     </StyledList>
   );
 };
