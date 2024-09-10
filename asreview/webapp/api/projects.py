@@ -43,7 +43,6 @@ from werkzeug.utils import secure_filename
 
 import asreview as asr
 from asreview.config import LABEL_NA
-from asreview.config import PROJECT_MODE_ORACLE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
@@ -392,7 +391,7 @@ def api_get_project_data(project):  # noqa: F401
 
     try:
         as_data = project.read_data()
-    except FileNotFoundError as err:
+    except FileNotFoundError:
         return jsonify({"filename": None})
 
     return jsonify(
