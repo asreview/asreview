@@ -194,12 +194,12 @@ const ProjectTable = (props) => {
                 .map((row) => {
                   // if we do authentication, then we need to know who the owner is
                   row["owner_id"] =
-                    window.authenticated && "owner_id" in row
+                    window.authentication && "owner_id" in row
                       ? row["owner_id"]
                       : false;
                   // A collaborator can not edit
                   const isOwner =
-                    window.authenticated && row["owner_id"] === auth.id;
+                    window.authentication && row["owner_id"] === auth.id;
 
                   const isSimulating = () => {
                     return (
