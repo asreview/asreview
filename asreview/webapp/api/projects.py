@@ -255,8 +255,10 @@ def api_create_project():  # noqa: F401
         project.add_review()
 
         with open_state(project.project_path) as state:
-
-            if (as_data.labels is not None and pd.Series(as_data.labels).isnull().sum() > 0):
+            if (
+                as_data.labels is not None
+                and pd.Series(as_data.labels).isnull().sum() > 0
+            ):
                 labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
                 labels = as_data.labels[labeled_indices].tolist()
                 labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
@@ -393,7 +395,8 @@ def api_get_project_data(project):  # noqa: F401
     except FileNotFoundError as err:
         return jsonify({"filename": None})
 
-    return jsonify({
+    return jsonify(
+        {
             "n_rows": len(as_data),
             "n_unlabeled": n_unlabeled(as_data),
             "n_relevant": n_relevant(as_data),
@@ -407,7 +410,8 @@ def api_get_project_data(project):  # noqa: F401
             ),
             "n_english": None,
             "filename": Path(project.config["dataset_path"]).stem,
-        })
+        }
+    )
 
 
 @bp.route("/projects/<project_id>/dataset_writer", methods=["GET"])
