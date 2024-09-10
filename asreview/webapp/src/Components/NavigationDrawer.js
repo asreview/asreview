@@ -1,15 +1,8 @@
 import React from "react";
 
-import { useNavigate, Outlet, Link } from "react-router-dom";
-import {
-  Box,
-  ButtonBase,
-  CardMedia,
-  Drawer,
-  IconButton,
-  Toolbar,
-} from "@mui/material";
-import { styled, useTheme } from "@mui/material/styles";
+import { Outlet, Link } from "react-router-dom";
+import { Box, ButtonBase, Drawer, IconButton, Toolbar } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import { Menu } from "@mui/icons-material";
 
 import { DrawerItemContainer, Header } from "Components";
