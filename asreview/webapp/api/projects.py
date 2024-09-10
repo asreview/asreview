@@ -256,7 +256,7 @@ def api_create_project():  # noqa: F401
         with open_state(project.project_path) as state:
             if (
                 as_data.labels is not None
-                and pd.Series(as_data.labels).isnull().sum() > 0
+                and (n_irrelevant(as_data) > 0 or n_relevant(as_data) > 0)
             ):
                 labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
                 labels = as_data.labels[labeled_indices].tolist()
