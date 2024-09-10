@@ -121,7 +121,7 @@ SCHEMA = {
             "$id": "#/properties/mode",
             "type": "string",
             "title": "The mode schema",
-            "description": "The mode of the project. One of oracle, explore, or simulate.",
+            "description": "The mode of the project. One of oracle, or simulate.",
             "default": "",
             "enum": PROJECT_MODES,
             "examples": ["oracle"],

@@ -11,7 +11,7 @@ ACCOUNT = {
 }
 
 PROJECT = {
-    "mode": "explore",
+    "mode": "oracle",
     "title": "Project Title",
     "author": ACCOUNT["name"],
     "description": "Project description",

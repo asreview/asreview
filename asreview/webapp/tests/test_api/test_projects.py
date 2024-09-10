@@ -51,7 +51,7 @@ def test_create_projects(client, user):
     if not client.application.config["LOGIN_DISABLED"]:
         au.create_and_signin_user(client, 1)
 
-    r = au.create_project(client, "explore", benchmark="synergy:van_der_Valk_2021")
+    r = au.create_project(client, "oracle", benchmark="synergy:van_der_Valk_2021")
     assert r.status_code == 201
     assert r.json["name"].startswith("van_der_Valk_2021")
 
@@ -115,7 +115,7 @@ def test_create_projects_with_correct_tags(client, project):
         tags=json.dumps(tags),
     )
     assert r.status_code == 200
-    assert r.json["mode"] == "explore"
+    assert r.json["mode"] == "oracle"
     assert r.json["tags"] == tags
 
 
@@ -317,7 +317,7 @@ def test_update_project_info(client, project):
     assert r.status_code == 200
     assert r.json["authors"] == new_authors
     assert r.json["description"] == new_description
-    assert r.json["mode"] == "explore"
+    assert r.json["mode"] == "oracle"
     assert r.json["name"] == new_name
     assert r.json["tags"] == json.loads(new_tags)
 

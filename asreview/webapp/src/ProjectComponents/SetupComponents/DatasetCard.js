@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "react-query";
 
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -111,7 +112,14 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
           </Grid>
         </CardMedia>
       )}
+
       <CardContent>
+        {data?.n_unlabeled === 0 && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            The dataset contains labels for each record. You can see the label
+            during screening while labeling the records yourself.
+          </Alert>
+        )}
         {isFetchingData ? (
           <Skeleton>
             <Button />

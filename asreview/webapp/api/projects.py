@@ -56,6 +56,7 @@ from asreview.state.contextmanager import open_state
 from asreview.state.exceptions import StateNotFoundError
 from asreview.statistics import n_duplicates
 from asreview.statistics import n_irrelevant
+from asreview.statistics import n_unlabeled
 from asreview.statistics import n_relevant
 from asreview.utils import _get_filename_from_url
 from asreview.webapp import DB
@@ -254,16 +255,12 @@ def api_create_project():  # noqa: F401
         project.add_review()
 
         with open_state(project.project_path) as state:
-            # if the data contains labels and oracle mode, add them to the state file
-            if (
-                project.config["mode"] == PROJECT_MODE_ORACLE
-                and as_data.labels is not None
-            ):
+
+            if (as_data.labels is not None and pd.Series(as_data.labels).isnull().sum() > 0):
                 labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
                 labels = as_data.labels[labeled_indices].tolist()
                 labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
 
-                # add the labels as prior data
                 state.add_labeling_data(
                     record_ids=labeled_record_ids,
                     labels=labels,
@@ -392,11 +389,13 @@ def api_get_project_data(project):  # noqa: F401
     """"""
 
     try:
-        # get statistics of the dataset
         as_data = project.read_data()
+    except FileNotFoundError as err:
+        return jsonify({"filename": None})
 
-        statistics = {
+    return jsonify({
             "n_rows": len(as_data),
+            "n_unlabeled": n_unlabeled(as_data),
             "n_relevant": n_relevant(as_data),
             "n_irrelevant": n_irrelevant(as_data),
             "n_duplicates": n_duplicates(as_data),
@@ -408,13 +407,7 @@ def api_get_project_data(project):  # noqa: F401
             ),
             "n_english": None,
             "filename": Path(project.config["dataset_path"]).stem,
-        }
-
-    except FileNotFoundError as err:
-        logging.info(err)
-        statistics = {"filename": None}
-
-    return jsonify(statistics)
+        })
 
 
 @bp.route("/projects/<project_id>/dataset_writer", methods=["GET"])
@@ -779,7 +772,7 @@ def api_update_review_status(project, review_id):
     """Update the status of the review.
 
     The following status updates are allowed for
-    oracle and explore:
+    oracle:
     - `review` to `finished`
     - `finished` to `review` if not pool empty
     - `error` to `setup`
