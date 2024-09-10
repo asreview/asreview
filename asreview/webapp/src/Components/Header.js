@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { AppBar, Box, ButtonBase, Toolbar, IconButton } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Menu } from "@mui/icons-material";
@@ -39,8 +39,6 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const Header = (props) => {
-  const navigate = useNavigate();
-
   return (
     <Root aria-label="appbar-toolbar">
       <AppBar color="inherit" position="fixed" className={classes.appBar}>
