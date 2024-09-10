@@ -19,7 +19,6 @@ const ProjectsOverview = ({
   const modeLabel = {
     simulate: "Simulate",
     oracle: "Review",
-    explore: "Validate",
   };
 
   const [openCreateProject, toggleCreateProject] = useToggle(false);

@@ -160,7 +160,7 @@ def get_all_projects(client: FlaskClient):
     return response
 
 
-def create_project(client: FlaskClient, mode: str = "explore", **kwargs):
+def create_project(client: FlaskClient, mode: str = "oracle", **kwargs):
     response = client.post(
         "/api/projects/create",
         data={
@@ -175,7 +175,7 @@ def update_project(
     client: FlaskClient,
     project: Union[Project, asr.Project],
     name: str = "name",
-    mode: str = "explore",
+    mode: str = "oracle",
     authors: str = "authors",
     description: str = "description",
     tags: str = "[]",

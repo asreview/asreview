@@ -61,18 +61,6 @@ const HomePage = (props) => {
             }
           />
           <Route
-            path="/validations"
-            element={
-              <ProjectsOverview
-                mobileScreen={props.mobileScreen}
-                onNavDrawer={props.onNavDrawer}
-                projectCheck={props.projectCheck}
-                setProjectCheck={props.setProjectCheck}
-                mode={"explore"}
-              />
-            }
-          />
-          <Route
             path="/simulations"
             element={
               <ProjectsOverview

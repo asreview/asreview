@@ -118,7 +118,6 @@ const returnElasState = (info) => {
 
 const ProjectModeMapping = {
   oracle: "Review",
-  explore: "Validation",
   simulate: "Simulation",
 };
 
@@ -260,14 +259,6 @@ const DrawerItemContainer = (props) => {
                 key={"projects-reviews"}
                 path={"/reviews"}
                 label={"Reviews"}
-                mobileScreen={props.mobileScreen}
-                onNavDrawer={props.onNavDrawer}
-                toggleNavDrawer={props.toggleNavDrawer}
-              />
-              <DrawerItem
-                key={"projects-validations"}
-                path={"/validations"}
-                label={"Validations"}
                 mobileScreen={props.mobileScreen}
                 onNavDrawer={props.onNavDrawer}
                 toggleNavDrawer={props.toggleNavDrawer}

@@ -183,18 +183,6 @@ const App = () => {
             }
           />
           <Route
-            path="validations/:project_id/*"
-            element={
-              <ProjectPage
-                mobileScreen={mobileScreen}
-                onNavDrawer={onNavDrawer}
-                fontSize={fontSize}
-                projectCheck={projectCheck}
-                setProjectCheck={setProjectCheck}
-              />
-            }
-          />
-          <Route
             path="simulations/:project_id/*"
             element={
               <ProjectPage
