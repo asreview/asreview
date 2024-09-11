@@ -192,7 +192,7 @@ def lab_entry_point(argv):
         else:
             waitress.serve(app, host=args.host, port=port, threads=6)
     except OSError as e:
-        console.log(f"Huey instance could not be executed: {e}")   
+        console.log(f"Huey instance could not be executed: {e}")
     except KeyboardInterrupt:
         console.print("\n\nShutting down server\n\n")
 
