@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
+import importlib
 import logging
+import multiprocessing
 import os
 import socket
 import webbrowser
@@ -27,6 +29,8 @@ import asreview as asr
 from asreview._deprecated import DeprecateAction
 from asreview._deprecated import mark_deprecated_help_strings
 from asreview.webapp.app import create_app
+from asreview.webapp.app import run_huey_consumer
+from asreview.webapp.app import huey
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
 from asreview.webapp.utils import get_projects
@@ -177,8 +181,18 @@ def lab_entry_point(argv):
 
     console.print("Press [bold]Ctrl+C[/bold] to exit.\n\n")
 
+    # start huey queue
     try:
-        waitress.serve(app, host=args.host, port=port, threads=6)
+        process = multiprocessing.Process(target=run_huey_consumer)
+        process.start()
+        # check if process is running
+        # (process.is_alive() can be called a moment after exec)
+        if process.pid is None:
+            raise OSError("Huey server is not working")
+        else:
+            waitress.serve(app, host=args.host, port=port, threads=6)
+    except OSError as e:
+        console.log(f"Huey instance could not be executed: {e}")   
     except KeyboardInterrupt:
         console.print("\n\nShutting down server\n\n")
 

@@ -52,6 +52,7 @@ huey = SqliteHuey(
 
 
 def run_huey_consumer():
+    # import here to avoid circular imports
     importlib.import_module("asreview.webapp.tasks")
     consumer = huey.create_consumer()
     consumer.run()
@@ -183,8 +184,4 @@ def create_app(config_path=None):
     def static_from_root():
         return send_from_directory("build", request.path[1:])
 
-    # start huey queue
-    process = multiprocessing.Process(target=run_huey_consumer)
-    process.start()
-    
     return app
