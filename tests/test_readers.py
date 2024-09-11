@@ -1,6 +1,7 @@
 from pathlib import Path
 from urllib.request import urlretrieve
 
+import pytest
 import rispy
 from pytest import mark
 
@@ -26,7 +27,9 @@ from asreview.utils import _is_url
         ("scopus.ris", 6, []),
         ("ovid_zotero.ris", 6, []),
         ("proquest.ris", 6, []),
-        ("https://osf.io/download/fg93a/", 38, []),
+        pytest.param(
+            "https://osf.io/download/fg93a/", 38, [], marks=mark.internet_required
+        ),
     ],
 )
 def test_reader(test_file, n_lines, ignore_col):
@@ -191,9 +194,19 @@ def test_write_data(tmpdir):
     assert list(asr_data.labels) == list(asr_data_diff.labels)
 
 
+@mark.internet_required
 def test_load_dataset_from_url(tmpdir):
     url = "https://zenodo.org/api/records/1162952/files/Hall.csv/content"
 
     urlretrieve(url, tmpdir / "Hall.csv")
     as_data = load_dataset(tmpdir / "Hall.csv")
     assert len(as_data) == 8911
+
+
+@pytest.mark.skip()
+@pytest.mark.parametrize(
+    "dataset_fp", Path("..", "citation-file-formatting", "Datasets", "RIS").glob("*")
+)
+def test_real_datasets(dataset_fp):
+    data = load_dataset(dataset_fp)
+    assert len(data) > 5

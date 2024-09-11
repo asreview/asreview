@@ -11,29 +11,26 @@ import {
 } from "react-share";
 import {
   Box,
-  Fade,
   Grid,
   SpeedDial,
   SpeedDialAction,
   Stack,
+  Tab,
+  Tabs,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Share } from "@mui/icons-material";
 
-import { PageHeader } from "Components";
 import {
-  NumberCard,
+  ReviewProgress,
   ShareFabAction,
-  ProgressChart,
   ProgressDensityChart,
   ProgressRecallChart,
+  LabelingHistory,
+  LabelingFrequency,
+  StoppingSuggestion,
 } from "ProjectComponents/AnalyticsComponents";
 import { ProjectAPI } from "api";
-import { projectModes } from "globals.js";
-import { Switch, FormControlLabel } from "@mui/material";
-import { Tooltip, IconButton } from "@mui/material";
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
-import { tooltipClasses } from "@mui/material";
 
 const Root = styled("div")(({ theme }) => ({}));
 
@@ -47,40 +44,21 @@ const actions = [
 
 const AnalyticsPage = (props) => {
   const { project_id } = useParams();
-  // State for Hide Prior Knowledge switch
-  const [includePriorKnowledge, setIncludePriorKnowledge] = useState(false);
 
-  // Queries for fetching data, including includePriorKnowledge state
   const progressQuery = useQuery(
-    ["fetchProgress", { project_id, includePrior: includePriorKnowledge }],
+    ["fetchProgress", { project_id }],
     ({ queryKey }) =>
       ProjectAPI.fetchProgress({
         queryKey,
-        includePrior: includePriorKnowledge,
       }),
     { refetchOnWindowFocus: false },
   );
-  const progressDensityQuery = useQuery(
-    [
-      "fetchProgressDensity",
-      { project_id, includePrior: includePriorKnowledge },
-    ],
+  // New unified query for fetching data
+  const genericDataQuery = useQuery(
+    ["fetchGenericData", { project_id }],
     ({ queryKey }) =>
-      ProjectAPI.fetchProgressDensity({
+      ProjectAPI.fetchGenericData({
         queryKey,
-        includePrior: includePriorKnowledge,
-      }),
-    { refetchOnWindowFocus: false },
-  );
-  const progressRecallQuery = useQuery(
-    [
-      "fetchProgressRecall",
-      { project_id, includePrior: includePriorKnowledge },
-    ],
-    ({ queryKey }) =>
-      ProjectAPI.fetchProgressRecall({
-        queryKey,
-        includePrior: includePriorKnowledge,
       }),
     { refetchOnWindowFocus: false },
   );
@@ -109,178 +87,105 @@ const AnalyticsPage = (props) => {
     }
   };
 
-  // Handle toggling the switch
-  const handleTogglePriorKnowledge = () => {
-    setIncludePriorKnowledge((prev) => !prev);
-  };
-
-  // Custom styled tooltip for the switch
-  const CustomTooltip = styled(({ className, ...props }) => (
-    <Tooltip {...props} classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: theme.palette.background.paper,
-      color: theme.palette.text.primary,
-      boxShadow: theme.shadows[1],
-      fontSize: theme.typography.pxToRem(12),
-      padding: "10px",
-    },
-  }));
+  const [activeHistoryTab, setActiveHistoryTab] = useState(0);
+  const [activeChartTab, setActiveChartTab] = useState(0);
+  const [activeProgressTab, setActiveProgressTab] = useState(0);
 
   return (
     <Root aria-label="analytics page">
-      <Fade in>
-        <Box>
-          {props.mode !== projectModes.SIMULATION && (
-            <Box
-              className="main-page-sticky-header-wrapper"
-              sx={{ background: (theme) => theme.palette.background.paper }}
+      <Box className="main-page-body-wrapper">
+        <Stack spacing={2} className="main-page-body">
+          <Box>
+            <Tabs
+              value={activeProgressTab}
+              onChange={(event, newValue) => setActiveProgressTab(newValue)}
             >
-              <Box
-                className="main-page-sticky-header with-button"
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <PageHeader
-                  header="Dashboard"
-                  mobileScreen={props.mobileScreen}
-                />
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={!includePriorKnowledge}
-                        onChange={handleTogglePriorKnowledge}
-                      />
-                    }
-                    label="Hide Prior Knowledge"
-                    labelPlacement="start"
-                  />
-                  <CustomTooltip
-                    title={
-                      <React.Fragment>
-                        <br />
-                        <br />
-                        <ul style={{ margin: 0, paddingLeft: "1.5em" }}>
-                          <li>
-                            <strong>Hiding</strong> prior knowledge will only
-                            show labelings done using ASReview.
-                          </li>
-                          <br />
-                          <li>
-                            <strong>Showing</strong> prior knowledge will show
-                            combined labelings from the original dataset and
-                            those done using ASReview.
-                          </li>
-                        </ul>
-                      </React.Fragment>
-                    }
-                    arrow
-                  >
-                    <IconButton size="small" sx={{ marginRight: 1 }}>
-                      <HelpOutlineIcon />
-                    </IconButton>
-                  </CustomTooltip>
-                </Box>
-              </Box>
-            </Box>
-          )}
-          {props.mode === projectModes.SIMULATION && (
-            <Box
-              className="main-page-sticky-header-wrapper"
-              sx={{ background: (theme) => theme.palette.background.paper }}
-            >
-              <Box
-                className="main-page-sticky-header with-button"
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <PageHeader
-                  header="Analytics"
-                  mobileScreen={props.mobileScreen}
-                />
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={!includePriorKnowledge}
-                        onChange={handleTogglePriorKnowledge}
-                      />
-                    }
-                    label="Hide Prior Knowledge"
-                    labelPlacement="start"
-                  />
-                  <CustomTooltip
-                    title={
-                      <React.Fragment>
-                        Toggle to include or hide prior knowledge from the
-                        statistics.
-                        <br />
-                        <br />
-                        <ul style={{ margin: 0, paddingLeft: "1.5em" }}>
-                          <li>
-                            <strong>Hiding</strong> prior knowledge will only
-                            show labelings done using ASReview.
-                          </li>
-                          <br />
-                          <li>
-                            <strong>Showing</strong> prior knowledge will show
-                            combined labelings from the original dataset and
-                            those done using ASReview.
-                          </li>
-                        </ul>
-                      </React.Fragment>
-                    }
-                    arrow
-                  >
-                    <IconButton size="small" sx={{ marginRight: 1 }}>
-                      <HelpOutlineIcon />
-                    </IconButton>
-                  </CustomTooltip>
-                </Box>
-              </Box>
-            </Box>
-          )}
-          <Box className="main-page-body-wrapper">
-            <Stack spacing={3} className="main-page-body">
-              <Box>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} sm={5}>
-                    <ProgressChart
-                      isSimulating={props.isSimulating}
-                      mobileScreen={props.mobileScreen}
-                      mode={props.mode}
-                      progressQuery={progressQuery}
-                      includePriorKnowledge={includePriorKnowledge} // Pass the state as prop
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={7}>
-                    <NumberCard
-                      mobileScreen={props.mobileScreen}
-                      progressQuery={progressQuery}
-                      includePriorKnowledge={includePriorKnowledge} // Pass the state as prop
-                    />
-                  </Grid>
-                </Grid>
-              </Box>
-              <ProgressDensityChart
+              <Tab label="Review Progress" />
+              <Tab label="Stopping Suggestion" />
+            </Tabs>
+            {activeProgressTab === 0 && (
+              <ReviewProgress
                 mobileScreen={props.mobileScreen}
-                progressDensityQuery={progressDensityQuery}
+                progressQuery={progressQuery}
               />
-              <ProgressRecallChart
+            )}
+            {activeProgressTab === 1 && (
+              <StoppingSuggestion
                 mobileScreen={props.mobileScreen}
-                progressRecallQuery={progressRecallQuery}
+                progressQuery={progressQuery}
               />
-            </Stack>
+            )}
           </Box>
-        </Box>
-      </Fade>
+
+          <Grid item xs={12}>
+            <Box sx={{ position: "relative" }}>
+              <Box>
+                <Tabs
+                  value={activeHistoryTab}
+                  onChange={(event, newValue) => setActiveHistoryTab(newValue)}
+                  left
+                >
+                  <Tab label="Labeling History" />
+                  <Tab label="Labeling Frequency" />
+                </Tabs>
+                {activeHistoryTab === 0 && (
+                  <LabelingHistory
+                    mobileScreen={props.mobileScreen}
+                    genericDataQuery={genericDataQuery}
+                    progressQuery={progressQuery}
+                  />
+                )}
+                {activeHistoryTab === 1 && (
+                  <LabelingFrequency
+                    mobileScreen={props.mobileScreen}
+                    genericDataQuery={genericDataQuery}
+                    progressQuery={progressQuery}
+                  />
+                )}
+              </Box>
+            </Box>
+          </Grid>
+
+          <Box
+            sx={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <Box sx={{ width: "100%" }}>
+              <Tabs
+                value={activeChartTab}
+                onChange={(event, newValue) => setActiveChartTab(newValue)}
+                left
+              >
+                <Tab label="Density" />
+                <Tab label="Recall" />
+              </Tabs>
+              {activeChartTab === 0 && (
+                <ProgressDensityChart
+                  mobileScreen={props.mobileScreen}
+                  genericDataQuery={genericDataQuery}
+                  sx={{
+                    height: "400px",
+                    width: "100%",
+                  }}
+                />
+              )}
+              {activeChartTab === 1 && (
+                <ProgressRecallChart
+                  mobileScreen={props.mobileScreen}
+                  genericDataQuery={genericDataQuery}
+                  sx={{
+                    height: "400px",
+                    width: "100%",
+                  }}
+                />
+              )}
+            </Box>
+          </Box>
+        </Stack>
+      </Box>
       <SpeedDial
         ariaLabel="share project analytics"
         className="main-page-fab"

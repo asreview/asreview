@@ -41,8 +41,6 @@ from werkzeug.utils import secure_filename
 
 import asreview as asr
 from asreview.config import LABEL_NA
-from asreview.config import PROJECT_MODE_EXPLORE
-from asreview.config import PROJECT_MODE_ORACLE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
@@ -55,6 +53,7 @@ from asreview.state.contextmanager import open_state
 from asreview.state.exceptions import StateNotFoundError
 from asreview.statistics import n_duplicates
 from asreview.statistics import n_irrelevant
+from asreview.statistics import n_unlabeled
 from asreview.statistics import n_relevant
 from asreview.utils import _get_filename_from_url
 from asreview.webapp import DB
@@ -63,6 +62,8 @@ from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
+from asreview.utils import _check_model, _reset_model_settings
+
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -272,22 +273,18 @@ def api_create_project():  # noqa: F401
         as_data = project.add_dataset(data_path.name)
         project.add_review()
 
-        with open_state(project.project_path) as state:
-            # if the data contains labels and oracle mode, add them to the state file
-            if (
-                project.config["mode"] == PROJECT_MODE_ORACLE
-                and as_data.labels is not None
-            ):
+        n_labeled = n_irrelevant(as_data) + n_relevant(as_data)
+
+        if as_data.labels is not None and n_labeled > 0 and n_labeled < len(as_data):
+            with open_state(project.project_path) as state:
                 labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
                 labels = as_data.labels[labeled_indices].tolist()
                 labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
 
-                # add the labels as prior data
                 state.add_labeling_data(
                     record_ids=labeled_record_ids,
                     labels=labels,
-                    notes=[None for _ in labeled_record_ids],
-                    prior=True,
+                    user_id=None,
                 )
 
     except Exception as err:
@@ -412,11 +409,14 @@ def api_get_project_data(project):  # noqa: F401
     """"""
 
     try:
-        # get statistics of the dataset
         as_data = project.read_data()
+    except FileNotFoundError:
+        return jsonify({"filename": None})
 
-        statistics = {
+    return jsonify(
+        {
             "n_rows": len(as_data),
+            "n_unlabeled": n_unlabeled(as_data),
             "n_relevant": n_relevant(as_data),
             "n_irrelevant": n_irrelevant(as_data),
             "n_duplicates": n_duplicates(as_data),
@@ -429,12 +429,7 @@ def api_get_project_data(project):  # noqa: F401
             "n_english": None,
             "filename": Path(project.config["dataset_path"]).stem,
         }
-
-    except FileNotFoundError as err:
-        logging.info(err)
-        statistics = {"filename": None}
-
-    return jsonify(statistics)
+    )
 
 
 @bp.route("/projects/<project_id>/dataset_writer", methods=["GET"])
@@ -793,7 +788,7 @@ def api_update_review_status(project, review_id):
     """Update the status of the review.
 
     The following status updates are allowed for
-    oracle and explore:
+    oracle:
     - `review` to `finished`
     - `finished` to `review` if not pool empty
     - `error` to `setup`
@@ -838,7 +833,7 @@ def api_update_review_status(project, review_id):
     return jsonify({"status": status}), 201
 
 
-@bp.route("/projects/import_project", methods=["POST"])
+@bp.route("/projects/import", methods=["POST"])
 @login_required
 def api_import_project():
     """Import project"""
@@ -851,20 +846,38 @@ def api_import_project():
         project = asr.Project.load(
             request.files["file"], asreview_path(), safe_import=True
         )
-
     except Exception as err:
-        logging.error(err)
-        raise ValueError("Failed to import project.")
+        raise ValueError("Failed to import project.") from err
 
-    if current_app.config.get("LOGIN_DISABLED", False):
-        return jsonify(project.config)
+    settings_fp = Path(
+        project.project_path,
+        "reviews",
+        project.config["reviews"][0]["id"],
+        "settings_metadata.json",
+    )
+    settings = ReviewSettings().from_file(settings_fp)
 
-    # create a database entry for this project
-    current_user.projects.append(Project(project_id=project.config.get("id")))
-    project.config["owner_id"] = current_user.id
-    DB.session.commit()
+    warnings = []
+    try:
+        _check_model(settings)
+    except ValueError as err:
+        settings_model_reset = _reset_model_settings(settings)
+        with open(settings_fp, "w") as f:
+            json.dump(asdict(settings_model_reset), f)
+        warnings.append(
+            str(err) + " Check if an extension with the model is installed."
+        )
+        warnings.append(
+            " The model settings have been reset to the default model and"
+            " can be changed in the project settings."
+        )
 
-    return jsonify(project.config)
+    if not current_app.config.get("LOGIN_DISABLED", False):
+        current_user.projects.append(Project(project_id=project.config.get("id")))
+        project.config["owner_id"] = current_user.id
+        DB.session.commit()
+
+    return jsonify({"data": project.config, "warnings": warnings})
 
 
 def _add_tags_to_export_data(project, export_data, state_df):
@@ -906,6 +919,9 @@ def _add_tags_to_export_data(project, export_data, state_df):
 @project_authorization
 def api_export_dataset(project):
     """Export dataset with relevant/irrelevant labels"""
+
+    # todo: export tags
+    # todo: export labels from state file always as asreview_label
 
     file_format = request.args.get("format", None)
     collections = request.args.getlist("collections", type=str)
@@ -984,14 +1000,12 @@ def api_export_dataset(project):
 
         _add_tags_to_export_data(project, as_data, state_df)
 
-        keep_old_labels = project.config["mode"] == PROJECT_MODE_EXPLORE
-
         as_data.to_file(
             fp=tmp_path_dataset,
             labels=labels,
             ranking=export_order,
             writer=writer,
-            keep_old_labels=keep_old_labels,
+            keep_old_labels=True,
         )
 
         return send_file(
@@ -1117,79 +1131,18 @@ def api_get_progress_info(project):  # noqa: F401
     return jsonify(_get_stats(project, include_priors=include_priors))
 
 
-@bp.route("/projects/<project_id>/progress_density", methods=["GET"])
+@bp.route("/projects/<project_id>/progress_data", methods=["GET"])
 @login_required
 @project_authorization
-def api_get_progress_density(project):
-    """Get progress density of a project"""
+def api_get_progress_data(project):  # Consolidated endpoint
+    """Get raw progress data of a project"""
 
     include_priors = request.args.get("priors", False, type=bool)
-
-    # get label history
-    with open_state(project.project_path) as s:
-        data = s.get_results_table("label", priors=include_priors)
-
-    # create a dataset with the rolling mean of every 10 papers
-    df = data.rolling(10, min_periods=1).mean()
-    df["Total"] = df.index + 1
-
-    # transform mean(percentage) to number
-    for i in range(0, len(df)):
-        if df.loc[i, "Total"] < 10:
-            df.loc[i, "Irrelevant"] = (1 - df.loc[i, "label"]) * df.loc[i, "Total"]
-            df.loc[i, "label"] = df.loc[i, "Total"] - df.loc[i, "Irrelevant"]
-        else:
-            df.loc[i, "Irrelevant"] = (1 - df.loc[i, "label"]) * 10
-            df.loc[i, "label"] = 10 - df.loc[i, "Irrelevant"]
-
-    df = df.round(1).to_dict(orient="records")
-    for d in df:
-        d["x"] = d.pop("Total")
-
-    df_relevant = [{k: v for k, v in d.items() if k != "Irrelevant"} for d in df]
-    for d in df_relevant:
-        d["y"] = d.pop("label")
-
-    df_irrelevant = [{k: v for k, v in d.items() if k != "label"} for d in df]
-    for d in df_irrelevant:
-        d["y"] = d.pop("Irrelevant")
-
-    return jsonify({"relevant": df_relevant, "irrelevant": df_irrelevant})
-
-
-@bp.route("/projects/<project_id>/progress_recall", methods=["GET"])
-@login_required
-@project_authorization
-def api_get_progress_recall(project):
-    """Get cumulative number of inclusions by ASReview/at random"""
-
-    include_priors = request.args.get("priors", False, type=bool)
-
-    as_data = project.read_data()
 
     with open_state(project.project_path) as s:
         data = s.get_results_table("label", priors=include_priors)
 
-    df = data.cumsum()
-
-    df["Total"] = df.index + 1
-    df["Random"] = (df["Total"] * (df["label"][-1:] / len(as_data))).round()
-
-    df = df.round(1).to_dict(orient="records")
-    for d in df:
-        d["x"] = d.pop("Total")
-
-    df_asreview = [{k: v for k, v in d.items() if k != "Random"} for d in df]
-    for d in df_asreview:
-        d["y"] = d.pop("label")
-
-    df_random = [{k: v for k, v in d.items() if k != "label"} for d in df]
-    for d in df_random:
-        d["y"] = d.pop("Random")
-
-    payload = {"asreview": df_asreview, "random": df_random}
-
-    return jsonify(payload)
+    return jsonify(data.to_dict(orient="records"))
 
 
 @bp.route("/projects/<project_id>/record/<record_id>", methods=["POST", "PUT"])

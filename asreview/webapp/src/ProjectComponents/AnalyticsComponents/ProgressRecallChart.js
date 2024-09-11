@@ -1,7 +1,22 @@
-import React from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import Chart from "react-apexcharts";
-import { Card, CardContent, Skeleton, Stack, Typography } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  Skeleton,
+  Stack,
+  Typography,
+  IconButton,
+  Menu,
+  MenuItem,
+  Tooltip,
+  tooltipClasses,
+  Box,
+} from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
+import GetAppIcon from "@mui/icons-material/GetApp";
+import { HelpOutline } from "@mui/icons-material";
+import { toPng, toJpeg, toSvg } from "html-to-image";
 
 import { CardErrorHandler } from "Components";
 import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
@@ -54,14 +69,8 @@ const StyledCard = styled(Card)(({ theme }) => ({
   },
 
   [`& .${classes.tooltipLabelMarkerRandomColor}`]: {
-    ...(theme.palette.mode === "light" && {
-      color: theme.palette.secondary.light,
-      background: theme.palette.secondary.light,
-    }),
-    ...(theme.palette.mode === "dark" && {
-      color: theme.palette.secondary.main,
-      background: theme.palette.secondary.main,
-    }),
+    color: theme.palette.info.main,
+    background: theme.palette.info.main,
   },
 
   [`& .${classes.tooltipLabelASReviewNumber}`]: {
@@ -73,9 +82,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
 
   [`& .${classes.tooltipLabelRandomNumber}`]: {
     marginLeft: 32,
-    ...(theme.palette.mode === "dark" && {
-      color: theme.palette.secondary.main,
-    }),
+    color: theme.palette.info.main,
   },
 
   [`& .${classes.tooltipLabelTextSecondaryColor}`]: {
@@ -84,6 +91,18 @@ const StyledCard = styled(Card)(({ theme }) => ({
 
   [`& .${classes.tooltipDividerColor}`]: {
     borderColor: theme.palette.divider,
+  },
+}));
+
+const StyledTooltip = styled(({ className, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: theme.palette.background.paper,
+    color: theme.palette.text.primary,
+    padding: 0,
+    maxWidth: 410,
+    fontSize: theme.typography.pxToRem(12),
   },
 }));
 
@@ -136,42 +155,72 @@ const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
   );
 };
 
+const calculateProgressRecall = (data) => {
+  // Total number of relevant items (inclusions)
+  const totalInclusions = data.reduce((acc, curr) => acc + curr.label, 0);
+  const totalRecords = data.length;
+
+  return data.map((entry, index, arr) => {
+    // Cumulative sum of relevant items up to the current index
+    const cumulativeLabel = arr
+      .slice(0, index + 1)
+      .reduce((acc, curr) => acc + curr.label, 0);
+
+    // Calculate the expected random inclusions
+    const expectedRandom = Math.round(
+      (index + 1) * (totalInclusions / totalRecords),
+    );
+
+    // Return the results with the same structure as the backend
+    return {
+      x: index + 1,
+      asreview: cumulativeLabel,
+      random: expectedRandom,
+    };
+  });
+};
+
 export default function ProgressRecallChart(props) {
   const theme = useTheme();
+  const chartRef = useRef(null);
 
-  const lightModePrimaryColor = React.useCallback(() => {
+  const lightModePrimaryColor = useCallback(() => {
     return theme.palette.mode === "light"
       ? theme.palette.primary.light
       : theme.palette.primary.main;
   }, [theme.palette.mode, theme.palette.primary]);
 
-  const lightModeSecondaryColor = React.useCallback(() => {
-    return theme.palette.mode === "light"
-      ? theme.palette.secondary.light
-      : theme.palette.secondary.main;
-  }, [theme.palette.mode, theme.palette.secondary]);
+  const darkBlueColor = useCallback(() => {
+    return theme.palette.info.main;
+  }, [theme.palette.info]);
 
-  /**
-   * Chart data array
-   */
-  const seriesArray = React.useCallback(() => {
-    if (props.progressRecallQuery.data) {
+  const seriesArray = useCallback(() => {
+    if (props.genericDataQuery.data) {
+      const calculatedData = calculateProgressRecall(
+        props.genericDataQuery.data,
+      );
       return [
         {
           name: "Relevant by ASReview LAB",
-          data: props.progressRecallQuery.data?.asreview,
+          data: calculatedData.map((item) => ({
+            x: item.x,
+            y: item.asreview,
+          })),
         },
         {
-          name: "Random relevant",
-          data: props.progressRecallQuery.data?.random,
+          name: "Random Relevant",
+          data: calculatedData.map((item) => ({
+            x: item.x,
+            y: item.random,
+          })),
         },
       ];
     } else {
       return [];
     }
-  }, [props.progressRecallQuery.data]);
+  }, [props.genericDataQuery.data]);
 
-  const maxY = React.useCallback(() => {
+  const maxY = useCallback(() => {
     if (seriesArray()[0]?.data !== undefined) {
       return Math.max.apply(
         Math,
@@ -187,7 +236,7 @@ export default function ProgressRecallChart(props) {
   /**
    * Chart options
    */
-  const optionsChart = React.useCallback(() => {
+  const optionsChart = useCallback(() => {
     const maxYValue = maxY() || 0;
     const tickAmount = 7;
     const closestDivisibleBy7 = Math.ceil(maxYValue / tickAmount) * tickAmount; // To make the intervals consistent, max value in the y-axis should be always divisible by 7.
@@ -201,13 +250,13 @@ export default function ProgressRecallChart(props) {
         id: "ASReviewLABprogressRecall",
         type: "line",
         toolbar: {
-          show: !props.mobileScreen,
+          show: false, // Hide the toolbar, it's replaced by the download button
         },
         zoom: {
           enabled: false,
         },
       },
-      colors: [lightModePrimaryColor(), lightModeSecondaryColor()],
+      colors: [lightModePrimaryColor(), darkBlueColor()],
       dataLabels: {
         enabled: false,
       },
@@ -252,7 +301,7 @@ export default function ProgressRecallChart(props) {
           show: true,
         },
         title: {
-          text: "Number of reviewed records",
+          text: "Records Reviewed",
         },
         type: "numeric",
         axisTicks: {
@@ -264,8 +313,8 @@ export default function ProgressRecallChart(props) {
       },
       yaxis: {
         labels: {
-          formatter: function (val, index) {
-            return val.toFixed();
+          formatter: function (val) {
+            return val !== null && val !== undefined ? val.toFixed() : "";
           },
         },
         showAlways: false,
@@ -274,49 +323,165 @@ export default function ProgressRecallChart(props) {
         min: 0,
         tickAmount: tickAmount,
         title: {
-          text: "Number of relevant records",
+          text: "Relevant Records",
         },
       },
     };
-  }, [
-    theme,
-    lightModePrimaryColor,
-    lightModeSecondaryColor,
-    maxY,
-    props.mobileScreen,
-  ]);
+  }, [theme, lightModePrimaryColor, darkBlueColor, maxY, props.mobileScreen]);
 
-  const [series, setSeries] = React.useState(seriesArray());
-  const [options, setOptions] = React.useState(optionsChart());
+  const [series, setSeries] = useState(seriesArray());
+  const [options, setOptions] = useState(optionsChart());
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setSeries(seriesArray());
     setOptions(optionsChart());
   }, [seriesArray, optionsChart]);
 
+  const handleDownloadClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDownload = (format) => {
+    setAnchorEl(null);
+
+    const node = chartRef.current.querySelector(".apexcharts-canvas");
+    const downloadFileName = `chart.${format}`;
+
+    switch (format) {
+      case "png":
+        toPng(node)
+          .then((dataUrl) => {
+            const link = document.createElement("a");
+            link.download = downloadFileName;
+            link.href = dataUrl;
+            link.click();
+          })
+          .catch((error) => {
+            console.error("oops, something went wrong!", error);
+          });
+        break;
+      case "jpeg":
+        toJpeg(node, {
+          quality: 1,
+          backgroundColor: theme.palette.background.paper,
+        })
+          .then((dataUrl) => {
+            const link = document.createElement("a");
+            link.download = downloadFileName;
+            link.href = dataUrl;
+            link.click();
+          })
+          .catch((error) => {
+            console.error("oops, something went wrong!", error);
+          });
+        break;
+      case "svg":
+        toSvg(node)
+          .then((dataUrl) => {
+            const link = document.createElement("a");
+            link.download = downloadFileName;
+            link.href = dataUrl;
+            link.click();
+          })
+          .catch((error) => {
+            console.error("oops, something went wrong!", error);
+          });
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <StyledCard elevation={2}>
       <CardErrorHandler
-        queryKey={"fetchProgressRecall"}
-        error={props.progressRecallQuery.error}
-        isError={props.progressRecallQuery.isError}
+        queryKey={"fetchGenericData"}
+        error={props.progressRecallQuery?.error}
+        isError={!!props.progressRecallQuery?.isError}
       />
       <CardContent className={classes.root}>
         <Stack spacing={2}>
-          {!props.mobileScreen && <Typography variant="h6">Recall</Typography>}
-          {props.mobileScreen && (
-            <TypographySubtitle1Medium>Recall</TypographySubtitle1Medium>
-          )}
-          {props.progressRecallQuery.isLoading ? (
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            {!props.mobileScreen && <Typography variant="h6"></Typography>}
+            {props.mobileScreen && (
+              <TypographySubtitle1Medium></TypographySubtitle1Medium>
+            )}
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <StyledTooltip
+                title={
+                  <React.Fragment>
+                    <Card sx={{ backgroundImage: "none" }}>
+                      <CardContent>
+                        <Typography variant="subtitle2">
+                          The chart shows how well the ASReview model and random
+                          sampling identify relevant records.
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: "text.secondary" }}
+                        >
+                          The model helps prioritize relevant records, but not
+                          all relevant records will be identified by the model.
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: "text.secondary" }}
+                        >
+                          The random relevant line shows the performance if you
+                          manually reviewed all records without model
+                          assistance.
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </React.Fragment>
+                }
+              >
+                <HelpOutline
+                  fontSize={!props.mobileScreen ? "small" : "12px"}
+                  sx={{ color: "text.secondary", marginRight: "8px" }}
+                />
+              </StyledTooltip>
+              <IconButton onClick={handleDownloadClick}>
+                <GetAppIcon />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                <MenuItem onClick={() => handleDownload("png")}>
+                  Download as PNG
+                </MenuItem>
+                <MenuItem onClick={() => handleDownload("jpeg")}>
+                  Download as JPEG
+                </MenuItem>
+                <MenuItem onClick={() => handleDownload("svg")}>
+                  Download as SVG
+                </MenuItem>
+              </Menu>
+            </Box>
+          </Stack>
+          {props.genericDataQuery.isLoading ? (
             <Skeleton variant="rectangular" height={400} width="100%" />
           ) : (
-            <Chart
-              options={options}
-              series={series}
-              type="line"
-              height={400}
-              width="100%"
-            />
+            <div ref={chartRef}>
+              <Chart
+                options={options}
+                series={series}
+                type="line"
+                height={400}
+                width="100%"
+              />
+            </div>
           )}
         </Stack>
       </CardContent>

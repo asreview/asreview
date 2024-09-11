@@ -128,9 +128,9 @@ const SetupDialog = ({
     mutationKey: ["mutateReviewStatus"],
     onSuccess: () => {
       if (mode === projectModes.SIMULATION) {
-        navigate(`/projects/${dataset?.id}`);
+        navigate(`/simulations/${dataset?.id}`);
       } else {
-        navigate(`/projects/${dataset?.id}/review`);
+        navigate(`/reviews/${dataset?.id}/review`);
       }
     },
   });
@@ -193,15 +193,12 @@ const SetupDialog = ({
                       onChange={handleUploadSource}
                     />
                   )}
-                  {(mode === projectModes.EXPLORATION ||
-                    mode === projectModes.SIMULATION) && (
-                    <FormControlLabel
-                      value="benchmark"
-                      control={<Radio />}
-                      label="Benchmark datasets"
-                      onChange={handleUploadSource}
-                    />
-                  )}
+                  <FormControlLabel
+                    value="benchmark"
+                    control={<Radio />}
+                    label="Benchmark datasets"
+                    onChange={handleUploadSource}
+                  />
                 </RadioGroup>
               </FormControl>
               {uploadSource === "file" && (

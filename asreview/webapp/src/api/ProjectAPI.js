@@ -424,7 +424,7 @@ class ProjectAPI {
     let body = new FormData();
     body.append("file", variables.file);
 
-    const url = api_url + `projects/import_project`;
+    const url = api_url + `projects/import`;
     return new Promise((resolve, reject) => {
       axios({
         method: "post",
@@ -547,27 +547,12 @@ class ProjectAPI {
     });
   }
 
-  static fetchProgressDensity({ queryKey }) {
-    const { project_id } = queryKey[1];
-    const url = api_url + `projects/${project_id}/progress_density`;
+  static fetchGenericData({ queryKey }) {
+    const { project_id, includePrior } = queryKey[1];
+    const url = api_url + `projects/${project_id}/progress_data`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url, { withCredentials: true })
-        .then((result) => {
-          resolve(result["data"]);
-        })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
-  static fetchProgressRecall({ queryKey }) {
-    const { project_id } = queryKey[1];
-    const url = api_url + `projects/${project_id}/progress_recall`;
-    return new Promise((resolve, reject) => {
-      axios
-        .get(url, { withCredentials: true })
+        .get(url, { params: { priors: includePrior }, withCredentials: true })
         .then((result) => {
           resolve(result["data"]);
         })

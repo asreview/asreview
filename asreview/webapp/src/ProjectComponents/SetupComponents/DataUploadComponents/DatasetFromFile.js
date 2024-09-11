@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
 import { useMutation, useQuery } from "react-query";
-import { connect } from "react-redux";
+
 import {
   Avatar,
   Alert,
@@ -15,7 +15,7 @@ import { styled } from "@mui/material/styles";
 import { FileUpload } from "@mui/icons-material";
 
 import { ProjectAPI } from "api";
-import { mapStateToProps, projectModes } from "globals.js";
+import { projectModes } from "globals.js";
 
 const PREFIX = "DatasetFromFile";
 
@@ -189,4 +189,4 @@ const DatasetFromFile = ({ project_id, mode, setDataset }) => {
   );
 };
 
-export default connect(mapStateToProps, null)(DatasetFromFile);
+export default DatasetFromFile;

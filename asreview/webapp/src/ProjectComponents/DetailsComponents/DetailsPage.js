@@ -109,8 +109,6 @@ const DetailsPage = ({ info }) => {
 
   const { auth } = useAuth();
 
-  console.log("render details");
-
   return (
     <Root aria-label="details page">
       <Container maxWidth="md">

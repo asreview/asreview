@@ -1,11 +1,16 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { Routes, Route } from "react-router-dom";
-import "typeface-roboto";
 import { CssBaseline, createTheme, useMediaQuery } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
+
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
+
 import "./App.css";
 
 import {
@@ -55,6 +60,7 @@ const App = () => {
 
   // Dialog state
   const [onSettings, toggleSettings] = useToggle();
+  const [onHelp, toggleHelp] = useToggle();
 
   const [projectCheck, setProjectCheck] = React.useState({
     open: false,
@@ -148,6 +154,7 @@ const App = () => {
                 onNavDrawer={onNavDrawer}
                 toggleNavDrawer={toggleNavDrawer}
                 toggleSettings={toggleSettings}
+                toggleHelp={toggleHelp}
               />
             </RequireAuth>
           }
@@ -164,7 +171,19 @@ const App = () => {
             }
           />
           <Route
-            path="projects/:project_id/*"
+            path="reviews/:project_id/*"
+            element={
+              <ProjectPage
+                mobileScreen={mobileScreen}
+                onNavDrawer={onNavDrawer}
+                fontSize={fontSize}
+                projectCheck={projectCheck}
+                setProjectCheck={setProjectCheck}
+              />
+            }
+          />
+          <Route
+            path="simulations/:project_id/*"
             element={
               <ProjectPage
                 mobileScreen={mobileScreen}
@@ -220,7 +239,11 @@ const App = () => {
             toggleDarkMode={toggleDarkMode}
             handleFontSizeChange={handleFontSizeChange}
           />
-          <HelpDialog mobileScreen={mobileScreen} />
+          <HelpDialog
+            mobileScreen={mobileScreen}
+            onHelp={onHelp}
+            toggleHelp={toggleHelp}
+          />
         </ThemeProvider>
       </StyledEngineProvider>
     </QueryClientProvider>

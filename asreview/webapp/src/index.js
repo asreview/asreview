@@ -1,14 +1,12 @@
 import React from "react";
-import { render } from "react-dom";
+import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Provider } from "react-redux";
 import { AuthProvider } from "context/AuthProvider";
-import store from "redux/store";
 import App from "App";
 
-render(
-  <React.StrictMode>
-    <Provider store={store}>
+function ASReviewApp() {
+  return (
+    <React.StrictMode>
       <BrowserRouter>
         <AuthProvider>
           <Routes>
@@ -16,7 +14,10 @@ render(
           </Routes>
         </AuthProvider>
       </BrowserRouter>
-    </Provider>
-  </React.StrictMode>,
-  document.getElementById("root"),
-);
+    </React.StrictMode>
+  );
+}
+
+const container = document.getElementById("root");
+const root = createRoot(container);
+root.render(<ASReviewApp />);

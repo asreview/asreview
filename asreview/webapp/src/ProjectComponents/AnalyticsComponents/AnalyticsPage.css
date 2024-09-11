@@ -11,7 +11,6 @@
 
 .tooltip-title {
   margin: 0;
-  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
   font-weight: 500;
   font-size: 0.875rem;
   line-height: 1.57;
@@ -31,12 +30,10 @@
   left: 4px;
   font-size: 14px;
   font-weight: 500;
-  font-family: Roboto, Helvetica, Arial, sans-serif;
 }
 
 .tooltip-label-number {
   margin: 0;
-  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
   font-weight: 500;
   font-size: 1.25rem;
   line-height: 1.6;
@@ -45,7 +42,6 @@
 
 .tooltip-label-text-secondary {
   margin: 0;
-  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
   font-weight: 400;
   font-size: 0.875rem;
   line-height: 1.43;

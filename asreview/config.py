@@ -22,7 +22,6 @@ __all__ = [
     "DEFAULT_N_PRIOR_INCLUDED",
     "DEFAULT_QUERY_STRATEGY",
     "LABEL_NA",
-    "PROJECT_MODE_EXPLORE",
     "PROJECT_MODE_ORACLE",
     "PROJECT_MODE_SIMULATE",
     "PROJECT_MODES",
@@ -33,9 +32,8 @@ LABEL_NA = -1
 
 # project types
 PROJECT_MODE_ORACLE = "oracle"
-PROJECT_MODE_EXPLORE = "explore"
 PROJECT_MODE_SIMULATE = "simulate"
-PROJECT_MODES = [PROJECT_MODE_ORACLE, PROJECT_MODE_EXPLORE, PROJECT_MODE_SIMULATE]
+PROJECT_MODES = [PROJECT_MODE_ORACLE, PROJECT_MODE_SIMULATE]
 
 # CLI defaults
 DEFAULT_CLASSIFIER = "nb"
@@ -123,7 +121,7 @@ SCHEMA = {
             "$id": "#/properties/mode",
             "type": "string",
             "title": "The mode schema",
-            "description": "The mode of the project. One of oracle, explore, or simulate.",
+            "description": "The mode of the project. One of oracle, or simulate.",
             "default": "",
             "enum": PROJECT_MODES,
             "examples": ["oracle"],

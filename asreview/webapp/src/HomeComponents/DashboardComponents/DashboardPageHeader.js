@@ -47,7 +47,6 @@ const Root = styled(Box)(({ theme }) => ({
 // const modeLabelMap = {
 //   simulate: "Simulation",
 //   oracle: "Review",
-//   explore: "Validation",
 // };
 
 export default function DashboardPageHeader({ toggleImportProject, mode }) {
@@ -59,9 +58,6 @@ export default function DashboardPageHeader({ toggleImportProject, mode }) {
       <Paper className={classes.paperHeader}>
         {mode === projectModes.ORACLE && (
           <Typography variant="h4">What do you read today?</Typography>
-        )}
-        {mode === projectModes.EXPLORATION && (
-          <Typography variant="h4">Validation projects</Typography>
         )}
         {mode === projectModes.SIMULATION && (
           <Typography variant="h4">Simulation projects</Typography>

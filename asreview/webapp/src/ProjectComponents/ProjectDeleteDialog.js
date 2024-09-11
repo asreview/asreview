@@ -30,7 +30,7 @@ const ProjectDeleteDialog = (props) => {
           queryClient.invalidateQueries("fetchProjects");
           props.toggleDeleteDialog();
         } else {
-          navigate("/projects");
+          navigate("/reviews");
         }
       },
     },

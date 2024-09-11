@@ -1,4 +1,5 @@
 import pytest
+from pytest import mark
 
 from asreview.datasets import BaseDataGroup
 from asreview.datasets import BaseDataSet
@@ -6,6 +7,7 @@ from asreview.datasets import DatasetManager
 from asreview.datasets import NaturePublicationDataGroup
 
 
+@mark.internet_required
 def test_group():
     group_nature = NaturePublicationDataGroup()
 
@@ -19,12 +21,14 @@ def test_group():
         )
 
 
+@mark.internet_required
 def test_group_to_dict():
     group_nature = NaturePublicationDataGroup()
 
     assert isinstance(group_nature.__dict__(), dict)
 
 
+@mark.internet_required
 def test_group_list():
     dm = DatasetManager()
 

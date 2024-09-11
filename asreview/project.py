@@ -29,6 +29,7 @@ from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
+import warnings
 
 import jsonschema
 import pandas as pd
@@ -37,11 +38,14 @@ from filelock import FileLock
 from asreview import load_dataset
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
-from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.config import SCHEMA
 from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState
+from asreview.migrate import migrate_v1_v2
+
+
+from asreview.utils import _check_model, _reset_model_settings
 
 try:
     from asreview._version import __version__
@@ -214,9 +218,6 @@ class Project:
             as_data.labels is None or (as_data.labels == LABEL_NA).any()
         ):
             raise ValueError("Import fully labeled dataset")
-
-        if self.config["mode"] == PROJECT_MODE_EXPLORE and as_data.labels is None:
-            raise ValueError("Import partially or fully labeled dataset")
 
         self.update_config(dataset_path=file_name, name=file_name.rsplit(".", 1)[0])
 
@@ -550,7 +551,13 @@ class Project:
         shutil.move(f"{export_fp_tmp}.zip", export_fp)
 
     @classmethod
-    def load(cls, asreview_file, project_path, safe_import=False):
+    def load(
+        cls,
+        asreview_file,
+        project_path,
+        safe_import=False,
+        reset_model_if_not_found=False,
+    ):
         with tempfile.TemporaryDirectory() as tmpdir:
             try:
                 # Unzip the project file
@@ -571,6 +578,33 @@ class Project:
 
             with open(Path(tmpdir, PATH_PROJECT_CONFIG)) as f:
                 project_config = json.load(f)
+
+            # if migration is needed, do it here
+            if project_config["version"].startswith("1."):
+                migrate_v1_v2(tmpdir)
+
+            with open(Path(tmpdir, PATH_PROJECT_CONFIG)) as f:
+                project_config = json.load(f)
+
+            if not project_config["version"].startswith("2."):
+                raise ValueError("Not possible to import (old) project file.")
+
+            if reset_model_if_not_found:
+                settings_fp = Path(
+                    tmpdir,
+                    "reviews",
+                    project_config["reviews"][0]["id"],
+                    "settings_metadata.json",
+                )
+                settings = ReviewSettings().from_file(settings_fp)
+
+                try:
+                    _check_model(settings)
+                except ValueError as err:
+                    warnings.warn(err)
+                    settings_model_reset = _reset_model_settings(settings)
+                    with open(settings_fp) as f:
+                        json.dump(asdict(settings_model_reset), f)
 
             if safe_import:
                 # assign a new id to the project.

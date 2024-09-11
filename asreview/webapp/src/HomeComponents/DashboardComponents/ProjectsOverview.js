@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Box, Fab, Stack } from "@mui/material";
 import { Add } from "@mui/icons-material";
-import { useParams } from "react-router-dom";
 import { DashboardPageHeader, ProjectTable } from ".";
 import { ActionsFeedbackBar, InteractionButtons } from "Components";
 import { ImportProject } from "ProjectComponents";
@@ -9,15 +8,17 @@ import { SetupDialog } from "ProjectComponents/SetupComponents";
 
 import { useToggle } from "hooks/useToggle";
 
-const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
+const ProjectsOverview = ({
+  mobileScreen,
+  projectCheck,
+  setProjectCheck,
+  mode,
+}) => {
   const [onImportProject, toggleImportProject] = useToggle();
-
-  const { mode } = useParams();
 
   const modeLabel = {
     simulate: "Simulate",
     oracle: "Review",
-    explore: "Validate",
   };
 
   const [openCreateProject, toggleCreateProject] = useToggle(false);
@@ -73,9 +74,8 @@ const ProjectsOverview = ({ mobileScreen, projectCheck, setProjectCheck }) => {
       />
       <ImportProject
         mobileScreen={mobileScreen}
-        open={onImportProject}
+        onImportProject={onImportProject}
         toggleImportProject={toggleImportProject}
-        setFeedbackBar={setFeedbackBar}
       />
       <ActionsFeedbackBar
         center

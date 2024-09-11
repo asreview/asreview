@@ -26,13 +26,13 @@ from asreview.webapp.utils import get_projects
 
 PROJECTS = [
     {
-        "mode": "explore",
+        "mode": "oracle",
         "name": "demo project",
         "authors": "asreview team",
         "description": "hello world",
     },
     {
-        "mode": "explore",
+        "mode": "oracle",
         "name": "another demo project",
         "authors": "asreview team",
         "description": "hello world",

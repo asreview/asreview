@@ -46,7 +46,7 @@ const SignInForm = ({ classes, allowAccountCreation, emailVerification }) => {
           setEmail("");
           setPassword("");
           if (from === "/") {
-            navigate("/projects");
+            navigate("/reviews");
           } else {
             navigate(from, { replace: true });
           }

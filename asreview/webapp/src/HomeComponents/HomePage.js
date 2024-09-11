@@ -49,19 +49,32 @@ const HomePage = (props) => {
         <Routes>
           {/* Projects dashboard */}
           <Route
-            path="projects&subset=:mode"
+            path="/reviews"
             element={
               <ProjectsOverview
                 mobileScreen={props.mobileScreen}
                 onNavDrawer={props.onNavDrawer}
                 projectCheck={props.projectCheck}
                 setProjectCheck={props.setProjectCheck}
+                mode={"oracle"}
+              />
+            }
+          />
+          <Route
+            path="/simulations"
+            element={
+              <ProjectsOverview
+                mobileScreen={props.mobileScreen}
+                onNavDrawer={props.onNavDrawer}
+                projectCheck={props.projectCheck}
+                setProjectCheck={props.setProjectCheck}
+                mode={"simulate"}
               />
             }
           />
           {/* Profile page */}
           <Route
-            path="profile"
+            path="/profile"
             element={
               <ProfilePage
                 mobileScreen={props.mobileScreen}
@@ -70,11 +83,8 @@ const HomePage = (props) => {
             }
           />
           {/* Redirect root to projects */}
-          <Route path="/" element={<Navigate to="/projects&subset=oracle" />} />
-          <Route
-            path="/projects"
-            element={<Navigate to="/projects&subset=oracle" />}
-          />
+          <Route path="/" element={<Navigate to="/reviews" />} />
+          <Route path="/projects" element={<Navigate to="/reviews" />} />
           {/* Not found */}
           <Route path="*" element={<RouteNotFound />} />
         </Routes>

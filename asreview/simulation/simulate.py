@@ -64,7 +64,7 @@ class Simulate:
         labels,
         classifier,
         query_strategy,
-        balance_strategy,
+        balance_strategy=None,
         feature_extraction=None,
         n_instances=DEFAULT_N_INSTANCES,
         stop_if="min",
@@ -156,12 +156,10 @@ class Simulate:
             self.train()
 
             record_ids = self.query(self.n_instances)
+            labeled = self.label(record_ids)
 
-            self.label(record_ids)
-
-            # update progress here
-            pbar_rel.update(sum(self._results["label"]))
-            pbar_total.update(len(self._results))
+            pbar_rel.update(labeled["label"].sum())
+            pbar_total.update(1)
 
         else:
             pbar_rel.close()
@@ -183,9 +181,13 @@ class Simulate:
 
         train_idx = np.where(y_sample_input != LABEL_NA)[0]
 
-        X_train, y_train = self.balance_strategy.sample(
-            self.fm, y_sample_input, train_idx
-        )
+        if self.balance_strategy is None:
+            X_train = self.fm[train_idx]
+            y_train = y_sample_input[train_idx]
+        else:
+            X_train, y_train = self.balance_strategy.sample(
+                self.fm, y_sample_input, train_idx
+            )
 
         self.classifier.fit(X_train, y_train)
         relevance_scores = self.classifier.predict_proba(self.fm)
@@ -201,7 +203,9 @@ class Simulate:
                 "ranking": range(len(ranked_record_ids)),
                 "classifier": self.classifier.name,
                 "query_strategy": self.query_strategy.name,
-                "balance_strategy": self.balance_strategy.name,
+                "balance_strategy": self.balance_strategy.name
+                if self.balance_strategy
+                else None,
                 "feature_extraction": self.feature_extraction.name,
                 "training_set": len(self._results),
                 "time": datetime.now(),
@@ -249,7 +253,9 @@ class Simulate:
         else:
             classifier = self.classifier.name
             query_strategy = self.query_strategy.name
-            balance_strategy = self.balance_strategy.name
+            balance_strategy = (
+                self.balance_strategy.name if self.balance_strategy else None,
+            )
             feature_extraction = self.feature_extraction.name
             training_set = len(self._results)
 
@@ -276,6 +282,8 @@ class Simulate:
             )
         except AttributeError:
             self._results = new_labels
+
+        return new_labels
 
     def label_random(
         self, n_included=None, n_excluded=None, prior=False, random_state=None
@@ -328,7 +336,7 @@ class Simulate:
         """
 
         with open_state(fp) as state:
-            state._add_results_from_df(self._results)
+            state._replace_results_from_df(self._results)
 
             try:
                 state._add_last_ranking(self._last_ranking)

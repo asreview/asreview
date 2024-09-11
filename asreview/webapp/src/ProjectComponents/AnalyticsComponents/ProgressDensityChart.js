@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import Chart from "react-apexcharts";
 import {
   Box,
@@ -9,9 +9,14 @@ import {
   Tooltip,
   tooltipClasses,
   Typography,
+  IconButton,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 import { HelpOutline } from "@mui/icons-material";
+import GetAppIcon from "@mui/icons-material/GetApp";
+import { toPng, toJpeg, toSvg } from "html-to-image";
 
 import { CardErrorHandler } from "Components";
 import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
@@ -116,7 +121,7 @@ const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
     "Relevant in last 10 reviewed" +
     "</span>" +
     "</div>" +
-    `<p class="tooltip-label-text-secondary ProgressDensityChart-tooltip-label-text-secondary-color">` +
+    `<p class="tooltip-label-text-secondary ProgressDensityChart-tooltip-text-secondary-color">` +
     "Relevant records that you labeled in the last 10 reviewed" +
     "</p>" +
     "</div>" +
@@ -129,8 +134,37 @@ const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
   );
 };
 
+const calculateProgressDensity = (data) => {
+  return data.map((entry, index, arr) => {
+    // Create a rolling window of up to 10 entries
+    const window = arr.slice(Math.max(0, index - 9), index + 1);
+
+    // Calculate the mean of the 'label' over the window
+    const mean =
+      window.reduce((acc, curr) => acc + curr.label, 0) / window.length;
+
+    // Calculate the relevant counts
+    let relevant;
+    if (index + 1 < 10) {
+      // For the first 9 items, scale to the number of items in the window
+      relevant = mean * (index + 1);
+    } else {
+      // After 10 items, scale to 10
+      relevant = mean * 10;
+    }
+
+    // Round to 1 decimal place to match the backend behavior
+    return {
+      x: index + 1,
+      y: Math.round(relevant * 10) / 10,
+    };
+  });
+};
+
 export default function ProgressDensityChart(props) {
   const theme = useTheme();
+  const chartRef = useRef(null);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const returnTooltipRelevantImg = () => {
     if (theme.palette.mode === "light") {
@@ -150,26 +184,20 @@ export default function ProgressDensityChart(props) {
     }
   };
 
-  /**
-   * Chart data array
-   */
-  const seriesArray = React.useCallback(() => {
-    if (props.progressDensityQuery.data) {
+  const seriesArray = useCallback(() => {
+    if (props.genericDataQuery.data) {
       return [
         {
           name: "Relevant records",
-          data: props.progressDensityQuery.data?.relevant,
+          data: calculateProgressDensity(props.genericDataQuery.data),
         },
       ];
     } else {
       return [];
     }
-  }, [props.progressDensityQuery.data]);
+  }, [props.genericDataQuery.data]);
 
-  /**
-   * Chart options
-   */
-  const optionsChart = React.useCallback(() => {
+  const optionsChart = useCallback(() => {
     return {
       chart: {
         animations: {
@@ -180,7 +208,7 @@ export default function ProgressDensityChart(props) {
         type: "area",
         stacked: true,
         toolbar: {
-          show: !props.mobileScreen,
+          show: false, // Hiding the toolbar because it's replaced by the download button
         },
       },
       colors: [
@@ -238,7 +266,7 @@ export default function ProgressDensityChart(props) {
       xaxis: {
         decimalsInFloat: 0,
         title: {
-          text: "Number of reviewed records",
+          text: "Records Reviewed",
         },
         type: "numeric",
         labels: {
@@ -257,107 +285,189 @@ export default function ProgressDensityChart(props) {
         min: 0,
         tickAmount: 5,
         title: {
-          text: "Number of relevant records",
+          text: "Relevant Records",
         },
       },
     };
   }, [theme, props.mobileScreen]);
 
-  const [series, setSeries] = React.useState(seriesArray());
-  const [options, setOptions] = React.useState(optionsChart());
+  const [series, setSeries] = useState(seriesArray());
+  const [options, setOptions] = useState(optionsChart());
 
-  React.useEffect(() => {
+  useEffect(() => {
     setSeries(seriesArray());
     setOptions(optionsChart());
   }, [seriesArray, optionsChart]);
 
+  const handleDownloadClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDownload = (format) => {
+    setAnchorEl(null);
+
+    const node = chartRef.current.querySelector(".apexcharts-canvas");
+    const downloadFileName = `chart.${format}`;
+
+    switch (format) {
+      case "png":
+        toPng(node)
+          .then((dataUrl) => {
+            const link = document.createElement("a");
+            link.download = downloadFileName;
+            link.href = dataUrl;
+            link.click();
+          })
+          .catch((error) => {
+            console.error("oops, something went wrong!", error);
+          });
+        break;
+      case "jpeg":
+        toJpeg(node, {
+          quality: 1,
+          backgroundColor: theme.palette.background.paper,
+        })
+          .then((dataUrl) => {
+            const link = document.createElement("a");
+            link.download = downloadFileName;
+            link.href = dataUrl;
+            link.click();
+          })
+          .catch((error) => {
+            console.error("oops, something went wrong!", error);
+          });
+        break;
+      case "svg":
+        toSvg(node)
+          .then((dataUrl) => {
+            const link = document.createElement("a");
+            link.download = downloadFileName;
+            link.href = dataUrl;
+            link.click();
+          })
+          .catch((error) => {
+            console.error("oops, something went wrong!", error);
+          });
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <StyledCard elevation={2}>
       <CardErrorHandler
-        queryKey={"fetchProgressDensity"}
-        error={props.progressDensityQuery.error}
-        isError={props.progressDensityQuery.isError}
+        queryKey={"fetchGenericData"}
+        error={props.genericDataQuery?.error}
+        isError={!!props.genericDataQuery?.isError}
       />
       <CardContent className={classes.root}>
         <Stack spacing={2}>
-          <Box className={classes.title}>
-            {!props.mobileScreen && (
-              <Typography variant="h6">Progress</Typography>
-            )}
+          <Box
+            className={classes.title}
+            sx={{ justifyContent: "space-between" }}
+          >
+            {!props.mobileScreen && <Typography variant="h6"></Typography>}
             {props.mobileScreen && (
-              <TypographySubtitle1Medium>Progress</TypographySubtitle1Medium>
+              <TypographySubtitle1Medium></TypographySubtitle1Medium>
             )}
-            <StyledTooltip
-              title={
-                <React.Fragment>
-                  <Card sx={{ backgroundImage: "none" }}>
-                    <CardContent>
-                      <Stack spacing={2}>
-                        <Box sx={{ display: "flex" }}>
-                          <Stack direction="row" spacing={2}>
-                            <img
-                              src={returnTooltipRelevantImg()}
-                              alt="tooltip relevant"
-                              className="tooltip-img"
-                            />
-                            <Box>
-                              <Typography variant="subtitle2">
-                                Presence of relevant records
-                              </Typography>
-                              <Typography
-                                variant="body2"
-                                sx={{ color: "text.secondary" }}
-                              >
-                                Relevant records still appear. Continue
-                                reviewing to discover more.
-                              </Typography>
-                            </Box>
-                          </Stack>
-                        </Box>
-                        <Box sx={{ display: "flex" }}>
-                          <Stack direction="row" spacing={2}>
-                            <img
-                              src={returnTooltipIrrelevantImg()}
-                              alt="tooltip irrelevant"
-                              className="tooltip-img"
-                            />
-                            <Box>
-                              <Typography variant="subtitle2">
-                                Irrelevant records only
-                              </Typography>
-                              <Typography
-                                variant="body2"
-                                sx={{ color: "text.secondary" }}
-                              >
-                                Relevant records do not appear. Refer to your
-                                stopping rule to decide if you want to continue
-                                reviewing.
-                              </Typography>
-                            </Box>
-                          </Stack>
-                        </Box>
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                </React.Fragment>
-              }
-            >
-              <HelpOutline
-                fontSize={!props.mobileScreen ? "small" : "12px"}
-                sx={{ color: "text.secondary", marginLeft: "8px" }}
-              />
-            </StyledTooltip>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <StyledTooltip
+                title={
+                  <React.Fragment>
+                    <Card sx={{ backgroundImage: "none" }}>
+                      <CardContent>
+                        <Stack spacing={2}>
+                          <Box sx={{ display: "flex" }}>
+                            <Stack direction="row" spacing={2}>
+                              <img
+                                src={returnTooltipRelevantImg()}
+                                alt="tooltip relevant"
+                                className="tooltip-img"
+                              />
+                              <Box>
+                                <Typography variant="subtitle2">
+                                  Presence of relevant records
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  sx={{ color: "text.secondary" }}
+                                >
+                                  Relevant records still appear. Continue
+                                  reviewing to discover more.
+                                </Typography>
+                              </Box>
+                            </Stack>
+                          </Box>
+                          <Box sx={{ display: "flex" }}>
+                            <Stack direction="row" spacing={2}>
+                              <img
+                                src={returnTooltipIrrelevantImg()}
+                                alt="tooltip irrelevant"
+                                className="tooltip-img"
+                              />
+                              <Box>
+                                <Typography variant="subtitle2">
+                                  Irrelevant records only
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  sx={{ color: "text.secondary" }}
+                                >
+                                  Relevant records do not appear. Refer to your
+                                  stopping rule to decide if you want to
+                                  continue reviewing.
+                                </Typography>
+                              </Box>
+                            </Stack>
+                          </Box>
+                        </Stack>
+                      </CardContent>
+                    </Card>
+                  </React.Fragment>
+                }
+              >
+                <HelpOutline
+                  fontSize={!props.mobileScreen ? "small" : "12px"}
+                  sx={{ color: "text.secondary", marginRight: "8px" }}
+                />
+              </StyledTooltip>
+              <IconButton onClick={handleDownloadClick}>
+                <GetAppIcon />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                <MenuItem onClick={() => handleDownload("png")}>
+                  Download as PNG
+                </MenuItem>
+                <MenuItem onClick={() => handleDownload("jpeg")}>
+                  Download as JPEG
+                </MenuItem>
+                <MenuItem onClick={() => handleDownload("svg")}>
+                  Download as SVG
+                </MenuItem>
+              </Menu>
+            </Box>
           </Box>
-          {props.progressDensityQuery.isLoading ? (
-            <Skeleton variant="rectangular" height={230} width="100%" />
+          {props.genericDataQuery.isLoading ? (
+            <Skeleton variant="rectangular" height={400} width="100%" />
           ) : (
-            <Chart
-              options={options}
-              series={series}
-              type="area"
-              height={230}
-              width="100%"
-            />
+            <div ref={chartRef}>
+              <Chart
+                options={options}
+                series={series}
+                type="area"
+                height={400}
+                width="100%"
+              />
+            </div>
           )}
         </Stack>
       </CardContent>
