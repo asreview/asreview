@@ -24,6 +24,7 @@ from asreview.state.contextmanager import open_state
 
 from asreview.webapp.app import huey
 
+
 @huey.task(name="run_model")
 def run_model(project):
     with open_state(project) as s:
