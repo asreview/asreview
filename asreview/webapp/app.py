@@ -46,8 +46,8 @@ from asreview.webapp.utils import asreview_path
 huey = SqliteHuey(
     name="asreview_app",
     filename=(asreview_path() / Path("huey_app.sqlite")),
-    #immediate=app.testing,
-    results=False
+    # immediate=app.testing,
+    results=False,
 )
 
 
@@ -186,5 +186,5 @@ def create_app(config_path=None):
     # start huey queue
     process = multiprocessing.Process(target=run_huey_consumer)
     process.start()
-    
+
     return app
