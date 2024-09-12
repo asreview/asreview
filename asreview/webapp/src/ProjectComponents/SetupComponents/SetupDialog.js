@@ -17,8 +17,12 @@ import {
   Tooltip,
 } from "@mui/material";
 import * as React from "react";
+
 import { useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "@mui/material/styles";
+
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 import {
   DatasetCard,
@@ -111,9 +115,11 @@ const SetupDialog = ({
   mode = null,
   dataSource = "file",
   setFeedbackBar,
-  mobileScreen,
 }) => {
   const navigate = useNavigate();
+
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   const [dataset, setDataset] = React.useState(projectInfo);
   const [showSettings, setShowSettings] = useToggle(false);
@@ -139,11 +145,11 @@ const SetupDialog = ({
     <Dialog
       aria-label="project setup"
       open={open}
-      fullScreen={mobileScreen}
+      fullScreen={fullScreen}
       fullWidth
       maxWidth="md"
       PaperProps={{
-        sx: { height: !mobileScreen ? "calc(100% - 64px)" : "100%" },
+        sx: { height: !fullScreen ? "calc(100% - 64px)" : "100%" },
       }}
       onClose={onClose}
       TransitionProps={{
@@ -212,7 +218,7 @@ const SetupDialog = ({
                   subset="plugin"
                   mode={mode}
                   setDataset={setDataset}
-                  mobileScreen={mobileScreen}
+                  mobileScreen={fullScreen}
                 />
               )}
               {uploadSource === "benchmark" && (
@@ -220,7 +226,7 @@ const SetupDialog = ({
                   subset="benchmark"
                   mode={mode}
                   setDataset={setDataset}
-                  mobileScreen={mobileScreen}
+                  mobileScreen={fullScreen}
                 />
               )}
             </Stack>
@@ -260,17 +266,14 @@ const SetupDialog = ({
             <Collapse in={showSettings} mountOnEnter>
               {mode !== projectModes.SIMULATION && (
                 <Box sx={{ mb: 3 }}>
-                  <TagCard
-                    project_id={dataset?.id}
-                    mobileScreen={mobileScreen}
-                  />
+                  <TagCard project_id={dataset?.id} mobileScreen={fullScreen} />
                 </Box>
               )}
               <Box sx={{ my: 3 }}>
                 <ModelCard />
               </Box>
               <Box sx={{ my: 3 }}>
-                <PriorCard editable={true} mobileScreen={mobileScreen} />
+                <PriorCard editable={true} mobileScreen={fullScreen} />
               </Box>
             </Collapse>
           </DialogContent>

@@ -55,7 +55,7 @@ export default function DashboardPageHeader({ toggleImportProject, mode }) {
 
   return (
     <Root className={classes.headerButton}>
-      <Paper className={classes.paperHeader}>
+      <Paper className={classes.paperHeader} elevation={0}>
         {mode === projectModes.ORACLE && (
           <Typography variant="h4">What do you read today?</Typography>
         )}
