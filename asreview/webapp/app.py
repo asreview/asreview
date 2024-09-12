@@ -46,7 +46,6 @@ from asreview.webapp.utils import asreview_path
 huey = SqliteHuey(
     name="asreview_app",
     filename=(asreview_path() / Path("huey_app.sqlite")),
-    # immediate=app.testing,
     results=False,
 )
 
@@ -78,6 +77,11 @@ def create_app(config_path=None):
         template_folder="build",
     )
 
+    # Set the immediate properties to True when we are in
+    # a testing environment: tasks will be handled synchronously
+    # and in memory
+    huey.immediate = app.testing
+    huey.immediate_use_memory = app.testing
     app.config["HUEY"] = huey
 
     app.config.from_prefixed_env("ASREVIEW_LAB")
