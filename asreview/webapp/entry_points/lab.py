@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
-import importlib
 import logging
 import multiprocessing
 import os
@@ -30,7 +29,6 @@ from asreview._deprecated import DeprecateAction
 from asreview._deprecated import mark_deprecated_help_strings
 from asreview.webapp.app import create_app
 from asreview.webapp.app import run_huey_consumer
-from asreview.webapp.app import huey
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
 from asreview.webapp.utils import get_projects
