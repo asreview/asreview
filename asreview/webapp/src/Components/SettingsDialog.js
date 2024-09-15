@@ -19,7 +19,6 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import React from "react";
-import { Link } from "react-router-dom";
 
 import { OpenInNewIconStyled } from "Components";
 

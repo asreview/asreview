@@ -12,8 +12,7 @@ import {
   Fade,
   List,
   ListItem,
-  Typography,
-  Stack,
+  ListItemText,
 } from "@mui/material";
 
 import { styled } from "@mui/material/styles";
@@ -109,34 +108,22 @@ const ProjectItemInfo = ({ mobileDrawer, onNavDrawer, toggleNavDrawer }) => {
         component={Link}
       />
       {data && (
-        <ListItem onClick={toggleGame}>
-          <Stack
-            direction="column"
-            spacing={2}
-            sx={{
-              alignItems: "flex-start",
-              width: "100%",
-            }}
+        <>
+          <ListItem
+            onClick={toggleGame}
+            sx={{ maxWidth: "140px", margin: "auto" }}
           >
-            <Box width="100%" maxWidth="140px" display="block" margin="auto">
-              <ElasSign status={data?.reviews[0].status} />
-            </Box>
-            <Fade in={onNavDrawer} unmountOnExit>
-              <Box className={classes.yourProject}>
-                <Typography variant="subtitle2">
-                  Your {ProjectModeMapping[data?.mode]}
-                </Typography>
-                <Typography
-                  className={classes.projectTitle}
-                  variant="body2"
-                  color="textSecondary"
-                >
-                  {data?.name}
-                </Typography>
-              </Box>
-            </Fade>
-          </Stack>
-        </ListItem>
+            <ElasSign status={data?.reviews[0].status} />
+          </ListItem>
+          <Fade in={onNavDrawer} unmountOnExit>
+            <ListItem>
+              <ListItemText
+                primary={`Your ${ProjectModeMapping[data?.mode]}`}
+                secondary={data?.name}
+              />
+            </ListItem>
+          </Fade>
+        </>
       )}
       <Outlet />
 
