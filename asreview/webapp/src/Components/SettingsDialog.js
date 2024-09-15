@@ -1,4 +1,9 @@
-import { Close } from "@mui/icons-material";
+import {
+  Close,
+  DarkMode,
+  LightMode,
+  SettingsBrightness,
+} from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -14,10 +19,14 @@ import {
   ListItemButton,
   ListItemText,
   Slider,
-  Switch,
+  RadioGroup,
+  Radio,
+  FormControl,
+  FormControlLabel,
+  Stack,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { styled, useColorScheme } from "@mui/material/styles";
 import React from "react";
 
 import { OpenInNewIconStyled } from "Components";
@@ -39,6 +48,8 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 
 const SettingsDialog = (props) => {
   const descriptionElementRef = React.useRef(null);
+
+  const { mode, setMode } = useColorScheme();
 
   // second layer state
   const [fontSizeSetting, toggleFontSizeSetting] = useToggle();
@@ -102,18 +113,64 @@ const SettingsDialog = (props) => {
               DISPLAY
             </Typography>
           </ListItem>
-          <ListItem
-            onClick={props.toggleDarkMode}
-            secondaryAction={
-              <Switch
-                edge="end"
-                onChange={props.toggleDarkMode}
-                checked={props.onDark.palette.mode === "dark"}
-                inputProps={{ "aria-labelledby": "switch-list-label-dark" }}
-              />
-            }
-          >
-            <ListItemText id="switch-list-label-dark" primary="Dark mode" />
+          <ListItem>
+            <FormControl sx={{ margin: "auto" }}>
+              <RadioGroup
+                row
+                name="theme-mode"
+                defaultValue={mode}
+                onChange={(event) => setMode(event.target.value)}
+              >
+                <FormControlLabel
+                  value="system"
+                  control={<Radio />}
+                  label={
+                    <Stack
+                      direction="column"
+                      spacing={1}
+                      sx={{ alignItems: "center" }}
+                    >
+                      <SettingsBrightness />
+                      <Typography>System</Typography>
+                    </Stack>
+                  }
+                  labelPlacement="top"
+                  sx={{ px: 1 }}
+                />
+                <FormControlLabel
+                  value="light"
+                  control={<Radio />}
+                  label={
+                    <Stack
+                      direction="column"
+                      spacing={1}
+                      sx={{ alignItems: "center" }}
+                    >
+                      <LightMode />
+                      <Typography>Light</Typography>
+                    </Stack>
+                  }
+                  labelPlacement="top"
+                  sx={{ px: 1 }}
+                />
+                <FormControlLabel
+                  value="dark"
+                  control={<Radio />}
+                  label={
+                    <Stack
+                      direction="column"
+                      spacing={1}
+                      sx={{ alignItems: "center" }}
+                    >
+                      <DarkMode />
+                      <Typography>Dark</Typography>
+                    </Stack>
+                  }
+                  labelPlacement="top"
+                  sx={{ px: 1 }}
+                />
+              </RadioGroup>
+            </FormControl>
           </ListItem>
           <Divider sx={{ my: "8px" }} />
           <ListItem>

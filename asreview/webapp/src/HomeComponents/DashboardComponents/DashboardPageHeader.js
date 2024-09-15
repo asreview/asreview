@@ -17,22 +17,10 @@ import { projectModes } from "globals.js";
 const PREFIX = "DashboardPageHeader";
 
 const classes = {
-  headerButton: `${PREFIX}-header-button`,
   paperHeader: `${PREFIX}-paper-header`,
 };
 
 const Root = styled(Box)(({ theme }) => ({
-  [`& .${classes.headerButton}`]: {
-    backgroundColor: [
-      theme.palette.mode === "dark"
-        ? theme.palette.grey[900]
-        : theme.palette.grey[100],
-    ],
-    // [theme.breakpoints.down("md")]: {
-    //   width: 24,
-    //   height: 24,
-    // },
-  },
   [`& .${classes.paperHeader}`]: {
     padding: theme.spacing(2),
     paddingTop: theme.spacing(5),
@@ -54,7 +42,7 @@ export default function DashboardPageHeader({ toggleImportProject, mode }) {
   const mobileScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
-    <Root className={classes.headerButton}>
+    <Root>
       <Paper className={classes.paperHeader} elevation={0}>
         {mode === projectModes.ORACLE && (
           <Typography variant="h4">What do you read today?</Typography>
@@ -67,7 +55,7 @@ export default function DashboardPageHeader({ toggleImportProject, mode }) {
           {mobileScreen && (
             <Tooltip title="Import project">
               <IconButton disableRipple onClick={toggleImportProject}>
-                <Avatar className={classes.headerButton}>
+                <Avatar>
                   <Upload
                     color="primary"
                     fontSize={!mobileScreen ? "medium" : "small"}
