@@ -11,7 +11,6 @@ import {
   IconButton,
   List,
   ListItem,
-  ListItemSecondaryAction,
   ListItemText,
   Slider,
   Switch,
@@ -102,16 +101,18 @@ const SettingsDialog = (props) => {
               DISPLAY
             </Typography>
           </ListItem>
-          <ListItem onClick={props.toggleDarkMode}>
-            <ListItemText id="switch-list-label-dark" primary="Dark mode" />
-            <ListItemSecondaryAction sx={{ right: 24 }}>
+          <ListItem
+            onClick={props.toggleDarkMode}
+            secondaryAction={
               <Switch
                 edge="end"
                 onChange={props.toggleDarkMode}
                 checked={props.onDark.palette.mode === "dark"}
                 inputProps={{ "aria-labelledby": "switch-list-label-dark" }}
               />
-            </ListItemSecondaryAction>
+            }
+          >
+            <ListItemText id="switch-list-label-dark" primary="Dark mode" />
           </ListItem>
           <Divider sx={{ my: "8px" }} />
           <ListItem>
