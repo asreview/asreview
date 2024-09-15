@@ -1,25 +1,15 @@
 import * as React from "react";
 import { Box, Fab, Stack } from "@mui/material";
 import { Add } from "@mui/icons-material";
-import { DashboardPageHeader, ProjectTable } from ".";
+import { DashboardPageHeader, Projects } from ".";
 import { ActionsFeedbackBar, InteractionButtons } from "Components";
 import { ImportProject } from "ProjectComponents";
 import { SetupDialog } from "ProjectComponents/SetupComponents";
 
 import { useToggle } from "hooks/useToggle";
 
-const ProjectsOverview = ({
-  mobileScreen,
-  projectCheck,
-  setProjectCheck,
-  mode,
-}) => {
+const ProjectsOverview = ({ mobileScreen, mode }) => {
   const [onImportProject, toggleImportProject] = useToggle();
-
-  const modeLabel = {
-    simulate: "Simulate",
-    oracle: "Review",
-  };
 
   const [openCreateProject, toggleCreateProject] = useToggle(false);
 
@@ -44,11 +34,9 @@ const ProjectsOverview = ({
       />
       <Box className="main-page-body-wrapper">
         <Stack className="main-page-body" spacing={6}>
-          <ProjectTable
+          <Projects
             mode={mode}
-            projectCheck={projectCheck}
             setFeedbackBar={setFeedbackBar}
-            setProjectCheck={setProjectCheck}
             mobileScreen={mobileScreen}
           />
 
@@ -63,11 +51,10 @@ const ProjectsOverview = ({
         variant="extended"
       >
         <Add sx={{ mr: 1 }} />
-        {modeLabel[mode]}
+        {"new"}
       </Fab>
       <SetupDialog
         mode={mode}
-        mobileScreen={mobileScreen}
         open={openCreateProject}
         onClose={toggleCreateProject}
         setFeedbackBar={setFeedbackBar}

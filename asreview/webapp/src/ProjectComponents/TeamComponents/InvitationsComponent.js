@@ -12,7 +12,7 @@ import {
 import { styled } from "@mui/material/styles";
 import { formatDate } from "globals.js";
 
-const PREFIX = "ProjectTable";
+const PREFIX = "InvitationsComponent";
 
 const classes = {
   root: `${PREFIX}-root`,
