@@ -44,10 +44,6 @@ const PREFIX = "DrawerItemContainer";
 
 const classes = {
   topSection: `${PREFIX}-topSection`,
-  bottomSection: `${PREFIX}-bottomSection`,
-  projectInfo: `${PREFIX}-projectInfo`,
-  yourProject: `${PREFIX}-yourProject`,
-  projectTitle: `${PREFIX}-projectTitle`,
 };
 
 const StyledList = styled(List)(({ theme }) => ({
@@ -59,22 +55,6 @@ const StyledList = styled(List)(({ theme }) => ({
     overflowX: "hidden",
     overflowY: "auto",
     flex: "1 1 auto",
-  },
-  [`& .${classes.projectInfo}`]: {
-    "& > *": {
-      marginTop: theme.spacing(2),
-    },
-  },
-  [`& .${classes.yourProject}`]: {
-    paddingLeft: 12,
-    paddingRight: 12,
-  },
-  [`& .${classes.projectTitle}`]: {
-    display: "-webkit-box",
-    WebkitBoxOrient: "vertical",
-    WebkitLineClamp: 2,
-    whiteSpace: "pre-line",
-    overflow: "hidden",
   },
 }));
 
