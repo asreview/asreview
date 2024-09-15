@@ -258,7 +258,9 @@ const ProfilePage = (props) => {
           {/* Header */}
           <Box
             className="main-page-sticky-header-wrapper"
-            sx={{ background: (theme) => theme.palette.background.paper }}
+            sx={(theme) => ({
+              background: theme.palette.background.paper,
+            })}
           >
             <Box className="main-page-sticky-header with-button">
               {!props.mobileScreen && (

@@ -126,12 +126,14 @@ const ProfilePopper = (props) => {
               <Avatar
                 alt="user"
                 src={ElasAvatar}
-                sx={{
+                sx={(theme) => ({
                   width: !props.mobileScreen ? 32 : 24,
                   height: !props.mobileScreen ? 32 : 24,
-                  bgcolor: (theme) =>
-                    theme.palette.mode === "dark" ? "grey.600" : "grey.400",
-                }}
+                  bgcolor: "grey.400",
+                  ...theme.applyStyles("dark", {
+                    bgcolor: "grey.600",
+                  }),
+                })}
                 imgProps={{ sx: { p: 1 } }}
               />
             </ButtonBase>
@@ -153,14 +155,14 @@ const ProfilePopper = (props) => {
                     <Avatar
                       alt="user"
                       src={ElasAvatar}
-                      sx={{
+                      sx={(theme) => ({
                         width: !props.mobileScreen ? 40 : 32,
                         height: !props.mobileScreen ? 40 : 32,
-                        bgcolor: (theme) =>
-                          theme.palette.mode === "dark"
-                            ? "grey.600"
-                            : "grey.400",
-                      }}
+                        bgcolor: "grey.400",
+                        ...theme.applyStyles("dark", {
+                          bgcolor: "grey.600",
+                        }),
+                      })}
                       imgProps={{ sx: { p: 1 } }}
                     />
                     <TypographySubtitle1Medium>

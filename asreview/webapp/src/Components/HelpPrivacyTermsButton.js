@@ -9,10 +9,10 @@ export default function HelpPrivacyTermsButton(props) {
     <Stack
       spacing={2}
       direction="row"
-      sx={{
+      sx={(theme) => ({
         justifyContent: "flex-end",
-        marginTop: (theme) => theme.spacing(3),
-      }}
+        marginTop: theme.spacing(3),
+      })}
     >
       <StyledTextButton
         size="small"

@@ -128,9 +128,9 @@ const DatasetFromEntryPoint = ({
             <Stack spacing={2} key={index}>
               <Typography
                 variant="subtitle1"
-                sx={{
-                  fontWeight: (theme) => theme.typography.fontWeightMedium,
-                }}
+                sx={(theme) => ({
+                  fontWeight: theme.typography.fontWeightMedium,
+                })}
               >
                 {group.description}
               </Typography>

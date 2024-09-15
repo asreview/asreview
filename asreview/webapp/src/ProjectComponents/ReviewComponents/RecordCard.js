@@ -102,9 +102,9 @@ const RecordCard = ({
               component="div"
               className={classes.title}
               variant={"h5"}
-              sx={{
-                fontWeight: (theme) => theme.typography.fontWeightRegular,
-              }}
+              sx={(theme) => ({
+                fontWeight: theme.typography.fontWeightRegular,
+              })}
             >
               {/* No title, inplace text */}
               {(record.title === "" || record.title === null) && (
