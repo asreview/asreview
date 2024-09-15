@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useQuery, useMutation } from "react-query";
-import { Box, Fade, Grid, Snackbar, Stack } from "@mui/material";
+import { Box, Fade, Grid2 as Grid, Snackbar, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { PageHeader } from "Components";
 import { TeamAPI } from "api";
@@ -196,14 +196,20 @@ const TeamPage = (props) => {
               <Stack spacing={3} className="main-page-body">
                 <Box>
                   <Grid container spacing={3}>
-                    <Grid item xs={12}>
+                    <Grid item size={12}>
                       <InvitationForm
                         selectableUsers={selectableUsers}
                         onInvite={onInvite}
                       />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid
+                      item
+                      size={{
+                        xs: 12,
+                        sm: 6,
+                      }}
+                    >
                       <UserListComponent
                         header="Collaborators"
                         users={collaborators}
@@ -211,7 +217,13 @@ const TeamPage = (props) => {
                       />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid
+                      item
+                      size={{
+                        xs: 12,
+                        sm: 6,
+                      }}
+                    >
                       <UserListComponent
                         header="Pending invitations"
                         users={invitedUsers}

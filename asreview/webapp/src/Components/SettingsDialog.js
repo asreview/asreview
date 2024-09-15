@@ -7,7 +7,7 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  Grid,
+  Grid2 as Grid,
   IconButton,
   List,
   ListItem,
@@ -91,7 +91,6 @@ const SettingsDialog = (props) => {
           </Grid>
         </DialogTitle>
       )}
-
       <DialogContent dividers className={classes.content}>
         <List>
           <ListItem>
@@ -159,13 +158,11 @@ const SettingsDialog = (props) => {
           </ListItem>
         </List>
       </DialogContent>
-
       {!props.mobileScreen && (
         <DialogActions>
           <Button onClick={props.toggleSettings}>Close</Button>
         </DialogActions>
       )}
-
       <Dialog open={fontSizeSetting} onClose={toggleFontSizeSetting}>
         <DialogTitle>Font size</DialogTitle>
         <DialogContent>
@@ -186,12 +183,12 @@ const SettingsDialog = (props) => {
           </>
           <>
             <Grid container sx={{ alignItems: "flex-end" }}>
-              <Grid item xs>
+              <Grid item size="grow">
                 <Typography align="center" variant="h6">
                   A
                 </Typography>
               </Grid>
-              <Grid item xs={8}>
+              <Grid item size={8}>
                 <Slider
                   value={fontSize}
                   marks={true}
@@ -203,7 +200,7 @@ const SettingsDialog = (props) => {
                   }}
                 />
               </Grid>
-              <Grid item xs>
+              <Grid item size="grow">
                 <Typography align="center" variant="h4">
                   A
                 </Typography>

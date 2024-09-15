@@ -11,7 +11,7 @@ import {
 } from "react-share";
 import {
   Box,
-  Grid,
+  Grid2 as Grid,
   SpeedDial,
   SpeedDialAction,
   Stack,
@@ -117,7 +117,7 @@ const AnalyticsPage = (props) => {
             )}
           </Box>
 
-          <Grid item xs={12}>
+          <Grid item size={12}>
             <Box sx={{ position: "relative" }}>
               <Box>
                 <Tabs

@@ -8,7 +8,7 @@ import {
   CardContent,
   CardHeader,
   CardMedia,
-  Grid,
+  Grid2 as Grid,
   Link,
   Skeleton,
 } from "@mui/material";
@@ -77,7 +77,6 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
           </>
         }
       />
-
       {isFetchingData ? (
         <Skeleton sx={{ height: 140 }} variant="rectangular" />
       ) : (
@@ -88,21 +87,42 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
           sx={{ bgcolor: "primary.background" }}
         >
           <Grid container>
-            <Grid item xs={12} sm={4} sx={{ width: "200px" }}>
+            <Grid
+              item
+              sx={{ width: "200px" }}
+              size={{
+                xs: 12,
+                sm: 4,
+              }}
+            >
               <DatasetChart
                 label={"Title available"}
                 part={data?.n_rows - data?.n_missing_title}
                 total={data?.n_rows}
               />
             </Grid>
-            <Grid item xs={12} sm={4} sx={{ width: "200px" }}>
+            <Grid
+              item
+              sx={{ width: "200px" }}
+              size={{
+                xs: 12,
+                sm: 4,
+              }}
+            >
               <DatasetChart
                 label={"Abstract available"}
                 part={data?.n_rows - data?.n_missing_abstract}
                 total={data?.n_rows}
               />
             </Grid>
-            <Grid item xs={12} sm={4} sx={{ width: "200px" }}>
+            <Grid
+              item
+              sx={{ width: "200px" }}
+              size={{
+                xs: 12,
+                sm: 4,
+              }}
+            >
               <DatasetChart
                 label={"English language"}
                 part={data?.n_english}
@@ -112,7 +132,6 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
           </Grid>
         </CardMedia>
       )}
-
       <CardContent>
         {data?.n_unlabeled === 0 && (
           <Alert severity="info" sx={{ mb: 2 }}>

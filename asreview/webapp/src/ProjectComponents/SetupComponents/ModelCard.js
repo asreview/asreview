@@ -16,7 +16,7 @@ import {
   FormControl,
   FormControlLabel,
   FormHelperText,
-  Grid,
+  Grid2 as Grid,
   IconButton,
   InputLabel,
   Link,
