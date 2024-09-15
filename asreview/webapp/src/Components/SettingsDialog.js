@@ -11,6 +11,7 @@ import {
   IconButton,
   List,
   ListItem,
+  ListItemButton,
   ListItemText,
   Slider,
   Switch,
@@ -18,6 +19,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import React from "react";
+import { Link } from "react-router-dom";
 
 import { OpenInNewIconStyled } from "Components";
 
@@ -141,21 +143,23 @@ const SettingsDialog = (props) => {
               OTHER
             </Typography>
           </ListItem>
-          <ListItem
-            button
-            component={"a"}
-            href="https://asreview.readthedocs.io/en/latest/intro/about.html"
-            target="_blank"
-          >
-            <ListItemText
-              id="switch-list-label-about"
-              primary={
-                <React.Fragment>
-                  About ASReview LAB <OpenInNewIconStyled />
-                </React.Fragment>
-              }
-              secondary={`Version ${window.asreviewVersion}`}
-            />
+          <ListItem>
+            <ListItemButton
+              component={"a"}
+              href="https://asreview.readthedocs.io/en/latest/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ListItemText
+                id="switch-list-label-about"
+                primary={
+                  <React.Fragment>
+                    About ASReview LAB <OpenInNewIconStyled />
+                  </React.Fragment>
+                }
+                secondary={`Version ${window.asreviewVersion}`}
+              />
+            </ListItemButton>
           </ListItem>
         </List>
       </DialogContent>

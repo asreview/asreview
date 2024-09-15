@@ -21,6 +21,7 @@ import {
   Stack,
   IconButton,
   Typography,
+  ListItemButton,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -131,25 +132,25 @@ const HelpDialog = ({ mobileScreen, onHelp, toggleHelp }) => {
           {!isError &&
             isFetched &&
             data.map((element, index) => (
-              <ListItem
-                key={element.url}
-                button
-                component={"a"}
-                href={element.url}
-                target="_blank"
-                alignItems="flex-start"
-              >
-                <ListItemIcon sx={{ justifyContent: "center" }}>
-                  <Description color="primary" />
-                </ListItemIcon>
-                <ListItemText
-                  key={element.title}
-                  primary={
-                    <React.Fragment>
-                      {element.title} <OpenInNewIconStyled />
-                    </React.Fragment>
-                  }
-                />
+              <ListItem key={element.url}>
+                <ListItemButton
+                  component={"a"}
+                  href={element.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ListItemIcon sx={{ justifyContent: "center" }}>
+                    <Description color="primary" />
+                  </ListItemIcon>
+                  <ListItemText
+                    key={element.title}
+                    primary={
+                      <React.Fragment>
+                        {element.title} <OpenInNewIconStyled />
+                      </React.Fragment>
+                    }
+                  />
+                </ListItemButton>
               </ListItem>
             ))}
           {isError && (
