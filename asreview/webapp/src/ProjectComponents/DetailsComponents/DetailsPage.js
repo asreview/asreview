@@ -27,7 +27,6 @@ import { useToggle } from "hooks/useToggle";
 import { ProjectAPI } from "api";
 
 const Root = styled("div")(({ theme }) => ({}));
-
 const DeleteCard = ({ project_id, info }) => {
   const [onDeleteDialog, toggleDeleteDialog] = useToggle();
 
@@ -57,15 +56,12 @@ const DeleteCard = ({ project_id, info }) => {
     </Box>
   );
 };
-
 const MarkFinishedCard = ({ project_id }) => {
   const queryClient = useQueryClient();
-
   const { data } = useQuery(
     ["fetchProjectStatus", { project_id }],
     ProjectAPI.fetchProjectStatus,
   );
-
   const { mutate } = useMutation(ProjectAPI.mutateReviewStatus, {
     onSuccess: (data) => {
       queryClient.setQueryData(["fetchProjectStatus", { project_id }], data);
@@ -79,7 +75,6 @@ const MarkFinishedCard = ({ project_id }) => {
         title="Project status"
         subheader="Mark the project as finished. This disables new label actions. Can be reverted."
       />
-
       <CardContent>
         <FormGroup>
           <FormControlLabel
@@ -103,10 +98,8 @@ const MarkFinishedCard = ({ project_id }) => {
     </Card>
   );
 };
-
 const DetailsPage = ({ info }) => {
   const { project_id } = useParams();
-
   const { auth } = useAuth();
 
   return (
@@ -127,7 +120,6 @@ const DetailsPage = ({ info }) => {
               <Box sx={{ padding: "12px 0px" }}>
                 <MarkFinishedCard project_id={project_id} info={info} />
               </Box>
-
               <Box sx={{ padding: "12px 0px" }}>
                 <DeleteCard project_id={project_id} info={info} />
               </Box>
@@ -138,5 +130,4 @@ const DetailsPage = ({ info }) => {
     </Root>
   );
 };
-
 export default DetailsPage;

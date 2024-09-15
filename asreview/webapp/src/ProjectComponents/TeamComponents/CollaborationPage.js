@@ -9,22 +9,18 @@ import { InlineErrorHandler, PageHeader } from "Components";
 import { ConfirmationDialog } from "ProjectComponents/TeamComponents";
 
 const Root = styled("div")(({ theme }) => ({}));
-
 const CollaborationPage = (props) => {
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const queryClient = useQueryClient();
   const { auth } = useAuth();
   const [errorMessage, setErrorMessage] = React.useState(undefined);
-
   const handleOpenConfirmationDialog = () => {
     setDialogOpen(true);
   };
-
   const handleCloseConfirmationDialog = () => {
     setDialogOpen(false);
   };
-
   const handleEndCollaboration = useMutation(
     () =>
       TeamAPI.deleteCollaboration({
@@ -50,7 +46,6 @@ const CollaborationPage = (props) => {
       <Fade in>
         <Box>
           <PageHeader header="Team" mobileScreen={props.mobileScreen} />
-
           <Box className="main-page-body-wrapper">
             <Stack className="main-page-body">
               <Typography variant="h5">
@@ -62,7 +57,6 @@ const CollaborationPage = (props) => {
                     If you would like to end this collaboration, click on the
                     button below:
                   </Typography>
-
                   <Button
                     variant="contained"
                     color="error"
@@ -71,13 +65,11 @@ const CollaborationPage = (props) => {
                   >
                     Remove me from this project
                   </Button>
-
                   {errorMessage !== undefined && (
                     <Stack sx={{ padding: 5 }}>
                       <InlineErrorHandler message={errorMessage} />
                     </Stack>
                   )}
-
                   <ConfirmationDialog
                     open={dialogOpen}
                     title="Are you sure?"
@@ -94,5 +86,4 @@ const CollaborationPage = (props) => {
     </Root>
   );
 };
-
 export default CollaborationPage;

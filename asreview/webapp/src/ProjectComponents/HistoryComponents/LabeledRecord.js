@@ -32,13 +32,11 @@ const Root = styled("div")(({ theme }) => ({
   [theme.breakpoints.up("md")]: {
     padding: "2rem 1rem",
   },
-
   [`& .${classes.loading}`]: {
     // display: "flex",
     // justifyContent: "center",
     // padding: 64,
   },
-
   [`& .${classes.loadMoreInView}`]: {
     color: grey[500],
     display: "flex",

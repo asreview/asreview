@@ -18,18 +18,15 @@ const initDeleteData = {
   text: undefined,
   function: undefined,
 };
-
 const TeamPage = (props) => {
   const [selectableUsers, setSelectableUsers] = React.useState([]);
   const [collaborators, setCollaborators] = React.useState([]);
   const [invitedUsers, setInvitedUsers] = React.useState([]);
   const [snackbar, setSnackbar] = React.useState(initSnackbarData);
   const [handleDelete, setHandleDelete] = React.useState(initDeleteData);
-
   const handleCloseSnackbar = () => {
     setSnackbar(initSnackbarData);
   };
-
   useQuery(["fetchUsers", props.info.id], TeamAPI.fetchUsers, {
     refetchOnWindowFocus: false,
     onSuccess: (data) => {
@@ -50,7 +47,6 @@ const TeamPage = (props) => {
       );
     },
   });
-
   const inviteUser = useMutation(
     (user) => TeamAPI.inviteUser({ projectId: props.info.id, user: user }),
     {
@@ -84,7 +80,6 @@ const TeamPage = (props) => {
       },
     },
   );
-
   const deleteInvitation = useMutation(
     (userId) =>
       TeamAPI.deleteInvitation({ projectId: props.info.id, userId: userId }),
@@ -120,7 +115,6 @@ const TeamPage = (props) => {
       },
     },
   );
-
   const deleteCollaboration = useMutation(
     (userId) =>
       TeamAPI.deleteCollaboration({ projectId: props.info.id, userId: userId }),
@@ -156,13 +150,11 @@ const TeamPage = (props) => {
       },
     },
   );
-
   const onInvite = (userObject) => {
     if (userObject !== null) {
       inviteUser.mutate(userObject);
     }
   };
-
   const onDeleteInvitation = (userId) => {
     if (userId !== null) {
       setHandleDelete({
@@ -173,7 +165,6 @@ const TeamPage = (props) => {
       });
     }
   };
-
   const onDeleteCollaboration = (userId) => {
     if (userId !== null) {
       setHandleDelete({
@@ -190,7 +181,6 @@ const TeamPage = (props) => {
       <Fade in>
         <Box>
           <PageHeader header="Team" mobileScreen={props.mobileScreen} />
-
           {props.info && (
             <Box className="main-page-body-wrapper">
               <Stack spacing={3} className="main-page-body">
@@ -202,7 +192,6 @@ const TeamPage = (props) => {
                         onInvite={onInvite}
                       />
                     </Grid>
-
                     <Grid
                       item
                       size={{
@@ -216,7 +205,6 @@ const TeamPage = (props) => {
                         onDelete={onDeleteCollaboration}
                       />
                     </Grid>
-
                     <Grid
                       item
                       size={{
@@ -233,14 +221,12 @@ const TeamPage = (props) => {
                   </Grid>
                 </Box>
               </Stack>
-
               <Snackbar
                 open={snackbar.show}
                 autoHideDuration={3000}
                 onClose={handleCloseSnackbar}
                 message={snackbar.message}
               />
-
               <ConfirmationDialog
                 title="Are you sure?"
                 contentText={handleDelete.text}
@@ -259,5 +245,4 @@ const TeamPage = (props) => {
     </Root>
   );
 };
-
 export default TeamPage;

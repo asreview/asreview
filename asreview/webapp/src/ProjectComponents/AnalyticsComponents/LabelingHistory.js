@@ -199,7 +199,6 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
                 }}
               />
             </Box>
-
             {genericDataQuery?.isLoading ? (
               <HistoryContainer>
                 {Array.from(new Array(chunkSize)).map((_, index) => (
@@ -230,7 +229,6 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
               </Typography>
             </Box>
           </Stack>
-
           <Box
             sx={{
               position: "absolute",
@@ -367,5 +365,4 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
     </div>
   );
 };
-
 export default LabelingHistory;

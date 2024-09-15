@@ -48,12 +48,10 @@ const Root = styled("div")(({ theme }) => ({
     paddingBottom: theme.spacing(3),
     justifyContent: "space-between",
   },
-
   [`& .${classes.card}`]: {
     borderRadius: theme.spacing(2),
     width: "500px",
   },
-
   [`& .${classes.cardContent}`]: {
     padding: "48px 40px !important",
   },

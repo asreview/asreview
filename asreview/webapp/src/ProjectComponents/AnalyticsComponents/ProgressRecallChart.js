@@ -46,49 +46,41 @@ const StyledCard = styled(Card)(({ theme }) => ({
     paddingLeft: 32,
     paddingRight: 32,
   },
-
   [`& .${classes.tooltipCardColor}`]: {
     color: theme.palette.text.primary,
     background: theme.palette.background.paper,
   },
-
   [`& .${classes.tooltipLabelContainer}`]: {
     display: "flex",
     justifyContent: "space-between",
   },
-
   [`& .${classes.tooltipLabelMarkerASReviewColor}`]: {
-    ...(theme.palette.mode === "light" && {
+    ...theme.applyStyles("light", {
       color: theme.palette.primary.light,
       background: theme.palette.primary.light,
     }),
-    ...(theme.palette.mode === "dark" && {
+    ...theme.applyStyles("dark", {
       color: theme.palette.primary.main,
       background: theme.palette.primary.main,
     }),
   },
-
   [`& .${classes.tooltipLabelMarkerRandomColor}`]: {
     color: theme.palette.info.main,
     background: theme.palette.info.main,
   },
-
   [`& .${classes.tooltipLabelASReviewNumber}`]: {
     marginLeft: 32,
-    ...(theme.palette.mode === "dark" && {
+    ...theme.applyStyles("dark", {
       color: theme.palette.primary.main,
     }),
   },
-
   [`& .${classes.tooltipLabelRandomNumber}`]: {
     marginLeft: 32,
     color: theme.palette.info.main,
   },
-
   [`& .${classes.tooltipLabelTextSecondaryColor}`]: {
     color: theme.palette.text.secondary,
   },
-
   [`& .${classes.tooltipDividerColor}`]: {
     borderColor: theme.palette.divider,
   },

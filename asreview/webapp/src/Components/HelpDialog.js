@@ -54,29 +54,24 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
     alignItems: "center",
     justifyContent: "center",
   },
-
   [`& .${classes.faqHeight}`]: {
     minHeight: 353,
   },
-
   [`& .${classes.contact}`]: {
     width: "100%",
     marginLeft: 20,
     marginRight: 20,
   },
-
   [`& .${classes.contactAvatar}`]: {
     width: theme.spacing(4),
     height: theme.spacing(4),
     color: theme.palette.getContrastText(theme.palette.primary.main),
     backgroundColor: theme.palette.primary.main,
   },
-
   [`& .${classes.divider}`]: {
     marginTop: 8,
     marginBottom: 8,
   },
-
   [`& .${classes.sectionTitle}`]: {
     paddingLeft: 20,
   },

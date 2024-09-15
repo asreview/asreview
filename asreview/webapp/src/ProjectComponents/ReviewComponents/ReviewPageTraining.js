@@ -37,14 +37,12 @@ const Root = styled("div")(({ theme }) => ({
       maxWidth: 250,
     },
   },
-
   [`& .${classes.textTitle}`]: {
     textAlign: "center",
     [theme.breakpoints.down("md")]: {
       width: "80%",
     },
   },
-
   [`& .${classes.text}`]: {
     textAlign: "center",
     width: "60%",

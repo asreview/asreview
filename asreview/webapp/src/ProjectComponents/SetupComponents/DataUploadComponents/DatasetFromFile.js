@@ -32,7 +32,6 @@ const Root = styled("div")(({ theme }) => ({
     alignItems: "center",
     height: "100%",
   },
-
   [`& .${classes.singleLine}`]: {
     display: "-webkit-box",
     WebkitBoxOrient: "vertical",

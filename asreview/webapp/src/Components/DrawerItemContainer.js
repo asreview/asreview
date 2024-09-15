@@ -65,12 +65,10 @@ const StyledList = styled(List)(({ theme }) => ({
       marginTop: theme.spacing(2),
     },
   },
-
   [`& .${classes.yourProject}`]: {
     paddingLeft: 12,
     paddingRight: 12,
   },
-
   [`& .${classes.projectTitle}`]: {
     display: "-webkit-box",
     WebkitBoxOrient: "vertical",

@@ -40,7 +40,6 @@ const Root = styled("div")(({ theme }) => ({
     display: "flex",
     alignItems: "center",
   },
-
   [`& .${classes.singleLine}`]: {
     display: "-webkit-box",
     WebkitBoxOrient: "vertical",
