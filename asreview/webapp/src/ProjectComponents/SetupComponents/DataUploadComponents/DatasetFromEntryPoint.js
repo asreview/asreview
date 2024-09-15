@@ -107,7 +107,6 @@ const DatasetFromEntryPoint = ({
           </Link>
         </Typography>
       )}
-
       {isFetchingDatasets && (
         <Box className={classes.loading}>
           <CircularProgress />
@@ -120,11 +119,9 @@ const DatasetFromEntryPoint = ({
           button={!isError}
         />
       )}
-
       {isSuccess && isFetched && data["result"]?.length === 0 && (
         <Typography>No dataset extensions installed.</Typography>
       )}
-
       {data && (
         <Stack spacing={2}>
           {data?.result.map((group, index) => (

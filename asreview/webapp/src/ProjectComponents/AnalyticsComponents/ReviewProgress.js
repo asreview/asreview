@@ -223,7 +223,7 @@ export default function ReviewProgress({ progressQuery, mobileScreen }) {
             marginTop: theme.spacing(1.5),
             marginLeft: theme.spacing(1),
           }}
-          componentsProps={{
+          slotProps={{
             typography: {
               variant: "body2",
             },

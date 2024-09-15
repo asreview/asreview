@@ -165,8 +165,10 @@ const ResetPassword = (props) => {
                       value={formik.values.password}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                      inputProps={{
-                        autoComplete: "new-password",
+                      slotProps={{
+                        htmlInput: {
+                          autoComplete: "new-password",
+                        },
                       }}
                     />
                     <TextField
@@ -180,8 +182,10 @@ const ResetPassword = (props) => {
                       value={formik.values.confirmPassword}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                      inputProps={{
-                        autoComplete: "new-password",
+                      slotProps={{
+                        htmlInput: {
+                          autoComplete: "new-password",
+                        },
                       }}
                     />
                   </Stack>
