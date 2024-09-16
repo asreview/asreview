@@ -101,7 +101,12 @@ const ProjectCard = ({ project, mode, user_id, setFeedbackBar }) => {
   };
 
   return (
-    <Card sx={{ width: "100%", bgcolor: "rgba(70, 62, 166, 0.08)" }}>
+    <Card
+      sx={(theme) => ({
+        width: "100%",
+        bgcolor: theme.palette.background.default,
+      })}
+    >
       <CardHeader
         title={
           <Typography

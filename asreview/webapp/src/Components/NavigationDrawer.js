@@ -9,6 +9,7 @@ import { DrawerItemContainer, Header } from "Components";
 
 import { WordMark } from "icons/WordMark";
 import { drawerWidth } from "globals.js";
+import { useToggle } from "hooks/useToggle";
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -67,9 +68,13 @@ const NavigationDrawer = ({
   const container =
     window !== undefined ? () => window().document.body : undefined;
 
+  const [openMobileDrawer, toggleMobileDrawer] = useToggle();
+
   return (
     <Box>
-      <Header toggleNavDrawer={toggleNavDrawer} />
+      <Header
+        toggleNavDrawer={mobileScreen ? toggleMobileDrawer : toggleNavDrawer}
+      />
       <Box
         component="nav"
         aria-label="navigation drawer"
@@ -79,8 +84,8 @@ const NavigationDrawer = ({
         <Drawer
           container={container}
           variant="temporary"
-          open={mobileScreen && onNavDrawer}
-          onClose={toggleNavDrawer}
+          open={openMobileDrawer}
+          onClose={toggleMobileDrawer}
           ModalProps={{
             keepMounted: true, // Better open performance on mobile.
           }}
@@ -96,7 +101,7 @@ const NavigationDrawer = ({
             <IconButton
               edge="start"
               color="inherit"
-              onClick={toggleNavDrawer}
+              onClick={toggleMobileDrawer}
               size="large"
               sx={{ marginRight: "4px" }}
             >
@@ -113,8 +118,8 @@ const NavigationDrawer = ({
           </Toolbar>
           <DrawerItemContainer
             mobileScreen={mobileScreen}
-            onNavDrawer={onNavDrawer}
-            toggleNavDrawer={toggleNavDrawer}
+            onNavDrawer={openMobileDrawer}
+            toggleNavDrawer={toggleMobileDrawer}
             toggleSettings={toggleSettings}
             toggleHelp={toggleHelp}
           />
