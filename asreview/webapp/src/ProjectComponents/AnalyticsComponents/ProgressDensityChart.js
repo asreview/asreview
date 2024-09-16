@@ -225,7 +225,7 @@ export default function ProgressDensityChart(props) {
       legend: {
         position: "top",
         horizontalAlign: "left",
-        fontSize: !props.mobileScreen ? "14px" : "12px",
+        fontSize: "14px",
         fontFamily: theme.typography.subtitle2.fontFamily,
         fontWeight: theme.typography.subtitle2.fontWeight,
         labels: {
@@ -283,7 +283,7 @@ export default function ProgressDensityChart(props) {
         },
       },
     };
-  }, [theme, props.mobileScreen]);
+  }, [theme]);
 
   const [series, setSeries] = useState(seriesArray());
   const [options, setOptions] = useState(optionsChart());
@@ -365,10 +365,6 @@ export default function ProgressDensityChart(props) {
             className={classes.title}
             sx={{ justifyContent: "space-between" }}
           >
-            {!props.mobileScreen && <Typography variant="h6"></Typography>}
-            {props.mobileScreen && (
-              <TypographySubtitle1Medium></TypographySubtitle1Medium>
-            )}
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <StyledTooltip
                 title={
@@ -426,7 +422,6 @@ export default function ProgressDensityChart(props) {
                 }
               >
                 <HelpOutline
-                  fontSize={!props.mobileScreen ? "small" : "12px"}
                   sx={{ color: "text.secondary", marginRight: "8px" }}
                 />
               </StyledTooltip>

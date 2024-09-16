@@ -1,8 +1,6 @@
 import * as React from "react";
 import { useQuery, useMutation } from "react-query";
-import { Box, Fade, Grid2 as Grid, Snackbar } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { PageHeader } from "Components";
+import { Box, Grid2 as Grid, Snackbar } from "@mui/material";
 import { TeamAPI } from "api";
 import {
   ConfirmationDialog,
@@ -18,7 +16,7 @@ const initDeleteData = {
   text: undefined,
   function: undefined,
 };
-const TeamPage = ({ mobileScreen }) => {
+const TeamPage = () => {
   const { project_id } = useParams();
 
   const [selectableUsers, setSelectableUsers] = React.useState([]);
@@ -173,59 +171,56 @@ const TeamPage = ({ mobileScreen }) => {
   };
 
   return (
-    <Box>
-      <PageHeader header="Team" mobileScreen={mobileScreen} />
-      <Box className="main-page-body-wrapper">
-        <Grid container spacing={3}>
-          <Grid size={12}>
-            <InvitationForm
-              selectableUsers={selectableUsers}
-              onInvite={onInvite}
-            />
-          </Grid>
-          <Grid
-            size={{
-              xs: 12,
-              sm: 6,
-            }}
-          >
-            <UserListComponent
-              header="Collaborators"
-              users={collaborators}
-              onDelete={onDeleteCollaboration}
-            />
-          </Grid>
-          <Grid
-            size={{
-              xs: 12,
-              sm: 6,
-            }}
-          >
-            <UserListComponent
-              header="Pending invitations"
-              users={invitedUsers}
-              onDelete={onDeleteInvitation}
-            />
-          </Grid>
+    <Box className="main-page-body-wrapper">
+      <Grid container spacing={3}>
+        <Grid size={12}>
+          <InvitationForm
+            selectableUsers={selectableUsers}
+            onInvite={onInvite}
+          />
         </Grid>
-        <Snackbar
-          open={snackbar.show}
-          autoHideDuration={3000}
-          onClose={handleCloseSnackbar}
-          message={snackbar.message}
-        />
-        <ConfirmationDialog
-          title="Are you sure?"
-          contentText={handleDelete.text}
-          open={handleDelete.openDialog}
-          onClose={() => setHandleDelete(initDeleteData)}
-          handleCancel={() => setHandleDelete(initDeleteData)}
-          handleConfirm={() => {
-            handleDelete.function.mutate(handleDelete.userId);
-            setHandleDelete(initDeleteData);
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6,
           }}
-        />
-      </Box>
+        >
+          <UserListComponent
+            header="Collaborators"
+            users={collaborators}
+            onDelete={onDeleteCollaboration}
+          />
+        </Grid>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6,
+          }}
+        >
+          <UserListComponent
+            header="Pending invitations"
+            users={invitedUsers}
+            onDelete={onDeleteInvitation}
+          />
+        </Grid>
+      </Grid>
+      <Snackbar
+        open={snackbar.show}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        message={snackbar.message}
+      />
+      <ConfirmationDialog
+        title="Are you sure?"
+        contentText={handleDelete.text}
+        open={handleDelete.openDialog}
+        onClose={() => setHandleDelete(initDeleteData)}
+        handleCancel={() => setHandleDelete(initDeleteData)}
+        handleConfirm={() => {
+          handleDelete.function.mutate(handleDelete.userId);
+          setHandleDelete(initDeleteData);
+        }}
+      />
     </Box>
   );
 };

@@ -4,11 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { TeamAPI } from "api";
 import useAuth from "hooks/useAuth";
 import { Box, Button, Stack, Typography } from "@mui/material";
-import { InlineErrorHandler, PageHeader } from "Components";
+import { InlineErrorHandler } from "Components";
 import { ConfirmationDialog } from "ProjectComponents/TeamComponents";
 import { useParams } from "react-router-dom";
 
-const CollaborationPage = ({ mobileScreen }) => {
+const CollaborationPage = ({}) => {
   const { project_id } = useParams();
 
   const navigate = useNavigate();
@@ -43,35 +43,32 @@ const CollaborationPage = ({ mobileScreen }) => {
   );
 
   return (
-    <Box>
-      <PageHeader header="Team" mobileScreen={mobileScreen} />
-      <Box className="main-page-body-wrapper">
-        <Stack className="main-page-body">
-          <Typography variant="h5">
-            You are collaborating in this project
-          </Typography>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={handleOpenConfirmationDialog}
-            sx={{ width: 300 }}
-          >
-            Remove me from this project
-          </Button>
-          {errorMessage !== undefined && (
-            <Stack sx={{ padding: 5 }}>
-              <InlineErrorHandler message={errorMessage} />
-            </Stack>
-          )}
-          <ConfirmationDialog
-            open={dialogOpen}
-            title="Are you sure?"
-            contentText={`You will remove yourself from this project.`}
-            handleCancel={handleCloseConfirmationDialog}
-            handleConfirm={() => handleEndCollaboration.mutate()}
-          />
-        </Stack>
-      </Box>
+    <Box className="main-page-body-wrapper">
+      <Stack className="main-page-body">
+        <Typography variant="h5">
+          You are collaborating in this project
+        </Typography>
+        <Button
+          variant="contained"
+          color="error"
+          onClick={handleOpenConfirmationDialog}
+          sx={{ width: 300 }}
+        >
+          Remove me from this project
+        </Button>
+        {errorMessage !== undefined && (
+          <Stack sx={{ padding: 5 }}>
+            <InlineErrorHandler message={errorMessage} />
+          </Stack>
+        )}
+        <ConfirmationDialog
+          open={dialogOpen}
+          title="Are you sure?"
+          contentText={`You will remove yourself from this project.`}
+          handleCancel={handleCloseConfirmationDialog}
+          handleConfirm={() => handleEndCollaboration.mutate()}
+        />
+      </Stack>
     </Box>
   );
 };

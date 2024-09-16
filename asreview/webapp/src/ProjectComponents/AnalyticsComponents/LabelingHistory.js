@@ -103,7 +103,7 @@ const generateLines = (
   return lines;
 };
 
-const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
+const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
   const [chronological, setChronological] = useState(true);
   const [chunkSize, setChunkSize] = useState(29);
   const [anchorEl, setAnchorEl] = useState(null);
