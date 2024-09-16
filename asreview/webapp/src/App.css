@@ -22,11 +22,6 @@
   display: flex;
   justify-content: center;
 }
-.main-page-fab {
-  position: absolute;
-  bottom: 24px;
-  right: 24px;
-}
 
 .fontSizeSmall {
   font-size: 90% !important;
@@ -39,8 +34,4 @@
 }
 .fontSizeLargest {
   font-size: 140% !important;
-}
-
-.typography-wrap {
-  white-space: pre-line;
 }

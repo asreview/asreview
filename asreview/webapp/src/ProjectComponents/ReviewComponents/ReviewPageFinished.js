@@ -4,8 +4,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button, Fade, Link, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { ActionsFeedbackBar } from "Components";
-
 import { ProjectAPI } from "api";
 import { projectStatuses } from "globals.js";
 import ElasFinished from "images/ElasFinished.svg";
@@ -48,14 +46,11 @@ const ReviewPageFinished = (props) => {
 
   const [recordEmpty, setRecordEmpty] = React.useState(false);
 
-  const { error, isError, mutate, reset } = useMutation(
-    ProjectAPI.mutateReviewStatus,
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries("fetchInfo");
-      },
+  const { mutate } = useMutation(ProjectAPI.mutateReviewStatus, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("fetchInfo");
     },
-  );
+  });
 
   const handleChangeStatus = () => {
     mutate({
@@ -119,13 +114,6 @@ const ReviewPageFinished = (props) => {
           )}
         </Stack>
       </Fade>
-      {isError && (
-        <ActionsFeedbackBar
-          feedback={error?.message + " Please try again."}
-          open={isError}
-          onClose={reset}
-        />
-      )}
     </Root>
   );
 };

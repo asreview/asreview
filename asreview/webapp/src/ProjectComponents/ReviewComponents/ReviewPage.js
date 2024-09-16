@@ -4,7 +4,6 @@ import { useQuery, useQueryClient } from "react-query";
 import { useMediaQuery } from "@mui/material";
 import { useParams } from "react-router-dom";
 
-import { ActionsFeedbackBar } from "Components";
 import { RecordCard, ReviewPageFinished } from ".";
 
 import { ProjectAPI } from "api";
@@ -55,14 +54,6 @@ const Screener = (props) => {
           collapseAbstract={false}
           hotkeys={true}
           key={project_id + "-" + data["result"]["record_id"]}
-        />
-      )}
-
-      {/* Error handler */}
-      {isError && (
-        <ActionsFeedbackBar
-          feedback={error?.message + " Please try again."}
-          open={isError}
         />
       )}
     </Root>

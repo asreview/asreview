@@ -102,11 +102,6 @@ const FinishSetup = ({ project_id, refetch }) => {
         </Stack>
       </Fade>
       {/* {isError && (
-        <ActionsFeedbackBar
-          feedback={error?.message + " Please try again."}
-          open={isError}
-          onClose={reset}
-        />
       )} */}
       <Dialog
         open={openSkipTraining}
