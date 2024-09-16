@@ -1,25 +1,24 @@
-import React, { useRef, useState, useEffect, useCallback } from "react";
-import Chart from "react-apexcharts";
+import { HelpOutline } from "@mui/icons-material";
+import GetAppIcon from "@mui/icons-material/GetApp";
 import {
+  Box,
   Card,
   CardContent,
-  Skeleton,
-  Stack,
-  Typography,
   IconButton,
   Menu,
   MenuItem,
+  Skeleton,
+  Stack,
   Tooltip,
+  Typography,
   tooltipClasses,
-  Box,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
-import GetAppIcon from "@mui/icons-material/GetApp";
-import { HelpOutline } from "@mui/icons-material";
-import { toPng, toJpeg, toSvg } from "html-to-image";
+import { toJpeg, toPng, toSvg } from "html-to-image";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import Chart from "react-apexcharts";
 
 import { CardErrorHandler } from "Components";
-import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
 const PREFIX = "ProgressRecallChart";
 

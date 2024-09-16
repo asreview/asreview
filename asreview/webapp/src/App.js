@@ -164,12 +164,7 @@ const App = () => {
           <Route
             path="*"
             element={
-              <HomePage
-                mobileScreen={mobileScreen}
-                onNavDrawer={onNavDrawer}
-                projectCheck={projectCheck}
-                setProjectCheck={setProjectCheck}
-              />
+              <HomePage mobileScreen={mobileScreen} onNavDrawer={onNavDrawer} />
             }
           />
           <Route
@@ -179,8 +174,6 @@ const App = () => {
                 mobileScreen={mobileScreen}
                 onNavDrawer={onNavDrawer}
                 fontSize={fontSize}
-                projectCheck={projectCheck}
-                setProjectCheck={setProjectCheck}
               />
             }
           />
@@ -191,8 +184,6 @@ const App = () => {
                 mobileScreen={mobileScreen}
                 onNavDrawer={onNavDrawer}
                 fontSize={fontSize}
-                projectCheck={projectCheck}
-                setProjectCheck={setProjectCheck}
               />
             }
           />

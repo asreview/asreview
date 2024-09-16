@@ -48,7 +48,6 @@ const Screener = (props) => {
           afterDecision={afterDecision}
           fontSize={props.fontSize}
           showBorder={props.showBorder}
-          tags={props.tags}
           tagValues={tagValues}
           setTagValues={setTagValues}
           collapseAbstract={false}
@@ -60,7 +59,7 @@ const Screener = (props) => {
   );
 };
 
-const ReviewPage = ({ project_id, fontSize, tags }) => {
+const ReviewPage = ({ project_id, fontSize }) => {
   /* fetch the record and check if the project is training */
   const { refetch, data, isSuccess } = useQuery(
     ["fetchRecord", { project_id }],
@@ -87,7 +86,6 @@ const ReviewPage = ({ project_id, fontSize, tags }) => {
               record={data}
               fontSize={fontSize}
               showBorder={showBorder}
-              tags={tags}
             />
           )}
 

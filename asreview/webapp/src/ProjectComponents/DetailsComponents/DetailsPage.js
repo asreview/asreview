@@ -98,9 +98,17 @@ const MarkFinishedCard = ({ project_id }) => {
     </Card>
   );
 };
-const DetailsPage = ({ info }) => {
+const DetailsPage = () => {
   const { project_id } = useParams();
   const { auth } = useAuth();
+
+  const { data } = useQuery(
+    ["fetchInfo", { project_id }],
+    ProjectAPI.fetchInfo,
+    {
+      refetchOnWindowFocus: false,
+    },
+  );
 
   return (
     <Root aria-label="details page">
@@ -115,13 +123,13 @@ const DetailsPage = ({ info }) => {
           <Box sx={{ padding: "12px 0px" }}>
             <PriorCard editable={false} />
           </Box>
-          {info?.ownerId === auth?.id && (
+          {data?.ownerId === auth?.id && (
             <>
               <Box sx={{ padding: "12px 0px" }}>
-                <MarkFinishedCard project_id={project_id} info={info} />
+                <MarkFinishedCard project_id={project_id} info={data} />
               </Box>
               <Box sx={{ padding: "12px 0px" }}>
-                <DeleteCard project_id={project_id} info={info} />
+                <DeleteCard project_id={project_id} info={data} />
               </Box>
             </>
           )}

@@ -1,14 +1,4 @@
-import React from "react";
-import { useState } from "react";
-import { useQuery } from "react-query";
-import { useParams } from "react-router-dom";
-import {
-  EmailIcon,
-  TwitterIcon,
-  FacebookIcon,
-  WeiboIcon,
-  WhatsappIcon,
-} from "react-share";
+import { Share } from "@mui/icons-material";
 import {
   Box,
   Grid2 as Grid,
@@ -19,15 +9,24 @@ import {
   Tabs,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Share } from "@mui/icons-material";
+import React, { useState } from "react";
+import { useQuery } from "react-query";
+import { useParams } from "react-router-dom";
+import {
+  EmailIcon,
+  FacebookIcon,
+  TwitterIcon,
+  WeiboIcon,
+  WhatsappIcon,
+} from "react-share";
 
 import {
-  ReviewProgress,
-  ShareFabAction,
+  LabelingFrequency,
+  LabelingHistory,
   ProgressDensityChart,
   ProgressRecallChart,
-  LabelingHistory,
-  LabelingFrequency,
+  ReviewProgress,
+  ShareFabAction,
   StoppingSuggestion,
 } from "ProjectComponents/AnalyticsComponents";
 import { ProjectAPI } from "api";

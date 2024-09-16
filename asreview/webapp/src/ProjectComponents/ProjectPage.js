@@ -1,23 +1,20 @@
 import * as React from "react";
-import { useQuery } from "react-query";
 
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import clsx from "clsx";
-import { Route, Routes, useNavigate, useParams } from "react-router-dom";
+import { Route, Routes, useParams } from "react-router-dom";
 
 import { PageHeader } from "Components/PageHeader";
 import { AnalyticsPage } from "ProjectComponents/AnalyticsComponents";
 import { DetailsPage } from "ProjectComponents/DetailsComponents";
 import { LabelHistory } from "ProjectComponents/HistoryComponents";
-import { CollaborationPage, TeamPage } from "ProjectComponents/TeamComponents";
+import { TeamPage } from "ProjectComponents/TeamComponents";
 
 import { ReviewPage } from "ProjectComponents/ReviewComponents";
 import RouteNotFound from "RouteNotFound";
 
-import { ProjectAPI } from "api";
-import { drawerWidth, projectModes, projectStatuses } from "globals.js";
-import useAuth from "hooks/useAuth";
+import { drawerWidth } from "globals.js";
 
 const PREFIX = "ProjectPage";
 
@@ -45,62 +42,8 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const ProjectPage = ({
-  mobileScreen,
-  onNavDrawer,
-  fontSize,
-  projectCheck,
-  setProjectCheck,
-}) => {
-  const { auth } = useAuth();
-  const navigate = useNavigate();
+const ProjectPage = ({ mobileScreen, onNavDrawer, fontSize }) => {
   const { project_id } = useParams();
-
-  const [isSimulating, setIsSimulating] = React.useState(false);
-
-  // is this user the ownwer of this project
-  const [isOwner, setIsOwner] = React.useState(false);
-
-  const [tags, setTags] = React.useState([]);
-
-  const { data, isSuccess } = useQuery(
-    ["fetchInfo", { project_id }],
-    ProjectAPI.fetchInfo,
-    {
-      enabled: project_id !== undefined,
-      onSuccess: (data) => {
-        // set ownership
-        setIsOwner(auth?.id === data.ownerId);
-        setTags(data["tags"] ?? []);
-
-        if (
-          data.reviews[0] === undefined ||
-          data["reviews"][0]["status"] === projectStatuses.SETUP
-        ) {
-          // open project setup dialog
-          navigate("/reviews");
-        } else if (!data["projectNeedsUpgrade"]) {
-          // if simulation is running
-          if (
-            data["mode"] === projectModes.SIMULATION &&
-            data["reviews"][0]["status"] === projectStatuses.REVIEW
-          ) {
-            setIsSimulating(true);
-          }
-        } else {
-          navigate("/reviews");
-          // open project check dialog
-          setProjectCheck({
-            open: true,
-            issue: "upgrade",
-            path: "",
-            project_id: project_id,
-          });
-        }
-      },
-      refetchOnWindowFocus: false,
-    },
-  );
 
   return (
     <Root aria-label="project page">
@@ -112,67 +55,53 @@ const ProjectPage = ({
         aria-label="project page content"
       >
         <Routes>
-          {isSuccess && !data?.projectNeedsUpgrade && (
-            <Route
-              index
-              element={
-                <>
-                  <PageHeader>Dashboard</PageHeader>
-                  <AnalyticsPage />
-                </>
-              }
-            />
-          )}
+          <Route
+            index
+            element={
+              <>
+                <PageHeader>Dashboard</PageHeader>
+                <AnalyticsPage />
+              </>
+            }
+          />
 
-          {isSuccess && !data?.projectNeedsUpgrade && (
-            <Route
-              path="review"
-              element={
-                <ReviewPage
-                  project_id={project_id}
-                  fontSize={fontSize}
-                  tags={tags}
-                />
-              }
-            />
-          )}
+          <Route
+            path="review"
+            element={<ReviewPage project_id={project_id} fontSize={fontSize} />}
+          />
 
-          {isSuccess && !data?.projectNeedsUpgrade && (
-            <Route
-              path="collection"
-              element={
-                <>
-                  <PageHeader>Collection</PageHeader>
-                  <LabelHistory project_id={project_id} />
-                </>
-              }
-            />
-          )}
+          <Route
+            path="collection"
+            element={
+              <>
+                <PageHeader>Collection</PageHeader>
+                <LabelHistory project_id={project_id} />
+              </>
+            }
+          />
 
-          {window.authentication && window.allowTeams && isSuccess && (
+          {window.authentication && window.allowTeams && (
             <Route
               path="team"
               element={
                 <>
                   <PageHeader>Team</PageHeader>
-                  {isOwner ? <TeamPage /> : <CollaborationPage />}
+                  <TeamPage />
                 </>
               }
             />
           )}
-          {isSuccess && !data?.projectNeedsUpgrade && (
-            <Route
-              path="settings"
-              element={
-                <>
-                  <PageHeader>Settings</PageHeader>
-                  <DetailsPage project_id={project_id} info={data} />
-                </>
-              }
-            />
-          )}
+          <Route
+            path="settings"
+            element={
+              <>
+                <PageHeader>Settings</PageHeader>
+                <DetailsPage project_id={project_id} />
+              </>
+            }
+          />
 
-          {isSuccess && <Route path="*" element={<RouteNotFound />} />}
+          <Route path="*" element={<RouteNotFound />} />
         </Routes>
       </Box>
     </Root>

@@ -8,11 +8,15 @@ import Avatar from "@mui/material/Avatar";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-const UserListEntry = ({ user, onDelete }) => {
+const UserListEntry = ({ user, onDelete, disabled = false }) => {
   return (
     <ListItem
       secondaryAction={
-        <IconButton edge="end" onClick={() => onDelete(user.id)}>
+        <IconButton
+          edge="end"
+          onClick={() => onDelete(user.id)}
+          disabled={disabled}
+        >
           <DeleteIcon />
         </IconButton>
       }

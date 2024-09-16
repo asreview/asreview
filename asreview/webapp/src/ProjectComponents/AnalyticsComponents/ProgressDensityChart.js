@@ -1,30 +1,29 @@
-import React, { useRef, useState, useEffect, useCallback } from "react";
-import Chart from "react-apexcharts";
+import { HelpOutline } from "@mui/icons-material";
+import GetAppIcon from "@mui/icons-material/GetApp";
 import {
   Box,
   Card,
   CardContent,
-  Skeleton,
-  Stack,
-  Tooltip,
-  tooltipClasses,
-  Typography,
   IconButton,
   Menu,
   MenuItem,
+  Skeleton,
+  Stack,
+  Tooltip,
+  Typography,
+  tooltipClasses,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
-import { HelpOutline } from "@mui/icons-material";
-import GetAppIcon from "@mui/icons-material/GetApp";
-import { toPng, toJpeg, toSvg } from "html-to-image";
+import { toJpeg, toPng, toSvg } from "html-to-image";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import Chart from "react-apexcharts";
 
 import { CardErrorHandler } from "Components";
-import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
-import tooltipRelevantLight from "images/progress_relevant_light.png";
-import tooltipRelevantDark from "images/progress_relevant_dark.png";
-import tooltipIrrelevantLight from "images/progress_irrelevant_light.png";
 import tooltipIrrelevantDark from "images/progress_irrelevant_dark.png";
+import tooltipIrrelevantLight from "images/progress_irrelevant_light.png";
+import tooltipRelevantDark from "images/progress_relevant_dark.png";
+import tooltipRelevantLight from "images/progress_relevant_light.png";
 
 import "./AnalyticsPage.css";
 

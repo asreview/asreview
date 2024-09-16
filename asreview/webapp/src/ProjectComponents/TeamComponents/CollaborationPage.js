@@ -1,14 +1,13 @@
-import * as React from "react";
-import { useMutation, useQueryClient } from "react-query";
-import { useNavigate } from "react-router-dom";
-import { TeamAPI } from "api";
-import useAuth from "hooks/useAuth";
 import { Box, Button, Stack, Typography } from "@mui/material";
 import { InlineErrorHandler } from "Components";
 import { ConfirmationDialog } from "ProjectComponents/TeamComponents";
-import { useParams } from "react-router-dom";
+import { TeamAPI } from "api";
+import useAuth from "hooks/useAuth";
+import * as React from "react";
+import { useMutation, useQueryClient } from "react-query";
+import { useNavigate, useParams } from "react-router-dom";
 
-const CollaborationPage = ({}) => {
+const CollaborationPage = () => {
   const { project_id } = useParams();
 
   const navigate = useNavigate();
