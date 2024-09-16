@@ -157,7 +157,7 @@ const SetupDialog = ({
           if (dataset) {
             setFeedbackBar({
               open: true,
-              message: `Your project has been saved as draft`,
+              message: `Your project has been saved as ${dataset.name}`,
             });
           }
 

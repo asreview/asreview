@@ -1,8 +1,8 @@
 import * as React from "react";
-import { Box, Fab, Stack } from "@mui/material";
+import { Box, Fab, Stack, Snackbar } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { DashboardPageHeader, Projects } from ".";
-import { ActionsFeedbackBar, InteractionButtons } from "Components";
+import { InteractionButtons } from "Components";
 import { ImportProject } from "ProjectComponents";
 import { SetupDialog } from "ProjectComponents/SetupComponents";
 
@@ -68,11 +68,15 @@ const ProjectsOverview = ({ mobileScreen, mode }) => {
         onImportProject={onImportProject}
         toggleImportProject={toggleImportProject}
       />
-      <ActionsFeedbackBar
-        center
-        onClose={resetFeedbackBar}
+      <Snackbar
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
         open={feedbackBar.open}
-        feedback={feedbackBar.message}
+        autoHideDuration={6000}
+        onClose={resetFeedbackBar}
+        message={feedbackBar.message}
       />
     </>
   );

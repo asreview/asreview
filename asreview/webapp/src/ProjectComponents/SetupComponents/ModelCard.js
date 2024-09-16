@@ -135,12 +135,9 @@ const ModelSelect = ({
           disabled={disableItem ? disableItem(value.name) : false}
         >
           <Box>
-            <Typography className="typography-wrap" variant="subtitle1">
-              {value.label}
-            </Typography>
+            <Typography variant="subtitle1">{value.label}</Typography>
             {value.description && (
               <Typography
-                className="typography-wrap"
                 variant="body2"
                 gutterBottom
                 sx={{ color: "text.secondary" }}
