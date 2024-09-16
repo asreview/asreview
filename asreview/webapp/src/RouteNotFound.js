@@ -20,7 +20,6 @@ const Root = styled("div")(({ theme }) => ({
       maxWidth: 150,
     },
   },
-
   [`& .${classes.textTitle}`]: {
     textAlign: "center",
     [theme.breakpoints.down("md")]: {

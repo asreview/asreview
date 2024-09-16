@@ -37,34 +37,28 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
     paddingLeft: 10,
     paddingRight: 10,
   },
-
   [`& .${classes.error}`]: {
     display: "flex",
     justifyContent: "center",
     paddingTop: 64,
     paddingBottom: 132,
   },
-
   [`& .${classes.table}`]: {
     width: "100%",
   },
-
   [`& .${classes.tableCell}`]: {
     letterSpacing: "0.25px",
   },
-
   [`& .${classes.converting}`]: {
     display: "flex",
     alignItems: "center",
   },
-
   [`& .${classes.img}`]: {
     maxWidth: 140,
     marginTop: 8,
     marginBottom: 64,
     marginLeft: 100,
   },
-
   [`& .${classes.title}`]: {
     cursor: "pointer",
     display: "-webkit-box",
@@ -74,13 +68,11 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
     whiteSpace: "pre-line",
     overflow: "hidden",
   },
-
   [`& .${classes.titleWrapper}`]: {
     display: "flex",
     alignItems: "center",
     width: "100%",
   },
-
   [`& .${classes.loadingProjects}`]: {
     display: "flex",
     justifyContent: "center",

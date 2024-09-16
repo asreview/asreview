@@ -24,15 +24,12 @@ const Root = styled("div")(({ theme }) => ({
       zIndex: theme.zIndex.drawer + 1,
     },
   },
-
   [`& .${classes.menuButton}`]: {
     marginRight: 4,
   },
-
   [`& .${classes.logo}`]: {
     width: 130,
   },
-
   [`& .${classes.toolbar}`]: {
     justifyContent: "space-between",
   },

@@ -32,7 +32,6 @@ const Root = styled("div")(({ theme }) => ({
     alignItems: "center",
     height: "100%",
   },
-
   [`& .${classes.singleLine}`]: {
     display: "-webkit-box",
     WebkitBoxOrient: "vertical",
@@ -157,12 +156,14 @@ const DatasetFromFile = ({ project_id, mode, setDataset }) => {
         >
           <Stack className={classes.root} spacing={2} justifyContent={"center"}>
             <Avatar
-              sx={{
+              sx={(theme) => ({
                 height: "136px",
                 width: "136px",
-                bgcolor: (theme) =>
-                  theme.palette.mode === "dark" ? "grey.800" : "grey.100",
-              }}
+                bgcolor: "grey.100",
+                ...theme.applyStyles("dark", {
+                  bgcolor: "grey.800",
+                }),
+              })}
             >
               <FileUpload
                 sx={{ height: "65px", width: "65px", color: "grey.500" }}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import {
   Button,
-  Grid,
+  Grid2 as Grid,
   Paper,
   Stack,
   Typography,

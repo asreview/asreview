@@ -11,7 +11,7 @@ import {
 } from "react-share";
 import {
   Box,
-  Grid,
+  Grid2 as Grid,
   SpeedDial,
   SpeedDialAction,
   Stack,
@@ -33,7 +33,6 @@ import {
 import { ProjectAPI } from "api";
 
 const Root = styled("div")(({ theme }) => ({}));
-
 const actions = [
   { icon: <TwitterIcon round />, name: "Twitter" },
   { icon: <FacebookIcon round />, name: "Facebook" },
@@ -41,10 +40,8 @@ const actions = [
   { icon: <WhatsappIcon round />, name: "WhatsApp" },
   { icon: <EmailIcon round />, name: "Email" },
 ];
-
 const AnalyticsPage = (props) => {
   const { project_id } = useParams();
-
   const progressQuery = useQuery(
     ["fetchProgress", { project_id }],
     ({ queryKey }) =>
@@ -62,13 +59,11 @@ const AnalyticsPage = (props) => {
       }),
     { refetchOnWindowFocus: false },
   );
-
   const twitterRef = React.useRef(null);
   const facebookRef = React.useRef(null);
   const weiboRef = React.useRef(null);
   const whatsappRef = React.useRef(null);
   const emailRef = React.useRef(null);
-
   const handleShare = (platform) => {
     if (platform === "Twitter") {
       twitterRef.current?.click();
@@ -86,7 +81,6 @@ const AnalyticsPage = (props) => {
       emailRef.current?.click();
     }
   };
-
   const [activeHistoryTab, setActiveHistoryTab] = useState(0);
   const [activeChartTab, setActiveChartTab] = useState(0);
   const [activeProgressTab, setActiveProgressTab] = useState(0);
@@ -116,8 +110,7 @@ const AnalyticsPage = (props) => {
               />
             )}
           </Box>
-
-          <Grid item xs={12}>
+          <Grid item size={12}>
             <Box sx={{ position: "relative" }}>
               <Box>
                 <Tabs
@@ -145,7 +138,6 @@ const AnalyticsPage = (props) => {
               </Box>
             </Box>
           </Grid>
-
           <Box
             sx={{
               width: "100%",

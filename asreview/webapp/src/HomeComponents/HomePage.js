@@ -26,7 +26,6 @@ const Root = styled("div")(({ theme }) => ({
       marginLeft: 72,
     },
   },
-
   [`& .${classes.contentShift}`]: {
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.easeOut,
@@ -53,9 +52,6 @@ const HomePage = (props) => {
             element={
               <ProjectsOverview
                 mobileScreen={props.mobileScreen}
-                onNavDrawer={props.onNavDrawer}
-                projectCheck={props.projectCheck}
-                setProjectCheck={props.setProjectCheck}
                 mode={"oracle"}
               />
             }
@@ -65,9 +61,6 @@ const HomePage = (props) => {
             element={
               <ProjectsOverview
                 mobileScreen={props.mobileScreen}
-                onNavDrawer={props.onNavDrawer}
-                projectCheck={props.projectCheck}
-                setProjectCheck={props.setProjectCheck}
                 mode={"simulate"}
               />
             }
@@ -75,12 +68,7 @@ const HomePage = (props) => {
           {/* Profile page */}
           <Route
             path="/profile"
-            element={
-              <ProfilePage
-                mobileScreen={props.mobileScreen}
-                onNavDrawer={props.onNavDrawer}
-              />
-            }
+            element={<ProfilePage mobileScreen={props.mobileScreen} />}
           />
           {/* Redirect root to projects */}
           <Route path="/" element={<Navigate to="/reviews" />} />

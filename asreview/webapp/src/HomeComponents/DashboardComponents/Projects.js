@@ -14,7 +14,7 @@ import {
   CardActions,
   CardHeader,
   Chip,
-  Grid,
+  Grid2 as Grid,
   IconButton,
   Menu,
   MenuItem,
@@ -101,7 +101,12 @@ const ProjectCard = ({ project, mode, user_id, setFeedbackBar }) => {
   };
 
   return (
-    <Card sx={{ width: "100%", bgcolor: "rgba(70, 62, 166, 0.08)" }}>
+    <Card
+      sx={(theme) => ({
+        width: "100%",
+        bgcolor: theme.palette.background.default,
+      })}
+    >
       <CardHeader
         title={
           <Typography
@@ -294,7 +299,15 @@ const Projects = ({ mode, setFeedbackBar }) => {
   return (
     <Grid container spacing={2}>
       {data?.result.map((project) => (
-        <Grid item xs={12} sm={6} md={6} key={project.id}>
+        <Grid
+          item
+          key={project.id}
+          size={{
+            xs: 12,
+            sm: 6,
+            md: 6,
+          }}
+        >
           <ProjectCard
             project={project}
             mode={mode}

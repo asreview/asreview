@@ -36,7 +36,6 @@ const Root = styled("div")(({ theme }) => ({
       marginLeft: 72,
     },
   },
-
   [`& .${classes.contentShift}`]: {
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.easeOut,

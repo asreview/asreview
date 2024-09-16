@@ -32,47 +32,37 @@ import { InvitationsDialog } from "ProjectComponents/TeamComponents";
 import { useToggle } from "hooks/useToggle";
 
 const Root = styled("div")(({ theme }) => ({}));
-
 const ProfilePopper = (props) => {
   const { auth, setAuth } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-
   const [projectInvitations, setProjectInvitations] = React.useState([]);
   const [onAcceptanceDialog, toggleAcceptanceDialog] = useToggle();
-
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [open, setOpen] = React.useState(false);
-
   const { mutate } = useMutation(AuthAPI.signout, {
     onSuccess: () => {
       setAuth({});
     },
   });
-
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
     setOpen((prev) => !prev);
   };
-
   const handleClickAway = () => {
     setOpen(false);
   };
-
   const handleSignOut = () => {
     mutate();
   };
-
   const openAcceptanceDialog = () => {
     setOpen(false);
     toggleAcceptanceDialog();
   };
-
   const handleProfile = () => {
     setOpen(false);
     navigate("/profile");
   };
-
   useQuery(["getProjectInvitations"], () => TeamAPI.getProjectInvitations(), {
     onSuccess: (data) => {
       setProjectInvitations(data["invited_for_projects"] || []);
@@ -82,7 +72,6 @@ const ProfilePopper = (props) => {
     },
     enabled: window.allowTeams,
   });
-
   const acceptInvitation = useMutation(
     (project) => TeamAPI.acceptInvitation(project.project_id),
     {
@@ -107,7 +96,6 @@ const ProfilePopper = (props) => {
       },
     },
   );
-
   const rejectInvitation = useMutation(
     (project) => TeamAPI.rejectInvitation(project.project_id),
     {
@@ -138,12 +126,14 @@ const ProfilePopper = (props) => {
               <Avatar
                 alt="user"
                 src={ElasAvatar}
-                sx={{
+                sx={(theme) => ({
                   width: !props.mobileScreen ? 32 : 24,
                   height: !props.mobileScreen ? 32 : 24,
-                  bgcolor: (theme) =>
-                    theme.palette.mode === "dark" ? "grey.600" : "grey.400",
-                }}
+                  bgcolor: "grey.400",
+                  ...theme.applyStyles("dark", {
+                    bgcolor: "grey.600",
+                  }),
+                })}
                 imgProps={{ sx: { p: 1 } }}
               />
             </ButtonBase>
@@ -165,14 +155,14 @@ const ProfilePopper = (props) => {
                     <Avatar
                       alt="user"
                       src={ElasAvatar}
-                      sx={{
+                      sx={(theme) => ({
                         width: !props.mobileScreen ? 40 : 32,
                         height: !props.mobileScreen ? 40 : 32,
-                        bgcolor: (theme) =>
-                          theme.palette.mode === "dark"
-                            ? "grey.600"
-                            : "grey.400",
-                      }}
+                        bgcolor: "grey.400",
+                        ...theme.applyStyles("dark", {
+                          bgcolor: "grey.600",
+                        }),
+                      })}
                       imgProps={{ sx: { p: 1 } }}
                     />
                     <TypographySubtitle1Medium>
@@ -181,7 +171,6 @@ const ProfilePopper = (props) => {
                   </Stack>
                 </StyledMenuItem>
                 <Divider />
-
                 <MenuItem onClick={handleProfile}>
                   <ListItemIcon>
                     <Person fontSize="small" />
@@ -190,7 +179,6 @@ const ProfilePopper = (props) => {
                     <Typography variant="body2">Profile</Typography>
                   </ListItemText>
                 </MenuItem>
-
                 {window.allowTeams && projectInvitations.length > 0 && (
                   <MenuItem onClick={openAcceptanceDialog}>
                     <ListItemIcon>
@@ -207,7 +195,6 @@ const ProfilePopper = (props) => {
                         <GroupAdd fontSize="small" />
                       </Badge>
                     </ListItemIcon>
-
                     <ListItemText disableTypography>
                       <Typography variant="body2">
                         Collaboration Invites
@@ -215,7 +202,6 @@ const ProfilePopper = (props) => {
                     </ListItemText>
                   </MenuItem>
                 )}
-
                 <MenuItem id="signout" onClick={handleSignOut}>
                   <ListItemIcon>
                     <Logout fontSize="small" />
@@ -229,7 +215,6 @@ const ProfilePopper = (props) => {
           </Popper>
         </Box>
       </ClickAwayListener>
-
       {window.allowTeams && (
         <InvitationsDialog
           open={onAcceptanceDialog}
@@ -243,5 +228,4 @@ const ProfilePopper = (props) => {
     </Root>
   );
 };
-
 export default ProfilePopper;

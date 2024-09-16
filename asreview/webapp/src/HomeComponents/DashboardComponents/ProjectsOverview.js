@@ -45,10 +45,14 @@ const ProjectsOverview = ({ mobileScreen, mode }) => {
       </Box>
       <Fab
         id="create-project"
-        className="main-page-fab"
         color="primary"
         onClick={toggleCreateProject}
         variant="extended"
+        sx={{
+          position: "absolute",
+          bottom: 24,
+          right: 24,
+        }}
       >
         <Add sx={{ mr: 1 }} />
         {"new"}

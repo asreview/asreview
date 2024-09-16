@@ -51,41 +51,35 @@ const StyledCard = styled(Card)(({ theme }) => ({
     paddingLeft: 32,
     paddingRight: 32,
   },
-
   [`& .${classes.title}`]: {
     display: "flex",
     alignItems: "baseline",
   },
-
   [`& .${classes.tooltipCardColor}`]: {
     color: theme.palette.text.primary,
     background: theme.palette.background.paper,
   },
-
   [`& .${classes.tooltipLabelContainer}`]: {
     display: "flex",
     alignItems: "baseline",
     justifyContent: "space-between",
   },
-
   [`& .${classes.tooltipLabelMarkerRelevantColor}`]: {
-    ...(theme.palette.mode === "light" && {
+    ...theme.applyStyles("light", {
       color: theme.palette.primary.light,
       background: theme.palette.primary.light,
     }),
-    ...(theme.palette.mode === "dark" && {
+    ...theme.applyStyles("dark", {
       color: theme.palette.primary.main,
       background: theme.palette.primary.main,
     }),
   },
-
   [`& .${classes.tooltipLabelRelevantNumber}`]: {
     marginLeft: 20,
-    ...(theme.palette.mode === "dark" && {
+    ...theme.applyStyles("dark", {
       color: theme.palette.primary.main,
     }),
   },
-
   [`& .${classes.tooltipLabelTextSecondaryColor}`]: {
     color: theme.palette.text.secondary,
   },
