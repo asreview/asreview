@@ -36,7 +36,7 @@ import { ElasGame } from "Components";
 import { ProjectAPI } from "api";
 import { communityURL, donateURL } from "globals.js";
 import { useToggle } from "hooks/useToggle";
-import { DrawerItem } from "StyledComponents/DrawerItem";
+import { DrawerItem } from "StyledComponents/StyledDrawerItem";
 
 import { ElasSign } from "icons/ElasSign";
 

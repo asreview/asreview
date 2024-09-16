@@ -300,7 +300,6 @@ const Projects = ({ mode, setFeedbackBar }) => {
     <Grid container spacing={2}>
       {data?.result.map((project) => (
         <Grid
-          item
           key={project.id}
           size={{
             xs: 12,

@@ -5,7 +5,7 @@ import { styled } from "@mui/material/styles";
 import clsx from "clsx";
 import { Route, Routes, useParams } from "react-router-dom";
 
-import { PageHeader } from "Components/PageHeader";
+import { PageHeader } from "StyledComponents/StyledPageHeader";
 import { AnalyticsPage } from "ProjectComponents/AnalyticsComponents";
 import { DetailsPage } from "ProjectComponents/DetailsComponents";
 import { LabelHistory } from "ProjectComponents/HistoryComponents";
