@@ -27,7 +27,7 @@ const Screener = (props) => {
 
   const [tagValues, setTagValues] = React.useState({});
 
-  const { data, error, isError } = useQuery(
+  const { data } = useQuery(
     ["fetchRecord", { project_id }],
     ProjectAPI.fetchRecord,
     {
