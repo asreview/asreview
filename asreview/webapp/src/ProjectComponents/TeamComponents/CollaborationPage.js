@@ -3,13 +3,14 @@ import { useMutation, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { TeamAPI } from "api";
 import useAuth from "hooks/useAuth";
-import { Box, Button, Fade, Stack, Typography } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import { InlineErrorHandler, PageHeader } from "Components";
 import { ConfirmationDialog } from "ProjectComponents/TeamComponents";
+import { useParams } from "react-router-dom";
 
-const Root = styled("div")(({ theme }) => ({}));
-const CollaborationPage = (props) => {
+const CollaborationPage = ({ mobileScreen }) => {
+  const { project_id } = useParams();
+
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const queryClient = useQueryClient();
@@ -24,15 +25,15 @@ const CollaborationPage = (props) => {
   const handleEndCollaboration = useMutation(
     () =>
       TeamAPI.deleteCollaboration({
-        projectId: props.info.id,
+        projectId: project_id,
         userId: auth.id,
       }),
     {
       onSuccess: (response, project) => {
         queryClient.invalidateQueries({
-          queryKey: ["fetchProjects", props.info.mode],
+          queryKey: ["fetchProjects"],
         });
-        navigate("/reviews");
+        navigate("/");
       },
       onError: (error) => {
         let message = `Could not end the collaboration: (${error})`;
@@ -42,48 +43,36 @@ const CollaborationPage = (props) => {
   );
 
   return (
-    <Root aria-label="teams page">
-      <Fade in>
-        <Box>
-          <PageHeader header="Team" mobileScreen={props.mobileScreen} />
-          <Box className="main-page-body-wrapper">
-            <Stack className="main-page-body">
-              <Typography variant="h5">
-                You are collaborating in this project
-              </Typography>
-              {props.info && (
-                <>
-                  <Typography sx={{ paddingTop: 3, paddingBottom: 3 }}>
-                    If you would like to end this collaboration, click on the
-                    button below:
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    onClick={handleOpenConfirmationDialog}
-                    sx={{ width: 300 }}
-                  >
-                    Remove me from this project
-                  </Button>
-                  {errorMessage !== undefined && (
-                    <Stack sx={{ padding: 5 }}>
-                      <InlineErrorHandler message={errorMessage} />
-                    </Stack>
-                  )}
-                  <ConfirmationDialog
-                    open={dialogOpen}
-                    title="Are you sure?"
-                    contentText={`You will remove yourself from project "${props.info.name}".`}
-                    handleCancel={handleCloseConfirmationDialog}
-                    handleConfirm={() => handleEndCollaboration.mutate()}
-                  />
-                </>
-              )}
+    <Box>
+      <PageHeader header="Team" mobileScreen={mobileScreen} />
+      <Box className="main-page-body-wrapper">
+        <Stack className="main-page-body">
+          <Typography variant="h5">
+            You are collaborating in this project
+          </Typography>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleOpenConfirmationDialog}
+            sx={{ width: 300 }}
+          >
+            Remove me from this project
+          </Button>
+          {errorMessage !== undefined && (
+            <Stack sx={{ padding: 5 }}>
+              <InlineErrorHandler message={errorMessage} />
             </Stack>
-          </Box>
-        </Box>
-      </Fade>
-    </Root>
+          )}
+          <ConfirmationDialog
+            open={dialogOpen}
+            title="Are you sure?"
+            contentText={`You will remove yourself from this project.`}
+            handleCancel={handleCloseConfirmationDialog}
+            handleConfirm={() => handleEndCollaboration.mutate()}
+          />
+        </Stack>
+      </Box>
+    </Box>
   );
 };
 export default CollaborationPage;

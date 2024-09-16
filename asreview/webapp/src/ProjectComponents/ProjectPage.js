@@ -80,8 +80,6 @@ const ProjectPage = ({
           // open project setup dialog
           navigate("/reviews");
         } else if (!data["projectNeedsUpgrade"]) {
-          // open project page
-          console.log("Opening project " + project_id);
           // if simulation is running
           if (
             data["mode"] === projectModes.SIMULATION &&
@@ -207,14 +205,14 @@ const ProjectPage = ({
           )}
 
           {/* Team */}
-          {isSuccess && window.authentication && !data?.projectNeedsUpgrade && (
+          {window.authentication && window.allowTeams && isSuccess && (
             <Route
               path="team"
               element={
                 isOwner ? (
-                  <TeamPage mobileScreen={mobileScreen} info={data} />
+                  <TeamPage mobileScreen={mobileScreen} />
                 ) : (
-                  <CollaborationPage info={data} />
+                  <CollaborationPage />
                 )
               }
             />

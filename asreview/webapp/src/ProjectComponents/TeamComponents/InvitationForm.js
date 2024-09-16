@@ -2,7 +2,7 @@ import * as React from "react";
 import { Add } from "@mui/icons-material";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
-import { Card, CardContent, Fab, Grid2 as Grid } from "@mui/material";
+import { Card, CardContent, Grid2 as Grid, Button } from "@mui/material";
 import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
 const InvitationForm = ({ selectableUsers, onInvite }) => {
@@ -23,7 +23,6 @@ const InvitationForm = ({ selectableUsers, onInvite }) => {
           alignItems={"center"}
         >
           <Grid
-            item
             size={{
               xs: 12,
               sm: 10,
@@ -59,27 +58,20 @@ const InvitationForm = ({ selectableUsers, onInvite }) => {
           </Grid>
 
           <Grid
-            item
             size={{
               xs: 12,
               sm: 2,
             }}
           >
-            <Fab
-              size="medium"
-              color="primary"
+            <Button
               onClick={() => {
-                if (selectedUser != null) {
-                  setSelectedUser(null);
-                  onInvite(selectedUser);
-                }
+                onInvite(selectedUser);
               }}
-              variant="extended"
-              sx={{ width: "100%" }}
+              startIcon={<Add />}
+              disabled={selectedUser == null}
             >
-              <Add sx={{ mr: 1 }} />
               Invite
-            </Fab>
+            </Button>
           </Grid>
         </Grid>
       </CardContent>
