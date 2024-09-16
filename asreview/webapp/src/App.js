@@ -62,13 +62,6 @@ const App = () => {
   const [onSettings, toggleSettings] = useToggle();
   const [onHelp, toggleHelp] = useToggle();
 
-  const [projectCheck, setProjectCheck] = React.useState({
-    open: false,
-    issue: null,
-    path: "/projects",
-    project_id: null,
-  });
-
   // Settings hook
   const [fontSize, handleFontSizeChange] = useFontSize();
 
