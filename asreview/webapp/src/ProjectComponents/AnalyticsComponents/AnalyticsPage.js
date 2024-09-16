@@ -180,8 +180,12 @@ const AnalyticsPage = (props) => {
       </Box>
       <SpeedDial
         ariaLabel="share project analytics"
-        className="main-page-fab"
         icon={<Share />}
+        sx={{
+          position: "absolute",
+          bottom: 24,
+          right: 24,
+        }}
       >
         {actions.map((action) => (
           <SpeedDialAction
