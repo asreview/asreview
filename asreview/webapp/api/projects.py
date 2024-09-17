@@ -396,7 +396,7 @@ def api_get_project_data(project):  # noqa: F401
     if as_data.url is not None:
         urn = pd.Series(as_data.url).replace("", None)
     else:
-        urn = pd.Series([None]*len(as_data))
+        urn = pd.Series([None] * len(as_data))
 
     if as_data.doi is not None:
         doi = pd.Series(as_data.doi).replace("", None)
