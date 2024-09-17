@@ -103,7 +103,7 @@ const AnalyticsPage = () => {
               <StoppingSuggestion progressQuery={progressQuery} />
             )}
           </Box>
-          <Grid item size={12}>
+          <Grid size={12}>
             <Box sx={{ position: "relative" }}>
               <Box>
                 <Tabs

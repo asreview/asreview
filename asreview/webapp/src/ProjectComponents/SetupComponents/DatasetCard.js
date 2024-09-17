@@ -16,7 +16,12 @@ import {
 import { ProjectAPI } from "api";
 import DatasetChart from "ProjectComponents/AnalyticsComponents/DatasetChart";
 
-const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
+const DatasetCard = ({
+  project_id,
+  dataset_path,
+  setDataset,
+  hideLabeledInfo = false,
+}) => {
   const {
     data,
     // error: fetchDataError,
@@ -86,14 +91,19 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
           alt={"Dataset information"}
           sx={{ bgcolor: "primary.background" }}
         >
-          <Grid container>
+          <Grid
+            container
+            sx={{
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             <Grid
-              item
-              sx={{ width: "200px" }}
               size={{
                 xs: 12,
                 sm: 4,
               }}
+              sx={{ maxWidth: "300px" }}
             >
               <DatasetChart
                 label={"Title available"}
@@ -102,12 +112,11 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
               />
             </Grid>
             <Grid
-              item
-              sx={{ width: "200px" }}
               size={{
                 xs: 12,
                 sm: 4,
               }}
+              sx={{ maxWidth: "300px" }}
             >
               <DatasetChart
                 label={"Abstract available"}
@@ -116,16 +125,15 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
               />
             </Grid>
             <Grid
-              item
-              sx={{ width: "200px" }}
               size={{
                 xs: 12,
                 sm: 4,
               }}
+              sx={{ maxWidth: "300px" }}
             >
               <DatasetChart
-                label={"English language"}
-                part={data?.n_english}
+                label={"URL or DOI available"}
+                part={data?.n_rows - data?.n_missing_urn}
                 total={data?.n_rows}
               />
             </Grid>
@@ -133,18 +141,20 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
         </CardMedia>
       )}
       <CardContent>
-        {data?.n_unlabeled === 0 && (
+        {!hideLabeledInfo && data?.n_unlabeled === 0 && (
           <Alert severity="info" sx={{ mb: 2 }}>
             The dataset contains labels for each record. You can see the label
             during screening while labeling the records yourself.
           </Alert>
         )}
-        {data?.n_unlabeled > 0 && data?.n_relevant + data?.n_irrelevant > 0 && (
-          <Alert severity="info" sx={{ mb: 2 }}>
-            The dataset contains labels. The labels are added to the prior
-            knowledge.
-          </Alert>
-        )}
+        {!hideLabeledInfo &&
+          data?.n_unlabeled > 0 &&
+          data?.n_relevant + data?.n_irrelevant > 0 && (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              The dataset contains labels. The labels are added to the prior
+              knowledge.
+            </Alert>
+          )}
         {isFetchingData ? (
           <Skeleton>
             <Button />
@@ -165,4 +175,4 @@ const DatasetInfo = ({ project_id, dataset_path, setDataset }) => {
   );
 };
 
-export default DatasetInfo;
+export default DatasetCard;
