@@ -551,7 +551,7 @@ def test_get_labeled(asreview_test_project):
 
 
 def test_add_extra_column(tmpdir):
-    """Check if state still works with extra colums added to tables."""
+    """Check if state still works with extra columns added to tables."""
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
 
