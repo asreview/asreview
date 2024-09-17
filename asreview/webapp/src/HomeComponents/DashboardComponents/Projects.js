@@ -100,6 +100,25 @@ const ProjectCard = ({ project, mode, user_id, setFeedbackBar }) => {
     toggleDeleteDialog();
   };
 
+  const [exporting, setExporting] = React.useState(false);
+
+  const {
+    // error: exportProjectError,
+    // isError: isExportProjectError,
+    isFetching: isExportingProject,
+  } = useQuery(
+    ["fetchExportProject", { project_id: project.id }],
+    ProjectAPI.fetchExportProject,
+    {
+      enabled: exporting,
+      refetchOnWindowFocus: false,
+      onSettled: () => {
+        setExporting(false);
+        handleMenuClose();
+      },
+    },
+  );
+
   return (
     <Card
       sx={(theme) => ({
@@ -219,6 +238,14 @@ const ProjectCard = ({ project, mode, user_id, setFeedbackBar }) => {
                 </MenuItem>
               )}
 
+            <MenuItem
+              onClick={() => {
+                setExporting(true);
+              }}
+              disabled={isExportingProject}
+            >
+              Export project
+            </MenuItem>
             {review?.status !== projectStatuses.SETUP &&
               !(
                 mode === projectModes.SIMULATION &&
