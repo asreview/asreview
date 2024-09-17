@@ -140,7 +140,9 @@ const ImportProject = ({
     onDrop: onDrop,
     multiple: false,
     noClick: true,
-    accept: ".asreview",
+    accept: {
+      "application/zip": [".asreview"],
+    },
   });
 
   const style = useMemo(
