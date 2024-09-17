@@ -69,7 +69,7 @@ const StatItem = ({ label, value, color, loading }) => (
   </StatBox>
 );
 
-export default function ReviewProgress({ progressQuery, mobileScreen }) {
+export default function ReviewProgress({ progressQuery }) {
   const theme = useTheme();
   const loading = progressQuery.isLoading;
 

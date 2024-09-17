@@ -1,16 +1,16 @@
-import * as React from "react";
-import { useQuery, useMutation } from "react-query";
-import { Box, Fade, Grid2 as Grid, Snackbar, Stack } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { PageHeader } from "Components";
-import { TeamAPI } from "api";
+import { Box, Grid2 as Grid, Snackbar } from "@mui/material";
 import {
   ConfirmationDialog,
   InvitationForm,
   UserListComponent,
+  CollaborationPage,
 } from "ProjectComponents/TeamComponents";
+import { TeamAPI, ProjectAPI } from "api";
+import * as React from "react";
+import { useMutation, useQuery } from "react-query";
+import useAuth from "hooks/useAuth";
+import { useParams } from "react-router-dom";
 
-const Root = styled("div")(({ theme }) => ({}));
 const initSnackbarData = { show: false, message: "" };
 const initDeleteData = {
   openDialog: false,
@@ -18,7 +18,10 @@ const initDeleteData = {
   text: undefined,
   function: undefined,
 };
-const TeamPage = (props) => {
+const TeamPage = () => {
+  const { project_id } = useParams();
+  const { auth } = useAuth();
+
   const [selectableUsers, setSelectableUsers] = React.useState([]);
   const [collaborators, setCollaborators] = React.useState([]);
   const [invitedUsers, setInvitedUsers] = React.useState([]);
@@ -27,7 +30,7 @@ const TeamPage = (props) => {
   const handleCloseSnackbar = () => {
     setSnackbar(initSnackbarData);
   };
-  useQuery(["fetchUsers", props.info.id], TeamAPI.fetchUsers, {
+  useQuery(["fetchUsers", project_id], TeamAPI.fetchUsers, {
     refetchOnWindowFocus: false,
     onSuccess: (data) => {
       // filter all collaborators and invited people from users
@@ -48,7 +51,7 @@ const TeamPage = (props) => {
     },
   });
   const inviteUser = useMutation(
-    (user) => TeamAPI.inviteUser({ projectId: props.info.id, user: user }),
+    (user) => TeamAPI.inviteUser({ projectId: project_id, user: user }),
     {
       onSuccess: (response, user) => {
         // remove user from allUsers
@@ -70,9 +73,7 @@ const TeamPage = (props) => {
           message: `You have invited ${user.name} to collaborate on this project`,
         });
       },
-      onError: (error) => {
-        console.error(error);
-        //
+      onError: () => {
         setSnackbar({
           show: true,
           message: `Unable to invite the selected user`,
@@ -82,7 +83,7 @@ const TeamPage = (props) => {
   );
   const deleteInvitation = useMutation(
     (userId) =>
-      TeamAPI.deleteInvitation({ projectId: props.info.id, userId: userId }),
+      TeamAPI.deleteInvitation({ projectId: project_id, userId: userId }),
     {
       onSuccess: (response, userId) => {
         // remove user from invitedUsers
@@ -105,9 +106,7 @@ const TeamPage = (props) => {
           message: "Removed invitation",
         });
       },
-      onError: (error) => {
-        console.log(error);
-        //
+      onError: () => {
         setSnackbar({
           show: true,
           message: "Unable to remove invitation",
@@ -117,7 +116,7 @@ const TeamPage = (props) => {
   );
   const deleteCollaboration = useMutation(
     (userId) =>
-      TeamAPI.deleteCollaboration({ projectId: props.info.id, userId: userId }),
+      TeamAPI.deleteCollaboration({ projectId: project_id, userId: userId }),
     {
       onSuccess: (response, userId) => {
         // remove user from invitedUsers
@@ -140,9 +139,7 @@ const TeamPage = (props) => {
           message: "Ended collaboration",
         });
       },
-      onError: (error) => {
-        console.log(error);
-        //
+      onError: () => {
         setSnackbar({
           show: true,
           message: "Unable to remove the collaborator",
@@ -176,73 +173,73 @@ const TeamPage = (props) => {
     }
   };
 
+  const { data } = useQuery(
+    ["fetchProjectInfo", { project_id }],
+    ProjectAPI.fetchInfo,
+    {
+      refetchOnWindowFocus: false,
+    },
+  );
+
   return (
-    <Root aria-label="teams page">
-      <Fade in>
-        <Box>
-          <PageHeader header="Team" mobileScreen={props.mobileScreen} />
-          {props.info && (
-            <Box className="main-page-body-wrapper">
-              <Stack spacing={3} className="main-page-body">
-                <Box>
-                  <Grid container spacing={3}>
-                    <Grid item size={12}>
-                      <InvitationForm
-                        selectableUsers={selectableUsers}
-                        onInvite={onInvite}
-                      />
-                    </Grid>
-                    <Grid
-                      item
-                      size={{
-                        xs: 12,
-                        sm: 6,
-                      }}
-                    >
-                      <UserListComponent
-                        header="Collaborators"
-                        users={collaborators}
-                        onDelete={onDeleteCollaboration}
-                      />
-                    </Grid>
-                    <Grid
-                      item
-                      size={{
-                        xs: 12,
-                        sm: 6,
-                      }}
-                    >
-                      <UserListComponent
-                        header="Pending invitations"
-                        users={invitedUsers}
-                        onDelete={onDeleteInvitation}
-                      />
-                    </Grid>
-                  </Grid>
-                </Box>
-              </Stack>
-              <Snackbar
-                open={snackbar.show}
-                autoHideDuration={3000}
-                onClose={handleCloseSnackbar}
-                message={snackbar.message}
-              />
-              <ConfirmationDialog
-                title="Are you sure?"
-                contentText={handleDelete.text}
-                open={handleDelete.openDialog}
-                onClose={() => setHandleDelete(initDeleteData)}
-                handleCancel={() => setHandleDelete(initDeleteData)}
-                handleConfirm={() => {
-                  handleDelete.function.mutate(handleDelete.userId);
-                  setHandleDelete(initDeleteData);
-                }}
-              />
-            </Box>
+    <Box className="main-page-body-wrapper">
+      <Grid container spacing={3}>
+        <Grid size={12}>
+          {data?.ownerId === auth.id && (
+            <InvitationForm
+              selectableUsers={selectableUsers}
+              onInvite={onInvite}
+            />
           )}
-        </Box>
-      </Fade>
-    </Root>
+          {data && auth.id && data?.ownerId !== auth.id && (
+            <CollaborationPage />
+          )}
+        </Grid>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6,
+          }}
+        >
+          <UserListComponent
+            header="Collaborators"
+            users={collaborators}
+            onDelete={onDeleteCollaboration}
+            disabled={data?.ownerId !== auth.id}
+          />
+        </Grid>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6,
+          }}
+        >
+          <UserListComponent
+            header="Pending invitations"
+            users={invitedUsers}
+            onDelete={onDeleteInvitation}
+            disabled={data?.ownerId !== auth.id}
+          />
+        </Grid>
+      </Grid>
+      <Snackbar
+        open={snackbar.show}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        message={snackbar.message}
+      />
+      <ConfirmationDialog
+        title="Are you sure?"
+        contentText={handleDelete.text}
+        open={handleDelete.openDialog}
+        onClose={() => setHandleDelete(initDeleteData)}
+        handleCancel={() => setHandleDelete(initDeleteData)}
+        handleConfirm={() => {
+          handleDelete.function.mutate(handleDelete.userId);
+          setHandleDelete(initDeleteData);
+        }}
+      />
+    </Box>
   );
 };
 export default TeamPage;

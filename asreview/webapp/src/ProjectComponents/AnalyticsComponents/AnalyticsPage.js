@@ -1,14 +1,4 @@
-import React from "react";
-import { useState } from "react";
-import { useQuery } from "react-query";
-import { useParams } from "react-router-dom";
-import {
-  EmailIcon,
-  TwitterIcon,
-  FacebookIcon,
-  WeiboIcon,
-  WhatsappIcon,
-} from "react-share";
+import { Share } from "@mui/icons-material";
 import {
   Box,
   Grid2 as Grid,
@@ -19,15 +9,24 @@ import {
   Tabs,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Share } from "@mui/icons-material";
+import React, { useState } from "react";
+import { useQuery } from "react-query";
+import { useParams } from "react-router-dom";
+import {
+  EmailIcon,
+  FacebookIcon,
+  TwitterIcon,
+  WeiboIcon,
+  WhatsappIcon,
+} from "react-share";
 
 import {
-  ReviewProgress,
-  ShareFabAction,
+  LabelingFrequency,
+  LabelingHistory,
   ProgressDensityChart,
   ProgressRecallChart,
-  LabelingHistory,
-  LabelingFrequency,
+  ReviewProgress,
+  ShareFabAction,
   StoppingSuggestion,
 } from "ProjectComponents/AnalyticsComponents";
 import { ProjectAPI } from "api";
@@ -40,7 +39,7 @@ const actions = [
   { icon: <WhatsappIcon round />, name: "WhatsApp" },
   { icon: <EmailIcon round />, name: "Email" },
 ];
-const AnalyticsPage = (props) => {
+const AnalyticsPage = () => {
   const { project_id } = useParams();
   const progressQuery = useQuery(
     ["fetchProgress", { project_id }],
@@ -98,16 +97,10 @@ const AnalyticsPage = (props) => {
               <Tab label="Stopping Suggestion" />
             </Tabs>
             {activeProgressTab === 0 && (
-              <ReviewProgress
-                mobileScreen={props.mobileScreen}
-                progressQuery={progressQuery}
-              />
+              <ReviewProgress progressQuery={progressQuery} />
             )}
             {activeProgressTab === 1 && (
-              <StoppingSuggestion
-                mobileScreen={props.mobileScreen}
-                progressQuery={progressQuery}
-              />
+              <StoppingSuggestion progressQuery={progressQuery} />
             )}
           </Box>
           <Grid item size={12}>
@@ -123,14 +116,12 @@ const AnalyticsPage = (props) => {
                 </Tabs>
                 {activeHistoryTab === 0 && (
                   <LabelingHistory
-                    mobileScreen={props.mobileScreen}
                     genericDataQuery={genericDataQuery}
                     progressQuery={progressQuery}
                   />
                 )}
                 {activeHistoryTab === 1 && (
                   <LabelingFrequency
-                    mobileScreen={props.mobileScreen}
                     genericDataQuery={genericDataQuery}
                     progressQuery={progressQuery}
                   />
@@ -156,7 +147,6 @@ const AnalyticsPage = (props) => {
               </Tabs>
               {activeChartTab === 0 && (
                 <ProgressDensityChart
-                  mobileScreen={props.mobileScreen}
                   genericDataQuery={genericDataQuery}
                   sx={{
                     height: "400px",
@@ -166,7 +156,6 @@ const AnalyticsPage = (props) => {
               )}
               {activeChartTab === 1 && (
                 <ProgressRecallChart
-                  mobileScreen={props.mobileScreen}
                   genericDataQuery={genericDataQuery}
                   sx={{
                     height: "400px",

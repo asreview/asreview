@@ -62,13 +62,6 @@ const App = () => {
   const [onSettings, toggleSettings] = useToggle();
   const [onHelp, toggleHelp] = useToggle();
 
-  const [projectCheck, setProjectCheck] = React.useState({
-    open: false,
-    issue: null,
-    path: "/projects",
-    project_id: null,
-  });
-
   // Settings hook
   const [fontSize, handleFontSizeChange] = useFontSize();
 
@@ -164,12 +157,7 @@ const App = () => {
           <Route
             path="*"
             element={
-              <HomePage
-                mobileScreen={mobileScreen}
-                onNavDrawer={onNavDrawer}
-                projectCheck={projectCheck}
-                setProjectCheck={setProjectCheck}
-              />
+              <HomePage mobileScreen={mobileScreen} onNavDrawer={onNavDrawer} />
             }
           />
           <Route
@@ -179,8 +167,6 @@ const App = () => {
                 mobileScreen={mobileScreen}
                 onNavDrawer={onNavDrawer}
                 fontSize={fontSize}
-                projectCheck={projectCheck}
-                setProjectCheck={setProjectCheck}
               />
             }
           />
@@ -191,8 +177,6 @@ const App = () => {
                 mobileScreen={mobileScreen}
                 onNavDrawer={onNavDrawer}
                 fontSize={fontSize}
-                projectCheck={projectCheck}
-                setProjectCheck={setProjectCheck}
               />
             }
           />

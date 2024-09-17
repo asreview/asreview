@@ -35,13 +35,13 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const HomePage = (props) => {
+const HomePage = ({ mobileScreen, onNavDrawer }) => {
   return (
     <Root aria-label="home page">
       <Box
         component="main"
         className={clsx("main-page-content", classes.content, {
-          [classes.contentShift]: !props.mobileScreen && props.onNavDrawer,
+          [classes.contentShift]: !mobileScreen && onNavDrawer,
         })}
         aria-label="home page content"
       >
@@ -50,25 +50,19 @@ const HomePage = (props) => {
           <Route
             path="/reviews"
             element={
-              <ProjectsOverview
-                mobileScreen={props.mobileScreen}
-                mode={"oracle"}
-              />
+              <ProjectsOverview mobileScreen={mobileScreen} mode={"oracle"} />
             }
           />
           <Route
             path="/simulations"
             element={
-              <ProjectsOverview
-                mobileScreen={props.mobileScreen}
-                mode={"simulate"}
-              />
+              <ProjectsOverview mobileScreen={mobileScreen} mode={"simulate"} />
             }
           />
           {/* Profile page */}
           <Route
             path="/profile"
-            element={<ProfilePage mobileScreen={props.mobileScreen} />}
+            element={<ProfilePage mobileScreen={mobileScreen} />}
           />
           {/* Redirect root to projects */}
           <Route path="/" element={<Navigate to="/reviews" />} />
