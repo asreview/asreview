@@ -1,14 +1,14 @@
 import { FileUpload, FileUploadOutlined } from "@mui/icons-material";
 import {
   Alert,
-  Avatar,
   Box,
   Button,
   ButtonBase,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
+  Card,
+  CardHeader,
+  CardActions,
+  CardContent,
+  Popper,
   Snackbar,
   Stack,
   Typography,
@@ -77,7 +77,7 @@ const rejectStyle = {
 };
 
 const ImportProject = ({ mobileScreen, ...buttonProps }) => {
-  const [onImportProject, toggleImportProject] = useToggle();
+  // const [onImportProject, toggleImportProject] = useToggle();
 
   const queryClient = useQueryClient();
   const [file, setFile] = React.useState(null);
@@ -151,6 +151,15 @@ const ImportProject = ({ mobileScreen, ...buttonProps }) => {
     [isDragActive, isDragReject, isDragAccept],
   );
 
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  const toggleImportProject = (event) => {
+    setAnchorEl(anchorEl ? null : event.currentTarget);
+  };
+
+  const onImportProject = Boolean(anchorEl);
+  const id = open ? "simple-popper" : undefined;
+
   return (
     <>
       <ResponsiveButton
@@ -159,37 +168,23 @@ const ImportProject = ({ mobileScreen, ...buttonProps }) => {
         onClick={toggleImportProject}
         {...buttonProps}
       />
-      <Dialog
+      <Popper
         open={onImportProject}
         onClose={toggleImportProject}
-        fullScreen={mobileScreen}
-        fullWidth
-        maxWidth="md"
-        PaperProps={{
-          sx: { height: !mobileScreen ? "calc(100% - 96px)" : "100%" },
-        }}
+        id={id}
+        anchorEl={anchorEl}
+        placement="bottom-end"
       >
-        <DialogTitle>Import project</DialogTitle>
-        <DialogContent dividers>
-          <Root>
+        <Card
+          // sx={(theme) => ({ bgcolor: theme.palette.primary.main })}
+          elevation={4}
+        >
+          <CardContent>
             <Box {...getRootProps({ style })}>
               <input {...getInputProps()} />
               <Stack className={classes.root} spacing={2}>
                 <ButtonBase disabled={isLoading} disableRipple onClick={open}>
-                  <Avatar
-                    sx={(theme) => ({
-                      height: "136px",
-                      width: "136px",
-                      bgcolor: "grey.100",
-                      ...theme.applyStyles("dark", {
-                        bgcolor: "grey.800",
-                      }),
-                    })}
-                  >
-                    <FileUpload
-                      sx={{ height: "65px", width: "65px", color: "grey.500" }}
-                    />
-                  </Avatar>
+                  <FileUpload sx={{ height: "65px", width: "65px" }} />
                 </ButtonBase>
                 <Typography>
                   Click or Drag and drop a ASReview file (<code>.asreview</code>
@@ -212,33 +207,37 @@ const ImportProject = ({ mobileScreen, ...buttonProps }) => {
                 )}
               </Stack>
             </Box>
-          </Root>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={toggleImportProject} color="primary">
-            Cancel
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Dialog open={openWarnings} onClose={toggleOpenWarnings}>
-        <DialogTitle>Imported with warnings</DialogTitle>
-        <DialogContent>
-          <Typography>
-            The project has been imported successfully, but with the following
-            warnings:
-          </Typography>
-          {data?.warnings.map((item, i) => (
-            <Alert key={i} severity="warning" sx={{ mt: 2 }}>
-              {item}
-            </Alert>
-          ))}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={toggleOpenWarnings} color="primary">
-            Ok
-          </Button>
-        </DialogActions>
-      </Dialog>
+          </CardContent>
+
+          {data?.warnings.length > 0 && (
+            <>
+              <CardHeader>Imported with warnings</CardHeader>
+              <CardContent>
+                <Typography>
+                  The project has been imported successfully, but with the
+                  following warnings:
+                </Typography>
+                {data?.warnings.map((item, i) => (
+                  <Alert key={i} severity="warning" sx={{ mt: 2 }}>
+                    {item}
+                  </Alert>
+                ))}
+              </CardContent>
+              <CardActions>
+                <Button onClick={toggleOpenWarnings} color="primary">
+                  Ok
+                </Button>
+              </CardActions>
+            </>
+          )}
+
+          <CardActions>
+            <Button onClick={toggleImportProject} color="primary">
+              Cancel
+            </Button>
+          </CardActions>
+        </Card>
+      </Popper>
       <Snackbar
         open={importSnackbar}
         onClose={toggleImportSnackbar}
