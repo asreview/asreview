@@ -3,14 +3,11 @@ import { Box, Fab, Stack, Snackbar } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { DashboardPageHeader, Projects } from ".";
 import { InteractionButtons } from "Components";
-import { ImportProject } from "ProjectComponents";
 import { SetupDialog } from "ProjectComponents/SetupComponents";
 
 import { useToggle } from "hooks/useToggle";
 
 const ProjectsOverview = ({ mobileScreen, mode }) => {
-  const [onImportProject, toggleImportProject] = useToggle();
-
   const [openCreateProject, toggleCreateProject] = useToggle(false);
 
   const [feedbackBar, setFeedbackBar] = React.useState({
@@ -27,11 +24,7 @@ const ProjectsOverview = ({ mobileScreen, mode }) => {
 
   return (
     <>
-      <DashboardPageHeader
-        mode={mode}
-        mobileScreen={mobileScreen}
-        toggleImportProject={toggleImportProject}
-      />
+      <DashboardPageHeader mode={mode} />
       <Box className="main-page-body-wrapper">
         <Stack className="main-page-body" spacing={6}>
           <Projects
@@ -62,11 +55,6 @@ const ProjectsOverview = ({ mobileScreen, mode }) => {
         open={openCreateProject}
         onClose={toggleCreateProject}
         setFeedbackBar={setFeedbackBar}
-      />
-      <ImportProject
-        mobileScreen={mobileScreen}
-        onImportProject={onImportProject}
-        toggleImportProject={toggleImportProject}
       />
       <Snackbar
         anchorOrigin={{

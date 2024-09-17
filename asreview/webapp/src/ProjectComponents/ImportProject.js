@@ -1,4 +1,4 @@
-import { Close, FileUpload } from "@mui/icons-material";
+import { FileUpload, FileUploadOutlined } from "@mui/icons-material";
 import {
   Alert,
   Avatar,
@@ -11,7 +11,6 @@ import {
   DialogTitle,
   Snackbar,
   Stack,
-  Tooltip,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -23,7 +22,7 @@ import { InlineErrorHandler } from "Components";
 
 import { ProjectAPI } from "api";
 
-import { StyledIconButton } from "StyledComponents/StyledButton";
+import { ResponsiveButton } from "StyledComponents/StyledResponsiveButton";
 import { useToggle } from "hooks/useToggle";
 
 const PREFIX = "ImportFromFile";
@@ -77,12 +76,9 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-const ImportProject = ({
-  onImportProject,
-  mobileScreen,
-  toggleImportProject,
-}) => {
-  // const isImportingProject = useIsMutating(["importProject"]);
+const ImportProject = ({ mobileScreen, ...buttonProps }) => {
+  const [onImportProject, toggleImportProject] = useToggle();
+
   const queryClient = useQueryClient();
   const [file, setFile] = React.useState(null);
 
@@ -157,8 +153,15 @@ const ImportProject = ({
 
   return (
     <>
+      <ResponsiveButton
+        title={"Import project"}
+        icon={<FileUploadOutlined />}
+        onClick={toggleImportProject}
+        {...buttonProps}
+      />
       <Dialog
         open={onImportProject}
+        onClose={toggleImportProject}
         fullScreen={mobileScreen}
         fullWidth
         maxWidth="md"
@@ -166,23 +169,7 @@ const ImportProject = ({
           sx: { height: !mobileScreen ? "calc(100% - 96px)" : "100%" },
         }}
       >
-        <Stack className="dialog-header" direction="row" spacing={1}>
-          <DialogTitle>Import project</DialogTitle>
-          <Stack
-            className="dialog-header-button right"
-            direction="row"
-            spacing={1}
-          >
-            <Tooltip title="Close">
-              <StyledIconButton
-                disabled={isLoading}
-                onClick={toggleImportProject}
-              >
-                <Close />
-              </StyledIconButton>
-            </Tooltip>
-          </Stack>
-        </Stack>
+        <DialogTitle>Import project</DialogTitle>
         <DialogContent dividers>
           <Root>
             <Box {...getRootProps({ style })}>
@@ -227,6 +214,11 @@ const ImportProject = ({
             </Box>
           </Root>
         </DialogContent>
+        <DialogActions>
+          <Button onClick={toggleImportProject} color="primary">
+            Cancel
+          </Button>
+        </DialogActions>
       </Dialog>
       <Dialog open={openWarnings} onClose={toggleOpenWarnings}>
         <DialogTitle>Imported with warnings</DialogTitle>

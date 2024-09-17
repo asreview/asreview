@@ -1,15 +1,17 @@
 import { GroupAdd, MoreHoriz, PersonOff } from "@mui/icons-material";
-import { ProjectDeleteDialog } from "ProjectComponents";
 import { ProjectAPI } from "api";
 import { projectModes, projectStatuses } from "globals.js";
 import useAuth from "hooks/useAuth";
 import { useToggle } from "hooks/useToggle";
+import { ImportProject, ProjectDeleteDialog } from "ProjectComponents";
+import { SetupDialog } from "ProjectComponents/SetupComponents";
 import * as React from "react";
 import { useQuery } from "react-query";
 import { Link, useNavigate } from "react-router-dom";
-import { SetupDialog } from "ProjectComponents/SetupComponents";
 
 import {
+  Box,
+  Stack,
   Card,
   CardActions,
   CardHeader,
@@ -315,6 +317,8 @@ const Projects = ({ mode, setFeedbackBar }) => {
   const { auth } = useAuth();
   const user_id = auth.id;
 
+  const [onImportProject, toggleImportProject] = useToggle();
+
   const { data } = useQuery(
     ["fetchProjects", { subset: mode }],
     ProjectAPI.fetchProjects,
@@ -324,25 +328,35 @@ const Projects = ({ mode, setFeedbackBar }) => {
   );
 
   return (
-    <Grid container spacing={2}>
-      {data?.result.map((project) => (
-        <Grid
-          key={project.id}
-          size={{
-            xs: 12,
-            sm: 6,
-            md: 6,
-          }}
-        >
-          <ProjectCard
-            project={project}
-            mode={mode}
-            user_id={user_id}
-            setFeedbackBar={setFeedbackBar}
-          />
-        </Grid>
-      ))}
-    </Grid>
+    <Stack spacing={1}>
+      <Box>
+        <ImportProject
+          onImportProject={onImportProject}
+          toggleImportProject={toggleImportProject}
+          sx={{ float: "right" }}
+        />
+      </Box>
+
+      <Grid container spacing={2}>
+        {data?.result.map((project) => (
+          <Grid
+            key={project.id}
+            size={{
+              xs: 12,
+              sm: 6,
+              md: 6,
+            }}
+          >
+            <ProjectCard
+              project={project}
+              mode={mode}
+              user_id={user_id}
+              setFeedbackBar={setFeedbackBar}
+            />
+          </Grid>
+        ))}
+      </Grid>
+    </Stack>
   );
 };
 

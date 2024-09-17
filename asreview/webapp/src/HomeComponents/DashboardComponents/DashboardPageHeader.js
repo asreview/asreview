@@ -1,16 +1,5 @@
-import { Upload } from "@mui/icons-material";
-import {
-  Avatar,
-  Box,
-  Button,
-  IconButton,
-  Paper,
-  Stack,
-  Tooltip,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
-import { styled, useTheme } from "@mui/material/styles";
+import { Box, Paper, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 import { projectModes } from "globals.js";
 
@@ -37,10 +26,7 @@ const Root = styled(Box)(({ theme }) => ({
 //   oracle: "Review",
 // };
 
-export default function DashboardPageHeader({ toggleImportProject, mode }) {
-  const theme = useTheme();
-  const mobileScreen = useMediaQuery(theme.breakpoints.down("md"));
-
+export default function DashboardPageHeader({ mode }) {
   return (
     <Root>
       <Paper className={classes.paperHeader} elevation={0}>
@@ -50,27 +36,6 @@ export default function DashboardPageHeader({ toggleImportProject, mode }) {
         {mode === projectModes.SIMULATION && (
           <Typography variant="h4">Simulation projects</Typography>
         )}
-
-        <Stack direction="row" spacing={1}>
-          {mobileScreen && (
-            <Tooltip title="Import project">
-              <IconButton disableRipple onClick={toggleImportProject}>
-                <Avatar>
-                  <Upload
-                    color="primary"
-                    fontSize={!mobileScreen ? "medium" : "small"}
-                  />
-                </Avatar>
-              </IconButton>
-            </Tooltip>
-          )}
-
-          {!mobileScreen && (
-            <Button variant="outlined" onClick={toggleImportProject}>
-              Import project
-            </Button>
-          )}
-        </Stack>
       </Paper>
     </Root>
   );
