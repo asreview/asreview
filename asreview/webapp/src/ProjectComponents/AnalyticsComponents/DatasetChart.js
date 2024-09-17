@@ -1,23 +1,23 @@
-import React from "react";
-import Chart from "react-apexcharts";
+import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { Box } from "@mui/system";
+import Chart from "react-apexcharts";
+
+const chartcolor = (theme, part, total) => {
+  switch (true) {
+    case part / total < 0.75:
+      return [theme.palette.error.main];
+    case part / total < 0.95:
+      return [theme.palette.warning.main];
+    default:
+      return [theme.palette.success.main];
+  }
+};
 
 export default function DatasetChart({ label, part, total }) {
   const theme = useTheme();
 
-  const chartcolor = () => {
-    if (part / total < 0.75) {
-      return ["#F44336"];
-    } else if (part / total < 0.95) {
-      return ["#FFC107"];
-    } else {
-      return ["#4CAF50"];
-    }
-  };
-
   return (
-    <Box sx={{ height: "210px" }}>
+    <Stack direction="column">
       <Chart
         options={{
           chart: {
@@ -33,15 +33,11 @@ export default function DatasetChart({ label, part, total }) {
               },
               dataLabels: {
                 name: {
-                  show: true,
-                  offsetY: 90,
-                  fontSize: theme.typography.subtitle1.fontSize,
-                  fontFamily: theme.typography.subtitle1.fontFamily,
-                  color: theme.palette.text.secondary,
+                  show: false,
                 },
                 value: {
                   show: true,
-                  offsetY: -10,
+                  offsetY: 7,
                   fontSize: theme.typography.subtitle1.fontSize,
                   fontWeight: "bold",
                   fontFamily: theme.typography.subtitle1.fontFamily,
@@ -62,7 +58,7 @@ export default function DatasetChart({ label, part, total }) {
               : theme.palette.primary.main,
           ],
           fill: {
-            colors: chartcolor(),
+            colors: chartcolor(theme, part, total),
           },
           markers: {
             size: 0,
@@ -73,13 +69,14 @@ export default function DatasetChart({ label, part, total }) {
           theme: {
             mode: theme.palette.mode,
           },
-          labels: [label],
         }}
         series={[Math.round((part / total) * 10000) / 100]}
         type="radialBar"
-        height={210}
-        width={"100%"}
+        width="100%"
       />
-    </Box>
+      <Typography align="center" variant="subtitle1">
+        {label}
+      </Typography>
+    </Stack>
   );
 }

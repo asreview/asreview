@@ -247,13 +247,14 @@ const SetupDialog = ({
             project_id={dataset.id}
             dataset_name={dataset.name}
           />
-          <DialogContent sx={{ bgcolor: "primary.light" }}>
+          <DialogContent>
             <Collapse in={!showSettings}>
               <Box sx={{ mt: 3 }}>
                 <DatasetCard
                   project_id={dataset?.id}
                   dataset_path={dataset?.dataset_path}
                   setDataset={setDataset}
+                  hideLabeledInfo={mode === projectModes.SIMULATION}
                 />
               </Box>
             </Collapse>

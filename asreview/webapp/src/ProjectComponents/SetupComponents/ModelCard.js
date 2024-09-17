@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardMedia,
   CircularProgress,
   Collapse,
   Dialog,
@@ -36,8 +35,8 @@ import { DoneOutlined, ExpandMore } from "@mui/icons-material";
 
 import { styled } from "@mui/material/styles";
 
-import { ProjectContext } from "context/ProjectContext";
 import { ProjectAPI } from "api";
+import { ProjectContext } from "context/ProjectContext";
 import { useToggle } from "hooks/useToggle";
 import { useContext } from "react";
 
@@ -454,18 +453,6 @@ const ModelCard = ({
           </>
         }
       />
-      {isLoadingModelConfig ? (
-        <Skeleton sx={{ height: 140 }} animation="wave" variant="rectangular" />
-      ) : (
-        <CardMedia
-          component="img"
-          height="140"
-          // image={modelAlwaysGood}
-          alt={"Model " + getFullModel(modelConfig).title}
-          sx={{ bgcolor: "primary.background" }}
-        />
-      )}
-
       {isLoadingModelConfig ? (
         <Skeleton animation="wave" variant="text" />
       ) : (

@@ -244,12 +244,12 @@ const SettingsDialog = (props) => {
           </>
           <>
             <Grid container sx={{ alignItems: "flex-end" }}>
-              <Grid item size="grow">
+              <Grid size="grow">
                 <Typography align="center" variant="h6">
                   A
                 </Typography>
               </Grid>
-              <Grid item size={8}>
+              <Grid size={8}>
                 <Slider
                   value={fontSize}
                   marks={true}
@@ -261,7 +261,7 @@ const SettingsDialog = (props) => {
                   }}
                 />
               </Grid>
-              <Grid item size="grow">
+              <Grid size="grow">
                 <Typography align="center" variant="h4">
                   A
                 </Typography>

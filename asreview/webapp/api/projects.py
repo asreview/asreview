@@ -393,6 +393,15 @@ def api_get_project_data(project):  # noqa: F401
     except FileNotFoundError:
         return jsonify({"filename": None})
 
+    if as_data.url is not None:
+        urn = pd.Series(as_data.url).replace("", None)
+    else:
+        urn = pd.Series([None]*len(as_data))
+
+    if as_data.doi is not None:
+        doi = pd.Series(as_data.doi).replace("", None)
+        urn.fillna(doi, inplace=True)
+
     return jsonify(
         {
             "n_rows": len(as_data),
@@ -406,6 +415,7 @@ def api_get_project_data(project):  # noqa: F401
             "n_missing_abstract": int(
                 pd.Series(as_data.abstract).replace("", None).isnull().sum()
             ),
+            "n_missing_urn": int(urn.isnull().sum()),
             "n_english": None,
             "filename": Path(project.config["dataset_path"]).stem,
         }
