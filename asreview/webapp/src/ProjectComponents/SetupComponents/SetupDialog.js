@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import * as React from "react";
 
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 
@@ -117,6 +117,7 @@ const SetupDialog = ({
   setFeedbackBar,
 }) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
@@ -134,7 +135,8 @@ const SetupDialog = ({
     mutationKey: ["mutateReviewStatus"],
     onSuccess: () => {
       if (mode === projectModes.SIMULATION) {
-        navigate(`/simulations/${dataset?.id}`);
+        queryClient.invalidateQueries("fetchProjects");
+        onClose();
       } else {
         navigate(`/reviews/${dataset?.id}/review`);
       }
@@ -260,7 +262,7 @@ const SetupDialog = ({
             </Collapse>
 
             <Box sx={{ textAlign: "center", my: 2 }}>
-              <Button onClick={setShowSettings} sx={{ color: "white" }}>
+              <Button onClick={setShowSettings}>
                 {showSettings ? "Show dataset" : "Show options"}
               </Button>
             </Box>

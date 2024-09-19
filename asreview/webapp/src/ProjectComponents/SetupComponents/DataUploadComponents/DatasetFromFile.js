@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FileUpload } from "@mui/icons-material";
+import { useMediaQuery } from "@mui/material";
 
 import { ProjectAPI } from "api";
 import { projectModes } from "globals.js";
@@ -69,6 +70,8 @@ const rejectStyle = {
 };
 
 const DatasetFromFile = ({ project_id, mode, setDataset }) => {
+  const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
+
   const {
     error: createProjectError,
     isError: isCreatingProjectError,
@@ -169,7 +172,11 @@ const DatasetFromFile = ({ project_id, mode, setDataset }) => {
                 sx={{ height: "65px", width: "65px", color: "grey.500" }}
               />
             </Avatar>
-            <Typography>Drag and drop a dataset file or click</Typography>
+            <Typography>
+              {mobileScreen
+                ? "Upload dataset"
+                : "Click or drag and drop a dataset here"}
+            </Typography>
             <Typography variant="secondary">
               Accepted files: {acceptedFileTypes}
             </Typography>
