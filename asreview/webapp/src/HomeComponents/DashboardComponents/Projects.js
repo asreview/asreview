@@ -1,15 +1,25 @@
-import { GroupAdd, MoreHoriz, PersonOff } from "@mui/icons-material";
-import { ProjectDeleteDialog } from "ProjectComponents";
+import {
+  DeleteForeverOutlined,
+  DoneAllOutlined,
+  DownloadOutlined,
+  GroupAdd,
+  MoreHoriz,
+  PersonOff,
+  SettingsOutlined,
+} from "@mui/icons-material";
 import { ProjectAPI } from "api";
 import { projectModes, projectStatuses } from "globals.js";
 import useAuth from "hooks/useAuth";
 import { useToggle } from "hooks/useToggle";
+import { ImportProject, ProjectDeleteDialog } from "ProjectComponents";
+import { SetupDialog } from "ProjectComponents/SetupComponents";
 import * as React from "react";
 import { useQuery } from "react-query";
 import { Link, useNavigate } from "react-router-dom";
-import { SetupDialog } from "ProjectComponents/SetupComponents";
 
 import {
+  Box,
+  Stack,
   Card,
   CardActions,
   CardHeader,
@@ -20,6 +30,8 @@ import {
   MenuItem,
   Tooltip,
   Typography,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
 
 import TimeAgo from "javascript-time-ago";
@@ -99,6 +111,25 @@ const ProjectCard = ({ project, mode, user_id, setFeedbackBar }) => {
     handleMenuClose();
     toggleDeleteDialog();
   };
+
+  const [exporting, setExporting] = React.useState(false);
+
+  const {
+    // error: exportProjectError,
+    // isError: isExportProjectError,
+    isFetching: isExportingProject,
+  } = useQuery(
+    ["fetchExportProject", { project_id: project.id }],
+    ProjectAPI.fetchExportProject,
+    {
+      enabled: exporting,
+      refetchOnWindowFocus: false,
+      onSettled: () => {
+        setExporting(false);
+        handleMenuClose();
+      },
+    },
+  );
 
   return (
     <Card
@@ -197,7 +228,7 @@ const ProjectCard = ({ project, mode, user_id, setFeedbackBar }) => {
               horizontal: "left",
             }}
           >
-            {review?.status !== projectStatuses.SETUP && (
+            {/* {review?.status !== projectStatuses.SETUP && (
               <MenuItem
                 component={Link}
                 to={`/${projectModeURLMap[mode]}/${project.id}/collection`}
@@ -208,17 +239,33 @@ const ProjectCard = ({ project, mode, user_id, setFeedbackBar }) => {
               >
                 Download records
               </MenuItem>
-            )}
+            )} */}
 
             {mode === projectModes.ORACLE &&
               review?.status !== projectStatuses.SETUP && (
                 <MenuItem onClick={handleClickUpdateStatus}>
-                  {review?.status === projectStatuses.REVIEW
-                    ? "Mark as finished"
-                    : "Mark as in review"}
+                  <ListItemIcon>
+                    <DoneAllOutlined />
+                  </ListItemIcon>
+                  <ListItemText>
+                    {review?.status === projectStatuses.REVIEW
+                      ? "Mark as finished"
+                      : "Mark as in review"}
+                  </ListItemText>
                 </MenuItem>
               )}
 
+            <MenuItem
+              onClick={() => {
+                setExporting(true);
+              }}
+              disabled={isExportingProject}
+            >
+              <ListItemIcon>
+                <DownloadOutlined />
+              </ListItemIcon>
+              <ListItemText>Export</ListItemText>
+            </MenuItem>
             {review?.status !== projectStatuses.SETUP &&
               !(
                 mode === projectModes.SIMULATION &&
@@ -228,14 +275,20 @@ const ProjectCard = ({ project, mode, user_id, setFeedbackBar }) => {
                   component={Link}
                   to={`/${projectModeURLMap[mode]}/${project.id}/settings`}
                 >
-                  Settings
+                  <ListItemIcon>
+                    <SettingsOutlined />
+                  </ListItemIcon>
+                  <ListItemText>Settings</ListItemText>
                 </MenuItem>
               )}
             <MenuItem
               onClick={handleClickDelete}
               disabled={project?.owner_id !== user_id}
             >
-              Delete project
+              <ListItemIcon>
+                <DeleteForeverOutlined />
+              </ListItemIcon>
+              <ListItemText>Delete project</ListItemText>
             </MenuItem>
           </Menu>
         </>
@@ -297,25 +350,31 @@ const Projects = ({ mode, setFeedbackBar }) => {
   );
 
   return (
-    <Grid container spacing={2}>
-      {data?.result.map((project) => (
-        <Grid
-          key={project.id}
-          size={{
-            xs: 12,
-            sm: 6,
-            md: 6,
-          }}
-        >
-          <ProjectCard
-            project={project}
-            mode={mode}
-            user_id={user_id}
-            setFeedbackBar={setFeedbackBar}
-          />
-        </Grid>
-      ))}
-    </Grid>
+    <Stack spacing={1}>
+      <Box>
+        <ImportProject sx={{ float: "right" }} />
+      </Box>
+
+      <Grid container spacing={2}>
+        {data?.result.map((project) => (
+          <Grid
+            key={project.id}
+            size={{
+              xs: 12,
+              sm: 6,
+              md: 6,
+            }}
+          >
+            <ProjectCard
+              project={project}
+              mode={mode}
+              user_id={user_id}
+              setFeedbackBar={setFeedbackBar}
+            />
+          </Grid>
+        ))}
+      </Grid>
+    </Stack>
   );
 };
 
