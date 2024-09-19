@@ -16,7 +16,7 @@ const Root = styled(Box)(({ theme }) => ({
     margin: theme.spacing(2),
     // backgroundColor: theme.palette.primary.main,
     textAlign: "center",
-    height: "200px",
+    height: "160px",
     color: theme.palette.primary.main,
   },
 }));
@@ -34,7 +34,9 @@ export default function DashboardPageHeader({ mode }) {
           <Typography variant="h4">What do you read today?</Typography>
         )}
         {mode === projectModes.SIMULATION && (
-          <Typography variant="h4">Simulation projects</Typography>
+          <Typography variant="h4">
+            Simulate a review, fully automated
+          </Typography>
         )}
       </Paper>
     </Root>

@@ -5,25 +5,39 @@ import {
   Button,
   ButtonBase,
   Card,
-  CardHeader,
-  CardActions,
   CardContent,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Popper,
   Snackbar,
   Stack,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { styled, useTheme } from "@mui/material/styles";
 import React, { useCallback, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
 import { useMutation, useQueryClient } from "react-query";
 
-import { InlineErrorHandler } from "Components";
+import { useMediaQuery } from "@mui/material";
 
 import { ProjectAPI } from "api";
 
 import { ResponsiveButton } from "StyledComponents/StyledResponsiveButton";
 import { useToggle } from "hooks/useToggle";
+
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+});
 
 const PREFIX = "ImportFromFile";
 
@@ -31,22 +45,6 @@ const classes = {
   root: `${PREFIX}-root`,
   singleLine: `${PREFIX}-single-line`,
 };
-
-const Root = styled("div")(({ theme }) => ({
-  height: "100%",
-  width: "100%",
-  [`& .${classes.root}`]: {
-    display: "flex",
-    alignItems: "center",
-  },
-  [`& .${classes.singleLine}`]: {
-    display: "-webkit-box",
-    WebkitBoxOrient: "vertical",
-    WebkitLineClamp: 1,
-    whiteSpace: "pre-line",
-    overflow: "hidden",
-  },
-}));
 
 const baseStyle = {
   height: "100%",
@@ -76,53 +74,14 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-const ImportProject = ({ mobileScreen, ...buttonProps }) => {
-  // const [onImportProject, toggleImportProject] = useToggle();
-
-  const queryClient = useQueryClient();
-  const [file, setFile] = React.useState(null);
-
-  const [importSnackbar, toggleImportSnackbar] = useToggle(false);
-  const [openWarnings, toggleOpenWarnings] = useToggle(false);
-
-  const {
-    error,
-    isError,
-    isLoading,
-    mutate: importProject,
-    data,
-    reset,
-  } = useMutation(ProjectAPI.mutateImportProject, {
-    mutationKey: ["importProject"],
-    onSuccess: (data) => {
-      queryClient.invalidateQueries("fetchProjects");
-      toggleImportProject();
-      toggleImportSnackbar();
-
-      if (data?.warnings.length > 0) {
-        toggleOpenWarnings();
-      }
-    },
-  });
-
+const ImportProjectCard = ({ onClose = null, mutate, isLoading }) => {
   const onDrop = useCallback(
     (acceptedFiles) => {
-      if (acceptedFiles.length !== 1) {
-        console.log("No valid file provided");
-        return;
-      } else {
-        setFile(acceptedFiles[0]);
-      }
-
-      if (isError) {
-        reset();
-      }
-
-      importProject({
+      mutate({
         file: acceptedFiles[0],
       });
     },
-    [importProject, isError, reset],
+    [mutate],
   );
 
   const {
@@ -151,6 +110,42 @@ const ImportProject = ({ mobileScreen, ...buttonProps }) => {
     [isDragActive, isDragReject, isDragAccept],
   );
 
+  return (
+    <Card
+      // sx={(theme) => ({ bgcolor: theme.palette.primary.main })}
+      elevation={4}
+    >
+      <CardContent>
+        <Box
+          {...getRootProps({ style })}
+          sx={{ height: "500px", width: "500px" }}
+        >
+          <input {...getInputProps()} />
+          <Stack className={classes.root} spacing={2}>
+            <ButtonBase disabled={isLoading} disableRipple onClick={open}>
+              <FileUpload sx={{ height: "65px", width: "65px" }} />
+            </ButtonBase>
+            <Typography>
+              {isLoading
+                ? "Importing..."
+                : "Click or Drag and drop a ASReview file (.asreview) here"}
+            </Typography>
+          </Stack>
+        </Box>
+      </CardContent>
+    </Card>
+  );
+};
+
+const ImportProject = ({ ...buttonProps }) => {
+  const queryClient = useQueryClient();
+
+  const theme = useTheme();
+  const smallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const [importSnackbar, toggleImportSnackbar] = useToggle();
+  const [warningDialog, toggleWarningDialog] = useToggle();
+
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const toggleImportProject = (event) => {
@@ -158,92 +153,117 @@ const ImportProject = ({ mobileScreen, ...buttonProps }) => {
   };
 
   const onImportProject = Boolean(anchorEl);
-  const id = open ? "simple-popper" : undefined;
+  const id = onImportProject ? "import-popper" : undefined;
+
+  const { mutate, isLoading, data, reset } = useMutation(
+    ProjectAPI.mutateImportProject,
+    {
+      mutationKey: ["importProject"],
+      onSuccess: (data) => {
+        queryClient.invalidateQueries("fetchProjects");
+        reset();
+
+        if (data?.warnings.length === 0) {
+          toggleImportSnackbar();
+        } else {
+          toggleWarningDialog();
+        }
+
+        if (onImportProject) toggleImportProject();
+      },
+      onError: (error) => {
+        console.error(error);
+      },
+    },
+  );
 
   return (
     <>
-      <ResponsiveButton
-        title={"Import project"}
-        icon={<FileUploadOutlined />}
-        onClick={toggleImportProject}
-        {...buttonProps}
-      />
-      <Popper
-        open={onImportProject}
-        onClose={toggleImportProject}
-        id={id}
-        anchorEl={anchorEl}
-        placement="bottom-end"
-      >
-        <Card
-          // sx={(theme) => ({ bgcolor: theme.palette.primary.main })}
-          elevation={4}
-        >
-          <CardContent>
-            <Box {...getRootProps({ style })}>
-              <input {...getInputProps()} />
-              <Stack className={classes.root} spacing={2}>
-                <ButtonBase disabled={isLoading} disableRipple onClick={open}>
-                  <FileUpload sx={{ height: "65px", width: "65px" }} />
-                </ButtonBase>
-                <Typography>
-                  Click or Drag and drop a ASReview file (<code>.asreview</code>
-                  )
-                </Typography>
-                {file && (
-                  <Typography className={classes.singleLine}>
-                    File <i>{file?.path}</i> selected.
-                  </Typography>
-                )}
-                {isLoading && (
-                  <Typography sx={{ color: "text.secondary" }}>
-                    Importing...
-                  </Typography>
-                )}
-                {isError && (
-                  <InlineErrorHandler
-                    message={error?.message + " Please try again."}
-                  />
-                )}
-              </Stack>
-            </Box>
-          </CardContent>
+      {smallScreen && (
+        <>
+          <Button
+            component="label"
+            role={undefined}
+            tabIndex={-1}
+            startIcon={<FileUploadOutlined />}
+            {...buttonProps}
+          >
+            <VisuallyHiddenInput
+              type="file"
+              onChange={(e) => {
+                // console.log(e.target.files);
 
-          {data?.warnings.length > 0 && (
-            <>
-              <CardHeader>Imported with warnings</CardHeader>
-              <CardContent>
-                <Typography>
-                  The project has been imported successfully, but with the
-                  following warnings:
-                </Typography>
-                {data?.warnings.map((item, i) => (
-                  <Alert key={i} severity="warning" sx={{ mt: 2 }}>
-                    {item}
-                  </Alert>
-                ))}
-              </CardContent>
-              <CardActions>
-                <Button onClick={toggleOpenWarnings} color="primary">
-                  Ok
-                </Button>
-              </CardActions>
-            </>
-          )}
+                if (e.target.files.length === 0) {
+                  return;
+                }
 
-          <CardActions>
-            <Button onClick={toggleImportProject} color="primary">
-              Cancel
-            </Button>
-          </CardActions>
-        </Card>
-      </Popper>
+                mutate({
+                  file: e.target.files[0],
+                });
+              }}
+              onClick={(e) => {
+                e.target.value = null;
+              }}
+              accept=".asreview"
+            />
+          </Button>
+        </>
+      )}
+
+      {!smallScreen && (
+        <>
+          <ResponsiveButton
+            title={"Import project"}
+            icon={<FileUploadOutlined />}
+            onClick={toggleImportProject}
+            {...buttonProps}
+          />
+          <Popper
+            open={onImportProject}
+            onClose={toggleImportProject}
+            id={id}
+            anchorEl={anchorEl}
+            placement="bottom-end"
+          >
+            <ImportProjectCard
+              mutate={mutate}
+              onClose={toggleImportProject}
+              isLoading={isLoading}
+            />
+          </Popper>
+        </>
+      )}
+
       <Snackbar
         open={importSnackbar}
         onClose={toggleImportSnackbar}
         autoHideDuration={5000}
         message={`Your project has been imported`}
       />
+
+      <Dialog open={warningDialog} onClose={toggleWarningDialog}>
+        {data?.warnings.length > 0 && (
+          <>
+            <DialogTitle>Imported with warnings</DialogTitle>
+            <DialogContent>
+              <Typography>
+                The project has been imported successfully, but with the
+                following warnings:
+              </Typography>
+              {data?.warnings.map((item, i) => (
+                <Alert key={i} severity="warning" sx={{ mt: 2 }}>
+                  {item}
+                </Alert>
+              ))}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={toggleWarningDialog} color="primary">
+                Ok
+              </Button>
+            </DialogActions>
+          </>
+        )}
+      </Dialog>
     </>
   );
 };

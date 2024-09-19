@@ -1,4 +1,12 @@
-import { GroupAdd, MoreHoriz, PersonOff } from "@mui/icons-material";
+import {
+  DeleteForeverOutlined,
+  DoneAllOutlined,
+  DownloadOutlined,
+  GroupAdd,
+  MoreHoriz,
+  PersonOff,
+  SettingsOutlined,
+} from "@mui/icons-material";
 import { ProjectAPI } from "api";
 import { projectModes, projectStatuses } from "globals.js";
 import useAuth from "hooks/useAuth";
@@ -22,6 +30,8 @@ import {
   MenuItem,
   Tooltip,
   Typography,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
 
 import TimeAgo from "javascript-time-ago";
@@ -218,7 +228,7 @@ const ProjectCard = ({ project, mode, user_id, setFeedbackBar }) => {
               horizontal: "left",
             }}
           >
-            {review?.status !== projectStatuses.SETUP && (
+            {/* {review?.status !== projectStatuses.SETUP && (
               <MenuItem
                 component={Link}
                 to={`/${projectModeURLMap[mode]}/${project.id}/collection`}
@@ -229,14 +239,19 @@ const ProjectCard = ({ project, mode, user_id, setFeedbackBar }) => {
               >
                 Download records
               </MenuItem>
-            )}
+            )} */}
 
             {mode === projectModes.ORACLE &&
               review?.status !== projectStatuses.SETUP && (
                 <MenuItem onClick={handleClickUpdateStatus}>
-                  {review?.status === projectStatuses.REVIEW
-                    ? "Mark as finished"
-                    : "Mark as in review"}
+                  <ListItemIcon>
+                    <DoneAllOutlined />
+                  </ListItemIcon>
+                  <ListItemText>
+                    {review?.status === projectStatuses.REVIEW
+                      ? "Mark as finished"
+                      : "Mark as in review"}
+                  </ListItemText>
                 </MenuItem>
               )}
 
@@ -246,7 +261,10 @@ const ProjectCard = ({ project, mode, user_id, setFeedbackBar }) => {
               }}
               disabled={isExportingProject}
             >
-              Export project
+              <ListItemIcon>
+                <DownloadOutlined />
+              </ListItemIcon>
+              <ListItemText>Export</ListItemText>
             </MenuItem>
             {review?.status !== projectStatuses.SETUP &&
               !(
@@ -257,14 +275,20 @@ const ProjectCard = ({ project, mode, user_id, setFeedbackBar }) => {
                   component={Link}
                   to={`/${projectModeURLMap[mode]}/${project.id}/settings`}
                 >
-                  Settings
+                  <ListItemIcon>
+                    <SettingsOutlined />
+                  </ListItemIcon>
+                  <ListItemText>Settings</ListItemText>
                 </MenuItem>
               )}
             <MenuItem
               onClick={handleClickDelete}
               disabled={project?.owner_id !== user_id}
             >
-              Delete project
+              <ListItemIcon>
+                <DeleteForeverOutlined />
+              </ListItemIcon>
+              <ListItemText>Delete project</ListItemText>
             </MenuItem>
           </Menu>
         </>
@@ -317,8 +341,6 @@ const Projects = ({ mode, setFeedbackBar }) => {
   const { auth } = useAuth();
   const user_id = auth.id;
 
-  const [onImportProject, toggleImportProject] = useToggle();
-
   const { data } = useQuery(
     ["fetchProjects", { subset: mode }],
     ProjectAPI.fetchProjects,
@@ -330,11 +352,7 @@ const Projects = ({ mode, setFeedbackBar }) => {
   return (
     <Stack spacing={1}>
       <Box>
-        <ImportProject
-          onImportProject={onImportProject}
-          toggleImportProject={toggleImportProject}
-          sx={{ float: "right" }}
-        />
+        <ImportProject sx={{ float: "right" }} />
       </Box>
 
       <Grid container spacing={2}>
