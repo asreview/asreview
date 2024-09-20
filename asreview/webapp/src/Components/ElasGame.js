@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import {
   Button,
-  Grid,
+  Grid2 as Grid,
   Paper,
   Stack,
   Typography,
@@ -371,7 +371,7 @@ const ElasGame = (props) => {
 
       <Grid container justifyContent="center" spacing={2}>
         {gameState.imagesArray?.map((image, index) => (
-          <Grid key={index} item>
+          <Grid key={index}>
             <Paper
               onClick={() => flipImage(image, index)}
               className={classes.paper}

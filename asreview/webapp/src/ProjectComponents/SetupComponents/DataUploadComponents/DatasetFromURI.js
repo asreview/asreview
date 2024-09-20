@@ -26,7 +26,6 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.root}`]: {
     alignItems: "center",
   },
-
   [`& .${classes.input}`]: {
     display: "flex",
     alignItems: "center",

@@ -4,7 +4,6 @@ import { useQuery, useQueryClient } from "react-query";
 import { useMediaQuery } from "@mui/material";
 import { useParams } from "react-router-dom";
 
-import { ActionsFeedbackBar } from "Components";
 import { RecordCard, ReviewPageFinished } from ".";
 
 import { ProjectAPI } from "api";
@@ -28,7 +27,7 @@ const Screener = (props) => {
 
   const [tagValues, setTagValues] = React.useState({});
 
-  const { data, error, isError } = useQuery(
+  const { data } = useQuery(
     ["fetchRecord", { project_id }],
     ProjectAPI.fetchRecord,
     {
@@ -49,7 +48,6 @@ const Screener = (props) => {
           afterDecision={afterDecision}
           fontSize={props.fontSize}
           showBorder={props.showBorder}
-          tags={props.tags}
           tagValues={tagValues}
           setTagValues={setTagValues}
           collapseAbstract={false}
@@ -57,19 +55,11 @@ const Screener = (props) => {
           key={project_id + "-" + data["result"]["record_id"]}
         />
       )}
-
-      {/* Error handler */}
-      {isError && (
-        <ActionsFeedbackBar
-          feedback={error?.message + " Please try again."}
-          open={isError}
-        />
-      )}
     </Root>
   );
 };
 
-const ReviewPage = ({ project_id, fontSize, tags }) => {
+const ReviewPage = ({ project_id, fontSize }) => {
   /* fetch the record and check if the project is training */
   const { refetch, data, isSuccess } = useQuery(
     ["fetchRecord", { project_id }],
@@ -96,7 +86,6 @@ const ReviewPage = ({ project_id, fontSize, tags }) => {
               record={data}
               fontSize={fontSize}
               showBorder={showBorder}
-              tags={tags}
             />
           )}
 

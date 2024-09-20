@@ -1,22 +1,22 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import {
+  Box,
   Card,
   CardContent,
-  Stack,
-  Box,
-  Skeleton,
-  Typography,
   FormControlLabel,
-  Switch,
-  useTheme,
-  Popover,
-  styled,
-  Tooltip,
   IconButton,
+  Popover,
+  Skeleton,
+  Stack,
+  Switch,
+  Tooltip,
+  Typography,
+  styled,
+  useTheme,
 } from "@mui/material";
-import { CardErrorHandler } from "Components";
 import { tooltipClasses } from "@mui/material/Tooltip";
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import { CardErrorHandler } from "Components";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 // Styled component for the main card
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -103,7 +103,7 @@ const generateLines = (
   return lines;
 };
 
-const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
+const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
   const [chronological, setChronological] = useState(true);
   const [chunkSize, setChunkSize] = useState(29);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -199,7 +199,6 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
                 }}
               />
             </Box>
-
             {genericDataQuery?.isLoading ? (
               <HistoryContainer>
                 {Array.from(new Array(chunkSize)).map((_, index) => (
@@ -230,7 +229,6 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
               </Typography>
             </Box>
           </Stack>
-
           <Box
             sx={{
               position: "absolute",
@@ -367,5 +365,4 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
     </div>
   );
 };
-
 export default LabelingHistory;

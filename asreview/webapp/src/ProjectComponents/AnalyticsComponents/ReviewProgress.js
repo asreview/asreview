@@ -69,7 +69,7 @@ const StatItem = ({ label, value, color, loading }) => (
   </StatBox>
 );
 
-export default function ReviewProgress({ progressQuery, mobileScreen }) {
+export default function ReviewProgress({ progressQuery }) {
   const theme = useTheme();
   const loading = progressQuery.isLoading;
 
@@ -223,7 +223,7 @@ export default function ReviewProgress({ progressQuery, mobileScreen }) {
             marginTop: theme.spacing(1.5),
             marginLeft: theme.spacing(1),
           }}
-          componentsProps={{
+          slotProps={{
             typography: {
               variant: "body2",
             },

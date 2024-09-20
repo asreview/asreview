@@ -1,26 +1,13 @@
 import * as React from "react";
-import { Box, Fab, Stack } from "@mui/material";
+import { Box, Fab, Stack, Snackbar } from "@mui/material";
 import { Add } from "@mui/icons-material";
-import { DashboardPageHeader, ProjectTable } from ".";
-import { ActionsFeedbackBar, InteractionButtons } from "Components";
-import { ImportProject } from "ProjectComponents";
+import { DashboardPageHeader, Projects } from ".";
+import { InteractionButtons } from "Components";
 import { SetupDialog } from "ProjectComponents/SetupComponents";
 
 import { useToggle } from "hooks/useToggle";
 
-const ProjectsOverview = ({
-  mobileScreen,
-  projectCheck,
-  setProjectCheck,
-  mode,
-}) => {
-  const [onImportProject, toggleImportProject] = useToggle();
-
-  const modeLabel = {
-    simulate: "Simulate",
-    oracle: "Review",
-  };
-
+const ProjectsOverview = ({ mobileScreen, mode }) => {
   const [openCreateProject, toggleCreateProject] = useToggle(false);
 
   const [feedbackBar, setFeedbackBar] = React.useState({
@@ -37,18 +24,12 @@ const ProjectsOverview = ({
 
   return (
     <>
-      <DashboardPageHeader
-        mode={mode}
-        mobileScreen={mobileScreen}
-        toggleImportProject={toggleImportProject}
-      />
+      <DashboardPageHeader mode={mode} />
       <Box className="main-page-body-wrapper">
         <Stack className="main-page-body" spacing={6}>
-          <ProjectTable
+          <Projects
             mode={mode}
-            projectCheck={projectCheck}
             setFeedbackBar={setFeedbackBar}
-            setProjectCheck={setProjectCheck}
             mobileScreen={mobileScreen}
           />
 
@@ -57,31 +38,33 @@ const ProjectsOverview = ({
       </Box>
       <Fab
         id="create-project"
-        className="main-page-fab"
         color="primary"
         onClick={toggleCreateProject}
         variant="extended"
+        sx={{
+          position: "absolute",
+          bottom: 24,
+          right: 24,
+        }}
       >
         <Add sx={{ mr: 1 }} />
-        {modeLabel[mode]}
+        {"new"}
       </Fab>
       <SetupDialog
         mode={mode}
-        mobileScreen={mobileScreen}
         open={openCreateProject}
         onClose={toggleCreateProject}
         setFeedbackBar={setFeedbackBar}
       />
-      <ImportProject
-        mobileScreen={mobileScreen}
-        onImportProject={onImportProject}
-        toggleImportProject={toggleImportProject}
-      />
-      <ActionsFeedbackBar
-        center
-        onClose={resetFeedbackBar}
+      <Snackbar
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
         open={feedbackBar.open}
-        feedback={feedbackBar.message}
+        autoHideDuration={6000}
+        onClose={resetFeedbackBar}
+        message={feedbackBar.message}
       />
     </>
   );

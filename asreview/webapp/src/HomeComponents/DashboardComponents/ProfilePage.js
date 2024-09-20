@@ -183,8 +183,10 @@ const ProfilePage = (props) => {
               value={formik.values.oldPassword}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              inputProps={{
-                autoComplete: "off",
+              slotProps={{
+                htmlInput: {
+                  autoComplete: "off",
+                },
               }}
             />
             <TextField
@@ -198,8 +200,10 @@ const ProfilePage = (props) => {
               onBlur={formik.handleBlur}
               style={{ opacity: passwordFieldOpacity() }}
               disabled={oldPasswordHasValue()}
-              inputProps={{
-                autoComplete: "new-password",
+              slotProps={{
+                htmlInput: {
+                  autoComplete: "new-password",
+                },
               }}
             />
             <TextField
@@ -213,17 +217,17 @@ const ProfilePage = (props) => {
               onBlur={formik.handleBlur}
               style={{ opacity: passwordFieldOpacity() }}
               disabled={oldPasswordHasValue()}
-              inputProps={{
-                autoComplete: "new-password",
+              slotProps={{
+                htmlInput: {
+                  autoComplete: "new-password",
+                },
               }}
             />
           </Stack>
         </FormControl>
-
         <Typography variant="body2" sx={{ marginTop: "7px !important" }}>
           {passwordRequirements}
         </Typography>
-
         {formik.touched.newPassword && formik.errors.newPassword ? (
           <FHT error={true}>{formik.errors.newPassword}</FHT>
         ) : null}
@@ -254,7 +258,9 @@ const ProfilePage = (props) => {
           {/* Header */}
           <Box
             className="main-page-sticky-header-wrapper"
-            sx={{ background: (theme) => theme.palette.background.paper }}
+            sx={(theme) => ({
+              background: theme.palette.background.paper,
+            })}
           >
             <Box className="main-page-sticky-header with-button">
               {!props.mobileScreen && (
@@ -303,8 +309,10 @@ const ProfilePage = (props) => {
                 value={formik.values.name}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                inputProps={{
-                  autoComplete: "off",
+                slotProps={{
+                  htmlInput: {
+                    autoComplete: "off",
+                  },
                 }}
               />
               {formik.touched.name && formik.errors.name ? (
@@ -319,8 +327,10 @@ const ProfilePage = (props) => {
                 value={formik.values.affiliation}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                inputProps={{
-                  autoComplete: "off",
+                slotProps={{
+                  htmlInput: {
+                    autoComplete: "off",
+                  },
                 }}
               />
               {formik.touched.affiliation && formik.errors.affiliation ? (

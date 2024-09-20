@@ -1,25 +1,24 @@
-import React, { useRef, useState, useEffect, useCallback } from "react";
-import Chart from "react-apexcharts";
+import { HelpOutline } from "@mui/icons-material";
+import GetAppIcon from "@mui/icons-material/GetApp";
 import {
+  Box,
   Card,
   CardContent,
-  Skeleton,
-  Stack,
-  Typography,
   IconButton,
   Menu,
   MenuItem,
+  Skeleton,
+  Stack,
   Tooltip,
+  Typography,
   tooltipClasses,
-  Box,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
-import GetAppIcon from "@mui/icons-material/GetApp";
-import { HelpOutline } from "@mui/icons-material";
-import { toPng, toJpeg, toSvg } from "html-to-image";
+import { toJpeg, toPng, toSvg } from "html-to-image";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import Chart from "react-apexcharts";
 
 import { CardErrorHandler } from "Components";
-import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
 const PREFIX = "ProgressRecallChart";
 
@@ -46,49 +45,41 @@ const StyledCard = styled(Card)(({ theme }) => ({
     paddingLeft: 32,
     paddingRight: 32,
   },
-
   [`& .${classes.tooltipCardColor}`]: {
     color: theme.palette.text.primary,
     background: theme.palette.background.paper,
   },
-
   [`& .${classes.tooltipLabelContainer}`]: {
     display: "flex",
     justifyContent: "space-between",
   },
-
   [`& .${classes.tooltipLabelMarkerASReviewColor}`]: {
-    ...(theme.palette.mode === "light" && {
+    ...theme.applyStyles("light", {
       color: theme.palette.primary.light,
       background: theme.palette.primary.light,
     }),
-    ...(theme.palette.mode === "dark" && {
+    ...theme.applyStyles("dark", {
       color: theme.palette.primary.main,
       background: theme.palette.primary.main,
     }),
   },
-
   [`& .${classes.tooltipLabelMarkerRandomColor}`]: {
     color: theme.palette.info.main,
     background: theme.palette.info.main,
   },
-
   [`& .${classes.tooltipLabelASReviewNumber}`]: {
     marginLeft: 32,
-    ...(theme.palette.mode === "dark" && {
+    ...theme.applyStyles("dark", {
       color: theme.palette.primary.main,
     }),
   },
-
   [`& .${classes.tooltipLabelRandomNumber}`]: {
     marginLeft: 32,
     color: theme.palette.info.main,
   },
-
   [`& .${classes.tooltipLabelTextSecondaryColor}`]: {
     color: theme.palette.text.secondary,
   },
-
   [`& .${classes.tooltipDividerColor}`]: {
     borderColor: theme.palette.divider,
   },
@@ -263,7 +254,7 @@ export default function ProgressRecallChart(props) {
       legend: {
         position: "top",
         horizontalAlign: "left",
-        fontSize: !props.mobileScreen ? "14px" : "12px",
+        fontSize: "14px",
         fontFamily: theme.typography.subtitle2.fontFamily,
         fontWeight: theme.typography.subtitle2.fontWeight,
         labels: {
@@ -327,7 +318,7 @@ export default function ProgressRecallChart(props) {
         },
       },
     };
-  }, [theme, lightModePrimaryColor, darkBlueColor, maxY, props.mobileScreen]);
+  }, [theme, lightModePrimaryColor, darkBlueColor, maxY]);
 
   const [series, setSeries] = useState(seriesArray());
   const [options, setOptions] = useState(optionsChart());
@@ -411,10 +402,6 @@ export default function ProgressRecallChart(props) {
             justifyContent="space-between"
             alignItems="center"
           >
-            {!props.mobileScreen && <Typography variant="h6"></Typography>}
-            {props.mobileScreen && (
-              <TypographySubtitle1Medium></TypographySubtitle1Medium>
-            )}
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <StyledTooltip
                 title={
@@ -446,7 +433,6 @@ export default function ProgressRecallChart(props) {
                 }
               >
                 <HelpOutline
-                  fontSize={!props.mobileScreen ? "small" : "12px"}
                   sx={{ color: "text.secondary", marginRight: "8px" }}
                 />
               </StyledTooltip>

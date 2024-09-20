@@ -5,7 +5,14 @@ import {
   Payment,
   StarBorder,
 } from "@mui/icons-material";
-import { Box, Button, Grid, Link, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Grid2 as Grid,
+  Link,
+  Stack,
+  Typography,
+} from "@mui/material";
 import "App.css";
 import { CiteDialog } from "Components";
 import { useToggle } from "hooks/useToggle";
@@ -18,7 +25,6 @@ const InteractionButtons = () => {
       <Typography variant="h6" sx={{ textAlign: "center" }}>
         Love using ASReview LAB?
       </Typography>
-
       <Box sx={{ maxWidth: "600px", margin: "auto" }}>
         <Grid
           container
@@ -26,7 +32,13 @@ const InteractionButtons = () => {
           justifyContent="center"
           alignItems="center"
         >
-          <Grid item xs={4} md={2} sx={{ textAlign: "center", width: "120px" }}>
+          <Grid
+            sx={{ textAlign: "center", width: "120px" }}
+            size={{
+              xs: 4,
+              md: 2,
+            }}
+          >
             <Button onClick={toggleCite} color="primary">
               <Stack justifyContent="center" sx={{ alignItems: "center" }}>
                 <LibraryBooks fontSize="large" sx={{ m: "0.5rem" }} />
@@ -39,7 +51,13 @@ const InteractionButtons = () => {
               asreview_version={window.asreviewVersion}
             />
           </Grid>
-          <Grid item xs={4} md={2} sx={{ textAlign: "center", width: "120px" }}>
+          <Grid
+            sx={{ textAlign: "center", width: "120px" }}
+            size={{
+              xs: 4,
+              md: 2,
+            }}
+          >
             <Button
               component={Link}
               target="_blank"
@@ -51,7 +69,13 @@ const InteractionButtons = () => {
               </Stack>
             </Button>
           </Grid>
-          <Grid item xs={4} md={2} sx={{ textAlign: "center", width: "120px" }}>
+          <Grid
+            sx={{ textAlign: "center", width: "120px" }}
+            size={{
+              xs: 4,
+              md: 2,
+            }}
+          >
             <Button
               component={Link}
               target="_blank"
@@ -63,7 +87,13 @@ const InteractionButtons = () => {
               </Stack>
             </Button>
           </Grid>
-          <Grid item xs={4} md={2} sx={{ textAlign: "center", width: "120px" }}>
+          <Grid
+            sx={{ textAlign: "center", width: "120px" }}
+            size={{
+              xs: 4,
+              md: 2,
+            }}
+          >
             <Button
               component={Link}
               target="_blank"
@@ -75,7 +105,13 @@ const InteractionButtons = () => {
               </Stack>
             </Button>
           </Grid>
-          <Grid item xs={4} md={2} sx={{ textAlign: "center", width: "120px" }}>
+          <Grid
+            sx={{ textAlign: "center", width: "120px" }}
+            size={{
+              xs: 4,
+              md: 2,
+            }}
+          >
             <Button
               component={Link}
               target="_blank"

@@ -1,30 +1,29 @@
-import React, { useRef, useState, useEffect, useCallback } from "react";
-import Chart from "react-apexcharts";
+import { HelpOutline } from "@mui/icons-material";
+import GetAppIcon from "@mui/icons-material/GetApp";
 import {
   Box,
   Card,
   CardContent,
-  Skeleton,
-  Stack,
-  Tooltip,
-  tooltipClasses,
-  Typography,
   IconButton,
   Menu,
   MenuItem,
+  Skeleton,
+  Stack,
+  Tooltip,
+  Typography,
+  tooltipClasses,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
-import { HelpOutline } from "@mui/icons-material";
-import GetAppIcon from "@mui/icons-material/GetApp";
-import { toPng, toJpeg, toSvg } from "html-to-image";
+import { toJpeg, toPng, toSvg } from "html-to-image";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import Chart from "react-apexcharts";
 
 import { CardErrorHandler } from "Components";
-import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
-import tooltipRelevantLight from "images/progress_relevant_light.png";
-import tooltipRelevantDark from "images/progress_relevant_dark.png";
-import tooltipIrrelevantLight from "images/progress_irrelevant_light.png";
 import tooltipIrrelevantDark from "images/progress_irrelevant_dark.png";
+import tooltipIrrelevantLight from "images/progress_irrelevant_light.png";
+import tooltipRelevantDark from "images/progress_relevant_dark.png";
+import tooltipRelevantLight from "images/progress_relevant_light.png";
 
 import "./AnalyticsPage.css";
 
@@ -51,41 +50,35 @@ const StyledCard = styled(Card)(({ theme }) => ({
     paddingLeft: 32,
     paddingRight: 32,
   },
-
   [`& .${classes.title}`]: {
     display: "flex",
     alignItems: "baseline",
   },
-
   [`& .${classes.tooltipCardColor}`]: {
     color: theme.palette.text.primary,
     background: theme.palette.background.paper,
   },
-
   [`& .${classes.tooltipLabelContainer}`]: {
     display: "flex",
     alignItems: "baseline",
     justifyContent: "space-between",
   },
-
   [`& .${classes.tooltipLabelMarkerRelevantColor}`]: {
-    ...(theme.palette.mode === "light" && {
+    ...theme.applyStyles("light", {
       color: theme.palette.primary.light,
       background: theme.palette.primary.light,
     }),
-    ...(theme.palette.mode === "dark" && {
+    ...theme.applyStyles("dark", {
       color: theme.palette.primary.main,
       background: theme.palette.primary.main,
     }),
   },
-
   [`& .${classes.tooltipLabelRelevantNumber}`]: {
     marginLeft: 20,
-    ...(theme.palette.mode === "dark" && {
+    ...theme.applyStyles("dark", {
       color: theme.palette.primary.main,
     }),
   },
-
   [`& .${classes.tooltipLabelTextSecondaryColor}`]: {
     color: theme.palette.text.secondary,
   },
@@ -231,7 +224,7 @@ export default function ProgressDensityChart(props) {
       legend: {
         position: "top",
         horizontalAlign: "left",
-        fontSize: !props.mobileScreen ? "14px" : "12px",
+        fontSize: "14px",
         fontFamily: theme.typography.subtitle2.fontFamily,
         fontWeight: theme.typography.subtitle2.fontWeight,
         labels: {
@@ -289,7 +282,7 @@ export default function ProgressDensityChart(props) {
         },
       },
     };
-  }, [theme, props.mobileScreen]);
+  }, [theme]);
 
   const [series, setSeries] = useState(seriesArray());
   const [options, setOptions] = useState(optionsChart());
@@ -371,10 +364,6 @@ export default function ProgressDensityChart(props) {
             className={classes.title}
             sx={{ justifyContent: "space-between" }}
           >
-            {!props.mobileScreen && <Typography variant="h6"></Typography>}
-            {props.mobileScreen && (
-              <TypographySubtitle1Medium></TypographySubtitle1Medium>
-            )}
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <StyledTooltip
                 title={
@@ -432,7 +421,6 @@ export default function ProgressDensityChart(props) {
                 }
               >
                 <HelpOutline
-                  fontSize={!props.mobileScreen ? "small" : "12px"}
                   sx={{ color: "text.secondary", marginRight: "8px" }}
                 />
               </StyledTooltip>

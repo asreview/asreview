@@ -4,7 +4,7 @@ import { Routes, Route } from "react-router-dom";
 import { CssBaseline, createTheme, useMediaQuery } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
-import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
@@ -28,7 +28,7 @@ import {
 } from "Components";
 import { HomePage } from "./HomeComponents";
 import { ProjectPage } from "ProjectComponents";
-import { useDarkMode, useFontSize } from "hooks/SettingsHooks";
+import { useFontSize } from "hooks/SettingsHooks";
 import { useToggle } from "hooks/useToggle";
 
 // Ensure that on localhost we use 'localhost' instead of '127.0.0.1'
@@ -62,18 +62,13 @@ const App = () => {
   const [onSettings, toggleSettings] = useToggle();
   const [onHelp, toggleHelp] = useToggle();
 
-  const [projectCheck, setProjectCheck] = React.useState({
-    open: false,
-    issue: null,
-    path: "/projects",
-    project_id: null,
-  });
-
   // Settings hook
-  const [theme, toggleDarkMode] = useDarkMode();
   const [fontSize, handleFontSizeChange] = useFontSize();
 
-  const muiTheme = createTheme(theme);
+  const muiTheme = createTheme({
+    // cssVariables: true,
+    colorSchemes: { dark: true },
+  });
   const mobileScreen = useMediaQuery(muiTheme.breakpoints.down("md"), {
     noSsr: true,
   });
@@ -162,12 +157,7 @@ const App = () => {
           <Route
             path="*"
             element={
-              <HomePage
-                mobileScreen={mobileScreen}
-                onNavDrawer={onNavDrawer}
-                projectCheck={projectCheck}
-                setProjectCheck={setProjectCheck}
-              />
+              <HomePage mobileScreen={mobileScreen} onNavDrawer={onNavDrawer} />
             }
           />
           <Route
@@ -177,8 +167,6 @@ const App = () => {
                 mobileScreen={mobileScreen}
                 onNavDrawer={onNavDrawer}
                 fontSize={fontSize}
-                projectCheck={projectCheck}
-                setProjectCheck={setProjectCheck}
               />
             }
           />
@@ -189,8 +177,6 @@ const App = () => {
                 mobileScreen={mobileScreen}
                 onNavDrawer={onNavDrawer}
                 fontSize={fontSize}
-                projectCheck={projectCheck}
-                setProjectCheck={setProjectCheck}
               />
             }
           />
@@ -201,51 +187,47 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={muiTheme}>
-          <CssBaseline />
+      <ThemeProvider theme={muiTheme}>
+        <CssBaseline />
 
-          <div aria-label="nav and main content">
-            {!window.authentication && <Routes>{render_routes()}</Routes>}
+        <div aria-label="nav and main content">
+          {!window.authentication && <Routes>{render_routes()}</Routes>}
 
-            {window.authentication && (
-              <Routes>
-                {render_sign_routes()}
-                <Route element={<PersistSignIn />}>{render_routes()}</Route>
-              </Routes>
-            )}
-          </div>
+          {window.authentication && (
+            <Routes>
+              {render_sign_routes()}
+              <Route element={<PersistSignIn />}>{render_routes()}</Route>
+            </Routes>
+          )}
+        </div>
 
-          <Snackbar
-            open={notification.open}
-            autoHideDuration={6000}
+        <Snackbar
+          open={notification.open}
+          autoHideDuration={6000}
+          onClose={handleCloseNotification}
+        >
+          <Alert
             onClose={handleCloseNotification}
+            severity={notification.severity}
+            sx={{ width: "100%" }}
           >
-            <Alert
-              onClose={handleCloseNotification}
-              severity={notification.severity}
-              sx={{ width: "100%" }}
-            >
-              {notification.message}
-            </Alert>
-          </Snackbar>
+            {notification.message}
+          </Alert>
+        </Snackbar>
 
-          <SettingsDialog
-            mobileScreen={mobileScreen}
-            onSettings={onSettings}
-            onDark={theme}
-            fontSize={fontSize}
-            toggleSettings={toggleSettings}
-            toggleDarkMode={toggleDarkMode}
-            handleFontSizeChange={handleFontSizeChange}
-          />
-          <HelpDialog
-            mobileScreen={mobileScreen}
-            onHelp={onHelp}
-            toggleHelp={toggleHelp}
-          />
-        </ThemeProvider>
-      </StyledEngineProvider>
+        <SettingsDialog
+          mobileScreen={mobileScreen}
+          onSettings={onSettings}
+          fontSize={fontSize}
+          toggleSettings={toggleSettings}
+          handleFontSizeChange={handleFontSizeChange}
+        />
+        <HelpDialog
+          mobileScreen={mobileScreen}
+          onHelp={onHelp}
+          toggleHelp={toggleHelp}
+        />
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };
