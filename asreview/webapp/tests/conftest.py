@@ -14,6 +14,7 @@
 
 import os
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 from sqlalchemy.orm import close_all_sessions
@@ -62,6 +63,12 @@ def _get_app(app_type="auth-basic", path=None):
     # and return it
     return app
 
+# Mock Huey decorators to bypass Huey
+@pytest.fixture(autouse=True)
+def mock_huey_tasks():
+    # Mock the huey task decorator to make tasks run immediately (synchronously)
+    with patch('asreview.webapp.tasks.huey.task', side_effect=lambda *args, **kwargs: lambda fn: fn):
+        yield
 
 @pytest.fixture(scope="function", autouse=True)
 def asreview_path_fixture(tmp_path_factory):
