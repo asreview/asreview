@@ -32,7 +32,10 @@ import {
 } from "ProjectComponents/AnalyticsComponents";
 import { ProjectAPI } from "api";
 
-const Root = styled("div")(({ theme }) => ({}));
+const Root = styled("div")(({ theme }) => ({
+  padding: theme.spacing(2),
+  backgroundColor: theme.palette.background.default,
+}));
 
 const actions = [
   { icon: <TwitterIcon round />, name: "Twitter" },
@@ -123,7 +126,6 @@ const AnalyticsPage = (props) => {
                 <Tabs
                   value={activeHistoryTab}
                   onChange={(event, newValue) => setActiveHistoryTab(newValue)}
-                  left
                 >
                   <Tab label="Labeling History" />
                   <Tab label="Labeling Frequency" />
@@ -157,7 +159,6 @@ const AnalyticsPage = (props) => {
               <Tabs
                 value={activeChartTab}
                 onChange={(event, newValue) => setActiveChartTab(newValue)}
-                left
               >
                 <Tab label="Density" />
                 <Tab label="Recall" />

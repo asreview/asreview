@@ -1,7 +1,7 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { Routes, Route } from "react-router-dom";
-import { CssBaseline, createTheme, useMediaQuery } from "@mui/material";
+import { CssBaseline, useMediaQuery } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
@@ -12,6 +12,7 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
 import "./App.css";
+import getTheme from "./constants/theme"; // Import the theme generation function
 
 import {
   ConfirmAccount,
@@ -70,10 +71,10 @@ const App = () => {
   });
 
   // Settings hook
-  const [theme, toggleDarkMode] = useDarkMode();
+  const [mode, toggleDarkMode] = useDarkMode();
   const [fontSize, handleFontSizeChange] = useFontSize();
 
-  const muiTheme = createTheme(theme);
+  const muiTheme = getTheme(mode); // Generate the theme based on the mode
   const mobileScreen = useMediaQuery(muiTheme.breakpoints.down("md"), {
     noSsr: true,
   });
@@ -233,7 +234,7 @@ const App = () => {
           <SettingsDialog
             mobileScreen={mobileScreen}
             onSettings={onSettings}
-            onDark={theme}
+            onDark={mode}
             fontSize={fontSize}
             toggleSettings={toggleSettings}
             toggleDarkMode={toggleDarkMode}

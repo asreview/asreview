@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 
-import { getDesignTokens } from "globals.js";
-
 const useRowsPerPage = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -21,26 +19,22 @@ const useRowsPerPage = () => {
 };
 
 const useDarkMode = () => {
-  const [theme, setTheme] = useState(getDesignTokens("light"));
+  const [mode, setMode] = useState("light");
 
   const toggleDarkMode = () => {
-    if (theme.palette.mode === "light") {
-      window.localStorage.setItem("themeType", "dark");
-      setTheme(getDesignTokens("dark"));
-    } else {
-      window.localStorage.setItem("themeType", "light");
-      setTheme(getDesignTokens("light"));
-    }
+    const newMode = mode === "light" ? "dark" : "light";
+    window.localStorage.setItem("themeType", newMode);
+    setMode(newMode);
   };
 
   useEffect(() => {
     const localTheme = window.localStorage.getItem("themeType");
-    if (theme.palette.mode !== localTheme && localTheme !== null) {
-      setTheme(getDesignTokens("dark"));
+    if (localTheme && localTheme !== mode) {
+      setMode(localTheme);
     }
-  }, [theme.palette.mode]);
+  }, [mode]);
 
-  return [theme, toggleDarkMode];
+  return [mode, toggleDarkMode];
 };
 
 const useFontSize = (value = 1) => {

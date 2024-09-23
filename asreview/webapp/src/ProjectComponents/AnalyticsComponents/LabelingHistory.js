@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useRef, useMemo, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -10,53 +10,11 @@ import {
   Switch,
   useTheme,
   Popover,
-  styled,
-  Tooltip,
   IconButton,
 } from "@mui/material";
 import { CardErrorHandler } from "Components";
-import { tooltipClasses } from "@mui/material/Tooltip";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 
-// Styled component for the main card
-const StyledCard = styled(Card)(({ theme }) => ({
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  padding: theme.spacing(3, 6, 3, 6),
-  borderRadius: 16,
-  width: "100%",
-  maxWidth: "100%",
-  height: "100%",
-}));
-
-// Styled component for the container that holds the history items
-const HistoryContainer = styled(Box)(({ theme }) => ({
-  width: "100%",
-  maxWidth: "100%",
-  height: "300px",
-  overflowY: "auto",
-  display: "flex",
-  flexDirection: "row",
-  flexWrap: "wrap",
-  justifyContent: "flex-start",
-  rowGap: theme.spacing(0.5),
-  paddingRight: theme.spacing(1),
-  scrollbarWidth: "thin",
-  scrollbarColor: theme.palette.primary.main + " transparent",
-}));
-
-// Styled component for individual history items
-const HistoryItem = styled(Box)(({ theme, color }) => ({
-  width: theme.spacing(3.15),
-  height: theme.spacing(0.625),
-  backgroundColor: color,
-  borderRadius: theme.shape.borderRadius,
-  margin: theme.spacing(0.125),
-  cursor: "pointer",
-}));
-
-// Function to sort decisions within chunks
 const sortPerChunk = (decisions, chunkSize) => {
   const sorted = [];
   for (let i = 0; i < decisions.length; i += chunkSize) {
@@ -68,7 +26,6 @@ const sortPerChunk = (decisions, chunkSize) => {
   return sorted;
 };
 
-// Function to generate the history lines
 const generateLines = (
   total,
   decisions,
@@ -88,14 +45,21 @@ const generateLines = (
         ? sortedDecisions[i].label === 1
           ? theme.palette.primary.main // Relevant
           : sortedDecisions[i].label === 0
-            ? theme.palette.grey[500] // Irrelevant
-            : theme.palette.grey[800] // Neutral
-        : theme.palette.grey[300]; // No decision yet
+            ? theme.palette.grey[600] // Irrelevant
+            : theme.palette.grey[800] // Not used
+        : theme.palette.grey[400]; // No decision yet
 
     lines.push(
-      <HistoryItem
+      <Box
         key={i}
-        color={color}
+        sx={{
+          width: theme.spacing(3.15),
+          height: theme.spacing(0.625),
+          backgroundColor: color,
+          borderRadius: 1,
+          margin: theme.spacing(0.125),
+          cursor: "pointer",
+        }}
         onClick={(event) => handleClick(event, i, color)}
       />,
     );
@@ -104,21 +68,22 @@ const generateLines = (
 };
 
 const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
-  const [chronological, setChronological] = useState(true);
-  const [chunkSize, setChunkSize] = useState(29);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedPaper, setSelectedPaper] = useState(null);
-  const [selectedColor, setSelectedColor] = useState("#D3D3D3");
-  const containerRef = useRef(null);
   const theme = useTheme();
+  const [chronological, setChronological] = useState(true);
+  const [chunkSize, setChunkSize] = useState(30);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [infoAnchorEl, setInfoAnchorEl] = useState(null);
+  const [selectedPaper, setSelectedPaper] = useState(null);
+  const [selectedColor, setSelectedColor] = useState(theme.palette.grey[400]);
+  const containerRef = useRef(null);
 
   const handleSwitchChange = () => {
     setChronological(!chronological);
   };
 
-  const handleClick = (event, index, paperData, color) => {
+  const handleClick = (event, index, color) => {
     setAnchorEl(event.currentTarget);
-    setSelectedPaper(paperData);
+    setSelectedPaper(index);
     setSelectedColor(color);
   };
 
@@ -127,19 +92,25 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
     setSelectedPaper(null);
   };
 
-  // Update chunk size based on container width
+  const handleInfoClick = (event) => {
+    setInfoAnchorEl(event.currentTarget);
+  };
+
+  const handleInfoClose = () => {
+    setInfoAnchorEl(null);
+  };
+
   const updateChunkSize = useCallback(() => {
     if (containerRef.current) {
       const containerWidth = containerRef.current.clientWidth;
       const itemWidth =
-        parseFloat(theme.spacing(3.15)) + parseFloat(theme.spacing(0.25)); // item width + margin
+        parseFloat(theme.spacing(3.15)) + parseFloat(theme.spacing(0.25));
       const newChunkSize = Math.floor(containerWidth / itemWidth);
       setChunkSize(newChunkSize);
     }
   }, [theme]);
 
-  // Update chunk size on mount and window resize
-  useEffect(() => {
+  useMemo(() => {
     updateChunkSize();
     window.addEventListener("resize", updateChunkSize);
     return () => window.removeEventListener("resize", updateChunkSize);
@@ -150,35 +121,31 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
   const maxVisibleItems = totalPapers;
   const visibleItems = Math.min(maxVisibleItems, totalPapers);
   const latestDecisions = labelingChronology.slice(-totalPapers);
-
   const decisionsToDisplay = latestDecisions.slice(-visibleItems);
 
   const open = Boolean(anchorEl);
-  const id = open ? "popover" : undefined;
+  const id = open ? "paper-popover" : undefined;
 
-  // Info tooltip
-  const CustomTooltip = styled(({ className, ...props }) => (
-    <Tooltip {...props} classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: theme.palette.background.paper,
-      color: theme.palette.text.primary,
-      boxShadow: theme.shadows[1],
-      fontSize: theme.typography.pxToRem(12),
-      padding: "10px",
-      borderRadius: theme.shape.borderRadius,
-    },
-  }));
+  const infoOpen = Boolean(infoAnchorEl);
+  const infoId = infoOpen ? "info-popover" : undefined;
 
   return (
-    <div style={{ position: "relative", width: "100%", maxWidth: 960 }}>
+    <Box position="relative" width="100%" maxWidth={960}>
       <CardErrorHandler
         queryKey={"fetchGenericData"}
         error={genericDataQuery?.error}
         isError={!!genericDataQuery?.isError}
       />
-      <StyledCard elevation={2}>
-        <CardContent style={{ padding: theme.spacing(0) }}>
+      <Card
+        sx={{
+          padding: theme.spacing(2, 5),
+          borderRadius: 4,
+          boxShadow: 3,
+
+          flexDirection: { xs: "column", sm: "row" },
+        }}
+      >
+        <CardContent sx={{ padding: theme.spacing(0) }}>
           <Stack spacing={3} width="100%">
             <Box
               display="flex"
@@ -201,19 +168,41 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
             </Box>
 
             {genericDataQuery?.isLoading ? (
-              <HistoryContainer>
+              <Box
+                ref={containerRef}
+                sx={{
+                  width: "100%",
+                  height: 180,
+                  overflowY: "auto",
+                  display: "flex",
+                  flexWrap: "wrap",
+                  rowGap: theme.spacing(0.5),
+                  paddingRight: theme.spacing(0),
+                }}
+              >
                 {Array.from(new Array(chunkSize)).map((_, index) => (
                   <Skeleton
                     key={index}
                     variant="rectangular"
                     width={theme.spacing(3.15)}
                     height={theme.spacing(0.625)}
-                    style={{ margin: theme.spacing(0.125) }}
+                    sx={{ margin: theme.spacing(0.125) }}
                   />
                 ))}
-              </HistoryContainer>
+              </Box>
             ) : (
-              <HistoryContainer ref={containerRef}>
+              <Box
+                ref={containerRef}
+                sx={{
+                  width: "100%",
+                  height: 180,
+                  overflowY: "auto",
+                  display: "flex",
+                  flexWrap: "wrap",
+                  rowGap: theme.spacing(0.5),
+                  paddingRight: theme.spacing(1),
+                }}
+              >
                 {generateLines(
                   visibleItems,
                   decisionsToDisplay,
@@ -222,7 +211,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
                   handleClick,
                   theme,
                 )}
-              </HistoryContainer>
+              </Box>
             )}
             <Box display="flex" justifyContent="center">
               <Typography variant="body2" color="textSecondary">
@@ -234,137 +223,104 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
           <Box
             sx={{
               position: "absolute",
-              top: theme.spacing(1),
-              right: theme.spacing(1),
+              top: 10,
+              right: 10,
               [theme.breakpoints.down("sm")]: {
                 top: theme.spacing(2),
                 right: theme.spacing(2),
               },
             }}
           >
-            <CustomTooltip
-              title={
-                <React.Fragment>
-                  <hr
-                    style={{
-                      border: `none`,
-                      borderTop: `4px solid ${theme.palette.divider}`,
-                      margin: "8px 0",
-                      borderRadius: "5px",
-                    }}
-                  />
-                  <Typography variant="body2" gutterBottom>
-                    <strong>Chronology Switch</strong>
-                  </Typography>
-                  <li>
-                    In the chronological view, the lines will be sorted in the
-                    same order you labeled them. Otherwise, they will be sorted
-                    by their labels. The arrow of time points to right and down.
-                  </li>
-                  <hr
-                    style={{
-                      border: `none`,
-                      borderTop: `4px solid ${theme.palette.divider}`,
-                      margin: "8px 0",
-                      borderRadius: "5px",
-                    }}
-                  />
-                  <Typography variant="body2" gutterBottom>
-                    <strong>Labeling History</strong>
-                  </Typography>
-                  <ul style={{ paddingLeft: "1.5em", margin: 0 }}>
-                    <li>
-                      These are your previous labeling decisions. Gold lines
-                      represent relevant papers, while gray lines represent
-                      irrelevant papers.
-                    </li>
-                    <li>
-                      When you click on a line, you can view that paper's
-                      details.
-                    </li>
-                  </ul>
-                  <hr
-                    style={{
-                      border: `none`,
-                      borderTop: `4px solid ${theme.palette.divider}`,
-                      margin: "8px 0",
-                      borderRadius: "5px",
-                    }}
-                  />
-                  <Box sx={{ pt: 1, textAlign: "center" }}>
-                    <a
-                      href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-                      style={{
-                        color:
-                          theme.palette.mode === "dark" ? "#1E90FF" : "#1E90FF",
-                      }}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Learn more
-                    </a>
-                  </Box>
-                </React.Fragment>
-              }
-              arrow
-              interactive={true}
-              enterTouchDelay={0}
+            <IconButton
+              size="small"
+              sx={{
+                color: theme.palette.text.secondary,
+                p: theme.spacing(2.1),
+              }}
+              onClick={handleInfoClick}
             >
-              <IconButton
-                size="small"
-                sx={{
-                  color: theme.palette.text.secondary,
-                  p: theme.spacing(2.1),
-                }}
-              >
-                <HelpOutlineIcon fontSize="small" />
-              </IconButton>
-            </CustomTooltip>
+              <HelpOutlineIcon fontSize="small" />
+            </IconButton>
           </Box>
         </CardContent>
-      </StyledCard>
+      </Card>
       <Popover
         id={id}
         open={open}
         anchorEl={anchorEl}
         onClose={handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "center",
+        PaperProps={{
+          sx: {
+            p: 2,
+            maxWidth: 240,
+            boxShadow: 3,
+            bgcolor: theme.palette.background.paper,
+            color: theme.palette.text.primary,
+          },
         }}
       >
-        {selectedPaper && (
-          <Box
-            p={2}
-            maxWidth={240}
-            bgcolor={selectedColor}
-            borderRadius={3}
-            boxShadow={3}
-            sx={{
-              color:
-                selectedColor === theme.palette.primary.main ||
-                selectedColor === theme.palette.primary.secondary
-                  ? "#000"
-                  : "#FFF",
-            }}
-          >
-            <Typography variant="subtitle1" fontWeight="bold">
+        {selectedPaper !== null && (
+          <Box p={2}>
+            <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
               Placeholder Title
             </Typography>
-            <Typography variant="caption" sx={{ fontStyle: "italic" }}>
+            <Typography variant="caption" sx={{ fontStyle: "italic", mb: 1 }}>
               Coming Soon
             </Typography>
-            <Typography variant="body2" mt={1}>
-              Placeholder Abstract
-            </Typography>
+            <Typography variant="body2">Placeholder Abstract</Typography>
           </Box>
         )}
       </Popover>
-    </div>
+      <Popover
+        id={infoId}
+        open={infoOpen}
+        anchorEl={infoAnchorEl}
+        onClose={handleInfoClose}
+        PaperProps={{
+          sx: {
+            p: 3,
+            maxWidth: 300,
+            boxShadow: 3,
+            bgcolor: theme.palette.background.paper,
+            color: theme.palette.text.primary,
+          },
+        }}
+      >
+        <Box>
+          <Typography variant="body2" gutterBottom>
+            <strong>Chronology Switch</strong>
+          </Typography>
+          <Typography variant="body2" gutterBottom>
+            In the chronological view, the lines will be sorted in the same
+            order you labeled them. Otherwise, they will be sorted by their
+            labels.
+          </Typography>
+          <Typography variant="body2" gutterBottom>
+            The arrow of time points to right and down.
+          </Typography>
+          <Typography variant="body2" gutterBottom>
+            <strong>Labeling History</strong>
+          </Typography>
+          <Typography variant="body2" gutterBottom>
+            These are your previous labeling decisions. Gold lines represent
+            relevant papers, while gray lines represent irrelevant papers. When
+            you click on a line, you can view that paper's details.
+          </Typography>
+          <Box sx={{ pt: 1, textAlign: "center" }}>
+            <a
+              href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+              style={{
+                color: theme.palette.primary.main,
+              }}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Learn more
+            </a>
+          </Box>
+        </Box>
+      </Popover>
+    </Box>
   );
 };
 

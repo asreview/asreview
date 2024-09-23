@@ -7,51 +7,30 @@ import {
   Box,
   Skeleton,
   IconButton,
-  Tooltip,
   Switch,
   FormControlLabel,
+  Grid,
+  Stack,
+  Popover,
 } from "@mui/material";
-import { styled, useTheme } from "@mui/material/styles";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import { useTheme } from "@mui/material/styles";
 import { CardErrorHandler } from "Components";
-import { tooltipClasses } from "@mui/material";
 
-// Styled component for the main card
-const StyledCard = styled(Card)(({ theme }) => ({
-  borderRadius: 16,
-  padding: theme.spacing(2),
-  boxShadow: theme.shadows[2],
-  height: "300px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  position: "relative",
-  [theme.breakpoints.down("sm")]: {
-    flexDirection: "column",
-    height: "auto",
-    padding: theme.spacing(1),
-  },
-}));
-
-// Styled component for the statistic item box
-const StatBox = styled(Box)(({ theme }) => ({
-  backgroundColor: theme.palette.background.paper,
-  padding: theme.spacing(1.5),
-  borderRadius: theme.shape.borderRadius * 2,
-  boxShadow: theme.shadows[1],
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  width: "100%",
-  marginBottom: theme.spacing(2),
-  [theme.breakpoints.down("sm")]: {
-    marginBottom: theme.spacing(1),
-  },
-}));
-
-// Component to display a single statistic item
 const StatItem = ({ label, value, color, loading }) => (
-  <StatBox>
+  <Box
+    sx={{
+      backgroundColor: "background.paper",
+      p: 1.5,
+      borderRadius: 4,
+      boxShadow: 3,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      width: "100%",
+      mb: { xs: 1, sm: 2 },
+    }}
+  >
     {loading ? (
       <Skeleton width="40%" />
     ) : (
@@ -66,7 +45,7 @@ const StatItem = ({ label, value, color, loading }) => (
         {value.toLocaleString()}
       </Typography>
     )}
-  </StatBox>
+  </Box>
 );
 
 export default function ReviewProgress({ progressQuery, mobileScreen }) {
@@ -75,22 +54,15 @@ export default function ReviewProgress({ progressQuery, mobileScreen }) {
 
   //Prior knowledge switch state and the relevant statistics that depend on it
   const [includePriorKnowledge, setIncludePriorKnowledge] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+
   const {
     n_papers = 0,
     n_included = 0,
     n_excluded = 0,
     n_included_no_priors = 0,
     n_excluded_no_priors = 0,
-  } = useMemo(
-    () => ({
-      n_papers: progressQuery.data?.n_papers ?? 0,
-      n_included: progressQuery.data?.n_included ?? 0,
-      n_excluded: progressQuery.data?.n_excluded ?? 0,
-      n_included_no_priors: progressQuery.data?.n_included_no_priors ?? 0,
-      n_excluded_no_priors: progressQuery.data?.n_excluded_no_priors ?? 0,
-    }),
-    [progressQuery.data],
-  );
+  } = progressQuery.data || {};
 
   const donutSeries = useMemo(() => {
     const relevant = includePriorKnowledge ? n_included : n_included_no_priors;
@@ -139,7 +111,6 @@ export default function ReviewProgress({ progressQuery, mobileScreen }) {
               show: false,
               total: {
                 show: false,
-                label: "",
                 formatter: () => `${relevantPercentage}%`,
                 style: {
                   fontSize: "28px",
@@ -157,8 +128,12 @@ export default function ReviewProgress({ progressQuery, mobileScreen }) {
         theme.palette.mode === "light"
           ? theme.palette.primary.light
           : theme.palette.primary.main, // Relevant
-        theme.palette.mode === "light" ? "#808080" : theme.palette.grey[600], // Irrelevant
-        theme.palette.mode === "light" ? "#D3D3D3" : theme.palette.grey[400], // Unlabeled
+        theme.palette.mode === "light"
+          ? theme.palette.grey[600]
+          : theme.palette.grey[600], // Irrelevant
+        theme.palette.mode === "light"
+          ? theme.palette.grey[400]
+          : theme.palette.grey[400], // Unlabeled
       ],
       stroke: { width: 0 },
       legend: { show: false },
@@ -174,22 +149,28 @@ export default function ReviewProgress({ progressQuery, mobileScreen }) {
     [theme, relevantPercentage, n_papers],
   );
 
-  // Info tooltip
-  const CustomTooltip = styled(({ className, ...props }) => (
-    <Tooltip {...props} classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: theme.palette.background.paper,
-      color: theme.palette.text.primary,
-      boxShadow: theme.shadows[1],
-      fontSize: theme.typography.pxToRem(12),
-      padding: "10px",
-      borderRadius: theme.shape.borderRadius,
-    },
-  }));
+  const handlePopoverOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+  };
+
+  const popoverOpen = Boolean(anchorEl);
 
   return (
-    <StyledCard>
+    <Card
+      sx={{
+        borderRadius: 4,
+        boxShadow: 3,
+        p: 2,
+        height: { xs: "auto", sm: 300 },
+        display: "flex",
+        alignItems: "center",
+        position: "relative",
+      }}
+    >
       <CardErrorHandler
         queryKey={"fetchProgress"}
         error={progressQuery?.error}
@@ -198,14 +179,11 @@ export default function ReviewProgress({ progressQuery, mobileScreen }) {
       <Box
         sx={{
           position: "absolute",
-          top: theme.spacing(1),
-          left: theme.spacing(2),
+          top: 1,
+          left: 2,
+          mt: 1,
           display: "flex",
           alignItems: "center",
-          [theme.breakpoints.down("sm")]: {
-            position: "static",
-            marginBottom: theme.spacing(1),
-          },
         }}
       >
         <FormControlLabel
@@ -217,17 +195,8 @@ export default function ReviewProgress({ progressQuery, mobileScreen }) {
           }
           label="Hide Prior Knowledge"
           labelPlacement="end"
-          sx={{
-            m: 0,
-            fontSize: theme.typography.pxToRem(10),
-            marginTop: theme.spacing(1.5),
-            marginLeft: theme.spacing(1),
-          }}
-          componentsProps={{
-            typography: {
-              variant: "body2",
-            },
-          }}
+          sx={{ padding: theme.spacing(2, 5) }}
+          componentsProps={{ typography: { variant: "body2" } }}
         />
       </Box>
       <CardContent
@@ -236,225 +205,152 @@ export default function ReviewProgress({ progressQuery, mobileScreen }) {
           alignItems: "center",
           justifyContent: "space-between",
           width: "100%",
-          marginTop: theme.spacing(3),
-          [theme.breakpoints.down("sm")]: {
-            flexDirection: "column",
-            marginTop: theme.spacing(1),
-          },
+          mt: 4,
+          flexDirection: { xs: "column", sm: "row" },
         }}
       >
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="flex-start"
-          flex={1}
-          sx={{
-            [theme.breakpoints.down("sm")]: {
-              alignItems: "center",
-              width: "100%",
-            },
-          }}
-        >
-          <StatItem
-            label="Total Records"
-            value={n_papers}
-            color="text.primary"
-            loading={loading}
-          />
-          <StatItem
-            label="Labeled Records"
-            value={
-              includePriorKnowledge
-                ? n_included + n_excluded
-                : n_included_no_priors + n_excluded_no_priors
-            }
-            color="text.primary"
-            loading={loading}
-          />
-        </Box>
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          flex={1}
-          sx={{
-            [theme.breakpoints.down("sm")]: {
-              marginBottom: theme.spacing(2),
-            },
-          }}
-        >
-          {loading ? (
-            <Skeleton variant="circular" width={180} height={180} />
-          ) : (
-            <Chart
-              options={options}
-              series={donutSeries}
-              type="donut"
-              height={180}
-              width={180}
-            />
-          )}
-        </Box>
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="flex-end"
-          flex={1}
-          sx={{
-            [theme.breakpoints.down("sm")]: {
-              alignItems: "center",
-              width: "100%",
-            },
-          }}
-        >
-          <StatItem
-            label="Relevant Records"
-            value={includePriorKnowledge ? n_included : n_included_no_priors}
-            color={
-              theme.palette.mode === "light"
-                ? theme.palette.primary.light
-                : theme.palette.primary.main
-            }
-            loading={loading}
-          />
-          <StatItem
-            label="Irrelevant Records"
-            value={includePriorKnowledge ? n_excluded : n_excluded_no_priors}
-            color={
-              theme.palette.mode === "light"
-                ? "#808080"
-                : theme.palette.grey[600]
-            }
-            loading={loading}
-          />
-        </Box>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={4}>
+            <Stack spacing={2}>
+              <StatItem
+                label="Total Records"
+                value={n_papers}
+                color="text.primary"
+                loading={loading}
+              />
+              <StatItem
+                label="Labeled Records"
+                value={
+                  includePriorKnowledge
+                    ? n_included + n_excluded
+                    : n_included_no_priors + n_excluded_no_priors
+                }
+                color="text.primary"
+                loading={loading}
+              />
+            </Stack>
+          </Grid>
+          <Grid
+            item
+            xs={12}
+            sm={4}
+            container
+            justifyContent="center"
+            alignItems="center"
+          >
+            {loading ? (
+              <Skeleton variant="circular" width={180} height={180} />
+            ) : (
+              <Chart
+                options={options}
+                series={donutSeries}
+                type="donut"
+                height={180}
+                width={180}
+              />
+            )}
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Stack spacing={2}>
+              <StatItem
+                label="Relevant Records"
+                value={
+                  includePriorKnowledge ? n_included : n_included_no_priors
+                }
+                color={
+                  theme.palette.mode === "light"
+                    ? theme.palette.primary.light
+                    : theme.palette.primary.main
+                }
+                loading={loading}
+              />
+              <StatItem
+                label="Irrelevant Records"
+                value={
+                  includePriorKnowledge ? n_excluded : n_excluded_no_priors
+                }
+                color={
+                  theme.palette.mode === "light"
+                    ? theme.palette.grey[600]
+                    : theme.palette.grey[600]
+                }
+                loading={loading}
+              />
+            </Stack>
+          </Grid>
+        </Grid>
         <Box
           sx={{
             position: "absolute",
-            top: theme.spacing(1),
-            right: theme.spacing(1),
-            [theme.breakpoints.down("sm")]: {
-              top: theme.spacing(2),
-              right: theme.spacing(2),
-            },
+            top: 20,
+            right: 20,
           }}
         >
-          <CustomTooltip
-            title={
-              <React.Fragment>
-                <hr
-                  style={{
-                    border: `none`,
-                    borderTop: `4px solid ${theme.palette.divider}`,
-                    margin: "8px 0",
-                    borderRadius: "5px",
-                  }}
-                />
-                <Typography variant="body2" gutterBottom>
-                  <strong>Hide Prior Knowledge</strong>
-                </Typography>
-                <ul
-                  style={{
-                    margin: 0,
-                    paddingLeft: "1.2em",
-                    listStyleType: "circle",
-                  }}
-                >
-                  <li>
-                    <strong>Hiding</strong> prior knowledge will only show
-                    labelings done using ASReview.
-                  </li>
-                  <li>
-                    <strong>Showing</strong> prior knowledge will show combined
-                    labelings from the original dataset and those done using
-                    ASReview.
-                  </li>
-                </ul>
-                <hr
-                  style={{
-                    border: `none`,
-                    borderTop: `4px solid ${theme.palette.divider}`,
-                    margin: "8px 0",
-                    borderRadius: "5px",
-                  }}
-                />
-                <Typography variant="body2" gutterBottom>
-                  <strong>Statistics</strong>
-                </Typography>
-                <ul
-                  style={{
-                    margin: 0,
-                    paddingLeft: "1.2em",
-                    listStyleType: "circle",
-                  }}
-                >
-                  <li>
-                    <strong>Total Records:</strong> The total number of records
-                    in your dataset
-                  </li>
-                  <li>
-                    <strong>Labeled Records:</strong> The records you have
-                    labeled as relevant or irrelevant
-                  </li>
-                  <li>
-                    <strong>Relevant Records:</strong> Records you labeled as
-                    relevant
-                  </li>
-                  <li>
-                    <strong>Irrelevant Records:</strong> Records you labeled as
-                    irrelevant
-                  </li>
-                  <li>
-                    <strong>Unlabeled Records:</strong> The remaining records
-                    that have not been labeled yet
-                  </li>
-                </ul>
-                <hr
-                  style={{
-                    border: `none`,
-                    borderTop: `4px solid ${theme.palette.divider}`,
-                    margin: "8px 0",
-                    borderRadius: "5px",
-                  }}
-                />
-                <Box sx={{ pt: 1, textAlign: "center" }}>
-                  <a
-                    href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-                    style={{
-                      color:
-                        theme.palette.mode === "dark" ? "#1E90FF" : "#1E90FF",
-                    }}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Learn more
-                  </a>
-                </Box>
-              </React.Fragment>
-            }
-            arrow
-            interactive={true}
-            enterTouchDelay={0}
-            placement="top"
-            sx={{
-              color: theme.palette.text.secondary,
-              backgroundColor: theme.palette.background.paper,
-              borderRadius: theme.shape.borderRadius,
-              boxShadow: theme.shadows[2],
-            }}
+          <IconButton
+            size="small"
+            onClick={handlePopoverOpen}
+            sx={{ color: theme.palette.text.secondary }}
           >
-            <IconButton
-              size="small"
-              sx={{
-                color: theme.palette.text.secondary,
-                p: theme.spacing(2.1),
-              }}
-            >
-              <HelpOutlineIcon fontSize="small" />
-            </IconButton>
-          </CustomTooltip>
+            <HelpOutlineIcon fontSize="small" />
+          </IconButton>
+          <Popover
+            id="info-popover"
+            open={popoverOpen}
+            anchorEl={anchorEl}
+            onClose={handlePopoverClose}
+          >
+            <Box sx={{ p: 3, maxWidth: 300 }}>
+              <Typography variant="body2" gutterBottom>
+                <strong>Hide Prior Knowledge</strong>
+              </Typography>
+              <Typography variant="body2">
+                <strong>Hiding</strong> prior knowledge will only show labelings
+                done using ASReview.
+              </Typography>
+              <Typography variant="body2">
+                <strong>Showing</strong> prior knowledge will show combined
+                labelings from the original dataset and those done using
+                ASReview.
+              </Typography>
+              <Typography variant="body2" gutterBottom sx={{ mt: 2 }}>
+                <strong>Statistics</strong>
+              </Typography>
+              <Typography variant="body2">
+                <strong>Total Records:</strong> The total number of records in
+                your dataset
+              </Typography>
+              <Typography variant="body2">
+                <strong>Labeled Records:</strong> Combination of records that
+                you labeled as relevant or irrelevant
+              </Typography>
+              <Typography variant="body2">
+                <strong>Relevant Records:</strong> Records you labeled as
+                relevant
+              </Typography>
+              <Typography variant="body2">
+                <strong>Irrelevant Records:</strong> Records you labeled as
+                irrelevant
+              </Typography>
+              <Typography variant="body2">
+                <strong>Unlabeled Records:</strong> The remaining records that
+                have not been labeled yet
+              </Typography>
+              <Box sx={{ pt: 1, textAlign: "center" }}>
+                <a
+                  href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+                  style={{
+                    color: theme.palette.primary.main,
+                  }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Learn more
+                </a>
+              </Box>
+            </Box>
+          </Popover>
         </Box>
       </CardContent>
-    </StyledCard>
+    </Card>
   );
 }

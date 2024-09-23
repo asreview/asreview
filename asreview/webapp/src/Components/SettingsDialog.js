@@ -109,7 +109,7 @@ const SettingsDialog = (props) => {
               <Switch
                 edge="end"
                 onChange={props.toggleDarkMode}
-                checked={props.onDark.palette.mode === "dark"}
+                checked={props.onDark === "dark"} // Check if mode is "dark"
                 inputProps={{ "aria-labelledby": "switch-list-label-dark" }}
               />
             </ListItemSecondaryAction>
