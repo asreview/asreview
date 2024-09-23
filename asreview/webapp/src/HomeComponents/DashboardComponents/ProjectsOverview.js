@@ -1,9 +1,8 @@
-import * as React from "react";
-import { Box, Fab, Stack, Snackbar } from "@mui/material";
-import { Add } from "@mui/icons-material";
-import { DashboardPageHeader, Projects } from ".";
+import { Box, Snackbar, Stack } from "@mui/material";
 import { InteractionButtons } from "Components";
 import { SetupDialog } from "ProjectComponents/SetupComponents";
+import * as React from "react";
+import { DashboardPageHeader, Projects } from ".";
 
 import { useToggle } from "hooks/useToggle";
 
@@ -24,7 +23,7 @@ const ProjectsOverview = ({ mobileScreen, mode }) => {
 
   return (
     <>
-      <DashboardPageHeader mode={mode} />
+      <DashboardPageHeader mode={mode} setFeedbackBar={setFeedbackBar} />
       <Box className="main-page-body-wrapper">
         <Stack className="main-page-body" spacing={6}>
           <Projects
@@ -36,20 +35,6 @@ const ProjectsOverview = ({ mobileScreen, mode }) => {
           <InteractionButtons />
         </Stack>
       </Box>
-      <Fab
-        id="create-project"
-        color="primary"
-        onClick={toggleCreateProject}
-        variant="extended"
-        sx={{
-          position: "absolute",
-          bottom: 24,
-          right: 24,
-        }}
-      >
-        <Add sx={{ mr: 1 }} />
-        {"new"}
-      </Fab>
       <SetupDialog
         mode={mode}
         open={openCreateProject}

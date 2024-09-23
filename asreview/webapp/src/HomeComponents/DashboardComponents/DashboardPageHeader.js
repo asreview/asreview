@@ -1,7 +1,10 @@
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Paper, Typography, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { projectModes } from "globals.js";
+
+import NewProjectButton from "./NewProjectButton";
+import ImportProject from "ProjectComponents/ImportProject";
 
 const PREFIX = "DashboardPageHeader";
 
@@ -15,29 +18,30 @@ const Root = styled(Box)(({ theme }) => ({
     paddingTop: theme.spacing(5),
     margin: theme.spacing(2),
     // backgroundColor: theme.palette.primary.main,
-    textAlign: "center",
-    height: "160px",
     color: theme.palette.primary.main,
   },
 }));
 
-// const modeLabelMap = {
-//   simulate: "Simulation",
-//   oracle: "Review",
-// };
-
-export default function DashboardPageHeader({ mode }) {
+export default function DashboardPageHeader({ mode, setFeedbackBar }) {
   return (
     <Root>
       <Paper className={classes.paperHeader} elevation={0}>
-        {mode === projectModes.ORACLE && (
-          <Typography variant="h4">What do you read today?</Typography>
-        )}
-        {mode === projectModes.SIMULATION && (
+        <Stack
+          direction="column"
+          justifyContent="center"
+          alignItems="center"
+          spacing={7}
+        >
           <Typography variant="h4">
-            Simulate a review, fully automated
+            {mode === projectModes.ORACLE && "What do you read today?"}
+            {mode === projectModes.SIMULATION &&
+              "Simulate a review, fully automated"}
           </Typography>
-        )}
+          <Stack direction="row" spacing={2}>
+            <NewProjectButton mode={mode} setFeedbackBar={setFeedbackBar} />
+            <ImportProject />
+          </Stack>
+        </Stack>
       </Paper>
     </Root>
   );

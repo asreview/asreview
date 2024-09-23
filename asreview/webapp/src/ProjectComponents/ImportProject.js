@@ -213,7 +213,7 @@ const ImportProject = ({ ...buttonProps }) => {
       {!smallScreen && (
         <>
           <ResponsiveButton
-            title={"Import project"}
+            title={"Import"}
             icon={<FileUploadOutlined />}
             onClick={toggleImportProject}
             {...buttonProps}
@@ -223,7 +223,7 @@ const ImportProject = ({ ...buttonProps }) => {
             onClose={toggleImportProject}
             id={id}
             anchorEl={anchorEl}
-            placement="bottom-end"
+            placement="bottom"
           >
             <ImportProjectCard
               mutate={mutate}

@@ -11,27 +11,28 @@ import { ProjectAPI } from "api";
 import { projectModes, projectStatuses } from "globals.js";
 import useAuth from "hooks/useAuth";
 import { useToggle } from "hooks/useToggle";
-import { ImportProject, ProjectDeleteDialog } from "ProjectComponents";
+import { ProjectDeleteDialog } from "ProjectComponents";
 import { SetupDialog } from "ProjectComponents/SetupComponents";
 import * as React from "react";
 import { useQuery } from "react-query";
 import { Link, useNavigate } from "react-router-dom";
 
 import {
-  Box,
-  Stack,
   Card,
   CardActions,
+  CardContent,
   CardHeader,
   Chip,
+  Divider,
   Grid2 as Grid,
   IconButton,
+  LinearProgress,
+  ListItemIcon,
+  ListItemText,
   Menu,
   MenuItem,
   Tooltip,
   Typography,
-  ListItemIcon,
-  ListItemText,
 } from "@mui/material";
 
 import TimeAgo from "javascript-time-ago";
@@ -76,7 +77,14 @@ const projectModeURLMap = {
   simulate: "simulations",
 };
 
-const ProjectCard = ({ project, mode, user_id, setFeedbackBar }) => {
+const ProjectCard = ({
+  project,
+  mode,
+  user_id,
+  showProgressChip = true,
+  showSimulatingSpinner = true,
+  setFeedbackBar,
+}) => {
   const navigate = useNavigate();
 
   const [deleteDialog, toggleDeleteDialog] = useToggle();
@@ -197,8 +205,18 @@ const ProjectCard = ({ project, mode, user_id, setFeedbackBar }) => {
           </Tooltip>
         )}
       </CardContent> */}
+      <CardContent>
+        {/* <Typography variant="body2" color="textSecondary" component="p">
+          {project.description}
+        </Typography> */}
+        {showSimulatingSpinner &&
+        review?.status === projectStatuses.REVIEW &&
+        project.mode === projectModes.SIMULATION ? (
+          <LinearProgress />
+        ) : null}
+      </CardContent>
       <CardActions sx={{ width: "100%", justifyContent: "flex-end" }}>
-        <StatusChip status={review?.status} />
+        {showProgressChip && <StatusChip status={review?.status} />}
 
         <>
           <Tooltip title="Options">
@@ -340,41 +358,146 @@ const ProjectCard = ({ project, mode, user_id, setFeedbackBar }) => {
 const Projects = ({ mode, setFeedbackBar }) => {
   const { auth } = useAuth();
   const user_id = auth.id;
+  // const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
+
+  const simulationOngoing = (data) => {
+    if (
+      mode === projectModes.SIMULATION &&
+      data?.result.some(
+        (project) => project.reviews[0]?.status === projectStatuses.REVIEW,
+      )
+    ) {
+      return 5000;
+    }
+    return false;
+  };
 
   const { data } = useQuery(
     ["fetchProjects", { subset: mode }],
     ProjectAPI.fetchProjects,
     {
+      refetchInterval: simulationOngoing,
+      refetchIntervalInBackground: true,
       refetchOnWindowFocus: false,
     },
   );
 
-  return (
-    <Stack spacing={1}>
-      <Box>
-        <ImportProject sx={{ float: "right" }} />
-      </Box>
+  const inReviewProjects = data?.result.filter(
+    (project) => project.reviews[0]?.status === projectStatuses.REVIEW,
+  );
+  const finishedProjects = data?.result.filter(
+    (project) => project.reviews[0]?.status === projectStatuses.FINISHED,
+  );
 
-      <Grid container spacing={2}>
-        {data?.result.map((project) => (
-          <Grid
-            key={project.id}
-            size={{
-              xs: 12,
-              sm: 6,
-              md: 6,
-            }}
-          >
-            <ProjectCard
-              project={project}
-              mode={mode}
-              user_id={user_id}
-              setFeedbackBar={setFeedbackBar}
-            />
-          </Grid>
-        ))}
-      </Grid>
-    </Stack>
+  return (
+    <>
+      {/* Projects in Setup */}
+      {data?.result.length === 0 && (
+        <Typography variant="h6" sx={{ mt: 5 }}>
+          No projects found
+        </Typography>
+      )}
+
+      {/* Projects in Setup */}
+      {data?.result.length > 0 && (
+        <Grid container spacing={2}>
+          {data?.result
+            .filter(
+              (project) => project.reviews[0]?.status === projectStatuses.SETUP,
+            )
+            .map((project) => (
+              <Grid
+                key={project.id}
+                size={{
+                  xs: 12,
+                  sm: 6,
+                  md: 6,
+                }}
+              >
+                <ProjectCard
+                  project={project}
+                  mode={mode}
+                  user_id={user_id}
+                  setFeedbackBar={setFeedbackBar}
+                  showProgressChip={false}
+                />
+              </Grid>
+            ))}
+        </Grid>
+      )}
+
+      {/* Divider between In Review and Finished with a Chip */}
+      {inReviewProjects?.length > 0 && (
+        <Divider
+          sx={{
+            my: 10,
+          }}
+        >
+          <Chip
+            label={mode === projectModes.ORACLE ? "In review" : "Simulating"}
+          />
+        </Divider>
+      )}
+
+      {/* Projects in Review */}
+      {inReviewProjects?.length > 0 && (
+        <Grid container spacing={2}>
+          {inReviewProjects.map((project) => (
+            <Grid
+              key={project.id}
+              size={{
+                xs: 12,
+                sm: 6,
+                md: 6,
+              }}
+            >
+              <ProjectCard
+                project={project}
+                mode={mode}
+                user_id={user_id}
+                setFeedbackBar={setFeedbackBar}
+                showProgressChip={false}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      )}
+
+      {/* Divider between In Review and Finished with a Chip */}
+      {inReviewProjects?.length > 0 && inReviewProjects?.length > 0 && (
+        <Divider
+          sx={{
+            my: 10,
+          }}
+        >
+          <Chip label="Finished" />
+        </Divider>
+      )}
+
+      {/* Finished Projects */}
+      {finishedProjects?.length > 0 && (
+        <Grid container spacing={2}>
+          {finishedProjects.map((project) => (
+            <Grid
+              key={project.id}
+              size={{
+                xs: 12,
+                sm: 6,
+                md: 6,
+              }}
+            >
+              <ProjectCard
+                project={project}
+                mode={mode}
+                user_id={user_id}
+                setFeedbackBar={setFeedbackBar}
+                showProgressChip={false}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      )}
+    </>
   );
 };
 
