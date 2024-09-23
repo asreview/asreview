@@ -49,6 +49,7 @@ huey = SqliteHuey(
     results=False,
 )
 
+
 def run_huey_consumer():
     # import here to avoid circular imports
     importlib.import_module("asreview.webapp.tasks")

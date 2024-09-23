@@ -79,6 +79,7 @@ def mock_huey_task_decorator():
     # with patch.object(huey, 'task', new=bypass):
     #     pass
 
+
 @pytest.fixture(scope="function", autouse=True)
 def asreview_path_fixture(tmp_path_factory):
     """Fixture that creates and removes the ASReview test
