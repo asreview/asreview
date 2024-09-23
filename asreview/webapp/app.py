@@ -41,6 +41,7 @@ from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 from asreview.webapp.utils import asreview_path
 
+print("HUEY OBJECT CREATED")
 
 huey = SqliteHuey(
     name="asreview_app",

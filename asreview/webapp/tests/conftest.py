@@ -21,7 +21,6 @@ from sqlalchemy.orm import close_all_sessions
 
 import asreview.webapp.tests.utils.api_utils as au
 from asreview.webapp import DB
-from asreview.webapp.app import create_app
 from asreview.webapp.tests.utils import crud
 from asreview.webapp.utils import get_projects
 
@@ -43,6 +42,7 @@ PROJECTS = [
 
 def _get_app(app_type="auth-basic", path=None):
     """Create and returns test flask app based on app_type"""
+    from asreview.webapp.app import create_app
     # set asreview path
     os.environ.update({"ASREVIEW_PATH": path})
     # get path of appropriate flask config
@@ -63,12 +63,21 @@ def _get_app(app_type="auth-basic", path=None):
     # and return it
     return app
 
+print("\n\nMOCKING\n\n")
+
 # Mock Huey decorators to bypass Huey
+def bypass(x):
+    print(x)
+    return x
+
 @pytest.fixture(autouse=True)
-def mock_huey_tasks():
-    # Mock the huey task decorator to make tasks run immediately (synchronously)
-    with patch('asreview.webapp.tasks.huey.task', side_effect=lambda *args, **kwargs: lambda fn: fn):
-        yield
+def mock_huey_task_decorator():
+    from asreview.webapp.app import huey
+    with patch('asreview.webapp.tasks.huey.task', new=bypass):
+        pass
+    
+    # with patch.object(huey, 'task', new=bypass):
+    #     pass
 
 @pytest.fixture(scope="function", autouse=True)
 def asreview_path_fixture(tmp_path_factory):
