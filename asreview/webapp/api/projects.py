@@ -1039,9 +1039,10 @@ def export_project(project):
     as the original dataset.
     """
 
-    # create a temp folder to zip
+    project_export_name = secure_filename(project.config["name"])
+
     tmpdir = tempfile.TemporaryDirectory()
-    tmpfile = Path(tmpdir.name, project.project_id).with_suffix(".asreview")
+    tmpfile = Path(tmpdir.name, project_export_name).with_suffix(".asreview")
 
     logging.info("Saving project (temporary) to %s", tmpfile)
     project.export(tmpfile)
