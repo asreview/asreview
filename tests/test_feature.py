@@ -16,11 +16,7 @@ REQUIRES_AI_MODEL_DEP = ["doc2vec", "embedding-idf", "sbert"]
     ],  # + REQUIRES_AI_MODEL_DEP
 )
 @pytest.mark.parametrize(
-    "split_ta",
-    [
-        0,
-        1,
-    ],
+    "split_ta", [False, True],
 )
 def test_features(feature_extraction, split_ta):
     if feature_extraction in REQUIRES_AI_MODEL_DEP:
