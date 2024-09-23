@@ -512,16 +512,21 @@ class SQLiteState:
         #     self._conn,
         # ))
 
-        print("--->", pd.read_sql_query(
-            """SELECT * FROM last_ranking""",
-            self._conn,
-        ), "<---")
+        print(
+            "--->",
+            pd.read_sql_query(
+                """SELECT * FROM last_ranking""",
+                self._conn,
+            ),
+            "<---",
+        )
 
-        print(pd.read_sql_query(
-            """SELECT * FROM results""",
-            self._conn,
-        ))
-
+        print(
+            pd.read_sql_query(
+                """SELECT * FROM results""",
+                self._conn,
+            )
+        )
 
         return pd.read_sql_query(
             """SELECT record_id, ranking

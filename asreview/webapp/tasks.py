@@ -24,15 +24,16 @@ from asreview.state.contextmanager import open_state
 
 from asreview.webapp.app import huey
 
-print('\n\nLOADING TASKS MODULE\n\n')
+print("\n\nLOADING TASKS MODULE\n\n")
 
 
 @huey.task(name="run_model")
 def run_model(project):
     print("HELLO!!!!!!!")
     import time
+
     time.sleep(10)
-    
+
     with open_state(project) as s:
         if not s.exist_new_labeled_records:
             return

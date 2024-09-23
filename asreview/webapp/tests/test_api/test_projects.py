@@ -32,16 +32,20 @@ def _asreview_file_archive():
         )
     )
 
+
 from unittest.mock import patch
+
+
 # Mock Huey decorators to bypass Huey
 @pytest.fixture(autouse=True)
 def mock_huey_tasks():
     # Mock the huey task decorator to make tasks run immediately (synchronously)
     with patch(
-        'asreview.webapp.tasks.huey.task',
-        side_effect=lambda *args, **kwargs: lambda fn: fn
-        ) as huey_mock:
+        "asreview.webapp.tasks.huey.task",
+        side_effect=lambda *args, **kwargs: lambda fn: fn,
+    ) as huey_mock:
         yield huey_mock
+
 
 # Test getting all projects
 def test_get_projects(client, user, project):
@@ -531,11 +535,11 @@ def test_retrieve_document_for_review(client, project):
 # Test label a document after the model has been started
 def test_label_a_document_with_running_model(mock_huey_tasks, client, project):
     from asreview.webapp.tasks import run_model
-    print('run model')
+
+    print("run model")
     print(run_model)
     a = run_model(project)
-    print('model executed', a)
-
+    print("model executed", a)
 
     # au.upload_label_set_and_start_model(client, project)
     # # get a document
