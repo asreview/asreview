@@ -34,7 +34,7 @@ RESULTS_TABLE_COLUMNS_PANDAS_DTYPES = {
     "balance_strategy": "object",
     "feature_extraction": "object",
     "training_set": "Int64",
-    "labeling_time": "object",
+    "labeling_time": None,  # parse_dates=["labeling_time"]
     "note": "object",
     "tags": "object",
     "user_id": "Int64",
@@ -412,6 +412,7 @@ class SQLiteState:
             f"SELECT * FROM results WHERE record_id={record_id}",
             self._conn,
             dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
+            parse_dates=["labeling_time"],
         )
         result["tags"] = result["tags"].map(json.loads, na_action="ignore")
         return result
@@ -469,6 +470,7 @@ class SQLiteState:
             f"SELECT {query_string} FROM results {sql_where_str}",
             self._conn,
             dtype=col_dtype,
+            parse_dates=["labeling_time"],
         )
 
         if columns is None or "tags" in columns:
@@ -488,6 +490,7 @@ class SQLiteState:
             "SELECT * FROM results WHERE query_strategy is NULL AND label is not NULL",
             self._conn,
             dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
+            parse_dates=["labeling_time"],
         )
         df_results["tags"] = df_results["tags"].map(json.loads, na_action="ignore")
         return df_results
@@ -533,6 +536,7 @@ class SQLiteState:
                 """SELECT * FROM results WHERE label is null""",
                 self._conn,
                 dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
+                parse_dates=["labeling_time"],
             )
         else:
             return pd.read_sql_query(
@@ -540,6 +544,7 @@ class SQLiteState:
                 self._conn,
                 params=(user_id,),
                 dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
+                parse_dates=["labeling_time"],
             )
 
     def get_ranking_with_labels(self):

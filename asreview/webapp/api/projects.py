@@ -890,7 +890,6 @@ def api_import_project():
 
 
 def _flatten_tags(results, tags_config):
-
     if tags_config is None:
         del results["tags"]
         return results
@@ -907,9 +906,9 @@ def _flatten_tags(results, tags_config):
     return pd.concat(
         [
             results.drop("tags", axis=1),
-            pd.DataFrame(df_tags, index=results.index, dtype="Int64")
+            pd.DataFrame(df_tags, index=results.index, dtype="Int64"),
         ],
-        axis=1
+        axis=1,
     )
 
 
@@ -931,25 +930,34 @@ def api_export_dataset(project):
     export_order = []
 
     if "relevant" in collections:
-        export_order.extend(
-            df_results[df_results["label"] == 1].index.to_list()
-        )
+        export_order.extend(df_results[df_results["label"] == 1].index.to_list())
 
     if "not_seen" in collections:
         export_order.extend(df_pool.to_list())
 
     if "irrelevant" in collections:
-        export_order.extend(
-            df_results[df_results["label"] == 0].index.to_list()
-        )
+        export_order.extend(df_results[df_results["label"] == 0].index.to_list())
 
     df_results = _flatten_tags(
         df_results,
         project.config.get("tags", None),
     )
 
+    # remove model results, can be implemented later with advanced export
+    df_results.drop(
+        columns=[
+            "classifier",
+            "query_strategy",
+            "balance_strategy",
+            "feature_extraction",
+            "training_set",
+        ],
+        inplace=True,
+    )
+
     df_export = df_user_input_data.join(
-        df_results.add_prefix('asreview_'), how="left").loc[export_order]
+        df_results.add_prefix("asreview_"), how="left"
+    ).loc[export_order]
 
     tmp_path = tempfile.TemporaryDirectory()
     tmp_path_dataset = Path(tmp_path.name, f"export_dataset.{file_format}")
