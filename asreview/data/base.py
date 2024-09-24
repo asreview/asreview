@@ -353,7 +353,7 @@ class Dataset:
         column = self.column_spec["is_prior"]
         return self.df[column] == 1
 
-    def to_file(self, fp, **kwargs):
+    def to_file(self, fp, writer=None, **kwargs):
         """Export data object to file.
 
         RIS, CSV, TSV and Excel are supported file formats at the moment.
@@ -362,6 +362,8 @@ class Dataset:
         ---------
         fp: str
             Filepath to export to.
+        writer: object
+            Writer object to use for exporting the data.
         kwargs:
             arguments to pass to to_dataframe.
         """

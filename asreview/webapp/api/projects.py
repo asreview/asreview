@@ -20,7 +20,6 @@ import sys
 import tempfile
 import time
 from dataclasses import asdict
-from itertools import chain
 from pathlib import Path
 from urllib.request import urlretrieve
 from uuid import uuid4
@@ -36,7 +35,6 @@ from flask import request
 from flask import send_file
 from flask_login import current_user
 from flask_login import login_required
-from sklearn.preprocessing import MultiLabelBinarizer
 from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
