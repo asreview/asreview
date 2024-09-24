@@ -370,7 +370,7 @@ class Dataset:
         df = self.to_dataframe(**kwargs)
 
         if writer is None:
-            writer = load_extension("writers", f".{Path(fp).suffix}")
+            writer = load_extension("writers", Path(fp).suffix)
 
         writer.write_data(df, fp)
 
