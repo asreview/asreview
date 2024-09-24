@@ -536,7 +536,6 @@ class SQLiteState:
                 """SELECT * FROM results WHERE label is null""",
                 self._conn,
                 dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
-                parse_dates=["labeling_time"],
             )
         else:
             return pd.read_sql_query(
@@ -544,7 +543,6 @@ class SQLiteState:
                 self._conn,
                 params=(user_id,),
                 dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
-                parse_dates=["labeling_time"],
             )
 
     def get_ranking_with_labels(self):
