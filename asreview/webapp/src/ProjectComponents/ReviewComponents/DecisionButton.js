@@ -166,9 +166,9 @@ const DecisionButton = ({
           <CardContent>
             {tagsForm &&
               tagsForm.map((group, i) => (
-                <Box key={tagValuesState[i].name}>
+                <Box key={tagValuesState[i]?.name}>
                   <Typography variant="h6">{group.name}</Typography>
-                  <FormGroup row={true} key={tagValuesState[i].name}>
+                  <FormGroup row={true} key={tagValuesState[i]?.name}>
                     {group.values.map((tag, j) => (
                       <FormControlLabel
                         key={`${group.id}:${tag.id}`}
