@@ -922,7 +922,9 @@ def api_export_dataset(project):
     collections = request.args.getlist("collections", type=str)
 
     df_user_input_data = project.read_data().to_dataframe()
-    df_user_input_data = df_user_input_data.loc[:, ~df_user_input_data.columns.str.startswith("asreview_")]
+    df_user_input_data = df_user_input_data.loc[
+        :, ~df_user_input_data.columns.str.startswith("asreview_")
+    ]
 
     with open_state(project.project_path) as s:
         df_results = s.get_results_table().set_index("record_id")
