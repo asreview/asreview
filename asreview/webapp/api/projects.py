@@ -46,6 +46,7 @@ from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
+from asreview.extensions import load_extension
 from asreview.project import ProjectError
 from asreview.project import ProjectNotFoundError
 from asreview.project import is_project
@@ -888,8 +889,8 @@ def api_import_project():
     return jsonify({"data": project.config, "warnings": warnings})
 
 
-def _add_tags_to_export_data(project, export_data, state_df):
-    tags_df = state_df[["tags"]].copy()
+def _flatten_tags(tags_config, export_data, tags_df):
+    tags_df = tags_df.copy()
 
     tags_df["tags"] = (
         tags_df["tags"]
@@ -898,7 +899,6 @@ def _add_tags_to_export_data(project, export_data, state_df):
     )
 
     unused_tags = []
-    tags_config = project.config.get("tags")
 
     if tags_config is not None:
         all_tags = [
@@ -919,7 +919,7 @@ def _add_tags_to_export_data(project, export_data, state_df):
 
     tags_df = tags_df.assign(**{unused_tag: 0 for unused_tag in unused_tags})
 
-    export_data.df = export_data.df.join(tags_df, on="record_id")
+    return export_data.join(tags_df, on="record_id")
 
 
 @bp.route("/projects/<project_id>/export_dataset", methods=["GET"])
@@ -928,103 +928,85 @@ def _add_tags_to_export_data(project, export_data, state_df):
 def api_export_dataset(project):
     """Export dataset with relevant/irrelevant labels"""
 
-    # todo: export tags
-    # todo: export labels from state file always as asreview_label
-
-    file_format = request.args.get("format", None)
+    file_format = request.args.get("format", default="csv", type=str)
     collections = request.args.getlist("collections", type=str)
-    collections = [
-        c for c in ["relevant", "not_seen", "irrelevant"] if c in collections
-    ]
+
+    df_user_input_data = project.read_data().to_dataframe()
+
+    with open_state(project.project_path) as s:
+        df_results = s.get_results_table().set_index("record_id")
+        df_pool = s.get_pool()
+
+    export_order = []
+
+    if "relevant" in collections:
+        export_order.extend(
+            df_results[df_results["label"] == 1].index.to_list()
+        )
+
+    if "not_seen" in collections:
+        export_order.extend(df_pool.to_list())
+
+    if "irrelevant" in collections:
+        export_order.extend(
+            df_results[df_results["label"] == 0].index.to_list()
+        )
+
+    df_results = _flatten_tags(
+        project.config.get("tags", None),
+        df_results,
+        df_results[["tags"]]
+    )
+
+    df_export = df_user_input_data.join(
+        df_results, how="left")
+
+    df_export = df_export.loc[export_order]
+
+    print(df_export)
+
+    # # Adding Notes from State file to the exported dataset
+    # # Check if exported_notes column already exists due to multiple screenings
+    # screening = 0
+    # for col in as_data.df:
+    #     if col == "exported_notes":
+    #         screening = 0
+    #     elif col.startswith("exported_notes"):
+    #         try:
+    #             screening = int(col.split("_")[2])
+    #         except IndexError:
+    #             screening = 0
+    # screening += 1
+
+    # state_df.rename(
+    #     columns={
+    #         "note": f"exported_notes_{screening}",
+    #     },
+    #     inplace=True,
+    # )
+
+    # as_data.df = as_data.df.join(
+    #     state_df[f"exported_notes_{screening}"], on="record_id"
+    # )
+
+
+    # print(labels)
+    # print(export_order)
 
     tmp_path = tempfile.TemporaryDirectory()
     tmp_path_dataset = Path(tmp_path.name, f"export_dataset.{file_format}")
 
-    try:
-        with open_state(project.project_path) as s:
-            pool = s.get_pool()
-            results = s.get_results_table()[["record_id", "label"]]
-            state_df = s.get_results_table().set_index("record_id")
+    writer = load_extension("writers", f".{file_format}")
+    writer.write_data(df_export, tmp_path_dataset)
 
-        included = results[results["label"] == 1]
-        excluded = results[results["label"] != 1]
+    print(f"asreview_{'+'.join(collections)}_{project.config['name']}.{file_format}")
 
-        labels = []
-        export_order = []
-
-        if "relevant" in collections:
-            labels.append(included["label"].to_list())
-            export_order = included["record_id"].to_list()
-
-        if "not_seen" in collections:
-            labels.append([LABEL_NA] * len(pool))
-            export_order = pool.to_list()
-
-        if "irrelevant" in collections:
-            labels.append(excluded["label"].to_list())
-            export_order = excluded["record_id"].to_list()
-
-        # get writer corresponding to specified file format
-        writers = extensions("writers")
-        writer = None
-        for c in writers:
-            if writer is None:
-                if c.name == file_format:
-                    writer = c
-
-        # read the dataset into a ASReview data object
-        as_data = project.read_data()
-
-        # Add a new column 'is_prior' to the dataset
-        if "asreview_prior" in as_data.df:
-            as_data.df.drop("asreview_prior", axis=1, inplace=True)
-
-        state_df["asreview_prior"] = state_df.query_strategy.eq("prior").astype("Int64")
-        as_data.df = as_data.df.join(state_df["asreview_prior"], on="record_id")
-
-        # Adding Notes from State file to the exported dataset
-        # Check if exported_notes column already exists due to multiple screenings
-        screening = 0
-        for col in as_data.df:
-            if col == "exported_notes":
-                screening = 0
-            elif col.startswith("exported_notes"):
-                try:
-                    screening = int(col.split("_")[2])
-                except IndexError:
-                    screening = 0
-        screening += 1
-
-        state_df.rename(
-            columns={
-                "note": f"exported_notes_{screening}",
-            },
-            inplace=True,
-        )
-
-        as_data.df = as_data.df.join(
-            state_df[f"exported_notes_{screening}"], on="record_id"
-        )
-
-        _add_tags_to_export_data(project, as_data, state_df)
-
-        as_data.to_file(
-            fp=tmp_path_dataset,
-            labels=labels,
-            ranking=export_order,
-            writer=writer,
-            keep_old_labels=True,
-        )
-
-        return send_file(
-            tmp_path_dataset,
-            as_attachment=True,
-            max_age=0,
-            download_name=f"asreview_{'+'.join(collections)}_{project.config['name']}.{file_format}",
-        )
-
-    except Exception as err:
-        raise Exception(f"Failed to export the {file_format} dataset. {err}")
+    return send_file(
+        tmp_path_dataset,
+        as_attachment=True,
+        max_age=0,
+        download_name=f"asreview_{'+'.join(collections)}_{project.config['name']}.{file_format}",
+    )
 
 
 @bp.route("/projects/<project_id>/export_project", methods=["GET"])
