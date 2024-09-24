@@ -889,37 +889,28 @@ def api_import_project():
     return jsonify({"data": project.config, "warnings": warnings})
 
 
-def _flatten_tags(tags_config, export_data, tags_df):
-    tags_df = tags_df.copy()
+def _flatten_tags(results, tags_config):
 
-    tags_df["tags"] = (
-        tags_df["tags"]
-        # .apply(lambda d: _extract_tags(d))
-        .apply(lambda d: d if isinstance(d, list) else [])
+    if tags_config is None:
+        del results["tags"]
+        return results
+
+    df_tags = []
+    for _, row in results["tags"].items():
+        tags = {}
+        for group in row:
+            for tag in group["values"]:
+                tags[f"tag_{group['id']}_{tag['id']}"] = int(tag.get("checked", False))
+
+        df_tags.append(tags)
+
+    return pd.concat(
+        [
+            results.drop("tags", axis=1),
+            pd.DataFrame(df_tags, index=results.index, dtype="Int64")
+        ],
+        axis=1
     )
-
-    unused_tags = []
-
-    if tags_config is not None:
-        all_tags = [
-            [(group["id"], tag["id"]) for tag in group["values"]]
-            for group in tags_config
-        ]
-        all_tags = list(chain.from_iterable(all_tags))
-        used_tags = set(tags_df["tags"].explode().unique())
-        unused_tags = [tag for tag in all_tags if tag not in used_tags]
-
-    mlb = MultiLabelBinarizer()
-
-    tags_df = pd.DataFrame(
-        data=mlb.fit_transform(tags_df["tags"]),
-        columns=mlb.classes_,
-        index=tags_df.index,
-    )
-
-    tags_df = tags_df.assign(**{unused_tag: 0 for unused_tag in unused_tags})
-
-    return export_data.join(tags_df, on="record_id")
 
 
 @bp.route("/projects/<project_id>/export_dataset", methods=["GET"])
@@ -953,53 +944,18 @@ def api_export_dataset(project):
         )
 
     df_results = _flatten_tags(
-        project.config.get("tags", None),
         df_results,
-        df_results[["tags"]]
+        project.config.get("tags", None),
     )
 
     df_export = df_user_input_data.join(
-        df_results, how="left")
-
-    df_export = df_export.loc[export_order]
-
-    print(df_export)
-
-    # # Adding Notes from State file to the exported dataset
-    # # Check if exported_notes column already exists due to multiple screenings
-    # screening = 0
-    # for col in as_data.df:
-    #     if col == "exported_notes":
-    #         screening = 0
-    #     elif col.startswith("exported_notes"):
-    #         try:
-    #             screening = int(col.split("_")[2])
-    #         except IndexError:
-    #             screening = 0
-    # screening += 1
-
-    # state_df.rename(
-    #     columns={
-    #         "note": f"exported_notes_{screening}",
-    #     },
-    #     inplace=True,
-    # )
-
-    # as_data.df = as_data.df.join(
-    #     state_df[f"exported_notes_{screening}"], on="record_id"
-    # )
-
-
-    # print(labels)
-    # print(export_order)
+        df_results.add_prefix('asreview_'), how="left").loc[export_order]
 
     tmp_path = tempfile.TemporaryDirectory()
     tmp_path_dataset = Path(tmp_path.name, f"export_dataset.{file_format}")
 
     writer = load_extension("writers", f".{file_format}")
     writer.write_data(df_export, tmp_path_dataset)
-
-    print(f"asreview_{'+'.join(collections)}_{project.config['name']}.{file_format}")
 
     return send_file(
         tmp_path_dataset,
