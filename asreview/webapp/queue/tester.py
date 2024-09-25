@@ -2,13 +2,12 @@ import zmq
 import json
 import time
 
+
 def check_status():
     """Client endpoint that communicates with the background process."""
     context = zmq.Context()
     socket = context.socket(zmq.REQ)  # REQ socket sends requests
     socket.connect("tcp://localhost:5555")
-
-
 
     # Send a request to the background process
     socket.send_string(json.dumps({"action": "insert", "project_id": 4}))
@@ -41,5 +40,5 @@ def check_status():
     print(message)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     check_status()
