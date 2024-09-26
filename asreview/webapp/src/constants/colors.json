@@ -1,15 +1,15 @@
 {
   "light": {
-    "primary": "#bb6409",
+    "primary": "#bf9906",
     "secondary": "#A5C18E",
-    "background": "#F5EFE7",
-    "surface": "#F5EFE7",
+    "background": "#FFFFFA",
+    "surface": "#F7F7F2",
     "error": "#D32F2F",
     "textPrimary": "#3E2723",
     "textSecondary": "#6D4C41",
     "grey": {
-      "400": "#e9e5de",
-      "600": "#1b3c73",
+      "400": "#EAE0D5",
+      "600": "#B9B7A7",
       "800": "#37474F"
     },
     "contrast": {
