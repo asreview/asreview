@@ -141,11 +141,13 @@ class TaskManager:
                     # the project isn't there, it will fail gracefully
                     # if the project is already waiting
                     self.insert_in_waiting(project_id)
-                
+
                 elif action in ["remove", "failure"] and project_id:
                     self.remove_pending(project_id)
 
-            print(f"pending projects: {self.pending}    waiting: {self.waiting}",)
+            print(
+                f"pending projects: {self.pending}    waiting: {self.waiting}",
+            )
             self.pop_queue()
 
 
