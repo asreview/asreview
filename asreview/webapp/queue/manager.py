@@ -149,7 +149,9 @@ class TaskManager:
                 elif action in ["remove", "failure"] and project_id:
                     self.remove_pending(project_id)
 
-            print(f"pending projects: {self.pending}    waiting: {self.waiting}",)
+            print(
+                f"pending projects: {self.pending}    waiting: {self.waiting}",
+            )
             self.pop_queue()
 
 

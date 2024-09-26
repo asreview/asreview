@@ -26,12 +26,9 @@ if __name__ == "__main__":
     series = pd.Series(deltas)
     print(f"average: {series.mean()}, std: {series.std()}")
 
-    
 
 # with 2 secs tick
 # Poller: average: 2.647001668214798, std: 1.4939340268091752
 # Exception: average: 2.5638748526573183, std: 1.416522791868476
 
 # without 2 secs tick
-
-
