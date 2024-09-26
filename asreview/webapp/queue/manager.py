@@ -28,12 +28,8 @@ class TaskManager:
         self.port = port
 
         # set up socket
-        self.socket = ZMQ_CONTEXT.socket(zmq.REP)
+        self.socket = ZMQ_CONTEXT.socket(zmq.PULL)
         self.socket.bind(f"tcp://{domain}:{self.port}")
-
-        # set up message poller to avoid blocking when listening
-        self.poller = zmq.Poller()
-        self.poller.register(self.socket, zmq.POLLIN)
 
         # set up database
         database_url = f"sqlite:///{asreview_path()}/queue.sqlite"
@@ -136,14 +132,10 @@ class TaskManager:
 
     def run_manager(self):
         while True:
-            # poll for 500 ms (the alternative is working with an exception to
-            # make receiving messages non-blocking)
-            socks = dict(self.poller.poll(timeout=500))
+            message = self.socket.recv()
+            print(f"{message}")
 
-            if self.socket in socks and socks[self.socket] == zmq.POLLIN:
-                message = self.socket.recv_string()
-                print(f"\nReceived message: {message}\n")
-
+            if message:
                 # break up message in message and id
                 request = json.loads(message)
                 action = request.get("action", False)
@@ -157,20 +149,11 @@ class TaskManager:
                     # the project isn't there, it will fail gracefully
                     # if the project is already waiting
                     self.insert_in_waiting(project_id)
-                    message = "inserted"
                 
                 elif action in ["remove", "failure"] and project_id:
                     self.remove_pending(project_id)
-                    message = "removed"
-
-                else:
-                    message = "ok"
-
-                self.socket.send_string(message)
-
 
             print(f"pending projects: {self.pending}    waiting: {self.waiting}",)
-            time.sleep(2)
             self.pop_queue()
 
 

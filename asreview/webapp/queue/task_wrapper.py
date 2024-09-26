@@ -13,7 +13,7 @@ class RunModelProcess(mp.Process):
         self.port = port
 
     def run(self):
-        socket = ZMQ_CONTEXT.socket(zmq.REQ)
+        socket = ZMQ_CONTEXT.socket(zmq.PUSH)
         socket.connect(f"tcp://{self.domain}:{self.port}")
         
         payload = {"action": "remove", "project_id": self.args[0]}
@@ -22,7 +22,4 @@ class RunModelProcess(mp.Process):
         except Exception as e:
             payload["action"] = "failure"
         finally:
-            socket.send_string(json.dumps(payload))
-            socket.recv_string()
-
-
+            socket.send(json.dumps(payload).encode("utf-8"))
