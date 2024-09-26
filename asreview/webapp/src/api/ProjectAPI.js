@@ -455,9 +455,8 @@ class ProjectAPI {
         withCredentials: true,
       })
         .then((result) => {
-          const filename = result.headers["content-disposition"]
-            .split("filename=")[1]
-            .split(".")[0];
+          const filename =
+            result.headers["content-disposition"].split("filename=")[1];
           const url = window.URL.createObjectURL(new Blob([result.data]));
           const link = document.createElement("a");
           link.href = url;
