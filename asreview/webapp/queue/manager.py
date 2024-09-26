@@ -13,6 +13,7 @@ from asreview.webapp import asreview_path
 from asreview.webapp.queue import ZMQ_CONTEXT
 from asreview.webapp.queue.task_wrapper import RunModelProcess
 
+
 def long_running_task(x):
     print(f"\nstart training model for project: {x}\n")
     time.sleep(10)
@@ -20,7 +21,6 @@ def long_running_task(x):
 
 
 class TaskManager:
-
     def __init__(self, max_workers=1, domain="localhost", port=5555):
         self.pending = set()
         self.max_workers = max_workers
@@ -39,12 +39,10 @@ class TaskManager:
         Session = sessionmaker(bind=engine)
         self.session = Session()
 
-
     @property
     def waiting(self):
         records = self.session.query(ProjectQueueModel).all()
         return [r.project_id for r in records]
-
 
     def insert_in_waiting(self, project_id):
         # remember that there is a unique constraint on project_id
@@ -55,26 +53,23 @@ class TaskManager:
         except IntegrityError as e:
             self.session.rollback()
 
-
     def is_waiting(self, project_id):
-        record = self.session \
-            .query(ProjectQueueModel) \
-            .filter_by(project_id=project_id) \
+        record = (
+            self.session.query(ProjectQueueModel)
+            .filter_by(project_id=project_id)
             .first()
+        )
         if record is None:
             return False
         else:
             return record
 
-
     def is_pending(self, project_id):
         return project_id in self.pending
-
 
     def remove_pending(self, project_id):
         if project_id in self.pending:
             self.pending.remove(project_id)
-    
 
     def move_from_waiting_to_pending(self, project_id):
         record = self.is_waiting(project_id)
@@ -90,11 +85,9 @@ class TaskManager:
                 # remove from pending
                 self.remove_pending(project_id)
 
-
     def add_pending(self, project_id):
         if not project_id in self.pending:
             self.pending.add(project_id)
-
 
     def __execute_job(self, project_id):
         try:
@@ -102,13 +95,12 @@ class TaskManager:
                 func=long_running_task,
                 args=(project_id,),
                 domain=self.domain,
-                port=self.port
+                port=self.port,
             )
             p.start()
             return True
         except Exception as _:
             return False
-
 
     def pop_queue(self):
         # how many slots do I have?
@@ -116,11 +108,12 @@ class TaskManager:
 
         if available_slots > 0:
             # select first n records
-            records = self.session \
-                .query(ProjectQueueModel) \
-                .order_by(ProjectQueueModel.id) \
-                .limit(available_slots) \
+            records = (
+                self.session.query(ProjectQueueModel)
+                .order_by(ProjectQueueModel.id)
+                .limit(available_slots)
                 .all()
+            )
             # loop over records
             for record in records:
                 project_id = record.project_id
@@ -128,7 +121,6 @@ class TaskManager:
                 if self.__execute_job(project_id):
                     # move out of waiting and put into pending
                     self.move_from_waiting_to_pending(project_id)
-
 
     def run_manager(self):
         while True:

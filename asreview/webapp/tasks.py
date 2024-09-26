@@ -24,7 +24,6 @@ from asreview.state.contextmanager import open_state
 
 
 def run_model(project):
-
     with open_state(project) as s:
         if not s.exist_new_labeled_records:
             return

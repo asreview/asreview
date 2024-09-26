@@ -4,6 +4,7 @@ import zmq
 
 from asreview.webapp.queue import ZMQ_CONTEXT
 
+
 class RunModelProcess(mp.Process):
     def __init__(self, func, args=(), domain="localhost", port=5555):
         super().__init__()
@@ -15,7 +16,7 @@ class RunModelProcess(mp.Process):
     def run(self):
         socket = ZMQ_CONTEXT.socket(zmq.PUSH)
         socket.connect(f"tcp://{self.domain}:{self.port}")
-        
+
         payload = {"action": "remove", "project_id": self.args[0]}
         try:
             result = self.func(*self.args)
