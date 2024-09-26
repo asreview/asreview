@@ -44,10 +44,13 @@ class TaskManager:
         records = self.session.query(ProjectQueueModel).all()
         return [r.project_id for r in records]
 
-    def insert_in_waiting(self, project_id):
+    def insert_in_waiting(self, project_id, simulation):
         # remember that there is a unique constraint on project_id
         try:
-            new_record = ProjectQueueModel(project_id=str(project_id))
+            new_record = ProjectQueueModel(
+                project_id=str(project_id),
+                simulation=bool(simulation)
+            )
             self.session.add(new_record)
             self.session.commit()
         except IntegrityError as e:
@@ -132,6 +135,7 @@ class TaskManager:
                 request = json.loads(message)
                 action = request.get("action", False)
                 project_id = request.get("project_id", False)
+                simulation = request.get("simulation", False)
 
                 # =========================
                 # execute requested actions
@@ -140,7 +144,7 @@ class TaskManager:
                     # This will insert into the waiting database if
                     # the project isn't there, it will fail gracefully
                     # if the project is already waiting
-                    self.insert_in_waiting(project_id)
+                    self.insert_in_waiting(project_id, simulation)
                 
                 elif action in ["remove", "failure"] and project_id:
                     self.remove_pending(project_id)

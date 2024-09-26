@@ -16,8 +16,9 @@ if __name__ == "__main__":
         project_id = random.randint(1, 40)
         print(f"{i}: {project_id}")
         t1 = time.time()
+        payload = {"action": "insert", "project_id": project_id, "simulation": (i%2==0)}
         # Send a request to the background process
-        socket.send(json.dumps({"action": "insert", "project_id": project_id}).encode("utf-8"))
+        socket.send(json.dumps(payload).encode("utf-8"))
         t2 = time.time()
 
         deltas.append(t2 - t1)
