@@ -6,18 +6,13 @@ import multiprocessing as mp
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
-from asreview.webapp.queue.models import Base
-from asreview.webapp.queue.models import ProjectQueueModel
 
 from asreview.webapp import asreview_path
+from asreview.webapp.queue.models import Base
+from asreview.webapp.queue.models import ProjectQueueModel
 from asreview.webapp.queue import ZMQ_CONTEXT
 from asreview.webapp.queue.task_wrapper import RunModelProcess
-
-
-def long_running_task(x):
-    print(f"\nstart training model for project: {x}\n")
-    time.sleep(10)
-    return x * x
+from asreview.webapp.tasks import run_task
 
 
 class TaskManager:
@@ -92,11 +87,12 @@ class TaskManager:
         if not project_id in self.pending:
             self.pending.add(project_id)
 
-    def __execute_job(self, project_id):
+    def __execute_job(self, project_id, simulation):
         try:
+            # run the simulation / train task
             p = RunModelProcess(
-                func=long_running_task,
-                args=(project_id,),
+                func=run_task,
+                args=(project_id, simulation),
                 domain=self.domain,
                 port=self.port,
             )
@@ -120,12 +116,13 @@ class TaskManager:
             # loop over records
             for record in records:
                 project_id = record.project_id
+                simulation = record.simulation
                 # execute job
-                if self.__execute_job(project_id):
+                if self.__execute_job(project_id, simulation):
                     # move out of waiting and put into pending
                     self.move_from_waiting_to_pending(project_id)
 
-    def run_manager(self):
+    def start_manager(self):
         while True:
             message = self.socket.recv()
             print(f"{message}")
@@ -152,9 +149,19 @@ class TaskManager:
             print(
                 f"pending projects: {self.pending}    waiting: {self.waiting}",
             )
+            
             self.pop_queue()
+
+
+def run_task_manager(max_workers, domain, port):
+    manager = TaskManager(
+        max_workers=max_workers,
+        domain=domain,
+        port=port
+    )
+    manager.start_manager()
 
 
 if __name__ == "__main__":
     manager = TaskManager(max_workers=2)
-    manager.run_manager()
+    manager.start_manager()

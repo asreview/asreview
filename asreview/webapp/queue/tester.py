@@ -1,44 +1,27 @@
-import zmq
 import json
+import zmq
+import random
 import time
+import pandas as pd
 
-
-def check_status():
-    """Client endpoint that communicates with the background process."""
-    context = zmq.Context()
-    socket = context.socket(zmq.REQ)  # REQ socket sends requests
-    socket.connect("tcp://localhost:5555")
-
-    # Send a request to the background process
-    socket.send_string(json.dumps({"action": "insert", "project_id": 4}))
-    message = socket.recv_string()  # Receive the reply
-    print(message)
-
-    time.sleep(1)
-
-    socket.send_string(json.dumps({"action": "insert", "project_id": 5}))
-    message = socket.recv_string()  # Receive the reply
-    print(message)
-
-    # no sleep
-
-    socket.send_string(json.dumps({"action": "insert", "project_id": 3}))
-    message = socket.recv_string()  # Receive the reply
-    print(message)
-
-    time.sleep(1)
-
-    # Send a request to the background process
-    socket.send_string(json.dumps({"action": "insert", "project_id": 4}))
-    message = socket.recv_string()  # Receive the reply
-    print(message)
-
-    time.sleep(1)
-
-    socket.send_string(json.dumps({"action": "insert", "project_id": 5}))
-    message = socket.recv_string()  # Receive the reply
-    print(message)
-
+from asreview.webapp.queue import ZMQ_CONTEXT
 
 if __name__ == "__main__":
-    check_status()
+    socket = ZMQ_CONTEXT.socket(zmq.PUSH)  # REQ socket sends requests
+    socket.connect("tcp://localhost:5555")
+
+    deltas = []
+
+    for i in range(1):
+        project_id = "d43fcb64847b4b32a99618d63f2b977f"
+        print(f"{i}: {project_id}")
+        t1 = time.time()
+        payload = {"action": "insert", "project_id": project_id, "simulation": False}
+        # Send a request to the background process
+        socket.send(json.dumps(payload).encode("utf-8"))
+        t2 = time.time()
+
+        deltas.append(t2 - t1)
+
+    series = pd.Series(deltas)
+    print(f"average: {series.mean()}, std: {series.std()}")

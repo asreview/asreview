@@ -13,7 +13,9 @@
 # limitations under the License.
 
 import logging
+import multiprocessing
 import os
+import zmq
 from pathlib import Path
 
 try:
@@ -37,6 +39,8 @@ from asreview.webapp.api import projects
 from asreview.webapp.api import team
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
+from asreview.webapp.queue import ZMQ_CONTEXT
+from asreview.webapp.queue.manager import run_task_manager
 from asreview.webapp.utils import asreview_path
 
 
@@ -163,5 +167,24 @@ def create_app(config_path=None):
     @app.route("/robots.txt")
     def static_from_root():
         return send_from_directory("build", request.path[1:])
+    
+    # setup task queue manager if requested
+    if app.config.get("USE_QUEUE_MANAGER", None):
+        # spin up task manager
+        workers = 2
+        domain = "localhost"
+        port = 5555
+        process = multiprocessing.Process(
+            target=run_task_manager,
+            args=(workers, domain, port)
+        )
+        process.start()
+
+        if not process.pid is None:
+            socket = ZMQ_CONTEXT.socket(zmq.PUSH)
+            socket.connect(f"tcp://{domain}:{port}")
+            app.config["QUEUE_MANAGER_SOCKET"] = socket
+        else:
+            raise RuntimeError("Not able to spin up the task manager.")
 
     return app

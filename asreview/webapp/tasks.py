@@ -16,11 +16,25 @@ from pathlib import Path
 
 import pandas as pd
 
+import asreview as asr
 from asreview.config import LABEL_NA
 from asreview.extensions import load_extension
 from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
 from asreview.state.contextmanager import open_state
+from asreview.webapp.utils import get_project_path
+
+
+def run_task(project_id, simulation=False):
+    project_path = get_project_path(project_id)
+    project = asr.Project(project_path, project_id=project_id)
+
+    if simulation:
+        run_simulation(project)
+    else:
+        run_model(project)
+
+    return True
 
 
 def run_model(project):
