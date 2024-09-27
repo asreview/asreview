@@ -43,8 +43,7 @@ class TaskManager:
         # remember that there is a unique constraint on project_id
         try:
             new_record = ProjectQueueModel(
-                project_id=str(project_id),
-                simulation=bool(simulation)
+                project_id=str(project_id), simulation=bool(simulation)
             )
             self.session.add(new_record)
             self.session.commit()
@@ -142,7 +141,7 @@ class TaskManager:
                     # the project isn't there, it will fail gracefully
                     # if the project is already waiting
                     self.insert_in_waiting(project_id, simulation)
-                
+
                 elif action in ["remove", "failure"] and project_id:
                     self.remove_pending(project_id)
 
