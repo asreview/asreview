@@ -104,7 +104,7 @@ def _run_model(project):
     # training / simulation to the queue manager,
     # otherwise run training / simulation directly
     simulation = project.config["mode"] == PROJECT_MODE_SIMULATE
-    
+
     if current_app.config.get("USE_QUEUE_MANAGER", False):
         queue_socket = current_app.config.get("QUEUE_MANAGER_SOCKET", None)
         try:
@@ -112,12 +112,12 @@ def _run_model(project):
             payload = {
                 "action": "insert",
                 "project_id": project_id,
-                "simulation": simulation
+                "simulation": simulation,
             }
             queue_socket.send(json.dumps(payload).encode("utf-8"))
         except socket.error:
             raise RuntimeError("Queue manager is not alive.")
-  
+
     else:
         if simulation:
             run_simulation(project)

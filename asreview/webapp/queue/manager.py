@@ -148,16 +148,12 @@ class TaskManager:
             print(
                 f"pending projects: {self.pending}    waiting: {self.waiting}",
             )
-            
+
             self.pop_queue()
 
 
 def run_task_manager(max_workers, domain, port):
-    manager = TaskManager(
-        max_workers=max_workers,
-        domain=domain,
-        port=port
-    )
+    manager = TaskManager(max_workers=max_workers, domain=domain, port=port)
     manager.start_manager()
 
 

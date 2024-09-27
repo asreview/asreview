@@ -167,7 +167,7 @@ def create_app(config_path=None):
     @app.route("/robots.txt")
     def static_from_root():
         return send_from_directory("build", request.path[1:])
-    
+
     # setup task queue manager if requested
     if app.config.get("USE_QUEUE_MANAGER", None):
         # spin up task manager
@@ -175,8 +175,7 @@ def create_app(config_path=None):
         domain = "localhost"
         port = 5555
         process = multiprocessing.Process(
-            target=run_task_manager,
-            args=(workers, domain, port)
+            target=run_task_manager, args=(workers, domain, port)
         )
         process.start()
 
