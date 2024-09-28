@@ -1,7 +1,5 @@
 import json
 import zmq
-import time
-import multiprocessing as mp
 
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
@@ -47,7 +45,7 @@ class TaskManager:
             )
             self.session.add(new_record)
             self.session.commit()
-        except IntegrityError as e:
+        except IntegrityError:
             self.session.rollback()
 
     def is_waiting(self, project_id):
@@ -83,7 +81,7 @@ class TaskManager:
                 self.remove_pending(project_id)
 
     def add_pending(self, project_id):
-        if not project_id in self.pending:
+        if project_id not in self.pending:
             self.pending.add(project_id)
 
     def __execute_job(self, project_id, simulation):

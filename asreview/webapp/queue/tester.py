@@ -1,6 +1,5 @@
 import json
 import zmq
-import random
 import time
 import pandas as pd
 

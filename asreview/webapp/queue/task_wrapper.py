@@ -19,8 +19,8 @@ class RunModelProcess(mp.Process):
 
         payload = {"action": "remove", "project_id": self.args[0]}
         try:
-            result = self.func(*self.args)
-        except Exception as e:
+            self.func(*self.args)
+        except Exception:
             payload["action"] = "failure"
         finally:
             socket.send(json.dumps(payload).encode("utf-8"))

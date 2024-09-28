@@ -179,7 +179,7 @@ def create_app(config_path=None):
         )
         process.start()
 
-        if not process.pid is None:
+        if process.pid is not None:
             socket = ZMQ_CONTEXT.socket(zmq.PUSH)
             socket.connect(f"tcp://{domain}:{port}")
             app.config["QUEUE_MANAGER_SOCKET"] = socket
