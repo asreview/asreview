@@ -75,7 +75,7 @@ class TaskManager:
                 # delete
                 self.session.delete(record)
                 self.session.commit()
-            except Exception as e:
+            except Exception:
                 self.session.rollback()
                 # remove from pending
                 self.remove_pending(project_id)
