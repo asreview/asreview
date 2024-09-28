@@ -71,7 +71,8 @@ dependencies = [
     "synergy_dataset",
     "sqlalchemy-utils",
     "tomli; python_version < '3.11'",
-    "importlib_metadata; python_version < '3.10'"
+    "importlib_metadata; python_version < '3.10'",
+    "zmq"
 ]
 dynamic = ["version"]
 requires-python = ">=3.8"
