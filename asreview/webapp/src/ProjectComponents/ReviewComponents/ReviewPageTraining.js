@@ -37,14 +37,12 @@ const Root = styled("div")(({ theme }) => ({
       maxWidth: 250,
     },
   },
-
   [`& .${classes.textTitle}`]: {
     textAlign: "center",
     [theme.breakpoints.down("md")]: {
       width: "80%",
     },
   },
-
   [`& .${classes.text}`]: {
     textAlign: "center",
     width: "60%",
@@ -104,11 +102,6 @@ const FinishSetup = ({ project_id, refetch }) => {
         </Stack>
       </Fade>
       {/* {isError && (
-        <ActionsFeedbackBar
-          feedback={error?.message + " Please try again."}
-          open={isError}
-          onClose={reset}
-        />
       )} */}
       <Dialog
         open={openSkipTraining}

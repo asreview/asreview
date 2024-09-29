@@ -18,25 +18,6 @@ const useRowsPerPage = () => {
   return [rowsPerPage, handleRowsPerPage];
 };
 
-const useDarkMode = () => {
-  const [mode, setMode] = useState("light");
-
-  const toggleDarkMode = () => {
-    const newMode = mode === "light" ? "dark" : "light";
-    window.localStorage.setItem("themeType", newMode);
-    setMode(newMode);
-  };
-
-  useEffect(() => {
-    const localTheme = window.localStorage.getItem("themeType");
-    if (localTheme && localTheme !== mode) {
-      setMode(localTheme);
-    }
-  }, [mode]);
-
-  return [mode, toggleDarkMode];
-};
-
 const useFontSize = (value = 1) => {
   let localFontSize = parseInt(window.localStorage.getItem("fontSize"));
   localFontSize =
@@ -57,4 +38,4 @@ const useFontSize = (value = 1) => {
   return [fontSize, handleFontSizeChange];
 };
 
-export { useDarkMode, useFontSize, useRowsPerPage };
+export { useFontSize, useRowsPerPage };

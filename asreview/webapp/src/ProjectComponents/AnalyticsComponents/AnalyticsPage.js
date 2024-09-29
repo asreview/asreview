@@ -1,17 +1,7 @@
-import React from "react";
-import { useState } from "react";
-import { useQuery } from "react-query";
-import { useParams } from "react-router-dom";
-import {
-  EmailIcon,
-  TwitterIcon,
-  FacebookIcon,
-  WeiboIcon,
-  WhatsappIcon,
-} from "react-share";
+import { Share } from "@mui/icons-material";
 import {
   Box,
-  Grid,
+  Grid2 as Grid,
   SpeedDial,
   SpeedDialAction,
   Stack,
@@ -19,24 +9,29 @@ import {
   Tabs,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Share } from "@mui/icons-material";
+import React, { useState } from "react";
+import { useQuery } from "react-query";
+import { useParams } from "react-router-dom";
+import {
+  EmailIcon,
+  FacebookIcon,
+  TwitterIcon,
+  WeiboIcon,
+  WhatsappIcon,
+} from "react-share";
 
 import {
-  ReviewProgress,
-  ShareFabAction,
+  LabelingFrequency,
+  LabelingHistory,
   ProgressDensityChart,
   ProgressRecallChart,
-  LabelingHistory,
-  LabelingFrequency,
+  ReviewProgress,
+  ShareFabAction,
   StoppingSuggestion,
 } from "ProjectComponents/AnalyticsComponents";
 import { ProjectAPI } from "api";
 
-const Root = styled("div")(({ theme }) => ({
-  padding: theme.spacing(2),
-  backgroundColor: theme.palette.background.default,
-}));
-
+const Root = styled("div")(({ theme }) => ({}));
 const actions = [
   { icon: <TwitterIcon round />, name: "Twitter" },
   { icon: <FacebookIcon round />, name: "Facebook" },
@@ -44,10 +39,8 @@ const actions = [
   { icon: <WhatsappIcon round />, name: "WhatsApp" },
   { icon: <EmailIcon round />, name: "Email" },
 ];
-
-const AnalyticsPage = (props) => {
+const AnalyticsPage = () => {
   const { project_id } = useParams();
-
   const progressQuery = useQuery(
     ["fetchProgress", { project_id }],
     ({ queryKey }) =>
@@ -65,13 +58,11 @@ const AnalyticsPage = (props) => {
       }),
     { refetchOnWindowFocus: false },
   );
-
   const twitterRef = React.useRef(null);
   const facebookRef = React.useRef(null);
   const weiboRef = React.useRef(null);
   const whatsappRef = React.useRef(null);
   const emailRef = React.useRef(null);
-
   const handleShare = (platform) => {
     if (platform === "Twitter") {
       twitterRef.current?.click();
@@ -89,7 +80,6 @@ const AnalyticsPage = (props) => {
       emailRef.current?.click();
     }
   };
-
   const [activeHistoryTab, setActiveHistoryTab] = useState(0);
   const [activeChartTab, setActiveChartTab] = useState(0);
   const [activeProgressTab, setActiveProgressTab] = useState(0);
@@ -107,20 +97,13 @@ const AnalyticsPage = (props) => {
               <Tab label="Stopping Suggestion" />
             </Tabs>
             {activeProgressTab === 0 && (
-              <ReviewProgress
-                mobileScreen={props.mobileScreen}
-                progressQuery={progressQuery}
-              />
+              <ReviewProgress progressQuery={progressQuery} />
             )}
             {activeProgressTab === 1 && (
-              <StoppingSuggestion
-                mobileScreen={props.mobileScreen}
-                progressQuery={progressQuery}
-              />
+              <StoppingSuggestion progressQuery={progressQuery} />
             )}
           </Box>
-
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Box sx={{ position: "relative" }}>
               <Box>
                 <Tabs
@@ -132,14 +115,12 @@ const AnalyticsPage = (props) => {
                 </Tabs>
                 {activeHistoryTab === 0 && (
                   <LabelingHistory
-                    mobileScreen={props.mobileScreen}
                     genericDataQuery={genericDataQuery}
                     progressQuery={progressQuery}
                   />
                 )}
                 {activeHistoryTab === 1 && (
                   <LabelingFrequency
-                    mobileScreen={props.mobileScreen}
                     genericDataQuery={genericDataQuery}
                     progressQuery={progressQuery}
                   />
@@ -147,7 +128,6 @@ const AnalyticsPage = (props) => {
               </Box>
             </Box>
           </Grid>
-
           <Box
             sx={{
               width: "100%",
@@ -165,7 +145,6 @@ const AnalyticsPage = (props) => {
               </Tabs>
               {activeChartTab === 0 && (
                 <ProgressDensityChart
-                  mobileScreen={props.mobileScreen}
                   genericDataQuery={genericDataQuery}
                   sx={{
                     height: "400px",
@@ -175,7 +154,6 @@ const AnalyticsPage = (props) => {
               )}
               {activeChartTab === 1 && (
                 <ProgressRecallChart
-                  mobileScreen={props.mobileScreen}
                   genericDataQuery={genericDataQuery}
                   sx={{
                     height: "400px",
@@ -189,8 +167,12 @@ const AnalyticsPage = (props) => {
       </Box>
       <SpeedDial
         ariaLabel="share project analytics"
-        className="main-page-fab"
         icon={<Share />}
+        sx={{
+          position: "absolute",
+          bottom: 24,
+          right: 24,
+        }}
       >
         {actions.map((action) => (
           <SpeedDialAction

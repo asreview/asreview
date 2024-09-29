@@ -3,6 +3,9 @@ import {
   Box,
   Card,
   CardContent,
+  IconButton,
+  Menu,
+  MenuItem,
   Skeleton,
   Stack,
   Typography,
@@ -19,8 +22,7 @@ import Chart from "react-apexcharts";
 
 import { CardErrorHandler } from "Components";
 
-import tooltipRelevantLight from "images/progress_relevant_light.png";
-import tooltipRelevantDark from "images/progress_relevant_dark.png";
+import tooltipIrrelevantDark from "images/progress_irrelevant_dark.png";
 import tooltipIrrelevantLight from "images/progress_irrelevant_light.png";
 import tooltipIrrelevantDark from "images/progress_irrelevant_dark.png";
 
@@ -186,7 +188,7 @@ export default function ProgressDensityChart(props) {
       legend: {
         position: "top",
         horizontalAlign: "left",
-        fontSize: !props.mobileScreen ? "14px" : "12px",
+        fontSize: "14px",
         fontFamily: theme.typography.subtitle2.fontFamily,
         fontWeight: theme.typography.subtitle2.fontWeight,
         labels: {
@@ -242,7 +244,7 @@ export default function ProgressDensityChart(props) {
         },
       },
     };
-  }, [theme, props.mobileScreen]);
+  }, [theme]);
 
   const [series, setSeries] = useState(seriesArray());
   const [options, setOptions] = useState(optionsChart());

@@ -48,7 +48,7 @@ const StatItem = ({ label, value, color, loading }) => (
   </Box>
 );
 
-export default function ReviewProgress({ progressQuery, mobileScreen }) {
+export default function ReviewProgress({ progressQuery }) {
   const theme = useTheme();
   const loading = progressQuery.isLoading;
 
@@ -196,7 +196,11 @@ export default function ReviewProgress({ progressQuery, mobileScreen }) {
           label="Hide Prior Knowledge"
           labelPlacement="end"
           sx={{ padding: theme.spacing(2, 5) }}
-          componentsProps={{ typography: { variant: "body2" } }}
+          slotProps={{
+            typography: {
+              variant: "body2",
+            },
+          }}
         />
       </Box>
       <CardContent

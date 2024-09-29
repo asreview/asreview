@@ -199,8 +199,10 @@ const StoppingSuggestion = ({ progressQuery }) => {
             size="small"
             variant="outlined"
             sx={{ mb: 2, width: "100%" }}
-            InputProps={{
-              inputProps: { min: 0 },
+            slotProps={{
+              input: {
+                inputProps: { min: 0 },
+              },
             }}
           />
           <Button

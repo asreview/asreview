@@ -8,10 +8,10 @@ const StyledBackdrop = styled(Backdrop)(({ theme }) => ({
   flexDirection: "column",
   position: "absolute",
   zIndex: 1,
-  ...(theme.palette.mode === "light" && {
+  ...theme.applyStyles("light", {
     backgroundColor: "rgba(255, 255, 255, 0.8)",
   }),
-  ...(theme.palette.mode === "dark" && {
+  ...theme.applyStyles("dark", {
     backgroundColor: "rgba(18, 18, 18, 0.8)",
   }),
 }));

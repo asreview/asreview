@@ -12,8 +12,7 @@ import {
   Fade,
   List,
   ListItem,
-  Typography,
-  Stack,
+  ListItemText,
 } from "@mui/material";
 
 import { styled } from "@mui/material/styles";
@@ -37,7 +36,7 @@ import { ElasGame } from "Components";
 import { ProjectAPI } from "api";
 import { communityURL, donateURL } from "globals.js";
 import { useToggle } from "hooks/useToggle";
-import { DrawerItem } from "StyledComponents/DrawerItem";
+import { DrawerItem } from "StyledComponents/StyledDrawerItem";
 
 import { ElasSign } from "icons/ElasSign";
 
@@ -45,10 +44,6 @@ const PREFIX = "DrawerItemContainer";
 
 const classes = {
   topSection: `${PREFIX}-topSection`,
-  bottomSection: `${PREFIX}-bottomSection`,
-  projectInfo: `${PREFIX}-projectInfo`,
-  yourProject: `${PREFIX}-yourProject`,
-  projectTitle: `${PREFIX}-projectTitle`,
 };
 
 const StyledList = styled(List)(({ theme }) => ({
@@ -60,24 +55,6 @@ const StyledList = styled(List)(({ theme }) => ({
     overflowX: "hidden",
     overflowY: "auto",
     flex: "1 1 auto",
-  },
-  [`& .${classes.projectInfo}`]: {
-    "& > *": {
-      marginTop: theme.spacing(2),
-    },
-  },
-
-  [`& .${classes.yourProject}`]: {
-    paddingLeft: 12,
-    paddingRight: 12,
-  },
-
-  [`& .${classes.projectTitle}`]: {
-    display: "-webkit-box",
-    WebkitBoxOrient: "vertical",
-    WebkitLineClamp: 2,
-    whiteSpace: "pre-line",
-    overflow: "hidden",
   },
 }));
 
@@ -109,34 +86,22 @@ const ProjectItemInfo = ({ mobileDrawer, onNavDrawer, toggleNavDrawer }) => {
         component={Link}
       />
       {data && (
-        <ListItem onClick={toggleGame}>
-          <Stack
-            direction="column"
-            spacing={2}
-            sx={{
-              alignItems: "flex-start",
-              width: "100%",
-            }}
+        <>
+          <ListItem
+            onClick={toggleGame}
+            sx={{ maxWidth: "140px", margin: "auto" }}
           >
-            <Box width="100%" maxWidth="140px" display="block" margin="auto">
-              <ElasSign status={data?.reviews[0].status} />
-            </Box>
-            <Fade in={onNavDrawer} unmountOnExit>
-              <Box className={classes.yourProject}>
-                <Typography variant="subtitle2">
-                  Your {ProjectModeMapping[data?.mode]}
-                </Typography>
-                <Typography
-                  className={classes.projectTitle}
-                  variant="body2"
-                  color="textSecondary"
-                >
-                  {data?.name}
-                </Typography>
-              </Box>
-            </Fade>
-          </Stack>
-        </ListItem>
+            <ElasSign status={data?.reviews[0].status} />
+          </ListItem>
+          <Fade in={onNavDrawer} unmountOnExit>
+            <ListItem>
+              <ListItemText
+                primary={`Your ${ProjectModeMapping[data?.mode]}`}
+                secondary={data?.name}
+              />
+            </ListItem>
+          </Fade>
+        </>
       )}
       <Outlet />
 

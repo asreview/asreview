@@ -1,11 +1,9 @@
-import React, { useRef, useState, useEffect, useCallback } from "react";
-import Chart from "react-apexcharts";
+import { HelpOutline } from "@mui/icons-material";
+import GetAppIcon from "@mui/icons-material/GetApp";
 import {
+  Box,
   Card,
   CardContent,
-  Skeleton,
-  Stack,
-  Typography,
   IconButton,
   MenuItem,
   Popover,
@@ -199,7 +197,7 @@ export default function ProgressRecallChart(props) {
       legend: {
         position: "top",
         horizontalAlign: "left",
-        fontSize: !props.mobileScreen ? "14px" : "12px",
+        fontSize: "14px",
         fontFamily: theme.typography.subtitle2.fontFamily,
         fontWeight: theme.typography.subtitle2.fontWeight,
         labels: {
@@ -261,7 +259,7 @@ export default function ProgressRecallChart(props) {
         },
       },
     };
-  }, [theme, lightModePrimaryColor, darkBlueColor, maxY, props.mobileScreen]);
+  }, [theme, lightModePrimaryColor, darkBlueColor, maxY]);
 
   const [series, setSeries] = useState(seriesArray());
   const [options, setOptions] = useState(optionsChart());

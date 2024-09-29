@@ -26,7 +26,6 @@ const Root = styled("div")(({ theme }) => ({
       marginLeft: 72,
     },
   },
-
   [`& .${classes.contentShift}`]: {
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.easeOut,
@@ -36,13 +35,13 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const HomePage = (props) => {
+const HomePage = ({ mobileScreen, onNavDrawer }) => {
   return (
     <Root aria-label="home page">
       <Box
         component="main"
         className={clsx("main-page-content", classes.content, {
-          [classes.contentShift]: !props.mobileScreen && props.onNavDrawer,
+          [classes.contentShift]: !mobileScreen && onNavDrawer,
         })}
         aria-label="home page content"
       >
@@ -51,36 +50,19 @@ const HomePage = (props) => {
           <Route
             path="/reviews"
             element={
-              <ProjectsOverview
-                mobileScreen={props.mobileScreen}
-                onNavDrawer={props.onNavDrawer}
-                projectCheck={props.projectCheck}
-                setProjectCheck={props.setProjectCheck}
-                mode={"oracle"}
-              />
+              <ProjectsOverview mobileScreen={mobileScreen} mode={"oracle"} />
             }
           />
           <Route
             path="/simulations"
             element={
-              <ProjectsOverview
-                mobileScreen={props.mobileScreen}
-                onNavDrawer={props.onNavDrawer}
-                projectCheck={props.projectCheck}
-                setProjectCheck={props.setProjectCheck}
-                mode={"simulate"}
-              />
+              <ProjectsOverview mobileScreen={mobileScreen} mode={"simulate"} />
             }
           />
           {/* Profile page */}
           <Route
             path="/profile"
-            element={
-              <ProfilePage
-                mobileScreen={props.mobileScreen}
-                onNavDrawer={props.onNavDrawer}
-              />
-            }
+            element={<ProfilePage mobileScreen={mobileScreen} />}
           />
           {/* Redirect root to projects */}
           <Route path="/" element={<Navigate to="/reviews" />} />

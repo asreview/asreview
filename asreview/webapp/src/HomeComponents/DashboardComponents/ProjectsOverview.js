@@ -1,26 +1,12 @@
-import * as React from "react";
-import { Box, Fab, Stack } from "@mui/material";
-import { Add } from "@mui/icons-material";
-import { DashboardPageHeader, ProjectTable } from ".";
-import { ActionsFeedbackBar, InteractionButtons } from "Components";
-import { ImportProject } from "ProjectComponents";
+import { Box, Snackbar, Stack } from "@mui/material";
+import { InteractionButtons } from "Components";
 import { SetupDialog } from "ProjectComponents/SetupComponents";
+import * as React from "react";
+import { DashboardPageHeader, Projects } from ".";
 
 import { useToggle } from "hooks/useToggle";
 
-const ProjectsOverview = ({
-  mobileScreen,
-  projectCheck,
-  setProjectCheck,
-  mode,
-}) => {
-  const [onImportProject, toggleImportProject] = useToggle();
-
-  const modeLabel = {
-    simulate: "Simulate",
-    oracle: "Review",
-  };
-
+const ProjectsOverview = ({ mobileScreen, mode }) => {
   const [openCreateProject, toggleCreateProject] = useToggle(false);
 
   const [feedbackBar, setFeedbackBar] = React.useState({
@@ -37,51 +23,33 @@ const ProjectsOverview = ({
 
   return (
     <>
-      <DashboardPageHeader
-        mode={mode}
-        mobileScreen={mobileScreen}
-        toggleImportProject={toggleImportProject}
-      />
+      <DashboardPageHeader mode={mode} setFeedbackBar={setFeedbackBar} />
       <Box className="main-page-body-wrapper">
         <Stack className="main-page-body" spacing={6}>
-          <ProjectTable
+          <Projects
             mode={mode}
-            projectCheck={projectCheck}
             setFeedbackBar={setFeedbackBar}
-            setProjectCheck={setProjectCheck}
             mobileScreen={mobileScreen}
           />
 
           <InteractionButtons />
         </Stack>
       </Box>
-      <Fab
-        id="create-project"
-        className="main-page-fab"
-        color="primary"
-        onClick={toggleCreateProject}
-        variant="extended"
-      >
-        <Add sx={{ mr: 1 }} />
-        {modeLabel[mode]}
-      </Fab>
       <SetupDialog
         mode={mode}
-        mobileScreen={mobileScreen}
         open={openCreateProject}
         onClose={toggleCreateProject}
         setFeedbackBar={setFeedbackBar}
       />
-      <ImportProject
-        mobileScreen={mobileScreen}
-        onImportProject={onImportProject}
-        toggleImportProject={toggleImportProject}
-      />
-      <ActionsFeedbackBar
-        center
-        onClose={resetFeedbackBar}
+      <Snackbar
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
         open={feedbackBar.open}
-        feedback={feedbackBar.message}
+        autoHideDuration={6000}
+        onClose={resetFeedbackBar}
+        message={feedbackBar.message}
       />
     </>
   );

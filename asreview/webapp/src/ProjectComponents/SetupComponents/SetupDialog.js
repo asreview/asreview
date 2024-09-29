@@ -17,8 +17,12 @@ import {
   Tooltip,
 } from "@mui/material";
 import * as React from "react";
-import { useMutation } from "react-query";
+
+import { useMutation, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "@mui/material/styles";
+
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 import {
   DatasetCard,
@@ -111,9 +115,12 @@ const SetupDialog = ({
   mode = null,
   dataSource = "file",
   setFeedbackBar,
-  mobileScreen,
 }) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   const [dataset, setDataset] = React.useState(projectInfo);
   const [showSettings, setShowSettings] = useToggle(false);
@@ -128,7 +135,8 @@ const SetupDialog = ({
     mutationKey: ["mutateReviewStatus"],
     onSuccess: () => {
       if (mode === projectModes.SIMULATION) {
-        navigate(`/simulations/${dataset?.id}`);
+        queryClient.invalidateQueries("fetchProjects");
+        onClose();
       } else {
         navigate(`/reviews/${dataset?.id}/review`);
       }
@@ -139,11 +147,11 @@ const SetupDialog = ({
     <Dialog
       aria-label="project setup"
       open={open}
-      fullScreen={mobileScreen}
+      fullScreen={fullScreen}
       fullWidth
       maxWidth="md"
       PaperProps={{
-        sx: { height: !mobileScreen ? "calc(100% - 64px)" : "100%" },
+        sx: { height: !fullScreen ? "calc(100% - 64px)" : "100%" },
       }}
       onClose={onClose}
       TransitionProps={{
@@ -151,7 +159,7 @@ const SetupDialog = ({
           if (dataset) {
             setFeedbackBar({
               open: true,
-              message: `Your project has been saved as draft`,
+              message: `Your project has been saved as ${dataset.name}`,
             });
           }
 
@@ -212,7 +220,7 @@ const SetupDialog = ({
                   subset="plugin"
                   mode={mode}
                   setDataset={setDataset}
-                  mobileScreen={mobileScreen}
+                  mobileScreen={fullScreen}
                 />
               )}
               {uploadSource === "benchmark" && (
@@ -220,7 +228,7 @@ const SetupDialog = ({
                   subset="benchmark"
                   mode={mode}
                   setDataset={setDataset}
-                  mobileScreen={mobileScreen}
+                  mobileScreen={fullScreen}
                 />
               )}
             </Stack>
@@ -241,36 +249,34 @@ const SetupDialog = ({
             project_id={dataset.id}
             dataset_name={dataset.name}
           />
-          <DialogContent sx={{ bgcolor: "primary.light" }}>
+          <DialogContent>
             <Collapse in={!showSettings}>
               <Box sx={{ mt: 3 }}>
                 <DatasetCard
                   project_id={dataset?.id}
                   dataset_path={dataset?.dataset_path}
                   setDataset={setDataset}
+                  hideLabeledInfo={mode === projectModes.SIMULATION}
                 />
               </Box>
             </Collapse>
 
             <Box sx={{ textAlign: "center", my: 2 }}>
-              <Button onClick={setShowSettings} sx={{ color: "white" }}>
+              <Button onClick={setShowSettings}>
                 {showSettings ? "Show dataset" : "Show options"}
               </Button>
             </Box>
             <Collapse in={showSettings} mountOnEnter>
               {mode !== projectModes.SIMULATION && (
                 <Box sx={{ mb: 3 }}>
-                  <TagCard
-                    project_id={dataset?.id}
-                    mobileScreen={mobileScreen}
-                  />
+                  <TagCard project_id={dataset?.id} mobileScreen={fullScreen} />
                 </Box>
               )}
               <Box sx={{ my: 3 }}>
                 <ModelCard />
               </Box>
               <Box sx={{ my: 3 }}>
-                <PriorCard editable={true} mobileScreen={mobileScreen} />
+                <PriorCard editable={true} mobileScreen={fullScreen} />
               </Box>
             </Collapse>
           </DialogContent>

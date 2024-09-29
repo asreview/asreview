@@ -13,7 +13,7 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  Grid,
+  Grid2 as Grid,
   List,
   ListItem,
   ListItemIcon,
@@ -21,6 +21,7 @@ import {
   Stack,
   IconButton,
   Typography,
+  ListItemButton,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -53,29 +54,24 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
     alignItems: "center",
     justifyContent: "center",
   },
-
   [`& .${classes.faqHeight}`]: {
     minHeight: 353,
   },
-
   [`& .${classes.contact}`]: {
     width: "100%",
     marginLeft: 20,
     marginRight: 20,
   },
-
   [`& .${classes.contactAvatar}`]: {
     width: theme.spacing(4),
     height: theme.spacing(4),
     color: theme.palette.getContrastText(theme.palette.primary.main),
     backgroundColor: theme.palette.primary.main,
   },
-
   [`& .${classes.divider}`]: {
     marginTop: 8,
     marginBottom: 8,
   },
-
   [`& .${classes.sectionTitle}`]: {
     paddingLeft: 20,
   },
@@ -131,25 +127,25 @@ const HelpDialog = ({ mobileScreen, onHelp, toggleHelp }) => {
           {!isError &&
             isFetched &&
             data.map((element, index) => (
-              <ListItem
-                key={element.url}
-                button
-                component={"a"}
-                href={element.url}
-                target="_blank"
-                alignItems="flex-start"
-              >
-                <ListItemIcon sx={{ justifyContent: "center" }}>
-                  <Description color="primary" />
-                </ListItemIcon>
-                <ListItemText
-                  key={element.title}
-                  primary={
-                    <React.Fragment>
-                      {element.title} <OpenInNewIconStyled />
-                    </React.Fragment>
-                  }
-                />
+              <ListItem key={element.url}>
+                <ListItemButton
+                  component={"a"}
+                  href={element.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ListItemIcon sx={{ justifyContent: "center" }}>
+                    <Description color="primary" />
+                  </ListItemIcon>
+                  <ListItemText
+                    key={element.title}
+                    primary={
+                      <React.Fragment>
+                        {element.title} <OpenInNewIconStyled />
+                      </React.Fragment>
+                    }
+                  />
+                </ListItemButton>
               </ListItem>
             ))}
           {isError && (

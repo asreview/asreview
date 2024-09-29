@@ -1,20 +1,19 @@
 import React, { useState, useRef, useMemo, useCallback } from "react";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import {
+  Box,
   Card,
   CardContent,
-  Stack,
-  Box,
-  Skeleton,
-  Typography,
   FormControlLabel,
-  Switch,
-  useTheme,
-  Popover,
   IconButton,
+  Popover,
+  Skeleton,
+  Stack,
+  Switch,
+  Typography,
+  useTheme,
 } from "@mui/material";
 import { CardErrorHandler } from "Components";
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
-
 const sortPerChunk = (decisions, chunkSize) => {
   const sorted = [];
   for (let i = 0; i < decisions.length; i += chunkSize) {
@@ -74,7 +73,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [infoAnchorEl, setInfoAnchorEl] = useState(null);
   const [selectedPaper, setSelectedPaper] = useState(null);
-  const [selectedColor, setSelectedColor] = useState(theme.palette.grey[400]);
+  const [setSelectedColor] = useState(theme.palette.grey[400]);
   const containerRef = useRef(null);
 
   const handleSwitchChange = () => {
@@ -166,7 +165,6 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
                 }}
               />
             </Box>
-
             {genericDataQuery?.isLoading ? (
               <Box
                 ref={containerRef}
@@ -219,7 +217,6 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
               </Typography>
             </Box>
           </Stack>
-
           <Box
             sx={{
               position: "absolute",
@@ -323,5 +320,4 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
     </Box>
   );
 };
-
 export default LabelingHistory;
