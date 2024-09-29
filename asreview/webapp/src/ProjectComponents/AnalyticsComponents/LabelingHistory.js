@@ -288,7 +288,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
       >
         <Box>
           <Typography variant="body2" gutterBottom>
-            <strong>Chronology Switch</strong>
+            <strong>Chronological</strong>
           </Typography>
           <Typography variant="body2" gutterBottom>
             In the chronological view, the lines will be sorted in the same

@@ -8,15 +8,15 @@
     "textPrimary": "#3E2723",
     "textSecondary": "#6D4C41",
     "grey": {
-      "400": "#EAE0D5",
-      "600": "#B9B7A7",
+      "400": "#DEDBD2",
+      "600": "#4A5759",
       "800": "#37474F"
     },
     "contrast": {
       "400": "#C8A165",
       "600": "#E0C097"
     },
-    "accent": "#FFB74D"
+    "accent": "#528fb4"
   },
   "dark": {
     "primary": "#FFCC00",
