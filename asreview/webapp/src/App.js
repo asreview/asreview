@@ -1,7 +1,7 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { Routes, Route } from "react-router-dom";
-import { CssBaseline, useMediaQuery } from "@mui/material";
+import { CssBaseline, createTheme, useMediaQuery } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import { ThemeProvider } from "@mui/material/styles";
@@ -12,7 +12,6 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
 import "./App.css";
-import getTheme from "./constants/theme";
 
 import {
   ConfirmAccount,
@@ -66,22 +65,10 @@ const App = () => {
   // Settings hook
   const [fontSize, handleFontSizeChange] = useFontSize();
 
-  const [mode, setMode] = React.useState(() => {
-    const savedMode = localStorage.getItem("themeMode");
-    return savedMode || "system";
+  const muiTheme = createTheme({
+    // cssVariables: true,
+    colorSchemes: { dark: true },
   });
-
-  React.useEffect(() => {
-    localStorage.setItem("themeMode", mode);
-  }, [mode]);
-
-  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
-
-  const muiTheme = React.useMemo(
-    () => getTheme(mode, prefersDarkMode),
-    [mode, prefersDarkMode],
-  );
-
   const mobileScreen = useMediaQuery(muiTheme.breakpoints.down("md"), {
     noSsr: true,
   });
@@ -234,9 +221,6 @@ const App = () => {
           fontSize={fontSize}
           toggleSettings={toggleSettings}
           handleFontSizeChange={handleFontSizeChange}
-          mode={mode}
-          setMode={setMode}
-          prefersDarkMode={prefersDarkMode}
         />
         <HelpDialog
           mobileScreen={mobileScreen}
