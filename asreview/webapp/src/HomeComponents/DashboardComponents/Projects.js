@@ -90,7 +90,7 @@ const ProjectCard = ({
   const [deleteDialog, toggleDeleteDialog] = useToggle();
   const [openSetup, toggleSetup] = useToggle();
 
-  const review = project["reviews"][0];
+  const review = project?.reviews?.[0];
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const openMenu = Boolean(anchorEl);
@@ -105,8 +105,8 @@ const ProjectCard = ({
     if (review?.status === projectStatuses.SETUP) {
       console.log("open setup");
       toggleSetup();
-    } else {
-      navigate(`${project.id}/${path}`);
+    } else if (project?.id) {
+      navigate(`${project?.id}/${path}`);
     }
   };
 
@@ -127,10 +127,10 @@ const ProjectCard = ({
     // isError: isExportProjectError,
     isFetching: isExportingProject,
   } = useQuery(
-    ["fetchExportProject", { project_id: project.id }],
+    ["fetchExportProject", { project_id: project?.id }],
     ProjectAPI.fetchExportProject,
     {
-      enabled: exporting,
+      enabled: exporting && !!project?.id,
       refetchOnWindowFocus: false,
       onSettled: () => {
         setExporting(false);
@@ -153,10 +153,12 @@ const ProjectCard = ({
               openProject(project, "");
             }}
           >
-            {project["name"]}
+            {project?.name || "Unnamed Project"}
           </Typography>
         }
-        subheader={timeAgo.format(new Date(project.datetimeCreated))}
+        subheader={timeAgo.format(
+          new Date(project?.datetimeCreated || Date.now()),
+        )}
         // avatar={
         //   <>
         //     {review?.status === projectStatuses.SETUP && (
@@ -291,7 +293,7 @@ const ProjectCard = ({
               ) && (
                 <MenuItem
                   component={Link}
-                  to={`/${projectModeURLMap[mode]}/${project.id}/settings`}
+                  to={`/${projectModeURLMap[mode]}/${project?.id}/settings`}
                 >
                   <ListItemIcon>
                     <SettingsOutlined />
@@ -346,8 +348,8 @@ const ProjectCard = ({
         />
       )}
       <ProjectDeleteDialog
-        project_id={project.id}
-        projectTitle={project.name}
+        project_id={project?.id}
+        projectTitle={project?.name || "Unnamed Project"}
         open={deleteDialog}
         onClose={toggleDeleteDialog}
       />
@@ -357,7 +359,7 @@ const ProjectCard = ({
 
 const Projects = ({ mode, setFeedbackBar }) => {
   const { auth } = useAuth();
-  const user_id = auth.id;
+  const user_id = auth?.id;
   // const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
 
   const simulationOngoing = (data) => {
@@ -372,7 +374,7 @@ const Projects = ({ mode, setFeedbackBar }) => {
     return false;
   };
 
-  const { data } = useQuery(
+  const { data, error, isLoading } = useQuery(
     ["fetchProjects", { subset: mode }],
     ProjectAPI.fetchProjects,
     {
@@ -444,7 +446,7 @@ const Projects = ({ mode, setFeedbackBar }) => {
         <Grid container spacing={2}>
           {inReviewProjects.map((project) => (
             <Grid
-              key={project.id}
+              key={project?.id}
               size={{
                 xs: 12,
                 sm: 6,
@@ -479,7 +481,7 @@ const Projects = ({ mode, setFeedbackBar }) => {
         <Grid container spacing={2}>
           {finishedProjects.map((project) => (
             <Grid
-              key={project.id}
+              key={project?.id}
               size={{
                 xs: 12,
                 sm: 6,

@@ -1,3 +1,4 @@
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { HelpOutline } from "@mui/icons-material";
 import GetAppIcon from "@mui/icons-material/GetApp";
 import {
@@ -8,14 +9,15 @@ import {
   MenuItem,
   Popover,
   Menu,
-  Box,
+  Typography,
+  Stack,
+  Skeleton,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import GetAppIcon from "@mui/icons-material/GetApp";
-import { HelpOutline } from "@mui/icons-material";
 import { toPng, toJpeg, toSvg } from "html-to-image";
 
 import { CardErrorHandler } from "Components";
+import Chart from "react-apexcharts";
 
 const calculateProgressRecall = (data) => {
   // Total number of relevant items (inclusions)

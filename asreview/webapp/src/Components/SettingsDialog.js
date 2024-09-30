@@ -26,7 +26,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { styled, useColorScheme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 import React from "react";
 
 import { OpenInNewIconStyled } from "Components";
@@ -49,7 +49,7 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 const SettingsDialog = (props) => {
   const descriptionElementRef = React.useRef(null);
 
-  const { mode, setMode } = useColorScheme();
+  const { mode, setMode } = props;
 
   // second layer state
   const [fontSizeSetting, toggleFontSizeSetting] = useToggle();

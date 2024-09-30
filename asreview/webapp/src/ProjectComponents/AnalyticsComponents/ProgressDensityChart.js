@@ -9,9 +9,6 @@ import {
   Skeleton,
   Stack,
   Typography,
-  IconButton,
-  Menu,
-  MenuItem,
   Popover,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
@@ -24,7 +21,8 @@ import { CardErrorHandler } from "Components";
 
 import tooltipIrrelevantDark from "images/progress_irrelevant_dark.png";
 import tooltipIrrelevantLight from "images/progress_irrelevant_light.png";
-import tooltipIrrelevantDark from "images/progress_irrelevant_dark.png";
+import tooltipRelevantDark from "images/progress_relevant_dark.png";
+import tooltipRelevantLight from "images/progress_relevant_light.png";
 
 const calculateProgressDensity = (data) => {
   return data.map((entry, index, arr) => {
