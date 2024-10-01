@@ -22,7 +22,7 @@ const Root = styled(Box)(({ theme }) => ({
   },
 }));
 
-export default function DashboardPageHeader({ mode, setFeedbackBar }) {
+export default function DashboardPageHeader({ mode }) {
   return (
     <Root>
       <Paper className={classes.paperHeader} elevation={0}>
@@ -38,7 +38,7 @@ export default function DashboardPageHeader({ mode, setFeedbackBar }) {
               "Simulate a review, fully automated"}
           </Typography>
           <Stack direction="row" spacing={2}>
-            <NewProjectButton mode={mode} setFeedbackBar={setFeedbackBar} />
+            <NewProjectButton mode={mode} />
             <ImportProject />
           </Stack>
         </Stack>
