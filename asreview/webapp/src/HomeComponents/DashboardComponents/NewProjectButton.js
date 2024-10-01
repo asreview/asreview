@@ -4,7 +4,7 @@ import { Fab } from "@mui/material";
 import { SetupDialog } from "ProjectComponents/SetupComponents";
 import { useToggle } from "hooks/useToggle";
 
-const NewProjectButton = ({ mode, setFeedbackBar }) => {
+const NewProjectButton = ({ mode }) => {
   const [openCreateProject, toggleCreateProject] = useToggle();
 
   return (
@@ -29,7 +29,6 @@ const NewProjectButton = ({ mode, setFeedbackBar }) => {
         mode={mode}
         open={openCreateProject}
         onClose={toggleCreateProject}
-        setFeedbackBar={setFeedbackBar}
       />
     </>
   );

@@ -83,7 +83,6 @@ const ProjectCard = ({
   user_id,
   showProgressChip = true,
   showSimulatingSpinner = true,
-  setFeedbackBar,
 }) => {
   const navigate = useNavigate();
 
@@ -103,7 +102,6 @@ const ProjectCard = ({
 
   const openProject = (project, path) => {
     if (review?.status === projectStatuses.SETUP) {
-      console.log("open setup");
       toggleSetup();
     } else {
       navigate(`${project.id}/${path}`);
@@ -342,7 +340,6 @@ const ProjectCard = ({
           projectInfo={project}
           open={openSetup}
           onClose={toggleSetup}
-          setFeedbackBar={setFeedbackBar}
         />
       )}
       <ProjectDeleteDialog
@@ -355,7 +352,7 @@ const ProjectCard = ({
   );
 };
 
-const Projects = ({ mode, setFeedbackBar }) => {
+const Projects = ({ mode }) => {
   const { auth } = useAuth();
   const user_id = auth.id;
   // const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
@@ -418,7 +415,6 @@ const Projects = ({ mode, setFeedbackBar }) => {
                   project={project}
                   mode={mode}
                   user_id={user_id}
-                  setFeedbackBar={setFeedbackBar}
                   showProgressChip={false}
                 />
               </Grid>
@@ -455,7 +451,6 @@ const Projects = ({ mode, setFeedbackBar }) => {
                 project={project}
                 mode={mode}
                 user_id={user_id}
-                setFeedbackBar={setFeedbackBar}
                 showProgressChip={false}
               />
             </Grid>
@@ -490,7 +485,6 @@ const Projects = ({ mode, setFeedbackBar }) => {
                 project={project}
                 mode={mode}
                 user_id={user_id}
-                setFeedbackBar={setFeedbackBar}
                 showProgressChip={false}
               />
             </Grid>
