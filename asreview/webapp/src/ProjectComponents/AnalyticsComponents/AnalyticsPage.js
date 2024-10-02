@@ -109,7 +109,6 @@ const AnalyticsPage = () => {
                 <Tabs
                   value={activeHistoryTab}
                   onChange={(event, newValue) => setActiveHistoryTab(newValue)}
-                  left
                 >
                   <Tab label="Labeling History" />
                   <Tab label="Labeling Frequency" />
@@ -140,7 +139,6 @@ const AnalyticsPage = () => {
               <Tabs
                 value={activeChartTab}
                 onChange={(event, newValue) => setActiveChartTab(newValue)}
-                left
               >
                 <Tab label="Density" />
                 <Tab label="Recall" />
