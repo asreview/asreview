@@ -1,31 +1,17 @@
 import { Box, Paper, Typography, Stack } from "@mui/material";
-import { styled } from "@mui/material/styles";
 
 import { projectModes } from "globals.js";
 
 import NewProjectButton from "./NewProjectButton";
 import ImportProject from "ProjectComponents/ImportProject";
 
-const PREFIX = "DashboardPageHeader";
-
-const classes = {
-  paperHeader: `${PREFIX}-paper-header`,
-};
-
-const Root = styled(Box)(({ theme }) => ({
-  [`& .${classes.paperHeader}`]: {
-    padding: theme.spacing(2),
-    paddingTop: theme.spacing(5),
-    margin: theme.spacing(2),
-    // backgroundColor: theme.palette.primary.main,
-    color: theme.palette.primary.main,
-  },
-}));
-
 export default function DashboardPageHeader({ mode }) {
   return (
-    <Root>
-      <Paper className={classes.paperHeader} elevation={0}>
+    <Box>
+      <Paper
+        elevation={0}
+        sx={{ p: 2, pt: 5, m: 2, bgcolor: "background.default" }}
+      >
         <Stack
           direction="column"
           justifyContent="center"
@@ -43,6 +29,6 @@ export default function DashboardPageHeader({ mode }) {
           </Stack>
         </Stack>
       </Paper>
-    </Root>
+    </Box>
   );
 }
