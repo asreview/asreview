@@ -125,7 +125,7 @@ const ProjectsOverview = ({ mode }) => {
             )}
 
             {/* Divider between In Review and Finished with a Chip */}
-            {inReviewProjects?.length > 0 && inReviewProjects?.length > 0 && (
+            {finishedProjects?.length > 0 && (
               <Divider
                 sx={{
                   my: 10,
