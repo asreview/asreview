@@ -14,23 +14,24 @@ import {
 } from "@mui/material";
 import { ProjectAPI } from "api";
 
-const ProjectDeleteDialog = ({ open, onClose, projectTitle, project_id }) => {
+const ProjectDeleteDialog = ({
+  open,
+  onClose,
+  projectTitle,
+  project_id,
+  navigate_to = null,
+}) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const descriptionElementRef = React.useRef(null);
   const [deleteInput, setDeleteInput] = React.useState("");
 
   const { error, isError, isLoading, mutate, reset } = useMutation(
     ProjectAPI.mutateDeleteProject,
     {
       onSuccess: () => {
-        if (!project_id) {
-          queryClient.invalidateQueries("fetchProjects");
-          onClose();
-        } else {
-          navigate("/reviews");
-        }
+        queryClient.invalidateQueries("fetchProjects");
+        onClose();
       },
     },
   );
@@ -47,15 +48,6 @@ const ProjectDeleteDialog = ({ open, onClose, projectTitle, project_id }) => {
     reset();
   };
 
-  React.useEffect(() => {
-    if (open) {
-      const { current: descriptionElement } = descriptionElementRef;
-      if (descriptionElement !== null) {
-        descriptionElement.focus();
-      }
-    }
-  }, [open]);
-
   return (
     <Dialog
       open={open}
@@ -63,6 +55,14 @@ const ProjectDeleteDialog = ({ open, onClose, projectTitle, project_id }) => {
       scroll="paper"
       fullWidth
       maxWidth="sm"
+      TransitionProps={{
+        onExited: () => {
+          if (navigate_to) {
+            navigate(navigate_to);
+          }
+        },
+      }}
+      disableRestoreFocus // bug https://github.com/mui/material-ui/issues/33004
     >
       <DialogTitle>Permanently delete this project?</DialogTitle>
       <DialogContent dividers>
