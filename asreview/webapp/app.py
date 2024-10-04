@@ -167,7 +167,7 @@ def create_app(config_path=None):
         return send_from_directory("build", request.path[1:])
 
     # The task manager needs to be configured if not in testing
-    if not(app.testing):
+    if not (app.testing):
         task_manager_config = app.config.get("TASK_MANAGER_ENDPOINT", None)
         if task_manager_config:
             # get workers is configured
@@ -178,13 +178,15 @@ def create_app(config_path=None):
             app.config["TASK_MANAGER_CONFIG"] = {
                 "workers": workers,
                 "host": host,
-                "port": port
+                "port": port,
             }
         else:
-            message = "Task manager configuration is mandatory in " + \
-                "both development and production environments. Please " + \
-                "pass the endpoint for the task manager in the " + \
-                "ASREVIEW_TASK_MANAGER_ENDPOINT environment variable."
+            message = (
+                "Task manager configuration is mandatory in "
+                + "both development and production environments. Please "
+                + "pass the endpoint for the task manager in the "
+                + "ASREVIEW_TASK_MANAGER_ENDPOINT environment variable."
+            )
             raise RuntimeError(message)
 
     return app
