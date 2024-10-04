@@ -117,7 +117,7 @@ def _run_model(project):
             queue_socket.send(json.dumps(payload).encode("utf-8"))
         except socket.error:
             raise RuntimeError("Queue manager is not alive.")
-    
+
     else:
         if simulation:
             run_simulation(project)
