@@ -112,10 +112,7 @@ def _run_model(project):
             host = config_data["host"]
             port = config_data["port"]
             # set up short lived connection
-            client_socket = socket.socket(
-                socket.AF_INET,
-                socket.SOCK_STREAM
-            )
+            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             client_socket.connect((host, port))
             # setup payload
             project_id = project.config["id"]
@@ -130,7 +127,7 @@ def _run_model(project):
             raise RuntimeError("Queue manager is not alive.")
         finally:
             client_socket.close()
-    
+
     else:
         if simulation:
             run_simulation(project)

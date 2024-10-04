@@ -24,8 +24,8 @@ class TaskManager:
         self.host = host
         self.port = port
         self.message_buffer = deque()
-        self.receive_bytes = 1024 # bytes read when receiving messages
-        self.timeout = 0.1 # wait for 0.1 seconds for incoming messages
+        self.receive_bytes = 1024  # bytes read when receiving messages
+        self.timeout = 0.1  # wait for 0.1 seconds for incoming messages
 
         # set up database
         database_url = f"sqlite:///{asreview_path()}/queue.sqlite"

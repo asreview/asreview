@@ -185,8 +185,7 @@ def lab_entry_point(argv):
     socket_port = app.config["TASK_MANAGER_CONFIG"]["port"]
 
     process = multiprocessing.Process(
-        target=run_task_manager, 
-        args=(workers, socket_host, socket_port)
+        target=run_task_manager, args=(workers, socket_host, socket_port)
     )
     process.start()
     if process.pid is None:
