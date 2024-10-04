@@ -39,7 +39,6 @@ from asreview.webapp.api import projects
 from asreview.webapp.api import team
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
-from asreview.webapp.queue.manager import run_task_manager
 from asreview.webapp.utils import asreview_path
 
 
@@ -167,30 +166,25 @@ def create_app(config_path=None):
     def static_from_root():
         return send_from_directory("build", request.path[1:])
 
-    # setup task queue manager if requested
-    if app.config.get("USE_QUEUE_MANAGER", None):
-        # spin up task manager
-        workers = 2
-        queue_endpoint = "localhost:5555"
-
-        endpoint = queue_endpoint.split(":")
-        host = endpoint[0]
-        port = int(endpoint[1])
-
-        process = multiprocessing.Process(
-            target=run_task_manager, args=(workers, queue_endpoint)
-        )
-        process.start()
-
-        if process.pid is not None:   
-            import time
-            time.sleep(2)    
-            family = socket.AF_INET
-            socket_type = socket.SOCK_STREAM
-            with socket.socket(family, socket_type) as client_socket:
-                client_socket.connect((host, port))
-                app.config["QUEUE_MANAGER_SOCKET"] = client_socket
+    # The task manager needs to be configured if not in testing
+    if not(app.testing):
+        task_manager_config = app.config.get("TASK_MANAGER_ENDPOINT", None)
+        if task_manager_config:
+            # get workers is configured
+            workers = int(app.config.get("TASK_MANAGER_WORKERS", 2))
+            endpoint = task_manager_config.split(":")
+            host = endpoint[0]
+            port = int(endpoint[1])
+            app.config["TASK_MANAGER_CONFIG"] = {
+                "workers": workers,
+                "host": host,
+                "port": port
+            }
         else:
-            raise RuntimeError("Not able to spin up the task manager.")
+            message = "Task manager configuration is mandatory in " + \
+                "both development and production environments. Please " + \
+                "pass the endpoint for the task manager in the " + \
+                "ASREVIEW_TASK_MANAGER_ENDPOINT environment variable."
+            raise RuntimeError(message)
 
     return app

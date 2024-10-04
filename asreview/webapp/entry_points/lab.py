@@ -13,6 +13,7 @@
 # limitations under the License.
 import argparse
 import logging
+import multiprocessing
 import os
 import socket
 import webbrowser
@@ -27,6 +28,7 @@ import asreview as asr
 from asreview._deprecated import DeprecateAction
 from asreview._deprecated import mark_deprecated_help_strings
 from asreview.webapp.app import create_app
+from asreview.webapp.queue.task_manager import run_task_manager
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
 from asreview.webapp.utils import get_projects
@@ -176,6 +178,19 @@ def lab_entry_point(argv):
         console.print(f"\nIf your browser doesn't open, navigate to {start_url}.\n\n\n")
 
     console.print("Press [bold]Ctrl+C[/bold] to exit.\n\n")
+
+    # spin up task manager
+    workers = app.config["TASK_MANAGER_CONFIG"]["workers"]
+    socket_host = app.config["TASK_MANAGER_CONFIG"]["host"]
+    socket_port = app.config["TASK_MANAGER_CONFIG"]["port"]
+
+    process = multiprocessing.Process(
+        target=run_task_manager, 
+        args=(workers, socket_host, socket_port)
+    )
+    process.start()
+    if process.pid is None:
+        raise RuntimeError("Not able to spin up the task manager.")
 
     try:
         waitress.serve(app, host=args.host, port=port, threads=6)

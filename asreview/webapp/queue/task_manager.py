@@ -16,22 +16,16 @@ from asreview.webapp.tasks import run_task
 
 
 class TaskManager:
-    def __init__(self, max_workers=1, queue_endpoint="localhost:5555"):
+    def __init__(self, max_workers=1, host="localhost", port=5555):
         self.pending = set()
         self.max_workers = max_workers
 
         # set up parameters for socket endpoint
-        try:
-            endpoint = queue_endpoint.split(":")
-            self.host = endpoint[0]
-            self.port = int(endpoint[1])
-            self.message_buffer = deque()
-            self.receive_bytes = 1024 # bytes read when receiving messages
-            self.timeout = 0.1 # wait for 0.1 seconds for incoming messages
-        except Exception:
-            format = "Use format 'localhost:5555' or '120.10.10.10:1234'."
-            raise ValueError(
-                f"Unable to parse queue_endpoint {queue_endpoint}. {format}")
+        self.host = host
+        self.port = port
+        self.message_buffer = deque()
+        self.receive_bytes = 1024 # bytes read when receiving messages
+        self.timeout = 0.1 # wait for 0.1 seconds for incoming messages
 
         # set up database
         database_url = f"sqlite:///{asreview_path()}/queue.sqlite"
@@ -182,8 +176,6 @@ class TaskManager:
         # Set a timeout
         server_socket.settimeout(0.1)
 
-        print("...Server running")
-
         while True:
             try:
                 # Accept incoming connections with a timeout
@@ -202,8 +194,8 @@ class TaskManager:
                 self.pop_task_queue()
 
 
-def run_task_manager(max_workers, queue_endpoint=None):
-    manager = TaskManager(max_workers=max_workers, queue_endpoint=queue_endpoint)
+def run_task_manager(max_workers, host, port):
+    manager = TaskManager(max_workers=max_workers, host=host, port=port)
     manager.start_manager()
 
 

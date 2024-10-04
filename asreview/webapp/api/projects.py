@@ -15,6 +15,7 @@
 import json
 import logging
 import shutil
+import socket
 import tempfile
 import time
 
@@ -105,18 +106,31 @@ def _run_model(project):
     simulation = project.config["mode"] == PROJECT_MODE_SIMULATE
 
     if not current_app.testing:
-        socket = current_app.config.get("QUEUE_MANAGER_SOCKET", None)
+        config_data = current_app.config.get("TASK_MANAGER_CONFIG", None)
         try:
+            # get host and port
+            host = config_data["host"]
+            port = config_data["port"]
+            # set up short lived connection
+            client_socket = socket.socket(
+                socket.AF_INET,
+                socket.SOCK_STREAM
+            )
+            client_socket.connect((host, port))
+            # setup payload
             project_id = project.config["id"]
             payload = {
                 "action": "insert",
                 "project_id": project_id,
                 "simulation": simulation,
             }
-            socket.sendall(json.dumps(payload).encode("utf-8"))
+            # send
+            client_socket.sendall(json.dumps(payload).encode("utf-8"))
         except socket.error:
             raise RuntimeError("Queue manager is not alive.")
-
+        finally:
+            client_socket.close()
+    
     else:
         if simulation:
             run_simulation(project)
