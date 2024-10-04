@@ -26,12 +26,13 @@ class TaskManager:
             self.host = endpoint[0]
             self.port = int(endpoint[1])
             self.message_buffer = deque()
-            self.receive_bytes = 1024 # bytes read when receiving messages
-            self.timeout = 0.1 # wait for 0.1 seconds for incoming messages
+            self.receive_bytes = 1024  # bytes read when receiving messages
+            self.timeout = 0.1  # wait for 0.1 seconds for incoming messages
         except Exception:
             format = "Use format 'localhost:5555' or '120.10.10.10:1234'."
             raise ValueError(
-                f"Unable to parse queue_endpoint {queue_endpoint}. {format}")
+                f"Unable to parse queue_endpoint {queue_endpoint}. {format}"
+            )
 
         # set up database
         database_url = f"sqlite:///{asreview_path()}/queue.sqlite"
@@ -128,7 +129,7 @@ class TaskManager:
                 if self.__execute_job(project_id, simulation):
                     # move out of waiting and put into pending
                     self.move_from_waiting_to_pending(project_id)
-    
+
     def _process_buffer(self):
         """Injects messages in the database."""
         while self.message_buffer:
@@ -158,8 +159,7 @@ class TaskManager:
                     if client_buffer != "":
                         # we may be dealing with multiple messages,
                         # update buffer to produce a correct json string
-                        client_buffer = \
-                            "[" + client_buffer.replace("}{", "},{") + "]"
+                        client_buffer = "[" + client_buffer.replace("}{", "},{") + "]"
                         # add to buffer
                         self.message_buffer.extend(deque(json.loads(client_buffer)))
                     # client disconnected
@@ -190,8 +190,7 @@ class TaskManager:
                 conn, addr = server_socket.accept()
                 # Start a new thread to handle the client connection
                 client_thread = threading.Thread(
-                    target=self._handle_incoming_messages,
-                    args=(conn,)
+                    target=self._handle_incoming_messages, args=(conn,)
                 )
                 client_thread.start()
 

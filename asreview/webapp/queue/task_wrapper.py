@@ -2,6 +2,7 @@ import json
 import multiprocessing as mp
 import socket
 
+
 class RunModelProcess(mp.Process):
     def __init__(self, func, args=(), host="localhost", port=5555):
         super().__init__()

@@ -182,9 +182,10 @@ def create_app(config_path=None):
         )
         process.start()
 
-        if process.pid is not None:   
+        if process.pid is not None:
             import time
-            time.sleep(2)    
+
+            time.sleep(2)
             family = socket.AF_INET
             socket_type = socket.SOCK_STREAM
             with socket.socket(family, socket_type) as client_socket:
