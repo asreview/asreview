@@ -1,5 +1,8 @@
 import json
-import zmq
+import socket
+import time
+import threading
+from collections import deque
 
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
@@ -8,21 +11,27 @@ from sqlalchemy.orm import sessionmaker
 from asreview.webapp import asreview_path
 from asreview.webapp.queue.models import Base
 from asreview.webapp.queue.models import ProjectQueueModel
-from asreview.webapp.queue import ZMQ_CONTEXT
 from asreview.webapp.queue.task_wrapper import RunModelProcess
 from asreview.webapp.tasks import run_task
 
 
 class TaskManager:
-    def __init__(self, max_workers=1, domain="localhost", port=5555):
+    def __init__(self, max_workers=1, queue_endpoint="localhost:5555"):
         self.pending = set()
         self.max_workers = max_workers
-        self.domain = domain
-        self.port = port
 
-        # set up socket
-        self.socket = ZMQ_CONTEXT.socket(zmq.PULL)
-        self.socket.bind(f"tcp://{domain}:{self.port}")
+        # set up parameters for socket endpoint
+        try:
+            endpoint = queue_endpoint.split(":")
+            self.host = endpoint[0]
+            self.port = int(endpoint[1])
+            self.message_buffer = deque()
+            self.receive_bytes = 1024 # bytes read when receiving messages
+            self.timeout = 0.1 # wait for 0.1 seconds for incoming messages
+        except Exception:
+            format = "Use format 'localhost:5555' or '120.10.10.10:1234'."
+            raise ValueError(
+                f"Unable to parse queue_endpoint {queue_endpoint}. {format}")
 
         # set up database
         database_url = f"sqlite:///{asreview_path()}/queue.sqlite"
@@ -90,7 +99,7 @@ class TaskManager:
             p = RunModelProcess(
                 func=run_task,
                 args=(project_id, simulation),
-                domain=self.domain,
+                host=self.host,
                 port=self.port,
             )
             p.start()
@@ -98,7 +107,8 @@ class TaskManager:
         except Exception as _:
             return False
 
-    def pop_queue(self):
+    def pop_task_queue(self):
+        """Moves tasks from the database and executes them in subprocess."""
         # how many slots do I have?
         available_slots = self.max_workers - len(self.pending)
 
@@ -118,40 +128,82 @@ class TaskManager:
                 if self.__execute_job(project_id, simulation):
                     # move out of waiting and put into pending
                     self.move_from_waiting_to_pending(project_id)
+    
+    def _process_buffer(self):
+        """Injects messages in the database."""
+        while self.message_buffer:
+            message = self.message_buffer.popleft()
+            action = message.get("action", False)
+            project_id = message.get("project_id", False)
+            simulation = message.get("simulation", False)
+
+            if action == "insert" and project_id:
+                # This will insert into the waiting database if
+                # the project isn't there, it will fail gracefully
+                # if the project is already waiting
+                self.insert_in_waiting(project_id, simulation)
+
+            elif action in ["remove", "failure"] and project_id:
+                self.remove_pending(project_id)
+
+    def _handle_incoming_messages(self, conn):
+        """Handles incoming traffic."""
+        client_buffer = ""
+        while True:
+            try:
+                data = conn.recv(self.receive_bytes)
+                if not data:
+                    # if client_buffer is full convert to json and
+                    # put in buffer
+                    if client_buffer != "":
+                        # we may be dealing with multiple messages,
+                        # update buffer to produce a correct json string
+                        client_buffer = \
+                            "[" + client_buffer.replace("}{", "},{") + "]"
+                        # add to buffer
+                        self.message_buffer.extend(deque(json.loads(client_buffer)))
+                    # client disconnected
+                    break
+
+                else:
+                    message = data.decode("utf-8")
+                    client_buffer += message
+
+            except Exception:
+                break
+
+        conn.close()
 
     def start_manager(self):
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_socket.bind((self.host, self.port))
+        server_socket.listen()
+
+        # Set a timeout
+        server_socket.settimeout(0.1)
+
+        print("...Server running")
+
         while True:
-            message = self.socket.recv()
-            print(f"{message}")
+            try:
+                # Accept incoming connections with a timeout
+                conn, addr = server_socket.accept()
+                # Start a new thread to handle the client connection
+                client_thread = threading.Thread(
+                    target=self._handle_incoming_messages,
+                    args=(conn,)
+                )
+                client_thread.start()
 
-            if message:
-                # break up message in message and id
-                request = json.loads(message)
-                action = request.get("action", False)
-                project_id = request.get("project_id", False)
-                simulation = request.get("simulation", False)
-
-                # =========================
-                # execute requested actions
-                # =========================
-                if action == "insert" and project_id:
-                    # This will insert into the waiting database if
-                    # the project isn't there, it will fail gracefully
-                    # if the project is already waiting
-                    self.insert_in_waiting(project_id, simulation)
-
-                elif action in ["remove", "failure"] and project_id:
-                    self.remove_pending(project_id)
-
-            print(
-                f"pending projects: {self.pending}    waiting: {self.waiting}",
-            )
-
-            self.pop_queue()
+            except socket.timeout:
+                # No incoming connections => perform handling queue
+                messages = self._process_buffer()
+                # Pop tasks from database into 'pending'
+                self.pop_task_queue()
 
 
-def run_task_manager(max_workers, domain, port):
-    manager = TaskManager(max_workers=max_workers, domain=domain, port=port)
+def run_task_manager(max_workers, queue_endpoint=None):
+    manager = TaskManager(max_workers=max_workers, queue_endpoint=queue_endpoint)
     manager.start_manager()
 
 

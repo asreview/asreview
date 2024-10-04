@@ -15,7 +15,7 @@
 import logging
 import multiprocessing
 import os
-import zmq
+import socket
 from pathlib import Path
 
 try:
@@ -39,7 +39,6 @@ from asreview.webapp.api import projects
 from asreview.webapp.api import team
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
-from asreview.webapp.queue import ZMQ_CONTEXT
 from asreview.webapp.queue.manager import run_task_manager
 from asreview.webapp.utils import asreview_path
 
@@ -172,17 +171,25 @@ def create_app(config_path=None):
     if app.config.get("USE_QUEUE_MANAGER", None):
         # spin up task manager
         workers = 2
-        domain = "localhost"
-        port = 5555
+        queue_endpoint = "localhost:5555"
+
+        endpoint = queue_endpoint.split(":")
+        host = endpoint[0]
+        port = int(endpoint[1])
+
         process = multiprocessing.Process(
-            target=run_task_manager, args=(workers, domain, port)
+            target=run_task_manager, args=(workers, queue_endpoint)
         )
         process.start()
 
-        if process.pid is not None:
-            socket = ZMQ_CONTEXT.socket(zmq.PUSH)
-            socket.connect(f"tcp://{domain}:{port}")
-            app.config["QUEUE_MANAGER_SOCKET"] = socket
+        if process.pid is not None:   
+            import time
+            time.sleep(2)    
+            family = socket.AF_INET
+            socket_type = socket.SOCK_STREAM
+            with socket.socket(family, socket_type) as client_socket:
+                client_socket.connect((host, port))
+                app.config["QUEUE_MANAGER_SOCKET"] = client_socket
         else:
             raise RuntimeError("Not able to spin up the task manager.")
 
