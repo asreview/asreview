@@ -46,10 +46,11 @@ const DeleteCard = ({ project_id, info }) => {
             Delete project
           </Button>
           <ProjectDeleteDialog
-            onDeleteDialog={onDeleteDialog}
-            toggleDeleteDialog={toggleDeleteDialog}
+            open={onDeleteDialog}
+            onClose={toggleDeleteDialog}
             projectTitle={info?.name}
             project_id={project_id}
+            navigate_to={"/"}
           />
         </CardContent>
       </Card>
