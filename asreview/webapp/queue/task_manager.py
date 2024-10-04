@@ -1,6 +1,5 @@
 import json
 import socket
-import time
 import threading
 from collections import deque
 
@@ -187,7 +186,7 @@ class TaskManager:
 
             except socket.timeout:
                 # No incoming connections => perform handling queue
-                messages = self._process_buffer()
+                self._process_buffer()
                 # Pop tasks from database into 'pending'
                 self.pop_task_queue()
 

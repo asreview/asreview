@@ -1,7 +1,6 @@
 import json
 import socket
 import threading
-import time
 
 PAYLOAD = {
     "action": "insert",

@@ -13,9 +13,7 @@
 # limitations under the License.
 
 import logging
-import multiprocessing
 import os
-import socket
 from pathlib import Path
 
 try:
