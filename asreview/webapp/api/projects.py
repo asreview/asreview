@@ -326,9 +326,7 @@ def api_get_project_info(project):  # noqa: F401
         Project.project_id == project.config.get("id", 0)
     ).one_or_none()
     if db_project:
-        project_config["roles"] = {
-            "owner": db_project.owner_id == current_user.id
-        }
+        project_config["roles"] = {"owner": db_project.owner_id == current_user.id}
 
     return jsonify(project_config)
 
