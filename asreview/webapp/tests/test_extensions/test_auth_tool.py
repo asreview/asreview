@@ -369,7 +369,7 @@ def test_get_projects(client_no_auth, project):
     assert result["name"] == project.config["name"]
     assert result["authors"] == project.config["authors"]
     assert result["created"] == project.config["datetimeCreated"]
-    assert result["owner_id"] == 0
+    assert result["roles"]["owner"]
 
 
 # Test listing users
@@ -431,7 +431,7 @@ def test_list_projects_with_json(client_no_auth, capsys):
         assert proj["name"] == expected["name"]
         assert proj["authors"] == expected["authors"]
         assert proj["created"] == expected["datetimeCreated"]
-        assert proj["owner_id"] == 0
+        assert proj["roles"]["owner"]
 
 
 # Test linking projects to users with a json string

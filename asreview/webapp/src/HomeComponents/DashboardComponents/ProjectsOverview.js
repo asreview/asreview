@@ -6,14 +6,11 @@ import { projectModes, projectStatuses } from "globals.js";
 
 import { ProjectCard } from "HomeComponents/DashboardComponents";
 import { ProjectAPI } from "api";
-import useAuth from "hooks/useAuth";
 import { useQuery } from "react-query";
 
 import { Divider, Grid2 as Grid, Typography } from "@mui/material";
 
 const ProjectsOverview = ({ mode }) => {
-  const { auth } = useAuth();
-  const user_id = auth?.id;
   // const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
 
   const simulationOngoing = (data) => {
@@ -80,7 +77,6 @@ const ProjectsOverview = ({ mode }) => {
                       <ProjectCard
                         project={project}
                         mode={mode}
-                        user_id={user_id}
                         showProgressChip={false}
                       />
                     </Grid>
@@ -116,7 +112,6 @@ const ProjectsOverview = ({ mode }) => {
                     <ProjectCard
                       project={project}
                       mode={mode}
-                      user_id={user_id}
                       showProgressChip={false}
                     />
                   </Grid>
@@ -151,7 +146,6 @@ const ProjectsOverview = ({ mode }) => {
                     <ProjectCard
                       project={project}
                       mode={mode}
-                      user_id={user_id}
                       showProgressChip={false}
                     />
                   </Grid>

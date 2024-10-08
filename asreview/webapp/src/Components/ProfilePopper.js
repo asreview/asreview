@@ -1,6 +1,4 @@
-import * as React from "react";
-import { useNavigate } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { GroupAdd, Logout, Person } from "@mui/icons-material";
 import {
   Avatar,
   Badge,
@@ -19,13 +17,14 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Logout, GroupAdd, Person } from "@mui/icons-material";
+import * as React from "react";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useNavigate } from "react-router-dom";
 
 import { StyledMenuItem } from "StyledComponents/StyledMenuItem";
 import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
 import { AuthAPI, TeamAPI } from "api";
-import useAuth from "hooks/useAuth";
 import ElasAvatar from "images/ElasAvatar.svg";
 
 import { InvitationsDialog } from "ProjectComponents/TeamComponents";
@@ -33,16 +32,19 @@ import { useToggle } from "hooks/useToggle";
 
 const Root = styled("div")(({ theme }) => ({}));
 const ProfilePopper = (props) => {
-  const { auth, setAuth } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [projectInvitations, setProjectInvitations] = React.useState([]);
   const [onAcceptanceDialog, toggleAcceptanceDialog] = useToggle();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [open, setOpen] = React.useState(false);
+
+  const { data } = useQuery("refresh", AuthAPI.refresh);
+
   const { mutate } = useMutation(AuthAPI.signout, {
     onSuccess: () => {
-      setAuth({});
+      queryClient.invalidateQueries({ queryKey: ["refresh"] });
+      navigate("/reviews");
     },
   });
   const handleClick = (event) => {
@@ -166,7 +168,7 @@ const ProfilePopper = (props) => {
                       imgProps={{ sx: { p: 1 } }}
                     />
                     <TypographySubtitle1Medium>
-                      {auth?.name}
+                      {data?.name}
                     </TypographySubtitle1Medium>
                   </Stack>
                 </StyledMenuItem>
@@ -219,7 +221,7 @@ const ProfilePopper = (props) => {
         <InvitationsDialog
           open={onAcceptanceDialog}
           onClose={toggleAcceptanceDialog}
-          userId={auth.id}
+          userId={data.id}
           projectInvitations={projectInvitations}
           handleAcceptance={acceptInvitation.mutate}
           handleRejection={rejectInvitation.mutate}
