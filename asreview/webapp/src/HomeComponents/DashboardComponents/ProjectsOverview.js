@@ -13,7 +13,7 @@ import { Divider, Grid2 as Grid, Typography } from "@mui/material";
 
 const ProjectsOverview = ({ mode }) => {
   const { auth } = useAuth();
-  const user_id = auth.id;
+  const user_id = auth?.id;
   // const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
 
   const simulationOngoing = (data) => {
