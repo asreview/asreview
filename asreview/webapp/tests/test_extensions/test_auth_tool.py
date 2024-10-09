@@ -371,6 +371,7 @@ def test_get_projects(client_no_auth, project):
     assert result["created"] == project.config["datetimeCreated"]
     assert result["owner_id"] == 0
 
+
 # Test listing users
 def test_list_users(client_auth, capsys):
     # create 2 users
@@ -431,6 +432,7 @@ def test_list_projects_with_json(client_no_auth, capsys):
         assert proj["authors"] == expected["authors"]
         assert proj["created"] == expected["datetimeCreated"]
         assert result["owner_id"] == 0
+
 
 # Test linking projects to users with a json string
 # Note: We can not simulate a conversion from an unauthenticated
