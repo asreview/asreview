@@ -137,7 +137,7 @@ def api_get_projects(projects):  # noqa: F401
     project_info = []
 
     # for project, owner_id in zip(projects, owner_ids):
-    for project in projects:
+    for project, db_project in projects:
         try:
             project_config = project.config
 
@@ -145,7 +145,9 @@ def api_get_projects(projects):  # noqa: F401
                 continue
 
             if not current_app.config.get("LOGIN_DISABLED", False):
-                project_config["owner_id"] = current_user.id
+                project_config["roles"] = {
+                    "owner": db_project.owner_id == current_user.id
+                }
 
             logging.info("Project found: {}".format(project_config["id"]))
             project_info.append(project_config)
@@ -171,7 +173,7 @@ def api_get_projects_stats(projects):  # noqa: F401
 
     stats_counter = {"n_in_review": 0, "n_finished": 0, "n_setup": 0}
 
-    for project in projects:
+    for project, _ in projects:
         project_config = project.config
 
         # get dashboard statistics
@@ -324,7 +326,7 @@ def api_get_project_info(project):  # noqa: F401
         Project.project_id == project.config.get("id", 0)
     ).one_or_none()
     if db_project:
-        project_config["ownerId"] = db_project.owner_id
+        project_config["roles"] = {"owner": db_project.owner_id == current_user.id}
 
     return jsonify(project_config)
 
@@ -883,7 +885,7 @@ def api_import_project():
 
     if not current_app.config.get("LOGIN_DISABLED", False):
         current_user.projects.append(Project(project_id=project.config.get("id")))
-        project.config["owner_id"] = current_user.id
+        project.config["roles"] = {"owner": True}
         DB.session.commit()
 
     return jsonify({"data": project.config, "warnings": warnings})
