@@ -177,7 +177,7 @@ def create_app(config_path=None):
                 "workers": workers,
                 "host": host,
                 "port": port,
-                "verbose": app.config.get("TASK_MANAGER_VERBOSE", False)
+                "verbose": app.config.get("TASK_MANAGER_VERBOSE", False),
             }
         else:
             message = (

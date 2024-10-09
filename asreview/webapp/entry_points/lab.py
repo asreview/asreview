@@ -186,8 +186,7 @@ def lab_entry_point(argv):
     verbose = app.config["TASK_MANAGER_CONFIG"]["verbose"]
 
     process = multiprocessing.Process(
-        target=run_task_manager,
-        args=(workers, socket_host, socket_port, verbose)
+        target=run_task_manager, args=(workers, socket_host, socket_port, verbose)
     )
     process.start()
     if process.pid is None:

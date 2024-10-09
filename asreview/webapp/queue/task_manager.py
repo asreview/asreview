@@ -51,8 +51,7 @@ class TaskManager:
             self.session.commit()
             logging.info(f"Project {project_id} inserted to waiting list")
         except IntegrityError:
-            logging.error(
-                f"Failed to add project {project_id} to waiting list")
+            logging.error(f"Failed to add project {project_id} to waiting list")
             self.session.rollback()
 
     def is_waiting(self, project_id):
@@ -74,8 +73,7 @@ class TaskManager:
             self.pending.remove(project_id)
             logging.info(f"Removed project {project_id} from pending area")
         else:
-            logging.error(
-                f"Failed to find project {project_id} in pending area")
+            logging.error(f"Failed to find project {project_id} in pending area")
 
     def move_from_waiting_to_pending(self, project_id):
         record = self.is_waiting(project_id)
@@ -86,14 +84,12 @@ class TaskManager:
                 # delete
                 self.session.delete(record)
                 self.session.commit()
-                logging.info(
-                    f"Save to move project {project_id} to pending area")
+                logging.info(f"Save to move project {project_id} to pending area")
             except Exception:
                 self.session.rollback()
                 # remove from pending
                 self.remove_pending(project_id)
-                logging.error(
-                    f"Failed to move project {project_id} to pending area")
+                logging.error(f"Failed to move project {project_id} to pending area")
 
     def add_pending(self, project_id):
         if project_id not in self.pending:
@@ -112,8 +108,9 @@ class TaskManager:
             logging.info(f"Run process for project: {project_id}")
             return True
         except Exception as _:
-            message = f"Failed to spin up training process " +  \
-                "for project: {project_id}"
+            message = (
+                f"Failed to spin up training process " + "for project: {project_id}"
+            )
             logging.error(message)
             return False
 
@@ -214,10 +211,8 @@ class TaskManager:
 
 def setup_logging(verbose=False):
     level = logging.INFO if verbose else logging.ERROR
-    logging.basicConfig(
-        level=level,
-        format='%(asctime)s - %(levelname)s - %(message)s'
-    )
+    logging.basicConfig(level=level, format="%(asctime)s - %(levelname)s - %(message)s")
+
 
 def run_task_manager(max_workers, host, port, verbose=False):
     setup_logging(verbose)
@@ -226,13 +221,8 @@ def run_task_manager(max_workers, host, port, verbose=False):
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--verbose',
-        action='store_true',
-        help='Enable verbose logging'
-    )
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
     args = parser.parse_args()
 
     setup_logging(verbose=args.verbose)
