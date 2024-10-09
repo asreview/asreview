@@ -53,12 +53,10 @@ class TaskManager:
             self.session.commit()
             logging.info(f"Project {project_id} inserted to waiting list")
         except IntegrityError:
-            logging.error(
-                f"Project {project_id} already exists in waiting list")
+            logging.error(f"Project {project_id} already exists in waiting list")
             self.session.rollback()
         except Exception:
-            logging.error(
-                f"Failed to add project {project_id} to waiting list")
+            logging.error(f"Failed to add project {project_id} to waiting list")
             self.session.rollback()
 
     def is_waiting(self, project_id):
@@ -78,11 +76,9 @@ class TaskManager:
     def remove_pending(self, project_id):
         if project_id in self.pending:
             self.pending.remove(project_id)
-            logging.info(
-                f"Removed project {project_id} from pending area")
+            logging.info(f"Removed project {project_id} from pending area")
         else:
-            logging.error(
-                f"Failed to find project {project_id} in pending area")
+            logging.error(f"Failed to find project {project_id} in pending area")
 
     def move_from_waiting_to_pending(self, project_id):
         record = self.is_waiting(project_id)
@@ -94,14 +90,12 @@ class TaskManager:
                 self.session.execute(text("BEGIN TRANSACTION"))
                 self.session.delete(record)
                 self.session.commit()
-                logging.info(
-                    f"Save to move project {project_id} to pending area")
+                logging.info(f"Save to move project {project_id} to pending area")
             except Exception:
                 self.session.rollback()
                 # remove from pending
                 self.remove_pending(project_id)
-                logging.error(
-                    f"Failed to move project {project_id} to pending area")
+                logging.error(f"Failed to move project {project_id} to pending area")
 
     def add_pending(self, project_id):
         if project_id not in self.pending:
@@ -136,7 +130,7 @@ class TaskManager:
             # we can have only one record per project in the waiting
             # table, and that the same project may exist in pending).
             # If I have 3 slots available out of 8, selecting 8 records
-            # ensures I will have 3 non-pending projects in the selection. 
+            # ensures I will have 3 non-pending projects in the selection.
             try:
                 records = (
                     self.session.query(ProjectQueueModel)
@@ -244,10 +238,7 @@ class TaskManager:
 
 def setup_logging(verbose=False):
     level = logging.INFO if verbose else logging.ERROR
-    logging.basicConfig(
-        level=level,
-        format="%(asctime)s - %(levelname)s - %(message)s"
-    )
+    logging.basicConfig(level=level, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
 def run_task_manager(max_workers, host, port, verbose=False):
