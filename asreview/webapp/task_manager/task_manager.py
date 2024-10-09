@@ -112,27 +112,42 @@ class TaskManager:
             logging.error(message)
             return False
 
-    def pop_task_queue(self):
-        """Moves tasks from the database and executes them in subprocess."""
-        # how many slots do I have?
-        available_slots = self.max_workers - len(self.pending)
+    def _count_available_slots(self):
+        return self.max_workers - len(self.pending)
 
-        if available_slots > 0:
-            # select first n records
+    def pop_waiting_queue(self):
+        """Moves tasks from the database and executes them in subprocess."""
+        # Do we have available slots?
+        if self._count_available_slots() > 0:
+            # select first #max_workers records to ensure we
+            # have new projects that can start training (note that
+            # we can have only one record per project in the waiting
+            # table, and that the same project may exist in pending).
+            # If I have 3 slots available out of 8, selecting 8 records
+            # ensures I will have 3 non-pending projects in the selection. 
             records = (
                 self.session.query(ProjectQueueModel)
                 .order_by(ProjectQueueModel.id)
-                .limit(available_slots)
+                .limit(self.max_workers)
                 .all()
             )
             # loop over records
             for record in records:
                 project_id = record.project_id
                 simulation = record.simulation
-                # execute job
-                if self.__execute_job(project_id, simulation):
-                    # move out of waiting and put into pending
-                    self.move_from_waiting_to_pending(project_id)
+                
+                if project_id in self.pending:
+                    # continue if this project is already in pending
+                    continue
+                elif self._count_available_slots() == 0:
+                    # break if we have no more slots
+                    break
+                else:
+                    # we have a slot and a new project,
+                    # execute job:
+                    if self.__execute_job(project_id, simulation):
+                        # move out of waiting and put into pending
+                        self.move_from_waiting_to_pending(project_id)
 
     def _process_buffer(self):
         """Injects messages in the database."""
@@ -206,7 +221,7 @@ class TaskManager:
                 # No incoming connections => perform handling queue
                 self._process_buffer()
                 # Pop tasks from database into 'pending'
-                self.pop_task_queue()
+                self.pop_waiting_queue()
 
 
 def setup_logging(verbose=False):
