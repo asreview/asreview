@@ -431,7 +431,7 @@ def test_list_projects_with_json(client_no_auth, capsys):
         assert proj["name"] == expected["name"]
         assert proj["authors"] == expected["authors"]
         assert proj["created"] == expected["datetimeCreated"]
-        assert result["owner_id"] == 0
+        assert proj["owner_id"] == 0
 
 
 # Test linking projects to users with a json string
