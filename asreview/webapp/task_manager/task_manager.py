@@ -153,7 +153,7 @@ class TaskManager:
             for record in records:
                 project_id = record.project_id
                 simulation = record.simulation
-                
+
                 if project_id in self.pending:
                     # continue if this project is already in pending
                     continue
