@@ -124,7 +124,7 @@ class TaskManager:
             # we can have only one record per project in the waiting
             # table, and that the same project may exist in pending).
             # If I have 3 slots available out of 8, selecting 8 records
-            # ensures I will have 3 non-pending projects in the selection. 
+            # ensures I will have 3 non-pending projects in the selection.
             records = (
                 self.session.query(ProjectQueueModel)
                 .order_by(ProjectQueueModel.id)
@@ -135,7 +135,7 @@ class TaskManager:
             for record in records:
                 project_id = record.project_id
                 simulation = record.simulation
-                
+
                 if project_id in self.pending:
                     # continue if this project is already in pending
                     continue
