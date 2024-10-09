@@ -30,6 +30,7 @@ import { HomePage } from "./HomeComponents";
 import { ProjectPage } from "ProjectComponents";
 import { useFontSize } from "hooks/SettingsHooks";
 import { useToggle } from "hooks/useToggle";
+import { colorScheme } from "constants/theme";
 
 // Ensure that on localhost we use 'localhost' instead of '127.0.0.1'
 const currentDomain = window.location.href;
@@ -67,7 +68,7 @@ const App = () => {
 
   const muiTheme = createTheme({
     // cssVariables: true,
-    colorSchemes: { dark: true },
+    colorSchemes: colorScheme,
   });
   const mobileScreen = useMediaQuery(muiTheme.breakpoints.down("md"), {
     noSsr: true,
