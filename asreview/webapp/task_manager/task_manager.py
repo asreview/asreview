@@ -108,9 +108,7 @@ class TaskManager:
             logging.info(f"Run process for project: {project_id}")
             return True
         except Exception as _:
-            message = (
-                f"Failed to spin up training process for project: {project_id}"
-            )
+            message = f"Failed to spin up training process for project: {project_id}"
             logging.error(message)
             return False
 
@@ -152,8 +150,7 @@ class TaskManager:
 
             elif action in ["remove", "failure"] and project_id:
                 if action == "failure":
-                    logging.error(
-                        f"Failed to train model for project {project_id}")
+                    logging.error(f"Failed to train model for project {project_id}")
                 self.remove_pending(project_id)
 
     def _handle_incoming_messages(self, conn):
@@ -168,8 +165,7 @@ class TaskManager:
                     if client_buffer != "":
                         # we may be dealing with multiple messages,
                         # update buffer to produce a correct json string
-                        client_buffer = \
-                            "[" + client_buffer.replace("}{", "},{") + "]"
+                        client_buffer = "[" + client_buffer.replace("}{", "},{") + "]"
                         messages = json.loads(client_buffer)
                         logging.info(f"Received messages:\n{messages}\n")
                         # add to buffer
