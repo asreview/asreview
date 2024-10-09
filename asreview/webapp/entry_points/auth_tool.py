@@ -351,6 +351,7 @@ class AuthTool:
                     "name": project.config.get("name"),
                     "authors": project.config.get("authors"),
                     "created": project.config.get("datetimeCreated"),
+                    "owner_id": 0,
                 }
             )
         return result
