@@ -126,7 +126,7 @@ The following variables will be added to your tabular dataset:
   not seen during the screening process.
 - The column titled **asreview_ranking** contains an identifier to
   preserve the rank ordering as described below.
-- The column **ASReview_prior** contains a label ``1`` if a record has been
+- The column **asreview_prior** contains a label ``1`` if a record has been
   used to train the first iteration of the model, a label ``0`` if not used
   for training, and empty when the record was not seen.
 - The column **asreview_label_to_validate** is added in the exploration mode and
@@ -135,7 +135,7 @@ The following variables will be added to your tabular dataset:
 
 For RIS files, the
 labels **ASReview_relevant**, **ASReview_irrelevant**, **ASReview_not_seen**,
-and **ASReview_prior**, **ASReview_validate_relevant/irrelevant/not_seen**
+and **asreview_prior**, **ASReview_validate_relevant/irrelevant/not_seen**
 are stored with the `N1` (Notes) tag. In citation managers like Zotero and
 Endnote, the labels can be used for making selections.
 
