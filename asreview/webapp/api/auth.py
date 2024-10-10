@@ -274,6 +274,7 @@ def confirm_account():
 
     return redirect("/reviews")
 
+
 @bp.route("/get_profile", methods=["GET"])
 @login_required
 def get_profile():
