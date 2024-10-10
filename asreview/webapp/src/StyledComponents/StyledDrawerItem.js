@@ -6,6 +6,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { alpha } from "@mui/material";
 
 const ListItemButtonDrawer = styled(ListItemButton)(({ theme }) => ({
   "&.MuiListItemButton-root": {
@@ -31,7 +32,21 @@ export const DrawerItem = ({
       title={toolTipTitle || primary}
       placement="right"
     >
-      <ListItemButtonDrawer {...itemButtomProps}>
+      <ListItemButtonDrawer
+        {...itemButtomProps}
+        sx={(theme) => ({
+          "&.active": {
+            color: theme.palette.primary.main,
+            backgroundColor: alpha(
+              theme.palette.primary.light,
+              theme.palette.action.selectedOpacity,
+            ),
+            "> .MuiListItemIcon-root": {
+              color: theme.palette.primary.main,
+            },
+          },
+        })}
+      >
         <ListItemIcon sx={{ pl: 1 }}>{icon}</ListItemIcon>
         <ListItemText primary={primary} />
       </ListItemButtonDrawer>

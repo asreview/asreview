@@ -13,15 +13,14 @@ import {
   Input,
   Radio,
   RadioGroup,
-  Stack,
   Snackbar,
+  Stack,
   Tooltip,
 } from "@mui/material";
 import * as React from "react";
 
 import { useMutation, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "@mui/material/styles";
 
 import useMediaQuery from "@mui/material/useMediaQuery";
 
@@ -118,8 +117,7 @@ const SetupDialog = ({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const fullScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
 
   // state management
   const [dataset, setDataset] = React.useState(projectInfo);

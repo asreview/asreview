@@ -1,78 +1,29 @@
-import * as React from "react";
-import { useNavigate } from "react-router-dom";
-import { useMutation, useQueryClient } from "react-query";
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
-  Box,
   Button,
-  Card,
+  CardActions,
   CardContent,
-  Fade,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
-import LoadingButton from "@mui/lab/LoadingButton";
-import { styled } from "@mui/material/styles";
+import * as React from "react";
+import { useMutation } from "react-query";
 
-import { WordMark } from "icons/WordMark";
-import { InlineErrorHandler } from ".";
 import AuthAPI from "api/AuthAPI";
 
-const PREFIX = "SignInForm";
-
-const classes = {
-  button: `${PREFIX}-button`,
-  card: `${PREFIX}-card`,
-  cardContent: `${PREFIX}-card-content`,
-  checkbox: `${PREFIX}-checkbox`,
-  header: `${PREFIX}-header`,
-};
-
-const Root = styled("div")(({ theme }) => ({
-  display: "flex",
-  height: "100%",
-  width: "100%",
-  alignItems: "center",
-  justifyContent: "center",
-  position: "absolute",
-  [`& .${classes.button}`]: {
-    paddingTop: theme.spacing(3),
-    paddingBottom: theme.spacing(3),
-    justifyContent: "space-between",
-  },
-  [`& .${classes.card}`]: {
-    borderRadius: theme.spacing(2),
-    width: "450px",
-  },
-  [`& .${classes.cardContent}`]: {
-    padding: "48px 40px",
-  },
-  [`& .${classes.header}`]: {
-    alignItems: "center",
-  },
-}));
-
-const ForgotPassword = (props) => {
+const ForgotPassword = ({ showNotification, toggleForgotPassword }) => {
   const [email, setEmail] = React.useState("");
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
 
-  const { error, isError, isLoading, mutate, reset } = useMutation(
-    AuthAPI.forgotPassword,
-    {
-      onMutate: () => {
-        // clear potential error
-        queryClient.resetQueries("refresh");
-      },
-      onSuccess: (data) => {
-        props.showNotification(`An email has beent sent to ${email}.`);
-        setEmail("");
-      },
-      onError: (data) => {
-        console.error("Forgot password error", data);
-      },
+  const { isLoading, mutate, reset } = useMutation(AuthAPI.forgotPassword, {
+    onSuccess: (data) => {
+      showNotification(`An email has beent sent to ${email}.`);
+      setEmail("");
     },
-  );
+    onError: (data) => {
+      console.error("Forgot password error", data);
+    },
+  });
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -84,69 +35,55 @@ const ForgotPassword = (props) => {
     setEmail(event.target.value);
   };
 
-  const handleSignin = (event) => {
-    navigate("/signin");
-  };
-
   return (
-    <Root>
-      <Fade in>
-        <Box>
-          <Card className={classes.card} variant="outlined">
-            <CardContent className={classes.cardContent}>
-              <Stack spacing={3}>
-                <Stack className={classes.header} spacing={2}>
-                  <WordMark style={{ width: "100%", maxWidth: "130px" }} />
-                  <Typography variant="h5">Forgot your password?</Typography>
-                  {window.emailVerification && (
-                    <p>
-                      Enter your email address, click on the submit button and
-                      an email will be sent to you. Check your spam or bulk
-                      folder if you don't get an email.
-                    </p>
-                  )}
-                  {!window.emailVerification && (
-                    <p>Contact your ASReview-app administrator</p>
-                  )}
-                </Stack>
-                {window.emailVerification && (
-                  <>
-                    <Stack spacing={3}>
-                      <TextField
-                        label="Email"
-                        value={email}
-                        onChange={handleEmailChange}
-                        variant="outlined"
-                        fullWidth
-                        autoFocus
-                      />
-                    </Stack>
-                    {isError && <InlineErrorHandler message={error.message} />}
+    <>
+      <CardContent>
+        <Stack spacing={3}>
+          <Stack spacing={2}>
+            <Typography variant="h5">Forgot your password?</Typography>
+            {window.emailVerification && (
+              <p>
+                Enter your email address, click on the submit button and an
+                email will be sent to you. Check your spam or bulk folder if you
+                don't get an email.
+              </p>
+            )}
+            {!window.emailVerification && (
+              <p>Contact your ASReview-app administrator</p>
+            )}
+          </Stack>
+          {window.emailVerification && (
+            <Stack spacing={3}>
+              <TextField
+                label="Email"
+                value={email}
+                onChange={handleEmailChange}
+                variant="outlined"
+                fullWidth
+                autoFocus
+              />
+            </Stack>
+            // {isError && <InlineErrorHandler message={error.message} />}
+          )}
+        </Stack>
+      </CardContent>
 
-                    <Stack className={classes.button} direction="row">
-                      <LoadingButton
-                        loading={isLoading}
-                        variant="contained"
-                        color="primary"
-                        onClick={handleSubmit}
-                      >
-                        Submit
-                      </LoadingButton>
-                      <Button
-                        onClick={handleSignin}
-                        sx={{ textTransform: "none" }}
-                      >
-                        Sign In instead
-                      </Button>
-                    </Stack>
-                  </>
-                )}
-              </Stack>
-            </CardContent>
-          </Card>
-        </Box>
-      </Fade>
-    </Root>
+      <CardActions>
+        {window.emailVerification && (
+          <LoadingButton
+            loading={isLoading}
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit}
+          >
+            Submit
+          </LoadingButton>
+        )}
+        <Button onClick={toggleForgotPassword} sx={{ textTransform: "none" }}>
+          Sign In instead
+        </Button>
+      </CardActions>
+    </>
   );
 };
 

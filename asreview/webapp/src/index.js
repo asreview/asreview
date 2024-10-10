@@ -1,19 +1,29 @@
+import { CssBaseline } from "@mui/material";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import App from "App";
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "context/AuthProvider";
-import App from "App";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { BrowserRouter } from "react-router-dom";
+
+const queryClient = new QueryClient();
 
 function ASReviewApp() {
+  const muiTheme = createTheme({
+    // cssVariables: true,
+    colorSchemes: { dark: true },
+  });
+
   return (
     <React.StrictMode>
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route path="*" element={<App />} />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
+      <CssBaseline />
+      <ThemeProvider theme={muiTheme}>
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </QueryClientProvider>
+      </ThemeProvider>
     </React.StrictMode>
   );
 }

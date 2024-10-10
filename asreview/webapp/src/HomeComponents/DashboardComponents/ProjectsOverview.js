@@ -11,8 +11,6 @@ import { useQuery } from "react-query";
 import { Divider, Grid2 as Grid, Typography } from "@mui/material";
 
 const ProjectsOverview = ({ mode }) => {
-  // const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
-
   const simulationOngoing = (data) => {
     if (
       mode === projectModes.SIMULATION &&
