@@ -22,7 +22,6 @@ from flask import jsonify
 from flask import render_template_string
 from flask import request
 from flask import redirect
-from flask import url_for
 from flask_login import current_user
 from flask_login import login_required
 from flask_login import login_user
@@ -269,7 +268,7 @@ def confirm_account():
         user = user.confirm_user()
         try:
             DB.session.commit()
-        except SQLAlchemyError as e:
+        except SQLAlchemyError:
             DB.session.rollback()
 
     return redirect("/reviews")
