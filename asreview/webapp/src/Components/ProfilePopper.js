@@ -16,7 +16,6 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
@@ -30,9 +29,32 @@ import ElasAvatar from "images/ElasAvatar.svg";
 import { InvitationsDialog } from "ProjectComponents/TeamComponents";
 import { useToggle } from "hooks/useToggle";
 
-const Root = styled("div")(({ theme }) => ({}));
-const ProfilePopper = (props) => {
+const SignOutItem = () => {
+  const queryClient = useQueryClient();
+
   const navigate = useNavigate();
+
+  const { mutate: handleSignOut } = useMutation(AuthAPI.signout, {
+    onSuccess: () => {
+      queryClient.invalidateQueries();
+      navigate("/signin");
+    },
+  });
+
+  return (
+    <MenuItem id="signout" onClick={handleSignOut}>
+      <ListItemIcon>
+        <Logout fontSize="small" />
+      </ListItemIcon>
+      <ListItemText disableTypography>
+        <Typography variant="body2">Sign out</Typography>
+      </ListItemText>
+    </MenuItem>
+  );
+};
+
+const ProfilePopper = () => {
+  // const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [projectInvitations, setProjectInvitations] = React.useState([]);
   const [onAcceptanceDialog, toggleAcceptanceDialog] = useToggle();
@@ -41,12 +63,6 @@ const ProfilePopper = (props) => {
 
   const { data } = useQuery("refresh", AuthAPI.refresh);
 
-  const { mutate } = useMutation(AuthAPI.signout, {
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["refresh"] });
-      navigate("/reviews");
-    },
-  });
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
     setOpen((prev) => !prev);
@@ -54,17 +70,15 @@ const ProfilePopper = (props) => {
   const handleClickAway = () => {
     setOpen(false);
   };
-  const handleSignOut = () => {
-    mutate();
-  };
   const openAcceptanceDialog = () => {
     setOpen(false);
     toggleAcceptanceDialog();
   };
   const handleProfile = () => {
     setOpen(false);
-    navigate("/profile");
+    // navigate("/profile");
   };
+
   useQuery(["getProjectInvitations"], () => TeamAPI.getProjectInvitations(), {
     onSuccess: (data) => {
       setProjectInvitations(data["invited_for_projects"] || []);
@@ -74,6 +88,7 @@ const ProfilePopper = (props) => {
     },
     enabled: window.allowTeams,
   });
+
   const acceptInvitation = useMutation(
     (project) => TeamAPI.acceptInvitation(project.project_id),
     {
@@ -120,7 +135,7 @@ const ProfilePopper = (props) => {
   );
 
   return (
-    <Root>
+    <div>
       <ClickAwayListener onClickAway={handleClickAway}>
         <Box>
           <Tooltip title="Profile">
@@ -129,8 +144,6 @@ const ProfilePopper = (props) => {
                 alt="user"
                 src={ElasAvatar}
                 sx={(theme) => ({
-                  width: !props.mobileScreen ? 32 : 24,
-                  height: !props.mobileScreen ? 32 : 24,
                   bgcolor: "grey.400",
                   ...theme.applyStyles("dark", {
                     bgcolor: "grey.600",
@@ -158,8 +171,6 @@ const ProfilePopper = (props) => {
                       alt="user"
                       src={ElasAvatar}
                       sx={(theme) => ({
-                        width: !props.mobileScreen ? 40 : 32,
-                        height: !props.mobileScreen ? 40 : 32,
                         bgcolor: "grey.400",
                         ...theme.applyStyles("dark", {
                           bgcolor: "grey.600",
@@ -204,20 +215,13 @@ const ProfilePopper = (props) => {
                     </ListItemText>
                   </MenuItem>
                 )}
-                <MenuItem id="signout" onClick={handleSignOut}>
-                  <ListItemIcon>
-                    <Logout fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText disableTypography>
-                    <Typography variant="body2">Sign out</Typography>
-                  </ListItemText>
-                </MenuItem>
+                <SignOutItem />
               </MenuList>
             </Paper>
           </Popper>
         </Box>
       </ClickAwayListener>
-      {window.allowTeams && (
+      {window.allowTeams && data && (
         <InvitationsDialog
           open={onAcceptanceDialog}
           onClose={toggleAcceptanceDialog}
@@ -227,7 +231,7 @@ const ProfilePopper = (props) => {
           handleRejection={rejectInvitation.mutate}
         />
       )}
-    </Root>
+    </div>
   );
 };
 export default ProfilePopper;

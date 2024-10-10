@@ -41,6 +41,7 @@ const actions = [
 ];
 const AnalyticsPage = () => {
   const { project_id } = useParams();
+
   const progressQuery = useQuery(
     ["fetchProgress", { project_id }],
     ({ queryKey }) =>

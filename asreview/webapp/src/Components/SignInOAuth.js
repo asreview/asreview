@@ -1,15 +1,14 @@
 // The business logic of this component comes from the
 // following URL: https://tasoskakour.com/blog/react-use-oauth2
 
-import * as React from "react";
-import { useNavigate } from "react-router-dom";
-import { IconButton, Stack, Typography } from "@mui/material";
 import { GitHub, Google } from "@mui/icons-material";
-import { Orcid } from "icons";
+import { IconButton, Stack, Typography } from "@mui/material";
 import AuthAPI from "api/AuthAPI";
-import useAuth from "hooks/useAuth";
-import { InlineErrorHandler } from ".";
+import { Orcid } from "icons";
+import * as React from "react";
 import OauthPopup from "react-oauth-popup";
+import { useNavigate } from "react-router-dom";
+import { InlineErrorHandler } from ".";
 
 const POPUP_HEIGHT = 700;
 const POPUP_WIDTH = 600;
@@ -23,8 +22,7 @@ const generateOAuthUrl = (config) => {
   );
 };
 
-const SignInOauth = ({ classes, oAuthConfig }) => {
-  const { setAuth } = useAuth();
+const SignInOauth = ({ oAuthConfig }) => {
   const navigate = useNavigate();
 
   const [errorMessage, setErrorMessage] = React.useState("");
@@ -41,14 +39,6 @@ const SignInOauth = ({ classes, oAuthConfig }) => {
     AuthAPI.oAuthCallback(payload)
       .then((data) => {
         if (data.logged_in) {
-          setAuth({
-            logged_in: data.logged_in,
-            name: data.name,
-            id: data.id,
-          });
-          // Authentication was successful, do we have
-          // to go to the profile page (if this is the first
-          // time), or do we go to projects
           if (Boolean(data?.account_created)) {
             navigate("/profile?first_time=true");
           } else {
@@ -80,7 +70,7 @@ const SignInOauth = ({ classes, oAuthConfig }) => {
 
   return (
     <>
-      <Stack className={classes.button} direction="row">
+      <Stack direction="row">
         <Typography variant="body1">Or sign in with:</Typography>
         {Object.keys(oAuthConfig.services).map((provider) => {
           let config = oAuthConfig.services[provider];

@@ -12,17 +12,17 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
+  FormControl,
+  FormControlLabel,
   Grid2 as Grid,
   IconButton,
   List,
   ListItem,
   ListItemButton,
   ListItemText,
-  Slider,
-  RadioGroup,
   Radio,
-  FormControl,
-  FormControlLabel,
+  RadioGroup,
+  Slider,
   Stack,
   Typography,
 } from "@mui/material";
@@ -32,6 +32,7 @@ import React from "react";
 import { OpenInNewIconStyled } from "Components";
 
 import { fontSizeOptions } from "globals.js";
+import { useFontSize } from "hooks/SettingsHooks";
 import { useToggle } from "hooks/useToggle";
 
 const PREFIX = "SettingsDialog";
@@ -53,7 +54,7 @@ const SettingsDialog = (props) => {
 
   // second layer state
   const [fontSizeSetting, toggleFontSizeSetting] = useToggle();
-  const [fontSize, setFontSize] = React.useState(props.fontSize);
+  const [fontSize, handleFontSizeChange] = useFontSize();
 
   const toggleBackMainSettings = () => {
     if (fontSizeSetting) {
@@ -257,8 +258,9 @@ const SettingsDialog = (props) => {
                   min={0}
                   max={3}
                   onChange={(event) => {
-                    setFontSize(event.target.value);
+                    handleFontSizeChange(event.target.value);
                   }}
+                  disabled // make this work. Use redux? or local storage?
                 />
               </Grid>
               <Grid size="grow">
@@ -273,7 +275,7 @@ const SettingsDialog = (props) => {
           <Button onClick={toggleFontSizeSetting}>Cancel</Button>
           <Button
             onClick={() => {
-              props.handleFontSizeChange(fontSize);
+              handleFontSizeChange(fontSize);
               toggleFontSizeSetting();
             }}
           >

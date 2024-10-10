@@ -59,7 +59,9 @@ const Screener = (props) => {
   );
 };
 
-const ReviewPage = ({ project_id, fontSize }) => {
+const ReviewPage = ({ fontSize }) => {
+  let { project_id } = useParams();
+
   /* fetch the record and check if the project is training */
   const { refetch, data, isSuccess } = useQuery(
     ["fetchRecord", { project_id }],

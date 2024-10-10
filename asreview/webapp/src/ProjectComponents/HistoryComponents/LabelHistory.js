@@ -23,6 +23,7 @@ import { ProjectAPI } from "api";
 import { Filter, LabeledRecord } from ".";
 import { DownloadOutlined } from "@mui/icons-material";
 import { useToggle } from "hooks/useToggle";
+import { useParams } from "react-router-dom";
 
 const ExportButton = ({ project_id }) => {
   const [open, toggleOpen] = useToggle();
@@ -133,12 +134,13 @@ const ExportButton = ({ project_id }) => {
 };
 
 const LabelHistory = ({
-  project_id,
   n_prior_inclusions = null,
   n_prior_exclusions = null,
   showFilter = true,
   filterQuery = [],
 }) => {
+  const { project_id } = useParams();
+
   const [label, setLabel] = React.useState("relevant");
   const [state, setState] = React.useState(filterQuery);
 

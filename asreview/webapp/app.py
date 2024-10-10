@@ -129,7 +129,6 @@ def create_app(config_path=None):
     @app.route("/", methods=["GET"])
     @app.route("/signin", methods=["GET"])
     @app.route("/signup", methods=["GET"])
-    @app.route("/confirm_account", methods=["GET"])
     @app.route("/oauth_callback", methods=["GET"])
     @app.route("/profile", methods=["GET"])
     @app.route("/get_profile", methods=["GET"])
