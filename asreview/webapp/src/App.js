@@ -1,4 +1,4 @@
-import { useMediaQuery } from "@mui/material";
+import { useMediaQuery, CssBaseline } from "@mui/material";
 import { AuthPage, ProjectDrawerItems } from "Components";
 import {
   ProfilePage,
@@ -41,7 +41,7 @@ const App = () => {
 
   return (
     <>
-      {/* <CssBaseline /> */}
+      <CssBaseline />
 
       <div aria-label="nav and main content">
         <Routes>
