@@ -1,4 +1,4 @@
-import { Box, Container, Grid2 as Grid, Snackbar } from "@mui/material";
+import { Container, Grid2 as Grid, Snackbar } from "@mui/material";
 import {
   CollaborationPage,
   ConfirmationDialog,

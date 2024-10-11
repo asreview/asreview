@@ -5,7 +5,6 @@ import {
   CardContent,
   CardHeader,
   Grid2 as Grid,
-  Typography,
 } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";

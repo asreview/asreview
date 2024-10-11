@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Card,
   CardContent,
@@ -7,8 +6,8 @@ import {
   Container,
   FormControlLabel,
   FormGroup,
-  Switch,
   Stack,
+  Switch,
 } from "@mui/material";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";

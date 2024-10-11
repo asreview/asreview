@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, List, Typography } from "@mui/material";
+import { Card, CardContent, CardHeader, List } from "@mui/material";
 import { UserListEntry } from "ProjectComponents/TeamComponents";
 
 const UserListComponent = ({ header, users, onDelete, disabled = false }) => {
