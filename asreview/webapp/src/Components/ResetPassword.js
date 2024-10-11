@@ -56,7 +56,7 @@ const ResetPassword = () => {
   const { mutate } = useMutation(AuthAPI.resetPassword, {
     onMutate: () => {
       // clear potential error
-      queryClient.resetQueries("refresh");
+      queryClient.resetQueries("user");
     },
     onSuccess: (data) => {
       formik.setValues(initialValues, false);

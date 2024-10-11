@@ -15,7 +15,7 @@ const CollaborationPage = () => {
   const [dialogOpen, toggleDialogOpen] = useToggle();
   const [errorMessage, setErrorMessage] = React.useState(undefined);
 
-  const { data } = useQuery("refresh", AuthAPI.refresh);
+  const { data } = useQuery("user", AuthAPI.user);
 
   const handleEndCollaboration = useMutation(
     () =>

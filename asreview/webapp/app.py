@@ -24,10 +24,13 @@ except ImportError:
 from flask import Flask
 from flask import request
 from flask import send_from_directory
+from flask import url_for
+from flask import redirect
 from flask.json import jsonify
 from flask.templating import render_template
 from flask_cors import CORS
 from flask_login import LoginManager
+from flask_login import current_user
 from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
@@ -126,19 +129,11 @@ def create_app(config_path=None):
         logging.error(e.original_exception)
         return jsonify(message=str(e.original_exception)), 500
 
-    @app.route("/", methods=["GET"])
     @app.route("/signin", methods=["GET"])
-    @app.route("/signup", methods=["GET"])
     @app.route("/oauth_callback", methods=["GET"])
-    @app.route("/profile", methods=["GET"])
-    @app.route("/get_profile", methods=["GET"])
-    @app.route("/update_profile", methods=["GET"])
-    @app.route("/projects/", methods=["GET"])
-    @app.route("/projects/<project_id>/", methods=["GET"])
-    @app.route("/projects/<project_id>/<tab>/", methods=["GET"])
-    @app.route("/forgot_password", methods=["GET"])
     @app.route("/reset_password", methods=["GET"])
     def index(**kwargs):
+
         oauth_params = None
         if isinstance(app.config.get("OAUTH", False), OAuthHandler):
             oauth_params = app.config.get("OAUTH").front_end_params()
@@ -152,10 +147,19 @@ def create_app(config_path=None):
             allow_account_creation=str(
                 app.config.get("ALLOW_ACCOUNT_CREATION", True)
             ).lower(),
-            allow_teams=str(app.config.get("ALLOW_TEAMS", False)).lower(),
+            allow_teams=str(app.config.get("ALLOW_TEAMS", True)).lower(),
             email_verification=str(app.config.get("EMAIL_VERIFICATION", False)).lower(),
             oauth=app.config.get("OAUTH", oauth_params),
         )
+
+    @app.route("/", methods=["GET"])
+    @app.route("/<path:url>", methods=["GET"])
+    def index_protected(**kwargs):
+
+        if not app.config.get("LOGIN_DISABLED", False) and not current_user.is_authenticated:
+            return redirect("/signin")
+
+        return index(**kwargs)
 
     @app.route("/favicon.ico")
     @app.route("/favicon.png")

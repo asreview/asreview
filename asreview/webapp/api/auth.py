@@ -412,21 +412,11 @@ def update_profile():
     return response, status
 
 
-@bp.route("/refresh", methods=["GET"])
-def refresh():
-    if current_user and isinstance(current_user, User):
-        logged_in = current_user.is_authenticated
-        name = current_user.get_name()
-        id = current_user.id
-    else:
-        logged_in = False
-        name = ""
-        id = None
+@bp.route("/user", methods=["GET"])
+@login_required
+def user():
 
-    result = {"logged_in": logged_in, "name": name, "id": id}
-
-    response = jsonify(result)
-    return response, 200
+    return jsonify({ "name": current_user.get_name(), "id": current_user.id}), 200
 
 
 @bp.route("/signout", methods=["DELETE"])

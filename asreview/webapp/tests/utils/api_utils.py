@@ -84,8 +84,8 @@ def update_user(client, data):
     return response
 
 
-def refresh(client):
-    response = client.get("/auth/refresh")
+def user(client):
+    response = client.get("/auth/user")
     return response
 
 

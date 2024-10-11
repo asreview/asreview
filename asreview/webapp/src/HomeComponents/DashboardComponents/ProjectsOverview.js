@@ -29,7 +29,6 @@ const ProjectsOverview = ({ mode }) => {
     {
       refetchInterval: simulationOngoing,
       refetchIntervalInBackground: true,
-      refetchOnWindowFocus: false,
     },
   );
 

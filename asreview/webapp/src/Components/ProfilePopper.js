@@ -61,15 +61,19 @@ const ProfilePopper = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [open, setOpen] = React.useState(false);
 
-  const { data } = useQuery("refresh", AuthAPI.refresh);
+  const { data } = useQuery("user", AuthAPI.user, {
+    retry: false,
+    onError: (response) => {
+      console.log(response);
+      response.code === 401 && navigate("/signin");
+    },
+  });
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
     setOpen((prev) => !prev);
   };
-  const handleClickAway = () => {
-    setOpen(false);
-  };
+
   const openAcceptanceDialog = () => {
     setOpen(false);
     toggleAcceptanceDialog();
@@ -82,9 +86,6 @@ const ProfilePopper = () => {
   useQuery(["getProjectInvitations"], () => TeamAPI.getProjectInvitations(), {
     onSuccess: (data) => {
       setProjectInvitations(data["invited_for_projects"] || []);
-    },
-    onError: (data) => {
-      console.log("error", data);
     },
     enabled: window.allowTeams,
   });
@@ -108,9 +109,6 @@ const ProfilePopper = () => {
           toggleAcceptanceDialog();
         }
       },
-      onError: (error) => {
-        console.log(error);
-      },
     },
   );
   const rejectInvitation = useMutation(
@@ -128,15 +126,12 @@ const ProfilePopper = () => {
           toggleAcceptanceDialog();
         }
       },
-      onError: (error) => {
-        console.log(error);
-      },
     },
   );
 
   return (
     <div>
-      <ClickAwayListener onClickAway={handleClickAway}>
+      <ClickAwayListener onClickAway={() => setOpen(false)}>
         <Box>
           <Tooltip title="Profile">
             <ButtonBase id="profile-popper" onClick={handleClick}>

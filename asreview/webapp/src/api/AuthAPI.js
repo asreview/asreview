@@ -70,8 +70,8 @@ class AuthAPI {
     });
   }
 
-  static refresh() {
-    const url = auth_url + `refresh`;
+  static user() {
+    const url = auth_url + `user`;
     return new Promise((resolve, reject) => {
       axios
         .get(url, { withCredentials: true })

@@ -9,7 +9,6 @@ import {
   Tab,
   Tabs,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import React, { useState } from "react";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";

@@ -577,7 +577,7 @@ def test_refresh_with_signed_in_user(client_auth):
     # create and signin user
     user = au.create_and_signin_user(client_auth)
     # refresh
-    r = au.refresh(client_auth)
+    r = au.user(client_auth)
     assert r.status_code == 200
     assert r.json["id"] == user.id
     assert r.json["logged_in"] is True
@@ -591,7 +591,7 @@ def test_refresh_with_signed_out_user(client_auth):
     # signout
     au.signout_user(client_auth)
     # refresh
-    r = au.refresh(client_auth)
+    r = au.user(client_auth)
     assert r.status_code == 200
     assert r.json["id"] is None
     assert r.json["logged_in"] is False
