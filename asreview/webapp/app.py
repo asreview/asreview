@@ -24,7 +24,6 @@ except ImportError:
 from flask import Flask
 from flask import request
 from flask import send_from_directory
-from flask import url_for
 from flask import redirect
 from flask.json import jsonify
 from flask.templating import render_template
