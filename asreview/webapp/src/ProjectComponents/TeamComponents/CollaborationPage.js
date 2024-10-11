@@ -1,10 +1,10 @@
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Button, Stack, Typography } from "@mui/material";
 import { InlineErrorHandler } from "Components";
 import { ConfirmationDialog } from "ProjectComponents/TeamComponents";
-import { TeamAPI, AuthAPI } from "api";
+import { AuthAPI, TeamAPI } from "api";
 import { useToggle } from "hooks/useToggle";
 import * as React from "react";
-import { useMutation, useQueryClient, useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 
 const CollaborationPage = () => {
@@ -35,9 +35,9 @@ const CollaborationPage = () => {
   );
 
   return (
-    <Box>
+    <>
       {data?.id && (
-        <Stack className="main-page-body">
+        <Stack>
           <Typography variant="h5">
             You are collaborating in this project
           </Typography>
@@ -63,7 +63,7 @@ const CollaborationPage = () => {
           />
         </Stack>
       )}
-    </Box>
+    </>
   );
 };
 export default CollaborationPage;
