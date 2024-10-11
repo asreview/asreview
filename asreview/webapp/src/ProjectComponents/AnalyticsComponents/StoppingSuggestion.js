@@ -70,10 +70,6 @@ const StoppingSuggestion = ({ progressQuery }) => {
   return (
     <Card
       sx={{
-        borderRadius: 4,
-        boxShadow: 3,
-        p: 2,
-        height: { xs: "auto", sm: "300px" },
         position: "relative",
       }}
     >
@@ -82,17 +78,10 @@ const StoppingSuggestion = ({ progressQuery }) => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          width: "100%",
-          height: "100%",
         }}
       >
-        <Box
-          display="flex"
-          flexDirection="column"
-          justifyContent="center"
-          alignItems="flex-start"
-        >
-          <Box mb={2}>
+        <Box>
+          <Box>
             {loading ? (
               <Skeleton width={100} height={40} />
             ) : (
@@ -166,18 +155,8 @@ const StoppingSuggestion = ({ progressQuery }) => {
             </Typography>
           </Box>
         </Box>
-        <Box
-          sx={{
-            position: "absolute",
-            top: 20,
-            right: 20,
-          }}
-        >
-          <IconButton
-            size="small"
-            sx={{ color: theme.palette.text.secondary }}
-            onClick={handleClickInfo}
-          >
+        <Box>
+          <IconButton size="small" onClick={handleClickInfo}>
             <HelpOutlineIcon fontSize="small" />
           </IconButton>
         </Box>
@@ -198,12 +177,6 @@ const StoppingSuggestion = ({ progressQuery }) => {
             onChange={(e) => setTempThreshold(Number(e.target.value))}
             size="small"
             variant="outlined"
-            sx={{ mb: 2, width: "100%" }}
-            slotProps={{
-              input: {
-                inputProps: { min: 0 },
-              },
-            }}
           />
           <Button
             variant="contained"
@@ -221,7 +194,7 @@ const StoppingSuggestion = ({ progressQuery }) => {
         anchorEl={anchorElInfo}
         onClose={handleCloseInfo}
       >
-        <Box sx={{ p: 2, maxWidth: 300 }}>
+        <Box>
           <Typography variant="body2" gutterBottom>
             <strong>Stopping Suggestion</strong>
           </Typography>
@@ -231,10 +204,10 @@ const StoppingSuggestion = ({ progressQuery }) => {
             any relevant ones, the higher the likelihood that the remaining
             records are also irrelevant.
           </Typography>
-          <Typography variant="body2" sx={{ mt: 1 }}>
+          <Typography variant="body2">
             You can manually edit and optimize the threshold for your project.
           </Typography>
-          <Box sx={{ pt: 1, textAlign: "center" }}>
+          <Box>
             <a
               href="https://github.com/asreview/asreview/discussions/557"
               style={{ color: theme.palette.primary.main }}

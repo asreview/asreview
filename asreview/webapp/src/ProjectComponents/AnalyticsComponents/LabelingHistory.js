@@ -135,22 +135,10 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
         error={genericDataQuery?.error}
         isError={!!genericDataQuery?.isError}
       />
-      <Card
-        sx={{
-          padding: theme.spacing(2, 5),
-          borderRadius: 4,
-          boxShadow: 3,
-
-          flexDirection: { xs: "column", sm: "row" },
-        }}
-      >
-        <CardContent sx={{ padding: theme.spacing(0) }}>
-          <Stack spacing={3} width="100%">
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-            >
+      <Card>
+        <CardContent>
+          <Stack>
+            <Box>
               <FormControlLabel
                 control={
                   <Switch
@@ -160,9 +148,6 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
                 }
                 label={<Typography variant="body2">Chronological</Typography>}
                 labelPlacement="end"
-                sx={{
-                  fontSize: theme.typography.pxToRem(10),
-                }}
               />
             </Box>
             {genericDataQuery?.isLoading ? (
@@ -175,7 +160,6 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
                   display: "flex",
                   flexWrap: "wrap",
                   rowGap: theme.spacing(0.5),
-                  paddingRight: theme.spacing(0),
                 }}
               >
                 {Array.from(new Array(chunkSize)).map((_, index) => (
@@ -198,7 +182,6 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
                   display: "flex",
                   flexWrap: "wrap",
                   rowGap: theme.spacing(0.5),
-                  paddingRight: theme.spacing(1),
                 }}
               >
                 {generateLines(
@@ -217,53 +200,20 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
               </Typography>
             </Box>
           </Stack>
-          <Box
-            sx={{
-              position: "absolute",
-              top: 10,
-              right: 10,
-              [theme.breakpoints.down("sm")]: {
-                top: theme.spacing(2),
-                right: theme.spacing(2),
-              },
-            }}
-          >
-            <IconButton
-              size="small"
-              sx={{
-                color: theme.palette.text.secondary,
-                p: theme.spacing(2.1),
-              }}
-              onClick={handleInfoClick}
-            >
+          <Box>
+            <IconButton size="small" onClick={handleInfoClick}>
               <HelpOutlineIcon fontSize="small" />
             </IconButton>
           </Box>
         </CardContent>
       </Card>
-      <Popover
-        id={id}
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        PaperProps={{
-          sx: {
-            p: 2,
-            maxWidth: 240,
-            boxShadow: 3,
-            bgcolor: theme.palette.background.paper,
-            color: theme.palette.text.primary,
-          },
-        }}
-      >
+      <Popover id={id} open={open} anchorEl={anchorEl} onClose={handleClose}>
         {selectedPaper !== null && (
-          <Box p={2}>
+          <Box>
             <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
               Placeholder Title
             </Typography>
-            <Typography variant="caption" sx={{ fontStyle: "italic", mb: 1 }}>
-              Coming Soon
-            </Typography>
+            <Typography variant="caption">Coming Soon</Typography>
             <Typography variant="body2">Placeholder Abstract</Typography>
           </Box>
         )}
@@ -273,15 +223,6 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
         open={infoOpen}
         anchorEl={infoAnchorEl}
         onClose={handleInfoClose}
-        PaperProps={{
-          sx: {
-            p: 3,
-            maxWidth: 300,
-            boxShadow: 3,
-            bgcolor: theme.palette.background.paper,
-            color: theme.palette.text.primary,
-          },
-        }}
       >
         <Box>
           <Typography variant="body2" gutterBottom>
@@ -303,7 +244,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery, mobileScreen }) => {
             relevant papers, while gray lines represent irrelevant papers. When
             you click on a line, you can view that paper's details.
           </Typography>
-          <Box sx={{ pt: 1, textAlign: "center" }}>
+          <Box>
             <a
               href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
               style={{

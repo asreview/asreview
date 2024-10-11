@@ -253,12 +253,7 @@ export default function ProgressDensityChart(props) {
   }, [seriesArray, optionsChart]);
 
   return (
-    <Card
-      sx={{
-        borderRadius: 4,
-        boxShadow: 3,
-      }}
-    >
+    <Card>
       <CardErrorHandler
         queryKey={"fetchGenericData"}
         error={props.genericDataQuery?.error}
@@ -266,17 +261,8 @@ export default function ProgressDensityChart(props) {
       />
       <CardContent>
         <Stack>
-          <Box
-            sx={{
-              justifyContent: "flex-end",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <IconButton
-              onClick={handleDownloadClick}
-              sx={{ color: "text.secondary" }}
-            >
+          <Box>
+            <IconButton onClick={handleDownloadClick}>
               <GetAppIcon />
             </IconButton>
             <Menu
@@ -298,7 +284,6 @@ export default function ProgressDensityChart(props) {
               onClick={handlePopoverOpen}
               aria-owns={popoverOpen ? "info-popover" : undefined}
               aria-haspopup="true"
-              sx={{ color: "text.secondary" }}
             >
               <HelpOutline fontSize={!props.mobileScreen ? "small" : "12px"} />
             </IconButton>
@@ -307,12 +292,6 @@ export default function ProgressDensityChart(props) {
               open={popoverOpen}
               anchorEl={anchorElPopover}
               onClose={handlePopoverClose}
-              PaperProps={{
-                sx: {
-                  p: 3,
-                  maxWidth: 300,
-                },
-              }}
             >
               <Box>
                 <Typography variant="body2" gutterBottom>
@@ -323,15 +302,15 @@ export default function ProgressDensityChart(props) {
                   over time. It helps track the efficiency of the review
                   process.
                 </Typography>
-                <Stack spacing={2} sx={{ mt: 2 }}>
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Stack>
+                  <Box>
                     <img
                       src={returnTooltipRelevantImg(theme)}
                       alt="tooltip relevant"
                       className="tooltip-img"
                       style={{ width: 24, height: 24 }}
                     />
-                    <Box sx={{ ml: 2 }}>
+                    <Box>
                       <Typography variant="subtitle2">
                         Presence of relevant records
                       </Typography>
@@ -341,14 +320,14 @@ export default function ProgressDensityChart(props) {
                       </Typography>
                     </Box>
                   </Box>
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Box>
                     <img
                       src={returnTooltipIrrelevantImg(theme)}
                       alt="tooltip irrelevant"
                       className="tooltip-img"
                       style={{ width: 24, height: 24 }}
                     />
-                    <Box sx={{ ml: 2 }}>
+                    <Box>
                       <Typography variant="subtitle2">
                         Irrelevant records only
                       </Typography>
@@ -359,7 +338,7 @@ export default function ProgressDensityChart(props) {
                     </Box>
                   </Box>
                 </Stack>
-                <Box sx={{ pt: 1, textAlign: "center", mt: 2 }}>
+                <Box>
                   <a
                     href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
                     style={{

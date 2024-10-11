@@ -104,7 +104,7 @@ const AnalyticsPage = () => {
             )}
           </Box>
           <Grid size={12}>
-            <Box sx={{ position: "relative" }}>
+            <Box>
               <Box>
                 <Tabs
                   value={activeHistoryTab}
@@ -128,14 +128,8 @@ const AnalyticsPage = () => {
               </Box>
             </Box>
           </Grid>
-          <Box
-            sx={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "center",
-            }}
-          >
-            <Box sx={{ width: "100%" }}>
+          <Box>
+            <Box>
               <Tabs
                 value={activeChartTab}
                 onChange={(event, newValue) => setActiveChartTab(newValue)}
@@ -144,22 +138,10 @@ const AnalyticsPage = () => {
                 <Tab label="Recall" />
               </Tabs>
               {activeChartTab === 0 && (
-                <ProgressDensityChart
-                  genericDataQuery={genericDataQuery}
-                  sx={{
-                    height: "400px",
-                    width: "100%",
-                  }}
-                />
+                <ProgressDensityChart genericDataQuery={genericDataQuery} />
               )}
               {activeChartTab === 1 && (
-                <ProgressRecallChart
-                  genericDataQuery={genericDataQuery}
-                  sx={{
-                    height: "400px",
-                    width: "100%",
-                  }}
-                />
+                <ProgressRecallChart genericDataQuery={genericDataQuery} />
               )}
             </Box>
           </Box>

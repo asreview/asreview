@@ -127,8 +127,8 @@ export default function ProgressRecallChart(props) {
   }, [theme.palette.mode, theme.palette.primary]);
 
   const darkBlueColor = useCallback(() => {
-    return theme.palette.accent;
-  }, [theme.palette.accent]);
+    return theme.palette.grey[600];
+  }, [theme.palette.grey]);
 
   const seriesArray = useCallback(() => {
     if (props.genericDataQuery.data) {
@@ -272,12 +272,7 @@ export default function ProgressRecallChart(props) {
   }, [seriesArray, optionsChart]);
 
   return (
-    <Card
-      sx={{
-        borderRadius: 4,
-        boxShadow: 3,
-      }}
-    >
+    <Card>
       <CardErrorHandler
         queryKey={"fetchGenericData"}
         error={props.progressRecallQuery?.error}
@@ -285,17 +280,8 @@ export default function ProgressRecallChart(props) {
       />
       <CardContent>
         <Stack>
-          <Box
-            sx={{
-              justifyContent: "flex-end",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <IconButton
-              onClick={handleDownloadClick}
-              sx={{ color: "text.secondary" }}
-            >
+          <Box>
+            <IconButton onClick={handleDownloadClick}>
               <GetAppIcon />
             </IconButton>
             <Menu
@@ -317,7 +303,6 @@ export default function ProgressRecallChart(props) {
               onClick={handlePopoverOpen}
               aria-owns={popoverOpen ? "mouse-over-popover" : undefined}
               aria-haspopup="true"
-              sx={{ color: "text.secondary" }}
             >
               <HelpOutline fontSize={!props.mobileScreen ? "small" : "12px"} />
             </IconButton>
@@ -327,7 +312,7 @@ export default function ProgressRecallChart(props) {
               anchorEl={anchorElPopover}
               onClose={handlePopoverClose}
             >
-              <Box sx={{ p: 2, maxWidth: 300 }}>
+              <Box>
                 <Typography variant="body2" gutterBottom>
                   <strong>Progress Recall Chart</strong>
                 </Typography>

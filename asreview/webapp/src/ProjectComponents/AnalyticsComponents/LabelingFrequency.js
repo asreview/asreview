@@ -94,27 +94,12 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
   return (
     <Card
       sx={{
-        borderRadius: 4,
-        boxShadow: 3,
-        p: 2,
-        maxWidth: 960,
-        width: "100%",
         position: "relative",
       }}
     >
       <CardContent>
-        <Box
-          sx={{
-            position: "absolute",
-            top: 22,
-            right: 22,
-          }}
-        >
-          <IconButton
-            size="small"
-            onClick={handlePopoverOpen}
-            sx={{ color: theme.palette.text.secondary }}
-          >
+        <Box>
+          <IconButton size="small" onClick={handlePopoverOpen}>
             <HelpOutlineIcon fontSize="small" />
           </IconButton>
         </Box>
@@ -139,7 +124,7 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
                 }}
               />
             </Box>
-            <Box display="flex" alignItems="center" mb={1}>
+            <Box display="flex" alignItems="center">
               <Box flexGrow={1}>
                 <Slider
                   value={sliderValue}
@@ -165,16 +150,6 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
         open={popoverOpen}
         anchorEl={anchorEl}
         onClose={handlePopoverClose}
-        PaperProps={{
-          sx: {
-            p: 3,
-            maxWidth: 300,
-            borderRadius: 2,
-            boxShadow: 3,
-            bgcolor: theme.palette.background.paper,
-            color: theme.palette.text.primary,
-          },
-        }}
       >
         <Box>
           <Typography variant="body2" gutterBottom>
@@ -195,12 +170,9 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
             You can use the slider to zoom in and out on your labeling
             decisions.
           </Typography>
-          <Box sx={{ pt: 1, textAlign: "center" }}>
+          <Box>
             <a
               href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-              style={{
-                color: theme.palette.primary.main,
-              }}
               target="_blank"
               rel="noopener noreferrer"
             >

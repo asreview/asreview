@@ -9,13 +9,15 @@ import {
   IconButton,
   Switch,
   FormControlLabel,
-  Grid,
   Stack,
   Popover,
+  Link,
+  Grid2 as Grid,
 } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { useTheme } from "@mui/material/styles";
 import { CardErrorHandler } from "Components";
+import { StyledHelpPopover } from "StyledComponents/StyledHelpPopover";
 
 const StatItem = ({ label, value, color, loading }) => (
   <Box
@@ -160,32 +162,13 @@ export default function ReviewProgress({ progressQuery }) {
   const popoverOpen = Boolean(anchorEl);
 
   return (
-    <Card
-      sx={{
-        borderRadius: 4,
-        boxShadow: 3,
-        p: 2,
-        height: { xs: "auto", sm: 300 },
-        display: "flex",
-        alignItems: "center",
-        position: "relative",
-      }}
-    >
+    <Card>
       <CardErrorHandler
         queryKey={"fetchProgress"}
         error={progressQuery?.error}
         isError={progressQuery?.isError}
       />
-      <Box
-        sx={{
-          position: "absolute",
-          top: 1,
-          left: 2,
-          mt: 1,
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
+      <CardContent>
         <FormControlLabel
           control={
             <Switch
@@ -195,24 +178,59 @@ export default function ReviewProgress({ progressQuery }) {
           }
           label="Hide Prior Knowledge"
           labelPlacement="end"
-          sx={{ padding: theme.spacing(2, 5) }}
-          slotProps={{
-            typography: {
-              variant: "body2",
-            },
-          }}
         />
-      </Box>
-      <CardContent
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          width: "100%",
-          mt: 4,
-          flexDirection: { xs: "column", sm: "row" },
-        }}
-      >
+        <IconButton size="small" onClick={handlePopoverOpen}>
+          <HelpOutlineIcon fontSize="small" />
+        </IconButton>
+        <StyledHelpPopover
+          id="info-popover"
+          open={popoverOpen}
+          anchorEl={anchorEl}
+          onClose={handlePopoverClose}
+        >
+          <Typography variant="h6">
+            <strong>Hide Prior Knowledge</strong>
+          </Typography>
+          <Typography variant="body1">
+            <strong>Hiding</strong> prior knowledge will only show labelings
+            done using ASReview.
+          </Typography>
+          <Typography variant="body1">
+            <strong>Showing</strong> prior knowledge will show combined
+            labelings from the original dataset and those done using ASReview.
+          </Typography>
+          <Typography variant="h6">
+            <strong>Statistics</strong>
+          </Typography>
+          <Typography variant="body1">
+            <strong>Total Records:</strong> The total number of records in your
+            dataset
+          </Typography>
+          <Typography variant="body1">
+            <strong>Labeled Records:</strong> Combination of records that you
+            labeled as relevant or irrelevant
+          </Typography>
+          <Typography variant="body1">
+            <strong>Relevant Records:</strong> Records you labeled as relevant
+          </Typography>
+          <Typography variant="body1">
+            <strong>Irrelevant Records:</strong> Records you labeled as
+            irrelevant
+          </Typography>
+          <Typography variant="body1">
+            <strong>Unlabeled Records:</strong> The remaining records that have
+            not been labeled yet
+          </Typography>
+          <Link
+            href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+            target="_blank"
+            rel="noopener"
+          >
+            Learn more
+          </Link>
+        </StyledHelpPopover>
+      </CardContent>
+      <CardContent>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={4}>
             <Stack spacing={2}>
@@ -283,77 +301,6 @@ export default function ReviewProgress({ progressQuery }) {
             </Stack>
           </Grid>
         </Grid>
-        <Box
-          sx={{
-            position: "absolute",
-            top: 20,
-            right: 20,
-          }}
-        >
-          <IconButton
-            size="small"
-            onClick={handlePopoverOpen}
-            sx={{ color: theme.palette.text.secondary }}
-          >
-            <HelpOutlineIcon fontSize="small" />
-          </IconButton>
-          <Popover
-            id="info-popover"
-            open={popoverOpen}
-            anchorEl={anchorEl}
-            onClose={handlePopoverClose}
-          >
-            <Box sx={{ p: 3, maxWidth: 300 }}>
-              <Typography variant="body2" gutterBottom>
-                <strong>Hide Prior Knowledge</strong>
-              </Typography>
-              <Typography variant="body2">
-                <strong>Hiding</strong> prior knowledge will only show labelings
-                done using ASReview.
-              </Typography>
-              <Typography variant="body2">
-                <strong>Showing</strong> prior knowledge will show combined
-                labelings from the original dataset and those done using
-                ASReview.
-              </Typography>
-              <Typography variant="body2" gutterBottom sx={{ mt: 2 }}>
-                <strong>Statistics</strong>
-              </Typography>
-              <Typography variant="body2">
-                <strong>Total Records:</strong> The total number of records in
-                your dataset
-              </Typography>
-              <Typography variant="body2">
-                <strong>Labeled Records:</strong> Combination of records that
-                you labeled as relevant or irrelevant
-              </Typography>
-              <Typography variant="body2">
-                <strong>Relevant Records:</strong> Records you labeled as
-                relevant
-              </Typography>
-              <Typography variant="body2">
-                <strong>Irrelevant Records:</strong> Records you labeled as
-                irrelevant
-              </Typography>
-              <Typography variant="body2">
-                <strong>Unlabeled Records:</strong> The remaining records that
-                have not been labeled yet
-              </Typography>
-              <Box sx={{ pt: 1, textAlign: "center" }}>
-                <a
-                  href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-                  style={{
-                    color: theme.palette.primary.main,
-                  }}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Learn more
-                </a>
-              </Box>
-            </Box>
-          </Popover>
-        </Box>
       </CardContent>
     </Card>
   );
