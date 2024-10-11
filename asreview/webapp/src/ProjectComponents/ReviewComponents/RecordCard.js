@@ -24,9 +24,6 @@ import { fontSizeOptions } from "globals.js";
 const PREFIX = "RecordCard";
 
 const classes = {
-  loadedCard: `${PREFIX}-loadedCard`,
-  titleAbstract: `${PREFIX}-titleAbstract`,
-  title: `${PREFIX}-title`,
   abstract: `${PREFIX}-abstract`,
 };
 
@@ -156,7 +153,6 @@ const RecordCard = ({
               classes.abstract + " fontSize" + fontSizeOptions[fontSize]
             }
             variant="body2"
-            paragraph
             sx={{ color: "text.secondary" }}
           >
             {(record.abstract === "" || record.abstract === null) && (

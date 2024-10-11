@@ -19,24 +19,10 @@ import { ProjectAPI } from "api";
 const PREFIX = "LabeledRecord";
 
 const classes = {
-  loading: `${PREFIX}-loading`,
   loadMoreInView: `${PREFIX}-loadMoreInView`,
 };
 
 const Root = styled("div")(({ theme }) => ({
-  margin: "auto",
-  maxWidth: 960,
-  [theme.breakpoints.down("md")]: {
-    padding: "4px 0px",
-  },
-  [theme.breakpoints.up("md")]: {
-    padding: "2rem 1rem",
-  },
-  [`& .${classes.loading}`]: {
-    // display: "flex",
-    // justifyContent: "center",
-    // padding: 64,
-  },
   [`& .${classes.loadMoreInView}`]: {
     color: grey[500],
     display: "flex",
@@ -97,11 +83,11 @@ const LabeledRecord = (props) => {
       {isError && (
         <BoxErrorHandler error={error} queryKey="fetchLabeledRecord" />
       )}
-      {props.n_prior !== 0 && !isError && (isLoading || !mounted.current) && (
+      {/* {props.n_prior !== 0 && !isError && (isLoading || !mounted.current) && (
         <Box className={classes.loading}>
           <CircularProgress />
         </Box>
-      )}
+      )} */}
       {enableQuery() &&
         !isError &&
         !(isLoading || !mounted.current) &&

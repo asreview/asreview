@@ -1,4 +1,4 @@
-import { Box, Stack } from "@mui/material";
+import { Box, Container, Stack } from "@mui/material";
 import { InteractionButtons } from "Components";
 import { DashboardPageHeader } from ".";
 
@@ -47,8 +47,8 @@ const ProjectsOverview = ({ mode }) => {
   return (
     <>
       <DashboardPageHeader mode={mode} />
-      <Box className="main-page-body-wrapper">
-        <Stack className="main-page-body" spacing={6}>
+      <Container>
+        <Stack spacing={6}>
           <>
             {/* Projects in Setup */}
 
@@ -163,7 +163,7 @@ const ProjectsOverview = ({ mode }) => {
 
           {data?.result.length > 0 && <InteractionButtons />}
         </Stack>
-      </Box>
+      </Container>
     </>
   );
 };

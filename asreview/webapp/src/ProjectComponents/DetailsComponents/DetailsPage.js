@@ -8,8 +8,8 @@ import {
   FormControlLabel,
   FormGroup,
   Switch,
+  Stack,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
 
@@ -25,35 +25,28 @@ import { ProjectContext } from "context/ProjectContext";
 import { projectStatuses } from "globals.js";
 import { useToggle } from "hooks/useToggle";
 
-const Root = styled("div")(({ theme }) => ({}));
 const DeleteCard = ({ project_id, info }) => {
   const [onDeleteDialog, toggleDeleteDialog] = useToggle();
 
   return (
-    <Box sx={{ padding: "12px 0px" }}>
-      <Card>
-        <CardHeader
-          title="Danger zone"
-          subheader="Delete project permanently. This action cannot be undone."
+    <Card>
+      <CardHeader
+        title="Danger zone"
+        subheader="Delete project permanently. This action cannot be undone."
+      />
+      <CardContent>
+        <Button variant="contained" color="error" onClick={toggleDeleteDialog}>
+          Delete project
+        </Button>
+        <ProjectDeleteDialog
+          open={onDeleteDialog}
+          onClose={toggleDeleteDialog}
+          projectTitle={info?.name}
+          project_id={project_id}
+          navigate_to={"/"}
         />
-        <CardContent>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={toggleDeleteDialog}
-          >
-            Delete project
-          </Button>
-          <ProjectDeleteDialog
-            open={onDeleteDialog}
-            onClose={toggleDeleteDialog}
-            projectTitle={info?.name}
-            project_id={project_id}
-            navigate_to={"/"}
-          />
-        </CardContent>
-      </Card>
-    </Box>
+      </CardContent>
+    </Card>
   );
 };
 const MarkFinishedCard = ({ project_id }) => {
@@ -110,31 +103,21 @@ const DetailsPage = () => {
   );
 
   return (
-    <Root aria-label="details page">
-      <Container maxWidth="md">
-        <ProjectContext.Provider value={project_id}>
-          <Box sx={{ padding: "12px 0px" }}>
-            <TagCard editable={false} />
-          </Box>
-          <Box sx={{ padding: "12px 0px" }}>
-            <ModelCard editable={true} showWarning={true} />
-          </Box>
-          <Box sx={{ padding: "12px 0px" }}>
-            <PriorCard editable={false} />
-          </Box>
+    <ProjectContext.Provider value={project_id}>
+      <Container maxWidth="md" aria-label="details page" sx={{ mb: 3 }}>
+        <Stack spacing={3}>
+          <TagCard editable={false} />
+          <ModelCard editable={true} showWarning={true} />
+          <PriorCard editable={false} />
           {data?.roles.owner && (
             <>
-              <Box sx={{ padding: "12px 0px" }}>
-                <MarkFinishedCard project_id={project_id} info={data} />
-              </Box>
-              <Box sx={{ padding: "12px 0px" }}>
-                <DeleteCard project_id={project_id} info={data} />
-              </Box>
+              <MarkFinishedCard project_id={project_id} info={data} />
+              <DeleteCard project_id={project_id} info={data} />
             </>
           )}
-        </ProjectContext.Provider>
+        </Stack>
       </Container>
-    </Root>
+    </ProjectContext.Provider>
   );
 };
 export default DetailsPage;

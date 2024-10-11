@@ -35,7 +35,7 @@ const CollaborationPage = () => {
   );
 
   return (
-    <Box className="main-page-body-wrapper">
+    <Box>
       {data?.id && (
         <Stack className="main-page-body">
           <Typography variant="h5">

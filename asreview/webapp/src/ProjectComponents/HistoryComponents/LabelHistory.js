@@ -1,29 +1,31 @@
 import {
   Button,
+  Checkbox,
   Chip,
+  Container,
   Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  FormControl,
   FormControlLabel,
   FormGroup,
   FormLabel,
-  Checkbox,
-  Select,
-  MenuItem,
   InputLabel,
-  DialogContent,
-  DialogActions,
-  DialogTitle,
-  Divider,
+  MenuItem,
+  Select,
   Stack,
-  FormControl,
+  Toolbar,
 } from "@mui/material";
+import { ProjectAPI } from "api";
 import * as React from "react";
 import { useQuery } from "react-query";
-import { ProjectAPI } from "api";
 
-import { Filter, LabeledRecord } from ".";
 import { DownloadOutlined } from "@mui/icons-material";
 import { useToggle } from "hooks/useToggle";
 import { useParams } from "react-router-dom";
+import { Filter, LabeledRecord } from ".";
 
 const ExportButton = ({ project_id }) => {
   const [open, toggleOpen] = useToggle();
@@ -146,56 +148,61 @@ const LabelHistory = ({
 
   return (
     <>
-      <>
-        <Stack direction="row" spacing={2} sx={{ p: "1rem" }}>
-          <Chip
-            label={
-              !n_prior_inclusions
-                ? "My collection"
-                : `My collection (${n_prior_inclusions})`
-            }
-            color="primary"
-            variant={label !== "relevant" ? "outlined" : "filled"}
-            onClick={() => {
-              setLabel("relevant");
-            }}
-          />
-          <Chip
-            label={
-              !n_prior_exclusions
-                ? "Not interested"
-                : `Not interested (${n_prior_exclusions})`
-            }
-            color="primary"
-            variant={label !== "irrelevant" ? "outlined" : "filled"}
-            onClick={() => {
-              setLabel("irrelevant");
-            }}
-          />
-          <Chip
-            label={"All labeled"}
-            color="primary"
-            variant={label !== "all" ? "outlined" : "filled"}
-            onClick={() => {
-              setLabel("all");
-            }}
-          />
+      <Container maxWidth="md">
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+          <Stack direction="row" spacing={2}>
+            <Chip
+              label={
+                !n_prior_inclusions
+                  ? "My collection"
+                  : `My collection (${n_prior_inclusions})`
+              }
+              color="primary"
+              variant={label !== "relevant" ? "outlined" : "filled"}
+              onClick={() => {
+                setLabel("relevant");
+              }}
+            />
+            <Chip
+              label={
+                !n_prior_exclusions
+                  ? "Not interested"
+                  : `Not interested (${n_prior_exclusions})`
+              }
+              color="primary"
+              variant={label !== "irrelevant" ? "outlined" : "filled"}
+              onClick={() => {
+                setLabel("irrelevant");
+              }}
+            />
+            <Chip
+              label={"All labeled"}
+              color="primary"
+              variant={label !== "all" ? "outlined" : "filled"}
+              onClick={() => {
+                setLabel("all");
+              }}
+            />
+          </Stack>
           <ExportButton project_id={project_id} />
-        </Stack>
-
-        <Divider />
-        {showFilter && (
-          <>
+        </Toolbar>
+      </Container>
+      <Divider />
+      {showFilter && (
+        <>
+          <Container maxWidth="md">
             <Filter filterQuery={state} setFilterQuery={setState} />
-            <Divider />
-          </>
-        )}
-      </>
-      <LabeledRecord
-        project_id={project_id}
-        label={label}
-        filterQuery={state}
-      />
+          </Container>
+          <Divider />
+        </>
+      )}
+      <Container maxWidth="md" sx={{ my: 3 }}>
+        <LabeledRecord
+          project_id={project_id}
+          label={label}
+          filterQuery={state}
+        />
+      </Container>
     </>
   );
 };

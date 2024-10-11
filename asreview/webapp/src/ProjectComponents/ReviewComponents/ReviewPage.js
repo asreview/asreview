@@ -1,25 +1,14 @@
-import { styled } from "@mui/material/styles";
+import { useMediaQuery } from "@mui/material";
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { useMediaQuery } from "@mui/material";
 import { useParams } from "react-router-dom";
 
 import { RecordCard, ReviewPageFinished } from ".";
+import { Container } from "@mui/material";
 
 import { ProjectAPI } from "api";
 
 import FinishSetup from "./ReviewPageTraining";
-
-const Root = styled("div")(({ theme }) => ({
-  margin: "auto",
-  maxWidth: 960,
-  [theme.breakpoints.down("md")]: {
-    padding: "4px 0px",
-  },
-  [theme.breakpoints.up("md")]: {
-    padding: "2rem 1rem",
-  },
-}));
 
 const Screener = (props) => {
   const { project_id } = useParams();
@@ -40,7 +29,7 @@ const Screener = (props) => {
   };
 
   return (
-    <Root aria-label="review page">
+    <>
       {data["result"] && (
         <RecordCard
           project_id={project_id}
@@ -55,7 +44,7 @@ const Screener = (props) => {
           key={project_id + "-" + data["result"]["record_id"]}
         />
       )}
-    </Root>
+    </>
   );
 };
 
@@ -80,7 +69,7 @@ const ReviewPage = ({ fontSize }) => {
   });
 
   return (
-    <Root aria-label="review page">
+    <Container aria-label="review page" maxWidth="md" sx={{ mt: 6 }}>
       {isSuccess && (
         <>
           {data?.result !== null && (
@@ -99,7 +88,7 @@ const ReviewPage = ({ fontSize }) => {
           {data?.result === null && data?.pool_empty && <ReviewPageFinished />}
         </>
       )}
-    </Root>
+    </Container>
   );
 };
 

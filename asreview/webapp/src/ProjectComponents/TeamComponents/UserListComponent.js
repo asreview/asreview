@@ -1,14 +1,12 @@
-import * as React from "react";
-import { Card, CardContent, List } from "@mui/material";
-import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
+import { Card, CardContent, CardHeader, List, Typography } from "@mui/material";
 import { UserListEntry } from "ProjectComponents/TeamComponents";
 
 const UserListComponent = ({ header, users, onDelete, disabled = false }) => {
   return (
     <Card>
+      <CardHeader title={header} />
       <CardContent>
-        <TypographySubtitle1Medium>{header}</TypographySubtitle1Medium>
-        <List sx={{ pt: 0 }}>
+        <List>
           {users.map((user) => (
             <UserListEntry
               key={user.id}
