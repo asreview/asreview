@@ -415,8 +415,7 @@ def update_profile():
 @bp.route("/user", methods=["GET"])
 @login_required
 def user():
-
-    return jsonify({ "name": current_user.get_name(), "id": current_user.id}), 200
+    return jsonify({"name": current_user.get_name(), "id": current_user.id}), 200
 
 
 @bp.route("/signout", methods=["DELETE"])

@@ -133,7 +133,6 @@ def create_app(config_path=None):
     @app.route("/oauth_callback", methods=["GET"])
     @app.route("/reset_password", methods=["GET"])
     def index(**kwargs):
-
         oauth_params = None
         if isinstance(app.config.get("OAUTH", False), OAuthHandler):
             oauth_params = app.config.get("OAUTH").front_end_params()
@@ -155,8 +154,10 @@ def create_app(config_path=None):
     @app.route("/", methods=["GET"])
     @app.route("/<path:url>", methods=["GET"])
     def index_protected(**kwargs):
-
-        if not app.config.get("LOGIN_DISABLED", False) and not current_user.is_authenticated:
+        if (
+            not app.config.get("LOGIN_DISABLED", False)
+            and not current_user.is_authenticated
+        ):
             return redirect("/signin")
 
         return index(**kwargs)
