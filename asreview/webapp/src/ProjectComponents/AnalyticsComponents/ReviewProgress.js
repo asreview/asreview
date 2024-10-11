@@ -1,22 +1,21 @@
-import React, { useMemo, useState } from "react";
-import Chart from "react-apexcharts";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import {
+  Box,
   Card,
   CardContent,
-  Typography,
-  Box,
-  Skeleton,
-  IconButton,
-  Switch,
   FormControlLabel,
-  Stack,
-  Popover,
-  Link,
   Grid2 as Grid,
+  IconButton,
+  Link,
+  Skeleton,
+  Stack,
+  Switch,
+  Typography,
 } from "@mui/material";
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { useTheme } from "@mui/material/styles";
 import { CardErrorHandler } from "Components";
+import { useMemo, useState } from "react";
+import Chart from "react-apexcharts";
 import { StyledHelpPopover } from "StyledComponents/StyledHelpPopover";
 
 const StatItem = ({ label, value, color, loading }) => (
@@ -179,7 +178,11 @@ export default function ReviewProgress({ progressQuery }) {
           label="Hide Prior Knowledge"
           labelPlacement="end"
         />
-        <IconButton size="small" onClick={handlePopoverOpen}>
+        <IconButton
+          size="small"
+          onClick={handlePopoverOpen}
+          sx={{ float: "right" }}
+        >
           <HelpOutlineIcon fontSize="small" />
         </IconButton>
         <StyledHelpPopover
@@ -231,8 +234,8 @@ export default function ReviewProgress({ progressQuery }) {
         </StyledHelpPopover>
       </CardContent>
       <CardContent>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={4}>
+        <Grid container direction="row" spacing={2}>
+          <Grid size={{ xs: 12, md: "grow" }}>
             <Stack spacing={2}>
               <StatItem
                 label="Total Records"
@@ -253,10 +256,8 @@ export default function ReviewProgress({ progressQuery }) {
             </Stack>
           </Grid>
           <Grid
-            item
-            xs={12}
-            sm={4}
-            container
+            size={{ xs: 12, md: 4 }}
+            display="flex"
             justifyContent="center"
             alignItems="center"
           >
@@ -272,7 +273,7 @@ export default function ReviewProgress({ progressQuery }) {
               />
             )}
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid size={{ xs: 12, md: "grow" }}>
             <Stack spacing={2}>
               <StatItem
                 label="Relevant Records"
