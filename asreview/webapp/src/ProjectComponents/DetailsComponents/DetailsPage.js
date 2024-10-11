@@ -10,8 +10,8 @@ import {
   Switch,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useParams } from "react-router-dom";
 
 import { ProjectDeleteDialog } from "ProjectComponents";
 import {
@@ -20,11 +20,10 @@ import {
   TagCard,
 } from "ProjectComponents/SetupComponents";
 
+import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
 import { projectStatuses } from "globals.js";
-import useAuth from "hooks/useAuth";
 import { useToggle } from "hooks/useToggle";
-import { ProjectAPI } from "api";
 
 const Root = styled("div")(({ theme }) => ({}));
 const DeleteCard = ({ project_id, info }) => {
@@ -46,10 +45,11 @@ const DeleteCard = ({ project_id, info }) => {
             Delete project
           </Button>
           <ProjectDeleteDialog
-            onDeleteDialog={onDeleteDialog}
-            toggleDeleteDialog={toggleDeleteDialog}
+            open={onDeleteDialog}
+            onClose={toggleDeleteDialog}
             projectTitle={info?.name}
             project_id={project_id}
+            navigate_to={"/"}
           />
         </CardContent>
       </Card>
@@ -100,7 +100,6 @@ const MarkFinishedCard = ({ project_id }) => {
 };
 const DetailsPage = () => {
   const { project_id } = useParams();
-  const { auth } = useAuth();
 
   const { data } = useQuery(
     ["fetchInfo", { project_id }],
@@ -123,7 +122,7 @@ const DetailsPage = () => {
           <Box sx={{ padding: "12px 0px" }}>
             <PriorCard editable={false} />
           </Box>
-          {data?.ownerId === auth?.id && (
+          {data?.roles.owner && (
             <>
               <Box sx={{ padding: "12px 0px" }}>
                 <MarkFinishedCard project_id={project_id} info={data} />

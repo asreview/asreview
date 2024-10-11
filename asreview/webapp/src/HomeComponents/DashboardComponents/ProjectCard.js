@@ -9,7 +9,6 @@ import {
 } from "@mui/icons-material";
 import { ProjectAPI } from "api";
 import { projectModes, projectStatuses } from "globals.js";
-import useAuth from "hooks/useAuth";
 import { useToggle } from "hooks/useToggle";
 import { ProjectDeleteDialog } from "ProjectComponents";
 import { SetupDialog } from "ProjectComponents/SetupComponents";
@@ -23,8 +22,6 @@ import {
   CardContent,
   CardHeader,
   Chip,
-  Divider,
-  Grid2 as Grid,
   IconButton,
   LinearProgress,
   ListItemIcon,
@@ -80,10 +77,8 @@ const projectModeURLMap = {
 const ProjectCard = ({
   project,
   mode,
-  user_id,
   showProgressChip = true,
   showSimulatingSpinner = true,
-  setFeedbackBar,
 }) => {
   const navigate = useNavigate();
 
@@ -103,7 +98,6 @@ const ProjectCard = ({
 
   const openProject = (project, path) => {
     if (review?.status === projectStatuses.SETUP) {
-      console.log("open setup");
       toggleSetup();
     } else {
       navigate(`${project.id}/${path}`);
@@ -301,7 +295,7 @@ const ProjectCard = ({
               )}
             <MenuItem
               onClick={handleClickDelete}
-              disabled={project?.owner_id !== user_id}
+              disabled={!project?.roles.owner}
             >
               <ListItemIcon>
                 <DeleteForeverOutlined />
@@ -313,7 +307,7 @@ const ProjectCard = ({
 
         {window.authentication &&
           review?.status !== projectStatuses.SETUP &&
-          project?.owner_id === user_id && (
+          project?.roles.owner && (
             <Tooltip title="Add team members">
               <IconButton
                 component={Link}
@@ -325,7 +319,7 @@ const ProjectCard = ({
           )}
         {window.authentication &&
           review?.status !== projectStatuses.SETUP &&
-          project?.owner_id !== user_id && (
+          !project?.roles.owner && (
             <Tooltip title="Remove yourself from project">
               <IconButton
                 component={Link}
@@ -342,7 +336,6 @@ const ProjectCard = ({
           projectInfo={project}
           open={openSetup}
           onClose={toggleSetup}
-          setFeedbackBar={setFeedbackBar}
         />
       )}
       <ProjectDeleteDialog
@@ -355,150 +348,4 @@ const ProjectCard = ({
   );
 };
 
-const Projects = ({ mode, setFeedbackBar }) => {
-  const { auth } = useAuth();
-  const user_id = auth.id;
-  // const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
-
-  const simulationOngoing = (data) => {
-    if (
-      mode === projectModes.SIMULATION &&
-      data?.result.some(
-        (project) => project.reviews[0]?.status === projectStatuses.REVIEW,
-      )
-    ) {
-      return 5000;
-    }
-    return false;
-  };
-
-  const { data } = useQuery(
-    ["fetchProjects", { subset: mode }],
-    ProjectAPI.fetchProjects,
-    {
-      refetchInterval: simulationOngoing,
-      refetchIntervalInBackground: true,
-      refetchOnWindowFocus: false,
-    },
-  );
-
-  const inReviewProjects = data?.result.filter(
-    (project) => project.reviews[0]?.status === projectStatuses.REVIEW,
-  );
-  const finishedProjects = data?.result.filter(
-    (project) => project.reviews[0]?.status === projectStatuses.FINISHED,
-  );
-
-  return (
-    <>
-      {/* Projects in Setup */}
-      {data?.result.length === 0 && (
-        <Typography variant="h6" sx={{ mt: 5 }}>
-          No projects found
-        </Typography>
-      )}
-
-      {/* Projects in Setup */}
-      {data?.result.length > 0 && (
-        <Grid container spacing={2}>
-          {data?.result
-            .filter(
-              (project) => project.reviews[0]?.status === projectStatuses.SETUP,
-            )
-            .map((project) => (
-              <Grid
-                key={project.id}
-                size={{
-                  xs: 12,
-                  sm: 6,
-                  md: 6,
-                }}
-              >
-                <ProjectCard
-                  project={project}
-                  mode={mode}
-                  user_id={user_id}
-                  setFeedbackBar={setFeedbackBar}
-                  showProgressChip={false}
-                />
-              </Grid>
-            ))}
-        </Grid>
-      )}
-
-      {/* Divider between In Review and Finished with a Chip */}
-      {inReviewProjects?.length > 0 && (
-        <Divider
-          sx={{
-            my: 10,
-          }}
-        >
-          <Chip
-            label={mode === projectModes.ORACLE ? "In review" : "Simulating"}
-          />
-        </Divider>
-      )}
-
-      {/* Projects in Review */}
-      {inReviewProjects?.length > 0 && (
-        <Grid container spacing={2}>
-          {inReviewProjects.map((project) => (
-            <Grid
-              key={project.id}
-              size={{
-                xs: 12,
-                sm: 6,
-                md: 6,
-              }}
-            >
-              <ProjectCard
-                project={project}
-                mode={mode}
-                user_id={user_id}
-                setFeedbackBar={setFeedbackBar}
-                showProgressChip={false}
-              />
-            </Grid>
-          ))}
-        </Grid>
-      )}
-
-      {/* Divider between In Review and Finished with a Chip */}
-      {inReviewProjects?.length > 0 && inReviewProjects?.length > 0 && (
-        <Divider
-          sx={{
-            my: 10,
-          }}
-        >
-          <Chip label="Finished" />
-        </Divider>
-      )}
-
-      {/* Finished Projects */}
-      {finishedProjects?.length > 0 && (
-        <Grid container spacing={2}>
-          {finishedProjects.map((project) => (
-            <Grid
-              key={project.id}
-              size={{
-                xs: 12,
-                sm: 6,
-                md: 6,
-              }}
-            >
-              <ProjectCard
-                project={project}
-                mode={mode}
-                user_id={user_id}
-                setFeedbackBar={setFeedbackBar}
-                showProgressChip={false}
-              />
-            </Grid>
-          ))}
-        </Grid>
-      )}
-    </>
-  );
-};
-
-export default Projects;
+export default ProjectCard;

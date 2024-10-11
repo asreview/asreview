@@ -67,7 +67,7 @@ def current_user_projects(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if current_app.config.get("LOGIN_DISABLED", False):
-            projects = get_projects(None)
+            projects = [(project, None) for project in get_projects(None)]
         else:
             # authenticated with User accounts
             user_db_projects = list(current_user.projects) + list(
@@ -76,6 +76,7 @@ def current_user_projects(f):
             projects = get_projects(
                 [project.project_path for project in user_db_projects]
             )
+            projects = zip(projects, user_db_projects)
 
         return f(projects, *args, **kwargs)
 

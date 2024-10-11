@@ -41,7 +41,7 @@ def test_get_projects(client, user, project):
     found_project = r.json["result"][0]
     if not client.application.config.get("LOGIN_DISABLED"):
         assert found_project["id"] == project.project_id
-        assert found_project["owner_id"] == user.id
+        assert found_project["roles"]["owner"]
     else:
         assert found_project["id"] == project.config["id"]
 
@@ -170,7 +170,7 @@ def test_import_project_files(client, user, project, fp):
         project = crud.last_project()
         assert r.json["data"]["id"] == project.project_id
         # assert the owner is current user
-        assert r.json["data"]["owner_id"] == user.id
+        assert r.json["data"]["roles"]["owner"]
     else:
         assert r.json["data"]["id"] != project.config.get("id")
     # in auth/non-auth the project folder must exist in the asreview folder
