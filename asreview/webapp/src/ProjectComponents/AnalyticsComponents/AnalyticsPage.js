@@ -1,6 +1,7 @@
 import { Share } from "@mui/icons-material";
 import {
   Box,
+  Container,
   Grid2 as Grid,
   SpeedDial,
   SpeedDialAction,
@@ -31,7 +32,6 @@ import {
 } from "ProjectComponents/AnalyticsComponents";
 import { ProjectAPI } from "api";
 
-const Root = styled("div")(({ theme }) => ({}));
 const actions = [
   { icon: <TwitterIcon round />, name: "Twitter" },
   { icon: <FacebookIcon round />, name: "Facebook" },
@@ -86,68 +86,66 @@ const AnalyticsPage = () => {
   const [activeProgressTab, setActiveProgressTab] = useState(0);
 
   return (
-    <Root aria-label="analytics page">
-      <Box className="main-page-body-wrapper">
-        <Stack spacing={2} className="main-page-body">
-          <Box>
-            <Tabs
-              value={activeProgressTab}
-              onChange={(event, newValue) => setActiveProgressTab(newValue)}
-            >
-              <Tab label="Review Progress" />
-              <Tab label="Stopping Suggestion" />
-            </Tabs>
-            {activeProgressTab === 0 && (
-              <ReviewProgress progressQuery={progressQuery} />
-            )}
-            {activeProgressTab === 1 && (
-              <StoppingSuggestion progressQuery={progressQuery} />
-            )}
-          </Box>
-          <Grid size={12}>
-            <Box>
-              <Box>
-                <Tabs
-                  value={activeHistoryTab}
-                  onChange={(event, newValue) => setActiveHistoryTab(newValue)}
-                >
-                  <Tab label="Labeling History" />
-                  <Tab label="Labeling Frequency" />
-                </Tabs>
-                {activeHistoryTab === 0 && (
-                  <LabelingHistory
-                    genericDataQuery={genericDataQuery}
-                    progressQuery={progressQuery}
-                  />
-                )}
-                {activeHistoryTab === 1 && (
-                  <LabelingFrequency
-                    genericDataQuery={genericDataQuery}
-                    progressQuery={progressQuery}
-                  />
-                )}
-              </Box>
-            </Box>
-          </Grid>
+    <Container maxWidth="md" aria-label="analytics page" sx={{ mb: 3 }}>
+      <Stack spacing={2} className="main-page-body">
+        <Box>
+          <Tabs
+            value={activeProgressTab}
+            onChange={(event, newValue) => setActiveProgressTab(newValue)}
+          >
+            <Tab label="Review Progress" />
+            <Tab label="Stopping Suggestion" />
+          </Tabs>
+          {activeProgressTab === 0 && (
+            <ReviewProgress progressQuery={progressQuery} />
+          )}
+          {activeProgressTab === 1 && (
+            <StoppingSuggestion progressQuery={progressQuery} />
+          )}
+        </Box>
+        <Grid size={12}>
           <Box>
             <Box>
               <Tabs
-                value={activeChartTab}
-                onChange={(event, newValue) => setActiveChartTab(newValue)}
+                value={activeHistoryTab}
+                onChange={(event, newValue) => setActiveHistoryTab(newValue)}
               >
-                <Tab label="Density" />
-                <Tab label="Recall" />
+                <Tab label="Labeling History" />
+                <Tab label="Labeling Frequency" />
               </Tabs>
-              {activeChartTab === 0 && (
-                <ProgressDensityChart genericDataQuery={genericDataQuery} />
+              {activeHistoryTab === 0 && (
+                <LabelingHistory
+                  genericDataQuery={genericDataQuery}
+                  progressQuery={progressQuery}
+                />
               )}
-              {activeChartTab === 1 && (
-                <ProgressRecallChart genericDataQuery={genericDataQuery} />
+              {activeHistoryTab === 1 && (
+                <LabelingFrequency
+                  genericDataQuery={genericDataQuery}
+                  progressQuery={progressQuery}
+                />
               )}
             </Box>
           </Box>
-        </Stack>
-      </Box>
+        </Grid>
+        <Box>
+          <Box>
+            <Tabs
+              value={activeChartTab}
+              onChange={(event, newValue) => setActiveChartTab(newValue)}
+            >
+              <Tab label="Density" />
+              <Tab label="Recall" />
+            </Tabs>
+            {activeChartTab === 0 && (
+              <ProgressDensityChart genericDataQuery={genericDataQuery} />
+            )}
+            {activeChartTab === 1 && (
+              <ProgressRecallChart genericDataQuery={genericDataQuery} />
+            )}
+          </Box>
+        </Box>
+      </Stack>
       <SpeedDial
         ariaLabel="share project analytics"
         icon={<Share />}
@@ -176,7 +174,7 @@ const AnalyticsPage = () => {
         whatsappRef={whatsappRef}
         emailRef={emailRef}
       />
-    </Root>
+    </Container>
   );
 };
 export default AnalyticsPage;
