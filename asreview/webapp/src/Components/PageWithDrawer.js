@@ -178,7 +178,7 @@ const PageWithDrawer = ({ window, navComponent, navComponentProps }) => {
               color="inherit"
               onClick={toggleMobileDrawer}
               size="large"
-              sx={{ marginRight: "4px" }}
+              sx={{ mr: 1 }}
             >
               <Menu />
             </IconButton>

@@ -238,37 +238,27 @@ const SettingsDialog = (props) => {
               align="center"
               gutterBottom
               className={"fontSize" + fontSizeOptions[fontSize]}
+              sx={{ height: "36px", overflow: "hidden" }}
             >
               {fontSizeOptions[fontSize].charAt(0).toUpperCase() +
                 fontSizeOptions[fontSize].slice(1)}
             </Typography>
           </>
           <>
-            <Grid container sx={{ alignItems: "flex-end" }}>
-              <Grid size="grow">
-                <Typography align="center" variant="h6">
-                  A
-                </Typography>
-              </Grid>
-              <Grid size={8}>
-                <Slider
-                  value={fontSize}
-                  marks={true}
-                  step={1}
-                  min={0}
-                  max={3}
-                  onChange={(event) => {
-                    handleFontSizeChange(event.target.value);
-                  }}
-                  disabled // make this work. Use redux? or local storage?
-                />
-              </Grid>
-              <Grid size="grow">
-                <Typography align="center" variant="h4">
-                  A
-                </Typography>
-              </Grid>
-            </Grid>
+            <Stack direction={"row"} spacing={3}>
+              <Typography variant="h6">A</Typography>
+              <Slider
+                value={fontSize}
+                marks={true}
+                step={1}
+                min={0}
+                max={3}
+                onChange={(event) => {
+                  handleFontSizeChange(event.target.value);
+                }}
+              />
+              <Typography variant="h4">A</Typography>
+            </Stack>
           </>
         </DialogContent>
         <DialogActions>

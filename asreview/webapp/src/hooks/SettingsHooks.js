@@ -1,22 +1,4 @@
-import { useEffect, useState } from "react";
-
-const useRowsPerPage = () => {
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-
-  const handleRowsPerPage = (rows) => {
-    window.localStorage.setItem("rowsPerPage", rows);
-    setRowsPerPage(rows);
-  };
-
-  useEffect(() => {
-    const localRowsPerPage = window.localStorage.getItem("rowsPerPage");
-    if (localRowsPerPage !== null && rowsPerPage !== localRowsPerPage) {
-      setRowsPerPage(parseInt(localRowsPerPage));
-    }
-  }, [rowsPerPage]);
-
-  return [rowsPerPage, handleRowsPerPage];
-};
+import { useState } from "react";
 
 const useFontSize = (value = 1) => {
   let localFontSize = parseInt(window.localStorage.getItem("fontSize"));
@@ -38,4 +20,4 @@ const useFontSize = (value = 1) => {
   return [fontSize, handleFontSizeChange];
 };
 
-export { useFontSize, useRowsPerPage };
+export { useFontSize };
