@@ -54,7 +54,7 @@ const SignOutItem = () => {
 };
 
 const ProfilePopper = () => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [projectInvitations, setProjectInvitations] = React.useState([]);
   const [onAcceptanceDialog, toggleAcceptanceDialog] = useToggle();
@@ -76,7 +76,7 @@ const ProfilePopper = () => {
   };
   const handleProfile = () => {
     setOpen(false);
-    // navigate("/profile");
+    navigate("/profile");
   };
 
   useQuery(["getProjectInvitations"], () => TeamAPI.getProjectInvitations(), {

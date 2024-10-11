@@ -58,10 +58,17 @@ const App = () => {
           )}
           <Route path="projects" element={<Navigate to="/reviews" />} />
           <Route path="" element={<Navigate to="/reviews" />} />
-          <Route
-            path="profile"
-            element={<ProfilePage mobileScreen={mobileScreen} />}
-          />
+          <Route path="profile" element={<PageWithDrawer />}>
+            <Route
+              index
+              element={
+                <>
+                  <PageHeader>Profile</PageHeader>
+                  <ProfilePage mobileScreen={mobileScreen} />
+                </>
+              }
+            />
+          </Route>
           <Route
             path="reviews"
             element={<PageWithDrawer navComponent={LandingDrawerItems} />}

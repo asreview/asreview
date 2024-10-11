@@ -198,6 +198,13 @@ const PageWithDrawer = ({ window, navComponent, navComponentProps }) => {
             onClick={mobileDrawer ? toggleNavDrawer : undefined}
             showTooltip={onNavDrawer}
           />
+          <Box
+            sx={{
+              overflowX: "hidden",
+              overflowY: "auto",
+              flex: "1 1 auto",
+            }}
+          />
           <BottomNavigationDrawerItems
             mobileScreen={mobileScreen}
             toggleNavDrawer={toggleMobileDrawer}
@@ -222,6 +229,13 @@ const PageWithDrawer = ({ window, navComponent, navComponentProps }) => {
               projectInfo={onNavDrawer}
               onClick={mobileDrawer ? toggleNavDrawer : undefined}
               showTooltip={onNavDrawer}
+            />
+            <Box
+              sx={{
+                overflowX: "hidden",
+                overflowY: "auto",
+                flex: "1 1 auto",
+              }}
             />
             <BottomNavigationDrawerItems
               mobileScreen={mobileScreen}
