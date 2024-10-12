@@ -33,6 +33,8 @@ import { DrawerItem } from "StyledComponents/StyledDrawerItem";
 import { StyledList } from "StyledComponents/StyledList";
 import { StyledNavigationRail } from "StyledComponents/StyledNavigationRail";
 
+import { ReviewSettingsProvider } from "context/ReviewSettingsContext";
+
 const classes = {
   content: `HomePage-content`,
   contentShift: `HomePage-contentShift`,
@@ -144,7 +146,7 @@ const PageWithDrawer = ({ window, navComponent, navComponentProps }) => {
   const [mobileDrawer, toggleMobileDrawer] = useToggle();
 
   return (
-    <Box>
+    <ReviewSettingsProvider>
       <Header
         onNavDrawer={onNavDrawer}
         toggleNavDrawer={mobileScreen ? toggleMobileDrawer : toggleNavDrawer}
@@ -256,7 +258,7 @@ const PageWithDrawer = ({ window, navComponent, navComponentProps }) => {
           <Outlet />
         </Box>
       </Root>
-    </Box>
+    </ReviewSettingsProvider>
   );
 };
 

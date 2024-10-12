@@ -26,26 +26,18 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { styled, useColorScheme } from "@mui/material/styles";
+import { useColorScheme } from "@mui/material/styles";
 import React from "react";
 
 import { OpenInNewIconStyled } from "Components";
 
 import { fontSizeOptions } from "globals.js";
-import { useFontSize } from "hooks/SettingsHooks";
 import { useToggle } from "hooks/useToggle";
 
-const PREFIX = "SettingsDialog";
-
-const classes = {
-  content: `${PREFIX}-content`,
-};
-
-const StyledDialog = styled(Dialog)(({ theme }) => ({
-  [`& .${classes.content}`]: {
-    height: 388,
-  },
-}));
+import {
+  useReviewSettings,
+  useReviewSettingsDispatch,
+} from "context/ReviewSettingsContext";
 
 const SettingsDialog = (props) => {
   const descriptionElementRef = React.useRef(null);
@@ -54,7 +46,8 @@ const SettingsDialog = (props) => {
 
   // second layer state
   const [fontSizeSetting, toggleFontSizeSetting] = useToggle();
-  const [fontSize, handleFontSizeChange] = useFontSize();
+  const { fontSize } = useReviewSettings();
+  const dispatchReviewSettings = useReviewSettingsDispatch();
 
   const toggleBackMainSettings = () => {
     if (fontSizeSetting) {
@@ -72,7 +65,7 @@ const SettingsDialog = (props) => {
   }, [props.onSettings]);
 
   return (
-    <StyledDialog
+    <Dialog
       fullScreen={props.mobileScreen}
       open={props.onSettings}
       onClose={props.toggleSettings}
@@ -103,7 +96,7 @@ const SettingsDialog = (props) => {
           </Grid>
         </DialogTitle>
       )}
-      <DialogContent dividers className={classes.content}>
+      <DialogContent dividers>
         <List>
           <ListItem>
             <Typography
@@ -254,7 +247,10 @@ const SettingsDialog = (props) => {
                 min={0}
                 max={3}
                 onChange={(event) => {
-                  handleFontSizeChange(event.target.value);
+                  dispatchReviewSettings({
+                    type: "fontSize",
+                    fontSize: event.target.value,
+                  });
                 }}
               />
               <Typography variant="h4">A</Typography>
@@ -262,18 +258,10 @@ const SettingsDialog = (props) => {
           </>
         </DialogContent>
         <DialogActions>
-          <Button onClick={toggleFontSizeSetting}>Cancel</Button>
-          <Button
-            onClick={() => {
-              handleFontSizeChange(fontSize);
-              toggleFontSizeSetting();
-            }}
-          >
-            Save
-          </Button>
+          <Button onClick={toggleFontSizeSetting}>Close</Button>
         </DialogActions>
       </Dialog>
-    </StyledDialog>
+    </Dialog>
   );
 };
 

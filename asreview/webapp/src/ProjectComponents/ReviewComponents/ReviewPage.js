@@ -9,7 +9,8 @@ import { Container } from "@mui/material";
 import { ProjectAPI } from "api";
 
 import FinishSetup from "./ReviewPageTraining";
-import { useFontSize } from "hooks/SettingsHooks";
+
+import { useReviewSettings } from "context/ReviewSettingsContext";
 
 const Screener = (props) => {
   const { project_id } = useParams();
@@ -52,7 +53,7 @@ const Screener = (props) => {
 const ReviewPage = () => {
   let { project_id } = useParams();
 
-  const [fontSize] = useFontSize();
+  const { fontSize } = useReviewSettings();
 
   /* fetch the record and check if the project is training */
   const { refetch, data, isSuccess } = useQuery(
