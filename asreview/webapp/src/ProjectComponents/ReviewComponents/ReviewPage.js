@@ -12,7 +12,7 @@ import FinishSetup from "./ReviewPageTraining";
 
 import { useReviewSettings } from "context/ReviewSettingsContext";
 
-const Screener = (props) => {
+const Screener = ({ fontSize, showBorder, modelLogLevel }) => {
   const { project_id } = useParams();
   const queryClient = useQueryClient();
 
@@ -26,24 +26,21 @@ const Screener = (props) => {
     },
   );
 
-  const afterDecision = () => {
-    queryClient.invalidateQueries("fetchRecord");
-  };
-
   return (
     <>
-      {data["result"] && (
+      {data?.result && (
         <RecordCard
+          key={project_id + "-" + data?.result["record_id"]}
           project_id={project_id}
-          record={data["result"]}
-          afterDecision={afterDecision}
-          fontSize={props.fontSize}
-          showBorder={props.showBorder}
+          record={data?.result}
+          afterDecision={() => queryClient.invalidateQueries("fetchRecord")}
+          fontSize={fontSize}
+          showBorder={showBorder}
+          modelLogLevel={modelLogLevel}
           tagValues={tagValues}
           setTagValues={setTagValues}
           collapseAbstract={false}
           hotkeys={true}
-          key={project_id + "-" + data["result"]["record_id"]}
         />
       )}
     </>
@@ -53,7 +50,7 @@ const Screener = (props) => {
 const ReviewPage = () => {
   let { project_id } = useParams();
 
-  const { fontSize } = useReviewSettings();
+  const { fontSize, modelLogLevel } = useReviewSettings();
 
   /* fetch the record and check if the project is training */
   const { refetch, data, isSuccess } = useQuery(
@@ -78,8 +75,8 @@ const ReviewPage = () => {
         <>
           {data?.result !== null && (
             <Screener
-              record={data}
               fontSize={fontSize}
+              modelLogLevel={modelLogLevel}
               showBorder={showBorder}
             />
           )}

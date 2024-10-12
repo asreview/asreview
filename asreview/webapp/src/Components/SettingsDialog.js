@@ -24,6 +24,7 @@ import {
   RadioGroup,
   Slider,
   Stack,
+  Switch,
   Typography,
 } from "@mui/material";
 import { useColorScheme } from "@mui/material/styles";
@@ -46,14 +47,8 @@ const SettingsDialog = (props) => {
 
   // second layer state
   const [fontSizeSetting, toggleFontSizeSetting] = useToggle();
-  const { fontSize } = useReviewSettings();
+  const { fontSize, modelLogLevel } = useReviewSettings();
   const dispatchReviewSettings = useReviewSettingsDispatch();
-
-  const toggleBackMainSettings = () => {
-    if (fontSizeSetting) {
-      toggleFontSizeSetting();
-    }
-  };
 
   React.useEffect(() => {
     if (props.onSettings) {
@@ -74,9 +69,9 @@ const SettingsDialog = (props) => {
       maxWidth="sm"
       aria-labelledby="scroll-dialog-title"
       aria-describedby="scroll-dialog-description"
-      TransitionProps={{
-        onExited: toggleBackMainSettings,
-      }}
+      // TransitionProps={{
+      //   onExited: toggleBackMainSettings,
+      // }}
     >
       {!props.mobileScreen && (
         <DialogTitle>Customize your ASReview LAB</DialogTitle>
@@ -166,7 +161,7 @@ const SettingsDialog = (props) => {
               </RadioGroup>
             </FormControl>
           </ListItem>
-          <Divider sx={{ my: "8px" }} />
+          <Divider sx={{ my: 2 }} />
           <ListItem>
             <Typography
               color="textSecondary"
@@ -183,7 +178,29 @@ const SettingsDialog = (props) => {
               secondary={fontSizeOptions[fontSize]}
             />
           </ListItem>
-          <Divider sx={{ my: "8px" }} />
+          <ListItem
+            secondaryAction={
+              <Switch
+                checked={modelLogLevel === "info"}
+                onChange={() => {
+                  dispatchReviewSettings({
+                    type: "modelLogLevel",
+                    modelLogLevel:
+                      modelLogLevel === "info" ? "warning" : "info",
+                  });
+                }}
+                inputProps={{ "aria-label": "controlled" }}
+              />
+            }
+          >
+            <ListItemText
+              id="change-show-model-info"
+              primary="Show model information"
+              secondary={"Warnings and errors are always shown"}
+            />
+          </ListItem>
+
+          <Divider sx={{ my: 2 }} />
           <ListItem>
             <Typography
               color="textSecondary"

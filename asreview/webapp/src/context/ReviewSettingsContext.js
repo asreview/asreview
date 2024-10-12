@@ -2,7 +2,7 @@ import { createContext, useContext, useReducer } from "react";
 
 const storageNames = {
   fontSize: "fontSize",
-  showModelInfo: "showModelInfo",
+  modelLogLevel: "modelLogLevel",
 };
 
 const initialReviewSettings = () => {
@@ -17,9 +17,12 @@ const initialReviewSettings = () => {
       ? localFontSize
       : 1;
 
+  let localModelLogLevel =
+    window.localStorage.getItem(storageNames.modelLogLevel) && "warning";
+
   return {
     [storageNames.fontSize]: localFontSize,
-    [storageNames.showModelInfo]: true,
+    [storageNames.modelLogLevel]: localModelLogLevel,
   };
 };
 
@@ -49,13 +52,13 @@ function ReviewSettingsReducer(reviewSettings, action) {
       return { ...reviewSettings, fontSize: action.fontSize };
     }
 
-    // Add a case for the showModelInfo action
-    case storageNames.showModelInfo: {
+    // Add a case for the modelLogLevel action
+    case storageNames.modelLogLevel: {
       window.localStorage.setItem(
-        storageNames.showModelInfo,
-        action.showModelInfo,
+        storageNames.modelLogLevel,
+        action.modelLogLevel,
       );
-      return { ...reviewSettings, showModelInfo: action.showModelInfo };
+      return { ...reviewSettings, modelLogLevel: action.modelLogLevel };
     }
 
     // Add a default case that throws an error
