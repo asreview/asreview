@@ -148,6 +148,8 @@ def api_get_projects(projects):  # noqa: F401
                 project_config["roles"] = {
                     "owner": db_project.owner_id == current_user.id
                 }
+            else:
+                project_config["roles"] = {"owner": True}
 
             logging.info("Project found: {}".format(project_config["id"]))
             project_info.append(project_config)
@@ -320,11 +322,13 @@ def api_get_project_info(project):  # noqa: F401
     project_config = project.config
 
     if current_app.config.get("LOGIN_DISABLED", False):
+        project_config["roles"] = {"owner": True}
         return jsonify(project_config)
 
     db_project = Project.query.filter(
         Project.project_id == project.config.get("id", 0)
     ).one_or_none()
+
     if db_project:
         project_config["roles"] = {"owner": db_project.owner_id == current_user.id}
 
@@ -885,9 +889,9 @@ def api_import_project():
 
     if not current_app.config.get("LOGIN_DISABLED", False):
         current_user.projects.append(Project(project_id=project.config.get("id")))
-        project.config["roles"] = {"owner": True}
         DB.session.commit()
 
+    project.config["roles"] = {"owner": True}
     return jsonify({"data": project.config, "warnings": warnings})
 
 
