@@ -592,11 +592,11 @@ class ProjectAPI {
             );
             resolve(result);
           } else {
-            console.log(
-              `${variables.project_id} - update classification ${
-                variables.record_id
-              } as ${variables.label === 1 ? "inclusion" : "exclusion"}`,
-            );
+            // console.log(
+            //   `${variables.project_id} - update classification ${
+            //     variables.record_id
+            //   } as ${variables.label === 1 ? "inclusion" : "exclusion"}`,
+            // );
             resolve(result["data"]);
           }
         })

@@ -1,14 +1,13 @@
-import { Box, Grid2 as Grid, Snackbar } from "@mui/material";
+import { Container, Grid2 as Grid, Snackbar } from "@mui/material";
 import {
+  CollaborationPage,
   ConfirmationDialog,
   InvitationForm,
   UserListComponent,
-  CollaborationPage,
 } from "ProjectComponents/TeamComponents";
-import { TeamAPI, ProjectAPI } from "api";
+import { ProjectAPI, TeamAPI } from "api";
 import * as React from "react";
 import { useMutation, useQuery } from "react-query";
-import useAuth from "hooks/useAuth";
 import { useParams } from "react-router-dom";
 
 const initSnackbarData = { show: false, message: "" };
@@ -20,7 +19,6 @@ const initDeleteData = {
 };
 const TeamPage = () => {
   const { project_id } = useParams();
-  const { auth } = useAuth();
 
   const [selectableUsers, setSelectableUsers] = React.useState([]);
   const [collaborators, setCollaborators] = React.useState([]);
@@ -182,18 +180,16 @@ const TeamPage = () => {
   );
 
   return (
-    <Box className="main-page-body-wrapper">
+    <Container maxWidth="md" sx={{ mb: 3 }}>
       <Grid container spacing={3}>
         <Grid size={12}>
-          {data?.ownerId === auth.id && (
+          {data?.roles.owner && (
             <InvitationForm
               selectableUsers={selectableUsers}
               onInvite={onInvite}
             />
           )}
-          {data && auth.id && data?.ownerId !== auth.id && (
-            <CollaborationPage />
-          )}
+          {data && !data?.roles.owner && <CollaborationPage />}
         </Grid>
         <Grid
           size={{
@@ -205,7 +201,7 @@ const TeamPage = () => {
             header="Collaborators"
             users={collaborators}
             onDelete={onDeleteCollaboration}
-            disabled={data?.ownerId !== auth.id}
+            disabled={!data?.roles.owner}
           />
         </Grid>
         <Grid
@@ -218,7 +214,7 @@ const TeamPage = () => {
             header="Pending invitations"
             users={invitedUsers}
             onDelete={onDeleteInvitation}
-            disabled={data?.ownerId !== auth.id}
+            disabled={!data?.roles.owner}
           />
         </Grid>
       </Grid>
@@ -239,7 +235,7 @@ const TeamPage = () => {
           setHandleDelete(initDeleteData);
         }}
       />
-    </Box>
+    </Container>
   );
 };
 export default TeamPage;

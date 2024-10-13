@@ -77,7 +77,6 @@ const projectModeURLMap = {
 const ProjectCard = ({
   project,
   mode,
-  user_id,
   showProgressChip = true,
   showSimulatingSpinner = true,
 }) => {
@@ -296,7 +295,7 @@ const ProjectCard = ({
               )}
             <MenuItem
               onClick={handleClickDelete}
-              disabled={project?.owner_id !== user_id}
+              disabled={!project?.roles.owner}
             >
               <ListItemIcon>
                 <DeleteForeverOutlined />
@@ -308,7 +307,7 @@ const ProjectCard = ({
 
         {window.authentication &&
           review?.status !== projectStatuses.SETUP &&
-          project?.owner_id === user_id && (
+          project?.roles.owner && (
             <Tooltip title="Add team members">
               <IconButton
                 component={Link}
@@ -320,7 +319,7 @@ const ProjectCard = ({
           )}
         {window.authentication &&
           review?.status !== projectStatuses.SETUP &&
-          project?.owner_id !== user_id && (
+          !project?.roles.owner && (
             <Tooltip title="Remove yourself from project">
               <IconButton
                 component={Link}

@@ -36,7 +36,7 @@ import en from "javascript-time-ago/locale/en";
 TimeAgo.addLocale(en);
 const timeAgo = new TimeAgo("en-US");
 
-// const PREFIX = "DecisionButton";
+// const PREFIX = "RecordCardLabeler";
 
 // const classes = {
 //   icon: `${PREFIX}-icon`,
@@ -96,7 +96,7 @@ const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
   );
 };
 
-const DecisionButton = ({
+const RecordCardLabeler = ({
   project_id,
   record_id,
   label,
@@ -304,4 +304,4 @@ const DecisionButton = ({
   );
 };
 
-export default DecisionButton;
+export default RecordCardLabeler;

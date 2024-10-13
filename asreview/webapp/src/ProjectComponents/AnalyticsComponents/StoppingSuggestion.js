@@ -10,38 +10,10 @@ import {
   Skeleton,
   Card,
   CardContent,
-  Tooltip,
 } from "@mui/material";
-import { tooltipClasses } from "@mui/material/Tooltip";
-import { styled, useTheme } from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import EditIcon from "@mui/icons-material/Edit";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
-
-// Styled component for the main card
-const StyledCard = styled(Card)(({ theme }) => ({
-  borderRadius: theme.shape.borderRadius * 4,
-  padding: theme.spacing(2),
-  boxShadow: theme.shadows[2],
-  height: "300px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  position: "relative",
-}));
-
-// Info tooltip
-const CustomTooltip = styled(({ className, ...props }) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(({ theme }) => ({
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: theme.palette.background.paper,
-    color: theme.palette.text.primary,
-    boxShadow: theme.shadows[1],
-    fontSize: theme.typography.pxToRem(12),
-    padding: "10px",
-    borderRadius: theme.shape.borderRadius,
-  },
-}));
 
 const StoppingSuggestion = ({ progressQuery }) => {
   const [stoppingRuleThreshold, setStoppingRuleThreshold] = useState(
@@ -50,7 +22,11 @@ const StoppingSuggestion = ({ progressQuery }) => {
   const [irrelevantCount, setIrrelevantCount] = useState(0);
   const [n_since_last_inclusion_no_priors, setNSinceLastInclusionNoPriors] =
     useState(0);
-  const [anchorEl, setAnchorEl] = useState(null);
+
+  // Separate anchor states for both popovers
+  const [anchorElEdit, setAnchorElEdit] = useState(null);
+  const [anchorElInfo, setAnchorElInfo] = useState(null);
+
   const [tempThreshold, setTempThreshold] = useState(stoppingRuleThreshold);
   const loading = progressQuery.isLoading;
   const theme = useTheme();
@@ -67,43 +43,45 @@ const StoppingSuggestion = ({ progressQuery }) => {
     setNSinceLastInclusionNoPriors(n_since_last_inclusion_no_priors || 0);
   }, [progressQuery.data]);
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  const handleClickEdit = (event) => {
+    setAnchorElEdit(event.currentTarget);
     setTempThreshold(stoppingRuleThreshold);
   };
 
-  const handleClose = () => setAnchorEl(null);
+  const handleClickInfo = (event) => {
+    setAnchorElInfo(event.currentTarget);
+  };
+
+  const handleCloseEdit = () => setAnchorElEdit(null);
+  const handleCloseInfo = () => setAnchorElInfo(null);
 
   const handleSave = () => {
     setStoppingRuleThreshold(tempThreshold);
     localStorage.setItem("stoppingRuleThreshold", tempThreshold);
-    handleClose();
+    handleCloseEdit();
   };
 
-  const open = Boolean(anchorEl);
-  const id = open ? "threshold-popover" : undefined;
+  const openEdit = Boolean(anchorElEdit);
+  const openInfo = Boolean(anchorElInfo);
 
   const stoppingRuleProgress =
     (n_since_last_inclusion_no_priors / stoppingRuleThreshold) * 100;
 
   return (
-    <StyledCard>
+    <Card
+      sx={{
+        position: "relative",
+      }}
+    >
       <CardContent
         sx={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          width: "100%",
-          height: "100%",
         }}
       >
-        <Box
-          display="flex"
-          flexDirection="column"
-          justifyContent="center"
-          alignItems="flex-start"
-        >
-          <Box mb={2}>
+        <Box>
+          <Box>
             {loading ? (
               <Skeleton width={100} height={40} />
             ) : (
@@ -135,25 +113,13 @@ const StoppingSuggestion = ({ progressQuery }) => {
                 >
                   {stoppingRuleThreshold}
                 </Typography>
-                <Tooltip
-                  backgroundcolor="primary"
-                  title={
-                    <React.Fragment>
-                      <Typography variant="body2" gutterBottom>
-                        <strong>Edit Threshold</strong>
-                      </Typography>
-                    </React.Fragment>
-                  }
-                  arrow
+                <IconButton
+                  size="small"
+                  onClick={handleClickEdit}
+                  color="primary"
                 >
-                  <IconButton
-                    size="small"
-                    onClick={handleClick}
-                    color="primary"
-                  >
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
+                  <EditIcon fontSize="small" />
+                </IconButton>
               </>
             )}
           </Box>
@@ -189,111 +155,17 @@ const StoppingSuggestion = ({ progressQuery }) => {
             </Typography>
           </Box>
         </Box>
-        <Box
-          sx={{
-            position: "absolute",
-            top: theme.spacing(1),
-            right: theme.spacing(1),
-          }}
-        >
-          <CustomTooltip
-            title={
-              <React.Fragment>
-                <hr
-                  style={{
-                    border: `none`,
-                    borderTop: `4px solid ${theme.palette.divider}`,
-                    margin: "8px 0",
-                    borderRadius: "5px",
-                  }}
-                />
-                <Typography variant="body2" gutterBottom>
-                  <strong>Stopping Suggestion</strong>
-                </Typography>
-                <ul
-                  style={{
-                    margin: 0,
-                    paddingLeft: "1.2em",
-                    listStyleType: "circle",
-                  }}
-                >
-                  <li>
-                    {" "}
-                    This feature helps you decide when to stop screening
-                    additional records.{" "}
-                  </li>
-                  <li>
-                    {" "}
-                    The more irrelevant records you label without encountering
-                    any relevant ones, the higher the likelihood that the
-                    remaining records are also irrelevant.{" "}
-                  </li>
-
-                  <li>
-                    {" "}
-                    You can manually edit and optimize the threshold for your
-                    project.{" "}
-                  </li>
-                </ul>
-                <hr
-                  style={{
-                    border: `none`,
-                    borderTop: `4px solid ${theme.palette.divider}`,
-                    margin: "8px 0",
-                    borderRadius: "5px",
-                  }}
-                />
-
-                <Box sx={{ pt: 1, textAlign: "center" }}>
-                  <a
-                    href="https://github.com/asreview/asreview/discussions/557"
-                    style={{
-                      color:
-                        theme.palette.mode === "dark" ? "#1E90FF" : "#1E90FF",
-                    }}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Learn more
-                  </a>
-                </Box>
-              </React.Fragment>
-            }
-            arrow
-            interactive={true}
-            enterTouchDelay={0}
-            sx={{
-              color: theme.palette.text.secondary,
-              backgroundColor: theme.palette.background.paper,
-              borderRadius: theme.shape.borderRadius,
-              boxShadow: theme.shadows[2],
-            }}
-          >
-            <IconButton
-              size="small"
-              sx={{
-                color: theme.palette.text.secondary,
-                p: theme.spacing(2.1),
-              }}
-            >
-              <HelpOutlineIcon fontSize="small" />
-            </IconButton>
-          </CustomTooltip>
+        <Box>
+          <IconButton size="small" onClick={handleClickInfo}>
+            <HelpOutlineIcon fontSize="small" />
+          </IconButton>
         </Box>
       </CardContent>
       <Popover
-        id={id}
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
+        id="threshold-popover"
+        open={openEdit}
+        anchorEl={anchorElEdit}
+        onClose={handleCloseEdit}
       >
         <Box p={3} display="flex" flexDirection="column" alignItems="center">
           <Typography variant="subtitle1" gutterBottom>
@@ -305,12 +177,6 @@ const StoppingSuggestion = ({ progressQuery }) => {
             onChange={(e) => setTempThreshold(Number(e.target.value))}
             size="small"
             variant="outlined"
-            sx={{ mb: 2, width: "100%" }}
-            slotProps={{
-              input: {
-                inputProps: { min: 0 },
-              },
-            }}
           />
           <Button
             variant="contained"
@@ -322,7 +188,38 @@ const StoppingSuggestion = ({ progressQuery }) => {
           </Button>
         </Box>
       </Popover>
-    </StyledCard>
+      <Popover
+        id="info-popover"
+        open={openInfo}
+        anchorEl={anchorElInfo}
+        onClose={handleCloseInfo}
+      >
+        <Box>
+          <Typography variant="body2" gutterBottom>
+            <strong>Stopping Suggestion</strong>
+          </Typography>
+          <Typography variant="body2">
+            This feature helps you decide when to stop screening additional
+            records. The more irrelevant records you label without encountering
+            any relevant ones, the higher the likelihood that the remaining
+            records are also irrelevant.
+          </Typography>
+          <Typography variant="body2">
+            You can manually edit and optimize the threshold for your project.
+          </Typography>
+          <Box>
+            <a
+              href="https://github.com/asreview/asreview/discussions/557"
+              style={{ color: theme.palette.primary.main }}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Learn more
+            </a>
+          </Box>
+        </Box>
+      </Popover>
+    </Card>
   );
 };
 

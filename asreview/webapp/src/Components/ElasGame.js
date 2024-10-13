@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import {
-  Button,
+  IconButton,
   Grid2 as Grid,
   Paper,
   Stack,
@@ -10,6 +10,7 @@ import {
   FormControlLabel,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { Refresh } from "@mui/icons-material";
 
 // Importing image
 import ElasBalloons from "images/ElasBalloons.svg";
@@ -315,28 +316,18 @@ const ElasGame = (props) => {
               disabled={gameState.selectedPapers.ids.length > 0}
             />
           }
-          label="Expert Mode"
+          label="Expert"
         />
 
         <Typography variant="h6">
           {gameState.expert
-            ? `Expert Mode: ${gameState.gameStats.expert.matches} correct out of ${gameState.gameStats.expert.attempts} attempts`
-            : `Simple Mode: ${gameState.gameStats.simple.matches} correct out of ${gameState.gameStats.simple.attempts} attempts`}
+            ? `${gameState.gameStats.expert.matches} correct out of ${gameState.gameStats.expert.attempts} attempts`
+            : `${gameState.gameStats.simple.matches} correct out of ${gameState.gameStats.simple.attempts} attempts`}
         </Typography>
 
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={resetGame}
-          style={{
-            minWidth: "30px",
-            height: "30px",
-            padding: "0 8px",
-            marginRight: "10px",
-          }}
-        >
-          Reset
-        </Button>
+        <IconButton onClick={resetGame}>
+          <Refresh />
+        </IconButton>
       </Box>
 
       {gameState.isExpertCompleted && (
