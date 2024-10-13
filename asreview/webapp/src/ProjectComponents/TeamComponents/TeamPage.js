@@ -1,4 +1,4 @@
-import { Box, Grid2 as Grid, Snackbar } from "@mui/material";
+import { Container, Grid2 as Grid, Snackbar } from "@mui/material";
 import {
   CollaborationPage,
   ConfirmationDialog,
@@ -180,7 +180,7 @@ const TeamPage = () => {
   );
 
   return (
-    <Box className="main-page-body-wrapper">
+    <Container maxWidth="md" sx={{ mb: 3 }}>
       <Grid container spacing={3}>
         <Grid size={12}>
           {data?.roles.owner && (
@@ -235,7 +235,7 @@ const TeamPage = () => {
           setHandleDelete(initDeleteData);
         }}
       />
-    </Box>
+    </Container>
   );
 };
 export default TeamPage;

@@ -1,9 +1,7 @@
 import { Button, IconButton, Tooltip, useMediaQuery } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
 
 export const ResponsiveButton = ({ title, icon, ...itemButtomProps }) => {
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const fullScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
 
   if (fullScreen) {
     return (

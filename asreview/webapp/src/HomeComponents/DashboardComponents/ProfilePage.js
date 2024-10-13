@@ -1,27 +1,26 @@
-import React from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { useMutation, useQuery } from "react-query";
 import {
-  Box,
   Button,
   Checkbox,
+  Container,
   Divider,
+  FormHelperText as FHT,
   FormControl,
   FormControlLabel,
-  FormHelperText as FHT,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
+import React from "react";
+import { useMutation, useQuery } from "react-query";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import LoadingButton from "@mui/lab/LoadingButton";
-import { TypographyH5Medium } from "StyledComponents/StyledTypography";
 import { InlineErrorHandler } from "Components";
 import { useToggle } from "hooks/useToggle";
 
 import { AuthAPI } from "api";
-import { passwordRequirements, passwordValidation } from "globals.js";
 import { useFormik } from "formik";
+import { passwordRequirements, passwordValidation } from "globals.js";
 import * as Yup from "yup";
 
 // VALIDATION SCHEMA
@@ -252,122 +251,99 @@ const ProfilePage = (props) => {
   };
 
   return (
-    <>
+    <Container maxWidth="md" sx={{ mb: 3 }}>
       {data && isFetched && (
         <>
-          {/* Header */}
-          <Box
-            className="main-page-sticky-header-wrapper"
-            sx={(theme) => ({
-              background: theme.palette.background.paper,
-            })}
-          >
-            <Box className="main-page-sticky-header with-button">
-              {!props.mobileScreen && (
-                <TypographyH5Medium>Profile</TypographyH5Medium>
-              )}
-              {props.mobileScreen && (
-                <Typography variant="h6">Profile</Typography>
-              )}
-              <Stack direction="row" spacing={1}>
-                <span>
-                  <Button onClick={handleReset} sx={{ marginRight: "15px" }}>
-                    reset
-                  </Button>
-                  <LoadingButton
-                    id="save"
-                    disabled={!formik.isValid}
-                    loading={loadingSaveButton}
-                    variant="contained"
-                    onClick={handleSubmit}
-                    size={!props.mobileScreen ? "medium" : "small"}
-                  >
-                    Save
-                  </LoadingButton>
-                </span>
-              </Stack>
-            </Box>
-          </Box>
-
           {/* Page body */}
-          <Box className="main-page-body-wrapper">
-            <Stack className="main-page-body" direction={"column"} spacing={3}>
-              {showFirstTimeMessage && (
-                <Typography variant="h6">
-                  Please take a second to review your profile data:
-                </Typography>
-              )}
-              {!showFirstTimeMessage && (
-                <Typography variant="h6">User data</Typography>
-              )}
-              <TextField
-                required={true}
-                id="name"
-                label="Full name"
-                size="small"
-                fullWidth
-                value={formik.values.name}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                slotProps={{
-                  htmlInput: {
-                    autoComplete: "off",
-                  },
-                }}
-              />
-              {formik.touched.name && formik.errors.name ? (
-                <FHT error={true}>{formik.errors.name}</FHT>
-              ) : null}
-              <TextField
-                required={true}
-                id="affiliation"
-                label="Affiliation"
-                size="small"
-                fullWidth
-                value={formik.values.affiliation}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                slotProps={{
-                  htmlInput: {
-                    autoComplete: "off",
-                  },
-                }}
-              />
-              {formik.touched.affiliation && formik.errors.affiliation ? (
-                <FHT error={true}>{formik.errors.affiliation}</FHT>
-              ) : null}
-              {showPasswordFields && renderPasswordFields(formik)}
+          <Stack direction={"column"} spacing={3}>
+            {showFirstTimeMessage && (
+              <Typography variant="h6">
+                Please take a moment to review your profile data:
+              </Typography>
+            )}
+            <TextField
+              required={true}
+              id="name"
+              label="Full name"
+              size="small"
+              fullWidth
+              value={formik.values.name}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              slotProps={{
+                htmlInput: {
+                  autoComplete: "off",
+                },
+              }}
+            />
+            {formik.touched.name && formik.errors.name ? (
+              <FHT error={true}>{formik.errors.name}</FHT>
+            ) : null}
+            <TextField
+              required={true}
+              id="affiliation"
+              label="Affiliation"
+              size="small"
+              fullWidth
+              value={formik.values.affiliation}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              slotProps={{
+                htmlInput: {
+                  autoComplete: "off",
+                },
+              }}
+            />
+            {formik.touched.affiliation && formik.errors.affiliation ? (
+              <FHT error={true}>{formik.errors.affiliation}</FHT>
+            ) : null}
+            {showPasswordFields && renderPasswordFields(formik)}
 
-              {false && (
-                <>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        color="primary"
-                        id="publicAccount"
-                        defaultChecked={formik.values.publicAccount}
-                        value={formik.values.publicAccount}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                      />
-                    }
-                    label="Make this account public"
-                  />
-                  <FHT>
-                    Making this account public allows you to collaborate.
-                  </FHT>
-                </>
-              )}
-              {isError && (
-                <FHT>
-                  <InlineErrorHandler message={error.message} />
-                </FHT>
-              )}
-            </Stack>
-          </Box>
+            {false && (
+              <>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      color="primary"
+                      id="publicAccount"
+                      defaultChecked={formik.values.publicAccount}
+                      value={formik.values.publicAccount}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                    />
+                  }
+                  label="Make this account public"
+                />
+                <FHT>Making this account public allows you to collaborate.</FHT>
+              </>
+            )}
+            {isError && (
+              <FHT>
+                <InlineErrorHandler message={error.message} />
+              </FHT>
+            )}
+          </Stack>
+
+          <Stack direction="row" spacing={1}>
+            <span>
+              <Button onClick={handleReset} sx={{ marginRight: "15px" }}>
+                reset
+              </Button>
+              <LoadingButton
+                id="save"
+                disabled={!formik.isValid}
+                loading={loadingSaveButton}
+                variant="contained"
+                onClick={handleSubmit}
+                size={!props.mobileScreen ? "medium" : "small"}
+              >
+                Save
+              </LoadingButton>
+            </span>
+          </Stack>
         </>
       )}
-    </>
+    </Container>
   );
 };
 
