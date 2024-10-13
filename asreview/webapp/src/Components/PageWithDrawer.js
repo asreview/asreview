@@ -73,28 +73,6 @@ const BottomNavigationDrawerItems = ({
 
       {/* Bottom Section */}
       <Box>
-        {communityURL && (
-          <DrawerItem
-            key={"community"}
-            toolTipTitle={"Community"}
-            primary={
-              <React.Fragment>
-                Community <OpenInNewIconStyled />
-              </React.Fragment>
-            }
-            showTooltip={showTooltip}
-            icon={<Diversity1Outlined />}
-            component={"a"}
-            href={communityURL}
-            target="_blank"
-            onClick={() => {
-              if (mobileScreen) {
-                toggleNavDrawer();
-              }
-            }}
-          />
-        )}
-
         <DrawerItem
           key={"customize"}
           primary={"Customize"}
@@ -129,6 +107,27 @@ const BottomNavigationDrawerItems = ({
           onHelp={onHelp}
           toggleHelp={toggleHelp}
         />
+        {communityURL && (
+          <DrawerItem
+            key={"community"}
+            toolTipTitle={"Community"}
+            primary={
+              <React.Fragment>
+                Community <OpenInNewIconStyled />
+              </React.Fragment>
+            }
+            showTooltip={showTooltip}
+            icon={<Diversity1Outlined />}
+            component={"a"}
+            href={communityURL}
+            target="_blank"
+            onClick={() => {
+              if (mobileScreen) {
+                toggleNavDrawer();
+              }
+            }}
+          />
+        )}
       </Box>
     </>
   );
