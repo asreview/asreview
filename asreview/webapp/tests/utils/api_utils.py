@@ -66,6 +66,13 @@ def signout_user(client):
     return response
 
 
+def confirm_user(client, user):
+    response = client.get(
+        "/auth/confirm_account", data={"user_id": user.id, "token": user.token}
+    )
+    return response
+
+
 def forgot_password(client, user):
     response = client.post("/auth/forgot_password", data={"email": user.email})
     return response

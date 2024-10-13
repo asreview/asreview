@@ -204,7 +204,7 @@ def test_token_confirmation_after_signup(client_auth_verified):
     # now we confirm this user
     r = au.confirm_user(client_auth_verified, user)
     assert r.status_code == 200
-    assert r.json["message"] == f"User {user.identifier} confirmed."
+    assert r.headers["Location"].endswith("/reviews")
 
 
 # A token expires in 24 hours, test confirmation response after
@@ -222,7 +222,7 @@ def test_expired_token(client_auth_verified):
     # now we try to confirm this user
     r = au.confirm_user(client_auth_verified, user)
     assert r.status_code == 403
-    assert "token has expired" in r.json["message"]
+    assert "token has expired" in r.text
 
 
 # Confirmation user: if the user can't be found, this route should
@@ -239,7 +239,7 @@ def test_if_this_route_returns_404_user_not_found(client_auth_verified):
     # now we try to confirm this user
     r = au.confirm_user(client_auth_verified, user)
     assert r.status_code == 404
-    assert r.json["message"] == "No user account / correct token found."
+    assert r.text == "No user account / correct token found."
 
 
 # If the token cant be found, this route should return a 404
@@ -255,7 +255,7 @@ def test_if_this_route_returns_404_token_not_found(client_auth_verified):
     # now we try to confirm this user
     r = au.confirm_user(client_auth_verified, user)
     assert r.status_code == 404
-    assert r.json["message"] == "No user account / correct token found."
+    assert r.text == "No user account / correct token found."
 
 
 # If we are not doing verification this route should return a 400
@@ -268,7 +268,7 @@ def test_confirm_route_returns_400_if_app_not_verified(client_auth):
     # now we try to confirm this user
     r = au.confirm_user(client_auth, user)
     assert r.status_code == 400
-    assert r.json["message"] == "The app is not configured to verify accounts."
+    assert r.text == "Email verification is not enabled"
 
 
 # ###################
@@ -580,7 +580,6 @@ def test_refresh_with_signed_in_user(client_auth):
     r = au.user(client_auth)
     assert r.status_code == 200
     assert r.json["id"] == user.id
-    assert r.json["logged_in"] is True
     assert r.json["name"] == user.name
 
 
@@ -592,10 +591,7 @@ def test_refresh_with_signed_out_user(client_auth):
     au.signout_user(client_auth)
     # refresh
     r = au.user(client_auth)
-    assert r.status_code == 200
-    assert r.json["id"] is None
-    assert r.json["logged_in"] is False
-    assert r.json["name"] == ""
+    assert r.status_code == 401
 
 
 # ###################

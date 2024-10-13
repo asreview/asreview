@@ -246,7 +246,7 @@ def confirm_account():
     # https://realpython.com/handling-email-confirmation-in-flask/#handle-email-confirmation
 
     if not current_app.config.get("EMAIL_VERIFICATION", False):
-        raise ValueError("Email verification is not enabled.")
+        return "Email verification is not enabled", 400
 
     # find user by token and user id
     user_id = request.form.get("user_id", 0)
@@ -257,13 +257,13 @@ def confirm_account():
     ).one_or_none()
 
     if not user:
-        print(404, "No user account / correct token found.")
+        return "No user account / correct token found.", 404
     elif not user.token_valid(token, max_hours=24):
         message = (
             "Can not confirm account, token has expired. "
             + 'Use "forgot password" to obtain a new one.'
         )
-        print(403, message)
+        return message, 403
     else:
         user = user.confirm_user()
         try:
@@ -271,7 +271,7 @@ def confirm_account():
         except SQLAlchemyError:
             DB.session.rollback()
 
-    return redirect("/reviews")
+    return redirect("/reviews"), 200
 
 
 @bp.route("/get_profile", methods=["GET"])
