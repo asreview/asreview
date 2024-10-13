@@ -1,9 +1,14 @@
-import * as React from "react";
 import { Add } from "@mui/icons-material";
-import TextField from "@mui/material/TextField";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  Grid2 as Grid,
+} from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
-import { Card, CardContent, Grid2 as Grid, Button } from "@mui/material";
-import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
+import TextField from "@mui/material/TextField";
+import * as React from "react";
 
 const InvitationForm = ({ selectableUsers, onInvite }) => {
   const [selectedUser, setSelectedUser] = React.useState(null);
@@ -11,11 +16,13 @@ const InvitationForm = ({ selectableUsers, onInvite }) => {
 
   return (
     <Card>
+      <CardHeader
+        title={"Invite people to collaborate"}
+        subheader={
+          "Invite people to collaborate on this project. They will receive an message with an invitation to join."
+        }
+      />
       <CardContent>
-        <TypographySubtitle1Medium>
-          Invite people to collaborate
-        </TypographySubtitle1Medium>
-
         <Grid
           container
           spacing={2}

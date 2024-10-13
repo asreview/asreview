@@ -506,12 +506,11 @@ class SQLiteState:
         """
 
         return pd.read_sql_query(
-            """SELECT record_id, last_ranking.ranking,
-                results.query_strategy
+            """SELECT record_id, last_ranking.ranking
                 FROM last_ranking
                 LEFT JOIN results
                 USING (record_id)
-                WHERE results.label is null
+                WHERE results.record_id is null
                 ORDER BY ranking
                 """,
             self._conn,

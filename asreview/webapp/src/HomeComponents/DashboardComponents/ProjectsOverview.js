@@ -1,4 +1,4 @@
-import { Box, Stack } from "@mui/material";
+import { Container, Stack } from "@mui/material";
 import { InteractionButtons } from "Components";
 import { DashboardPageHeader } from ".";
 
@@ -6,16 +6,11 @@ import { projectModes, projectStatuses } from "globals.js";
 
 import { ProjectCard } from "HomeComponents/DashboardComponents";
 import { ProjectAPI } from "api";
-import useAuth from "hooks/useAuth";
 import { useQuery } from "react-query";
 
 import { Divider, Grid2 as Grid, Typography } from "@mui/material";
 
 const ProjectsOverview = ({ mode }) => {
-  const { auth } = useAuth();
-  const user_id = auth.id;
-  // const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
-
   const simulationOngoing = (data) => {
     if (
       mode === projectModes.SIMULATION &&
@@ -34,7 +29,6 @@ const ProjectsOverview = ({ mode }) => {
     {
       refetchInterval: simulationOngoing,
       refetchIntervalInBackground: true,
-      refetchOnWindowFocus: false,
     },
   );
 
@@ -52,8 +46,8 @@ const ProjectsOverview = ({ mode }) => {
   return (
     <>
       <DashboardPageHeader mode={mode} />
-      <Box className="main-page-body-wrapper">
-        <Stack className="main-page-body" spacing={6}>
+      <Container>
+        <Stack spacing={6}>
           <>
             {/* Projects in Setup */}
 
@@ -80,7 +74,6 @@ const ProjectsOverview = ({ mode }) => {
                       <ProjectCard
                         project={project}
                         mode={mode}
-                        user_id={user_id}
                         showProgressChip={false}
                       />
                     </Grid>
@@ -116,7 +109,6 @@ const ProjectsOverview = ({ mode }) => {
                     <ProjectCard
                       project={project}
                       mode={mode}
-                      user_id={user_id}
                       showProgressChip={false}
                     />
                   </Grid>
@@ -125,7 +117,7 @@ const ProjectsOverview = ({ mode }) => {
             )}
 
             {/* Divider between In Review and Finished with a Chip */}
-            {inReviewProjects?.length > 0 && inReviewProjects?.length > 0 && (
+            {finishedProjects?.length > 0 && (
               <Divider
                 sx={{
                   my: 10,
@@ -151,7 +143,6 @@ const ProjectsOverview = ({ mode }) => {
                     <ProjectCard
                       project={project}
                       mode={mode}
-                      user_id={user_id}
                       showProgressChip={false}
                     />
                   </Grid>
@@ -171,7 +162,7 @@ const ProjectsOverview = ({ mode }) => {
 
           {data?.result.length > 0 && <InteractionButtons />}
         </Stack>
-      </Box>
+      </Container>
     </>
   );
 };

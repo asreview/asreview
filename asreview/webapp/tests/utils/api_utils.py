@@ -67,7 +67,7 @@ def signout_user(client):
 
 
 def confirm_user(client, user):
-    response = client.post(
+    response = client.get(
         "/auth/confirm_account", data={"user_id": user.id, "token": user.token}
     )
     return response
@@ -91,8 +91,8 @@ def update_user(client, data):
     return response
 
 
-def refresh(client):
-    response = client.get("/auth/refresh")
+def user(client):
+    response = client.get("/auth/user")
     return response
 
 
