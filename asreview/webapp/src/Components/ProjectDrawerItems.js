@@ -5,7 +5,6 @@ import {
   ListItemIcon,
   ListItemText,
   Tooltip,
-  useMediaQuery,
 } from "@mui/material";
 import { useQuery } from "react-query";
 import { Link, NavLink, useParams } from "react-router-dom";
@@ -20,17 +19,12 @@ import {
 } from "@mui/icons-material";
 
 import { ProjectAPI } from "api";
-import ElasGameDialog from "./ElasGame";
 import { useToggle } from "hooks/useToggle";
 import { DrawerItem } from "StyledComponents/StyledDrawerItem";
+import ElasGameDialog from "./ElasGame";
 
-import { ElasSign } from "icons/ElasSign";
 import { ElasIcon } from "icons";
-
-const ProjectModeMapping = {
-  oracle: "Review",
-  simulate: "Simulation",
-};
+import { ElasSign } from "icons/ElasSign";
 
 const ProjectDrawerItems = ({
   subset,

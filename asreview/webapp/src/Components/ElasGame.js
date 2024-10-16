@@ -148,7 +148,7 @@ const ElasGame = ({ open, toggleOpen }) => {
     if (state.selected.length === 2) {
       setTimeout(() => setState({ ...state, selected: [] }), 1000);
     }
-  }, [state.selected]);
+  }, [state]);
 
   return (
     <>
