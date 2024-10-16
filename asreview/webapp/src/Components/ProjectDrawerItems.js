@@ -20,7 +20,7 @@ import {
 } from "@mui/icons-material";
 
 import { ProjectAPI } from "api";
-import { ElasGame } from "Components";
+import ElasGameDialog from "./ElasGame";
 import { useToggle } from "hooks/useToggle";
 import { DrawerItem } from "StyledComponents/StyledDrawerItem";
 
@@ -175,7 +175,7 @@ const ProjectDrawerItems = ({
       </Box>
 
       {/* Game */}
-      <ElasGame open={openGame} toggleOpen={toggleGame} />
+      <ElasGameDialog open={openGame} toggleOpen={toggleGame} />
     </Box>
   );
 };

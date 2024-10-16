@@ -70,7 +70,8 @@ const GameCard = ({ cardIndex, cardValue, open, clickCard, disabled }) => {
         !open && !disabled && clickCard(cardIndex);
       }}
       sx={(theme) => ({
-        backgroundColor: theme.palette.primary.light,
+        backgroundColor:
+          theme.palette.mode === "dark" ? "primary.dark" : "primary.light",
         height: 120,
         padding: 1,
       })}
@@ -103,27 +104,6 @@ const GameCard = ({ cardIndex, cardValue, open, clickCard, disabled }) => {
   );
 };
 
-const ElasGameDialog = ({ open, toggleOpen }) => {
-  const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("md"), {
-    noSsr: true,
-  });
-
-  return (
-    <Dialog
-      open={open}
-      onClose={toggleOpen}
-      scroll={"paper"}
-      fullWidth={true}
-      maxWidth={"md"}
-      fullScreen={mobileScreen}
-      aria-labelledby="game-dialog-title"
-      aria-describedby="game-dialog-description"
-    >
-      <ElasGame />
-    </Dialog>
-  );
-};
-
 const ElasGame = ({ open, toggleOpen }) => {
   const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("md"), {
     noSsr: true,
@@ -135,8 +115,6 @@ const ElasGame = ({ open, toggleOpen }) => {
     selected: [],
     count: 0,
   });
-
-  console.log(state);
 
   const clickCard = (cardIndex) => {
     if (
@@ -173,16 +151,7 @@ const ElasGame = ({ open, toggleOpen }) => {
   }, [state.selected]);
 
   return (
-    <Dialog
-      open={open}
-      onClose={toggleOpen}
-      scroll={"paper"}
-      fullWidth={true}
-      maxWidth={"md"}
-      fullScreen={mobileScreen}
-      aria-labelledby="game-dialog-title"
-      aria-describedby="game-dialog-description"
-    >
+    <>
       <DialogTitle id="game-dialog-title">
         {`Adventures of Elas${!mobileScreen ? ` Memory Game` : ``}: ${state.count} attempts`}
       </DialogTitle>
@@ -211,8 +180,8 @@ const ElasGame = ({ open, toggleOpen }) => {
               }}
               onClick={() => {}}
             />
-            <Typography variant="h4" color="primary" gutterBottom>
-              Congratulations!
+            <Typography variant="h4" gutterBottom>
+              Well done!
             </Typography>
           </Box>
         )}
@@ -264,8 +233,29 @@ const ElasGame = ({ open, toggleOpen }) => {
         </Button>
         <Button onClick={toggleOpen}>Take me back</Button>
       </DialogActions>
+    </>
+  );
+};
+
+const ElasGameDialog = ({ open, toggleOpen }) => {
+  const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("md"), {
+    noSsr: true,
+  });
+
+  return (
+    <Dialog
+      open={open}
+      onClose={toggleOpen}
+      scroll={"paper"}
+      fullWidth={true}
+      maxWidth={"md"}
+      fullScreen={mobileScreen}
+      aria-labelledby="game-dialog-title"
+      aria-describedby="game-dialog-description"
+    >
+      <ElasGame />
     </Dialog>
   );
 };
 
-export default ElasGame;
+export default ElasGameDialog;
