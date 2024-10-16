@@ -1,13 +1,10 @@
 import {
   Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Fade,
   ListItem,
+  ListItemIcon,
   ListItemText,
+  Tooltip,
 } from "@mui/material";
 import { useQuery } from "react-query";
 import { Link, NavLink, useParams } from "react-router-dom";
@@ -22,16 +19,12 @@ import {
 } from "@mui/icons-material";
 
 import { ProjectAPI } from "api";
-import { ElasGame } from "Components";
 import { useToggle } from "hooks/useToggle";
 import { DrawerItem } from "StyledComponents/StyledDrawerItem";
+import ElasGameDialog from "./ElasGame";
 
+import { ElasIcon } from "icons";
 import { ElasSign } from "icons/ElasSign";
-
-const ProjectModeMapping = {
-  oracle: "Review",
-  simulate: "Simulation",
-};
 
 const ProjectDrawerItems = ({
   subset,
@@ -68,19 +61,47 @@ const ProjectDrawerItems = ({
       />
       {data && (
         <>
-          <ListItem
-            onClick={toggleGame}
-            sx={{ maxWidth: "140px", margin: "auto" }}
-          >
-            <ElasSign status={data?.reviews[0].status} />
-          </ListItem>
           <Fade in={projectInfo} unmountOnExit>
-            <ListItem>
-              <ListItemText
-                primary={`Your ${ProjectModeMapping[data?.mode]}`}
-                secondary={data?.name}
-              />
+            <ListItem
+              onClick={toggleGame}
+              sx={{ maxWidth: "140px", margin: "auto" }}
+            >
+              <ElasSign status={data?.reviews[0].status} />
             </ListItem>
+          </Fade>
+          <Fade in={!projectInfo} unmountOnExit>
+            <Tooltip
+              title={!projectInfo && "Go on adventure with Elas"}
+              placement={"right"}
+            >
+              <ListItem
+                key={"project-info"}
+                onClick={!projectInfo ? toggleGame : null}
+              >
+                <ListItemIcon sx={{ pl: 1, py: 1 }}>
+                  <ElasIcon />
+                </ListItemIcon>
+              </ListItem>
+            </Tooltip>
+          </Fade>
+          <Fade in={projectInfo} unmountOnExit>
+            <Tooltip
+              title={!projectInfo && "Go on adventure with Elas"}
+              placement={"right"}
+            >
+              <ListItem
+                key={"project-info"}
+                onClick={!projectInfo ? toggleGame : null}
+              >
+                <ListItemText
+                  primary={data?.name}
+                  sx={(theme) => ({
+                    textAlign: "center",
+                    color: theme.palette.primary.main,
+                  })}
+                />
+              </ListItem>
+            </Tooltip>
           </Fade>
         </>
       )}
@@ -148,23 +169,7 @@ const ProjectDrawerItems = ({
       </Box>
 
       {/* Game */}
-      <Dialog
-        open={openGame}
-        onClose={toggleGame}
-        scroll={"paper"}
-        fullWidth={true}
-        maxWidth={"lg"}
-        aria-labelledby="game-dialog-title"
-        aria-describedby="game-dialog-description"
-      >
-        <DialogTitle id="game-dialog-title">Elas Memory Game</DialogTitle>
-        <DialogContent>
-          <ElasGame />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={toggleGame}>Take me back</Button>
-        </DialogActions>
-      </Dialog>
+      <ElasGameDialog open={openGame} toggleOpen={toggleGame} />
     </Box>
   );
 };
