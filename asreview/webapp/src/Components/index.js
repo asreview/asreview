@@ -3,7 +3,6 @@ export { default as BoxErrorHandler } from "./BoxErrorHandler";
 export { default as CardErrorHandler } from "./CardErrorHandler";
 export { default as CiteDialog } from "./CiteDialog";
 export { default as DialogErrorHandler } from "./DialogErrorHandler";
-export { default as ElasGame } from "./ElasGame";
 export { default as ForgotPassword } from "./ForgotPassword";
 export { default as Header } from "./Header";
 export { default as HelpDialog } from "./HelpDialog";
