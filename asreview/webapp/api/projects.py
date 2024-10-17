@@ -166,31 +166,6 @@ def api_get_projects(projects):  # noqa: F401
     return jsonify({"result": project_info})
 
 
-@bp.route("/projects/stats", methods=["GET"])
-@login_required
-@current_user_projects
-def api_get_projects_stats(projects):  # noqa: F401
-    """Get dashboard statistics of all projects"""
-
-    stats_counter = {"n_in_review": 0, "n_finished": 0, "n_setup": 0}
-
-    for project, _ in projects:
-        project_config = project.config
-
-        # get dashboard statistics
-        try:
-            if project_config["reviews"][0]["status"] == "review":
-                stats_counter["n_in_review"] += 1
-            elif project_config["reviews"][0]["status"] == "finished":
-                stats_counter["n_finished"] += 1
-            else:
-                stats_counter["n_setup"] += 1
-        except Exception:
-            stats_counter["n_setup"] += 1
-
-    return jsonify({"result": stats_counter})
-
-
 @bp.route("/projects/create", methods=["POST"])
 @login_required
 def api_create_project():  # noqa: F401
