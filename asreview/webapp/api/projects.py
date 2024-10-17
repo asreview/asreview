@@ -40,7 +40,6 @@ from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
 import asreview as asr
-from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
@@ -54,17 +53,17 @@ from asreview.state.contextmanager import open_state
 from asreview.state.exceptions import StateNotFoundError
 from asreview.statistics import n_duplicates
 from asreview.statistics import n_irrelevant
-from asreview.statistics import n_unlabeled
 from asreview.statistics import n_relevant
+from asreview.statistics import n_unlabeled
+from asreview.utils import _check_model
 from asreview.utils import _get_filename_from_url
+from asreview.utils import _reset_model_settings
 from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
 from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
-from asreview.utils import _check_model, _reset_model_settings
-
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -262,7 +261,10 @@ def api_create_project():  # noqa: F401
 
         if n_labeled > 0 and n_labeled < len(as_data):
             with open_state(project.project_path) as state:
-                labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
+                labeled_indices = np.where(
+                    (as_data.labels == 1) | (as_data.labels == 0)
+                )[0]
+
                 labels = as_data.labels[labeled_indices].tolist()
                 labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
 

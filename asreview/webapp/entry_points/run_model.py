@@ -21,7 +21,6 @@ from filelock import FileLock
 from filelock import Timeout
 
 import asreview as asr
-from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.extensions import load_extension
 from asreview.settings import ReviewSettings
@@ -66,11 +65,9 @@ def _run_model_start(project):
             with open_state(project) as state:
                 labeled = state.get_results_table(columns=["record_id", "label"])
 
-            y_input = (
-                pd.DataFrame({"record_id": as_data.record_ids})
-                .merge(labeled, how="left", on="record_id")["label"]
-                .fillna(LABEL_NA)
-            )
+            y_input = pd.DataFrame({"record_id": as_data.record_ids}).merge(
+                labeled, how="left", on="record_id"
+            )["label"]
 
             if settings.balance_strategy is not None:
                 balance_model = load_extension(
