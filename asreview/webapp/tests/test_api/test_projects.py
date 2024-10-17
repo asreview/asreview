@@ -177,42 +177,6 @@ def test_import_project_files(client, user, project, fp):
     assert r.json["data"]["id"] in set([f.stem for f in folders])
 
 
-# Test get stats in setup state
-def test_get_projects_stats_setup_stage(client, project):
-    r = au.get_project_stats(client)
-    assert r.status_code == 200
-    assert project is not None
-    assert isinstance(r.json["result"], dict)
-    assert r.json["result"]["n_in_review"] == 0
-    assert r.json["result"]["n_finished"] == 0
-    assert r.json["result"]["n_setup"] == 1
-
-
-# Test get stats in review state
-def test_get_projects_stats_review_stage(client, project):
-    au.upload_label_set_and_start_model(client, project)
-    r = au.get_project_stats(client)
-    assert r.status_code == 200
-    assert isinstance(r.json["result"], dict)
-    assert r.json["result"]["n_in_review"] == 1
-    assert r.json["result"]["n_finished"] == 0
-    assert r.json["result"]["n_setup"] == 0
-
-
-# Test get stats in finished state
-def test_get_projects_stats_finished_stage(client, project):
-    au.upload_label_set_and_start_model(client, project)
-    # manually finish the project
-    au.set_project_status(client, project, "finished")
-    # get stats
-    r = au.get_project_stats(client)
-    assert r.status_code == 200
-    assert isinstance(r.json["result"], dict)
-    assert r.json["result"]["n_in_review"] == 0
-    assert r.json["result"]["n_finished"] == 1
-    assert r.json["result"]["n_setup"] == 0
-
-
 # Test known demo data
 @pytest.mark.parametrize("subset", ["plugin", "benchmark"])
 def test_demo_data_project(client, user, subset):
@@ -558,7 +522,6 @@ def test_delete_project(client, project):
     "api_call,project_required,params",
     [
         (au.get_all_projects, False, {}),
-        (au.get_project_stats, False, {}),
         (au.get_demo_data, False, {"subset": "benchmark"}),
         (au.get_project_algorithms_options, False, {}),
         (au.get_project_algorithms, True, {}),
