@@ -16,11 +16,9 @@ from asreview.project import PATH_DATA_STORE
 
 
 @pytest.fixture
-def dataset():
+def records():
     data_fp = Path("tests", "demo_data", "generic.csv")
-    dataset = load_dataset(data_fp)
-    dataset.id = "foo"
-    return dataset
+    return load_dataset(data_fp, dataset_id="foo")
 
 
 @pytest.fixture
@@ -32,8 +30,8 @@ def store(tmpdir):
 
 
 @pytest.fixture
-def store_with_data(store, dataset):
-    store.add_records(dataset.to_records())
+def store_with_data(store, records):
+    store.add_records(records)
     return store
 
 
@@ -66,8 +64,8 @@ def test_in_memory():
     assert len(store) == 2
 
 
-def test_add_dataset(store, dataset):
-    store.add_records(dataset.to_records())
+def test_add_dataset(store, records):
+    store.add_records(records)
     con = sqlite3.connect(store.fp)
     df = pd.read_sql("SELECT * FROM record", con)
     assert df["dataset_id"].eq("foo").all()
@@ -83,9 +81,9 @@ def test_record_id_start_at_zero(store):
     assert store["record_id"].to_list() == [0, 1]
 
 
-def test_is_empty(store, dataset):
+def test_is_empty(store, records):
     assert store.is_empty()
-    store.add_records(dataset.to_records())
+    store.add_records(records)
     assert not store.is_empty()
 
 
@@ -102,20 +100,20 @@ def test_get_df(store_with_data):
     assert set(output.columns) == set(Record.get_columns())
 
 
-def test_len(store, dataset):
+def test_len(store, records):
     assert len(store) == 0
-    store.add_records(dataset.to_records())
-    assert len(store) == len(dataset)
+    store.add_records(records)
+    assert len(store) == len(records)
 
 
-def test_get_column(store_with_data, dataset):
+def test_get_column(store_with_data, records):
     abstracts = store_with_data["abstract"]
     assert isinstance(abstracts, pd.Series)
     abstracts = store_with_data[["abstract"]]
     assert isinstance(abstracts, pd.DataFrame)
     assert abstracts.columns == ["abstract"]
-    for i in range(len(dataset)):
-        assert abstracts.loc[i, "abstract"] == dataset["abstract"][i]
+    for i in range(len(records)):
+        assert abstracts.loc[i, "abstract"] == records[i].abstract
 
     data = store_with_data[["title", "record_id"]]
     assert isinstance(data, pd.DataFrame)

@@ -7,7 +7,7 @@ from asreview.utils import _get_filename_from_url
 from asreview.utils import _is_url
 
 
-def _from_file(fp, reader=None):
+def _from_file(fp, reader=None, dataset_id=None, **kwargs):
     """Create instance from supported file format.
 
     It works in two ways; either manual control where the conversion
@@ -18,12 +18,14 @@ def _from_file(fp, reader=None):
     ---------
     fp: str, pathlib.Path
         Read the data from this file or url.
-    reader: class
+    reader: BaseReader
         Reader to import the file.
+    kwargs: dict
+        Keyword arguments passed to `reader.read_records`.
     """
 
     if reader is not None:
-        return reader.read_data(fp)
+        return reader.read_records(fp, dataset_id=dataset_id, **kwargs)
 
     # get the filename from a url else file path
     if _is_url(fp):
@@ -36,18 +38,20 @@ def _from_file(fp, reader=None):
     except Exception:
         raise ValueError(f"Importing file {fp} not possible.")
 
-    return reader.read_data(fp)
+    return reader.read_records(fp, dataset_id=dataset_id, **kwargs)
 
 
-def _from_extension(name, reader=None):
+def _from_extension(name, reader=None, dataset_id=None, **kwargs):
     """Load a dataset from extension.
 
     Arguments
     ---------
     fp: str, pathlib.Path
         Read the data from this file or url.
-    reader: class
+    reader: BaseReader
         Reader to import the file.
+    kwargs: dict
+        Keyword arguments passed to `reader.read_records`.
     """
 
     dataset = DatasetManager().find(name)
@@ -71,10 +75,10 @@ def _from_extension(name, reader=None):
         except Exception:
             raise ValueError(f"Importing file {fp} not possible.")
 
-    return reader.read_data(fp)
+    return reader.read_records(fp, dataset_id=dataset_id, **kwargs)
 
 
-def load_dataset(name, **kwargs):
+def load_dataset(name, dataset_id=None, **kwargs):
     """Load data from file, URL, or plugin.
 
     Parameters
@@ -86,43 +90,19 @@ def load_dataset(name, **kwargs):
 
     Returns
     -------
-    asreview.Dataset:
-        Inititalized ASReview data object.
+    list[Record]
+        List of records.
     """
 
     # check is file or URL
     if _is_url(name) or Path(name).exists():
-        return _from_file(name, **kwargs)
+        return _from_file(name, dataset_id=dataset_id, **kwargs)
 
     # check if dataset is plugin dataset
     try:
-        return _from_extension(name, **kwargs)
+        return _from_extension(name, dataset_id=dataset_id, **kwargs)
     except ValueError:
         pass
 
     # Could not find dataset, return None.
     raise FileNotFoundError(f"File, URL, or dataset does not exist: '{name}'")
-
-
-def load_data(name, **kwargs):
-    """Deprecated, use asreview.load_dataset instead.
-
-    Parameters
-    ----------
-    name: str, pathlib.Path
-        File path, URL, or alias of extension dataset.
-    **kwargs:
-        Keyword arguments passed to the reader.
-
-    Returns
-    -------
-    asreview.Dataset:
-        Inititalized ASReview data object.
-    """
-
-    UserWarning(
-        "'load_data' is deprecated and will be removed in the future. "
-        "Use 'load_dataset' instead."
-    )
-
-    return load_dataset(name, **kwargs)

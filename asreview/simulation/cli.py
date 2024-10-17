@@ -181,11 +181,10 @@ def _cli_simulate(argv):
     ):
         raise ValueError("Not possible to provide both prior_idx and prior_record_id")
 
-    as_data = load_dataset(args.dataset)
-    as_data.id = filename
+    records = load_dataset(args.dataset, dataset_id=filename)
     data_store = DataStore(":memory:")
     data_store.create_tables()
-    data_store.add_records(as_data.to_records())
+    data_store.add_records(records)
 
     prior_idx = args.prior_idx
     if args.prior_record_id is not None and len(args.prior_record_id) > 0:

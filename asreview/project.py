@@ -215,20 +215,25 @@ class Project:
 
         # fill the pool of the first iteration
         fp_data = Path(self.project_path, "data", file_name)
-        as_data = load_dataset(fp_data)
-
-        if self.config["mode"] == PROJECT_MODE_SIMULATE and (
-            "included" not in as_data or (as_data["included"] == LABEL_NA).any()
-        ):
-            raise ValueError("Import fully labeled dataset")
-
-        if self.config["mode"] == PROJECT_MODE_EXPLORE and "included" not in as_data:
-            raise ValueError("Import partially or fully labeled dataset")
 
         if dataset_id is None:
             dataset_id = uuid4().hex
-        as_data.id = dataset_id
-        self.data_store.add_records(as_data.to_records())
+        records = load_dataset(fp_data, dataset_id=dataset_id)
+
+        # Internals of the records are leaking out here. We are checking for a specific
+        # field and a specific value. If the presence of the field `included` is
+        # necessary in the input data, we should move it from `Record` to the `Base`
+        # class, so that all record implementations have it.
+        any_record_labeled = any(record.included != LABEL_NA for record in records)
+        all_records_labeled = not any(record.included == LABEL_NA for record in records)
+
+        if self.config["mode"] == PROJECT_MODE_SIMULATE and not all_records_labeled:
+            raise ValueError("Import fully labeled dataset")
+
+        if self.config["mode"] == PROJECT_MODE_EXPLORE and not any_record_labeled:
+            raise ValueError("Import partially or fully labeled dataset")
+
+        self.data_store.add_records(records=records)
 
         self.update_config(
             dataset_path=file_name,
@@ -252,16 +257,6 @@ class Project:
             Path(self.project_path, "reviews").iterdir()
         ):
             self.delete_review()
-
-    def read_data(self):
-        """Get Dataset object from file.
-
-        Returns
-        -------
-        Dataset:
-            The data object for internal use in ASReview.
-        """
-        return self.data_store.get_df()
 
     @property
     def feature_matrices(self):
