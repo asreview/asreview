@@ -22,7 +22,6 @@ from sklearn.utils import check_random_state
 from tqdm import tqdm
 
 from asreview.config import DEFAULT_N_INSTANCES
-from asreview.config import LABEL_NA
 from asreview.state.contextmanager import open_state
 
 
@@ -171,15 +170,12 @@ class Simulate:
         try:
             y_sample_input = (
                 pd.DataFrame(np.arange(self.fm.shape[0]), columns=["record_id"])
-                .merge(self._results, how="left", on="record_id")
-                .loc[:, "label"]
-                .fillna(LABEL_NA)
-                .to_numpy()
+                .merge(self._results, how="left", on="record_id")["label"]
             )
         except AttributeError:
-            y_sample_input = np.full(self.fm.shape[0], LABEL_NA)
+            y_sample_input = np.full(self.fm.shape[0], np.nan)
 
-        train_idx = np.where(y_sample_input != LABEL_NA)[0]
+        train_idx = np.argwhere(~np.isnan(y_sample_input))[:,0]
 
         if self.balance_strategy is None:
             X_train = self.fm[train_idx]
