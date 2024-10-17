@@ -4,7 +4,7 @@ Installation
 Install ASReview
 ----------------
 
-ASReview software requires an installation of Python 3.8 or later. Detailed
+ASReview software requires an installation of Python 3.10 or later. Detailed
 step-by-step instructions to install Python (and ASReview) are available for
 `Windows <https://asreview.ai/download>`__ and
 `macOS/Linux <https://asreview.ai/download/>`__ users.

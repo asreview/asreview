@@ -12,12 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
-
-if sys.version_info >= (3, 10):
-    from importlib.metadata import entry_points as _entry_points  # noqa
-else:
-    from importlib_metadata import entry_points as _entry_points  # noqa
+from importlib.metadata import entry_points as _entry_points
 
 
 def extensions(group):

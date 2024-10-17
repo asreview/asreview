@@ -71,10 +71,9 @@ dependencies = [
     "synergy_dataset",
     "sqlalchemy-utils",
     "tomli; python_version < '3.11'",
-    "importlib_metadata; python_version < '3.10'"
 ]
 dynamic = ["version"]
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 
 [project.scripts]
 asreview = "asreview.__main__:main"
