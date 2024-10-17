@@ -40,18 +40,6 @@ class Base(DeclarativeBase, MappedAsDataclass):
         JSON: "object",
     }
 
-    # When a data reader reads a file and turns it into records, it needs to know
-    # which columns of the input data to put into which columns of the record. By
-    # default these should be the same, but you can allow for alternative input column
-    # names. For example, ASReview allows both 'title' or 'primary_title' for the
-    # title column. The format is {record_column_name: [list of input column names]},
-    # where the list of input column names is in order from most important to least
-    # important. So when the input dataset contains two possible input columns for a
-    # record column, it will pick the first it finds in the list.
-    # If a field is not in this mapping, only the record column is allowed as input
-    # column.
-    __alternative_column_names__ = {}
-
     # When storing a record, the database needs to know what datatype each field should
     # have. Some types have default values, like `int` for example, but other do not.
     # The following mapping specifies the conversion from Python datatypes to SQLAlchemy
@@ -117,22 +105,6 @@ class Record(Base):
     doi: Mapped[Optional[str]] = mapped_column(default=None)
     url: Mapped[Optional[str]] = mapped_column(default=None)
     included: Mapped[Optional[int]] = mapped_column(default=LABEL_NA)
-
-    __alternative_column_names__ = {
-        "abstract": ["abstract", "notes_abstract", "abstract note"],
-        "authors": ["authors", "first_authors", "author names"],
-        "included": [
-            "included",
-            "label",
-            "final_included",
-            "label_included",
-            "included_label",
-            "included_final",
-            "included_flag",
-            "include",
-        ],
-        "title": ["title", "primary_title"],
-    }
 
     @validates("authors")
     def validate_authors(self, key, authors):
