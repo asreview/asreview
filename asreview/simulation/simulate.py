@@ -21,7 +21,7 @@ import pandas as pd
 from sklearn.utils import check_random_state
 from tqdm import tqdm
 
-from asreview.config import DEFAULT_N_INSTANCES
+from asreview.config import DEFAULT_N_QUERY
 from asreview.config import LABEL_NA
 from asreview.state.contextmanager import open_state
 
@@ -30,7 +30,7 @@ class Simulate:
     """ASReview Simulation mode class.
 
     The simulation will stop when all papers have been labeled or when the number of
-    steps/queries reaches the stop_if parameter.
+    steps/queries reaches the n_stop parameter.
 
     To seed the simulation, provide the seed to the classifier, query strategy,
     feature extraction model, and balance strategy or use a global random seed.
@@ -50,10 +50,10 @@ class Simulate:
     feature_extraction: BaseFeatureModel
         The initialized feature extraction model to use for the simulation. If None,
         the name of the feature extraction model is set to None.
-    n_instances: int
+    n_query: int
         Number of papers to query at each step in the active learning
         process. Default is 1.
-    stop_if: int
+    n_stop: int
         Number of steps/queries to perform. Set to None for no limit. Default
         is None.
     """
@@ -66,8 +66,8 @@ class Simulate:
         query_strategy,
         balance_strategy=None,
         feature_extraction=None,
-        n_instances=DEFAULT_N_INSTANCES,
-        stop_if="min",
+        n_query=DEFAULT_N_QUERY,
+        n_stop="min",
     ):
         self.fm = fm
         self.labels = labels
@@ -75,8 +75,8 @@ class Simulate:
         self.balance_strategy = balance_strategy
         self.query_strategy = query_strategy
         self.feature_extraction = feature_extraction
-        self.n_instances = n_instances
-        self.stop_if = stop_if
+        self.n_query = n_query
+        self.n_stop = n_stop
 
     @property
     def _results(self):
@@ -106,14 +106,14 @@ class Simulate:
             if len(self._results) == len(self.labels):
                 return True
 
-            # If stop_if is set to min, stop after stop_if queries.
-            if self.stop_if == "min" and sum(self.labels) == sum(
+            # If n_stop is set to min, stop after n_stop queries.
+            if self.n_stop == "min" and sum(self.labels) == sum(
                 self._results["label"]
             ):
                 return True
 
-            # Stop when reaching stop_if (if provided)
-            if isinstance(self.stop_if, int) and len(self._results) >= self.stop_if:
+            # Stop when reaching n_stop (if provided)
+            if isinstance(self.n_stop, int) and len(self._results) >= self.n_stop:
                 return True
         except AttributeError:
             if len(self.labels) == 0:
@@ -155,7 +155,7 @@ class Simulate:
         while not self._stop_review():
             self.train()
 
-            record_ids = self.query(self.n_instances)
+            record_ids = self.query(self.n_query)
             labeled = self.label(record_ids)
 
             pbar_rel.update(labeled["label"].sum())

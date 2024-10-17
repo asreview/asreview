@@ -60,9 +60,9 @@ def test_prior_idx(tmpdir):
     assert results_table["query_strategy"][2:].notnull().all()
 
 
-def test_n_prior_included(tmpdir):
+def test_n_prior_relevant(tmpdir):
     asreview_fp = Path(tmpdir, "test.asreview")
-    argv = f"{str(DATA_FP)} -s {asreview_fp} --n_prior_included 2".split()
+    argv = f"{str(DATA_FP)} -s {asreview_fp} --n_prior_relevant 2".split()
     _cli_simulate(argv)
 
     with asr.open_state(asreview_fp) as state:
@@ -83,12 +83,12 @@ def test_n_prior_included(tmpdir):
     with open(settings_path) as f:
         settings_metadata = json.load(f)
 
-    assert settings_metadata["n_prior_included"] == 2
+    assert settings_metadata["n_prior_relevant"] == 2
 
 
-def test_n_prior_excluded(tmpdir):
+def test_n_prior_irrelevant(tmpdir):
     asreview_fp = Path(tmpdir, "test.asreview")
-    argv = f"{str(DATA_FP)} -s {asreview_fp} --n_prior_excluded 2".split()
+    argv = f"{str(DATA_FP)} -s {asreview_fp} --n_prior_irrelevant 2".split()
     _cli_simulate(argv)
 
     with asr.open_state(asreview_fp) as state:
@@ -109,7 +109,7 @@ def test_n_prior_excluded(tmpdir):
     with open(settings_path) as f:
         settings_metadata = json.load(f)
 
-    assert settings_metadata["n_prior_excluded"] == 2
+    assert settings_metadata["n_prior_irrelevant"] == 2
 
 
 @pytest.mark.skip(reason="Not implemented yet.")
@@ -180,32 +180,32 @@ def test_no_balancing(tmpdir):
 def test_number_records_found(tmpdir):
     dataset = "synergy:van_de_Schoot_2018"
     asreview_fp = Path(tmpdir, "test.asreview")
-    stop_if = 100
+    n_stop = 100
     priors = [116, 285]
     seed = 101
 
     argv = (
-        f"{dataset} -s {asreview_fp} --stop_if {stop_if} "
+        f"{dataset} -s {asreview_fp} --n_stop {n_stop} "
         f"--prior_idx {priors[0]} {priors[1]} --seed {seed}".split()
     )
     _cli_simulate(argv)
 
     with asr.open_state(asreview_fp) as s:
         assert s.get_results_table("label")["label"].sum() == 28
-        assert s.get_results_table("label").shape[0] == stop_if
-        assert s.get_results_table().shape[0] == stop_if
+        assert s.get_results_table("label").shape[0] == n_stop
+        assert s.get_results_table().shape[0] == n_stop
         assert s.get_results_table()["record_id"].head(2).to_list() == [116, 285]
 
 
-def test_stop_if_min(tmpdir):
+def test_n_stop_min(tmpdir):
     dataset = "synergy:van_de_Schoot_2018"
     asreview_fp = Path(tmpdir, "test.asreview")
-    stop_if = "min"
+    n_stop = "min"
     priors = [116, 285]
     seed = 535
 
     argv = (
-        f"{dataset} -s {asreview_fp} --stop_if {stop_if} "
+        f"{dataset} -s {asreview_fp} --n_stop {n_stop} "
         f"--prior_idx {priors[0]} {priors[1]} --seed {seed}".split()
     )
     _cli_simulate(argv)
@@ -215,15 +215,15 @@ def test_stop_if_min(tmpdir):
         assert len(s.get_results_table("label")) == 660
 
 
-def test_stop_if_all(tmpdir):
+def test_n_stop_all(tmpdir):
     dataset = "synergy:van_de_Schoot_2018"
     asreview_fp = Path(tmpdir, "test.asreview")
-    stop_if = -1
+    n_stop = -1
     priors = [116, 285]
     seed = 101
 
     argv = (
-        f"{dataset} -s {asreview_fp} --stop_if {stop_if} "
+        f"{dataset} -s {asreview_fp} --n_stop {n_stop} "
         f"--prior_idx {priors[0]} {priors[1]} --seed {seed}".split()
     )
     _cli_simulate(argv)
@@ -238,14 +238,14 @@ def test_project_already_exists_error(tmpdir):
     asreview_fp1 = Path(tmpdir, "test1.asreview")
 
     argv = (
-        f"synergy:van_de_Schoot_2018 -s {asreview_fp1} --stop_if 100"
+        f"synergy:van_de_Schoot_2018 -s {asreview_fp1} --n_stop 100"
         f" --seed 535".split()
     )
     _cli_simulate(argv)
 
     # Simulate 100 queries in two steps of 50.
     argv = (
-        f"synergy:van_de_Schoot_2018 -s {asreview_fp1} --stop_if 50"
+        f"synergy:van_de_Schoot_2018 -s {asreview_fp1} --n_stop 50"
         f" --seed 535".split()
     )
     _cli_simulate(argv)
@@ -262,20 +262,20 @@ def test_partial_simulation(tmpdir):
 
     # Simulate 100 queries in one go.
     argv = (
-        f"{dataset} -s {asreview_fp1} --stop_if 100 "
+        f"{dataset} -s {asreview_fp1} --n_stop 100 "
         f"--prior_idx {priors[0]} {priors[1]} --seed {seed}".split()
     )
     _cli_simulate(argv)
 
     # Simulate 100 queries in two steps of 50.
     argv = (
-        f"{dataset} -s {asreview_fp2} --stop_if 50 "
+        f"{dataset} -s {asreview_fp2} --n_stop 50 "
         f"--prior_idx {priors[0]} {priors[1]} --seed {seed}".split()
     )
     _cli_simulate(argv)
 
     argv = (
-        f"{dataset} -s {asreview_fp2} --stop_if 100 "
+        f"{dataset} -s {asreview_fp2} --n_stop 100 "
         f"--prior_idx {priors[0]} {priors[1]} --seed {seed}".split()
     )
     _cli_simulate(argv)

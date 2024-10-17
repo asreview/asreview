@@ -17,20 +17,20 @@ DATA_FP = Path("tests", "demo_data", "generic_labels.csv")
         (42),
     ],
 )
-def test_init_seed(tmpdir, seed):
+def test_prior_seed(tmpdir, seed):
     project1_fp = Path(tmpdir, "tmp_state1.asreview")
     project2_fp = Path(tmpdir, "tmp_state2.asreview")
 
     # simulate run 1
     argv1 = (
-        f"{DATA_FP} -s {project1_fp} -m nb --init_seed"
-        f" {seed} --n_prior_excluded 1 --n_prior_included 1 --stop_if 4".split()
+        f"{DATA_FP} -s {project1_fp} -m nb --prior_seed"
+        f" {seed} --n_prior_irrelevant 1 --n_prior_relevant 1 --n_stop 4".split()
     )
 
     # simulate run 2
     argv2 = (
-        f"{DATA_FP} -s {project2_fp} -m nb --init_seed"
-        f" {seed} --n_prior_excluded 1 --n_prior_included 1  --stop_if 4".split()
+        f"{DATA_FP} -s {project2_fp} -m nb --prior_seed"
+        f" {seed} --n_prior_irrelevant 1 --n_prior_relevant 1  --n_stop 4".split()
     )
 
     # run the simulations
@@ -54,7 +54,7 @@ def test_no_seed(tmpdir):
 
         argv = (
             f"{DATA_FP} -s {project_fp} -m nb "
-            f"--n_prior_excluded 1 --n_prior_included 1 --stop_if 4".split()
+            f"--n_prior_irrelevant 1 --n_prior_relevant 1 --n_stop 4".split()
         )
         _cli_simulate(argv)
 
@@ -79,16 +79,16 @@ def test_model_seed(tmpdir, seed):
 
     # simulate run 1
     argv1 = (
-        f"{DATA_FP} -s {project1_fp} -m rf --init_seed {seed}"
+        f"{DATA_FP} -s {project1_fp} -m rf --prior_seed {seed}"
         f" --seed {seed}"
-        f" --n_prior_excluded 1 --n_prior_included 1".split()
+        f" --n_prior_irrelevant 1 --n_prior_relevant 1".split()
     )
 
     # simulate run 2
     argv2 = (
-        f"{DATA_FP} -s {project2_fp} -m rf --init_seed {seed}"
+        f"{DATA_FP} -s {project2_fp} -m rf --prior_seed {seed}"
         f" --seed {seed}"
-        f" --n_prior_excluded 1 --n_prior_included 1".split()
+        f" --n_prior_irrelevant 1 --n_prior_relevant 1".split()
     )
 
     # run the simulations
