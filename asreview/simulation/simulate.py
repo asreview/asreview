@@ -168,14 +168,13 @@ class Simulate:
         """Train a new model on the labeled data."""
 
         try:
-            y_sample_input = (
-                pd.DataFrame(np.arange(self.fm.shape[0]), columns=["record_id"])
-                .merge(self._results, how="left", on="record_id")["label"]
-            )
+            y_sample_input = pd.DataFrame(
+                np.arange(self.fm.shape[0]), columns=["record_id"]
+            ).merge(self._results, how="left", on="record_id")["label"]
         except AttributeError:
             y_sample_input = np.full(self.fm.shape[0], np.nan)
 
-        train_idx = np.argwhere(~np.isnan(y_sample_input))[:,0]
+        train_idx = np.argwhere(~np.isnan(y_sample_input))[:, 0]
 
         if self.balance_strategy is None:
             X_train = self.fm[train_idx]

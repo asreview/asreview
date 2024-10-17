@@ -65,10 +65,9 @@ def _run_model_start(project):
             with open_state(project) as state:
                 labeled = state.get_results_table(columns=["record_id", "label"])
 
-            y_input = (
-                pd.DataFrame({"record_id": as_data.record_ids})
-                .merge(labeled, how="left", on="record_id")["label"]
-            )
+            y_input = pd.DataFrame({"record_id": as_data.record_ids}).merge(
+                labeled, how="left", on="record_id"
+            )["label"]
 
             if settings.balance_strategy is not None:
                 balance_model = load_extension(
