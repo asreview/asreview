@@ -107,9 +107,7 @@ class Simulate:
                 return True
 
             # If n_stop is set to min, stop after n_stop queries.
-            if self.n_stop == "min" and sum(self.labels) == sum(
-                self._results["label"]
-            ):
+            if self.n_stop == "min" and sum(self.labels) == sum(self._results["label"]):
                 return True
 
             # Stop when reaching n_stop (if provided)

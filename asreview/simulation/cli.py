@@ -253,7 +253,6 @@ review."""
 
 
 def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
-
     parser = argparse.ArgumentParser(
         prog=prog,
         description=description,
@@ -315,8 +314,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "--classifier",
         type=str,
         default=DEFAULT_CLASSIFIER,
-        help=f"Rank records with classifier. "
-        f"Default: '{DEFAULT_CLASSIFIER}'.",
+        help=f"Rank records with classifier. " f"Default: '{DEFAULT_CLASSIFIER}'.",
     )
     parser.add_argument(
         "-q",
