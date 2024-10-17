@@ -10,7 +10,6 @@ DATA_FP = Path("tests", "demo_data", "generic_labels.csv")
 DATA_FP_URL = "https://raw.githubusercontent.com/asreview/asreview/master/tests/demo_data/generic_labels.csv"  # noqa
 DATA_FP_NO_ABS = Path("tests", "demo_data", "generic_labels_no_abs.csv")
 DATA_FP_NO_TITLE = Path("tests", "demo_data", "generic_labels_no_title.csv")
-EMBEDDING_FP = Path("tests", "demo_data", "generic.vec")
 CFG_DIR = Path("tests", "cfg_files")
 STATE_DIR = Path("tests", "state_files")
 H5_STATE_FILE = Path(STATE_DIR, "test.h5")
