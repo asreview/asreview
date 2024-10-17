@@ -89,16 +89,16 @@ def get_texts(df):
 def convert_to_list(value):
     """Convert a value to a list.
 
-    This function tries to be very permissive in what input it allows. The goal is to
-    accept input from as many different kinds of input files as possible. If you are
-    certain what format the input has, you are probably better of parsing that format
-    directly.
+    This function tries to be very permissive in what input it allows. The goal is
+    to accept input from as many different kinds of input files as possible. If you
+    are certain what format the input has, you are probably better of parsing that
+    format directly.
     """
     if isinstance(value, list):
         return value
     elif isinstance(value, np.ndarray):
         return value.tolist()
-    if isinstance(value, str):
+    elif isinstance(value, str):
         if value == "":
             return []
         if value[0] == "[":
@@ -111,8 +111,9 @@ def convert_to_list(value):
                     return literal_eval(value)
                 except SyntaxError:
                     raise ValueError(
-                        "value is a string starting with '[', but is not a JSON dumped"
-                        f" list or a Python literal list value. Value: {value}"
+                        "value is a string starting with '[', but is not a JSON"
+                        " dumped list or a Python literal list value."
+                        f" Value: {value}"
                     )
         # Assume it is a list of items separated by one of ,;:
         longest_split = []
@@ -122,3 +123,5 @@ def convert_to_list(value):
                 longest_split = split_value
         # Remove excess whitespace in case the items were separated by ', ' for example.
         return [item.strip() for item in longest_split]
+    else:
+        raise ValueError("value should be of type `list`, `np.ndarray` or `str`.")
