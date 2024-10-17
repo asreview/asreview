@@ -45,25 +45,3 @@ jobs:
       - name: Run test on asreview-insights
         run: |
           pytest asreview-insights/tests/
-  test-asreview-wordcloud:
-    name: test-asreview-wordcloud
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-      - name: Install packages
-        run: |
-          pip install pytest
-          pip install --no-cache-dir .
-      - name: Install extension
-        run: |
-          git clone https://github.com/asreview/asreview-wordcloud
-          cd asreview-wordcloud
-          latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
-          git checkout $latestTag
-          pip install .
-      - name: Run test on asreview-wordcloud
-        run: |
-          pytest asreview-wordcloud/tests/
