@@ -3,7 +3,7 @@ import pandas as pd
 from sqlalchemy import NullPool
 from sqlalchemy import create_engine
 from sqlalchemy import text
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import sessionmaker
 
 from asreview.data.record import Base
 from asreview.data.record import Record
@@ -56,6 +56,12 @@ class DataStore:
         self.engine = create_engine(
             f"sqlite+pysqlite:///{self.fp}", poolclass=poolclass
         )
+        # I put expire_on_commit=False, so that after you put records in the database,
+        # you can still use them in your code without having access to the database.
+        # The downside is that if you use the record after committing it to the database
+        # and another mutation happens to the database, your record might be out of
+        # date. See https://docs.sqlalchemy.org/en/20/orm/session_api.html#sqlalchemy.orm.Session.params.expire_on_commit
+        self.Session = sessionmaker(self.engine, expire_on_commit=False)
         self.record_cls = record_cls
         self._columns = self.record_cls.get_columns()
         self._pandas_dtype_mapping = self.record_cls.get_pandas_dtype_mapping()
@@ -107,12 +113,12 @@ class DataStore:
         if self.is_empty():
             records[0].record_id = 0
 
-        with Session(self.engine) as session:
+        with self.Session() as session:
             session.add_all(records)
             session.commit()
 
     def __len__(self):
-        with Session(self.engine) as session:
+        with self.Session() as session:
             return session.query(self.record_cls).count()
 
     def __getitem__(self, item):
@@ -141,7 +147,7 @@ class DataStore:
         return item in self.columns
 
     def is_empty(self):
-        with Session(self.engine) as session:
+        with self.Session() as session:
             return session.query(self.record_cls).first() is None
 
     def get_records(self, record_id):
@@ -159,7 +165,7 @@ class DataStore:
         if isinstance(record_id, np.integer):
             record_id = record_id.item()
 
-        with Session(self.engine) as session:
+        with self.Session() as session:
             if isinstance(record_id, int):
                 return (
                     session.query(self.record_cls)
