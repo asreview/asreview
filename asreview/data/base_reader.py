@@ -3,6 +3,7 @@ from abc import abstractmethod
 
 from asreview.data.record import Record
 from asreview.data.utils import convert_to_list
+from asreview.data.utils import standardize_included_label
 
 
 class BaseReader(ABC):
@@ -33,8 +34,9 @@ class BaseReader(ABC):
     }
 
     __cleaning_methods__ = {
-        "authors": convert_to_list,
-        "keywords": convert_to_list,
+        "authors": [convert_to_list],
+        "keywords": [convert_to_list],
+        "included": [standardize_included_label],
     }
 
     @classmethod
@@ -67,10 +69,11 @@ class BaseReader(ABC):
 
     @classmethod
     def clean_data(cls, df):
-        df = cls.convert_alternative_column_names(df)
-        for column, cleaning_method in cls.__cleaning_methods__.items():
+        df = cls.standardize_column_names(df)
+        for column, cleaning_methods in cls.__cleaning_methods__.items():
             if column in df.columns:
-                df[column] = df[column].apply(cleaning_method)
+                for cleaning_method in cleaning_methods:
+                    df[column] = df[column].apply(cleaning_method)
         return df
 
     @classmethod
@@ -81,11 +84,19 @@ class BaseReader(ABC):
             for idx, row in df[list(columns_present)].iterrows()
         ]
 
-    # Cleaning methods.
     @classmethod
-    def convert_alternative_column_names(cls, df):
-        """For record columns with alternative names, use the first available column.
-        """
+    def standardize_column_names(cls, df):
+        """For record columns with alternative names, use the first available column."""
+        # The original dataset object allowed for uppercase column names.
+        # Here I just lowercase all column names, but might cause bugs if we then
+        # have two columns with the same name. I.e. 'Title' & 'title' -> 'title'. I
+        # assume this won't really happen though.
+        df.columns = [col.lower() for col in df.columns]
+
+        # This one also occurred in the original dataset object.
+        df.columns = [col.strip() for col in df.columns]
+
+        # Allow for alternative column names.
         for column, alternative_columns in cls.__alternative_column_names__.items():
             if column in df.columns:
                 continue

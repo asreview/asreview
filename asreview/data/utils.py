@@ -1,7 +1,10 @@
 import json
 from ast import literal_eval
+
 import numpy as np
 import pandas as pd
+
+from asreview.config import LABEL_NA
 
 
 def duplicated(df, pid="doi"):
@@ -124,4 +127,24 @@ def convert_to_list(value):
         # Remove excess whitespace in case the items were separated by ', ' for example.
         return [item.strip() for item in longest_split]
     else:
-        raise ValueError("value should be of type `list`, `np.ndarray` or `str`.")
+        raise ValueError(
+            f"value should be of type `list`, `np.ndarray` or `str`. Value: {value}"
+        )
+
+
+def standardize_included_label(value):
+    if isinstance(value, str):
+        conversion_dict = {
+            "": None,
+            "0": 0,
+            "1": 1,
+            "yes": 1,
+            "no": 0,
+            "y": 1,
+            "n": 0,
+        }
+        value = value.lower()
+        value = conversion_dict[value]
+    if value is None:
+        value = LABEL_NA
+    return value
