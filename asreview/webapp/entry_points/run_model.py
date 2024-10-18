@@ -16,7 +16,6 @@ import argparse
 import logging
 from pathlib import Path
 
-import pandas as pd
 from filelock import FileLock
 from filelock import Timeout
 
