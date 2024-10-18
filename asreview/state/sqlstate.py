@@ -137,12 +137,11 @@ class SQLiteState:
         self._conn.commit()
 
     def _is_valid_state(self):
-        try:
-            version = _check_and_update_version(CURRENT_STATE_VERSION, self)
-            if version != self.user_version:
-                self.user_version = version
-        except AttributeError as err:
-            raise ValueError(f"Unexpected error when opening state file: {err}")
+        if self.user_version != CURRENT_STATE_VERSION:
+            raise ValueError(
+                f"State version {self.user_version} is not supported. "
+                "See migration guide."
+            )
 
         cur = self._conn.cursor()
         column_names = cur.execute("PRAGMA table_info(results)").fetchall()
