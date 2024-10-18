@@ -45,6 +45,9 @@ jobs:
           node-version: "20"
           cache: "npm"
           cache-dependency-path: "asreview/webapp/package-lock.json"
+      - name: Install setuptools
+        run: |
+          pip install setuptools
       - name: Compile assets
         run: |
           python setup.py compile_assets
