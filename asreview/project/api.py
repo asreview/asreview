@@ -43,6 +43,8 @@ from asreview.config import SCHEMA
 from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState
 from asreview.migrate import migrate_v1_v2
+from asreview.project.exceptions import ProjectError
+from asreview.project.exceptions import ProjectNotFoundError
 
 
 from asreview.utils import _check_model, _reset_model_settings
@@ -55,14 +57,6 @@ except ImportError:
 PATH_PROJECT_CONFIG = "project.json"
 PATH_PROJECT_CONFIG_LOCK = "project.json.lock"
 PATH_FEATURE_MATRICES = "feature_matrices"
-
-
-class ProjectError(Exception):
-    pass
-
-
-class ProjectNotFoundError(FileNotFoundError):
-    pass
 
 
 def is_project(project_obj, raise_on_old_version=True):
