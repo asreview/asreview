@@ -39,13 +39,12 @@ from asreview import load_dataset
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
 from asreview.config import PROJECT_MODE_SIMULATE
-from asreview.config import SCHEMA
-from asreview.settings import ReviewSettings
-from asreview.state.sqlstate import SQLiteState
 from asreview.migrate import migrate_v1_v2
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
-
+from asreview.project.schema import SCHEMA
+from asreview.settings import ReviewSettings
+from asreview.state.sqlstate import SQLiteState
 
 from asreview.utils import _check_model, _reset_model_settings
 
