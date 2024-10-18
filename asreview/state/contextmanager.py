@@ -20,7 +20,6 @@ from pathlib import Path
 from asreview.project import Project
 from asreview.project import ProjectNotFoundError
 from asreview.project import is_project
-from asreview.state.exceptions import StateNotFoundError
 from asreview.state.sqlstate import SQLiteState
 
 
@@ -28,7 +27,7 @@ def _get_state_path(project, review_id=None, create_new=True):
     if review_id is None:
         if len(project.reviews) == 0:
             if not create_new:
-                raise StateNotFoundError("State does not exist in the project")
+                raise FileNotFoundError("State does not exist in the project")
             d_review = project.add_review()
             review_id = d_review["id"]
         else:
