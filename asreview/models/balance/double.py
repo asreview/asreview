@@ -107,9 +107,6 @@ class DoubleBalance(BaseBalance):
         n_train = len(rel_idx) + len(irrel_idx)
 
         # Compute sampling weights.
-
-        print(y.dtype, np.where(y == 1), len(irrel_idx))
-
         rel_weight = _rel_weight(len(rel_idx), len(irrel_idx), self.a, self.alpha)
         irrel_weight = _irrel_weight(len(rel_idx) + len(irrel_idx), self.b, self.beta)
         tot_zo_weight = rel_weight * len(rel_idx) + irrel_weight * len(irrel_idx)
