@@ -18,7 +18,6 @@ from datetime import datetime
 
 import pandas as pd
 
-from asreview.state.compatibility import _check_and_update_version
 
 REQUIRED_TABLES = [
     "results",
