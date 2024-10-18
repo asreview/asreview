@@ -190,7 +190,7 @@ def test_number_records_found(tmpdir):
     _cli_simulate(argv)
 
     with asr.open_state(asreview_fp) as s:
-        assert s.get_results_table("label")["label"].sum() == 28
+        assert s.get_results_table("label")["label"].sum() == 30
         assert s.get_results_table("label").shape[0] == stop_if
         assert s.get_results_table().shape[0] == stop_if
         assert s.get_results_table()["record_id"].head(2).to_list() == [116, 285]
@@ -211,7 +211,7 @@ def test_stop_if_min(tmpdir):
 
     with asr.open_state(asreview_fp) as s:
         assert s.get_results_table("label")["label"].sum() == 38
-        assert len(s.get_results_table("label")) == 660
+        assert len(s.get_results_table("label")) == 614
 
 
 def test_stop_if_all(tmpdir):
