@@ -16,12 +16,10 @@ import argparse
 import logging
 from pathlib import Path
 
-import pandas as pd
 from filelock import FileLock
 from filelock import Timeout
 
 import asreview as asr
-from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.extensions import load_extension
 from asreview.settings import ReviewSettings
@@ -66,26 +64,20 @@ def _run_model_start(project):
             with open_state(project) as state:
                 labeled = state.get_results_table(columns=["record_id", "label"])
 
-            y_input = (
-                pd.DataFrame({"record_id": as_data.record_ids})
-                .merge(labeled, how="left", on="record_id")["label"]
-                .fillna(LABEL_NA)
-            )
-
             if settings.balance_strategy is not None:
                 balance_model = load_extension(
                     "models.balance", settings.balance_strategy
                 )()
                 balance_model_name = balance_model.name
-                X_train, y_train = balance_model.sample(
-                    fm, y_input, labeled["record_id"].values
+                ind_train, labels_train = balance_model.sample(
+                    labeled["record_id"].values, labeled["label"].values
                 )
             else:
-                X_train, y_train = fm, y_input
+                ind_train, labels_train = labeled["record_id"], labeled["label"]
                 balance_model_name = None
 
             classifier = load_extension("models.classifiers", settings.classifier)()
-            classifier.fit(X_train, y_train)
+            classifier.fit(fm[ind_train], labels_train)
             relevance_scores = classifier.predict_proba(fm)
 
             query_strategy = load_extension("models.query", settings.query_strategy)()

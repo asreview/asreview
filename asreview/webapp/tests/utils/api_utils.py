@@ -206,11 +206,6 @@ def import_project(client: FlaskClient, asreview_file):
     return response
 
 
-def get_project_stats(client: FlaskClient):
-    response = client.get("/api/projects/stats")
-    return response
-
-
 def get_demo_data(client: FlaskClient, subset: str):
     response = client.get(f"/api/datasets?subset={subset}")
     return response

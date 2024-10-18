@@ -25,14 +25,14 @@ from asreview.models.balance.base import BaseBalance
 class UndersampleBalance(BaseBalance):
     """Undersampling balance strategy (``undersample``).
 
-    This undersamples the data, leaving out excluded papers so that the
-    included and excluded papers are in some particular ratio (closer to one).
+    This undersamples the data, leaving out irrelevant records so that the
+    relevant and irrelevant records are in some particular ratio (closer to one).
 
     Arguments
     ---------
-    ratio: double
-        Undersampling ratio of the zero's. If for example we set a ratio of
-        0.25, we would sample only a quarter of the zeros and all the ones.
+    ratio: float
+        Undersampling ratio relevant to irrelevant. If for example we set a ratio of
+        0.25, we would sample all the relevant and 4 times irrelevant.
     """
 
     name = "undersample"
@@ -44,38 +44,42 @@ class UndersampleBalance(BaseBalance):
         self.ratio = ratio
         self._random_state = check_random_state(random_state)
 
-    def sample(self, X, y, train_idx):
+    def sample(self, labeled_idx, y):
         """Resample the training data.
 
         Arguments
         ---------
-        X: numpy.ndarray
-            Complete feature matrix.
+        labeled_idx: numpy.ndarray
+            Training indices, that is all records that have been reviewed.
         y: numpy.ndarray
             Labels for all papers.
-        train_idx: numpy.ndarray
-            Training indices, that is all papers that have been reviewed.
 
         Returns
         -------
-        numpy.ndarray,numpy.ndarray:
-            X_train, y_train: the resampled matrix, labels.
+        numpy.ndarray, numpy.ndarray
+            idx_balance, y_balance: resampled training indices and labels.
         """
-        one_ind = train_idx[np.where(y[train_idx] == 1)]
-        zero_ind = train_idx[np.where(y[train_idx] == 0)]
 
-        n_one = len(one_ind)
-        n_zero = len(zero_ind)
+        if self.ratio == 0:
+            raise ValueError("Ratio cannot be zero.")
 
-        # If we don't have an excess of 0's, give back all training_samples.
-        if n_one / n_zero >= self.ratio:
-            shuf_ind = np.append(one_ind, zero_ind)
-        else:
-            n_zero_epoch = ceil(n_one / self.ratio)
-            zero_under = check_random_state(self._random_state).choice(
-                np.arange(n_zero), n_zero_epoch, replace=False
-            )
-            shuf_ind = np.append(one_ind, zero_ind[zero_under])
+        rel_idx = labeled_idx[np.where(y == 1)]
+        irrel_idx = labeled_idx[np.where(y == 0)]
 
-        check_random_state(self._random_state).shuffle(shuf_ind)
-        return X[shuf_ind], y[shuf_ind]
+        if len(rel_idx) == 0 or len(irrel_idx) == 0:
+            return labeled_idx, y
+
+        # If we don't have an enough 0's, give back all.
+        if len(rel_idx) / len(irrel_idx) >= self.ratio:
+            return labeled_idx, y
+
+        rn = check_random_state(self._random_state)
+
+        n_irrel_epoch = ceil(len(rel_idx) / self.ratio)
+        zero_under_ind = rn.choice(irrel_idx, n_irrel_epoch, replace=False)
+
+        p = rn.permutation(len(rel_idx) + n_irrel_epoch)
+        return (
+            np.append(rel_idx, zero_under_ind)[p],
+            np.append(np.ones(len(rel_idx)), np.zeros(n_irrel_epoch))[p],
+        )

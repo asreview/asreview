@@ -392,11 +392,4 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     )
 
     parser.add_argument("--verbose", "-v", default=0, type=int, help="Verbosity")
-    parser.add_argument(
-        "--embedding",
-        type=str,
-        default=None,
-        dest="embedding_fp",
-        help="File path of embedding matrix. Required for LSTM models.",
-    )
     return parser

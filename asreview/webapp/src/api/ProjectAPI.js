@@ -22,23 +22,6 @@ class ProjectAPI {
     });
   }
 
-  static fetchDashboardStats({ queryKey, includePrior = true }) {
-    const url = api_url + `projects/stats`;
-    return new Promise((resolve, reject) => {
-      axios
-        .get(url, {
-          params: { includePrior: includePrior },
-          withCredentials: true,
-        })
-        .then((result) => {
-          resolve(result.data["result"]);
-        })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
   static mutateInitProject(variables) {
     let body = new FormData();
     body.set("mode", variables.mode);

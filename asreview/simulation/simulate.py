@@ -22,7 +22,6 @@ from sklearn.utils import check_random_state
 from tqdm import tqdm
 
 from asreview.config import DEFAULT_N_QUERY
-from asreview.config import LABEL_NA
 from asreview.state.contextmanager import open_state
 
 
@@ -166,28 +165,17 @@ class Simulate:
     def train(self):
         """Train a new model on the labeled data."""
 
-        try:
-            y_sample_input = (
-                pd.DataFrame(np.arange(self.fm.shape[0]), columns=["record_id"])
-                .merge(self._results, how="left", on="record_id")
-                .loc[:, "label"]
-                .fillna(LABEL_NA)
-                .to_numpy()
-            )
-        except AttributeError:
-            y_sample_input = np.full(self.fm.shape[0], LABEL_NA)
-
-        train_idx = np.where(y_sample_input != LABEL_NA)[0]
-
         if self.balance_strategy is None:
-            X_train = self.fm[train_idx]
-            y_train = y_sample_input[train_idx]
+            ind_train, labels_train = (
+                self._results["record_id"].values,
+                self._results["label"].values,
+            )
         else:
-            X_train, y_train = self.balance_strategy.sample(
-                self.fm, y_sample_input, train_idx
+            ind_train, labels_train = self.balance_strategy.sample(
+                self._results["record_id"].values, self._results["label"].values
             )
 
-        self.classifier.fit(X_train, y_train)
+        self.classifier.fit(self.fm[ind_train], labels_train)
         relevance_scores = self.classifier.predict_proba(self.fm)
 
         ranked_record_ids = self.query_strategy.query(
