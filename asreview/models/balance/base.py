@@ -25,21 +25,19 @@ class BaseBalance(BaseModel):
     name = "base-balance"
 
     @abstractmethod
-    def sample(self, X, y, train_idx):
+    def sample(self, labeled_idx, y):
         """Resample the training data.
 
         Arguments
         ---------
-        X: numpy.ndarray
-            Complete feature matrix.
+        labeled_idx: numpy.ndarray
+            Training indices, that is all records that have been reviewed.
         y: numpy.ndarray
             Labels for all papers.
-        train_idx: numpy.ndarray
-            Training indices, that is all papers that have been reviewed.
 
         Returns
         -------
         numpy.ndarray, numpy.ndarray
-            X_train, y_train: the resampled matrix, labels.
+            idx_balance, y_balance: resampled training indices and labels.
         """
         raise NotImplementedError
