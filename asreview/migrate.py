@@ -70,11 +70,11 @@ def _project_model_settings_converter_v1_v2(model_settings_path):
         query_param=model_settings.get("query_param", None),
         balance_param=model_settings.get("balance_param", None),
         feature_param=model_settings.get("feature_param", None),
-        n_instances=model_settings.get("n_instances"),
-        stop_if=model_settings.get("stop_if"),
-        n_prior_included=model_settings.get("n_prior_included"),
-        n_prior_excluded=model_settings.get("n_prior_excluded"),
-        init_seed=model_settings.get("init_seed"),
+        n_query=model_settings.get("n_query"),
+        n_stop=model_settings.get("n_stop"),
+        n_prior_relevant=model_settings.get("n_prior_relevant"),
+        n_prior_irrelevant=model_settings.get("n_prior_irrelevant"),
+        prior_seed=model_settings.get("prior_seed"),
         seed=model_settings.get("seed"),
     )
 
