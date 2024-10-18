@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# deprecated in __init__.py, use asreview.models.feature_extraction instead
 from asreview.data.base import Dataset
 from asreview.data.base import Record
 from asreview.data.loader import load_dataset
