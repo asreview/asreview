@@ -106,17 +106,11 @@ def _run_model(project):
     if not current_app.testing:
         config_data = current_app.config.get("TASK_MANAGER_CONFIG", None)
         try:
-            # get host and port
-            host = config_data["host"]
-            port = config_data["port"]
-            # set up short lived connection
             client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            client_socket.connect((host, port))
-            # setup payload
-            project_id = project.config["id"]
+            client_socket.connect((config_data["host"], config_data["port"]))
             payload = {
                 "action": "insert",
-                "project_id": project_id,
+                "project_id": project.config["id"],
                 "simulation": simulation,
             }
             # send
