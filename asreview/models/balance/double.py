@@ -23,6 +23,30 @@ from sklearn.utils import check_random_state
 from asreview.models.balance.base import BaseBalance
 
 
+def _rel_weight(n_one, n_zero, a, alpha):
+    """Get the weight of the ones."""
+    weight = a * (n_one / n_zero) ** (-alpha)
+    return weight
+
+
+def _irrel_weight(n_read, b, beta):
+    """Get the weight of the zeros."""
+    weight = 1 - (1 - b) * (1 + log(n_read)) ** (-beta)
+    return weight
+
+
+def _random_round(value, random_state):
+    """Round up or down, depending on how far the value is.
+
+    For example: 8.1 would be rounded to 8, 90% of the time, and rounded
+    to 9, 10% of the time.
+    """
+    base = int(floor(value))
+    if check_random_state(random_state).rand() < value - base:
+        base += 1
+    return base
+
+
 class DoubleBalance(BaseBalance):
     """Double balance strategy (``double``).
 
@@ -61,77 +85,55 @@ class DoubleBalance(BaseBalance):
         self.beta = beta
         self._random_state = random_state
 
-    def sample(self, X, y, train_idx):
+    def sample(self, labeled_idx, y):
         """Resample the training data.
 
         Arguments
         ---------
-        X: numpy.ndarray
-            Complete feature matrix.
+        labeled_idx: numpy.ndarray
+            Training indices, that is all records that have been reviewed.
         y: numpy.ndarray
             Labels for all papers.
-        train_idx: numpy.ndarray
-            Training indices, that is all papers that have been reviewed.
 
         Returns
         -------
-        numpy.ndarray,numpy.ndarray:
-            X_train, y_train: the resampled matrix, labels.
+        numpy.ndarray, numpy.ndarray
+            idx_balance, y_balance: resampled training indices and labels.
         """
-        # Get inclusions and exclusions
-        one_idx = train_idx[np.where(y[train_idx] == 1)]
-        zero_idx = train_idx[np.where(y[train_idx] == 0)]
 
-        n_one = len(one_idx)
-        n_zero = len(zero_idx)
-        n_train = n_one + n_zero
+        rel_idx = labeled_idx[np.where(y == 1)]
+        irrel_idx = labeled_idx[np.where(y == 0)]
+
+        n_train = len(rel_idx) + len(irrel_idx)
 
         # Compute sampling weights.
-        one_weight = _one_weight(n_one, n_zero, self.a, self.alpha)
-        zero_weight = _zero_weight(n_one + n_zero, self.b, self.beta)
-        tot_zo_weight = one_weight * n_one + zero_weight * n_zero
+
+        print(y.dtype, np.where(y == 1), len(irrel_idx))
+
+        rel_weight = _rel_weight(len(rel_idx), len(irrel_idx), self.a, self.alpha)
+        irrel_weight = _irrel_weight(len(rel_idx) + len(irrel_idx), self.b, self.beta)
+        tot_zo_weight = rel_weight * len(rel_idx) + irrel_weight * len(irrel_idx)
+
         # Number of inclusions to sample.
-        n_one_train = random_round(
-            one_weight * n_one * n_train / tot_zo_weight, self._random_state
+        n_rel_train = _random_round(
+            rel_weight * len(rel_idx) * n_train / tot_zo_weight, self._random_state
         )
-        # Should be at least 1, and at least two spots should be for exclusions.
-        n_one_train = max(1, min(n_train - 2, n_one_train))
-        # Number of exclusions to sample
-        n_zero_train = n_train - n_one_train
+        # Should be at least 1, and at least two spots should be for irrelevant.
+        n_rel_train = max(1, min(n_train - 2, n_rel_train))
+        # Number of irrelevant to sample
+        n_irrel_train = n_train - n_rel_train
 
         # Sample records of ones and zeroes
-        one_train_idx = fill_training(one_idx, n_one_train, self._random_state)
-        zero_train_idx = fill_training(zero_idx, n_zero_train, self._random_state)
-        # Merge and shuffle.
-        all_idx = np.concatenate([one_train_idx, zero_train_idx])
-        check_random_state(self._random_state).shuffle(all_idx)
+        rel_train_idx = fill_training(rel_idx, n_rel_train, self._random_state)
+        irrel_train_idx = fill_training(irrel_idx, n_irrel_train, self._random_state)
 
-        # Return resampled feature matrix and labels.
-        return X[all_idx], y[all_idx]
-
-
-def _one_weight(n_one, n_zero, a, alpha):
-    """Get the weight of the ones."""
-    weight = a * (n_one / n_zero) ** (-alpha)
-    return weight
-
-
-def _zero_weight(n_read, b, beta):
-    """Get the weight of the zeros."""
-    weight = 1 - (1 - b) * (1 + log(n_read)) ** (-beta)
-    return weight
-
-
-def random_round(value, random_state):
-    """Round up or down, depending on how far the value is.
-
-    For example: 8.1 would be rounded to 8, 90% of the time, and rounded
-    to 9, 10% of the time.
-    """
-    base = int(floor(value))
-    if check_random_state(random_state).rand() < value - base:
-        base += 1
-    return base
+        p = check_random_state(self._random_state).permutation(
+            len(rel_train_idx) + len(irrel_train_idx)
+        )
+        return (
+            np.append(rel_train_idx, irrel_train_idx)[p],
+            np.append(np.ones(len(rel_train_idx)), np.zeros(len(irrel_train_idx)))[p],
+        )
 
 
 def fill_training(src_idx, n_train, random_state):
