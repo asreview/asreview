@@ -14,12 +14,10 @@
 
 __all__ = [
     "DoubleBalance",
-    "TripleBalance",
     "UndersampleBalance",
 ]
 
 from asreview.models.balance.double import DoubleBalance
-from asreview.models.balance.triple import TripleBalance
 from asreview.models.balance.undersample import UndersampleBalance
 
 """Balance strategies to rebalance and reorder the training data.
