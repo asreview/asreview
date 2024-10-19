@@ -49,10 +49,6 @@ class ReviewSettings:
     balance_param: Optional[dict] = None
     feature_param: Optional[dict] = None
     n_stop: Optional[int] = None
-    n_prior_relevant: Optional[int] = None
-    n_prior_irrelevant: Optional[int] = None
-    prior_seed: Optional[int] = None
-    seed: Optional[int] = None
 
     def reset_model(self):
         """Reset the model parameters to the default values."""

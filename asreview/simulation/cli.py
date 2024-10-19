@@ -25,8 +25,6 @@ from asreview import load_dataset
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_CLASSIFIER
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
-from asreview.config import DEFAULT_N_PRIOR_IRRELEVANT
-from asreview.config import DEFAULT_N_PRIOR_RELEVANT
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.datasets import DatasetManager
 from asreview.extensions import load_extension
@@ -137,15 +135,10 @@ def _cli_simulate(argv):
     # create a new settings object from arguments
     settings = ReviewSettings(
         classifier=args.model,
-        n_query=args.n_query,
-        n_stop=args.n_stop,
-        n_prior_relevant=args.n_prior_relevant,
-        n_prior_irrelevant=args.n_prior_irrelevant,
         query_strategy=args.query_strategy,
         balance_strategy=args.balance_strategy,
         feature_extraction=args.feature_extraction,
-        prior_seed=args.prior_seed,
-        seed=args.seed,
+        n_stop=args.n_stop,
     )
 
     if args.config_file:
@@ -267,20 +260,18 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     # A priori knowledge
     parser.add_argument(
         "--n-prior-relevant",
-        default=DEFAULT_N_PRIOR_RELEVANT,
+        default=0,
         type=int,
         help="Sample n prior relevant records. "
-        "Only used when --prior_idx is not given. "
-        f"Default {DEFAULT_N_PRIOR_RELEVANT}",
+        "Only used when --prior_idx is not given. Default 0",
     )
 
     parser.add_argument(
         "--n-prior-irrelevant",
-        default=DEFAULT_N_PRIOR_IRRELEVANT,
+        default=0,
         type=int,
         help="Sample n prior irrelevant records. "
-        "Only used when --prior_idx is not given. "
-        f"Default {DEFAULT_N_PRIOR_IRRELEVANT}",
+        "Only used when --prior_idx is not given. Default 0",
     )
 
     parser.add_argument(

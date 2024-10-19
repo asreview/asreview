@@ -70,20 +70,6 @@ def test_n_prior_relevant(tmpdir):
     prior_included = result["label"] & (result["query_strategy"].isnull())
     assert sum(prior_included) >= 2
 
-    Path(tmpdir, "test").mkdir(parents=True)
-    project = asr.Project.load(asreview_fp, Path(tmpdir, "test"))
-
-    settings_path = Path(
-        project.project_path,
-        "reviews",
-        project.config["reviews"][0]["id"],
-        "settings_metadata.json",
-    )
-    with open(settings_path) as f:
-        settings_metadata = json.load(f)
-
-    assert settings_metadata["n_prior_relevant"] == 2
-
 
 def test_n_prior_irrelevant(tmpdir):
     asreview_fp = Path(tmpdir, "test.asreview")
