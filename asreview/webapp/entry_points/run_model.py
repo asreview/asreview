@@ -20,8 +20,8 @@ from filelock import FileLock
 from filelock import Timeout
 
 import asreview as asr
-from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.extensions import load_extension
+from asreview.project.api import PROJECT_MODE_SIMULATE
 from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
 from asreview.state.contextmanager import open_state

@@ -37,32 +37,26 @@ from filelock import FileLock
 
 from asreview import load_dataset
 from asreview.config import LABEL_NA
-from asreview.config import PROJECT_MODES
-from asreview.config import PROJECT_MODE_SIMULATE
-from asreview.config import SCHEMA
+from asreview.migrate import migrate_v1_v2
+from asreview.project.exceptions import ProjectError
+from asreview.project.exceptions import ProjectNotFoundError
+from asreview.project.schema import SCHEMA
 from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState
-from asreview.migrate import migrate_v1_v2
 
-
-from asreview.utils import _check_model, _reset_model_settings
+from asreview.utils import _check_model
 
 try:
     from asreview._version import __version__
 except ImportError:
     __version__ = "0.0.0"
 
+# project types
+PROJECT_MODE_SIMULATE = "simulate"
+
 PATH_PROJECT_CONFIG = "project.json"
 PATH_PROJECT_CONFIG_LOCK = "project.json.lock"
 PATH_FEATURE_MATRICES = "feature_matrices"
-
-
-class ProjectError(Exception):
-    pass
-
-
-class ProjectNotFoundError(FileNotFoundError):
-    pass
 
 
 def is_project(project_obj, raise_on_old_version=True):
@@ -100,11 +94,6 @@ class Project:
         if project_path.exists():
             raise ValueError("Project path is not empty.")
 
-        if project_mode not in PROJECT_MODES:
-            raise ValueError(
-                f"Project mode '{project_mode}' is not in " f"{PROJECT_MODES}."
-            )
-
         if project_id is None:
             project_id = project_path.stem
 
@@ -134,7 +123,6 @@ class Project:
                 "tags": project_tags,
             }
 
-            # validate new config before storing
             jsonschema.validate(instance=config, schema=SCHEMA)
 
             project_fp = Path(project_path, PATH_PROJECT_CONFIG)
@@ -147,7 +135,6 @@ class Project:
                     json.dump(config, f)
 
         except Exception as err:
-            # remove all generated folders and raise error
             shutil.rmtree(project_path)
             raise err
 
@@ -188,17 +175,9 @@ class Project:
     def update_config(self, **kwargs):
         """Update project info"""
 
-        kwargs_copy = kwargs.copy()
-
-        # validate schema
-        if "mode" in kwargs_copy and kwargs_copy["mode"] not in PROJECT_MODES:
-            raise ValueError("Project mode '{}' not found.".format(kwargs_copy["mode"]))
-
-        # update project file
         config = self.config
-        config.update(kwargs_copy)
+        config.update(kwargs.copy())
 
-        # validate new config before storing
         jsonschema.validate(instance=config, schema=SCHEMA)
 
         self.config = config
@@ -602,9 +581,9 @@ class Project:
                     _check_model(settings)
                 except ValueError as err:
                     warnings.warn(err)
-                    settings_model_reset = _reset_model_settings(settings)
+                    settings.reset_model()
                     with open(settings_fp) as f:
-                        json.dump(asdict(settings_model_reset), f)
+                        json.dump(asdict(settings), f)
 
             if safe_import:
                 # assign a new id to the project.

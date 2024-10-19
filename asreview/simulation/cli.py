@@ -31,7 +31,7 @@ from asreview.config import DEFAULT_N_PRIOR_RELEVANT
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.datasets import DatasetManager
 from asreview.extensions import load_extension
-from asreview.project import Project
+from asreview.project.api import Project
 from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
 from asreview.types import type_n_queries

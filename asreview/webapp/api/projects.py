@@ -40,13 +40,13 @@ from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
 import asreview as asr
-from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
 from asreview.extensions import load_extension
-from asreview.project import ProjectError
-from asreview.project import ProjectNotFoundError
-from asreview.project import is_project
+from asreview.project.exceptions import ProjectError
+from asreview.project.exceptions import ProjectNotFoundError
+from asreview.project.api import is_project
+from asreview.project.api import PROJECT_MODE_SIMULATE
 from asreview.search import fuzzy_find
 from asreview.settings import ReviewSettings
 from asreview.state.contextmanager import open_state
@@ -56,7 +56,6 @@ from asreview.statistics import n_relevant
 from asreview.statistics import n_unlabeled
 from asreview.utils import _check_model
 from asreview.utils import _get_filename_from_url
-from asreview.utils import _reset_model_settings
 from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
 from asreview.webapp.authentication.decorators import project_authorization
@@ -852,9 +851,9 @@ def api_import_project():
     try:
         _check_model(settings)
     except ValueError as err:
-        settings_model_reset = _reset_model_settings(settings)
+        settings.reset_model()
         with open(settings_fp, "w") as f:
-            json.dump(asdict(settings_model_reset), f)
+            json.dump(asdict(settings), f)
         warnings.append(
             str(err) + " Check if an extension with the model is installed."
         )

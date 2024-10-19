@@ -17,9 +17,9 @@ import zipfile
 from contextlib import contextmanager
 from pathlib import Path
 
-from asreview.project import Project
-from asreview.project import ProjectNotFoundError
-from asreview.project import is_project
+from asreview.project.api import Project
+from asreview.project.exceptions import ProjectNotFoundError
+from asreview.project.api import is_project
 from asreview.state.sqlstate import SQLiteState
 
 

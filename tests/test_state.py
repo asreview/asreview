@@ -7,7 +7,7 @@ from scipy.sparse import csr_matrix
 
 import asreview as asr
 from asreview.extensions import load_extension
-from asreview.project import ProjectNotFoundError
+from asreview.project.exceptions import ProjectNotFoundError
 
 TEST_LABELS = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
 TEST_INDICES = [16, 346, 509, 27, 11, 555, 554, 680, 264, 309]
