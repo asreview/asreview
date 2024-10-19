@@ -56,6 +56,17 @@ class ReviewSettings:
     init_seed: Optional[int] = None
     seed: Optional[int] = None
 
+    def reset_model(self):
+        """Reset the model parameters to the default values."""
+        self.classifier = DEFAULT_CLASSIFIER
+        self.query_strategy = DEFAULT_QUERY_STRATEGY
+        self.balance_strategy = DEFAULT_BALANCE_STRATEGY
+        self.feature_extraction = DEFAULT_FEATURE_EXTRACTION
+        self.classifier_param = None
+        self.query_param = None
+        self.balance_param = None
+        self.feature_param = None
+
     def from_file(self, fp, load=None):
         """Fill the contents of settings by reading a config file.
 

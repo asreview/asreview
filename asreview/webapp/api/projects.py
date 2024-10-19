@@ -56,7 +56,6 @@ from asreview.statistics import n_relevant
 from asreview.statistics import n_unlabeled
 from asreview.utils import _check_model
 from asreview.utils import _get_filename_from_url
-from asreview.utils import _reset_model_settings
 from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
 from asreview.webapp.authentication.decorators import project_authorization
@@ -852,9 +851,9 @@ def api_import_project():
     try:
         _check_model(settings)
     except ValueError as err:
-        settings_model_reset = _reset_model_settings(settings)
+        settings.reset_model()
         with open(settings_fp, "w") as f:
-            json.dump(asdict(settings_model_reset), f)
+            json.dump(asdict(settings), f)
         warnings.append(
             str(err) + " Check if an extension with the model is installed."
         )

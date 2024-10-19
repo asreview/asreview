@@ -22,10 +22,6 @@ from urllib.request import urlopen
 import numpy as np
 
 from asreview.extensions import get_extension
-from asreview.config import DEFAULT_CLASSIFIER
-from asreview.config import DEFAULT_QUERY_STRATEGY
-from asreview.config import DEFAULT_BALANCE_STRATEGY
-from asreview.config import DEFAULT_FEATURE_EXTRACTION
 
 
 def _get_filename_from_url(url):
@@ -100,17 +96,3 @@ def _check_model(settings):
             raise ValueError(
                 "Model components " + ", ".join(warnings) + " are not available."
             )
-
-
-def _reset_model_settings(settings):
-    """Reset model settings to default values."""
-    settings.classifier = DEFAULT_CLASSIFIER
-    settings.query_strategy = DEFAULT_QUERY_STRATEGY
-    settings.balance_strategy = DEFAULT_BALANCE_STRATEGY
-    settings.feature_extraction = DEFAULT_FEATURE_EXTRACTION
-    settings.classifier_param = None
-    settings.query_param = None
-    settings.balance_param = None
-    settings.feature_param = None
-
-    return settings

@@ -46,7 +46,7 @@ from asreview.project.schema import SCHEMA
 from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState
 
-from asreview.utils import _check_model, _reset_model_settings
+from asreview.utils import _check_model
 
 try:
     from asreview._version import __version__
@@ -595,9 +595,9 @@ class Project:
                     _check_model(settings)
                 except ValueError as err:
                     warnings.warn(err)
-                    settings_model_reset = _reset_model_settings(settings)
+                    settings.reset_model()
                     with open(settings_fp) as f:
-                        json.dump(asdict(settings_model_reset), f)
+                        json.dump(asdict(settings), f)
 
             if safe_import:
                 # assign a new id to the project.
