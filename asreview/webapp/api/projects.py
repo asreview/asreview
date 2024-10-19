@@ -20,6 +20,7 @@ import sys
 import tempfile
 import time
 from dataclasses import asdict
+from dataclasses import replace
 from pathlib import Path
 from urllib.request import urlretrieve
 from uuid import uuid4
@@ -62,6 +63,8 @@ from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
+from asreview.models.default import default_model
+
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -657,10 +660,8 @@ def api_list_algorithms():
 def api_get_algorithms(project):  # noqa: F401
     """Get the algorithms used in the project"""
 
-    settings = ReviewSettings()
-
     try:
-        settings = settings.from_file(
+        settings = ReviewSettings.from_file(
             Path(
                 project.project_path,
                 "reviews",
@@ -669,7 +670,7 @@ def api_get_algorithms(project):  # noqa: F401
             )
         )
     except FileNotFoundError:
-        pass
+        raise Exception("No settings found.")
 
     return jsonify(asdict(settings))
 
@@ -845,13 +846,13 @@ def api_import_project():
         project.config["reviews"][0]["id"],
         "settings_metadata.json",
     )
-    settings = ReviewSettings().from_file(settings_fp)
+    settings = ReviewSettings.from_file(settings_fp)
 
     warnings = []
     try:
         _check_model(settings)
     except ValueError as err:
-        settings.reset_model()
+        settings = replace(settings, **default_model())
         with open(settings_fp, "w") as f:
             json.dump(asdict(settings), f)
         warnings.append(

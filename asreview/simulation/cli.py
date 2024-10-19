@@ -22,10 +22,6 @@ from pathlib import Path
 import numpy as np
 
 from asreview import load_dataset
-from asreview.config import DEFAULT_BALANCE_STRATEGY
-from asreview.config import DEFAULT_CLASSIFIER
-from asreview.config import DEFAULT_FEATURE_EXTRACTION
-from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.datasets import DatasetManager
 from asreview.extensions import load_extension
 from asreview.project.api import Project
@@ -303,24 +299,24 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "-c",
         "--classifier",
         type=str,
-        default=DEFAULT_CLASSIFIER,
-        help=f"Rank records with classifier. " f"Default: '{DEFAULT_CLASSIFIER}'.",
+        default="nb",
+        help="Rank records with classifier. Default: 'nb'.",
     )
     parser.add_argument(
         "-q",
         "--query",
         type=str,
-        default=DEFAULT_QUERY_STRATEGY,
-        help=f"Query records with algorithm. Default: '{DEFAULT_QUERY_STRATEGY}'",
+        default="max",
+        help="Query records with algorithm. Default: 'max'",
     )
     parser.add_argument(
         "-b",
         "--balancer",
         type=str,
         dest="balance_strategy",
-        default=DEFAULT_BALANCE_STRATEGY,
+        default="double",
         help="Balance training data in cases of few relevant and many irrelevant records. "
-        f"Default: '{DEFAULT_BALANCE_STRATEGY}'",
+        "Default: 'double'",
     )
     parser.add_argument(
         "--no-balancer",
@@ -333,11 +329,10 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "-f",
         "--feature-extraction",
         type=str,
-        default=DEFAULT_FEATURE_EXTRACTION,
+        default="tfidf",
         help="Feature extraction method. Some combinations of feature"
         " extraction method and prediction model are impossible/ill"
-        " advised."
-        f"Default: '{DEFAULT_FEATURE_EXTRACTION}'",
+        " advised. Default: 'tfidf'.",
     )
 
     parser.add_argument(

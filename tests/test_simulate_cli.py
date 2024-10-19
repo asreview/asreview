@@ -135,7 +135,7 @@ def test_models(model, tmpdir):
         settings_metadata = json.load(f)
         print(settings_metadata)
 
-    settings = asr.ReviewSettings().from_file(
+    settings = asr.ReviewSettings.from_file(
         Path(
             project.project_path,
             "reviews",

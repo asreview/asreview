@@ -42,13 +42,12 @@ class BaseModel(ABC):
         dict
             Dictionary with parameter: default value
         """
-        cur_class = self.__class__
         default_parameters = sig_to_param(inspect.signature(self.__init__))
-        while cur_class != BaseModel:
-            signature = inspect.signature(super(cur_class, self).__init__)
+        while self.__class__ != BaseModel:
+            signature = inspect.signature(super(self.__class__, self).__init__)
             new_parameters = sig_to_param(signature)
             default_parameters.update(new_parameters)
-            cur_class = cur_class.__bases__[0]
+            self.__class__ = self.__class__.__bases__[0]
         return default_parameters
 
     @property
@@ -71,10 +70,3 @@ class BaseModel(ABC):
                 parameters[par] = int(parameters[par])
 
         return parameters
-
-    def full_hyper_space(self):
-        return {}, {}
-
-    def hyper_space(self):
-        hyper_space, hyper_choices = self.full_hyper_space()
-        return hyper_space, hyper_choices

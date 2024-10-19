@@ -26,6 +26,7 @@ import tempfile
 import time
 import zipfile
 from dataclasses import asdict
+from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
@@ -43,6 +44,7 @@ from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.schema import SCHEMA
 from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState
+from asreview.models.default import default_model
 
 from asreview.utils import _check_model
 
@@ -393,7 +395,7 @@ class Project:
         config = self.config
 
         if settings is None:
-            settings = ReviewSettings()
+            settings = ReviewSettings(**default_model())
 
         Path(self.project_path, "reviews", review_id).mkdir(exist_ok=True, parents=True)
         with open(
@@ -575,13 +577,13 @@ class Project:
                     project_config["reviews"][0]["id"],
                     "settings_metadata.json",
                 )
-                settings = ReviewSettings().from_file(settings_fp)
+                settings = ReviewSettings.from_file(settings_fp)
 
                 try:
                     _check_model(settings)
                 except ValueError as err:
                     warnings.warn(err)
-                    settings.reset_model()
+                    settings = replace(settings, **default_model())
                     with open(settings_fp) as f:
                         json.dump(asdict(settings), f)
 

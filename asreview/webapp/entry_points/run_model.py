@@ -38,7 +38,7 @@ def _run_model_start(project):
     try:
         lock = FileLock(Path(project.project_path, "training.lock"), timeout=0)
 
-        settings = ReviewSettings().from_file(
+        settings = ReviewSettings.from_file(
             Path(
                 project.project_path,
                 "reviews",
@@ -108,7 +108,7 @@ def _run_model_start(project):
 def _simulate_start(project):
     as_data = project.read_data()
 
-    settings = ReviewSettings().from_file(
+    settings = ReviewSettings.from_file(
         Path(
             project.project_path,
             "reviews",

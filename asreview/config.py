@@ -12,22 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# deprecated
+
 __all__ = [
     "COLUMN_DEFINITIONS",
-    "DEFAULT_BALANCE_STRATEGY",
-    "DEFAULT_FEATURE_EXTRACTION",
-    "DEFAULT_CLASSIFIER",
-    "DEFAULT_QUERY_STRATEGY",
     "LABEL_NA",
 ]
 
 LABEL_NA = -1
-
-# CLI defaults
-DEFAULT_CLASSIFIER = "nb"
-DEFAULT_QUERY_STRATEGY = "max"
-DEFAULT_BALANCE_STRATEGY = "double"
-DEFAULT_FEATURE_EXTRACTION = "tfidf"
 
 COLUMN_DEFINITIONS = {
     "included": [
