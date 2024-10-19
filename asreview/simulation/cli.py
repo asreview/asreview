@@ -25,7 +25,6 @@ from asreview import load_dataset
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_CLASSIFIER
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
-from asreview.config import DEFAULT_N_QUERY
 from asreview.config import DEFAULT_N_PRIOR_IRRELEVANT
 from asreview.config import DEFAULT_N_PRIOR_RELEVANT
 from asreview.config import DEFAULT_QUERY_STRATEGY
@@ -361,9 +360,9 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     # active learning cycle
     parser.add_argument(
         "--n-query",
-        default=DEFAULT_N_QUERY,
+        default=1,
         type=int,
-        help=f"Number of records queried each query. Default {DEFAULT_N_QUERY}.",
+        help="Number of records queried each query. Default 1.",
     )
     parser.add_argument(
         "--n-stop",

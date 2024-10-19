@@ -29,7 +29,6 @@ from typing import Optional
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_CLASSIFIER
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
-from asreview.config import DEFAULT_N_QUERY
 from asreview.config import DEFAULT_QUERY_STRATEGY
 
 
@@ -49,7 +48,6 @@ class ReviewSettings:
     query_param: Optional[dict] = None
     balance_param: Optional[dict] = None
     feature_param: Optional[dict] = None
-    n_query: int = DEFAULT_N_QUERY
     n_stop: Optional[int] = None
     n_prior_relevant: Optional[int] = None
     n_prior_irrelevant: Optional[int] = None
