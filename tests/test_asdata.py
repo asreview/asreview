@@ -20,7 +20,7 @@ def test_record_id():
     as_data = asr.load_dataset(data_fp)
 
     # test is labels are numpy array
-    assert isinstance(as_data.labels, np.ndarray)
+    assert isinstance(as_data.labels, pd.core.arrays.integer.IntegerArray)
 
     # test is index name is record_id
     assert as_data.df.index.name == "record_id"

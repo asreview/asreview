@@ -37,7 +37,6 @@ import pandas as pd
 from filelock import FileLock
 
 from asreview import load_dataset
-from asreview.config import LABEL_NA
 from asreview.migrate import migrate_v1_v2
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
@@ -196,7 +195,7 @@ class Project:
         as_data = load_dataset(fp_data)
 
         if self.config["mode"] == PROJECT_MODE_SIMULATE and (
-            as_data.labels is None or (as_data.labels == LABEL_NA).any()
+            as_data.labels is None or (pd.isnull(as_data.labels)).any()
         ):
             raise ValueError("Import fully labeled dataset")
 

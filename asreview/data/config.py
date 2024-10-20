@@ -12,14 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# deprecated
-
 __all__ = [
     "COLUMN_DEFINITIONS",
-    "LABEL_NA",
 ]
-
-LABEL_NA = -1
 
 COLUMN_DEFINITIONS = {
     "included": [

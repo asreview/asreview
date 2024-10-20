@@ -21,8 +21,7 @@ import pandas as pd
 from pandas.api.types import is_object_dtype
 from pandas.api.types import is_string_dtype
 
-from asreview.config import COLUMN_DEFINITIONS
-from asreview.config import LABEL_NA
+from asreview.data.config import COLUMN_DEFINITIONS
 from asreview.extensions import load_extension
 
 
@@ -176,7 +175,7 @@ class Dataset:
                     )
                 )
 
-            self.df[col] = self.df[col].fillna(LABEL_NA).astype(int)
+            self.df[col] = self.df[col].astype("Int64")
 
         self.df["record_id"] = np.arange(len(self.df.index)).astype("int64")
         self.df.set_index("record_id", inplace=True)
@@ -396,11 +395,9 @@ class Dataset:
             labeled_record_ids = [x[0] for x in labels]
             labeled_values = [x[1] for x in labels]
 
-            result_df[col_label] = LABEL_NA
+            result_df[col_label] = None
             result_df.loc[labeled_record_ids, col_label] = labeled_values
-            result_df[col_label] = (
-                result_df[col_label].replace(LABEL_NA, None).astype("Int64")
-            )
+            result_df[col_label] = result_df[col_label].astype("Int64")
 
         return result_df
 
