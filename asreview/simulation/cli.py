@@ -116,7 +116,7 @@ def _cli_simulate(argv):
     # change the verbosity
     _set_log_verbosity(args.verbose)
 
-    if args.state_file and Path(args.state_file).exists():
+    if args.output and Path(args.output).exists():
         raise ValueError("Project path already exists.")
 
     # Get a name for the dataset
@@ -130,7 +130,7 @@ def _cli_simulate(argv):
 
     # create a new settings object from arguments
     settings = ReviewSettings(
-        classifier=args.model,
+        classifier=args.classifier,
         query_strategy=args.query_strategy,
         balance_strategy=args.balance_strategy,
         feature_extraction=args.feature_extraction,
@@ -204,15 +204,15 @@ def _cli_simulate(argv):
         )
     sim.review()
 
-    if args.state_file is not None:
+    if args.output is not None:
         # write all results to the project file
-        fp_tmp_simulation = Path(args.state_file).with_suffix(".asreview.tmp")
+        fp_tmp_simulation = Path(args.output).with_suffix(".asreview.tmp")
 
         project = Project.create(
             fp_tmp_simulation,
-            project_id=Path(args.state_file).stem,
+            project_id=Path(args.output).stem,
             project_mode="simulate",
-            project_name=Path(args.state_file).stem,
+            project_name=Path(args.output).stem,
             project_description="Simulation created via ASReview via "
             "command line interface",
         )
@@ -224,11 +224,11 @@ def _cli_simulate(argv):
         project.add_review(settings=settings, state=sim, status="finished")
 
         # export the project file
-        project.export(args.state_file)
+        project.export(args.output)
         shutil.rmtree(fp_tmp_simulation)
 
     else:
-        print("\nTo store the results, use the -s option. E.g. -s my_sim.asreview")
+        print("\nTo store the results, use the -o option. E.g. -o my_sim.asreview")
 
 
 DESCRIPTION_SIMULATE = """
@@ -306,6 +306,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "-q",
         "--query",
         type=str,
+        dest="query_strategy",
         default="max",
         help="Query records with algorithm. Default: 'max'",
     )

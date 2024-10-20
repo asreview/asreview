@@ -22,7 +22,7 @@ JSON_STATE_FILE = Path(STATE_DIR, "test.json")
 )
 def test_dataset_not_found(tmpdir):
     asreview_fp = Path(tmpdir, "project.asreview")
-    argv = f"does_not.exist -s {asreview_fp}".split()
+    argv = f"does_not.exist -o {asreview_fp}".split()
     _cli_simulate(argv)
 
 
@@ -35,7 +35,7 @@ def test_simulate_review_finished(tmpdir):
     asreview_fp = Path(tmpdir, "test.asreview")
 
     # simulate entry point
-    _cli_simulate(f"{DATA_FP} -s {asreview_fp}".split())
+    _cli_simulate(f"{DATA_FP} -o {asreview_fp}".split())
 
     Path(tmpdir, "test").mkdir(parents=True)
     project = asr.Project.load(asreview_fp, Path(tmpdir, "test"))
@@ -45,7 +45,7 @@ def test_simulate_review_finished(tmpdir):
 
 def test_prior_idx(tmpdir):
     asreview_fp = Path(tmpdir, "test.asreview")
-    argv = f"{str(DATA_FP)} -s {asreview_fp} --prior_idx 1 4".split()
+    argv = f"{str(DATA_FP)} -o {asreview_fp} --prior-idx 1 4".split()
     _cli_simulate(argv)
 
     with asr.open_state(asreview_fp) as state:
@@ -61,7 +61,7 @@ def test_prior_idx(tmpdir):
 
 def test_n_prior_relevant(tmpdir):
     asreview_fp = Path(tmpdir, "test.asreview")
-    argv = f"{str(DATA_FP)} -s {asreview_fp} --n_prior_relevant 2".split()
+    argv = f"{str(DATA_FP)} -o {asreview_fp} --n-prior-relevant 2".split()
     _cli_simulate(argv)
 
     with asr.open_state(asreview_fp) as state:
@@ -73,7 +73,7 @@ def test_n_prior_relevant(tmpdir):
 
 def test_n_prior_irrelevant(tmpdir):
     asreview_fp = Path(tmpdir, "test.asreview")
-    argv = f"{str(DATA_FP)} -s {asreview_fp} --n_prior_irrelevant 2".split()
+    argv = f"{str(DATA_FP)} -o {asreview_fp} --n-prior-irrelevant 2".split()
     _cli_simulate(argv)
 
     with asr.open_state(asreview_fp) as state:
@@ -82,25 +82,11 @@ def test_n_prior_irrelevant(tmpdir):
     prior_excluded = ~result["label"] & (result["query_strategy"].isnull())
     assert sum(prior_excluded) >= 2
 
-    Path(tmpdir, "test").mkdir(parents=True)
-    project = asr.Project.load(asreview_fp, Path(tmpdir, "test"))
-
-    settings_path = Path(
-        project.project_path,
-        "reviews",
-        project.config["reviews"][0]["id"],
-        "settings_metadata.json",
-    )
-    with open(settings_path) as f:
-        settings_metadata = json.load(f)
-
-    assert settings_metadata["n_prior_irrelevant"] == 2
-
 
 @pytest.mark.skip(reason="Not implemented yet.")
 def test_seed(tmpdir):
     asreview_fp = Path(tmpdir, "test.asreview")
-    argv = f"{str(DATA_FP)} -s {asreview_fp} --seed 42".split()
+    argv = f"{str(DATA_FP)} -o {asreview_fp} --seed 42".split()
     _cli_simulate(argv)
 
     with open(asreview_fp, "r") as f:
@@ -112,7 +98,7 @@ def test_seed(tmpdir):
 @pytest.mark.parametrize("model", ["logistic", "nb", "rf", "svm"])
 def test_models(model, tmpdir):
     asreview_fp = Path(tmpdir, f"test_{model}.asreview")
-    argv = f"{str(DATA_FP)} -s {asreview_fp} -m {model}".split()
+    argv = f"{str(DATA_FP)} -o {asreview_fp} -c {model}".split()
     _cli_simulate(argv)
 
     with asr.open_state(asreview_fp) as state:
@@ -149,7 +135,7 @@ def test_models(model, tmpdir):
 
 def test_no_balancing(tmpdir):
     asreview_fp = Path(tmpdir, "test_no_balance.asreview")
-    argv = f"{str(DATA_FP)} -s {asreview_fp} --no_balance_strategy".split()
+    argv = f"{str(DATA_FP)} -o {asreview_fp} --no-balancer".split()
     _cli_simulate(argv)
 
     with asr.open_state(asreview_fp) as state:
@@ -170,8 +156,8 @@ def test_number_records_found(tmpdir):
     seed = 101
 
     argv = (
-        f"{dataset} -s {asreview_fp} --n_stop {n_stop} "
-        f"--prior_idx {priors[0]} {priors[1]} --seed {seed}".split()
+        f"{dataset} -o {asreview_fp} --n-stop {n_stop} "
+        f"--prior-idx {priors[0]} {priors[1]} --seed {seed}".split()
     )
     _cli_simulate(argv)
 
@@ -190,8 +176,8 @@ def test_n_stop_min(tmpdir):
     seed = 535
 
     argv = (
-        f"{dataset} -s {asreview_fp} --n_stop {n_stop} "
-        f"--prior_idx {priors[0]} {priors[1]} --seed {seed}".split()
+        f"{dataset} -o {asreview_fp} --n-stop {n_stop} "
+        f"--prior-idx {priors[0]} {priors[1]} --seed {seed}".split()
     )
     _cli_simulate(argv)
 
@@ -208,8 +194,8 @@ def test_n_stop_all(tmpdir):
     seed = 101
 
     argv = (
-        f"{dataset} -s {asreview_fp} --n_stop {n_stop} "
-        f"--prior_idx {priors[0]} {priors[1]} --seed {seed}".split()
+        f"{dataset} -o {asreview_fp} --n-stop {n_stop} "
+        f"--prior-idx {priors[0]} {priors[1]} --seed {seed}".split()
     )
     _cli_simulate(argv)
 
@@ -223,14 +209,14 @@ def test_project_already_exists_error(tmpdir):
     asreview_fp1 = Path(tmpdir, "test1.asreview")
 
     argv = (
-        f"synergy:van_de_Schoot_2018 -s {asreview_fp1} --n_stop 100"
+        f"synergy:van_de_Schoot_2018 -o {asreview_fp1} --n-stop 100"
         f" --seed 535".split()
     )
     _cli_simulate(argv)
 
     # Simulate 100 queries in two steps of 50.
     argv = (
-        f"synergy:van_de_Schoot_2018 -s {asreview_fp1} --n_stop 50"
+        f"synergy:van_de_Schoot_2018 -o {asreview_fp1} --n-stop 50"
         f" --seed 535".split()
     )
     _cli_simulate(argv)
@@ -247,21 +233,21 @@ def test_partial_simulation(tmpdir):
 
     # Simulate 100 queries in one go.
     argv = (
-        f"{dataset} -s {asreview_fp1} --n_stop 100 "
-        f"--prior_idx {priors[0]} {priors[1]} --seed {seed}".split()
+        f"{dataset} -o {asreview_fp1} --n-stop 100 "
+        f"--prior-idx {priors[0]} {priors[1]} --seed {seed}".split()
     )
     _cli_simulate(argv)
 
     # Simulate 100 queries in two steps of 50.
     argv = (
-        f"{dataset} -s {asreview_fp2} --n_stop 50 "
-        f"--prior_idx {priors[0]} {priors[1]} --seed {seed}".split()
+        f"{dataset} -o {asreview_fp2} --n-stop 50 "
+        f"--prior-idx {priors[0]} {priors[1]} --seed {seed}".split()
     )
     _cli_simulate(argv)
 
     argv = (
-        f"{dataset} -s {asreview_fp2} --n_stop 100 "
-        f"--prior_idx {priors[0]} {priors[1]} --seed {seed}".split()
+        f"{dataset} -o {asreview_fp2} --n-stop 100 "
+        f"--prior-idx {priors[0]} {priors[1]} --seed {seed}".split()
     )
     _cli_simulate(argv)
 

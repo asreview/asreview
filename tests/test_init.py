@@ -23,14 +23,14 @@ def test_prior_seed(tmpdir, seed):
 
     # simulate run 1
     argv1 = (
-        f"{DATA_FP} -s {project1_fp} -m nb --prior_seed"
-        f" {seed} --n_prior_irrelevant 1 --n_prior_relevant 1 --n_stop 4".split()
+        f"{DATA_FP} -o {project1_fp} -c nb --prior-seed"
+        f" {seed} --n-prior-irrelevant 1 --n-prior-relevant 1 --n-stop 4".split()
     )
 
     # simulate run 2
     argv2 = (
-        f"{DATA_FP} -s {project2_fp} -m nb --prior_seed"
-        f" {seed} --n_prior_irrelevant 1 --n_prior_relevant 1  --n_stop 4".split()
+        f"{DATA_FP} -o {project2_fp} -c nb --prior-seed"
+        f" {seed} --n-prior-irrelevant 1 --n-prior-relevant 1  --n-stop 4".split()
     )
 
     # run the simulations
@@ -53,8 +53,8 @@ def test_no_seed(tmpdir):
         project_fp = Path(tmpdir, f"tmp_state_{i}.asreview")
 
         argv = (
-            f"{DATA_FP} -s {project_fp} -m nb "
-            f"--n_prior_irrelevant 1 --n_prior_relevant 1 --n_stop 4".split()
+            f"{DATA_FP} -o {project_fp} -c nb "
+            f"--n-prior-irrelevant 1 --n-prior-relevant 1 --n-stop 4".split()
         )
         _cli_simulate(argv)
 
@@ -79,16 +79,16 @@ def test_model_seed(tmpdir, seed):
 
     # simulate run 1
     argv1 = (
-        f"{DATA_FP} -s {project1_fp} -m rf --prior_seed {seed}"
+        f"{DATA_FP} -o {project1_fp} -c rf --prior-seed {seed}"
         f" --seed {seed}"
-        f" --n_prior_irrelevant 1 --n_prior_relevant 1".split()
+        f" --n-prior-irrelevant 1 --n-prior-relevant 1".split()
     )
 
     # simulate run 2
     argv2 = (
-        f"{DATA_FP} -s {project2_fp} -m rf --prior_seed {seed}"
+        f"{DATA_FP} -o {project2_fp} -c rf --prior-seed {seed}"
         f" --seed {seed}"
-        f" --n_prior_irrelevant 1 --n_prior_relevant 1".split()
+        f" --n-prior-irrelevant 1 --n-prior-relevant 1".split()
     )
 
     # run the simulations
