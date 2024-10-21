@@ -29,7 +29,7 @@ ASREVIEW_PARSE_RE = r"\bASReview_\w+\b"
 ASREVIEW_PARSE_DICT = {
     "ASReview_relevant": {"included": 1},
     "ASReview_irrelevant": {"included": 0},
-    "ASReview_not_seen": {"included": -1},
+    "ASReview_not_seen": {"included": None},
     "ASReview_prior": {"asreview_prior": 1},
     "ASReview_validate_relevant": {"asreview_label_to_validate": 1},
     "ASReview_validate_irrelevant": {"asreview_label_to_validate": 0},

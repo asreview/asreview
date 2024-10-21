@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["balance", "classifiers", "feature_extraction", "query"]
+from asreview.models.default import default_model
+
+__all__ = ["balance", "classifiers", "feature_extraction", "query", "default_model"]
 
 """Active learning model components.
 
