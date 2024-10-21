@@ -180,13 +180,14 @@ def lab_entry_point(argv):
     console.print("Press [bold]Ctrl+C[/bold] to exit.\n\n")
 
     # spin up task manager
-    workers = app.config["TASK_MANAGER_CONFIG"]["workers"]
-    socket_host = app.config["TASK_MANAGER_CONFIG"]["host"]
-    socket_port = app.config["TASK_MANAGER_CONFIG"]["port"]
-    verbose = app.config["TASK_MANAGER_CONFIG"]["verbose"]
-
     process = multiprocessing.Process(
-        target=run_task_manager, args=(workers, socket_host, socket_port, verbose)
+        target=run_task_manager,
+        args=(
+            int(app.config["TASK_MANAGER_WORKERS"]), 
+            app.config["TASK_MANAGER_HOST"], 
+            int(app.config["TASK_MANAGER_PORT"]), 
+            app.config["TASK_MANAGER_VERBOSE"]
+        )
     )
     process.start()
     if process.pid is None:

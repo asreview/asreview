@@ -169,20 +169,19 @@ def create_app(config_path=None):
 
     # The task manager needs to be configured if not in testing
     if not (app.testing):
-        task_manager_config = app.config.get("TASK_MANAGER_ENDPOINT", None)
-        if task_manager_config:
-            # get workers is configured
-            workers = int(app.config.get("TASK_MANAGER_WORKERS", 2))
-            endpoint = task_manager_config.split(":")
-            host = endpoint[0]
-            port = int(endpoint[1])
-            app.config["TASK_MANAGER_CONFIG"] = {
-                "workers": workers,
-                "host": host,
-                "port": port,
-                "verbose": app.config.get("TASK_MANAGER_VERBOSE", False),
-            }
-        else:
+
+        # I want people to be able to use TASK_MANAGER_ENDPOINT if they
+        # prefer this over defining the host and port separately.
+        endpoint = app.config.get("TASK_MANAGER_ENDPOINT", False)
+        if endpoint:
+            endpoint = endpoint.split(":")
+            app.config["TASK_MANAGER_HOST"] = endpoint[0]
+            app.config["TASK_MANAGER_PORT"] = int(endpoint[1])
+
+        if (
+            app.config.get("TASK_MANAGER_HOST", False) is False or
+            app.config.get("TASK_MANAGER_PORT", False) is False
+        ):
             message = (
                 "Task manager configuration is mandatory in "
                 + "both development and production environments. Please "

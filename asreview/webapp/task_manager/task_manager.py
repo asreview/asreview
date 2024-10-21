@@ -1,6 +1,6 @@
-import argparse
 import json
 import logging
+import multiprocessing as mp
 import socket
 import threading
 from collections import deque
@@ -13,12 +13,36 @@ from sqlalchemy.orm import sessionmaker
 from asreview.webapp import asreview_path
 from asreview.webapp.task_manager.models import Base
 from asreview.webapp.task_manager.models import ProjectQueueModel
-from asreview.webapp.task_manager.task_wrapper import RunModelProcess
 from asreview.webapp.tasks import run_task
+
+DEFAULT_HOST = 'localhost'
+DEFAULT_PORT = 5101
+
+
+class RunModelProcess(mp.Process):
+    def __init__(self, func, args=(), host=DEFAULT_HOST, port=DEFAULT_PORT):
+        super().__init__()
+        self.func = func
+        self.args = args
+        self.host = host
+        self.port = port
+
+    def run(self):
+        payload = {"action": "remove", "project_id": self.args[0]}
+        try:
+            self.func(*self.args)
+        except Exception:
+            payload["action"] = "failure"
+        finally:
+            family = socket.AF_INET
+            socket_type = socket.SOCK_STREAM
+            with socket.socket(family, socket_type) as client_socket:
+                client_socket.connect((self.host, self.port))
+                client_socket.sendall(json.dumps(payload).encode("utf-8"))
 
 
 class TaskManager:
-    def __init__(self, max_workers=1, host="localhost", port=5555):
+    def __init__(self, max_workers=2, host=DEFAULT_HOST, port=DEFAULT_PORT):
         self.pending = set()
         self.max_workers = max_workers
 
@@ -244,15 +268,4 @@ def setup_logging(verbose=False):
 def run_task_manager(max_workers, host, port, verbose=False):
     setup_logging(verbose)
     manager = TaskManager(max_workers=max_workers, host=host, port=port)
-    manager.start_manager()
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
-    args = parser.parse_args()
-
-    setup_logging(verbose=args.verbose)
-
-    manager = TaskManager(max_workers=2)
     manager.start_manager()
