@@ -7,7 +7,6 @@ from pytest import mark
 import asreview as asr
 from asreview.datasets import DatasetManager
 from asreview.search import fuzzy_find
-from asreview.statistics import n_duplicates
 
 
 def exists(url):
@@ -53,9 +52,9 @@ def test_datasets(data_name):
 
 
 def test_duplicate_count():
-    d = asr.load_dataset(Path("tests", "demo_data", "duplicate_records.csv"))
+    data = asr.load_dataset(Path("tests", "demo_data", "duplicate_records.csv"))
 
-    assert n_duplicates(d) == 2
+    assert int(data.duplicated("doi").sum()) == 2
 
 
 def test_deduplication():

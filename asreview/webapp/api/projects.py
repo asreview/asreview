@@ -50,10 +50,6 @@ from asreview.project.api import is_project
 from asreview.search import fuzzy_find
 from asreview.settings import ReviewSettings
 from asreview.state.contextmanager import open_state
-from asreview.statistics import n_duplicates
-from asreview.statistics import n_irrelevant
-from asreview.statistics import n_relevant
-from asreview.statistics import n_unlabeled
 from asreview.utils import _check_model
 from asreview.utils import _get_filename_from_url
 from asreview.webapp import DB
@@ -229,7 +225,10 @@ def api_create_project():  # noqa: F401
         project.add_review()
 
         n_labeled = (
-            0 if as_data.labels is None else n_irrelevant(as_data) + n_relevant(as_data)
+            0
+            if as_data.labels is None
+            else len(np.where(as_data.labels == 0)[0])
+            + len(np.where(as_data.labels == 1)[0])
         )
 
         if n_labeled > 0 and n_labeled < len(as_data):
@@ -371,31 +370,35 @@ def api_get_project_data(project):  # noqa: F401
     """"""
 
     try:
-        as_data = project.read_data()
+        data = project.read_data()
     except FileNotFoundError:
         return jsonify({"filename": None})
 
-    if as_data.url is not None:
-        urn = pd.Series(as_data.url).replace("", None)
+    if data.url is not None:
+        urn = pd.Series(data.url).replace("", None)
     else:
-        urn = pd.Series([None] * len(as_data))
+        urn = pd.Series([None] * len(data))
 
-    if as_data.doi is not None:
-        doi = pd.Series(as_data.doi).replace("", None)
+    if data.doi is not None:
+        doi = pd.Series(data.doi).replace("", None)
         urn.fillna(doi, inplace=True)
+
+    labels = np.empty(len(data), dtype=int) if data.labels is None else data.labels
 
     return jsonify(
         {
-            "n_rows": len(as_data),
-            "n_unlabeled": n_unlabeled(as_data),
-            "n_relevant": n_relevant(as_data),
-            "n_irrelevant": n_irrelevant(as_data),
-            "n_duplicates": n_duplicates(as_data),
+            "n_rows": len(data),
+            "n_unlabeled": len(data)
+            - len(np.where(labels == 1)[0])
+            - len(np.where(labels == 0)[0]),
+            "n_relevant": len(np.where(labels == 1)[0]),
+            "n_irrelevant": len(np.where(labels == 0)[0]),
+            "n_duplicates": int(data.duplicated("doi").sum()),
             "n_missing_title": int(
-                pd.Series(as_data.title).replace("", None).isnull().sum()
+                pd.Series(data.title).replace("", None).isnull().sum()
             ),
             "n_missing_abstract": int(
-                pd.Series(as_data.abstract).replace("", None).isnull().sum()
+                pd.Series(data.abstract).replace("", None).isnull().sum()
             ),
             "n_missing_urn": int(urn.isnull().sum()),
             "n_english": None,
