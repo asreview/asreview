@@ -167,4 +167,26 @@ def create_app(config_path=None):
     def static_from_root():
         return send_from_directory("build", request.path[1:])
 
+    # The task manager needs to be configured if not in testing
+    if not (app.testing):
+        # I want people to be able to use TASK_MANAGER_ENDPOINT if they
+        # prefer this over defining the host and port separately.
+        endpoint = app.config.get("TASK_MANAGER_ENDPOINT", False)
+        if endpoint:
+            endpoint = endpoint.split(":")
+            app.config["TASK_MANAGER_HOST"] = endpoint[0]
+            app.config["TASK_MANAGER_PORT"] = int(endpoint[1])
+
+        if (
+            app.config.get("TASK_MANAGER_HOST", False) is False
+            or app.config.get("TASK_MANAGER_PORT", False) is False
+        ):
+            message = (
+                "Task manager configuration is mandatory in "
+                + "both development and production environments. Please "
+                + "pass the endpoint for the task manager in the "
+                + "ASREVIEW_TASK_MANAGER_ENDPOINT environment variable."
+            )
+            raise RuntimeError(message)
+
     return app
