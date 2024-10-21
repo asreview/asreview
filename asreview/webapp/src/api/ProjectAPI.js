@@ -22,23 +22,6 @@ class ProjectAPI {
     });
   }
 
-  static fetchDashboardStats({ queryKey, includePrior = true }) {
-    const url = api_url + `projects/stats`;
-    return new Promise((resolve, reject) => {
-      axios
-        .get(url, {
-          params: { includePrior: includePrior },
-          withCredentials: true,
-        })
-        .then((result) => {
-          resolve(result.data["result"]);
-        })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
   static mutateInitProject(variables) {
     let body = new FormData();
     body.set("mode", variables.mode);
@@ -592,11 +575,11 @@ class ProjectAPI {
             );
             resolve(result);
           } else {
-            console.log(
-              `${variables.project_id} - update classification ${
-                variables.record_id
-              } as ${variables.label === 1 ? "inclusion" : "exclusion"}`,
-            );
+            // console.log(
+            //   `${variables.project_id} - update classification ${
+            //     variables.record_id
+            //   } as ${variables.label === 1 ? "inclusion" : "exclusion"}`,
+            // );
             resolve(result["data"]);
           }
         })

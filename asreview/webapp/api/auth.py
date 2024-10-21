@@ -21,6 +21,7 @@ from flask import current_app
 from flask import jsonify
 from flask import render_template_string
 from flask import request
+from flask import redirect
 from flask_login import current_user
 from flask_login import login_required
 from flask_login import login_user
@@ -239,44 +240,38 @@ def signup():
     return response, status
 
 
-@bp.route("/confirm_account", methods=["POST"])
+@bp.route("/confirm_account", methods=["GET"])
 def confirm_account():
     """Confirms account with email verification"""
+    # https://realpython.com/handling-email-confirmation-in-flask/#handle-email-confirmation
 
-    if current_app.config.get("EMAIL_VERIFICATION", False):
-        # find user by token and user id
-        user_id = request.form.get("user_id", 0)
-        token = request.form.get("token", "")
+    if not current_app.config.get("EMAIL_VERIFICATION", False):
+        return "Email verification is not enabled", 400
 
-        user = User.query.filter(
-            and_(User.id == user_id, User.token == token)
-        ).one_or_none()
+    # find user by token and user id
+    user_id = request.form.get("user_id", 0)
+    token = request.form.get("token", "")
 
-        if not user:
-            result = (404, "No user account / correct token found.")
-        elif not user.token_valid(token, max_hours=24):
-            message = (
-                "Can not confirm account, token has expired. "
-                + 'Use "forgot password" to obtain a new one.'
-            )
-            result = (403, message)
-        else:
-            user = user.confirm_user()
-            try:
-                DB.session.commit()
-                result = (200, f"User {user.identifier} confirmed.")
-            except SQLAlchemyError as e:
-                DB.session.rollback()
-                result = (
-                    403,
-                    f"Unable to to confirm user {user.identifier}! Reason: {str(e)}",
-                )
+    user = User.query.filter(
+        and_(User.id == user_id, User.token == token)
+    ).one_or_none()
+
+    if not user:
+        return "No user account / correct token found.", 404
+    elif not user.token_valid(token, max_hours=24):
+        message = (
+            "Can not confirm account, token has expired. "
+            + 'Use "forgot password" to obtain a new one.'
+        )
+        return message, 403
     else:
-        result = (400, "The app is not configured to verify accounts.")
+        user = user.confirm_user()
+        try:
+            DB.session.commit()
+        except SQLAlchemyError:
+            DB.session.rollback()
 
-    status, message = result
-    response = jsonify({"message": message})
-    return response, status
+    return redirect("/reviews"), 200
 
 
 @bp.route("/get_profile", methods=["GET"])
@@ -417,21 +412,10 @@ def update_profile():
     return response, status
 
 
-@bp.route("/refresh", methods=["GET"])
-def refresh():
-    if current_user and isinstance(current_user, User):
-        logged_in = current_user.is_authenticated
-        name = current_user.get_name()
-        id = current_user.id
-    else:
-        logged_in = False
-        name = ""
-        id = None
-
-    result = {"logged_in": logged_in, "name": name, "id": id}
-
-    response = jsonify(result)
-    return response, 200
+@bp.route("/user", methods=["GET"])
+@login_required
+def user():
+    return jsonify({"name": current_user.get_name(), "id": current_user.id}), 200
 
 
 @bp.route("/signout", methods=["DELETE"])

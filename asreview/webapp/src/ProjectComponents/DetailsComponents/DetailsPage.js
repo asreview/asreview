@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Card,
   CardContent,
@@ -7,11 +6,11 @@ import {
   Container,
   FormControlLabel,
   FormGroup,
+  Stack,
   Switch,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useParams } from "react-router-dom";
 
 import { ProjectDeleteDialog } from "ProjectComponents";
 import {
@@ -20,41 +19,33 @@ import {
   TagCard,
 } from "ProjectComponents/SetupComponents";
 
+import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
 import { projectStatuses } from "globals.js";
-import useAuth from "hooks/useAuth";
 import { useToggle } from "hooks/useToggle";
-import { ProjectAPI } from "api";
 
-const Root = styled("div")(({ theme }) => ({}));
 const DeleteCard = ({ project_id, info }) => {
   const [onDeleteDialog, toggleDeleteDialog] = useToggle();
 
   return (
-    <Box sx={{ padding: "12px 0px" }}>
-      <Card>
-        <CardHeader
-          title="Danger zone"
-          subheader="Delete project permanently. This action cannot be undone."
+    <Card>
+      <CardHeader
+        title="Danger zone"
+        subheader="Delete project permanently. This action cannot be undone."
+      />
+      <CardContent>
+        <Button variant="contained" color="error" onClick={toggleDeleteDialog}>
+          Delete project
+        </Button>
+        <ProjectDeleteDialog
+          open={onDeleteDialog}
+          onClose={toggleDeleteDialog}
+          projectTitle={info?.name}
+          project_id={project_id}
+          navigate_to={"/"}
         />
-        <CardContent>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={toggleDeleteDialog}
-          >
-            Delete project
-          </Button>
-          <ProjectDeleteDialog
-            open={onDeleteDialog}
-            onClose={toggleDeleteDialog}
-            projectTitle={info?.name}
-            project_id={project_id}
-            navigate_to={"/"}
-          />
-        </CardContent>
-      </Card>
-    </Box>
+      </CardContent>
+    </Card>
   );
 };
 const MarkFinishedCard = ({ project_id }) => {
@@ -101,7 +92,6 @@ const MarkFinishedCard = ({ project_id }) => {
 };
 const DetailsPage = () => {
   const { project_id } = useParams();
-  const { auth } = useAuth();
 
   const { data } = useQuery(
     ["fetchInfo", { project_id }],
@@ -112,31 +102,21 @@ const DetailsPage = () => {
   );
 
   return (
-    <Root aria-label="details page">
-      <Container maxWidth="md">
-        <ProjectContext.Provider value={project_id}>
-          <Box sx={{ padding: "12px 0px" }}>
-            <TagCard editable={false} />
-          </Box>
-          <Box sx={{ padding: "12px 0px" }}>
-            <ModelCard editable={true} showWarning={true} />
-          </Box>
-          <Box sx={{ padding: "12px 0px" }}>
-            <PriorCard editable={false} />
-          </Box>
-          {data?.ownerId === auth?.id && (
+    <ProjectContext.Provider value={project_id}>
+      <Container maxWidth="md" aria-label="details page" sx={{ mb: 3 }}>
+        <Stack spacing={3}>
+          <TagCard editable={false} />
+          <ModelCard editable={true} showWarning={true} />
+          <PriorCard editable={false} />
+          {data?.roles.owner && (
             <>
-              <Box sx={{ padding: "12px 0px" }}>
-                <MarkFinishedCard project_id={project_id} info={data} />
-              </Box>
-              <Box sx={{ padding: "12px 0px" }}>
-                <DeleteCard project_id={project_id} info={data} />
-              </Box>
+              <MarkFinishedCard project_id={project_id} info={data} />
+              <DeleteCard project_id={project_id} info={data} />
             </>
           )}
-        </ProjectContext.Provider>
+        </Stack>
       </Container>
-    </Root>
+    </ProjectContext.Provider>
   );
 };
 export default DetailsPage;

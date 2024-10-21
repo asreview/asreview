@@ -7,8 +7,7 @@ from scipy.sparse import csr_matrix
 
 import asreview as asr
 from asreview.extensions import load_extension
-from asreview.project import ProjectNotFoundError
-from asreview.state.exceptions import StateNotFoundError
+from asreview.project.exceptions import ProjectNotFoundError
 
 TEST_LABELS = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
 TEST_INDICES = [16, 346, 509, 27, 11, 555, 554, 680, 264, 309]
@@ -151,7 +150,7 @@ def test_invalid_project_folder(tmpdir):
 def test_state_not_found(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
-    with pytest.raises(StateNotFoundError):
+    with pytest.raises(FileNotFoundError):
         with asr.open_state(project_path, create_new=False):
             pass
 

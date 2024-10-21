@@ -23,14 +23,13 @@ def test_features(feature_extraction, split_ta):
     if feature_extraction in REQUIRES_AI_MODEL_DEP:
         pytest.skip()
 
-    embedding_fp = os.path.join("tests", "demo_data", "generic.vec")
     data_fp = os.path.join("tests", "demo_data", "generic.csv")
 
     as_data = asr.load_dataset(data_fp)
     texts = as_data.texts
     if feature_extraction.startswith("embedding-"):
         model = load_extension("models.feature_extraction", feature_extraction)(
-            split_ta=split_ta, embedding_fp=embedding_fp
+            split_ta=split_ta
         )
     else:
         model = load_extension("models.feature_extraction", feature_extraction)(

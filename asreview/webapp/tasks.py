@@ -14,10 +14,11 @@
 
 from pathlib import Path
 
-import pandas as pd
+from filelock import FileLock
+from filelock import Timeout
 
 import asreview as asr
-from asreview.config import LABEL_NA
+from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.extensions import load_extension
 from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
@@ -71,27 +72,21 @@ def run_model(project):
         with open_state(project) as state:
             labeled = state.get_results_table(columns=["record_id", "label"])
 
-        y_input = (
-            pd.DataFrame({"record_id": as_data.record_ids})
-            .merge(labeled, how="left", on="record_id")["label"]
-            .fillna(LABEL_NA)
-        )
+            if settings.balance_strategy is not None:
+                balance_model = load_extension(
+                    "models.balance", settings.balance_strategy
+                )()
+                balance_model_name = balance_model.name
+                ind_train, labels_train = balance_model.sample(
+                    labeled["record_id"].values, labeled["label"].values
+                )
+            else:
+                ind_train, labels_train = labeled["record_id"], labeled["label"]
+                balance_model_name = None
 
-        if settings.balance_strategy is not None:
-            balance_model = load_extension(
-                "models.balance", settings.balance_strategy
-            )()
-            balance_model_name = balance_model.name
-            X_train, y_train = balance_model.sample(
-                fm, y_input, labeled["record_id"].values
-            )
-        else:
-            X_train, y_train = fm, y_input
-            balance_model_name = None
-
-        classifier = load_extension("models.classifiers", settings.classifier)()
-        classifier.fit(X_train, y_train)
-        relevance_scores = classifier.predict_proba(fm)
+            classifier = load_extension("models.classifiers", settings.classifier)()
+            classifier.fit(fm[ind_train], labels_train)
+            relevance_scores = classifier.predict_proba(fm)
 
         query_strategy = load_extension("models.query", settings.query_strategy)()
         ranked_record_ids = query_strategy.query(

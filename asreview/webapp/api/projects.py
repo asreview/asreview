@@ -39,22 +39,21 @@ from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
 import asreview as asr
-from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
 from asreview.extensions import load_extension
-from asreview.project import ProjectError
-from asreview.project import ProjectNotFoundError
-from asreview.project import is_project
+from asreview.project.exceptions import ProjectError
+from asreview.project.exceptions import ProjectNotFoundError
+from asreview.project.api import is_project
 from asreview.search import fuzzy_find
 from asreview.settings import ReviewSettings
 from asreview.state.contextmanager import open_state
-from asreview.state.exceptions import StateNotFoundError
 from asreview.statistics import n_duplicates
 from asreview.statistics import n_irrelevant
-from asreview.statistics import n_unlabeled
 from asreview.statistics import n_relevant
+from asreview.statistics import n_unlabeled
+from asreview.utils import _check_model
 from asreview.utils import _get_filename_from_url
 from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
@@ -64,8 +63,6 @@ from asreview.webapp.tasks import run_model
 from asreview.webapp.tasks import run_simulation
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
-from asreview.utils import _check_model, _reset_model_settings
-
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -168,7 +165,7 @@ def api_get_projects(projects):  # noqa: F401
     project_info = []
 
     # for project, owner_id in zip(projects, owner_ids):
-    for project in projects:
+    for project, db_project in projects:
         try:
             project_config = project.config
 
@@ -176,7 +173,11 @@ def api_get_projects(projects):  # noqa: F401
                 continue
 
             if not current_app.config.get("LOGIN_DISABLED", False):
-                project_config["owner_id"] = current_user.id
+                project_config["roles"] = {
+                    "owner": db_project.owner_id == current_user.id
+                }
+            else:
+                project_config["roles"] = {"owner": True}
 
             logging.info("Project found: {}".format(project_config["id"]))
             project_info.append(project_config)
@@ -192,31 +193,6 @@ def api_get_projects(projects):  # noqa: F401
     )
 
     return jsonify({"result": project_info})
-
-
-@bp.route("/projects/stats", methods=["GET"])
-@login_required
-@current_user_projects
-def api_get_projects_stats(projects):  # noqa: F401
-    """Get dashboard statistics of all projects"""
-
-    stats_counter = {"n_in_review": 0, "n_finished": 0, "n_setup": 0}
-
-    for project in projects:
-        project_config = project.config
-
-        # get dashboard statistics
-        try:
-            if project_config["reviews"][0]["status"] == "review":
-                stats_counter["n_in_review"] += 1
-            elif project_config["reviews"][0]["status"] == "finished":
-                stats_counter["n_finished"] += 1
-            else:
-                stats_counter["n_setup"] += 1
-        except Exception:
-            stats_counter["n_setup"] += 1
-
-    return jsonify({"result": stats_counter})
 
 
 @bp.route("/projects/create", methods=["POST"])
@@ -289,7 +265,10 @@ def api_create_project():  # noqa: F401
 
         if n_labeled > 0 and n_labeled < len(as_data):
             with open_state(project.project_path) as state:
-                labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
+                labeled_indices = np.where(
+                    (as_data.labels == 1) | (as_data.labels == 0)
+                )[0]
+
                 labels = as_data.labels[labeled_indices].tolist()
                 labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
 
@@ -349,13 +328,15 @@ def api_get_project_info(project):  # noqa: F401
     project_config = project.config
 
     if current_app.config.get("LOGIN_DISABLED", False):
+        project_config["roles"] = {"owner": True}
         return jsonify(project_config)
 
     db_project = Project.query.filter(
         Project.project_id == project.config.get("id", 0)
     ).one_or_none()
+
     if db_project:
-        project_config["ownerId"] = db_project.owner_id
+        project_config["roles"] = {"owner": db_project.owner_id == current_user.id}
 
     return jsonify(project_config)
 
@@ -653,7 +634,7 @@ def api_get_labeled_stats(project):  # noqa: F401
                 "n_prior_exclusions": int(sum(data_prior["label"] == 0)),
             }
         )
-    except StateNotFoundError:
+    except FileNotFoundError:
         return jsonify(
             {
                 "n": 0,
@@ -882,9 +863,9 @@ def api_import_project():
     try:
         _check_model(settings)
     except ValueError as err:
-        settings_model_reset = _reset_model_settings(settings)
+        settings.reset_model()
         with open(settings_fp, "w") as f:
-            json.dump(asdict(settings_model_reset), f)
+            json.dump(asdict(settings), f)
         warnings.append(
             str(err) + " Check if an extension with the model is installed."
         )
@@ -895,9 +876,9 @@ def api_import_project():
 
     if not current_app.config.get("LOGIN_DISABLED", False):
         current_user.projects.append(Project(project_id=project.config.get("id")))
-        project.config["owner_id"] = current_user.id
         DB.session.commit()
 
+    project.config["roles"] = {"owner": True}
     return jsonify({"data": project.config, "warnings": warnings})
 
 
@@ -1027,7 +1008,7 @@ def _get_stats(project, include_priors=False):
             labels_without_priors = s.get_results_table(priors=False)["label"]
         n_records = len(as_data)
 
-    except (StateNotFoundError, ValueError, ProjectError):
+    except (FileNotFoundError, ValueError, ProjectError):
         labels = np.array([])
         labels_without_priors = np.array([])
         n_records = 0

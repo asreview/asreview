@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from asreview.project import Project
+from asreview.project.api import Project
 
 
 def asreview_path():

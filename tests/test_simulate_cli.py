@@ -10,7 +10,6 @@ DATA_FP = Path("tests", "demo_data", "generic_labels.csv")
 DATA_FP_URL = "https://raw.githubusercontent.com/asreview/asreview/master/tests/demo_data/generic_labels.csv"  # noqa
 DATA_FP_NO_ABS = Path("tests", "demo_data", "generic_labels_no_abs.csv")
 DATA_FP_NO_TITLE = Path("tests", "demo_data", "generic_labels_no_title.csv")
-EMBEDDING_FP = Path("tests", "demo_data", "generic.vec")
 CFG_DIR = Path("tests", "cfg_files")
 STATE_DIR = Path("tests", "state_files")
 H5_STATE_FILE = Path(STATE_DIR, "test.h5")
@@ -191,7 +190,7 @@ def test_number_records_found(tmpdir):
     _cli_simulate(argv)
 
     with asr.open_state(asreview_fp) as s:
-        assert s.get_results_table("label")["label"].sum() == 28
+        assert s.get_results_table("label")["label"].sum() == 30
         assert s.get_results_table("label").shape[0] == stop_if
         assert s.get_results_table().shape[0] == stop_if
         assert s.get_results_table()["record_id"].head(2).to_list() == [116, 285]
@@ -212,7 +211,7 @@ def test_stop_if_min(tmpdir):
 
     with asr.open_state(asreview_fp) as s:
         assert s.get_results_table("label")["label"].sum() == 38
-        assert len(s.get_results_table("label")) == 660
+        assert len(s.get_results_table("label")) == 614
 
 
 def test_stop_if_all(tmpdir):
