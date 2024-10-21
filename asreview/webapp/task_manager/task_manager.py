@@ -15,7 +15,7 @@ from asreview.webapp.task_manager.models import Base
 from asreview.webapp.task_manager.models import ProjectQueueModel
 from asreview.webapp.tasks import run_task
 
-DEFAULT_HOST = 'localhost'
+DEFAULT_HOST = "localhost"
 DEFAULT_PORT = 5101
 
 
