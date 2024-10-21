@@ -24,8 +24,11 @@ npm ci
 ### Setting up servers
 
 The best development workflow for the ASReview frontend and backend makes use
-of 2 simultanously running servers. One serves the Python server with the
-Flask app and the other the Node server with the frontend.
+of 3 simultanously running servers:
+
+1. A Python server with the the Flask app.
+2. A Python server for a task manager that manages running models after records are labeled..
+3. A Node server for the frontend.
 
 Open a command line interface (e.g. Terminal or CMD.exe) and navigate to
 `asreview/webapp`. Start the Flask app with
@@ -35,7 +38,15 @@ cd asreview/webapp
 flask run --debug
 ```
 
-Next, open a second command line interface and navigate to `asreview/webapp`.
+Next, open a second command line interface and run:
+
+```sh
+asreview task-manager
+```
+
+This starts the task manager (by default on `localhost`, port 5101). Use the `--verbose` flag to view logging messages.
+
+Next, open a third command line interface and navigate to `asreview/webapp`.
 Start the local front end application running on a Node server.
 
 ```sh

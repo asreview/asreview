@@ -183,10 +183,10 @@ def lab_entry_point(argv):
     process = multiprocessing.Process(
         target=run_task_manager,
         args=(
-            int(app.config["TASK_MANAGER_WORKERS"]),
-            app.config["TASK_MANAGER_HOST"],
-            int(app.config["TASK_MANAGER_PORT"]),
-            app.config["TASK_MANAGER_VERBOSE"],
+            app.config.get("TASK_MANAGER_WORKERS", None),
+            app.config.get("TASK_MANAGER_HOST", None),
+            app.config.get("TASK_MANAGER_PORT", None),
+            app.config.get("TASK_MANAGER_VERBOSE", False),
         ),
     )
     process.start()
