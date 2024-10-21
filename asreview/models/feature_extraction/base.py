@@ -42,7 +42,7 @@ class BaseFeatureExtraction(BaseModel):
     name = "base-feature"
     file_extension = "npz"
 
-    def __init__(self, split_ta=0, use_keywords=0):
+    def __init__(self, split_ta=False, use_keywords=False):
         self.split_ta = split_ta
         self.use_keywords = use_keywords
 

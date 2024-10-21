@@ -1,9 +1,3 @@
-import { useTheme } from "@mui/material/styles";
-import { setProject } from "redux/actions";
-
-import ASReviewLAB_black from "./images/asreview_sub_logo_lab_black_transparent.svg";
-import ASReviewLAB_white from "./images/asreview_sub_logo_lab_white_transparent.svg";
-
 export const api_url = window.api_url + "api/";
 export const auth_url = window.api_url + "auth/";
 export const collab_url = window.api_url + "team/";
@@ -36,24 +30,15 @@ export const getDesignTokens = (mode) => ({
         }
       : {
           primary: {
-            main: "#9965f4",
+            main: "#FFD700",
             background: "#93494914",
           },
           secondary: {
-            main: "#9da63e",
+            main: "#FFD700",
           },
         }),
   },
 });
-
-export const WordmarkState = () => {
-  const theme = useTheme();
-  if (theme.palette.mode === "dark") {
-    return ASReviewLAB_white;
-  } else {
-    return ASReviewLAB_black;
-  }
-};
 
 // drawer configs
 export const drawerWidth = 250;
@@ -61,19 +46,6 @@ export const drawerWidth = 250;
 export const checkIfSimulationFinishedDuration = 6000;
 
 export const fontSizeOptions = ["Small", "Default", "Large", "Largest"];
-
-// functions
-export const mapStateToProps = (state) => {
-  return { project_id: state.project_id };
-};
-
-export const mapDispatchToProps = (dispatch) => {
-  return {
-    setProjectId: (project_id) => {
-      dispatch(setProject(project_id));
-    },
-  };
-};
 
 export const passwordValidation = (yup_string) => {
   // error messages
@@ -110,7 +82,6 @@ export const formatDate = (datetime) => {
 export const projectModes = {
   ORACLE: "oracle",
   SIMULATION: "simulate",
-  EXPLORATION: "explore",
 };
 
 export const projectStatuses = {

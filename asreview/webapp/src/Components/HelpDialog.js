@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useQuery } from "react-query";
-import { connect } from "react-redux";
+
 import {
   Avatar,
   Button,
@@ -13,7 +13,7 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  Grid,
+  Grid2 as Grid,
   List,
   ListItem,
   ListItemIcon,
@@ -21,6 +21,7 @@ import {
   Stack,
   IconButton,
   Typography,
+  ListItemButton,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -35,21 +36,6 @@ import { BoxErrorHandler, OpenInNewIconStyled } from "Components";
 
 import { UtilsAPI } from "api";
 import { feedbackURL } from "globals.js";
-import { toggleHelpDialog } from "redux/actions";
-
-const mapStateToProps = (state) => {
-  return {
-    onHelpDialog: state.onHelpDialog,
-  };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    toggleHelpDialog: () => {
-      dispatch(toggleHelpDialog());
-    },
-  };
-};
 
 const PREFIX = "HelpDialog";
 
@@ -68,66 +54,50 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
     alignItems: "center",
     justifyContent: "center",
   },
-
   [`& .${classes.faqHeight}`]: {
     minHeight: 353,
   },
-
   [`& .${classes.contact}`]: {
     width: "100%",
     marginLeft: 20,
     marginRight: 20,
   },
-
   [`& .${classes.contactAvatar}`]: {
     width: theme.spacing(4),
     height: theme.spacing(4),
     color: theme.palette.getContrastText(theme.palette.primary.main),
     backgroundColor: theme.palette.primary.main,
   },
-
   [`& .${classes.divider}`]: {
     marginTop: 8,
     marginBottom: 8,
   },
-
   [`& .${classes.sectionTitle}`]: {
     paddingLeft: 20,
   },
 }));
 
-const HelpDialog = (props) => {
-  const descriptionElementRef = React.useRef(null);
-
+const HelpDialog = ({ mobileScreen, onHelp, toggleHelp }) => {
   const { data, error, isError, isFetched, isFetching } = useQuery(
     "fetchFAQ",
     UtilsAPI.fetchFAQ,
     {
-      enabled: props.onHelpDialog,
+      enabled: onHelp,
       refetchOnWindowFocus: false,
     },
   );
 
-  React.useEffect(() => {
-    if (props.onHelpDialog) {
-      const { current: descriptionElement } = descriptionElementRef;
-      if (descriptionElement !== null) {
-        descriptionElement.focus();
-      }
-    }
-  }, [props.onHelpDialog]);
-
   return (
     <StyledDialog
-      fullScreen={props.mobileScreen}
-      open={props.onHelpDialog}
-      onClose={props.toggleHelpDialog}
+      fullScreen={mobileScreen}
+      open={onHelp}
+      onClose={toggleHelp}
       scroll="paper"
       fullWidth
       maxWidth="sm"
     >
-      {!props.mobileScreen && <DialogTitle>Help</DialogTitle>}
-      {props.mobileScreen && (
+      {!mobileScreen && <DialogTitle>Help</DialogTitle>}
+      {mobileScreen && (
         <DialogTitle>
           <Grid
             container
@@ -135,7 +105,7 @@ const HelpDialog = (props) => {
             justify="space-between"
             alignItems="center"
           >
-            <IconButton onClick={props.toggleHelpDialog}>
+            <IconButton onClick={toggleHelp}>
               <Close />
             </IconButton>
             Dialog Title
@@ -157,25 +127,25 @@ const HelpDialog = (props) => {
           {!isError &&
             isFetched &&
             data.map((element, index) => (
-              <ListItem
-                key={element.url}
-                button
-                component={"a"}
-                href={element.url}
-                target="_blank"
-                alignItems="flex-start"
-              >
-                <ListItemIcon sx={{ justifyContent: "center" }}>
-                  <Description color="primary" />
-                </ListItemIcon>
-                <ListItemText
-                  key={element.title}
-                  primary={
-                    <React.Fragment>
-                      {element.title} <OpenInNewIconStyled />
-                    </React.Fragment>
-                  }
-                />
+              <ListItem key={element.url}>
+                <ListItemButton
+                  component={"a"}
+                  href={element.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ListItemIcon sx={{ justifyContent: "center" }}>
+                    <Description color="primary" />
+                  </ListItemIcon>
+                  <ListItemText
+                    key={element.title}
+                    primary={
+                      <React.Fragment>
+                        {element.title} <OpenInNewIconStyled />
+                      </React.Fragment>
+                    }
+                  />
+                </ListItemButton>
               </ListItem>
             ))}
           {isError && (
@@ -247,13 +217,13 @@ const HelpDialog = (props) => {
         </List>
       </DialogContent>
 
-      {!props.mobileScreen && (
+      {!mobileScreen && (
         <DialogActions>
-          <Button onClick={props.toggleHelpDialog}>Close</Button>
+          <Button onClick={toggleHelp}>Close</Button>
         </DialogActions>
       )}
     </StyledDialog>
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(HelpDialog);
+export default HelpDialog;

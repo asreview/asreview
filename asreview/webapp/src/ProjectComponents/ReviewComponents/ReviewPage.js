@@ -1,34 +1,24 @@
-import { styled } from "@mui/material/styles";
+import { useMediaQuery } from "@mui/material";
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { useMediaQuery } from "@mui/material";
 import { useParams } from "react-router-dom";
 
-import { ActionsFeedbackBar } from "Components";
 import { RecordCard, ReviewPageFinished } from ".";
+import { Container } from "@mui/material";
 
 import { ProjectAPI } from "api";
 
 import FinishSetup from "./ReviewPageTraining";
 
-const Root = styled("div")(({ theme }) => ({
-  margin: "auto",
-  maxWidth: 960,
-  [theme.breakpoints.down("md")]: {
-    padding: "4px 0px",
-  },
-  [theme.breakpoints.up("md")]: {
-    padding: "2rem 1rem",
-  },
-}));
+import { useReviewSettings } from "context/ReviewSettingsContext";
 
-const Screener = (props) => {
+const Screener = ({ fontSize, showBorder, modelLogLevel }) => {
   const { project_id } = useParams();
   const queryClient = useQueryClient();
 
   const [tagValues, setTagValues] = React.useState({});
 
-  const { data, error, isError } = useQuery(
+  const { data } = useQuery(
     ["fetchRecord", { project_id }],
     ProjectAPI.fetchRecord,
     {
@@ -36,40 +26,32 @@ const Screener = (props) => {
     },
   );
 
-  const afterDecision = () => {
-    queryClient.invalidateQueries("fetchRecord");
-  };
-
   return (
-    <Root aria-label="review page">
-      {data["result"] && (
+    <>
+      {data?.result && (
         <RecordCard
+          key={project_id + "-" + data?.result["record_id"]}
           project_id={project_id}
-          record={data["result"]}
-          afterDecision={afterDecision}
-          fontSize={props.fontSize}
-          showBorder={props.showBorder}
-          tags={props.tags}
+          record={data?.result}
+          afterDecision={() => queryClient.invalidateQueries("fetchRecord")}
+          fontSize={fontSize}
+          showBorder={showBorder}
+          modelLogLevel={modelLogLevel}
           tagValues={tagValues}
           setTagValues={setTagValues}
           collapseAbstract={false}
           hotkeys={true}
-          key={project_id + "-" + data["result"]["record_id"]}
         />
       )}
-
-      {/* Error handler */}
-      {isError && (
-        <ActionsFeedbackBar
-          feedback={error?.message + " Please try again."}
-          open={isError}
-        />
-      )}
-    </Root>
+    </>
   );
 };
 
-const ReviewPage = ({ project_id, fontSize, tags }) => {
+const ReviewPage = () => {
+  let { project_id } = useParams();
+
+  const { fontSize, modelLogLevel } = useReviewSettings();
+
   /* fetch the record and check if the project is training */
   const { refetch, data, isSuccess } = useQuery(
     ["fetchRecord", { project_id }],
@@ -88,15 +70,14 @@ const ReviewPage = ({ project_id, fontSize, tags }) => {
   });
 
   return (
-    <Root aria-label="review page">
+    <Container aria-label="review page" maxWidth="md" sx={{ mt: 6 }}>
       {isSuccess && (
         <>
           {data?.result !== null && (
             <Screener
-              record={data}
               fontSize={fontSize}
+              modelLogLevel={modelLogLevel}
               showBorder={showBorder}
-              tags={tags}
             />
           )}
 
@@ -108,7 +89,7 @@ const ReviewPage = ({ project_id, fontSize, tags }) => {
           {data?.result === null && data?.pool_empty && <ReviewPageFinished />}
         </>
       )}
-    </Root>
+    </Container>
   );
 };
 

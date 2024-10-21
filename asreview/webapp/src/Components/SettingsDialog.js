@@ -1,4 +1,9 @@
-import { Close } from "@mui/icons-material";
+import {
+  Close,
+  DarkMode,
+  LightMode,
+  SettingsBrightness,
+} from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -7,17 +12,22 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  Grid,
+  FormControl,
+  FormControlLabel,
+  Grid2 as Grid,
   IconButton,
   List,
   ListItem,
-  ListItemSecondaryAction,
+  ListItemButton,
   ListItemText,
+  Radio,
+  RadioGroup,
   Slider,
+  Stack,
   Switch,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { useColorScheme } from "@mui/material/styles";
 import React from "react";
 
 import { OpenInNewIconStyled } from "Components";
@@ -25,30 +35,20 @@ import { OpenInNewIconStyled } from "Components";
 import { fontSizeOptions } from "globals.js";
 import { useToggle } from "hooks/useToggle";
 
-const PREFIX = "SettingsDialog";
-
-const classes = {
-  content: `${PREFIX}-content`,
-};
-
-const StyledDialog = styled(Dialog)(({ theme }) => ({
-  [`& .${classes.content}`]: {
-    height: 388,
-  },
-}));
+import {
+  useReviewSettings,
+  useReviewSettingsDispatch,
+} from "context/ReviewSettingsContext";
 
 const SettingsDialog = (props) => {
   const descriptionElementRef = React.useRef(null);
 
+  const { mode, setMode } = useColorScheme();
+
   // second layer state
   const [fontSizeSetting, toggleFontSizeSetting] = useToggle();
-  const [fontSize, setFontSize] = React.useState(props.fontSize);
-
-  const toggleBackMainSettings = () => {
-    if (fontSizeSetting) {
-      toggleFontSizeSetting();
-    }
-  };
+  const { fontSize, modelLogLevel } = useReviewSettings();
+  const dispatchReviewSettings = useReviewSettingsDispatch();
 
   React.useEffect(() => {
     if (props.onSettings) {
@@ -60,7 +60,7 @@ const SettingsDialog = (props) => {
   }, [props.onSettings]);
 
   return (
-    <StyledDialog
+    <Dialog
       fullScreen={props.mobileScreen}
       open={props.onSettings}
       onClose={props.toggleSettings}
@@ -69,9 +69,9 @@ const SettingsDialog = (props) => {
       maxWidth="sm"
       aria-labelledby="scroll-dialog-title"
       aria-describedby="scroll-dialog-description"
-      TransitionProps={{
-        onExited: toggleBackMainSettings,
-      }}
+      // TransitionProps={{
+      //   onExited: toggleBackMainSettings,
+      // }}
     >
       {!props.mobileScreen && (
         <DialogTitle>Customize your ASReview LAB</DialogTitle>
@@ -91,8 +91,7 @@ const SettingsDialog = (props) => {
           </Grid>
         </DialogTitle>
       )}
-
-      <DialogContent dividers className={classes.content}>
+      <DialogContent dividers>
         <List>
           <ListItem>
             <Typography
@@ -103,18 +102,66 @@ const SettingsDialog = (props) => {
               DISPLAY
             </Typography>
           </ListItem>
-          <ListItem onClick={props.toggleDarkMode}>
-            <ListItemText id="switch-list-label-dark" primary="Dark mode" />
-            <ListItemSecondaryAction sx={{ right: 24 }}>
-              <Switch
-                edge="end"
-                onChange={props.toggleDarkMode}
-                checked={props.onDark.palette.mode === "dark"}
-                inputProps={{ "aria-labelledby": "switch-list-label-dark" }}
-              />
-            </ListItemSecondaryAction>
+          <ListItem>
+            <FormControl sx={{ margin: "auto" }}>
+              <RadioGroup
+                row
+                name="theme-mode"
+                defaultValue={mode}
+                onChange={(event) => setMode(event.target.value)}
+              >
+                <FormControlLabel
+                  value="system"
+                  control={<Radio />}
+                  label={
+                    <Stack
+                      direction="column"
+                      spacing={1}
+                      sx={{ alignItems: "center" }}
+                    >
+                      <SettingsBrightness />
+                      <Typography>System</Typography>
+                    </Stack>
+                  }
+                  labelPlacement="top"
+                  sx={{ px: 1 }}
+                />
+                <FormControlLabel
+                  value="light"
+                  control={<Radio />}
+                  label={
+                    <Stack
+                      direction="column"
+                      spacing={1}
+                      sx={{ alignItems: "center" }}
+                    >
+                      <LightMode />
+                      <Typography>Light</Typography>
+                    </Stack>
+                  }
+                  labelPlacement="top"
+                  sx={{ px: 1 }}
+                />
+                <FormControlLabel
+                  value="dark"
+                  control={<Radio />}
+                  label={
+                    <Stack
+                      direction="column"
+                      spacing={1}
+                      sx={{ alignItems: "center" }}
+                    >
+                      <DarkMode />
+                      <Typography>Dark</Typography>
+                    </Stack>
+                  }
+                  labelPlacement="top"
+                  sx={{ px: 1 }}
+                />
+              </RadioGroup>
+            </FormControl>
           </ListItem>
-          <Divider sx={{ my: "8px" }} />
+          <Divider sx={{ my: 2 }} />
           <ListItem>
             <Typography
               color="textSecondary"
@@ -131,7 +178,29 @@ const SettingsDialog = (props) => {
               secondary={fontSizeOptions[fontSize]}
             />
           </ListItem>
-          <Divider sx={{ my: "8px" }} />
+          <ListItem
+            secondaryAction={
+              <Switch
+                checked={modelLogLevel === "info"}
+                onChange={() => {
+                  dispatchReviewSettings({
+                    type: "modelLogLevel",
+                    modelLogLevel:
+                      modelLogLevel === "info" ? "warning" : "info",
+                  });
+                }}
+                inputProps={{ "aria-label": "controlled" }}
+              />
+            }
+          >
+            <ListItemText
+              id="change-show-model-info"
+              primary="Show model information"
+              secondary={"Warnings and errors are always shown"}
+            />
+          </ListItem>
+
+          <Divider sx={{ my: 2 }} />
           <ListItem>
             <Typography
               color="textSecondary"
@@ -141,31 +210,31 @@ const SettingsDialog = (props) => {
               OTHER
             </Typography>
           </ListItem>
-          <ListItem
-            button
-            component={"a"}
-            href="https://asreview.readthedocs.io/en/latest/intro/about.html"
-            target="_blank"
-          >
-            <ListItemText
-              id="switch-list-label-about"
-              primary={
-                <React.Fragment>
-                  About ASReview LAB <OpenInNewIconStyled />
-                </React.Fragment>
-              }
-              secondary={`Version ${window.asreviewVersion}`}
-            />
+          <ListItem>
+            <ListItemButton
+              component={"a"}
+              href="https://asreview.readthedocs.io/en/latest/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ListItemText
+                id="switch-list-label-about"
+                primary={
+                  <React.Fragment>
+                    About ASReview LAB <OpenInNewIconStyled />
+                  </React.Fragment>
+                }
+                secondary={`Version ${window.asreviewVersion}`}
+              />
+            </ListItemButton>
           </ListItem>
         </List>
       </DialogContent>
-
       {!props.mobileScreen && (
         <DialogActions>
           <Button onClick={props.toggleSettings}>Close</Button>
         </DialogActions>
       )}
-
       <Dialog open={fontSizeSetting} onClose={toggleFontSizeSetting}>
         <DialogTitle>Font size</DialogTitle>
         <DialogContent>
@@ -179,51 +248,37 @@ const SettingsDialog = (props) => {
               align="center"
               gutterBottom
               className={"fontSize" + fontSizeOptions[fontSize]}
+              sx={{ height: "36px", overflow: "hidden" }}
             >
               {fontSizeOptions[fontSize].charAt(0).toUpperCase() +
                 fontSizeOptions[fontSize].slice(1)}
             </Typography>
           </>
           <>
-            <Grid container sx={{ alignItems: "flex-end" }}>
-              <Grid item xs>
-                <Typography align="center" variant="h6">
-                  A
-                </Typography>
-              </Grid>
-              <Grid item xs={8}>
-                <Slider
-                  value={fontSize}
-                  marks={true}
-                  step={1}
-                  min={0}
-                  max={3}
-                  onChange={(event) => {
-                    setFontSize(event.target.value);
-                  }}
-                />
-              </Grid>
-              <Grid item xs>
-                <Typography align="center" variant="h4">
-                  A
-                </Typography>
-              </Grid>
-            </Grid>
+            <Stack direction={"row"} spacing={3}>
+              <Typography variant="h6">A</Typography>
+              <Slider
+                value={fontSize}
+                marks={true}
+                step={1}
+                min={0}
+                max={3}
+                onChange={(event) => {
+                  dispatchReviewSettings({
+                    type: "fontSize",
+                    fontSize: event.target.value,
+                  });
+                }}
+              />
+              <Typography variant="h4">A</Typography>
+            </Stack>
           </>
         </DialogContent>
         <DialogActions>
-          <Button onClick={toggleFontSizeSetting}>Cancel</Button>
-          <Button
-            onClick={() => {
-              props.handleFontSizeChange(fontSize);
-              toggleFontSizeSetting();
-            }}
-          >
-            Save
-          </Button>
+          <Button onClick={toggleFontSizeSetting}>Close</Button>
         </DialogActions>
       </Dialog>
-    </StyledDialog>
+    </Dialog>
   );
 };
 

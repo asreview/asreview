@@ -13,12 +13,16 @@ import {
   Input,
   Radio,
   RadioGroup,
+  Snackbar,
   Stack,
   Tooltip,
 } from "@mui/material";
 import * as React from "react";
-import { useMutation } from "react-query";
+
+import { useMutation, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
+
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 import {
   DatasetCard,
@@ -34,7 +38,6 @@ import {
 import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
 import { projectModes, projectStatuses } from "globals.js";
-import { useToggle } from "hooks/useToggle";
 
 const DialogProjectName = ({ project_id, dataset_name }) => {
   const [state, setState] = React.useState({
@@ -110,195 +113,210 @@ const SetupDialog = ({
   projectInfo = null,
   mode = null,
   dataSource = "file",
-  setFeedbackBar,
-  mobileScreen,
 }) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
+  const fullScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
+
+  // state management
   const [dataset, setDataset] = React.useState(projectInfo);
-  const [showSettings, setShowSettings] = useToggle(false);
-
+  const [showSettings, setShowSettings] = React.useState(false);
   const [uploadSource, setUploadSource] = React.useState(dataSource);
-
-  const handleUploadSource = (event) => {
-    setUploadSource(event.target.value);
-  };
+  const [feedbackBar, setFeedbackBar] = React.useState({
+    open: false,
+    message: null,
+  });
 
   const { mutate: setStatus } = useMutation(ProjectAPI.mutateReviewStatus, {
     mutationKey: ["mutateReviewStatus"],
     onSuccess: () => {
       if (mode === projectModes.SIMULATION) {
-        navigate(`/projects/${dataset?.id}`);
+        onClose();
       } else {
-        navigate(`/projects/${dataset?.id}/review`);
+        navigate(`/reviews/${dataset?.id}/review`);
       }
     },
   });
 
   return (
-    <Dialog
-      aria-label="project setup"
-      open={open}
-      fullScreen={mobileScreen}
-      fullWidth
-      maxWidth="md"
-      PaperProps={{
-        sx: { height: !mobileScreen ? "calc(100% - 64px)" : "100%" },
-      }}
-      onClose={onClose}
-      TransitionProps={{
-        onExited: () => {
-          if (dataset) {
-            setFeedbackBar({
-              open: true,
-              message: `Your project has been saved as draft`,
-            });
-          }
+    <>
+      <Dialog
+        aria-label="project setup"
+        open={open}
+        fullScreen={fullScreen}
+        fullWidth
+        maxWidth="md"
+        PaperProps={{
+          sx: { height: !fullScreen ? "calc(100% - 64px)" : "100%" },
+        }}
+        onClose={onClose}
+        TransitionProps={{
+          onExited: () => {
+            queryClient.invalidateQueries("fetchProjects");
 
-          setDataset(null);
-          setShowSettings(false);
-          setUploadSource("file");
-        },
-      }}
-    >
-      {!dataset && (
-        <>
-          <DialogTitle>Start with dataset from</DialogTitle>
-          <DialogContent>
-            <Stack spacing={3} sx={{ height: "100%" }}>
-              <FormControl component="fieldset">
-                <RadioGroup
-                  row
-                  aria-label="dataset source"
-                  name="row-radio-buttons-group"
-                  value={uploadSource}
-                >
-                  <FormControlLabel
-                    value="file"
-                    control={<Radio />}
-                    label="File"
-                    onChange={handleUploadSource}
-                  />
-                  <FormControlLabel
-                    value="url"
-                    control={<Radio />}
-                    label="URL or DOI"
-                    onChange={handleUploadSource}
-                  />
-                  {mode === projectModes.ORACLE && (
+            if (dataset) {
+              setFeedbackBar({
+                open: true,
+                message: `Your project has been saved as ${dataset.name}`,
+              });
+            }
+
+            setDataset(projectInfo);
+            setShowSettings(false);
+            setUploadSource("file");
+          },
+        }}
+      >
+        {!dataset && (
+          <>
+            <DialogTitle>Start with dataset from</DialogTitle>
+            <DialogContent>
+              <Stack spacing={3} sx={{ height: "100%" }}>
+                <FormControl component="fieldset">
+                  <RadioGroup
+                    row
+                    aria-label="dataset source"
+                    name="row-radio-buttons-group"
+                    value={uploadSource}
+                  >
                     <FormControlLabel
-                      value="extension"
+                      value="file"
                       control={<Radio />}
-                      label="Extension"
-                      onChange={handleUploadSource}
+                      label="File"
+                      onChange={(event) => setUploadSource(event.target.value)}
                     />
-                  )}
-                  {(mode === projectModes.EXPLORATION ||
-                    mode === projectModes.SIMULATION) && (
+                    <FormControlLabel
+                      value="url"
+                      control={<Radio />}
+                      label="URL or DOI"
+                      onChange={(event) => setUploadSource(event.target.value)}
+                    />
+                    {mode === projectModes.ORACLE && (
+                      <FormControlLabel
+                        value="extension"
+                        control={<Radio />}
+                        label="Extension"
+                        onChange={(event) =>
+                          setUploadSource(event.target.value)
+                        }
+                      />
+                    )}
                     <FormControlLabel
                       value="benchmark"
                       control={<Radio />}
                       label="Benchmark datasets"
-                      onChange={handleUploadSource}
+                      onChange={(event) => setUploadSource(event.target.value)}
                     />
-                  )}
-                </RadioGroup>
-              </FormControl>
-              {uploadSource === "file" && (
-                <DatasetFromFile mode={mode} setDataset={setDataset} />
-              )}
-              {uploadSource === "url" && (
-                <DatasetFromURI mode={mode} setDataset={setDataset} />
-              )}
-              {uploadSource === "extension" && (
-                <DatasetFromEntryPoint
-                  subset="plugin"
-                  mode={mode}
-                  setDataset={setDataset}
-                  mobileScreen={mobileScreen}
-                />
-              )}
-              {uploadSource === "benchmark" && (
-                <DatasetFromEntryPoint
-                  subset="benchmark"
-                  mode={mode}
-                  setDataset={setDataset}
-                  mobileScreen={mobileScreen}
-                />
-              )}
-            </Stack>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              onClick={onClose}
-              // disabled={isLoading}
-            >
-              Cancel
-            </Button>
-          </DialogActions>{" "}
-        </>
-      )}
-      {dataset && (
-        <ProjectContext.Provider value={dataset.id}>
-          <DialogProjectName
-            project_id={dataset.id}
-            dataset_name={dataset.name}
-          />
-          <DialogContent sx={{ bgcolor: "primary.light" }}>
-            <Collapse in={!showSettings}>
-              <Box sx={{ mt: 3 }}>
-                <DatasetCard
-                  project_id={dataset?.id}
-                  dataset_path={dataset?.dataset_path}
-                  setDataset={setDataset}
-                />
-              </Box>
-            </Collapse>
-
-            <Box sx={{ textAlign: "center", my: 2 }}>
-              <Button onClick={setShowSettings} sx={{ color: "white" }}>
-                {showSettings ? "Show dataset" : "Show options"}
+                  </RadioGroup>
+                </FormControl>
+                {uploadSource === "file" && (
+                  <DatasetFromFile mode={mode} setDataset={setDataset} />
+                )}
+                {uploadSource === "url" && (
+                  <DatasetFromURI mode={mode} setDataset={setDataset} />
+                )}
+                {uploadSource === "extension" && (
+                  <DatasetFromEntryPoint
+                    subset="plugin"
+                    mode={mode}
+                    setDataset={setDataset}
+                    mobileScreen={fullScreen}
+                  />
+                )}
+                {uploadSource === "benchmark" && (
+                  <DatasetFromEntryPoint
+                    subset="benchmark"
+                    mode={mode}
+                    setDataset={setDataset}
+                    mobileScreen={fullScreen}
+                  />
+                )}
+              </Stack>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={onClose}
+                // disabled={isLoading}
+              >
+                Cancel
               </Button>
-            </Box>
-            <Collapse in={showSettings} mountOnEnter>
-              {mode !== projectModes.SIMULATION && (
-                <Box sx={{ mb: 3 }}>
-                  <TagCard
+            </DialogActions>{" "}
+          </>
+        )}
+        {dataset && (
+          <ProjectContext.Provider value={dataset.id}>
+            <DialogProjectName
+              project_id={dataset.id}
+              dataset_name={dataset.name}
+            />
+            <DialogContent>
+              <Collapse in={!showSettings}>
+                <Box sx={{ mt: 3 }}>
+                  <DatasetCard
                     project_id={dataset?.id}
-                    mobileScreen={mobileScreen}
+                    dataset_path={dataset?.dataset_path}
+                    setDataset={setDataset}
+                    hideLabeledInfo={mode === projectModes.SIMULATION}
                   />
                 </Box>
-              )}
-              <Box sx={{ my: 3 }}>
-                <ModelCard />
+              </Collapse>
+
+              <Box sx={{ textAlign: "center", my: 2 }}>
+                <Button onClick={() => setShowSettings(!showSettings)}>
+                  {showSettings ? "Show dataset" : "Show options"}
+                </Button>
               </Box>
-              <Box sx={{ my: 3 }}>
-                <PriorCard editable={true} mobileScreen={mobileScreen} />
-              </Box>
-            </Collapse>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              onClick={onClose}
-              // disabled={isLoading}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                setStatus({
-                  project_id: dataset?.id,
-                  status: projectStatuses.REVIEW,
-                });
-              }}
-              // disabled={isLoading}
-            >
-              {mode === projectModes.SIMULATION ? "Simulate" : "Screen"}
-            </Button>
-          </DialogActions>
-        </ProjectContext.Provider>
-      )}
-    </Dialog>
+              <Collapse in={showSettings} mountOnEnter>
+                {mode !== projectModes.SIMULATION && (
+                  <Box sx={{ mb: 3 }}>
+                    <TagCard
+                      project_id={dataset?.id}
+                      mobileScreen={fullScreen}
+                    />
+                  </Box>
+                )}
+                <Box sx={{ my: 3 }}>
+                  <ModelCard />
+                </Box>
+                <Box sx={{ my: 3 }}>
+                  <PriorCard editable={true} mobileScreen={fullScreen} />
+                </Box>
+              </Collapse>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={onClose}
+                // disabled={isLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  setStatus({
+                    project_id: dataset?.id,
+                    status: projectStatuses.REVIEW,
+                  });
+                }}
+                // disabled={isLoading}
+              >
+                {mode === projectModes.SIMULATION ? "Simulate" : "Screen"}
+              </Button>
+            </DialogActions>
+          </ProjectContext.Provider>
+        )}
+      </Dialog>
+      <Snackbar
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        open={feedbackBar.open}
+        autoHideDuration={5000}
+        onClose={() => setFeedbackBar({ open: false, message: null })}
+        message={feedbackBar.message}
+      />
+    </>
   );
 };
 

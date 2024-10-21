@@ -37,7 +37,7 @@ def setup_auth(client_auth):
     user2 = crud.get_user_by_identifier(user2.identifier)
     user3 = crud.get_user_by_identifier(user3.identifier)
     # create a project for this logged in user
-    au.create_project(client_auth, "explore", benchmark="synergy:van_der_Valk_2021")
+    au.create_project(client_auth, "oracle", benchmark="synergy:van_der_Valk_2021")
     yield client_auth, user1, user2, user3, user1.projects[0]
     # cleanup database and asreview_path
     crud.delete_everything(DB)

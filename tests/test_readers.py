@@ -186,3 +186,12 @@ def test_load_dataset_from_url(tmpdir):
     urlretrieve(url, tmpdir / "Hall.csv")
     as_data = load_dataset(tmpdir / "Hall.csv")
     assert len(as_data) == 8911
+
+
+@pytest.mark.skip()
+@pytest.mark.parametrize(
+    "dataset_fp", Path("..", "citation-file-formatting", "Datasets", "RIS").glob("*")
+)
+def test_real_datasets(dataset_fp):
+    data = load_dataset(dataset_fp)
+    assert len(data) > 5

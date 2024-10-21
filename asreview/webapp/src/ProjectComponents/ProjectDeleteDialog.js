@@ -1,6 +1,6 @@
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Alert,
   Button,
@@ -14,24 +14,24 @@ import {
 } from "@mui/material";
 import { ProjectAPI } from "api";
 
-const ProjectDeleteDialog = (props) => {
+const ProjectDeleteDialog = ({
+  open,
+  onClose,
+  projectTitle,
+  project_id,
+  navigate_to = null,
+}) => {
   const navigate = useNavigate();
-  const { project_id } = useParams();
   const queryClient = useQueryClient();
 
-  const descriptionElementRef = React.useRef(null);
   const [deleteInput, setDeleteInput] = React.useState("");
 
   const { error, isError, isLoading, mutate, reset } = useMutation(
     ProjectAPI.mutateDeleteProject,
     {
       onSuccess: () => {
-        if (!project_id) {
-          queryClient.invalidateQueries("fetchProjects");
-          props.toggleDeleteDialog();
-        } else {
-          navigate("/projects");
-        }
+        queryClient.invalidateQueries("fetchProjects");
+        onClose();
       },
     },
   );
@@ -44,26 +44,25 @@ const ProjectDeleteDialog = (props) => {
   };
 
   const cancelDelete = () => {
-    props.toggleDeleteDialog();
+    onClose();
     reset();
   };
 
-  React.useEffect(() => {
-    if (props.onDeleteDialog) {
-      const { current: descriptionElement } = descriptionElementRef;
-      if (descriptionElement !== null) {
-        descriptionElement.focus();
-      }
-    }
-  }, [props.onDeleteDialog]);
-
   return (
     <Dialog
-      open={props.onDeleteDialog}
+      open={open}
       onClose={cancelDelete}
       scroll="paper"
       fullWidth
       maxWidth="sm"
+      TransitionProps={{
+        onExited: () => {
+          if (navigate_to) {
+            navigate(navigate_to);
+          }
+        },
+      }}
+      disableRestoreFocus // bug https://github.com/mui/material-ui/issues/33004
     >
       <DialogTitle>Permanently delete this project?</DialogTitle>
       <DialogContent dividers>
@@ -72,11 +71,11 @@ const ProjectDeleteDialog = (props) => {
           <Stack spacing={2}>
             <Typography>
               This action <b>cannot</b> be undone. This will permanently delete
-              the <b>{props.projectTitle}</b> project , including the dataset,
-              review labels, notes, and model configuration.
+              the <b>{projectTitle}</b> project , including the dataset, review
+              labels, notes, and model configuration.
             </Typography>
             <Typography>
-              Please type <b>{props.projectTitle}</b> to confirm.
+              Please type <b>{projectTitle}</b> to confirm.
             </Typography>
           </Stack>
           <TextField
@@ -94,8 +93,8 @@ const ProjectDeleteDialog = (props) => {
       <DialogActions>
         <Button onClick={cancelDelete}>Cancel</Button>
         <Button
-          onClick={() => mutate({ project_id: props.project_id })}
-          disabled={deleteInput !== props.projectTitle || isLoading}
+          onClick={() => mutate({ project_id: project_id })}
+          disabled={deleteInput !== projectTitle || isLoading}
         >
           Delete Forever
         </Button>

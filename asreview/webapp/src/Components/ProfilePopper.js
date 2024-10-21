@@ -1,6 +1,4 @@
-import * as React from "react";
-import { useNavigate } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { GroupAdd, Logout, Person } from "@mui/icons-material";
 import {
   Avatar,
   Badge,
@@ -18,35 +16,56 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { Logout, GroupAdd, Person } from "@mui/icons-material";
+import * as React from "react";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useNavigate } from "react-router-dom";
 
 import { StyledMenuItem } from "StyledComponents/StyledMenuItem";
 import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
 import { AuthAPI, TeamAPI } from "api";
-import useAuth from "hooks/useAuth";
 import ElasAvatar from "images/ElasAvatar.svg";
 
 import { InvitationsDialog } from "ProjectComponents/TeamComponents";
 import { useToggle } from "hooks/useToggle";
 
-const Root = styled("div")(({ theme }) => ({}));
-
-const ProfilePopper = (props) => {
-  const { auth, setAuth } = useAuth();
-  const navigate = useNavigate();
+const SignOutItem = () => {
   const queryClient = useQueryClient();
 
+  const navigate = useNavigate();
+
+  const { mutate: handleSignOut } = useMutation(AuthAPI.signout, {
+    onSuccess: () => {
+      queryClient.invalidateQueries();
+      navigate("/signin");
+    },
+  });
+
+  return (
+    <MenuItem id="signout" onClick={handleSignOut}>
+      <ListItemIcon>
+        <Logout fontSize="small" />
+      </ListItemIcon>
+      <ListItemText disableTypography>
+        <Typography variant="body2">Sign out</Typography>
+      </ListItemText>
+    </MenuItem>
+  );
+};
+
+const ProfilePopper = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [projectInvitations, setProjectInvitations] = React.useState([]);
   const [onAcceptanceDialog, toggleAcceptanceDialog] = useToggle();
-
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [open, setOpen] = React.useState(false);
 
-  const { mutate } = useMutation(AuthAPI.signout, {
-    onSuccess: () => {
-      setAuth({});
+  const { data } = useQuery("user", AuthAPI.user, {
+    retry: false,
+    onError: (response) => {
+      console.log(response);
+      response.code === 401 && navigate("/signin");
     },
   });
 
@@ -55,19 +74,10 @@ const ProfilePopper = (props) => {
     setOpen((prev) => !prev);
   };
 
-  const handleClickAway = () => {
-    setOpen(false);
-  };
-
-  const handleSignOut = () => {
-    mutate();
-  };
-
   const openAcceptanceDialog = () => {
     setOpen(false);
     toggleAcceptanceDialog();
   };
-
   const handleProfile = () => {
     setOpen(false);
     navigate("/profile");
@@ -76,9 +86,6 @@ const ProfilePopper = (props) => {
   useQuery(["getProjectInvitations"], () => TeamAPI.getProjectInvitations(), {
     onSuccess: (data) => {
       setProjectInvitations(data["invited_for_projects"] || []);
-    },
-    onError: (data) => {
-      console.log("error", data);
     },
     enabled: window.allowTeams,
   });
@@ -102,12 +109,8 @@ const ProfilePopper = (props) => {
           toggleAcceptanceDialog();
         }
       },
-      onError: (error) => {
-        console.log(error);
-      },
     },
   );
-
   const rejectInvitation = useMutation(
     (project) => TeamAPI.rejectInvitation(project.project_id),
     {
@@ -123,27 +126,24 @@ const ProfilePopper = (props) => {
           toggleAcceptanceDialog();
         }
       },
-      onError: (error) => {
-        console.log(error);
-      },
     },
   );
 
   return (
-    <Root>
-      <ClickAwayListener onClickAway={handleClickAway}>
+    <div>
+      <ClickAwayListener onClickAway={() => setOpen(false)}>
         <Box>
           <Tooltip title="Profile">
             <ButtonBase id="profile-popper" onClick={handleClick}>
               <Avatar
                 alt="user"
                 src={ElasAvatar}
-                sx={{
-                  width: !props.mobileScreen ? 32 : 24,
-                  height: !props.mobileScreen ? 32 : 24,
-                  bgcolor: (theme) =>
-                    theme.palette.mode === "dark" ? "grey.600" : "grey.400",
-                }}
+                sx={(theme) => ({
+                  bgcolor: "grey.400",
+                  ...theme.applyStyles("dark", {
+                    bgcolor: "grey.600",
+                  }),
+                })}
                 imgProps={{ sx: { p: 1 } }}
               />
             </ButtonBase>
@@ -165,23 +165,20 @@ const ProfilePopper = (props) => {
                     <Avatar
                       alt="user"
                       src={ElasAvatar}
-                      sx={{
-                        width: !props.mobileScreen ? 40 : 32,
-                        height: !props.mobileScreen ? 40 : 32,
-                        bgcolor: (theme) =>
-                          theme.palette.mode === "dark"
-                            ? "grey.600"
-                            : "grey.400",
-                      }}
+                      sx={(theme) => ({
+                        bgcolor: "grey.400",
+                        ...theme.applyStyles("dark", {
+                          bgcolor: "grey.600",
+                        }),
+                      })}
                       imgProps={{ sx: { p: 1 } }}
                     />
                     <TypographySubtitle1Medium>
-                      {auth?.name}
+                      {data?.name}
                     </TypographySubtitle1Medium>
                   </Stack>
                 </StyledMenuItem>
                 <Divider />
-
                 <MenuItem onClick={handleProfile}>
                   <ListItemIcon>
                     <Person fontSize="small" />
@@ -190,7 +187,6 @@ const ProfilePopper = (props) => {
                     <Typography variant="body2">Profile</Typography>
                   </ListItemText>
                 </MenuItem>
-
                 {window.allowTeams && projectInvitations.length > 0 && (
                   <MenuItem onClick={openAcceptanceDialog}>
                     <ListItemIcon>
@@ -207,7 +203,6 @@ const ProfilePopper = (props) => {
                         <GroupAdd fontSize="small" />
                       </Badge>
                     </ListItemIcon>
-
                     <ListItemText disableTypography>
                       <Typography variant="body2">
                         Collaboration Invites
@@ -215,33 +210,23 @@ const ProfilePopper = (props) => {
                     </ListItemText>
                   </MenuItem>
                 )}
-
-                <MenuItem id="signout" onClick={handleSignOut}>
-                  <ListItemIcon>
-                    <Logout fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText disableTypography>
-                    <Typography variant="body2">Sign out</Typography>
-                  </ListItemText>
-                </MenuItem>
+                <SignOutItem />
               </MenuList>
             </Paper>
           </Popper>
         </Box>
       </ClickAwayListener>
-
-      {window.allowTeams && (
+      {window.allowTeams && data && (
         <InvitationsDialog
           open={onAcceptanceDialog}
           onClose={toggleAcceptanceDialog}
-          userId={auth.id}
+          userId={data.id}
           projectInvitations={projectInvitations}
           handleAcceptance={acceptInvitation.mutate}
           handleRejection={rejectInvitation.mutate}
         />
       )}
-    </Root>
+    </div>
   );
 };
-
 export default ProfilePopper;

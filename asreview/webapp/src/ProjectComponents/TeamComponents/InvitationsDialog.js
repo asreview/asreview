@@ -20,17 +20,14 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
     paddingRight: 0,
     overflowY: "hidden",
   },
-
   [`& .${classes.stepper}`]: {
     padding: 8,
   },
-
   [`& .${classes.form}`]: {
     height: "calc(100% - 60px)",
     overflowY: "scroll",
     padding: "32px 48px 48px 48px",
   },
-
   [`& .${classes.formWarmup}`]: {
     alignItems: "center",
     display: "flex",

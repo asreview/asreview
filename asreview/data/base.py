@@ -19,6 +19,7 @@ import pandas as pd
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
+from asreview.extensions import load_extension
 from asreview.data.record import Record
 from asreview.data.utils import convert_to_list
 from asreview.data.utils import duplicated
@@ -266,9 +267,7 @@ class Dataset:
     def texts(self):
         return get_texts(self.df)
 
-    def to_file(
-        self, fp, labels=None, ranking=None, writer=None, keep_old_labels=False
-    ):
+    def to_file(self, fp, writer=None, **kwargs):
         """Export data object to file.
 
         RIS, CSV, TSV and Excel are supported file formats at the moment.
@@ -277,40 +276,19 @@ class Dataset:
         ---------
         fp: str
             Filepath to export to.
-        labels: list, numpy.ndarray
-            Labels to be inserted into the dataframe before export.
-        ranking: list, numpy.ndarray
-            Optionally, dataframe rows can be reordered.
-        writer: class
-            Writer to export the file.
-        keep_old_labels: bool
-            If True, the old labels are kept in a column 'asreview_label_to_validate'.
-            Default False.
+        writer: object
+            Writer object to use for exporting the data.
+        kwargs:
+            arguments to pass to to_dataframe.
         """
-        df = self.to_dataframe(
-            labels=labels, ranking=ranking, keep_old_labels=keep_old_labels
-        )
+        df = self.to_dataframe(**kwargs)
 
-        if writer is not None:
-            writer().write_data(df, fp)
-        else:
-            best_suffix = None
+        if writer is None:
+            writer = load_extension("writers", Path(fp).suffix)
 
-            for entry in extensions("writers"):
-                if Path(fp).suffix == entry.name:
-                    if best_suffix is None or len(entry.name) > len(best_suffix):
-                        best_suffix = entry.name
+        writer.write_data(df, fp)
 
-            if best_suffix is None:
-                raise ValueError(
-                    f"Error exporting file {fp}, no capabilities "
-                    "for exporting such a file."
-                )
-
-            writer = extensions("writers")[best_suffix].load()
-            writer.write_data(df, fp)
-
-    def to_dataframe(self, labels=None, ranking=None, keep_old_labels=False):
+    def to_dataframe(self, labels=None):
         """Create new dataframe with updated label (order).
 
         Arguments
@@ -318,12 +296,6 @@ class Dataset:
         labels: list, numpy.ndarray
             Current labels will be overwritten by these labels
             (including unlabelled). No effect if labels is None.
-        ranking: list
-            Reorder the dataframe according to these record_ids.
-            Default ordering if ranking is None.
-        keep_old_labels: bool
-            If True, the old labels are kept in a column 'asreview_label_to_validate'.
-            Default False.
 
         Returns
         -------
@@ -332,31 +304,17 @@ class Dataset:
         """
         result_df = pd.DataFrame.copy(self.df)
 
-        # if there are labels, add them to the frame
         if "included" in self.column_spec and labels is not None:
             col_label = self.column_spec["included"]
-            # unnest list of nested (record_id, label) tuples
+
             labeled_record_ids = [x[0] for x in labels]
             labeled_values = [x[1] for x in labels]
 
-            if keep_old_labels:
-                result_df["asreview_label_to_validate"] = (
-                    result_df[col_label].replace(LABEL_NA, None).astype("Int64")
-                )
-
-            # remove the old results and write the values
             result_df[col_label] = LABEL_NA
             result_df.loc[labeled_record_ids, col_label] = labeled_values
             result_df[col_label] = (
                 result_df[col_label].replace(LABEL_NA, None).astype("Int64")
             )
-
-        # if there is a ranking, apply this ranking as order
-        if ranking is not None:
-            # sort the datasets based on the ranking
-            result_df = result_df.loc[ranking]
-            # append a column with 1 to n
-            result_df["asreview_ranking"] = np.arange(1, len(result_df) + 1)
 
         return result_df
 

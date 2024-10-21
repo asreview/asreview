@@ -41,7 +41,7 @@ def test_get_projects(client, user, project):
     found_project = r.json["result"][0]
     if not client.application.config.get("LOGIN_DISABLED"):
         assert found_project["id"] == project.project_id
-        assert found_project["owner_id"] == user.id
+        assert found_project["roles"]["owner"]
     else:
         assert found_project["id"] == project.config["id"]
 
@@ -51,7 +51,7 @@ def test_create_projects(client, user):
     if not client.application.config["LOGIN_DISABLED"]:
         au.create_and_signin_user(client, 1)
 
-    r = au.create_project(client, "explore", benchmark="synergy:van_der_Valk_2021")
+    r = au.create_project(client, "oracle", benchmark="synergy:van_der_Valk_2021")
     assert r.status_code == 201
     assert r.json["name"].startswith("van_der_Valk_2021")
 
@@ -115,7 +115,7 @@ def test_create_projects_with_correct_tags(client, project):
         tags=json.dumps(tags),
     )
     assert r.status_code == 200
-    assert r.json["mode"] == "explore"
+    assert r.json["mode"] == "oracle"
     assert r.json["tags"] == tags
 
 
@@ -170,47 +170,11 @@ def test_import_project_files(client, user, project, fp):
         project = crud.last_project()
         assert r.json["data"]["id"] == project.project_id
         # assert the owner is current user
-        assert r.json["data"]["owner_id"] == user.id
+        assert r.json["data"]["roles"]["owner"]
     else:
         assert r.json["data"]["id"] != project.config.get("id")
     # in auth/non-auth the project folder must exist in the asreview folder
     assert r.json["data"]["id"] in set([f.stem for f in folders])
-
-
-# Test get stats in setup state
-def test_get_projects_stats_setup_stage(client, project):
-    r = au.get_project_stats(client)
-    assert r.status_code == 200
-    assert project is not None
-    assert isinstance(r.json["result"], dict)
-    assert r.json["result"]["n_in_review"] == 0
-    assert r.json["result"]["n_finished"] == 0
-    assert r.json["result"]["n_setup"] == 1
-
-
-# Test get stats in review state
-def test_get_projects_stats_review_stage(client, project):
-    au.upload_label_set_and_start_model(client, project)
-    r = au.get_project_stats(client)
-    assert r.status_code == 200
-    assert isinstance(r.json["result"], dict)
-    assert r.json["result"]["n_in_review"] == 1
-    assert r.json["result"]["n_finished"] == 0
-    assert r.json["result"]["n_setup"] == 0
-
-
-# Test get stats in finished state
-def test_get_projects_stats_finished_stage(client, project):
-    au.upload_label_set_and_start_model(client, project)
-    # manually finish the project
-    au.set_project_status(client, project, "finished")
-    # get stats
-    r = au.get_project_stats(client)
-    assert r.status_code == 200
-    assert isinstance(r.json["result"], dict)
-    assert r.json["result"]["n_in_review"] == 0
-    assert r.json["result"]["n_finished"] == 1
-    assert r.json["result"]["n_setup"] == 0
 
 
 # Test known demo data
@@ -317,7 +281,7 @@ def test_update_project_info(client, project):
     assert r.status_code == 200
     assert r.json["authors"] == new_authors
     assert r.json["description"] == new_description
-    assert r.json["mode"] == "explore"
+    assert r.json["mode"] == "oracle"
     assert r.json["name"] == new_name
     assert r.json["tags"] == json.loads(new_tags)
 
@@ -499,22 +463,11 @@ def test_get_progress_info(client, project):
     assert r.json["n_pool"] == r.json["n_papers"] - 2
 
 
-# Test get progress density on the article
-def test_get_progress_density(client, project):
-    r = au.get_project_progress_density(client, project)
+# Test get progress data on the article
+def test_get_progress_data(client, project):
+    r = au.get_project_progress_data(client, project)
     assert r.status_code == 200
-    assert isinstance(r.json, dict)
-    assert isinstance(r.json["relevant"], list)
-    assert isinstance(r.json["irrelevant"], list)
-
-
-# Test progress recall
-def test_get_progress_recall(client, project):
-    r = au.get_project_progress_recall(client, project)
-    assert r.status_code == 200
-    assert isinstance(r.json, dict)
-    assert isinstance(r.json["asreview"], list)
-    assert isinstance(r.json["random"], list)
+    assert isinstance(r.json, list)
 
 
 # Test retrieve documents in order to review
@@ -569,7 +522,6 @@ def test_delete_project(client, project):
     "api_call,project_required,params",
     [
         (au.get_all_projects, False, {}),
-        (au.get_project_stats, False, {}),
         (au.get_demo_data, False, {"subset": "benchmark"}),
         (au.get_project_algorithms_options, False, {}),
         (au.get_project_algorithms, True, {}),
@@ -589,8 +541,7 @@ def test_delete_project(client, project):
         (au.export_project_dataset, True, {"format": "csv"}),
         (au.export_project, True, {}),
         (au.get_project_progress, True, {}),
-        (au.get_project_progress_density, True, {}),
-        (au.get_project_progress_recall, True, {}),
+        (au.get_project_progress_data, True, {}),
         (au.get_project_current_document, True, {}),
         (au.delete_project, True, {}),
     ],

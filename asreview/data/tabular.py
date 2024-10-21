@@ -76,7 +76,7 @@ class CSVWriter:
         CSV file
             Dataframe of all available record data.
         """
-        return df.to_csv(fp, sep=sep, index=True)
+        return df.to_csv(fp, sep=sep, index=True, date_format="%Y-%m-%d %H:%M:%S")
 
 
 class ExcelReader(BaseReader):
@@ -171,4 +171,4 @@ class TSVWriter:
         TSV file
             Dataframe of all available record data.
         """
-        return df.to_csv(fp, sep=sep, index=True)
+        return df.to_csv(fp, sep=sep, index=True, date_format="%Y-%m-%d %H:%M:%S")

@@ -1,74 +1,26 @@
-import * as React from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { useMutation, useQueryClient } from "react-query";
 import {
-  Box,
-  Card,
+  Alert,
+  Button,
+  CardActions,
   CardContent,
   Checkbox,
-  Fade,
+  FormHelperText as FHT,
   FormControl,
   FormControlLabel,
-  FormHelperText as FHT,
+  Snackbar,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
-import { InlineErrorHandler } from ".";
-import LoadingButton from "@mui/lab/LoadingButton";
-import { styled } from "@mui/material/styles";
 import AuthAPI from "api/AuthAPI";
-import {
-  WordmarkState,
-  passwordRequirements,
-  passwordValidation,
-} from "globals.js";
-import { useToggle } from "hooks/useToggle";
 import { useFormik } from "formik";
+import { passwordRequirements, passwordValidation } from "globals.js";
+import { useToggle } from "hooks/useToggle";
+import * as React from "react";
+import { useMutation, useQueryClient } from "react-query";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import * as Yup from "yup";
-
-const PREFIX = "SignInForm";
-
-const classes = {
-  button: `${PREFIX}-button`,
-  card: `${PREFIX}-card`,
-  cardContent: `${PREFIX}-card-content`,
-  checkbox: `${PREFIX}-checkbox`,
-  header: `${PREFIX}-header`,
-  logo: `${PREFIX}-logo`,
-};
-
-const Root = styled("div")(({ theme }) => ({
-  display: "flex",
-  height: "100%",
-  width: "100%",
-  alignItems: "center",
-  justifyContent: "center",
-  position: "absolute",
-  [`& .${classes.button}`]: {
-    paddingTop: theme.spacing(3),
-    paddingBottom: theme.spacing(3),
-    justifyContent: "space-between",
-  },
-
-  [`& .${classes.card}`]: {
-    borderRadius: theme.spacing(2),
-    width: "450px",
-  },
-
-  [`& .${classes.cardContent}`]: {
-    padding: "48px 40px",
-  },
-
-  [`& .${classes.header}`]: {
-    alignItems: "center",
-  },
-
-  [`& .${classes.logo}`]: {
-    width: "100%",
-    maxWidth: "130px",
-  },
-}));
+import { InlineErrorHandler } from ".";
 
 // VALIDATION SCHEMA
 const SignupSchema = Yup.object().shape({
@@ -82,12 +34,14 @@ const SignupSchema = Yup.object().shape({
     }),
 });
 
-const ResetPassword = (props) => {
+const ResetPassword = () => {
   const queryClient = useQueryClient();
   const [showPassword, toggleShowPassword] = useToggle();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = React.useState("");
+
+  const [notification, toggleNotification] = useToggle();
 
   const initialValues = {
     password: "",
@@ -99,29 +53,18 @@ const ResetPassword = (props) => {
     validationSchema: SignupSchema,
   });
 
-  const returnType = () => {
-    return !showPassword ? "password" : "text";
-  };
-
-  const { isLoading, mutate } = useMutation(AuthAPI.resetPassword, {
+  const { mutate } = useMutation(AuthAPI.resetPassword, {
     onMutate: () => {
       // clear potential error
-      queryClient.resetQueries("refresh");
+      queryClient.resetQueries("user");
     },
     onSuccess: (data) => {
       formik.setValues(initialValues, false);
-      props.showNotification(
-        "Your password has been reset. Please sign in again.",
-      );
       navigate("/signin");
     },
     onError: (data) => {
       setErrorMessage(data.message);
-      props.showNotification(
-        "Your password has not been reset! PLease contact your administrator.",
-        "error",
-      );
-      console.error("Reset password error", data);
+      toggleNotification();
     },
   });
 
@@ -137,101 +80,106 @@ const ResetPassword = (props) => {
   };
 
   return (
-    <Root>
-      <Fade in>
-        <Box>
-          <Card className={classes.card} variant="outlined">
-            <CardContent className={classes.cardContent}>
-              <Stack spacing={3}>
-                <Stack className={classes.header} spacing={2}>
-                  <img
-                    className={classes.logo}
-                    src={WordmarkState()}
-                    alt="ASReview LAB"
-                  />
-                  <Typography variant="h5">Reset your password</Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{ marginTop: "7px !important" }}
-                  >
-                    {passwordRequirements}
-                  </Typography>
-                </Stack>
+    <>
+      <CardContent>
+        <Stack spacing={3}>
+          <Stack spacing={2}>
+            <Typography variant="h5">Reset your password</Typography>
+            <Typography variant="body2" sx={{ marginTop: "7px !important" }}>
+              {passwordRequirements}
+            </Typography>
+          </Stack>
 
-                <FormControl>
-                  <Stack spacing={3}>
-                    <TextField
-                      required={true}
-                      id="password"
-                      label="Password"
-                      size="small"
-                      fullWidth
-                      autoFocus
-                      variant="outlined"
-                      type={returnType()}
-                      value={formik.values.password}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      inputProps={{
-                        autoComplete: "new-password",
-                      }}
-                    />
-                    <TextField
-                      required={true}
-                      id="confirmPassword"
-                      label="Confirm Password"
-                      size="small"
-                      fullWidth
-                      variant="outlined"
-                      type={returnType()}
-                      value={formik.values.confirmPassword}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      inputProps={{
-                        autoComplete: "new-password",
-                      }}
-                    />
-                  </Stack>
-                </FormControl>
-                {formik.touched.password && formik.errors.password ? (
-                  <FHT error={true}>{formik.errors.password}</FHT>
-                ) : null}
-                {formik.touched.confirmPassword &&
-                formik.errors.confirmPassword ? (
-                  <FHT error={true}>{formik.errors.confirmPassword}</FHT>
-                ) : null}
-                <FormControl>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        id="public"
-                        color="primary"
-                        onChange={toggleShowPassword}
-                      />
-                    }
-                    label="Show password"
-                  />
-                </FormControl>
-                {Boolean(errorMessage) && (
-                  <InlineErrorHandler message={errorMessage} />
-                )}
-                <Stack className={classes.button} direction="row">
-                  <LoadingButton
-                    disabled={!formik.isValid || formik.values.password === ""}
-                    loading={isLoading}
-                    variant="contained"
-                    color="primary"
-                    onClick={handleSubmit}
-                  >
-                    Submit
-                  </LoadingButton>
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Box>
-      </Fade>
-    </Root>
+          <FormControl>
+            <Stack spacing={3}>
+              <TextField
+                required={true}
+                id="password"
+                label="Password"
+                size="small"
+                fullWidth
+                autoFocus
+                variant="outlined"
+                type={!showPassword ? "password" : "text"}
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                slotProps={{
+                  htmlInput: {
+                    autoComplete: "new-password",
+                  },
+                }}
+              />
+              <TextField
+                required={true}
+                id="confirmPassword"
+                label="Confirm Password"
+                size="small"
+                fullWidth
+                variant="outlined"
+                type={!showPassword ? "password" : "text"}
+                value={formik.values.confirmPassword}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                slotProps={{
+                  htmlInput: {
+                    autoComplete: "new-password",
+                  },
+                }}
+              />
+            </Stack>
+          </FormControl>
+          {formik.touched.password && formik.errors.password ? (
+            <FHT error={true}>{formik.errors.password}</FHT>
+          ) : null}
+          {formik.touched.confirmPassword && formik.errors.confirmPassword ? (
+            <FHT error={true}>{formik.errors.confirmPassword}</FHT>
+          ) : null}
+          <FormControl>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  id="public"
+                  color="primary"
+                  onChange={toggleShowPassword}
+                />
+              }
+              label="Show password"
+            />
+          </FormControl>
+          {Boolean(errorMessage) && (
+            <InlineErrorHandler message={errorMessage} />
+          )}
+        </Stack>
+      </CardContent>
+
+      <CardActions>
+        <Button
+          disabled={!formik.isValid || formik.values.password === ""}
+          variant="contained"
+          color="primary"
+          onClick={handleSubmit}
+        >
+          Submit
+        </Button>
+      </CardActions>
+      <Snackbar
+        open={notification}
+        autoHideDuration={6000}
+        onClose={toggleNotification}
+      >
+        <Alert
+          onClose={toggleNotification}
+          severity={"error"}
+          sx={{ width: "100%" }}
+          variant="filled"
+        >
+          {
+            "Your password has not been reset! Please contact your administrator"
+          }
+        </Alert>
+      </Snackbar>
+    </>
   );
 };
 

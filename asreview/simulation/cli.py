@@ -32,7 +32,7 @@ from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.data.store import DataStore
 from asreview.datasets import DatasetManager
 from asreview.extensions import load_extension
-from asreview.project import Project
+from asreview.project.api import Project
 from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
 from asreview.types import type_n_queries
@@ -188,7 +188,7 @@ def _cli_simulate(argv):
 
     prior_idx = args.prior_idx
     if args.prior_record_id is not None and len(args.prior_record_id) > 0:
-        prior_idx = _convert_id_to_idx(as_data, args.prior_record_id)
+        prior_idx = _convert_id_to_idx(data_store, args.prior_record_id)
 
     fm = feature_model.fit_transform(data_store)
 
@@ -198,7 +198,7 @@ def _cli_simulate(argv):
 
     sim = Simulate(
         fm,
-        as_data["included"],
+        data_store["included"],
         classifier=classifier_model,
         query_strategy=query_model,
         balance_strategy=balance_model,
@@ -231,7 +231,8 @@ def _cli_simulate(argv):
             "command line interface",
         )
 
-        as_data.to_file(Path(fp_tmp_simulation, "data", filename))
+        # TODO: not sure about the following line
+        records.df.to_file(Path(fp_tmp_simulation, "data", filename))
         project.add_dataset(filename, dataset_id=filename)
         project.update_config(dataset_path=filename)
 
@@ -390,11 +391,4 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "to simulate all labels actions.",
     )
     parser.add_argument("--verbose", "-v", default=0, type=int, help="Verbosity")
-    parser.add_argument(
-        "--embedding",
-        type=str,
-        default=None,
-        dest="embedding_fp",
-        help="File path of embedding matrix. Required for LSTM models.",
-    )
     return parser

@@ -12,7 +12,7 @@ from asreview.data.record import Base
 from asreview.data.record import Record
 from asreview.data.store import CURRENT_DATASTORE_VERSION
 from asreview.data.store import DataStore
-from asreview.project import PATH_DATA_STORE
+from asreview.project.api import PATH_DATA_STORE
 
 
 @pytest.fixture

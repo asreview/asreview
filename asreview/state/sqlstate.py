@@ -18,7 +18,6 @@ from datetime import datetime
 
 import pandas as pd
 
-from asreview.state.compatibility import _check_and_update_version
 
 REQUIRED_TABLES = [
     "results",
@@ -34,7 +33,7 @@ RESULTS_TABLE_COLUMNS_PANDAS_DTYPES = {
     "balance_strategy": "object",
     "feature_extraction": "object",
     "training_set": "Int64",
-    "labeling_time": "object",
+    "labeling_time": None,  # parse_dates=["labeling_time"]
     "note": "object",
     "tags": "object",
     "user_id": "Int64",
@@ -137,12 +136,11 @@ class SQLiteState:
         self._conn.commit()
 
     def _is_valid_state(self):
-        try:
-            version = _check_and_update_version(CURRENT_STATE_VERSION, self)
-            if version != self.user_version:
-                self.user_version = version
-        except AttributeError as err:
-            raise ValueError(f"Unexpected error when opening state file: {err}")
+        if self.user_version != CURRENT_STATE_VERSION:
+            raise ValueError(
+                f"State version {self.user_version} is not supported. "
+                "See migration guide."
+            )
 
         cur = self._conn.cursor()
         column_names = cur.execute("PRAGMA table_info(results)").fetchall()
@@ -412,6 +410,7 @@ class SQLiteState:
             f"SELECT * FROM results WHERE record_id={record_id}",
             self._conn,
             dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
+            parse_dates=["labeling_time"],
         )
         result["tags"] = result["tags"].map(json.loads, na_action="ignore")
         return result
@@ -469,6 +468,7 @@ class SQLiteState:
             f"SELECT {query_string} FROM results {sql_where_str}",
             self._conn,
             dtype=col_dtype,
+            parse_dates=["labeling_time"],
         )
 
         if columns is None or "tags" in columns:
@@ -488,6 +488,7 @@ class SQLiteState:
             "SELECT * FROM results WHERE query_strategy is NULL AND label is not NULL",
             self._conn,
             dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
+            parse_dates=["labeling_time"],
         )
         df_results["tags"] = df_results["tags"].map(json.loads, na_action="ignore")
         return df_results
@@ -503,12 +504,11 @@ class SQLiteState:
         """
 
         return pd.read_sql_query(
-            """SELECT record_id, last_ranking.ranking,
-                results.query_strategy
+            """SELECT record_id, last_ranking.ranking
                 FROM last_ranking
                 LEFT JOIN results
                 USING (record_id)
-                WHERE results.label is null
+                WHERE results.record_id is null
                 ORDER BY ranking
                 """,
             self._conn,

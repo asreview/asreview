@@ -1,30 +1,31 @@
-import React from "react";
-import { QueryClient, QueryClientProvider } from "react-query";
-import { Routes, Route } from "react-router-dom";
-import "typeface-roboto";
-import { CssBaseline, createTheme, useMediaQuery } from "@mui/material";
-import MuiAlert from "@mui/material/Alert";
-import Snackbar from "@mui/material/Snackbar";
-import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
+import { useMediaQuery, CssBaseline } from "@mui/material";
+import { AuthPage, ProjectDrawerItems } from "Components";
+import {
+  ProfilePage,
+  ProjectsOverview,
+} from "HomeComponents/DashboardComponents";
+import { AnalyticsPage } from "ProjectComponents/AnalyticsComponents";
+import { DetailsPage } from "ProjectComponents/DetailsComponents";
+import { LabelHistory } from "ProjectComponents/HistoryComponents";
+import { TeamPage } from "ProjectComponents/TeamComponents";
+import { Navigate, Route, Routes } from "react-router-dom";
+import RouteNotFound from "RouteNotFound";
+import { PageHeader } from "StyledComponents/StyledPageHeader";
+
+import { ReviewPage } from "ProjectComponents/ReviewComponents";
+
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
+
 import "./App.css";
 
 import {
-  ConfirmAccount,
-  ForgotPassword,
-  HelpDialog,
-  NavigationDrawer,
-  RequireAuth,
-  PersistSignIn,
-  ResetPassword,
-  SettingsDialog,
-  SignIn,
+  LandingDrawerItems,
+  PageWithDrawer,
   SignInOAuthCallback,
-  SignUpForm,
 } from "Components";
-import { HomePage } from "./HomeComponents";
-import { ProjectPage } from "ProjectComponents";
-import { useDarkMode, useFontSize } from "hooks/SettingsHooks";
-import { useToggle } from "hooks/useToggle";
 
 // Ensure that on localhost we use 'localhost' instead of '127.0.0.1'
 const currentDomain = window.location.href;
@@ -33,197 +34,172 @@ if (currentDomain.includes("127.0.0.1")) {
   window.location.replace(newDomain);
 }
 
-// Snackbar Notification Alert
-const Alert = React.forwardRef(function Alert(props, ref) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-});
-
-const queryClient = new QueryClient();
-
 const App = () => {
-  const [notification, setNotification] = React.useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
-  const showNotification = (message, severity = "success") => {
-    setNotification({ open: true, message: message, severity: severity });
-  };
-  const handleCloseNotification = () => {
-    setNotification((data) => ({ ...data, open: false }));
-  };
-
-  // Dialog state
-  const [onSettings, toggleSettings] = useToggle();
-
-  const [projectCheck, setProjectCheck] = React.useState({
-    open: false,
-    issue: null,
-    path: "/projects",
-    project_id: null,
-  });
-
-  // Settings hook
-  const [theme, toggleDarkMode] = useDarkMode();
-  const [fontSize, handleFontSizeChange] = useFontSize();
-
-  const muiTheme = createTheme(theme);
-  const mobileScreen = useMediaQuery(muiTheme.breakpoints.down("md"), {
+  const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("md"), {
     noSsr: true,
   });
 
-  // Navigation drawer state
-  const [onNavDrawer, toggleNavDrawer] = useToggle(mobileScreen ? false : true);
-
-  const render_sign_routes = () => {
-    return (
-      <>
-        {window.allowAccountCreation && (
-          <Route
-            path="/signup"
-            element={
-              <SignUpForm
-                mobileScreen={mobileScreen}
-                showNotification={window.emailVerification && showNotification}
-              />
-            }
-          />
-        )}
-        <Route
-          path="/signin"
-          element={
-            <SignIn
-              oAuthConfig={window.oAuthConfig}
-              allowAccountCreation={window.allowAccountCreation}
-              emailVerification={window.emailVerification}
-            />
-          }
-        />
-        <Route
-          path="/oauth_callback"
-          element={<SignInOAuthCallback mobileScreen={mobileScreen} />}
-        />
-        {window.emailVerification && (
-          <Route
-            path="/confirm_account"
-            element={<ConfirmAccount showNotification={showNotification} />}
-          />
-        )}
-        {window.emailVerification && (
-          <>
-            <Route
-              path="/forgot_password"
-              element={
-                <ForgotPassword
-                  mobileScreen={mobileScreen}
-                  showNotification={showNotification}
-                />
-              }
-            />
-            <Route
-              path="/reset_password"
-              element={
-                <ResetPassword
-                  mobileScreen={mobileScreen}
-                  showNotification={showNotification}
-                />
-              }
-            />
-          </>
-        )}
-      </>
-    );
-  };
-
-  const render_routes = () => {
-    return (
-      <>
-        {/* Public or Private routes, depending on authentication */}
-        <Route
-          path="*"
-          element={
-            <RequireAuth enforce_authentication={window.authentication}>
-              <NavigationDrawer
-                mobileScreen={mobileScreen}
-                onNavDrawer={onNavDrawer}
-                toggleNavDrawer={toggleNavDrawer}
-                toggleSettings={toggleSettings}
-              />
-            </RequireAuth>
-          }
-        >
-          <Route
-            path="*"
-            element={
-              <HomePage
-                mobileScreen={mobileScreen}
-                onNavDrawer={onNavDrawer}
-                projectCheck={projectCheck}
-                setProjectCheck={setProjectCheck}
-              />
-            }
-          />
-          <Route
-            path="projects/:project_id/*"
-            element={
-              <ProjectPage
-                mobileScreen={mobileScreen}
-                onNavDrawer={onNavDrawer}
-                fontSize={fontSize}
-                projectCheck={projectCheck}
-                setProjectCheck={setProjectCheck}
-              />
-            }
-          />
-        </Route>
-      </>
-    );
-  };
-
   return (
-    <QueryClientProvider client={queryClient}>
-      <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={muiTheme}>
-          <CssBaseline />
+    <>
+      <CssBaseline />
 
-          <div aria-label="nav and main content">
-            {!window.authentication && <Routes>{render_routes()}</Routes>}
-
-            {window.authentication && (
-              <Routes>
-                {render_sign_routes()}
-                <Route element={<PersistSignIn />}>{render_routes()}</Route>
-              </Routes>
-            )}
-          </div>
-
-          <Snackbar
-            open={notification.open}
-            autoHideDuration={6000}
-            onClose={handleCloseNotification}
+      <div aria-label="nav and main content">
+        <Routes>
+          {/* Authentication routes */}
+          {window.authentication && (
+            <>
+              <Route path="/signin" element={<AuthPage />} />
+              <Route path="/oauth_callback" element={<SignInOAuthCallback />} />
+              <Route
+                path="/reset_password"
+                element={<AuthPage reset_password={true} />}
+              />
+            </>
+          )}
+          <Route path="projects" element={<Navigate to="/reviews" />} />
+          <Route path="" element={<Navigate to="/reviews" />} />
+          <Route path="profile" element={<PageWithDrawer />}>
+            <Route
+              index
+              element={
+                <>
+                  <PageHeader>Profile</PageHeader>
+                  <ProfilePage mobileScreen={mobileScreen} />
+                </>
+              }
+            />
+          </Route>
+          <Route
+            path="reviews"
+            element={<PageWithDrawer navComponent={LandingDrawerItems} />}
           >
-            <Alert
-              onClose={handleCloseNotification}
-              severity={notification.severity}
-              sx={{ width: "100%" }}
-            >
-              {notification.message}
-            </Alert>
-          </Snackbar>
+            <Route
+              index
+              element={
+                <ProjectsOverview mobileScreen={mobileScreen} mode={"oracle"} />
+              }
+            />
+          </Route>
+          <Route
+            path="simulations"
+            element={<PageWithDrawer navComponent={LandingDrawerItems} />}
+          >
+            <Route
+              index
+              element={
+                <ProjectsOverview
+                  mobileScreen={mobileScreen}
+                  mode={"simulate"}
+                />
+              }
+            />
+          </Route>
+          <Route
+            path="reviews/:project_id/"
+            element={
+              <PageWithDrawer
+                navComponent={ProjectDrawerItems}
+                navComponentProps={{ subset: "reviews" }}
+              />
+            }
+          >
+            <Route
+              index
+              element={
+                <>
+                  <PageHeader>Dashboard</PageHeader>
+                  <AnalyticsPage />
+                </>
+              }
+            />
 
-          <SettingsDialog
-            mobileScreen={mobileScreen}
-            onSettings={onSettings}
-            onDark={theme}
-            fontSize={fontSize}
-            toggleSettings={toggleSettings}
-            toggleDarkMode={toggleDarkMode}
-            handleFontSizeChange={handleFontSizeChange}
-          />
-          <HelpDialog mobileScreen={mobileScreen} />
-        </ThemeProvider>
-      </StyledEngineProvider>
-    </QueryClientProvider>
+            <Route path="review" element={<ReviewPage />} />
+
+            <Route
+              path="collection"
+              element={
+                <>
+                  <PageHeader>Collection</PageHeader>
+                  <LabelHistory />
+                </>
+              }
+            />
+
+            {window.authentication && window.allowTeams && (
+              <Route
+                path="team"
+                element={
+                  <>
+                    <PageHeader>Team</PageHeader>
+                    <TeamPage />
+                  </>
+                }
+              />
+            )}
+            <Route
+              path="settings"
+              element={
+                <>
+                  <PageHeader>Settings</PageHeader>
+                  <DetailsPage />
+                </>
+              }
+            />
+          </Route>
+          <Route
+            path="simulations/:project_id"
+            element={
+              <PageWithDrawer
+                navComponent={ProjectDrawerItems}
+                navComponentProps={{ subset: "simulations" }}
+              />
+            }
+          >
+            <Route
+              index
+              element={
+                <>
+                  <PageHeader>Dashboard</PageHeader>
+                  <AnalyticsPage />
+                </>
+              }
+            />
+
+            <Route
+              path="collection"
+              element={
+                <>
+                  <PageHeader>Collection</PageHeader>
+                  <LabelHistory />
+                </>
+              }
+            />
+
+            {window.authentication && window.allowTeams && (
+              <Route
+                path="team"
+                element={
+                  <>
+                    <PageHeader>Team</PageHeader>
+                    <TeamPage />
+                  </>
+                }
+              />
+            )}
+            <Route
+              path="settings"
+              element={
+                <>
+                  <PageHeader>Settings</PageHeader>
+                  <DetailsPage />
+                </>
+              }
+            />
+          </Route>
+          <Route path="*" element={<RouteNotFound />} />
+        </Routes>
+      </div>
+    </>
   );
 };
 

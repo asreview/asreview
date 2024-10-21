@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardMedia,
   CircularProgress,
   Collapse,
   Dialog,
@@ -16,7 +15,7 @@ import {
   FormControl,
   FormControlLabel,
   FormHelperText,
-  Grid,
+  Grid2 as Grid,
   IconButton,
   InputLabel,
   Link,
@@ -36,8 +35,8 @@ import { DoneOutlined, ExpandMore } from "@mui/icons-material";
 
 import { styled } from "@mui/material/styles";
 
-import { ProjectContext } from "context/ProjectContext";
 import { ProjectAPI } from "api";
+import { ProjectContext } from "context/ProjectContext";
 import { useToggle } from "hooks/useToggle";
 import { useContext } from "react";
 
@@ -80,12 +79,20 @@ const DEFAULT_MODELS = [
 const ExpandMoreButton = styled((props) => {
   const { expand, ...other } = props;
   return <IconButton {...other} />;
-})(({ theme, expand }) => ({
-  transform: !expand ? "rotate(0deg)" : "rotate(180deg)",
+})(({ theme }) => ({
+  transform: "rotate(180deg)",
   marginLeft: "auto",
   transition: theme.transitions.create("transform", {
     duration: theme.transitions.duration.shortest,
   }),
+  variants: [
+    {
+      props: ({ expand }) => !expand,
+      style: {
+        transform: "rotate(0deg)",
+      },
+    },
+  ],
 }));
 
 const getFullModel = (model) => {
@@ -127,12 +134,9 @@ const ModelSelect = ({
           disabled={disableItem ? disableItem(value.name) : false}
         >
           <Box>
-            <Typography className="typography-wrap" variant="subtitle1">
-              {value.label}
-            </Typography>
+            <Typography variant="subtitle1">{value.label}</Typography>
             {value.description && (
               <Typography
-                className="typography-wrap"
                 variant="body2"
                 gutterBottom
                 sx={{ color: "text.secondary" }}
@@ -449,18 +453,6 @@ const ModelCard = ({
           </>
         }
       />
-      {isLoadingModelConfig ? (
-        <Skeleton sx={{ height: 140 }} animation="wave" variant="rectangular" />
-      ) : (
-        <CardMedia
-          component="img"
-          height="140"
-          // image={modelAlwaysGood}
-          alt={"Model " + getFullModel(modelConfig).title}
-          sx={{ bgcolor: "primary.background" }}
-        />
-      )}
-
       {isLoadingModelConfig ? (
         <Skeleton animation="wave" variant="text" />
       ) : (

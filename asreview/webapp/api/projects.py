@@ -20,7 +20,6 @@ import sys
 import tempfile
 import time
 from dataclasses import asdict
-from itertools import chain
 from pathlib import Path
 from urllib.request import urlretrieve
 from uuid import uuid4
@@ -36,29 +35,23 @@ from flask import request
 from flask import send_file
 from flask_login import current_user
 from flask_login import login_required
-from sklearn.preprocessing import MultiLabelBinarizer
 from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
 import asreview as asr
-from asreview.config import LABEL_NA
-from asreview.config import PROJECT_MODE_EXPLORE
-from asreview.config import PROJECT_MODE_ORACLE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.data.base import Dataset
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
-from asreview.project import ProjectError
-from asreview.project import ProjectNotFoundError
-from asreview.project import is_project
+from asreview.extensions import load_extension
+from asreview.project.exceptions import ProjectError
+from asreview.project.exceptions import ProjectNotFoundError
+from asreview.project.api import is_project
 from asreview.search import fuzzy_find
 from asreview.settings import ReviewSettings
 from asreview.state.contextmanager import open_state
-from asreview.state.exceptions import StateNotFoundError
-from asreview.statistics import n_duplicates
-from asreview.statistics import n_irrelevant
-from asreview.statistics import n_relevant
+from asreview.utils import _check_model
 from asreview.utils import _get_filename_from_url
 from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
@@ -66,8 +59,6 @@ from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
-from asreview.utils import _check_model, _reset_model_settings
-
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -137,7 +128,7 @@ def api_get_projects(projects):  # noqa: F401
     project_info = []
 
     # for project, owner_id in zip(projects, owner_ids):
-    for project in projects:
+    for project, db_project in projects:
         try:
             project_config = project.config
 
@@ -145,7 +136,11 @@ def api_get_projects(projects):  # noqa: F401
                 continue
 
             if not current_app.config.get("LOGIN_DISABLED", False):
-                project_config["owner_id"] = current_user.id
+                project_config["roles"] = {
+                    "owner": db_project.owner_id == current_user.id
+                }
+            else:
+                project_config["roles"] = {"owner": True}
 
             logging.info("Project found: {}".format(project_config["id"]))
             project_info.append(project_config)
@@ -161,31 +156,6 @@ def api_get_projects(projects):  # noqa: F401
     )
 
     return jsonify({"result": project_info})
-
-
-@bp.route("/projects/stats", methods=["GET"])
-@login_required
-@current_user_projects
-def api_get_projects_stats(projects):  # noqa: F401
-    """Get dashboard statistics of all projects"""
-
-    stats_counter = {"n_in_review": 0, "n_finished": 0, "n_setup": 0}
-
-    for project in projects:
-        project_config = project.config
-
-        # get dashboard statistics
-        try:
-            if project_config["reviews"][0]["status"] == "review":
-                stats_counter["n_in_review"] += 1
-            elif project_config["reviews"][0]["status"] == "finished":
-                stats_counter["n_finished"] += 1
-            else:
-                stats_counter["n_setup"] += 1
-        except Exception:
-            stats_counter["n_setup"] += 1
-
-    return jsonify({"result": stats_counter})
 
 
 @bp.route("/projects/create", methods=["POST"])
@@ -252,23 +222,23 @@ def api_create_project():  # noqa: F401
         project.add_dataset(data_path.name)
         project.add_review()
 
-        with open_state(project.project_path) as state:
-            # if the data contains labels and oracle mode, add them to the state file
-            if project.config["mode"] == PROJECT_MODE_ORACLE:
-                labeled_indices = np.where(project.data_store["included"] != LABEL_NA)[
-                    0
-                ]
-                labels = project.data_store["included"][labeled_indices].tolist()
-                labeled_record_ids = project.data_store["record_id"][
-                    labeled_indices
-                ].tolist()
+        as_data = project.data_store
 
-                # add the labels as prior data
+        n_labeled = project.data_store["included"].notnull().sum()
+
+        if n_labeled > 0 and n_labeled < len(project.data_store):
+            with open_state(project.project_path) as state:
+                labeled_indices = np.where(
+                    (as_data["included"] == 1) | (as_data["included"] == 0)
+                )[0]
+
+                labels = as_data["included"][labeled_indices].tolist()
+                labeled_record_ids = as_data["record_ids"][labeled_indices].tolist()
+
                 state.add_labeling_data(
                     record_ids=labeled_record_ids,
                     labels=labels,
-                    notes=[None for _ in labeled_record_ids],
-                    prior=True,
+                    user_id=None,
                 )
 
     except Exception as err:
@@ -321,13 +291,15 @@ def api_get_project_info(project):  # noqa: F401
     project_config = project.config
 
     if current_app.config.get("LOGIN_DISABLED", False):
+        project_config["roles"] = {"owner": True}
         return jsonify(project_config)
 
     db_project = Project.query.filter(
         Project.project_id == project.config.get("id", 0)
     ).one_or_none()
+
     if db_project:
-        project_config["ownerId"] = db_project.owner_id
+        project_config["roles"] = {"owner": db_project.owner_id == current_user.id}
 
     return jsonify(project_config)
 
@@ -392,30 +364,39 @@ def api_demo_data_project():  # noqa: F401
 def api_get_project_data(project):  # noqa: F401
     """"""
 
-    try:
-        # get statistics of the dataset
-        data = project.data_store[["included", "title", "abstract", "doi"]]
+    data = project.data_store[["included", "title", "abstract", "doi"]]
 
-        statistics = {
+    if data.url is not None:
+        urn = pd.Series(data.url).replace("", None)
+    else:
+        urn = pd.Series([None] * len(data))
+
+    if data.doi is not None:
+        doi = pd.Series(data.doi).replace("", None)
+        urn.fillna(doi, inplace=True)
+
+    labels = np.empty(len(data), dtype=int) if data.labels is None else data.labels
+
+    return jsonify(
+        {
             "n_rows": len(data),
-            "n_relevant": n_relevant(data),
-            "n_irrelevant": n_irrelevant(data),
-            "n_duplicates": n_duplicates(data),
+            "n_unlabeled": len(data)
+            - len(np.where(labels == 1)[0])
+            - len(np.where(labels == 0)[0]),
+            "n_relevant": len(np.where(labels == 1)[0]),
+            "n_irrelevant": len(np.where(labels == 0)[0]),
+            "n_duplicates": int(data.duplicated("doi").sum()),
             "n_missing_title": int(
-                pd.Series(data["title"]).replace("", None).isnull().sum()
+                pd.Series(data.title).replace("", None).isnull().sum()
             ),
             "n_missing_abstract": int(
-                pd.Series(data["abstract"]).replace("", None).isnull().sum()
+                pd.Series(data.abstract).replace("", None).isnull().sum()
             ),
+            "n_missing_urn": int(urn.isnull().sum()),
             "n_english": None,
             "filename": Path(project.config["dataset_path"]).stem,
         }
-
-    except FileNotFoundError as err:
-        logging.info(err)
-        statistics = {"filename": None}
-
-    return jsonify(statistics)
+    )
 
 
 @bp.route("/projects/<project_id>/dataset_writer", methods=["GET"])
@@ -618,7 +599,7 @@ def api_get_labeled_stats(project):  # noqa: F401
                 "n_prior_exclusions": int(sum(data_prior["label"] == 0)),
             }
         )
-    except StateNotFoundError:
+    except FileNotFoundError:
         return jsonify(
             {
                 "n": 0,
@@ -781,7 +762,7 @@ def api_update_review_status(project, review_id):
     """Update the status of the review.
 
     The following status updates are allowed for
-    oracle and explore:
+    oracle:
     - `review` to `finished`
     - `finished` to `review` if not pool empty
     - `error` to `setup`
@@ -866,9 +847,9 @@ def api_import_project():
     try:
         _check_model(settings)
     except ValueError as err:
-        settings_model_reset = _reset_model_settings(settings)
+        settings.reset_model()
         with open(settings_fp, "w") as f:
-            json.dump(asdict(settings_model_reset), f)
+            json.dump(asdict(settings), f)
         warnings.append(
             str(err) + " Check if an extension with the model is installed."
         )
@@ -879,44 +860,33 @@ def api_import_project():
 
     if not current_app.config.get("LOGIN_DISABLED", False):
         current_user.projects.append(Project(project_id=project.config.get("id")))
-        project.config["owner_id"] = current_user.id
         DB.session.commit()
 
+    project.config["roles"] = {"owner": True}
     return jsonify({"data": project.config, "warnings": warnings})
 
 
-def _add_tags_to_export_data(project, export_data, state_df):
-    tags_df = state_df[["tags"]].copy()
+def _flatten_tags(results, tags_config):
+    if tags_config is None:
+        del results["tags"]
+        return results
 
-    tags_df["tags"] = (
-        tags_df["tags"]
-        # .apply(lambda d: _extract_tags(d))
-        .apply(lambda d: d if isinstance(d, list) else [])
+    df_tags = []
+    for _, row in results["tags"].items():
+        tags = {}
+        for group in row:
+            for tag in group["values"]:
+                tags[f"tag_{group['id']}_{tag['id']}"] = int(tag.get("checked", False))
+
+        df_tags.append(tags)
+
+    return pd.concat(
+        [
+            results.drop("tags", axis=1),
+            pd.DataFrame(df_tags, index=results.index, dtype="Int64"),
+        ],
+        axis=1,
     )
-
-    unused_tags = []
-    tags_config = project.config.get("tags")
-
-    if tags_config is not None:
-        all_tags = [
-            [(group["id"], tag["id"]) for tag in group["values"]]
-            for group in tags_config
-        ]
-        all_tags = list(chain.from_iterable(all_tags))
-        used_tags = set(tags_df["tags"].explode().unique())
-        unused_tags = [tag for tag in all_tags if tag not in used_tags]
-
-    mlb = MultiLabelBinarizer()
-
-    tags_df = pd.DataFrame(
-        data=mlb.fit_transform(tags_df["tags"]),
-        columns=mlb.classes_,
-        index=tags_df.index,
-    )
-
-    tags_df = tags_df.assign(**{unused_tag: 0 for unused_tag in unused_tags})
-
-    export_data.df = export_data.df.join(tags_df, on="record_id")
 
 
 @bp.route("/projects/<project_id>/export_dataset", methods=["GET"])
@@ -925,102 +895,62 @@ def _add_tags_to_export_data(project, export_data, state_df):
 def api_export_dataset(project):
     """Export dataset with relevant/irrelevant labels"""
 
-    file_format = request.args.get("format", None)
+    file_format = request.args.get("format", default="csv", type=str)
     collections = request.args.getlist("collections", type=str)
-    collections = [
-        c for c in ["relevant", "not_seen", "irrelevant"] if c in collections
+
+    df_user_input_data = project.read_data().to_dataframe()
+    df_user_input_data = df_user_input_data.loc[
+        :, ~df_user_input_data.columns.str.startswith("asreview_")
     ]
+
+    with open_state(project.project_path) as s:
+        df_results = s.get_results_table().set_index("record_id")
+        df_pool = s.get_pool()
+
+    export_order = []
+
+    if "relevant" in collections:
+        export_order.extend(df_results[df_results["label"] == 1].index.to_list())
+
+    if "not_seen" in collections:
+        export_order.extend(df_pool.to_list())
+
+    if "irrelevant" in collections:
+        export_order.extend(df_results[df_results["label"] == 0].index.to_list())
+
+    df_results = _flatten_tags(
+        df_results,
+        project.config.get("tags", None),
+    )
+
+    # remove model results, can be implemented later with advanced export
+    df_results.drop(
+        columns=[
+            "classifier",
+            "query_strategy",
+            "balance_strategy",
+            "feature_extraction",
+            "training_set",
+        ],
+        inplace=True,
+    )
+
+    df_export = df_user_input_data.join(
+        df_results.add_prefix("asreview_"), how="left"
+    ).loc[export_order]
 
     tmp_path = tempfile.TemporaryDirectory()
     tmp_path_dataset = Path(tmp_path.name, f"export_dataset.{file_format}")
 
-    try:
-        with open_state(project.project_path) as s:
-            pool = s.get_pool()
-            results = s.get_results_table()[["record_id", "label"]]
-            state_df = s.get_results_table().set_index("record_id")
+    writer = load_extension("writers", f".{file_format}")
+    writer.write_data(df_export, tmp_path_dataset)
 
-        included = results[results["label"] == 1]
-        excluded = results[results["label"] != 1]
-
-        labels = []
-        export_order = []
-
-        if "relevant" in collections:
-            labels.append(included["label"].to_list())
-            export_order = included["record_id"].to_list()
-
-        if "not_seen" in collections:
-            labels.append([LABEL_NA] * len(pool))
-            export_order = pool.to_list()
-
-        if "irrelevant" in collections:
-            labels.append(excluded["label"].to_list())
-            export_order = excluded["record_id"].to_list()
-
-        # get writer corresponding to specified file format
-        writers = extensions("writers")
-        writer = None
-        for c in writers:
-            if writer is None:
-                if c.name == file_format:
-                    writer = c
-
-        # read the dataset into a ASReview data object
-        as_data = Dataset(project.data_store.get_df())
-
-        # Add a new column 'is_prior' to the dataset
-        if "asreview_prior" in as_data.df:
-            as_data.df.drop("asreview_prior", axis=1, inplace=True)
-
-        state_df["asreview_prior"] = state_df.query_strategy.eq("prior").astype("Int64")
-        as_data.df = as_data.df.join(state_df["asreview_prior"], on="record_id")
-
-        # Adding Notes from State file to the exported dataset
-        # Check if exported_notes column already exists due to multiple screenings
-        screening = 0
-        for col in as_data.df:
-            if col == "exported_notes":
-                screening = 0
-            elif col.startswith("exported_notes"):
-                try:
-                    screening = int(col.split("_")[2])
-                except IndexError:
-                    screening = 0
-        screening += 1
-
-        state_df.rename(
-            columns={
-                "note": f"exported_notes_{screening}",
-            },
-            inplace=True,
-        )
-
-        as_data.df = as_data.df.join(
-            state_df[f"exported_notes_{screening}"], on="record_id"
-        )
-
-        _add_tags_to_export_data(project, as_data, state_df)
-
-        keep_old_labels = project.config["mode"] == PROJECT_MODE_EXPLORE
-
-        as_data.to_file(
-            fp=tmp_path_dataset,
-            labels=labels,
-            ranking=export_order,
-            writer=writer,
-            keep_old_labels=keep_old_labels,
-        )
-
-        return send_file(
-            tmp_path_dataset,
-            as_attachment=True,
-            max_age=0,
-            download_name=f"asreview_{'+'.join(collections)}_{project.config['name']}.{file_format}",
-        )
-
-    except Exception as err:
-        raise Exception(f"Failed to export the {file_format} dataset. {err}")
+    return send_file(
+        tmp_path_dataset,
+        as_attachment=True,
+        max_age=0,
+        download_name=f"asreview_{'+'.join(collections)}_{project.config['name']}.{file_format}",
+    )
 
 
 @bp.route("/projects/<project_id>/export_project", methods=["GET"])
@@ -1035,9 +965,10 @@ def export_project(project):
     as the original dataset.
     """
 
-    # create a temp folder to zip
+    project_export_name = secure_filename(project.config["name"])
+
     tmpdir = tempfile.TemporaryDirectory()
-    tmpfile = Path(tmpdir.name, project.project_id).with_suffix(".asreview")
+    tmpfile = Path(tmpdir.name, project_export_name).with_suffix(".asreview")
 
     logging.info("Saving project (temporary) to %s", tmpfile)
     project.export(tmpfile)
@@ -1059,7 +990,7 @@ def _get_stats(project, include_priors=False):
             labels_without_priors = s.get_results_table(priors=False)["label"]
         n_records = len(project.data_store)
 
-    except (StateNotFoundError, ValueError, ProjectError):
+    except (FileNotFoundError, ValueError, ProjectError):
         labels = np.array([])
         labels_without_priors = np.array([])
         n_records = 0
@@ -1133,77 +1064,18 @@ def api_get_progress_info(project):  # noqa: F401
     return jsonify(_get_stats(project, include_priors=include_priors))
 
 
-@bp.route("/projects/<project_id>/progress_density", methods=["GET"])
+@bp.route("/projects/<project_id>/progress_data", methods=["GET"])
 @login_required
 @project_authorization
-def api_get_progress_density(project):
-    """Get progress density of a project"""
-
-    include_priors = request.args.get("priors", False, type=bool)
-
-    # get label history
-    with open_state(project.project_path) as s:
-        data = s.get_results_table("label", priors=include_priors)
-
-    # create a dataset with the rolling mean of every 10 papers
-    df = data.rolling(10, min_periods=1).mean()
-    df["Total"] = df.index + 1
-
-    # transform mean(percentage) to number
-    for i in range(0, len(df)):
-        if df.loc[i, "Total"] < 10:
-            df.loc[i, "Irrelevant"] = (1 - df.loc[i, "label"]) * df.loc[i, "Total"]
-            df.loc[i, "label"] = df.loc[i, "Total"] - df.loc[i, "Irrelevant"]
-        else:
-            df.loc[i, "Irrelevant"] = (1 - df.loc[i, "label"]) * 10
-            df.loc[i, "label"] = 10 - df.loc[i, "Irrelevant"]
-
-    df = df.round(1).to_dict(orient="records")
-    for d in df:
-        d["x"] = d.pop("Total")
-
-    df_relevant = [{k: v for k, v in d.items() if k != "Irrelevant"} for d in df]
-    for d in df_relevant:
-        d["y"] = d.pop("label")
-
-    df_irrelevant = [{k: v for k, v in d.items() if k != "label"} for d in df]
-    for d in df_irrelevant:
-        d["y"] = d.pop("Irrelevant")
-
-    return jsonify({"relevant": df_relevant, "irrelevant": df_irrelevant})
-
-
-@bp.route("/projects/<project_id>/progress_recall", methods=["GET"])
-@login_required
-@project_authorization
-def api_get_progress_recall(project):
-    """Get cumulative number of inclusions by ASReview/at random"""
+def api_get_progress_data(project):  # Consolidated endpoint
+    """Get raw progress data of a project"""
 
     include_priors = request.args.get("priors", False, type=bool)
 
     with open_state(project.project_path) as s:
         data = s.get_results_table("label", priors=include_priors)
 
-    df = data.cumsum()
-
-    df["Total"] = df.index + 1
-    df["Random"] = (df["Total"] * (df["label"][-1:] / len(project.data_store))).round()
-
-    df = df.round(1).to_dict(orient="records")
-    for d in df:
-        d["x"] = d.pop("Total")
-
-    df_asreview = [{k: v for k, v in d.items() if k != "Random"} for d in df]
-    for d in df_asreview:
-        d["y"] = d.pop("label")
-
-    df_random = [{k: v for k, v in d.items() if k != "label"} for d in df]
-    for d in df_random:
-        d["y"] = d.pop("Random")
-
-    payload = {"asreview": df_asreview, "random": df_random}
-
-    return jsonify(payload)
+    return jsonify(data.to_dict(orient="records"))
 
 
 @bp.route("/projects/<project_id>/record/<record_id>", methods=["POST", "PUT"])

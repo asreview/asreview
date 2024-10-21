@@ -19,16 +19,12 @@ REQUIRES_AI_MODEL_DEP = ["doc2vec", "embedding-idf", "sbert"]
 )
 @pytest.mark.parametrize(
     "split_ta",
-    [
-        0,
-        1,
-    ],
+    [False, True],
 )
 def test_features(tmpdir, feature_extraction, split_ta):
     if feature_extraction in REQUIRES_AI_MODEL_DEP:
         pytest.skip()
 
-    embedding_fp = os.path.join("tests", "demo_data", "generic.vec")
     data_fp = os.path.join("tests", "demo_data", "generic.csv")
 
     records = asr.load_dataset(data_fp, dataset_id="test_id")
@@ -37,7 +33,7 @@ def test_features(tmpdir, feature_extraction, split_ta):
     data_store.add_records(records)
     if feature_extraction.startswith("embedding-"):
         model = load_extension("models.feature_extraction", feature_extraction)(
-            split_ta=split_ta, embedding_fp=embedding_fp
+            split_ta=split_ta
         )
     else:
         model = load_extension("models.feature_extraction", feature_extraction)(

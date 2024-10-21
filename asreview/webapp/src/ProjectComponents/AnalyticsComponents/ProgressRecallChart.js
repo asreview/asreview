@@ -1,177 +1,162 @@
-import React from "react";
-import Chart from "react-apexcharts";
-import { Card, CardContent, Skeleton, Stack, Typography } from "@mui/material";
-import { styled, useTheme } from "@mui/material/styles";
+import React, { useRef, useState, useEffect, useCallback } from "react";
+import { HelpOutline } from "@mui/icons-material";
+import GetAppIcon from "@mui/icons-material/GetApp";
+import {
+  Box,
+  Card,
+  CardContent,
+  IconButton,
+  MenuItem,
+  Popover,
+  Menu,
+  Typography,
+  Stack,
+  Skeleton,
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { toPng, toJpeg, toSvg } from "html-to-image";
 
 import { CardErrorHandler } from "Components";
-import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
+import Chart from "react-apexcharts";
 
-const PREFIX = "ProgressRecallChart";
+const calculateProgressRecall = (data) => {
+  // Total number of relevant items (inclusions)
+  const totalInclusions = data.reduce((acc, curr) => acc + curr.label, 0);
+  const totalRecords = data.length;
 
-const classes = {
-  root: `${PREFIX}-root`,
-  tooltipCardColor: `${PREFIX}-tooltip-card-color`,
-  tooltipLabelContainer: `${PREFIX}-tooltip-label-container`,
-  tooltipLabelMarkerASReviewColor: `${PREFIX}-tooltip-label-marker-asreview-color`,
-  tooltipLabelMarkerRandomColor: `${PREFIX}-tooltip-label-marker-random-color`,
-  tooltipLabelASReviewNumber: `${PREFIX}-tooltip-label-asreview-number`,
-  tooltipLabelRandomNumber: `${PREFIX}-tooltip-label-random-number`,
-  tooltipLabelTextSecondaryColor: `${PREFIX}-tooltip-label-text-secondary-color`,
-  tooltipDividerColor: `${PREFIX}-tooltip-divider-color`,
-};
+  return data.map((entry, index, arr) => {
+    // Cumulative sum of relevant items up to the current index
+    const cumulativeLabel = arr
+      .slice(0, index + 1)
+      .reduce((acc, curr) => acc + curr.label, 0);
 
-const StyledCard = styled(Card)(({ theme }) => ({
-  borderRadius: 16,
-  maxWidth: 960,
-  overflow: "visible",
-  position: "relative",
-  width: "100%",
-  [`& .${classes.root}`]: {
-    paddingTop: 24,
-    paddingLeft: 32,
-    paddingRight: 32,
-  },
+    // Calculate the expected random inclusions
+    const expectedRandom = Math.round(
+      (index + 1) * (totalInclusions / totalRecords),
+    );
 
-  [`& .${classes.tooltipCardColor}`]: {
-    color: theme.palette.text.primary,
-    background: theme.palette.background.paper,
-  },
-
-  [`& .${classes.tooltipLabelContainer}`]: {
-    display: "flex",
-    justifyContent: "space-between",
-  },
-
-  [`& .${classes.tooltipLabelMarkerASReviewColor}`]: {
-    ...(theme.palette.mode === "light" && {
-      color: theme.palette.primary.light,
-      background: theme.palette.primary.light,
-    }),
-    ...(theme.palette.mode === "dark" && {
-      color: theme.palette.primary.main,
-      background: theme.palette.primary.main,
-    }),
-  },
-
-  [`& .${classes.tooltipLabelMarkerRandomColor}`]: {
-    ...(theme.palette.mode === "light" && {
-      color: theme.palette.secondary.light,
-      background: theme.palette.secondary.light,
-    }),
-    ...(theme.palette.mode === "dark" && {
-      color: theme.palette.secondary.main,
-      background: theme.palette.secondary.main,
-    }),
-  },
-
-  [`& .${classes.tooltipLabelASReviewNumber}`]: {
-    marginLeft: 32,
-    ...(theme.palette.mode === "dark" && {
-      color: theme.palette.primary.main,
-    }),
-  },
-
-  [`& .${classes.tooltipLabelRandomNumber}`]: {
-    marginLeft: 32,
-    ...(theme.palette.mode === "dark" && {
-      color: theme.palette.secondary.main,
-    }),
-  },
-
-  [`& .${classes.tooltipLabelTextSecondaryColor}`]: {
-    color: theme.palette.text.secondary,
-  },
-
-  [`& .${classes.tooltipDividerColor}`]: {
-    borderColor: theme.palette.divider,
-  },
-}));
-
-const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
-  let total = dataPointIndex + 1;
-  return (
-    `<div class="tooltip-card ProgressRecallChart-tooltip-card-color">` +
-    `<div class="tooltip-card-content">` +
-    '<h6 class="tooltip-title">' +
-    total +
-    ` reviewed records` +
-    "</h6>" +
-    '<div class="ProgressRecallChart-tooltip-label-container">' +
-    "<div>" +
-    "<div>" +
-    `<span class="apexcharts-legend-marker tooltip-label-marker ProgressRecallChart-tooltip-label-marker-asreview-color">` +
-    "</span>" +
-    `<span class="apexcharts-legend-text tooltip-label-text">` +
-    "Relevant by ASReview LAB" +
-    "</span>" +
-    "</div>" +
-    `<p class="tooltip-label-text-secondary ProgressRecallChart-tooltip-label-text-secondary-color">` +
-    "Relevant records that you labeled assisted by the active learning model" +
-    "</p>" +
-    "</div>" +
-    `<h6 class="tooltip-label-number ProgressRecallChart-tooltip-label-asreview-number">` +
-    series[0][dataPointIndex] +
-    "</h6>" +
-    "</div>" +
-    `<hr class="tooltip-divider ProgressRecallChart-tooltip-divider-color">` +
-    '<div class="ProgressRecallChart-tooltip-label-container">' +
-    "<div>" +
-    "<div>" +
-    `<span class="apexcharts-legend-marker tooltip-label-marker ProgressRecallChart-tooltip-label-marker-random-color">` +
-    "</span>" +
-    `<span class="apexcharts-legend-text tooltip-label-text">` +
-    "Random relevant" +
-    "</span>" +
-    "</div>" +
-    `<p class="tooltip-label-text-secondary ProgressRecallChart-tooltip-label-text-secondary-color">` +
-    "Relevant records that you might find if you manually reviewed all the records" +
-    "</p>" +
-    "</div>" +
-    `<h6 class="tooltip-label-number ProgressRecallChart-tooltip-label-random-number">` +
-    series[1][dataPointIndex] +
-    "</h6>" +
-    "</div>" +
-    "</div>" +
-    "</div>"
-  );
+    // Return the results with the same structure as the backend
+    return {
+      x: index + 1,
+      asreview: cumulativeLabel,
+      random: expectedRandom,
+    };
+  });
 };
 
 export default function ProgressRecallChart(props) {
   const theme = useTheme();
+  const chartRef = useRef(null);
 
-  const lightModePrimaryColor = React.useCallback(() => {
+  const [anchorElPopover, setAnchorElPopover] = useState(null);
+  const [anchorElMenu, setAnchorElMenu] = useState(null);
+
+  const handlePopoverOpen = (event) => {
+    setAnchorElPopover(event.currentTarget);
+  };
+
+  const handlePopoverClose = () => {
+    setAnchorElPopover(null);
+  };
+
+  const popoverOpen = Boolean(anchorElPopover);
+
+  const handleDownloadClick = (event) => {
+    setAnchorElMenu(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorElMenu(null);
+  };
+
+  const handleDownload = (format) => {
+    setAnchorElMenu(null);
+
+    const node = chartRef.current.querySelector(".apexcharts-canvas");
+    const downloadFileName = `chart.${format}`;
+
+    switch (format) {
+      case "png":
+        toPng(node)
+          .then((dataUrl) => {
+            const link = document.createElement("a");
+            link.download = downloadFileName;
+            link.href = dataUrl;
+            link.click();
+          })
+          .catch((error) => {
+            console.error("oops, something went wrong!", error);
+          });
+        break;
+      case "jpeg":
+        toJpeg(node, {
+          quality: 1,
+          backgroundColor: theme.palette.background.paper,
+        })
+          .then((dataUrl) => {
+            const link = document.createElement("a");
+            link.download = downloadFileName;
+            link.href = dataUrl;
+            link.click();
+          })
+          .catch((error) => {
+            console.error("oops, something went wrong!", error);
+          });
+        break;
+      case "svg":
+        toSvg(node)
+          .then((dataUrl) => {
+            const link = document.createElement("a");
+            link.download = downloadFileName;
+            link.href = dataUrl;
+            link.click();
+          })
+          .catch((error) => {
+            console.error("oops, something went wrong!", error);
+          });
+        break;
+      default:
+        break;
+    }
+  };
+
+  const lightModePrimaryColor = useCallback(() => {
     return theme.palette.mode === "light"
       ? theme.palette.primary.light
       : theme.palette.primary.main;
   }, [theme.palette.mode, theme.palette.primary]);
 
-  const lightModeSecondaryColor = React.useCallback(() => {
-    return theme.palette.mode === "light"
-      ? theme.palette.secondary.light
-      : theme.palette.secondary.main;
-  }, [theme.palette.mode, theme.palette.secondary]);
+  const darkBlueColor = useCallback(() => {
+    return theme.palette.grey[600];
+  }, [theme.palette.grey]);
 
-  /**
-   * Chart data array
-   */
-  const seriesArray = React.useCallback(() => {
-    if (props.progressRecallQuery.data) {
+  const seriesArray = useCallback(() => {
+    if (props.genericDataQuery.data) {
+      const calculatedData = calculateProgressRecall(
+        props.genericDataQuery.data,
+      );
       return [
         {
           name: "Relevant by ASReview LAB",
-          data: props.progressRecallQuery.data?.asreview,
+          data: calculatedData.map((item) => ({
+            x: item.x,
+            y: item.asreview,
+          })),
         },
         {
-          name: "Random relevant",
-          data: props.progressRecallQuery.data?.random,
+          name: "Random Relevant",
+          data: calculatedData.map((item) => ({
+            x: item.x,
+            y: item.random,
+          })),
         },
       ];
     } else {
       return [];
     }
-  }, [props.progressRecallQuery.data]);
+  }, [props.genericDataQuery.data]);
 
-  const maxY = React.useCallback(() => {
+  const maxY = useCallback(() => {
     if (seriesArray()[0]?.data !== undefined) {
       return Math.max.apply(
         Math,
@@ -187,7 +172,7 @@ export default function ProgressRecallChart(props) {
   /**
    * Chart options
    */
-  const optionsChart = React.useCallback(() => {
+  const optionsChart = useCallback(() => {
     const maxYValue = maxY() || 0;
     const tickAmount = 7;
     const closestDivisibleBy7 = Math.ceil(maxYValue / tickAmount) * tickAmount; // To make the intervals consistent, max value in the y-axis should be always divisible by 7.
@@ -201,20 +186,20 @@ export default function ProgressRecallChart(props) {
         id: "ASReviewLABprogressRecall",
         type: "line",
         toolbar: {
-          show: !props.mobileScreen,
+          show: false,
         },
         zoom: {
           enabled: false,
         },
       },
-      colors: [lightModePrimaryColor(), lightModeSecondaryColor()],
+      colors: [lightModePrimaryColor(), darkBlueColor()],
       dataLabels: {
         enabled: false,
       },
       legend: {
         position: "top",
         horizontalAlign: "left",
-        fontSize: !props.mobileScreen ? "14px" : "12px",
+        fontSize: "14px",
         fontFamily: theme.typography.subtitle2.fontFamily,
         fontWeight: theme.typography.subtitle2.fontWeight,
         labels: {
@@ -243,16 +228,14 @@ export default function ProgressRecallChart(props) {
       theme: {
         mode: theme.palette.mode,
       },
-      tooltip: {
-        custom: customTooltip,
-      },
+      tooltip: {},
       xaxis: {
         decimalsInFloat: 0,
         labels: {
           show: true,
         },
         title: {
-          text: "Number of reviewed records",
+          text: "Records Reviewed",
         },
         type: "numeric",
         axisTicks: {
@@ -264,8 +247,8 @@ export default function ProgressRecallChart(props) {
       },
       yaxis: {
         labels: {
-          formatter: function (val, index) {
-            return val.toFixed();
+          formatter: function (val) {
+            return val !== null && val !== undefined ? val.toFixed() : "";
           },
         },
         showAlways: false,
@@ -274,52 +257,95 @@ export default function ProgressRecallChart(props) {
         min: 0,
         tickAmount: tickAmount,
         title: {
-          text: "Number of relevant records",
+          text: "Relevant Records",
         },
       },
     };
-  }, [
-    theme,
-    lightModePrimaryColor,
-    lightModeSecondaryColor,
-    maxY,
-    props.mobileScreen,
-  ]);
+  }, [theme, lightModePrimaryColor, darkBlueColor, maxY]);
 
-  const [series, setSeries] = React.useState(seriesArray());
-  const [options, setOptions] = React.useState(optionsChart());
+  const [series, setSeries] = useState(seriesArray());
+  const [options, setOptions] = useState(optionsChart());
 
-  React.useEffect(() => {
+  useEffect(() => {
     setSeries(seriesArray());
     setOptions(optionsChart());
   }, [seriesArray, optionsChart]);
 
   return (
-    <StyledCard elevation={2}>
+    <Card>
       <CardErrorHandler
-        queryKey={"fetchProgressRecall"}
-        error={props.progressRecallQuery.error}
-        isError={props.progressRecallQuery.isError}
+        queryKey={"fetchGenericData"}
+        error={props.progressRecallQuery?.error}
+        isError={!!props.progressRecallQuery?.isError}
       />
-      <CardContent className={classes.root}>
-        <Stack spacing={2}>
-          {!props.mobileScreen && <Typography variant="h6">Recall</Typography>}
-          {props.mobileScreen && (
-            <TypographySubtitle1Medium>Recall</TypographySubtitle1Medium>
-          )}
-          {props.progressRecallQuery.isLoading ? (
+      <CardContent>
+        <Stack>
+          <Box>
+            <IconButton onClick={handleDownloadClick}>
+              <GetAppIcon />
+            </IconButton>
+            <Menu
+              anchorEl={anchorElMenu}
+              open={Boolean(anchorElMenu)}
+              onClose={handleMenuClose}
+            >
+              <MenuItem onClick={() => handleDownload("png")}>
+                Download as PNG
+              </MenuItem>
+              <MenuItem onClick={() => handleDownload("jpeg")}>
+                Download as JPEG
+              </MenuItem>
+              <MenuItem onClick={() => handleDownload("svg")}>
+                Download as SVG
+              </MenuItem>
+            </Menu>
+            <IconButton
+              onClick={handlePopoverOpen}
+              aria-owns={popoverOpen ? "mouse-over-popover" : undefined}
+              aria-haspopup="true"
+            >
+              <HelpOutline fontSize={!props.mobileScreen ? "small" : "12px"} />
+            </IconButton>
+            <Popover
+              id="mouse-over-popover"
+              open={popoverOpen}
+              anchorEl={anchorElPopover}
+              onClose={handlePopoverClose}
+            >
+              <Box>
+                <Typography variant="body2" gutterBottom>
+                  <strong>Progress Recall Chart</strong>
+                </Typography>
+                <Typography variant="body2" gutterBottom>
+                  The chart shows how well the ASReview model and random
+                  sampling identify relevant records.
+                </Typography>
+                <Typography variant="body2" gutterBottom>
+                  The model helps prioritize relevant records, but not all
+                  relevant records will be identified by the model.
+                </Typography>
+                <Typography variant="body2" gutterBottom>
+                  The random relevant line shows the performance if you manually
+                  reviewed all records without model assistance.
+                </Typography>
+              </Box>
+            </Popover>
+          </Box>
+          {props.genericDataQuery.isLoading ? (
             <Skeleton variant="rectangular" height={400} width="100%" />
           ) : (
-            <Chart
-              options={options}
-              series={series}
-              type="line"
-              height={400}
-              width="100%"
-            />
+            <div ref={chartRef}>
+              <Chart
+                options={options}
+                series={series}
+                type="line"
+                height={400}
+                width="100%"
+              />
+            </div>
           )}
         </Stack>
       </CardContent>
-    </StyledCard>
+    </Card>
   );
 }

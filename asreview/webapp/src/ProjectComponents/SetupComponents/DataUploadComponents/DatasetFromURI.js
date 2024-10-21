@@ -1,5 +1,5 @@
 import React from "react";
-import { connect } from "react-redux";
+
 import { InputBase, Paper, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useMutation } from "react-query";
@@ -14,7 +14,6 @@ import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 import { InlineErrorHandler } from "Components";
 import { StyledLoadingButton } from "StyledComponents/StyledButton";
 import { ProjectAPI } from "api";
-import { mapStateToProps } from "globals.js";
 
 const PREFIX = "DatasetFromURI";
 
@@ -27,7 +26,6 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.root}`]: {
     alignItems: "center",
   },
-
   [`& .${classes.input}`]: {
     display: "flex",
     alignItems: "center",
@@ -168,4 +166,4 @@ const DatasetFromURI = ({ mode, setDataset }) => {
   );
 };
 
-export default connect(mapStateToProps)(DatasetFromURI);
+export default DatasetFromURI;

@@ -1,14 +1,12 @@
 import React from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { connect } from "react-redux";
+
 import { Box, CircularProgress, Stack, Typography, Link } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "Components";
 import { EntryPointDataset } from ".";
 import { ProjectAPI } from "api";
-
-import { mapStateToProps } from "globals.js";
 
 const PREFIX = "DatasetFromEntryPoint";
 
@@ -109,7 +107,6 @@ const DatasetFromEntryPoint = ({
           </Link>
         </Typography>
       )}
-
       {isFetchingDatasets && (
         <Box className={classes.loading}>
           <CircularProgress />
@@ -122,20 +119,18 @@ const DatasetFromEntryPoint = ({
           button={!isError}
         />
       )}
-
       {isSuccess && isFetched && data["result"]?.length === 0 && (
         <Typography>No dataset extensions installed.</Typography>
       )}
-
       {data && (
         <Stack spacing={2}>
           {data?.result.map((group, index) => (
             <Stack spacing={2} key={index}>
               <Typography
                 variant="subtitle1"
-                sx={{
-                  fontWeight: (theme) => theme.typography.fontWeightMedium,
-                }}
+                sx={(theme) => ({
+                  fontWeight: theme.typography.fontWeightMedium,
+                })}
               >
                 {group.description}
               </Typography>
@@ -163,4 +158,4 @@ const DatasetFromEntryPoint = ({
   );
 };
 
-export default connect(mapStateToProps, null)(DatasetFromEntryPoint);
+export default DatasetFromEntryPoint;

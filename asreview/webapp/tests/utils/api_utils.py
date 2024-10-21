@@ -67,7 +67,7 @@ def signout_user(client):
 
 
 def confirm_user(client, user):
-    response = client.post(
+    response = client.get(
         "/auth/confirm_account", data={"user_id": user.id, "token": user.token}
     )
     return response
@@ -91,8 +91,8 @@ def update_user(client, data):
     return response
 
 
-def refresh(client):
-    response = client.get("/auth/refresh")
+def user(client):
+    response = client.get("/auth/user")
     return response
 
 
@@ -160,7 +160,7 @@ def get_all_projects(client: FlaskClient):
     return response
 
 
-def create_project(client: FlaskClient, mode: str = "explore", **kwargs):
+def create_project(client: FlaskClient, mode: str = "oracle", **kwargs):
     response = client.post(
         "/api/projects/create",
         data={
@@ -175,7 +175,7 @@ def update_project(
     client: FlaskClient,
     project: Union[Project, asr.Project],
     name: str = "name",
-    mode: str = "explore",
+    mode: str = "oracle",
     authors: str = "authors",
     description: str = "description",
     tags: str = "[]",
@@ -203,11 +203,6 @@ def import_project(client: FlaskClient, asreview_file):
         "/api/projects/import",
         data={"file": (open(asreview_file, "rb"), "project.asreview")},
     )
-    return response
-
-
-def get_project_stats(client: FlaskClient):
-    response = client.get("/api/projects/stats")
     return response
 
 
@@ -348,19 +343,11 @@ def get_project_progress(
     return response
 
 
-def get_project_progress_density(
+def get_project_progress_data(
     client: FlaskClient,
     project: Union[Project, asr.Project],
 ):
-    response = client.get(f"/api/projects/{get_project_id(project)}/progress_density")
-    return response
-
-
-def get_project_progress_recall(
-    client: FlaskClient,
-    project: Union[Project, asr.Project],
-):
-    response = client.get(f"/api/projects/{get_project_id(project)}/progress_recall")
+    response = client.get(f"/api/projects/{get_project_id(project)}/progress_data")
     return response
 
 

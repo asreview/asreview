@@ -1,28 +1,35 @@
-import * as React from "react";
-import { useMutation, useQueryClient } from "react-query";
-import { useLocation, useNavigate } from "react-router-dom";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Button,
+  CardActions,
+  CardContent,
   Checkbox,
   FormControl,
   FormControlLabel,
   Stack,
   TextField,
+  Typography,
 } from "@mui/material";
+import { ForgotPassword } from "Components";
+import * as React from "react";
+import { useMutation } from "react-query";
+import { useLocation, useNavigate } from "react-router-dom";
 import { InlineErrorHandler } from ".";
 
 import AuthAPI from "api/AuthAPI";
-import useAuth from "hooks/useAuth";
 import { useToggle } from "hooks/useToggle";
 
-const SignInForm = ({ classes, allowAccountCreation, emailVerification }) => {
-  const queryClient = useQueryClient();
+const SignInForm = ({
+  allowAccountCreation,
+  emailVerification,
+  toggleSignUp,
+}) => {
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
 
+  const [forgotPassword, toggleForgotPassword] = useToggle();
+
   const navigate = useNavigate();
-  const { setAuth } = useAuth();
 
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -32,21 +39,12 @@ const SignInForm = ({ classes, allowAccountCreation, emailVerification }) => {
   const { error, isError, isLoading, mutate, reset } = useMutation(
     AuthAPI.signin,
     {
-      onMutate: () => {
-        // clear potential error
-        queryClient.resetQueries("refresh");
-      },
       onSuccess: (data) => {
         if (data.logged_in) {
-          setAuth({
-            logged_in: data.logged_in,
-            name: data.name,
-            id: data.id,
-          });
           setEmail("");
           setPassword("");
           if (from === "/") {
-            navigate("/projects");
+            navigate("/reviews");
           } else {
             navigate(from, { replace: true });
           }
@@ -66,24 +64,8 @@ const SignInForm = ({ classes, allowAccountCreation, emailVerification }) => {
     mutate({ email, password });
   };
 
-  const handleSignUp = () => {
-    navigate("/signup");
-  };
-
-  const handleForgotPassword = () => {
-    navigate("/forgot_password");
-  };
-
   const returnType = () => {
     return !showPassword ? "password" : "text";
-  };
-
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
-  };
-
-  const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
   };
 
   const handleEnterKey = (e) => {
@@ -94,77 +76,88 @@ const SignInForm = ({ classes, allowAccountCreation, emailVerification }) => {
 
   return (
     <>
-      <Stack spacing={3}>
-        <TextField
-          id="email"
-          label="Email"
-          name="email"
-          type="email"
-          value={email}
-          onChange={handleEmailChange}
-          variant="outlined"
-          fullWidth
-          autoFocus
-          autoComplete="email"
-        />
-        <FormControl>
-          <TextField
-            id="password"
-            label="Password"
-            value={password}
-            onChange={handlePasswordChange}
-            onKeyDown={handleEnterKey}
-            variant="outlined"
-            fullWidth
-            type={returnType()}
-            autoComplete="current-password"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                id="show-password"
-                checked={showPassword}
-                onChange={toggleShowPassword}
-                value="showPassword"
-                color="primary"
+      {!forgotPassword && (
+        <>
+          <CardContent>
+            <Stack spacing={3}>
+              <Typography variant="h5">Sign in</Typography>
+              <TextField
+                id="email"
+                label="Email"
+                name="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                variant="outlined"
+                fullWidth
+                autoFocus
+                autoComplete="email"
               />
-            }
-            label="Show password"
-          />
-        </FormControl>
-      </Stack>
-      {isError && <InlineErrorHandler message={error.message} />}
-      <Stack className={classes.button} direction="row">
-        {allowAccountCreation && (
-          <Button
-            id="create-profile"
-            onClick={handleSignUp}
-            sx={{ textTransform: "none" }}
-          >
-            Create profile
-          </Button>
-        )}
+              <FormControl>
+                <TextField
+                  id="password"
+                  label="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={handleEnterKey}
+                  variant="outlined"
+                  fullWidth
+                  type={returnType()}
+                  autoComplete="current-password"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      id="show-password"
+                      checked={showPassword}
+                      onChange={toggleShowPassword}
+                      value="showPassword"
+                      color="primary"
+                    />
+                  }
+                  label="Show password"
+                />
+              </FormControl>
+            </Stack>
+            {isError && <InlineErrorHandler message={error.message} />}
 
-        {emailVerification && (
-          <Button
-            id="forgot-password"
-            onClick={handleForgotPassword}
-            sx={{ textTransform: "none" }}
-          >
-            Forgot password
-          </Button>
-        )}
-
-        <LoadingButton
-          id="sign-in"
-          loading={isLoading}
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit}
-        >
-          Sign in
-        </LoadingButton>
-      </Stack>
+            {/* {window.oAuthConfig?.services &&
+        Object.keys(window.oAuthConfig.services).length > 0 && (
+          <SignInOAuth oAuthConfig={window.oAuthConfig} />
+        )} */}
+          </CardContent>
+          <CardActions sx={{ p: 2 }}>
+            <LoadingButton
+              id="sign-in"
+              loading={isLoading}
+              variant="contained"
+              color="primary"
+              onClick={handleSubmit}
+            >
+              Sign in
+            </LoadingButton>
+            {allowAccountCreation && (
+              <Button
+                id="create-profile"
+                onClick={toggleSignUp}
+                sx={{ textTransform: "none" }}
+              >
+                Create profile
+              </Button>
+            )}
+            <Button
+              id="forgot-password"
+              onClick={toggleForgotPassword}
+              sx={{ textTransform: "none" }}
+            >
+              Forgot password
+            </Button>
+          </CardActions>
+        </>
+      )}
+      {forgotPassword && (
+        <ForgotPassword toggleForgotPassword={toggleForgotPassword} />
+      )}
     </>
   );
 };
