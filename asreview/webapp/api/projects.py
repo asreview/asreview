@@ -41,7 +41,6 @@ from werkzeug.utils import secure_filename
 
 import asreview as asr
 from asreview.config import PROJECT_MODE_SIMULATE
-from asreview.data.base import Dataset
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
 from asreview.extensions import load_extension

@@ -24,7 +24,6 @@ from asreview.data.record import Record
 from asreview.data.utils import convert_to_list
 from asreview.data.utils import duplicated
 from asreview.data.utils import get_texts
-from asreview.extensions import extensions
 
 
 def _standardize_column_name(col_name, col_definitions):

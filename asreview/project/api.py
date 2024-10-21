@@ -216,7 +216,6 @@ class Project:
         # field and a specific value. If the presence of the field `included` is
         # necessary in the input data, we should move it from `Record` to the `Base`
         # class, so that all record implementations have it.
-        any_record_labeled = any(record.included != LABEL_NA for record in records)
         all_records_labeled = not any(record.included == LABEL_NA for record in records)
 
         if self.config["mode"] == PROJECT_MODE_SIMULATE and not all_records_labeled:
