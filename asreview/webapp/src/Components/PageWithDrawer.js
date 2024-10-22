@@ -1,8 +1,8 @@
 import {
+  DisplaySettingsOutlined,
   Diversity1Outlined,
   HelpOutlineOutlined,
   Menu,
-  TuneOutlined,
 } from "@mui/icons-material";
 import {
   Box,
@@ -74,10 +74,10 @@ const BottomNavigationDrawerItems = ({
       {/* Bottom Section */}
       <Box>
         <DrawerItem
-          key={"customize"}
-          primary={"Customize"}
+          key={"display-settings"}
+          primary={"Display settings"}
           showTooltip={showTooltip}
-          icon={<TuneOutlined />}
+          icon={<DisplaySettingsOutlined />}
           onClick={() => {
             if (mobileScreen) {
               toggleNavDrawer();
