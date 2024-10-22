@@ -23,9 +23,12 @@ DEFAULT_TASK_MANAGER_WORKERS = 2
 
 class RunModelProcess(mp.Process):
     def __init__(
-            self, func, args=(), host=DEFAULT_TASK_MANAGER_HOST,
-            port=DEFAULT_TASK_MANAGER_PORT):
-        
+        self,
+        func,
+        args=(),
+        host=DEFAULT_TASK_MANAGER_HOST,
+        port=DEFAULT_TASK_MANAGER_PORT,
+    ):
         super().__init__()
         self.func = func
         self.args = args
@@ -47,9 +50,12 @@ class RunModelProcess(mp.Process):
 
 
 class TaskManager:
-    def __init__(self, max_workers=DEFAULT_TASK_MANAGER_WORKERS,     
-            host=DEFAULT_TASK_MANAGER_HOST, port=DEFAULT_TASK_MANAGER_PORT):
-
+    def __init__(
+        self,
+        max_workers=DEFAULT_TASK_MANAGER_WORKERS,
+        host=DEFAULT_TASK_MANAGER_HOST,
+        port=DEFAULT_TASK_MANAGER_PORT,
+    ):
         self.pending = set()
         self.max_workers = int(max_workers)
 
@@ -269,8 +275,7 @@ class TaskManager:
 
 def setup_logging(verbose=False):
     level = logging.INFO if verbose else logging.ERROR
-    logging.basicConfig(
-        level=level, format="%(asctime)s - %(levelname)s - %(message)s")
+    logging.basicConfig(level=level, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
 def run_task_manager(max_workers=None, host=None, port=None, verbose=False):
@@ -279,12 +284,8 @@ def run_task_manager(max_workers=None, host=None, port=None, verbose=False):
     signature = inspect.signature(run_task_manager)
     bound_arguments = signature.bind(max_workers, host, port)
 
-    args = {
-        k: v
-        for k, v in bound_arguments.arguments.items()
-        if v is not None
-    }
-    
+    args = {k: v for k, v in bound_arguments.arguments.items() if v is not None}
+
     setup_logging(verbose)
     manager = TaskManager(**args)
     manager.start_manager()
