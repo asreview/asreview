@@ -105,8 +105,8 @@ const DetailsPage = () => {
     <ProjectContext.Provider value={project_id}>
       <Container maxWidth="md" aria-label="details page" sx={{ mb: 3 }}>
         <Stack spacing={3}>
-          <TagCard editable={false} />
-          <ModelCard editable={true} showWarning={true} />
+          {data?.mode === "oracle" && <TagCard editable={false} />}
+          <ModelCard editable={data?.mode === "oracle"} showWarning={true} />
           <PriorCard editable={false} />
           {data?.roles.owner && (
             <>
