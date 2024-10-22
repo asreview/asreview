@@ -81,7 +81,7 @@ const DetailsPage = () => {
           {data?.mode === "oracle" && <TagCard editable={false} />}
           <ModelCard editable={data?.mode === "oracle"} showWarning={true} />
           <PriorCard editable={false} />
-          {data?.roles.owner && (
+          {data?.mode === "oracle" && data?.roles.owner && (
             <MarkFinishedCard project_id={project_id} info={data} />
           )}
         </Stack>
