@@ -248,7 +248,7 @@ class TaskManager:
         # Set a timeout
         server_socket.settimeout(0.1)
 
-        logging.info("...starting server")
+        logging.info(f"...starting server on {self.host}:{self.port}")
 
         while True:
             try:
