@@ -420,8 +420,10 @@ class Project:
         if state is None:
             state = SQLiteState(fp_state)
             state.create_tables()
+            state.close()
         else:
             state.to_sql(fp_state)
+            state.close()
 
         review_config = {
             "id": review_id,
