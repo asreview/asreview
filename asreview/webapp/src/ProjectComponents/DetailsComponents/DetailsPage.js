@@ -1,5 +1,4 @@
 import {
-  Button,
   Card,
   CardContent,
   CardHeader,
@@ -12,7 +11,6 @@ import {
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
 
-import { ProjectDeleteDialog } from "ProjectComponents";
 import {
   ModelCard,
   PriorCard,
@@ -22,32 +20,7 @@ import {
 import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
 import { projectStatuses } from "globals.js";
-import { useToggle } from "hooks/useToggle";
 
-const DeleteCard = ({ project_id, info }) => {
-  const [onDeleteDialog, toggleDeleteDialog] = useToggle();
-
-  return (
-    <Card>
-      <CardHeader
-        title="Danger zone"
-        subheader="Delete project permanently. This action cannot be undone."
-      />
-      <CardContent>
-        <Button variant="contained" color="error" onClick={toggleDeleteDialog}>
-          Delete project
-        </Button>
-        <ProjectDeleteDialog
-          open={onDeleteDialog}
-          onClose={toggleDeleteDialog}
-          projectTitle={info?.name}
-          project_id={project_id}
-          navigate_to={"/"}
-        />
-      </CardContent>
-    </Card>
-  );
-};
 const MarkFinishedCard = ({ project_id }) => {
   const queryClient = useQueryClient();
   const { data } = useQuery(
@@ -109,10 +82,7 @@ const DetailsPage = () => {
           <ModelCard editable={data?.mode === "oracle"} showWarning={true} />
           <PriorCard editable={false} />
           {data?.roles.owner && (
-            <>
-              <MarkFinishedCard project_id={project_id} info={data} />
-              <DeleteCard project_id={project_id} info={data} />
-            </>
+            <MarkFinishedCard project_id={project_id} info={data} />
           )}
         </Stack>
       </Container>
