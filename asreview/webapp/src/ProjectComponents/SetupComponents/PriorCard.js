@@ -135,12 +135,13 @@ const PriorCard = ({ mobileScreen, editable = true }) => {
           </CardContent>
         </>
       )}
-      {openPriorView && (
+      {priorType === "records" && openPriorView && (
         <LabelHistory
           project_id={project_id}
           mobileScreen={mobileScreen}
           showFilter={false}
           filterQuery={[{ value: "is_prior", label: "Prior knowledge" }]}
+          showExport={false}
         />
       )}
 
