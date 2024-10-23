@@ -189,7 +189,7 @@ def lab_entry_point(argv):
             app.config.get("TASK_MANAGER_HOST", None),
             app.config.get("TASK_MANAGER_PORT", None),
             app.config.get("TASK_MANAGER_VERBOSE", False),
-            start_event
+            start_event,
         ),
     )
     process.start()
@@ -199,9 +199,11 @@ def lab_entry_point(argv):
     while not start_event.is_set():
         time.sleep(0.1)
         if time.time() - start_time > 5:
-            console.print("\n\n[red]Error: unable to startup the model server.[/red]\n\n")
+            console.print(
+                "\n\n[red]Error: unable to startup the model server.[/red]\n\n"
+            )
             return
-    
+
     try:
         waitress.serve(app, host=args.host, port=port, threads=6)
     except KeyboardInterrupt:

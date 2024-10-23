@@ -7,33 +7,30 @@ from asreview.webapp.task_manager.task_manager import DEFAULT_TASK_MANAGER_PORT
 from asreview.webapp.task_manager.task_manager import DEFAULT_TASK_MANAGER_WORKERS
 from asreview.webapp.task_manager.task_manager import TaskManager
 
+
 def _arg_parser(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Enable verbose logging"
-    )
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
 
     parser.add_argument(
         "--workers",
         default=DEFAULT_TASK_MANAGER_WORKERS,
         type=int,
-        help="Number of workers"
+        help="Number of workers",
     )
 
     parser.add_argument(
         "--host",
         default=DEFAULT_TASK_MANAGER_HOST,
         type=str,
-        help="Host of task manager."
+        help="Host of task manager.",
     )
 
     parser.add_argument(
         "--port",
         default=DEFAULT_TASK_MANAGER_PORT,
         type=int,
-        help="Port of task manager."
+        help="Port of task manager.",
     )
 
     return parser.parse_args(argv)
@@ -46,11 +43,8 @@ def main(argv):
     setup_logging(verbose=verbose)
 
     manager = TaskManager(
-        max_workers=os.getenv(
-            "ASREVIEW_LAB_TASK_MANAGER_WORKERS", args.workers),
-        host=os.getenv(
-            "ASREVIEW_LAB_TASK_MANAGER_HOST", args.host),
-        port=os.getenv(
-            "ASREVIEW_LAB_TASK_MANAGER_PORT", args.port)
+        max_workers=os.getenv("ASREVIEW_LAB_TASK_MANAGER_WORKERS", args.workers),
+        host=os.getenv("ASREVIEW_LAB_TASK_MANAGER_HOST", args.host),
+        port=os.getenv("ASREVIEW_LAB_TASK_MANAGER_PORT", args.port),
     )
     manager.start_manager()

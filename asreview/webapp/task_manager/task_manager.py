@@ -284,7 +284,9 @@ def setup_logging(verbose=False):
     logging.basicConfig(level=level, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
-def run_task_manager(max_workers=None, host=None, port=None, verbose=False, mp_event=None):
+def run_task_manager(
+    max_workers=None, host=None, port=None, verbose=False, mp_event=None
+):
     # I need all parameters that are not None to pass to the
     # TaskManager object.
     signature = inspect.signature(run_task_manager)
