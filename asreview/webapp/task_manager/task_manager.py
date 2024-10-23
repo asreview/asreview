@@ -223,16 +223,17 @@ class TaskManager:
         while True:
             try:
                 data = conn.recv(self.receive_bytes)
+                logging.info(f"{data}")
                 if not data:
                     # if client_buffer is full convert to json and
                     # put in buffer
                     if client_buffer != "":
+                        logging.info(f"{client_buffer}")
                         # we may be dealing with multiple messages,
                         # update buffer to produce a correct json string
                         client_buffer = "[" + client_buffer.replace("}{", "},{") + "]"
                         messages = json.loads(client_buffer)
                         logging.info(f"Received messages:\n{messages}\n")
-                        # add to buffer
                         self.message_buffer.extend(deque(messages))
                     # client disconnected
                     break
@@ -241,15 +242,20 @@ class TaskManager:
                     message = data.decode("utf-8")
                     client_buffer += message
 
-            except Exception:
+            except Exception as e:
+                logging.info(f"Error while receiving message:\n{e}\n")
                 break
 
         conn.close()
 
-    def start_manager(self):
+    def start_manager(self, mp_event):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_socket.bind((self.host, self.port))
         server_socket.listen()
+
+        # Acknowledge MultipProcessing we could connect
+        if mp_event is not None:
+            mp_event.set()
 
         # Set a timeout
         server_socket.settimeout(0.1)
@@ -259,7 +265,7 @@ class TaskManager:
         while True:
             try:
                 # Accept incoming connections with a timeout
-                conn, addr = server_socket.accept()
+                conn, _addr = server_socket.accept()
                 # Start a new thread to handle the client connection
                 client_thread = threading.Thread(
                     target=self._handle_incoming_messages, args=(conn,)
@@ -278,7 +284,7 @@ def setup_logging(verbose=False):
     logging.basicConfig(level=level, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
-def run_task_manager(max_workers=None, host=None, port=None, verbose=False):
+def run_task_manager(max_workers=None, host=None, port=None, verbose=False, mp_event=None):
     # I need all parameters that are not None to pass to the
     # TaskManager object.
     signature = inspect.signature(run_task_manager)
@@ -288,4 +294,4 @@ def run_task_manager(max_workers=None, host=None, port=None, verbose=False):
 
     setup_logging(verbose)
     manager = TaskManager(**args)
-    manager.start_manager()
+    manager.start_manager(mp_event)

@@ -1,4 +1,5 @@
 import argparse
+import os
 
 from asreview.webapp.task_manager.task_manager import setup_logging
 from asreview.webapp.task_manager.task_manager import DEFAULT_TASK_MANAGER_HOST
@@ -41,11 +42,15 @@ def _arg_parser(argv):
 def main(argv):
     args = _arg_parser(argv)
 
-    setup_logging(verbose=args.verbose)
+    verbose = os.getenv("ASREVIEW_LAB_TASK_MANAGER_VERBOSE", args.verbose)
+    setup_logging(verbose=verbose)
 
     manager = TaskManager(
-        max_workers=args.workers,
-        host=args.host,
-        port=args.port
+        max_workers=os.getenv(
+            "ASREVIEW_LAB_TASK_MANAGER_WORKERS", args.workers),
+        host=os.getenv(
+            "ASREVIEW_LAB_TASK_MANAGER_HOST", args.host),
+        port=os.getenv(
+            "ASREVIEW_LAB_TASK_MANAGER_PORT", args.port)
     )
     manager.start_manager()

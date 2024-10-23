@@ -27,7 +27,7 @@ The best development workflow for the ASReview frontend and backend makes use
 of 3 simultanously running servers:
 
 1. A Python server with the the Flask app.
-2. A Python server for a task manager that manages running models after records are labeled..
+2. A Python server for a task manager that manages running models after records are labeled.
 3. A Node server for the frontend.
 
 Open a command line interface (e.g. Terminal or CMD.exe) and navigate to
