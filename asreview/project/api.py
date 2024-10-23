@@ -373,7 +373,12 @@ class Project:
             return []
 
     def add_review(
-        self, review_id=None, settings=None, state=None, start_time=None, status="setup"
+        self,
+        review_id=None,
+        settings=None,
+        reviewer=None,
+        start_time=None,
+        status="setup",
     ):
         """Add new review metadata.
 
@@ -383,8 +388,8 @@ class Project:
             The review_id uuid4.
         settings: ReviewSettings
             The settings of the review.
-        state: SQLiteState
-            The state of the review.
+        reviewer: object
+            A reviewer object with to_sql() method.
         status: str
             The status of the review. One of 'setup', 'running',
             'finished'.
@@ -417,11 +422,12 @@ class Project:
 
         fp_state = Path(self.project_path, "reviews", review_id, "results.db")
 
-        if state is None:
+        if reviewer is None:
             state = SQLiteState(fp_state)
             state.create_tables()
+            state.close()
         else:
-            state.to_sql(fp_state)
+            reviewer.to_sql(fp_state)
 
         review_config = {
             "id": review_id,
