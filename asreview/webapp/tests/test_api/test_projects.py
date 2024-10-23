@@ -46,14 +46,21 @@ def test_get_projects(client, user, project):
         assert found_project["id"] == project.config["id"]
 
 
-# Test create a project
-def test_create_projects(client, user):
+def test_create_project(client, user):
     if not client.application.config["LOGIN_DISABLED"]:
         au.create_and_signin_user(client, 1)
 
     r = au.create_project(client, "oracle", benchmark="synergy:van_der_Valk_2021")
     assert r.status_code == 201
     assert r.json["name"].startswith("van_der_Valk_2021")
+
+
+def test_create_project_type_not_found(client, project):
+    with pytest.raises(
+        ValidationError,
+        match=r".*'not_found' is not one of.*",
+    ):
+        au.create_project(client, "not_found", benchmark="synergy:van_der_Valk_2021")
 
 
 # Test create a project with incorrect tags
@@ -63,7 +70,6 @@ def test_create_projects_with_incorrect_tags(client, project):
     with pytest.raises(
         ValidationError, match=r".*Failed validating .*type.* in schema.*"
     ):
-        # request
         au.update_project(
             client,
             project,

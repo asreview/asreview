@@ -22,13 +22,6 @@ from pathlib import Path
 import numpy as np
 
 from asreview import load_dataset
-from asreview.config import DEFAULT_BALANCE_STRATEGY
-from asreview.config import DEFAULT_CLASSIFIER
-from asreview.config import DEFAULT_FEATURE_EXTRACTION
-from asreview.config import DEFAULT_N_INSTANCES
-from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
-from asreview.config import DEFAULT_N_PRIOR_INCLUDED
-from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.datasets import DatasetManager
 from asreview.extensions import load_extension
 from asreview.project.api import Project
@@ -123,7 +116,7 @@ def _cli_simulate(argv):
     # change the verbosity
     _set_log_verbosity(args.verbose)
 
-    if args.state_file and Path(args.state_file).exists():
+    if args.output and Path(args.output).exists():
         raise ValueError("Project path already exists.")
 
     # Get a name for the dataset
@@ -137,16 +130,11 @@ def _cli_simulate(argv):
 
     # create a new settings object from arguments
     settings = ReviewSettings(
-        classifier=args.model,
-        n_instances=args.n_instances,
-        stop_if=args.stop_if,
-        n_prior_included=args.n_prior_included,
-        n_prior_excluded=args.n_prior_excluded,
+        classifier=args.classifier,
         query_strategy=args.query_strategy,
         balance_strategy=args.balance_strategy,
         feature_extraction=args.feature_extraction,
-        init_seed=args.init_seed,
-        seed=args.seed,
+        n_stop=args.n_stop,
     )
 
     if args.config_file:
@@ -201,30 +189,30 @@ def _cli_simulate(argv):
         query_strategy=query_model,
         balance_strategy=balance_model,
         feature_extraction=feature_model,
-        n_instances=args.n_instances,
-        stop_if=args.stop_if,
+        n_query=args.n_query,
+        n_stop=args.n_stop,
     )
     if len(prior_idx) > 0:
         sim.label(prior_idx, prior=True)
 
-    if args.n_prior_included > 0 or args.n_prior_excluded > 0:
+    if args.n_prior_relevant > 0 or args.n_prior_irrelevant > 0:
         sim.label_random(
-            n_included=args.n_prior_included,
-            n_excluded=args.n_prior_excluded,
+            n_included=args.n_prior_relevant,
+            n_excluded=args.n_prior_irrelevant,
             prior=True,
-            random_state=args.init_seed,
+            random_state=args.prior_seed,
         )
     sim.review()
 
-    if args.state_file is not None:
+    if args.output is not None:
         # write all results to the project file
-        fp_tmp_simulation = Path(args.state_file).with_suffix(".asreview.tmp")
+        fp_tmp_simulation = Path(args.output).with_suffix(".asreview.tmp")
 
         project = Project.create(
             fp_tmp_simulation,
-            project_id=Path(args.state_file).stem,
+            project_id=Path(args.output).stem,
             project_mode="simulate",
-            project_name=Path(args.state_file).stem,
+            project_name=Path(args.output).stem,
             project_description="Simulation created via ASReview via "
             "command line interface",
         )
@@ -236,11 +224,11 @@ def _cli_simulate(argv):
         project.add_review(settings=settings, reviewer=sim, status="finished")
 
         # export the project file
-        project.export(args.state_file)
+        project.export(args.output)
         shutil.rmtree(fp_tmp_simulation)
 
     else:
-        print("\nTo store the results, use the -s option. E.g. -s my_sim.asreview")
+        print("\nTo store the results, use the -o option. E.g. -o my_sim.asreview")
 
 
 DESCRIPTION_SIMULATE = """
@@ -248,117 +236,106 @@ ASReview for simulation.
 
 The simulation modus is used to measure the performance of the ASReview
 software on existing systematic reviews. The software shows how many
-papers you could have potentially skipped during the systematic
+records you could have potentially skipped during the systematic
 review."""
 
 
 def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
-    # parse arguments if available
     parser = argparse.ArgumentParser(
         prog=prog,
         description=description,
         formatter_class=argparse.RawTextHelpFormatter,
     )
 
-    # active learning parameters
-    # File path to the data.
     parser.add_argument(
         "dataset",
         type=str,
-        help="File path to the dataset or one of the benchmark datasets.",
+        help="File path to the dataset or handle of benchmark dataset.",
     )
-    # Initial data (prior knowledge)
+
+    # A priori knowledge
     parser.add_argument(
-        "--n_prior_included",
-        default=DEFAULT_N_PRIOR_INCLUDED,
+        "--n-prior-relevant",
+        default=0,
         type=int,
-        help="Sample n prior included papers. "
-        "Only used when --prior_idx is not given. "
-        f"Default {DEFAULT_N_PRIOR_INCLUDED}",
+        help="Sample n prior relevant records. "
+        "Only used when --prior_idx is not given. Default 0",
     )
 
     parser.add_argument(
-        "--n_prior_excluded",
-        default=DEFAULT_N_PRIOR_EXCLUDED,
+        "--n-prior-irrelevant",
+        default=0,
         type=int,
-        help="Sample n prior excluded papers. "
-        "Only used when --prior_idx is not given. "
-        f"Default {DEFAULT_N_PRIOR_EXCLUDED}",
+        help="Sample n prior irrelevant records. "
+        "Only used when --prior_idx is not given. Default 0",
     )
 
     parser.add_argument(
-        "--prior_idx",
+        "--prior-seed",
+        default=None,
+        type=int,
+        help="Seed for selecting prior records if the --prior-idx option is "
+        "not used. If the option --prior-idx is used with one or more "
+        "index, this option is ignored.",
+    )
+    parser.add_argument(
+        "--prior-record-id",
+        default=[],
+        nargs="*",
+        type=int,
+        help="Prior indices by record-id.",
+    )
+
+    parser.add_argument(
+        "--prior-idx",
         default=[],
         nargs="*",
         type=int,
         help="Prior indices by rownumber (0 is first rownumber).",
     )
+
+    # model settings
     parser.add_argument(
-        "--prior_record_id",
-        default=[],
-        nargs="*",
-        type=int,
-        help="Prior indices by record_id.",
-    )
-    # logging and verbosity
-    parser.add_argument(
-        "--state_file",
-        "-s",
-        default=None,
+        "-c",
+        "--classifier",
         type=str,
-        help="Location to ASReview project file of simulation.",
-    )
-    parser.add_argument(
-        "-m",
-        "--model",
-        type=str,
-        default=DEFAULT_CLASSIFIER,
-        help=f"The prediction model for Active Learning. "
-        f"Default: '{DEFAULT_CLASSIFIER}'.",
+        default="nb",
+        help="Rank records with classifier. Default: 'nb'.",
     )
     parser.add_argument(
         "-q",
-        "--query_strategy",
+        "--query",
         type=str,
-        default=DEFAULT_QUERY_STRATEGY,
-        help=f"The query strategy for Active Learning. "
-        f"Default: '{DEFAULT_QUERY_STRATEGY}'.",
+        dest="query_strategy",
+        default="max",
+        help="Query records with algorithm. Default: 'max'",
     )
     parser.add_argument(
         "-b",
-        "--balance_strategy",
+        "--balancer",
         type=str,
         dest="balance_strategy",
-        default=DEFAULT_BALANCE_STRATEGY,
-        help="Data rebalancing strategy mainly for RNN methods. Helps against"
-        " imbalanced dataset with few inclusions and many exclusions. "
-        f"Default: '{DEFAULT_BALANCE_STRATEGY}'",
+        default="double",
+        help="Balance training data in cases of few relevant and many irrelevant records. "
+        "Default: 'double'",
     )
     parser.add_argument(
-        "--no_balance_strategy",
+        "--no-balancer",
         action="store_const",
         const=None,
         dest="balance_strategy",
         help="Do not use a balance strategy.",
     )
     parser.add_argument(
-        "-e",
-        "--feature_extraction",
+        "-f",
+        "--feature-extraction",
         type=str,
-        default=DEFAULT_FEATURE_EXTRACTION,
+        default="tfidf",
         help="Feature extraction method. Some combinations of feature"
         " extraction method and prediction model are impossible/ill"
-        " advised."
-        f"Default: '{DEFAULT_FEATURE_EXTRACTION}'",
+        " advised. Default: 'tfidf'.",
     )
-    parser.add_argument(
-        "--init_seed",
-        default=None,
-        type=int,
-        help="Seed for setting the prior indices if the --prior_idx option is "
-        "not used. If the option --prior_idx is used with one or more "
-        "index, this option is ignored.",
-    )
+
     parser.add_argument(
         "--seed",
         default=None,
@@ -366,25 +343,39 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         help="Seed for the model (classifiers, balance strategies, "
         "feature extraction techniques, and query strategies).",
     )
+
+    # active learning cycle
     parser.add_argument(
-        "--config_file",
-        type=str,
-        default=None,
-        help="Configuration file with model settings" "and parameter values.",
-    )
-    parser.add_argument(
-        "--n_instances",
-        default=DEFAULT_N_INSTANCES,
+        "--n-query",
+        default=1,
         type=int,
-        help="Number of papers queried each query." f"Default {DEFAULT_N_INSTANCES}.",
+        help="Number of records queried each query. Default 1.",
     )
     parser.add_argument(
-        "--stop_if",
+        "--n-stop",
         type=type_n_queries,
         default="min",
         help="The number of label actions to simulate. Default, 'min' "
         "will stop simulating when all relevant records are found. Use -1 "
         "to simulate all labels actions.",
     )
+
+    # configuration file
+    parser.add_argument(
+        "--config-file",
+        type=str,
+        default=None,
+        help="Configuration file with model settings and parameter values.",
+    )
+
+    # output and verbosity
+    parser.add_argument(
+        "--output",
+        "-o",
+        default=None,
+        type=str,
+        help="Location to ASReview project file of simulation.",
+    )
+
     parser.add_argument("--verbose", "-v", default=0, type=int, help="Verbosity")
     return parser

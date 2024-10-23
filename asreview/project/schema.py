@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# the schema describes the content of the ASReview project file.
-
-from asreview.config import PROJECT_MODES
+"""The schema describes the content of the ASReview project file."""
 
 SCHEMA = {
     "$schema": "http://json-schema.org/draft-07/schema",
@@ -69,9 +67,9 @@ SCHEMA = {
             "$id": "#/properties/mode",
             "type": "string",
             "title": "The mode schema",
-            "description": "The mode of the project. One of oracle, or simulate.",
-            "default": "",
-            "enum": PROJECT_MODES,
+            "description": "The mode of the project. One of oracle or simulate.",
+            "default": "oracle",
+            "enum": ["oracle", "simulate"],
             "examples": ["oracle"],
         },
         "name": {

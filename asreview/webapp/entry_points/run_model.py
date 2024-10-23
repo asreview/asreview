@@ -20,8 +20,8 @@ from filelock import FileLock
 from filelock import Timeout
 
 import asreview as asr
-from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.extensions import load_extension
+from asreview.project.api import PROJECT_MODE_SIMULATE
 from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
 from asreview.state.contextmanager import open_state
@@ -38,7 +38,7 @@ def _run_model_start(project):
     try:
         lock = FileLock(Path(project.project_path, "training.lock"), timeout=0)
 
-        settings = ReviewSettings().from_file(
+        settings = ReviewSettings.from_file(
             Path(
                 project.project_path,
                 "reviews",
@@ -108,7 +108,7 @@ def _run_model_start(project):
 def _simulate_start(project):
     as_data = project.read_data()
 
-    settings = ReviewSettings().from_file(
+    settings = ReviewSettings.from_file(
         Path(
             project.project_path,
             "reviews",
