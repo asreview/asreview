@@ -15,8 +15,8 @@ def test_asreview_labels_ris(test_file, tmpdir):
     asr_data_diff = load_dataset(tmp_ris_fp_out)
 
     # Check if input file matches the export file
-    assert list(asr_data.title) == list(asr_data_diff.title)
-    assert list(asr_data.labels) == list(asr_data_diff.labels)
+    assert list(asr_data["title"]) == list(asr_data_diff["title"])
+    assert list(asr_data["included"]) == list(asr_data_diff["included"])
 
 
 @mark.parametrize("test_file", [("baseline_tag-notes.ris")])
@@ -30,8 +30,8 @@ def test_asreview_notes_ris(test_file, tmpdir):
     asr_data_diff = load_dataset(tmp_ris_fp_out)
 
     # Check if input file matches the export file
-    assert list(asr_data.title) == list(asr_data_diff.title)
-    assert list(asr_data.df["notes"]) == list(asr_data_diff.df["notes"])
+    assert list(asr_data["title"]) == list(asr_data_diff["title"])
+    assert list(asr_data["notes"]) == list(asr_data_diff["notes"])
 
 
 @mark.parametrize("test_file", [("ris_issue_992.txt"), ("ris_issue_1099.txt")])
@@ -45,4 +45,4 @@ def test_asreview_ris(test_file, tmpdir):
     asr_data_diff = load_dataset(tmp_ris_fp_out)
 
     # Check if input file matches the export file
-    assert list(asr_data.title) == list(asr_data_diff.title)
+    assert list(asr_data["title"]) == list(asr_data_diff["title"])

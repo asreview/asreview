@@ -48,7 +48,7 @@ def test_reader(test_file, n_lines, ignore_col):
     #     assert np.array_equal(as_data.labels, labels)
 
     for col in cols:
-        values = as_data.get(col)
+        values = as_data[col]
         assert len(values) == n_lines
 
 
@@ -125,12 +125,12 @@ def test_nan_values_ris():
     assert as_data.record(2).abstract is None
 
     # Check missing authors
-    assert as_data.record(0).authors is None
-    assert as_data.record(2).authors is None
+    assert as_data.record(0).authors == []
+    assert as_data.record(2).authors == []
 
     # Check missing keywords
-    assert as_data.record(0).keywords is None
-    assert as_data.record(2).keywords is None
+    assert as_data.record(0).keywords == []
+    assert as_data.record(2).keywords == []
 
     # Check missing notes
     assert as_data.record(0).notes is None
@@ -139,10 +139,6 @@ def test_nan_values_ris():
     # check missing doi
     assert as_data.record(0).doi is None
     assert as_data.record(2).doi is None
-
-    # check is_prior
-    assert not as_data.record(0).is_prior
-    assert not as_data.record(2).is_prior
 
 
 def test_nan_values_csv():
@@ -158,27 +154,16 @@ def test_nan_values_csv():
     assert as_data.record(2).abstract is None
 
     # Check missing authors
-    assert as_data.record(0).authors is None
-    assert as_data.record(2).authors is None
+    assert as_data.record(0).authors == []
+    assert as_data.record(2).authors == []
 
     # Check missing keywords
-    assert as_data.record(0).keywords is None
-    assert as_data.record(2).keywords is None
+    assert as_data.record(0).keywords == []
+    assert as_data.record(2).keywords == []
 
     # Check missing doi
     assert as_data.record(0).doi is None
     assert as_data.record(2).doi is None
-
-
-def test_asreview_labels_prior():
-    fp = Path("tests", "demo_data", "baseline_tag-notes_labels.ris")
-    as_data = load_dataset(fp)
-    assert as_data.record(0).is_prior
-    assert as_data.record(1).is_prior
-    assert not as_data.record(2).is_prior
-    assert not as_data.record(3).is_prior
-
-    assert as_data.is_prior().sum() == 2
 
 
 def test_write_data(tmpdir):
@@ -191,7 +176,7 @@ def test_write_data(tmpdir):
     asr_data.to_file(tmp_csv_fp_out)
     asr_data_diff = load_dataset(tmp_csv_fp_out)
     # Check if export file includes labels [1,0]
-    assert list(asr_data.labels) == list(asr_data_diff.labels)
+    assert list(asr_data["included"]) == list(asr_data_diff["included"])
 
 
 @mark.internet_required

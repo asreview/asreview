@@ -11,22 +11,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import logging
-from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from pandas.api.types import is_object_dtype
-from pandas.api.types import is_string_dtype
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
 from asreview.extensions import load_extension
+from asreview.data.record import Record
+from asreview.data.utils import convert_to_list
+from asreview.data.utils import duplicated
+from asreview.data.utils import get_texts
 
 
-def _type_from_column(col_name, col_definitions):
+def _standardize_column_name(col_name, col_definitions):
     """Transform a column name to its standardized form.
 
     Arguments
@@ -49,66 +49,47 @@ def _type_from_column(col_name, col_definitions):
     return None
 
 
-def _convert_keywords(keywords):
-    """Split keywords separated by commas etc to lists."""
-    if not isinstance(keywords, str):
-        return keywords
+# @dataclass
+# class Record:
+#     """A record from the dataset.
 
-    current_best = [keywords]
-    for splitter in [", ", "; ", ": ", ";", ":"]:
-        new_split = keywords.split(splitter)
-        if len(new_split) > len(current_best):
-            current_best = new_split
-    return current_best
+#     The record contains only fields that are relevant for the
+#     systematic review. Other fields are stored not included.
 
+#     Arguments
+#     ---------
+#     record_id: int
+#         Identifier for this record.
+#     title: str
+#         Title of the record.
+#     abstract: str
+#         Abstract of the record.
+#     authors: str
+#         Authors of the record.
+#     notes: str
+#         Notes of the record.
+#     keywords: str
+#         Keywords of the record.
+#     included: int
+#         Label of the record.
+#     year: int
+#         Year of publication.
+#     doi: str
+#         DOI of the record.
+#     url: str
+#         URL of the record.
+#     """
 
-@dataclass
-class Record:
-    """A record from the dataset.
-
-    The record contains only fields that are relevant for the
-    systematic review. Other fields are stored not included.
-
-    Arguments
-    ---------
-    record_id: int
-        Identifier for this record.
-    title: str
-        Title of the record.
-    abstract: str
-        Abstract of the record.
-    authors: str
-        Authors of the record.
-    notes: str
-        Notes of the record.
-    keywords: str
-        Keywords of the record.
-    included: int
-        Label of the record.
-    type_of_reference: str
-        Type of reference.
-    year: int
-        Year of publication.
-    doi: str
-        DOI of the record.
-    url: str
-        URL of the record.
-    is_prior: bool
-        Whether the record is a prior record.
-    """
-
-    record_id: int
-    title: str = None
-    abstract: str = None
-    authors: str = None
-    notes: str = None
-    keywords: str = None
-    type_of_reference: str = None
-    year: int = None
-    doi: str = None
-    url: str = None
-    included: int = None
-    is_prior: bool = False
+#     record_id: int
+#     title: str = None
+#     abstract: str = None
+#     authors: str = None
+#     notes: str = None
+#     keywords: str = None
+#     year: int = None
+#     doi: str = None
+#     url: str = None
+#     included: int = None
 
 
 class Dataset:
@@ -120,8 +101,9 @@ class Dataset:
         Dataframe containing the data for the ASReview data object.
     column_spec: dict
         Specification for which column corresponds to which standard
-        specification. Key is the standard specification, key is which column
-        it is actually in. Default: None.
+        specification. Key is the standard specification (see
+        `asreview.config.COLUMN_DEFINITIONS`), value is which column it is actually in.
+        Default: None.
 
     Attributes
     ----------
@@ -147,24 +129,27 @@ class Dataset:
         Returns an array with dataset DOI.
     included: numpy.ndarray
         Returns an array with document inclusion markers.
-    final_included: numpy.ndarray
-        Pending deprecation! Returns an array with document inclusion markers.
     labels: numpy.ndarray
         Identical to included.
 
     """
 
-    def __init__(self, df=None, column_spec=None):
+    def __init__(self, df=None, column_spec=None, id="MISSING_DATASET_ID"):
+        self.id = id
         self.df = df
         self.column_spec = column_spec
 
         if column_spec is None:
-            self._get_column_spec_df()
+            self.column_spec = {}
+            for col_name in list(self.df):
+                data_type = _standardize_column_name(col_name, COLUMN_DEFINITIONS)
+                if data_type is not None:
+                    self.column_spec[data_type] = col_name
 
         self.df.columns = self.df.columns.str.strip()
 
         # Convert labels to integers.
-        if self.column_spec and "included" in list(self.column_spec):
+        if self.column_spec and "included" in self.column_spec:
             col = self.column_spec["included"]
 
             if self.df[col].dtype in ["str", "object"]:
@@ -182,27 +167,43 @@ class Dataset:
         self.df.set_index("record_id", inplace=True)
 
         # Check if we either have abstracts or titles.
-        if "abstract" not in list(self.column_spec) and "title" not in list(
-            self.column_spec
-        ):
+        if "abstract" not in self.column_spec and "title" not in self.column_spec:
             raise ValueError("File supplied without 'abstract' or 'title'" " fields.")
-        if "abstract" not in list(self.column_spec):
+        if "abstract" not in self.column_spec:
             logging.warning("Unable to detect abstracts in dataset.")
-        if "title" not in list(self.column_spec):
+        if "title" not in self.column_spec:
             logging.warning("Unable to detect titles in dataset.")
 
-    def _get_column_spec_df(self):
-        self.column_spec = {}
-        for col_name in list(self.df):
-            data_type = _type_from_column(col_name, COLUMN_DEFINITIONS)
-            if data_type is not None:
-                self.column_spec[data_type] = col_name
+    def __getitem__(self, item):
+        if item not in self.column_spec or self.column_spec[item] not in self.df:
+            raise KeyError(
+                f"Dataset does not have a column named {item}."
+                f" Valid column names are: {list(self.column_spec)}"
+            )
+        column = self.df[self.column_spec[item]]
+        return column.apply(lambda value: self.clean_value(item, value)).values
+
+    def clean_value(self, column_name, value):
+        if column_name in ["authors", "keywords"]:
+            return convert_to_list(value)
+        else:
+            return value
+
+    def __contains__(self, item):
+        return item in self.column_spec and self.column_spec[item] in self.df
 
     def __len__(self):
         if self.df is None:
             return 0
         return len(self.df.index)
 
+    def get(self, item, default=None):
+        try:
+            return self[item]
+        except KeyError:
+            return default
+
+    # Once Dataset is a list of Records, this can go.
     def record(self, i):
         """Create a record from an index.
 
@@ -226,7 +227,8 @@ class Dataset:
 
         records = [
             Record(
-                record_id=int(self.df.index.values[j]),
+                dataset_row=int(self.df.index.values[j]),
+                dataset_id=self.id,
                 **self.df.rename(column_spec_inv, axis=1)[self.column_spec.keys()]
                 .iloc[j]
                 .replace(np.nan, None)
@@ -239,119 +241,30 @@ class Dataset:
             return records
         return records[0]
 
+    def to_records(self):
+        column_spec_inv = {v: k for k, v in self.column_spec.items()}
+        df = self.df.rename(column_spec_inv, axis=1)[self.column_spec.keys()].replace(
+            np.nan, None
+        )
+        for column_name in self.column_spec.keys():
+            df[column_name] = df[column_name].apply(
+                lambda value: self.clean_value(column_name=column_name, value=value)
+            )
+        return [
+            Record(dataset_row=row_idx, dataset_id=self.id, **row)
+            for row_idx, row in df.iterrows()
+        ]
+
+    # Can be removed, just use DataStore.n_records
     @property
     def record_ids(self):
         return self.df.index.values
 
+    # This is only used in BaseFeatureExtraction.fit_transform.
+    # It can probably just be completely removed, use Records as input to FA.
     @property
     def texts(self):
-        if self.title is None:
-            return self.abstract
-        if self.abstract is None:
-            return self.title
-
-        s_title = pd.Series(self.title)
-        s_abstract = pd.Series(self.abstract)
-
-        cur_texts = (s_title + " " + s_abstract).str.strip()
-
-        return cur_texts.values
-
-    @property
-    def headings(self):
-        return self.title
-
-    @property
-    def title(self):
-        try:
-            return self.df[self.column_spec["title"]].fillna("").values
-        except KeyError:
-            return None
-
-    @property
-    def bodies(self):
-        return self.abstract
-
-    @property
-    def abstract(self):
-        try:
-            return self.df[self.column_spec["abstract"]].fillna("").values
-        except KeyError:
-            return None
-
-    @property
-    def notes(self):
-        try:
-            return self.df[self.column_spec["notes"]].values
-        except KeyError:
-            return None
-
-    @property
-    def keywords(self):
-        try:
-            return self.df[self.column_spec["keywords"]].apply(_convert_keywords).values
-        except KeyError:
-            return None
-
-    @property
-    def authors(self):
-        try:
-            return self.df[self.column_spec["authors"]].values
-        except KeyError:
-            return None
-
-    @property
-    def doi(self):
-        try:
-            return self.df[self.column_spec["doi"]].values
-        except KeyError:
-            return None
-
-    @property
-    def url(self):
-        try:
-            return self.df[self.column_spec["url"]].values
-        except KeyError:
-            return None
-
-    def get(self, name):
-        "Get column with name."
-        try:
-            return self.df[self.column_spec[name]].values
-        except KeyError:
-            return self.df[name].values
-
-    @property
-    def included(self):
-        return self.labels
-
-    @property
-    def labels(self):
-        try:
-            column = self.column_spec["included"]
-            return self.df[column].values
-        except KeyError:
-            return None
-
-    @labels.setter
-    def labels(self, labels):
-        try:
-            column = self.column_spec["included"]
-            self.df[column] = labels
-        except KeyError:
-            self.df["included"] = labels
-
-    def is_prior(self):
-        """Get the labels that are marked as 'prior'.
-
-        Returns
-        -------
-        numpy.ndarray
-            Array of booleans that have the 'prior' property.
-        """
-
-        column = self.column_spec["is_prior"]
-        return self.df[column] == 1
+        return get_texts(self.df)
 
     def to_file(self, fp, writer=None, **kwargs):
         """Export data object to file.
@@ -405,58 +318,7 @@ class Dataset:
         return result_df
 
     def duplicated(self, pid="doi"):
-        """Return boolean Series denoting duplicate rows.
-
-        Identify duplicates based on titles and abstracts and if available,
-        on a persistent identifier (PID) such as the Digital Object Identifier
-        (`DOI <https://www.doi.org/>`_).
-
-        Arguments
-        ---------
-        pid: string
-            Which persistent identifier to use for deduplication.
-            Default is 'doi'.
-
-        Returns
-        -------
-        pandas.Series
-            Boolean series for each duplicated rows.
-        """
-        if pid in self.df.columns:
-            # in case of strings, strip whitespaces and replace empty strings with None
-            if is_string_dtype(self.df[pid]) or is_object_dtype(self.df[pid]):
-                s_pid = self.df[pid].str.strip().replace("", None)
-                if pid == "doi":
-                    s_pid = s_pid.str.lower().str.replace(
-                        r"^https?://(www\.)?doi\.org/", "", regex=True
-                    )
-            else:
-                s_pid = self.df[pid]
-
-            # save boolean series for duplicates based on persistent identifiers
-            s_dups_pid = (s_pid.duplicated()) & (s_pid.notnull())
-        else:
-            s_dups_pid = None
-
-        # get the texts, clean them and replace empty strings with None
-        s = (
-            pd.Series(self.texts)
-            .str.replace("[^A-Za-z0-9]", "", regex=True)
-            .str.lower()
-            .str.strip()
-            .replace("", None)
-        )
-
-        # save boolean series for duplicates based on titles/abstracts
-        s_dups_text = (s.duplicated()) & (s.notnull())
-
-        # final boolean series for all duplicates
-        if s_dups_pid is not None:
-            s_dups = s_dups_pid | s_dups_text
-        else:
-            s_dups = s_dups_text
-
-        return s_dups
+        return duplicated(self.df, pid)
 
     def drop_duplicates(self, pid="doi", inplace=False, reset_index=True):
         """Drop duplicate records.

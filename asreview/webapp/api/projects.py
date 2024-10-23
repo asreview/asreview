@@ -77,16 +77,13 @@ def _fill_last_ranking(project, ranking):
     if ranking not in ["random", "top-down"]:
         raise ValueError(f"Unknown ranking type: {ranking}")
 
-    as_data = project.read_data()
-    record_table = pd.Series(as_data.record_ids, name="record_id")
-
+    record_ids = project.data_store["record_id"]
+    if ranking == "random":
+        ranked_record_ids = record_ids.sample(frac=1)
+    elif ranking == "top-down":
+        ranked_record_ids = record_ids
     with open_state(project.project_path) as state:
-        if ranking == "random":
-            records = record_table.sample(frac=1)
-        elif ranking == "top-down":
-            records = record_table
-
-        state.add_last_ranking(records.values, None, ranking, None, None)
+        state.add_last_ranking(ranked_record_ids.values, None, ranking, None, None)
 
 
 # error handlers
@@ -221,24 +218,21 @@ def api_create_project():  # noqa: F401
     data_path = Path(project.project_path, "data") / filename
 
     try:
-        as_data = project.add_dataset(data_path.name)
+        project.add_dataset(data_path.name)
         project.add_review()
 
-        n_labeled = (
-            0
-            if as_data.labels is None
-            else len(np.where(as_data.labels == 0)[0])
-            + len(np.where(as_data.labels == 1)[0])
-        )
+        as_data = project.data_store
 
-        if n_labeled > 0 and n_labeled < len(as_data):
+        n_labeled = project.data_store["included"].notnull().sum()
+
+        if n_labeled > 0 and n_labeled < len(project.data_store):
             with open_state(project.project_path) as state:
                 labeled_indices = np.where(
-                    (as_data.labels == 1) | (as_data.labels == 0)
+                    (as_data["included"] == 1) | (as_data["included"] == 0)
                 )[0]
 
-                labels = as_data.labels[labeled_indices].tolist()
-                labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
+                labels = as_data["included"][labeled_indices].tolist()
+                labeled_record_ids = as_data["record_ids"][labeled_indices].tolist()
 
                 state.add_labeling_data(
                     record_ids=labeled_record_ids,
@@ -369,10 +363,7 @@ def api_demo_data_project():  # noqa: F401
 def api_get_project_data(project):  # noqa: F401
     """"""
 
-    try:
-        data = project.read_data()
-    except FileNotFoundError:
-        return jsonify({"filename": None})
+    data = project.data_store[["included", "title", "abstract", "doi"]]
 
     if data.url is not None:
         urn = pd.Series(data.url).replace("", None)
@@ -466,20 +457,21 @@ def api_search_data(project):  # noqa: F401
     if not q:
         return jsonify({"result": []})
 
-    as_data = project.read_data()
+    search_data = project.data_store[["title", "authors", "keywords"]]
 
     with open_state(project.project_path) as s:
         labeled_record_ids = s.get_results_table()["record_id"].to_list()
 
     result_ids = fuzzy_find(
-        as_data,
+        search_data,
         q,
         max_return=max_results,
         exclude=labeled_record_ids,
     )
 
     result = []
-    for record in as_data.record(result_ids):
+    for result_id in result_ids:
+        record = project.data_store.get_records(result_id)
         record_d = asdict(record)
         record_d["state"] = None
         record_d["tags_form"] = project.config.get("tags", None)
@@ -559,7 +551,7 @@ def api_get_labeled(project):  # noqa: F401
         next_page = None
         previous_page = None
 
-    records = project.read_data().record(state_data["record_id"])
+    records = project.data_store.get_records(state_data["record_id"])
 
     result = []
     for (_, state), record in zip(state_data.iterrows(), records):
@@ -991,13 +983,11 @@ def _get_stats(project, include_priors=False):
     try:
         is_project(project)
 
-        as_data = project.read_data()
-
         # Get label history
         with open_state(project.project_path) as s:
             labels = s.get_results_table(priors=include_priors)["label"]
             labels_without_priors = s.get_results_table(priors=False)["label"]
-        n_records = len(as_data)
+        n_records = len(project.data_store)
 
     except (FileNotFoundError, ValueError, ProjectError):
         labels = np.array([])
@@ -1145,8 +1135,7 @@ def api_label_record(project, record_id):  # noqa: F401
         with open_state(project.project_path) as state:
             record = state.get_results_record(record_id)
 
-        as_data = project.read_data()
-        item = asdict(as_data.record(record_id))
+        item = asdict(project.data_store.get_records(record_id))
         item["state"] = record.iloc[0].to_dict()
         item["tags_form"] = project.config.get("tags", None)
 
@@ -1193,8 +1182,7 @@ def api_get_document(project):  # noqa: F401
                     {"result": None, "pool_empty": not ranking.empty and pool.empty}
                 )
 
-    as_data = project.read_data()
-    item = asdict(as_data.record(pending["record_id"].iloc[0]))
+    item = asdict(project.data_store.get_records(pending["record_id"].iloc[0]))
     item["state"] = pending.iloc[0].to_dict()
     item["tags_form"] = project.config.get("tags", None)
 

@@ -5,6 +5,7 @@ import pandas as pd
 from pytest import mark
 
 import asreview as asr
+from asreview.data.store import DataStore
 from asreview.datasets import DatasetManager
 from asreview.search import fuzzy_find
 
@@ -27,11 +28,14 @@ def exists(url):
         ("Cancer case computer contrast pancreatomy Yamada", 2),
     ],
 )
-def test_fuzzy_finder(keywords, record_id):
+def test_fuzzy_finder(tmpdir, keywords, record_id):
     fp = Path("tests", "demo_data", "embase.csv")
-    as_data = asr.load_dataset(fp)
+    records = asr.load_dataset(fp, dataset_id="foo")
+    data_store = DataStore(Path(tmpdir, "store.db"))
+    data_store.create_tables()
+    data_store.add_records(records)
 
-    assert fuzzy_find(as_data, keywords)[0] == record_id
+    assert fuzzy_find(data_store, keywords)[0] == record_id
 
 
 @mark.internet_required
@@ -54,7 +58,7 @@ def test_datasets(data_name):
 def test_duplicate_count():
     data = asr.load_dataset(Path("tests", "demo_data", "duplicate_records.csv"))
 
-    assert int(data.duplicated("doi").sum()) == 2
+    assert int(data.df.duplicated("doi").sum()) == 2
 
 
 def test_deduplication():

@@ -25,6 +25,7 @@ from scipy.sparse import load_npz
 from scipy.sparse import save_npz
 
 from asreview.models.base import BaseModel
+from asreview.data.utils import get_texts
 
 
 class BaseFeatureExtraction(BaseModel):
@@ -45,7 +46,7 @@ class BaseFeatureExtraction(BaseModel):
         self.split_ta = split_ta
         self.use_keywords = use_keywords
 
-    def fit_transform(self, texts, titles=None, abstracts=None, keywords=None):
+    def fit_transform(self, data):
         """Fit and transform a list of texts.
 
         Arguments
@@ -58,14 +59,11 @@ class BaseFeatureExtraction(BaseModel):
         numpy.ndarray
             Feature matrix representing the texts.
         """
+        texts = get_texts(data)
         self.fit(texts)
-        if self.split_ta:
-            if titles is None or abstracts is None:
-                raise ValueError(
-                    "Error: if splitting titles and abstracts," " supply them!"
-                )
-            X_titles = self.transform(titles)
-            X_abstracts = self.transform(abstracts)
+        if self.split_ta > 0:
+            X_titles = self.transform(data["title"])
+            X_abstracts = self.transform(data["abstract"])
             if issparse(X_titles) and issparse(X_abstracts):
                 X = hstack([X_titles, X_abstracts]).tocsr()
             else:
@@ -73,8 +71,8 @@ class BaseFeatureExtraction(BaseModel):
         else:
             X = self.transform(texts)
 
-        if self.use_keywords and keywords is not None:
-            join_keys = np.array([" ".join(key) for key in keywords])
+        if self.use_keywords:
+            join_keys = np.array([" ".join(key) for key in data["keywords"]])
             X_keywords = self.transform(join_keys)
             if issparse(X_keywords):
                 X = hstack([X, X_keywords]).tocsr()

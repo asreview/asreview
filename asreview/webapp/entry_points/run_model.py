@@ -48,17 +48,13 @@ def _run_model_start(project):
         )
 
         with lock:
-            as_data = project.read_data()
-
             feature_model = load_extension(
                 "models.feature_extraction", settings.feature_extraction
             )()
             try:
                 fm = project.get_feature_matrix(feature_model)
             except FileNotFoundError:
-                fm = feature_model.fit_transform(
-                    as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
-                )
+                fm = feature_model.fit_transform(project.data_store)
                 project.add_feature_matrix(fm, feature_model)
 
             with open_state(project) as state:
@@ -106,8 +102,6 @@ def _run_model_start(project):
 
 
 def _simulate_start(project):
-    as_data = project.read_data()
-
     settings = ReviewSettings().from_file(
         Path(
             project.project_path,
@@ -123,9 +117,7 @@ def _simulate_start(project):
     feature_model = load_extension(
         "models.feature_extraction", settings.feature_extraction
     )()
-    fm = feature_model.fit_transform(
-        as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
-    )
+    fm = feature_model.fit_transform(project.data_store)
     project.add_feature_matrix(fm, feature_model)
 
     if settings.balance_strategy is not None:
@@ -135,7 +127,7 @@ def _simulate_start(project):
 
     sim = Simulate(
         fm,
-        labels=as_data.labels,
+        labels=project.data_store["included"],
         classifier=load_extension("models.classifiers", settings.classifier)(),
         query_strategy=load_extension("models.query", settings.query_strategy)(),
         balance_strategy=balance_model,
