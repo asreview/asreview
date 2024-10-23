@@ -233,7 +233,7 @@ def _cli_simulate(argv):
         project.update_config(dataset_path=filename)
 
         project.add_feature_matrix(fm, feature_model)
-        project.add_review(settings=settings, state=sim, status="finished")
+        project.add_review(settings=settings, reviewer=sim, status="finished")
 
         # export the project file
         project.export(args.state_file)

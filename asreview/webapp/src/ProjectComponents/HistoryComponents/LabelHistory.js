@@ -140,6 +140,7 @@ const LabelHistory = ({
   n_prior_exclusions = null,
   showFilter = true,
   filterQuery = [],
+  showExport = true,
 }) => {
   const { project_id } = useParams();
 
@@ -184,7 +185,7 @@ const LabelHistory = ({
               }}
             />
           </Stack>
-          <ExportButton project_id={project_id} />
+          {showExport && <ExportButton project_id={project_id} />}
         </Toolbar>
       </Container>
       <Divider />
