@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import logging
 import os
 from pathlib import Path
@@ -134,7 +135,7 @@ def create_app(config_path=None):
     def index(**kwargs):
         oauth_params = None
         if isinstance(app.config.get("OAUTH", False), OAuthHandler):
-            oauth_params = app.config.get("OAUTH").front_end_params()
+            oauth_params = json.dumps(app.config.get("OAUTH").front_end_params())
 
         return render_template(
             "index.html",
@@ -147,7 +148,7 @@ def create_app(config_path=None):
             ).lower(),
             allow_teams=str(app.config.get("ALLOW_TEAMS", True)).lower(),
             email_verification=str(app.config.get("EMAIL_VERIFICATION", False)).lower(),
-            oauth=app.config.get("OAUTH", oauth_params),
+            oauth=oauth_params,
         )
 
     @app.route("/", methods=["GET"])
