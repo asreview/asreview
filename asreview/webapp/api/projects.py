@@ -101,10 +101,16 @@ def _run_model(project):
     if not current_app.testing:
         try:
             client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            client_socket.connect((
-                current_app.config.get("TASK_MANAGER_HOST", DEFAULT_TASK_MANAGER_HOST),
-                current_app.config.get("TASK_MANAGER_PORT", DEFAULT_TASK_MANAGER_PORT),
-            ))
+            client_socket.connect(
+                (
+                    current_app.config.get(
+                        "TASK_MANAGER_HOST", DEFAULT_TASK_MANAGER_HOST
+                    ),
+                    current_app.config.get(
+                        "TASK_MANAGER_PORT", DEFAULT_TASK_MANAGER_PORT
+                    ),
+                )
+            )
             payload = {
                 "action": "insert",
                 "project_id": project.config["id"],

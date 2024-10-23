@@ -16,35 +16,32 @@ specify the host, port, and number of workers using environment variables
 environment variables taking precedence.
 """
 
+
 def _arg_parser(argv):
-    parser = argparse.ArgumentParser(
-        description=textwrap.dedent(description).strip()
-    )
+    parser = argparse.ArgumentParser(description=textwrap.dedent(description).strip())
     parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Enable verbose logging."
+        "--verbose", action="store_true", help="Enable verbose logging."
     )
 
     parser.add_argument(
         "--workers",
         default=DEFAULT_TASK_MANAGER_WORKERS,
         type=int,
-        help=f"Specify the number of workers, defaults to {DEFAULT_TASK_MANAGER_WORKERS}."
+        help=f"Specify the number of workers, defaults to {DEFAULT_TASK_MANAGER_WORKERS}.",
     )
 
     parser.add_argument(
         "--host",
         default=DEFAULT_TASK_MANAGER_HOST,
         type=str,
-        help=f"Specify the task manager's host, defaults to {DEFAULT_TASK_MANAGER_HOST}."
+        help=f"Specify the task manager's host, defaults to {DEFAULT_TASK_MANAGER_HOST}.",
     )
 
     parser.add_argument(
         "--port",
         default=DEFAULT_TASK_MANAGER_PORT,
         type=int,
-        help=f"Port of task manager, defaults to {DEFAULT_TASK_MANAGER_PORT}."
+        help=f"Port of task manager, defaults to {DEFAULT_TASK_MANAGER_PORT}.",
     )
 
     return parser.parse_args(argv)
