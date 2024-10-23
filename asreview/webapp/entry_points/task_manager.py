@@ -57,11 +57,8 @@ def main(argv):
     setup_logging(verbose=verbose)
 
     manager = TaskManager(
-        max_workers=os.getenv(
-            "ASREVIEW_LAB_TASK_MANAGER_WORKERS", args.workers),
-        host=os.getenv(
-            "ASREVIEW_LAB_TASK_MANAGER_HOST", args.host),
-        port=os.getenv(
-            "ASREVIEW_LAB_TASK_MANAGER_PORT", args.port)
+        max_workers=os.getenv("ASREVIEW_LAB_TASK_MANAGER_WORKERS", args.workers),
+        host=os.getenv("ASREVIEW_LAB_TASK_MANAGER_HOST", args.host),
+        port=os.getenv("ASREVIEW_LAB_TASK_MANAGER_PORT", args.port),
     )
     manager.start_manager()
