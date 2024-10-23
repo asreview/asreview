@@ -248,7 +248,7 @@ class TaskManager:
 
         conn.close()
 
-    def start_manager(self, mp_event):
+    def start_manager(self, mp_event=None):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_socket.bind((self.host, self.port))
         server_socket.listen()
@@ -285,8 +285,7 @@ def setup_logging(verbose=False):
 
 
 def run_task_manager(max_workers=None, host=None, port=None, verbose=False, mp_event=None):
-    # I need all parameters that are not None to pass to the
-    # TaskManager object.
+    # I need all parameters that are not None to pass to the TaskManager object.
     signature = inspect.signature(run_task_manager)
     bound_arguments = signature.bind(max_workers, host, port)
 

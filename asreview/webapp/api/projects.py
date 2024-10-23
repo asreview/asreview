@@ -55,6 +55,8 @@ from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
 from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
+from asreview.webapp.task_manager.task_manager import DEFAULT_TASK_MANAGER_HOST
+from asreview.webapp.task_manager.task_manager import DEFAULT_TASK_MANAGER_PORT
 from asreview.webapp.tasks import run_model
 from asreview.webapp.tasks import run_simulation
 from asreview.webapp.utils import asreview_path
@@ -97,10 +99,12 @@ def _run_model(project):
     simulation = project.config["mode"] == PROJECT_MODE_SIMULATE
 
     if not current_app.testing:
-        config_data = current_app.config.get("TASK_MANAGER_CONFIG", None)
         try:
             client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            client_socket.connect((config_data["host"], config_data["port"]))
+            client_socket.connect((
+                current_app.config.get("TASK_MANAGER_HOST", DEFAULT_TASK_MANAGER_HOST),
+                current_app.config.get("TASK_MANAGER_PORT", DEFAULT_TASK_MANAGER_PORT),
+            ))
             payload = {
                 "action": "insert",
                 "project_id": project.config["id"],
