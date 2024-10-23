@@ -167,4 +167,15 @@ def create_app(config_path=None):
     def static_from_root():
         return send_from_directory("build", request.path[1:])
 
+    # The task manager needs to be configured if not in testing
+    if not (app.testing):
+        # I want people to be able to configure the host and port of
+        # the task manager by using the env var TASK_MANAGER_ENDPOINT.
+        # This var needs to provide host and port in 1 string.
+        endpoint = app.config.get("TASK_MANAGER_ENDPOINT", False)
+        if endpoint:
+            endpoint = endpoint.split(":")
+            app.config["TASK_MANAGER_HOST"] = endpoint[0]
+            app.config["TASK_MANAGER_PORT"] = int(endpoint[1])
+
     return app

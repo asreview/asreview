@@ -12,22 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import argparse
-import logging
 from pathlib import Path
 
-from filelock import FileLock
-from filelock import Timeout
-
 import asreview as asr
-from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.extensions import load_extension
 from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
 from asreview.state.contextmanager import open_state
+from asreview.webapp.utils import get_project_path
 
 
-def _run_model_start(project):
+def run_task(project_id, simulation=False):
+    project_path = get_project_path(project_id)
+    project = asr.Project(project_path, project_id=project_id)
+
+    if simulation:
+        run_simulation(project)
+    else:
+        run_model(project)
+
+    return True
+
+
+def run_model(project):
     with open_state(project) as s:
         if not s.exist_new_labeled_records:
             return
@@ -36,8 +43,6 @@ def _run_model_start(project):
             return
 
     try:
-        lock = FileLock(Path(project.project_path, "training.lock"), timeout=0)
-
         settings = ReviewSettings().from_file(
             Path(
                 project.project_path,
@@ -47,22 +52,21 @@ def _run_model_start(project):
             )
         )
 
-        with lock:
-            as_data = project.read_data()
+        as_data = project.read_data()
 
-            feature_model = load_extension(
-                "models.feature_extraction", settings.feature_extraction
-            )()
-            try:
-                fm = project.get_feature_matrix(feature_model)
-            except FileNotFoundError:
-                fm = feature_model.fit_transform(
-                    as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
-                )
-                project.add_feature_matrix(fm, feature_model)
+        feature_model = load_extension(
+            "models.feature_extraction", settings.feature_extraction
+        )()
+        try:
+            fm = project.get_feature_matrix(feature_model)
+        except FileNotFoundError:
+            fm = feature_model.fit_transform(
+                as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
+            )
+            project.add_feature_matrix(fm, feature_model)
 
-            with open_state(project) as state:
-                labeled = state.get_results_table(columns=["record_id", "label"])
+        with open_state(project) as state:
+            labeled = state.get_results_table(columns=["record_id", "label"])
 
             if settings.balance_strategy is not None:
                 balance_model = load_extension(
@@ -80,32 +84,29 @@ def _run_model_start(project):
             classifier.fit(fm[ind_train], labels_train)
             relevance_scores = classifier.predict_proba(fm)
 
-            query_strategy = load_extension("models.query", settings.query_strategy)()
-            ranked_record_ids = query_strategy.query(
-                feature_matrix=fm, relevance_scores=relevance_scores
+        query_strategy = load_extension("models.query", settings.query_strategy)()
+        ranked_record_ids = query_strategy.query(
+            feature_matrix=fm, relevance_scores=relevance_scores
+        )
+
+        with open_state(project) as state:
+            state.add_last_ranking(
+                ranked_record_ids,
+                classifier.name,
+                query_strategy.name,
+                balance_model_name,
+                feature_model.name,
+                len(labeled),
             )
 
-            with open_state(project) as state:
-                state.add_last_ranking(
-                    ranked_record_ids,
-                    classifier.name,
-                    query_strategy.name,
-                    balance_model_name,
-                    feature_model.name,
-                    len(labeled),
-                )
-
-            project.remove_review_error()
-
-    except Timeout:
-        logging.debug("Another iteration is training")
+        project.remove_review_error()
 
     except Exception as err:
         project.set_review_error(err)
         raise err
 
 
-def _simulate_start(project):
+def run_simulation(project):
     as_data = project.read_data()
 
     settings = ReviewSettings().from_file(
@@ -149,14 +150,3 @@ def _simulate_start(project):
         raise err
 
     project.update_review(state=sim, status="finished")
-
-
-def main(argv):
-    parser = argparse.ArgumentParser()
-    parser.add_argument("project", type=asr.Project, help="Project path")
-    args = parser.parse_args(argv)
-
-    if args.project.config["mode"] == PROJECT_MODE_SIMULATE:
-        _simulate_start(args.project)
-    else:
-        _run_model_start(args.project)
