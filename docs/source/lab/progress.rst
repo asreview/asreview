@@ -135,7 +135,7 @@ The following variables will be added to your tabular dataset:
 
 For RIS files, the
 labels **ASReview_relevant**, **ASReview_irrelevant**, **ASReview_not_seen**,
-and **asreview_prior**, **ASReview_validate_relevant/irrelevant/not_seen**
+and **ASReview_prior**, **ASReview_validate_relevant/irrelevant/not_seen**
 are stored with the `N1` (Notes) tag. In citation managers like Zotero and
 Endnote, the labels can be used for making selections.
 
