@@ -113,9 +113,8 @@ class DataStore:
         if self.is_empty():
             records[0].record_id = 0
 
-        with self.Session() as session:
+        with self.Session() as session, session.begin():
             session.add_all(records)
-            session.commit()
 
     def __len__(self):
         with self.Session() as session:

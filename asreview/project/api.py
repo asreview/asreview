@@ -22,6 +22,7 @@ import os
 import shutil
 import tempfile
 import time
+from urllib.request import urlretrieve
 import zipfile
 from dataclasses import asdict
 from datetime import datetime
@@ -32,10 +33,11 @@ import warnings
 import jsonschema
 from filelock import FileLock
 
-from asreview import load_dataset
+from asreview.data.loader import _from_file
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
 from asreview.config import PROJECT_MODE_SIMULATE
+from asreview.datasets import DatasetManager
 from asreview.migrate import migrate_v1_v2
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
@@ -44,7 +46,7 @@ from asreview.data.store import DataStore
 from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState
 
-from asreview.utils import _check_model
+from asreview.utils import _check_model, _get_filename_from_url, _is_url
 
 try:
     from asreview._version import __version__
@@ -199,37 +201,60 @@ class Project:
         self.config = config
         return config
 
-    def add_dataset(self, file_name, dataset_id=None):
-        """Add file path to the project file.
+    def add_dataset(self, fp, dataset_id=None, file_writer=None):
+        """Add a dataset to the project file.
 
-        Add file to data subfolder.
+        Arguments
+        ---------
+        fp: str, Path
+            Filepath to the dataset. It will be copied to the correct location in the
+            project file.
         """
-
-        # fill the pool of the first iteration
-        fp_data = Path(self.project_path, "data", file_name)
-
         if dataset_id is None:
             dataset_id = uuid4().hex
-        records = load_dataset(fp_data, dataset_id=dataset_id)
+
+        data_dir = Path(self.project_path, "data")
+        data_dir.mkdir(exist_ok=True)
+
+        if file_writer is not None:
+            save_fp = data_dir / fp
+            file_writer(save_fp)
+        elif _is_url(fp):
+            filename = _get_filename_from_url(fp)
+            save_fp = data_dir / filename
+            urlretrieve(fp, save_fp)
+        elif Path(fp).exists():
+            save_fp = data_dir / Path(fp).name
+            shutil.copy(fp, save_fp)
+        else:
+            dataset = DatasetManager().find(fp)
+            if dataset is None:
+                raise ValueError(
+                    "fp should be existing file, or URL or dataset, but does not"
+                    f" exist: {fp}"
+                )
+            save_fp = data_dir / dataset.filename
+            dataset.to_file(save_fp)
+        file_name = save_fp.name
+
+        records = _from_file(save_fp, dataset_id=dataset_id)
 
         # Internals of the records are leaking out here. We are checking for a specific
         # field and a specific value. If the presence of the field `included` is
         # necessary in the input data, we should move it from `Record` to the `Base`
         # class, so that all record implementations have it.
-        all_records_labeled = not any(record.included == LABEL_NA for record in records)
-
-        if self.config["mode"] == PROJECT_MODE_SIMULATE and not all_records_labeled:
+        any_record_unlabeled = any(record.included == LABEL_NA for record in records)
+        if self.config["mode"] == PROJECT_MODE_SIMULATE and any_record_unlabeled:
             raise ValueError("Import fully labeled dataset")
 
         self.data_store.add_records(records=records)
 
+        # This config update assumes that the project only has one dataset.
         self.update_config(
             dataset_path=file_name,
             name=file_name.rsplit(".", 1)[0],
             datasets=[{"id": dataset_id, "name": file_name}],
         )
-
-        self.update_config(dataset_path=file_name, name=file_name.rsplit(".", 1)[0])
 
     def remove_dataset(self):
         """Remove dataset from project."""

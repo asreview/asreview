@@ -181,10 +181,25 @@ def _cli_simulate(argv):
     ):
         raise ValueError("Not possible to provide both prior_idx and prior_record_id")
 
-    records = load_dataset(args.dataset, dataset_id=filename)
-    data_store = DataStore(":memory:")
-    data_store.create_tables()
-    data_store.add_records(records)
+    if args.state_file is not None:
+        # write all results to the project file
+        fp_tmp_simulation = Path(args.state_file).with_suffix(".asreview.tmp")
+
+        project = Project.create(
+            fp_tmp_simulation,
+            project_id=Path(args.state_file).stem,
+            project_mode="simulate",
+            project_name=Path(args.state_file).stem,
+            project_description="Simulation created via ASReview via "
+            "command line interface",
+        )
+        project.add_dataset(args.dataset, dataset_id=filename)
+        data_store = project.data_store
+    else:
+        records = load_dataset(args.dataset, dataset_id=filename)
+        data_store = DataStore(":memory:")
+        data_store.create_tables()
+        data_store.add_records(records)
 
     prior_idx = args.prior_idx
     if args.prior_record_id is not None and len(args.prior_record_id) > 0:
@@ -219,23 +234,7 @@ def _cli_simulate(argv):
     sim.review()
 
     if args.state_file is not None:
-        # write all results to the project file
-        fp_tmp_simulation = Path(args.state_file).with_suffix(".asreview.tmp")
-
-        project = Project.create(
-            fp_tmp_simulation,
-            project_id=Path(args.state_file).stem,
-            project_mode="simulate",
-            project_name=Path(args.state_file).stem,
-            project_description="Simulation created via ASReview via "
-            "command line interface",
-        )
-
-        # TODO: not sure about the following line
-        records.df.to_file(Path(fp_tmp_simulation, "data", filename))
-        project.add_dataset(filename, dataset_id=filename)
-        project.update_config(dataset_path=filename)
-
+        # Project exists because it was created in previous `if args.state_file`.
         project.add_feature_matrix(fm, feature_model)
         project.add_review(settings=settings, reviewer=sim, status="finished")
 

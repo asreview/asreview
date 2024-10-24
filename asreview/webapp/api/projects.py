@@ -21,7 +21,6 @@ import tempfile
 import time
 from dataclasses import asdict
 from pathlib import Path
-from urllib.request import urlretrieve
 from uuid import uuid4
 
 import datahugger
@@ -182,43 +181,21 @@ def api_create_project():  # noqa: F401
     # create dataset folder if not present
     Path(project.project_path, "data").mkdir(exist_ok=True)
 
-    if request.form.get("plugin", None):
-        ds = DatasetManager().find(request.form["plugin"])
-        filename = ds.filename
-        ds.to_file(Path(project.project_path, "data", filename))
-
-    elif request.form.get("benchmark", None):
-        ds = DatasetManager().find(request.form["benchmark"])
-        filename = ds.filename
-        ds.to_file(Path(project.project_path, "data", filename))
-
-    elif url := request.form.get("url", None):
-        if request.form.get("filename", None):
-            filename = request.form["filename"]
-        else:
-            filename = _get_filename_from_url(url)
-
-        try:
-            urlretrieve(url, Path(project.project_path, "data") / filename)
-        except Exception:
-            return jsonify(message=f"Can't retrieve data from URL {url}."), 400
-
-    elif "file" in request.files:
-        try:
-            filename = secure_filename(request.files["file"].filename)
-            fp_data = Path(project.project_path, "data") / filename
-
-            request.files["file"].save(str(fp_data))
-
-        except Exception as err:
-            return jsonify(message=f"Failed to import file '{filename}'. {err}"), 400
-    else:
-        return jsonify(message="No file or dataset found to import."), 400
-
-    data_path = Path(project.project_path, "data") / filename
-
     try:
-        project.add_dataset(data_path.name)
+        if request.form.get("plugin", None):
+            project.add_dataset(request.form["plugin"])
+        elif request.form.get("benchmark", None):
+            project.add_dataset(request.form["benchmark"])
+        elif request.form.get("url", None):
+            project.add_dataset(request.form["url"])
+        elif "file" in request.files:
+            project.add_dataset(
+                secure_filename(request.files["file"].filename),
+                file_writer=request.files["file"].save,
+            )
+        else:
+            return jsonify(message="No file or dataset found to import."), 400
+
         project.add_review()
 
         as_data = project.data_store
@@ -246,7 +223,7 @@ def api_create_project():  # noqa: F401
         except Exception:
             pass
 
-        return jsonify(message=f"Failed to import file '{filename}'. {err}"), 400
+        return jsonify(message=f"Failed to import file. {err}"), 400
 
     if current_app.config.get("LOGIN_DISABLED", False):
         return jsonify(project.config), 201
