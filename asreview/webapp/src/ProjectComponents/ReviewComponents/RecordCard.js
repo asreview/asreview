@@ -3,8 +3,10 @@ import {
   Box,
   Card,
   CardContent,
+  Divider,
   Collapse,
   Fade,
+  Grid2 as Grid,
   Link,
   Stack,
   Tooltip,
@@ -155,26 +157,40 @@ const RecordCard = ({
 
   const styledRepoCard = (
     <StyledCard elevation={showBorder ? 2 : 0}>
-      <RecordCardModelTraining record={record} modelLogLevel={modelLogLevel} />
-      <RecordCardContent
-        record={record}
-        fontSize={fontSize}
-        collapseAbstract={collapseAbstract}
-      />
-      <RecordCardLabeler
-        project_id={project_id}
-        record_id={record.record_id}
-        label={record.state?.label}
-        labelFromDataset={record.included}
-        decisionCallback={() => setState({ open: false })}
-        retrainAfterDecision={retrainAfterDecision}
-        note={record.state?.note}
-        labelDatetime={record.state?.labeling_time}
-        showNotes={showNotes}
-        tagsForm={record.tags_form}
-        tagValues={record.state?.tags}
-        hotkeys={hotkeys}
-      />
+      <Grid
+        container
+        columns={5}
+        sx={{ alignItems: "stretch" }}
+        // divider={<Divider orientation="vertical" flexItem />}
+      >
+        <Grid size={3}>
+          <RecordCardModelTraining
+            record={record}
+            modelLogLevel={modelLogLevel}
+          />
+          <RecordCardContent
+            record={record}
+            fontSize={fontSize}
+            collapseAbstract={collapseAbstract}
+          />
+        </Grid>
+        <Grid size={2}>
+          <RecordCardLabeler
+            project_id={project_id}
+            record_id={record.record_id}
+            label={record.state?.label}
+            labelFromDataset={record.included}
+            decisionCallback={() => setState({ open: false })}
+            retrainAfterDecision={retrainAfterDecision}
+            note={record.state?.note}
+            labelDatetime={record.state?.labeling_time}
+            showNotes={showNotes}
+            tagsForm={record.tags_form}
+            tagValues={record.state?.tags}
+            hotkeys={hotkeys}
+          />
+        </Grid>
+      </Grid>
     </StyledCard>
   );
 
