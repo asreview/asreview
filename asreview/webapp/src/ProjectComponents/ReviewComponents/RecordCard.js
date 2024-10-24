@@ -152,6 +152,7 @@ const RecordCard = ({
   collapseAbstract = false,
   hotkeys = false,
   transitionType = "fade",
+  landscape = false,
 }) => {
   const [state, setState] = React.useState({ open: true });
 
@@ -163,7 +164,7 @@ const RecordCard = ({
         sx={{ alignItems: "stretch" }}
         // divider={<Divider orientation="vertical" flexItem />}
       >
-        <Grid size={3}>
+        <Grid size={landscape ? 3 : 5}>
           <RecordCardModelTraining
             record={record}
             modelLogLevel={modelLogLevel}
@@ -174,7 +175,7 @@ const RecordCard = ({
             collapseAbstract={collapseAbstract}
           />
         </Grid>
-        <Grid size={2}>
+        <Grid size={landscape ? 2 : 5}>
           <RecordCardLabeler
             project_id={project_id}
             record_id={record.record_id}

@@ -47,7 +47,8 @@ const SettingsDialog = (props) => {
 
   // second layer state
   const [fontSizeSetting, toggleFontSizeSetting] = useToggle();
-  const { fontSize, modelLogLevel } = useReviewSettings();
+  const { fontSize, modelLogLevel, orientation } = useReviewSettings();
+
   const dispatchReviewSettings = useReviewSettingsDispatch();
 
   React.useEffect(() => {
@@ -199,7 +200,26 @@ const SettingsDialog = (props) => {
               secondary={"Warnings and errors are always shown"}
             />
           </ListItem>
-
+          <ListItem
+            secondaryAction={
+              <Switch
+                checked={orientation === "landscape"}
+                onChange={() => {
+                  dispatchReviewSettings({
+                    type: "orientation",
+                    orientation:
+                      orientation === "portrait" ? "landscape" : "portrait",
+                  });
+                }}
+                inputProps={{ "aria-label": "controlled" }}
+              />
+            }
+          >
+            <ListItemText
+              id="change-show-model-info"
+              primary="Screen in landscape view"
+            />
+          </ListItem>
           <Divider sx={{ my: 2 }} />
           <ListItem>
             <Typography

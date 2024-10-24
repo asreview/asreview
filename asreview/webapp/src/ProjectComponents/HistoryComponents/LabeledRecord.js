@@ -9,6 +9,8 @@ import { BoxErrorHandler } from "Components";
 import { RecordCard } from "ProjectComponents/ReviewComponents";
 import { ProjectAPI } from "api";
 
+import { useReviewSettings } from "context/ReviewSettingsContext";
+
 const PREFIX = "LabeledRecord";
 
 const classes = {
@@ -24,6 +26,8 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const LabeledRecord = (props) => {
+  const { orientation } = useReviewSettings();
+
   const enableQuery = () => {
     return !props.is_prior
       ? true
@@ -96,6 +100,7 @@ const LabeledRecord = (props) => {
                       collapseAbstract={true}
                       disabled={true}
                       transitionType="none"
+                      landscape={orientation === "landscape"}
                       key={record.record_id}
                     />
                   )),
