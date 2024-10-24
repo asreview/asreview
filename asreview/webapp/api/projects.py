@@ -606,6 +606,7 @@ def api_get_labeled(project):  # noqa: F401
     for (_, state), record in zip(state_data.iterrows(), records):
         record_d = asdict(record)
         record_d["state"] = state.to_dict()
+        record_d["state"]["labeling_time"] = str(record_d["state"]["labeling_time"])
         record_d["tags_form"] = project.config.get("tags", None)
         result.append(record_d)
 
@@ -1160,11 +1161,12 @@ def api_label_record(project, record_id):  # noqa: F401
             record = state.get_results_record(record_id)
 
         as_data = project.read_data()
-        item = asdict(as_data.record(record_id))
-        item["state"] = record.iloc[0].to_dict()
-        item["tags_form"] = project.config.get("tags", None)
+        record_d = asdict(as_data.record(record_id))
+        record_d["state"] = record.iloc[0].to_dict()
+        record_d["state"]["labeling_time"] = str(record_d["state"]["labeling_time"])
+        record_d["tags_form"] = project.config.get("tags", None)
 
-        return jsonify({"result": item})
+        return jsonify({"result": record_d})
 
 
 @bp.route("/projects/<project_id>/record/<record_id>/note", methods=["PUT"])
@@ -1208,16 +1210,17 @@ def api_get_document(project):  # noqa: F401
                 )
 
     as_data = project.read_data()
-    item = asdict(as_data.record(pending["record_id"].iloc[0]))
-    item["state"] = pending.iloc[0].to_dict()
-    item["tags_form"] = project.config.get("tags", None)
+    record_d = asdict(as_data.record(pending["record_id"].iloc[0]))
+    record_d["state"] = pending.iloc[0].to_dict()
+    record_d["state"]["labeling_time"] = str(record_d["state"]["labeling_time"])
+    record_d["tags_form"] = project.config.get("tags", None)
 
     try:
-        item["error"] = project.get_review_error()
+        record_d["error"] = project.get_review_error()
     except ValueError:
         pass
 
-    return jsonify({"result": item, "pool_empty": False, "has_ranking": True})
+    return jsonify({"result": record_d, "pool_empty": False, "has_ranking": True})
 
 
 @bp.route("/projects/<project_id>/delete", methods=["DELETE"])
