@@ -203,12 +203,7 @@ const RecordCardLabeler = ({
           </CardContent>
         )}
 
-        {note !== null && (
-          <>
-            <Divider>Note</Divider>
-            <CardContent>{note}</CardContent>
-          </>
-        )}
+        {note !== null && <CardContent>{note}</CardContent>}
       </Box>
 
       <Box>

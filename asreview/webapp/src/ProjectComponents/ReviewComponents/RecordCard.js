@@ -158,6 +158,8 @@ const RecordCard = ({
 
   const styledRepoCard = (
     <StyledCard elevation={showBorder ? 2 : 0}>
+      <RecordCardModelTraining record={record} modelLogLevel={modelLogLevel} />
+
       <Grid
         container
         columns={5}
@@ -165,10 +167,6 @@ const RecordCard = ({
         // divider={<Divider orientation="vertical" flexItem />}
       >
         <Grid size={landscape ? 3 : 5}>
-          <RecordCardModelTraining
-            record={record}
-            modelLogLevel={modelLogLevel}
-          />
           <RecordCardContent
             record={record}
             fontSize={fontSize}

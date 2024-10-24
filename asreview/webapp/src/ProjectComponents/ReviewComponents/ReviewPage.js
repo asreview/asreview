@@ -12,7 +12,7 @@ import FinishSetup from "./ReviewPageTraining";
 
 import { useReviewSettings } from "context/ReviewSettingsContext";
 
-const Screener = ({ fontSize, showBorder, modelLogLevel }) => {
+const Screener = ({ fontSize, showBorder, modelLogLevel, orientation }) => {
   const { project_id } = useParams();
   const queryClient = useQueryClient();
 
@@ -41,6 +41,7 @@ const Screener = ({ fontSize, showBorder, modelLogLevel }) => {
           setTagValues={setTagValues}
           collapseAbstract={false}
           hotkeys={true}
+          landscape={orientation === "landscape"}
         />
       )}
     </>
@@ -50,7 +51,7 @@ const Screener = ({ fontSize, showBorder, modelLogLevel }) => {
 const ReviewPage = () => {
   let { project_id } = useParams();
 
-  const { fontSize, modelLogLevel } = useReviewSettings();
+  const { fontSize, modelLogLevel, orientation } = useReviewSettings();
 
   /* fetch the record and check if the project is training */
   const { refetch, data, isSuccess } = useQuery(
@@ -78,6 +79,7 @@ const ReviewPage = () => {
               fontSize={fontSize}
               modelLogLevel={modelLogLevel}
               showBorder={showBorder}
+              orientation={orientation}
             />
           )}
 

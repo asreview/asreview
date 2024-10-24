@@ -26,7 +26,7 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const LabeledRecord = (props) => {
-  const { orientation } = useReviewSettings();
+  const { orientation, modelLogLevel } = useReviewSettings();
 
   const enableQuery = () => {
     return !props.is_prior
@@ -101,6 +101,7 @@ const LabeledRecord = (props) => {
                       disabled={true}
                       transitionType="none"
                       landscape={orientation === "landscape"}
+                      modelLogLevel={modelLogLevel}
                       key={record.record_id}
                     />
                   )),
