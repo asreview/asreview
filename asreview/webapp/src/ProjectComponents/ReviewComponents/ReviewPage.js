@@ -12,7 +12,7 @@ import FinishSetup from "./ReviewPageTraining";
 
 import { useReviewSettings } from "context/ReviewSettingsContext";
 
-const Screener = ({ fontSize, showBorder, modelLogLevel, orientation }) => {
+const Screener = ({ fontSize, showBorder, modelLogLevel, landscape }) => {
   const { project_id } = useParams();
   const queryClient = useQueryClient();
 
@@ -41,7 +41,7 @@ const Screener = ({ fontSize, showBorder, modelLogLevel, orientation }) => {
           setTagValues={setTagValues}
           collapseAbstract={false}
           hotkeys={true}
-          landscape={orientation === "landscape"}
+          landscape={landscape}
         />
       )}
     </>
@@ -70,6 +70,13 @@ const ReviewPage = () => {
     noSsr: true,
   });
 
+  let landscapeDisabled = useMediaQuery(
+    (theme) => theme.breakpoints.down("md"),
+    {
+      noSsr: true,
+    },
+  );
+
   return (
     <Container
       aria-label="review page"
@@ -88,7 +95,7 @@ const ReviewPage = () => {
               fontSize={fontSize}
               modelLogLevel={modelLogLevel}
               showBorder={showBorder}
-              orientation={orientation}
+              landscape={orientation === "landscape" && !landscapeDisabled}
             />
           )}
 

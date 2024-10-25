@@ -186,6 +186,7 @@ const RecordCard = ({
             showNotes={showNotes}
             tagsForm={record.tags_form}
             tagValues={record.state?.tags}
+            landscape={landscape}
             hotkeys={hotkeys}
           />
         </Grid>

@@ -13,8 +13,6 @@ const TagsTable = ({
   tagValues = null,
   disabled = false,
 }) => {
-  console.log(tagValues);
-
   const handleTagValueChange = (isChecked, groupId, tagId) => {
     let groupI = tagValues.findIndex((group) => group.id === groupId);
     let tagI = tagValues[groupI].values.findIndex((tag) => tag.id === tagId);

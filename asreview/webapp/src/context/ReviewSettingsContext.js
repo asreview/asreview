@@ -6,6 +6,9 @@ const storageNames = {
   orientation: "orientation",
 };
 
+const orientationOptions = ["portrait", "landscape"];
+const modelLogLevelOptions = ["info", "warning"];
+
 const initialReviewSettings = () => {
   let localFontSize = parseInt(
     window.localStorage.getItem(storageNames.fontSize),
@@ -18,11 +21,17 @@ const initialReviewSettings = () => {
       ? localFontSize
       : 1;
 
-  let localModelLogLevel =
-    window.localStorage.getItem(storageNames.modelLogLevel) && "warning";
+  let localModelLogLevel = modelLogLevelOptions.includes(
+    window.localStorage.getItem(storageNames.modelLogLevel),
+  )
+    ? window.localStorage.getItem(storageNames.modelLogLevel)
+    : "warning";
 
-  let orientation =
-    window.localStorage.getItem(storageNames.orientation) && "portrait";
+  let orientation = orientationOptions.includes(
+    window.localStorage.getItem(storageNames.orientation),
+  )
+    ? window.localStorage.getItem(storageNames.orientation)
+    : "portrait";
 
   return {
     [storageNames.fontSize]: localFontSize,

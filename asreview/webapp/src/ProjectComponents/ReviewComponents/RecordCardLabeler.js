@@ -11,6 +11,7 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
+  Grid2 as Grid,
   FormControlLabel,
   FormGroup,
   IconButton,
@@ -110,6 +111,7 @@ const RecordCardLabeler = ({
   user = null,
   decisionCallback,
   hotkeys = false,
+  landscape = false,
   retrainAfterDecision = true,
 }) => {
   const [editState, toggleEditState] = useToggle(!(label === 1 || label === 0));
@@ -171,35 +173,42 @@ const RecordCardLabeler = ({
       <Box>
         {Array.isArray(tagsForm) && tagsForm.length > 0 && (
           <CardContent>
-            {tagsForm &&
-              tagsForm.map((group, i) => (
-                <Box key={tagValuesState[i]?.name}>
-                  <Typography variant="h6">{group.name}</Typography>
-                  <FormGroup row={true} key={tagValuesState[i]?.name}>
-                    {group.values.map((tag, j) => (
-                      <FormControlLabel
-                        key={`${group.id}:${tag.id}`}
-                        control={
-                          <Checkbox
-                            checked={
-                              tagValuesState[i]?.values[j]?.checked || false
+            <Grid container spacing={2} columns={2}>
+              {tagsForm &&
+                tagsForm.map((group, i) => (
+                  <Grid
+                    size={landscape ? 2 : { xs: 2, sm: 1 }}
+                    key={tagValuesState[i]?.name}
+                  >
+                    <Stack direction="column" spacing={1}>
+                      <Typography variant="h6">{group.name}</Typography>
+                      <FormGroup row={false} key={tagValuesState[i]?.name}>
+                        {group.values.map((tag, j) => (
+                          <FormControlLabel
+                            key={`${group.id}:${tag.id}`}
+                            control={
+                              <Checkbox
+                                checked={
+                                  tagValuesState[i]?.values[j]?.checked || false
+                                }
+                                onChange={(e) => {
+                                  handleTagValueChange(
+                                    e.target.checked,
+                                    group.id,
+                                    tag.id,
+                                  );
+                                }}
+                                disabled={!editState || isLoading || isSuccess}
+                              />
                             }
-                            onChange={(e) => {
-                              handleTagValueChange(
-                                e.target.checked,
-                                group.id,
-                                tag.id,
-                              );
-                            }}
-                            disabled={!editState || isLoading || isSuccess}
+                            label={tag.name}
                           />
-                        }
-                        label={tag.name}
-                      />
-                    ))}
-                  </FormGroup>
-                </Box>
-              ))}
+                        ))}
+                      </FormGroup>
+                    </Stack>
+                  </Grid>
+                ))}
+            </Grid>
           </CardContent>
         )}
 
