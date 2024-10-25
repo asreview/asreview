@@ -3,7 +3,11 @@ import { createContext, useContext, useReducer } from "react";
 const storageNames = {
   fontSize: "fontSize",
   modelLogLevel: "modelLogLevel",
+  orientation: "orientation",
 };
+
+const orientationOptions = ["portrait", "landscape"];
+const modelLogLevelOptions = ["info", "warning"];
 
 const initialReviewSettings = () => {
   let localFontSize = parseInt(
@@ -17,12 +21,22 @@ const initialReviewSettings = () => {
       ? localFontSize
       : 1;
 
-  let localModelLogLevel =
-    window.localStorage.getItem(storageNames.modelLogLevel) && "warning";
+  let localModelLogLevel = modelLogLevelOptions.includes(
+    window.localStorage.getItem(storageNames.modelLogLevel),
+  )
+    ? window.localStorage.getItem(storageNames.modelLogLevel)
+    : "warning";
+
+  let orientation = orientationOptions.includes(
+    window.localStorage.getItem(storageNames.orientation),
+  )
+    ? window.localStorage.getItem(storageNames.orientation)
+    : "portrait";
 
   return {
     [storageNames.fontSize]: localFontSize,
     [storageNames.modelLogLevel]: localModelLogLevel,
+    [storageNames.orientation]: orientation,
   };
 };
 
@@ -59,6 +73,12 @@ function ReviewSettingsReducer(reviewSettings, action) {
         action.modelLogLevel,
       );
       return { ...reviewSettings, modelLogLevel: action.modelLogLevel };
+    }
+
+    // Add a case for the orientation action
+    case storageNames.orientation: {
+      window.localStorage.setItem(storageNames.orientation, action.orientation);
+      return { ...reviewSettings, orientation: action.orientation };
     }
 
     // Add a default case that throws an error

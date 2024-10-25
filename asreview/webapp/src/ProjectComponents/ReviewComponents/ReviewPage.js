@@ -12,7 +12,7 @@ import FinishSetup from "./ReviewPageTraining";
 
 import { useReviewSettings } from "context/ReviewSettingsContext";
 
-const Screener = ({ fontSize, showBorder, modelLogLevel }) => {
+const Screener = ({ fontSize, showBorder, modelLogLevel, landscape }) => {
   const { project_id } = useParams();
   const queryClient = useQueryClient();
 
@@ -41,6 +41,7 @@ const Screener = ({ fontSize, showBorder, modelLogLevel }) => {
           setTagValues={setTagValues}
           collapseAbstract={false}
           hotkeys={true}
+          landscape={landscape}
         />
       )}
     </>
@@ -50,7 +51,7 @@ const Screener = ({ fontSize, showBorder, modelLogLevel }) => {
 const ReviewPage = () => {
   let { project_id } = useParams();
 
-  const { fontSize, modelLogLevel } = useReviewSettings();
+  const { fontSize, modelLogLevel, orientation } = useReviewSettings();
 
   /* fetch the record and check if the project is training */
   const { refetch, data, isSuccess } = useQuery(
@@ -69,8 +70,24 @@ const ReviewPage = () => {
     noSsr: true,
   });
 
+  let landscapeDisabled = useMediaQuery(
+    (theme) => theme.breakpoints.down("md"),
+    {
+      noSsr: true,
+    },
+  );
+
   return (
-    <Container aria-label="review page" maxWidth="md" sx={{ mt: 6 }}>
+    <Container
+      aria-label="review page"
+      maxWidth="md"
+      sx={(theme) => ({
+        mt: 6,
+        [theme.breakpoints.down("md")]: {
+          px: 0,
+        },
+      })}
+    >
       {isSuccess && (
         <>
           {data?.result !== null && (
@@ -78,6 +95,7 @@ const ReviewPage = () => {
               fontSize={fontSize}
               modelLogLevel={modelLogLevel}
               showBorder={showBorder}
+              landscape={orientation === "landscape" && !landscapeDisabled}
             />
           )}
 
