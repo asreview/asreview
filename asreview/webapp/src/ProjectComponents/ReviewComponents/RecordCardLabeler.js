@@ -14,33 +14,30 @@ import {
   FormGroup,
   Grid2 as Grid,
   IconButton,
-  Stack,
-  Menu,
-  MenuItem,
   ListItemIcon,
   ListItemText,
-  ListItem,
+  Menu,
+  MenuItem,
+  Stack,
   TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
 import React from "react";
-import { QueryClient, useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 
 import { useHotkeys } from "react-hotkeys-hook";
 
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import LibraryAddOutlinedIcon from "@mui/icons-material/LibraryAddOutlined";
+import MoreVert from "@mui/icons-material/MoreVert";
 import NotInterestedOutlinedIcon from "@mui/icons-material/NotInterestedOutlined";
 import NoteAltOutlinedIcon from "@mui/icons-material/NoteAltOutlined";
-import DoneAllOutlined from "@mui/icons-material/DoneAllOutlined";
-import MoreVert from "@mui/icons-material/MoreVert";
 import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";
 import TimeAgo from "javascript-time-ago";
 
-import en from "javascript-time-ago/locale/en";
 import { DeleteOutline } from "@mui/icons-material";
+import en from "javascript-time-ago/locale/en";
 
 TimeAgo.addLocale(en);
 const timeAgo = new TimeAgo("en-US");
@@ -123,7 +120,7 @@ const RecordCardLabeler = ({
 }) => {
   const queryClient = useQueryClient();
 
-  const [editState, toggleEditState] = useToggle(!(label === 1 || label === 0));
+  const [editState] = useToggle(!(label === 1 || label === 0));
   const [showNotesDialog, toggleShowNotesDialog] = useToggle(false);
   const [tagValuesState, setTagValuesState] = React.useState(
     tagValues ? tagValues : structuredClone(tagsForm),
