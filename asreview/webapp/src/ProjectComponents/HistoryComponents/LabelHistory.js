@@ -84,7 +84,7 @@ const ExportButton = ({ project_id }) => {
               />
               <FormControlLabel
                 control={<Checkbox />}
-                label="Not interested"
+                label="Not relevant"
                 name="irrelevant"
                 checked={collections.includes("irrelevant")}
               />
@@ -167,8 +167,8 @@ const LabelHistory = ({
             <Chip
               label={
                 !n_prior_exclusions
-                  ? "Not interested"
-                  : `Not interested (${n_prior_exclusions})`
+                  ? "Not relevant"
+                  : `Not relevant (${n_prior_exclusions})`
               }
               color="primary"
               variant={label !== "irrelevant" ? "outlined" : "filled"}
