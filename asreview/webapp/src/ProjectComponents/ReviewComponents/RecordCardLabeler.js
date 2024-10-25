@@ -10,6 +10,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   FormControlLabel,
   FormGroup,
   Grid2 as Grid,
@@ -23,6 +24,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import React from "react";
 import { useMutation, useQueryClient } from "react-query";
 
@@ -176,7 +178,10 @@ const RecordCardLabeler = ({
   return (
     <Stack
       sx={(theme) => ({
-        backgroundColor: theme.palette.primary.light,
+        backgroundColor: alpha(
+          theme.palette.primary.light,
+          theme.palette.action.selectedOpacity * 2,
+        ),
         justifyContent: "space-between",
         alignItems: "stretch",
         height: "100%",
@@ -221,7 +226,19 @@ const RecordCardLabeler = ({
           </CardContent>
         )}
 
-        {note !== null && <CardContent>{note}</CardContent>}
+        {note !== null && (
+          <Box
+            sx={(theme) => ({
+              backgroundColor: alpha(
+                theme.palette.primary.light,
+                theme.palette.action.selectedOpacity,
+              ),
+            })}
+          >
+            <Divider />
+            <CardContent>{note}</CardContent>
+          </Box>
+        )}
       </Box>
 
       <Box>
@@ -297,16 +314,15 @@ const RecordCardLabeler = ({
                   <NoteAltOutlinedIcon />
                 </IconButton>
               </Tooltip>
-              <NoteDialog
-                project_id={project_id}
-                record_id={record_id}
-                open={showNotesDialog}
-                onClose={toggleShowNotesDialog}
-                note={note}
-              />
             </>
           )}
-
+          <NoteDialog
+            project_id={project_id}
+            record_id={record_id}
+            open={showNotesDialog}
+            onClose={toggleShowNotesDialog}
+            note={note}
+          />
           {(label === 1 || label === 0) && (
             <>
               <Typography
@@ -382,6 +398,17 @@ const RecordCardLabeler = ({
                     />
                   </MenuItem>
                 )}
+                <MenuItem
+                  onClick={() => {
+                    toggleShowNotesDialog();
+                    setAnchorEl(null);
+                  }}
+                >
+                  <ListItemIcon>
+                    <NoteAltOutlinedIcon />
+                  </ListItemIcon>
+                  <ListItemText primary={note ? "Change note" : "Add note"} />
+                </MenuItem>
                 <MenuItem onClick={() => {}} disabled>
                   <ListItemIcon>
                     <DeleteOutline />

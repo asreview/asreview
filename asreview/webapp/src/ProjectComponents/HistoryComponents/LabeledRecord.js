@@ -60,7 +60,7 @@ const LabeledRecord = ({ project_id, label, filterQuery }) => {
       )} */}
       {!isError && !(isLoading || !mounted.current) && isFetched && (
         <Fade in={!isError && !(isLoading || !mounted.current) && isFetched}>
-          <Stack aria-label="labeled record card" spacing={3}>
+          <Stack aria-label="labeled record card" spacing={5}>
             {isFetched &&
               data?.pages.map((page) =>
                 page.result.map((record) => (
