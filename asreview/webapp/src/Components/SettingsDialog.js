@@ -218,6 +218,7 @@ const SettingsDialog = (props) => {
             <ListItemText
               id="change-show-model-info"
               primary="Screen in landscape view"
+              secondary={"Useful for wide screens"}
             />
           </ListItem>
           <Divider sx={{ my: 2 }} />
