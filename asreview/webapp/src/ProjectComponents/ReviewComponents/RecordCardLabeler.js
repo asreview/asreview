@@ -175,13 +175,10 @@ const RecordCardLabeler = ({
             <Grid container spacing={2} columns={2}>
               {tagsForm &&
                 tagsForm.map((group, i) => (
-                  <Grid
-                    size={landscape ? 2 : { xs: 2, sm: 1 }}
-                    key={tagValuesState[i]?.name}
-                  >
+                  <Grid size={landscape ? 2 : { xs: 2, sm: 1 }} key={group.id}>
                     <Stack direction="column" spacing={1}>
                       <Typography variant="h6">{group.name}</Typography>
-                      <FormGroup row={false} key={tagValuesState[i]?.name}>
+                      <FormGroup row={false}>
                         {group.values.map((tag, j) => (
                           <FormControlLabel
                             key={`${group.id}:${tag.id}`}

@@ -107,20 +107,27 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
           )}
         </Stack>
 
+        {(record.abstract === "" || record.abstract === null) && (
+          <Typography
+            className={classes.abstract + " fontSize" + fontSize}
+            variant="body2"
+            sx={{ color: "text.secondary" }}
+            fontStyle={"italic"}
+          >
+            No abstract available
+          </Typography>
+        )}
+
         <Typography
           className={classes.abstract + " fontSize" + fontSizeOptions[fontSize]}
           variant="body2"
           sx={{ color: "text.secondary" }}
         >
-          {(record.abstract === "" || record.abstract === null) && (
-            <Box fontStyle="italic">No abstract available</Box>
-          )}
-
           {!(record.abstract === "" || record.abstract === null) &&
           collapseAbstract &&
           !readMoreOpen &&
           record.abstract.length > 500 ? (
-            <Box>
+            <>
               {record.abstract.substring(0, 500)}...
               <Link
                 component="button"
@@ -129,7 +136,7 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
               >
                 expand
               </Link>
-            </Box>
+            </>
           ) : (
             record.abstract
           )}
