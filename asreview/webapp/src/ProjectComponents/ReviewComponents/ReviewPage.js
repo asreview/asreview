@@ -83,8 +83,10 @@ const ReviewPage = () => {
       maxWidth="md"
       sx={(theme) => ({
         mt: 6,
+        mb: 4,
         [theme.breakpoints.down("md")]: {
           px: 0,
+          mb: 0,
         },
       })}
     >
