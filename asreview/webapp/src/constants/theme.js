@@ -2,14 +2,14 @@ export const colorScheme = {
   light: {
     palette: {
       primary: {
-        main: "#bf9906",
+        main: "#A08F63",
       },
       secondary: {
-        main: "#A5C18E",
+        main: "#6E9B73",
       },
       background: {
-        default: "#FFFFFA",
-        paper: "#F7F7F2",
+        default: "#FFF8F1",
+        paper: "#f5eddf",
       },
       text: {
         primary: "#3E2723",
