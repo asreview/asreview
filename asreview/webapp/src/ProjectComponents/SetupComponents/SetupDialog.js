@@ -11,11 +11,15 @@ import {
   FormControlLabel,
   IconButton,
   Input,
+  Tabs,
+  Tab,
   Radio,
+  Typography,
   RadioGroup,
   Snackbar,
   Stack,
   Tooltip,
+  Icon,
 } from "@mui/material";
 import * as React from "react";
 
@@ -38,6 +42,12 @@ import {
 import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
 import { projectModes, projectStatuses } from "globals.js";
+import {
+  AutoAwesomeOutlined,
+  FileUploadOutlined,
+  LinkOutlined,
+  QrCode2Outlined,
+} from "@mui/icons-material";
 
 const DialogProjectName = ({ project_id, dataset_name }) => {
   const [state, setState] = React.useState({
@@ -107,13 +117,7 @@ const DialogProjectName = ({ project_id, dataset_name }) => {
   );
 };
 
-const SetupDialog = ({
-  open,
-  onClose,
-  projectInfo = null,
-  mode = null,
-  dataSource = "file",
-}) => {
+const SetupDialog = ({ open, onClose, projectInfo = null, mode = null }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -122,7 +126,7 @@ const SetupDialog = ({
   // state management
   const [dataset, setDataset] = React.useState(projectInfo);
   const [showSettings, setShowSettings] = React.useState(false);
-  const [uploadSource, setUploadSource] = React.useState(dataSource);
+  const [uploadSource, setUploadSource] = React.useState("file");
   const [feedbackBar, setFeedbackBar] = React.useState({
     open: false,
     message: null,
@@ -173,56 +177,68 @@ const SetupDialog = ({
             <DialogTitle>Start with dataset from</DialogTitle>
             <DialogContent>
               <Stack spacing={3} sx={{ height: "100%" }}>
-                <FormControl component="fieldset">
-                  <RadioGroup
-                    row
-                    aria-label="dataset source"
-                    name="row-radio-buttons-group"
-                    value={uploadSource}
-                  >
-                    <FormControlLabel
-                      value="file"
-                      control={<Radio />}
-                      label="File"
-                      onChange={(event) => setUploadSource(event.target.value)}
-                    />
-                    <FormControlLabel
-                      value="url"
-                      control={<Radio />}
-                      label="URL or DOI"
-                      onChange={(event) => setUploadSource(event.target.value)}
-                    />
-                    {mode === projectModes.ORACLE && (
-                      <FormControlLabel
-                        value="extension"
-                        control={<Radio />}
-                        label="Extension"
-                        onChange={(event) =>
-                          setUploadSource(event.target.value)
-                        }
-                      />
-                    )}
-                    <FormControlLabel
-                      value="benchmark"
-                      control={<Radio />}
-                      label="Benchmark datasets"
-                      onChange={(event) => setUploadSource(event.target.value)}
-                    />
-                  </RadioGroup>
-                </FormControl>
+                <Tabs
+                  value={uploadSource}
+                  onChange={(event, newValue) => {
+                    setUploadSource(newValue);
+                  }}
+                  centered
+                  textColor="secondary"
+                  indicatorColor="secondary"
+                  aria-label="Upload source"
+                >
+                  <Tab
+                    value="file"
+                    label={
+                      <Box sx={{ m: 4 }}>
+                        <FileUploadOutlined sx={{ fontSize: 40 }} />
+                        <Typography>File</Typography>
+                      </Box>
+                    }
+                  />
+                  <Tab
+                    value="url"
+                    label={
+                      <Box sx={{ m: 4 }}>
+                        <LinkOutlined sx={{ fontSize: 40 }} />
+                        <Typography>URL</Typography>
+                      </Box>
+                    }
+                  />
+                  <Tab
+                    value="doi"
+                    label={
+                      <Box sx={{ m: 4 }}>
+                        <QrCode2Outlined sx={{ fontSize: 40 }} />
+                        <Typography>DOI</Typography>
+                      </Box>
+                    }
+                  />
+                  <Tab
+                    value="benchmark"
+                    label={
+                      <Box sx={{ m: 4 }}>
+                        <AutoAwesomeOutlined sx={{ fontSize: 40 }} />
+                        <Typography>Discover</Typography>
+                      </Box>
+                    }
+                  />
+                  <Tab
+                    value="test"
+                    label={
+                      <Box sx={{ m: 4 }}>
+                        <AutoAwesomeOutlined sx={{ fontSize: 40 }} />
+                        <Typography>test</Typography>
+                      </Box>
+                    }
+                  />
+                </Tabs>
+
                 {uploadSource === "file" && (
                   <DatasetFromFile mode={mode} setDataset={setDataset} />
                 )}
                 {uploadSource === "url" && (
                   <DatasetFromURI mode={mode} setDataset={setDataset} />
-                )}
-                {uploadSource === "extension" && (
-                  <DatasetFromEntryPoint
-                    subset="plugin"
-                    mode={mode}
-                    setDataset={setDataset}
-                    mobileScreen={fullScreen}
-                  />
                 )}
                 {uploadSource === "benchmark" && (
                   <DatasetFromEntryPoint
