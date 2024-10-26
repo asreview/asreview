@@ -88,7 +88,7 @@ const ProjectsOverview = ({ mode }) => {
                     project={project}
                     mode={mode}
                     showProgressChip={false}
-                    key={project.project_id}
+                    key={project.id}
                   />
                 ))}
               </Grid>

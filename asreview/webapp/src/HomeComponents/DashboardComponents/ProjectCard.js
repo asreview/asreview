@@ -148,20 +148,22 @@ const ProjectCard = ({
     >
       <Grid container spacing={3} justifyContent={"center"} columns={14}>
         <Grid size="grow">
-          <Typography
-            onClick={() => {
-              openProject(project, "");
-            }}
-            fontSize={"1.4rem"}
-          >
-            {project["name"]}
+          <Stack direction={"row"} spacing={1}>
+            <Typography
+              onClick={() => {
+                openProject(project, "");
+              }}
+              fontSize={"1.4rem"}
+            >
+              {project["name"]}
+            </Typography>
             {review?.status === projectStatuses.SETUP && (
               <Chip
                 label="Draft"
                 sx={{ color: "#424242", backgroundColor: "#bdbdbd", ml: 2 }}
               />
             )}
-          </Typography>
+          </Stack>
           <Typography variant="body2" color="textSecondary" component="p">
             {timeAgo.format(new Date(project.datetimeCreated))}
           </Typography>
