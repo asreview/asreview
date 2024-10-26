@@ -18,10 +18,14 @@ import { Link, useNavigate } from "react-router-dom";
 
 import {
   Card,
+  Box,
   CardActions,
   CardContent,
   CardHeader,
+  Stack,
+  Toolbar,
   Chip,
+  Grid2 as Grid,
   IconButton,
   LinearProgress,
   ListItemIcon,
@@ -137,203 +141,150 @@ const ProjectCard = ({
     <Card
       sx={(theme) => ({
         width: "100%",
-        bgcolor: theme.palette.background.default,
+        p: 3,
+        // bgcolor: theme.palette.background.default,
       })}
+      elevation={0}
     >
-      <CardHeader
-        title={
+      <Grid container spacing={3} justifyContent={"center"} columns={14}>
+        <Grid size="grow">
           <Typography
             onClick={() => {
               openProject(project, "");
             }}
+            fontSize={"1.4rem"}
           >
             {project["name"]}
+            {review?.status === projectStatuses.SETUP && (
+              <Chip
+                label="Draft"
+                sx={{ color: "#424242", backgroundColor: "#bdbdbd", ml: 2 }}
+              />
+            )}
           </Typography>
-        }
-        subheader={timeAgo.format(new Date(project.datetimeCreated))}
-        // avatar={
-        //   <>
-        //     {review?.status === projectStatuses.SETUP && (
-        //       <Tooltip title="Project in setup">
-        //         <Avatar sx={{}} aria-label="status">
-        //           {/* <AssignmentOutlined /> */}
-        //         </Avatar>
-        //       </Tooltip>
-        //     )}
-        //     {review?.status === projectStatuses.REVIEW && (
-        //       <Tooltip title="Project in review">
-        //         <Avatar sx={{}} aria-label="status">
-        //           <AssignmentOutlined />
-        //         </Avatar>
-        //       </Tooltip>
-        //     )}
-        //     {review?.status === projectStatuses.FINISHED && (
-        //       <Tooltip title="Finished project">
-        //         <Avatar sx={{}} aria-label="status">
-        //           <AssignmentTurnedInOutlinedIcon />
-        //         </Avatar>
-        //       </Tooltip>
-        //     )}
-        //   </>
-        // }
-      />
-      {/* <CardContent>
-         <StatusChip size="small" status={review?.status} />
-        {review?.status === projectStatuses.REVIEW &&
-          project.mode !== projectModes.SIMULATION && (
-            <Tooltip title="Review">
-              <Button
-                variant="contained"
-                component={Link}
-                to={`/${projectModeURLMap[mode]}/${project.id}/review`}
+          <Typography variant="body2" color="textSecondary" component="p">
+            {timeAgo.format(new Date(project.datetimeCreated))}
+          </Typography>
+        </Grid>
+
+        <Grid size={4}>
+          {showSimulatingSpinner &&
+          review?.status === projectStatuses.REVIEW &&
+          project.mode === projectModes.SIMULATION ? (
+            <LinearProgress />
+          ) : null}
+          {/* <CardActions sx={{ width: "100%", justifyContent: "flex-end" }}> */}
+          {showProgressChip && <StatusChip status={review?.status} />}
+        </Grid>
+        <Grid size={"auto"}>
+          {window.authentication &&
+            review?.status !== projectStatuses.SETUP &&
+            project?.roles.owner && (
+              <Tooltip title="Add team members">
+                <IconButton
+                  component={Link}
+                  to={`/${projectModeURLMap[mode]}/${project.id}/team`}
+                >
+                  <GroupAdd />
+                </IconButton>
+              </Tooltip>
+            )}
+          {window.authentication &&
+            review?.status !== projectStatuses.SETUP &&
+            !project?.roles.owner && (
+              <Tooltip title="Remove yourself from project">
+                <IconButton
+                  component={Link}
+                  to={`/${projectModeURLMap[mode]}/${project.id}/team`}
+                >
+                  <PersonOff />
+                </IconButton>
+              </Tooltip>
+            )}
+          <>
+            <Tooltip title="Options">
+              <IconButton
+                id="more-options-button"
+                aria-controls={openMenu ? "more-options-menu" : undefined}
+                aria-haspopup="true"
+                aria-expanded={openMenu ? "true" : undefined}
+                onClick={handleClick}
               >
-                Review
-              </Button>
+                <MoreHoriz />
+              </IconButton>
             </Tooltip>
-          )}
-        {review?.status === projectStatuses.SETUP && (
-          <Tooltip title="Finish project setup">
-            <Button variant="outlined" onClick={() => {}}>
-              Finish setup
-            </Button>
-          </Tooltip>
-        )}
-      </CardContent> */}
-      <CardContent>
-        {/* <Typography variant="body2" color="textSecondary" component="p">
-          {project.description}
-        </Typography> */}
-        {showSimulatingSpinner &&
-        review?.status === projectStatuses.REVIEW &&
-        project.mode === projectModes.SIMULATION ? (
-          <LinearProgress />
-        ) : null}
-      </CardContent>
-      <CardActions sx={{ width: "100%", justifyContent: "flex-end" }}>
-        {showProgressChip && <StatusChip status={review?.status} />}
-
-        <>
-          <Tooltip title="Options">
-            <IconButton
-              id="card-positioned-button"
-              aria-controls={openMenu ? "card-positioned-menu" : undefined}
-              aria-haspopup="true"
-              aria-expanded={openMenu ? "true" : undefined}
-              onClick={handleClick}
+            <Menu
+              id="card-positioned-menu"
+              aria-labelledby="card-positioned-button"
+              anchorEl={anchorEl}
+              open={openMenu}
+              onClose={handleMenuClose}
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
             >
-              <MoreHoriz />
-            </IconButton>
-          </Tooltip>
+              {mode === projectModes.ORACLE &&
+                review?.status !== projectStatuses.SETUP && (
+                  <MenuItem onClick={handleClickUpdateStatus}>
+                    <ListItemIcon>
+                      <DoneAllOutlined />
+                    </ListItemIcon>
+                    <ListItemText>
+                      {review?.status === projectStatuses.REVIEW
+                        ? "Mark as finished"
+                        : "Mark as in review"}
+                    </ListItemText>
+                  </MenuItem>
+                )}
 
-          <Menu
-            id="card-positioned-menu"
-            aria-labelledby="card-positioned-button"
-            anchorEl={anchorEl}
-            open={openMenu}
-            onClose={handleMenuClose}
-            anchorOrigin={{
-              vertical: "top",
-              horizontal: "left",
-            }}
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "left",
-            }}
-          >
-            {/* {review?.status !== projectStatuses.SETUP && (
               <MenuItem
-                component={Link}
-                to={`/${projectModeURLMap[mode]}/${project.id}/collection`}
-                disabled={
+                onClick={() => {
+                  setExporting(true);
+                }}
+                disabled={isExportingProject}
+              >
+                <ListItemIcon>
+                  <DownloadOutlined />
+                </ListItemIcon>
+                <ListItemText>Export</ListItemText>
+              </MenuItem>
+              {review?.status !== projectStatuses.SETUP &&
+                !(
                   mode === projectModes.SIMULATION &&
                   review?.status === projectStatuses.REVIEW
-                }
+                ) && (
+                  <MenuItem
+                    component={Link}
+                    to={`/${projectModeURLMap[mode]}/${project.id}/settings`}
+                  >
+                    <ListItemIcon>
+                      <SettingsOutlined />
+                    </ListItemIcon>
+                    <ListItemText>Settings</ListItemText>
+                  </MenuItem>
+                )}
+              <MenuItem
+                onClick={handleClickDelete}
+                disabled={!project?.roles.owner}
               >
-                Download records
+                <ListItemIcon>
+                  <DeleteForeverOutlined />
+                </ListItemIcon>
+                <ListItemText>Delete project</ListItemText>
               </MenuItem>
-            )} */}
-
-            {mode === projectModes.ORACLE &&
-              review?.status !== projectStatuses.SETUP && (
-                <MenuItem onClick={handleClickUpdateStatus}>
-                  <ListItemIcon>
-                    <DoneAllOutlined />
-                  </ListItemIcon>
-                  <ListItemText>
-                    {review?.status === projectStatuses.REVIEW
-                      ? "Mark as finished"
-                      : "Mark as in review"}
-                  </ListItemText>
-                </MenuItem>
-              )}
-
-            <MenuItem
-              onClick={() => {
-                setExporting(true);
-              }}
-              disabled={isExportingProject}
-            >
-              <ListItemIcon>
-                <DownloadOutlined />
-              </ListItemIcon>
-              <ListItemText>Export</ListItemText>
-            </MenuItem>
-            {review?.status !== projectStatuses.SETUP &&
-              !(
-                mode === projectModes.SIMULATION &&
-                review?.status === projectStatuses.REVIEW
-              ) && (
-                <MenuItem
-                  component={Link}
-                  to={`/${projectModeURLMap[mode]}/${project.id}/settings`}
-                >
-                  <ListItemIcon>
-                    <SettingsOutlined />
-                  </ListItemIcon>
-                  <ListItemText>Settings</ListItemText>
-                </MenuItem>
-              )}
-            <MenuItem
-              onClick={handleClickDelete}
-              disabled={!project?.roles.owner}
-            >
-              <ListItemIcon>
-                <DeleteForeverOutlined />
-              </ListItemIcon>
-              <ListItemText>Delete project</ListItemText>
-            </MenuItem>
-          </Menu>
-        </>
-
-        {window.authentication &&
-          review?.status !== projectStatuses.SETUP &&
-          project?.roles.owner && (
-            <Tooltip title="Add team members">
-              <IconButton
-                component={Link}
-                to={`/${projectModeURLMap[mode]}/${project.id}/team`}
-              >
-                <GroupAdd />
-              </IconButton>
-            </Tooltip>
-          )}
-        {window.authentication &&
-          review?.status !== projectStatuses.SETUP &&
-          !project?.roles.owner && (
-            <Tooltip title="Remove yourself from project">
-              <IconButton
-                component={Link}
-                to={`/${projectModeURLMap[mode]}/${project.id}/team`}
-              >
-                <PersonOff />
-              </IconButton>
-            </Tooltip>
-          )}
-      </CardActions>
+            </Menu>
+          </>
+        </Grid>
+      </Grid>
       {review?.status === projectStatuses.SETUP && (
         <SetupDialog
+          project_id={project.id}
           mode={mode}
-          projectInfo={project}
           open={openSetup}
           onClose={toggleSetup}
         />

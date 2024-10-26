@@ -1,37 +1,32 @@
 import React from "react";
 
-import { InputBase, Paper, Stack } from "@mui/material";
+import { InputBase, Paper, Stack, Typography } from "@mui/material";
 import { useMutation } from "react-query";
 
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
-import LoadingButton from "@mui/lab/LoadingButton";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
 
 import { InlineErrorHandler } from "Components";
 import { StyledLoadingButton } from "StyledComponents/StyledButton";
 import { ProjectAPI } from "api";
 
-const DatasetFromURI = ({ mode, setDataset }) => {
+const DatasetFromOpenAlex = ({ mode, setDataset }) => {
   const [localURI, setURI] = React.useState("");
-  const [data, setData] = React.useState(null);
-  const [selectedFile, setSelectedFile] = React.useState("");
+  //   const [data, setData] = React.useState(null);
+  //   const [selectedFile, setSelectedFile] = React.useState("");
 
-  const { isLoading: isResolving, mutate: mutateResolve } = useMutation(
-    ProjectAPI.resolveURI,
-    {
-      mutationKey: ["resolveURI"],
-      onSuccess: (data) => {
-        if (data["files"] && data["files"].length === 1) {
-          createProject({ mode: mode, url: data["files"][0]["link"] });
-        } else {
-          setData(data["files"]);
-        }
-      },
-    },
-  );
+  //   const { isLoading: isResolving, mutate: mutateResolve } = useMutation(
+  //     ProjectAPI.resolveURI,
+  //     {
+  //       mutationKey: ["resolveURI"],
+  //       onSuccess: (data) => {
+  //         if (data["files"] && data["files"].length === 1) {
+  //           createProject({ mode: mode, url: data["files"][0]["link"] });
+  //         } else {
+  //           setData(data["files"]);
+  //         }
+  //       },
+  //     },
+  //   );
 
   const {
     error,
@@ -45,31 +40,31 @@ const DatasetFromURI = ({ mode, setDataset }) => {
     },
   });
 
-  const handleURL = (event) => {
-    setURI(event.target.value);
-  };
+  //   const handleURL = (event) => {
+  //     setURI(event.target.value);
+  //   };
 
-  const resolveURI = () => {
-    mutateResolve({ uri: localURI });
-  };
+  //   const resolveURI = () => {
+  //     mutateResolve({ uri: localURI });
+  //   };
 
-  const validateURLOnEnter = (event) => {
-    if (event.keyCode === 13) {
-      resolveURI(event);
-    }
-  };
+  //   const validateURLOnEnter = (event) => {
+  //     if (event.keyCode === 13) {
+  //       resolveURI(event);
+  //     }
+  //   };
 
-  const handleFileChange = (event) => {
-    setSelectedFile(event.target.value);
-  };
+  //   const handleFileChange = (event) => {
+  //     setSelectedFile(event.target.value);
+  //   };
 
-  const addFile = () => {
-    createProject({
-      mode: mode,
-      url: data[selectedFile].link,
-      filename: data[selectedFile].name,
-    });
-  };
+  //   const addFile = () => {
+  //     createProject({
+  //       mode: mode,
+  //       url: data[selectedFile].link,
+  //       filename: data[selectedFile].name,
+  //     });
+  //   };
 
   return (
     <>
@@ -90,25 +85,29 @@ const DatasetFromURI = ({ mode, setDataset }) => {
         >
           <InputBase
             autoFocus
-            disabled={isResolving || isLoading}
+            disabled
+            // disabled= {isResolving || isLoading}
             fullWidth
             id="url-dataset"
-            placeholder="Type a URL or DOI of the dataset"
+            placeholder="Search in OpenAlex"
             value={localURI}
-            onChange={handleURL}
-            onKeyDown={validateURLOnEnter}
+            // onChange={handleURL}
+            // onKeyDown={validateURLOnEnter}
             sx={{ ml: 1, flex: 1 }}
           />
           <StyledLoadingButton
-            disabled={isResolving || isLoading}
-            loading={isResolving || isLoading}
-            onClick={resolveURI}
+            disabled
+            // disabled={isResolving || isLoading}
+            // loading={isResolving || isLoading}
+            // onClick={resolveURI}
             sx={{ minWidth: "32px" }}
           >
             <ArrowForwardOutlinedIcon />
           </StyledLoadingButton>
         </Paper>
 
+        <Typography>Coming soon!</Typography>
+        {/*
         {data && (
           <>
             <FormControl
@@ -142,7 +141,7 @@ const DatasetFromURI = ({ mode, setDataset }) => {
               </LoadingButton>
             </Stack>
           </>
-        )}
+        )} */}
 
         {isError && (
           <InlineErrorHandler message={error?.message + " Please try again."} />
@@ -152,4 +151,4 @@ const DatasetFromURI = ({ mode, setDataset }) => {
   );
 };
 
-export default DatasetFromURI;
+export default DatasetFromOpenAlex;

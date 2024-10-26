@@ -8,7 +8,7 @@ export const colorScheme = {
         main: "#6E9B73",
       },
       background: {
-        default: "#FFF8F1",
+        default: "#fffbf5",
         paper: "#f5eddf",
       },
       text: {

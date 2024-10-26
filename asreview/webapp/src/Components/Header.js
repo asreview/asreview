@@ -13,7 +13,7 @@ const Header = ({ onNavDrawer, toggleNavDrawer, menuOpenButton = true }) => {
         color="inherit"
         position="fixed"
         square={true}
-        variant="outlined"
+        elevation={0}
         sx={(theme) => ({
           [theme.breakpoints.up("md")]: {
             zIndex: theme.zIndex.drawer + 1,

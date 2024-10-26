@@ -1,4 +1,10 @@
-import { Container, Stack } from "@mui/material";
+import {
+  Container,
+  Divider,
+  Grid2 as Grid,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { InteractionButtons } from "Components";
 import { DashboardPageHeader } from ".";
 
@@ -8,7 +14,10 @@ import { ProjectCard } from "HomeComponents/DashboardComponents";
 import { ProjectAPI } from "api";
 import { useQuery } from "react-query";
 
-import { Divider, Grid2 as Grid, Typography } from "@mui/material";
+import { Upload } from "ProjectComponents/SetupComponents";
+
+import ImportProject from "ProjectComponents/ImportProject";
+import NewProjectButton from "./NewProjectButton";
 
 const ProjectsOverview = ({ mode }) => {
   const simulationOngoing = (data) => {
@@ -32,12 +41,10 @@ const ProjectsOverview = ({ mode }) => {
     },
   );
 
-  const inSetupProjects = data?.result.filter(
-    (project) => project.reviews[0]?.status === projectStatuses.SETUP,
-  );
-
   const inReviewProjects = data?.result.filter(
-    (project) => project.reviews[0]?.status === projectStatuses.REVIEW,
+    (project) =>
+      project.reviews[0]?.status === projectStatuses.REVIEW ||
+      project.reviews[0]?.status === projectStatuses.SETUP,
   );
   const finishedProjects = data?.result.filter(
     (project) => project.reviews[0]?.status === projectStatuses.FINISHED,
@@ -46,51 +53,30 @@ const ProjectsOverview = ({ mode }) => {
   return (
     <>
       <DashboardPageHeader mode={mode} />
-      <Container>
+
+      {/* <Stack direction="row" spacing={2}>
+        <NewProjectButton mode={mode} />
+        <ImportProject />
+      </Stack> */}
+
+      <Container maxWidth="md">
+        <Upload mode={mode} />
+      </Container>
+      <Container maxWidth="md">
         <Stack spacing={6}>
           <>
-            {/* Projects in Setup */}
-
-            {inSetupProjects?.length > 0 && (
-              <>
-                <Divider
-                  sx={{
-                    my: 10,
-                  }}
-                  // textAlign="left"
-                >
-                  IN SETUP
-                </Divider>
-                <Grid container spacing={2}>
-                  {inSetupProjects.map((project) => (
-                    <Grid
-                      key={project.id}
-                      size={{
-                        xs: 12,
-                        sm: 6,
-                        md: 6,
-                      }}
-                    >
-                      <ProjectCard
-                        project={project}
-                        mode={mode}
-                        showProgressChip={false}
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
-              </>
-            )}
-
             {/* Divider between In Review and Finished with a Chip */}
             {inReviewProjects?.length > 0 && (
               <Divider
                 sx={{
                   my: 10,
                 }}
-                // textAlign="left"
               >
-                {mode === projectModes.ORACLE ? "IN REVIEW" : "SIMULATING"}
+                <Typography variant="h5" sx={{ fontFamily: "Roboto Serif" }}>
+                  {mode === projectModes.ORACLE
+                    ? "Current reviews"
+                    : "Running simulations"}
+                </Typography>
               </Divider>
             )}
 
@@ -98,20 +84,12 @@ const ProjectsOverview = ({ mode }) => {
             {inReviewProjects?.length > 0 && (
               <Grid container spacing={2}>
                 {inReviewProjects.map((project) => (
-                  <Grid
-                    key={project.id}
-                    size={{
-                      xs: 12,
-                      sm: 6,
-                      md: 6,
-                    }}
-                  >
-                    <ProjectCard
-                      project={project}
-                      mode={mode}
-                      showProgressChip={false}
-                    />
-                  </Grid>
+                  <ProjectCard
+                    project={project}
+                    mode={mode}
+                    showProgressChip={false}
+                    key={project.project_id}
+                  />
                 ))}
               </Grid>
             )}
@@ -122,9 +100,12 @@ const ProjectsOverview = ({ mode }) => {
                 sx={{
                   my: 10,
                 }}
-                // textAlign="left"
               >
-                FINISHED
+                <Typography variant="h5" sx={{ fontFamily: "Roboto Serif" }}>
+                  {mode === projectModes.ORACLE
+                    ? "Finished reviews"
+                    : "Finished simulations"}
+                </Typography>
               </Divider>
             )}
 
@@ -132,20 +113,12 @@ const ProjectsOverview = ({ mode }) => {
             {finishedProjects?.length > 0 && (
               <Grid container spacing={2}>
                 {finishedProjects.map((project) => (
-                  <Grid
-                    key={project.id}
-                    size={{
-                      xs: 12,
-                      sm: 6,
-                      md: 6,
-                    }}
-                  >
-                    <ProjectCard
-                      project={project}
-                      mode={mode}
-                      showProgressChip={false}
-                    />
-                  </Grid>
+                  <ProjectCard
+                    project={project}
+                    mode={mode}
+                    showProgressChip={false}
+                    key={project.project_id}
+                  />
                 ))}
               </Grid>
             )}
