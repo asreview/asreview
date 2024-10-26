@@ -12,10 +12,15 @@ const Header = ({ onNavDrawer, toggleNavDrawer, menuOpenButton = true }) => {
       <AppBar
         color="inherit"
         position="fixed"
+        square={true}
+        variant="outlined"
         sx={(theme) => ({
           [theme.breakpoints.up("md")]: {
             zIndex: theme.zIndex.drawer + 1,
           },
+          borderTopWidth: "0px",
+          borderRightWidth: "0px",
+          borderLeftWidth: "0px",
         })}
       >
         <Toolbar sx={{ justifyContent: "space-between" }}>

@@ -1,4 +1,4 @@
-import { GroupAdd, Logout, Person } from "@mui/icons-material";
+import { GroupAdd, Logout, Person, AccountCircle } from "@mui/icons-material";
 import {
   Avatar,
   Badge,
@@ -8,6 +8,7 @@ import {
   Divider,
   ListItemIcon,
   ListItemText,
+  IconButton,
   MenuItem,
   MenuList,
   Paper,
@@ -133,19 +134,17 @@ const ProfilePopper = () => {
       <ClickAwayListener onClickAway={() => setOpen(false)}>
         <Box>
           <Tooltip title="Profile">
-            <ButtonBase id="profile-popper" onClick={handleClick}>
-              <Avatar
-                alt="user"
-                src={ElasAvatar}
-                sx={(theme) => ({
-                  bgcolor: "grey.400",
-                  ...theme.applyStyles("dark", {
-                    bgcolor: "grey.600",
-                  }),
-                })}
-                imgProps={{ sx: { p: 1 } }}
-              />
-            </ButtonBase>
+            <IconButton
+              size="large"
+              edge="end"
+              aria-label="account of current user"
+              // aria-controls={menuId}
+              aria-haspopup="true"
+              onClick={handleClick}
+              color="inherit"
+            >
+              <AccountCircle sx={{ fontSize: 32, opacity: 0.6 }} />
+            </IconButton>
           </Tooltip>
           <Popper
             open={open}
@@ -161,17 +160,7 @@ const ProfilePopper = () => {
                     spacing={2}
                     sx={{ alignItems: "center" }}
                   >
-                    <Avatar
-                      alt="user"
-                      src={ElasAvatar}
-                      sx={(theme) => ({
-                        bgcolor: "grey.400",
-                        ...theme.applyStyles("dark", {
-                          bgcolor: "grey.600",
-                        }),
-                      })}
-                      imgProps={{ sx: { p: 1 } }}
-                    />
+                    <AccountCircle />
                     <TypographySubtitle1Medium>
                       {data?.name}
                     </TypographySubtitle1Medium>
