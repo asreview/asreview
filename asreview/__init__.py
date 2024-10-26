@@ -12,15 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# deprecated in __init__.py, use asreview.models.feature_extraction instead
 from asreview.data.base import Dataset
 from asreview.data.base import Record
 from asreview.data.loader import load_dataset
 from asreview.extensions import extensions
 from asreview.extensions import get_extension
 from asreview.extensions import load_extension
-from asreview.project import Project
-from asreview.project import is_project
+from asreview.project.api import Project
+from asreview.project.api import is_project
+from asreview.project.exceptions import ProjectError
+from asreview.project.exceptions import ProjectNotFoundError
 from asreview.search import fuzzy_find
 from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
@@ -50,4 +51,7 @@ __all__ = [
     "extensions",
     "get_extension",
     "load_extension",
+    # errors
+    "ProjectError",
+    "ProjectNotFoundError",
 ]

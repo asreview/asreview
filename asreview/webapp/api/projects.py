@@ -15,8 +15,7 @@
 import json
 import logging
 import shutil
-import subprocess
-import sys
+import socket
 import tempfile
 import time
 from dataclasses import asdict
@@ -40,31 +39,28 @@ from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
 import asreview as asr
-from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
 from asreview.extensions import load_extension
-from asreview.project import ProjectError
-from asreview.project import ProjectNotFoundError
-from asreview.project import is_project
+from asreview.project.exceptions import ProjectError
+from asreview.project.exceptions import ProjectNotFoundError
+from asreview.project.api import is_project
 from asreview.search import fuzzy_find
 from asreview.settings import ReviewSettings
 from asreview.state.contextmanager import open_state
-from asreview.state.exceptions import StateNotFoundError
-from asreview.statistics import n_duplicates
-from asreview.statistics import n_irrelevant
-from asreview.statistics import n_unlabeled
-from asreview.statistics import n_relevant
+from asreview.utils import _check_model
 from asreview.utils import _get_filename_from_url
 from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
 from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
+from asreview.webapp.task_manager.task_manager import DEFAULT_TASK_MANAGER_HOST
+from asreview.webapp.task_manager.task_manager import DEFAULT_TASK_MANAGER_PORT
+from asreview.webapp.tasks import run_model
+from asreview.webapp.tasks import run_simulation
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
-from asreview.utils import _check_model, _reset_model_settings
-
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -94,6 +90,44 @@ def _fill_last_ranking(project, ranking):
             records = record_table
 
         state.add_last_ranking(records.values, None, ranking, None, None)
+
+
+def _run_model(project):
+    # if there is a socket, it means we would like to delegate
+    # training / simulation to the queue manager,
+    # otherwise run training / simulation directly
+    simulation = project.config["mode"] == PROJECT_MODE_SIMULATE
+
+    if not current_app.testing:
+        try:
+            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client_socket.connect(
+                (
+                    current_app.config.get(
+                        "TASK_MANAGER_HOST", DEFAULT_TASK_MANAGER_HOST
+                    ),
+                    current_app.config.get(
+                        "TASK_MANAGER_PORT", DEFAULT_TASK_MANAGER_PORT
+                    ),
+                )
+            )
+            payload = {
+                "action": "insert",
+                "project_id": project.config["id"],
+                "simulation": simulation,
+            }
+            # send
+            client_socket.sendall(json.dumps(payload).encode("utf-8"))
+        except socket.error:
+            raise RuntimeError("Queue manager is not alive.")
+        finally:
+            client_socket.close()
+
+    else:
+        if simulation:
+            run_simulation(project)
+        else:
+            run_model(project)
 
 
 # error handlers
@@ -167,31 +201,6 @@ def api_get_projects(projects):  # noqa: F401
     return jsonify({"result": project_info})
 
 
-@bp.route("/projects/stats", methods=["GET"])
-@login_required
-@current_user_projects
-def api_get_projects_stats(projects):  # noqa: F401
-    """Get dashboard statistics of all projects"""
-
-    stats_counter = {"n_in_review": 0, "n_finished": 0, "n_setup": 0}
-
-    for project, _ in projects:
-        project_config = project.config
-
-        # get dashboard statistics
-        try:
-            if project_config["reviews"][0]["status"] == "review":
-                stats_counter["n_in_review"] += 1
-            elif project_config["reviews"][0]["status"] == "finished":
-                stats_counter["n_finished"] += 1
-            else:
-                stats_counter["n_setup"] += 1
-        except Exception:
-            stats_counter["n_setup"] += 1
-
-    return jsonify({"result": stats_counter})
-
-
 @bp.route("/projects/create", methods=["POST"])
 @login_required
 def api_create_project():  # noqa: F401
@@ -257,12 +266,18 @@ def api_create_project():  # noqa: F401
         project.add_review()
 
         n_labeled = (
-            0 if as_data.labels is None else n_irrelevant(as_data) + n_relevant(as_data)
+            0
+            if as_data.labels is None
+            else len(np.where(as_data.labels == 0)[0])
+            + len(np.where(as_data.labels == 1)[0])
         )
 
         if n_labeled > 0 and n_labeled < len(as_data):
             with open_state(project.project_path) as state:
-                labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
+                labeled_indices = np.where(
+                    (as_data.labels == 1) | (as_data.labels == 0)
+                )[0]
+
                 labels = as_data.labels[labeled_indices].tolist()
                 labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
 
@@ -396,31 +411,35 @@ def api_get_project_data(project):  # noqa: F401
     """"""
 
     try:
-        as_data = project.read_data()
+        data = project.read_data()
     except FileNotFoundError:
         return jsonify({"filename": None})
 
-    if as_data.url is not None:
-        urn = pd.Series(as_data.url).replace("", None)
+    if data.url is not None:
+        urn = pd.Series(data.url).replace("", None)
     else:
-        urn = pd.Series([None] * len(as_data))
+        urn = pd.Series([None] * len(data))
 
-    if as_data.doi is not None:
-        doi = pd.Series(as_data.doi).replace("", None)
+    if data.doi is not None:
+        doi = pd.Series(data.doi).replace("", None)
         urn.fillna(doi, inplace=True)
+
+    labels = np.empty(len(data), dtype=int) if data.labels is None else data.labels
 
     return jsonify(
         {
-            "n_rows": len(as_data),
-            "n_unlabeled": n_unlabeled(as_data),
-            "n_relevant": n_relevant(as_data),
-            "n_irrelevant": n_irrelevant(as_data),
-            "n_duplicates": n_duplicates(as_data),
+            "n_rows": len(data),
+            "n_unlabeled": len(data)
+            - len(np.where(labels == 1)[0])
+            - len(np.where(labels == 0)[0]),
+            "n_relevant": len(np.where(labels == 1)[0]),
+            "n_irrelevant": len(np.where(labels == 0)[0]),
+            "n_duplicates": int(data.duplicated("doi").sum()),
             "n_missing_title": int(
-                pd.Series(as_data.title).replace("", None).isnull().sum()
+                pd.Series(data.title).replace("", None).isnull().sum()
             ),
             "n_missing_abstract": int(
-                pd.Series(as_data.abstract).replace("", None).isnull().sum()
+                pd.Series(data.abstract).replace("", None).isnull().sum()
             ),
             "n_missing_urn": int(urn.isnull().sum()),
             "n_english": None,
@@ -587,6 +606,7 @@ def api_get_labeled(project):  # noqa: F401
     for (_, state), record in zip(state_data.iterrows(), records):
         record_d = asdict(record)
         record_d["state"] = state.to_dict()
+        record_d["state"]["labeling_time"] = str(record_d["state"]["labeling_time"])
         record_d["tags_form"] = project.config.get("tags", None)
         result.append(record_d)
 
@@ -628,7 +648,7 @@ def api_get_labeled_stats(project):  # noqa: F401
                 "n_prior_exclusions": int(sum(data_prior["label"] == 0)),
             }
         )
-    except StateNotFoundError:
+    except FileNotFoundError:
         return jsonify(
             {
                 "n": 0,
@@ -737,14 +757,7 @@ def api_train(project):  # noqa: F401
         return jsonify({"success": True})
 
     try:
-        run_command = [
-            sys.executable if sys.executable else "python",
-            "-m",
-            "asreview",
-            "web_run_model",
-            str(project.project_path),
-        ]
-        subprocess.Popen(run_command)
+        _run_model(project)
 
     except Exception as err:
         logging.error(err)
@@ -819,19 +832,7 @@ def api_update_review_status(project, review_id):
             _fill_last_ranking(project, "random")
 
         if trigger_model and (pk or is_simulation):
-            try:
-                subprocess.Popen(
-                    [
-                        sys.executable if sys.executable else "python",
-                        "-m",
-                        "asreview",
-                        "web_run_model",
-                        str(project.project_path),
-                    ]
-                )
-
-            except Exception as err:
-                return jsonify(message=f"Failed to train the model. {err}"), 400
+            _run_model(project)
 
         project.update_review(status=status)
 
@@ -876,9 +877,9 @@ def api_import_project():
     try:
         _check_model(settings)
     except ValueError as err:
-        settings_model_reset = _reset_model_settings(settings)
+        settings.reset_model()
         with open(settings_fp, "w") as f:
-            json.dump(asdict(settings_model_reset), f)
+            json.dump(asdict(settings), f)
         warnings.append(
             str(err) + " Check if an extension with the model is installed."
         )
@@ -1021,7 +1022,7 @@ def _get_stats(project, include_priors=False):
             labels_without_priors = s.get_results_table(priors=False)["label"]
         n_records = len(as_data)
 
-    except (StateNotFoundError, ValueError, ProjectError):
+    except (FileNotFoundError, ValueError, ProjectError):
         labels = np.array([])
         labels_without_priors = np.array([])
         n_records = 0
@@ -1151,15 +1152,7 @@ def api_label_record(project, record_id):  # noqa: F401
             raise ValueError(f"Invalid label {label}")
 
     if retrain_model:
-        subprocess.Popen(
-            [
-                sys.executable if sys.executable else "python",
-                "-m",
-                "asreview",
-                "web_run_model",
-                str(project.project_path),
-            ]
-        )
+        _run_model(project)
 
     if request.method == "POST":
         return jsonify({"success": True})
@@ -1168,11 +1161,12 @@ def api_label_record(project, record_id):  # noqa: F401
             record = state.get_results_record(record_id)
 
         as_data = project.read_data()
-        item = asdict(as_data.record(record_id))
-        item["state"] = record.iloc[0].to_dict()
-        item["tags_form"] = project.config.get("tags", None)
+        record_d = asdict(as_data.record(record_id))
+        record_d["state"] = record.iloc[0].to_dict()
+        record_d["state"]["labeling_time"] = str(record_d["state"]["labeling_time"])
+        record_d["tags_form"] = project.config.get("tags", None)
 
-        return jsonify({"result": item})
+        return jsonify({"result": record_d})
 
 
 @bp.route("/projects/<project_id>/record/<record_id>/note", methods=["PUT"])
@@ -1216,16 +1210,17 @@ def api_get_document(project):  # noqa: F401
                 )
 
     as_data = project.read_data()
-    item = asdict(as_data.record(pending["record_id"].iloc[0]))
-    item["state"] = pending.iloc[0].to_dict()
-    item["tags_form"] = project.config.get("tags", None)
+    record_d = asdict(as_data.record(pending["record_id"].iloc[0]))
+    record_d["state"] = pending.iloc[0].to_dict()
+    record_d["state"]["labeling_time"] = str(record_d["state"]["labeling_time"])
+    record_d["tags_form"] = project.config.get("tags", None)
 
     try:
-        item["error"] = project.get_review_error()
+        record_d["error"] = project.get_review_error()
     except ValueError:
         pass
 
-    return jsonify({"result": item, "pool_empty": False, "has_ranking": True})
+    return jsonify({"result": record_d, "pool_empty": False, "has_ranking": True})
 
 
 @bp.route("/projects/<project_id>/delete", methods=["DELETE"])

@@ -39,13 +39,14 @@ from asreview import load_dataset
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
 from asreview.config import PROJECT_MODE_SIMULATE
-from asreview.config import SCHEMA
+from asreview.migrate import migrate_v1_v2
+from asreview.project.exceptions import ProjectError
+from asreview.project.exceptions import ProjectNotFoundError
+from asreview.project.schema import SCHEMA
 from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState
-from asreview.migrate import migrate_v1_v2
 
-
-from asreview.utils import _check_model, _reset_model_settings
+from asreview.utils import _check_model
 
 try:
     from asreview._version import __version__
@@ -55,14 +56,6 @@ except ImportError:
 PATH_PROJECT_CONFIG = "project.json"
 PATH_PROJECT_CONFIG_LOCK = "project.json.lock"
 PATH_FEATURE_MATRICES = "feature_matrices"
-
-
-class ProjectError(Exception):
-    pass
-
-
-class ProjectNotFoundError(FileNotFoundError):
-    pass
 
 
 def is_project(project_obj, raise_on_old_version=True):
@@ -380,7 +373,12 @@ class Project:
             return []
 
     def add_review(
-        self, review_id=None, settings=None, state=None, start_time=None, status="setup"
+        self,
+        review_id=None,
+        settings=None,
+        reviewer=None,
+        start_time=None,
+        status="setup",
     ):
         """Add new review metadata.
 
@@ -390,8 +388,8 @@ class Project:
             The review_id uuid4.
         settings: ReviewSettings
             The settings of the review.
-        state: SQLiteState
-            The state of the review.
+        reviewer: object
+            A reviewer object with to_sql() method.
         status: str
             The status of the review. One of 'setup', 'running',
             'finished'.
@@ -424,11 +422,12 @@ class Project:
 
         fp_state = Path(self.project_path, "reviews", review_id, "results.db")
 
-        if state is None:
+        if reviewer is None:
             state = SQLiteState(fp_state)
             state.create_tables()
+            state.close()
         else:
-            state.to_sql(fp_state)
+            reviewer.to_sql(fp_state)
 
         review_config = {
             "id": review_id,
@@ -602,9 +601,9 @@ class Project:
                     _check_model(settings)
                 except ValueError as err:
                     warnings.warn(err)
-                    settings_model_reset = _reset_model_settings(settings)
+                    settings.reset_model()
                     with open(settings_fp) as f:
-                        json.dump(asdict(settings_model_reset), f)
+                        json.dump(asdict(settings), f)
 
             if safe_import:
                 # assign a new id to the project.

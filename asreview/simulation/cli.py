@@ -31,7 +31,7 @@ from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.datasets import DatasetManager
 from asreview.extensions import load_extension
-from asreview.project import Project
+from asreview.project.api import Project
 from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
 from asreview.types import type_n_queries
@@ -233,7 +233,7 @@ def _cli_simulate(argv):
         project.update_config(dataset_path=filename)
 
         project.add_feature_matrix(fm, feature_model)
-        project.add_review(settings=settings, state=sim, status="finished")
+        project.add_review(settings=settings, reviewer=sim, status="finished")
 
         # export the project file
         project.export(args.state_file)
@@ -387,11 +387,4 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "to simulate all labels actions.",
     )
     parser.add_argument("--verbose", "-v", default=0, type=int, help="Verbosity")
-    parser.add_argument(
-        "--embedding",
-        type=str,
-        default=None,
-        dest="embedding_fp",
-        help="File path of embedding matrix. Required for LSTM models.",
-    )
     return parser

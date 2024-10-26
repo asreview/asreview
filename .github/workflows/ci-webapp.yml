@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.13"
       - name: Install ruff
         run: |
           pip install .[dev]
@@ -39,12 +39,15 @@ jobs:
           fetch-tags: true
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.13"
       - uses: actions/setup-node@v3
         with:
           node-version: "20"
           cache: "npm"
           cache-dependency-path: "asreview/webapp/package-lock.json"
+      - name: Install setuptools
+        run: |
+          pip install setuptools
       - name: Compile assets
         run: |
           python setup.py compile_assets

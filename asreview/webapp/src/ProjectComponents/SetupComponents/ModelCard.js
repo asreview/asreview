@@ -489,7 +489,12 @@ const ModelCard = ({
         />
       )}
       <CardContent>
-        <Button variant="contained" color="primary" onClick={toggleModelSelect}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={toggleModelSelect}
+          disabled={!editable}
+        >
           Change
         </Button>
         <ExpandMoreButton
@@ -503,7 +508,7 @@ const ModelCard = ({
         </ExpandMoreButton>
       </CardContent>
 
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
+      <Collapse in={expanded} timeout="auto">
         <Divider />
         <CardContent>
           <Typography variant="h6">Query method</Typography>
@@ -534,7 +539,7 @@ const ModelCard = ({
                     trainNewModel: trainNewModel,
                   });
                 }}
-                disabled={isLoadingMutate}
+                disabled={isLoadingMutate || !editable}
               >
                 {modelOptions?.query_strategy.map((value) => (
                   <MenuItem value={value.name} key={value.name}>
@@ -572,7 +577,7 @@ const ModelCard = ({
               valueLabelDisplay="on"
               min={0}
               max={25}
-              disabled
+              disabled={!editable}
             />
             <Alert severity="info">
               Coming soon! Keep an eye on our website and socials.
@@ -610,7 +615,7 @@ const ModelCard = ({
                       trainNewModel: trainNewModel,
                     });
                   }}
-                  disabled={isLoadingMutate}
+                  disabled={isLoadingMutate || !editable}
                 >
                   <MenuItem value="" key="none">
                     <em>None</em>

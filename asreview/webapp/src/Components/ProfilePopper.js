@@ -64,7 +64,6 @@ const ProfilePopper = () => {
   const { data } = useQuery("user", AuthAPI.user, {
     retry: false,
     onError: (response) => {
-      console.log(response);
       response.code === 401 && navigate("/signin");
     },
   });
