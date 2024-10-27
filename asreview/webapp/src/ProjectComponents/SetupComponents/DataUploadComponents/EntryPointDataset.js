@@ -1,15 +1,19 @@
-import React from "react";
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  AccordionActions,
+  Button,
+  Card,
+  CardContent,
+  CardMedia,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Link,
   Stack,
   Typography,
 } from "@mui/material";
-import { ExpandMore } from "@mui/icons-material";
-import LoadingButton from "@mui/lab/LoadingButton";
+import { useToggle } from "hooks/useToggle";
+import React from "react";
 
 const DOILink = (doi) => {
   if (doi !== undefined && doi.startsWith("http")) {
@@ -19,115 +23,105 @@ const DOILink = (doi) => {
   }
 };
 
+const formatCitation = (authors, year) => {
+  if (Array.isArray(authors)) {
+    var first_author = authors[0].split(",")[0];
+    return first_author + " et al. (" + year + ")";
+  } else {
+    return authors + " (" + year + ")";
+  }
+};
+
 const EntryPointDataset = ({
   addFile,
   dataset,
   dataset_id,
-  subset,
   isAddingDataset,
-  isAddingDatasetError,
-  mobileScreen,
-  reset,
 }) => {
-  const [expanded, setExpanded] = React.useState(false);
-
-  const handleAccordion = (dataset_id) => (event, isExpanded) => {
-    if (!isAddingDataset) {
-      setExpanded(isExpanded ? dataset_id : false);
-    }
-  };
+  const [open, toggleOpen] = useToggle(false);
 
   const handleAdd = () => {
-    if (isAddingDatasetError) {
-      reset();
-    }
     if (!isAddingDataset) {
       addFile(dataset_id);
     }
   };
 
-  const formatCitation = (authors, year) => {
-    if (Array.isArray(authors)) {
-      var first_author = authors[0].split(",")[0];
-      return first_author + " et al. (" + year + ")";
-    } else {
-      return authors + " (" + year + ")";
-    }
-  };
-
   return (
-    <Accordion
-      elevation={3}
-      expanded={expanded === dataset_id}
-      onChange={handleAccordion(dataset_id)}
-    >
-      <AccordionSummary expandIcon={<ExpandMore />}>
-        <Stack
-          direction={!mobileScreen ? "row" : "column"}
-          sx={{ width: "100%" }}
-        >
-          <Typography
-            sx={{ width: !mobileScreen ? "33%" : "100%", flexShrink: 0 }}
-          >
+    <>
+      <Card onClick={toggleOpen} elevation={0}>
+        <CardMedia
+          component="img"
+          height="180px"
+          image={
+            "https://github.com/asreview/asreview-artwork/raw/master/AI_generated/PNG/elas_drugs.png"
+          }
+          alt={dataset.title}
+        />
+        <CardContent>
+          <Typography>
             {formatCitation(dataset.authors, dataset.year)}
           </Typography>
-          <Typography sx={{ color: "text.secondary" }}>
-            {subset === "plugin" ? dataset.description : dataset.topic}
-          </Typography>
-        </Stack>
-      </AccordionSummary>
-      <AccordionDetails>
-        <Stack spacing={1}>
-          <Typography>{dataset.title}</Typography>
-          {dataset.reference && (
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              Publication:{" "}
+          {dataset.topic && (
+            <Chip label={dataset.topic} color="secondary" sx={{ mt: 1 }} />
+          )}
+        </CardContent>
+      </Card>
+      <Dialog open={open} onClose={toggleOpen}>
+        <DialogTitle>{dataset.title}</DialogTitle>
+        <DialogContent>
+          <Stack spacing={1}>
+            {dataset.reference && (
+              <Typography>
+                Publication:{" "}
+                <Link
+                  href={
+                    dataset.reference &&
+                    DOILink(
+                      dataset.reference.replace(/^(https:\/\/doi\.org\/)/, ""),
+                    )
+                  }
+                  underline="none"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {dataset.reference &&
+                    dataset.reference.replace(/^(https:\/\/doi\.org\/)/, "")}
+                </Link>
+              </Typography>
+            )}
+            <Typography>
+              Dataset:{" "}
               <Link
-                href={
-                  dataset.reference &&
-                  DOILink(
-                    dataset.reference.replace(/^(https:\/\/doi\.org\/)/, ""),
-                  )
-                }
+                href={dataset.link}
                 underline="none"
                 target="_blank"
                 rel="noreferrer"
               >
-                {dataset.reference &&
-                  dataset.reference.replace(/^(https:\/\/doi\.org\/)/, "")}
+                {dataset.link}
               </Link>
             </Typography>
-          )}
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            Dataset:{" "}
-            <Link
-              href={dataset.link}
-              underline="none"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {dataset.link}
-            </Link>
-          </Typography>
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            License:{" "}
-            <Link
-              href={dataset.link}
-              underline="none"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {dataset.license}
-            </Link>
-          </Typography>
-        </Stack>
-      </AccordionDetails>
-      <AccordionActions>
-        <LoadingButton loading={isAddingDataset} onClick={handleAdd}>
-          Add
-        </LoadingButton>
-      </AccordionActions>
-    </Accordion>
+            <Typography>
+              License:{" "}
+              <Link
+                href={dataset.link}
+                underline="none"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {dataset.license}
+              </Link>
+            </Typography>
+          </Stack>
+          {dataset.topic && <Chip label={dataset.topic} color="primary" />}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={toggleOpen}>Close</Button>
+          <Button onClick={handleAdd} disabled={isAddingDataset}>
+            Download
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 

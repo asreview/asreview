@@ -20,6 +20,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import {
   AutoAwesomeOutlined,
   FileUploadOutlined,
+  DriveFolderUploadOutlined,
   LinkOutlined,
   SearchOutlined,
 } from "@mui/icons-material";
@@ -31,6 +32,7 @@ import {
 } from "ProjectComponents/SetupComponents/DataUploadComponents";
 import { ProjectAPI } from "api";
 import { SetupDialog } from "ProjectComponents/SetupComponents";
+import ImportProject from "ProjectComponents/ImportProject";
 
 const DialogProjectName = ({ project_id, dataset_name }) => {
   const [state, setState] = React.useState({
@@ -120,57 +122,57 @@ const Upload = ({ mode }) => {
           textColor="secondary"
           indicatorColor="secondary"
           aria-label="Upload source"
-          sx={{ mb: 4 }}
+          sx={{ mb: 3 }}
         >
           <Tab
             value="file"
             label={
               <Box>
-                <FileUploadOutlined sx={{ fontSize: 40 }} />
+                <FileUploadOutlined sx={{ fontSize: 32 }} />
                 <Typography>File</Typography>
               </Box>
             }
-            sx={{ mx: 2 }}
+            sx={{ mx: 1 }}
           />
           <Tab
             value="url"
             label={
               <Box>
-                <LinkOutlined sx={{ fontSize: 40 }} />
+                <LinkOutlined sx={{ fontSize: 32 }} />
                 <Typography>URL</Typography>
               </Box>
             }
-            sx={{ mx: 2 }}
+            sx={{ mx: 1 }}
           />
           <Tab
             value="openalex"
             label={
               <Box>
-                <SearchOutlined sx={{ fontSize: 40 }} />
+                <SearchOutlined sx={{ fontSize: 32 }} />
                 <Typography>OpenAlex</Typography>
               </Box>
             }
-            sx={{ mx: 2 }}
+            sx={{ mx: 1 }}
           />
           <Tab
             value="benchmark"
             label={
               <Box>
-                <AutoAwesomeOutlined sx={{ fontSize: 40 }} />
+                <AutoAwesomeOutlined sx={{ fontSize: 32 }} />
                 <Typography>Discover</Typography>
               </Box>
             }
-            sx={{ mx: 2 }}
+            sx={{ mx: 1 }}
           />
           <Tab
-            value="test"
+            value="import"
             label={
               <Box>
-                <AutoAwesomeOutlined sx={{ fontSize: 40 }} />
-                <Typography>test</Typography>
+                <DriveFolderUploadOutlined sx={{ fontSize: 32 }} />
+                <Typography>Import</Typography>
               </Box>
             }
-            sx={{ mx: 2 }}
+            sx={{ mx: 1 }}
           />
         </Tabs>
 
@@ -187,9 +189,11 @@ const Upload = ({ mode }) => {
           <DatasetFromEntryPoint
             subset="benchmark"
             mode={mode}
-            setDataset={(dataset) => {}}
-            mobileScreen={fullScreen}
+            setSetupProjectId={setSetupProjectId}
           />
+        )}
+        {uploadSource === "import" && (
+          <ImportProject mode={mode} setSetupProjectId={setSetupProjectId} />
         )}
       </Box>
 

@@ -4,6 +4,7 @@ import {
   ListItemIcon,
   ListItemText,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { alpha } from "@mui/material";
@@ -47,8 +48,17 @@ export const DrawerItem = ({
           },
         })}
       >
-        <ListItemIcon sx={{ pl: 1 }}>{icon}</ListItemIcon>
-        <ListItemText primary={primary} />
+        {/* <ListItemIcon sx={{ pl: 1 }}>{icon}</ListItemIcon> */}
+        {/* <ListItemText primary={primary} /> */}
+
+        <ListItemText
+          primary={
+            <>
+              <ListItemIcon sx={{ pl: 1 }}>{icon}</ListItemIcon>
+              <Typography variant="body2">{primary}</Typography>
+            </>
+          }
+        />
       </ListItemButtonDrawer>
     </Tooltip>
   );

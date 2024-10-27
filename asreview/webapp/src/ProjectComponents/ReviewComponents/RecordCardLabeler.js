@@ -179,7 +179,7 @@ const RecordCardLabeler = ({
     <Stack
       sx={(theme) => ({
         backgroundColor: alpha(
-          theme.palette.primary.light,
+          theme.palette.secondary.light,
           theme.palette.action.selectedOpacity * 2,
         ),
         justifyContent: "space-between",
@@ -230,7 +230,7 @@ const RecordCardLabeler = ({
           <Box
             sx={(theme) => ({
               backgroundColor: alpha(
-                theme.palette.primary.light,
+                theme.palette.secondary.light,
                 theme.palette.action.selectedOpacity,
               ),
             })}
@@ -265,9 +265,9 @@ const RecordCardLabeler = ({
         )}
         <CardActions
           sx={(theme) => ({
-            backgroundColor: theme.palette.primary.dark,
+            backgroundColor: theme.palette.secondary.dark,
             display: "block",
-            color: theme.palette.getContrastText(theme.palette.primary.dark),
+            color: theme.palette.getContrastText(theme.palette.secondary.dark),
           })}
         >
           {editState && (
@@ -288,7 +288,7 @@ const RecordCardLabeler = ({
                 disabled={isLoading || isSuccess}
                 sx={(theme) => ({
                   color: theme.palette.getContrastText(
-                    theme.palette.primary.dark,
+                    theme.palette.secondary.dark,
                   ),
                 })}
               >
@@ -307,7 +307,7 @@ const RecordCardLabeler = ({
                   sx={(theme) => ({
                     float: "right",
                     color: theme.palette.getContrastText(
-                      theme.palette.primary.dark,
+                      theme.palette.secondary.dark,
                     ),
                   })}
                 >
@@ -356,7 +356,7 @@ const RecordCardLabeler = ({
                   sx={(theme) => ({
                     float: "right",
                     color: theme.palette.getContrastText(
-                      theme.palette.primary.dark,
+                      theme.palette.secondary.dark,
                     ),
                   })}
                 >

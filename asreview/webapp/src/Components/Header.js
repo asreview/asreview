@@ -3,14 +3,27 @@ import { AppBar, Box, ButtonBase, IconButton, Toolbar } from "@mui/material";
 import { Link } from "react-router-dom";
 
 import { ProfilePopper } from "Components";
+import { useEffect, useState } from "react";
 
 import { WordMark } from "icons/WordMark";
 
 const Header = ({ onNavDrawer, toggleNavDrawer, menuOpenButton = true }) => {
+  const [headerColor, setHeaderColor] = useState("transparent");
+
+  const listenScrollEvent = () => {
+    window.scrollY > 25
+      ? setHeaderColor("inherit")
+      : setHeaderColor("transparent");
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", listenScrollEvent);
+  });
+
   return (
     <>
       <AppBar
-        color="inherit"
+        color={headerColor}
         position="fixed"
         square={true}
         elevation={0}
@@ -37,7 +50,7 @@ const Header = ({ onNavDrawer, toggleNavDrawer, menuOpenButton = true }) => {
             )}
             <ButtonBase
               disableRipple
-              sx={{ width: "100px" }}
+              sx={{ width: "100px", ml: 4 }}
               component={Link}
               to="/reviews"
             >

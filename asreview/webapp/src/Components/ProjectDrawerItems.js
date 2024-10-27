@@ -84,25 +84,6 @@ const ProjectDrawerItems = ({
               </ListItem>
             </Tooltip>
           </Fade>
-          <Fade in={projectInfo} unmountOnExit>
-            <Tooltip
-              title={!projectInfo && "Go on adventure with Elas"}
-              placement={"right"}
-            >
-              <ListItem
-                key={"project-info"}
-                onClick={!projectInfo ? toggleGame : null}
-              >
-                <ListItemText
-                  primary={data?.name}
-                  sx={(theme) => ({
-                    textAlign: "center",
-                    color: theme.palette.primary.main,
-                  })}
-                />
-              </ListItem>
-            </Tooltip>
-          </Fade>
         </>
       )}
 

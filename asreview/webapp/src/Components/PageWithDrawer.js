@@ -34,6 +34,7 @@ import { StyledList } from "StyledComponents/StyledList";
 import { StyledNavigationRail } from "StyledComponents/StyledNavigationRail";
 
 import { ReviewSettingsProvider } from "context/ReviewSettingsContext";
+import { PageHeader } from "StyledComponents/StyledPageHeader";
 
 const classes = {
   content: `HomePage-content`,
@@ -216,7 +217,7 @@ const PageWithDrawer = ({ window, navComponent, navComponentProps }) => {
         {/* Permanent drawer on desktop screen */}
         <StyledNavigationRail
           variant="permanent"
-          open={onNavDrawer}
+          open={false}
           sx={{
             display: { xs: "none", md: "block" },
           }}
@@ -246,17 +247,17 @@ const PageWithDrawer = ({ window, navComponent, navComponentProps }) => {
           </StyledList>
         </StyledNavigationRail>
       </Box>
-      <Root aria-label="home page">
-        <Box
-          component="main"
-          className={clsx("main-page-content", classes.content, {
-            [classes.contentShift]: !mobileScreen && onNavDrawer,
-          })}
-          aria-label="home page content"
-        >
-          <Outlet />
-        </Box>
-      </Root>
+      <Box
+        aria-label="home page"
+        sx={(theme) => ({
+          marginLeft: "72px",
+          [theme.breakpoints.down("md")]: {
+            marginLeft: "0px",
+          },
+        })}
+      >
+        <Outlet />
+      </Box>
     </ReviewSettingsProvider>
   );
 };

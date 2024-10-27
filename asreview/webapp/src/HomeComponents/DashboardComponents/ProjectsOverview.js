@@ -84,12 +84,7 @@ const ProjectsOverview = ({ mode }) => {
             {inReviewProjects?.length > 0 && (
               <Grid container spacing={2}>
                 {inReviewProjects.map((project) => (
-                  <ProjectCard
-                    project={project}
-                    mode={mode}
-                    showProgressChip={false}
-                    key={project.id}
-                  />
+                  <ProjectCard project={project} mode={mode} key={project.id} />
                 ))}
               </Grid>
             )}
@@ -113,12 +108,7 @@ const ProjectsOverview = ({ mode }) => {
             {finishedProjects?.length > 0 && (
               <Grid container spacing={2}>
                 {finishedProjects.map((project) => (
-                  <ProjectCard
-                    project={project}
-                    mode={mode}
-                    showProgressChip={false}
-                    key={project.project_id}
-                  />
+                  <ProjectCard project={project} mode={mode} key={project.id} />
                 ))}
               </Grid>
             )}

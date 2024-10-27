@@ -7,23 +7,14 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControl,
-  FormControlLabel,
   IconButton,
   Input,
-  Tabs,
-  Tab,
-  Radio,
-  Typography,
-  RadioGroup,
   Snackbar,
-  Stack,
   Tooltip,
-  Icon,
 } from "@mui/material";
 import * as React from "react";
 
-import { useMutation, useQueryClient, useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
 
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -34,20 +25,9 @@ import {
   PriorCard,
   TagCard,
 } from "ProjectComponents/SetupComponents";
-import {
-  DatasetFromEntryPoint,
-  DatasetFromFile,
-  DatasetFromURI,
-} from "ProjectComponents/SetupComponents/DataUploadComponents";
 import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
 import { projectModes, projectStatuses } from "globals.js";
-import {
-  AutoAwesomeOutlined,
-  FileUploadOutlined,
-  LinkOutlined,
-  QrCode2Outlined,
-} from "@mui/icons-material";
 
 const DialogProjectName = ({ project_id, dataset_name }) => {
   const [state, setState] = React.useState({
@@ -125,10 +105,7 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
 
   // state management
   const [showSettings, setShowSettings] = React.useState(false);
-  const [feedbackBar, setFeedbackBar] = React.useState({
-    open: false,
-    message: null,
-  });
+  const [feedbackBar, setFeedbackBar] = React.useState(null);
 
   const { data, isLoading } = useQuery(
     ["fetchProject", { project_id: project_id }],
@@ -166,10 +143,7 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
           onExited: () => {
             queryClient.invalidateQueries("fetchProjects");
 
-            setFeedbackBar({
-              open: true,
-              message: `Your project has been saved as ${data.name}`,
-            });
+            setFeedbackBar(`Your project has been saved as draft`);
 
             setShowSettings(false);
           },
@@ -236,10 +210,10 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
           vertical: "bottom",
           horizontal: "center",
         }}
-        open={feedbackBar.open}
+        open={feedbackBar !== null}
         autoHideDuration={5000}
-        onClose={() => setFeedbackBar({ open: false, message: null })}
-        message={feedbackBar.message}
+        onClose={() => setFeedbackBar(null)}
+        message={feedbackBar}
       />
     </>
   );

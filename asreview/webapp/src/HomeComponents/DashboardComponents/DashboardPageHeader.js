@@ -11,7 +11,7 @@ export default function DashboardPageHeader({ mode }) {
       direction="column"
       justifyContent="center"
       alignItems="center"
-      sx={{ p: 2, pt: 5, m: 2 }}
+      sx={{ p: 2, pt: 4, m: 1 }}
     >
       <Typography
         variant="h3"

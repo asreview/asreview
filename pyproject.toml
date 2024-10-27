@@ -104,7 +104,6 @@ task-manager = "asreview.webapp.entry_points.task_manager:main"
 ".xlsx" = "asreview.data:ExcelWriter"
 
 [project.entry-points."asreview.datasets"]
-benchmark-nature = "asreview.datasets:NaturePublicationDataGroup"
 synergy = "asreview.datasets:SynergyDataGroup"
 
 [project.entry-points."asreview.models.classifiers"]

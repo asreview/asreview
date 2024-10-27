@@ -17,13 +17,9 @@ import { useQuery } from "react-query";
 import { Link, useNavigate } from "react-router-dom";
 
 import {
+  Button,
+  ButtonBase,
   Card,
-  Box,
-  CardActions,
-  CardContent,
-  CardHeader,
-  Stack,
-  Toolbar,
   Chip,
   Grid2 as Grid,
   IconButton,
@@ -32,6 +28,7 @@ import {
   ListItemText,
   Menu,
   MenuItem,
+  Stack,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -78,12 +75,7 @@ const projectModeURLMap = {
   simulate: "simulations",
 };
 
-const ProjectCard = ({
-  project,
-  mode,
-  showProgressChip = true,
-  showSimulatingSpinner = true,
-}) => {
+const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
   const navigate = useNavigate();
 
   const [deleteDialog, toggleDeleteDialog] = useToggle();
@@ -100,7 +92,7 @@ const ProjectCard = ({
     setAnchorEl(null);
   };
 
-  const openProject = (project, path) => {
+  const openProject = (path = "") => {
     if (review?.status === projectStatuses.SETUP) {
       toggleSetup();
     } else {
@@ -148,36 +140,45 @@ const ProjectCard = ({
     >
       <Grid container spacing={3} justifyContent={"center"} columns={14}>
         <Grid size="grow">
-          <Stack direction={"row"} spacing={1}>
-            <Typography
-              onClick={() => {
-                openProject(project, "");
-              }}
-              fontSize={"1.4rem"}
-            >
-              {project["name"]}
+          <ButtonBase
+            onClick={(e) => openProject()}
+            sx={{
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "flex-start",
+            }}
+          >
+            <Stack direction={"row"} spacing={1}>
+              <Typography fontSize={"1.4rem"}>{project["name"]}</Typography>
+              {review?.status === projectStatuses.SETUP && (
+                <Chip
+                  label="Draft"
+                  sx={{ color: "#424242", backgroundColor: "#bdbdbd", ml: 2 }}
+                />
+              )}
+            </Stack>
+            <Typography variant="body2" color="textSecondary" component="p">
+              {timeAgo.format(new Date(project.datetimeCreated))}
             </Typography>
-            {review?.status === projectStatuses.SETUP && (
-              <Chip
-                label="Draft"
-                sx={{ color: "#424242", backgroundColor: "#bdbdbd", ml: 2 }}
-              />
-            )}
-          </Stack>
-          <Typography variant="body2" color="textSecondary" component="p">
-            {timeAgo.format(new Date(project.datetimeCreated))}
-          </Typography>
+          </ButtonBase>
         </Grid>
+        {review?.status === projectStatuses.REVIEW && (
+          <Grid size={3}>
+            <Button
+              onClick={() =>
+                navigate(`/${projectModeURLMap[mode]}/${project.id}/review`)
+              }
+              variant="outlined"
+              color="secondary"
+              sx={{ borderRadius: 20 }}
+            >
+              Open Reviewer
+            </Button>
+          </Grid>
+        )}
 
-        <Grid size={4}>
-          {showSimulatingSpinner &&
-          review?.status === projectStatuses.REVIEW &&
-          project.mode === projectModes.SIMULATION ? (
-            <LinearProgress />
-          ) : null}
-          {/* <CardActions sx={{ width: "100%", justifyContent: "flex-end" }}> */}
-          {showProgressChip && <StatusChip status={review?.status} />}
-        </Grid>
         <Grid size={"auto"}>
           {window.authentication &&
             review?.status !== projectStatuses.SETUP &&
@@ -283,6 +284,14 @@ const ProjectCard = ({
           </>
         </Grid>
       </Grid>
+
+      {/* Add loading for simulation projects */}
+      {showSimulatingSpinner &&
+      review?.status === projectStatuses.REVIEW &&
+      project.mode === projectModes.SIMULATION ? (
+        <LinearProgress />
+      ) : null}
+
       {review?.status === projectStatuses.SETUP && (
         <SetupDialog
           project_id={project.id}
