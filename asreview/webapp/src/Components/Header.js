@@ -23,7 +23,7 @@ const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
 
   useEffect(() => {
     window.addEventListener("scroll", () =>
-      setHeaderActive(window.scrollY > 25),
+      setHeaderActive(window.scrollY > 55),
     );
   });
 
