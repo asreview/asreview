@@ -23,34 +23,32 @@ const ListItemButtonDrawer = styled(ListItemButton)(({ theme }) => ({
 export const DrawerItem = ({
   icon,
   primary,
-  toolTipTitle = null,
-  showTooltip = true,
+  rail = true,
   ...itemButtomProps
 }) => {
   return (
-    <Tooltip
-      disableHoverListener={showTooltip}
-      title={toolTipTitle || primary}
-      placement="right"
-    >
-      <ListItemButtonDrawer
-        {...itemButtomProps}
-        sx={(theme) => ({
-          "&.active": {
+    <ListItemButtonDrawer
+      {...itemButtomProps}
+      sx={(theme) => ({
+        "&.active": {
+          color: theme.palette.primary.main,
+          backgroundColor: alpha(
+            theme.palette.primary.light,
+            theme.palette.action.selectedOpacity,
+          ),
+          "> .MuiListItemIcon-root": {
             color: theme.palette.primary.main,
-            backgroundColor: alpha(
-              theme.palette.primary.light,
-              theme.palette.action.selectedOpacity,
-            ),
-            "> .MuiListItemIcon-root": {
-              color: theme.palette.primary.main,
-            },
           },
-        })}
-      >
-        {/* <ListItemIcon sx={{ pl: 1 }}>{icon}</ListItemIcon> */}
-        {/* <ListItemText primary={primary} /> */}
-
+        },
+      })}
+    >
+      {!rail && (
+        <>
+          <ListItemIcon sx={{ pl: 1 }}>{icon}</ListItemIcon>
+          <ListItemText primary={primary} />
+        </>
+      )}
+      {rail && (
         <ListItemText
           primary={
             <>
@@ -59,7 +57,7 @@ export const DrawerItem = ({
             </>
           }
         />
-      </ListItemButtonDrawer>
-    </Tooltip>
+      )}
+    </ListItemButtonDrawer>
   );
 };

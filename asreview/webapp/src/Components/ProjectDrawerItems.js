@@ -24,14 +24,8 @@ import { DrawerItem } from "StyledComponents/StyledDrawerItem";
 import ElasGameDialog from "./ElasGame";
 
 import { ElasIcon } from "icons";
-import { ElasSign } from "icons/ElasSign";
 
-const ProjectDrawerItems = ({
-  subset,
-  projectInfo = true,
-  onClick = null,
-  showTooltip = false,
-}) => {
+const ProjectDrawerItems = ({ subset, onClick = null, rail = false }) => {
   const [openGame, toggleGame] = useToggle();
   const { project_id } = useParams();
 
@@ -54,36 +48,20 @@ const ProjectDrawerItems = ({
       <DrawerItem
         primary={subset[0].toUpperCase() + subset.slice(1)}
         to={"/" + subset}
-        showTooltip={showTooltip}
+        rail={rail}
         onClick={onClick}
         icon={<ArrowBackOutlined />}
         component={Link}
       />
       {data && (
         <>
-          <Fade in={projectInfo} unmountOnExit>
-            <ListItem
-              onClick={toggleGame}
-              sx={{ maxWidth: "140px", margin: "auto" }}
-            >
-              <ElasSign status={data?.reviews[0].status} />
+          <Tooltip title={"Go on adventure with Elas"} placement={"right"}>
+            <ListItem key={"project-info"} onClick={toggleGame}>
+              <ListItemIcon sx={{ pl: 1, py: 1 }}>
+                <ElasIcon />
+              </ListItemIcon>
             </ListItem>
-          </Fade>
-          <Fade in={!projectInfo} unmountOnExit>
-            <Tooltip
-              title={!projectInfo && "Go on adventure with Elas"}
-              placement={"right"}
-            >
-              <ListItem
-                key={"project-info"}
-                onClick={!projectInfo ? toggleGame : null}
-              >
-                <ListItemIcon sx={{ pl: 1, py: 1 }}>
-                  <ElasIcon />
-                </ListItemIcon>
-              </ListItem>
-            </Tooltip>
-          </Fade>
+          </Tooltip>
         </>
       )}
 
@@ -98,7 +76,7 @@ const ProjectDrawerItems = ({
           key={"project-dashboard"}
           to={``}
           primary={"Dashboard"}
-          showTooltip={showTooltip}
+          rail={rail}
           onClick={onClick}
           icon={<AssessmentOutlined />}
           component={NavLink}
@@ -110,7 +88,7 @@ const ProjectDrawerItems = ({
             key={"project-review"}
             to={`review`}
             primary={"Review"}
-            showTooltip={showTooltip}
+            rail={rail}
             onClick={onClick}
             icon={<AssignmentOutlined />}
             component={NavLink}
@@ -120,7 +98,7 @@ const ProjectDrawerItems = ({
           key={"project-history"}
           to={`collection`}
           primary={"Collection"}
-          showTooltip={showTooltip}
+          rail={rail}
           onClick={onClick}
           icon={<LibraryBooksOutlined />}
           component={NavLink}
@@ -131,7 +109,7 @@ const ProjectDrawerItems = ({
             key={"project-team"}
             to={`team`}
             primary={"Team"}
-            showTooltip={showTooltip}
+            rail={rail}
             onClick={onClick}
             icon={<PeopleAltOutlined />}
             component={NavLink}
@@ -142,7 +120,7 @@ const ProjectDrawerItems = ({
           key={"project-settings"}
           to={`settings`}
           primary={"Settings"}
-          showTooltip={showTooltip}
+          rail={rail}
           onClick={onClick}
           icon={<SettingsOutlined />}
           component={NavLink}

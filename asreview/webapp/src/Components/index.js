@@ -5,7 +5,7 @@ export { default as CiteDialog } from "./CiteDialog";
 export { default as DialogErrorHandler } from "./DialogErrorHandler";
 export { default as ForgotPassword } from "./ForgotPassword";
 export { default as Header } from "./Header";
-export { default as HelpDialog } from "./HelpDialog";
+export { default as CommunityDialog } from "./CommunityDialog";
 export { default as HelpPrivacyTermsButton } from "./HelpPrivacyTermsButton";
 export { default as InlineErrorHandler } from "./InlineErrorHandler";
 export { default as InteractionButtons } from "./InteractionButtons";

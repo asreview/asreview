@@ -5,7 +5,7 @@ import { Box } from "@mui/system";
 
 import { DrawerItem } from "StyledComponents/StyledDrawerItem";
 
-const LandingDrawerItems = ({ onClick = null, showTooltip = false }) => {
+const LandingDrawerItems = ({ onClick = null, rail = false }) => {
   return (
     <Box
       sx={{
@@ -18,7 +18,7 @@ const LandingDrawerItems = ({ onClick = null, showTooltip = false }) => {
         key={"projects-reviews"}
         to={"/reviews"}
         primary={"Reviews"}
-        showTooltip={showTooltip}
+        rail={rail}
         icon={<DashboardOutlined />}
         component={NavLink}
         onClick={onClick}
@@ -27,7 +27,7 @@ const LandingDrawerItems = ({ onClick = null, showTooltip = false }) => {
         key={"projects-simulations"}
         to={"/simulations"}
         primary={"Simulations"}
-        showTooltip={showTooltip}
+        rail={rail}
         icon={<DashboardOutlined />}
         component={NavLink}
         onClick={onClick}

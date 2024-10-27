@@ -37,7 +37,7 @@ import { BoxErrorHandler, OpenInNewIconStyled } from "Components";
 import { UtilsAPI } from "api";
 import { feedbackURL } from "globals.js";
 
-const PREFIX = "HelpDialog";
+const PREFIX = "CommunityDialog";
 
 const classes = {
   faq: `${PREFIX}-faq`,
@@ -77,7 +77,7 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-const HelpDialog = ({ mobileScreen, onHelp, toggleHelp }) => {
+const CommunityDialog = ({ mobileScreen, onHelp, toggleHelp }) => {
   const { data, error, isError, isFetched, isFetching } = useQuery(
     "fetchFAQ",
     UtilsAPI.fetchFAQ,
@@ -96,20 +96,13 @@ const HelpDialog = ({ mobileScreen, onHelp, toggleHelp }) => {
       fullWidth
       maxWidth="sm"
     >
-      {!mobileScreen && <DialogTitle>Help</DialogTitle>}
+      {!mobileScreen && <DialogTitle>Community and help</DialogTitle>}
       {mobileScreen && (
         <DialogTitle>
-          <Grid
-            container
-            direction="row"
-            justify="space-between"
-            alignItems="center"
-          >
-            <IconButton onClick={toggleHelp}>
-              <Close />
-            </IconButton>
-            Dialog Title
-          </Grid>
+          <IconButton onClick={toggleHelp}>
+            <Close />
+          </IconButton>
+          Community and help
         </DialogTitle>
       )}
       <DialogContent dividers sx={{ padding: "0px 0px 20px 0px" }}>
@@ -226,4 +219,4 @@ const HelpDialog = ({ mobileScreen, onHelp, toggleHelp }) => {
   );
 };
 
-export default HelpDialog;
+export default CommunityDialog;

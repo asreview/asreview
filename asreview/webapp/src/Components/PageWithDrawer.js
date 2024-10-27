@@ -13,11 +13,9 @@ import {
   Toolbar,
   useMediaQuery,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import clsx from "clsx";
 import {
   Header,
-  HelpDialog,
+  CommunityDialog,
   OpenInNewIconStyled,
   SettingsDialog,
 } from "Components";
@@ -25,45 +23,18 @@ import { communityURL } from "globals.js";
 import React from "react";
 import { Link, Outlet } from "react-router-dom";
 
-import { drawerWidth } from "globals.js";
 import { useToggle } from "hooks/useToggle";
 import { WordMark } from "icons/WordMark";
 import { DrawerItem } from "StyledComponents/StyledDrawerItem";
 
 import { StyledList } from "StyledComponents/StyledList";
-import { StyledNavigationRail } from "StyledComponents/StyledNavigationRail";
 
 import { ReviewSettingsProvider } from "context/ReviewSettingsContext";
-import { PageHeader } from "StyledComponents/StyledPageHeader";
-
-const classes = {
-  content: `HomePage-content`,
-  contentShift: `HomePage-contentShift`,
-};
-
-const Root = styled("div")(({ theme }) => ({
-  [`& .${classes.content}`]: {
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    [theme.breakpoints.up("md")]: {
-      marginLeft: 72,
-    },
-  },
-  [`& .${classes.contentShift}`]: {
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: drawerWidth,
-  },
-}));
 
 const BottomNavigationDrawerItems = ({
   mobileScreen,
   toggleNavDrawer,
-  showTooltip = false,
+  rail = false,
 }) => {
   const [onHelp, toggleHelp] = useToggle();
   const [onSettings, toggleSettings] = useToggle();
@@ -75,9 +46,9 @@ const BottomNavigationDrawerItems = ({
       {/* Bottom Section */}
       <Box>
         <DrawerItem
-          key={"display-settings"}
-          primary={"Display settings"}
-          showTooltip={showTooltip}
+          key={"display"}
+          primary={"Display"}
+          rail={rail}
           icon={<DisplaySettingsOutlined />}
           onClick={() => {
             if (mobileScreen) {
@@ -92,10 +63,10 @@ const BottomNavigationDrawerItems = ({
           toggleSettings={toggleSettings}
         />
         <DrawerItem
-          key={"help"}
-          primary={"Help"}
-          showTooltip={showTooltip}
-          icon={<HelpOutlineOutlined />}
+          key={"community"}
+          primary={"Community"}
+          rail={rail}
+          icon={<Diversity1Outlined />}
           onClick={() => {
             if (mobileScreen) {
               toggleNavDrawer();
@@ -103,32 +74,11 @@ const BottomNavigationDrawerItems = ({
             toggleHelp();
           }}
         />
-        <HelpDialog
+        <CommunityDialog
           mobileScreen={mobileScreen}
           onHelp={onHelp}
           toggleHelp={toggleHelp}
         />
-        {communityURL && (
-          <DrawerItem
-            key={"community"}
-            toolTipTitle={"Community"}
-            primary={
-              <React.Fragment>
-                Community <OpenInNewIconStyled />
-              </React.Fragment>
-            }
-            showTooltip={showTooltip}
-            icon={<Diversity1Outlined />}
-            component={"a"}
-            href={communityURL}
-            target="_blank"
-            onClick={() => {
-              if (mobileScreen) {
-                toggleNavDrawer();
-              }
-            }}
-          />
-        )}
       </Box>
     </>
   );
@@ -147,15 +97,10 @@ const PageWithDrawer = ({ window, navComponent, navComponentProps }) => {
 
   return (
     <ReviewSettingsProvider>
-      <Header
-        onNavDrawer={onNavDrawer}
-        toggleNavDrawer={mobileScreen ? toggleMobileDrawer : toggleNavDrawer}
-        menuOpenButton={!mobileScreen}
-      />
       <Box
         component="nav"
         aria-label="navigation drawer"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+        sx={{ width: { sm: "250px" }, flexShrink: { sm: 0 } }}
       >
         {/* Temporary drawer on mobile screen */}
         <Drawer
@@ -170,7 +115,7 @@ const PageWithDrawer = ({ window, navComponent, navComponentProps }) => {
             display: { xs: "block", md: "none" },
             "& .MuiDrawer-paper": {
               boxSizing: "border-box",
-              width: drawerWidth,
+              width: "250px",
             },
           }}
         >
@@ -198,7 +143,7 @@ const PageWithDrawer = ({ window, navComponent, navComponentProps }) => {
             {...navComponentProps}
             projectInfo={true}
             onClick={mobileDrawer ? toggleNavDrawer : undefined}
-            showTooltip={onNavDrawer}
+            rail={false}
           />
           <Box
             sx={{
@@ -210,16 +155,21 @@ const PageWithDrawer = ({ window, navComponent, navComponentProps }) => {
           <BottomNavigationDrawerItems
             mobileScreen={mobileScreen}
             toggleNavDrawer={toggleMobileDrawer}
-            showTooltip={onNavDrawer}
+            rail={false}
           />
         </Drawer>
 
         {/* Permanent drawer on desktop screen */}
-        <StyledNavigationRail
+        <Drawer
           variant="permanent"
-          open={false}
           sx={{
             display: { xs: "none", md: "block" },
+            width: "80px",
+            flexShrink: 0,
+            "& .MuiDrawer-paper": {
+              width: "80px",
+              boxSizing: "border-box",
+            },
           }}
         >
           <Toolbar />
@@ -228,9 +178,8 @@ const PageWithDrawer = ({ window, navComponent, navComponentProps }) => {
             <Box
               component={navComponent}
               {...navComponentProps}
-              projectInfo={onNavDrawer}
               onClick={mobileDrawer ? toggleNavDrawer : undefined}
-              showTooltip={onNavDrawer}
+              rail={true}
             />
             <Box
               sx={{
@@ -242,20 +191,24 @@ const PageWithDrawer = ({ window, navComponent, navComponentProps }) => {
             <BottomNavigationDrawerItems
               mobileScreen={mobileScreen}
               toggleNavDrawer={toggleMobileDrawer}
-              showTooltip={onNavDrawer}
+              rail={true}
             />
           </StyledList>
-        </StyledNavigationRail>
+        </Drawer>
       </Box>
       <Box
         aria-label="home page"
         sx={(theme) => ({
-          marginLeft: "72px",
+          marginLeft: "80px",
           [theme.breakpoints.down("md")]: {
             marginLeft: "0px",
           },
         })}
       >
+        <Header
+          toggleNavDrawer={mobileScreen ? toggleMobileDrawer : toggleNavDrawer}
+          menuOpenButton={mobileScreen}
+        />
         <Outlet />
       </Box>
     </ReviewSettingsProvider>

@@ -121,46 +121,12 @@ const App = () => {
               />
             }
           >
-            <Route
-              index
-              element={
-                <>
-                  <PageHeader>Dashboard</PageHeader>
-                  <AnalyticsPage />
-                </>
-              }
-            />
-
-            <Route
-              path="collection"
-              element={
-                <>
-                  <PageHeader>Collection</PageHeader>
-                  <LabelHistory />
-                </>
-              }
-            />
-
+            <Route index element={<AnalyticsPage />} />
+            <Route path="collection" element={<LabelHistory />} />
             {window.authentication && window.allowTeams && (
-              <Route
-                path="team"
-                element={
-                  <>
-                    <PageHeader>Team</PageHeader>
-                    <TeamPage />
-                  </>
-                }
-              />
+              <Route path="team" element={<TeamPage />} />
             )}
-            <Route
-              path="settings"
-              element={
-                <>
-                  <PageHeader>Settings</PageHeader>
-                  <DetailsPage />
-                </>
-              }
-            />
+            <Route path="settings" element={<DetailsPage />} />
           </Route>
           <Route path="*" element={<RouteNotFound />} />
         </Routes>

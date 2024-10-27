@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 
 import { WordMark } from "icons/WordMark";
 
-const Header = ({ onNavDrawer, toggleNavDrawer, menuOpenButton = true }) => {
+const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
   const [headerColor, setHeaderColor] = useState("transparent");
 
   const listenScrollEvent = () => {
@@ -30,27 +30,26 @@ const Header = ({ onNavDrawer, toggleNavDrawer, menuOpenButton = true }) => {
         sx={(theme) => ({
           [theme.breakpoints.up("md")]: {
             zIndex: theme.zIndex.drawer + 1,
+            width: `calc(100% - 80px)`,
+            ml: `80px`,
           },
-          borderTopWidth: "0px",
-          borderRightWidth: "0px",
-          borderLeftWidth: "0px",
         })}
       >
         <Toolbar sx={{ justifyContent: "space-between" }}>
           <Box>
-            {onNavDrawer !== undefined && (
+            {menuOpenButton && (
               <IconButton
                 edge="start"
                 color="inherit"
                 onClick={toggleNavDrawer}
                 size="large"
               >
-                {menuOpenButton && onNavDrawer ? <MenuOpen /> : <Menu />}
+                <Menu />
               </IconButton>
             )}
             <ButtonBase
               disableRipple
-              sx={{ width: "100px", ml: 4 }}
+              sx={{ width: "100px" }}
               component={Link}
               to="/reviews"
             >
