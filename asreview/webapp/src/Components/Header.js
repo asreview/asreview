@@ -1,13 +1,24 @@
 import { Menu, MenuOpen } from "@mui/icons-material";
-import { AppBar, Box, ButtonBase, IconButton, Toolbar } from "@mui/material";
+import {
+  AppBar,
+  Box,
+  ButtonBase,
+  IconButton,
+  Toolbar,
+  Tooltip,
+} from "@mui/material";
 import { Link } from "react-router-dom";
 
 import { ProfilePopper } from "Components";
 import { useEffect, useState } from "react";
 
 import { WordMark } from "icons/WordMark";
+import ElasGameDialog from "./ElasGame";
+import { ElasIcon } from "icons";
+import { useToggle } from "hooks/useToggle";
 
 const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
+  const [openGame, toggleGame] = useToggle();
   const [headerColor, setHeaderColor] = useState("transparent");
 
   const listenScrollEvent = () => {
@@ -55,12 +66,20 @@ const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
             >
               <WordMark />
             </ButtonBase>
+
+            <Tooltip title={"Go on adventure with Elas"} placement={"right"}>
+              <IconButton onClick={toggleGame}>
+                <ElasIcon />
+              </IconButton>
+            </Tooltip>
           </Box>
           {window.authentication === true && <ProfilePopper />}
         </Toolbar>
       </AppBar>
       <Toolbar aria-label="placeholder toolbar" />
-      {/* <Outlet /> */}
+
+      {/* Game */}
+      <ElasGameDialog open={openGame} toggleOpen={toggleGame} />
     </>
   );
 };

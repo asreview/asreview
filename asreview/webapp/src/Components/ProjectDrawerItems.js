@@ -1,6 +1,7 @@
 import {
   Box,
   Fade,
+  IconButton,
   ListItem,
   ListItemIcon,
   ListItemText,
@@ -21,12 +22,10 @@ import {
 import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";
 import { DrawerItem } from "StyledComponents/StyledDrawerItem";
-import ElasGameDialog from "./ElasGame";
 
 import { ElasIcon } from "icons";
 
 const ProjectDrawerItems = ({ subset, onClick = null, rail = false }) => {
-  const [openGame, toggleGame] = useToggle();
   const { project_id } = useParams();
 
   const { data } = useQuery(
@@ -53,18 +52,6 @@ const ProjectDrawerItems = ({ subset, onClick = null, rail = false }) => {
         icon={<ArrowBackOutlined />}
         component={Link}
       />
-      {data && (
-        <>
-          <Tooltip title={"Go on adventure with Elas"} placement={"right"}>
-            <ListItem key={"project-info"} onClick={toggleGame}>
-              <ListItemIcon sx={{ pl: 1, py: 1 }}>
-                <ElasIcon />
-              </ListItemIcon>
-            </ListItem>
-          </Tooltip>
-        </>
-      )}
-
       <Box
         sx={{
           overflowX: "hidden",
@@ -126,9 +113,6 @@ const ProjectDrawerItems = ({ subset, onClick = null, rail = false }) => {
           component={NavLink}
         />
       </Box>
-
-      {/* Game */}
-      <ElasGameDialog open={openGame} toggleOpen={toggleGame} />
     </Box>
   );
 };

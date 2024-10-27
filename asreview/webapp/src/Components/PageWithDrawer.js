@@ -168,12 +168,10 @@ const PageWithDrawer = ({ window, navComponent, navComponentProps }) => {
             flexShrink: 0,
             "& .MuiDrawer-paper": {
               width: "80px",
-              boxSizing: "border-box",
+              // boxSizing: "border-box",
             },
           }}
         >
-          <Toolbar />
-
           <StyledList>
             <Box
               component={navComponent}

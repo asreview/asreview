@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 
 import { DashboardOutlined } from "@mui/icons-material";
-import { Box } from "@mui/system";
+import { Box, Toolbar } from "@mui/material";
 
 import { DrawerItem } from "StyledComponents/StyledDrawerItem";
 
@@ -14,6 +14,7 @@ const LandingDrawerItems = ({ onClick = null, rail = false }) => {
         flex: "1 1 auto",
       }}
     >
+      <Toolbar />
       <DrawerItem
         key={"projects-reviews"}
         to={"/reviews"}

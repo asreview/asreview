@@ -30,15 +30,13 @@ export const DrawerItem = ({
     <ListItemButtonDrawer
       {...itemButtomProps}
       sx={(theme) => ({
+        p: 1,
         "&.active": {
-          color: theme.palette.primary.main,
-          backgroundColor: alpha(
-            theme.palette.primary.light,
-            theme.palette.action.selectedOpacity,
-          ),
-          "> .MuiListItemIcon-root": {
-            color: theme.palette.primary.main,
-          },
+          // color: theme.palette.secondary.main,
+          backgroundColor: alpha(theme.palette.secondary.light, 0.4),
+          // "> .MuiListItemIcon-root": {
+          //   color: theme.palette.secondary.main,
+          // },
         },
       })}
     >
@@ -52,10 +50,15 @@ export const DrawerItem = ({
         <ListItemText
           primary={
             <>
-              <ListItemIcon sx={{ pl: 1 }}>{icon}</ListItemIcon>
-              <Typography variant="body2">{primary}</Typography>
+              {icon}
+              <Typography variant="body2" fontSize={"0.8rem"}>
+                {primary}
+              </Typography>
             </>
           }
+          sx={{
+            textAlign: "center",
+          }}
         />
       )}
     </ListItemButtonDrawer>
