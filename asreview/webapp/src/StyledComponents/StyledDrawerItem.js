@@ -1,24 +1,11 @@
-import * as React from "react";
 import {
+  alpha,
+  Box,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Tooltip,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { alpha } from "@mui/material";
-
-const ListItemButtonDrawer = styled(ListItemButton)(({ theme }) => ({
-  "&.MuiListItemButton-root": {
-    "&.Mui-selected": {
-      color: theme.palette.primary.main,
-      "> .MuiListItemIcon-root": {
-        color: theme.palette.primary.main,
-      },
-    },
-  },
-}));
 
 export const DrawerItem = ({
   icon,
@@ -27,18 +14,32 @@ export const DrawerItem = ({
   ...itemButtomProps
 }) => {
   return (
-    <ListItemButtonDrawer
+    <ListItemButton
       {...itemButtomProps}
       sx={(theme) => ({
         p: 1,
+        ".MuiBox-root": {
+          borderRadius: "20px",
+          height: "32px",
+          p: 0.5,
+          m: 0.5,
+        },
+        "&:hover": {
+          ".MuiBox-root": {
+            backgroundColor: alpha(theme.palette.primary.main, 0.2),
+          },
+          backgroundColor: "transparent",
+        },
         "&.active": {
-          // color: theme.palette.secondary.main,
-          backgroundColor: alpha(theme.palette.secondary.light, 0.4),
-          // "> .MuiListItemIcon-root": {
-          //   color: theme.palette.secondary.main,
-          // },
+          ".MuiBox-root": {
+            backgroundColor: alpha(theme.palette.secondary.light, 0.6),
+          },
+          ".MuiTypography-root": {
+            fontWeight: "bold",
+          },
         },
       })}
+      disableRipple={true}
     >
       {!rail && (
         <>
@@ -50,7 +51,7 @@ export const DrawerItem = ({
         <ListItemText
           primary={
             <>
-              {icon}
+              <Box>{icon}</Box>
               <Typography variant="body2" fontSize={"0.8rem"}>
                 {primary}
               </Typography>
@@ -61,6 +62,6 @@ export const DrawerItem = ({
           }}
         />
       )}
-    </ListItemButtonDrawer>
+    </ListItemButton>
   );
 };
